@@ -19,9 +19,7 @@
 package org.ballerinalang.mime.nativeimpl;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
@@ -56,11 +54,6 @@ import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
         isPublic = true
 )
 public class GetByteArray extends AbstractGetPayloadHandler {
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public void execute(Context context, CallableUnitCallback callback) {
-    }
 
     public static Object getByteArray(Strand strand, ObjectValue entityObj) {
         NonBlockingCallback callback = null;

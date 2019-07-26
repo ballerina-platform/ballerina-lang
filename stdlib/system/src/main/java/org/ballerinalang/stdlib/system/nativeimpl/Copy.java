@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.system.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
@@ -64,12 +64,13 @@ public class Copy extends BlockingNativeCallableUnit {
         Path destPath = Paths.get(destinationPath);
 
         if (Files.notExists(srcPath)) {
-            return SystemUtils.getBallerinaError("INVALID_OPERATION", "File doesn't exist in path " + sourcePath);
+            return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR,
+                    "File doesn't exist in path " + sourcePath);
         }
         try {
             Files.walkFileTree(srcPath, new RecursiveFileCopyVisitor(srcPath, destPath, replaceExisting));
         } catch (IOException ex) {
-            return SystemUtils.getBallerinaError("OPERATION_FAILED", ex);
+            return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, ex);
         }
         return null;
     }

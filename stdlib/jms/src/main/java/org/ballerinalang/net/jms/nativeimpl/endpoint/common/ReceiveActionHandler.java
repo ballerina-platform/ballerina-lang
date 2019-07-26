@@ -19,15 +19,11 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.common;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.jms.JmsConstants;
+import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
-
-import java.util.Objects;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -41,31 +37,24 @@ public class ReceiveActionHandler {
     private ReceiveActionHandler() {
     }
 
-    public static void handle(Context context) {
+    public static Object handle(Strand strand, ObjectValue connectorBObject, long timeInMilliSeconds) {
 
-        Struct connectorBObject = BallerinaAdapter.getReceiverObject(context);
-        MessageConsumer messageConsumer = BallerinaAdapter.
-                getNativeObject(connectorBObject, JmsConstants.JMS_CONSUMER_OBJECT, MessageConsumer.class, context);
-        SessionConnector sessionConnector = BallerinaAdapter.
-                getNativeObject(connectorBObject, JmsConstants.SESSION_CONNECTOR_OBJECT, SessionConnector.class,
-                                context);
-        long timeInMilliSeconds = context.getIntArgument(0);
+        MessageConsumer messageConsumer =
+                (MessageConsumer) connectorBObject.getNativeData(JmsConstants.JMS_CONSUMER_OBJECT);
+        SessionConnector sessionConnector =
+                (SessionConnector) connectorBObject.getNativeData(JmsConstants.SESSION_CONNECTOR_OBJECT);
 
         try {
-            sessionConnector.handleTransactionBlock(context);
+            sessionConnector.handleTransactionBlock(strand);
             Message message = messageConsumer.receive(timeInMilliSeconds);
-            if (Objects.nonNull(message)) {
-                BMap<String, BValue> messageBObject = BLangConnectorSPIUtil.
-                        createBStruct(context, JmsConstants.BALLERINA_PACKAGE_JMS,
-                                      JmsConstants.MESSAGE_OBJ_NAME);
-                messageBObject.addNativeData(JmsConstants.JMS_MESSAGE_OBJECT, message);
-                context.setReturnValues(messageBObject);
-            } else {
-                context.setReturnValues();
+            if (message != null) {
+                return JmsUtils.createAndPopulateMessageObject(message, (ObjectValue) connectorBObject
+                        .getNativeData(JmsConstants.SESSION_OBJECT));
             }
         } catch (JMSException e) {
-            BallerinaAdapter.returnError("Message receiving failed.", context, e);
+            return BallerinaAdapter.getError("Message receiving failed.", e);
         }
+        return null;
     }
 }
 

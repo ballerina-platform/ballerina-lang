@@ -136,15 +136,15 @@ fi
 
 # ----- Process the input command ----------------------------------------------
 
-if [ -n "${BAL_JAVA_DEBUG+set}" ]; then
-    if [ -z "$BAL_JAVA_DEBUG" ]; then
-        echo "Please specify the debug port for the BAL_JAVA_DEBUG variable"
+if [ -n "${BOOTSTRAP_JAVA_DEBUG+set}" ]; then
+    if [ -z "$BOOTSTRAP_JAVA_DEBUG" ]; then
+        echo "Please specify the debug port for the BOOTSTRAP_JAVA_DEBUG variable"
 	exit 1
     else
 	if [ -n "$JAVA_OPTS" ]; then
-	  echo "Warning !!!. User specified JAVA_OPTS will be ignored, once you give the BAL_JAVA_DEBUG variable."
+	  echo "Warning !!!. User specified JAVA_OPTS will be ignored, once you give the BOOTSTRAP_JAVA_DEBUG variable."
 	fi
-	JAVA_OPTS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$BAL_JAVA_DEBUG"
+	JAVA_OPTS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$BOOTSTRAP_JAVA_DEBUG"
 	echo "Please start the remote debugging client to continue..."
     fi
 fi

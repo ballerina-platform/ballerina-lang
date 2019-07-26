@@ -14,37 +14,27 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type IntObject object{
-    string firstName = "Mohan";
-    string lastName = "Raj";
-};
+
 
 //----------------------------Map Stamp Negative Test Cases-------------------------------------------------------------
 
-function stampMapToXML() returns xml {
-    map<any> m = { "firstName": "mohan", "lastName": "raj" };
-    xml xmlValue = xml.stamp(m);
+function stampMapToXML() returns xml|error {
+    map<anydata> m = { "firstName": "mohan", "lastName": "raj" };
+    xml|error xmlValue = xml.constructFrom(m);
 
     return xmlValue;
 }
 
-function stampMapToArray() returns string[] {
+function stampMapToArray() returns string[]|error {
     map<anydata> m = { "firstName": "mohan", "lastName": "raj" };
-    string[] arrayValue = string[].stamp(m);
+    string[]|error arrayValue = string[].constructFrom(m);
 
     return arrayValue;
 }
 
-function stampMapToTuple() returns [string,string] {
+function stampMapToTuple() returns [string,string]|error {
     map<anydata> m = { "firstName": "mohan", "lastName": "raj" };
-    [string,string] tupleValue = [string,string].stamp(m);
+    [string,string]|error tupleValue = [string,string].constructFrom(m);
 
     return tupleValue;
-}
-
-function stampMapToObject() returns IntObject {
-    map<anydata> m = { "firstName": "mohan", "lastName": "raj" };
-    IntObject objectValue = IntObject.stamp(m);
-
-    return objectValue;
 }

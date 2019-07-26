@@ -31,8 +31,8 @@ configurations {
 dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-launcher')
-    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-tool')
+    implementation project(':ballerina-lang:annotations')
     implementation project(':language-server:language-server-core')
     implementation project(':ballerina-http')
     implementation project(':ballerina-config')
@@ -44,7 +44,7 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3'
     implementation 'commons-io:commons-io'
     implementation 'org.slf4j:slf4j-api'
-    distBal project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-http', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-io', configuration: 'baloImplementation')
     

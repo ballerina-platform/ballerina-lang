@@ -19,15 +19,15 @@
 package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.websub.BallerinaWebSubException;
+import org.ballerinalang.net.websub.WebSubUtils;
 import org.ballerinalang.net.websub.hub.Hub;
 
 /**
@@ -47,14 +47,14 @@ public class PublishToInternalHub extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String topic = context.getStringArgument(0);
-        BMap<String, BValue> content = (BMap<String, BValue>) context.getRefArgument(0);
-        try {
-            Hub.getInstance().publish(topic, content);
-            context.setReturnValues();
-        } catch (BallerinaWebSubException e) {
-            context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
-        }
     }
 
+    public static Object publishToInternalHub(Strand strand, String topic, MapValue<String, Object> content) {
+        try {
+            Hub.getInstance().publish(topic, content);
+        } catch (BallerinaWebSubException e) {
+            return WebSubUtils.createError(e.getMessage());
+        }
+        return null;
+    }
 }

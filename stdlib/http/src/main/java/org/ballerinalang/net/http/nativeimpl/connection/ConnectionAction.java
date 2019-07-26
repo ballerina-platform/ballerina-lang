@@ -19,9 +19,6 @@
 package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.NativeCallableUnit;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.DataContext;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -39,19 +36,14 @@ import static org.ballerinalang.net.http.nativeimpl.connection.ResponseWriter.se
  *
  * @since 0.96
  */
-public abstract class ConnectionAction implements NativeCallableUnit {
+public abstract class ConnectionAction {
 
-    void sendOutboundResponseRobust(DataContext dataContext, HttpCarbonMessage requestMessage,
-                                    BMap<String, BValue> outboundResponseStruct,
-                                    HttpCarbonMessage responseMessage) {
-        BResponseWriter.sendResponseRobust(dataContext, requestMessage, outboundResponseStruct, responseMessage);
-    }
     static void sendOutboundResponseRobust(DataContext dataContext, HttpCarbonMessage requestMessage,
                                     ObjectValue outboundResponseObj, HttpCarbonMessage responseMessage) {
         sendResponseRobust(dataContext, requestMessage, outboundResponseObj, responseMessage);
     }
 
-    void setResponseConnectorListener(DataContext dataContext, HttpResponseFuture outResponseStatusFuture) {
+    static void setResponseConnectorListener(DataContext dataContext, HttpResponseFuture outResponseStatusFuture) {
         HttpConnectorListener outboundResStatusConnectorListener =
                 new ResponseWriter.HttpResponseConnectorListener(dataContext);
         outResponseStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
@@ -64,10 +56,5 @@ public abstract class ConnectionAction implements NativeCallableUnit {
 
     static HttpMessageDataStreamer getMessageDataStreamer(HttpCarbonMessage outboundResponse) {
         return getResponseDataStreamer(outboundResponse);
-    }
-
-    @Override
-    public boolean isBlocking() {
-        return false;
     }
 }

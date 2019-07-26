@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.net.grpc.stubs;
 
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -48,13 +49,13 @@ public class DefaultStreamObserver implements StreamObserver {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultStreamObserver.class);
     private Map<String, ServiceResource> resourceMap = new HashMap<>();
     
-    public DefaultStreamObserver(ObjectValue callbackService) throws
+    public DefaultStreamObserver(Scheduler scheduler, ObjectValue callbackService) throws
             GrpcClientException {
         if (callbackService == null) {
             throw new GrpcClientException("Error while building the connection. Listener Service does not exist");
         }
         for (AttachedFunction function : callbackService.getType().getAttachedFunctions()) {
-            resourceMap.put(function.getName(), new ServiceResource(callbackService, function));
+            resourceMap.put(function.getName(), new ServiceResource(scheduler, callbackService, function));
         }
     }
     
@@ -84,7 +85,8 @@ public class DefaultStreamObserver implements StreamObserver {
             paramValues[3] = true;
         }
         CallableUnitCallback callback = new ClientCallableUnitCallBack();
-        Executor.submit(resource.getService(), resource.getFunctionName(), callback, null, null, paramValues);
+        Executor.submit(resource.getScheduler(), resource.getService(), resource.getFunctionName(), callback, null,
+                paramValues);
     }
     
     @Override
@@ -112,7 +114,8 @@ public class DefaultStreamObserver implements StreamObserver {
             paramValues[3] = true;
         }
         CallableUnitCallback callback = new ClientCallableUnitCallBack();
-        Executor.submit(onError.getService(), onError.getFunctionName(), callback, null, null, paramValues);
+        Executor.submit(onError.getScheduler(), onError.getService(), onError.getFunctionName(), callback, null,
+                paramValues);
     }
     
     @Override
@@ -135,6 +138,7 @@ public class DefaultStreamObserver implements StreamObserver {
             paramValues[1] = true;
         }
         CallableUnitCallback callback = new ClientCallableUnitCallBack();
-        Executor.submit(onCompleted.getService(), onCompleted.getFunctionName(), callback, null, null, paramValues);
+        Executor.submit(onCompleted.getScheduler(), onCompleted.getService(), onCompleted.getFunctionName(), callback,
+                null, paramValues);
     }
 }

@@ -19,13 +19,11 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.subscriber;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.CloseConsumerHandler;
 
@@ -33,20 +31,18 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.CloseConsumerHandler
  * Close the message consumer object.
  */
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINA,
-        packageName = JmsConstants.JMS,
+        orgName = JmsConstants.BALLERINAX,
+        packageName = JmsConstants.JAVA_JMS,
         functionName = "closeSubscriber",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.TOPIC_SUBSCRIBER_OBJ_NAME,
-                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
-        args = {
-                @Argument(name = JmsConstants.METHOD_FIELD_ACTIONS, type = TypeKind.OBJECT,
-                          structType = "TopicSubscriberActions")
-        },
-        isPublic = true
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.TOPIC_LISTENER_OBJ_NAME,
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class CloseSubscriber extends AbstractBlockingAction {
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-        CloseConsumerHandler.handle(context);
+public class CloseSubscriber {
+
+    public void closeSubscriber(Strand strand, ObjectValue topicListener) {
+        CloseConsumerHandler.handle(topicListener);
+    }
+
+    private CloseSubscriber() {
     }
 }

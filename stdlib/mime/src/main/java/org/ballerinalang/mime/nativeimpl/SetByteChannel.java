@@ -18,9 +18,7 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
@@ -46,10 +44,7 @@ import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
                 type = TypeKind.STRING)},
         isPublic = true
 )
-public class SetByteChannel extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-    }
+public class SetByteChannel {
 
     public static void setByteChannel(Strand strand, ObjectValue entityObj, ObjectValue byteChannel,
                                       String contentType) {

@@ -17,11 +17,8 @@
  */
 package org.ballerinalang.stdlib.math.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -39,14 +36,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.FLOAT)},
         isPublic = true
 )
-public class Scalb extends BlockingNativeCallableUnit {
-
-    public void execute(Context ctx) {
-        double a = ctx.getFloatArgument(0);
-        long b = ctx.getIntArgument(0);
-        int intVal = ((Long) b).intValue();
-        ctx.setReturnValues(new BFloat(Math.scalb(a, intVal)));
-    }
+public class Scalb {
 
     public static double scalb(Strand strand, double a, long b) {
         int intVal = ((Long) b).intValue();

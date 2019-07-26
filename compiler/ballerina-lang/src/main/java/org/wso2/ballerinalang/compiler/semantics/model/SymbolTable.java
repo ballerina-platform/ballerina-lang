@@ -19,13 +19,11 @@ package org.wso2.ballerinalang.compiler.semantics.model;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -36,15 +34,16 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BHandleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BSemanticErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
@@ -52,6 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -61,12 +61,13 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -80,14 +81,11 @@ public class SymbolTable {
     private static final CompilerContext.Key<SymbolTable> SYM_TABLE_KEY =
             new CompilerContext.Key<>();
 
-    public static final PackageID BUILTIN = new PackageID(Names.BUILTIN_ORG,
-            Names.BUILTIN_PACKAGE,
-            Names.EMPTY);
-    public static final PackageID RUNTIME = new PackageID(Names.BUILTIN_ORG,
-            Names.RUNTIME_PACKAGE,
-            Names.EMPTY);
     public static final PackageID UTILS = new PackageID(Names.BUILTIN_ORG, Names.UTILS_PACKAGE, Names.EMPTY);
 
+    public static final PackageID TRANSACTION = new PackageID(Names.BUILTIN_ORG, Names.TRANSACTION_PACKAGE, 
+                                                              Names.EMPTY);
+    
     public static final Integer BBYTE_MIN_VALUE = 0;
     public static final Integer BBYTE_MAX_VALUE = 255;
 
@@ -105,13 +103,11 @@ public class SymbolTable {
     public final BType decimalType = new BType(TypeTags.DECIMAL, null);
     public final BType stringType = new BType(TypeTags.STRING, null);
     public final BType booleanType = new BType(TypeTags.BOOLEAN, null);
-    public final BType typeDesc = new BType(TypeTags.TYPEDESC, null);
     public final BType jsonType = new BJSONType(TypeTags.JSON, null);
     public final BType xmlType = new BXMLType(TypeTags.XML, null);
     public final BType tableType = new BTableType(TypeTags.TABLE, noType, null);
     public final BType anyType = new BAnyType(TypeTags.ANY, null);
     public final BType anydataType = new BAnydataType(TypeTags.ANYDATA, null);
-    public final BType streamType = new BStreamType(TypeTags.STREAM, anyType, null);
     public final BType mapType = new BMapType(TypeTags.MAP, anyType, null);
     public final BType mapStringType = new BMapType(TypeTags.MAP, stringType, null);
     public final BType mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
@@ -122,19 +118,37 @@ public class SymbolTable {
     public final BType intArrayType = new BArrayType(intType);
     public final BType stringArrayType = new BArrayType(stringType);
     public final BType anydataArrayType = new BArrayType(anydataType);
-    public final BType channelType = new BChannelType(TypeTags.CHANNEL, anyType, null);
     public final BType anyServiceType = new BServiceType(null);
+    public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
+    public final BType typeDesc;
 
-    public final BTypeSymbol errSymbol;
+    public final BTypeSymbol semanticErrSymbol;
     public final BType semanticError;
-    public final BConstructorSymbol errorConstructor;
 
     public BErrorType errorType;
+    public BRecordType detailType;
+    public BConstructorSymbol errorConstructor;
     public BUnionType pureType;
-    public BMapType pureTypeConstrainedMap;
+    public BType streamType = new BStreamType(TypeTags.STREAM, pureType, null);;
     public BFiniteType trueType;
+    public BObjectType intRangeType;
 
-    public BPackageSymbol builtInPackageSymbol;
+    public BPackageSymbol langInternalModuleSymbol;
+    public BPackageSymbol langAnnotationModuleSymbol;
+    public BPackageSymbol langArrayModuleSymbol;
+    public BPackageSymbol langDecimalModuleSymbol;
+    public BPackageSymbol langErrorModuleSymbol;
+    public BPackageSymbol langFloatModuleSymbol;
+    public BPackageSymbol langFutureModuleSymbol;
+    public BPackageSymbol langIntModuleSymbol;
+    public BPackageSymbol langMapModuleSymbol;
+    public BPackageSymbol langObjectModuleSymbol;
+    public BPackageSymbol langStreamModuleSymbol;
+    public BPackageSymbol langStringModuleSymbol;
+    public BPackageSymbol langTableModuleSymbol;
+    public BPackageSymbol langTypedescModuleSymbol;
+    public BPackageSymbol langValueModuleSymbol;
+    public BPackageSymbol langXmlModuleSymbol;
     public BPackageSymbol utilsPackageSymbol;
 
     private Names names;
@@ -155,10 +169,13 @@ public class SymbolTable {
         this.names = Names.getInstance(context);
 
         this.rootPkgNode = (BLangPackage) TreeBuilder.createPackageNode();
-        this.rootPkgSymbol = new BPackageSymbol(BUILTIN, null);
+        this.rootPkgSymbol = new BPackageSymbol(PackageID.ANNOTATIONS, null);
+        this.rootPkgNode.pos = new DiagnosticPos(new BDiagnosticSource(rootPkgSymbol.pkgID, Names.EMPTY.value), 0, 0,
+                0, 0);
         this.rootPkgNode.symbol = this.rootPkgSymbol;
-        this.rootScope = new BuiltInScope(rootPkgSymbol);
+        this.rootScope = new Scope(rootPkgSymbol);
         this.rootPkgSymbol.scope = this.rootScope;
+
         this.notFoundSymbol = new BSymbol(SymTag.NIL, Flags.PUBLIC, Names.INVALID,
                 rootPkgSymbol.pkgID, noType, rootPkgSymbol);
         this.invalidUsageSymbol = new BSymbol(SymTag.NIL, Flags.PUBLIC, Names.INVALID, rootPkgSymbol.pkgID, noType,
@@ -170,7 +187,6 @@ public class SymbolTable {
         initializeType(decimalType, TypeKind.DECIMAL.typeName());
         initializeType(stringType, TypeKind.STRING.typeName());
         initializeType(booleanType, TypeKind.BOOLEAN.typeName());
-        initializeType(typeDesc, TypeKind.TYPEDESC.typeName());
         initializeType(jsonType, TypeKind.JSON.typeName());
         initializeType(xmlType, TypeKind.XML.typeName());
         initializeType(tableType, TypeKind.TABLE.typeName());
@@ -182,32 +198,19 @@ public class SymbolTable {
         initializeType(anyType, TypeKind.ANY.typeName());
         initializeType(anydataType, TypeKind.ANYDATA.typeName());
         initializeType(nilType, TypeKind.NIL.typeName());
-        initializeType(channelType, TypeKind.CHANNEL.typeName());
         initializeType(anyServiceType, TypeKind.SERVICE.typeName());
+        initializeType(handleType, TypeKind.HANDLE.typeName());
+
 
         // Initialize semantic error type;
         this.semanticError = new BSemanticErrorType(null);
-        this.errSymbol = new BTypeSymbol(SymTag.SEMANTIC_ERROR, Flags.PUBLIC, Names.INVALID, rootPkgSymbol.pkgID,
-                semanticError, rootPkgSymbol);
-        defineType(semanticError, errSymbol);
+        this.semanticErrSymbol = new BTypeSymbol(SymTag.SEMANTIC_ERROR, Flags.PUBLIC, Names.INVALID,
+                rootPkgSymbol.pkgID, semanticError, rootPkgSymbol);
+        defineType(semanticError, semanticErrSymbol);
 
-        // Initialize Ballerina built-in error type.
-        BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR, rootPkgSymbol.pkgID,
-                                                       null, rootPkgSymbol);
-        this.errorType = new BErrorType(errorSymbol, this.stringType, this.mapType);
-        defineType(this.errorType, errorSymbol);
-        errorSymbol.type = this.errorType;
+        this.typeDesc = new BTypedescType(this.anyType, null);
+        initializeType(typeDesc, TypeKind.TYPEDESC.typeName());
 
-        // Initialize constructor symbol for ballerina built-in error type
-        this.errorConstructor = new BConstructorSymbol(SymTag.CONSTRUCTOR,
-                errorSymbol.flags, errorSymbol.name, errorSymbol.pkgID, errorSymbol.type, errorSymbol.owner);
-        this.errorConstructor.kind = SymbolKind.ERROR_CONSTRUCTOR;
-        rootScope.define(errorConstructor.name, this.errorConstructor);
-        this.errorType.ctorSymbol = this.errorConstructor;
-
-        this.pureType = BUnionType.create(null, this.anydataType, this.errorType);
-        this.pureTypeConstrainedMap = new BMapType(TypeTags.MAP, this.pureType, null);
-        this.errorType.detailType = this.pureTypeConstrainedMap;
 
         BLangLiteral trueLiteral = new BLangLiteral();
         trueLiteral.type = this.booleanType;
@@ -217,9 +220,6 @@ public class SymbolTable {
                                                                 names.fromString("$anonType$TRUE"),
                                                                 rootPkgNode.packageID, null, rootPkgNode.symbol.owner);
         this.trueType = new BFiniteType(finiteTypeSymbol, new HashSet<BLangExpression>() {{ add(trueLiteral); }});
-
-        // Define all operators e.g. binary, unary, cast and conversion
-        defineOperators();
     }
 
     public BType getTypeFromTag(int tag) {
@@ -266,22 +266,12 @@ public class SymbolTable {
         rootScope.define(tSymbol.name, tSymbol);
     }
 
-    private void defineOperators() {
+    public void defineOperators() {
         // Binary arithmetic operators
         defineBinaryOperator(OperatorKind.ADD, xmlType, xmlType, xmlType, InstructionCodes.XMLADD);
         defineBinaryOperator(OperatorKind.ADD, xmlType, stringType, xmlType, InstructionCodes.XMLADD);
-        defineBinaryOperator(OperatorKind.ADD, floatType, stringType, stringType, InstructionCodes.SADD);
-        defineBinaryOperator(OperatorKind.ADD, decimalType, stringType, stringType, InstructionCodes.SADD);
-        defineBinaryOperator(OperatorKind.ADD, intType, stringType, stringType, InstructionCodes.SADD);
-        defineBinaryOperator(OperatorKind.ADD, booleanType, stringType, stringType, InstructionCodes.SADD);
-        defineBinaryOperator(OperatorKind.ADD, stringType, floatType, stringType, InstructionCodes.SADD);
-        defineBinaryOperator(OperatorKind.ADD, stringType, decimalType, stringType, InstructionCodes.SADD);
-        defineBinaryOperator(OperatorKind.ADD, stringType, intType, stringType, InstructionCodes.SADD);
-        defineBinaryOperator(OperatorKind.ADD, stringType, booleanType, stringType, InstructionCodes.SADD);
         defineBinaryOperator(OperatorKind.ADD, stringType, stringType, stringType, InstructionCodes.SADD);
-        defineBinaryOperator(OperatorKind.ADD, stringType, booleanType, stringType, InstructionCodes.SADD);
         defineBinaryOperator(OperatorKind.ADD, stringType, xmlType, xmlType, InstructionCodes.XMLADD);
-        defineBinaryOperator(OperatorKind.ADD, booleanType, stringType, stringType, InstructionCodes.SADD);
         defineBinaryOperator(OperatorKind.ADD, floatType, floatType, floatType, InstructionCodes.FADD);
         defineBinaryOperator(OperatorKind.ADD, decimalType, decimalType, decimalType, InstructionCodes.DADD);
         defineBinaryOperator(OperatorKind.ADD, intType, intType, intType, InstructionCodes.IADD);
@@ -356,8 +346,8 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.BITWISE_XOR, intType, intType, intType, InstructionCodes.IXOR);
         defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, intType, intType, intType, InstructionCodes.ILSHIFT);
         defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, intType, byteType, intType, InstructionCodes.ILSHIFT);
-        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, byteType, byteType, byteType, InstructionCodes.BILSHIFT);
-        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, byteType, intType, byteType, InstructionCodes.BILSHIFT);
+        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, byteType, byteType, intType, InstructionCodes.BILSHIFT);
+        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, byteType, intType, intType, InstructionCodes.BILSHIFT);
         defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, intType, intType, intType, InstructionCodes.IRSHIFT);
         defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, intType, byteType, intType, InstructionCodes.IRSHIFT);
         defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, byteType, byteType, byteType, InstructionCodes.BIRSHIFT);
@@ -458,9 +448,6 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, floatType, decimalType, booleanType, InstructionCodes.DGE);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, decimalType, floatType, booleanType, InstructionCodes.DGE);
 
-        defineBinaryOperator(OperatorKind.CLOSED_RANGE, intType, intType, intArrayType, InstructionCodes.INT_RANGE);
-        defineBinaryOperator(OperatorKind.HALF_OPEN_RANGE, intType, intType, intArrayType, InstructionCodes.INT_RANGE);
-
         defineBinaryOperator(OperatorKind.AND, booleanType, booleanType, booleanType, -1);
         defineBinaryOperator(OperatorKind.OR, booleanType, booleanType, booleanType, -1);
 
@@ -479,7 +466,6 @@ public class SymbolTable {
 
         defineConversionOperators();
 
-        defineBuiltinMethods();
     }
 
     private void defineConversionOperators() {
@@ -516,6 +502,7 @@ public class SymbolTable {
         defineCastOperator(anyType, mapType, false, InstructionCodes.ANY2MAP);
         defineCastOperator(anyType, tableType, false, InstructionCodes.ANY2DT);
         defineCastOperator(anyType, streamType, false, InstructionCodes.ANY2STM);
+        defineCastOperator(anyType, handleType, false, InstructionCodes.NOP); // BVM instructions not used anymore
         defineCastOperator(anydataType, intType, false, InstructionCodes.CHECKCAST);
         defineCastOperator(anydataType, byteType, false, InstructionCodes.CHECKCAST);
         defineCastOperator(anydataType, floatType, false, InstructionCodes.CHECKCAST);
@@ -587,53 +574,7 @@ public class SymbolTable {
 //        defineConversionOperator(stringType, jsonType, false, InstructionCodes.S2JSONX);
     }
 
-    private void defineBuiltinMethods() {
-
-        // Error related methods.
-        defineBuiltinMethod(BLangBuiltInMethod.REASON, errorType, stringType);
-
-        // Length methods.
-        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, stringType, intType);
-        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, arrayType, intType);
-        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, tupleType, intType);
-        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, mapType, intType);
-        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, recordType, intType);
-        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, jsonType, intType);
-        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, xmlType, intType);
-        defineBuiltinMethod(BLangBuiltInMethod.LENGTH, tableType, intType);
-
-        // float related methods.
-        defineBuiltinMethod(BLangBuiltInMethod.IS_NAN, floatType, booleanType);
-        defineBuiltinMethod(BLangBuiltInMethod.IS_FINITE, floatType, booleanType);
-        defineBuiltinMethod(BLangBuiltInMethod.IS_INFINITE, floatType, booleanType);
-
-        // Decimal related methods.
-        defineBuiltinMethod(BLangBuiltInMethod.IS_NAN, decimalType, booleanType);
-        defineBuiltinMethod(BLangBuiltInMethod.IS_FINITE, decimalType, booleanType);
-        defineBuiltinMethod(BLangBuiltInMethod.IS_INFINITE, decimalType, booleanType);
-
-        //clone related methods
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, anyType, pureType);
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, intType, intType);
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, floatType, floatType);
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, decimalType, decimalType);
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, booleanType, booleanType);
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, stringType, stringType);
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, byteType, byteType);
-        defineBuiltinMethod(BLangBuiltInMethod.CLONE, xmlType, xmlType);
-    }
-
-    private void defineBuiltinMethod(BLangBuiltInMethod method, BType type, BType retType) {
-        defineBuiltinMethod(method, type, Collections.emptyList(), retType);
-    }
-
-    private void defineBuiltinMethod(BLangBuiltInMethod method, BType type, List<BType> args, BType retType) {
-        List<BType> paramTypes = Lists.of(type);
-        paramTypes.addAll(args);
-        defineOperator(names.fromString(method.getName()), paramTypes, retType, InstructionCodes.NOP);
-    }
-
-    private void defineBinaryOperator(OperatorKind kind,
+    public void defineBinaryOperator(OperatorKind kind,
                                       BType lhsType,
                                       BType rhsType,
                                       BType retType,

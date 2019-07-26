@@ -18,21 +18,14 @@
 
 package org.ballerinalang.net.http.nativeimpl.response;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.BHttpUtil;
 import org.ballerinalang.net.http.HttpUtil;
-
-import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 
 /**
  * Create a new entity and associate it with the response.
@@ -48,13 +41,7 @@ import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
         returnType = {@ReturnType(type = TypeKind.OBJECT)},
         isPublic = false
 )
-public class CreateNewEntity extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-        BMap<String, BValue> responseObject = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-        context.setReturnValues(BHttpUtil.createNewEntity(context, responseObject));
-    }
-
+public class CreateNewEntity {
     public static ObjectValue createNewEntity(Strand strand, ObjectValue responseObj) {
         return HttpUtil.createNewEntity(responseObj);
     }

@@ -16,15 +16,21 @@
 package org.ballerinalang.langserver.compiler.common;
 
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
-import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Document class to hold the file path used in the LS.
@@ -32,24 +38,41 @@ import java.util.List;
 public class LSDocument {
     private Path path;
     private String uri;
-    private String sourceRoot;
-    private List<String> projectModules;
+    private String projectRoot;
+    private List<String> projectModules = new ArrayList<>();
+    private boolean withinProject = false;
+    private String ownerModule = "";
+    private Path ownerModulePath = null;
 
     public LSDocument(String uri) {
         try {
             this.uri = uri;
             this.path = Paths.get(new URL(uri).toURI());
-            this.sourceRoot = LSCompilerUtil.getSourceRoot(this.path);
-            this.projectModules = LSCompilerUtil.getCurrentProjectModules(Paths.get(sourceRoot));
+            this.projectRoot = LSCompilerUtil.getProjectRoot(this.path);
+            if (this.projectRoot == null) {
+                return;
+            }
+            try {
+                this.withinProject = !Files.isSameFile(this.path.getParent(), Paths.get(projectRoot));
+            } catch (IOException e) {
+                withinProject = false;
+            }
+            if (withinProject) {
+                // TODO: Fix project module retrieve logic
+                this.projectModules = this.getCurrentProjectModules(Paths.get(projectRoot));
+                this.ownerModule = this.getModuleNameForDocument(this.projectRoot, path.toString());
+                this.ownerModulePath = Paths.get(projectRoot).resolve("src").resolve(ownerModule);
+            }
         } catch (URISyntaxException | MalformedURLException e) {
             // Ignore
         }
     }
 
-    public LSDocument(Path path, String sourceRoot) {
+    public LSDocument(Path path, String projectRoot) {
         this.uri = path.toUri().toString();
-        this.sourceRoot = sourceRoot;
+        this.projectRoot = projectRoot;
         this.path = path;
+        this.withinProject = true;
     }
 
     /**
@@ -66,8 +89,8 @@ public class LSDocument {
      *
      * @return {@link Path} source root path
      */
-    public Path getSourceRootPath() {
-        return Paths.get(this.sourceRoot);
+    public Path getProjectRootPath() {
+        return Paths.get(this.projectRoot);
     }
 
     /**
@@ -95,8 +118,8 @@ public class LSDocument {
      *
      * @return {@link String} source root
      */
-    public String getSourceRoot() {
-        return this.sourceRoot;
+    public String getProjectRoot() {
+        return this.projectRoot;
     }
 
     /**
@@ -113,17 +136,8 @@ public class LSDocument {
      *
      * @param sourceRoot source root
      */
-    public void setSourceRoot(String sourceRoot) {
-        this.sourceRoot = sourceRoot;
-    }
-
-    /**
-     * Returns True when this source file has a ballerina project repository folder.
-     *
-     * @return True if this file has project repo, False otherwise
-     */
-    public boolean hasProjectRepo() {
-        return RepoUtils.hasProjectRepo(Paths.get(sourceRoot));
+    public void setProjectRootRoot(String sourceRoot) {
+        this.projectRoot = sourceRoot;
     }
 
     /**
@@ -135,8 +149,61 @@ public class LSDocument {
         return projectModules;
     }
 
+    public boolean isWithinProject() {
+        return withinProject;
+    }
+
+    public String getOwnerModule() {
+        return ownerModule;
+    }
+
+    public Path getOwnerModulePath() {
+        return ownerModulePath;
+    }
+
     @Override
     public String toString() {
-        return "{" + "sourceRoot:" + this.sourceRoot + ", uri:" + this.uri + "}";
+        return "{" + "projectRoot:" + this.projectRoot + ", uri:" + this.uri + "}";
+    }
+    
+    /**
+     * Get the package name for given file.
+     *
+     * @param projectRoot project root
+     * @param filePath full path of the file
+     * @return {@link String} package name
+     */
+    private String getModuleNameForDocument(String projectRoot, String filePath) {
+        String packageName = "";
+        String packageStructure = filePath.substring(projectRoot.length() + 1);
+        String[] splittedPackageStructure = packageStructure.split(Pattern.quote(File.separator));
+        if (splittedPackageStructure.length > 0 && !splittedPackageStructure[0].endsWith(".bal")) {
+            packageName = packageStructure.split(Pattern.quote(File.separator))[1];
+        }
+        return packageName;
+    }
+
+    /**
+     * Get the list of module names in the repo.
+     *
+     * @param projectRoot project root path
+     * @return {@link List} List of module names
+     */
+    private List<String> getCurrentProjectModules(Path projectRoot) {
+        try {
+            Stream<Path> pathStream = Files.walk(projectRoot.resolve("src"));
+            return pathStream
+                    .filter(path -> {
+                        try {
+                            return Files.isDirectory(path) && !Files.isHidden(path);
+                        } catch (IOException e) {
+                            return false;
+                        }
+                    })
+                    .map(path -> path.getFileName().toString())
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            return new ArrayList<>();
+        }
     }
 }

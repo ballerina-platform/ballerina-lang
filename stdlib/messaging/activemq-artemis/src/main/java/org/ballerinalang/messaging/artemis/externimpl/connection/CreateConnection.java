@@ -22,9 +22,7 @@ package org.ballerinalang.messaging.artemis.externimpl.connection;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
@@ -45,14 +43,10 @@ import org.slf4j.LoggerFactory;
         orgName = ArtemisConstants.BALLERINA, packageName = ArtemisConstants.ARTEMIS,
         functionName = "createConnection",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = ArtemisConstants.CONNECTION_OBJ,
-                             structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS)
+                structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS)
 )
-public class CreateConnection extends BlockingNativeCallableUnit {
+public class CreateConnection {
     private static final Logger logger = LoggerFactory.getLogger(CreateConnection.class);
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static void createConnection(Strand strand, ObjectValue connection, String url, MapValue config) {
         try {
@@ -97,4 +91,6 @@ public class CreateConnection extends BlockingNativeCallableUnit {
         }
     }
 
+    private CreateConnection() {
+    }
 }

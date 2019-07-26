@@ -18,9 +18,9 @@
 package org.ballerinalang.net.grpc.nativeimpl.client;
 
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
@@ -58,14 +58,9 @@ import static org.ballerinalang.net.grpc.Status.Code.INTERNAL;
 )
 public class BlockingExecute extends AbstractExecute {
 
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-
-    }
-
     @SuppressWarnings("unchecked")
     public static Object blockingExecute(Strand strand, ObjectValue clientEndpoint, String methodName,
-                                         Object payloadBValue, ObjectValue headerValues) {
+                                         Object payloadBValue, Object headerValues) {
         if (clientEndpoint == null) {
             return notifyErrorReply(INTERNAL.name(), "Error while getting connector. gRPC client connector " +
                     "is not initialized properly");
@@ -98,8 +93,8 @@ public class BlockingExecute extends AbstractExecute {
             Message requestMsg = new Message(methodDescriptor.getInputType().getName(), payloadBValue);
             // Update request headers when request headers exists in the context.
             HttpHeaders headers = null;
-            if (headerValues != null) {
-                headers = (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS);
+            if (headerValues != null && (TypeChecker.getType(headerValues).getTag() == TypeTags.OBJECT_TYPE_TAG)) {
+                headers = (HttpHeaders) ((ObjectValue) headerValues).getNativeData(MESSAGE_HEADERS);
             }
             if (headers != null) {
                 requestMsg.setHeaders(headers);
@@ -123,10 +118,5 @@ public class BlockingExecute extends AbstractExecute {
                     "type not supported");
         }
         return null;
-    }
-
-    @Override
-    public boolean isBlocking() {
-        return false;
     }
 }

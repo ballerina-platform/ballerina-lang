@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
@@ -133,6 +134,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock.BLangLockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock.BLangUnLockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
@@ -235,6 +238,14 @@ public abstract class BLangNodeVisitor {
 
     // Statements
     public void visit(BLangBlockStmt blockNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangLockStmt lockStmtNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangUnLockStmt unLockNode) {
         throw new AssertionError();
     }
 
@@ -633,6 +644,10 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangIgnoreExpr ignoreExpr) {
+        throw new AssertionError();
+    }
+
     public void visit(BLangAnnotAccessExpr annotAccessExpr) {
         throw new AssertionError();
     }
@@ -771,6 +786,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangJSONAccessExpr jsonAccessExpr) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangIndexBasedAccess.BLangStringAccessExpr stringAccessExpr) {
         throw new AssertionError();
     }
 

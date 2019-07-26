@@ -100,7 +100,7 @@ function runPatternQuery() {
     function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
         foreach map<anydata> m in events {
             // just cast input map into the output type
-            ABCDInfo o = <ABCDInfo>ABCDInfo.convert(m);
+            ABCDInfo o = <ABCDInfo>ABCDInfo.constructFrom(m);
             abcdStream.publish(o);
         }
     };
@@ -160,28 +160,28 @@ function runPatternQuery() {
     // Subscribe to input streams.
     // aStream as a
     aStream.subscribe(function (AInfo i) {
-            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            map<anydata> keyVal = <map<anydata>>map<anydata>.constructFrom(i);
             streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "a");
             stateMachine.process(eventArr);
         }
     );
     // bStream as b
     bStream.subscribe(function (BInfo i) {
-            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            map<anydata> keyVal = <map<anydata>>map<anydata>.constructFrom(i);
             streams:StreamEvent?[] eventArr =  streams:buildStreamEvent(keyVal, "b");
             stateMachine.process(eventArr);
         }
     );
     // cStream as c
     cStream.subscribe(function (CInfo i) {
-            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            map<anydata> keyVal = <map<anydata>>map<anydata>.constructFrom(i);
             streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "c");
             stateMachine.process(eventArr);
         }
     );
     // dStream as e3
     dStream.subscribe(function (DInfo i) {
-            map<anydata> keyVal = <map<anydata>>map<anydata>.convert(i);
+            map<anydata> keyVal = <map<anydata>>map<anydata>.constructFrom(i);
             streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "d");
             stateMachine.process(eventArr);
         }

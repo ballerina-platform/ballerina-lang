@@ -20,9 +20,9 @@ package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.websub.hub.Hub;
@@ -45,11 +45,11 @@ public class AddSubscription extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BMap<String, BValue> subscriptionDetails = (BMap<String, BValue>) context.getRefArgument(0);
-        String topic = subscriptionDetails.get(SUBSCRIPTION_DETAILS_TOPIC).stringValue();
-        String callback = subscriptionDetails.get(SUBSCRIPTION_DETAILS_CALLBACK).stringValue();
-        Hub.getInstance().registerSubscription(topic, callback, subscriptionDetails);
-        context.setReturnValues();
     }
 
+    public static void addSubscription(Strand strand, MapValue<String, Object> subscriptionDetails) {
+        String topic = subscriptionDetails.getStringValue(SUBSCRIPTION_DETAILS_TOPIC);
+        String callback = subscriptionDetails.getStringValue(SUBSCRIPTION_DETAILS_CALLBACK);
+        Hub.getInstance().registerSubscription(strand, topic, callback, subscriptionDetails);
+    }
 }

@@ -17,21 +17,21 @@
 package org.ballerinalang.net.http.actions.websocketconnector;
 
 import io.netty.channel.ChannelFuture;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketUtil;
 
 import java.nio.ByteBuffer;
+
+import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsConnectionError;
+import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -45,31 +45,26 @@ import java.nio.ByteBuffer;
                 structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
         )
 )
-public class PushBinary implements NativeCallableUnit {
+public class PushBinary {
 
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-    }
-
-    public static Object pushBinary(Strand strand, ObjectValue wsConnection, byte[] binaryData, boolean finalFrame) {
+    public static Object pushBinary(Strand strand, ObjectValue wsConnection, ArrayValue binaryData,
+                                    boolean finalFrame) {
         //TODO : NonBlockingCallback is temporary fix to handle non blocking call
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         try {
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
-            ChannelFuture webSocketChannelFuture =
-                    connectionInfo.getWebSocketConnection().pushBinary(ByteBuffer.wrap(binaryData), finalFrame);
+            ChannelFuture webSocketChannelFuture = connectionInfo.getWebSocketConnection().pushBinary(
+                    ByteBuffer.wrap(binaryData.getBytes()), finalFrame);
             WebSocketUtil.handleWebSocketCallback(callback, webSocketChannelFuture);
         } catch (Exception e) {
             //TODO remove this call back
-            callback.setReturnValues(HttpUtil.getError(e.getMessage()));
+            callback.setReturnValues(createWebSocketError(WsConnectionError, e.getMessage()));
             callback.notifySuccess();
         }
         return null;
     }
 
-    @Override
-    public boolean isBlocking() {
-        return false;
+    private PushBinary() {
     }
 }

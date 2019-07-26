@@ -1,18 +1,15 @@
 record{} globalVar = {};
 
 public function main (string... args) {
-    taintedJsonReturn().address_components
-    .filter(function (any comp) returns boolean {
-            if comp is record{} {
-                secureFunction(taintedReturn(), taintedReturn());
-                return true;
-            }
-            return false;
+    taintedJsonReturn().get("address_components")
+    .filter(function (record {| anydata...; |} comp) returns boolean {
+            secureFunction(taintedReturn(), taintedReturn());
+            return true;
         })
-    .foreach(function (record{} k) { globalVar = k;});
+    .forEach(function (record{} k) { globalVar = k;});
 }
 
-function secureFunction (@sensitive string secureIn, string insecureIn) {
+function secureFunction (@untainted string secureIn, string insecureIn) {
 
 }
 
@@ -24,21 +21,20 @@ function taintedJsonReturn() returns @tainted map<record{}[]> {
     return data;
 }
 
+string[] types0 = [ "street_number" ];
+string[] types1 = [ "postal_code_suffix" ];
+
 map<record{}[]> data = {
     "address_components": [
         {
             long_name: "1823",
             short_name: "1823",
-            types: <string[]> [
-                "street_number"
-            ]
+            types: types0
         },
         {
             long_name: "CMW",
             short_name: "CMW",
-            types: <string[]> [
-                "postal_code_suffix"
-            ]
+            types: types1
         }
     ]
 };

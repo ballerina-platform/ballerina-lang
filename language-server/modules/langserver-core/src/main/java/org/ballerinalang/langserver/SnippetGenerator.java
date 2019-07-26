@@ -55,8 +55,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getAnnotationDefSnippet() {
-        String snippet = "annotation<${1:attachmentPoint}> ${2:name};";
-
+        String snippet = "annotation ${1:typeName} ${2:name} on ${3:attachmentPoint};";
         return new SnippetBlock(ItemResolverConstants.ANNOTATION, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.SNIPPET);
     }
@@ -108,6 +107,16 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getExternalKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.EXTERNAL, "external;", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get typeof keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getTypeofKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.TYPEOF, "typeof ", ItemResolverConstants.KEYWORD_TYPE,
                                 SnippetType.KEYWORD);
     }
 
@@ -700,7 +709,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getErrorDefinitionSnippet() {
-        String snippet = "error ${1:name} = error(\"${2:errorCode}\", { message: \"${3}\" });";
+        String snippet = "error ${1:name} = error(\"${2:errorCode}\", detail = { message: \"${3}\" });";
         return new SnippetBlock(ItemResolverConstants.ERROR, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.SNIPPET);
     }

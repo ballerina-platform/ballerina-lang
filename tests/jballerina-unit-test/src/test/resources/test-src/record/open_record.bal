@@ -19,14 +19,15 @@ type Department record {
     Person[] employees = [];
 };
 
-type Person record {
+type Person record {|
     string name = "default first name";
     string lname = "";
     map<any> adrs = {};
     int age = 999;
     Family family = {};
     Person? parent = ();
-};
+    anydata|error...;
+|};
 
 type Family record {
     string spouse = "";
@@ -162,28 +163,8 @@ function testSetFieldOfNonInitStruct () {
 
 function testAdditionOfARestField() returns Person {
     Person p = {name:"Foo", mname:"Bar", age:25, height: 5.9};
-    p.firstName = "John";
+    p["firstName"] = "John";
     return p;
-}
-
-type MyError error<string, map<error>>;
-
-function testAdditionOfErrorsForDefaultRestField() returns boolean {
-    error e1 = error("err reason");
-    error e2 = error("err reason 2", str = "string value", err = e1);
-    MyError e3 = error("err reason 3", e1 = e1, e2 = e2);
-
-    Person p = { name: "Foo", mname: "Bar", age: 25, height: 5.9, e1: e1 };
-    p.e2 = e2;
-    p.e3 = e3;
-    return <string> p.name == "Foo" && <string> p.mname == "Bar" && <int> p.age == 25 && p.e1 === e1 && p.e2 === e2 &&
-                p.e3 === e3;
-}
-
-function testAnydataOrErrorRestFieldRHSAccess() returns anydata|error {
-    Person p = {};
-    anydata|error name = p.firstName;
-    return name;
 }
 
 function testAnydataOrErrorRestFieldRHSIndexAccess() returns anydata|error {
@@ -201,12 +182,6 @@ type Person2 record {|
 function testStringRestField() returns Person2 {
     Person2 p = {name:"Foo", age:25, lname: "Bar", address:"Colombo"};
     return p;
-}
-
-function testStringRestFieldRHSAccess() returns string {
-    Person2 p = {};
-    string name = p.firstName;
-    return name;
 }
 
 function testStringRestFieldRHSIndexAccess() returns [string?, string?] {
@@ -227,12 +202,6 @@ function testIntRestField() returns Person3 {
     return p;
 }
 
-function testIntRestFieldRHSAccess() returns int {
-    Person3 p = {};
-    int birthYear = p.birthYear;
-    return birthYear;
-}
-
 function testIntRestFieldRHSIndexAccess() returns [int?, int?] {
     Person3 p = {};
     int? age = p["age"];
@@ -249,12 +218,6 @@ type Person4 record {|
 function testFloatRestField() returns Person4 {
     Person4 p = {name:"Foo", age:25, height: 5.9};
     return p;
-}
-
-function testFloatRestFieldRHSAccess() returns float {
-    Person4 p = {};
-    float height = p.height;
-    return height;
 }
 
 function testFloatRestFieldRHSIndexAccess() returns [float?, float?] {
@@ -274,12 +237,6 @@ function testBooleanRestField() returns Person5 {
     return p;
 }
 
-function testBooleanRestFieldRHSAccess() returns boolean {
-    Person5 p = {};
-    boolean isEmployed = p.isEmployed;
-    return isEmployed;
-}
-
 function testBooleanRestFieldRHSIndexAccess() returns [boolean?, boolean?] {
     Person5 p = {isStudent: true};
     boolean? isEmployed = p["isEmployed"];
@@ -295,12 +252,6 @@ type Person6 record {|
 function testMapRestField() returns Person6 {
     Person6 p = {name:"Foo", age:25, misc:{lname:"Bar", height:5.9, isEmployed:true}};
     return p;
-}
-
-function testMapRestFieldRHSAccess() returns map<any> {
-    Person6 p = {};
-    map<any> misc = p.misc;
-    return misc;
 }
 
 function testMapRestFieldRHSIndexAccess() returns [map<any>?, map<any>?] {
@@ -319,12 +270,6 @@ type Person7 record {|
 function testUnionRestField() returns Person7 {
     Person7 p = {name:"Foo", age:25, lname:"Bar", height:5.9, isEmployed:true};
     return p;
-}
-
-function testUnionRestFieldRHSAccess() returns float|string|boolean {
-    Person7 p = {};
-    float|string|boolean miscFields = p.misc;
-    return miscFields;
 }
 
 function testUnionRestFieldRHSIndexAccess() returns [(float|string|boolean)?, (float|string|boolean)?] {
@@ -355,12 +300,6 @@ function testRecordRestField() returns Person9 {
     return p;
 }
 
-function testRecordRestFieldRHSAccess() returns Department {
-    Person9 p = {};
-    Department dept = p.department;
-    return dept;
-}
-
 function testRecordRestFieldRHSIndexAccess() returns [Department?, Department?] {
     Person9 p = {dept:{}};
     Department? dept = p["department"];
@@ -388,12 +327,6 @@ function testObjectRestField() returns Person10 {
     return p;
 }
 
-function testObjectRestFieldRHSAccess() returns Animal {
-    Person10 p = {};
-    Animal pet = p.pet;
-    return pet;
-}
-
 function testObjectRestFieldRHSIndexAccess() returns [Animal?, Animal?] {
     Animal anim = new("Rocky", "Dog");
     Person10 p = {pet:anim};
@@ -412,12 +345,6 @@ function testTupleRestField() returns Person11 {
     return p;
 }
 
-function testTupleRestFieldRHSAccess() returns [float, string, Animal] {
-    Person11 p = {};
-    [float, string, Animal] tupType = p.tupType;
-    return tupType;
-}
-
 function testTupleRestFieldRHSIndexAccess() returns [[float, string, Animal]?, [float, string, Animal]?] {
     Person11 p = {tup:[4.5, "foo", new Animal("Miaw", "Cat")]};
     [float, string, Animal]? tupType = p["invTup"];
@@ -434,12 +361,6 @@ function testAnyRestField() returns Person12 {
     Animal?[] pets = [new Animal("Miaw", "Cat"), new Animal("Woof", "Dog")];
     Person12 p = {name:"Foo", age:25, pets:pets};
     return p;
-}
-
-function testAnyRestFieldRHSAccess() returns any {
-    Person12 p = {};
-    any a = p.anyField;
-    return a;
 }
 
 function testAnyRestFieldRHSIndexAccess() returns [any, any] {
@@ -461,26 +382,49 @@ function testFuncPtrAsRecordField() returns string {
         return p.lname + ", " + p.fname;
     };
 
-    return p.fullName.call();
+    return p.fullName();
 }
 
-type PersonB record {
-    string fname = "";
-    string lname = "";
-    (function (string, string) returns string)? getName = ();
+type Address record {
+    string city;
+    string country;
 };
 
-function testNilableFuncPtrInvocation() returns string? {
-    PersonB bob = {fname:"Bob", lname:"White"};
-    bob.getName = function (string fname, string lname) returns string {
-        return fname + " " + lname;
-    };
-    string? x = bob.getName.call(bob.fname, bob.lname);
-    return x;
+type PersonRec record {
+    string name = "John Doe";
+    int age = 25;
+    Address adr = {city: "Colombo", country: "Sri Lanka"};
+};
+
+type EmployeeRec record {
+    *PersonRec;
+    string company = "WSO2";
+};
+
+type ManagerRec record {
+    string dept = "";
+    *EmployeeRec;
+};
+
+function testDefaultValueInit() returns ManagerRec {
+    ManagerRec mgr = {};
+    return mgr;
 }
 
-function testNilableFuncPtrInvocation2() returns string? {
-    PersonB bob = {fname:"Bob", lname:"White"};
-    string? x = bob.getName.call(bob.fname, bob.lname);
-    return x;
+public type Foo record {
+    int a = getAsInt("777");
+};
+
+function getAsInt(string s) returns int {
+    return 777;
+}
+
+public type Bar record {
+    *Foo;
+    int b = 56;
+};
+
+public function testRecordInitWithFuncCalls() returns Bar {
+    Bar b = {};
+    return b;
 }

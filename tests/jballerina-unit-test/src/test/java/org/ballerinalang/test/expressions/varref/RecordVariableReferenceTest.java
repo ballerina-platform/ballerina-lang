@@ -139,9 +139,8 @@ public class RecordVariableReferenceTest {
     @Test(description = "Test record var ref rest parameter types")
     public void testRestParameterType() {
         BValue[] returns = BRunUtil.invoke(result, "testRestParameterType");
-        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
     }
 
     // TODO: Uncomment below tests once record literal is supported with var ref
@@ -225,8 +224,8 @@ public class RecordVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "unknown type 'Data'", 128, 6);
         BAssertUtil.validateError(resultNegative, ++i,
-                                  "incompatible types: expected 'map<int>', found 'map<(anydata|error)>'", 161, 16);
-        BAssertUtil.validateError(resultNegative, ++i,
-                                  "incompatible types: expected 'map<anydata>', found 'map<(any|error)>'", 164, 16);
+                                  "incompatible types: expected 'map<int>', found 'map<anydata>'", 161, 16);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'map<error>', found 'map'",
+                                  164, 16);
     }
 }

@@ -17,16 +17,17 @@
  */
 package org.ballerinalang.stdlib.math.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.concurrent.ThreadLocalRandom;
+
+import static org.ballerinalang.stdlib.math.nativeimpl.Constant.ILLEGAL_ARGUMENT_ERROR_MSG;
+import static org.ballerinalang.stdlib.math.nativeimpl.Constant.MATH_ERROR_CODE;
 
 /**
  * Extern function ballerina.math:random.
@@ -41,16 +42,13 @@ import java.util.concurrent.ThreadLocalRandom;
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class RandomInRange extends BlockingNativeCallableUnit {
+public class RandomInRange {
 
-    public void execute(Context ctx) {
-        long start = ctx.getIntArgument(0);
-        long end = ctx.getIntArgument(1);
-        long random = ThreadLocalRandom.current().nextLong(start, end);
-        ctx.setReturnValues(new BInteger(random));
-    }
-
-    public static long randomInRange(Strand strand, long start, long end) {
-        return ThreadLocalRandom.current().nextLong(start, end);
+    public static Object randomInRange(Strand strand, long start, long end) {
+        try {
+            return ThreadLocalRandom.current().nextLong(start, end);
+        } catch (IllegalArgumentException ex) {
+            return BallerinaErrors.createError(MATH_ERROR_CODE, ILLEGAL_ARGUMENT_ERROR_MSG);
+        }
     }
 }

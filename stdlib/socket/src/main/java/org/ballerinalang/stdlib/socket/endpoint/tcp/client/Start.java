@@ -18,14 +18,11 @@
 
 package org.ballerinalang.stdlib.socket.endpoint.tcp.client;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -65,17 +62,8 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = CLIENT, structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
-public class Start implements NativeCallableUnit {
+public class Start {
     private static final Logger log = LoggerFactory.getLogger(Start.class);
-
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-    }
-
-    @Override
-    public boolean isBlocking() {
-        return false;
-    }
 
     public static Object start(Strand strand, ObjectValue client) {
         final NonBlockingCallback callback = new NonBlockingCallback(strand);

@@ -6,7 +6,8 @@ function workerReturnTest() returns int{
 	    int x = 50;
 	    return x + 1;
     }
-    return (wait wx) + 1;
+    int res = wait wx;
+    return res + 1;
 }
 
 int updateMultiple = 0;
@@ -51,8 +52,9 @@ public function workerSendToWorker() returns int {
     io:println(j);
       return j;
     }
+    int ret = wait w2;
 
-    return (wait w2) + 1;
+    return ret + 1;
 }
 
 function workerSendToDefault() returns int{
@@ -71,8 +73,8 @@ function workerSendFromDefault() returns int{
     }
     int x = 50;
     x -> w1;
-
-    return (wait w1) + 1;
+    int res = wait w1;
+    return res + 1;
 }
 
 public function receiveWithTrap() returns error|int {
@@ -90,7 +92,9 @@ public function receiveWithTrap() returns error|int {
      return j;
    }
 
-   return wait w2;
+   error|int ret = wait w2;
+
+   return ret;
 }
 
 public function receiveWithCheck() returns error|int {
@@ -319,7 +323,7 @@ function test(int c) {
 
 function workerTestWithLambda() returns int {
     invokeTestFunc(5);
-    int a = fa.call();
+    int a = fa();
     return a;
 }
 

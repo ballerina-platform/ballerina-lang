@@ -15,9 +15,7 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.streamingclient;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.bre.bvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -47,12 +45,8 @@ import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
                 structPackage = GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
-public class SendError extends BlockingNativeCallableUnit {
+public class SendError {
     private static final Logger LOG = LoggerFactory.getLogger(SendError.class);
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static Object sendError(Strand strand, ObjectValue streamingConnection, long statusCode, String errorMsg) {
         StreamObserver requestSender = (StreamObserver) streamingConnection.getNativeData(REQUEST_SENDER);

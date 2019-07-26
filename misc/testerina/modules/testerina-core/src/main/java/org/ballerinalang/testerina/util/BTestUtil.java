@@ -17,11 +17,11 @@
 
 package org.ballerinalang.testerina.util;
 
-import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
+import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 

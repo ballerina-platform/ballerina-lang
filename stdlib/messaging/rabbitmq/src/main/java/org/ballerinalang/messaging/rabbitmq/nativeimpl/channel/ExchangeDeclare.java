@@ -19,9 +19,7 @@
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel;
 
 import com.rabbitmq.client.Channel;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
@@ -47,25 +45,25 @@ import org.ballerinalang.natives.annotations.Receiver;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class ExchangeDeclare extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class ExchangeDeclare {
 
     public static Object exchangeDeclare(Strand strand, ObjectValue channelObjectValue,
                                          MapValue<String, Object> exchangeConfig) {
+        boolean isInTransaction = strand.isInTransaction();
         Channel channel = (Channel) channelObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
         RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) channelObjectValue.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         try {
             ChannelUtils.exchangeDeclare(channel, exchangeConfig);
-            if (transactionContext != null) {
-                transactionContext.handleTransactionBlock();
+            if (isInTransaction) {
+                transactionContext.handleTransactionBlock(strand);
             }
         } catch (RabbitMQConnectorException exception) {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.RABBITMQ_CLIENT_ERROR + exception.getDetail());
         }
         return null;
+    }
+
+    private ExchangeDeclare() {
     }
 }

@@ -48,6 +48,8 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Responsible for serializing BIR instructions and operands.
@@ -91,6 +93,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRNode.BIRErrorEntry errorEntry) {
         addCpAndWriteString(errorEntry.trapBB.id.value);
         errorEntry.errorOp.accept(this);
+        addCpAndWriteString(errorEntry.targetBB.id.value);
     }
 
     // Terminating instructions
@@ -104,10 +107,15 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRTerminator.Lock lock) {
         writePosition(lock.pos);
         buf.writeByte(lock.kind.getValue());
-        buf.writeInt(lock.globalVars.size());
-        for (BIRNode.BIRGlobalVariableDcl globalVar : lock.globalVars) {
-            addCpAndWriteString(globalVar.name.value);
-        }
+        addCpAndWriteString(lock.globalVar.name.value);
+        addCpAndWriteString(lock.lockedBB.id.value);
+    }
+
+    public void visit(BIRTerminator.FieldLock lock) {
+        writePosition(lock.pos);
+        buf.writeByte(lock.kind.getValue());
+        addCpAndWriteString(lock.localVar.name.value);
+        addCpAndWriteString(lock.field);
         addCpAndWriteString(lock.lockedBB.id.value);
     }
 
@@ -117,6 +125,14 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeInt(unlock.globalVars.size());
         for (BIRNode.BIRGlobalVariableDcl globalVar : unlock.globalVars) {
             addCpAndWriteString(globalVar.name.value);
+        }
+        buf.writeInt(unlock.fieldLocks.size());
+        for (Map.Entry<BIRNode.BIRVariableDcl, Set<String>> entry : unlock.fieldLocks.entrySet()) {
+            addCpAndWriteString(entry.getKey().name.value);
+            buf.writeInt(entry.getValue().size());
+            for (String field : entry.getValue()) {
+                addCpAndWriteString(field);
+            }
         }
         addCpAndWriteString(unlock.unlockBB.id.value);
     }
@@ -228,6 +244,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeByte(birAsyncCall.kind.getValue());
         PackageID calleePkg = birAsyncCall.calleePkg;
         int pkgIndex = addPkgCPEntry(calleePkg);
+        buf.writeBoolean(birAsyncCall.isVirtual);
         buf.writeInt(pkgIndex);
         buf.writeInt(addStringCPEntry(birAsyncCall.name.getValue()));
         buf.writeInt(birAsyncCall.args.size());
@@ -351,7 +368,8 @@ public class BIRInstructionWriter extends BIRVisitor {
         writePosition(birFieldAccess.pos);
         buf.writeByte(birFieldAccess.kind.getValue());
         if (birFieldAccess.kind == InstructionKind.MAP_LOAD) {
-            buf.writeBoolean(birFieldAccess.except);
+            buf.writeBoolean(birFieldAccess.optionalFieldAccess);
+            buf.writeBoolean(birFieldAccess.fillingRead);
         }
         birFieldAccess.lhsOp.accept(this);
         birFieldAccess.keyOp.accept(this);
@@ -363,6 +381,8 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeByte(birTypeCast.kind.getValue());
         birTypeCast.lhsOp.accept(this);
         birTypeCast.rhsOp.accept(this);
+        writeType(birTypeCast.type);
+        buf.writeBoolean(birTypeCast.checkTypes);
     }
 
     public void visit(BIRNonTerminator.IsLike birIsLike) {

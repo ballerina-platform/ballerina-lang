@@ -13,10 +13,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "channel",
+      "label": "float",
       "kind": "Keyword",
-      "detail": "Channel",
-      "insertText": "channel",
+      "detail": "Float",
+      "insertText": "float",
       "insertTextFormat": "Snippet"
     },
     {
@@ -27,16 +27,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TableConfig",
-      "kind": "Class",
-      "detail": "Record",
-      "documentation": {
-        "left": "TableConfig represents properties used during table initialization.\n"
-      },
-      "insertText": "TableConfig",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "byte",
       "kind": "Keyword",
       "detail": "Byte",
@@ -44,59 +34,20 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "stream",
+      "label": "handle",
       "kind": "Keyword",
-      "detail": "Stream",
-      "insertText": "stream",
+      "detail": "Handle",
+      "insertText": "handle",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "AbstractListener",
+      "label": "ArgsData",
       "kind": "Class",
-      "detail": "Object",
-      "insertText": "AbstractListener",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "map",
-      "kind": "Keyword",
-      "detail": "Map",
-      "insertText": "map",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "table",
-      "kind": "Keyword",
-      "detail": "Table",
-      "insertText": "table",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "anydata",
-      "kind": "Keyword",
-      "detail": "Anydata",
-      "insertText": "anydata",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "future",
-      "kind": "Keyword",
-      "detail": "Future",
-      "insertText": "future",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "typedesc",
-      "kind": "Keyword",
-      "detail": "Typedesc",
-      "insertText": "typedesc",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "float",
-      "kind": "Keyword",
-      "detail": "Float",
-      "insertText": "float",
+      "detail": "Record",
+      "documentation": {
+        "left": "Defaultable argument names. This is for internal use.\n"
+      },
+      "insertText": "ArgsData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -121,10 +72,38 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "stream",
+      "kind": "Keyword",
+      "detail": "Stream",
+      "insertText": "stream",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "json",
       "kind": "Keyword",
       "detail": "Json",
       "insertText": "json",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "map",
+      "kind": "Keyword",
+      "detail": "Map",
+      "insertText": "map",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "table",
+      "kind": "Keyword",
+      "detail": "Table",
+      "insertText": "table",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "anydata",
+      "kind": "Keyword",
+      "detail": "Anydata",
+      "insertText": "anydata",
       "insertTextFormat": "Snippet"
     },
     {
@@ -156,10 +135,24 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "future",
+      "kind": "Keyword",
+      "detail": "Future",
+      "insertText": "future",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "service",
       "kind": "Keyword",
       "detail": "Service",
       "insertText": "service",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "typedesc",
+      "kind": "Keyword",
+      "detail": "Typedesc",
+      "insertText": "typedesc",
       "insertTextFormat": "Snippet"
     }
   ]

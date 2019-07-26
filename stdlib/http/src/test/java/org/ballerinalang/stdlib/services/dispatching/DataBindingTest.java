@@ -19,7 +19,9 @@
 package org.ballerinalang.stdlib.services.dispatching;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -27,6 +29,7 @@ import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
 import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -47,7 +50,7 @@ public class DataBindingTest {
 
     @BeforeClass
     public void setup() {
-        BCompileUtil.compile("test-src/services/dispatching/data-binding-test.bal");
+        CompileResult result = BCompileUtil.compile("test-src/services/dispatching/data-binding-test.bal");
     }
 
     @Test(description = "Test data binding with string payload")
@@ -136,7 +139,7 @@ public class DataBindingTest {
                 , "Age variable not set properly.");
     }
 
-    @Test(description = "Test data binding with an array of records", enabled = false)
+    @Test(description = "Test data binding with an array of records")
     public void testDataBindingWithRecordArray() {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/body8", "POST",
                 "[{'name':'wso2','age':12}, {'name':'ballerina','age':3}]");
@@ -189,7 +192,7 @@ public class DataBindingTest {
     }
 
     @Test(description = "Test data binding without a payload", expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = ".*Error in reading payload : String payload is null*")
+          expectedExceptionsMessageRegExp = ".*data binding failed: String payload is null*")
     public void testDataBindingWithoutPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body1", "GET");
@@ -200,7 +203,7 @@ public class DataBindingTest {
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = ".*data binding failed: Error in reading payload.*")
+            expectedExceptionsMessageRegExp = ".*data binding failed: error Unexpected character 'n'.*")
     public void testDataBindingIncompatibleXMLPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body4", "POST", "name':'WSO2', 'team':'ballerina");
@@ -209,7 +212,7 @@ public class DataBindingTest {
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = ".*Error in reading payload : unrecognized token 'ballerina'.*")
+            expectedExceptionsMessageRegExp = ".*data binding failed: unrecognized token 'ballerina'.*")
     public void testDataBindingIncompatibleStructPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body6", "POST", "ballerina");
@@ -223,16 +226,14 @@ public class DataBindingTest {
                 .generateHTTPMessage("/echo/body3", "GET");
         HttpCarbonMessage responseMsg = Services.invoke(TEST_EP_PORT, requestMsg);
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertNull(((BMap<String, BValue>) bJson).get("Key"), "Key variable not set properly.");
-        Assert.assertNull(((BMap<String, BValue>) bJson).get("Team"), "Team variable not set properly.");
+        Object bJson = JSONParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertNull(((MapValue<String, Object>) bJson).get("Key"), "Key variable not set properly.");
+        Assert.assertNull(((MapValue<String, Object>) bJson).get("Team"), "Team variable not set properly.");
     }
 
-    //TODO following two test cases doesn't throw error anymore. json to struct conversion doesn't do field validation.
-    //It returns then required struct with default values when matching fields are not present.
     @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = ".*error while mapping 'age': no such field found in json",
-            enabled = false)
+          expectedExceptionsMessageRegExp = "data binding failed: error \\{ballerina\\}ConversionError " +
+                  "message='map<json>' value cannot be converted to 'Person'")
     public void testDataBindingStructWithNoMatchingContent() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body6", "POST", "{'name':'WSO2', 'team':8}");
@@ -241,11 +242,21 @@ public class DataBindingTest {
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = ".* error while mapping 'message': no such field found in json",
-            enabled = false)
+            expectedExceptionsMessageRegExp = "data binding failed: error \\{ballerina\\}ConversionError " +
+                    "message='map<json>' value cannot be converted to 'Stock'")
     public void testDataBindingStructWithInvalidTypes() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body7", "POST", "{'name':'WSO2', 'team':8}");
+        requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_JSON);
+        Services.invoke(TEST_EP_PORT, requestMsg);
+    }
+
+    @Test(expectedExceptions = BallerinaConnectorException.class,
+          expectedExceptionsMessageRegExp = ".*data binding failed: error \\{ballerina\\}ConversionError " +
+                  "message='json\\[\\]' value cannot be converted to 'Person\\[\\]'.*")
+    public void testDataBindingWithRecordArrayNegative() {
+        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/body8", "POST",
+                  "[{'name':'wso2','team':12}, " + "{'lang':'ballerina','age':3}]");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_JSON);
         Services.invoke(TEST_EP_PORT, requestMsg);
     }

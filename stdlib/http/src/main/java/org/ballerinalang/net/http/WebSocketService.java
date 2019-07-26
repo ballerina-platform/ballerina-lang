@@ -18,12 +18,12 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.jvm.Scheduler;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.net.http.exception.WebSocketException;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -77,7 +77,7 @@ public class WebSocketService {
         MapValue resourceConfigAnnotation = HttpResource.getResourceConfigAnnotation(
                 upgradeResource.getBalResource());
         if (resourceConfigAnnotation == null) {
-            throw new BallerinaException("Cannot find a resource config for resource " + upgradeResource.getName());
+            throw new WebSocketException("Cannot find a resource config for resource " + upgradeResource.getName());
         }
         MapValue webSocketConfig =
                 resourceConfigAnnotation.getMapValue(HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE);
@@ -88,8 +88,8 @@ public class WebSocketService {
 
     public String getName() {
         if (service != null) {
-            //With JBallerina this is the way to get the key
-            String name = service.getType().getAnnotationKey();
+            // With JBallerina this is the way to get the key
+            String name = HttpUtil.getServiceName(service);
             return !name.startsWith(HttpConstants.DOLLAR) ? name : "";
         }
         return null;

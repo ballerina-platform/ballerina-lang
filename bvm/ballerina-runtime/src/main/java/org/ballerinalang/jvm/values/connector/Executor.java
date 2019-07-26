@@ -17,12 +17,20 @@
  */
 package org.ballerinalang.jvm.values.connector;
 
-import org.ballerinalang.jvm.Scheduler;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.FutureValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
 
 /**
@@ -91,6 +99,80 @@ public class Executor {
                                                providedArgNo + ".");
         }
         return service.call(new Strand(strand.scheduler), resource.getName(), args);
+    }
+
+    /**
+     * This method will invoke Ballerina function in blocking manner.
+     *
+     * @param scheduler   current scheduler
+     * @param classLoader normal classLoader
+     * @param orgName     org which the package belongs to
+     * @param packageName package which the class belongs to
+     * @param className   which the function resides/ or file name
+     * @param methodName  to be invokable unit
+     * @param paramValues to be passed to invokable unit
+     * @return return values
+     */
+    public static Object executeFunction(Scheduler scheduler, ClassLoader classLoader, final String orgName,
+                                         String packageName, String className, String methodName,
+                                         Object... paramValues) {
+        try {
+            Class<?> clazz = classLoader.loadClass(orgName + "." + packageName + "." + className);
+            int paramCount = paramValues.length * 2 + 1;
+            Class<?>[] jvmParamTypes = new Class[paramCount];
+            Object[] jvmArgs = new Object[paramCount];
+            jvmParamTypes[0] = Strand.class;
+            jvmArgs[0] = scheduler;
+            for (int i = 0, j = 1; i < paramValues.length; i++) {
+                jvmArgs[j] = paramValues[i];
+                jvmParamTypes[j++] = getJvmType(paramValues[i]);
+                jvmArgs[j] = true;
+                jvmParamTypes[j++] = boolean.class;
+            }
+            Method method = clazz.getDeclaredMethod(methodName, jvmParamTypes);
+            Function<Object[], Object> func = args -> {
+                try {
+                    return method.invoke(null, args);
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    throw new BallerinaException(methodName + " function invocation failed: " + e.getMessage());
+                }
+            };
+            CountDownLatch completeFunction = new CountDownLatch(1);
+            FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, new CallableUnitCallback() {
+                @Override
+                public void notifySuccess() {
+                    completeFunction.countDown();
+                }
+
+                @Override
+                public void notifyFailure(ErrorValue error) {
+                    completeFunction.countDown();
+                }
+            }, new HashMap<>());
+            completeFunction.await();
+            return futureValue.result;
+        } catch (NoSuchMethodException | ClassNotFoundException | InterruptedException e) {
+            throw new BallerinaException("invocation failed: " + e.getMessage());
+        }
+    }
+
+    private static Class<?> getJvmType(Object paramValue) {
+        if (paramValue instanceof MapValue) {
+            return MapValue.class;
+        } else if (paramValue instanceof ObjectValue) {
+            return ObjectValue.class;
+        } else if (paramValue instanceof Boolean) {
+            return boolean.class;
+        } else if (paramValue instanceof String) {
+            return String.class;
+        } else if (paramValue instanceof Integer) {
+            return int.class;
+        } else if (paramValue instanceof Float) {
+            return double.class;
+        } else {
+            // This is done temporarily, until blocks are added here for all possible cases.
+            throw new RuntimeException("unknown param type: " + paramValue.getClass());
+        }
     }
 
     private Executor() {

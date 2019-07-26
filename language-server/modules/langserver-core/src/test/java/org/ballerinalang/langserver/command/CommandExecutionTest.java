@@ -203,7 +203,7 @@ public class CommandExecutionTest {
         Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
     }
 
-    @Test(dataProvider = "changeAbstractTypeObjDataProvider")
+    @Test(dataProvider = "change-abstract-type-data-provider")
     public void testChangeAbstractTypeObj(String config, String source) {
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);

@@ -26,6 +26,7 @@ import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 /**
@@ -72,7 +73,7 @@ public class MatchStructuredRecordPatternsTest {
 
         BString bString = (BString) returns[0];
 
-        Assert.assertEquals(bString.stringValue(), "Matched Values : 12, {s:\"S\", i:23, f:5.6}");
+        Assert.assertEquals(bString.stringValue(), "Matched Values : 12, s=S i=23 f=5.6");
     }
 
     @Test(description = "Test basics of structured pattern match statement 4")
@@ -83,7 +84,7 @@ public class MatchStructuredRecordPatternsTest {
 
         BString bString = (BString) returns[0];
 
-        Assert.assertEquals(bString.stringValue(), "Matched Values : {b:12, f:{s:\"S\", i:23, f:5.6}}");
+        Assert.assertEquals(bString.stringValue(), "Matched Values : b=12 f=s=S i=23 f=5.6");
     }
 
     @Test(description = "Test basics of structured pattern match statement 5")
@@ -117,7 +118,7 @@ public class MatchStructuredRecordPatternsTest {
         Assert.assertEquals(results.getString(++i), msg + "single var : bar2");
     }
 
-    @Test(description = "Test structured pattern runtime matching", groups = "brokenOnJBallerina")
+    @Test(description = "Test structured pattern runtime matching")
     public void testRuntimeCheck() {
         BValue[] returns = BRunUtil.invoke(result, "testRuntimeCheck", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
@@ -181,7 +182,7 @@ public class MatchStructuredRecordPatternsTest {
         Assert.assertEquals(results.getString(++i), msg + "default : true");
     }
 
-    @Test(description = "Test structured pattern match with type guard 3")
+    @Test(description = "Test structured pattern match with type guard 3", groups = "brokenOnLangLibChange")
     public void testStructuredMatchPatternWithTypeGuard4() {
         BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard4", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
@@ -191,12 +192,14 @@ public class MatchStructuredRecordPatternsTest {
 
         int i = -1;
         String msg = "Matched with ";
-        Assert.assertEquals(results.getString(++i), msg + "restparam : {}");
-        Assert.assertEquals(results.getString(++i), msg + "restparam : {\"var2\":true}");
-        Assert.assertEquals(results.getString(++i), msg + "restparam : {\"var2\":true, \"var3\":true}");
+        Assert.assertEquals(results.getString(++i), msg + "restparam : ");
+        Assert.assertEquals(results.getString(++i), msg + "restparam : var2=true");
+        Assert.assertEquals(results.getString(++i), msg + "restparam : var2=true var3=true");
     }
 
-    @Test(description = "Test structured pattern with closed record", groups = "brokenOnJBallerina")
+    // TODO : Syntax used in test case should be invalid per spec. Please refer git issue #16961.
+    @Ignore
+    @Test(description = "Test structured pattern with closed record")
     public void testClosedRecord() {
         BValue[] returns = BRunUtil.invoke(result, "testClosedRecord", new BValue[]{});
         Assert.assertEquals(returns.length, 1);

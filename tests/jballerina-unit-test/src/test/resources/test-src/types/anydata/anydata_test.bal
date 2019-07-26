@@ -858,10 +858,15 @@ function testTypeCheckingOnAny() returns anydata {
     return ad;
 }
 
-type MyError error<string, map<error>>;
+type MyError error<string, MyErrorDetail>;
+
+type MyErrorDetail record {|
+    error e1;
+    error e2;
+|};
 
 error e1 = error("err reason");
-error e2 = error("err reason 2", str = "string value", err = e1);
+error e2 = error("err reason 2", str = "string value", e1=e1);
 MyError e3 = error("err reason 3", e1 = e1, e2 = e2);
 
 function testArraysWithErrorsAsAnydata() returns boolean {
@@ -900,12 +905,14 @@ function testMapsWithErrorsAsAnydata() returns boolean {
     map<error> a3 = <map<error>> ad1;
     map<string|error> a4 = <map<string|error>> ad2;
 
-    return a3.e1 === e1 && a3.e3 === e3 && a4.e1 === e1 && a4.e2 === e2 && a4.e3 === e3 && a3 === a1 && a4 === a2;
+    return a3.get("e1") === e1 && a3.get("e3") === e3 && a4.get("e1") === e1 && 
+            a4.get("e2") === e2 && a4.get("e3") === e3 && a3 === a1 && a4 === a2;
 }
 
-type MyRecord record {
+type MyRecord record {|
     string name;
-};
+    anydata|error...;
+|};
 
 type MyRecordTwo record {|
     int id;
@@ -922,5 +929,5 @@ function testRecordsWithErrorsAsAnydata() returns boolean {
     MyRecord m3 = <MyRecord> a1;
     MyRecordTwo m4 = <MyRecordTwo> a2;
 
-    return m3.err === e1 && m4.err === e3 && m3 === a1 && m2 === m4;
+    return m3["err"] === e1 && m4["err"] === e3 && m3 === a1 && m2 === m4;
 }

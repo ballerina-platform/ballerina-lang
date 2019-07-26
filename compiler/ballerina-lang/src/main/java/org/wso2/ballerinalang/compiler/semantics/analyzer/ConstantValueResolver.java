@@ -19,15 +19,12 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -90,7 +87,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef varRef) {
-        if ((varRef.symbol.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {
+        if (varRef.symbol == null || (varRef.symbol.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {
             this.result = null;
             return;
         }
@@ -112,11 +109,16 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         Map<String, BLangConstantValue> mapConstVal = new HashMap<>();
         for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : recorLiteral.keyValuePairs) {
             NodeKind nodeKind = keyValuePair.key.expr.getKind();
-            if (nodeKind != NodeKind.LITERAL && nodeKind != NodeKind.NUMERIC_LITERAL) {
+
+            String key;
+            if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL) {
+                key = (String) ((BLangLiteral) keyValuePair.key.expr).value;
+            } else if (nodeKind == NodeKind.SIMPLE_VARIABLE_REF) {
+                key = ((BLangSimpleVarRef) keyValuePair.key.expr).variableName.value;
+            } else {
                 continue;
             }
 
-            String key = (String) ((BLangLiteral) keyValuePair.key.expr).value;
             BLangConstantValue value = visitExpr(keyValuePair.valueExpr);
             mapConstVal.put(key, value);
         }
@@ -124,49 +126,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         this.result = new BLangConstantValue(mapConstVal, recorLiteral.type);
     }
 
-    @Override
-    public void visit(BLangIndexBasedAccess indexAccess) {
-        BLangConstantValue key = visitExpr(indexAccess.indexExpr);
-        BLangConstantValue constVal = visitExpr(indexAccess.expr);
-
-        // constVal can be null in error scenarios
-        if (constVal == null) {
-            this.result = null;
-            return;
-        }
-
-        Map<String, BLangConstantValue> value = (Map<String, BLangConstantValue>) constVal.value;
-        if (!value.containsKey(key.value)) {
-            dlog.error(indexAccess.indexExpr.pos, DiagnosticCode.KEY_NOT_FOUND, key, indexAccess.expr);
-        }
-        this.result = value.get(key.value);
-    }
-
-    @Override
-    public void visit(BLangFieldBasedAccess fieldAccess) {
-        String key = fieldAccess.field.value;
-        BLangConstantValue constVal = visitExpr(fieldAccess.expr);
-
-        // constVal can be null in error scenarios
-        if (constVal == null) {
-            this.result = null;
-            return;
-        }
-
-        Map<String, BLangConstantValue> value = (Map<String, BLangConstantValue>) constVal.value;
-        if (!value.containsKey(key)) {
-            dlog.error(fieldAccess.field.pos, DiagnosticCode.KEY_NOT_FOUND, key, fieldAccess.expr);
-        }
-
-        this.result = value.get(key);
-    }
-
     private BLangConstantValue visitExpr(BLangExpression node) {
         switch (node.getKind()) {
             case LITERAL:
             case NUMERIC_LITERAL:
-            case INDEX_BASED_ACCESS_EXPR:
-            case FIELD_BASED_ACCESS_EXPR:
             case RECORD_LITERAL_EXPR:
             case SIMPLE_VARIABLE_REF:
                 BLangConstantValue prevResult = this.result;

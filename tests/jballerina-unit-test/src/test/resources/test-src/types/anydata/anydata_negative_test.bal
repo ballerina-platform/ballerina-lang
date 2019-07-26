@@ -62,10 +62,10 @@ function testInvalidMapAssignments() {
     map<function (string) returns boolean> mfp = {};
     ad = mfp;
 
-    map<typedesc> mtd = {};
+    map<typedesc<any>> mtd = {};
     ad = mtd;
 
-    map<stream<any>> mst = {};
+    map<stream<anydata>> mst = {};
     ad = mst;
 
     map<any[]> mar = {};
@@ -99,10 +99,10 @@ function testInvalidArrayAssignments() {
     any[] aa = [];
     ad = aa;
 
-    typedesc[] atd = [];
+    typedesc<any>[] atd = [];
     ad = atd;
 
-    stream<any>?[] ast = [];
+    stream<anydata>?[] ast = [];
     ad = ast;
 
     any[][] a2a = [];
@@ -145,7 +145,7 @@ function testInvalidMapInsertions() {
     m["bar"] = new Bar();
 
     DataType dt = "hello world!";
-    m.datatype = dt;
+    m["datatype"] = dt;
 }
 
 function testErrorAsAnydata() {

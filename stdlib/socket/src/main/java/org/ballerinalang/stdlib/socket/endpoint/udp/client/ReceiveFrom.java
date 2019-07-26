@@ -18,12 +18,9 @@
 
 package org.ballerinalang.stdlib.socket.endpoint.udp.client;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -54,23 +51,11 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.UDP_CLIENT;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = UDP_CLIENT, structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
-public class ReceiveFrom implements NativeCallableUnit {
+public class ReceiveFrom {
     private static final Logger log = LoggerFactory.getLogger(ReceiveFrom.class);
-
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-    }
-
-    @Override
-    public boolean isBlocking() {
-        return false;
-    }
 
     public static Object receiveFrom(Strand strand, ObjectValue client, long length) {
         final NonBlockingCallback callback = new NonBlockingCallback(strand);
-        if (length == 0) {
-            length = DEFAULT_EXPECTED_READ_LENGTH;
-        }
         if (length != DEFAULT_EXPECTED_READ_LENGTH && length < 1) {
             String msg = "Requested byte length need to be 1 or more";
             callback.notifyFailure(SocketUtils.createSocketError(msg));

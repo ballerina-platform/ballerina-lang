@@ -18,16 +18,8 @@
 
 package org.ballerinalang.stdlib.encoding;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 
 import java.util.Formatter;
 
@@ -89,7 +81,7 @@ public class EncodingUtil {
     /**
      * Converts a hexadecimal character to an integer.
      *
-     * @param ch A character to convert to an integer digit
+     * @param ch    A character to convert to an integer digit
      * @param index The index of the character in the source
      * @return An integer
      * @throws IllegalArgumentException Thrown if ch is an illegal hex character
@@ -105,24 +97,10 @@ public class EncodingUtil {
     /**
      * Create encoding error.
      *
-     * @param context Represent ballerina context
-     * @param errMsg  Error description
+     * @param errMsg Error description
      * @return conversion error
      */
-    public static BError createEncodingError(Context context, String errMsg) {
-        BMap<String, BValue> errorRecord = BLangConnectorSPIUtil.createBStruct(context, Constants.ENCODING_PACKAGE,
-                Constants.ENCODING_ERROR);
-        errorRecord.put(Constants.MESSAGE, new BString(errMsg));
-        return BLangVMErrors.createError(context, true, BTypes.typeError, Constants.ENCODING_ERROR_CODE, errorRecord);
-    }
-
-    /**
-     * Create encoding error.
-     *
-     * @param errMsg  Error description
-     * @return conversion error
-     */
-    public static ErrorValue createEncodingError(String errMsg) {
+    public static ErrorValue createError(String errMsg) {
         return BallerinaErrors.createError(Constants.ENCODING_ERROR_CODE, errMsg);
     }
 }

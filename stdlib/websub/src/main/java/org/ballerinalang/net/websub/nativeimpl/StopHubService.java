@@ -20,12 +20,14 @@ package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.websub.BallerinaWebSubException;
 import org.ballerinalang.net.websub.hub.Hub;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Extern function to stop the default Ballerina WebSub Hub, if started.
@@ -40,20 +42,22 @@ import org.ballerinalang.net.websub.hub.Hub;
 )
 public class StopHubService extends BlockingNativeCallableUnit {
 
+    private static final Logger log = LoggerFactory.getLogger(StopHubService.class);
+
     @Override
     public void execute(Context context) {
+    }
+
+    public static boolean stopHubService(Strand strand, String hubUrl) {
         Hub hubInstance = Hub.getInstance();
         if (hubInstance.isStarted()) {
             try {
-                hubInstance.stopHubService(context);
+                hubInstance.stopHubService();
+                return true;
             } catch (BallerinaWebSubException e) {
-                context.setReturnValues(new BBoolean(false));
-                return;
+                return false;
             }
-            context.setReturnValues(new BBoolean(true));
-        } else {
-            context.setReturnValues(new BBoolean(false));
         }
+        return false;
     }
-
 }

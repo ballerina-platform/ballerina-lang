@@ -23,6 +23,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
@@ -41,12 +42,14 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.types.TypeKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -65,6 +68,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -122,6 +127,7 @@ public abstract class LSCompletionProvider {
         List<CompletionItem> completionItems = new ArrayList<>();
         symbolInfoList.removeIf(CommonUtil.invalidSymbolsPredicate());
         symbolInfoList.forEach(symbolInfo -> {
+            Optional<BSymbol> bTypeSymbol;
             BSymbol bSymbol = symbolInfo.isCustomOperation() ? null : symbolInfo.getScopeEntry().symbol;
             if (CommonUtil.isValidInvokableSymbol(bSymbol) || symbolInfo.isCustomOperation()) {
                 completionItems.add(populateBallerinaFunctionCompletionItem(symbolInfo, context));
@@ -132,10 +138,9 @@ public abstract class LSCompletionProvider {
                 completionItems.add(
                         BVariableCompletionItemBuilder.build((BVarSymbol) bSymbol, symbolInfo.getSymbolName(), typeName)
                 );
-            } else if (bSymbol instanceof BTypeSymbol && !(bSymbol instanceof BPackageSymbol)) {
+            } else if ((bTypeSymbol = FilterUtils.getBTypeEntry(symbolInfo.getScopeEntry())).isPresent()) {
                 // Here skip all the package symbols since the package is added separately
-                completionItems.add(
-                        BTypeCompletionItemBuilder.build((BTypeSymbol) bSymbol, symbolInfo.getSymbolName()));
+                completionItems.add(BTypeCompletionItemBuilder.build(bTypeSymbol.get(), symbolInfo.getSymbolName()));
             }
         });
         return completionItems;
@@ -165,8 +170,7 @@ public abstract class LSCompletionProvider {
         visibleSymbols.forEach(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
             if (bSymbol instanceof BTypeSymbol && !(bSymbol instanceof BPackageSymbol)) {
-                completionItems.add(
-                        BTypeCompletionItemBuilder.build((BTypeSymbol) bSymbol, symbolInfo.getSymbolName()));
+                completionItems.add(BTypeCompletionItemBuilder.build(bSymbol, symbolInfo.getSymbolName()));
             }
         });
 
@@ -193,6 +197,9 @@ public abstract class LSCompletionProvider {
             BSymbol pkgSymbol = symbolInfo.getScopeEntry().symbol;
             pkgSymbol.scope.entries.forEach((name, scopeEntry) -> {
                 if (scopeEntry.symbol instanceof BTypeSymbol) {
+                    filteredList.add(new SymbolInfo(name.getValue(), scopeEntry));
+                } else if (scopeEntry.symbol instanceof BConstructorSymbol && Names.ERROR.equals(
+                        scopeEntry.symbol.name)) {
                     filteredList.add(new SymbolInfo(name.getValue(), scopeEntry));
                 }
             });
@@ -411,6 +418,9 @@ public abstract class LSCompletionProvider {
                             signature.getLeft());
                 }
                 completionItems.add(newCItem);
+            } else if (assignmentType.get() instanceof BLangValueType
+                    && ((BLangValueType) assignmentType.get()).typeKind == TypeKind.TYPEDESC) {
+                completionItems.add(Snippet.KW_TYPEOF.get().build(context));
             }
         } catch (LSCompletionException ex) {
             // do nothing
@@ -462,6 +472,7 @@ public abstract class LSCompletionProvider {
                 addIfNotExists(Snippet.DEF_RESOURCE_WEBSUB_NOTIFY.get(), service, items, ctx);
                 break;
             default:
+                items.add(Snippet.DEF_RESOURCE_COMMON.get().build(ctx));
                 return items;
         }
         return items;
@@ -561,7 +572,7 @@ public abstract class LSCompletionProvider {
 
         BLangType typeNode = ((BLangSimpleVariableDef) evalStatement).getVariable().getTypeNode();
 
-        return Optional.of(typeNode);
+        return Optional.ofNullable(typeNode);
     }
 
     private void fillFunctionWithBodySnippet(BLangFunctionTypeNode functionTypeNode, LSContext context,
@@ -706,10 +717,8 @@ public abstract class LSCompletionProvider {
             return (bSymbol instanceof BInvokableSymbol
                     && ((BInvokableSymbol) bSymbol).receiverSymbol != null
                     && CommonUtil.isValidInvokableSymbol(bSymbol))
-                    || ((bSymbol instanceof BTypeSymbol)
-                    && !(bSymbol instanceof BPackageSymbol))
-                    || (bSymbol instanceof BInvokableSymbol
-                    && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED));
+                    || (FilterUtils.isBTypeEntry(symbolInfo.getScopeEntry()))
+                    || (bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED));
         });
         completionItems.addAll(getCompletionItemList(filteredList, context));
         // Add the packages completion items.

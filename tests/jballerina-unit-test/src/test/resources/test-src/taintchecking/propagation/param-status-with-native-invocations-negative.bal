@@ -14,21 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/mysql;
 import ballerina/io;
-
-mysql:Client mysqlDB = new({
-    host: "localhost",
-    port: 3306,
-    name: "ballerinademo",
-    username: "demouser",
-    password: "password@123",
-    dbOptions: { useSSL: false}
-});
+import ballerina/config;
 
 public function main(string... args) returns error? {
-    string s1 = args[0];
-    io:println(s1);
-    table<any> t1 = check mysqlDB->select("SELECT id, age, name from employee where name = " + s1, ());
+    string key = args[0];
+    io:println(key);
+    boolean b = config:contains(key);
     return;
 }

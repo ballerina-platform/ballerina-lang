@@ -14,11 +14,11 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.nativeimpl.builtin.stringlib;
+package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
@@ -33,8 +33,8 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
  * Extern function ballerina.model.arrays:substring(string, int, int).
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "builtin",
-        functionName = "string.substring",
+        orgName = "ballerina", packageName = "lang.string",
+        functionName = "substring",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
                 @Argument(name = "startIndex", type = TypeKind.INT),
                 @Argument(name = "endIndex", type = TypeKind.INT)},

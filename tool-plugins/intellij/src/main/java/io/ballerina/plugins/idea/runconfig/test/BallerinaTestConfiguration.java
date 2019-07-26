@@ -71,7 +71,7 @@ public class BallerinaTestConfiguration extends BallerinaRunConfigurationWithMai
     }
 
     @Override
-    public void writeExternal(Element element) throws WriteExternalException {
+    public void writeExternal(@NotNull Element element) throws WriteExternalException {
         super.writeExternal(element);
         JDOMExternalizerUtil.addElementWithValueAttribute(element, KIND_ATTRIBUTE_NAME, myRunKind.name());
         if (!myPackage.isEmpty()) {

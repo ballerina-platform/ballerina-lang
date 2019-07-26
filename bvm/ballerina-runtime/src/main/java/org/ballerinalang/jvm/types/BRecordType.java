@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -65,14 +66,7 @@ public class BRecordType extends BStructureType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        MapValue<String, Object> implicitInitValue = new MapValueImpl<>(this);
-        this.fields.entrySet().stream()
-                .filter(entry -> !Flags.isFlagOn(entry.getValue().flags, Flags.OPTIONAL))
-                .forEach(entry -> {
-                    Object value = entry.getValue().getFieldType().getZeroValue();
-                    implicitInitValue.put(entry.getKey(), value);
-                });
-        return (V) implicitInitValue;
+        return (V) BallerinaValues.createRecordValue(this.pkg.toString(), this.typeName);
     }
 
     @SuppressWarnings("unchecked")

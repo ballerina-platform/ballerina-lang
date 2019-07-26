@@ -18,9 +18,9 @@
 
 package org.ballerinalang.net.websub;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -36,7 +36,7 @@ public class WebSubCompilationTest {
     public void setup() {
         negativeCompilationResult =
                 BCompileUtil.compile("test-src/compilation/test_compilation_failure.bal");
-        Assert.assertEquals(negativeCompilationResult.getDiagnostics().length, 12);
+        Assert.assertEquals(negativeCompilationResult.getDiagnostics().length, 13);
     }
 
     @Test(description = "Test specifying > 1 SubscriberServiceConfig annotations", enabled = false)
@@ -51,18 +51,18 @@ public class WebSubCompilationTest {
     public void testInvalidOnIntentVerificationSignatureParams() {
         BAssertUtil.validateError(negativeCompilationResult, 0,
                                   "invalid resource signature for 'onIntentVerification', expected "
-                                                + "'ballerina/websub:Caller' as first parameter", 45, 45);
+                                                + "'ballerina/websub:Caller' as first parameter", 43, 45);
         BAssertUtil.validateError(negativeCompilationResult, 1,
                                   "invalid resource signature for 'onIntentVerification', expected "
                                                 + "'ballerina/websub:IntentVerificationRequest' as second parameter",
-                                  45, 67);
+                                  43, 67);
     }
 
     @Test(description = "Test invalid onNotification signature params")
     public void testInvalidOnNotificationSignatureParams() {
         BAssertUtil.validateError(negativeCompilationResult, 2,
                                   "invalid resource signature for 'onNotification', expected "
-                                          + "'ballerina/websub:Notification' as first parameter", 48, 39);
+                                          + "'ballerina/websub:Notification' as first parameter", 46, 39);
     }
 
     @Test(description = "Test invalid resource")
@@ -70,46 +70,52 @@ public class WebSubCompilationTest {
         BAssertUtil.validateError(negativeCompilationResult, 4,
                                   "invalid resource name 'onNotificationTwo' only two resources allowed "
                                       + "with ballerina/websub:Service, 'onIntentVerification' and 'onNotification'",
-                                  60, 5);
+                                  57, 5);
     }
 
     @Test(description = "Test not specifying onNotification resource")
     public void testOnNotificationUnspecified() {
         String errorMessage = "required resource 'onNotification' not specified with ballerina/websub:Service";
-        BAssertUtil.validateError(negativeCompilationResult, 3, errorMessage, 53, 1);
-        BAssertUtil.validateError(negativeCompilationResult, 5, errorMessage, 65, 1);
+        BAssertUtil.validateError(negativeCompilationResult, 3, errorMessage, 51, 1);
+        BAssertUtil.validateError(negativeCompilationResult, 5, errorMessage, 62, 1);
     }
 
     @Test(description = "Test onIntentVerification missing param")
     public void testOnIntentVerificationMissingParam() {
         String errorMessage = "invalid param count for WebSub Resource 'onIntentVerification', expected: 2 found: 1";
-        BAssertUtil.validateError(negativeCompilationResult, 6, errorMessage, 84, 5);
-        BAssertUtil.validateError(negativeCompilationResult, 8, errorMessage, 99, 5);
+        BAssertUtil.validateError(negativeCompilationResult, 6, errorMessage, 79, 5);
+        BAssertUtil.validateError(negativeCompilationResult, 8, errorMessage, 93, 5);
     }
 
     @Test(description = "Test onNotification missing param")
     public void testOnNotificationMissingParam() {
         BAssertUtil.validateError(negativeCompilationResult, 7,
                                   "invalid param count for WebSub Resource 'onNotification', expected: 1 found: 0",
-                                  87, 5);
+                                  82, 5);
     }
 
     @Test(description = "Test onIntentVerification extra param")
     public void testOnIntentVerificationExtraParam() {
         BAssertUtil.validateError(negativeCompilationResult, 9,
                                   "invalid param count for WebSub Resource 'onIntentVerification', "
-                                          + "expected: 2 found: 3", 114, 5);
+                                          + "expected: 2 found: 3", 107, 5);
     }
 
     @Test(description = "Test onNotification extra param")
     public void testOnNotificationExtraParam() {
         BAssertUtil.validateError(negativeCompilationResult, 10,
                                   "invalid param count for WebSub Resource 'onNotification', expected: 1 found: 2",
-                                  117, 5);
+                                  110, 5);
     }
 
     @Test(description = "Test invalid resource return type")
     public void testInvalidResourceReturnType() {
-        BAssertUtil.validateError(negativeCompilationResult, 11, "invalid return type: expected error?", 129, 5);
+        BAssertUtil.validateError(negativeCompilationResult, 11, "invalid return type: expected error?", 121, 5);
+    }
+
+    @Test(description = "Test subscriber without SubscriberServiceConfig")
+    public void testNoSubscriberServiceConfig() {
+        BAssertUtil.validateError(negativeCompilationResult, 12, "'SubscriberServiceConfig' annotation is compulsory",
+                                  127, 1);
     }
 }

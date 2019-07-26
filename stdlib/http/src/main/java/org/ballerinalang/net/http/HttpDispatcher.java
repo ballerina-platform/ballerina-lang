@@ -19,21 +19,21 @@ package org.ballerinalang.net.http;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.langlib.typedesc.ConstructFrom;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.net.uri.URIUtil;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
@@ -46,10 +46,8 @@ import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.net.http.HttpConstants.CALLER;
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
-import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_FIELD;
 import static org.ballerinalang.net.http.compiler.ResourceSignatureValidator.COMPULSORY_PARAM_COUNT;
 
 /**
@@ -148,9 +146,6 @@ public class HttpDispatcher {
 
     public static Object[] getSignatureParameters(HttpResource httpResource, HttpCarbonMessage httpCarbonMessage,
                                                   MapValue endpointConfig) {
-        //TODO Think of keeping struct type globally rather than creating for each request
-        ObjectValue listenerEndpoint = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, HTTP_LISTENER_ENDPOINT,
-                9090, endpointConfig); // sending a dummy port here as it gets initialized later - fix
         ObjectValue httpCaller = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, CALLER);
         ObjectValue inRequest = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP, REQUEST);
         ObjectValue inRequestEntity = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, ENTITY);
@@ -158,7 +153,6 @@ public class HttpDispatcher {
 
         HttpUtil.enrichHttpCallerWithConnectionInfo(httpCaller, httpCarbonMessage, httpResource, endpointConfig);
         HttpUtil.enrichHttpCallerWithNativeData(httpCaller, httpCarbonMessage, endpointConfig);
-        listenerEndpoint.addNativeData(SERVICE_ENDPOINT_CONNECTION_FIELD, httpCaller);
 
         HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, httpCarbonMessage);
 
@@ -216,7 +210,7 @@ public class HttpDispatcher {
             paramValues[paramValues.length - 2] = populateAndGetEntityBody(inRequest, inRequestEntity,
                                                                    signatureParams.getEntityBody());
             paramValues[paramValues.length - 1] = true;
-        } catch (BallerinaException ex) {
+        } catch (Exception ex) {
             httpCarbonMessage.setHttpStatusCode(Integer.parseInt(HttpConstants.HTTP_BAD_REQUEST));
             throw new BallerinaConnectorException("data binding failed: " + ex.getMessage());
         }
@@ -224,7 +218,8 @@ public class HttpDispatcher {
     }
 
     private static Object populateAndGetEntityBody(ObjectValue inRequest, ObjectValue inRequestEntity,
-                                                   org.ballerinalang.jvm.types.BType entityBodyType) {
+                                                   org.ballerinalang.jvm.types.BType entityBodyType)
+            throws IOException {
         HttpUtil.populateEntityBody(inRequest, inRequestEntity, true, true);
         try {
             switch (entityBodyType.getTag()) {
@@ -246,22 +241,28 @@ public class HttpDispatcher {
                         EntityBodyHandler.addMessageDataSource(inRequestEntity, blobDataSource);
                         return blobDataSource;
                     } else if (((BArrayType) entityBodyType).getElementType().getTag() == TypeTags.RECORD_TYPE_TAG) {
-                        bjson = getBJsonValue(inRequestEntity);
-                        return getRecordArray(entityBodyType, bjson);
+                        return getRecordEntity(inRequestEntity, entityBodyType);
                     } else {
                         throw new BallerinaConnectorException("Incompatible Element type found inside an array " +
                                 ((BArrayType) entityBodyType).getElementType().getName());
                     }
                 case TypeTags.RECORD_TYPE_TAG:
-                    bjson = getBJsonValue(inRequestEntity);
-                    return getRecord(entityBodyType, bjson);
+                    return getRecordEntity(inRequestEntity, entityBodyType);
                 default:
                         //Do nothing
             }
-        } catch (Exception ex) {
-            throw new BallerinaConnectorException("Error in reading payload : " + ex.getMessage());
+        } catch (ErrorValue ex) {
+            throw new BallerinaConnectorException(ex.toString());
         }
         return null;
+    }
+
+    private static Object getRecordEntity(ObjectValue inRequestEntity, BType entityBodyType) {
+        Object result = getRecord(entityBodyType, getBJsonValue(inRequestEntity));
+        if (result instanceof ErrorValue) {
+            throw (ErrorValue) result;
+        }
+        return result;
     }
 
     /**
@@ -273,25 +274,9 @@ public class HttpDispatcher {
      */
     private static Object getRecord(BType entityBodyType, Object bjson) {
         try {
-            return JSONUtils.convertJSONToRecord(bjson, (BStructureType) entityBodyType);
+            return ConstructFrom.convert(entityBodyType, bjson);
         } catch (NullPointerException ex) {
             throw new BallerinaConnectorException("cannot convert payload to record type: " +
-                    entityBodyType.getName());
-        }
-    }
-
-    /**
-     * Convert a json array to the relevant record array.
-     *
-     * @param entityBodyType Represents entity body type
-     * @param bjson          Represents the json array that needs to be converted
-     * @return the relevant ballerina record or object array
-     */
-    private static Object getRecordArray(BType entityBodyType, Object bjson) {
-        try {
-            return JSONUtils.convertJSONToBArray(bjson, (BArrayType) entityBodyType);
-        } catch (NullPointerException ex) {
-            throw new BallerinaConnectorException("cannot convert payload to an array of type: " +
                     entityBodyType.getName());
         }
     }

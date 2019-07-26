@@ -16,35 +16,16 @@
  */
 
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
-apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
     implementation 'commons-io:commons-io'
     implementation 'info.picocli:picocli'
     implementation 'com.google.code.gson:gson'
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-launcher')
+    implementation project(':ballerina-tool')
     implementation project(':language-server:language-server-compiler')
 
     testCompile 'org.testng:testng'
-}
-
-jar {
-    enabled = false
-    dependsOn(shadowJar { classifier = null })
-}
-
-shadowJar {
-    configurations = [project.configurations.runtimeClasspath]
-    dependencies {
-        include(dependency(':ballerina-lang'))
-        include(dependency('commons-io:commons-io'))
-        include(dependency('org.ballerinalang:language-server-compiler'))
-        include(dependency('com.google.code.gson:gson'))
-        exclude('META-INF/*.SF')
-        exclude('META-INF/*.DSA')
-        exclude('META-INF/*.RSA')
-    }
 }
 
 test {

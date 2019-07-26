@@ -1,4 +1,4 @@
-@test:Config
+@test:Config {}
 function ${testServiceFunctionName} () {
     http:WebSocketClient ${endpointName} = new(
         ${serviceUriStrName},

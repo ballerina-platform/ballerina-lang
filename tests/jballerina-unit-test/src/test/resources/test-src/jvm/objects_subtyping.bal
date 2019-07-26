@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// import testorg/subtyping version v1;
+import testorg/subtyping version v1;
 
 type Person1 object {
     public string name = "sample name";
@@ -83,7 +83,7 @@ type Student1 object {
     }
 
     public function toString() returns string {
-        return "Student1{" + self.name + ", " + self.age + ", " + self.school + "}";
+        return "Student1{" + self.name + ", " + self.age.toString() + ", " + self.school + "}";
     }
 };
 
@@ -92,10 +92,10 @@ function testSubtypingAPublicAbstractObject() returns string {
     return ap.toString();
 }
 
-//function testSubtypingAPublicAbsObjectInAnotherModule() returns string {
-//    AbstractPerson ap = new subtyping:Student("Jane Doe", "BA", 22);
-//    return ap.toString();
-//}
+function testSubtypingAPublicAbsObjectInAnotherModule() returns string {
+    AbstractPerson ap = new subtyping:Student("Jane Doe", "BA", 22);
+    return ap.toString();
+}
 
 public type UniStudent1 object {
     public string name = "";
@@ -111,7 +111,7 @@ public type UniStudent1 object {
     }
 
     public function toString() returns string {
-        return "Student{" + self.name + ", " + self.age + ", " + self.school + ", " + self.major + "}";
+        return "Student{" + self.name + ", " + self.age.toString() + ", " + self.school + ", " + self.major + "}";
     }
 
     public function getSchool() returns string {
@@ -119,10 +119,10 @@ public type UniStudent1 object {
     }
 };
 
-//function testSubtypingAPublicObjectInAnotherModule() returns string {
-//    subtyping:Student s = new UniStudent1("Jane Doe", "BA", 22, "CS");
-//    return s.toString();
-//}
+function testSubtypingAPublicObjectInAnotherModule() returns string {
+    subtyping:Student s = new UniStudent1("Jane Doe", "BA", 22, "CS");
+    return s.toString();
+}
 
 type AbstractAnimal abstract object {
     float weight;
@@ -140,7 +140,7 @@ type Dog object {
     }
 
     function move(int distance) returns string {
-        return self.name + " walked " + distance + " meters";
+        return self.name + " walked " + distance.toString() + " meters";
     }
 };
 

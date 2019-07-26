@@ -23,7 +23,7 @@ service hello on new http:MockListener(9090) {
         res.setPayload("Hello, World!");
         var result = caller->respond(res);
         if (result is error) {
-            log:printError("Error sending response", err = result);
+            log:printError("Error sending response", result);
         }
     }
 }

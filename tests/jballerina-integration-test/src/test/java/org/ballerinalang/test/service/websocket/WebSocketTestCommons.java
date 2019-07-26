@@ -23,14 +23,12 @@ import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeGroups;
-import org.testng.annotations.Test;
 
 import java.io.File;
 
 /**
  * Facilitate the common functionality of WebSocket integration tests.
  */
-@Test(groups = {"websocket-test"})
 public class WebSocketTestCommons extends BaseTest {
     protected static final int TIMEOUT_IN_SECS = 10;
 
@@ -43,11 +41,11 @@ public class WebSocketTestCommons extends BaseTest {
      */
     @BeforeGroups(value = "websocket-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
-        int[] requiredPorts = new int[]{
-                9076, 9077, 9078, 9079, 9080, 9081, 9082, 9083, 9084, 9085, 9086, 9087, 9088, 9089, 9090, 9091, 9092,
-                9093, 9094, 9095, 9096, 9097, 9098, 9099, 9100, 9200};
+        int[] requiredPorts =
+                new int[]{21001, 21002, 21003, 21004, 21005, 21006, 21007, 21008, 21009, 21010, 21011, 21022, 21021,
+                        21012, 21013, 21014, 21015, 21016, 21017, 21018, 21019, 21020, 21023, 21024, 21025, 21026};
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
-                "websocket").getAbsolutePath();
+                                          "websocket").getAbsolutePath();
         serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(balFile, "wsservices", requiredPorts);
     }

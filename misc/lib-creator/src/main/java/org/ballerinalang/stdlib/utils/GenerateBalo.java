@@ -17,19 +17,15 @@
 */
 package org.ballerinalang.stdlib.utils;
 
-
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.repository.CompiledPackage;
+import org.ballerinalang.tool.util.CompileResult;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
-import org.wso2.ballerinalang.compiler.BinaryFileWriter;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -78,7 +74,7 @@ public class GenerateBalo {
 
             boolean reportWarnings = !skipReportingWarnings;
 
-            genBalo(targetDir, sourceDir, isBuiltin, reportWarnings, Boolean.parseBoolean(jvmTarget));
+            genBalo(targetDir, sourceDir, reportWarnings, Boolean.parseBoolean(jvmTarget));
         } finally {
             unsetProperty(COMPILE_BALLERINA_ORG_PROP, originalShouldCompileBalOrg);
             unsetProperty(LOAD_BUILTIN_FROM_SOURCE_PROP, originalIsBuiltin);
@@ -94,9 +90,7 @@ public class GenerateBalo {
         }
     }
 
-
-    private static void genBalo(String targetDir, String sourceRootDir,
-                                boolean saveBuiltin, boolean reportWarnings, boolean jvmTarget)
+    private static void genBalo(String targetDir, String sourceRootDir, boolean reportWarnings, boolean jvmTarget)
             throws IOException {
         Files.createDirectories(Paths.get(targetDir));
 
@@ -116,7 +110,6 @@ public class GenerateBalo {
         options.put(SKIP_TESTS, Boolean.TRUE.toString());
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
 
-        SymbolTable symbolTable = SymbolTable.getInstance(context);
 
         Compiler compiler = Compiler.getInstance(context);
         List<BLangPackage> buildPackages = compiler.compilePackages(false);
@@ -131,12 +124,6 @@ public class GenerateBalo {
         }
 
         compiler.write(buildPackages);
-
-        BinaryFileWriter writer = BinaryFileWriter.getInstance(context);
-        BPackageSymbol buitlinSymbol = symbolTable.builtInPackageSymbol;
-        if (saveBuiltin && buitlinSymbol != null && buitlinSymbol.compiledPackage != null) {
-            writer.writeLibraryPackage(buitlinSymbol, Names.BUILTIN_PACKAGE.getValue());
-        }
     }
 
     private static class MvnSourceDirectory extends FileSystemProjectDirectory {

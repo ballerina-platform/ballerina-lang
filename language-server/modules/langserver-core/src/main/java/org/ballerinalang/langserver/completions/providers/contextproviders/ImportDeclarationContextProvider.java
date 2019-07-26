@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.completions.util.Priority;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,8 +87,15 @@ public class ImportDeclarationContextProvider extends LSCompletionProvider {
 
         packagesList.forEach(pkg -> {
             String fullPkgNameLabel = pkg.getOrgName() + "/" + pkg.getPackageName();
+            String insertText = pkg.getOrgName() + "/";
+            if (pkg.getOrgName().equals(Names.BALLERINA_ORG.value)
+                    && pkg.getPackageName().startsWith(Names.LANG.value + ".")) {
+                insertText += getLangLibModuleNameInsertText(pkg.getPackageName());
+            } else {
+                insertText += pkg.getPackageName();
+            }
             // Do not add the semicolon with the insert text since the user should be allowed to use the as keyword
-            CompletionItem fullPkgImport = getImportCompletion(fullPkgNameLabel, fullPkgNameLabel);
+            CompletionItem fullPkgImport = getImportCompletion(fullPkgNameLabel, insertText);
             fullPkgImport.setSortText(Priority.PRIORITY120.toString());
             completionItems.add(fullPkgImport);
             if (!orgNames.contains(pkg.getOrgName())) {
@@ -100,17 +108,28 @@ public class ImportDeclarationContextProvider extends LSCompletionProvider {
 
         return completionItems;
     }
+    
+    private String getLangLibModuleNameInsertText(String pkgName) {
+        return "'" + pkgName.replace(".", "\\.") + " as ${1}";
+    }
 
     private ArrayList<CompletionItem> getPackageNameCompletions(String orgName, List<BallerinaPackage> packagesList) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<String> pkgNameLabels = new ArrayList<>();
 
         packagesList.forEach(ballerinaPackage -> {
-            String label = ballerinaPackage.getPackageName();
-            if (orgName.equals(ballerinaPackage.getOrgName()) && !pkgNameLabels.contains(label)) {
-                pkgNameLabels.add(label);
+            String packageName = ballerinaPackage.getPackageName();
+            String insertText;
+            if (orgName.equals(ballerinaPackage.getOrgName()) && !pkgNameLabels.contains(packageName)) {
+                if (orgName.equals(Names.BALLERINA_ORG.value)
+                        && packageName.startsWith(Names.LANG.value + ".")) {
+                    insertText = getLangLibModuleNameInsertText(packageName);
+                } else {
+                    insertText = packageName;
+                }
+                pkgNameLabels.add(packageName);
                 // Do not add the semi colon at the end of the insert text since the user might type the as keyword
-                completionItems.add(getImportCompletion(label, label));
+                completionItems.add(getImportCompletion(packageName, insertText));
             }
         });
         

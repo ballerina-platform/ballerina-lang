@@ -16,9 +16,10 @@
  */
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 dependencies {
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
@@ -33,12 +34,13 @@ dependencies {
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-filepath', configuration: 'baloImplementation')
 
     baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-utils')
-    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-time')
@@ -53,7 +55,7 @@ dependencies {
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-system')
     implementation project(':ballerina-logging')
-    implementation project(':ballerina-launcher')
+    implementation project(':ballerina-tool')
 
     testImplementation 'org.slf4j:slf4j-jdk14'
     testImplementation 'com.h2database:h2'
@@ -63,14 +65,14 @@ dependencies {
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
 }
 
-test {
-    exclude "**/*"
-}
-
 configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
     testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+}
+
+createBalo {
+    jvmTarget = 'true'
 }
 
 description = 'Ballerina - Streams'

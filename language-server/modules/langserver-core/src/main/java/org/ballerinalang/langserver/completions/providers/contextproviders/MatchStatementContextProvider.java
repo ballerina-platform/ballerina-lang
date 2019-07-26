@@ -75,7 +75,7 @@ public class MatchStatementContextProvider extends LSCompletionProvider {
         if (delimiter > -1) {
             String varName = defaultTokens.get(defaultTokenTypes.indexOf(delimiter) - 1).getText();
             List<SymbolInfo> filteredList = FilterUtils.filterVariableEntriesOnDelimiter(ctx, varName, delimiter
-                    , defaultTokens, defaultTokenTypes.lastIndexOf(delimiter), false);
+                    , defaultTokens, defaultTokenTypes.lastIndexOf(delimiter));
             filteredList.removeIf(CommonUtil.invalidSymbolsPredicate());
             filteredList.forEach(symbolInfo -> {
                 if (CommonUtil.isValidInvokableSymbol(symbolInfo.getScopeEntry().symbol)) {
@@ -121,7 +121,6 @@ public class MatchStatementContextProvider extends LSCompletionProvider {
         List<String> params = new ArrayList<>();
         signature.append(CommonKeys.OPEN_PARENTHESES_KEY);
         func.getParameters().forEach(bVarSymbol -> params.add(bVarSymbol.getName().getValue()));
-        func.getDefaultableParameters().forEach(bVarSymbol -> params.add(bVarSymbol.getName().getValue()));
         signature.append(String.join(",", params)).append(")");
 
         return signature.toString();

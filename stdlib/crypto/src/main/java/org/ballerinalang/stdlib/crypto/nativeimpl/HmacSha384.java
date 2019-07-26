@@ -18,9 +18,7 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
@@ -34,14 +32,9 @@ import org.ballerinalang.stdlib.crypto.CryptoUtils;
         orgName = "ballerina", packageName = "crypto",
         functionName = "hmacSha384", isPublic = true
 )
-public class HmacSha384 extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class HmacSha384 {
 
     public static ArrayValue hmacSha384(Strand strand, ArrayValue inputValue, ArrayValue keyValue) {
-        byte[] output = CryptoUtils.hmac("HmacSHA384", keyValue.getBytes(), inputValue.getBytes());
-        return new ArrayValue(output);
+        return new ArrayValue(CryptoUtils.hmac("HmacSHA384", keyValue.getBytes(), inputValue.getBytes()));
     }
 }

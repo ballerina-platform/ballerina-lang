@@ -18,9 +18,7 @@
 
 package org.ballerinalang.stdlib.socket.endpoint.udp.client;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -53,12 +51,8 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.UDP_CLIENT;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = UDP_CLIENT, structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
-public class SendTo extends BlockingNativeCallableUnit {
+public class SendTo {
     private static final Logger log = LoggerFactory.getLogger(SendTo.class);
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static Object sendTo(Strand strand, ObjectValue client, ArrayValue content,
             MapValue<String, Object> address) {

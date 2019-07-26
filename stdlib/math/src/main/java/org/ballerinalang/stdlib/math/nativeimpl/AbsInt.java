@@ -17,11 +17,8 @@
  */
 package org.ballerinalang.stdlib.math.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -38,12 +35,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class AbsInt extends BlockingNativeCallableUnit {
-
-    public void execute(Context ctx) {
-        long value = ctx.getIntArgument(0);
-        ctx.setReturnValues(new BInteger(Math.abs(value)));
-    }
+public class AbsInt {
 
     public static long absInt(Strand strand, long value) {
         return Math.abs(value);

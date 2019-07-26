@@ -18,8 +18,8 @@
 package org.wso2.ballerinalang.util;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.util.EmbeddedExecutorError;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -44,8 +44,8 @@ public class RepoUtils {
     private static final String USER_HOME = "user.home";
     private static final String DEFAULT_TERMINAL_SIZE = "80";
     private static final String BALLERINA_CLI_WIDTH = "BALLERINA_CLI_WIDTH";
-    private static final String PRODUCTION_URL = "https://api.central.ballerina.io/packages/";
-    private static final String STAGING_URL = "https://api.staging-central.ballerina.io/packages/";
+    private static final String PRODUCTION_URL = "https://api.central.ballerina.io";
+    private static final String STAGING_URL = "https://api.staging-central.ballerina.io";
     private static final boolean BALLERINA_DEV_STAGE_CENTRAL = Boolean.parseBoolean(
             System.getenv("BALLERINA_DEV_STAGE_CENTRAL"));
 
@@ -79,16 +79,49 @@ public class RepoUtils {
     }
 
     /**
-     * Checks if the path is a project repo.
+     * Checks if the path is a project.
      *
      * @param path dir path
      * @return true if the directory is a project repo, false if its the home repo
      */
-    public static boolean hasProjectRepo(Path path) {
-        path = path.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
-        return !path.equals(createAndGetHomeReposPath()) && Files.exists(path, LinkOption.NOFOLLOW_LINKS) &&
-                Files.isDirectory(path);
+    public static boolean isBallerinaProject(Path path) {
+        Path manifest = path.resolve(ProjectDirConstants.MANIFEST_FILE_NAME);
+        return Files.isDirectory(path) && Files.exists(manifest) && Files.isRegularFile(manifest);
     }
+
+    /**
+     * Checks if the path is a standalone file.
+     *
+     * @param file path to bal file
+     * @return true if the file is a standalone bal file
+     */
+    public static boolean isBallerinaStandaloneFile(Path file) {
+        // Check if the file is a regular file
+        if (!Files.isRegularFile(file)) {
+            return false;
+        }
+        // Check if it is a file with bal extention.
+        if (!file.toString().endsWith(ProjectDirConstants.BLANG_SOURCE_EXT)) {
+            return false;
+        }
+        // Check if it is inside a project
+        Path projectRoot = ProjectDirs.findProjectRoot(file.getParent());
+        if (null != projectRoot) {
+            // Check if it is inside a module
+            Path src = projectRoot.resolve(ProjectDirConstants.SOURCE_DIR_NAME);
+            Path parent = file.getParent();
+            while (parent != null) {
+                if (src.equals(parent)) {
+                    return false;
+                }
+                parent = parent.getParent();
+            }
+            return true;
+        } else {
+            return true;
+        }
+    }
+
 
     /**
      * Get the remote repo URL.
@@ -190,16 +223,4 @@ public class RepoUtils {
         return getBallerinaVersion().contains("SNAPSHOT");
     }
 
-    /**
-     * Get nested error message.
-     * @param embeddedExecutorError The execution error.
-     * @return Error message.
-     */
-    public static String getInnerErrorMessage(EmbeddedExecutorError embeddedExecutorError) {
-        if (embeddedExecutorError.getCause() == null) {
-            return embeddedExecutorError.getMessage();
-        } else {
-            return getInnerErrorMessage(embeddedExecutorError.getCause());
-        }
-    }
 }

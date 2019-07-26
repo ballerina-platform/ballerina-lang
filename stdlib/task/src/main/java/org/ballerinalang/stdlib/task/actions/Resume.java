@@ -17,13 +17,9 @@
  */
 package org.ballerinalang.stdlib.task.actions;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
@@ -36,9 +32,8 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.NATIVE_DATA_TASK
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.OBJECT_NAME_LISTENER;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.REF_ARG_INDEX_TASK_RECORD;
-import static org.ballerinalang.stdlib.task.utils.Utils.setError;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.SCHEDULER_ERROR_REASON;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_PACKAGE_NAME;
 
 /**
  * Native function to resume a paused task.
@@ -52,25 +47,12 @@ import static org.ballerinalang.stdlib.task.utils.Utils.setError;
         receiver = @Receiver(
                 type = TypeKind.OBJECT,
                 structType = OBJECT_NAME_LISTENER,
-                structPackage = PACKAGE_STRUCK_NAME),
+                structPackage = TASK_PACKAGE_NAME),
         isPublic = true
 )
-public class Resume extends BlockingNativeCallableUnit {
+public class Resume {
 
     private static final Logger LOG = LoggerFactory.getLogger(Resume.class);
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public void execute(Context context) {
-        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(REF_ARG_INDEX_TASK_RECORD);
-        Task task = (Task) taskStruct.getNativeData(NATIVE_DATA_TASK_OBJECT);
-        try {
-            task.resume();
-        } catch (SchedulingException e) {
-            LOG.error(e.getMessage(), e);
-            setError(context, e.getMessage());
-        }
-    }
 
     public static Object resume(Strand strand, ObjectValue taskListener) {
         Task task = (Task) taskListener.getNativeData(NATIVE_DATA_TASK_OBJECT);
@@ -78,7 +60,7 @@ public class Resume extends BlockingNativeCallableUnit {
             task.resume();
         } catch (SchedulingException e) {
             LOG.error(e.getMessage(), e);
-            return Utils.createError(e.getMessage());
+            return Utils.createTaskError(SCHEDULER_ERROR_REASON, e.getMessage());
         }
         return null;
     }

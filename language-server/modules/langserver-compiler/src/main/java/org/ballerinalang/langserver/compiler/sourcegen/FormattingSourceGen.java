@@ -141,12 +141,17 @@ public class FormattingSourceGen {
 
         int firstNodeIndex = firstNodeWS.get(0).get("i").getAsInt();
         int secondNodeIndex = secondNodeWS.get(0).get("i").getAsInt();
-        int firstDiff = secondNodeIndex - firstNodeIndex;
+        int diff = firstNodeIndex - secondNodeIndex;
 
-        firstNodeWS.forEach(ws -> ws.addProperty("i", ws.get("i").getAsInt() + firstDiff));
+        firstNodeWS.forEach(ws -> ws.addProperty("i", ws.get("i").getAsInt() - diff));
+        String whitespace = firstNodeWS.get(0).get(FormattingConstants.WS).getAsString();
 
-        int secondDiff = firstNodeIndex - secondNodeIndex;
-        secondNodeWS.forEach(ws -> ws.addProperty("i", ws.get("i").getAsInt() + secondDiff));
+        int lastIndexOfFirstNode = firstNodeWS.get(firstNodeWS.size() - 1).get("i").getAsInt() + 1
+                + (whitespace.length() > 0 ? 1 : 0);
+
+        int diffToAddToSecondNode = lastIndexOfFirstNode - secondNodeIndex;
+
+        secondNodeWS.forEach(ws -> ws.addProperty("i", ws.get("i").getAsInt() + diffToAddToSecondNode));
     }
 
     /**
@@ -191,7 +196,7 @@ public class FormattingSourceGen {
      * @param node         Parent of the attach point
      * @param attachPoint  Name of the attach point where the new node to be added
      * @param insertBefore start position to add the new node above existing node
-     * @return {@link int} start position suitable for the new node to be added
+     * @return int start position suitable for the new node to be added
      */
     public static int getStartPosition(JsonObject node, String attachPoint, int insertBefore) {
         int startPosition = 0;
@@ -497,7 +502,21 @@ public class FormattingSourceGen {
 
         if ("Identifier".equals(kind)) {
             if (node.has("literal") && node.get("literal").getAsBoolean()) {
-                node.addProperty("valueWithBar", "^\"" + node.get("value").getAsString() + "\"");
+                // Re arrange unescaped delimiter identifiers.
+                String[] words = node.get("value").getAsString().split(" ");
+                StringBuilder valueWithBar = new StringBuilder();
+                for (int i = 0; i < words.length; i++) {
+                    if (i == 0) {
+                        valueWithBar.append("'").append(words[i]);
+                    } else {
+                        if (words[i].equals("")) {
+                            valueWithBar.append("\\").append(" ");
+                        } else {
+                            valueWithBar.append("\\ ").append(words[i]);
+                        }
+                    }
+                }
+                node.addProperty("valueWithBar", valueWithBar.toString());
             } else {
                 node.addProperty("valueWithBar", node.get("value").getAsString());
             }
@@ -553,6 +572,13 @@ public class FormattingSourceGen {
                     .get("kind").getAsString().equals("EndpointType")) {
                 node.getAsJsonObject("variable").addProperty("endpoint", true);
                 node.addProperty("endpoint", true);
+            }
+
+            // If variable def(worker) is in a fork but this is the node added to expand the scope
+            // Skip generating the source from this node.
+            if (node.has("isInFork") && node.get("isInFork").getAsBoolean()
+                    && !parentKind.equals("ForkJoin")) {
+                node.addProperty("skip", true);
             }
         }
 

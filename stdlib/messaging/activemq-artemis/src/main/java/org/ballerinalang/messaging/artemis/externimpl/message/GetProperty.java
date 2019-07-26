@@ -20,9 +20,7 @@
 package org.ballerinalang.messaging.artemis.externimpl.message;
 
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.messaging.artemis.ArtemisUtils;
@@ -53,11 +51,7 @@ import org.ballerinalang.natives.annotations.Receiver;
                 )
         }
 )
-public class GetProperty extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class GetProperty {
 
     public static Object getProperty(Strand strand, ObjectValue messageObj, String key) {
         ClientMessage message = (ClientMessage) messageObj.getNativeData(ArtemisConstants.ARTEMIS_MESSAGE);
@@ -68,4 +62,6 @@ public class GetProperty extends BlockingNativeCallableUnit {
         return null;
     }
 
+    private GetProperty() {
+    }
 }

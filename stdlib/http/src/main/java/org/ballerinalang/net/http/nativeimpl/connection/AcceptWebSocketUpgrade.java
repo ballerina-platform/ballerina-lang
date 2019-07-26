@@ -17,14 +17,10 @@
 package org.ballerinalang.net.http.nativeimpl.connection;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -33,6 +29,7 @@ import org.ballerinalang.net.http.WebSocketConnectionManager;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketUtil;
+import org.ballerinalang.net.http.exception.WebSocketException;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 
 /**
@@ -48,27 +45,20 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
                 structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
         )
 )
-public class AcceptWebSocketUpgrade implements NativeCallableUnit {
-
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-    }
+public class AcceptWebSocketUpgrade {
 
     public static ObjectValue acceptWebSocketUpgrade(Strand strand, ObjectValue connectionObj,
                                                      MapValue<String, String> headers) {
-        //TODO : NonBlockingCallback is used to handle non blocking call
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
-
         WebSocketHandshaker webSocketHandshaker =
                 (WebSocketHandshaker) connectionObj.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
         WebSocketConnectionManager connectionManager = (WebSocketConnectionManager) connectionObj
                 .getNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER);
         if (webSocketHandshaker == null) {
-            throw new BallerinaConnectorException("Not a WebSocket upgrade request. Cannot upgrade from HTTP to WS");
+            throw new WebSocketException("Not a WebSocket upgrade request. Cannot upgrade from HTTP to WS");
         }
         if (connectionManager == null) {
-            throw new BallerinaConnectorException("Cannot accept a WebSocket upgrade without WebSocket " +
-                                                          "connection manager");
+            throw new WebSocketException("Cannot accept a WebSocket upgrade without WebSocket " +
+                    "connection manager");
         }
 
         WebSocketService webSocketService = (WebSocketService) connectionObj.getNativeData(
@@ -80,12 +70,11 @@ public class AcceptWebSocketUpgrade implements NativeCallableUnit {
             httpHeaders.add(key.toString(), headers.get(key.toString()));
         }
 
-        WebSocketUtil.handleHandshake(webSocketService, connectionManager, httpHeaders, webSocketHandshaker, callback);
+        WebSocketUtil.handleHandshake(webSocketService, connectionManager, httpHeaders, webSocketHandshaker,
+                                      new NonBlockingCallback(strand));
         return null;
     }
 
-    @Override
-    public boolean isBlocking() {
-        return false;
+    private AcceptWebSocketUpgrade() {
     }
 }

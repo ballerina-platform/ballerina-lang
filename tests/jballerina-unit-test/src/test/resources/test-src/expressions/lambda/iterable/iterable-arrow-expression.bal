@@ -18,7 +18,7 @@ int index = 0;
 
 function testMapIterable() returns string[] {
     map<string> words = { a: "ant", b: "bear"};
-    string[] animals = words.map(word => word[1].toUpper());
+    string[] animals = words.'map(word => word[1].toUpperAscii());
     return animals;
 }
 

@@ -21,9 +21,7 @@ package org.ballerinalang.messaging.artemis.externimpl.message;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.bre.bvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.messaging.artemis.ArtemisTransactionContext;
@@ -49,20 +47,17 @@ import org.ballerinalang.natives.annotations.Receiver;
         ),
         isPublic = true
 )
-public class Acknowledge extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class Acknowledge {
 
     public static Object acknowledge(Strand strand, ObjectValue messageObj) {
         ClientMessage message = (ClientMessage) messageObj.getNativeData(ArtemisConstants.ARTEMIS_MESSAGE);
         ArtemisTransactionContext transactionContext =
-                (ArtemisTransactionContext) messageObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT);
+                (ArtemisTransactionContext) ((ObjectValue) messageObj.get(ArtemisConstants.SESSION)).getNativeData(
+                        ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT);
         try {
             message.acknowledge();
             if (transactionContext != null) {
-                transactionContext.handleTransactionBlock(ArtemisConstants.MESSAGE_OBJ);
+                transactionContext.handleTransactionBlock(ArtemisConstants.MESSAGE_OBJ, strand);
             }
         } catch (ActiveMQException e) {
             return ArtemisUtils.getError(e);
@@ -70,4 +65,6 @@ public class Acknowledge extends BlockingNativeCallableUnit {
         return null;
     }
 
+    private Acknowledge() {
+    }
 }

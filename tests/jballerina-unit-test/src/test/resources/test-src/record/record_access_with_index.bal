@@ -15,7 +15,7 @@ type Person record {
 
 type Family record {
     string spouse = "";
-    int noOfChildren = 0;
+    int noOfChildren?;
     string[] children = [];
 };
 
@@ -233,7 +233,7 @@ function testDynamicIndexAccessTypesWithOpenRecord() returns string {
             continue;
         }
         if (res is function (int) returns int) {
-            result += io:sprintf(":function:%s", res.call(8));
+            result += io:sprintf(":function:%s", res(8));
             continue;
         }
         if (res is ()) {

@@ -18,9 +18,7 @@
 
 package org.ballerinalang.stdlib.encoding.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -36,11 +34,7 @@ import java.util.Base64;
         orgName = "ballerina", packageName = "encoding",
         functionName = "encodeBase64Url", isPublic = true
 )
-public class EncodeBase64Url extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class EncodeBase64Url {
 
     public static String encodeBase64Url(Strand strand, ArrayValue input) {
         byte[] encodedValue = Base64.getUrlEncoder().encode(input.getBytes());

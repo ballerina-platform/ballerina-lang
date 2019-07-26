@@ -17,7 +17,7 @@ service test on mockEP {
 
         //Create another body part with a xml file.
         mime:Entity bodyPart2 = new;
-        bodyPart2.setFileAsEntityBody("src/test/resources/datafiles/file.xml", contentType = mime:TEXT_XML);
+        bodyPart2.setFileAsEntityBody("src/test/resources/datafiles/file.xml", mime:TEXT_XML);
 
         //Create a text body part.
         mime:Entity bodyPart3 = new;
@@ -33,7 +33,7 @@ service test on mockEP {
         //Set the body parts to outbound response.
         http:Response outResponse = new;
         string contentType = mime:MULTIPART_MIXED + "; boundary=e3a0b9ad7b4e7cdb";
-        outResponse.setBodyParts(bodyParts, contentType = contentType);
+        outResponse.setBodyParts(bodyParts, contentType);
 
         checkpanic caller->respond(outResponse);
     }
@@ -43,14 +43,16 @@ service test on mockEP {
         path:"/nested_parts_in_outresponse"
     }
     resource function nestedPartsInOutResponse(http:Caller caller, http:Request request) {
-        string contentType = untaint request.getHeader("content-type");
+        string contentType = <@untainted string> request.getHeader("content-type");
         http:Response outResponse = new;
         var bodyParts = request.getBodyParts();
 
         if (bodyParts is mime:Entity[]) {
-            outResponse.setBodyParts(untaint bodyParts, contentType = contentType);
+            outResponse.setBodyParts(<@untainted mime:Entity[]> bodyParts, contentType);
         } else {
-            outResponse.setPayload(untaint <string>bodyParts.detail().message);
+            error err = bodyParts;
+            string? errMsg = <string> err.detail()?.message;
+            outResponse.setPayload(errMsg is string ? <@untainted string> errMsg : "Error in parsing body parts");
         }
         checkpanic caller->respond(outResponse);
     }

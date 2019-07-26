@@ -15,8 +15,7 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -43,10 +42,6 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
         isPublic = true
 )
 public class Stop extends AbstractGrpcNativeFunction {
-    
-    @Override
-    public void execute(Context context) {
-    }
 
     public static void stop(Strand strand, ObjectValue serverEndpoint) {
         getServerConnector(serverEndpoint).stop();

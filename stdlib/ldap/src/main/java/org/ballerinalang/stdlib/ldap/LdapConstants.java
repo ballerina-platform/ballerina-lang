@@ -25,6 +25,12 @@ package org.ballerinalang.stdlib.ldap;
  */
 public class LdapConstants {
 
+    // Name of the Ballerina ldap module, used to create struct instances.
+    public static final String LDAP_PACKAGE = "ballerina/ldap";
+
+    // Record used to reference to a LDAP connection.
+    public static final String LDAP_CONNECTION = "LdapConnection";
+
     public static final String DOMAIN_NAME = "domainName";
     // LDAP connection related constants
     public static final String CONNECTION_URL = "connectionURL";
@@ -56,7 +62,6 @@ public class LdapConstants {
     public static final String LDAP_CONFIGURATION = "ldapConfiguration";
     public static final String LDAP_CONNECTION_SOURCE = "connectionSource";
     public static final String LDAP_CONNECTION_CONTEXT = "connectionContext";
-    public static final String LDAP_AUTH_PROVIDER_CONFIG = "ldapConnectionConfig";
     public static final String ENDPOINT_INSTANCE_ID = "instanceId";
     public static final String SECURE_AUTH_STORE_CONFIG = "secureClientSocket";
 
@@ -71,4 +76,7 @@ public class LdapConstants {
     public static final String DEFAULT_CONNECTION_TIME_OUT = "5000";
     public static final String UTF_8_CHARSET = "UTF-8";
     public static final String CERTIFICATE_ALIAS = "ca";
+
+    public static final String LDAP_ERROR_CODE = "{ballerina/ldap}Error";
+
 }

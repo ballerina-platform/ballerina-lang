@@ -6,39 +6,89 @@
   "source": "function/source/typeGuardSuggestions1.bal",
   "items": [
     {
-      "label": "freeze()",
+      "label": "min(...int)(int)",
       "kind": "Function",
       "detail": "Function",
-      "insertText": "freeze()",
-      "insertTextFormat": "Snippet"
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.int_  \n  \nMinimum of all the arguments\nXXX should we allow no args?  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
+        }
+      },
+      "insertText": "min(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "isFrozen()",
+      "label": "abs()(int)",
       "kind": "Function",
       "detail": "Function",
-      "insertText": "isFrozen()",
-      "insertTextFormat": "Snippet"
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.int_  \n  \nReturn absolute value of `n`  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
+        }
+      },
+      "insertText": "abs(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "stamp(anydata a)",
+      "label": "toHexString()(string)",
       "kind": "Function",
       "detail": "Function",
-      "insertText": "stamp(${1})",
-      "insertTextFormat": "Snippet"
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.int_  \n  \nReturns representation of `n` as hexdecimal string.\nThere is no `0x` prefix. Lowercase letters a-f are used.\nNegative numbers will have a `-` prefix. No sign for\nnon-negative numbers.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+        }
+      },
+      "insertText": "toHexString(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "clone()",
+      "label": "max(...int)(int)",
       "kind": "Function",
       "detail": "Function",
-      "insertText": "clone()",
-      "insertTextFormat": "Snippet"
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.int_  \n  \nMaximum of all the arguments\nXXX should we allow no args?  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
+        }
+      },
+      "insertText": "max(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "convert(anydata a)",
+      "label": "sum(...int)(int)",
       "kind": "Function",
       "detail": "Function",
-      "insertText": "convert(${1})",
-      "insertTextFormat": "Snippet"
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.int_  \n  \nSum of all the arguments\n0 if no args  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
+        }
+      },
+      "insertText": "sum(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }

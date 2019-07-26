@@ -18,9 +18,8 @@
 
 package org.ballerinalang.net.websub.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -52,21 +51,16 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERV
 )
 public class StartWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunction {
 
-    @Override
-    public void execute(Context context) {
-        Struct subscriberServiceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        Struct serviceEndpoint = ((subscriberServiceEndpoint).getRefField(WEBSUB_HTTP_ENDPOINT).getStructValue());
-
+    public static void startWebSubSubscriberServiceEndpoint(Strand strand, ObjectValue subscriberServiceEndpoint) {
+        ObjectValue serviceEndpoint = (ObjectValue) subscriberServiceEndpoint.get(WEBSUB_HTTP_ENDPOINT);
         ServerConnector serverConnector = getServerConnector(serviceEndpoint);
         //TODO: check if isStarted check is required
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         WebSubServicesRegistry webSubServicesRegistry = (WebSubServicesRegistry) serviceEndpoint.getNativeData(
-                                                                WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY);
+                WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY);
         serverConnectorFuture.setHttpConnectorListener(
-                new BallerinaWebSubConnectorListener(webSubServicesRegistry, serviceEndpoint
-                        .getStructField(HttpConstants.SERVICE_ENDPOINT_CONFIG), context));
+                new BallerinaWebSubConnectorListener(strand, webSubServicesRegistry, serviceEndpoint
+                        .getMapValue(HttpConstants.SERVICE_ENDPOINT_CONFIG)));
         serverConnectorFuture.setPortBindingEventListener(new HttpConnectorPortBindingListener());
-
-        context.setReturnValues();
     }
 }

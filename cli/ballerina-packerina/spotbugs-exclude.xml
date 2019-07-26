@@ -17,5 +17,8 @@
   -->
 
 <FindBugsFilter>
-
+    <Match>
+        <Class name="org.ballerinalang.packerina.PushUtils"/>
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+    </Match>
 </FindBugsFilter>

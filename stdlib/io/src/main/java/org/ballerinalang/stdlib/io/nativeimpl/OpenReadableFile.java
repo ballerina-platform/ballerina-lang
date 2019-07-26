@@ -18,8 +18,7 @@
  */
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -27,7 +26,6 @@ import org.ballerinalang.stdlib.io.channels.AbstractNativeChannel;
 import org.ballerinalang.stdlib.io.channels.FileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -71,10 +69,5 @@ public class OpenReadableFile extends AbstractNativeChannel {
         Channel channel = new FileIOChannel(fileChannel);
         channel.setReadable(true);
         return channel;
-    }
-
-    @Override
-    public Channel inFlow(Context context) throws BallerinaException {
-        return null;
     }
 }

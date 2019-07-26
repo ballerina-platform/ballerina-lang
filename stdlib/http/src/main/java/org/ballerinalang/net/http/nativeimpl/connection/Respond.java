@@ -21,24 +21,17 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 import io.netty.handler.codec.EncoderException;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.http.BHttpUtil;
 import org.ballerinalang.net.http.DataContext;
+import org.ballerinalang.net.http.HttpErrorType;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.net.http.caching.BResponseCacheControlStruct;
 import org.ballerinalang.net.http.caching.ResponseCacheControlObj;
-import org.ballerinalang.net.http.nativeimpl.pipelining.BPipelinedResponse;
 import org.ballerinalang.net.http.nativeimpl.pipelining.PipelinedResponse;
 import org.ballerinalang.net.http.util.CacheUtils;
 import org.slf4j.Logger;
@@ -46,10 +39,8 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_FIELD;
-import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.executeBPipeliningLogic;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.executePipeliningLogic;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.pipeliningRequired;
-import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.setBPipeliningListener;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.setPipeliningListener;
 
 /**
@@ -70,51 +61,6 @@ import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler
 public class Respond extends ConnectionAction {
 
     private static final Logger log = LoggerFactory.getLogger(Respond.class);
-
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-        BMap<String, BValue> connectionStruct = (BMap<String, BValue>) context.getRefArgument(0);
-        HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
-        DataContext dataContext = new DataContext(context, callback, inboundRequestMsg);
-        BMap<String, BValue> outboundResponseStruct = (BMap<String, BValue>) context.getRefArgument(1);
-        HttpCarbonMessage outboundResponseMsg = HttpUtil
-                .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
-        outboundResponseMsg.setPipeliningEnabled(inboundRequestMsg.isPipeliningEnabled());
-        outboundResponseMsg.setSequenceId(inboundRequestMsg.getSequenceId());
-        setCacheControlHeader(outboundResponseStruct, outboundResponseMsg);
-        BHttpUtil.prepareOutboundResponse(context, inboundRequestMsg, outboundResponseMsg, outboundResponseStruct);
-        BHttpUtil.checkFunctionValidity(connectionStruct, inboundRequestMsg, outboundResponseMsg);
-
-        // Based on https://tools.ietf.org/html/rfc7232#section-4.1
-        if (CacheUtils.isValidCachedResponse(outboundResponseMsg, inboundRequestMsg)) {
-            outboundResponseMsg.setHttpStatusCode(HttpResponseStatus.NOT_MODIFIED.code());
-            outboundResponseMsg.removeHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
-            outboundResponseMsg.removeHeader(HttpHeaderNames.CONTENT_TYPE.toString());
-            outboundResponseMsg.waitAndReleaseAllEntities();
-            outboundResponseMsg.completeMessage();
-        }
-
-//        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
-//        observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_HTTP_STATUS_CODE, String.valueOf
-//                (outboundResponseStruct.get(RESPONSE_STATUS_CODE_FIELD))));
-        try {
-            if (pipeliningRequired(inboundRequestMsg)) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Pipelining is required. Sequence id of the request: {}",
-                            inboundRequestMsg.getSequenceId());
-                }
-                BPipelinedResponse pipelinedResponse = new BPipelinedResponse(inboundRequestMsg, outboundResponseMsg,
-                                                                              dataContext, outboundResponseStruct);
-                setBPipeliningListener(outboundResponseMsg);
-                executeBPipeliningLogic(inboundRequestMsg.getSourceContext(), pipelinedResponse);
-            } else {
-                sendOutboundResponseRobust(dataContext, inboundRequestMsg, outboundResponseStruct, outboundResponseMsg);
-            }
-        } catch (EncoderException e) {
-            //Exception is already notified by http transport.
-            log.debug("Couldn't complete outbound response", e);
-        }
-    }
 
     public static Object nativeRespond(Strand strand, ObjectValue connectionObj, ObjectValue outboundResponseObj) {
         //TODO : NonBlockingCallback is temporary fix to handle non blocking call
@@ -158,20 +104,11 @@ public class Respond extends ConnectionAction {
             }
         } catch (EncoderException e) {
             //Exception is already notified by http transport.
-            log.debug("Couldn't complete outbound response", e);
-            return BallerinaErrors.createError("Couldn't complete outbound response");
+            String errorMessage = "Couldn't complete outbound response";
+            log.debug(errorMessage, e);
+            return HttpUtil.createHttpError(errorMessage, HttpErrorType.GENERIC_LISTENER_ERROR);
         }
         return null;
-    }
-
-    private void setCacheControlHeader(BMap<String, BValue> outboundRespStruct, HttpCarbonMessage outboundResponse) {
-        BMap<String, BValue> cacheControl =
-                (BMap<String, BValue>) outboundRespStruct.get(RESPONSE_CACHE_CONTROL_FIELD);
-        if (cacheControl != null &&
-                outboundResponse.getHeader(HttpHeaderNames.CACHE_CONTROL.toString()) == null) {
-            BResponseCacheControlStruct respCC = new BResponseCacheControlStruct(cacheControl);
-            outboundResponse.setHeader(HttpHeaderNames.CACHE_CONTROL.toString(), respCC.buildCacheControlDirectives());
-        }
     }
 
     private static void setCacheControlHeader(ObjectValue outboundRespObj, HttpCarbonMessage outboundResponse) {

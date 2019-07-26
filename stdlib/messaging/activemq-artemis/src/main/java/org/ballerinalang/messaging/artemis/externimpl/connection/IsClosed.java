@@ -20,9 +20,7 @@
 package org.ballerinalang.messaging.artemis.externimpl.connection;
 
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.model.types.TypeKind;
@@ -39,18 +37,17 @@ import org.ballerinalang.natives.annotations.Receiver;
         orgName = ArtemisConstants.BALLERINA, packageName = ArtemisConstants.ARTEMIS,
         functionName = "isClosed",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = ArtemisConstants.CONNECTION_OBJ,
-                             structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS),
+                structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS),
         isPublic = true
 )
-public class IsClosed extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class IsClosed {
 
     public static boolean isClosed(Strand strand, ObjectValue connection) {
         ClientSessionFactory sessionFactory =
                 (ClientSessionFactory) connection.getNativeData(ArtemisConstants.ARTEMIS_SESSION_FACTORY);
         return sessionFactory.isClosed();
+    }
+
+    private IsClosed() {
     }
 }

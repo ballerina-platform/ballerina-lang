@@ -18,18 +18,12 @@
 
 package org.ballerinalang.net.http.serviceendpoint;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.BHttpUtil;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -54,30 +48,6 @@ import static org.ballerinalang.net.http.HttpUtil.getListenerConfig;
         isPublic = true
 )
 public class InitEndpoint extends AbstractHttpNativeFunction {
-
-    @Override
-    public void execute(Context context) {
-        try {
-            Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-
-            // Creating server connector
-            Struct serviceEndpointConfig = serviceEndpoint.getStructField(HttpConstants.SERVICE_ENDPOINT_CONFIG);
-            long port = serviceEndpoint.getIntField(ENDPOINT_CONFIG_PORT);
-            ListenerConfiguration listenerConfiguration = BHttpUtil.getListenerConfig(port, serviceEndpointConfig);
-            ServerConnector httpServerConnector =
-                    HttpConnectionManager.getInstance().createHttpServerConnector(listenerConfiguration);
-            serviceEndpoint.addNativeData(HttpConstants.HTTP_SERVER_CONNECTOR, httpServerConnector);
-
-            //Adding service registries to native data
-            resetRegistry(serviceEndpoint);
-
-            context.setReturnValues((BValue) null);
-        } catch (Exception e) {
-            BError errorStruct = BHttpUtil.getError(context, e);
-            context.setReturnValues(errorStruct);
-        }
-    }
-
     public static Object initEndpoint(Strand strand, ObjectValue serviceEndpoint) {
         try {
             // Creating server connector
@@ -92,7 +62,7 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
             resetRegistry(serviceEndpoint);
             return null;
         } catch (Exception e) {
-            return HttpUtil.getError(e.getMessage());
+            return HttpUtil.createHttpError(e.getMessage());
         }
     }
 }

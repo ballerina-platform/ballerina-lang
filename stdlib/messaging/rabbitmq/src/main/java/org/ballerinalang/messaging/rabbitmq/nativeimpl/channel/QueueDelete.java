@@ -19,9 +19,7 @@
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel;
 
 import com.rabbitmq.client.Channel;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
@@ -46,26 +44,26 @@ import org.ballerinalang.natives.annotations.Receiver;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class QueueDelete extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class QueueDelete {
 
     public static Object queueDelete(Strand strand, ObjectValue channelObjectValue,
                                      String queueName, Object ifUnused, Object ifEmpty) {
+        boolean isInTransaction = strand.isInTransaction();
         Channel channel = (Channel) channelObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
         RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) channelObjectValue.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         try {
             ChannelUtils.queueDelete(channel, queueName, ifUnused, ifEmpty);
-            if (transactionContext != null) {
-                transactionContext.handleTransactionBlock();
+            if (isInTransaction) {
+                transactionContext.handleTransactionBlock(strand);
             }
         } catch (RabbitMQConnectorException exception) {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.RABBITMQ_CLIENT_ERROR
                     + exception.getDetail());
         }
         return null;
+    }
+
+    private QueueDelete() {
     }
 }

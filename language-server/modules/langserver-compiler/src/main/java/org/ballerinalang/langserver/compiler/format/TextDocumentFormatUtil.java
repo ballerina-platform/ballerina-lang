@@ -27,13 +27,14 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
-import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
+import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -44,12 +45,17 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -93,8 +99,8 @@ public class TextDocumentFormatUtil {
                                     WorkspaceDocumentManager documentManager, LSContext context)
             throws JSONGenerationException, LSCompilerException {
         String path = file.toAbsolutePath().toString();
-        String sourceRoot = LSCompilerUtil.getSourceRoot(file);
-        String packageName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, path);
+        LSDocument lsDocument = new LSDocument(path);
+        String packageName = lsDocument.getOwnerModule();
         String[] breakFromPackage = path.split(Pattern.quote(packageName + File.separator));
         String relativePath = breakFromPackage[breakFromPackage.length - 1];
 
@@ -133,9 +139,9 @@ public class TextDocumentFormatUtil {
     /**
      * Generate json representation for the given node.
      *
-     * @param node              Node to get the json representation
-     * @param anonStructs       Map of anonymous structs
-     * @param visibleEPsByNode        Visible endpoints by node map
+     * @param node             Node to get the json representation
+     * @param anonStructs      Map of anonymous structs
+     * @param visibleEPsByNode Visible endpoints by node map
      * @return {@link JsonElement}          Json Representation of the node
      * @throws JSONGenerationException when Json error occurs
      */
@@ -184,6 +190,15 @@ public class TextDocumentFormatUtil {
             JsonArray endpoints = new JsonArray();
             endpointMetaList.forEach(symbolMetaInfo -> endpoints.add(symbolMetaInfo.getJson()));
             nodeJson.add("VisibleEndpoints", endpoints);
+        }
+
+        if (node instanceof BLangSimpleVariableDef) {
+            nodeJson.addProperty("isEndpoint", isClientObject(((BLangSimpleVariableDef) node).var.symbol));
+        } else if (node instanceof BLangSimpleVariable) {
+            nodeJson.addProperty("isEndpoint", isClientObject(((BLangSimpleVariable) node).symbol));
+        } else if (node instanceof BLangSimpleVarRef) {
+            BSymbol varSymbol = ((BLangSimpleVarRef) node).symbol;
+            nodeJson.addProperty("isEndpoint", varSymbol != null && isClientObject(varSymbol));
         }
 
         JsonArray type = getType(node);
@@ -280,6 +295,11 @@ public class TextDocumentFormatUtil {
                         listPropJson.add(generateJSON(((BLangRecordVariable.BLangRecordVariableKeyValue) listPropItem)
                                 .getKey(), anonStructs, visibleEPsByNode));
                         listPropJson.add(generateJSON(((BLangRecordVariable.BLangRecordVariableKeyValue) listPropItem)
+                                .getValue(), anonStructs, visibleEPsByNode));
+                    } else if (listPropItem instanceof BLangErrorVariable.BLangErrorDetailEntry) {
+                        listPropJson.add(generateJSON(((BLangErrorVariable.BLangErrorDetailEntry) listPropItem)
+                                .getKey(), anonStructs, visibleEPsByNode));
+                        listPropJson.add(generateJSON(((BLangErrorVariable.BLangErrorDetailEntry) listPropItem)
                                 .getValue(), anonStructs, visibleEPsByNode));
                     } else if (listPropItem instanceof String) {
                         listPropJson.add((String) listPropItem);
@@ -387,5 +407,17 @@ public class TextDocumentFormatUtil {
             return jsonElements;
         }
         return null;
+    }
+
+    /**
+     * Check whether a given symbol is client object or not.
+     *
+     * @param bSymbol BSymbol to evaluate
+     * @return {@link Boolean}  Symbol evaluation status
+     */
+    public static boolean isClientObject(BSymbol bSymbol) {
+        return bSymbol != null && bSymbol.type != null && bSymbol.type.tsymbol != null
+                && SymbolKind.OBJECT.equals(bSymbol.type.tsymbol.kind)
+                && (bSymbol.type.tsymbol.flags & Flags.CLIENT) == Flags.CLIENT;
     }
 }

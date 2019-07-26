@@ -52,7 +52,7 @@ service echo on echoEP {
         } else {
             payloadData = payload;
         }
-        self.serviceLevelStr = untaint payloadData;
+        self.serviceLevelStr = <@untainted string> payloadData;
         checkpanic caller->respond(res);
     }
 
@@ -62,7 +62,7 @@ service echo on echoEP {
     }
     resource function getString(http:Caller caller, http:Request req) {
         http:Response res = new;
-        res.setTextPayload(self.serviceLevelStr);
+        res.setTextPayload(<@untainted> self.serviceLevelStr);
         checkpanic caller->respond(res);
     }
 
@@ -84,7 +84,7 @@ service echo on echoEP {
     }
     resource function getServiceLevelString(http:Caller caller, http:Request req) {
         http:Response res = new;
-        res.setTextPayload(self.serviceLevelStringVar);
+        res.setTextPayload(<@untainted> self.serviceLevelStringVar);
         checkpanic caller->respond(res);
     }
 
@@ -113,19 +113,29 @@ service echo on echoEP {
         var params = req.getFormParams();
         http:Response res = new;
         if (params is map<string>) {
-            string name = "";
-            string team = "";
-            if (params.hasKey("firstName")) {
-                name = params.firstName;
-            }
-            if (params.hasKey("team")) {
-                team = params.team;
-            }
-            json responseJson = {"Name":name , "Team":team};
-            res.setJsonPayload(untaint responseJson);
+            string? name = params["firstName"];
+            string? team = params["team"];
+            json responseJson = {"Name":(name is string ? name : "") , "Team":(team is string ? team : "")};
+            res.setJsonPayload(<@untainted json> responseJson);
         } else {
-            string errMsg = <string> params.detail().message;
-            res.setPayload(untaint errMsg);
+            if (params is http:GenericClientError) {
+                error? cause = params.detail()?.cause;
+                string? errorMsg;
+                if (cause is error) {
+                    errorMsg = cause.detail()?.message;
+                } else {
+                    errorMsg = params.detail()?.message;
+                }
+                if (errorMsg is string) {
+                    res.setPayload(<@untainted string> errorMsg);
+                } else {
+                    res.setPayload("Error occrred");
+                }
+            } else {
+                error err = params;
+                string? errMsg = <string> err.detail()?.message;
+                res.setPayload(errMsg is string ? <@untainted string> errMsg : "Error in parsing form params");
+            }
         }
         checkpanic caller->respond(res);
     }
@@ -147,7 +157,7 @@ service echo on echoEP {
     resource function errorReturn(http:Caller caller, http:Request req) returns error? {
         json payload = check req.getJsonPayload();
         http:Response res = new;
-        res.setPayload(untaint payload);
+        res.setPayload(<@untainted json> payload);
         res.statusCode = 200;
         checkpanic caller->respond(res);
     }

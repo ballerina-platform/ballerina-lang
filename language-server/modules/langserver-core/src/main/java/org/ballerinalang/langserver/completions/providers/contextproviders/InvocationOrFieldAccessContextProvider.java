@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
+import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
@@ -39,9 +40,8 @@ public class InvocationOrFieldAccessContextProvider extends LSCompletionProvider
 
     @Override
     public List<CompletionItem> getCompletions(LSContext context) {
-
-        Either<List<CompletionItem>, List<SymbolInfo>> content = new DelimiterBasedContentFilter().filterItems(context);
-
+        Either<List<CompletionItem>, List<SymbolInfo>> content = SymbolFilters.get(DelimiterBasedContentFilter.class)
+                .filterItems(context);
         return this.getCompletionItemList(content, context);
     }
 }

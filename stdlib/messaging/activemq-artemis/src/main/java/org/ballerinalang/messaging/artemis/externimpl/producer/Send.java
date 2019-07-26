@@ -22,9 +22,7 @@ package org.ballerinalang.messaging.artemis.externimpl.producer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.messaging.artemis.ArtemisTransactionContext;
@@ -57,23 +55,19 @@ import org.ballerinalang.natives.annotations.Receiver;
                 )
         }
 )
-public class Send extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class Send {
 
     public static Object externSend(Strand strand, ObjectValue producerObj, ObjectValue data) {
         try {
             ClientProducer producer = (ClientProducer) producerObj.getNativeData(ArtemisConstants.ARTEMIS_PRODUCER);
             ClientMessage message = (ClientMessage) data.getNativeData(ArtemisConstants.ARTEMIS_MESSAGE);
-            ArtemisTransactionContext transactionContext =
-                    (ArtemisTransactionContext) producerObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT);
+            ArtemisTransactionContext transactionContext = (ArtemisTransactionContext) ((ObjectValue) producerObj.get(
+                    ArtemisConstants.SESSION)).getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT);
             // Having to use the blocking function because of an issue in Artemis:
             // https://issues.apache.org/jira/browse/ARTEMIS-2325
             producer.send(message);
             if (transactionContext != null) {
-                transactionContext.handleTransactionBlock(ArtemisConstants.PRODUCER_OBJ);
+                transactionContext.handleTransactionBlock(ArtemisConstants.PRODUCER_OBJ, strand);
             }
         } catch (ActiveMQException e) {
             return ArtemisUtils.getError(e);
@@ -81,4 +75,6 @@ public class Send extends BlockingNativeCallableUnit {
         return null;
     }
 
+    private Send() {
+    }
 }

@@ -20,9 +20,7 @@
 package org.ballerinalang.messaging.artemis.externimpl.message;
 
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
@@ -47,11 +45,7 @@ import org.ballerinalang.natives.annotations.Receiver;
                 structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
         )
 )
-public class PutProperty extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class PutProperty {
 
     public static void putProperty(Strand strand, ObjectValue messageObj, String key, Object valObj) {
         ClientMessage message = (ClientMessage) messageObj.getNativeData(ArtemisConstants.ARTEMIS_MESSAGE);
@@ -73,4 +67,6 @@ public class PutProperty extends BlockingNativeCallableUnit {
         }//else is not needed because these are the only values supported by the Ballerina the method
     }
 
+    private PutProperty() {
+    }
 }

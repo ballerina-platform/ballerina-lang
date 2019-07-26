@@ -18,12 +18,10 @@
 
 package org.ballerinalang.test.messaging.artemis;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.util.TestUtils;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -37,47 +35,41 @@ import java.nio.file.Paths;
  */
 @Test(groups = {"artemis-test"})
 public class LocalTransactionTest {
-    private CompileResult producerResult, consumerResult;
+    private CompileResult erringTransactResult;
+    private CompileResult transactConsumerResult;
+    private CompileResult transactSimpleConsumerResult;
 
     @BeforeClass
     public void setup() throws URISyntaxException {
         TestUtils.prepareBalo(this);
-        Path sourcePath = Paths.get("src", "test", "resources", "messaging", "artemis");
-        producerResult = BCompileUtil.compile(sourcePath.resolve("producers").resolve("transaction_producer.bal")
-                                                      .toAbsolutePath().toString());
-        consumerResult = BCompileUtil.compile(sourcePath.resolve("consumers").resolve("transaction_consumer.bal")
-                                                      .toAbsolutePath().toString());
+        Path sourcePath = Paths.get("src", "test", "resources", "messaging", "artemis", "src");
+        erringTransactResult = BCompileUtil.compile(sourcePath.resolve("transaction").resolve("erring_transaction.bal")
+                .toAbsolutePath().toString());
+        transactConsumerResult = BCompileUtil.compile(sourcePath.resolve("transaction").resolve("consumer.bal")
+                .toAbsolutePath().toString());
+        transactSimpleConsumerResult = BCompileUtil.compile(sourcePath.resolve("transaction")
+                .resolve("simple_consumer.bal").toAbsolutePath().toString());
     }
 
     @Test(description = "Tests the sending of a string message to a queue")
     public void testSimpleSend() {
-        //Invoking this function is needed to make sure the queue is created before the sending
-        BValue[] consumerVal = BRunUtil.invoke(consumerResult, "createSimpleConsumer");
-        BRunUtil.invoke(producerResult, "testSimpleTransactionSend");
-        String returnVal = BRunUtil.invoke(consumerResult, "transactionSimpleConsumerReceive", consumerVal)[0]
-                .stringValue();
-        Assert.assertEquals(returnVal, "Example Example ", "Invalid message received");
+        validateTestReturnValue(transactSimpleConsumerResult, "testSimpleTransaction",
+                "Example Example ");
     }
 
     @Test(description = "Tests the sending of a string message to a queue")
     public void testSend() {
-        //Invoking this function is needed to make sure the queue is created before the sending
-        BValue[] consumerVal = BRunUtil.invoke(consumerResult, "createConsumer");
-        BRunUtil.invoke(producerResult, "testTransactionSend");
-        String returnVal = BRunUtil.invoke(consumerResult, "transactionConsumerReceive", consumerVal)[0].stringValue();
-        Assert.assertEquals(returnVal, "Example Example ", "Invalid message received");
+        validateTestReturnValue(transactConsumerResult, "testTransaction", "Example Example ");
     }
 
     @Test(description = "Tests transaction erring")
     public void testErringSend() {
-        //Invoking this function is needed to make sure the queue is created before the sending
-        BValue[] consumerVal = BRunUtil.invoke(consumerResult, "createErringConsumer");
-        try {
-            BRunUtil.invoke(producerResult, "testErringSend");
-        } catch (BLangRuntimeException ex) {
-            // Ignore
-        }
-        String returnVal = BRunUtil.invoke(consumerResult, "receiveAndGetText", consumerVal)[0].stringValue();
-        Assert.assertEquals(returnVal, "Example ", "Invalid message received");
+        validateTestReturnValue(erringTransactResult, "testErringSend", "Example ");
+    }
+
+    private void validateTestReturnValue(CompileResult compileResult, String functionName, String expected) {
+        String returnVal = BRunUtil.invoke(compileResult, functionName)[0]
+                .stringValue();
+        Assert.assertEquals(returnVal, expected, "Invalid message received");
     }
 }

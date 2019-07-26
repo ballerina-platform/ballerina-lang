@@ -18,9 +18,7 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
@@ -51,11 +49,7 @@ import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_BODY_FAIL
         returnType = {@ReturnType(type = TypeKind.ARRAY), @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
-public class GetBodyParts extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class GetBodyParts {
 
     public static Object getBodyParts(Strand strand, ObjectValue entityObj) {
         ArrayValue partsArray;

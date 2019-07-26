@@ -15,9 +15,8 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -53,10 +52,6 @@ import static org.ballerinalang.net.http.HttpUtil.getListenerConfig;
         isPublic = true
 )
 public class InitEndpoint extends AbstractGrpcNativeFunction {
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static Object initEndpoint(Strand strand, ObjectValue listenerObject) {
         MapValue serviceEndpointConfig = listenerObject.getMapValue(HttpConstants.SERVICE_ENDPOINT_CONFIG);

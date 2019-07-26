@@ -18,9 +18,7 @@
 
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.message;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
@@ -31,7 +29,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 
 /**
  * Retrieves the int content of the RabbitMQ message.
@@ -47,19 +44,15 @@ import java.util.Objects;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class GetIntContent extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class GetIntContent {
 
     public static Object getIntContent(Strand strand, ObjectValue messageObjectValue) {
-        boolean isInTransaction = false;
+        boolean isInTransaction = strand.isInTransaction();
         byte[] messageContent = (byte[]) messageObjectValue.getNativeData(RabbitMQConstants.MESSAGE_CONTENT);
         RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) messageObjectValue.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
-        if (isInTransaction && !Objects.isNull(transactionContext)) {
-            transactionContext.handleTransactionBlock();
+        if (isInTransaction) {
+            transactionContext.handleTransactionBlock(strand);
         }
         try {
             return Integer.parseInt(new String(messageContent, StandardCharsets.UTF_8.name()));
@@ -67,5 +60,8 @@ public class GetIntContent extends BlockingNativeCallableUnit {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.INT_CONTENT_ERROR
                     + exception.getMessage());
         }
+    }
+
+    private GetIntContent() {
     }
 }

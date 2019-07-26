@@ -6,10 +6,31 @@
   "source": "toplevel/source/importStatement3.bal",
   "items": [
     {
+      "label": "lang.object",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "\u0027lang\\.object as ${1}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "streams.balx",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "streams.balx",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "jwt",
       "kind": "Module",
       "detail": "Package",
       "insertText": "jwt",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.xml",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "\u0027lang\\.xml as ${1}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -20,17 +41,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "h2",
+      "label": "lang.array",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "h2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "privacy",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "privacy",
+      "insertText": "\u0027lang\\.array as ${1}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -111,6 +125,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "lang.string",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "\u0027lang\\.string as ${1}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "io",
       "kind": "Module",
       "detail": "Package",
@@ -139,6 +160,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "jvm",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "jvm",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "encoding",
       "kind": "Module",
       "detail": "Package",
@@ -157,6 +185,20 @@
       "kind": "Module",
       "detail": "Package",
       "insertText": "rabbitmq",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.future",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "\u0027lang\\.future as ${1}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.value",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "\u0027lang\\.value as ${1}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -195,6 +237,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "lang.float",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "\u0027lang\\.float as ${1}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "transactions",
       "kind": "Module",
       "detail": "Package",
@@ -216,17 +265,17 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "lang.decimal",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "\u0027lang\\.decimal as ${1}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "http",
       "kind": "Module",
       "detail": "Package",
       "insertText": "http",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "mysql",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "mysql",
       "insertTextFormat": "Snippet"
     },
     {
@@ -244,6 +293,20 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "lang.table",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "\u0027lang\\.table as ${1}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.annotations",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "\u0027lang\\.annotations as ${1}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "log",
       "kind": "Module",
       "detail": "Package",
@@ -258,10 +321,38 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "jms",
+      "label": "lang.stream",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "jms",
+      "insertText": "\u0027lang\\.stream as ${1}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.error",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "\u0027lang\\.error as ${1}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.typedesc",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "\u0027lang\\.typedesc as ${1}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.map",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "\u0027lang\\.map as ${1}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.int",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "\u0027lang\\.int as ${1}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -269,13 +360,6 @@
       "kind": "Module",
       "detail": "Package",
       "insertText": "socket",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "sql",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "sql",
       "insertTextFormat": "Snippet"
     }
   ]

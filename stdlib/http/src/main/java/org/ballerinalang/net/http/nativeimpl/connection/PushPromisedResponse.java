@@ -18,9 +18,7 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
@@ -61,35 +59,10 @@ import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 )
 public class PushPromisedResponse extends ConnectionAction {
 
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-//        BMap<String, BValue> connectionStruct = (BMap<String, BValue>) context.getRefArgument(0);
-//        HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
-//        DataContext dataContext = new DataContext(context, callback, inboundRequestMsg);
-//        HttpUtil.serverConnectionStructCheck(inboundRequestMsg);
-//
-//        BMap<String, BValue> pushPromiseStruct = (BMap<String, BValue>) context.getRefArgument(1);
-//        Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseStruct, null);
-//        if (http2PushPromise == null) {
-//            throw new BallerinaException("invalid push promise");
-//        }
-//
-//        BMap<String, BValue> outboundResponseStruct = (BMap<String, BValue>) context.getRefArgument(2);
-//        HttpCarbonMessage outboundResponseMsg = HttpUtil
-//                .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
-//
-//        HttpUtil.prepareOutboundResponse(context, inboundRequestMsg, outboundResponseMsg, outboundResponseStruct);
-//        pushResponseRobust(dataContext, inboundRequestMsg, outboundResponseStruct, outboundResponseMsg,
-//                http2PushPromise);
-    }
-
-    public static void pushPromisedResponse(Strand strand, ObjectValue connectionObj, ObjectValue pushPromiseObj,
+    public static Object pushPromisedResponse(Strand strand, ObjectValue connectionObj, ObjectValue pushPromiseObj,
                                      ObjectValue outboundResponseObj) {
-        //TODO : NonBlockingCallback is used to handle non blocking call
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
-
         HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionObj, null);
-        DataContext dataContext = new DataContext(strand, callback, inboundRequestMsg);
+        DataContext dataContext = new DataContext(strand, new NonBlockingCallback(strand), inboundRequestMsg);
         HttpUtil.serverConnectionStructCheck(inboundRequestMsg);
 
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseObj, null);
@@ -102,6 +75,7 @@ public class PushPromisedResponse extends ConnectionAction {
         HttpUtil.prepareOutboundResponse(connectionObj, inboundRequestMsg, outboundResponseMsg, outboundResponseObj);
         pushResponseRobust(dataContext, inboundRequestMsg, outboundResponseObj, outboundResponseMsg,
                 http2PushPromise);
+        return null;
     }
 
     private static void pushResponseRobust(DataContext dataContext, HttpCarbonMessage requestMessage,

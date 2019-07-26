@@ -16,6 +16,8 @@
 package org.ballerinalang.langserver.common.utils;
 
 import org.ballerinalang.langserver.command.testgen.TestGenerator;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -44,6 +46,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
@@ -68,17 +71,23 @@ public class FunctionGenerator {
      * @param args               Function arguments
      * @param returnType         return type
      * @param returnDefaultValue default return value
+     * @param modifiers         modifiers
+     * @param prependLineFeed   prepend line feed or not
+     * @param padding           padding for the function
      * @return {@link String}       generated function signature
      */
-    public static String createFunction(String name, String args, String returnType, String returnDefaultValue) {
+    public static String createFunction(String name, String args, String returnType, String returnDefaultValue,
+                                        String modifiers, boolean prependLineFeed, String padding) {
         String funcBody = CommonUtil.LINE_SEPARATOR;
         String funcReturnSignature = "";
         if (returnType != null) {
             funcBody = returnDefaultValue + funcBody;
             funcReturnSignature = " returns " + returnType + " ";
         }
-        return CommonUtil.LINE_SEPARATOR + CommonUtil.LINE_SEPARATOR + "function " + name + "(" + args + ")"
-                + funcReturnSignature + "{" + CommonUtil.LINE_SEPARATOR + funcBody + "}"
+        String lineFeed = prependLineFeed ? CommonUtil.LINE_SEPARATOR + CommonUtil.LINE_SEPARATOR
+                : CommonUtil.LINE_SEPARATOR;
+        return lineFeed + padding + modifiers + "function " + name + "(" + args + ")"
+                + funcReturnSignature + "{" + CommonUtil.LINE_SEPARATOR + funcBody + padding + "}"
                 + CommonUtil.LINE_SEPARATOR;
     }
 
@@ -228,13 +237,14 @@ public class FunctionGenerator {
     /**
      * Get the list of function arguments from the invokable symbol.
      *
-     * @param bInvokableSymbol Invokable symbol to extract the arguments
+     * @param symbol Invokable symbol to extract the arguments
+     * @param context Lang Server Operation context
      * @return {@link List} List of arguments
      */
-    public static List<String> getFuncArguments(BInvokableSymbol bInvokableSymbol) {
+    public static List<String> getFuncArguments(BInvokableSymbol symbol, LSContext context) {
         List<String> list = new ArrayList<>();
-        if (bInvokableSymbol.type instanceof BInvokableType) {
-            BInvokableType bInvokableType = (BInvokableType) bInvokableSymbol.type;
+        if (symbol.type instanceof BInvokableType) {
+            BInvokableType bInvokableType = (BInvokableType) symbol.type;
             if (bInvokableType.paramTypes.isEmpty()) {
                 return list;
             }
@@ -242,9 +252,12 @@ public class FunctionGenerator {
             Set<String> argNames = new HashSet<>();
             for (BType bType : bInvokableType.getParameterTypes()) {
                 String argName = CommonUtil.generateName(argCounter++, argNames);
-                String argType = generateTypeDefinition(null, bInvokableSymbol.pkgID, bType);
+                String argType = generateTypeDefinition(null, symbol.pkgID, bType);
                 list.add(argType + " " + argName);
                 argNames.add(argName);
+            }
+            if (symbol.restParam != null && (symbol.restParam.type instanceof BArrayType)) {
+                argNames.add("..." + CommonUtil.getBTypeName(((BArrayType) symbol.restParam.type).eType, context));
             }
         }
         return (!list.isEmpty()) ? list : new ArrayList<>();
@@ -256,10 +269,12 @@ public class FunctionGenerator {
      * @param importsAcceptor imports accepter
      * @param currentPkgId current package ID
      * @param parent Parent node
+     * @param context
      * @return {@link List} List of arguments
      */
     public static List<String> getFuncArguments(BiConsumer<String, String> importsAcceptor,
-                                                PackageID currentPkgId, BLangNode parent) {
+                                                PackageID currentPkgId, BLangNode parent,
+                                                LSContext context) {
         List<String> list = new ArrayList<>();
         if (parent instanceof BLangInvocation) {
             BLangInvocation bLangInvocation = (BLangInvocation) parent;
@@ -267,8 +282,9 @@ public class FunctionGenerator {
                 return null;
             }
             int argCounter = 1;
-            Set<String> argNames = new HashSet<>();
+            CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
             for (BLangExpression bLangExpression : bLangInvocation.argExprs) {
+                Set<String> argNames = CommonUtil.getAllNameEntries(bLangExpression, compilerContext);
                 if (bLangExpression instanceof BLangSimpleVarRef) {
                     BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) bLangExpression;
                     String varName = simpleVarRef.variableName.value;
@@ -279,12 +295,13 @@ public class FunctionGenerator {
                     BLangInvocation invocation = (BLangInvocation) bLangExpression;
                     String functionName = invocation.name.value;
                     String argType = lookupFunctionReturnType(functionName, parent);
-                    String argName = CommonUtil.generateName(argCounter++, argNames);
+                    String argName = CommonUtil.generateVariableName(bLangExpression, argNames);
                     list.add(argType + " " + argName);
                     argNames.add(argName);
                 } else {
+                    String argType = generateTypeDefinition(importsAcceptor, currentPkgId, bLangExpression);
                     String argName = CommonUtil.generateName(argCounter++, argNames);
-                    list.add("any " + argName);
+                    list.add(argType + " " + argName);
                     argNames.add(argName);
                 }
             }

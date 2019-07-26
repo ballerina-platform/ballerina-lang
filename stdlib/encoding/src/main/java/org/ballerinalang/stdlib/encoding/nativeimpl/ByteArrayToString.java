@@ -18,14 +18,12 @@
 
 package org.ballerinalang.stdlib.encoding.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.stdlib.encoding.EncodingUtil;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Convert byte array to string.
@@ -36,21 +34,13 @@ import java.nio.charset.StandardCharsets;
         orgName = "ballerina", packageName = "encoding",
         functionName = "byteArrayToString", isPublic = true
 )
-public class ByteArrayToString extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class ByteArrayToString {
 
     public static String byteArrayToString(Strand strand, ArrayValue bytes, String encoding) {
         try {
-            // TODO : Remove null check once extern functions are supported with default value parameters.
-            if (encoding == null) {
-                encoding = StandardCharsets.UTF_8.name();;
-            }
             return new String(bytes.getBytes(), encoding);
         } catch (UnsupportedEncodingException e) {
-            throw new org.ballerinalang.jvm.util.exceptions.BallerinaException("unsupported encoding: " + encoding , e);
+            throw EncodingUtil.createError("Unsupported encoding: " + encoding);
         }
     }
 }

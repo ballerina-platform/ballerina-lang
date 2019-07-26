@@ -17,8 +17,8 @@
   */
  package org.ballerinalang.jvm.values;
 
- import org.ballerinalang.jvm.Strand;
  import org.ballerinalang.jvm.commons.TypeValuePair;
+ import org.ballerinalang.jvm.scheduling.Strand;
  import org.ballerinalang.jvm.types.BType;
  import org.ballerinalang.jvm.types.BTypes;
  import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
@@ -59,7 +59,7 @@
          if (panic != null) {
              sj.add("panic:" + panic.getLocalizedMessage());
          }
-         return "future:" + sj.toString();
+         return "future " + sj.toString();
      }
 
      @Override
@@ -74,7 +74,12 @@
 
      @Override
      public Object copy(Map<Object, Object> refs) {
-         return null;
+         throw new UnsupportedOperationException();
+     }
+
+     @Override
+     public Object frozenCopy(Map<Object, Object> refs) {
+         throw new UnsupportedOperationException();
      }
 
      public void cancel() {

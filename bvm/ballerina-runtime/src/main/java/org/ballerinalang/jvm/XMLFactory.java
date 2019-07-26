@@ -35,12 +35,18 @@ import org.apache.axiom.om.OMProcessingInstruction;
 import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.OMXMLBuilderFactory;
 import org.apache.axiom.om.impl.dom.TextImpl;
+import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
 import org.apache.axiom.om.util.StAXParserConfiguration;
 import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
@@ -77,7 +83,8 @@ public class XMLFactory {
     private static final String CANONICALIZER_EXCL_OMIT_COMMENTS = "http://www.w3.org/2001/10/xml-exc-c14n#";
     private static final String CANONICALIZER_EXCL_WITH_COMMENTS =
             "http://www.w3.org/2001/10/xml-exc-c14n#WithComments";
-
+    private static final BType jsonMapType =
+            new BMapType(TypeConstants.MAP_TNAME, BTypes.typeJSON, new BPackage(null, null, null));
     private static final OMFactory OM_FACTORY = OMAbstractFactory.getOMFactory();
     public static final StAXParserConfiguration STAX_PARSER_CONFIGURATION = StAXParserConfiguration.STANDALONE;
 
@@ -265,17 +272,17 @@ public class XMLFactory {
     }
 
     /**
-     * Converts a {@link BTable} to {@link XMLValue}.
+     * Converts a {@link org.ballerinalang.jvm.values.TableValue} to {@link XMLValue}.
      *
-     * @param table {@link BTable} to convert
+     * @param table {@link org.ballerinalang.jvm.values.TableValue} to convert
      * @return converted {@link XMLValue}
      */
-    // @SuppressWarnings("rawtypes")
-    // public static XMLValue tableToXML(BTable table) {
-    // OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
-    // omSourcedElement.init(new TableOMDataSource(table, null, null));
-    // return new XMLItem(omSourcedElement);
-    // }
+    @SuppressWarnings("rawtypes")
+    public static XMLValue tableToXML(TableValue table) {
+        OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
+        omSourcedElement.init(new TableOMDataSource(table, null, null));
+        return new XMLItem(omSourcedElement);
+    }
 
     /**
      * Create an element type XMLValue.
@@ -385,7 +392,7 @@ public class XMLFactory {
             } else if (OMNode.TEXT_NODE == omNode.getType()) {
                 json = JSONParser.parse("\"" + ((OMText) omNode).getText() + "\"");
             } else {
-                json = new MapValueImpl<String, Object>(BTypes.typeJSON);
+                json = new MapValueImpl<String, Object>(jsonMapType);
             }
         } else {
             // Process xml sequence
@@ -482,12 +489,12 @@ public class XMLFactory {
     @SuppressWarnings("rawtypes")
     private static MapValueImpl<String, Object> traverseXMLElement(OMElement omElement, String attributePrefix,
                                                                    boolean preserveNamespaces) {
-        MapValueImpl<String, Object> rootNode = new MapValueImpl<>(BTypes.typeJSON);
+        MapValueImpl<String, Object> rootNode = new MapValueImpl<>(jsonMapType);
         LinkedHashMap<String, String> attributeMap = collectAttributesAndNamespaces(omElement, preserveNamespaces);
         Iterator iterator = omElement.getChildElements();
         String keyValue = getElementKey(omElement, preserveNamespaces);
         if (iterator.hasNext()) {
-            MapValueImpl<String, Object> currentRoot = new MapValueImpl<>(BTypes.typeJSON);
+            MapValueImpl<String, Object> currentRoot = new MapValueImpl<>(jsonMapType);
             ArrayList<OMElement> childArray = new ArrayList<>();
             LinkedHashMap<String, ArrayList<Object>> rootMap = new LinkedHashMap<>();
             while (iterator.hasNext()) {
@@ -567,7 +574,7 @@ public class XMLFactory {
             textArrayNode = processTextArray(textArray);
         }
 
-        MapValueImpl<String, Object> jsonNode = new MapValueImpl<>(BTypes.typeJSON);
+        MapValueImpl<String, Object> jsonNode = new MapValueImpl<>(jsonMapType);
         if (childArray.size() > 0) {
             processChildelements(jsonNode, childArray, attributePrefix, preserveNamespaces);
             if (textArrayNode != null) {
@@ -701,7 +708,7 @@ public class XMLFactory {
                                           String attributePrefix, String singleElementValue) {
         boolean singleElement = false;
         if (rootNode == null) {
-            rootNode = new MapValueImpl<>(BTypes.typeJSON);
+            rootNode = new MapValueImpl<>(jsonMapType);
             singleElement = true;
         }
         // All the attributes and namesapces are set as key value pairs with given prefix

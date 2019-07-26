@@ -1,0 +1,17 @@
+NAME
+    Ballerina install - Install a given SDK version
+
+SYNOPSIS
+    ballerina install <sdk-version>
+
+DESCRIPTION
+     Installs the given Ballerina version from project repository.
+
+OPTIONS
+     Ballerina install command takes no options.
+
+EXAMPLES
+     Install Ballerina 1.0.0 version
+     $ ballerina install 1.0.0
+
+     This will download and keep 1.0.0 distribution and set ballerina command

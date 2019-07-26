@@ -3,8 +3,8 @@ import {
     ASTNode, ASTUtil, Block, Break, CompoundAssignment, Constant,
     ExpressionStatement, Foreach, Function as BalFunction, If, Invocation, Lambda,
     Literal, Match, MatchStaticPatternClause, ObjectType,
-    Panic, Return, Service, TypeDefinition, UnionTypeNode,
-    ValueType, Variable, VariableDef, VisibleEndpoint, Visitor, While, WorkerReceive, WorkerSend
+    Panic, Return, Service, TypeDefinition, Variable, VariableDef, VisibleEndpoint,
+    Visitor, While, WorkerReceive, WorkerSend
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -72,8 +72,9 @@ class SizingVisitor implements Visitor {
 
     public beginVisitWhile(node: While) {
         node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
-        if (node.VisibleEndpoints) {
-            this.endpointHolder = [...node.VisibleEndpoints, ...this.endpointHolder];
+        // FIXME remove cast to any on While node to get VisibleEndpoints
+        if ((node as any).VisibleEndpoints) {
+            this.endpointHolder = [...(node as any).VisibleEndpoints, ...this.endpointHolder];
         }
     }
 
@@ -151,8 +152,6 @@ class SizingVisitor implements Visitor {
                             let variableName = "";
                             if (ASTKindChecker.isVariable(p)) {
                                 variableName = p.name.value;
-                            } else if (ASTKindChecker.isVariable(p.variable)) {
-                                variableName = p.variable.name.value;
                             }
 
                             if (variableName === ep.name) {
@@ -172,7 +171,7 @@ class SizingVisitor implements Visitor {
                 }
             });
         }
-        const lifeLinesWidth = client.bBox.w + config.lifeLine.gutter.h
+        const lifeLinesWidth = client.bBox.w + config.lifeLine.gutter.h + defaultWorker.bBox.leftMargin
             + defaultWorker.bBox.w + endpointWidth + workerWidth;
         body.w = config.panel.padding.left + lifeLinesWidth;
         body.h = config.panel.padding.top + lineHeight + config.panel.padding.bottom;
@@ -202,17 +201,12 @@ class SizingVisitor implements Visitor {
         // show an implicit return line for functions with return type nil
         // and doesn't have any return statements
         if (!node.resource && this.returnStatements.length === 0) {
-            const isNilType = (target: ASTNode) => ASTKindChecker.isValueType(target)
-                && (target as ValueType).typeKind === "nil";
-
-            // case one: returns () or no return type declaration
-            viewState.implicitReturn.hidden = !(isNilType(node.returnTypeNode)
-                // case two: returns a union type which wraps nil
-                || (ASTKindChecker.isUnionTypeNode(node.returnTypeNode)
-                    && (node.returnTypeNode as UnionTypeNode).memberTypeNodes.find(isNilType) !== undefined));
             viewState.implicitReturn.client = client;
             viewState.implicitReturn.bBox.h = config.statement.height;
             viewState.implicitReturn.bBox.w = config.statement.width;
+            viewState.implicitReturn.hidden = false;
+        } else {
+            viewState.implicitReturn.hidden = true;
         }
 
         this.soroundingEndpoints = [];
@@ -318,8 +312,7 @@ class SizingVisitor implements Visitor {
         }
 
         if (node.viewState.hiddenBlock) {
-            viewState.bBox.w = 60;
-            viewState.bBox.h = config.statement.height;
+            this.sizeHiddenBlock(node.viewState);
             return;
         }
 
@@ -447,7 +440,7 @@ class SizingVisitor implements Visitor {
     private sizeStatement(node: ASTNode) {
         const viewState: StmntViewState = node.viewState;
         // If hidden do nothing.
-        if (node.viewState.hidden) {
+        if (viewState.hidden && !viewState.isInHiddenBlock) {
             viewState.bBox.h = 0;
             viewState.bBox.w = 0;
             return;
@@ -457,6 +450,7 @@ class SizingVisitor implements Visitor {
         const label = DiagramUtils.getTextWidth(source);
         viewState.bBox.h = config.statement.height;
         viewState.bBox.w = (config.statement.width > label.w) ? config.statement.width : label.w;
+        viewState.bBox.leftMargin = 0;
         viewState.bBox.label = label.text;
         viewState.bBox.labelWidth = label.labelWidth;
         // Check if statement is action invocation.
@@ -480,8 +474,8 @@ class SizingVisitor implements Visitor {
             }
         }
 
-        if (node.viewState.hiddenBlock) {
-            viewState.bBox.w = 60;
+        if (viewState.hiddenBlockContext) {
+            this.sizeHiddenBlock(viewState);
         }
 
         if (viewState.expandContext) {
@@ -492,6 +486,36 @@ class SizingVisitor implements Visitor {
                 viewState.expandContext.labelWidth = DiagramUtils.calcTextLength(source, {bold: true});
                 this.handleExpandedFn(viewState.expandContext.expandedSubTree, viewState);
             }
+        }
+    }
+
+    private sizeHiddenBlock(viewState: StmntViewState) {
+        if (!viewState.hiddenBlockContext) {
+            return;
+        }
+
+        if (viewState.hiddenBlockContext.expanded) {
+            let hiddenBlockHeight = 2 * config.statement.expanded.topMargin;
+            let hiddenBlockWidth = 0;
+            let hiddenBlockLeftMargin = config.statement.expanded.margin;
+            viewState.hiddenBlockContext.otherHiddenNodes.forEach((hiddenNode) => {
+                ASTUtil.traversNode(hiddenNode, visitor);
+                hiddenBlockHeight += (hiddenNode.viewState.bBox.h + hiddenNode.viewState.bBox.paddingTop);
+                if (hiddenBlockWidth < hiddenNode.viewState.bBox.w) {
+                    hiddenBlockWidth = hiddenNode.viewState.bBox.w;
+                }
+                if (hiddenBlockLeftMargin < hiddenNode.viewState.bBox.leftMargin) {
+                    hiddenBlockLeftMargin = hiddenNode.viewState.bBox.leftMargin;
+                }
+            });
+            viewState.bBox.h = hiddenBlockHeight + 2 * config.statement.expanded.bottomMargin;
+            viewState.bBox.w = hiddenBlockWidth + config.statement.expanded.collapserWidth +
+                config.statement.expanded.rightMargin;
+            viewState.bBox.leftMargin = hiddenBlockLeftMargin;
+        } else {
+            viewState.bBox.w = 60;
+            viewState.bBox.h = config.statement.height;
+            viewState.bBox.leftMargin = 0;
         }
     }
 
@@ -506,8 +530,8 @@ class SizingVisitor implements Visitor {
         ASTUtil.traversNode(expandedFn, new SizingVisitor());
         const sizes = config.statement.expanded;
 
-        if (sizes.offset > expandedBody.leftMargin) {
-            expandedBody.leftMargin = sizes.offset;
+        if ((config.lifeLine.width / 2) > expandedBody.leftMargin) {
+            expandedBody.leftMargin = config.lifeLine.width / 2;
         }
 
         let expandedFnWidth = expandedBody.w + expandedBody.leftMargin;
@@ -517,14 +541,12 @@ class SizingVisitor implements Visitor {
         expandedFnWidth += expandedFnViewState.endpointsWidth;
         expandedFnWidth += sizes.rightMargin + sizes.margin;
 
-        const expandedFnHeight = expandedFnViewState.containsOtherLifelines ?
-            expandedDefaultWorker.h : expandedBody.h;
-
-        viewState.bBox.h = expandedFnHeight + sizes.header + sizes.footer + sizes.bottomMargin;
+        viewState.bBox.h = expandedDefaultWorker.h + sizes.header + sizes.footer + sizes.bottomMargin;
         const fullLabelWidth = config.statement.padding.left + viewState.expandContext!.labelWidth
             + sizes.rightMargin + (2 * sizes.labelGutter);
 
         viewState.bBox.w = expandedFnWidth > fullLabelWidth ? expandedFnWidth : fullLabelWidth;
+        viewState.bBox.leftMargin = 40;
     }
 
     private sizeWorker(node: VariableDef, preWorkerHeight = 0, workerHolder: WorkerTuple[]) {
@@ -541,6 +563,10 @@ class SizingVisitor implements Visitor {
         viewState.bBox.w = (functionNode.body!.viewState.bBox.w) ? functionNode.body!.viewState.bBox.w :
             config.lifeLine.width;
         viewState.lifeline.bBox.w = config.lifeLine.width;
+        // set minimum left margin as 60
+        functionNode.body!.viewState.bBox.leftMargin =
+            functionNode.body!.viewState.bBox.leftMargin > 60 ? functionNode.body!.viewState.bBox.leftMargin : 60;
+
         // tslint:disable-next-line:prefer-conditional-expression
         if (functionNode.body!.viewState.bBox.leftMargin) {
             viewState.bBox.leftMargin = functionNode.body!.viewState.bBox.leftMargin;

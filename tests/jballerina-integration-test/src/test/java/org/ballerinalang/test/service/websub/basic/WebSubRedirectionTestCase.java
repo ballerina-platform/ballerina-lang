@@ -54,13 +54,13 @@ public class WebSubRedirectionTestCase extends WebSubBaseTest {
         intentVerificationLogLeecherTwo = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_TWO_LOG);
 
         String subscribersBal = new File("src" + File.separator + "test" + File.separator + "resources" +
-                                                 File.separator + "websub" + File.separator +
-                                                 "test_redirected_subscribers.bal").getAbsolutePath();
+                                                 File.separator + "websub" + File.separator + "subscriber" +
+                                                 File.separator + "test_redirected_subscribers.bal").getAbsolutePath();
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherOne);
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherTwo);
 
         String[] subscriberArgs = {};
-        webSubSubscriber.startServer(subscribersBal, subscriberArgs, new int[]{8484});
+        webSubSubscriber.startServer(subscribersBal, subscriberArgs, new int[]{23484});
     }
 
     @Test

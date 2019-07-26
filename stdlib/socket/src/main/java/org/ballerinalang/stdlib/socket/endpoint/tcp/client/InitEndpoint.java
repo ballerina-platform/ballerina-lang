@@ -18,9 +18,7 @@
 
 package org.ballerinalang.stdlib.socket.endpoint.tcp.client;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -56,12 +54,8 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = CLIENT, structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
-public class InitEndpoint extends BlockingNativeCallableUnit {
+public class InitEndpoint {
     private static final Logger log = LoggerFactory.getLogger(InitEndpoint.class);
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static Object initEndpoint(Strand strand, ObjectValue client, MapValue<String, Object> config) {
         Object returnValue = null;

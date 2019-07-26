@@ -27,9 +27,7 @@ import org.apache.activemq.artemis.reader.BytesMessageUtil;
 import org.apache.activemq.artemis.reader.MapMessageUtil;
 import org.apache.activemq.artemis.reader.TextMessageUtil;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -59,12 +57,8 @@ import org.slf4j.LoggerFactory;
                 structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
         )
 )
-public class CreateMessage extends BlockingNativeCallableUnit {
+public class CreateMessage {
     private static final Logger logger = LoggerFactory.getLogger(CreateMessage.class);
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static void createMessage(Strand strand, ObjectValue messageObj, ObjectValue sessionObj, Object dataVal,
                                      MapValue configObj) {
@@ -130,8 +124,6 @@ public class CreateMessage extends BlockingNativeCallableUnit {
             Channel channel = (Channel) streamObj.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             message.setBodyInputStream(channel.getInputStream());
         }
-        messageObj.addNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT,
-                                 sessionObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT));
         messageObj.addNativeData(ArtemisConstants.ARTEMIS_MESSAGE, message);
     }
 
@@ -148,5 +140,8 @@ public class CreateMessage extends BlockingNativeCallableUnit {
             default:
                 return Message.DEFAULT_TYPE;
         }
+    }
+
+    private CreateMessage() {
     }
 }

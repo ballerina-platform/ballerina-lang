@@ -18,16 +18,10 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -59,25 +53,9 @@ import org.slf4j.LoggerFactory;
         },
         isPublic = true
 )
-public class CreateCsvChannel extends BlockingNativeCallableUnit {
+public class CreateCsvChannel {
     private static final Logger log = LoggerFactory.getLogger(CreateCsvChannel.class);
 
-    /**
-     * The index od the text record channel in ballerina/io#createDelimitedRecordChannel().
-     */
-    private static final int PATH_INDEX = 0;
-    /**
-     * The index of the access mode.
-     */
-    private static final int MODE_INDEX = 1;
-    /**
-     * Specifies the index of the format enum.
-     */
-    private static final int FORMAT_INDEX = 2;
-    /**
-     * Specifies the index in which the charset is defined.
-     */
-    private static final int CHARSET_INDEX = 3;
     /**
      * The package path of the delimited record channel.
      */
@@ -86,32 +64,6 @@ public class CreateCsvChannel extends BlockingNativeCallableUnit {
      * The type of the delimited record channel.
      */
     private static final String STRUCT_TYPE = "DelimitedRecordChannel";
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void execute(Context context) {
-        try {
-            //File which holds access to the channel information
-            String filePath = context.getStringArgument(PATH_INDEX);
-            String format = context.getStringArgument(FORMAT_INDEX);
-            String charset = context.getStringArgument(CHARSET_INDEX);
-            String accessMode = context.getStringArgument(MODE_INDEX);
-            BMap<String, BValue> textRecordChannel =
-                    BLangConnectorSPIUtil.createBStruct(context, RECORD_CHANNEL_PACKAGE, STRUCT_TYPE);
-            DelimitedRecordChannel delimitedRecordChannel = IOUtils.createDelimitedRecordChannel(filePath, charset,
-                    accessMode, Format.valueOf(format));
-            textRecordChannel.addNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME, delimitedRecordChannel);
-            context.setReturnValues(textRecordChannel);
-        } catch (Throwable e) {
-            String message = "Error occurred while converting character channel to textRecord channel:" + e
-                    .getMessage();
-            log.error(message, e);
-            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, message);
-            context.setReturnValues(errorStruct);
-        }
-    }
 
     public static Object createCsvChannel(Strand strand, String filePath, String accessMode, String format,
                                           String charset) {

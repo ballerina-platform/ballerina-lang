@@ -124,12 +124,20 @@ function testUnicodeInIL() returns (string) {
 }
 
 function testAcessILWithoutPipe() returns [string, string] {
-     string 'x = "hello";
-     return ['x, x];
- }
+    string 'x = "hello";
+    return ['x, x];
+}
  
- function testAcessJSONFielAsIL() returns (json) {
-     json j = {"foo" : {"int" : "I am an integer"}};
-     return j.foo.'int;
- }
- 
+function testAcessJSONFielAsIL() returns (json|error) {
+    json j = {"foo" : {"int" : "I am an integer"}};
+    return j.foo.'int;
+}
+
+type DOM record {
+    string '\{http\:\/\/test\.com\}fname;
+};
+
+function testILConsistency() returns DOM {
+    DOM d = {'\{http\:\/\/test\.com\}fname: "First Name Element"};
+    return d;
+}

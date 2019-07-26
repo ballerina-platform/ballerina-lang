@@ -18,9 +18,7 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
@@ -46,11 +44,6 @@ import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_BODY_FAIL
         isPublic = true
 )
 public class GetText extends AbstractGetPayloadHandler {
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public void execute(Context context, CallableUnitCallback callback) {
-    }
 
     public static Object getText(Strand strand, ObjectValue entityObj) {
         NonBlockingCallback callback = null;

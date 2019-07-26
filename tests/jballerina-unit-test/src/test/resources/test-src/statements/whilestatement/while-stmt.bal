@@ -1,3 +1,5 @@
+import ballerina/'lang\.float as floats;
+
 function testWhileStmt(int x, int y) returns (int) {
     int z = 0;
     int a = y;
@@ -35,7 +37,7 @@ function testWhileScopeWithIf() returns [int, float] {
         if(i == 0){
             operator = args[0];
         } else {
-            var val = float.convert(args[i]);
+            var val = floats:fromString(args[i]);
             if (val is error) {
                  panic val;
             } else {
@@ -124,7 +126,7 @@ function testWhileWithContinue() returns string {
         if (a == 3) {
             continue;
         }
-        result = result + "inner" + a;
+        result = result + "inner" + a.toString();
     }
     return result;
 }

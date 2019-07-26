@@ -19,16 +19,17 @@
 package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.websub.BallerinaWebSubException;
 import org.ballerinalang.net.websub.hub.Hub;
+
+import static org.ballerinalang.net.websub.WebSubUtils.createError;
 
 /**
  * Extern function to validate that the hub URL passed indicates the underlying Ballerina Hub (if started) and publish
@@ -48,21 +49,19 @@ public class ValidateAndPublishToInternalHub extends BlockingNativeCallableUnit 
 
     @Override
     public void execute(Context context) {
-        String hubUrl = context.getStringArgument(0);
-        String topic = context.getStringArgument(1);
-        BMap<String, BValue> content = (BMap<String, BValue>) context.getRefArgument(0);
+    }
+
+    public static Object validateAndPublishToInternalHub(Strand strand, String hubUrl, String topic,
+                                                         MapValue<String, Object> content) {
         Hub hubInstance = Hub.getInstance();
         if (hubInstance.isStarted() && hubInstance.getHubUrl().equals(hubUrl)) {
             try {
                 Hub.getInstance().publish(topic, content);
-                context.setReturnValues();
             } catch (BallerinaWebSubException e) {
-                context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
+                return createError(e.getMessage());
             }
-        } else {
-            context.setReturnValues(BLangVMErrors.createError(context,
-                                          "Internal Ballerina Hub not initialized or incorrectly referenced"));
+            return null;
         }
+        return createError("Internal Ballerina Hub not initialized or incorrectly referenced");
     }
-
 }

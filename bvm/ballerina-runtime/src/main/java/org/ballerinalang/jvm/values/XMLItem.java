@@ -53,8 +53,6 @@ import java.util.Map;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamWriter;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
 
@@ -566,9 +564,7 @@ public final class XMLItem extends XMLValue<OMNode> {
     @Override
     public void serialize(OutputStream outputStream) {
         try {
-            XMLOutputFactory factory = XMLOutputFactory.newInstance();
-            XMLStreamWriter writer = factory.createXMLStreamWriter(outputStream);
-            this.omNode.serializeAndConsume(writer);
+            this.omNode.serializeAndConsume(outputStream);
         } catch (Throwable t) {
             handleXmlException("error occurred during writing the message to the output stream: ", t);
         }
@@ -673,6 +669,18 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+        XMLItem copy = (XMLItem) copy(refs);
+        if (!copy.isFrozen()) {
+            copy.freezeDirect();
+        }
+        return copy;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public XMLValue<?> getItem(int index) {
         if (index != 0) {
             throw BallerinaErrors.createError("index out of range: index: " + index + ", size: 1");
@@ -689,9 +697,6 @@ public final class XMLItem extends XMLValue<OMNode> {
         return this.omNode == null ? 0 : 1;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public int length() {
         return this.omNode == null ? 0 : 1;
     }
@@ -770,6 +775,14 @@ public final class XMLItem extends XMLValue<OMNode> {
         if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
             this.freezeStatus = freezeStatus;
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void freezeDirect() {
+        this.freezeStatus.setFrozen();
     }
 
     // private methods

@@ -91,7 +91,7 @@ public class KeyParsingTest {
         BRunUtil.invoke(compileResult, "testParsingPrivateKeyFromP12", args);
     }
 
-    @Test(description = "Check attemting to read a public key from a non-existing p12 file.",
+    @Test(description = "Check attempting to read a public key from a non-existing p12 file.",
             expectedExceptions = BLangRuntimeException.class)
     public void testParsingPublicKeyFromInvalidLocation() {
         BValue[] args = {new BString(confRoot.resolve("testKeystore.p12.invalid").toString()),

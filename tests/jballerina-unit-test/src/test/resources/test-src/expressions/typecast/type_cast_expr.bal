@@ -399,7 +399,7 @@ function testObjectCastNegative() {
 function testStreamCastPositive() returns boolean {
     stream<int> s1 = new;
     any a = s1;
-    stream<any> s2 = <stream<int|float>> a;
+    stream<anydata> s2 = <stream<int|float>> a;
     return s1 === s2;
 }
 
@@ -410,14 +410,14 @@ function testStreamCastNegative() {
 }
 
 function testTypedescCastPositive() returns boolean {
-    typedesc t1 = int;
+    typedesc<int> t1 = int;
     any a = t1;
-    typedesc t2 = <typedesc> a;
+    typedesc<int> t2 = <typedesc<int>> a;
     return t1 === t2;
 }
 
 function testTypedescCastNegative() {
-    typedesc t1 = int;
+    typedesc<int> t1 = int;
     any a = t1;
     int t2 = <int> a;
 }
@@ -440,10 +440,10 @@ function testMapElementCastPositive() returns boolean {
         mapVal: strMapVal
     };
 
-    map<string|int> strMapValTwo = <map<string|int>> m.mapVal;
+    map<string|int> strMapValTwo = <map<string|int>> m.get("mapVal");
 
-    return <Employee> m.emp1 === e1 && <EmployeeObject> m.emp2 === e2 && <int> m.intVal == iVal &&
-                <string> strMapValTwo.stringVal == sVal && bVal == <boolean> m.boolVal;
+    return <Employee> m.get("emp1") === e1 && <EmployeeObject> m.get("emp2") === e2 && <int> m.get("intVal") == iVal &&
+                <string> strMapValTwo.get("stringVal") == sVal && bVal == <boolean> m.get("boolVal");
 }
 
 function testMapElementCastNegative() {
@@ -464,9 +464,9 @@ function testMapElementCastNegative() {
         mapVal: strMapVal
     };
 
-    Employee e3 = <Employee> m.emp1;
-    int iVal2 = <int> m.intVal;
-    map<int> strMapValTwo = <map<int>> m.mapVal;
+    Employee e3 = <Employee> m.get("emp1");
+    int iVal2 = <int> m.get("intVal");
+    map<int> strMapValTwo = <map<int>> m.get("mapVal");
 }
 
 function testListElementCastPositive() returns boolean {
@@ -510,7 +510,7 @@ function testOutOfOrderUnionConstraintCastPositive() returns boolean {
 function testOutOfOrderUnionConstraintCastNegative() {
     stream<int|float> s1 = new;
     any a = s1;
-    stream<boolean|EmployeeObject> s2 = <stream<boolean|EmployeeObject>> a;
+    stream<boolean|error> s2 = <stream<boolean|error>> a;
 }
 
 function testStringAsInvalidBasicType() {
@@ -646,7 +646,7 @@ function testSimpleTypeToUnionCastPositive() returns boolean {
 
 function testDirectlyUnmatchedUnionToUnionCastPositive() returns boolean {
     string s = "hello world";
-    string|typedesc v1 = s;
+    string|typedesc<anydata> v1 = s;
     json|table<Lead> v2 = <json|table<Lead>> v1;
     boolean castSuccessful = s == v2;
 
@@ -780,7 +780,7 @@ function testFiniteTypeToFiniteTypeCastNegative() {
 }
 
 function testFunc(string s, int i) returns string {
-    return string.convert(i) + s;
+    return i.toString() + s;
 }
 
 function testFutureFunc() returns int {
@@ -793,4 +793,13 @@ function getString(string s) returns string {
 
 function getBoolean(boolean b) returns boolean {
     return b;
+}
+
+function testContexuallyExpectedType() returns Employee {
+    Employee e = <@untainted> { name: "Em Zee", id: 1100 };
+    return e;
+}
+
+function testContexuallyExpectedTypeRecContext() returns Employee {
+    return <@untainted> { name: "Em Zee", id: 1100 };
 }

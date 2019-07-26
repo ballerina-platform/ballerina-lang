@@ -17,9 +17,8 @@ package org.ballerinalang.stdlib.internal.compression;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -33,6 +32,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Extern function ballerina.compression:compressToByteArray.
@@ -86,8 +86,8 @@ public class CompressToByteArray extends BlockingNativeCallableUnit {
         }
     }
 
-    public static Object compressToByteArray(Strand strand, ObjectValue dirObj) {
-        Path dirPath = (Path) dirObj.getNativeData(Constants.PATH_DEFINITION_NAME);
+    public static Object compressToByteArray(Strand strand, String dirObj) {
+        Path dirPath = Paths.get(dirObj);
         if (!dirPath.toFile().exists()) {
             return CompressionUtils.createCompressionError("Path of the folder to be " +
                     "compressed is not available: " + dirPath);

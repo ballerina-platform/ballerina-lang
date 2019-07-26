@@ -22,75 +22,75 @@ function testCreateInboundBasicAuthProvider() returns auth:InboundBasicAuthProvi
     return basicAuthProvider;
 }
 
-function testAuthenticationOfNonExistingUser() returns boolean|error {
+function testAuthenticationOfNonExistingUser() returns boolean|auth:Error {
     string usernameAndPassword = "amila:abc";
     return authenticate(usernameAndPassword);
 }
 
-function testAuthenticationOfNonExistingPassword() returns boolean|error {
+function testAuthenticationOfNonExistingPassword() returns boolean|auth:Error {
     string usernameAndPassword = "isuru:xxy";
     return authenticate(usernameAndPassword);
 }
 
-function testAuthentication() returns boolean|error {
+function testAuthentication() returns boolean|auth:Error {
     string usernameAndPassword = "isuru:xxx";
     return authenticate(usernameAndPassword);
 }
 
-function testAuthenticationWithEmptyUsername() returns boolean|error {
+function testAuthenticationWithEmptyUsername() returns boolean|auth:Error {
     string usernameAndPassword = ":xxx";
     return authenticate(usernameAndPassword);
 }
 
-function testAuthenticationWithEmptyPassword() returns boolean|error {
+function testAuthenticationWithEmptyPassword() returns boolean|auth:Error {
     auth:InboundBasicAuthProvider basicAuthProvider = new(());
     string usernameAndPassword = "isuru:";
     return authenticate(usernameAndPassword);
 }
 
-function testAuthenticationWithEmptyPasswordAndInvalidUsername() returns boolean|error {
+function testAuthenticationWithEmptyPasswordAndInvalidUsername() returns boolean|auth:Error {
     auth:InboundBasicAuthProvider basicAuthProvider = new(());
     string usernameAndPassword = "invalid:";
     return authenticate(usernameAndPassword);
 }
 
-function testAuthenticationWithEmptyUsernameAndEmptyPassword() returns boolean|error {
+function testAuthenticationWithEmptyUsernameAndEmptyPassword() returns boolean|auth:Error {
     string usernameAndPassword = ":";
     return authenticate(usernameAndPassword);
 }
 
-function testAuthenticationSha256() returns boolean|error {
+function testAuthenticationSha256() returns boolean|auth:Error {
     string usernameAndPassword = "hashedSha256:xxx";
     return authenticate(usernameAndPassword);
 }
 
-function testAuthenticationSha384() returns boolean|error {
+function testAuthenticationSha384() returns boolean|auth:Error {
     string usernameAndPassword = "hashedSha384:xxx";
     return authenticate(usernameAndPassword);
 }
 
-function testAuthenticationSha512() returns boolean|error {
+function testAuthenticationSha512() returns boolean|auth:Error {
     string usernameAndPassword = "hashedSha512:xxx";
     return authenticate(usernameAndPassword);
 }
 
-function testAuthenticationPlain() returns boolean|error {
+function testAuthenticationPlain() returns boolean|auth:Error {
     string usernameAndPassword = "plain:plainpassword";
     return authenticate(usernameAndPassword);
 }
 
-function testAuthenticationSha512Negative() returns boolean|error {
+function testAuthenticationSha512Negative() returns boolean|auth:Error {
     string usernameAndPassword = "hashedSha512:xxx ";
     return authenticate(usernameAndPassword);
 }
 
-function testAuthenticationPlainNegative() returns boolean|error {
+function testAuthenticationPlainNegative() returns boolean|auth:Error {
     string usernameAndPassword = "plain:plainpassword ";
     return authenticate(usernameAndPassword);
 }
 
-function authenticate(string usernameAndPassword) returns boolean|error {
+function authenticate(string usernameAndPassword) returns boolean|auth:Error {
     auth:InboundBasicAuthProvider basicAuthProvider = new(());
-    string credential = encoding:encodeBase64(usernameAndPassword.toByteArray("UTF-8"));
+    string credential = encoding:encodeBase64(usernameAndPassword.toBytes());
     return basicAuthProvider.authenticate(credential);
 }

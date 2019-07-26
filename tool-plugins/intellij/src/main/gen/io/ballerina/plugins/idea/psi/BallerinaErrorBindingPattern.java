@@ -23,11 +23,11 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaErrorBindingPattern extends PsiElement {
 
-  @Nullable
-  BallerinaRecordBindingPattern getRecordBindingPattern();
+  @NotNull
+  List<BallerinaErrorDetailBindingPattern> getErrorDetailBindingPatternList();
 
   @Nullable
-  PsiElement getComma();
+  BallerinaErrorRestBindingPattern getErrorRestBindingPattern();
 
   @Nullable
   PsiElement getLeftParenthesis();
@@ -37,5 +37,8 @@ public interface BallerinaErrorBindingPattern extends PsiElement {
 
   @NotNull
   PsiElement getError();
+
+  @Nullable
+  PsiElement getIdentifier();
 
 }

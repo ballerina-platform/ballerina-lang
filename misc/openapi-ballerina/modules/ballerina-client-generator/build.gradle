@@ -20,9 +20,9 @@ apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
     implementation "com.github.jknack:handlebars"
-    implementation project(':ballerina-launcher')
+    implementation project(':ballerina-tool')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-core')
     testCompile 'org.testng:testng'
 }

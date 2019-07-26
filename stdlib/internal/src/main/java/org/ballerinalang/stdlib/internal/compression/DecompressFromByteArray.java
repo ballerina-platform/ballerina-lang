@@ -17,10 +17,9 @@ package org.ballerinalang.stdlib.internal.compression;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -35,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -202,14 +202,14 @@ public class DecompressFromByteArray extends BlockingNativeCallableUnit {
         }
     }
 
-    public static Object decompressFromByteArray(Strand strand, ArrayValue contents, ObjectValue destDir) {
+    public static Object decompressFromByteArray(Strand strand, ArrayValue contents, String destDir) {
         byte[] content = contents.getBytes();
         if (content.length == 0) {
             return CompressionUtils.createCompressionError("Length of the byte array is empty");
         } else {
             InputStream inputStream = new ByteArrayInputStream(content);
 
-            Path destPath = (Path) destDir.getNativeData(Constants.PATH_DEFINITION_NAME);
+            Path destPath = Paths.get(destDir);
 
             if (!destPath.toFile().exists()) {
                 return CompressionUtils.createCompressionError(

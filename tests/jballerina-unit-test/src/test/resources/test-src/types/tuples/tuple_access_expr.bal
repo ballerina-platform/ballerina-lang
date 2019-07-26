@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/io;
+import ballerina/'lang\.int as ints;
 
 function tupleAccessTest() returns string {
     [int, string, boolean, ()] tuple = [100, "string_value", true, ()];
@@ -69,7 +70,7 @@ function tupleAccessTestWithBehavioralValues() returns string {
             finalResult += "object:";
         }
         if entry is function (int) returns int {
-            finalResult += io:sprintf("%s:", entry.call(4));
+            finalResult += io:sprintf("%s:", entry(4));
             finalResult += "function:";
         }
         if entry is string|json {
@@ -88,7 +89,7 @@ function tupleIndexAsFunction(string index) returns string {
 }
 
 function getKey(string key) returns int {
-    var index = int.convert(key);
+    var index = ints:fromString(key);
     if index is error {
         return -1;
     } else {
@@ -161,12 +162,9 @@ type Foo record {|
 function testConstTupleIndex(int index) returns anydata {
     [Foo, boolean] tuple = [{ x: "s", y: 12 }, true];
     match index {
-        -1 => return tuple[INDEX_NEG_ONE];
         0 => {
-            var x = tuple[INDEX_ZERO];
-            if x is Foo {
-                return x.y;
-            }
+            Foo x = tuple[INDEX_ZERO];
+            return x.y;
         }
         1 => return tuple[INDEX_ONE];
         _ => return false;
@@ -177,9 +175,9 @@ function tupleIndexAccessOfSameTypeWithIndexFromMap() returns float {
     [float, float, float] floatTuple = [1.1, 2.2, 3.3];
     map<int> strMap = { x: 0, y: 1, z: 2 };
     float total = 0.0;
-    total += floatTuple[strMap.x];
-    total += floatTuple[strMap.y];
-    total += floatTuple[strMap.z];
+    total += floatTuple[<int>strMap["x"]];
+    total += floatTuple[<int>strMap["y"]];
+    total += floatTuple[<int>strMap["z"]];
     return total;
 }
 

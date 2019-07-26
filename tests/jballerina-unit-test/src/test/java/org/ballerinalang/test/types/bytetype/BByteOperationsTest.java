@@ -236,7 +236,7 @@ public class BByteOperationsTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         BInteger value = (BInteger) returns[0];
-        Assert.assertEquals(value.intValue(), 45, "Invalid int value returned.");
+        Assert.assertEquals(value.intValue(), -164, "Invalid int value returned.");
     }
 
     @Test(description = "Test bitwise AND between bytes")

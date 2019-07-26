@@ -18,10 +18,7 @@
 
 package org.ballerinalang.net.http.serviceendpoint;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -44,16 +41,6 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_LISTENER_ENDPOINT;
         isPublic = true
 )
 public class Stop extends AbstractHttpNativeFunction {
-
-    @Override
-    public void execute(Context context) {
-        Struct serverEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        getServerConnector(serverEndpoint).stop();
-        serverEndpoint.addNativeData(HttpConstants.CONNECTOR_STARTED, false);
-        resetRegistry(serverEndpoint);
-        context.setReturnValues();
-    }
-
     public static void stop(Strand strand, ObjectValue serverEndpoint) {
         getServerConnector(serverEndpoint).stop();
         serverEndpoint.addNativeData(HttpConstants.CONNECTOR_STARTED, false);

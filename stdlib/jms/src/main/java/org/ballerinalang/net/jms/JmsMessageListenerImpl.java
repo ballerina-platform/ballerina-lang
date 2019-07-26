@@ -19,21 +19,14 @@
 
 package org.ballerinalang.net.jms;
 
-import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Executor;
-import org.ballerinalang.connector.api.ParamDetail;
-import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.codegen.ProgramFile;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.services.ErrorHandlerUtils;
+import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
+import org.ballerinalang.jvm.values.connector.Executor;
 
 import javax.jms.Message;
 import javax.jms.MessageListener;
@@ -43,36 +36,39 @@ import javax.jms.MessageListener;
  */
 public class JmsMessageListenerImpl implements MessageListener {
 
-    private Resource resource;
-    private BValue queueConsumerBObject;
+    private ObjectValue service;
+    private ObjectValue queueConsumerBObject;
+    private Scheduler scheduler;
+    private AttachedFunction resource;
+    private ObjectValue sessionObj;
 
     private ResponseCallback callback;
 
-    public JmsMessageListenerImpl(Resource resource, BValue queueConsumerBObject) {
-        this.resource = resource;
+    public JmsMessageListenerImpl(Scheduler scheduler, ObjectValue service, ObjectValue queueConsumerBObject,
+                                  ObjectValue sessionObj) {
+        this.scheduler = scheduler;
+        this.service = service;
         this.queueConsumerBObject = queueConsumerBObject;
         this.callback = new ResponseCallback();
+        resource = service.getType().getAttachedFunctions()[0];
+        this.sessionObj = sessionObj;
     }
 
     @Override
     public void onMessage(Message message) {
-        Map<String, Object> properties = new HashMap<>();
-        Executor.submit(resource, callback, properties, null, getSignatureParameters(message));
+        Executor.submit(scheduler, service, resource.getName(), callback, null, getSignatureParameters(message));
     }
 
-    private BValue[] getSignatureParameters(Message jmsMessage) {
-        ProgramFile programFile = resource.getResourceInfo().getPackageInfo().getProgramFile();
-        BMap<String, BValue> message = BLangConnectorSPIUtil.createBStruct(programFile,
-                                                                           JmsConstants.BALLERINA_PACKAGE_JMS,
-                                                                           JmsConstants.MESSAGE_OBJ_NAME);
-        message.addNativeData(JmsConstants.JMS_MESSAGE_OBJECT, jmsMessage);
+    private Object[] getSignatureParameters(Message jmsMessage) {
+        ObjectValue messageObj = JmsUtils.createAndPopulateMessageObject(jmsMessage, sessionObj);
+        BType[] parameterTypes = resource.getParameterType();
 
-        List<ParamDetail> paramDetails = resource.getParamDetails();
-        BValue[] bValues = new BValue[paramDetails.size()];
+        Object[] bValues = new Object[parameterTypes.length * 2];
 
         bValues[0] = queueConsumerBObject;
-        bValues[1] = message;
-
+        bValues[1] = true;
+        bValues[2] = messageObj;
+        bValues[3] = true;
         return bValues;
     }
 
@@ -85,8 +81,8 @@ public class JmsMessageListenerImpl implements MessageListener {
         }
 
         @Override
-        public void notifyFailure(BError error) {
-            ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+        public void notifyFailure(ErrorValue error) {
+            ErrorHandlerUtils.printError(error);
         }
     }
 }

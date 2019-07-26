@@ -30,6 +30,9 @@ public interface BallerinaReservedWord extends PsiElement {
   PsiElement getContinue();
 
   @Nullable
+  PsiElement getError();
+
+  @Nullable
   PsiElement getForeach();
 
   @Nullable

@@ -18,12 +18,9 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -51,20 +48,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class HasNextTextRecord implements NativeCallableUnit {
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-
-    }
-
-    @Override
-    public boolean isBlocking() {
-        return false;
-    }
+public class HasNextTextRecord {
 
     public static boolean hasNext(Strand strand, ObjectValue channel) {
         if (channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME) != null) {

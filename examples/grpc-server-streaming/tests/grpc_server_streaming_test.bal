@@ -15,7 +15,7 @@ function testServerStreamingService() {
     // Execute the unary non-blocking call that registers the server message listener.
     error? result = streamingEp->lotsOfReplies("Sam", messageListener);
     if (result is error) {
-        test:assertFail(msg = "Error from Connector: " + result.reason() + " - " + <string>result.detail().message);
+        test:assertFail(msg = "Error from Connector: " + result.reason() + " - " + <string> result.detail()["message"]);
     } else {
         io:println("Connected successfully");
     }
@@ -47,13 +47,13 @@ service messageListener = service {
 
     // Resource registered to receive server messages.
     resource function onMessage(string message) {
-        responseMsgs[msgCount] = untaint message;
+        responseMsgs[msgCount] = <@untainted> message;
         msgCount = msgCount + 1;
     }
 
     // Resource registered to receive server error messages.
     resource function onError(error err) {
-        respError = "Error from Connector: " + untaint err.reason() + " - " + untaint <string>err.detail().message;
+        respError = "Error from Connector: " + <@untainted> err.reason() + " - " + <@untainted> <string>err.detail().message;
     }
 
     // Resource registered to receive server completed messages.

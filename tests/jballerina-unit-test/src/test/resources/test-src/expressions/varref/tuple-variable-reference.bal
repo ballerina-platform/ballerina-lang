@@ -21,13 +21,6 @@ function testTupleVarRefBasic1() returns [string, int, boolean] {
     return [a, b, c];
 }
 
-// function testTupleVarRefBasic2() returns [string, int, boolean] {
-//    var [a, [b, c]] = ["Ballerina", [123, true]];
-//    [[a, b], c] = [["UpdatedBallerina", 453], false];
-//
-//    return [a, b, c];
-//}
-
 function testTupleVarRefBasic3() returns [string, int, boolean] {
     [string, [int, boolean]] t = ["Ballerina", [123, true]];
     var [a, [b, c]] = t;
@@ -44,15 +37,6 @@ function testTupleVarRefBasic4() returns [string, int, boolean] {
 
     return [a, b, c];
 }
-
-//function testTupleVarRefBasic5() returns [string, int, boolean] {
-//    var [a, [b, c]] = ["Ballerina", [123, true]];
-//    a = "UpdatedBallerina";
-//    b = 453;
-//    c = false;
-//
-//    return [a, b, c];
-//}
 
 function testTupleVarRefBasic6() returns [string, int, boolean] {
     [string, [int, boolean]] [a, [b, c]] = ["Ballerina", [123, true]];
@@ -184,13 +168,6 @@ function testTupleVarRefWithArray3() returns [string[][], int[][], float[]] {
     return [a, b, c];
 }
 
-//function testTupleVarRefWithArray4() returns [string[][], int[][], float[]] {
-//    var [a, [b, c]] = [[["W", "R"], ["G", "H"]], [[[44, 66], [2, 6, 8]], [7.3, 6.7, 7.8]]];
-//    [a, [b, c]] = [[["A", "B"], ["C", "D"]], [[[123, 345], [12, 34, 56]], [2.3, 4.5]]];
-//
-//    return [a, b, c];
-//}
-
 function testVarRefWithUnionType1() returns [string|int|float, string|float, string] {
     [string|int|float, [string|float, string]] [a, [b, c]] = [2, [56.7, "Hello"]];
     [a, [b, c]] = [34, [6.7, "Test"]];
@@ -238,6 +215,6 @@ function testVarRefWithUnionType5() returns [[string|int, int|boolean], float|[i
 function testFieldAndIndexBasedVarRefs() returns [anydata, anydata] {
     [int, [string, boolean]] t1 = [2002, ["S1", true]];
     map<anydata> m = {};
-    [m.var1, [m.var2, _]] = t1;
-    return [m.var1, m.var2];
+    [m["var1"], [m["var2"], _]] = t1;
+    return [m["var1"], m["var2"]];
 }

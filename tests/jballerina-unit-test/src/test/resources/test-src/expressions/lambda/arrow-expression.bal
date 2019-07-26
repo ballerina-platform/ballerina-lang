@@ -16,50 +16,50 @@
 
 function testArrowExprWithOneParam() returns int {
     function (int) returns int lambda = param1 => param1*2;
-    return lambda.call(12);
+    return lambda(12);
 }
 
 function testArrowExprWithTwoParams() returns string {
-    function (int, string) returns string lambda = (x, y) => x + y;
-    return lambda.call(12, "John");
+    function (int, string) returns string lambda = (x, y) => x.toString() + y;
+    return lambda(12, "John");
 }
 
 function testReturnArrowExpr() returns string {
     var lambda = returnsArrowExpr();
     int intVar = 10;
     string stringVar = "Adam";
-    return lambda.call(intVar, stringVar);
+    return lambda(intVar, stringVar);
 }
 
 function returnsArrowExpr() returns function (int x, string y) returns string {
-    return (x, y) => x + y;
+    return (x, y) => x.toString() + y;
 }
 
 function testArrowExprReturnTuple() returns [string, int] {
-    function (int, string) returns [string, int] lambda = (x, y) => [x + y, x];
-    return lambda.call(12, "John");
+    function (int, string) returns [string, int] lambda = (x, y) => [x.toString() + y, x];
+    return lambda(12, "John");
 }
 
 function testArrowExprReturnUnion() returns (string|int) {
-    function (int, string) returns (string|int) lambda = (x, y) => x + y;
-    return lambda.call(12, "John");
+    function (int, string) returns (string|int) lambda = (x, y) => x.toString() + y;
+    return lambda(12, "John");
 }
 
 function testBooleanParamType() returns boolean {
     function (boolean) returns boolean invertBoolean = param1 => !param1;
-    return invertBoolean.call(false);
+    return invertBoolean(false);
 }
 
 function testClosure() returns int {
     int closureVar = 10;
     function (int, string) returns int lambda = (param1, param2) => closureVar + param1;
-    return lambda.call(25, "ignore");
+    return lambda(25, "ignore");
 }
 
 function testClosureWithCasting() returns float {
     int closureVar = 25;
     function (int, string) returns float lambda = (param1, param2) => <float>closureVar + <float>param1;
-    return lambda.call(20, "ignore");
+    return lambda(20, "ignore");
 }
 
 type Person record {|
@@ -69,18 +69,18 @@ type Person record {|
 
 function testRecordTypeWithArrowExpr() returns Person {
     function (Person) returns Person lambda = (param1) => param1;
-    return lambda.call({name:"John", age:12});
+    return lambda({name:"John", age:12});
 }
 
 function testNillableParameter() returns string {
     function (string?) returns string lambda = (x) => x ?: "John";
-    return lambda.call(());
+    return lambda(());
 }
 
 function testTupleInput() returns [string, string] {
     function ([string, boolean, Person], string) returns [string, string] lambda = (tupleEntry, str) => [tupleEntry[2].name, str];
     [string, boolean, Person] tupleEntry = ["John", true, {name: "Doe", age: 12}];
-    return lambda.call(tupleEntry, "Peter");
+    return lambda(tupleEntry, "Peter");
 }
 
 function twoLevelTestWithEndingArrowExpr() returns (function (int) returns (int)) {
@@ -88,14 +88,14 @@ function twoLevelTestWithEndingArrowExpr() returns (function (int) returns (int)
     var addFunc1 = function (int funcInt1) returns (int) {
         int methodInt2 = 23;
         function (int) returns (int) addFunc2 = funcInt2 => methodInt1 + funcInt2 + methodInt2;
-        return addFunc2.call(5) + funcInt1;
+        return addFunc2(5) + funcInt1;
     };
     return addFunc1;
 }
 
 function twoLevelTest() returns int {
     var foo = twoLevelTestWithEndingArrowExpr();
-    return foo.call(6);
+    return foo(6);
 }
 
 function threeLevelTestWithEndingArrowExpr() returns (function (int) returns (int)) {
@@ -105,42 +105,42 @@ function threeLevelTestWithEndingArrowExpr() returns (function (int) returns (in
         var addFunc2 = function (int funcInt2) returns (int) {
             int methodInt3 = 7;
             function (int) returns (int) addFunc3 = funcInt3 => funcInt3 + methodInt1 + methodInt2 + methodInt3;
-            return addFunc3.call(8) + funcInt2;
+            return addFunc3(8) + funcInt2;
         };
-        return addFunc2.call(4) + funcInt1;
+        return addFunc2(4) + funcInt1;
     };
     return addFunc1;
 }
 
 function threeLevelTest() returns int {
     var foo = threeLevelTestWithEndingArrowExpr();
-    return foo.call(6);
+    return foo(6);
 }
 
 function testNestedArrowExpression() returns string {
     function (int, string) returns function (int, string) returns string lambda =
-                        (integerVar, stringVar) => (integerVar2, stringVar2) => stringVar + integerVar;
-    var lambda2 = lambda.call(18, "John");
-    return lambda2.call(20, "Doe");
+                        (integerVar, stringVar) => (integerVar2, stringVar2) => stringVar + integerVar.toString();
+    var lambda2 = lambda(18, "John");
+    return lambda2(20, "Doe");
 }
 
 function testNestedArrowExpression2() returns string {
     function (int, string) returns function (int, string) returns function (int, string) returns string lambda =
                         (integerVar, stringVar) => (integerVar2, stringVar2) =>
                             (integerVar3, stringVar3) => stringVar + stringVar2 + stringVar3;
-    var lambda2 = lambda.call(18, "Do");
-    var lambda3 = lambda2.call(20, "Re");
-    return lambda3.call(22, "Me");
+    var lambda2 = lambda(18, "Do");
+    var lambda3 = lambda2(20, "Re");
+    return lambda3(22, "Me");
 }
 
 function testNestedArrowExpression3() returns string {
     function (int, string) returns function (int, string) returns function (int, string) returns function (int, string) returns string lambda =
                         (integerVar, stringVar) => (integerVar2, stringVar2) =>
                             (integerVar3, stringVar3) => (integerVar4, stringVar4) => stringVar + stringVar2 + stringVar3 + stringVar4;
-    var lambda2 = lambda.call(18, "Do");
-    var lambda3 = lambda2.call(20, "Re");
-    var lambda4 = lambda3.call(22, "Me");
-    return lambda4.call(24, "Fa");
+    var lambda2 = lambda(18, "Do");
+    var lambda3 = lambda2(20, "Re");
+    var lambda4 = lambda3(22, "Me");
+    return lambda4(24, "Fa");
 }
 
 function testNestedArrowExpression4() returns string {
@@ -149,10 +149,10 @@ function testNestedArrowExpression4() returns string {
                             function (int integerVar3, string stringVar3) returns function (int, string) returns string {
                                 return (integerVar4, stringVar4) => stringVar + stringVar2 + stringVar3 + stringVar4;
                         };
-    var lambda2 = lambda.call(18, "Do");
-    var lambda3 = lambda2.call(20, "Re");
-    var lambda4 = lambda3.call(22, "Me");
-    return lambda4.call(24, "Fa");
+    var lambda2 = lambda(18, "Do");
+    var lambda3 = lambda2(20, "Re");
+    var lambda4 = lambda3(22, "Me");
+    return lambda4(24, "Fa");
 }
 
 int k = 10;
@@ -167,42 +167,43 @@ type Bar object {
 
 function testArrowExprInRecord() returns int {
     Foo f = {};
-    return f.lambda.call(5);
+    return f.lambda(5);
 }
 
 function testArrowExprInObject() returns int {
     Bar f = new;
-    return f.lambda.call(6);
+    var fp = f.lambda;
+    return fp(6);
 }
 
 string packageVar = "Global Text";
 
 function testArrowExprWithNoArguments() returns string {
     function () returns string lambda = () => "Some Text " + packageVar;
-    return lambda.call();
+    return lambda();
 }
 
 function testArrowExprWithNoArgumentsAndStrTemplate() returns string {
     function () returns string lambda = () => string`Some Text ${packageVar}`;
-    return lambda.call();
+    return lambda();
 }
 
 function testArrowExprWithNoArgumentsAndClosure() returns string {
     string closureVar = "Closure Text";
     function () returns string lambda = () => "Some Text " + packageVar + " " + closureVar;
-    return lambda.call();
+    return lambda();
 }
 
 function testArrowExprInBracedExpr() returns string {
     function () returns string lambda = (() => "Some Text");
-    return lambda.call();
+    return lambda();
 }
 
 int gVar = 100;
 
 function testArrowExprWithNoReturn() returns int {
     function (int) lambda = integerVar => incrementInt(integerVar);
-    lambda.call(20);
+    lambda(20);
     return gVar;
 }
 

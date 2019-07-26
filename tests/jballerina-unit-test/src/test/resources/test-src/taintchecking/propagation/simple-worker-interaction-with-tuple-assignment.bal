@@ -14,6 +14,6 @@ public function main (string... args) {
         (data3, data4) -> w1;
     }
 }
-function secureFunction (@sensitive string secureIn, string insecureIn) {
+function secureFunction (@untainted string secureIn, string insecureIn) {
 
 }

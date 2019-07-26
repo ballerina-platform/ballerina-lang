@@ -1,6 +1,6 @@
 import ballerina/runtime;
 
-function forkWithTimeoutTest1() returns map<any> {
+function forkWithTimeoutTest1() returns map<anydata> {
     map<any> m = {};
     fork {
         worker w1 {
@@ -24,16 +24,12 @@ function forkWithTimeoutTest1() returns map<any> {
     }
 
     future<map<any>> f = start timeoutFunction1(1000, m);
-    map<any> waitedResult = (wait w3 | f);
+    map<anydata> waitedResult = (wait w3 | f);
     var result = waitedResult.clone();
-    if result is map<any> {
-        return result;
-    } else {
-        return {x: 100};
-    }
+    return result;
 }
 
-function forkWithTimeoutTest2() returns map<any> {
+function forkWithTimeoutTest2() returns map<anydata> {
     map<any> m = {};
     fork {
         worker w1 {
@@ -53,13 +49,9 @@ function forkWithTimeoutTest2() returns map<any> {
     }
 
     future<map<any>> f = start timeoutFunction1(5000, m);
-    map<any> waitedResult = (wait w3 | f);
+    map<anydata> waitedResult = (wait w3 | f);
     var result = waitedResult.clone();
-    if result is map<any> {
-        return result;
-    } else {
-        return {x: 100};
-    }
+    return result;
 }
 
 // Function used to provide timeout functionality
@@ -146,8 +138,8 @@ function forkWithWaitOnSomeSelectedWorkers1() returns int|error {
     () results = wait w2 | w3;
     int j;
     int k;
-    j = check int.convert(m["x"]);
-    k = check int.convert(m["y"]);
+    j = <int>m["x"];
+    k = <int>m["y"];
     return j * k;
 }
 
@@ -304,8 +296,8 @@ function forkWithMessagePassing() returns map<any>|error {
         }
     }
     map<any> results = wait {w1, w2};
-    int b = check int.convert(results["w1"]);
-    int a = check int.convert(results["w2"]);
+    int b = <int>results["w1"];
+    int a = <int>results["w2"];
 
     m["x"] = (a + 1) * b;
     return m;
@@ -326,8 +318,8 @@ function forkWithinWorkers() returns int|error {
         map<any> results = wait {wx1, wx2};
         int a;
         int b;
-        a = check int.convert(m["a"]);
-        b = check int.convert(m["b"]);
+        a = <int>m["a"];
+        b = <int>m["b"];
         x = a + b;
         return x;
     }
@@ -405,7 +397,7 @@ function largeForkCreationTest() returns int|error {
         }
 
         map<any> results = wait {w1, w2, w3, w4, w5, w6, w7, w8, w9, w10};
-        result = check int.convert(m["x"]);
+        result = <int>m["x"];
         c = c - 1;
     }
     return result;
@@ -424,10 +416,10 @@ function forkWithStruct() returns string|error {
         }
     }
     map<any> results = wait {w1, w2};
-    var f = check foo.convert(results["w1"]);
+    var f = <foo>results["w1"];
     result = "[block] sW1: " + f.y;
-    var fW2 = check float.convert(results["w2"]);
-    result = result + "[block] fW2: " + fW2;
+    var fW2 = <float>results["w2"];
+    result = result + "[block] fW2: " + fW2.toString();
     return result;
 }
 
@@ -463,10 +455,16 @@ function forkWithSameWorkerContent() returns string|error {
     }
     map<string[]> results2 = wait {w3, w4};
     string[]? resW1 = results2["w3"];
-    var s1 = resW1[0] ?: "";
+    var s1 = "";
+    if(resW1 is string[]) {
+        s1 = resW1[0];
+    }
     result = "W3: " + s1;
     string[]? resW2 = results2["w4"];
-    var s2 = resW2[0] ?: "";
+    var s2 = "";
+    if(resW2 is string[]) {
+        s2 = resW2[0];
+    }
     result = result + ", W4: " + s2;
 
     return result;

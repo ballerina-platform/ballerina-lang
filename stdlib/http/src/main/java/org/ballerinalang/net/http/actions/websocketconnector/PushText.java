@@ -17,19 +17,18 @@
 package org.ballerinalang.net.http.actions.websocketconnector;
 
 import io.netty.channel.ChannelFuture;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketUtil;
+
+import static org.ballerinalang.net.http.WebSocketConstants.ErrorCode.WsConnectionError;
+import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -44,11 +43,7 @@ import org.ballerinalang.net.http.WebSocketUtil;
                 structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
         )
 )
-public class PushText implements NativeCallableUnit {
-
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-    }
+public class PushText {
 
     public static Object externPushText(Strand strand, ObjectValue wsConnection, String text, boolean finalFrame) {
         //TODO : NonBlockingCallback is temporary fix to handle non blocking call
@@ -60,15 +55,12 @@ public class PushText implements NativeCallableUnit {
             WebSocketUtil.handleWebSocketCallback(callback, future);
         } catch (Exception e) {
             //TODO remove this call back
-            callback.setReturnValues(HttpUtil.getError(e.getMessage()));
+            callback.setReturnValues(createWebSocketError(WsConnectionError, e.getMessage()));
             callback.notifySuccess();
         }
         return null;
     }
 
-    @Override
-    public boolean isBlocking() {
-        return false;
+    private PushText() {
     }
-
 }

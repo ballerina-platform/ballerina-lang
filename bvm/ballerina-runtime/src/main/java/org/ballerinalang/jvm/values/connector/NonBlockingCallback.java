@@ -17,7 +17,9 @@
  */
 package org.ballerinalang.jvm.values.connector;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.State;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,27 +33,28 @@ public class NonBlockingCallback {
 
     private static final Logger log = LoggerFactory.getLogger(NonBlockingCallback.class);
     private final Strand strand;
+    private final Scheduler scheduler;
 
     public NonBlockingCallback(Strand strand) {
-        strand.yield = true;
-        strand.blocked = true;
         strand.blockedOnExtern = true;
+        strand.setState(State.BLOCK_AND_YIELD);
         this.strand = strand;
+        this.scheduler = strand.scheduler;
     }
 
     public void notifySuccess() {
-        log.debug("Notify success");
-        this.strand.scheduler.unblockStrand(strand);
+        this.scheduler.unblockStrand(strand);
+//        log.debug("Notify success");
     }
 
     public void notifyFailure(ErrorValue error) {
-        log.debug("Notify error");
-        strand.setReturnValues(error);
-        this.strand.scheduler.unblockStrand(strand);
+        this.strand.setReturnValues(error);
+        this.scheduler.unblockStrand(strand);
+//        log.debug("Notify error");
     }
 
     public void setReturnValues(Object returnValue) {
-        log.debug("Populate return values");
-        strand.setReturnValues(returnValue);
+        this.strand.setReturnValues(returnValue);
+//         log.debug("Populate return values");
     }
 }

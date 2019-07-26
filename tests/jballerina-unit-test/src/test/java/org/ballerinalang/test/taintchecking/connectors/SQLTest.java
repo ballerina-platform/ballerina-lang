@@ -43,7 +43,7 @@ public class SQLTest {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/connectors/sql-select-tainted-query-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'args'", 4, 40);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'args'", 4, 40);
     }
 
 
@@ -59,6 +59,6 @@ public class SQLTest {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/connectors/sql-select-untainted-query-tainted-return-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'anyValue'", 27, 26);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'anyValue'", 27, 26);
     }
 }

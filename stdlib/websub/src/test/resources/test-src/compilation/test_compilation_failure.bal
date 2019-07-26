@@ -23,8 +23,7 @@ service websubSubscriber =
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
-    topic: "http://websubpubtopic.com",
-    hub: "http://websubpubhub.com"
+    target: ["http://websubpubhub.com", "http://websubpubtopic.com"]
 }
 service {
     resource function onIntentVerification (websub:Caller caller, websub:IntentVerificationRequest verRequest) {
@@ -38,8 +37,7 @@ service websubSubscriberTwo =
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
-    topic: "http://websubpubtopictwo.com",
-    hub: "http://websubpubhubtwo.com"
+    target: ["http://websubpubhubtwo.com", "http://websubpubtopictwo.com"]
 }
 service {
     resource function onIntentVerification (http:Listener caller, websub:Notification notification) {
@@ -53,8 +51,7 @@ service websubSubscriberThree =
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
-    topic: "http://websubpubtopictwo.com",
-    hub: "http://websubpubhubtwo.com"
+    target: ["http://websubpubhubtwo.com", "http://websubpubtopictwo.com"]
 }
 service {
     resource function onNotificationTwo (websub:IntentVerificationRequest verRequest) {
@@ -65,8 +62,7 @@ service websubSubscriberFour =
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
-    topic: "http://websubpubtopictwo.com",
-    hub: "http://websubpubhubtwo.com"
+    target: ["http://websubpubhubtwo.com", "http://websubpubtopictwo.com"]
 }
 service {
     resource function onIntentVerification (websub:Caller caller, websub:IntentVerificationRequest verRequest) {
@@ -77,8 +73,7 @@ service websubSubscriberFive =
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
-    topic: "http://websubpubtopictwo.com",
-    hub: "http://websubpubhubtwo.com"
+    target: ["http://websubpubhubtwo.com", "http://websubpubtopictwo.com"]
 }
 service {
     resource function onIntentVerification (websub:Caller caller) {
@@ -92,8 +87,7 @@ service websubSubscriberSix =
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
-    topic: "http://websubpubtopictwo.com",
-    hub: "http://websubpubhubtwo.com"
+    target: ["http://websubpubhubtwo.com", "http://websubpubtopictwo.com"]
 }
 service {
     resource function onIntentVerification (websub:IntentVerificationRequest verRequest) {
@@ -107,8 +101,7 @@ service websubSubscriberSeven =
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
-    topic: "http://websubpubtopictwo.com",
-    hub: "http://websubpubhubtwo.com"
+    target: ["http://websubpubhubtwo.com", "http://websubpubtopictwo.com"]
 }
 service {
     resource function onIntentVerification (websub:Caller caller, websub:IntentVerificationRequest verRequest, string s) {
@@ -122,11 +115,16 @@ service websubSubscriberEight =
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
-    topic: "http://websubpubtopictwo.com",
-    hub: "http://websubpubhubtwo.com"
+    target: ["http://websubpubhubtwo.com", "http://websubpubtopictwo.com"]
 }
 service {
     resource function onNotification (websub:Notification notification) returns int? {
         return 10;
+    }
+};
+
+service websubSubscriberNine =
+service {
+    resource function noSubscriberServiceConfig (websub:Notification notification) {
     }
 };

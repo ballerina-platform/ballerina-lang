@@ -80,8 +80,8 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: 'string\\|int\\|\\(\\)\\[2\\]' cannot be cast to 'string\\[2\\]'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=incompatible " +
+                    "types: 'string\\|int\\|\\(\\)\\[2\\]' cannot be cast to 'string\\[2\\]'.*")
     public void testArrayCastNegative() {
         BRunUtil.invoke(result, "testArrayCastNegative");
     }
@@ -151,8 +151,8 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-        expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types:" +
-                " 'stream<int>' cannot be cast to 'stream<boolean>'\"\\}.*")
+        expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=incompatible types:" +
+                " 'stream<int>' cannot be cast to 'stream<boolean>'.*")
     public void testStreamCastNegative() {
         BRunUtil.invoke(result, "testStreamCastNegative");
     }
@@ -176,22 +176,22 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: 'stream<int\\|float>' cannot be cast to 'stream<boolean\\|EmployeeObject>'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=incompatible " +
+                    "types: 'stream<int\\|float>' cannot be cast to 'stream<boolean\\|error>'.*")
     public void testOutOfOrderUnionConstraintCastNegative() {
         BRunUtil.invoke(result, "testOutOfOrderUnionConstraintCastNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: 'int' cannot be cast to 'string\\|boolean'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=incompatible " +
+                    "types: 'int' cannot be cast to 'string\\|boolean'.*")
     public void testDirectlyUnmatchedUnionToUnionCastNegativeOne() {
         BRunUtil.invoke(result, "testDirectlyUnmatchedUnionToUnionCastNegative_1");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: 'string' cannot be cast to 'Lead\\|int'\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=incompatible " +
+                    "types: 'string' cannot be cast to 'Lead\\|int'.*")
     public void testDirectlyUnmatchedUnionToUnionCastNegativeTwo() {
         BRunUtil.invoke(result, "testDirectlyUnmatchedUnionToUnionCastNegative_2");
     }
@@ -340,4 +340,21 @@ public class TypeCastExpressionsTest {
                         .forEach(arg -> result.add(new Object[]{func, arg})));
         return result.toArray(new Object[result.size()][]);
     }
+
+    @Test
+    public void testUntaintedWithoutType() {
+        BValue[] returns = BRunUtil.invoke(result, "testContexuallyExpectedType");
+        Assert.assertSame(returns[0].getClass(), BMap.class);
+        Assert.assertEquals(((BMap) returns[0]).get("name").stringValue(), "Em Zee");
+        Assert.assertEquals(((BMap) returns[0]).get("id").stringValue(), "1100");
+    }
+
+    @Test
+    public void testUntaintedWithoutType2() {
+        BValue[] returns = BRunUtil.invoke(result, "testContexuallyExpectedTypeRecContext");
+        Assert.assertSame(returns[0].getClass(), BMap.class);
+        Assert.assertEquals(((BMap) returns[0]).get("name").stringValue(), "Em Zee");
+        Assert.assertEquals(((BMap) returns[0]).get("id").stringValue(), "1100");
+    }
+
 }

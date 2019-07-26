@@ -48,8 +48,8 @@ public class ArrayAccessExprTest {
     //TODO try to validate all the lines in the exception message
     @Test(description = "Test access an non-initialized arrays",
             expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IndexOutOfRange \\{\"message\":\"array index out" +
-                    " of range: index: 5, size: 0\"\\}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IndexOutOfRange message=array index out of " +
+                    "range: index: 5, size: 0.*")
     public void testNonInitArrayAccess() {
         BRunUtil.invoke(compileResult, "testNonInitArrayAccess");
         Assert.fail("Test should fail at this point.");
@@ -149,6 +149,6 @@ public class ArrayAccessExprTest {
     @Test(description = "Test access a primitive as an arrays")
     public void testAccessPrimitiveAsArray() {
         CompileResult compileResult = BCompileUtil.compile("test-src/statements/arrays/access-primitive-as-array.bal");
-        BAssertUtil.validateError(compileResult, 0, "invalid operation: type 'string' does not support indexing", 3, 5);
+        BAssertUtil.validateError(compileResult, 0, "invalid operation: type 'int' does not support indexing", 3, 5);
     }
 }

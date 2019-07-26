@@ -1,5 +1,5 @@
 import ballerina/http;
-import ballerina/jms;
+import ballerinax/java.jms;
 import ballerina/log;
 
 // Create a simple queue receiver.  This example makes use of the
@@ -11,19 +11,19 @@ listener jms:QueueListener consumerEndpoint = new({
         "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
         providerUrl: "tcp://localhost:61616",
         acknowledgementMode: "AUTO_ACKNOWLEDGE"
-    }, queueName = "MyQueue");
+    }, "MyQueue");
 
 // Bind the created JMS consumer to the listener service.
 service jmsListener on consumerEndpoint {
 
     resource function onMessage(jms:QueueReceiverCaller consumer,
                                 jms:Message message) {
-        var textContent = message.getTextMessageContent();
+        var textContent = message.getPayload();
         if (textContent is string) {
             log:printInfo("Message received from broker. Payload: " +
                     textContent);
-            forwardToBakend(untaint textContent);
-        } else {
+            forwardToBakend(textContent);
+        } else if (textContent is error) {
             log:printError("Error while reading message", err = textContent);
         }
     }

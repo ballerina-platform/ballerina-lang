@@ -24,6 +24,7 @@ import { activate as activateDiagram } from './diagram';
 import { activate as activateBBE } from './bbe';
 import { activate as activateDocs } from './docs';
 import { activate as activateTraceLogs } from './trace-logs';
+import { activate as activateTreeView } from './project-tree-view';
 import { activateDebugConfigProvider } from './debugger';
 import { activateTestRunner } from './test-runner';
 import { activate as activateProjectFeatures } from './project';
@@ -71,11 +72,12 @@ export function activate(context: ExtensionContext): Promise<any> {
         activateTestRunner(ballerinaExtInstance);
         // Enable API Docs Live Preview
         activateDocs(ballerinaExtInstance);
-        activateDebugConfigProvider(ballerinaExtInstance);
 		// Enable Ballerina API Designer
         activateAPIEditor(ballerinaExtInstance);
         // Enable Ballerina Project related features
         activateProjectFeatures(ballerinaExtInstance);
         activateOverview(ballerinaExtInstance);
+        // Enable Ballerina Project Overview
+        activateTreeView(ballerinaExtInstance);
     });
 }

@@ -24,7 +24,7 @@ function test1() returns int {
         y = x + y;
         return funcInt + x + y;
     };
-    int z = addFunc.call(7);
+    int z = addFunc(7);
     return x + y + z;
 }
 
@@ -37,9 +37,9 @@ function test2() returns int {
             y = y + 20;
             return funcInt2 + x + y;
         };
-        return addFunc2.call(5);
+        return addFunc2(5);
     };
-    int z = addFunc1.call();
+    int z = addFunc1();
     return x + z;
 }
 
@@ -54,11 +54,11 @@ function test3() returns int {
                 x = x + 100;
                 return funcInt3 + x + y + z;
             };
-            return addFunc3.call(8) + funcInt2;
+            return addFunc3(8) + funcInt2;
         };
-        return addFunc2.call(4) + funcInt1;
+        return addFunc2(4) + funcInt1;
     };
-    int z = addFunc1.call(6);
+    int z = addFunc1(6);
     return x + z;
 }
 
@@ -73,7 +73,7 @@ function test4() returns int {
         }
         return b + c + a;
     };
-    int z = addFunc.call(3);
+    int z = addFunc(3);
     return a + z;
 }
 
@@ -91,8 +91,8 @@ function getFunc1(int functionIntX) returns (function (int) returns (function (i
 
 function test5() returns (int){
     var getFunc2 = getFunc1(1);
-    var getFunc3 = getFunc2.call(5);
-    return getFunc3.call(4);
+    var getFunc3 = getFunc2(5);
+    return getFunc3(4);
 }
 
 // TUPLES
@@ -114,11 +114,11 @@ function test6() returns [int, string] {
                 res = [x + y + z, str1 + str2];
                 return res;
             };
-            return addFunc3.call();
+            return addFunc3();
         };
-        return addFunc2.call();
+        return addFunc2();
     };
-    _ = addFunc1.call();
+    _ = addFunc1();
     return res;
 }
 
@@ -140,11 +140,11 @@ function test7() returns string[] {
                 arr[8] = "u";
                 return arr;
             };
-            return addFunc3.call();
+            return addFunc3();
         };
-        return addFunc2.call();
+        return addFunc2();
     };
-    _ = addFunc1.call();
+    _ = addFunc1();
     return arr;
 }
 
@@ -158,20 +158,20 @@ function test8() returns map<string> {
         // Update a field
         m1["a"] = "AA";
         var addFunc2 = function () returns map<string> {
-            m1.b = "BB";
-            m1.x = "XX";
+            m1["b"] = "BB";
+            m1["x"] = "XX";
             var addFunc3 = function () returns map<string> {
-                m1.x = "XXXX";
-                m1.a = "AAAA";
+                m1["x"] = "XXXX";
+                m1["a"] = "AAAA";
                 m1["y"] = "YY";
                 m1["z"] = "ZZ";
                 return m1;
             };
-            return addFunc3.call();
+            return addFunc3();
         };
-        return addFunc2.call();
+        return addFunc2();
     };
-    _ = addFunc1.call();
+    _ = addFunc1();
     return m1;
 }
 
@@ -182,7 +182,7 @@ type Person object {
     public string name;
     public string fullName;
 
-    function __init(int age, string name = "John", string firstname, string lastname = "Doe") {
+    function __init(int age, string firstname,  string name = "John", string lastname = "Doe") {
         self.age = age;
         self.name = name;
         self.fullName = firstname + " " + lastname;
@@ -200,11 +200,11 @@ function test9() returns Person {
                 p1.age = 25;
                 return p1;
             };
-            return addFunc3.call();
+            return addFunc3();
         };
-        return addFunc2.call();
+        return addFunc2();
     };
-    _ = addFunc1.call();
+    _ = addFunc1();
     return p1;
 }
 
@@ -229,21 +229,21 @@ function test10() returns Student {
         // Updated field
         stu.name = "Adam Page";
         // Added new field
-        stu.email = "adamp@gmail.com";
+        stu["email"] = "adamp@gmail.com";
         var addFunc2 = function () returns Student {
             var addFunc3 = function () returns Student {
                 // Updated field
-                stu.email = "adamp@wso2.com";
+                stu["email"] = "adamp@wso2.com";
                 stu["grades"]["physics"] = 100;
                 // Added new field
                 stu["grades"]["bio"] = 22;
                 return stu;
             };
-            return addFunc3.call();
+            return addFunc3();
         };
-        return addFunc2.call();
+        return addFunc2();
     };
-    _ = addFunc1.call();
+    _ = addFunc1();
     return stu;
 }
 
@@ -251,25 +251,32 @@ function test10() returns Student {
 
 function test11() returns json {
     json price = 5.36;
-    json j1 = { name: "apple", color: "red", price: price };
+    map<json> j1 = { name: "apple", color: "red", price: price };
     json resJ = {};
     var addFunc1 = function () returns json {
         var addFunc2 = function () returns json {
-            j1.price = 12.48;
+            j1["price"] = 12.48;
             json j2 = { name: "orange", color: "orange", price: price };
             var addFunc3 = function () returns json {
-                json j3 = {};
-                j3.name = "cherry";
-                j3.color = j1.color;
-                j3.price = j2.price;
+                map<json> j3 = {};
+                j3["name"] = "cherry";
+                var jtColor = j1.color;
+                if(jtColor is json) {
+                   j3["color"] = jtColor;
+                }
+                var j2Price = j2.price;
+                if(j2Price is json) {
+                  j3["price"] = j2Price;
+                }
+
                 resJ = {f1 : j1, f2 : j2, f3: j3};
                 return resJ;
             };
-            return addFunc3.call();
+            return addFunc3();
         };
-        return addFunc2.call();
+        return addFunc2();
     };
-     _ = addFunc1.call();
+     _ = addFunc1();
      return resJ;
 }
 
@@ -288,11 +295,11 @@ function test12() returns xml {
                 resX = x1 + x2 + x3;
                 return resX;
             };
-            return addFunc3.call();
+            return addFunc3();
         };
-        return addFunc2.call();
+        return addFunc2();
     };
-     _ = addFunc1.call();
+     _ = addFunc1();
      return resX;
 }
 
@@ -313,8 +320,8 @@ function test13() returns AccountNotFoundError {
               accountNotFoundError = error(accountNotFoundError.reason(), accountID = 222);
               return accountNotFoundError;
         };
-        return addFunc2.call();
+        return addFunc2();
     };
-    error? err = addFunc1.call();
+    error? err = addFunc1();
     return accountNotFoundError;
 }

@@ -18,10 +18,8 @@
 
 package org.ballerinalang.stdlib.socket.endpoint.tcp.server;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Scheduler;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -47,11 +45,7 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_SERVICE;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
-public class Register extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class Register {
 
     public static Object register(Strand strand, ObjectValue listener, ObjectValue service, Object name) {
         final SocketService socketService = getSocketService(listener, strand.scheduler, service);

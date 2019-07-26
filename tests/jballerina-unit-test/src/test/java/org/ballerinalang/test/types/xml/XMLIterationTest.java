@@ -17,8 +17,10 @@
 package org.ballerinalang.test.types.xml;
 
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.test.util.BAssertUtil;
@@ -28,6 +30,8 @@ import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.util.StringJoiner;
 
 /**
  * Test cases for XML iteration.
@@ -54,7 +58,8 @@ public class XMLIterationTest {
         int index = 0;
         BAssertUtil.validateError(negative, index++, "invalid tuple variable; expecting a tuple type but found " +
                 "'(xml|string)' in type definition", 11, 17);
-        BAssertUtil.validateError(negative, index++, "too many variables are defined for iterable type 'xml'", 16, 19);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
+                "'function ((xml|string)) returns ()', found 'function ([int,xml,string]) returns ()'", 16, 19);
     }
 
     @Test
@@ -70,7 +75,7 @@ public class XMLIterationTest {
         }
     }
 
-    @Test
+    @Test()
     public void testXMLForeachOp() {
         String[] titles = new String[]{"Everyday Italian", "Harry Potter", "XQuery Kick Start", "Learning XML"};
         BValue[] returns = BRunUtil.invoke(result, "foreachOpTest");
@@ -95,9 +100,18 @@ public class XMLIterationTest {
             long size = retAuthors.size();
 
             for (int j = 0; j < size; j++) {
-                Assert.assertEquals(((BXMLItem) retAuthors.getRefValue(j)).getTextValue().stringValue(), authors[i][j]);
+                String actual = ((BXML<?>) retAuthors.getRefValue(j)).getTextValue().stringValue();
+                Assert.assertEquals(actual, concat(authors[j]));
             }
         }
+    }
+
+    private String concat(Object [] array) {
+        StringJoiner j = new StringJoiner("");
+        for (Object elem : array) {
+            j.add(elem.toString());
+        }
+        return j.toString();
     }
 
     @Test
@@ -105,16 +119,17 @@ public class XMLIterationTest {
         BValue[] returns = BRunUtil.invoke(result, "filterOpTest");
 
         Assert.assertNotNull(returns);
+        BRefType<?>[] values = ((BXMLSequence) returns[0]).value().getValues();
 
-        Assert.assertEquals(((BXMLItem) returns[0]).children().getItem(1).getTextValue().stringValue(), titles[0]);
-        Assert.assertEquals(((BXMLItem) returns[0]).children().getItem(3).getTextValue().stringValue(), authors[0][0]);
-        Assert.assertEquals(((BXMLItem) returns[0]).children().getItem(5).getTextValue().intValue(), 2005);
-        Assert.assertEquals(((BXMLItem) returns[0]).children().getItem(7).getTextValue().floatValue(), 30.00);
+        Assert.assertEquals(((BXMLItem) values[0]).children().getItem(1).getTextValue().stringValue(), titles[0]);
+        Assert.assertEquals(((BXMLItem) values[0]).children().getItem(3).getTextValue().stringValue(), authors[0][0]);
+        Assert.assertEquals(((BXMLItem) values[0]).children().getItem(5).getTextValue().intValue(), 2005);
+        Assert.assertEquals(((BXMLItem) values[0]).children().getItem(7).getTextValue().floatValue(), 30.00);
 
-        Assert.assertEquals(((BXMLItem) returns[1]).children().getItem(1).getTextValue().stringValue(), titles[1]);
-        Assert.assertEquals(((BXMLItem) returns[1]).children().getItem(3).getTextValue().stringValue(), authors[1][0]);
-        Assert.assertEquals(((BXMLItem) returns[1]).children().getItem(5).getTextValue().intValue(), 2005);
-        Assert.assertEquals(((BXMLItem) returns[1]).children().getItem(7).getTextValue().floatValue(), 29.99);
+        Assert.assertEquals(((BXMLItem) values[1]).children().getItem(1).getTextValue().stringValue(), titles[1]);
+        Assert.assertEquals(((BXMLItem) values[1]).children().getItem(3).getTextValue().stringValue(), authors[1][0]);
+        Assert.assertEquals(((BXMLItem) values[1]).children().getItem(5).getTextValue().intValue(), 2005);
+        Assert.assertEquals(((BXMLItem) values[1]).children().getItem(7).getTextValue().floatValue(), 29.99);
     }
 
     @Test
@@ -123,11 +138,14 @@ public class XMLIterationTest {
 
         Assert.assertNotNull(returns);
 
-        BValueArray retAuthors = ((BXMLSequence) returns[0]).value();
-        Assert.assertEquals(((BXMLItem) retAuthors.getRefValue(0)).getTextValue().stringValue(), authors[0][0]);
+        BXMLSequence refValue = (BXMLSequence) ((BXMLSequence) returns[0]).value().getRefValue(0);
 
-        retAuthors = ((BXMLSequence) returns[1]).value();
-        Assert.assertEquals(((BXMLItem) retAuthors.getRefValue(0)).getTextValue().stringValue(), authors[1][0]);
+        Assert.assertEquals(((BXMLItem) (refValue).value().getRefValue(0)).getTextValue().stringValue(),
+                authors[0][0]);
+
+        refValue = (BXMLSequence) ((BXMLSequence) returns[0]).value().getRefValue(1);
+        Assert.assertEquals(((BXMLItem) (refValue).value().getRefValue(0)).getTextValue().stringValue(),
+                authors[1][0]);
     }
 
     @Test(description = "Test iterating over xml elements where some elements are characters")

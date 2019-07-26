@@ -17,9 +17,9 @@ package org.ballerinalang.net.grpc.nativeimpl.calleraction;
 
 import com.google.protobuf.Descriptors;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.bre.bvm.Strand;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -52,15 +52,11 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
-public class Send extends BlockingNativeCallableUnit {
+public class Send {
     private static final Logger LOG = LoggerFactory.getLogger(Send.class);
 
-    @Override
-    public void execute(Context context) {
-    }
-
     public static Object send(Strand strand, ObjectValue endpointClient, Object responseValue,
-                              ObjectValue headerValues) {
+                              Object headerValues) {
         StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
         Descriptors.Descriptor outputType = (Descriptors.Descriptor) endpointClient.getNativeData(GrpcConstants
                 .RESPONSE_MESSAGE_DEFINITION);
@@ -77,8 +73,9 @@ public class Send extends BlockingNativeCallableUnit {
                     Message responseMessage = new Message(outputType.getName(), responseValue);
                     // Update response headers when request headers exists in the context.
                     HttpHeaders headers = null;
-                    if (headerValues != null) {
-                        headers = (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS);
+                    if (headerValues != null &&
+                            (TypeChecker.getType(headerValues).getTag() == TypeTags.OBJECT_TYPE_TAG)) {
+                        headers = (HttpHeaders) ((ObjectValue) headerValues).getNativeData(MESSAGE_HEADERS);
                     }
                     if (headers != null) {
                         responseMessage.setHeaders(headers);

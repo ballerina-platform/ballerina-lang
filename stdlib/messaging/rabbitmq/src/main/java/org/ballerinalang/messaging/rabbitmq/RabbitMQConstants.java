@@ -33,13 +33,17 @@ public class RabbitMQConstants {
     public static final String PACKAGE_RABBITMQ = ORG_NAME + ORG_NAME_SEPARATOR + RABBITMQ;
 
     // Error constant fields
-    public static final String RABBITMQ_ERROR_CODE = "{ballerina/rabbitmq}RabbitMQError";
+    public static final String RABBITMQ_ERROR_CODE = "{ballerina/rabbitmq}Error";
+    static final String RABBITMQ_ERROR_DETAILS = "Detail";
+    static final String RABBITMQ_ERROR_MESSAGE = "message";
+    static final String RABBITMQ_ERROR_CAUSE = "cause";
     public static final String RABBITMQ_CLIENT_ERROR = "RabbitMQ Client Error: ";
 
     // Connection errors
     public static final String CLOSE_CONNECTION_ERROR = "An error occurred while closing the connection: ";
-    public static final String ABORT_CONNECTION_ERROR = "An error occurred while aborting the connection: ";
     public static final String CREATE_CONNECTION_ERROR = "An error occurred while connecting to the broker: ";
+    public static final String CREATE_SECURE_CONNECTION_ERROR = "An error occurred while configuring " +
+            "the SSL connection: ";
 
     // Channel errors
     public static final String CLOSE_CHANNEL_ERROR = "An error occurred while closing the channel: ";
@@ -60,6 +64,14 @@ public class RabbitMQConstants {
     public static final String RABBITMQ_CONNECTION_HANDSHAKE_TIMEOUT = "handshakeTimeout";
     public static final String RABBITMQ_CONNECTION_SHUTDOWN_TIMEOUT = "shutdownTimeout";
     public static final String RABBITMQ_CONNECTION_HEARTBEAT = "heartbeat";
+    public static final String RABBITMQ_CONNECTION_SECURE_SOCKET = "secureSocket";
+    public static final String RABBITMQ_CONNECTION_KEYSTORE = "keyStore";
+    public static final String RABBITMQ_CONNECTION_TRUSTORE = "trustStore";
+    public static final String RABBITMQ_CONNECTION_VERIFY_HOST = "verifyHostname";
+    public static final String RABBITMQ_CONNECTION_TLS_VERSION = "tlsVersion";
+    public static final String KEY_STORE_TYPE = "PKCS12";
+    public static final String KEY_STORE_PASS = "password";
+    public static final String KEY_STORE_PATH = "path";
 
     // Channel listener constant fields
     public static final String LISTENER_OBJECT = "Listener";

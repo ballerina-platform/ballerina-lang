@@ -19,20 +19,20 @@
 package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.websub.hub.Hub;
 import org.ballerinalang.net.websub.hub.HubSubscriber;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,19 +63,19 @@ public class GetSubscribers extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BValueArray subscriberDetailArray = null;
+    }
+
+    public static ArrayValue getSubscribers(Strand strand, ObjectValue webSubHub, String topic) {
+        ArrayValue subscriberDetailArray = null;
         try {
-            String topic = context.getStringArgument(0);
             List<HubSubscriber> subscribers = Hub.getInstance().getSubscribers();
-
-            final PackageInfo packageInfo = context.getProgramFile().getPackageInfo(WEBSUB_PACKAGE);
-            final StructureTypeInfo structInfo = packageInfo.getStructInfo(SUBSCRIPTION_DETAILS);
-            subscriberDetailArray = new BValueArray(structInfo.getType());
-
+            MapValue<String, Object> subscriberDetailsRecordValue = BallerinaValues.createRecordValue(WEBSUB_PACKAGE,
+                                                                                     SUBSCRIPTION_DETAILS);
+            subscriberDetailArray = new ArrayValue(new BArrayType(subscriberDetailsRecordValue.getType()));
             for (HubSubscriber subscriber : subscribers) {
                 if (topic.equals(subscriber.getTopic())) {
-                    BMap<String, BValue> subscriberDetail = BLangVMStructs.createBStruct(
-                            structInfo, subscriber.getCallback(),
+                    MapValue<String, Object> subscriberDetail = BallerinaValues.createRecord(
+                            subscriberDetailsRecordValue, subscriber.getCallback(),
                             subscriber.getSubscriptionDetails().get(SUBSCRIPTION_DETAILS_LEASE_SECONDS),
                             subscriber.getSubscriptionDetails().get(SUBSCRIPTION_DETAILS_CREATED_AT));
                     subscriberDetailArray.append(subscriberDetail);
@@ -83,8 +83,7 @@ public class GetSubscribers extends BlockingNativeCallableUnit {
             }
         } catch (Exception ex) {
             log.error("Error occurred while getting available subscribers.", ex);
-        } finally {
-            context.setReturnValues(subscriberDetailArray);
         }
+        return subscriberDetailArray;
     }
 }

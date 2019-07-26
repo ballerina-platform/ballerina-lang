@@ -19,11 +19,9 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.receiver;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.jms.JmsConstants;
@@ -35,27 +33,14 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageListenerHandl
  * @since 0.970
  */
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINA, packageName = JmsConstants.JMS,
+        orgName = JmsConstants.BALLERINAX, packageName = JmsConstants.JAVA_JMS,
         functionName = "registerListener",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.QUEUE_RECEIVER_OBJ_NAME,
-                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
-        args = {
-                @Argument(name = "serviceType", type = TypeKind.TYPEDESC),
-                @Argument(name = JmsConstants.METHOD_FIELD_ACTIONS, type = TypeKind.OBJECT,
-                          structType = JmsConstants.QUEUE_RECEIVER_CALLER_OBJ_NAME),
-                @Argument(name = JmsConstants.METHOD_FIELD_DATA, type = TypeKind.MAP)
-        },
-        isPublic = true
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = JmsConstants.QUEUE_LISTENER,
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class RegisterMessageListener implements NativeCallableUnit {
+public class RegisterMessageListener {
 
-    @Override
-    public void execute(Context context, CallableUnitCallback callableUnitCallback) {
-        MessageListenerHandler.createAndRegister(context);
-    }
-
-    @Override
-    public boolean isBlocking() {
-        return true;
+    public static Object registerListener(Strand strand, ObjectValue queueListener, ObjectValue serviceObj) {
+        return MessageListenerHandler.createAndRegister(strand, queueListener, serviceObj);
     }
 }

@@ -46,7 +46,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -194,14 +193,6 @@ public class Generator {
         // Iterate through the parameters
         if (functionNode.getParameters().size() > 0) {
             for (BLangSimpleVariable param : functionNode.getParameters()) {
-                DefaultableVarible variable = getVariable(functionNode, param);
-                parameters.add(variable);
-            }
-        }
-        // defaultable params
-        if (functionNode.getDefaultableParameters().size() > 0) {
-            for (BLangSimpleVariableDef variableDef : functionNode.getDefaultableParameters()) {
-                BLangSimpleVariable param = variableDef.getVariable();
                 DefaultableVarible variable = getVariable(functionNode, param);
                 parameters.add(variable);
             }

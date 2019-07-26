@@ -21,9 +21,7 @@ package org.ballerinalang.messaging.artemis.externimpl.producer;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.messaging.artemis.ArtemisUtils;
@@ -48,11 +46,7 @@ import org.ballerinalang.natives.annotations.Receiver;
         ),
         isPublic = true
 )
-public class Close extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class Close {
 
     public static Object close(Strand strand, ObjectValue producerObj) {
         ClientProducer producer = (ClientProducer) producerObj.getNativeData(ArtemisConstants.ARTEMIS_PRODUCER);
@@ -65,5 +59,8 @@ public class Close extends BlockingNativeCallableUnit {
             return ArtemisUtils.getError("Error when closing the producer");
         }
         return null;
+    }
+
+    private Close() {
     }
 }

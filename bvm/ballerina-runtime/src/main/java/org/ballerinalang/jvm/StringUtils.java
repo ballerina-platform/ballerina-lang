@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
 import java.io.BufferedInputStream;
@@ -88,5 +89,14 @@ public class StringUtils {
             throw new BallerinaException("Error occurred when reading input stream with the charset" + charset, e);
         }
         return textBuilder.toString();
+    }
+
+    public static String getStringAt(String s, long index) {
+        if (index < 0 || index >= s.length()) {
+            throw BallerinaErrors.createError(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                                              "string index out of range: index: " + index + ", size: " + s.length());
+        }
+
+        return String.valueOf(s.charAt((int) index));
     }
 }

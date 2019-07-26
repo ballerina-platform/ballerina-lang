@@ -22,7 +22,7 @@ function testAnonStructAsPkgVar() returns string {
     person = {fname:"sameera", lname:"jaya"};
     person.lname = person.lname + "soma";
     person.age = 100;
-    return person.fname + ":" + person.lname + ":" + person.age;
+    return person.fname + ":" + person.lname + ":" + person.age.toString();
 }
 
 type employee record {
@@ -48,20 +48,18 @@ function testAnonStructAsStructField() returns string {
     employee e = {fname:"sam", lname:"json", age:100,
                      address:{line01:"12 Gemba St APT 134", city:"Los Altos", state:"CA", zipcode:"95123"},
                     dateOfBirth:{}};
-    return e.dateOfBirth.month + ":" + e.address.line01 + ":" + (e.address["state"] ?: "-") + ":" + e.fname;
+    return e.dateOfBirth.month + ":" + e.address.line01 + ":" + e.address["state"] + ":" + e.fname;
 }
 
-function testRestField() returns person {
-    person p = {fname:"John", lname:"Doe", age:20};
-    p.location = "Colombo";
-    p.height = 5.5;
-    return p;
+function testRestField() returns boolean {
+    person["location"] = "Colombo";
+    person["height"] = 5.5;
+    return person["location"] == "Colombo" && person["height"] == 5.5;
 }
 
 record {| string kind = ""; string name = ""; int...; |} animal = {};
 
-function testAnonRecWithExplicitRestField() returns animal {
-    animal a = {kind:"Cat", name:"Miaw"};
-    a.legs = 4;
-    return a;
+function testAnonRecWithExplicitRestField() returns boolean {
+    animal["legs"] = 4;
+    return animal["legs"] == 4;
 }

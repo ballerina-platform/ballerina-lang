@@ -16,12 +16,15 @@ export class DiagramConfig {
         actionHeight: STATEMENT_HEIGHT * 2,
         expanded: {
             bottomMargin: 10,
+            collapserHeight: 14,
+            collapserWidth: 20,
             footer: 10,
             header: 40,
             labelGutter: 2,
             margin: 20,
-            offset: 45,
+            offset: 60,
             rightMargin: 30,
+            topMargin: 10,
         },
         height: STATEMENT_HEIGHT,
         margin: {

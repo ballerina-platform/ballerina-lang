@@ -17,11 +17,8 @@
  */
 package org.ballerinalang.stdlib.math.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -36,11 +33,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.FLOAT)},
         isPublic = true
 )
-public class Random extends BlockingNativeCallableUnit {
-
-    public void execute(Context ctx) {
-        ctx.setReturnValues(new BFloat(Math.random()));
-    }
+public class Random {
 
     public static double random(Strand strand) {
         return Math.random();

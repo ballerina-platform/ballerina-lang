@@ -6,13 +6,20 @@
   "source": "function/source/completionWithinInvocationArgs9.bal",
   "items": [
     {
-      "label": "getAsString(string key)(string)",
+      "label": "ValueType",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "ValueType",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getAsString(string key, string defaultValue)(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/config_  \n  \nRetrieves the specified configuration value as a string.\n  \n  \n---    \n**Parameters**  \n- _key_  \n    The configuration to be retrieved  \n  \n- _defaultValue_  \n    The default value to be use in case there is no mapping for the provided key  \nDefault Value:   \n  \n**Return**  \nstring"
+          "value": "**Package:** _ballerina/config_  \n  \nRetrieves the specified configuration value as a string.\n  \n  \n---    \n**Parameters**  \n- _key_  \n    The configuration to be retrieved  \n  \n- _defaultValue_  \n    The default value to be use in case there is no mapping for the provided key  \n(Default Parameter)  \n  \n**Return**  \nstring"
         }
       },
       "insertText": "getAsString(${1})",
@@ -23,13 +30,13 @@
       }
     },
     {
-      "label": "getAsInt(string key)(int)",
+      "label": "getAsInt(string key, int defaultValue)(int)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/config_  \n  \nRetrieves the specified configuration value as an int.\n  \n  \n---    \n**Parameters**  \n- _key_  \n    The configuration to be retrieved  \n  \n- _defaultValue_  \n    The default value to be use in case there is no mapping for the provided key  \nDefault Value: 0  \n  \n**Return**  \nint"
+          "value": "**Package:** _ballerina/config_  \n  \nRetrieves the specified configuration value as an int.\n  \n  \n---    \n**Parameters**  \n- _key_  \n    The configuration to be retrieved  \n  \n- _defaultValue_  \n    The default value to be use in case there is no mapping for the provided key  \n(Default Parameter)  \n  \n**Return**  \nint"
         }
       },
       "insertText": "getAsInt(${1})",
@@ -40,13 +47,13 @@
       }
     },
     {
-      "label": "getAsFloat(string key)(float)",
+      "label": "getAsFloat(string key, float defaultVal)(float)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/config_  \n  \nRetrieves the specified configuration value as a float.\n  \n  \n---    \n**Parameters**  \n- _key_  \n    The configuration to be retrieved  \n  \n- _defaultVal_  \n    The default value to be use in case there is no mapping for the provided key  \nDefault Value: 0.0  \n  \n**Return**  \nfloat"
+          "value": "**Package:** _ballerina/config_  \n  \nRetrieves the specified configuration value as a float.\n  \n  \n---    \n**Parameters**  \n- _key_  \n    The configuration to be retrieved  \n  \n- _defaultVal_  \n    The default value to be use in case there is no mapping for the provided key  \n(Default Parameter)  \n  \n**Return**  \nfloat"
         }
       },
       "insertText": "getAsFloat(${1})",
@@ -57,13 +64,13 @@
       }
     },
     {
-      "label": "getAsBoolean(string key)(boolean)",
+      "label": "getAsBoolean(string key, boolean defaultValue)(boolean)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/config_  \n  \nRetrieves the specified configuration value as a boolean.\n  \n  \n---    \n**Parameters**  \n- _key_  \n    The configuration to be retrieved  \n  \n- _defaultValue_  \n    The default value to be use in case there is no mapping for the provided key  \nDefault Value: false  \n  \n**Return**  \nboolean"
+          "value": "**Package:** _ballerina/config_  \n  \nRetrieves the specified configuration value as a boolean.\n  \n  \n---    \n**Parameters**  \n- _key_  \n    The configuration to be retrieved  \n  \n- _defaultValue_  \n    The default value to be use in case there is no mapping for the provided key  \n(Default Parameter)  \n  \n**Return**  \nboolean"
         }
       },
       "insertText": "getAsBoolean(${1})",
@@ -74,7 +81,7 @@
       }
     },
     {
-      "label": "getAsMap(string key)(map)",
+      "label": "getAsMap(string key)(map\u003cany\u003e)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -123,13 +130,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "ValueType",
-      "kind": "Enum",
-      "detail": "Union",
-      "insertText": "ValueType",
-      "insertTextFormat": "Snippet"
     }
   ]
 }

@@ -16,6 +16,7 @@
 
 package io.ballerina.plugins.idea.runconfig.application;
 
+import com.google.common.base.Strings;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.executors.DefaultDebugExecutor;
 import com.intellij.execution.process.ProcessAdapter;
@@ -30,6 +31,8 @@ import com.intellij.psi.PsiFile;
 import io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import io.ballerina.plugins.idea.runconfig.BallerinaRunningState;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
+import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
+import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings;
 import io.ballerina.plugins.idea.util.BallerinaExecutor;
 import io.ballerina.plugins.idea.util.BallerinaHistoryProcessListener;
 import org.jetbrains.annotations.NotNull;
@@ -37,6 +40,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.nio.file.Paths;
+
+import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_SRC_DIR_NAME;
 
 /**
  * Represents Ballerina application running state.
@@ -48,7 +53,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
     private BallerinaHistoryProcessListener myHistoryProcessHandler;
 
     BallerinaApplicationRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module,
-            @NotNull BallerinaApplicationConfiguration configuration) {
+                                     @NotNull BallerinaApplicationConfiguration configuration) {
         super(env, module, configuration);
     }
 
@@ -58,7 +63,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
         ProcessHandler processHandler = super.startProcess();
         processHandler.addProcessListener(new ProcessAdapter() {
             @Override
-            public void startNotified(ProcessEvent event) {
+            public void startNotified(@NotNull ProcessEvent event) {
                 if (myHistoryProcessHandler != null) {
                     myHistoryProcessHandler.apply(processHandler);
                 }
@@ -71,7 +76,11 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
     protected BallerinaExecutor patchExecutor(@NotNull BallerinaExecutor executor) throws ExecutionException {
 
         Project project = myConfiguration.getProject();
-        VirtualFile baseDir = project.getBaseDir();
+        String projectPath = project.getBasePath();
+        if (projectPath == null) {
+            return super.patchExecutor(executor);
+        }
+
         String filePath;
 
         // Find the file in the project. This is needed to find the module. Otherwise if the file is in a sub-module
@@ -82,20 +91,25 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
         }
 
         VirtualFile fileDir = file.getVirtualFile().getParent();
-        // Sets parent of IDEA project as the termination for the recursive search.
-        String rootDir = new File(project.getBasePath()).getParent();
-        String sourcerootDir = getSourceRoot(fileDir.getPath(), rootDir);
+        // Sets IDEA project as the termination for the recursive search.
+        String projectRoot = BallerinaSdkUtils.searchForBallerinaProjectRoot(fileDir.getPath(),
+                project.getBasePath());
         // if no ballerina project is found.
-        if (sourcerootDir.equals("")) {
-            sourcerootDir = baseDir.getPath();
-            filePath = Paths.get(file.getVirtualFile().getPath()).toString().replace(sourcerootDir, "").substring(1);
+        if (projectRoot.isEmpty()) {
+            projectRoot = projectPath;
+            filePath = Paths.get(file.getVirtualFile().getPath()).toString().replace(projectRoot, "").substring(1);
         } else {
             String relativeFilePath =
-                    Paths.get(file.getVirtualFile().getPath()).toString().replace(sourcerootDir, "").substring(1);
+                    Paths.get(file.getVirtualFile().getPath()).toString().replace(projectRoot, "").substring(1);
             //If file is found in a ballerina package, runs the whole package.
-            if (relativeFilePath.contains(File.separator)) {
-                // package, instead of the single file.
-                filePath = relativeFilePath.substring(0, relativeFilePath.indexOf(File.separator));
+            if (relativeFilePath.startsWith(BALLERINA_SRC_DIR_NAME)) {
+                filePath = relativeFilePath.replace(BALLERINA_SRC_DIR_NAME + File.separator, "");
+                if (filePath.contains(File.separator)) {
+                    // package, instead of the single file.
+                    filePath = filePath.substring(0, filePath.indexOf(File.separator));
+                } else {
+                    filePath = relativeFilePath;
+                }
             } else {
                 filePath = relativeFilePath;
             }
@@ -107,23 +121,28 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
         }
         if (filePath.isEmpty()) {
             filePath = myConfiguration.getFilePath();
-            if (baseDir != null) {
-                // Note File.separator will not work here since filepath contains "/" regardless of the OS.
-                filePath = filePath.replace(baseDir.getPath() + "/", "");
-            }
+            // Note File.separator will not work here since filepath contains "/" regardless of the OS.
+            filePath = filePath.replace(projectPath + "/", "");
         }
 
         BallerinaExecutor ballerinaExecutor;
-        if (baseDir != null) {
+        if (!projectRoot.isEmpty()) {
             ballerinaExecutor = executor.withParameters("run");
 
             // If debugging mode is running, we need to add the debugging flag.
             if (isDebug()) {
                 ballerinaExecutor.withParameters("--debug", String.valueOf(myDebugPort));
             }
-            ballerinaExecutor.withParameters("--sourceroot").withParameters(sourcerootDir).withBallerinaPath(
-                    BallerinaSdkService.getInstance(getConfiguration().getProject()).getSdkHomePath(module))
+            ballerinaExecutor.withParameters("--sourceroot").withParameters(projectRoot)
                     .withParameterString(myConfiguration.getBallerinaToolParams());
+
+            // Tries to get the ballerina executable path using the SDK.
+            String balSdkPath = BallerinaSdkService.getInstance(getConfiguration().getProject()).getSdkHomePath(module);
+            // If any sdk is not found and user has chosen to auto detect ballerina home.
+            if (Strings.isNullOrEmpty(balSdkPath) && BallerinaAutoDetectionSettings.getInstance().autoDetectBalHome()) {
+                balSdkPath = BallerinaSdkUtils.autoDetectSdk();
+            }
+            ballerinaExecutor.withBallerinaPath(balSdkPath);
         } else {
             ballerinaExecutor = executor.withParameters("run");
 
@@ -131,9 +150,15 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
             if (isDebug()) {
                 ballerinaExecutor.withParameters("--debug", String.valueOf(myDebugPort));
             }
-            ballerinaExecutor.withBallerinaPath(
-                    BallerinaSdkService.getInstance(getConfiguration().getProject()).getSdkHomePath(module))
-                    .withParameterString(myConfiguration.getBallerinaToolParams());
+            ballerinaExecutor.withParameterString(myConfiguration.getBallerinaToolParams());
+
+            // Tries to get the ballerina executable path using the SDK.
+            String balSdkPath = BallerinaSdkService.getInstance(getConfiguration().getProject()).getSdkHomePath(module);
+            // If any sdk is not found and user has chosen to auto detect ballerina home.
+            if (Strings.isNullOrEmpty(balSdkPath) && BallerinaAutoDetectionSettings.getInstance().autoDetectBalHome()) {
+                balSdkPath = BallerinaSdkUtils.autoDetectSdk();
+            }
+            ballerinaExecutor.withBallerinaPath(balSdkPath);
         }
 
         // Adds ballerina file/package name after flags.
@@ -157,28 +182,5 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
      */
     private boolean isDebug() {
         return DefaultDebugExecutor.EXECUTOR_ID.equals(getEnvironment().getExecutor().getId());
-    }
-
-    /**
-     * Searches for a ballerina project using outward recursion starting from the file directory, until the given root
-     * directory is found.
-     */
-    private String getSourceRoot(String currentPath, String root) {
-
-        if (currentPath.equals(root) || currentPath.equals("") || root.equals("")) {
-            return "";
-        }
-        File currentDir = new File(currentPath);
-        File[] files = currentDir.listFiles();
-        if (files != null) {
-            for (File f : files) {
-                //skips the .ballerina folder in the user home directory.
-                if (f.isDirectory() && !f.getParentFile().getAbsolutePath().equals(System.getProperty("user.home")) && f
-                        .getName().equals(".ballerina")) {
-                    return currentDir.getAbsolutePath();
-                }
-            }
-        }
-        return getSourceRoot(currentDir.getParentFile().getAbsolutePath(), root);
     }
 }

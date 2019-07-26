@@ -16,6 +16,7 @@
  */
  
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
 configurations.testCompileClasspath {
     resolutionStrategy {
@@ -31,17 +32,17 @@ dependencies {
     implementation project(':ballerina-time')
     implementation project(':ballerina-io')
 	implementation project(':ballerina-encoding')
-    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-file')
 	implementation project(':ballerina-log-api')
 	implementation project(':ballerina-runtime-api')
-	implementation project(':ballerina-launcher')
+	implementation project(':ballerina-tool')
     implementation project(':ballerina-utils')    
     implementation 'commons-io:commons-io'
 
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
@@ -49,7 +50,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
 
     testCompile project(':ballerina-reflect')
-    testCompile project(':ballerina-jvm')
     testCompile project(':ballerina-test-utils')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile 'org.slf4j:slf4j-jdk14'

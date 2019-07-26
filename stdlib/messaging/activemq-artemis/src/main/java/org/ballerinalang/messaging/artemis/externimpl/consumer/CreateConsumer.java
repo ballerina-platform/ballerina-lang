@@ -22,9 +22,7 @@ package org.ballerinalang.messaging.artemis.externimpl.consumer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
@@ -51,12 +49,8 @@ import org.slf4j.LoggerFactory;
                 structPackage = ArtemisConstants.PROTOCOL_PACKAGE_ARTEMIS
         )
 )
-public class CreateConsumer extends BlockingNativeCallableUnit {
+public class CreateConsumer {
     private static final Logger logger = LoggerFactory.getLogger(CreateConsumer.class);
-
-    @Override
-    public void execute(Context context) {
-    }
 
     // Todo: using an object for union. Check if correct
     public static Object createConsumer(Strand strand, ObjectValue consumerObj, ObjectValue sessionObj,
@@ -78,10 +72,8 @@ public class CreateConsumer extends BlockingNativeCallableUnit {
             boolean lastValue = queueConfig.getBooleanValue(ArtemisConstants.LAST_VALUE);
 
             ArtemisUtils.getClientConsumer(consumerObj, session, ArtemisUtils.getStringFromObjOrNull(consumerFilter),
-                                           queueName, addressName, autoCreated, routingType, temporary, queueFilter,
-                                           durable, maxConsumers, purgeOnNoConsumers, exclusive, lastValue, logger);
-            consumerObj.addNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT,
-                                      sessionObj.getNativeData(ArtemisConstants.ARTEMIS_TRANSACTION_CONTEXT));
+                    queueName, addressName, autoCreated, routingType, temporary, queueFilter,
+                    durable, maxConsumers, purgeOnNoConsumers, exclusive, lastValue, logger);
             consumerObj.addNativeData(ArtemisConstants.ARTEMIS_AUTO_ACK, autoAck);
             session.start();
         } catch (ActiveMQException e) {
@@ -90,4 +82,6 @@ public class CreateConsumer extends BlockingNativeCallableUnit {
         return null;
     }
 
+    private CreateConsumer() {
+    }
 }

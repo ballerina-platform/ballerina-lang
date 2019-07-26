@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.Scheduler;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
 import java.util.HashMap;
@@ -35,7 +35,7 @@ public abstract class ValueCreator {
     private static final Map<String, ValueCreator> runtimeValueCreators = new HashMap<>();
 
     public static void addValueCreator(String key, ValueCreator valueCreater) {
-        if (runtimeValueCreators.containsKey(key)) {
+        if (!key.equals(".") && runtimeValueCreators.containsKey(key)) {
             // silently fail
             return;
         }

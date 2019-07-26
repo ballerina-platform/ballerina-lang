@@ -1,7 +1,7 @@
-import ballerina/jms;
+import ballerinax/java.jms;
 import ballerina/log;
 
-// This initializes a JMS connection with the provider. Here Connection and
+// Initialize a JMS connection with the provider. Here Connection and
 // Session are created explicitly to allow reusability.
 
 jms:Connection conn = new({
@@ -17,19 +17,19 @@ jms:Session jmsSession = new(conn, {
     });
 
 // This initializes a topic subscriber using the created session.
-listener jms:TopicListener subscriberEndpoint = new(jmsSession, topicPattern = "BallerinaTopic");
+listener jms:TopicListener subscriberEndpoint = new(jmsSession, "BallerinaTopic");
 
-// This binds the created subscriber to the listener service.
+// Bind the created subscriber to the listener service.
 service jmsListener on subscriberEndpoint {
 
     //This resource is invoked when a message is received.
     resource function onMessage(jms:TopicSubscriberCaller consumer,
                                 jms:Message message) {
         // Retrieve the text message.
-        var messageText = message.getTextMessageContent();
+        var messageText = message.getPayload();
         if (messageText is string) {
             log:printInfo("Message : " + messageText);
-        } else {
+        } else if (messageText is error) {
             log:printError("Error occurred while reading message",
                 err = messageText);
         }

@@ -69,7 +69,6 @@ class PositioningVisitor implements Visitor {
 
     }
 
-    // tslint:disable-next-line:ban-types
     public beginVisitFunction(node: BalFunction) {
         if (node.lambda || !node.body) { return; }
         const viewState: FunctionViewState = node.viewState;
@@ -91,8 +90,6 @@ class PositioningVisitor implements Visitor {
                             let variableName = "";
                             if (ASTKindChecker.isVariable(p)) {
                                 variableName = p.name.value;
-                            } else if (ASTKindChecker.isVariable(p.variable)) {
-                                variableName = p.variable.name.value;
                             }
 
                             if (variableName === ep.name) {
@@ -108,19 +105,19 @@ class PositioningVisitor implements Visitor {
         // They way we position function components depends on whether this is an expanded function
         // or a regular functions
         if (viewState.isExpandedFunction) {
-            bodyViewState.bBox.x = viewState.bBox.x + bodyViewState.bBox.leftMargin;
-            bodyViewState.bBox.y = viewState.bBox.y + config.statement.expanded.header;
+            defaultWorker.lifeline.bBox.x = viewState.bBox.x + config.statement.expanded.margin
+                + (bodyViewState.bBox.leftMargin - (defaultWorker.lifeline.bBox.w / 2));
+            defaultWorker.lifeline.bBox.y = viewState.bBox.y + config.statement.expanded.header;
+
+            bodyViewState.bBox.x = viewState.bBox.x + config.statement.expanded.margin + bodyViewState.bBox.leftMargin;
+            bodyViewState.bBox.y = defaultWorker.lifeline.bBox.y + config.lifeLine.header.height +
+                + config.statement.height; // leave room for start line.;
 
             viewState.client.bBox.x = viewState.bBox.x;
             viewState.client.bBox.w = 0;
 
             workerX = viewState.bBox.x + bodyViewState.bBox.w + config.lifeLine.gutter.h;
             workerY = bodyViewState.bBox.y;
-
-            if (viewState.containsOtherLifelines) {
-                bodyViewState.bBox.y += config.lifeLine.header.height +
-                + config.statement.height; // leave room for start line.
-            }
         } else {
             // Position the header
             viewState.header.x = viewState.bBox.x;
@@ -186,12 +183,16 @@ class PositioningVisitor implements Visitor {
         let height = 0;
 
         node.statements.forEach((element) => {
+            const elViewState: StmntViewState = element.viewState;
+
             if (ASTUtil.isWorker(element)) {
                 height += config.statement.height;
                 return;
             }
 
-            const elViewState: StmntViewState = element.viewState;
+            if (elViewState.hidden) {
+                return;
+            }
 
             elViewState.bBox.x = viewState.bBox.x;
             elViewState.bBox.y = viewState.bBox.y + elViewState.bBox.paddingTop + height;
@@ -207,6 +208,25 @@ class PositioningVisitor implements Visitor {
                     ASTUtil.traversNode(expandedSubTree, this);
                 }
             }
+            if (elViewState.hiddenBlockContext && elViewState.hiddenBlockContext.expanded) {
+                // position hidden block's nodes
+                let hiddenNodeHeight = 2 * config.statement.expanded.topMargin;
+                elViewState.hiddenBlockContext.otherHiddenNodes.forEach((hiddenNode) => {
+                    const hiddenNodeViewState = (hiddenNode.viewState as StmntViewState);
+                    hiddenNodeViewState.bBox.x = elViewState.bBox.x;
+                    hiddenNodeViewState.bBox.y = elViewState.bBox.y + hiddenNodeHeight;
+                    hiddenNodeHeight += hiddenNodeViewState.bBox.h + hiddenNodeViewState.bBox.paddingTop;
+                    if (hiddenNodeViewState.expandContext && hiddenNodeViewState.expandContext.expandedSubTree) {
+                        const expandedSubTree = hiddenNodeViewState.expandContext.expandedSubTree;
+                        const expandedFunctionVS = expandedSubTree.viewState as FunctionViewState;
+                        expandedFunctionVS.bBox.x = hiddenNodeViewState.bBox.x;
+                        expandedFunctionVS.bBox.y = hiddenNodeViewState.bBox.y;
+                        ASTUtil.traversNode(expandedSubTree, this);
+                    } else {
+                        ASTUtil.traversNode(hiddenNode, this);
+                    }
+                });
+            }
         });
 
         if (node.parent && ASTKindChecker.isFunction(node.parent)) {
@@ -217,9 +237,12 @@ class PositioningVisitor implements Visitor {
                 functionViewState.implicitReturn.bBox.y = node.viewState.bBox.y + (node.viewState.bBox.h / 2);
 
                 if (node.statements.length > 0) {
-                    const lastStatement = node.statements[node.statements.length - 1];
-                    const lsvs: StmntViewState = lastStatement.viewState;
-                    functionViewState.implicitReturn.bBox.y = lsvs.bBox.y + lsvs.bBox.h;
+                    const visibleStatements = node.statements.filter((stmt) => !stmt.viewState.hidden);
+                    const lastStatement = visibleStatements[visibleStatements.length - 1];
+                    if (lastStatement) {
+                        const lsvs: StmntViewState = lastStatement.viewState;
+                        functionViewState.implicitReturn.bBox.y = lsvs.bBox.y + lsvs.bBox.h;
+                    }
                 }
             }
         }
@@ -253,9 +276,9 @@ class PositioningVisitor implements Visitor {
         node.body.viewState.bBox.x = viewState.bBox.x;
         node.body.viewState.bBox.y = viewState.bBox.y + + config.flowCtrl.condition.bottomMargin
             + config.flowCtrl.condition.height;
-        if (node.VisibleEndpoints) {
-            // Position endpoints
-            node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
+        if ((node as any).VisibleEndpoints) { // FIXME remove cast to any on While node to get VisibleEndpoints
+        // Position endpoints // FIXME remove cast to any on While node to get VisibleEndpoints
+            (node as any).VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
                 endpoint.viewState.bBox.x = this.epX;
                 endpoint.viewState.bBox.y = this.epY;
                 this.epX = this.epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;

@@ -1,4 +1,4 @@
-import ballerina/jms;
+import ballerinax/java.jms;
 import ballerina/log;
 
 // This initializes a JMS connection with the provider. This example uses
@@ -17,7 +17,7 @@ jms:Session jmsSession = new(conn, {
     });
 
 // Initializes a queue receiver using the created session.
-listener jms:QueueListener consumerEndpoint = new(jmsSession, queueName = "MyQueue");
+listener jms:QueueListener consumerEndpoint = new(jmsSession, "MyQueue");
 
 // Binds the created consumer to the listener service.
 service jmsListener on consumerEndpoint {
@@ -25,11 +25,11 @@ service jmsListener on consumerEndpoint {
     // This resource is invoked when a message is received.
     resource function onMessage(jms:QueueReceiverCaller consumer,
                                 jms:Message message) {
-        // Retrieves the text message.
-        var messageText = message.getTextMessageContent();
+        // Retrieve the text message.
+        var messageText = message.getPayload();
         if (messageText is string) {
             log:printInfo("Message : " + messageText);
-        } else {
+        } else if (messageText is error) {
             log:printError("Error occurred while reading message",
                 err = messageText);
         }

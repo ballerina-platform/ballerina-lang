@@ -18,9 +18,9 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BStructureType;
@@ -88,6 +88,11 @@ public abstract class AbstractObjectValue implements ObjectValue {
     }
 
     @Override
+    public String stringValue() {
+        return "object " + type.toString();
+    }
+
+    @Override
     public boolean getBooleanValue(String fieldName) {
         return (boolean) get(fieldName);
     }
@@ -121,7 +126,12 @@ public abstract class AbstractObjectValue implements ObjectValue {
     public Object copy(Map<Object, Object> refs) {
         throw new UnsupportedOperationException();
     }
-    
+
+    @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+        throw new UnsupportedOperationException();
+    }
+
     @Override
     public String toString() {
         StringJoiner sj = new StringJoiner(", ", "{", "}");

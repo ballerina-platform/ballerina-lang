@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Position;
@@ -36,30 +37,20 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
 import static org.ballerinalang.langserver.command.CommandUtil.applyWorkspaceEdit;
-import static org.ballerinalang.langserver.command.CommandUtil.getFunctionNode;
+import static org.ballerinalang.langserver.command.CommandUtil.getFunctionInvocationNode;
 import static org.ballerinalang.langserver.common.utils.CommonUtil.createVariableDeclaration;
 
 /**
@@ -71,45 +62,6 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.createVariabl
 public class CreateVariableExecutor implements LSCommandExecutor {
 
     public static final String COMMAND = "CREATE_VAR";
-
-    private static Set<String> getAllEntries(BLangInvocation functionNode, CompilerContext context) {
-        Set<String> strings = new HashSet<>();
-        BLangPackage packageNode = null;
-        BLangNode parent = functionNode.parent;
-        while (parent != null) {
-            if (parent instanceof BLangPackage) {
-                packageNode = (BLangPackage) parent;
-                break;
-            }
-            if (parent instanceof BLangFunction) {
-                BLangFunction bLangFunction = (BLangFunction) parent;
-                bLangFunction.requiredParams.forEach(var -> strings.add(var.name.value));
-                bLangFunction.defaultableParams.forEach(def -> strings.add(def.var.name.value));
-            }
-            parent = parent.parent;
-        }
-
-        if (packageNode != null) {
-            packageNode.getGlobalVariables().forEach(globalVar -> strings.add(globalVar.name.value));
-            packageNode.getGlobalEndpoints().forEach(endpoint -> strings.add(endpoint.getName().getValue()));
-            packageNode.getServices().forEach(service -> strings.add(service.name.value));
-            packageNode.getFunctions().forEach(func -> strings.add(func.name.value));
-        }
-        BLangNode bLangNode = functionNode.parent;
-        while (bLangNode != null && !(bLangNode instanceof BLangBlockStmt)) {
-            bLangNode = bLangNode.parent;
-        }
-        if (bLangNode != null && packageNode != null) {
-            SymbolResolver symbolResolver = SymbolResolver.getInstance(context);
-            SymbolTable symbolTable = SymbolTable.getInstance(context);
-            BLangBlockStmt blockStmt = (BLangBlockStmt) bLangNode;
-            SymbolEnv symbolEnv = symbolTable.pkgEnvMap.get(packageNode.symbol);
-            SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockStmt, symbolEnv);
-            Map<Name, Scope.ScopeEntry> entries = symbolResolver.getAllVisibleInScopeSymbols(blockEnv);
-            entries.forEach((name, scopeEntry) -> strings.add(name.value));
-        }
-        return strings;
-    }
 
     /**
      * {@inheritDoc}
@@ -144,12 +96,13 @@ public class CreateVariableExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Invalid parameters received for the create variable command!");
         }
 
+        LSDocument document = new LSDocument(documentUri);
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
 
         BLangInvocation functionNode = null;
         try {
-            functionNode = getFunctionNode(sLine, sCol, documentUri, documentManager, lsCompiler, context);
+            functionNode = getFunctionInvocationNode(sLine, sCol, document, documentManager, lsCompiler, context);
         } catch (LSCompilerException e) {
             throw new LSCommandExecutorException("Error while compiling the source!");
         }
@@ -158,7 +111,8 @@ public class CreateVariableExecutor implements LSCommandExecutor {
         }
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         BLangPackage packageNode = CommonUtil.getPackageNode(functionNode);
-        String variableName = CommonUtil.generateName(1, getAllEntries(functionNode, compilerContext));
+        Set<String> nameEntries = CommonUtil.getAllNameEntries(functionNode, compilerContext);
+        String variableName = CommonUtil.generateVariableName(functionNode, nameEntries);
 
         if (packageNode == null) {
             throw new LSCommandExecutorException("Package node cannot be null");

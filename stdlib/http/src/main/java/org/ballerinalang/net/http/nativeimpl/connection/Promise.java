@@ -18,9 +18,7 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
@@ -35,9 +33,6 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.ballerinalang.net.http.HttpConstants.CALLER;
-
-//import org.ballerinalang.model.values.BMap;
-//import org.ballerinalang.model.values.BValue;
 
 /**
  * {@code Promise} is the extern function to respond back to the client with a PUSH_PROMISE frame.
@@ -54,32 +49,15 @@ import static org.ballerinalang.net.http.HttpConstants.CALLER;
         isPublic = true
 )
 public class Promise extends ConnectionAction {
-
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-//        BMap<String, BValue> connectionStruct = (BMap<String, BValue>) context.getRefArgument(0);
-//        HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
-//        DataContext dataContext = new DataContext(context, callback, inboundRequestMsg);
-//        HttpUtil.serverConnectionStructCheck(inboundRequestMsg);
-//
-//        BMap<String, BValue> pushPromiseStruct = (BMap<String, BValue>) context.getRefArgument(1);
-//        Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseStruct,
-//                HttpUtil.createHttpPushPromise(pushPromiseStruct));
-//        HttpResponseFuture outboundRespStatusFuture = HttpUtil.pushPromise(inboundRequestMsg, http2PushPromise);
-//        setResponseConnectorListener(dataContext, outboundRespStatusFuture);
-    }
-
-    public void promise(Strand strand, ObjectValue connectionObj, ObjectValue pushPromiseObj) {
-        //TODO : NonBlockingCallback is used to handle non blocking call
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
-
+    public static Object promise(Strand strand, ObjectValue connectionObj, ObjectValue pushPromiseObj) {
         HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionObj, null);
-        DataContext dataContext = new DataContext(strand, callback, inboundRequestMsg);
+        DataContext dataContext = new DataContext(strand, new NonBlockingCallback(strand), inboundRequestMsg);
         HttpUtil.serverConnectionStructCheck(inboundRequestMsg);
 
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseObj,
                 HttpUtil.createHttpPushPromise(pushPromiseObj));
         HttpResponseFuture outboundRespStatusFuture = HttpUtil.pushPromise(inboundRequestMsg, http2PushPromise);
         setResponseConnectorListener(dataContext, outboundRespStatusFuture);
+        return null;
     }
 }

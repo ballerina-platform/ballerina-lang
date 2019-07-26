@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.object;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -501,7 +500,7 @@ public class ObjectTest {
 
     @Test(description = "Negative test to test object visibility modifiers")
     public void testObjectVisibilityModifiers() {
-        CompileResult result = BCompileUtil.compile(this, "test-src/object", "mod");
+        CompileResult result = BCompileUtil.compile(this, "test-src/object/ObjectProject", "mod");
         Assert.assertEquals(result.getErrorCount(), 12);
         int index = 0;
 
@@ -664,8 +663,8 @@ public class ObjectTest {
     public void testObjectWithMissingNativeImpl(String filePath) {
         try {
             BCompileUtil.compile(filePath);
-        } catch (BLangCompilerException e) {
-            Assert.assertTrue(e.getMessage().contains("jvm code gen phase failed"));
+        } catch (Exception e) {
+            Assert.assertEquals(e.getMessage(), "native function not available: Person.printName");
             return;
         }
         Assert.fail("expected compilation to fail due to missing external implementation");

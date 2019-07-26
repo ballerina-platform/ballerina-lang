@@ -17,20 +17,16 @@
 */
 package org.ballerinalang.stdlib.task.service;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.stdlib.task.objects.ServiceWithParameters;
+import org.ballerinalang.stdlib.task.objects.ServiceInformation;
 import org.ballerinalang.stdlib.task.objects.Task;
+import org.ballerinalang.stdlib.task.utils.Utils;
 
 import java.util.Objects;
 
@@ -38,10 +34,8 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.NATIVE_DATA_TASK
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.OBJECT_NAME_LISTENER;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.ORGANIZATION_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_NAME;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.PACKAGE_STRUCK_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.PARAMETER_ATTACHMENT;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.REF_ARG_INDEX_TASK_RECORD;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.REF_ARG_INDEX_TASK_SERVICE;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_PACKAGE_NAME;
 import static org.ballerinalang.stdlib.task.utils.Utils.validateService;
 
 /**
@@ -56,51 +50,32 @@ import static org.ballerinalang.stdlib.task.utils.Utils.validateService;
         receiver = @Receiver(
                 type = TypeKind.OBJECT,
                 structType = OBJECT_NAME_LISTENER,
-                structPackage = PACKAGE_STRUCK_NAME),
+                structPackage = TASK_PACKAGE_NAME),
         isPublic = true
 )
-public class Register extends BlockingNativeCallableUnit {
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public void execute(Context context) {
-        Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
-        BMap<String, BValue> taskStruct = (BMap<String, BValue>) context.getRefArgument(REF_ARG_INDEX_TASK_RECORD);
-        BValue attachments = ((BMap<String, BValue>) context.getRefArgument(REF_ARG_INDEX_TASK_SERVICE))
-                .get(PARAMETER_ATTACHMENT);
-        ServiceWithParameters serviceWithParameters;
-        if (Objects.nonNull(attachments)) {
-            serviceWithParameters = new ServiceWithParameters(service, attachments);
-        } else {
-            serviceWithParameters = new ServiceWithParameters(service);
-        }
-
-        /* TODO: Validate service at runtime, as compiler plugin not available.
-         *       When compiler plugin is available, remove this.
-         */
-        validateService(service);
-
-        Task task = (Task) taskStruct.getNativeData(NATIVE_DATA_TASK_OBJECT);
-        task.addService(serviceWithParameters);
-    }
+public class Register {
 
     public static Object register(Strand strand, ObjectValue taskListener, ObjectValue service,
                                   MapValue<String, Object> config) {
         Object attachments = config.get(PARAMETER_ATTACHMENT);
-        ServiceWithParameters serviceWithParameters;
+        ServiceInformation serviceInformation;
         if (Objects.nonNull(attachments)) {
-            serviceWithParameters = new ServiceWithParameters(strand, service, attachments);
+            serviceInformation = new ServiceInformation(strand, service, attachments);
         } else {
-            serviceWithParameters = new ServiceWithParameters(strand, service);
+            serviceInformation = new ServiceInformation(strand, service);
         }
 
-        /* TODO: Validate service at runtime, as compiler plugin not available.
-         *       When compiler plugin is available, remove this.
+        /* 
+         * TODO: After #14148 fixed, use compiler plugin to validate the service
          */
-        validateService(service);
+        try {
+            validateService(serviceInformation);
+        } catch (BLangRuntimeException e) {
+            return Utils.createTaskError(e.getMessage());
+        }
 
         Task task = (Task) taskListener.getNativeData(NATIVE_DATA_TASK_OBJECT);
-        task.addService(serviceWithParameters);
+        task.addService(serviceInformation);
         return null;
     }
 }

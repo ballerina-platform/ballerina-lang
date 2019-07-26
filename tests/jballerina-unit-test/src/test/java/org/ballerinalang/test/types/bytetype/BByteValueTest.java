@@ -470,7 +470,7 @@ public class BByteValueTest {
 
     @Test(description = "Test bitwise right shift operator")
     public void testBitwiseRightShiftOperator2() {
-        int a = -27;
+        int a = 228;
         int b = 6;
         long i = -45678776;
         long j = 4;
@@ -542,7 +542,7 @@ public class BByteValueTest {
 
     @Test(description = "Test bitwise left shift operator 2")
     public void testBitwiseLeftShiftOperator2() {
-        int a = -27;
+        int a = 228;
         int b = 6;
         long i = -45678776;
         long j = 4;
@@ -554,13 +554,12 @@ public class BByteValueTest {
         BValue[] args = {new BByte(a), new BByte(b), new BInteger(i), new BInteger(j)};
         BValue[] returns = BRunUtil.invoke(result, "testBitwiseLeftShiftOperator1", args);
         Assert.assertEquals(returns.length, 3);
-        BByte bByte1 = (BByte) returns[0];
+        BInteger bInteger1 = (BInteger) returns[0];
         BInteger bInteger2 = (BInteger) returns[1];
-        BByte bByte2 = (BByte) returns[2];
-        Assert.assertEquals(bByte1.value().intValue(), a << b, "Invalid result");
-        Assert.assertEquals(bByte1.intValue(), a << b, "Invalid result");
+        BInteger bInteger3 = (BInteger) returns[2];
+        Assert.assertEquals(bInteger1.intValue(), a << b, "Invalid result");
         Assert.assertEquals(bInteger2.intValue(), i << j, "Invalid result");
-        Assert.assertEquals(bByte2.intValue(), a << j, "Invalid result");
+        Assert.assertEquals(bInteger3.intValue(), a << j, "Invalid result");
     }
 
     private void invokeLeftShiftOperatorTestFunction2(int a, int b, long i, long j) {
@@ -583,9 +582,9 @@ public class BByteValueTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testByteShift", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BByte.class);
-        BByte bByte = (BByte) returns[0];
-        Assert.assertEquals(bByte.value().intValue(), d, "Invalid byte value returned.");
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        BInteger bInteger = (BInteger) returns[0];
+        Assert.assertEquals(bInteger.intValue(), d, "Invalid byte value returned.");
     }
 
     @Test(description = "Test bitwise Complement operator 1")

@@ -1,6 +1,6 @@
 plugins {
     id 'base'
-    id 'com.gradle.build-scan' version '2.1' 
+    id 'com.gradle.build-scan' version '2.1'
     id "com.github.spotbugs" version "1.6.10"
     id "com.dorongold.task-tree" version "1.3.1"
     id "com.github.johnrengelman.shadow" version "5.0.0"
@@ -43,6 +43,19 @@ subprojects {
             }
         }
     }
+
+    release {
+        // Disable check snapshots temporarily
+        failOnSnapshotDependencies = false
+        failOnCommitNeeded = false
+        tagTemplate = 'v${version}'
+        git {
+            // To release from any branch
+            requireBranch = null
+        }
+    }
+
+    afterReleaseBuild.dependsOn publish
 }
 
 buildScan {
@@ -55,5 +68,3 @@ dependencies {
         //implementation 'org.springframework:spring-web:5.0.2.RELEASE'
     }
 }
-
-afterReleaseBuild.dependsOn publish

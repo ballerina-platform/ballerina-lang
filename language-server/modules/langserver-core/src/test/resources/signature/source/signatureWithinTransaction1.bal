@@ -5,7 +5,7 @@ function initiateNestedTransactionInRemote(string nestingMethod) returns string 
     string s = "";
     transaction {
         string testString = "Hello World!!";
-        testString.contains()
+        testString.concat("")
     } onretry {
         s += " onretry";
     } committed {

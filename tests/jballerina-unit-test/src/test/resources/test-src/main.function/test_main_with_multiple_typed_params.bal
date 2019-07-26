@@ -24,9 +24,13 @@ public function main(int i, float f, string s, byte b, boolean bool, json j, xml
     foreach var str in args {
         restArgs += str + " ";
     }
+    string boolStr = "false";
+    if (bool) {
+        boolStr = "true";
+    }
 
-    io:print("integer: " + string.convert(i) + ", float: " + f + ", string: " + s + ", byte: " +
-            string.convert(int.convert(b)) + ", boolean: " + string.convert(bool) + ", JSON Name Field: " +
+    io:print("integer: " + i.toHexString() + ", float: " + f.toString() + ", string: " + s + ", byte: " +
+            b.toString() + ", boolean: " + boolStr + ", JSON Name Field: " +
             j.name.toString() + ", XML Element Name: " + x.getElementName() + ", Employee Name Field: " + e.name +
             ", string rest args: " + restArgs);
 }

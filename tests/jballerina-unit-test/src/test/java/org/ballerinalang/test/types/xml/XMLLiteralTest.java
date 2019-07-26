@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.types.xml;
 
+import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BIterator;
 import org.ballerinalang.model.values.BString;
@@ -38,6 +39,7 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
@@ -69,11 +71,14 @@ public class XMLLiteralTest {
         BAssertUtil.validateError(negativeResult, index++, "undefined symbol 'ns1'", 10, 34);
 
         // text with multi type expressions
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'xml', found 'map'", 16, 59);
+        BAssertUtil.validateError(negativeResult, index++,
+                                  "incompatible types: expected '(int|float|decimal|string|boolean|xml)', found 'map'",
+                                  16, 59);
 
         // text with invalid multi type expressions
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found 'xml'", 28,
-                51);
+        BAssertUtil.validateError(negativeResult, index++,
+                                  "incompatible types: expected '(int|float|decimal|string|boolean)', found 'xml'",
+                                  28, 51);
 
         // namespace conflict with package import
         BAssertUtil.validateError(negativeResult, index++, "redeclared symbol 'x'", 42, 5);
@@ -380,7 +385,7 @@ public class XMLLiteralTest {
                 "<ns1:student xmlns:ns1=\"http://ballerina.com/b\">hello</ns1:student>");
     }
 
-    @Test(groups = { "brokenOnJBallerina" })
+    @Test
     public void testServiceLevelXML() {
         BCompileUtil.compile("test-src/types/xml/xml_literals_in_service.bal");
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/test/getXML", "GET");
@@ -389,6 +394,17 @@ public class XMLLiteralTest {
         BXML<?> xml = new BXMLItem(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(xml.stringValue(), "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\" " +
                 "xmlns:ns0=\"http://ballerina.com/a\" xmlns:ns1=\"http://ballerina.com/b\">hello</p:person>");
+    }
+
+    @Test(groups = "brokenOnJBallerina")
+    // todo: enable this once we fix the method too large issue on jBallerina
+    public void testLargeXMLLiteral() {
+        BCompileUtil.compile("test-src/types/xml/xml_inline_large_literal.bal");
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/test/getXML", "GET");
+        HttpCarbonMessage response = Services.invoke(9091, cMsg);
+        Assert.assertNotNull(response);
+        BXML<?> xml = new BXMLItem(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertTrue(xml.stringValue().contains("<line2>Sigiriya</line2>"));
     }
 
     @Test
@@ -422,5 +438,17 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[0].stringValue(), "<foo id=\"hello $5\">hello</foo>");
         Assert.assertEquals(returns[1].stringValue(), "<foo id=\"hello $$5\">$hello</foo>");
         Assert.assertEquals(returns[2].stringValue(), "<foo id=\"hello $$ 5\">$$ hello</foo>");
+    }
+
+    @Test
+    public void testXMLSerialize() {
+        BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "getXML");
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        XMLItem xmlItem = new XMLItem(returns[0].stringValue());
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        xmlItem.serialize(baos);
+        Assert.assertEquals(new String(baos.toByteArray()),
+                "<foo xmlns=\"http://wso2.com/\" xmlns:ns1=\"http://ballerina.com/b\">hello</foo>");
     }
 }

@@ -20,9 +20,7 @@
 package org.ballerinalang.messaging.artemis.externimpl.message;
 
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.model.types.TypeKind;
@@ -46,11 +44,7 @@ import org.ballerinalang.natives.annotations.Receiver;
         ),
         isPublic = true
 )
-public class GetBodySize extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class GetBodySize {
 
     public static Long getBodySize(Strand strand, ObjectValue messageObj) {
         ClientMessage message = (ClientMessage) messageObj.getNativeData(ArtemisConstants.ARTEMIS_MESSAGE);

@@ -20,18 +20,16 @@ package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
-import org.ballerinalang.messaging.rabbitmq.util.ChannelUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
+import java.io.IOException;
 import java.util.UUID;
 
 /**
@@ -48,29 +46,32 @@ import java.util.UUID;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class CreateChannel extends BlockingNativeCallableUnit {
+public class CreateChannel {
 
-    @Override
-    public void execute(Context context) {
-    }
     public static void createChannel(Strand strand, ObjectValue channelObjectValue, Object connectionObject) {
+        boolean isInTransaction = strand.isInTransaction();
         ObjectValue connectionObjectValue;
         if (connectionObject != null) {
             connectionObjectValue = (ObjectValue) connectionObject;
             Connection connection =
                     (Connection) connectionObjectValue.getNativeData(RabbitMQConstants.CONNECTION_NATIVE_OBJECT);
             try {
-                Channel channel = ChannelUtils.createChannel(connection);
+                Channel channel = connection.createChannel();
                 channelObjectValue.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, channel);
                 RabbitMQTransactionContext rabbitMQTransactionContext =
                         new RabbitMQTransactionContext(channelObjectValue, UUID.randomUUID().toString());
                 channelObjectValue.addNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT,
                         rabbitMQTransactionContext);
-                rabbitMQTransactionContext.handleTransactionBlock();
-            } catch (BallerinaException exception) {
+                if (isInTransaction) {
+                    rabbitMQTransactionContext.handleTransactionBlock(strand);
+                }
+            } catch (IOException exception) {
                 throw new BallerinaException(RabbitMQConstants.RABBITMQ_CLIENT_ERROR
-                        + exception.getDetail());
+                        + exception.getMessage());
             }
         }
+    }
+
+    private CreateChannel() {
     }
 }

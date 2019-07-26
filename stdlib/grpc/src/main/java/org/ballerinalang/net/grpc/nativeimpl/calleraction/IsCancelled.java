@@ -15,9 +15,7 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.calleraction;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.bre.bvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -44,10 +42,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
-public class IsCancelled extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-    }
+public class IsCancelled {
 
     public static boolean isCancelled(Strand strand, ObjectValue endpointClient) {
         StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);

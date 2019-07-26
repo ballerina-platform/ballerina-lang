@@ -46,6 +46,7 @@ public class Tokens {
     public static final String BIT_COMPLEMENT = "~";
     public static final String SUB = "-";
     public static final String ADD = "+";
+    public static final String DIV = "/";
 
     // Keywords.
     public static final String VAR = "var";
@@ -112,4 +113,8 @@ public class Tokens {
     public static final String UNTAINT = "untaint";
     public static final String NEW = "new";
     public static final String FLUSH = "flush";
+    public static final String FORK = "fork";
+    public static final String IMPORT = "import";
+    public static final String VERSION = "version";
+    public static final String TYPEDESC = "typedesc";
 }

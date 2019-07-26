@@ -18,19 +18,12 @@
 
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.streams.StreamSubscriptionManager;
-import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -57,9 +50,6 @@ public class StreamValue implements RefValue {
     public String topicName;
 
     public StreamValue(BType type, String name) {
-        if (((BStreamType) type).getConstrainedType() == null) {
-            throw new BallerinaException("a stream cannot be declared without a constraint");
-        }
         this.streamSubscriptionManager = StreamSubscriptionManager.getInstance();
         this.constraintType = ((BStreamType) type).getConstrainedType();
         this.type = new BStreamType(constraintType);
@@ -82,7 +72,7 @@ public class StreamValue implements RefValue {
     }
 
     public String stringValue() {
-        return "";
+        return "stream " + streamId + " " + getType().toString();
     }
 
     @Override
@@ -97,7 +87,14 @@ public class StreamValue implements RefValue {
 
     @Override
     public Object copy(Map<Object, Object> refs) {
-        return null;
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Object frozenCopy(Map<Object, Object> refs) {
+            throw new UnsupportedOperationException();
     }
 
     public BType getConstraintType() {
@@ -111,11 +108,6 @@ public class StreamValue implements RefValue {
      * @param data the data to publish to the stream
      */
     public void publish(Strand strand, Object data) {
-        if (!TypeChecker.checkIsLikeType(data, constraintType)) {
-            throw BallerinaErrors.createError("incompatible types: value of type:" +
-                    TypeChecker.getType(data).getName() + " cannot be added to a stream of type:" +
-                    this.constraintType.getName());
-        }
         streamSubscriptionManager.sendMessage(this, strand, data);
     }
 
@@ -126,22 +118,14 @@ public class StreamValue implements RefValue {
      *                        messages
      */
     public void subscribe(FPValue<Object[], Object> functionPointer) {
-        BType[] parameters = ((BFunctionType) functionPointer.type).paramTypes;
-        int lastArrayIndex = parameters.length - 1;
-        if (!TypeChecker.checkIsType(constraintType, ((BFunctionType) functionPointer.getType())
-                                                 .paramTypes[lastArrayIndex],
-                                      new ArrayList<>())) {
-            throw BallerinaErrors.createError("incompatible function: subscription function needs to be a function"
-                                              + " accepting:" + this.constraintType.getName());
-        }
         streamSubscriptionManager.registerMessageProcessor(this, functionPointer);
     }
 
-    public void subscribe(InputHandler inputHandler) {
-        if (constraintType.getTag() != TypeTags.OBJECT_TYPE_TAG
-            && constraintType.getTag() != TypeTags.RECORD_TYPE_TAG) {
-            throw BallerinaErrors.createError("Streaming Support is only available with streams accepting objects");
-        }
-        streamSubscriptionManager.registerMessageProcessor(this, inputHandler);
-    }
+//    public void subscribe(InputHandler inputHandler) {
+//        if (constraintType.getTag() != TypeTags.OBJECT_TYPE_TAG
+//            && constraintType.getTag() != TypeTags.RECORD_TYPE_TAG) {
+//            throw BallerinaErrors.createError("Streaming Support is only available with streams accepting objects");
+//        }
+//        streamSubscriptionManager.registerMessageProcessor(this, inputHandler);
+//    }
 }

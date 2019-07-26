@@ -18,8 +18,7 @@ package org.ballerinalang.stdlib.internal.compression;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -34,6 +33,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.StringJoiner;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -150,9 +150,9 @@ public class Compress extends BlockingNativeCallableUnit {
         }
     }
 
-    public static Object compress(Strand strand, ObjectValue dirPath, ObjectValue destDir) {
-        Path srcPath = (Path) dirPath.getNativeData(Constants.PATH_DEFINITION_NAME);
-        Path destPath = (Path) destDir.getNativeData(Constants.PATH_DEFINITION_NAME);
+    public static Object compress(Strand strand, String dirPath, String destDir) {
+        Path srcPath = Paths.get(dirPath);
+        Path destPath = Paths.get(destDir);
         if (!srcPath.toFile().exists()) {
 
             return CompressionUtils.createCompressionError("Path of the folder to be " +

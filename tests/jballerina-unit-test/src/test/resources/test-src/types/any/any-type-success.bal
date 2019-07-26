@@ -47,7 +47,7 @@ function anyMethodParameter() returns (any|error) {
 }
 
 function anyParam(any val) returns int|error {
-  int m = check int.convert(val);
+  int|error m = <int> val;
   return m;
 }
 
@@ -66,7 +66,7 @@ type Sample record {
 
 function successfulIntCasting() returns int|error {
   any abc = floatReturn();
-  float floatVal = check float.convert(abc);
+  float floatVal = <float> abc;
   // Float to int type conversion
   int intVal;
   intVal = <int>floatVal;

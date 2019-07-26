@@ -27,9 +27,223 @@
     display: inline-block;
     min-width: 100%;
     
+    .status-wrapper {
+        width: auto;
+        right: 70px;
+        top: 30px;
+        position: fixed;
+        justify-content: right;
+        z-index: 0;
+        font-size: 14px;
+        font-weight: 300;
+        padding: 0 10px;
+        z-index: 0;
+        border-width: 1px 0 1px 1px;
+        border-style: solid;
+        border-color: #e9e9e9; 
+        background: ~"@{@{color}-diagram-background-color}";
+        cursor: pointer;
+
+        .label {
+            background: ~"@{@{color}-diagram-background-color}";
+            padding: 10px 5px 10px 0;
+            font-size: 14px;
+            font-weight: 300;
+            cursor: pointer;
+        }
+        p {
+            margin: 0; 
+            line-height: 0;
+        }
+        &:hover {
+            cursor: pointer;
+        }
+    }
+    .menu-icon {
+        font-size: 20px;
+        color: #f1f1f1;
+        position: fixed;
+        right: 2em;
+        cursor: pointer;
+        border: 1px solid #e8e8e8;
+        padding: 6px 4px;
+        text-align: center;
+        width: 40px;
+        border-radius: 54%;
+        background: #333;
+        margin-right: 0;
+        z-index: 1000;
+        top: 1.4em;
+
+        .icon {
+            margin: 3.5px;
+            cursor: pointer;
+        }
+
+        &:hover {
+            opacity: 0.7;
+            cursor: pointer;
+        }
+    }
+
+    .ui.grid {
+        padding-top: 0;
+
+        &.menu-container {
+            width: 410px;
+            height: auto;
+            box-shadow: 3px 3px 0px 0px rgba(238,238,238,0.75);
+            -webkit-box-shadow: 3px 3px 0px 0px rgba(238,238,238,0.75);
+            -moz-box-shadow: 3px 3px 0px 0px rgba(238,238,238,0.75);
+            border: 1px solid #ccc;
+            margin-right: 2px;
+            position: fixed;
+            right: 2em;
+            top: 1.4em;
+            background: ~"@{@{color}-diagram-background-color}";
+            z-index: 1000;
+            padding-top: 0;
+            margin-top: 0;
+
+            .menu-row {
+                margin: 0;
+                padding: 0 5px;
+                height: 34px;
+                margin: 5px 0;
+
+                .menu-label {
+                    font-weight: 500;
+                    padding-top: 7px;
+                }
+
+                .selection-row {
+                    background: ~"@{@{color}-diagram-menu-row-background}";
+                    padding: 7px 0;
+                    height: 30px;
+                    display: inline-flex;
+
+                    .menu-dropdown-small {
+                        background: ~"@{@{color}-diagram-menu-dropdown-background}";
+                        width: 80px;
+                        height: auto;
+                        padding: 10px;
+                        height: 30px;
+                        margin-top: -7px;
+                        .text { 
+                            width: 100px;
+                        }
+                        .icon {
+                            width: 10px;
+                            padding: 0;
+                            font-size: 10px;
+                        }
+                        &.label {
+                            font-weight: 500;
+                            color: #333;
+                            overflow: hidden;
+                            height: 30px;
+                            top: -4px;
+                        }
+                        &.dropdown {
+                            height: 30px;
+                            padding-top: 7px;
+                            width: 160px;
+
+                            .item {
+                                width: 158px;
+                            }
+                        }
+                    }
+                    .icon {
+                        font-size: 12px;
+                        width: 30px;
+                        margin-left: 5px; 
+                        cursor: pointer;
+                        padding-bottom: 10px;
+                        display: inline-flex;
+                        margin-left: 10px;
+
+                        &:hover {
+                            color: #868686;
+                        }
+                    }
+                    .menu-dropdown-mid {
+                        background: ~"@{@{color}-diagram-menu-dropdown-background}";
+                        width: 222px;
+                        height: auto;
+                        padding: 10px;
+                        height: 30px;
+                        margin-top: -7px;
+                        .item {
+                            width: 220px;
+                        }
+                        .text { 
+                            width: 180px;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                            margin-top: -5px;
+                        }
+                        .icon {
+                            padding:0;
+                            width: 10px;
+                            font-size: 10px;
+                            top: -4px;
+                        }
+                    }
+                    .ui.dropdown .menu {
+                        box-shadow: none;
+                        width:148px
+                    }
+                }
+                .menu-control {
+                    padding: 0;
+                    
+                    .icon {
+                        font-size: 12px;
+                        width: 30px;
+                        margin-top: 8px; 
+
+                        &:hover {
+                            cursor: pointer;
+                        }
+                    }
+                }
+            }
+            .tooltip {
+                position: relative;
+                display: inline-block;
+            }
+    
+            .tooltip .tooltiptext {
+                visibility: hidden;
+                width: auto;
+                display: block;
+                background-color: #333;
+                color: #f1f1f1;
+                text-align: center;
+                border-radius: 2px;
+                position: absolute;
+                z-index: 1;
+                font-size: 12px;
+                top: -36px;
+                right: -14px;
+                height: 30px;
+                padding: 5px 10px;
+                cursor: pointer;
+                font-family: @diagram-font;
+                white-space: nowrap;
+            }
+            
+            .tooltip:hover .tooltiptext {
+                visibility: visible;
+            }
+        }
+    }
+    
     .diagram-container {
         background: ~"@{@{color}-diagram-background-color}";
-        margin: 4em 2em;
+        height: 110vh;
 
         text {
             fill: ~"@{@{color}-diagram-base-text-color}";
@@ -48,6 +262,9 @@
         .diagram-canvas {
             font-family: @diagram-font;
             font-size: @diagram-font-size;
+            width: 100%;
+            height: 110vh;
+            outline: none;
 
             .panel-group-header {
                 fill: ~"@{@{color}-diagram-panel-header-background-color}";
@@ -87,6 +304,7 @@
                     stroke: gray;
                     stroke-width: 1px;
                     fill: aliceblue;
+                    cursor: pointer;
                 }
                 .panel-header {
                     fill: ~"@{@{color}-diagram-panel-header-background-color}";
@@ -157,13 +375,10 @@
                             text {
                                 cursor: pointer;
                             }
+                            &:hover {
+                                visibility: visible;
+                            }
                         }
-                    }
-                    .statement:hover > .expander {
-                        visibility: visible;
-                    }
-                    .expander:hover {
-                        visibility: visible;
                     }
                     .action-invocation {
                         line {
@@ -219,10 +434,22 @@
                         .collapser {
                             stroke: ~"@{@{color}-diagram-collapse-func-color}";
                             cursor: pointer;
+                            fill: ~"@{@{color}-diagram-collapse-func-color}";
                         }
                         .life-line {
                             stroke: ~"@{@{color}-diagram-condition-line-stroke-color}";
                             stroke-width: @diagram-life-line-stroke-width;
+                        }
+                    }
+                    .expanded-hidden-block {
+                        .frame {
+                            stroke: ~"@{@{color}-diagram-expanded-func-frame-color}";
+                            fill: none;
+                        }
+                        .collapser {
+                            stroke: ~"@{@{color}-diagram-collapse-func-color}";
+                            cursor: pointer;
+                            fill: ~"@{@{color}-diagram-collapse-func-color}";
                         }
                     }
                 }

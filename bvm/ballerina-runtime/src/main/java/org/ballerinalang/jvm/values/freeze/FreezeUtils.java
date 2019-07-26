@@ -62,7 +62,7 @@ public class FreezeUtils {
         switch (currentState) {
             case FROZEN:
                 throw new BLangFreezeException(BallerinaErrorReasons.INVALID_UPDATE_ERROR,
-                        "modification not allowed on frozen value");
+                        "modification not allowed on readonly value");
             case MID_FREEZE:
                 throw new BLangFreezeException(BallerinaErrorReasons.INVALID_UPDATE_ERROR,
                         "modification not allowed during freeze");

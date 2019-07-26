@@ -19,20 +19,16 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.durable.subscriber;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.jms.AbstractBlockingAction;
 import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.JmsUtils;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SessionConnector;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
@@ -45,50 +41,37 @@ import javax.jms.Topic;
  * @since 0.970
  */
 @BallerinaFunction(
-        orgName = JmsConstants.BALLERINA,
-        packageName = JmsConstants.JMS,
+        orgName = JmsConstants.BALLERINAX,
+        packageName = JmsConstants.JAVA_JMS,
         functionName = "createSubscriber",
         receiver = @Receiver(type = TypeKind.OBJECT,
-                structType = JmsConstants.DURABLE_TOPIC_SUBSCRIBER,
-                structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS),
-        args = {
-                @Argument(name = "session", type = TypeKind.OBJECT, structType = JmsConstants.SESSION_OBJ_NAME),
-                @Argument(name = "messageSelector", type = TypeKind.STRING)
-        },
-        isPublic = true
+                             structType = JmsConstants.DURABLE_TOPIC_SUBSCRIBER,
+                             structPackage = JmsConstants.PROTOCOL_PACKAGE_JMS)
 )
-public class CreateSubscriber extends AbstractBlockingAction {
+public class CreateSubscriber {
 
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-        @SuppressWarnings(JmsConstants.UNCHECKED)
-        BMap<String, BValue> topicSubscriberBObject = (BMap<String, BValue>) context.getRefArgument(0);
-
-        @SuppressWarnings(JmsConstants.UNCHECKED)
-        BMap<String, BValue> sessionBObject = (BMap<String, BValue>) context.getRefArgument(1);
-        Session session = BallerinaAdapter.getNativeObject(sessionBObject, JmsConstants.JMS_SESSION, Session.class,
-                                                           context);
-
-        String topicPattern = context.getStringArgument(0);
-        String consumerId = context.getStringArgument(1);
-        String messageSelector = context.getStringArgument(2);
+    public static Object createSubscriber(Strand strand, ObjectValue topicSubscriberObj, ObjectValue sessionObj,
+                                        String topicPattern,
+                                        String consumerId, String messageSelector) {
+        Session session = (Session) sessionObj.getNativeData(JmsConstants.JMS_SESSION);
         if (JmsUtils.isNullOrEmptyAfterTrim(consumerId)) {
-            throw new BallerinaException("Please provide a durable subscription ID", context);
+            throw new BallerinaException("Please provide a durable subscription ID");
         }
 
         try {
             Topic topic = JmsUtils.getTopic(session, topicPattern);
             MessageConsumer consumer = session.createDurableSubscriber(topic, consumerId, messageSelector, false);
-            @SuppressWarnings(JmsConstants.UNCHECKED)
-            BMap<String, BValue> consumerConnectorBObject =
-                    (BMap<String, BValue>) topicSubscriberBObject.get(JmsConstants.CONSUMER_ACTIONS);
+            ObjectValue consumerConnectorBObject = topicSubscriberObj.getObjectValue(JmsConstants.CONSUMER_ACTIONS);
             consumerConnectorBObject.addNativeData(JmsConstants.JMS_CONSUMER_OBJECT, consumer);
+            consumerConnectorBObject.addNativeData(JmsConstants.SESSION_OBJECT, sessionObj);
             consumerConnectorBObject.addNativeData(JmsConstants.SESSION_CONNECTOR_OBJECT,
                                                    new SessionConnector(session));
         } catch (JMSException e) {
-            BallerinaAdapter.throwBallerinaException("Error while creating queue consumer", context, e);
+            return BallerinaAdapter.getError("Error while creating queue consumer", e);
         }
-
+        return null;
     }
 
+    private CreateSubscriber() {
+    }
 }

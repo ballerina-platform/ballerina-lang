@@ -59,11 +59,11 @@ import static org.ballerinalang.test.service.websub.WebSubTestUtils.requestUpdat
 @Test(groups = "websub-test")
 public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
     private static final int LOG_LEECHER_TIMEOUT = 45000;
-    private static final int WEBSUB_PORT = 8181;
+    private static final int WEBSUB_PORT = 23181;
     private BServerInstance webSubSubscriber;
     private BMainInstance subscriptionChanger;
 
-    private static String hubUrl = "http://localhost:9191/websub/hub";
+    private static String hubUrl = "http://localhost:23191/websub/hub";
     private static final String INTENT_VERIFICATION_LOG = "ballerina: Intent Verification agreed - Mode [subscribe], " +
             "Topic [http://one.websub.topic.com], Lease Seconds [86400]";
     private static final String EXPLICIT_INTENT_VERIFICATION_LOG = "Intent verified explicitly for subscription " +
@@ -83,8 +83,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
 
     private static final String INTERNAL_HUB_NOTIFICATION_LOG_THREE = "WebSub Notification Received by Three: " +
             "{\"action\":\"publish\", \"mode\":\"internal-hub\"}";
-    private static final String QUERY_PARAM_LOG = "Query Params: {\"topic\":\"http://one.websub.topic.com\", " +
-            "\"fooVal\":\"barVal\"}";
+    private static final String QUERY_PARAM_LOG = "Query Params: fooVal=barVal topic=http://one.websub.topic.com";
 
     private static final String UNSUBSCRIPTION_INTENT_VERIFICATION_LOG = "ballerina: Intent Verification agreed - " +
             "Mode [unsubscribe], Topic [http://one.websub.topic.com]";
@@ -117,8 +116,8 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         webSubSubscriber = new BServerInstance(balServer);
         subscriptionChanger = new BMainInstance(balServer);
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources" +
-                                                File.separator + "websub" + File.separator + "test_subscriber.bal")
-                .getAbsolutePath();
+                                                File.separator + "websub" + File.separator + "subscriber" +
+                                                File.separator + "test_subscriber.bal").getAbsolutePath();
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecher);
         webSubSubscriber.addLogLeecher(explicitIntentVerificationLogLeecher);
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherThree);
@@ -177,8 +176,8 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
     @Test(dependsOnMethods = "testSubscriberDetailsRetrievalFromHub")
     public void testUnsubscriptionIntentVerification() throws BallerinaTestException {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
-                                          "websub" + File.separator + "test_unsubscription_client.bal")
-                .getAbsolutePath();
+                                          "websub" + File.separator + "subscriber" + File.separator +
+                                          "test_unsubscription_client.bal").getAbsolutePath();
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
                 subscriptionChanger.runMain(balFile);
@@ -208,7 +207,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         HttpResponse response = HttpClientRequest.doPost(hubUrl,
                                                   "hub.mode=subscribe" +
                                                                   "&hub.topic=http://two.websub.topic.com" +
-                                                                  "&hub.callback=http://localhost:8181/websub",
+                                                                  "&hub.callback=http://localhost:23181/websub",
                                                   headers);
         Assert.assertTrue(response != null);
         Assert.assertEquals(response.getResponseCode(), 202, "Remote topic registration unsuccessful "
@@ -226,7 +225,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         headers.put("X-Hub-Signature", "SHA256=incorrect583e9dc7eaf63aede0abac8e15212e06320bb021c433a20f27d553");
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         HttpResponse response = HttpClientRequest.doPost(
-                webSubSubscriber.getServiceURLHttp(8181, "websubTwo"), "{\"dummy\":\"body\"}",
+                webSubSubscriber.getServiceURLHttp(23181, "websubTwo"), "{\"dummy\":\"body\"}",
                 headers);
         Assert.assertEquals(response.getResponseCode(), 404);
         Assert.assertEquals(response.getData(), "validation failed for notification");
@@ -237,7 +236,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         HttpResponse response = HttpClientRequest.doPost(
-                webSubSubscriber.getServiceURLHttp(8181, "websubTwo"), "{\"dummy\":\"body\"}",
+                webSubSubscriber.getServiceURLHttp(23181, "websubTwo"), "{\"dummy\":\"body\"}",
                 headers);
         Assert.assertEquals(response.getResponseCode(), 404);
         Assert.assertEquals(response.getData(), "validation failed for notification");
@@ -247,16 +246,16 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
     public void testSubscriberDetailsRetrievalFromHub() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put("x-topic", "http://one.websub.topic.com");
-        HttpResponse response = HttpClientRequest.doGet("http://localhost:8080/publisher/topicInfo", headers);
+        HttpResponse response = HttpClientRequest.doGet("http://localhost:23080/publisher/topicInfo", headers);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertTrue(response.getData().contains("{\"callback\":\"http://localhost:8181/websub"));
+        Assert.assertTrue(response.getData().contains("{\"callback\":\"http://localhost:23181/websub"));
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")
     public void testAvailableTopicsRetrievalFromHub() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet("http://localhost:8080/publisher/topicInfo");
+        HttpResponse response = HttpClientRequest.doGet("http://localhost:23080/publisher/topicInfo");
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");

@@ -26,10 +26,6 @@ function multiBinaryANDExpr(boolean one, boolean two, boolean three) returns (in
 
 function getBoolean() returns (boolean) {
     json j = {};
-    var val = string.convert(j.isPresent);
-    if (val is string) {
-        return (val == "test");
-    } else {
-        panic val;
-    }
+    string val = j.isPresent.toString();
+    return (val == "test");
 }

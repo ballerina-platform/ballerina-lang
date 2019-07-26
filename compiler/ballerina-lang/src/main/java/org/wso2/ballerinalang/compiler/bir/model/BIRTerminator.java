@@ -22,6 +22,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -31,15 +32,20 @@ import java.util.Set;
  *
  * @since 0.980.0
  */
-public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
+public abstract class BIRTerminator extends BIRAbstractInstruction implements BIRInstruction {
 
     public InstructionKind kind;
 
     public BIRBasicBlock thenBB;
 
     public BIRTerminator(DiagnosticPos pos, InstructionKind kind) {
-        super(pos);
+        super(pos, kind);
         this.kind = kind;
+    }
+
+    @Override
+    public InstructionKind getKind() {
+        return this.kind;
     }
 
     /**
@@ -72,7 +78,6 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
      * @since 0.980.0
      */
     public static class Call extends BIRTerminator implements BIRAssignInstruction {
-        public BIROperand lhsOp;
         public boolean isVirtual;
         public List<BIROperand> args;
         public Name name;
@@ -146,7 +151,6 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
      */
     public static class FPCall extends BIRTerminator {
         public BIROperand fp;
-        public BIROperand lhsOp;
         public List<BIROperand> args;
         public boolean isAsync;
 
@@ -223,12 +227,37 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
      * @since 0.990.4
      */
     public static class Lock extends BIRTerminator {
-        public final Set<BIRGlobalVariableDcl> globalVars;
+        public final BIRGlobalVariableDcl globalVar;
         public final BIRBasicBlock lockedBB;
 
-        public Lock(DiagnosticPos pos, Set<BIRGlobalVariableDcl> globalVars, BIRBasicBlock lockedBB) {
+        public Lock(DiagnosticPos pos, BIRGlobalVariableDcl globalVar, BIRBasicBlock lockedBB) {
             super(pos, InstructionKind.LOCK);
-            this.globalVars = globalVars;
+            this.globalVar = globalVar;
+            this.lockedBB = lockedBB;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A lock instruction.
+     * <p>
+     * e.g., lock [#3, #0] bb6
+     *
+     * @since 0.990.4
+     */
+    public static class FieldLock extends BIRTerminator {
+        public BIRVariableDcl localVar;
+        public String field;
+        public final BIRBasicBlock lockedBB;
+
+        public FieldLock(DiagnosticPos pos, BIRVariableDcl localVar, String field, BIRBasicBlock lockedBB) {
+            super(pos, InstructionKind.FIELD_LOCK);
+            this.localVar = localVar;
+            this.field = field;
             this.lockedBB = lockedBB;
         }
 
@@ -247,11 +276,14 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
      */
     public static class Unlock extends BIRTerminator {
         public final Set<BIRGlobalVariableDcl> globalVars;
+        public final Map<BIRVariableDcl, Set<String>> fieldLocks;
         public final BIRBasicBlock unlockBB;
 
-        public Unlock(DiagnosticPos pos, Set<BIRGlobalVariableDcl> globalVars, BIRBasicBlock unlockBB) {
+        public Unlock(DiagnosticPos pos, Set<BIRGlobalVariableDcl> globalVars,
+                      Map<BIRVariableDcl, Set<String>> fieldLocks, BIRBasicBlock unlockBB) {
             super(pos, InstructionKind.UNLOCK);
             this.globalVars = globalVars;
+            this.fieldLocks = fieldLocks;
             this.unlockBB = unlockBB;
         }
 
@@ -292,7 +324,6 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
      */
     public static class Wait extends BIRTerminator {
         public List<BIROperand> exprList;
-        public BIROperand lhsOp;
 
         public Wait(DiagnosticPos pos, List<BIROperand> exprList, BIROperand lhsOp, BIRBasicBlock thenBB) {
             super(pos, InstructionKind.WAIT);
@@ -316,7 +347,6 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
      */
     public static class Flush extends BIRTerminator {
         public ChannelDetails[] channels;
-        public BIROperand lhsOp;
 
         public Flush(DiagnosticPos pos, ChannelDetails[] channels, BIROperand lhsOp, BIRBasicBlock thenBB) {
             super(pos, InstructionKind.FLUSH);
@@ -340,16 +370,15 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
      */
     public static class WorkerReceive extends BIRTerminator {
         public Name workerName;
-        public BIROperand lhsOp;
         public boolean isSameStrand;
 
         public WorkerReceive(DiagnosticPos pos, Name workerName, BIROperand lhsOp,
                              boolean isSameStrand, BIRBasicBlock thenBB) {
             super(pos, InstructionKind.WK_RECEIVE);
             this.workerName = workerName;
-            this.lhsOp = lhsOp;
             this.thenBB = thenBB;
             this.isSameStrand = isSameStrand;
+            this.lhsOp = lhsOp;
         }
 
         @Override
@@ -370,7 +399,6 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
         public BIROperand data;
         public boolean isSameStrand;
         public boolean isSync;
-        public BIROperand lhsOp;
 
         public WorkerSend(DiagnosticPos pos, Name workerName, BIROperand data, boolean isSameStrand, boolean isSync,
                           BIROperand lhsOp, BIRBasicBlock thenBB) {
@@ -397,7 +425,6 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
      * @since 0.995.0
      */
     public static class WaitAll extends BIRTerminator {
-        public BIROperand lhsOp;
         public List<String> keys;
         public List<BIROperand> valueExprs;
 

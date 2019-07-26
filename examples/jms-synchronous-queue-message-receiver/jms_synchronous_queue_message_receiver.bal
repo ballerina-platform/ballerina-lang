@@ -1,5 +1,5 @@
-import ballerina/jms;
-import ballerina/log;
+import ballerinax/java.jms;
+import ballerina/io;
 
 // This initializes a JMS connection with the provider. This example uses
 // the ActiveMQ Artemis broker for demonstration. However, it can be tried
@@ -17,30 +17,30 @@ jms:Session jmsSession = new(jmsConnection, {
     });
 
 // Initializes a queue receiver on top of the created sessions.
-listener jms:QueueListener queueReceiver = new(jmsSession, queueName = "MyQueue");
+listener jms:QueueListener queueReceiver = new(jmsSession, "MyQueue");
 
 public function main() {
     jms:QueueReceiverCaller caller = queueReceiver.getCallerActions();
     // Keeps the JMS session alive until the message is received by the JMS provider.
     // If the message is not received within five seconds, the session times out.
-    var result = caller->receive(timeoutInMilliSeconds = 5000);
+    var result = caller->receive(30000);
 
     if (result is jms:Message) {
         // This is executed if the message is received.
-        var messageText = result.getTextMessageContent();
+        var messageText = result.getPayload();
         if (messageText is string) {
-            log:printInfo("Message : " + messageText);
-        } else {
-            log:printError("Error occurred while reading message.",
-                err = messageText);
+            io:println("Message : " + messageText);
+        } else if (messageText is error) {
+            io:println("Error occurred while reading message.",
+                messageText.reason());
         }
     } else if (result is ()) {
         // This is executed if the message is not received within five seconds.
-        log:printInfo("Message not received");
+        io:println("Message not received");
 
     } else {
         // This is executed if an error occurs.
-        log:printInfo("Error receiving message : " +
-                <string>result.detail().message);
+        io:println("Error receiving message : " +
+                <string>result.detail()["message"]);
     }
 }

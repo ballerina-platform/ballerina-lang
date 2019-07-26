@@ -114,7 +114,12 @@ public class BaloCreator {
         context.put(SourceDirectory.class, new FileSystemProjectDirectory(sourceRootPath));
 
         CompileResult compileResult = BCompileUtil
-                .compileOnJBallerina(context, sourceRootPath.toString(), packageName, false);
+                .compileOnJBallerina(context, sourceRootPath.toString(), packageName, false, true);
+
+        if (compileResult.getErrorCount() > 0) {
+            throw new RuntimeException(compileResult.toString());
+        }
+
         BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
         Compiler compiler = Compiler.getInstance(context);
         compiler.write(bLangPackage, targetPath);

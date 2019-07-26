@@ -20,17 +20,15 @@ package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.Annotation;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -38,20 +36,18 @@ import org.ballerinalang.net.websub.WebSubHttpService;
 import org.ballerinalang.net.websub.WebSubServicesRegistry;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 
-import java.util.List;
-
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_DEFAULT_HOST;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_SERVER_CONNECTOR;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_CALLBACK;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_HUB;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_LEASE_SECONDS;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_RESOURCE_URL;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SECRET;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SUBSCRIPTION_CLIENT_CONFIG;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_TOPIC;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_SUBSCRIPTION_HUB_CLIENT_CONFIG;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.
+        ANN_WEBSUB_ATTR_SUBSCRIPTION_PUBLISHER_CLIENT_CONFIG;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_TARGET;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ENDPOINT_CONFIG_HOST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ENDPOINT_CONFIG_PORT;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ENDPOINT_CONFIG_SECURE_SOCKET_CONFIG;
@@ -81,90 +77,82 @@ public class RetrieveSubscriptionParameters extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-//        Struct subscriberServiceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-//        Struct serviceEndpoint = subscriberServiceEndpoint.getStructField(WEBSUB_HTTP_ENDPOINT);
-//
-//        Object[] webSubHttpServices = ((WebSubServicesRegistry) serviceEndpoint.getNativeData(WEBSUB_SERVICE_REGISTRY))
-//                                        .getServicesByHost(DEFAULT_HOST).values().toArray();
-//
-//        BValueArray subscriptionDetailArray = new BValueArray(new BMapType(BTypes.typeAny));
-//
-//        for (int index = 0; index < webSubHttpServices.length; index++) {
-//            WebSubHttpService webSubHttpService = (WebSubHttpService) webSubHttpServices[index];
-//            BMap<String, BValue> subscriptionDetails = new BMap<>();
-//            List<Annotation> webSubServiceAnnotations = webSubHttpService.getBalService()
-//                                                        .getAnnotationList(WEBSUB_PACKAGE,
-//                                                                           ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG);
-//            if (webSubServiceAnnotations != null) {
-//                //Ideally would be caught at compile time/validation and would not throw an exception here
-//                if (webSubServiceAnnotations.size() > 1) {
-//                    throw new BallerinaConnectorException("Error identifying "
-//                                                                  + ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG
-//                                                                  + ": Expected annotation count [1], found ["
-//                                                                  + webSubServiceAnnotations.size() + "]");
-//                }
-//
-//                subscriptionDetails.put(WEBSUB_SERVICE_NAME,
-//                                new BString(webSubHttpService.getBalService().getServiceInfo().getType().getName()));
-//
-//                Struct annotationStruct = webSubServiceAnnotations.get(0).getValue();
-//                subscriptionDetails.put(ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP,
-//                                        new BString(Boolean.toString(annotationStruct.getBooleanField(
-//                                                ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP))));
-//                subscriptionDetails.put(ANN_WEBSUB_ATTR_RESOURCE_URL,
-//                                        new BString(annotationStruct.getStringField(ANN_WEBSUB_ATTR_RESOURCE_URL)));
-//                subscriptionDetails.put(ANN_WEBSUB_ATTR_HUB,
-//                                        new BString(annotationStruct.getStringField(ANN_WEBSUB_ATTR_HUB)));
-//                subscriptionDetails.put(ANN_WEBSUB_ATTR_TOPIC,
-//                                        new BString(annotationStruct.getStringField(ANN_WEBSUB_ATTR_TOPIC)));
-//                subscriptionDetails.put(ANN_WEBSUB_ATTR_LEASE_SECONDS,
-//                                        new BString(Long.toString(annotationStruct.getIntField(
-//                                                ANN_WEBSUB_ATTR_LEASE_SECONDS))));
-//                subscriptionDetails.put(ANN_WEBSUB_ATTR_SECRET,
-//                                        new BString(annotationStruct.getStringField(ANN_WEBSUB_ATTR_SECRET)));
-//
-//                if (annotationStruct.getRefField(ANN_WEBSUB_ATTR_SUBSCRIPTION_CLIENT_CONFIG) != null) {
-//                    BMap<String, BValue> subscriptionClientConfig = (BMap<String, BValue>) annotationStruct.getRefField(
-//                            ANN_WEBSUB_ATTR_SUBSCRIPTION_CLIENT_CONFIG).getVMValue();
-//                    subscriptionDetails.put(ANN_WEBSUB_ATTR_SUBSCRIPTION_CLIENT_CONFIG, subscriptionClientConfig);
-//                } else {
-//                    subscriptionDetails.put(ANN_WEBSUB_ATTR_SUBSCRIPTION_CLIENT_CONFIG, null);
-//                }
-//
-//                String callback = annotationStruct.getStringField(ANN_WEBSUB_ATTR_CALLBACK);
-//
-//                if (callback.isEmpty()) {
-//                    //TODO: intro methods to return host+port and change instead of using connector ID
-//                    callback = webSubHttpService.getBasePath();
-//                    Struct serviceEndpointConfig =
-//                            serviceEndpoint.getRefField(SERVICE_ENDPOINT_CONFIG_NAME).getStructValue();
-//                    long port = serviceEndpoint.getIntField(ENDPOINT_CONFIG_PORT);
-//                    if (!serviceEndpointConfig.getStringField(ENDPOINT_CONFIG_HOST).isEmpty() && port != 0) {
-//                        callback = serviceEndpointConfig.getStringField(ENDPOINT_CONFIG_HOST) + ":" + port + callback;
-//                    } else {
-//                        callback = ((ServerConnector) serviceEndpoint.getNativeData(HTTP_SERVER_CONNECTOR))
-//                                .getConnectorID() + callback;
-//                    }
-//                    if (callback.startsWith(HTTP_DEFAULT_HOST)) {
-//                        callback = callback.replace(HTTP_DEFAULT_HOST, LOCALHOST);
-//                    }
-//                    if (!callback.contains("://")) {
-//                        if (serviceEndpointConfig.getRefField(ENDPOINT_CONFIG_SECURE_SOCKET_CONFIG) != null) {
-//                            //if secure socket is specified
-//                            callback = ("https://").concat(callback);
-//                        } else {
-//                            callback = ("http://").concat(callback);
-//                        }
-//                    }
-//                }
-//
-//                subscriptionDetails.put(ANN_WEBSUB_ATTR_CALLBACK, new BString(callback));
-//                subscriptionDetailArray.add(index, subscriptionDetails);
-//            }
-//        }
-//
-//
-//        context.setReturnValues(subscriptionDetailArray);
     }
 
+    @SuppressWarnings("unchecked")
+    public static ArrayValue retrieveSubscriptionParameters(Strand strand, ObjectValue subscriberServiceEndpoint) {
+        ObjectValue serviceEndpoint = (ObjectValue) subscriberServiceEndpoint.get(WEBSUB_HTTP_ENDPOINT);
+        Object[] webSubHttpServices = ((WebSubServicesRegistry) serviceEndpoint.getNativeData(WEBSUB_SERVICE_REGISTRY))
+                                        .getServicesByHost(DEFAULT_HOST).values().toArray();
+        ArrayValue subscriptionDetailArray = new ArrayValue(new BArrayType(new BMapType(BTypes.typeAny)));
+
+        for (int index = 0; index < webSubHttpServices.length; index++) {
+            WebSubHttpService webSubHttpService = (WebSubHttpService) webSubHttpServices[index];
+            MapValue<String, Object> subscriptionDetails = new MapValueImpl<>();
+            MapValue annotation = (MapValue) webSubHttpService.getBalService().getType()
+                    .getAnnotation(WEBSUB_PACKAGE, ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG);
+
+            subscriptionDetails.put(WEBSUB_SERVICE_NAME, webSubHttpService.getBalService().getType().getName());
+            subscriptionDetails.put(ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP,
+                                    annotation.getBooleanValue(ANN_WEBSUB_ATTR_SUBSCRIBE_ON_STARTUP));
+
+            if (annotation.containsKey(ANN_WEBSUB_ATTR_TARGET)) {
+                subscriptionDetails.put(ANN_WEBSUB_ATTR_TARGET, annotation.get(ANN_WEBSUB_ATTR_TARGET));
+            }
+
+            if (annotation.containsKey(ANN_WEBSUB_ATTR_LEASE_SECONDS)) {
+                subscriptionDetails.put(ANN_WEBSUB_ATTR_LEASE_SECONDS,
+                                        annotation.getIntValue(ANN_WEBSUB_ATTR_LEASE_SECONDS));
+            }
+
+            if (annotation.containsKey(ANN_WEBSUB_ATTR_SECRET)) {
+                subscriptionDetails.put(ANN_WEBSUB_ATTR_SECRET, annotation.getStringValue(ANN_WEBSUB_ATTR_SECRET));
+            }
+
+            if (annotation.containsKey(ANN_WEBSUB_ATTR_SUBSCRIPTION_PUBLISHER_CLIENT_CONFIG)) {
+                MapValue<String, Object> publisherClientConfig =
+                        (MapValue<String, Object>) annotation.get(ANN_WEBSUB_ATTR_SUBSCRIPTION_PUBLISHER_CLIENT_CONFIG);
+                subscriptionDetails.put(ANN_WEBSUB_ATTR_SUBSCRIPTION_PUBLISHER_CLIENT_CONFIG, publisherClientConfig);
+            }
+
+            if (annotation.containsKey(ANN_WEBSUB_ATTR_SUBSCRIPTION_HUB_CLIENT_CONFIG)) {
+                MapValue<String, Object> hubClientConfig =
+                        (MapValue<String, Object>) annotation.get(ANN_WEBSUB_ATTR_SUBSCRIPTION_HUB_CLIENT_CONFIG);
+                subscriptionDetails.put(ANN_WEBSUB_ATTR_SUBSCRIPTION_HUB_CLIENT_CONFIG, hubClientConfig);
+            }
+
+            String callback;
+
+            if (annotation.containsKey(ANN_WEBSUB_ATTR_CALLBACK)) {
+                callback = annotation.getStringValue(ANN_WEBSUB_ATTR_CALLBACK);
+            } else {
+                //TODO: intro methods to return host+port and change instead of using connector ID
+                callback = webSubHttpService.getBasePath();
+                MapValue<String, Object> serviceEndpointConfig = (MapValue<String, Object>) serviceEndpoint.get(
+                        SERVICE_ENDPOINT_CONFIG_NAME);
+                long port = serviceEndpoint.getIntValue(ENDPOINT_CONFIG_PORT);
+                if (!serviceEndpointConfig.getStringValue(ENDPOINT_CONFIG_HOST).isEmpty() && port != 0) {
+                    callback = serviceEndpointConfig.getStringValue(ENDPOINT_CONFIG_HOST) + ":" + port + callback;
+                } else {
+                    callback = ((ServerConnector) serviceEndpoint.getNativeData(HTTP_SERVER_CONNECTOR))
+                            .getConnectorID() + callback;
+                }
+                if (callback.startsWith(HTTP_DEFAULT_HOST)) {
+                    callback = callback.replace(HTTP_DEFAULT_HOST, LOCALHOST);
+                }
+                if (!callback.contains("://")) {
+                    if (serviceEndpointConfig.get(ENDPOINT_CONFIG_SECURE_SOCKET_CONFIG) != null) {
+                        //if secure socket is specified
+                        callback = ("https://").concat(callback);
+                    } else {
+                        callback = ("http://").concat(callback);
+                    }
+                }
+            }
+
+            subscriptionDetails.put(ANN_WEBSUB_ATTR_CALLBACK, callback);
+            subscriptionDetailArray.add(index, subscriptionDetails);
+        }
+        return subscriptionDetailArray;
+    }
 }

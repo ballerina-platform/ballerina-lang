@@ -28,8 +28,14 @@ function attachTimer() {
     };
 
     task:Scheduler timer = new({ interval: 100, initialDelay: 1000 });
-    checkpanic timer.attach(timerService, attachment = person);
-    checkpanic timer.start();
+    var attachResult = timer.attach(timerService, person);
+    if (attachResult is error) {
+        panic attachResult;
+    }
+    var startResult = timer.start();
+    if (startResult is error) {
+        panic startResult;
+    }
 }
 
 string result = "";
@@ -37,7 +43,7 @@ string result = "";
 service timerService = service {
     resource function onTrigger(Person person) {
         person.age = person.age + 1;
-        result = untaint (person.name + " is " + person.age + " years old");
+        result = <@untainted string> (person.name + " is " + person.age.toString() + " years old");
     }
 };
 

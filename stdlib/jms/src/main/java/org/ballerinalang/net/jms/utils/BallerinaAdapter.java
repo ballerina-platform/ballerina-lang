@@ -19,20 +19,13 @@
 
 package org.ballerinalang.net.jms.utils;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.net.jms.JmsConstants;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.jms.JMSException;
 
 /**
  * Adapter class use used to bridge the connector native codes and Ballerina API.
@@ -44,45 +37,49 @@ public class BallerinaAdapter {
     private BallerinaAdapter() {
     }
 
-    public static Struct getReceiverObject(Context context) {
-        return BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-    }
-
-    public static <T> T getNativeObject(Struct struct, String objectId, Class<T> objectClass, Context context) {
-        Object messageNativeData = struct.getNativeData(objectId);
-        return verifyNativeObject(context, struct.getName(), objectClass, messageNativeData);
-    }
-
-    public static <T> T getNativeObject(BMap<String, BValue> struct, String objectId, Class<T> objectClass,
-                                        Context context) {
-        Object messageNativeData = struct.getNativeData(objectId);
-        return verifyNativeObject(context, struct.getType().getName(), objectClass, messageNativeData);
-    }
-
-    private static <T> T verifyNativeObject(Context context, String structName, Class<T> objectClass, Object
-            nativeData) {
-        if (!objectClass.isInstance(nativeData)) {
-            throw new BallerinaException(structName + " is not properly initialized.", context);
-        }
-        return objectClass.cast(nativeData);
-    }
-
-    public static void throwBallerinaException(String message, Context context, Throwable throwable) {
+    public static void throwBallerinaException(String message, Throwable throwable) {
         LOGGER.error(message, throwable);
-        throw new BallerinaException(message + " " + throwable.getMessage(), throwable, context);
+        throw getError(message, throwable);
     }
 
-    private static BMap<String, BValue> createErrorRecord(Context context, String errorMsg, JMSException e) {
-        BMap<String, BValue> errorStruct = BLangConnectorSPIUtil
-                .createBStruct(context, JmsConstants.BALLERINA_PACKAGE_JMS, JmsConstants.JMS_ERROR_RECORD);
-        errorStruct.put(BLangVMErrors.ERROR_MESSAGE_FIELD, new BString(errorMsg + " " + e.getMessage()));
-        return errorStruct;
+    public static void throwBallerinaException(String message) {
+        throw getError(message);
     }
 
-    public static void returnError(String errorMessage, Context context, JMSException e) {
+    private static MapValue<String, Object> createErrorRecord() {
+        return BallerinaValues.createRecordValue(JmsConstants.PROTOCOL_INTERNAL_PACKAGE_JMS,
+                                                 JmsConstants.JMS_ERROR_RECORD);
+    }
+
+    public static ErrorValue getError(String errorMessage, Throwable e) {
         LOGGER.error(errorMessage, e);
-        BMap<String, BValue> errorRecord = createErrorRecord(context, errorMessage, e);
-        context.setReturnValues(
-                BLangVMErrors.createError(context, true, BTypes.typeError, JmsConstants.JMS_ERROR_CODE, errorRecord));
+        return getError(errorMessage);
+    }
+
+    public static ErrorValue getError(String errorMessage) {
+        MapValue<String, Object> errorRecord = createErrorRecord();
+        errorRecord.put(JmsConstants.ERROR_MESSAGE_FIELD, errorMessage);
+        return BallerinaErrors.createError(JmsConstants.JMS_ERROR_CODE, errorRecord);
+    }
+
+    /**
+     * Gets an integer from a long value. Handles errors appropriately.
+     *
+     * @param longVal the long value.
+     * @param name    the name of the long value: useful for logging the error.
+     * @param logger  the logger to log errors
+     * @return the int value from the given long value
+     */
+    public static int getIntFromLong(long longVal, String name, Logger logger) {
+        if (longVal <= 0) {
+            throw getError("The bytesLength cannot be negative");
+        }
+        try {
+            return Math.toIntExact(longVal);
+        } catch (ArithmeticException e) {
+            logger.warn("The value set for {} needs to be less than {}. The {} value is set to {}", name,
+                        Integer.MAX_VALUE, name, Integer.MAX_VALUE);
+            return Integer.MAX_VALUE;
+        }
     }
 }

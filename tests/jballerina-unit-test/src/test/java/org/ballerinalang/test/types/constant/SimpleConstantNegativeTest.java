@@ -28,11 +28,11 @@ import org.testng.annotations.Test;
  */
 public class SimpleConstantNegativeTest {
 
-    @Test
+    @Test()
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/" +
                 "simple-literal-constant-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 55);
+        Assert.assertEquals(compileResult.getErrorCount(), 57);
 
         int index = 0;
         int offset = 1;
@@ -118,6 +118,10 @@ public class SimpleConstantNegativeTest {
                 offset += 6, 24);
         BAssertUtil.validateError(compileResult, index++, "expression is not a constant expression", offset += 4, 33);
         BAssertUtil.validateError(compileResult, index++, "expression is not a constant expression", offset += 1, 33);
-        BAssertUtil.validateError(compileResult, index, "cannot update constant value", offset += 12, 5);
+        BAssertUtil.validateError(compileResult, index++, "cannot update constant value", offset += 12, 5);
+        BAssertUtil.validateError(compileResult, index++, "constant cannot be defined with type 'Foo', expected a " +
+                "simple basic types or a map of a simple basic type", offset += 10, 7);
+        BAssertUtil.validateError(compileResult, index, "constant cannot be defined with type 'json', expected a " +
+                "simple basic types or a map of a simple basic type", offset += 2, 7);
     }
 }

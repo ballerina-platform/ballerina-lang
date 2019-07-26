@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.net.URI;
@@ -52,7 +53,7 @@ import static org.ballerinalang.langserver.compiler.LSCompilerUtil.prepareCompil
  */
 public class LSCompiler {
 
-    private final WorkspaceDocumentManager documentManager;
+    private final WorkspaceDocumentManager docManager;
 
     /**
      * Special LS Compiler instance with the Extended Document Manager to compile the content.
@@ -62,10 +63,10 @@ public class LSCompiler {
     /**
      * Returns a new LS Compiler instance with this document manager.
      *
-     * @param documentManager document manager
+     * @param docManager document manager
      */
-    public LSCompiler(WorkspaceDocumentManager documentManager) {
-        this.documentManager = documentManager;
+    public LSCompiler(WorkspaceDocumentManager docManager) {
+        this.docManager = docManager;
     }
 
     /**
@@ -102,29 +103,28 @@ public class LSCompiler {
      * @return {@link BallerinaFile} containing compiled package
      */
     public BallerinaFile compileFile(Path filePath, CompilerPhase phase) {
-        String sourceRoot = LSCompilerUtil.getSourceRoot(filePath);
-        String packageName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, filePath.toString());
-        LSDocument sourceDocument = new LSDocument(filePath, sourceRoot);
+        LSDocument lsDocument = new LSDocument(filePath.toUri().toString());
+        String packageName = lsDocument.getOwnerModule();
+        String projectRoot = lsDocument.getProjectRoot();
 
-        PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
+        PackageRepository packageRepo = new WorkspacePackageRepository(lsDocument.getProjectRoot(), docManager);
         PackageID packageID;
-        if ("".equals(packageName)) {
+        if ("".equals(lsDocument.getOwnerModule())) {
             Path path = filePath.getFileName();
             if (path != null) {
                 packageName = path.toString();
-                packageID = new PackageID(packageName);
+                packageID = new PackageID(path.toString());
             } else {
                 packageID = new PackageID(Names.ANON_ORG, new Name(packageName), Names.DEFAULT_VERSION);
             }
         } else {
-            packageID = generatePackageFromManifest(packageName, sourceRoot);
+            packageID = generatePackageFromManifest(packageName, projectRoot);
         }
-        CompilerContext context = prepareCompilerContext(packageID, packageRepository, sourceDocument,
-                                                                        true, documentManager, phase);
+        CompilerContext context = prepareCompilerContext(packageID, packageRepo, lsDocument, true, docManager, phase);
 
         BallerinaFile bfile;
         BLangPackage bLangPackage = null;
-        boolean isProjectDir = (LSCompilerUtil.isBallerinaProject(sourceRoot, filePath.toUri().toString()));
+        boolean isProjectDir = lsDocument.isWithinProject();
         try {
             BLangDiagnosticLog.getInstance(context).errorCount = 0;
             Compiler compiler = Compiler.getInstance(context);
@@ -238,10 +238,10 @@ public class LSCompiler {
             context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
         }
         LSDocument sourceDoc = new LSDocument(uri);
-        String sourceRoot = sourceDoc.getSourceRoot();
-        PackageRepository pkgRepo = new WorkspacePackageRepository(sourceRoot, docManager);
+        String projectRoot = sourceDoc.getProjectRoot();
+        PackageRepository pkgRepo = new WorkspacePackageRepository(projectRoot, docManager);
         List<BLangPackage> packages = new ArrayList<>();
-        String pkgName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, sourceDoc.getPath().toString());
+        String pkgName = sourceDoc.getOwnerModule();
         PackageID pkgID;
         String relativeFilePath;
 
@@ -254,18 +254,19 @@ public class LSCompiler {
             // No need to compile the full project for a file which is not inside a module.
             compileFullProject = false;
         } else {
-            relativeFilePath = sourceDoc.getSourceRootPath().resolve(pkgName).relativize(sourceDoc.getPath())
+            relativeFilePath = sourceDoc.getProjectRootPath().resolve(ProjectDirConstants.SOURCE_DIR_NAME)
+                    .resolve(pkgName).relativize(sourceDoc.getPath())
                     .toString();
-            pkgID = generatePackageFromManifest(pkgName, sourceRoot);
+            pkgID = generatePackageFromManifest(pkgName, projectRoot);
         }
         CompilerContext compilerContext = prepareCompilerContext(pkgID, pkgRepo, sourceDoc, preserveWS, docManager);
 
-        context.put(DocumentServiceKeys.SOURCE_ROOT_KEY, sourceRoot);
+        context.put(DocumentServiceKeys.SOURCE_ROOT_KEY, projectRoot);
         context.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY, pkgID.getNameComps().stream()
                 .map(Name::getValue)
                 .collect(Collectors.joining(".")));
         try {
-            if (compileFullProject && !sourceRoot.isEmpty() && sourceDoc.hasProjectRepo()) {
+            if (compileFullProject && !projectRoot.isEmpty() && sourceDoc.isWithinProject()) {
                 if (clearProjectModules) {
                     // If the flag is set, we remove all the modules in the current project from the LSPackageCache
                     LSPackageCache.getInstance(compilerContext).invalidateProjectModules(sourceDoc.getProjectModules());
@@ -292,12 +293,12 @@ public class LSCompiler {
         return packages;
     }
 
-    private PackageID generatePackageFromManifest(String pkgName, String sourceRoot) {
-        Manifest manifest = LSCompilerUtil.getManifest(Paths.get(sourceRoot));
-        Name orgName = manifest.getName() == null || manifest.getName().isEmpty() ?
-                Names.ANON_ORG : new Name(manifest.getName());
-        Name version = manifest.getVersion() == null || manifest.getVersion().isEmpty() ?
-                Names.DEFAULT_VERSION : new Name(manifest.getVersion());
+    private PackageID generatePackageFromManifest(String pkgName, String projectRoot) {
+        Manifest manifest = LSCompilerUtil.getManifest(Paths.get(projectRoot));
+        Name orgName = manifest.getProject().getOrgName() == null || manifest.getProject().getOrgName().isEmpty() ?
+                Names.ANON_ORG : new Name(manifest.getProject().getOrgName());
+        Name version = manifest.getProject().getVersion() == null || manifest.getProject().getVersion().isEmpty() ?
+                Names.DEFAULT_VERSION : new Name(manifest.getProject().getVersion());
         return new PackageID(orgName, new Name(pkgName), version);
     }
 }

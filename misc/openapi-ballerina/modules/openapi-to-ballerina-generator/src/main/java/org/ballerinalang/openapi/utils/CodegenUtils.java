@@ -62,7 +62,7 @@ public class CodegenUtils {
     public static Path getSourcePath(String pkg, String path) {
         return (pkg == null || pkg.isEmpty()) ?
                 Paths.get(path) :
-                Paths.get(path).resolve(Paths.get(pkg, GeneratorConstants.GEN_SRC_DIR));
+                Paths.get(path).resolve("src").resolve(Paths.get(pkg));
     }
 
     /**
