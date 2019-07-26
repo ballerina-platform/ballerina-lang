@@ -19,6 +19,7 @@ import com.google.common.base.Strings;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PreloadingActivity;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
@@ -30,6 +31,7 @@ import io.ballerina.plugins.idea.extensions.BallerinaLSPExtensionManager;
 import io.ballerina.plugins.idea.sdk.BallerinaPathModificationTracker;
 import io.ballerina.plugins.idea.sdk.BallerinaSdk;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
+import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionConfigurable;
 import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -101,14 +103,14 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
         String balSdkPath = balSdk.getSdkPath();
 
         // Checks for the user-configured auto detection settings.
-        if (balSdkPath == null && BallerinaAutoDetectionSettings.getInstance().autoDetectBalHome()) {
+        if (balSdkPath == null && BallerinaAutoDetectionSettings.getInstance(project).getIsAutoDetectionEnabled()) {
 
             //If a ballerina SDK is not configured for the project, Plugin tries to auto detect the ballerina SDK.
             ApplicationManager.getApplication().invokeLater(() -> notifier.showMessage(String.format(
                     "No ballerina SDK is found for project: %s\n Trying to Auto detect Ballerina Home...",
                     project.getBasePath()), MessageType.INFO));
 
-            balSdkPath = BallerinaSdkUtils.autoDetectSdk();
+            balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
             autoDetected = true;
         }
 
@@ -118,12 +120,14 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
                 LOG.info(String.format("Auto-detected Ballerina Home: %s for the project: %s",
                         balSdkPath, project.getBasePath()));
                 String finalBalSdkPath = balSdkPath;
+                ShowSettingsUtil.getInstance().editConfigurable(project, new BallerinaAutoDetectionConfigurable(
+                        project, false));
                 ApplicationManager.getApplication().invokeLater(() -> notifier.showMessage(String.format(
                         "Auto-Detected Ballerina Home: %s", finalBalSdkPath), MessageType.INFO));
             }
             return success;
         } else {
-            if (BallerinaAutoDetectionSettings.getInstance().autoDetectBalHome()) {
+            if (BallerinaAutoDetectionSettings.getInstance(project).getIsAutoDetectionEnabled()) {
                 ApplicationManager.getApplication().invokeLater(() ->
                         notifier.showMessage("Auto-Detection Failed", MessageType.WARNING));
             }

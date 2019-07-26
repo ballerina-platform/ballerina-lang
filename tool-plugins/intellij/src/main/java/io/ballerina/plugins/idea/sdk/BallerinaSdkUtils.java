@@ -225,10 +225,10 @@ public class BallerinaSdkUtils {
     /**
      * @return an empty string if it fails to auto-detect the ballerina home automatically.
      */
-    public static String autoDetectSdk() {
+    public static String autoDetectSdk(Project project) {
 
         // Checks for the user-configured settings.
-        if (!BallerinaAutoDetectionSettings.getInstance().autoDetectBalHome()) {
+        if (!BallerinaAutoDetectionSettings.getInstance(project).getIsAutoDetectionEnabled()) {
             return "";
         }
 

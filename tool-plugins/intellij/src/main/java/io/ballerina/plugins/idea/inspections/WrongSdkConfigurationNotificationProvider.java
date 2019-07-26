@@ -92,7 +92,7 @@ public class WrongSdkConfigurationNotificationProvider extends EditorNotificatio
 
         Module module = ModuleUtilCore.findModuleForPsiElement(psiFile);
         if (module == null) {
-            String sdkHomePath = BallerinaSdkUtils.autoDetectSdk();
+            String sdkHomePath = BallerinaSdkUtils.autoDetectSdk(myProject);
             if (Strings.isNullOrEmpty(sdkHomePath)) {
                 return createMissingSdkPanel(myProject, null);
             }
@@ -101,7 +101,7 @@ public class WrongSdkConfigurationNotificationProvider extends EditorNotificatio
 
         String sdkHomePath = BallerinaSdkUtils.getBallerinaSdkFor(myProject, module).getSdkPath();
         if (Strings.isNullOrEmpty(sdkHomePath)) {
-            sdkHomePath = BallerinaSdkUtils.autoDetectSdk();
+            sdkHomePath = BallerinaSdkUtils.autoDetectSdk(myProject);
         }
         if (Strings.isNullOrEmpty(sdkHomePath)) {
             return createMissingSdkPanel(myProject, module);
