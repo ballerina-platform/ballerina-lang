@@ -267,12 +267,12 @@ public class BuilderUtils {
         packages.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));
     }
 
-
     /**
      * Generate jars for given package.
      *
      * @param packages package
      * @param sourceRoot source root
+     * @param dumpBir Flag indicating to dump the bir
      * @throws IOException for IO errors
      */
     public static void generateJars(List<BLangPackage> packages, Path sourceRoot, boolean dumpBir) throws IOException {
