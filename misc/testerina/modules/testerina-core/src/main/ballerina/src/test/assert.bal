@@ -47,7 +47,7 @@ public function createBallerinaError(string errorMessage, string category) retur
 #
 # + condition - Boolean condition to evaluate
 # + msg - Assertion error message
-public function assertTrue(boolean condition, string msg = "Assertion Failed!") {
+public function assertTrue(boolean condition, public string msg = "Assertion Failed!") {
     if (!condition) {
         panic createBallerinaError(msg, assertFailureErrorCategory);
     }
@@ -57,7 +57,7 @@ public function assertTrue(boolean condition, string msg = "Assertion Failed!") 
 #
 # + condition - Boolean condition to evaluate
 # + msg - Assertion error message
-public function assertFalse(boolean condition, string msg = "Assertion Failed!") {
+public function assertFalse(boolean condition, public string msg = "Assertion Failed!") {
     if (condition) {
         panic createBallerinaError(msg, assertFailureErrorCategory);
     }
@@ -68,7 +68,7 @@ public function assertFalse(boolean condition, string msg = "Assertion Failed!")
 # + actual - Actual value
 # + expected - Expected value
 # + msg - Assertion error message
-public function assertEquals(any|error actual, any|error expected, string msg = "Assertion Failed!") {
+public function assertEquals(any|error actual, any|error expected, public string msg = "Assertion Failed!") {
     boolean isEqual = false;
     if (actual is anydata|error && expected is anydata|error) {
         isEqual = actual == expected;
@@ -89,7 +89,7 @@ public function assertEquals(any|error actual, any|error expected, string msg = 
 # + actual - Actual value
 # + expected - Expected value
 # + msg - Assertion error message
-public function assertNotEquals(any|error actual, any|error expected, string msg = "Assertion Failed!") {
+public function assertNotEquals(any|error actual, any|error expected, public string msg = "Assertion Failed!") {
     boolean isEqual = false;
     if (actual is anydata|error && expected is anydata|error) {
         isEqual = actual == expected;
@@ -108,6 +108,6 @@ public function assertNotEquals(any|error actual, any|error expected, string msg
 # Assert failure is triggered based on user discretion. AssertError is thrown with the given errorMessage.
 #
 # + msg - Assertion error message
-public function assertFail(string msg = "Test Failed!") {
+public function assertFail(public string msg = "Test Failed!") {
     panic createBallerinaError(msg, assertFailureErrorCategory);
 }
