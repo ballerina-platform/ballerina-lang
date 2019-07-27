@@ -80,7 +80,7 @@ public class SnippetBlock {
                 boolean pkgAlreadyImported = currentModuleImports.stream()
                         .anyMatch(importPkg -> importPkg.orgName.value.equals(pair.getLeft())
                                 && importPkg.alias.value.equals(pair.getRight()));
-                if(!pkgAlreadyImported) {
+                if (!pkgAlreadyImported) {
                     importTextEdits.addAll(CommonUtil.getAutoImportTextEdits(pair.getLeft(), pair.getRight(), ctx));
                 }
             }
