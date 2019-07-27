@@ -264,6 +264,18 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.getInt(0), 1);
         Assert.assertEquals(retValue.getInt(1), 1);
         Assert.assertNull(returns[1]);
+        Assert.assertTrue(((BInteger) returns[2]).intValue() > 0);
+        Assert.assertTrue(((BInteger) returns[3]).intValue() > 0);
+    }
+
+    @Test(groups = CONNECTOR_TEST)
+    public void testBatchUpdateWithoutGeneratedKeys() {
+        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithoutGeneratedKeys");
+        BValueArray retValue = (BValueArray) returns[0];
+        Assert.assertEquals(retValue.getInt(0), 1);
+        Assert.assertEquals(retValue.getInt(1), 1);
+        Assert.assertNull(returns[1]);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
     }
 
     @Test(groups = CONNECTOR_TEST)

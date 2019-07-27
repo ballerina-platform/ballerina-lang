@@ -17,6 +17,9 @@
 */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.scheduling.State;
+import org.ballerinalang.jvm.scheduling.Strand;
+
 import java.util.ArrayDeque;
 
 /**
@@ -44,8 +47,7 @@ public class BLock {
         waitingForLock.offerLast(strand);
 
         // Strand state change
-        strand.yield = true;
-        strand.blocked = true;
+        strand.setState(State.BLOCK_AND_YIELD);
         strand.blockedOnExtern = false;
         return false;
     }

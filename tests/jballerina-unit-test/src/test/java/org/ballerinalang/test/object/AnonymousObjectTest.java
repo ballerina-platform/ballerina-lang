@@ -148,7 +148,7 @@ public class AnonymousObjectTest {
         Assert.assertEquals(returns[1].stringValue(), "Tyler Jewell");
     }
 
-    @Test(description = "Negative test to test un-defaultable anon object", groups = "brokenOnLangLibChange")
+    @Test(description = "Negative test to test un-defaultable anon object")
     public void testUndefaultableAnonObject() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_un_defaultable_anon.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
@@ -156,8 +156,10 @@ public class AnonymousObjectTest {
                 "no implementation found for the function 'test' of non-abstract object " +
                         "'object { public int age; public string name; function test () returns (); }'", 3, 54);
         BAssertUtil.validateError(result, 1,
-                "no implementation found for the function 'test' of non-abstract object '$anonType$3'", 7, 58);
+                "no implementation found for the function 'test' of non-abstract object " +
+                        "'object { public int age; public string name; function test () returns (); }'", 7, 58);
         BAssertUtil.validateError(result, 2,
-                "no implementation found for the function 'test' of non-abstract object '$anonType$4'", 8, 58);
+                "no implementation found for the function 'test' of non-abstract object " +
+                        "'object { public int age; public string name; function test () returns (); }'", 8, 58);
     }
 }

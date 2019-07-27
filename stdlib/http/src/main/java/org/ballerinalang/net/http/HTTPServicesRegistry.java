@@ -20,7 +20,7 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.Scheduler;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;

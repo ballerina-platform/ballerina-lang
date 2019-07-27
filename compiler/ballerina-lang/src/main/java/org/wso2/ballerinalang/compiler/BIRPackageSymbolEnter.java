@@ -231,7 +231,7 @@ public class BIRPackageSymbolEnter {
         // Define package level variables.
         defineSymbols(dataInStream, rethrow(this::definePackageLevelVariables));
 
-        defineAttachedFunctions(dataInStream);
+        readTypeDefBodies(dataInStream);
 
         // Define functions.
         defineSymbols(dataInStream, rethrow(this::defineFunction));
@@ -243,10 +243,13 @@ public class BIRPackageSymbolEnter {
         return this.env.pkgSymbol;
     }
 
-    private void defineAttachedFunctions(DataInputStream dataInStream) throws IOException {
+    private void readTypeDefBodies(DataInputStream dataInStream) throws IOException {
         for (BStructureTypeSymbol structureTypeSymbol : this.structureTypes) {
             this.currentStructure = structureTypeSymbol;
             defineSymbols(dataInStream, rethrow(this::defineFunction));
+
+            // read and ignore the type references
+            defineSymbols(dataInStream, rethrow(this::readBType));
         }
         this.currentStructure = null;
     }
@@ -624,9 +627,11 @@ public class BIRPackageSymbolEnter {
             invokableSymbol.restParam = varSymbol;
         }
 
-        boolean hasReceiver = dataInStream.readBoolean(); //if receiver type is written, read and ignore
+        boolean hasReceiver = dataInStream.readBoolean(); // if receiver is written, read and ignore
         if (hasReceiver) {
+            dataInStream.readByte();
             readBType(dataInStream);
+            getStringCPEntryValue(dataInStream);
         }
     }
 

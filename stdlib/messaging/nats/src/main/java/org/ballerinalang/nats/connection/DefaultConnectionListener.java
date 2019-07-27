@@ -21,7 +21,7 @@ package org.ballerinalang.nats.connection;
 import io.nats.client.Connection;
 import io.nats.client.ConnectionListener;
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.Scheduler;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.Executor;

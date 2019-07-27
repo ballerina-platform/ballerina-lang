@@ -141,7 +141,15 @@ public class BIRBinaryWriter {
                                     List<BIRTypeDefinition> birTypeDefList) {
         List<BIRTypeDefinition> filtered = birTypeDefList.stream().filter(t -> t.type.tag == TypeTags.OBJECT
                 || t.type.tag == TypeTags.RECORD).collect(Collectors.toList());
-        filtered.forEach(typeDef -> writeFunctions(buf, typeWriter, insWriter, typeDef.attachedFuncs));
+        filtered.forEach(typeDef -> {
+            writeFunctions(buf, typeWriter, insWriter, typeDef.attachedFuncs);
+            writeReferencedTypes(buf, typeDef.referencedTypes);
+        });
+    }
+
+    private void writeReferencedTypes(ByteBuf buf, List<BType> referencedTypes) {
+        buf.writeInt(referencedTypes.size());
+        referencedTypes.forEach(type -> writeType(buf, type));
     }
 
     private void writeGlobalVars(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRGlobalVariableDcl> birGlobalVars) {
@@ -208,10 +216,12 @@ public class BIRBinaryWriter {
             buf.writeInt(addStringCPEntry(birFunction.restParam.name.value));
         }
 
-        boolean hasReceiverType = birFunction.receiverType != null;
+        boolean hasReceiverType = birFunction.receiver != null;
         buf.writeBoolean(hasReceiverType);
         if (hasReceiverType) {
-            writeType(buf, birFunction.receiverType);
+            buf.writeByte(birFunction.receiver.kind.getValue());
+            writeType(buf, birFunction.receiver.type);
+            buf.writeInt(addStringCPEntry(birFunction.receiver.name.value));
         }
 
         writeTaintTable(buf, birFunction.taintTable);

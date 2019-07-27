@@ -18,27 +18,12 @@ type Person object {
         return self.firstName + " " + self.lastName;
     }
 
-    // A method declared within the object.
-    function checkAndModifyAge(int condition, int a);
 };
-
-// Definition of the declared method.
-function Person.checkAndModifyAge(int condition, int a) {
-    // The keyword `self` is a reference to the enclosing object and must be used
-    // when referring to the fields and functions of the object.
-    if (self.age < condition) {
-        self.age = a;
-    }
-}
 
 public function main() {
     // Initializes a `Person` object.
     Person p1 = new(5, "John", "Doe");
+    
     io:println(p1);
-
     io:println(p1.getFullName());
-
-    p1.checkAndModifyAge(10, 50);
-
-    io:println(p1);
 }
