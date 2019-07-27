@@ -927,7 +927,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        if (tupleTypeNode.tupleTypes.size() != varNode.memberVariables.size()) {
+        if ((tupleTypeNode.restType == null && tupleTypeNode.tupleTypes.size() != varNode.memberVariables.size()) ||
+                (tupleTypeNode.restType != null && tupleTypeNode.tupleTypes.size() > varNode.memberVariables.size())) {
             dlog.error(varNode.pos, DiagnosticCode.INVALID_TUPLE_BINDING_PATTERN);
             return false;
         }
@@ -935,6 +936,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         int ignoredCount = 0;
         for (int i = 0; i < varNode.memberVariables.size(); i++) {
             BLangVariable var = varNode.memberVariables.get(i);
+            BType type = (i <= tupleTypeNode.tupleTypes.size() - 1) ? tupleTypeNode.tupleTypes.get(i) :
+                    new BArrayType(tupleTypeNode.restType);
             if (var.getKind() == NodeKind.VARIABLE) {
                 // '_' is allowed in tuple variables. Not allowed if all variables are named as '_'
                 BLangSimpleVariable simpleVar = (BLangSimpleVariable) var;
@@ -942,12 +945,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if (varName == Names.IGNORE) {
                     ignoredCount++;
                     simpleVar.type = symTable.anyType;
-                    types.checkType(varNode.pos, tupleTypeNode.tupleTypes.get(i), simpleVar.type,
+                    types.checkType(varNode.pos, type, simpleVar.type,
                             DiagnosticCode.INCOMPATIBLE_TYPES);
                     continue;
                 }
             }
-            var.type = tupleTypeNode.tupleTypes.get(i);
+            var.type = type;
             analyzeNode(var, env);
         }
 
