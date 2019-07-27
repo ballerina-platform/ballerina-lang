@@ -175,8 +175,8 @@
                 "url": "constants"
             },
             {
-                "name": "Integer Ranges",
-                "url": "integer-ranges"
+                "name": "Range Expressions",
+                "url": "range-expressions"
             },
             {
                 "name": "String Template Literal",
