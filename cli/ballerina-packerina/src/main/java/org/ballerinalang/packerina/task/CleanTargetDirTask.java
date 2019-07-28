@@ -23,8 +23,11 @@ import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 
 /**
  * Cleans up the target directory.
@@ -34,9 +37,27 @@ public class CleanTargetDirTask implements Task {
     public void execute(BuildContext buildContext) {
         Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
         try {
-            Files.deleteIfExists(targetDir);
+            delete(targetDir);
         } catch (IOException e) {
             throw new BLangCompilerException("error occurred cleaning artifacts output target: " + targetDir);
         }
+    }
+    
+    private static void delete(Path directory) throws IOException {
+        Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file,
+                                             BasicFileAttributes attrs) throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+            
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc)
+                    throws IOException {
+                Files.delete(dir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 }
