@@ -36,16 +36,6 @@ public enum BuildContextField {
     
     TARGET_DIR("targetDir"),
     
-    OFFLINE_BUILD("offlineBuild"),
-    
-    LOCK_ENABLED("lockEnabled"),
-    
-    SKIP_TESTS("skipTests"),
-    
-    ENABLE_EXPERIMENTAL_FEATURES("enableExperimentalFeatures"),
-    
-    ENABLE_SIDDHI_RUNTIME("enableSiddhiRuntime"),
-    
     COMPILER_CONTEXT("compilerContext"),
     
     BALO_CACHE_DIR("baloCacheDir"),
