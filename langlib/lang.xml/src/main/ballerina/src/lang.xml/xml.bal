@@ -228,7 +228,7 @@ public function forEach(xml x, function(xml|string item) returns () func) = exte
 
 # For xml sequence returns a new xml sequence constructed from children of `x` for which `func` returns true.
 # For xml element returns a new xml sequence constructed from `x` if `x` applied to `funct` returns true, else
-# returns a empty sequence.
+# returns an empty sequence.
 public function filter(xml x, function(xml|string item) returns boolean func) returns xml = external;
 
 # This is the inverse of `value:toString` applied to an `xml`.
