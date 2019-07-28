@@ -202,3 +202,15 @@ function testForEach() returns string {
 
     return result;
 }
+
+function testShift() returns [int[], int] {
+    int[] s = [1, 2, 3, 4, 5];
+    var e = s.shift();
+    return [s, e];
+}
+
+function testUnshift() returns int[] {
+    int[] s = [1, 2, 3, 4, 5];
+    s.unshift(8, 8);
+    return s;
+}
