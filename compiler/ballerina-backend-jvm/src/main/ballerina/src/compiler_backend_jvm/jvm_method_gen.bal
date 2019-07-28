@@ -1830,7 +1830,7 @@ function generateField(jvm:ClassWriter cw, bir:BType bType, string fieldName, bo
 
     jvm:FieldVisitor fv;
     if (isPackage) {
-        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, fieldName, typeSig);
+        fv = cw.visitField(ACC_PUBLIC + ACC_STATIC + ACC_VOLATILE, fieldName, typeSig);
     } else {
         fv = cw.visitField(ACC_PUBLIC, fieldName, typeSig);
     }
