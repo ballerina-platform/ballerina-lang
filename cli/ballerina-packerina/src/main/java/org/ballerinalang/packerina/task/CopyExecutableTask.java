@@ -58,19 +58,24 @@ public class CopyExecutableTask implements Task {
                 // if the given output path is a directory, copy the executable to the given directory. name of the
                 // executable is not changed.
                 if (Files.isDirectory(this.outputFileOrDirectoryName)) {
-                    Files.createDirectories(this.outputFileOrDirectoryName);
-                    
+                    // create output directory if it does not exists
+                    if (Files.notExists(this.outputFileOrDirectoryName)) {
+                        Files.createDirectories(this.outputFileOrDirectoryName);
+                    }
+    
                     // this 'if' is to avoid spot bugs
                     Path executableFileName = executableFile.getFileName();
                     if (null != executableFileName) {
-                        this.outputFileOrDirectoryName.resolve(executableFileName.toString());
+                        this.outputFileOrDirectoryName = this.outputFileOrDirectoryName.resolve(
+                                executableFileName.toString());
                     }
                 }
                 
                 // check if the output path is a file
                 if (Files.isRegularFile(this.outputFileOrDirectoryName)) {
                     // check if the output file has the .jar extension.
-                    if (!this.outputFileOrDirectoryName.endsWith(ProjectDirConstants.BLANG_COMPILED_JAR_EXT)) {
+                    if (!this.outputFileOrDirectoryName.toString().endsWith(
+                            ProjectDirConstants.BLANG_COMPILED_JAR_EXT)) {
                         throw new BLangCompilerException("output executable should end with '" +
                                                          ProjectDirConstants.BLANG_COMPILED_JAR_EXT + "' extension.");
                     }
@@ -84,11 +89,16 @@ public class CopyExecutableTask implements Task {
                 
                 // copy the executable. replace the existing executable if exists.
                 Files.copy(executableFile, this.outputFileOrDirectoryName, StandardCopyOption.REPLACE_EXISTING);
+                
+                // update executable location and target dir
+                Path executableDir = this.outputFileOrDirectoryName.getParent();
+                buildContext.put(BuildContextField.EXECUTABLE_DIR, executableDir);
+                buildContext.put(BuildContextField.TARGET_DIR, executableDir);
             } else {
                 throw new BLangCompilerException("unable to run compiler plugins for build source");
             }
         } catch (IOException e) {
-            throw new BLangCompilerException("error occurred copying executable");
+            throw new BLangCompilerException("error occurred copying executable: " + e.getMessage());
         }
     }
 }

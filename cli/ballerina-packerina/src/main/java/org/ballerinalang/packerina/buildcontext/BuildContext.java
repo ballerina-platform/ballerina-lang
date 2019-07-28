@@ -65,7 +65,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
      * @param targetPath     The location of the target(build artifacts output path).
      * @param source         The name of the source file or the name of the module. Pass null to build all modules.
      */
-    public BuildContext(Path sourceRootPath, Path targetPath, String source) {
+    public BuildContext(Path sourceRootPath, Path targetPath, Path source) {
         this();
         if (Files.exists(sourceRootPath)) {
             
@@ -98,7 +98,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
      *                       file then is it the parent directory of the bal file.
      * @param source         The name of the source file or the name of the module.
      */
-    public BuildContext(Path sourceRootPath, String source) {
+    public BuildContext(Path sourceRootPath, Path source) {
         this(sourceRootPath, sourceRootPath.resolve(TARGET_DIR_NAME), source);
     }
     
@@ -116,9 +116,11 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     /**
      * Sets the type of the source and it's context.
      *
-     * @param source The path of the source. If null it is considered as a project where all modules are built.
+     * @param source The path of the source.
+     *               Pass absolute path of the source to build a single file or a module.
+     *               Pass null build all modules.
      */
-    public void setSource(String source) {
+    public void setSource(Path source) {
         if (source == null) {
             this.put(BuildContextField.SOURCE_CONTEXT, new MultiModuleContext());
             this.srcType = SourceType.ALL_MODULES;
@@ -126,17 +128,29 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
         }
     
         Path sourceRootPath = this.get(BuildContextField.SOURCE_ROOT);
-        Path absoluteSourcePath = sourceRootPath.toAbsolutePath().resolve(source);
+        Path absoluteSourcePath = RepoUtils.isBallerinaProject(sourceRootPath) ?
+                                  sourceRootPath.toAbsolutePath().resolve(ProjectDirConstants.SOURCE_DIR_NAME)
+                                          .resolve(source) :
+                                  sourceRootPath.toAbsolutePath().resolve(source);
+        
         if (Files.isRegularFile(absoluteSourcePath) &&
-            source.endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX) &&
-            !RepoUtils.isBallerinaProject(absoluteSourcePath)) {
+            source.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
         
-            this.put(BuildContextField.SOURCE_CONTEXT, new SingleFileContext(Paths.get(source)));
+            this.put(BuildContextField.SOURCE_CONTEXT, new SingleFileContext(source));
             this.srcType = SourceType.BAL_FILE;
+        } else if (Files.isDirectory(absoluteSourcePath) &&
+                   !source.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+            
+            // this 'if' is to avoid spotbugs
+            Path moduleNameAsPath = source.getFileName();
+            if (null != moduleNameAsPath) {
+                String moduleName = moduleNameAsPath.toString();
+                this.put(BuildContextField.SOURCE_CONTEXT, new SingleModuleContext(moduleName));
+                this.srcType = SourceType.SINGLE_MODULE;
+            }
+        } else {
+            throw new BLangCompilerException("invalid source type found: '" + source + "' at: " + sourceRootPath);
         }
-        
-        this.put(BuildContextField.SOURCE_CONTEXT, new SingleModuleContext(source));
-        this.srcType = SourceType.BAL_FILE;
     }
     
     public SourceType getSourceType() {

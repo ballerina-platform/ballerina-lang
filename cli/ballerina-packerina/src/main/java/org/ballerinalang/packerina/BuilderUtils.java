@@ -686,11 +686,14 @@ public class BuilderUtils {
                 return repoLocation.resolve(birFileName);
             case SINGLE_MODULE:
             case ALL_MODULES:
-                return repoLocation.resolve(moduleID.orgName.value)
-                        .resolve(moduleID.name.value)
-                        .resolve(moduleID.version.value)
-                        .resolve(moduleID.name.value + BLANG_COMPILED_PKG_BIR_EXT);
-            
+                try {
+                    Path moduleBirCacheDir = Files.createDirectories(repoLocation.resolve(moduleID.orgName.value)
+                            .resolve(moduleID.name.value)
+                            .resolve(moduleID.version.value));
+                    return moduleBirCacheDir.resolve(moduleID.name.value + BLANG_COMPILED_PKG_BIR_EXT);
+                } catch (IOException e) {
+                    throw new BLangCompilerException("error creating bir_cache dir for module: " + moduleID.name.value);
+                }
             default:
                 throw new BLangCompilerException("unable to resolve bir location for build source");
         }
@@ -724,11 +727,14 @@ public class BuilderUtils {
                 return repoLocation.resolve(jarFileName);
             case SINGLE_MODULE:
             case ALL_MODULES:
-                return repoLocation.resolve(moduleID.orgName.value)
-                        .resolve(moduleID.name.value)
-                        .resolve(moduleID.version.value)
-                        .resolve(moduleID.name.value + BLANG_COMPILED_JAR_EXT);
-            
+                try {
+                    Path moduleJarCacheDir = Files.createDirectories(repoLocation.resolve(moduleID.orgName.value)
+                            .resolve(moduleID.name.value)
+                            .resolve(moduleID.version.value));
+                    return moduleJarCacheDir.resolve(moduleID.name.value + BLANG_COMPILED_JAR_EXT);
+                } catch (IOException e) {
+                    throw new BLangCompilerException("error creating jar_cache dir for module: " + moduleID.name.value);
+                }
             default:
                 throw new BLangCompilerException("unable to resolve bir location for build source");
         }
