@@ -100,7 +100,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
                 isInterruptible, httpResource.isTransactionAnnotated());
         Object[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, inboundMessage, endpointConfig);
 
-        ObserverContext observerContext = null;
+        ObserverContext observerContext;
         if (ObserveUtils.isObservabilityEnabled()) {
             observerContext = new ObserverContext();
             observerContext.setConnectorName(SERVER_CONNECTOR_HTTP);
@@ -110,8 +110,8 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
             observerContext.addTag(TAG_KEY_HTTP_METHOD, inboundMessage.getHttpMethod());
             observerContext.addTag(TAG_KEY_PROTOCOL, (String) inboundMessage.getProperty(HttpConstants.PROTOCOL));
             observerContext.addTag(TAG_KEY_HTTP_URL, inboundMessage.getRequestUrl());
+            properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
         }
-        properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
         CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);
         ObjectValue service = httpResource.getParentService().getBalService();
         Executor.submit(httpServicesRegistry.getScheduler(), service, httpResource.getName(), callback, properties,

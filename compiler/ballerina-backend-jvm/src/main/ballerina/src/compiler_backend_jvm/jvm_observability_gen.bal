@@ -16,10 +16,8 @@
 
 function emitStopObservationInvocation(jvm:MethodVisitor mv, int strandIndex) {
     mv.visitVarInsn(ALOAD, strandIndex);
-    mv.visitVarInsn(ALOAD, strandIndex);
-    mv.visitFieldInsn(GETFIELD, STRAND, "observerContext", io:sprintf("L%s;", OBSERVER_CONTEXT));
     mv.visitMethodInsn(INVOKESTATIC, "org/ballerinalang/jvm/observability/ObserveUtils", "stopObservation",
-        io:sprintf("(L%s;L%s;)V", STRAND, OBSERVER_CONTEXT), false);
+        io:sprintf("(L%s;)V", STRAND), false);
 }
 
 function emitStartObservationInvocation(jvm:MethodVisitor mv, int strandIndex, string serviceOrConnectorName,

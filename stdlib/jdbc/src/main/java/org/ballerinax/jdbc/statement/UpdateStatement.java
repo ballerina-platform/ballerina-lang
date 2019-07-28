@@ -63,12 +63,12 @@ public class UpdateStatement extends AbstractSQLStatement {
 
     @Override
     public Object execute() {
-        //TODO: JBalMigration Commenting out transaction handling and observability
+        //TODO: JBalMigration Commenting out transaction handling
         //TODO: #16033
-        //checkAndObserveSQLAction(context, datasource, query)
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
+        checkAndObserveSQLAction(strand, datasource, query);
         boolean isInTransaction = strand.isInTransaction();
         String errorMessagePrefix = "Failed to execute update query: ";
         try {
@@ -91,12 +91,12 @@ public class UpdateStatement extends AbstractSQLStatement {
             return createFrozenUpdateResultRecord(count, generatedKeys);
         } catch (SQLException e) {
             handleErrorOnTransaction(this.strand);
+            checkAndObserveSQLError(strand, "execute update failed: " + e.getMessage());
             return ErrorGenerator.getSQLDatabaseError(e, errorMessagePrefix);
-           // checkAndObserveSQLError(context, "execute update failed: " + e.getMessage());
         } catch (ApplicationException e) {
             handleErrorOnTransaction(this.strand);
+            checkAndObserveSQLError(strand, "execute update failed: " + e.getMessage());
             return ErrorGenerator.getSQLApplicationError(e, errorMessagePrefix);
-           // checkAndObserveSQLError(context, "execute update failed: " + e.getMessage());
         } finally {
             cleanupResources(rs, stmt, conn, !isInTransaction);
         }

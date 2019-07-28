@@ -81,9 +81,9 @@ public class CallStatement extends AbstractSQLStatement {
 
     @Override
     public Object execute() {
-        //TODO: JBalMigration Commenting out transaction handling and observability
+        //TODO: JBalMigration Commenting out transaction handling
         //TODO: #16033
-        // checkAndObserveSQLAction(context, datasource, query);
+        checkAndObserveSQLAction(strand, datasource, query);
         Connection conn = null;
         CallableStatement stmt = null;
         List<ResultSet> resultSets = null;
@@ -125,12 +125,12 @@ public class CallStatement extends AbstractSQLStatement {
         } catch (SQLException e) {
             cleanupResources(resultSets, stmt, conn, !isInTransaction);
             handleErrorOnTransaction(this.strand);
-            // checkAndObserveSQLError(context, "execute stored procedure failed: " + e.getMessage());
+            checkAndObserveSQLError(strand, "execute stored procedure failed: " + e.getMessage());
             return ErrorGenerator.getSQLDatabaseError(e, errorMessagePrefix);
         } catch (ApplicationException e) {
             cleanupResources(resultSets, stmt, conn, !isInTransaction);
             handleErrorOnTransaction(this.strand);
-            // checkAndObserveSQLError(context, "execute stored procedure failed: " + e.getMessage());
+            checkAndObserveSQLError(strand, "execute stored procedure failed: " + e.getMessage());
             return ErrorGenerator.getSQLApplicationError(e, errorMessagePrefix);
         }
         return null;

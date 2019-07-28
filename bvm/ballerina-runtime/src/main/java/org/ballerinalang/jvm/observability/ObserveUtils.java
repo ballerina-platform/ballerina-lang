@@ -63,6 +63,13 @@ public class ObserveUtils {
         observers.add(observer);
     }
 
+    /**
+     * Start observation of a resource invocation.
+     *
+     * @param strand which holds the observer context being started.
+     * @param serviceName name of the service to which the observer context belongs.
+     * @param resourceName name of the resource being invoked.
+     */
     public static void startResourceObservation(Strand strand, String serviceName, String resourceName) {
         if (!enabled) {
             return;
@@ -85,12 +92,13 @@ public class ObserveUtils {
     /**
      * Stop observation of an observer context.
      *
-     * @param observerContext observer context to be stopped
+     * @param strand which holds the observer context.
      */
-    public static void stopObservation(Strand strand, ObserverContext observerContext) {
-        if (!enabled || observerContext == null) {
+    public static void stopObservation(Strand strand) {
+        if (!enabled || strand.observerContext == null) {
             return;
         }
+        ObserverContext observerContext = strand.observerContext;
         if (observerContext.isServer()) {
             observers.forEach(observer -> observer.stopServerObservation(observerContext));
         } else {
@@ -103,7 +111,9 @@ public class ObserveUtils {
     /**
      * Start observability for the synchronous function/action invocations.
      *
-     * @param strand current frame
+     * @param strand which holds the observer context being started.
+     * @param connectorName name of the connector to which the observer context belongs.
+     * @param actionName name of the action/function being invoked.
      */
     public static void startCallableObservation(Strand strand, String connectorName, String actionName) {
         if (!enabled) {
@@ -115,12 +125,8 @@ public class ObserveUtils {
         if (observerCtx == null) {
             observerCtx = new ObserverContext();
             observerCtx.addTag(TAG_KEY_SPAN_KIND, TAG_SPAN_KIND_SERVER);
-            // We have to set this explicitly as it'll give errors when
             observerCtx.setConnectorName(UNKNOWN_CONNECTOR);
-            // monitoring metrics
-            // We have to set this explicitly as it'll give errors when
             observerCtx.setServiceName(UNKNOWN_SERVICE);
-            // monitoring metrics
 //            observerCtx.setResourceName(strand.getId());
             observerCtx.setServer();
             observerCtx.setStarted();
