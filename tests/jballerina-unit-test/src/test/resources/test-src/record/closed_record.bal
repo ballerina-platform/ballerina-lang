@@ -256,3 +256,13 @@ function testEmptyClosedRecords() returns record {||}[] {
     record {||}[] recArr= [r1, r2, r3, r4];
     return recArr;
 }
+
+type Foo record {
+    string bar;
+    int baz;
+};
+
+function testLiteralsAsMappingConstructorKeys() returns boolean {
+    Foo f = { "bar": "hello", baz: 1 };
+    return f.bar == "hello" && f.baz == 1;
+}

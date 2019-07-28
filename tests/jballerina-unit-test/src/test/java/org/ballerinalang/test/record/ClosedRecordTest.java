@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.record;
 
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -289,5 +290,11 @@ public class ClosedRecordTest {
         BAssertUtil.validateError(result, indx++, errMsg2, 47, 17);
         BAssertUtil.validateError(result, indx++, errMsg1, 52, 17);
         BAssertUtil.validateError(result, indx, errMsg2, 52, 17);
+    }
+
+    @Test
+    public void testLiteralsAsMappingConstructorKeys() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testLiteralsAsMappingConstructorKeys");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 }

@@ -950,15 +950,28 @@ public class TypeChecker extends BLangNodeVisitor {
         type.fields.forEach(field -> {
             // Check if `field` is explicitly assigned a value in the record literal
             boolean hasField = keyValuePairs.stream()
-                    .filter(keyVal -> keyVal.key.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF)
-                    .anyMatch(keyVal -> field.name.value
-                            .equals(((BLangSimpleVarRef) keyVal.key.expr).variableName.value));
+                    .anyMatch(keyVal -> field.name.value.equals(getFieldName(keyVal.key)));
 
             // If a required field is missing, it's a compile error
             if (!hasField && Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
                 dlog.error(pos, DiagnosticCode.MISSING_REQUIRED_RECORD_FIELD, field.name);
             }
         });
+    }
+
+    private String getFieldName(BLangRecordKey key) {
+        BLangExpression keyExpression = key.expr;
+
+        if (keyExpression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            return ((BLangSimpleVarRef) keyExpression).variableName.value;
+        } else if (keyExpression.getKind() == NodeKind.LITERAL) {
+            BLangLiteral literal = (BLangLiteral) keyExpression;
+            if (literal.type.tag != TypeTags.STRING) {
+                return null;
+            }
+            return (String) literal.value;
+        }
+        return null;
     }
 
     private boolean hasRequiredRecordFields(List<BLangRecordKeyValue> keyValuePairs, BRecordType targetRecType) {
@@ -3242,6 +3255,8 @@ public class TypeChecker extends BLangNodeVisitor {
         if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) keyExpr;
             fieldName = names.fromIdNode(varRef.variableName);
+        } else if (keyExpr.getKind() == NodeKind.LITERAL && ((BLangLiteral) keyExpr).type.tag == TypeTags.STRING) {
+            fieldName = names.fromString((String) ((BLangLiteral) keyExpr).value);
         } else {
             // keys of the struct literal can only be a varRef (identifier)
             dlog.error(keyExpr.pos, DiagnosticCode.INVALID_RECORD_LITERAL_KEY);
