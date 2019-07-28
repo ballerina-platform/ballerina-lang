@@ -19,11 +19,9 @@
 package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.packerina.BuilderUtils;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
-import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
-import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
@@ -49,11 +47,8 @@ public class CopyExecutableTask implements Task {
     @Override
     public void execute(BuildContext buildContext) {
         try {
-            // copying of the executable is only supported when building a single bal file
-            if (buildContext.getSourceType() == SourceType.BAL_FILE) {
-                SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                Path executableFile = BuilderUtils.resolveExecutablePath(buildContext,
-                        singleFileContext.getModule().packageID);
+            for (BLangPackage module : buildContext.getModules()) {
+                Path executableFile = buildContext.getExecutablePathFromTarget(module.packageID);
                 
                 // if the given output path is a directory, copy the executable to the given directory. name of the
                 // executable is not changed.
@@ -92,10 +87,7 @@ public class CopyExecutableTask implements Task {
                 
                 // update executable location and target dir
                 Path executableDir = this.outputFileOrDirectoryName.getParent();
-                buildContext.put(BuildContextField.EXECUTABLE_DIR, executableDir);
                 buildContext.put(BuildContextField.TARGET_DIR, executableDir);
-            } else {
-                throw new BLangCompilerException("unable to run compiler plugins for build source");
             }
         } catch (IOException e) {
             throw new BLangCompilerException("error occurred copying executable: " + e.getMessage());

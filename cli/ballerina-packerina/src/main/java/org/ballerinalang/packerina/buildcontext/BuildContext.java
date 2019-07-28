@@ -19,20 +19,30 @@
 package org.ballerinalang.packerina.buildcontext;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.packerina.buildcontext.cachecontext.ArtifactsCache;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.MultiModuleContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
+import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.util.BLangConstants;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BIR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_DIR_NAME;
 import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_INSTALL_DIR_PROP;
 
@@ -42,8 +52,11 @@ import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_INSTALL_DIR_PROP;
  */
 public class BuildContext extends HashMap<BuildContextField, Object> {
     private static final long serialVersionUID = 6363519534259706585L;
+    private final transient Path executableDir;
+    private final transient Path targetJarCacheDir;
+    private final transient Path targetBirCacheDir;
+    private final transient Path baloCacheDir;
     private SourceType srcType;
-    
     
     /**
      * Create a build context with context fields.
@@ -61,11 +74,26 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
             // set target dir
             this.put(BuildContextField.TARGET_DIR, targetPath);
             
-            // set build artifacts location
-            this.put(BuildContextField.ARTIFACTS_CACHE, new ArtifactsCache(this));
-            
             // set source context
             this.setSource(source);
+    
+            // save '<target>/balo' dir for balo files
+            this.baloCacheDir = targetPath.resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY);
+            
+            // save '<target>/cache/bir_cache' dir for bir files
+            this.targetBirCacheDir = targetPath
+                    .resolve(ProjectDirConstants.CACHES_DIR_NAME)
+                    .resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME);
+    
+            this.put(BuildContextField.BIR_CACHE_DIR, targetBirCacheDir);
+    
+            // save '<target>/cache/jar_cache' dir for jar files
+            this.targetJarCacheDir = targetPath
+                    .resolve(ProjectDirConstants.CACHES_DIR_NAME)
+                    .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
+    
+            // save '<target>/bin' dir for executables
+            this.executableDir = targetPath.resolve(ProjectDirConstants.BIN_DIR_NAME);
         } else {
             throw new BLangCompilerException("location of the source root does not exists: " + sourceRootPath);
         }
@@ -145,5 +173,170 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     
     public SourceType getSourceType() {
         return this.srcType;
+    }
+    
+    public Path getSystemRepoBirCache() {
+        return Paths.get(System.getProperty(BALLERINA_INSTALL_DIR_PROP)).resolve("bir-cache");
+    }
+    
+    public Path getHomeRepoDir() {
+        return RepoUtils.createAndGetHomeReposPath();
+    }
+    
+    public Path getBirCacheFromHome() {
+        return RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME);
+    }
+    
+    public Path getJarCacheFromHome() {
+        return RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
+    }
+    
+    public List<BLangPackage> getModules() {
+        List<BLangPackage> modules = new LinkedList<>();
+        switch (this.getSourceType()) {
+            case BAL_FILE:
+                SingleFileContext singleFileContext = this.get(BuildContextField.SOURCE_CONTEXT);
+                modules.add(singleFileContext.getModule());
+                break;
+            case SINGLE_MODULE:
+                SingleModuleContext singleModuleContext = this.get(BuildContextField.SOURCE_CONTEXT);
+                modules.add(singleModuleContext.getModule());
+                break;
+            case ALL_MODULES:
+                MultiModuleContext multiModuleContext = this.get(BuildContextField.SOURCE_CONTEXT);
+                modules = multiModuleContext.getModules();
+                break;
+            default:
+                throw new BLangCompilerException("unknown source type found: " + this.getSourceType());
+        }
+        return modules;
+    }
+    
+    public Path getBirPathFromHomeCache(PackageID moduleID) {
+        try {
+            Path moduleBirCacheDir = Files.createDirectories(getBirCacheFromHome()
+                    .resolve(moduleID.orgName.value)
+                    .resolve(moduleID.name.value)
+                    .resolve(moduleID.version.value));
+            return moduleBirCacheDir.resolve(moduleID.name.value + BLANG_COMPILED_PKG_BIR_EXT);
+        } catch (IOException e) {
+            throw new BLangCompilerException("error resolving bir_cache dir for module: " + moduleID);
+        }
+    }
+    
+    public Path getJarPathFromHomeCache(PackageID moduleID) {
+        try {
+            Path moduleBirCacheDir = Files.createDirectories(getJarCacheFromHome()
+                    .resolve(moduleID.orgName.value)
+                    .resolve(moduleID.name.value)
+                    .resolve(moduleID.version.value));
+            return moduleBirCacheDir.resolve(moduleID.name.value + BLANG_COMPILED_PKG_BIR_EXT);
+        } catch (IOException e) {
+            throw new BLangCompilerException("error resolving bir_cache dir for module: " + moduleID);
+        }
+    }
+    
+    public Path getBaloFromTarget(PackageID moduleID) {
+        try {
+            Files.createDirectories(baloCacheDir);
+            switch (this.getSourceType()) {
+                case BAL_FILE:
+                    throw new BLangCompilerException("balo for single bal files are not supported");
+                case SINGLE_MODULE:
+                case ALL_MODULES:
+                    CompilerContext context = this.get(BuildContextField.COMPILER_CONTEXT);
+                    Manifest manifest = ManifestProcessor.getInstance(context).getManifest();
+        
+                    // Get the version of the project.
+                    String versionNo = manifest.getProject().getVersion();
+                    // Identify the platform version
+                    String platform = manifest.getTargetPlatform();
+                    // {module}-{lang spec version}-{platform}-{version}.balo
+                    //+ "2019R2" + ProjectDirConstants.FILE_NAME_DELIMITER
+                    String baloFileName = moduleID.name.value + "-"
+                                          + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                                          + platform + "-"
+                                          + versionNo
+                                          + ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
+        
+                    return baloCacheDir.resolve(baloFileName);
+                default:
+                    throw new BLangCompilerException("unable to resolve balo location for build source");
+            }
+        } catch (IOException e) {
+            throw new BLangCompilerException("error creating bir_cache dir for module(s): " + baloCacheDir);
+        }
+    }
+    
+    public Path getBirPathFromTargetCache(PackageID moduleID) {
+        try {
+            Files.createDirectories(targetBirCacheDir);
+            switch (this.getSourceType()) {
+                case BAL_FILE:
+                    SingleFileContext singleFileContext = this.get(BuildContextField.SOURCE_CONTEXT);
+                    String birFileName = singleFileContext.getBalFileNameWithoutExtension() +
+                                         BLANG_COMPILED_PKG_BIR_EXT;
+                    return targetBirCacheDir.resolve(birFileName);
+                case SINGLE_MODULE:
+                case ALL_MODULES:
+                    Path moduleBirCacheDir = Files.createDirectories(targetBirCacheDir
+                            .resolve(moduleID.orgName.value)
+                            .resolve(moduleID.name.value)
+                            .resolve(moduleID.version.value));
+                    return moduleBirCacheDir.resolve(moduleID.name.value + BLANG_COMPILED_PKG_BIR_EXT);
+                default:
+                    throw new BLangCompilerException("unknown source type found: " + this.getSourceType());
+            }
+        } catch (IOException e) {
+            throw new BLangCompilerException("error creating bir_cache dir for module(s): " + targetBirCacheDir);
+        }
+    }
+    
+    public Path getJarPathFromTargetCache(PackageID moduleID) {
+        try {
+            Files.createDirectories(targetJarCacheDir);
+            switch (this.getSourceType()) {
+                case BAL_FILE:
+                    SingleFileContext singleFileContext = this.get(BuildContextField.SOURCE_CONTEXT);
+                    String birFileName = singleFileContext.getBalFileNameWithoutExtension() +
+                                         BLANG_COMPILED_PKG_BIR_EXT;
+                    return targetJarCacheDir.resolve(birFileName);
+                case SINGLE_MODULE:
+                case ALL_MODULES:
+                    Path moduleBirCacheDir = Files.createDirectories(targetJarCacheDir
+                            .resolve(moduleID.orgName.value)
+                            .resolve(moduleID.name.value)
+                            .resolve(moduleID.version.value));
+                    return moduleBirCacheDir.resolve(moduleID.name.value + BLANG_COMPILED_PKG_BIR_EXT);
+                default:
+                    throw new BLangCompilerException("unknown source type found: " + this.getSourceType());
+            }
+            
+        } catch (IOException e) {
+            throw new BLangCompilerException("error creating bir_cache dir for module(s): " + targetJarCacheDir);
+        }
+    }
+    
+    public Path getExecutablePathFromTarget(PackageID moduleID) {
+        try {
+            Files.createDirectories(executableDir);
+            switch (this.getSourceType()) {
+                case BAL_FILE:
+                    SingleFileContext singleFileContext = this.get(BuildContextField.SOURCE_CONTEXT);
+                    String executableFileName = singleFileContext.getBalFileNameWithoutExtension() +
+                                                ProjectDirConstants.EXEC_SUFFIX + BLANG_COMPILED_JAR_EXT;
+                    return executableDir.resolve(executableFileName);
+                case SINGLE_MODULE:
+                case ALL_MODULES:
+                    return executableDir.resolve(moduleID.name.value +
+                                                 ProjectDirConstants.EXEC_SUFFIX + BLANG_COMPILED_JAR_EXT);
+    
+                default:
+                    throw new BLangCompilerException("unable to resolve executable(s) location for build source");
+            }
+            
+        } catch (IOException e) {
+            throw new BLangCompilerException("error creating bir_cache dir for module(s): " + executableDir);
+        }
     }
 }
