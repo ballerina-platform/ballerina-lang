@@ -41,6 +41,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.AnnotationSymbol;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -70,6 +71,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -791,6 +793,26 @@ public class TreeVisitor extends LSNodeVisitor {
     public void visit(BLangTupleVariableDef bLangTupleVariableDef) {
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
         cpr.isCursorBeforeNode(bLangTupleVariableDef.getPosition(), this, this.lsContext, bLangTupleVariableDef, null);
+    }
+
+    @Override
+    public void visit(BLangLiteral literalExpr) {
+        if (literalExpr.getPosition() == null) {
+            return;
+        }
+        DiagnosticPos pos = CommonUtil.toZeroBasedPosition(literalExpr.getPosition());
+        Position position = lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        int cLine = position.getLine();
+        int cCol = position.getCharacter();
+        int sLine = pos.sLine;
+        int eLine = pos.eLine;
+        int sCol = pos.sCol;
+        int eCol = pos.eCol;
+        
+        if ((sLine < cLine && eLine > cLine) || (sLine == cLine && eLine == cLine && cCol >= sCol && cCol <= eCol)) {
+            this.terminateVisitor = true;
+            this.lsContext.put(DocumentServiceKeys.TERMINATE_OPERATION_KEY, true);
+        }
     }
 
     ///////////////////////////////////

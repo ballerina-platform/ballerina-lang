@@ -182,6 +182,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 // Fill the current file imports
                 context.put(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY, CommonUtil.getCurrentFileImports(context));
                 CompletionUtil.resolveSymbols(context);
+                if (context.get(DocumentServiceKeys.TERMINATE_OPERATION_KEY) != null
+                        && context.get(DocumentServiceKeys.TERMINATE_OPERATION_KEY)) {
+                    return Either.forLeft(completions);
+                }
                 completions.addAll(CompletionUtil.getCompletionItems(context));
             } catch (Exception | AssertionError e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {

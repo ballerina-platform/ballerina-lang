@@ -137,6 +137,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"functionParamAnnotationBodyCompletion4.json", "function"},
                 {"completionWithTupleVariableDef.json", "function"},
                 {"completionWithinComments.json", "function"},
+                {"completionWithinLiterals.json", "function"},
         };
     }
 }
