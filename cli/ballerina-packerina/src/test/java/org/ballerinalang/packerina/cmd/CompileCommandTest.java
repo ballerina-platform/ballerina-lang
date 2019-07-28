@@ -78,7 +78,7 @@ public class CompileCommandTest extends CommandTest {
         Files.createFile(libs.resolve("json.jar"));
 
         // Compile the project
-        String[] compileArgs = {"--skip-tests", "-c", "--jvmTarget"};
+        String[] compileArgs = {"--skip-tests", "-c"};
         CompileCommand compileCommand = new CompileCommand(projectDirectory, printStream, false);
         new CommandLine(compileCommand).parse(compileArgs);
         compileCommand.execute();
@@ -149,9 +149,9 @@ public class CompileCommandTest extends CommandTest {
 
                         Module module = new Toml().read(moduleTomlContent).to(Module.class);
                         BaloToml balo = new Toml().read(baloTomlContent).to(BaloToml.class);
-
-                        Assert.assertTrue(module.module_version.equals("0.1.0"));
-                        Assert.assertEquals(balo.balo_version, 1.0);
+    
+                        Assert.assertEquals(module.module_version, "0.1.0");
+                        Assert.assertEquals(balo.balo_version, "1.0.0");
 
                         Path srcDir = root.resolve(ProjectDirConstants.SOURCE_DIR_NAME);
                         Assert.assertTrue(Files.exists(srcDir));
@@ -217,7 +217,7 @@ public class CompileCommandTest extends CommandTest {
         Files.write(balFile, question.getBytes());
 
         // Compile the project
-        String[] compileArgs = {"--skip-tests", "-c", "--jvmTarget"};
+        String[] compileArgs = {"--skip-tests", "-c"};
         CompileCommand compileCommand = new CompileCommand(tmpDir, printStream, false);
         new CommandLine(compileCommand).parse(compileArgs);
         compileCommand.execute();
