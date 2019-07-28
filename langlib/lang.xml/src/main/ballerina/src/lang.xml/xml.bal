@@ -178,6 +178,8 @@ type Text xml;
 
 # Returns a string giving the expanded name of `elem`.
 public function getName(Element elem) returns string = external;
+
+# Change the name of element `elmem` to `xName`.
 public function setName(Element elem, string xName) = external;
 
 # Returns the children of `elem`.
@@ -207,16 +209,26 @@ public function getContent(Text|ProcessingInstruction|Comment x) returns string 
 // https://github.com/ballerina-platform/ballerina-lang/issues/16953
 public function createElement(string name, xml children) returns Element = external;
 
-# Creates a processing instruction with the specified target and content.
+# Creates a processing instruction with the specified `target` and `content`.
 public function createProcessingInstruction(string target, string content) returns ProcessingInstruction
  = external;
 
-# Creates a comment with the specified content.
+# Creates a comment with the specified `content`.
 public function createComment(string content) returns Comment = external;
 
 // Functional programming methods
+
+# For xml sequence returns the result of applying function `func` to each member of sequence `item`.
+# For xml element returns the result of applying function `funct` to `item`.
 public function map(xml x, function(xml|string item) returns xml|string func) returns xml = external;
+
+# For xml sequence apply the `func` to children of `item`.
+# For xml element apply the `func` to `item`.
 public function forEach(xml x, function(xml|string item) returns () func) = external;
+
+# For xml sequence returns a new xml sequence constructed from children of `x` for which `func` returns true.
+# For xml element returns a new xml sequence constructed from `x` if `x` applied to `funct` returns true, else
+# returns a empty sequence.
 public function filter(xml x, function(xml|string item) returns boolean func) returns xml = external;
 
 # This is the inverse of `value:toString` applied to an `xml`.

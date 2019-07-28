@@ -28,57 +28,55 @@ public const float E =  2.718281828459045;
 
 
 # Tests whether a float is finite.
-# x - the float to be tested
-# return - true if `x` is finite, i.e. neither NaN nor +∞ nor -∞
 # Exactly one of isFinite, isInfinite and IsNaN will be true for any float value
+# + x - the float to be tested
+# + return - true if `x` is finite, i.e. neither NaN nor +∞ nor -∞
 public function isFinite(float x) returns boolean = external;
 
 # Tests whether a float is infinite.
-# x - the float to be tested
-# return - true if `x` is either +∞ nor -∞
 # Exactly one of isFinite, isInfinite and IsNaN will be true for any float value
+# + x - the float to be tested
+# +return - true if `x` is either +∞ nor -∞
 public function isInfinite(float x) returns boolean = external;
 
 # Tests whether a float is NaN.
-# x - the float to be tested
-# return - true if `x` is NaN
-# Exactly one of isFinite, isInfinite and IsNaN will be true for any float value
+# Exactly one of isFinite, isInfinite and IsNaN will be true for any float value.
+# + x - the float to be tested
+# + return - true if `x` is NaN
 public function isNaN(float x) returns boolean = external;
 
-# Sum of all the arguments. +0.0 if no args
-# NaN if any arg is NaN
+# Sum of all the arguments. +0.0 if no args.
+# NaN if any arg is NaN.
 public function sum(float... xs) returns float = external;
 
-# Maximum of all the arguments
-# -∞ if no args
-# NaN if any arg is NaN
+# Maximum of all the arguments.
+# -∞ if no args.
+# NaN if any arg is NaN.
 public function max(float... xs) returns float = external;
 
-# Minimum of all the arguments. +∞ if no args
-# NaN if any arg is NaN
+# Minimum of all the arguments. +∞ if no args.
+# NaN if any arg is NaN.
 public function min(float... xs) returns float = external;
 
-# IEEE abs operation
+# Returns the IEEE abs value of `x`.
 public function abs(float x) returns float = external;
 
 # Floating point value that is a mathematical integer and closest to `x`.
 # If there are two such integers, choose the one that is even
-# (this is the round-to-nearest rounding mode, which is the default for IEEE
-# and for Ballerina).
+# (this is the round-to-nearest rounding mode, which is the default for IEEE and for Ballerina).
 # Same as Java Math.rint method
 # Same as .NET Math.round method
 # IEEE roundToIntegralTiesToEven operation
-# XXX different from Java round which returns a long, and rounds ties to +∞
 # Note that `<int>x` is the same as `<int>x.round()`
 public function round(float x) returns float = external;
 
-# Largest (closest to +∞) floating point value not greater than `x` that is a mathematical integer
+# Largest (closest to +∞) floating point value not greater than `x` that is a mathematical integer.
 public function floor(float x) returns float = external;
 
-# Smallest (closest to -∞) floating point value not less than `x` that is a mathematical integer
+# Smallest (closest to -∞) floating point value not less than `x` that is a mathematical integer.
 public function ceiling(float x) returns float = external;
 
-# IEEE squareRoot operation
+# Returns IEEE squareRoot of `x`.
 public function sqrt(float x) returns float = external;
 
 # Cube root
@@ -160,6 +158,7 @@ public function fromHexString(string s) returns float|error = external;
 
 # Returns IEEE 64-bit binary floating point format representation of `x` as an int.
 public function toBitsInt(float x) returns int = external;
+
 # Returns the float that is represented in IEEE 64-bit floating point by `x`.
 # All bit patterns that IEEE defines to be NaNs will all be mapped to the single float NaN value.
 public function fromBitsInt(int x) returns float = external;

@@ -27,9 +27,10 @@ type StringIterator object {
     |}? = external;
 };
 
+# Returns the length of the string.
 public function length(string str) returns int = external;
 
-# Returns an iterator over the string
+# Returns an iterator over the string.
 # The iterator will return the substrings of length 1 in order.
 public function iterator(string str) returns abstract object {
     public function next() returns record {|
@@ -43,9 +44,15 @@ public function iterator(string str) returns abstract object {
 # Concatenate all the `strs`. Empty string if empty.
 public function concat(string... strs) returns string = external;
 
+# Returns the unicode codepoint at index `i`.
 public function getCodePoint(string str, int i) returns int = external;
 
 // todo: endIndx should be a defaultable param: int endIndx = str.length()
+# Returns a string that is a substring of this string.
+# + str - source string.
+# + startIndex - the beginning index, inclusive.
+# + endIndex - the ending index, exclusive.
+# + returns - specified substring.
 public function substring(string str, int startIndex, int endIndex) returns string = external;
 
 # Lexicographically compare strings using their Unicode code points
@@ -54,29 +61,33 @@ public function substring(string str, int startIndex, int endIndex) returns stri
 # for sorted order.
 public function codePointCompare(string str1, string str2) returns int = external;
 
+# Returns a new string composed of `strs` elements joined together with `separator`.
 public function 'join(string separator, string... strs) returns string = external;
 
 # Returns the index of the first occurrence of `substr` in the part of the `str` starting at `startIndex`
-# or nil if it does not occur
+# or nil if it does not occur.
 public function indexOf(string str, string substr, int startIndx = 0) returns int? = external;
 
+# Returns true if `str` starts with `substr`.
 public function startsWith(string str, string substr) returns boolean = external;
 
+# Returns true if `str` end with `substr`.
 public function endsWith(string str, string substr) returns boolean = external;
 
-# Standard lib (not lang lib) should have a Unicode module (or set of modules)
-# to deal with Unicode properly. These will need to be updated as each
-# new Unicode version is released.
-# Return A-Z into a-z and leave other characters unchanged
+// Standard lib (not lang lib) should have a Unicode module (or set of modules)
+// to deal with Unicode properly. These will need to be updated as each
+// new Unicode version is released.
+
+# Return A-Z into a-z and leave other characters unchanged.
 public function toLowerAscii(string str) returns string = external;
 
-# Return a-z into A-Z and leave other characters unchanged
+# Return a-z into A-Z and leave other characters unchanged.
 public function toUpperAscii(string str) returns string = external;
 
-# Remove ASCII white space characters (0x9...0xD, 0x20) from start and end of `str`
+# Remove ASCII white space characters (0x9...0xD, 0x20) from start and end of `str`.
 public function trim(string str) returns string = external;
 
-# Represents `str` as an array of bytes using UTF-8
+# Represents `str` as an array of bytes using UTF-8.
 public function toBytes(string str) returns byte[] = external;
 
 # Convert back to a string from its UTF-8 representation in `bytes`.

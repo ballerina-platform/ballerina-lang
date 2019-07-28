@@ -14,15 +14,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# A type parameter that is a subtype of `any|error`.
+# Has the special semantic that when used in a declaration
+# all uses in the declaration must refer to same type.
 @typeParam
 type Type any|error;
 
+# A type parameter that is a subtype of `any|error`.
+# Has the special semantic that when used in a declaration
+# all uses in the declaration must refer to same type.
 @typeParam
 type Type1 any|error;
 
+# A type parameter that is a subtype of `anydata|error`.
+# Has the special semantic that when used in a declaration
+# all uses in the declaration must refer to same type.
 @typeParam
 type PureType anydata|error;
 
+# Represent the iterator type returned when `iterator` method is invoked.
 type ArrayIterator object {
 
     private Type[] m;
@@ -31,6 +41,7 @@ type ArrayIterator object {
         self.m = m;
     }
 
+    # Return next member or nil if end of iteration is reached.
     public function next() returns record {|
         Type value;
     |}? = external;
