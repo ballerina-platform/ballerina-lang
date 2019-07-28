@@ -258,10 +258,6 @@
                 "url": "length"
             },
             {
-                "name": "Type Conversion",
-                "url": "type-conversion"
-            },
-            {
                 "name": "Type Cast",
                 "url": "type-cast"
             },
@@ -270,16 +266,16 @@
                 "url": "nil-lifting"
             },
             {
-                "name": "Immutable Values",
-                "url": "immutable-values"
-            },
-            {
                 "name": "Cloning Values",
                 "url": "clone"
             },
             {
-                "name": "Stamping Values",
-                "url": "stamp"
+                "name": "Immutable Values",
+                "url": "immutable-values"
+            },
+            {
+                "name": "Type Conversion",
+                "url": "type-conversion"
             }
         ]
     },
