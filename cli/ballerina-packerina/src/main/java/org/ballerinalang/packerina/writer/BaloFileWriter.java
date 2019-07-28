@@ -19,8 +19,6 @@ package org.ballerinalang.packerina.writer;
 
 import com.moandjiezana.toml.TomlWriter;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.packerina.BuilderUtils;
-import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.model.BaloToml;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Module;
@@ -29,7 +27,6 @@ import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
-import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
@@ -86,36 +83,30 @@ public class BaloFileWriter {
      * Generate balo file for the given module.
      *
      * @param module ballerina module
-     * @param buildContext build context
+     * @param baloFilePath path to balo file
      */
-    public void write(BLangPackage module, BuildContext buildContext) {
+    public void write(BLangPackage module, Path baloFilePath) {
         // Get the project directory
         Path projectDirectory = this.sourceDirectory.getPath();
 
-        // Ignore unnamed packages
-        if (module.packageID.isUnnamed) {
-            return;
-        }
-
         // Check if the module is part of the project
-        String moduleName = module.packageID.name.value;
-        if (!ProjectDirs.isModuleExist(projectDirectory, moduleName)) {
-            return;
-        }
+//        String moduleName = module.packageID.name.value;
+//        if (!ProjectDirs.isModuleExist(projectDirectory, moduleName)) {
+//            return;
+//        }
         
         // Create the archive over write if exists
-        Path baloFile = BuilderUtils.resolveBaloPath(buildContext, module.packageID);
-        try (FileSystem balo = createBaloArchive(baloFile)) {
+        try (FileSystem balo = createBaloArchive(baloFilePath)) {
             // Now lets put stuff in
             populateBaloArchive(balo, module);
-            outStream.println("Created " + projectDirectory.relativize(baloFile));
+            outStream.println("Created " + projectDirectory.relativize(baloFilePath));
         } catch (IOException e) {
             // todo Check for permission
             throw new BLangCompilerException("Failed to create balo :" + e.getMessage(), e);
         } catch (BLangCompilerException be) {
             // clean up if an error occur
             try {
-                Files.delete(baloFile);
+                Files.delete(baloFilePath);
             } catch (IOException e) {
                 // We ignore this error and throw out the original blang compiler error to the user
             }
