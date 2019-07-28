@@ -75,7 +75,6 @@ public class CreateJarTask implements Task {
                 // Generate the jar of the package.
                 Path entryBir = BuilderUtils.resolveBirPath(buildContext, module.packageID);
                 Path jarOutput = BuilderUtils.resolveJarPath(buildContext, module.packageID);
-                Files.createDirectories(jarOutput);
                 
                 BootstrapRunner.generateJarBinary(entryBir.toString(), jarOutput.toString(), false,
                         projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
@@ -95,7 +94,6 @@ public class CreateJarTask implements Task {
                     // Generate the jar of the package.
                     Path entryBir = BuilderUtils.resolveBirPath(buildContext, module.packageID);
                     Path jarOutput = BuilderUtils.resolveJarPath(buildContext, module.packageID);
-                    Files.createDirectories(jarOutput);
         
                     BootstrapRunner.generateJarBinary(entryBir.toString(), jarOutput.toString(), false,
                             projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
