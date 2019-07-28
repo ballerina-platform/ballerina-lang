@@ -38,10 +38,12 @@ import org.ballerinalang.tool.LauncherUtils;
 import org.ballerinalang.util.BLangConstants;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -124,7 +126,6 @@ public class BuildCommand implements BLauncherCmd {
     private boolean siddhiRuntimeFlag;
 
     public void execute() {
-
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
             errStream.println(commandUsageInfo);
@@ -200,16 +201,20 @@ public class BuildCommand implements BLauncherCmd {
             options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(siddhiRuntimeFlag));
     
             // remove the hyphen of the module folder if it exists
-            String pkgOrSourceFileName = argList.get(0);
-            if (pkgOrSourceFileName.endsWith("/")) {
-                pkgOrSourceFileName = pkgOrSourceFileName.substring(0, pkgOrSourceFileName.length() - 1);
+            String pkgOrSourceFileNameAsString = argList.get(0);
+            if (pkgOrSourceFileNameAsString.endsWith("/")) {
+                pkgOrSourceFileNameAsString = pkgOrSourceFileNameAsString.substring(0,
+                        pkgOrSourceFileNameAsString.length() - 1);
             }
             
             // normalize the source path to remove './' or '.\' characters that can appear before the name
-            pkgOrSourceFileName = Paths.get(pkgOrSourceFileName).normalize().toString();
+            Path pkgOrSourceFileName = Paths.get(pkgOrSourceFileNameAsString).normalize();
             
             // get the absolute path for the source. source can be a module or a bal file.
-            Path sourceFullPath = sourceRootPath.resolve(pkgOrSourceFileName).toAbsolutePath();
+            Path sourceFullPath = RepoUtils.isBallerinaProject(sourceRootPath) ?
+                                  sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME)
+                                          .resolve(pkgOrSourceFileName).toAbsolutePath() :
+                                  sourceRootPath.resolve(pkgOrSourceFileName).toAbsolutePath();
             
             // check if source exists or not
             if (Files.notExists(sourceFullPath)) {
@@ -217,7 +222,7 @@ public class BuildCommand implements BLauncherCmd {
             }
             
             if (Files.isRegularFile(sourceFullPath) &&
-                pkgOrSourceFileName.endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX) &&
+                pkgOrSourceFileName.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX) &&
                 !RepoUtils.isBallerinaProject(sourceRootPath)) {
                 
                 // if its a single bal file
@@ -239,21 +244,26 @@ public class BuildCommand implements BLauncherCmd {
                     }
                 }
     
-                BuildContext buildContext = new BuildContext(sourceRootPath);
-                buildContext.put(BuildContextField.COMPILER_CONTEXT, context);
-    
-                TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                        .addTask(new CleanTargetDirTask())
-                        .addTask(new CreateTargetDirTask())
-                        .addTask(new CompileTask())
-                        .addTask(new CreateBirTask())
-                        .addTask(new CreateJarTask())
-                        .addTask(new CreateExecutableTask())
-                        .addTask(new CopyExecutableTask(executableFilePath))
-                        .addTask(new RunCompilerPluginTask())
-                        .build();
-    
-                taskExecutor.executeTasks(buildContext);
+                try {
+                    // TODO: use a files system
+                    Path tempTarget = Files.createTempDirectory(pkgOrSourceFileNameAsString);
+                    BuildContext buildContext = new BuildContext(sourceRootPath, tempTarget, sourceFullPath);
+                    buildContext.put(BuildContextField.COMPILER_CONTEXT, context);
+        
+                    TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
+                            .addTask(new CreateTargetDirTask())
+                            .addTask(new CompileTask())
+                            .addTask(new CreateBirTask())
+                            .addTask(new CreateJarTask())
+                            .addTask(new CreateExecutableTask())
+                            .addTask(new CopyExecutableTask(executableFilePath))
+                            .addTask(new RunCompilerPluginTask())
+                            .build();
+        
+                    taskExecutor.executeTasks(buildContext);
+                } catch (IOException e) {
+                    throw LauncherUtils.createLauncherException("error occurred when creating build artifacts.");
+                }
             } else if (Files.isDirectory(sourceFullPath)) {
                 // if its a module
                 // Checks if the source is a module and if its inside a project (with a Ballerina.toml folder)

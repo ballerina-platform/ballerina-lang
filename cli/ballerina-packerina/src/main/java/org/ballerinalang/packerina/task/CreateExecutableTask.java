@@ -43,8 +43,6 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
-
 /**
  * Task for creating the executable jar file.
  */
@@ -96,15 +94,9 @@ public class CreateExecutableTask implements Task {
     private static void assembleExecutable(BuildContext buildContext, BLangPackage bLangPackage) {
         Path sourceRoot = buildContext.get(BuildContextField.SOURCE_ROOT);
         try {
-            String moduleJarName = bLangPackage.packageID.name.value
-                                   + BLANG_COMPILED_JAR_EXT;
             // Copy the jar from cache to bin directory
             Path uberJar = BuilderUtils.resolveExecutablePath(buildContext, bLangPackage.packageID);
-            Path moduleJar = BuilderUtils.resolveJarPath(buildContext, bLangPackage.packageID)
-                    .resolve(bLangPackage.packageID.orgName.value)
-                    .resolve(bLangPackage.packageID.name.value)
-                    .resolve(bLangPackage.packageID.version.value)
-                    .resolve(moduleJarName);
+            Path moduleJar = BuilderUtils.resolveJarPath(buildContext, bLangPackage.packageID);
             
             // Check if the package has an entry point.
             if (bLangPackage.symbol.entryPointExists) {
