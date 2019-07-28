@@ -865,29 +865,17 @@ public class BLangPackageBuilder {
         recordVarRefListStack.push(new ArrayList<>());
     }
 
-    void addRecordVariable(DiagnosticPos pos, Set<Whitespace> ws, RestBindingPatternState restBindingPattern) {
+    void addRecordVariable(DiagnosticPos pos, Set<Whitespace> ws, boolean hasRestBindingPattern) {
         BLangRecordVariable recordVariable = (BLangRecordVariable) TreeBuilder.createRecordVariableNode();
         recordVariable.pos = pos;
         recordVariable.addWS(ws);
         recordVariable.variableList = this.recordVarListStack.pop();
-        switch (restBindingPattern) {
-            case OPEN_REST_BINDING_PATTERN:
-                recordVariable.restParam = this.varStack.pop();
-                break;
-            case CLOSED_REST_BINDING_PATTERN:
-                recordVariable.isClosed = true;
-                break;
-            case NO_BINDING_PATTERN:
-                break;
-        }
-        this.varStack.push(recordVariable);
-    }
 
-    void addRecordBindingWS(Set<Whitespace> ws) {
-        if (this.varStack.size() > 0) {
-            BLangVariable var = this.varStack.peek();
-            var.addWS(ws);
+        if (hasRestBindingPattern) {
+            recordVariable.restParam = this.varStack.pop();
         }
+
+        this.varStack.push(recordVariable);
     }
 
     void addRecordVariableReference(DiagnosticPos pos, Set<Whitespace> ws, RestBindingPatternState restBindingPattern) {

@@ -1046,18 +1046,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 return false;
         }
 
-        if (recordVar.isClosed) {
-            if (!recordVarType.sealed) {
-                dlog.error(recordVar.pos, DiagnosticCode.INVALID_CLOSED_RECORD_BINDING_PATTERN, recordVarType);
-                return false;
-            }
-
-            if (recordVar.variableList.size() != recordVarType.fields.size()) {
-                dlog.error(recordVar.pos, DiagnosticCode.NOT_ENOUGH_FIELDS_TO_MATCH_CLOSED_RECORDS, recordVarType);
-                return false;
-            }
-        }
-
         Map<String, BField> recordVarTypeFields = recordVarType.fields.stream()
                 .collect(Collectors.toMap(field -> field.getName().getValue(), field -> field));
 
@@ -1299,7 +1287,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private BRecordType createSameTypedFieldsRecordType(BLangRecordVariable recordVar, BType fieldTypes) {
         BType fieldType;
-        if (fieldTypes.tag == TypeTags.ANYDATA || fieldTypes.tag == TypeTags.ANY) {
+        if (fieldTypes.isNullable()) {
             fieldType = fieldTypes;
         } else {
             fieldType = BUnionType.create(null, fieldTypes, symTable.nilType);
@@ -1318,12 +1306,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         recordVarType.fields = fields;
         recordSymbol.type = recordVarType;
         recordVarType.tsymbol = recordSymbol;
-        if (recordVar.isClosed) {
-            recordVarType.sealed = true;
-        } else {
-            recordVarType.sealed = false;
-            recordVarType.restFieldType = fieldTypes;
-        }
+
+        // Since this is for record variables, we consider its record type as an open record type.
+        recordVarType.sealed = false;
+        recordVarType.restFieldType = fieldTypes; // TODO: 7/26/19 Check if this should be `fieldType`
 
         return recordVarType;
     }

@@ -198,7 +198,6 @@ public class MatchStructuredRecordPatternsTest {
     }
 
     // TODO : Syntax used in test case should be invalid per spec. Please refer git issue #16961.
-    @Ignore
     @Test(description = "Test structured pattern with closed record")
     public void testClosedRecord() {
         BValue[] returns = BRunUtil.invoke(result, "testClosedRecord", new BValue[]{});
