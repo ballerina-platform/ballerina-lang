@@ -37,7 +37,9 @@ public class CleanTargetDirTask implements Task {
     public void execute(BuildContext buildContext) {
         Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
         try {
-            delete(targetDir);
+            if (Files.exists(targetDir)) {
+                delete(targetDir);
+            }
         } catch (IOException e) {
             throw new BLangCompilerException("error occurred cleaning artifacts output target: " + targetDir);
         }
