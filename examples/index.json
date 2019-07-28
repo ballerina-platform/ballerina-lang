@@ -288,6 +288,10 @@
                 "url": "json"
             },
             {
+                "name": "JSON Objects",
+                "url": "json-objects"
+            },
+            {
                 "name": "JSON Arrays",
                 "url": "json-arrays"
             },
