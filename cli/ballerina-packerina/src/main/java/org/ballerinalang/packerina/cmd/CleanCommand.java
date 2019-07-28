@@ -20,7 +20,6 @@ package org.ballerinalang.packerina.cmd;
 
 import org.ballerinalang.packerina.TaskExecutor;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
-import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -31,7 +30,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.ballerinalang.packerina.cmd.Constants.CLEAN_COMMAND;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_DIR_NAME;
 
 /**
  * This class represents the "ballerina clean" command.
@@ -60,9 +58,7 @@ public class CleanCommand implements BLauncherCmd {
                     .addTask(new CleanTargetDirTask())
                     .build();
     
-            BuildContext buildContext = new BuildContext();
-            buildContext.put(BuildContextField.TARGET_DIR, sourceRoot.resolve(TARGET_DIR_NAME));
-            
+            BuildContext buildContext = new BuildContext(sourceRoot);
             taskExecutor.executeTasks(buildContext);
             
             Runtime.getRuntime().exit(0);
