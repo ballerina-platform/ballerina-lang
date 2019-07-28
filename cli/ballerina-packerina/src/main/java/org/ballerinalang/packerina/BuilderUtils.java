@@ -24,14 +24,11 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
-import org.ballerinalang.packerina.writer.BaloFileWriter;
-import org.ballerinalang.packerina.writer.BirFileWriter;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.util.BootstrapRunner;
 import org.wso2.ballerinalang.compiler.Compiler;
-import org.wso2.ballerinalang.compiler.LockFileWriter;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -89,7 +86,6 @@ import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_INSTALL_DIR_PROP;
  * @since 0.95.2
  */
 public class BuilderUtils {
-    private static final String BALLERINA_HOME = "BALLERINA_HOME";
     private static PrintStream outStream = System.out;
 
     private static BaloFileWriter baloFileWriter;
@@ -109,6 +105,8 @@ public class BuilderUtils {
                                                 boolean jvmTarget,
                                                 boolean dumpBIR,
                                                 boolean genExecutables) {
+
+        
         CompilerContext context = getCompilerContext(sourceRootPath, jvmTarget, buildCompiledPkg, offline,
                 lockEnabled, skiptests, enableExperimentalFeatures, siddhiRuntimeEnabled);
 
@@ -179,6 +177,7 @@ public class BuilderUtils {
         options.put(TEST_ENABLED, "true");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExperimentalFeatures));
         options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(siddhiRuntimeEnabled));
+
         Compiler compiler = Compiler.getInstance(context);
         List<BLangPackage> packages = compiler.build();
 

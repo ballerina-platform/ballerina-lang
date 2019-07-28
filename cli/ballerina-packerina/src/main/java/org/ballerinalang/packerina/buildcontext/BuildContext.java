@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_DIR_NAME;
 import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_INSTALL_DIR_PROP;
 
 
@@ -42,34 +43,37 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     private static final long serialVersionUID = 6363519534259706585L;
     private SourceType srcType;
     
-    public BuildContext() {}
+    public BuildContext() {
+        // set home repo to build context
+        this.put(BuildContextField.HOME_REPO, RepoUtils.createAndGetHomeReposPath());
+    
+        this.put(BuildContextField.HOME_BIR_CACHE_REPO, RepoUtils.createAndGetHomeReposPath()
+                .resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME));
+    
+        this.put(BuildContextField.HOME_JAR_CACHE_REPO, RepoUtils.createAndGetHomeReposPath()
+                .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME));
+    
+        this.put(BuildContextField.SYSTEM_BIR_CACHE, Paths.get(System.getProperty(BALLERINA_INSTALL_DIR_PROP))
+                .resolve("bir-cache"));
+    }
     
     /**
      * Create a build context with context fields.
      *
      * @param sourceRootPath The root of the source files. If its a project then its project root. If its a single bal
      *                       file then is it the parent directory of the bal file.
+     * @param targetPath     The location of the target(build artifacts output path).
      * @param source         The name of the source file or the name of the module. Pass null to build all modules.
      */
-    public BuildContext(Path sourceRootPath, String source) {
+    public BuildContext(Path sourceRootPath, Path targetPath, String source) {
+        this();
         if (Files.exists(sourceRootPath)) {
-    
+            
             // set source root
             this.put(BuildContextField.SOURCE_ROOT, sourceRootPath);
-    
-            // set home repo to build context
-            this.put(BuildContextField.HOME_REPO, RepoUtils.createAndGetHomeReposPath());
             
-            this.put(BuildContextField.HOME_BIR_CACHE_REPO, RepoUtils.createAndGetHomeReposPath()
-                    .resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME));
-    
-            this.put(BuildContextField.HOME_JAR_CACHE_REPO, RepoUtils.createAndGetHomeReposPath()
-                    .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME));
+            this.put(BuildContextField.TARGET_DIR, targetPath);
             
-            this.put(BuildContextField.SYSTEM_BIR_CACHE, Paths.get(System.getProperty(BALLERINA_INSTALL_DIR_PROP))
-                    .resolve("bir-cache"));
-            
-    
             // set source context
             this.setSource(source);
         } else {
@@ -77,6 +81,34 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
         }
     }
     
+    /**
+     * Create a build context with context fields.
+     *
+     * @param sourceRootPath The root of the source files. If its a project then its project root. If its a single bal
+     *                       file then is it the parent directory of the bal file.
+     */
+    public BuildContext(Path sourceRootPath) {
+        this(sourceRootPath, null);
+    }
+    
+    /**
+     * Create a build context with context fields.
+     *
+     * @param sourceRootPath The root of the source files. If its a project then its project root. If its a single bal
+     *                       file then is it the parent directory of the bal file.
+     * @param source         The name of the source file or the name of the module.
+     */
+    public BuildContext(Path sourceRootPath, String source) {
+        this(sourceRootPath, sourceRootPath.resolve(TARGET_DIR_NAME), source);
+    }
+    
+    /**
+     * Get value from the build context.
+     *
+     * @param key The key of the value.
+     * @param <T> The return type.
+     * @return The casted value.
+     */
     public <T> T get(BuildContextField key) {
         return (T) super.get(key);
     }
