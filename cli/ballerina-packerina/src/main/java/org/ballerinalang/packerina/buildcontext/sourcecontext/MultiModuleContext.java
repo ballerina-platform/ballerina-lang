@@ -16,17 +16,23 @@
  * under the License.
  */
 
-package org.ballerinalang.packerina.task;
+package org.ballerinalang.packerina.buildcontext.sourcecontext;
 
-import org.ballerinalang.packerina.buildcontext.BuildContext;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
-import java.io.PrintStream;
+import java.util.List;
 
 /**
- * Task interface for executing a task in packaging.
+ * Dataholder for a multiple module compilation.
  */
-public interface Task {
-    PrintStream OUT = System.out;
+public class MultiModuleContext {
+    List<BLangPackage> modules;
     
-    void execute(BuildContext buildContext);
+    public List<BLangPackage> getModules() {
+        return modules;
+    }
+    
+    public void setModules(List<BLangPackage> modules) {
+        this.modules = modules;
+    }
 }

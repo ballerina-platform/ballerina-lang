@@ -22,21 +22,19 @@ package org.ballerinalang.packerina.buildcontext;
  * Key names for build context.
  */
 public enum BuildContextField {
+    SOURCE_CONTEXT("sourceContext"),
+    
+    HOME_REPO("homeRepo"),
+    
+    HOME_BIR_CACHE_REPO("homeBirCacheRepo"),
+    
+    HOME_JAR_CACHE_REPO("homeJarCacheRepo"),
+    
+    SYSTEM_BIR_CACHE("systemBirCache"),
+    
     SOURCE_ROOT("sourceRoot"),
     
     TARGET_DIR("targetDir"),
-    
-    OFFLINE_BUILD("offlineBuild"),
-    
-    LOCK_ENABLED("lockEnabled"),
-    
-    SKIP_TESTS("skipTests"),
-    
-    ENABLE_EXPERIMENTAL_FEATURES("enableExperimentalFeatures"),
-    
-    ENABLE_SIDDHI_RUNTIME("enableSiddhiRuntime"),
-    
-    COMPILED_MODULES("compiledModules"),
     
     COMPILER_CONTEXT("compilerContext"),
     
@@ -44,7 +42,9 @@ public enum BuildContextField {
     
     BIR_CACHE_DIR("birCacheDir"),
     
-    JAR_CACHE_DIR("jarCacheDir");
+    JAR_CACHE_DIR("jarCacheDir"),
+    
+    EXECUTABLE_DIR("executableDir");
     
     public final String name;
     

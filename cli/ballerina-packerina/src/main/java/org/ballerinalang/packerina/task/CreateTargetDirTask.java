@@ -38,18 +38,6 @@ public class CreateTargetDirTask implements Task {
             if (Files.notExists(targetDir)) {
                 Files.createDirectories(targetDir);
             }
-            
-            
-//            // create '<target>/cache/jar_cache' dir
-//            Path jarCache = targetDir
-//                    .resolve(ProjectDirConstants.CACHES_DIR_NAME)
-//                    .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
-//
-//            if (!Files.exists(jarCache)) {
-//                Files.createDirectories(jarCache);
-//            }
-//
-//            buildContext.put(BuildContextField.JAR_CACHE_DIR, jarCache);
         } catch (IOException e) {
             throw new BLangCompilerException("error occurred in creating target directory: " + targetDir);
         }

@@ -16,17 +16,11 @@
  * under the License.
  */
 
-package org.ballerinalang.packerina.task;
-
-import org.ballerinalang.packerina.buildcontext.BuildContext;
-
-import java.io.PrintStream;
+package org.ballerinalang.packerina.buildcontext.sourcecontext;
 
 /**
- * Task interface for executing a task in packaging.
+ * Enum for types of sources.
  */
-public interface Task {
-    PrintStream OUT = System.out;
-    
-    void execute(BuildContext buildContext);
+public enum SourceType {
+    BAL_FILE, SINGLE_MODULE, ALL_MODULES
 }

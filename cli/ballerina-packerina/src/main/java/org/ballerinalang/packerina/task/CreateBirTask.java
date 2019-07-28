@@ -19,8 +19,13 @@
 package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.packerina.BuilderUtils;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.MultiModuleContext;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
 import org.ballerinalang.packerina.writer.BirFileWriter;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -38,7 +43,6 @@ public class CreateBirTask implements Task {
     @Override
     public void execute(BuildContext buildContext) {
         CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
-        List<BLangPackage> modules = buildContext.get(BuildContextField.COMPILED_MODULES);
         Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
         
         try {
@@ -56,7 +60,26 @@ public class CreateBirTask implements Task {
             
             // generate bir for modules
             BirFileWriter birFileWriter = BirFileWriter.getInstance(context);
-            modules.forEach(birFileWriter::write);
+    
+            if (buildContext.getSourceType() == SourceType.BAL_FILE) {
+                SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
+                Path birFilePath = BuilderUtils.resolveBirPath(buildContext, singleFileContext.getModule().packageID);
+                birFileWriter.write(singleFileContext.getModule(), birFilePath);
+            } else {
+                if (buildContext.getSourceType() == SourceType.SINGLE_MODULE) {
+                    SingleModuleContext moduleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
+                    Path birFilePath = BuilderUtils.resolveBirPath(buildContext, moduleContext.getModule().packageID);
+                    birFileWriter.write(moduleContext.getModule(), birFilePath);
+                } else {
+                    MultiModuleContext multiModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
+                    List<BLangPackage> modules = multiModuleContext.getModules();
+    
+                    for (BLangPackage module : modules) {
+                        Path birFilePath = BuilderUtils.resolveBirPath(buildContext, module.packageID);
+                        birFileWriter.write(module, birFilePath);
+                    }
+                }
+            }
         } catch (IOException e) {
             throw new BLangCompilerException("error occurred creating bir_cache: " + targetDir);
         }
