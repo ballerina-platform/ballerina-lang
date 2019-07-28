@@ -18,8 +18,10 @@
 
 package org.ballerinalang.packerina.buildcontext.sourcecontext;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
@@ -33,7 +35,11 @@ public class SingleFileContext {
     private BLangPackage module;
     
     public SingleFileContext(Path balFile) {
-        this.balFile = balFile;
+        if (Files.exists(balFile) && balFile.isAbsolute()) {
+            this.balFile = balFile;
+        } else {
+            throw new BLangCompilerException("invalid source or does not exists: " + balFile);
+        }
     }
     
     public Path getBalFile() {
