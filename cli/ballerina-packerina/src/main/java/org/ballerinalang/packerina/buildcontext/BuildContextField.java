@@ -24,27 +24,13 @@ package org.ballerinalang.packerina.buildcontext;
 public enum BuildContextField {
     SOURCE_CONTEXT("sourceContext"),
     
-    HOME_REPO("homeRepo"),
-    
-    HOME_BIR_CACHE_REPO("homeBirCacheRepo"),
-    
-    HOME_JAR_CACHE_REPO("homeJarCacheRepo"),
-    
-    SYSTEM_BIR_CACHE("systemBirCache"),
-    
     SOURCE_ROOT("sourceRoot"),
     
     TARGET_DIR("targetDir"),
     
     COMPILER_CONTEXT("compilerContext"),
     
-    BALO_CACHE_DIR("baloCacheDir"),
-    
-    BIR_CACHE_DIR("birCacheDir"),
-    
-    JAR_CACHE_DIR("jarCacheDir"),
-    
-    EXECUTABLE_DIR("executableDir");
+    BIR_CACHE_DIR("birCacheDir");
     
     public final String name;
     

@@ -21,9 +21,6 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.packerina.buildcontext.BuildContext;
-import org.ballerinalang.packerina.buildcontext.BuildContextField;
-import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
 import org.ballerinalang.packerina.writer.BaloFileWriter;
 import org.ballerinalang.packerina.writer.BirFileWriter;
 import org.ballerinalang.packerina.writer.LockFileWriter;
@@ -251,7 +248,7 @@ public class BuilderUtils {
         lockFileWriter = LockFileWriter.getInstance(context);
         lockFileWriter.writeLockFile(ManifestProcessor.getInstance(context).getManifest());
         // TODO: This will throw an error
-        packages.forEach(module -> baloFileWriter.write(module, null));
+        packages.forEach(module -> baloFileWriter.write(module, Paths.get("")));
         packages.forEach(module -> birFileWriter.write(module, Paths.get("")));
         packages.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));
         manifest = ManifestProcessor.getInstance(context).getManifest();
@@ -620,160 +617,6 @@ public class BuilderUtils {
                 // Walk and copy the files.
                 Files.walkFileTree(from, new Copy(from, to));
             }
-        }
-    }
-    
-    /**
-     * Get the path to balo file of a module.
-     *
-     * @param buildContext The build context.
-     * @param repoLocation Location of the repository.
-     * @param moduleID     The module ID of the balo file.
-     * @return The path to balo file.
-     */
-    public static Path resolveBaloPath(BuildContext buildContext, Path repoLocation, PackageID moduleID) {
-        switch (buildContext.getSourceType()) {
-            case BAL_FILE:
-                throw new BLangCompilerException("balo for single bal files are not supported");
-            case SINGLE_MODULE:
-            case ALL_MODULES:
-                CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
-                Manifest manifest = ManifestProcessor.getInstance(context).getManifest();
-                
-                // Get the version of the project.
-                String versionNo = manifest.getProject().getVersion();
-                // Identify the platform version
-                String platform = manifest.getTargetPlatform();
-                // {module}-{lang spec version}-{platform}-{version}.balo
-                //+ "2019R2" + ProjectDirConstants.FILE_NAME_DELIMITER
-                String baloFileName =  moduleID.name.value + "-"
-                                       + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
-                                       + platform + "-"
-                                       + versionNo
-                                       + ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
-                
-                return repoLocation.resolve(baloFileName);
-            default:
-                throw new BLangCompilerException("unable to resolve balo location for build source");
-        }
-    }
-    
-    /**
-     * Get the path to balo file of a module.
-     *
-     * @param buildContext The build context.
-     * @param moduleID     The module ID of the balo file.
-     * @return The path to balo file.
-     */
-    public static Path resolveBaloPath(BuildContext buildContext, PackageID moduleID) {
-        Path baloCacheDir = buildContext.get(BuildContextField.BALO_CACHE_DIR);
-        return resolveBaloPath(buildContext, baloCacheDir, moduleID);
-    }
-    
-    /**
-     * Get the path to bir file of a module.
-     *
-     * @param buildContext The build context.
-     * @param repoLocation Location of the repository.
-     * @param moduleID     The module ID of the bir file.
-     * @return The path to bir file.
-     */
-    public static Path resolveBirPath(BuildContext buildContext, Path repoLocation, PackageID moduleID) {
-        switch (buildContext.getSourceType()) {
-            case BAL_FILE:
-                SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                String birFileName = singleFileContext.getBalFileNameWithoutExtension() + BLANG_COMPILED_PKG_BIR_EXT;
-                return repoLocation.resolve(birFileName);
-            case SINGLE_MODULE:
-            case ALL_MODULES:
-                try {
-                    Path moduleBirCacheDir = Files.createDirectories(repoLocation.resolve(moduleID.orgName.value)
-                            .resolve(moduleID.name.value)
-                            .resolve(moduleID.version.value));
-                    return moduleBirCacheDir.resolve(moduleID.name.value + BLANG_COMPILED_PKG_BIR_EXT);
-                } catch (IOException e) {
-                    throw new BLangCompilerException("error creating bir_cache dir for module: " + moduleID.name.value);
-                }
-            default:
-                throw new BLangCompilerException("unable to resolve bir location for build source");
-        }
-    }
-    
-    /**
-     * Get the path to bir file of a module.
-     *
-     * @param buildContext The build context.
-     * @param moduleID     The module ID of the bir file.
-     * @return The path to bir file.
-     */
-    public static Path resolveBirPath(BuildContext buildContext, PackageID moduleID) {
-        Path birCacheDir = buildContext.get(BuildContextField.BIR_CACHE_DIR);
-        return resolveBirPath(buildContext, birCacheDir, moduleID);
-    }
-    
-    /**
-     * Get the path to jar file of a module.
-     *
-     * @param buildContext The build context.
-     * @param repoLocation Location of the repository.
-     * @param moduleID     The module of the jar file.
-     * @return The path to jar file.
-     */
-    public static Path resolveJarPath(BuildContext buildContext, Path repoLocation, PackageID moduleID) {
-        switch (buildContext.getSourceType()) {
-            case BAL_FILE:
-                SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                String jarFileName = singleFileContext.getBalFileNameWithoutExtension() + BLANG_COMPILED_JAR_EXT;
-                return repoLocation.resolve(jarFileName);
-            case SINGLE_MODULE:
-            case ALL_MODULES:
-                try {
-                    Path moduleJarCacheDir = Files.createDirectories(repoLocation.resolve(moduleID.orgName.value)
-                            .resolve(moduleID.name.value)
-                            .resolve(moduleID.version.value));
-                    return moduleJarCacheDir.resolve(moduleID.name.value + BLANG_COMPILED_JAR_EXT);
-                } catch (IOException e) {
-                    throw new BLangCompilerException("error creating jar_cache dir for module: " + moduleID.name.value);
-                }
-            default:
-                throw new BLangCompilerException("unable to resolve bir location for build source");
-        }
-    }
-    
-    /**
-     * Get the path to executable file of a module.
-     *
-     * @param buildContext The build context.
-     * @param moduleID     The ID module of the executable file.
-     * @return The path to executable file.
-     */
-    public static Path resolveJarPath(BuildContext buildContext, PackageID moduleID) {
-        Path jarCacheDir = buildContext.get(BuildContextField.JAR_CACHE_DIR);
-        return resolveJarPath(buildContext, jarCacheDir, moduleID);
-    }
-    
-    /**
-     * Get the path to executable file of a module.
-     *
-     * @param buildContext The build context.
-     * @param moduleID     The module of the executable file.
-     * @return The path to executable file.
-     */
-    public static Path resolveExecutablePath(BuildContext buildContext, PackageID moduleID) {
-        Path executableDir = buildContext.get(BuildContextField.EXECUTABLE_DIR);
-        switch (buildContext.getSourceType()) {
-            case BAL_FILE:
-                SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                String executableFileName = singleFileContext.getBalFileNameWithoutExtension() +
-                                            ProjectDirConstants.EXEC_SUFFIX + BLANG_COMPILED_JAR_EXT;
-                return executableDir.resolve(executableFileName);
-            case SINGLE_MODULE:
-            case ALL_MODULES:
-                return executableDir.resolve(moduleID.name.value +
-                                             ProjectDirConstants.EXEC_SUFFIX + BLANG_COMPILED_JAR_EXT);
-            
-            default:
-                throw new BLangCompilerException("unable to resolve executable(s) location for build source");
         }
     }
 
