@@ -125,7 +125,7 @@ public class CreateVariableExecutor implements LSCommandExecutor {
             );
             if (notFound) {
                 String pkgName = orgName + "/" + alias;
-                edits.add(addPackage(pkgName, packageNode, context));
+                edits.add(addPackage(pkgName, context));
             }
         };
 
@@ -141,11 +141,11 @@ public class CreateVariableExecutor implements LSCommandExecutor {
         return applyWorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)), client);
     }
 
-    private TextEdit addPackage(String pkgName, BLangPackage srcOwnerPkg, LSContext context) {
+    private TextEdit addPackage(String pkgName, LSContext context) {
         DiagnosticPos pos = null;
 
         // Filter the imports except the runtime import
-        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(srcOwnerPkg, context);
+        List<BLangImportPackage> imports = CommonUtil.getCurrentModuleImports(context);
 
         if (!imports.isEmpty()) {
             BLangImportPackage lastImport = CommonUtil.getLastItem(imports);

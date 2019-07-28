@@ -75,15 +75,15 @@ public class ImportModuleExecutor implements LSCommandExecutor {
             try {
                 bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false, 
                         LSCustomErrorStrategy.class, false);
+                context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
             } catch (LSCompilerException e) {
                 throw new LSCommandExecutorException("Couldn't compile the source", e);
             }
-            String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-            BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
             String pkgName = context.get(ExecuteCommandKeys.PKG_NAME_KEY);
 
             // Filter the imports except the runtime import
-            List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(srcOwnerPkg, context);
+            context.put(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY, CommonUtil.getCurrentFileImports(context));
+            List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(context);
 
             Position start = new Position(0, 0);
             if (!imports.isEmpty()) {
