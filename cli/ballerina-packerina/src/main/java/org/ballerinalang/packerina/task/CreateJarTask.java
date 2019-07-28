@@ -108,34 +108,27 @@ public class CreateJarTask implements Task {
                                        String... reps) {
         for (BPackageSymbol bimport : imports) {
             PackageID id = bimport.pkgID;
-            try {
-                if (id.orgName.value.equals("ballerina") || id.orgName.value.equals("ballerinax")) {
-                    continue;
-                }
-                Path jarFilePath;
-                Path birFilePath;
-                // If the module is part of the project write it to project jar cache check if file exist
-                // If not write it to home jar cache
-                // skip ballerina and ballerinax
-                if (ProjectDirs.isModuleExist(sourceRoot, id.name.value)) {
-                    jarFilePath = BuilderUtils.resolveJarPath(buildContext, id);
-                    birFilePath = BuilderUtils.resolveBirPath(buildContext, id);
-                } else {
-                    jarFilePath = BuilderUtils.resolveJarPath(buildContext,
-                            buildContext.get(BuildContextField.HOME_JAR_CACHE_REPO), id);
-                    birFilePath = BuilderUtils.resolveJarPath(buildContext,
-                            buildContext.get(BuildContextField.HOME_BIR_CACHE_REPO), id);
-                }
-                if (!Files.exists(jarFilePath)) {
-                    Files.createDirectories(jarFilePath);
-                    BootstrapRunner.generateJarBinary(birFilePath.toString(), jarFilePath.toString(), false, reps);
-                }
-                writeImportJar(bimport.imports, sourceRoot, buildContext);
-            } catch (IOException e) {
-                String msg = "error writing the compiled module(jar) of '" +
-                             id.name.value + "' to home repo jar-cache: " + e.getMessage();
-                throw new BLangCompilerException(msg, e);
+            if (id.orgName.value.equals("ballerina") || id.orgName.value.equals("ballerinax")) {
+                continue;
             }
+            Path jarFilePath;
+            Path birFilePath;
+            // If the module is part of the project write it to project jar cache check if file exist
+            // If not write it to home jar cache
+            // skip ballerina and ballerinax
+            if (ProjectDirs.isModuleExist(sourceRoot, id.name.value)) {
+                jarFilePath = BuilderUtils.resolveJarPath(buildContext, id);
+                birFilePath = BuilderUtils.resolveBirPath(buildContext, id);
+            } else {
+                jarFilePath = BuilderUtils.resolveJarPath(buildContext,
+                        buildContext.get(BuildContextField.HOME_JAR_CACHE_REPO), id);
+                birFilePath = BuilderUtils.resolveJarPath(buildContext,
+                        buildContext.get(BuildContextField.HOME_BIR_CACHE_REPO), id);
+            }
+            if (!Files.exists(jarFilePath)) {
+                BootstrapRunner.generateJarBinary(birFilePath.toString(), jarFilePath.toString(), false, reps);
+            }
+            writeImportJar(bimport.imports, sourceRoot, buildContext);
         }
     }
 }
