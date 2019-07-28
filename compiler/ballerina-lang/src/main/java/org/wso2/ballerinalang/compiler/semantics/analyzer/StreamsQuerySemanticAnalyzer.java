@@ -117,7 +117,6 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
     private SymbolResolver symResolver;
     private TypeChecker typeChecker;
     private Types types;
-    private SemanticAnalyzer semanticAnalyzer;
     private BLangDiagnosticLog dlog;
 
     private SymbolEnv env;
@@ -126,10 +125,6 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
     private boolean isSiddhiRuntimeEnabled;
     private List<BField> outputStreamFieldList;
 
-    private BLangStreamingInput streamingInput;
-    private BLangJoinStreamingInput joinStreamingInput;
-    private BLangSelectClause selectClause;
-    private BLangHaving having;
     private BLangOrderBy orderBy;
 
     private StreamsQuerySemanticAnalyzer(CompilerContext context) {
@@ -141,7 +136,6 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
         this.types = Types.getInstance(context);
-        this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
@@ -163,10 +157,10 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeNode(BLangNode node, SymbolEnv env) {
-        analyzeNode(node, env, symTable.noType, null);
+        analyzeNode(node, env, symTable.noType);
     }
 
-    private void analyzeNode(BLangNode node, SymbolEnv env, BType expType, DiagnosticCode diagCode) {
+    private void analyzeNode(BLangNode node, SymbolEnv env, BType expType) {
         SymbolEnv prevEnv = this.env;
         BType preExpType = this.expType;
         DiagnosticCode preDiagCode = this.diagCode;
@@ -174,7 +168,7 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
         // TODO Check the possibility of using a try/finally here
         this.env = env;
         this.expType = expType;
-        this.diagCode = diagCode;
+        this.diagCode = null;
         node.accept(this);
         this.env = prevEnv;
         this.expType = preExpType;
@@ -208,10 +202,10 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
         //Keep output stream fields to be later declared in the env
         retainOutputStreamFields(streamingQueryStatement.getStreamingAction());
 
-        streamingInput = (BLangStreamingInput) streamingQueryStatement.getStreamingInput();
-        joinStreamingInput = (BLangJoinStreamingInput) streamingQueryStatement.getJoiningInput();
-        selectClause = (BLangSelectClause) streamingQueryStatement.getSelectClause();
-        having = (BLangHaving) streamingQueryStatement.getSelectClause().getHaving();
+        BLangStreamingInput streamingInput = (BLangStreamingInput) streamingQueryStatement.getStreamingInput();
+        BLangJoinStreamingInput joinStreamingInput =
+                (BLangJoinStreamingInput) streamingQueryStatement.getJoiningInput();
+        BLangSelectClause selectClause = (BLangSelectClause) streamingQueryStatement.getSelectClause();
         orderBy = (BLangOrderBy) streamingQueryStatement.getOrderbyClause();
 
         SymbolEnv streamInputEnv = SymbolEnv.createTypeNarrowedEnv(streamingInput, env);

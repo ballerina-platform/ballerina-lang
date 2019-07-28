@@ -53,7 +53,6 @@ public class StreamsPostSelectDesugar extends BLangNodeVisitor {
             new CompilerContext.Key<>();
     private final SymbolTable symTable;
     private final Desugar desugar;
-    private final BLangDiagnosticLog dlog;
 
     private BLangNode result;
     private BSymbol mapVarSymbol;
@@ -63,7 +62,6 @@ public class StreamsPostSelectDesugar extends BLangNodeVisitor {
         context.put(STREAMING_DESUGAR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.desugar = Desugar.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     public static StreamsPostSelectDesugar getInstance(CompilerContext context) {
