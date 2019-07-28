@@ -168,6 +168,14 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
             try {
                 SourcePruner.pruneSource(context);
+                /*
+                If the token at cursor is within the hidden channel we stop calculating the completions. This will
+                avoid completions within the line comments
+                 */
+                if (context.get(DocumentServiceKeys.TERMINATE_OPERATION_KEY) != null
+                        && context.get(DocumentServiceKeys.TERMINATE_OPERATION_KEY)) {
+                    return Either.forLeft(completions);
+                }
                 BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false, null, false);
                 context.put(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY, bLangPackage.packageID);
                 context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);

@@ -63,4 +63,6 @@ public class DocumentServiceKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<List<BLangImportPackage>> CURRENT_DOC_IMPORTS_KEY
             = new LSContext.Key<>();
+    public static final LSContext.Key<Boolean> TERMINATE_OPERATION_KEY
+            = new LSContext.Key<>();
 }
