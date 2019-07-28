@@ -55,7 +55,7 @@ public class CreateBaloTask implements Task {
         CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
         Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
         try {
-            // create '<target>/cache/balo_cache' dir
+            // create '<target>/balo/' dir
             Path baloCacheDir = targetDir.resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY);
             if (Files.notExists(baloCacheDir)) {
                 Files.createDirectories(baloCacheDir);

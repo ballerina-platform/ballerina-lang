@@ -19,6 +19,7 @@
 package org.ballerinalang.packerina.buildcontext;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.packerina.buildcontext.cachecontext.ArtifactsCache;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.MultiModuleContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
@@ -43,19 +44,6 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     private static final long serialVersionUID = 6363519534259706585L;
     private SourceType srcType;
     
-    public BuildContext() {
-        // set home repo to build context
-        this.put(BuildContextField.HOME_REPO, RepoUtils.createAndGetHomeReposPath());
-    
-        this.put(BuildContextField.HOME_BIR_CACHE_REPO, RepoUtils.createAndGetHomeReposPath()
-                .resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME));
-    
-        this.put(BuildContextField.HOME_JAR_CACHE_REPO, RepoUtils.createAndGetHomeReposPath()
-                .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME));
-    
-        this.put(BuildContextField.SYSTEM_BIR_CACHE, Paths.get(System.getProperty(BALLERINA_INSTALL_DIR_PROP))
-                .resolve("bir-cache"));
-    }
     
     /**
      * Create a build context with context fields.
@@ -66,13 +54,15 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
      * @param source         The name of the source file or the name of the module. Pass null to build all modules.
      */
     public BuildContext(Path sourceRootPath, Path targetPath, Path source) {
-        this();
         if (Files.exists(sourceRootPath)) {
-            
             // set source root
             this.put(BuildContextField.SOURCE_ROOT, sourceRootPath);
             
+            // set target dir
             this.put(BuildContextField.TARGET_DIR, targetPath);
+            
+            // set build artifacts location
+            this.put(BuildContextField.ARTIFACTS_CACHE, new ArtifactsCache(this));
             
             // set source context
             this.setSource(source);

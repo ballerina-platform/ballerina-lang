@@ -16,38 +16,29 @@
  * under the License.
  */
 
-package org.ballerinalang.packerina.buildcontext;
+package org.ballerinalang.packerina.model;
+
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+
+import java.nio.file.Path;
 
 /**
- * Key names for build context.
+ * Pair model between a module and an artifact of it.
  */
-public enum BuildContextField {
-    SOURCE_CONTEXT("sourceContext"),
+public class ModuleArtifactPair {
+    private BLangPackage module;
+    private Path artifactPath;
     
-    ARTIFACTS_CACHE("artifactsCache"),
-    
-    SOURCE_ROOT("sourceRoot"),
-    
-    TARGET_DIR("targetDir"),
-    
-    COMPILER_CONTEXT("compilerContext"),
-    
-    BALO_CACHE_DIR("baloCacheDir"),
-    
-    BIR_CACHE_DIR("birCacheDir"),
-    
-    JAR_CACHE_DIR("jarCacheDir"),
-    
-    EXECUTABLE_DIR("executableDir");
-    
-    public final String name;
-    
-    BuildContextField(String name) {
-        this.name = name;
+    public ModuleArtifactPair(BLangPackage module, Path artifactPath) {
+        this.module = module;
+        this.artifactPath = artifactPath;
     }
     
-    @Override
-    public String toString() {
-        return name;
+    public BLangPackage getModule() {
+        return module;
+    }
+    
+    public Path getArtifactPath() {
+        return artifactPath;
     }
 }
