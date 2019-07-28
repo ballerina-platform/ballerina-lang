@@ -1,6 +1,6 @@
 import {
     Assignment, ASTKindChecker, ASTNode, ASTUtil, Block, ExpressionStatement,
-    Function as BalFunction, If, Invocation, VariableDef, VisibleEndpoint, Visitor
+    Function as BalFunction, Invocation, VariableDef, VisibleEndpoint, Visitor
 } from "@ballerina/ast-model";
 import { ProjectAST } from "@ballerina/lang-service";
 import _ from "lodash";
@@ -18,27 +18,31 @@ let maxInvocationDepth = 0;
 function handleEndpointParams(expandContext: ExpandContext) {
     const invocation = expandContext.expandableNode;
     const expandedFunction = expandContext.expandedSubTree;
-    if (!expandedFunction || !expandedFunction.VisibleEndpoints || !expandedFunction.parameters) {
+    if (!expandedFunction
+            || (expandedFunction.body && !expandedFunction.body.VisibleEndpoints)
+            || !expandedFunction.parameters) {
         return;
     }
 
     const params = expandedFunction.parameters;
 
-    expandedFunction.VisibleEndpoints.forEach((ep) => {
-        // Find of one of the visible endpoints is actually a parameter to the function
-        params.forEach((p, i) => {
-            if (ASTKindChecker.isVariable(p)) {
-                if (p.name.value === ep.name) {
-                    // visible endpoint is a parameter
-                    const arg = invocation.argumentExpressions[i];
-                    if (ASTKindChecker.isSimpleVariableRef(arg)) {
-                        // This parameter actually refers to an endpoint with name in arg.variableName
-                        (ep.viewState as EndpointViewState).actualEpName = arg.variableName.value;
+    if (expandedFunction.body && expandedFunction.body.VisibleEndpoints) {
+        expandedFunction.body.VisibleEndpoints.forEach((ep) => {
+            // Find of one of the visible endpoints is actually a parameter to the function
+            params.forEach((p, i) => {
+                if (ASTKindChecker.isVariable(p)) {
+                    if (p.name.value === ep.name) {
+                        // visible endpoint is a parameter
+                        const arg = invocation.argumentExpressions[i];
+                        if (ASTKindChecker.isSimpleVariableRef(arg)) {
+                            // This parameter actually refers to an endpoint with name in arg.variableName
+                            (ep.viewState as EndpointViewState).actualEpName = arg.variableName.value;
+                        }
                     }
                 }
-            }
+            });
         });
-    });
+    }
 }
 
 function handleExpanding(expression: ASTNode, viewState: StmntViewState) {
@@ -163,9 +167,8 @@ export const visitor: Visitor = {
         if (!node.parent) {
             return;
         }
-        const parentNode = (node.parent as (If | BalFunction));
-        if (parentNode.VisibleEndpoints) {
-            envEndpoints = [...envEndpoints, ...parentNode.VisibleEndpoints];
+        if (node.VisibleEndpoints) {
+            envEndpoints = [...envEndpoints, ...node.VisibleEndpoints];
         }
     },
 
@@ -173,9 +176,8 @@ export const visitor: Visitor = {
         if (!node.parent) {
             return;
         }
-        const parentNode = (parent as (If | BalFunction));
-        if (parentNode.VisibleEndpoints) {
-            const visibleEndpoints = parentNode.VisibleEndpoints;
+        if (node.VisibleEndpoints) {
+            const visibleEndpoints = node.VisibleEndpoints;
             envEndpoints = envEndpoints.filter((ep) => (!visibleEndpoints.includes(ep)));
         }
     },

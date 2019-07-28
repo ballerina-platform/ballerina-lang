@@ -456,7 +456,8 @@ public class BallerinaDocGenerator {
 
         // find the Module.md file
         Path packageMd;
-        Path absolutePkgPath = Paths.get(sourceRoot).resolve(packagePath);
+        Path absolutePkgPath = Paths.get(sourceRoot).resolve(ProjectDirConstants.SOURCE_DIR_NAME)
+                               .resolve(packagePath);
         Optional<Path> o = Files.find(absolutePkgPath, 1, (path, attr) -> {
             Path fileName = path.getFileName();
             if (fileName != null) {

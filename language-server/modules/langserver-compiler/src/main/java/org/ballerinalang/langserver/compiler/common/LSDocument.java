@@ -27,10 +27,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Document class to hold the file path used in the LS.
@@ -190,20 +190,14 @@ public class LSDocument {
      * @return {@link List} List of module names
      */
     private List<String> getCurrentProjectModules(Path projectRoot) {
-        try {
-            Stream<Path> pathStream = Files.walk(projectRoot.resolve("src"));
-            return pathStream
-                    .filter(path -> {
-                        try {
-                            return Files.isDirectory(path) && !Files.isHidden(path);
-                        } catch (IOException e) {
-                            return false;
-                        }
-                    })
-                    .map(path -> path.getFileName().toString())
-                    .collect(Collectors.toList());
-        } catch (IOException e) {
+        File[] files = projectRoot.resolve("src").toFile().listFiles();
+        if (files == null) {
             return new ArrayList<>();
         }
+        List<File> fileList = Arrays.asList(files);
+        return fileList.stream()
+                .filter(file -> !file.isDirectory())
+                .map(File::getName)
+                .collect(Collectors.toList());
     }
 }

@@ -19,8 +19,6 @@
 package org.ballerinalang.stdlib.ldap.nativeimpl;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
@@ -54,12 +52,7 @@ import javax.net.ssl.SSLContext;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "ldap",
         functionName = "initLdapConnectionContext", isPublic = true)
-public class InitLdapConnectionContext extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-
-    }
+public class InitLdapConnectionContext {
 
     public static MapValue<String, Object> initLdapConnectionContext(Strand strand, MapValue<?, ?> authProviderConfig,
                                                                      String instanceId) {

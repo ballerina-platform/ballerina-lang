@@ -34,7 +34,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "120",
-      "insertText": "ballerina/\u0027lang\\.object as ${1}",
+      "insertText": "ballerina/lang.\u0027object;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -66,7 +66,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "120",
-      "insertText": "ballerina/\u0027lang\\.xml as ${1}",
+      "insertText": "ballerina/lang.\u0027xml;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -82,7 +82,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "120",
-      "insertText": "ballerina/\u0027lang\\.array as ${1}",
+      "insertText": "ballerina/lang.\u0027array;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -178,7 +178,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "120",
-      "insertText": "ballerina/\u0027lang\\.string as ${1}",
+      "insertText": "ballerina/lang.\u0027string;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -250,7 +250,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "120",
-      "insertText": "ballerina/\u0027lang\\.future as ${1}",
+      "insertText": "ballerina/lang.\u0027future;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -258,7 +258,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "120",
-      "insertText": "ballerina/\u0027lang\\.value as ${1}",
+      "insertText": "ballerina/lang.\u0027value;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -306,7 +306,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "120",
-      "insertText": "ballerina/\u0027lang\\.float as ${1}",
+      "insertText": "ballerina/lang.\u0027float;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -338,7 +338,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "120",
-      "insertText": "ballerina/\u0027lang\\.decimal as ${1}",
+      "insertText": "ballerina/lang.\u0027decimal;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -370,7 +370,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "120",
-      "insertText": "ballerina/\u0027lang\\.table as ${1}",
+      "insertText": "ballerina/lang.\u0027table;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -378,7 +378,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "120",
-      "insertText": "ballerina/\u0027lang\\.annotations as ${1}",
+      "insertText": "ballerina/lang.\u0027annotations;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -402,7 +402,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "120",
-      "insertText": "ballerina/\u0027lang\\.stream as ${1}",
+      "insertText": "ballerina/lang.\u0027stream;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -410,7 +410,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "120",
-      "insertText": "ballerina/\u0027lang\\.error as ${1}",
+      "insertText": "ballerina/lang.\u0027error;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -418,7 +418,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "120",
-      "insertText": "ballerina/\u0027lang\\.typedesc as ${1}",
+      "insertText": "ballerina/lang.\u0027typedesc;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -426,7 +426,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "120",
-      "insertText": "ballerina/\u0027lang\\.map as ${1}",
+      "insertText": "ballerina/lang.\u0027map;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -434,7 +434,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "120",
-      "insertText": "ballerina/\u0027lang\\.int as ${1}",
+      "insertText": "ballerina/lang.\u0027int;",
       "insertTextFormat": "Snippet"
     },
     {

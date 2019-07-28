@@ -22,11 +22,6 @@ under the License.
 <suite name="ballerina-task-test-suite" parallel="false">
     <!-- Ballerina task Test Cases. -->
     <test name="ballerina-task-tests">
-        <groups>
-            <run>
-                <exclude name="brokenOnLangLibChange"/>
-            </run>
-        </groups>
         <classes>
             <class name="org.ballerinalang.stdlib.task.service.AppointmentServiceTest"/>
             <class name="org.ballerinalang.stdlib.task.service.TimerServiceTest"/>
