@@ -28,15 +28,12 @@ class SizingVisitor implements Visitor {
         if (!node.lambda) {
             this.endpointHolder = [];
             this.soroundingEndpoints = viewState.soroundingVisibleEndpoints;
-            if (node.VisibleEndpoints) {
-                this.endpointHolder = [...node.VisibleEndpoints];
-            }
             // clear return statements.
             this.returnStatements = [];
         }
         // If resource set the caller as first param.
-        if (node.resource && node.VisibleEndpoints !== undefined) {
-            const caller = node.VisibleEndpoints.find((element: VisibleEndpoint) => {
+        if (node.resource &&  node.body && node.body.VisibleEndpoints !== undefined) {
+            const caller = node.body.VisibleEndpoints.find((element: VisibleEndpoint) => {
                 return element.caller;
             });
             if (caller) {
@@ -49,39 +46,18 @@ class SizingVisitor implements Visitor {
         }
     }
 
-    public beginVisitVariableDef(node: VariableDef) {
-        if (ASTUtil.isWorker(node)) {
-            const variable = node.variable;
-            const lambda: Lambda = variable.initialExpression as Lambda;
-            const functionNode = lambda.functionNode;
-            if (functionNode.VisibleEndpoints) {
-                this.endpointHolder = [...functionNode.VisibleEndpoints, ...this.endpointHolder];
-            }
-        }
-    }
-
     public beginVisitIf(node: If) {
         if (!node.viewState.hidden) {
             node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
-        }
-
-        if (node.VisibleEndpoints) {
-            this.endpointHolder = [...node.VisibleEndpoints, ...this.endpointHolder];
         }
     }
 
     public beginVisitWhile(node: While) {
         node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
-        if (node.VisibleEndpoints) {
-            this.endpointHolder = [...node.VisibleEndpoints, ...this.endpointHolder];
-        }
     }
 
     public beginVisitForeach(node: Foreach) {
         node.viewState.bBox.paddingTop = config.flowCtrl.paddingTop;
-        if (node.VisibleEndpoints) {
-            this.endpointHolder = [...node.VisibleEndpoints, ...this.endpointHolder];
-        }
     }
 
     public endVisitFunction(node: BalFunction) {
@@ -141,29 +117,6 @@ class SizingVisitor implements Visitor {
         // Size endpoints
         let endpointWidth = 0;
         if (this.endpointHolder) {
-            const endpoints = this.endpointHolder.filter((ep) => (!ep.caller));
-
-            if (!node.resource && node.VisibleEndpoints) {
-                node.VisibleEndpoints.forEach((ep) => {
-                    // Find of one of the visible endpoints is actually a parameter to the function
-                    if (node.parameters) {
-                        node.parameters.forEach((p, i) => {
-                            let variableName = "";
-                            if (ASTKindChecker.isVariable(p)) {
-                                variableName = p.name.value;
-                            } else if (ASTKindChecker.isVariable(p.variable)) {
-                                variableName = p.variable.name.value;
-                            }
-
-                            if (variableName === ep.name) {
-                                // ep is a parameter to the function which is an endpoint
-                                endpoints.push(ep);
-                            }
-                        });
-                    }
-                });
-            }
-
             this.endpointHolder.forEach((endpoint: VisibleEndpoint) => {
                 if (endpoint.viewState.visible) {
                     endpoint.viewState.bBox.w = config.lifeLine.width;
@@ -217,9 +170,9 @@ class SizingVisitor implements Visitor {
         if (!node.parent) {
             return;
         }
-        const parentNode = (parent as (If | BalFunction));
-        if (parentNode.VisibleEndpoints) {
-            this.envEndpoints = [...this.envEndpoints, ...parentNode.VisibleEndpoints];
+        if (node.VisibleEndpoints) {
+            this.envEndpoints = [...this.envEndpoints, ...node.VisibleEndpoints];
+            this.endpointHolder = [...node.VisibleEndpoints, ...this.endpointHolder];
         }
     }
 
@@ -246,12 +199,8 @@ class SizingVisitor implements Visitor {
         viewState.hoverRect.w = viewState.bBox.w + hoverRectLeftMargin;
         viewState.hoverRect.leftMargin = hoverRectLeftMargin;
 
-        if (!node.parent) {
-            return;
-        }
-        const parentNode = (parent as (If | BalFunction));
-        if (parentNode.VisibleEndpoints) {
-            const visibleEndpoints = parentNode.VisibleEndpoints;
+        if (node.VisibleEndpoints) {
+            const visibleEndpoints = node.VisibleEndpoints;
             this.envEndpoints = this.envEndpoints.filter((ep) => (!visibleEndpoints.includes(ep)));
         }
     }

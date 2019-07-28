@@ -41,9 +41,9 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.PathUtil;
 import com.intellij.util.containers.ContainerUtil;
 import io.ballerina.plugins.idea.BallerinaConstants;
-import io.ballerina.plugins.idea.codeinsight.autodetect.BallerinaAutoDetectionSettings;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
+import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -117,16 +117,17 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
         BallerinaModuleBasedConfiguration configurationModule = getConfigurationModule();
         Module module = configurationModule.getModule();
         if (module != null) {
-            if (BallerinaSdkService.getInstance(module.getProject()).getSdkHomePath(module) == null
-                    && BallerinaAutoDetectionSettings.getInstance().autoDetectBalHome()) {
-                String autoDetectedPath = BallerinaSdkUtils.autoDetectSdk();
-                if (autoDetectedPath.isEmpty()) {
-                    throw new RuntimeConfigurationError(String.format("Ballerina SDK is not specified and auto " +
-                            "detection is failed for module '%s'", module.getName()));
+            if (BallerinaSdkService.getInstance(module.getProject()).getSdkHomePath(module) == null) {
+                if (BallerinaAutoDetectionSettings.getInstance().autoDetectBalHome()) {
+                    String autoDetectedPath = BallerinaSdkUtils.autoDetectSdk();
+                    if (autoDetectedPath.isEmpty()) {
+                        throw new RuntimeConfigurationError(String.format("Ballerina SDK is not specified and auto " +
+                                "detection is failed for module '%s'", module.getName()));
+                    }
+                } else {
+                    throw new RuntimeConfigurationError(String.format("Ballerina SDK is not specified for module '%s'",
+                            module.getName()));
                 }
-            } else {
-                throw new RuntimeConfigurationError(String.format("Ballerina SDK is not specified for module '%s'",
-                        module.getName()));
             }
         } else {
             String moduleName = configurationModule.getModuleName();

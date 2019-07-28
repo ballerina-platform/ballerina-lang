@@ -384,3 +384,47 @@ function testFuncPtrAsRecordField() returns string {
 
     return p.fullName();
 }
+
+type Address record {
+    string city;
+    string country;
+};
+
+type PersonRec record {
+    string name = "John Doe";
+    int age = 25;
+    Address adr = {city: "Colombo", country: "Sri Lanka"};
+};
+
+type EmployeeRec record {
+    *PersonRec;
+    string company = "WSO2";
+};
+
+type ManagerRec record {
+    string dept = "";
+    *EmployeeRec;
+};
+
+function testDefaultValueInit() returns ManagerRec {
+    ManagerRec mgr = {};
+    return mgr;
+}
+
+public type Foo record {
+    int a = getAsInt("777");
+};
+
+function getAsInt(string s) returns int {
+    return 777;
+}
+
+public type Bar record {
+    *Foo;
+    int b = 56;
+};
+
+public function testRecordInitWithFuncCalls() returns Bar {
+    Bar b = {};
+    return b;
+}

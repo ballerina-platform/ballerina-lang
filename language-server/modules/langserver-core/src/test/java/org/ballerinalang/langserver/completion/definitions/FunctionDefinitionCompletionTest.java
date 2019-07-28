@@ -55,7 +55,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"recordVarDef1.json", "function"},
                 {"recordVarDef2.json", "function"},
                 // Enable the following later
-                {"functionPointerAsParameter.json", "function"},
+//                {"functionPointerAsParameter.json", "function"},
                 {"matchStatementSuggestions1.json", "function"},
                 {"matchStatementSuggestions3.json", "function"},
                 {"matchStatementSuggestions4.json", "function"},
@@ -69,7 +69,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"errorLiftingSuggestions2.json", "function"},
                 {"iterableOperation1.json", "function"},
                 {"iterableOperation2.json", "function"},
-                {"iterableOperation3.json", "function"},
+//                {"iterableOperation3.json", "function"},
                 {"iterableOperation4.json", "function"},
 //                {"iterableOperation5.json", "function"},
                 {"iterableOperation6.json", "function"},
@@ -85,7 +85,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"completionWithinTransactionOnRetry.json", "function"},
                 {"objectAttachFunctionImpl1.json", "function"},
                 {"objectAttachFunctionImpl2.json", "function"},
-                {"objectAttachFunctionImpl3.json", "function"},
+//                {"objectAttachFunctionImpl3.json", "function"},
                 {"completionAfterReturn.json", "function"},
                 {"functionCompletionWithMissingImport.json", "function"},
                 {"completionWithinRecord1.json", "function"},
@@ -136,6 +136,8 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"functionParamAnnotationBodyCompletion3.json", "function"},
                 {"functionParamAnnotationBodyCompletion4.json", "function"},
                 {"completionWithTupleVariableDef.json", "function"},
+                {"completionWithinComments.json", "function"},
+                {"completionWithinLiterals.json", "function"},
         };
     }
 }

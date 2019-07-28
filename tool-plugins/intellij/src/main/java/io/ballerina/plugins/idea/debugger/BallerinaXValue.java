@@ -39,7 +39,7 @@ import com.intellij.xdebugger.frame.presentation.XNumericValuePresentation;
 import com.intellij.xdebugger.frame.presentation.XRegularValuePresentation;
 import com.intellij.xdebugger.frame.presentation.XStringValuePresentation;
 import com.intellij.xdebugger.frame.presentation.XValuePresentation;
-import io.ballerina.plugins.idea.highlighting.BallerinaSyntaxHighlightingColors;
+import io.ballerina.plugins.idea.highlighting.syntax.BallerinaSyntaxHighlightingColors;
 import org.eclipse.lsp4j.debug.Variable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

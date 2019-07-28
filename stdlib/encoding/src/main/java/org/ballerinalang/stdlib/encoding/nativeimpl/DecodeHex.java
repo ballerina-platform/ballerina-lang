@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.encoding.nativeimpl;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.encoding.EncodingUtil;
@@ -39,7 +39,7 @@ public class DecodeHex {
             byte[] output = EncodingUtil.decodeHex(input);
             return new ArrayValue(output);
         } catch (IllegalArgumentException e) {
-            return EncodingUtil.createEncodingError("Input is not a valid Hex value");
+            return EncodingUtil.createError("Input is not a valid Hex value");
         }
     }
 }

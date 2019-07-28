@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langlib.stream;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -32,13 +32,13 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 @BallerinaFunction(orgName = "ballerina", packageName = "lang.stream",
         functionName = "subscribe",
         args = {
-                @Argument(name = "s", type = TypeKind.STREAM),
+                @Argument(name = "strm", type = TypeKind.STREAM),
                 @Argument(name = "func", type = TypeKind.ANY)
         },
         isPublic = true)
 public class Subscribe {
 
-    public static void subscribe(Strand strand, StreamValue streamValue, FPValue<Object[], Object> fpValue) {
-        streamValue.subscribe(fpValue);
+    public static void subscribe(Strand strand, StreamValue strm, FPValue<Object[], Object> fpValue) {
+        strm.subscribe(fpValue);
     }
 }

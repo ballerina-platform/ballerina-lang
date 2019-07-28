@@ -167,7 +167,7 @@ public class ErrorTest {
     public void testGetCallStack() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "getCallStackTest");
         Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStackTest\", moduleName:\"error_test\","
-                + " fileName:\"error_test.bal\", lineNumber:80}");
+                + " fileName:\"error_test.bal\", lineNumber:93}");
     }
 
     @Test
@@ -195,6 +195,13 @@ public class ErrorTest {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "testGenericErrorWithDetailRecord");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testTrapSuccessScenario() {
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testTrapWithSuccessScenario");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
     @Test(dataProvider = "userDefTypeAsReasonTests")

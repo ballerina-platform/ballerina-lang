@@ -16,7 +16,7 @@
 package org.ballerinalang.net.grpc.nativeimpl.headers;
 
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
