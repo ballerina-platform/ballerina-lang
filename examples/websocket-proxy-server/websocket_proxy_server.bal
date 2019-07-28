@@ -23,8 +23,8 @@ service SimpleProxyService on new http:WebSocketListener(9090) {
             readyOnConnect: false
         });
         //Associate connections before starting to read messages.
-        wsClientEp.attributes[ASSOCIATED_CONNECTION] = caller;
-        caller.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
+        wsClientEp.setAttribute(ASSOCIATED_CONNECTION, caller);
+        caller.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
 
         // Once the client is ready to receive frames the remote function `ready`
         // of the client need to be called separately.
@@ -71,8 +71,8 @@ service SimpleProxyService on new http:WebSocketListener(9090) {
             log:printError("Error occurred when closing the connection",
                             <error> e);
         }
-        _ = caller.attributes.remove(ASSOCIATED_CONNECTION);
-        log:printError("Unexpected error hense closing the connection",
+        _ = caller.removeAttribute(ASSOCIATED_CONNECTION);
+        log:printError("Unexpected error hence closing the connection",
                         <error> err);
     }
 
@@ -87,7 +87,7 @@ service SimpleProxyService on new http:WebSocketListener(9090) {
             log:printError("Error occurred when closing the connection",
                             <error> err);
         }
-        _ = caller.attributes.remove(ASSOCIATED_CONNECTION);
+        _ = caller.removeAttribute(ASSOCIATED_CONNECTION);
     }
 }
 
@@ -131,7 +131,7 @@ service ClientService = @http:WebSocketServiceConfig {} service {
             log:printError("Error occurred when closing the connection",
                             err = e);
         }
-        _ = caller.attributes.remove(ASSOCIATED_CONNECTION);
+        _ = caller.removeAttribute(ASSOCIATED_CONNECTION);
         log:printError("Unexpected error hense closing the connection",
                         <error> err);
     }
@@ -146,7 +146,7 @@ service ClientService = @http:WebSocketServiceConfig {} service {
             if (err is http:WebSocketError) {
                 log:printError("Error occurred when closing the connection", <error> err);
             }
-        _ = caller.attributes.remove(ASSOCIATED_CONNECTION);
+        _ = caller.removeAttribute(ASSOCIATED_CONNECTION);
     }
 };
 
@@ -154,7 +154,7 @@ service ClientService = @http:WebSocketServiceConfig {} service {
 function getAssociatedClientEndpoint(http:WebSocketCaller ep)
                                         returns (http:WebSocketClient) {
     http:WebSocketClient wsClient =
-            <http:WebSocketClient>ep.attributes[ASSOCIATED_CONNECTION];
+            <http:WebSocketClient>ep.getAttribute(ASSOCIATED_CONNECTION);
     return wsClient;
 }
 
@@ -162,6 +162,6 @@ function getAssociatedClientEndpoint(http:WebSocketCaller ep)
 function getAssociatedServerEndpoint(http:WebSocketClient ep)
                                         returns (http:WebSocketCaller) {
     http:WebSocketCaller wsEndpoint =
-            <http:WebSocketCaller>ep.attributes[ASSOCIATED_CONNECTION];
+            <http:WebSocketCaller>ep.getAttribute(ASSOCIATED_CONNECTION);
     return wsEndpoint;
 }
