@@ -18,26 +18,20 @@
 
 package org.ballerinalang.packerina.task;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.BuilderUtils;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
-import org.ballerinalang.packerina.buildcontext.sourcecontext.MultiModuleContext;
-import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
-import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
-import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
+import org.ballerinalang.packerina.buildcontext.cachecontext.ArtifactsCache;
+import org.ballerinalang.packerina.model.ModuleArtifactPair;
 import org.ballerinalang.util.BootstrapRunner;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Task for creating jar file.
@@ -45,62 +39,28 @@ import java.util.List;
 public class CreateJarTask implements Task {
     @Override
     public void execute(BuildContext buildContext) {
-        try {
-            Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
-            // create '<target>/cache/jar_cache' dir
-            Path jarCache = targetDir
-                    .resolve(ProjectDirConstants.CACHES_DIR_NAME)
-                    .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
+        Path sourceRoot = buildContext.get(BuildContextField.SOURCE_ROOT);
+        Path projectBIRCache = buildContext.get(BuildContextField.BIR_CACHE_DIR);
+        ArtifactsCache artifactsCache = buildContext.get(BuildContextField.ARTIFACTS_CACHE);
+        Path homeBIRCache = artifactsCache.getBirFromHomeCache();
+        Path systemBIRCache = artifactsCache.getSystemRepoBirCache();
+
+        Map<PackageID, ModuleArtifactPair> moduleBirMap = artifactsCache.getBirPathsFromTargetCache();
+        Map<PackageID, ModuleArtifactPair> moduleJarMap = artifactsCache.getJarPathsFromTargetCache();
         
-            if (!Files.exists(jarCache)) {
-                Files.createDirectories(jarCache);
-            }
-        
-            // add jar_cache to build context
-            buildContext.put(BuildContextField.JAR_CACHE_DIR, jarCache);
+        for (Map.Entry<PackageID, ModuleArtifactPair> moduleArtifactEntry : moduleJarMap.entrySet()) {
             
-            Path sourceRoot = buildContext.get(BuildContextField.SOURCE_ROOT);
-            Path projectBIRCache = buildContext.get(BuildContextField.BIR_CACHE_DIR);
-            Path homeBIRCache = buildContext.get(BuildContextField.HOME_BIR_CACHE_REPO);
-            Path systemBIRCache = buildContext.get(BuildContextField.SYSTEM_BIR_CACHE);
-        
-            if (buildContext.getSourceType() == SourceType.BAL_FILE) {
-                SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                BLangPackage module = singleFileContext.getModule();
-                // Iterate the imports and decide where to save.
-                // - If it is a current project we save to Project
-                // - If is is an import we save to Home
-                writeImportJar(module.symbol.imports, sourceRoot, buildContext,
-                        projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
-                // Generate the jar of the package.
-                Path entryBir = BuilderUtils.resolveBirPath(buildContext, module.packageID);
-                Path jarOutput = BuilderUtils.resolveJarPath(buildContext, module.packageID);
-                
-                BootstrapRunner.generateJarBinary(entryBir.toString(), jarOutput.toString(), false,
-                        projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
-            } else {
-                List<BLangPackage> modules = new LinkedList<>();
-                if (buildContext.getSourceType() == SourceType.SINGLE_MODULE) {
-                    SingleModuleContext moduleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                    modules.add(moduleContext.getModule());
-                } else {
-                    MultiModuleContext multiModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                    modules = multiModuleContext.getModules();
-                }
-        
-                for (BLangPackage module : modules) {
-                    writeImportJar(module.symbol.imports, sourceRoot, buildContext,
-                            projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
-                    // Generate the jar of the package.
-                    Path entryBir = BuilderUtils.resolveBirPath(buildContext, module.packageID);
-                    Path jarOutput = BuilderUtils.resolveJarPath(buildContext, module.packageID);
-        
-                    BootstrapRunner.generateJarBinary(entryBir.toString(), jarOutput.toString(), false,
-                            projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
-                }
-            }
-        } catch (IOException e) {
-            throw new BLangCompilerException("error occurred generating .jar file");
+            writeImportJar(moduleArtifactEntry.getValue().getModule().symbol.imports, sourceRoot, buildContext,
+                    projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
+
+            // get the bir path of the module
+            Path entryBir = moduleBirMap.get(moduleArtifactEntry.getKey()).getArtifactPath();
+            
+            // get the jar path of the module.
+            Path jarOutput = moduleArtifactEntry.getValue().getArtifactPath();
+
+            BootstrapRunner.generateJarBinary(entryBir.toString(), jarOutput.toString(), false,
+                    projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
         }
     }
     
