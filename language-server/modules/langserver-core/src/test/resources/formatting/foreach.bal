@@ -46,7 +46,7 @@ function testArrayWithTupleWithType() returns string {
 
     [int, string][] arr = [[1, "A"], [2, "B"], [3, "C"]];
 
-     foreach   int  i  in   0...arr.count() - 1 {
+     foreach   int   i  in   0...arr.count() - 1 {
           int a = i;
         }
     return output;
