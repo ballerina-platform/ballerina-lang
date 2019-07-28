@@ -18,15 +18,13 @@
 
 package org.ballerinalang.packerina.task;
 
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
-import org.ballerinalang.packerina.buildcontext.cachecontext.ArtifactsCache;
-import org.ballerinalang.packerina.model.ModuleArtifactPair;
 import org.ballerinalang.packerina.writer.BirFileWriter;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * Task for creating bir.
@@ -38,9 +36,9 @@ public class CreateBirTask implements Task {
         
         // generate bir for modules
         BirFileWriter birFileWriter = BirFileWriter.getInstance(context);
-        ArtifactsCache artifactsCache = buildContext.get(BuildContextField.ARTIFACTS_CACHE);
-        Map<PackageID, ModuleArtifactPair> moduleBirPathMap = artifactsCache.getBirPathsFromTargetCache();
-        moduleBirPathMap.values().forEach(moduleAndBir ->
-                birFileWriter.write(moduleAndBir.getModule(), moduleAndBir.getArtifactPath()));
+        List<BLangPackage> modules = buildContext.getModules();
+        for (BLangPackage module : modules) {
+            birFileWriter.write(module, buildContext.getBirPathFromTargetCache(module.packageID));
+        }
     }
 }
