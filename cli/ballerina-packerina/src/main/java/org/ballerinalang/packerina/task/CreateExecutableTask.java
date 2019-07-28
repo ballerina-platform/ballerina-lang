@@ -31,17 +31,26 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
+import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Task for creating the executable jar file.
@@ -111,6 +120,32 @@ public class CreateExecutableTask implements Task {
                         copyFromJarToJar(importJar, uberJar);
                     }
                 }
+    
+                // Iterate through .balo and copy the platform libs
+                Path baloAbsolutePath = BuilderUtils.resolveBaloPath(buildContext, bLangPackage.packageID);
+                String destination = extractJar(baloAbsolutePath.toString());
+    
+                if (Files.exists(Paths.get(destination).resolve(ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME))) {
+                    try (Stream<Path> walk = Files.walk(Paths.get(destination)
+                            .resolve(ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME))) {
+            
+                        List<String> result = walk.filter(Files::isRegularFile)
+                                .map(Path::toString)
+                                .collect(Collectors.toList());
+            
+                        result.forEach(lib -> {
+                            try {
+                                copyFromJarToJar(Paths.get(lib), uberJar);
+                            } catch (Exception e) {
+                                throw new BLangCompilerException("unable to create the executable :" +
+                                                                 e.getMessage());
+                            }
+                        });
+                    } catch (IOException e) {
+                        throw new BLangCompilerException("unable to create the executable :" + e.getMessage());
+                    }
+                }
+    
             }
             // Copy dependency jar
             // Copy dependency libraries
@@ -142,6 +177,39 @@ public class CreateExecutableTask implements Task {
         // return the path
     }
     
+    private static String extractJar(String jarFileName) throws NullPointerException {
+        try (JarFile jar = new JarFile(jarFileName)) {
+        
+            java.util.Enumeration enumEntries = jar.entries();
+            File destFile = File.createTempFile("temp-" + jarFileName, Long.toString(System.nanoTime()));
+            if (!(destFile.delete())) {
+                throw new BLangCompilerException("Could not delete temp file: " + destFile.getAbsolutePath());
+            }
+            if (!(destFile.mkdir())) {
+                throw new BLangCompilerException("Could not create temp directory: " + destFile.getAbsolutePath());
+            }
+            while (enumEntries.hasMoreElements()) {
+                JarEntry file = (JarEntry) enumEntries.nextElement();
+                if (file.getName().contains(ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME)) {
+                    File f = new File(destFile.getPath() + File.separator + file.getName());
+                    if (file.isDirectory()) { // if its a directory, create it
+                        if (f.mkdir()) {
+                            continue;
+                        }
+                    }
+                    // get the input stream
+                    try (InputStream is = jar.getInputStream(file); FileOutputStream fos = new FileOutputStream(f)) {
+                        while (is.available() > 0) {  // write contents of 'is' to 'fos'
+                            fos.write(is.read());
+                        }
+                    }
+                }
+            }
+            return destFile.getPath();
+        } catch (IOException e) {
+            throw new BLangCompilerException("Unable to create the executable :" + e.getMessage());
+        }
+    }
     
     private static void copyFromJarToJar(Path fromJar, Path toJar) throws IOException {
         URI uberJarUri = URI.create("jar:" + toJar.toUri().toString());

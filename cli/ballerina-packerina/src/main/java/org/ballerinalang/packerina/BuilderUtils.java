@@ -24,6 +24,9 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
+import org.ballerinalang.packerina.writer.BaloFileWriter;
+import org.ballerinalang.packerina.writer.BirFileWriter;
+import org.ballerinalang.packerina.writer.LockFileWriter;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
@@ -547,38 +550,35 @@ public class BuilderUtils {
                 + versionNo
                 + ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
     }
-
-    private static String extractJar(String jarFileName) {
-        JarFile jar = null;
-        try {
-            jar = new JarFile(jarFileName);
+    
+    private static String extractJar(String jarFileName) throws NullPointerException {
+        try (JarFile jar = new JarFile(jarFileName)) {
+            
             java.util.Enumeration enumEntries = jar.entries();
             File destFile = File.createTempFile("temp-" + jarFileName, Long.toString(System.nanoTime()));
             if (!(destFile.delete())) {
                 throw new BLangCompilerException("Could not delete temp file: " + destFile.getAbsolutePath());
             }
             if (!(destFile.mkdir())) {
-                throw new BLangCompilerException("Could not create temp directory: "
-                    + destFile.getAbsolutePath());
+                throw new BLangCompilerException("Could not create temp directory: " + destFile.getAbsolutePath());
             }
             while (enumEntries.hasMoreElements()) {
                 JarEntry file = (JarEntry) enumEntries.nextElement();
                 if (file.getName().contains(ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME)) {
                     File f = new File(destFile.getPath() + File.separator + file.getName());
                     if (file.isDirectory()) { // if its a directory, create it
-                        f.mkdir();
-                        continue;
+                        if (f.mkdir()) {
+                            continue;
+                        }
                     }
-                    InputStream is = jar.getInputStream(file); // get the input stream
-                    FileOutputStream fos = new java.io.FileOutputStream(f);
-                    while (is.available() > 0) {  // write contents of 'is' to 'fos'
-                        fos.write(is.read());
+                    // get the input stream
+                    try (InputStream is = jar.getInputStream(file); FileOutputStream fos = new FileOutputStream(f)) {
+                        while (is.available() > 0) {  // write contents of 'is' to 'fos'
+                            fos.write(is.read());
+                        }
                     }
-                    fos.close();
-                    is.close();
                 }
             }
-            jar.close();
             return destFile.getPath();
         } catch (IOException e) {
             throw new BLangCompilerException("Unable to create the executable :" + e.getMessage());
