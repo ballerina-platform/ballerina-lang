@@ -19,52 +19,46 @@
 package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.packerina.BuilderUtils;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
-import org.ballerinalang.packerina.buildcontext.cachecontext.ArtifactsCache;
-import org.ballerinalang.packerina.model.ModuleArtifactPair;
 import org.ballerinalang.util.BootstrapRunner;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Task for creating jar file.
  */
 public class CreateJarTask implements Task {
+    
     @Override
     public void execute(BuildContext buildContext) {
         Path sourceRoot = buildContext.get(BuildContextField.SOURCE_ROOT);
         Path projectBIRCache = buildContext.get(BuildContextField.BIR_CACHE_DIR);
-        ArtifactsCache artifactsCache = buildContext.get(BuildContextField.ARTIFACTS_CACHE);
-        Path homeBIRCache = artifactsCache.getBirFromHomeCache();
-        Path systemBIRCache = artifactsCache.getSystemRepoBirCache();
+        Path homeBIRCache = buildContext.getBirCacheFromHome();
+        Path systemBIRCache = buildContext.getSystemRepoBirCache();
 
-        Map<PackageID, ModuleArtifactPair> moduleBirMap = artifactsCache.getBirPathsFromTargetCache();
-        Map<PackageID, ModuleArtifactPair> moduleJarMap = artifactsCache.getJarPathsFromTargetCache();
-        
-        for (Map.Entry<PackageID, ModuleArtifactPair> moduleArtifactEntry : moduleJarMap.entrySet()) {
-            
-            writeImportJar(moduleArtifactEntry.getValue().getModule().symbol.imports, sourceRoot, buildContext,
+        List<BLangPackage> moduleBirMap = buildContext.getModules();
+        for (BLangPackage module : moduleBirMap) {
+            writeImportJar(module.symbol.imports, sourceRoot, buildContext,
                     projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
-
+    
             // get the bir path of the module
-            Path entryBir = moduleBirMap.get(moduleArtifactEntry.getKey()).getArtifactPath();
-            
+            Path entryBir = buildContext.getBirPathFromTargetCache(module.packageID);
+    
             // get the jar path of the module.
-            Path jarOutput = moduleArtifactEntry.getValue().getArtifactPath();
-
+            Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
+    
             BootstrapRunner.generateJarBinary(entryBir.toString(), jarOutput.toString(), false,
                     projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
         }
     }
     
-    private static void writeImportJar(List<BPackageSymbol> imports, Path sourceRoot, BuildContext buildContext,
+    private void writeImportJar(List<BPackageSymbol> imports, Path sourceRoot, BuildContext buildContext,
                                        String... reps) {
         for (BPackageSymbol bimport : imports) {
             PackageID id = bimport.pkgID;
@@ -77,13 +71,11 @@ public class CreateJarTask implements Task {
             // If not write it to home jar cache
             // skip ballerina and ballerinax
             if (ProjectDirs.isModuleExist(sourceRoot, id.name.value)) {
-                jarFilePath = BuilderUtils.resolveJarPath(buildContext, id);
-                birFilePath = BuilderUtils.resolveBirPath(buildContext, id);
+                jarFilePath = buildContext.getJarPathFromTargetCache(id);
+                birFilePath = buildContext.getBirPathFromTargetCache(id);
             } else {
-                jarFilePath = BuilderUtils.resolveJarPath(buildContext,
-                        buildContext.get(BuildContextField.HOME_JAR_CACHE_REPO), id);
-                birFilePath = BuilderUtils.resolveJarPath(buildContext,
-                        buildContext.get(BuildContextField.HOME_BIR_CACHE_REPO), id);
+                jarFilePath = buildContext.getBirPathFromHomeCache(id);
+                birFilePath = buildContext.getJarPathFromHomeCache(id);
             }
             if (!Files.exists(jarFilePath)) {
                 BootstrapRunner.generateJarBinary(birFilePath.toString(), jarFilePath.toString(), false, reps);

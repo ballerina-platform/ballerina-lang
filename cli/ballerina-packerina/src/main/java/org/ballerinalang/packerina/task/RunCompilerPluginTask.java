@@ -18,17 +18,10 @@
 
 package org.ballerinalang.packerina.task;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
-import org.ballerinalang.packerina.BuilderUtils;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
-import org.ballerinalang.packerina.buildcontext.BuildContextField;
-import org.ballerinalang.packerina.buildcontext.sourcecontext.MultiModuleContext;
-import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
-import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
-import java.nio.file.Path;
 import java.util.ServiceLoader;
 
 /**
@@ -38,32 +31,9 @@ public class RunCompilerPluginTask implements Task {
     @Override
     public void execute(BuildContext buildContext) {
         ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
-        switch (buildContext.getSourceType()) {
-            case BAL_FILE:
-                SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                Path singleBalExecutableFile = BuilderUtils.resolveExecutablePath(buildContext,
-                        singleFileContext.getModule().packageID);
-                
-                processorServiceLoader.forEach(plugin ->
-                        plugin.codeGenerated(singleFileContext.getModule().packageID, singleBalExecutableFile));
-                break;
-            case SINGLE_MODULE:
-                SingleModuleContext moduleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                Path singleModuleExecutableFile = BuilderUtils.resolveExecutablePath(buildContext,
-                        moduleContext.getModule().packageID);
-                processorServiceLoader.forEach(plugin ->
-                        plugin.codeGenerated(moduleContext.getModule().packageID, singleModuleExecutableFile));
-                break;
-            case ALL_MODULES:
-                MultiModuleContext multiModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                for (BLangPackage module : multiModuleContext.getModules()) {
-                    Path moduleExecutableFile = BuilderUtils.resolveExecutablePath(buildContext, module.packageID);
-                    processorServiceLoader.forEach(plugin ->
-                            plugin.codeGenerated(module.packageID, moduleExecutableFile));
-                }
-                break;
-            default:
-                throw new BLangCompilerException("unable to run compiler plugins for build source");
+        for (BLangPackage module : buildContext.getModules()) {
+            processorServiceLoader.forEach(plugin ->
+                    plugin.codeGenerated(module.packageID, buildContext.getExecutablePathFromTarget(module.packageID)));
         }
     }
 }
