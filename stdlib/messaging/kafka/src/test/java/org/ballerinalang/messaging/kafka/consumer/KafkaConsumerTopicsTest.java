@@ -20,6 +20,7 @@ package org.ballerinalang.messaging.kafka.consumer;
 
 import io.debezium.kafka.KafkaCluster;
 import io.debezium.util.Testing;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -44,50 +45,68 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath
  * using getAvailableTopics() native function.
  */
 @Test(singleThreaded = true)
-public class KafkaConsumerGetAvailableTopicsTest {
+public class KafkaConsumerTopicsTest {
     private CompileResult result;
     private static File dataDir;
     private static KafkaCluster kafkaCluster;
 
+    private static final String TOPIC_TEST_1 = "test-1";
+    private static final String TOPIC_TEST_2 = "test-2";
+    private static final String TEST_MESSAGE = "test-message";
+
     @BeforeClass
     public void setup() throws IOException {
-        result = BCompileUtil.compile(getFilePath("consumer/kafka_consumer_get_available_topics.bal"));
+        result = BCompileUtil.compile(getFilePath("consumer/kafka_consumer_topics.bal"));
         Properties prop = new Properties();
         kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true)
                 .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(1).startup();
-        kafkaCluster.createTopic("test", 1, 1);
     }
 
     @Test(description = "Test Kafka getAvailableTopics function")
     public void testKafkaGetAvailableTopics() {
-        produceToKafkaCluster();
+        produceToKafkaCluster(TOPIC_TEST_1, TEST_MESSAGE);
+        produceToKafkaCluster(TOPIC_TEST_2, TEST_MESSAGE);
         BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaGetAvailableTopics");
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertTrue(returnBValues[0] instanceof BValueArray);
-        Assert.assertEquals((returnBValues[0]).size(), 1);
-        Assert.assertEquals(((BValueArray) returnBValues[0]).getString(0), "test");
+        Assert.assertEquals((returnBValues[0]).size(), 2);
+        Assert.assertEquals(((BValueArray) returnBValues[0]).getString(0), TOPIC_TEST_2);
+        Assert.assertEquals(((BValueArray) returnBValues[0]).getString(1), TOPIC_TEST_1);
     }
 
     @Test(description = "Test Kafka getAvailableTopics with duration parameter")
     public void testKafkaGetAvailableTopicsWithDuration() {
-        produceToKafkaCluster();
+        produceToKafkaCluster(TOPIC_TEST_1, TEST_MESSAGE);
+        produceToKafkaCluster(TOPIC_TEST_2, TEST_MESSAGE);
         BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaGetAvailableTopicsWithDuration");
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertTrue(returnBValues[0] instanceof BValueArray);
         Assert.assertEquals((returnBValues[0]).size(), 2);
-        Assert.assertEquals(((BValueArray) returnBValues[0]).getString(0), "test-2");
-        Assert.assertEquals(((BValueArray) returnBValues[0]).getString(1), "test");
+        Assert.assertEquals(((BValueArray) returnBValues[0]).getString(0), TOPIC_TEST_2);
+        Assert.assertEquals(((BValueArray) returnBValues[0]).getString(1), TOPIC_TEST_1);
     }
 
     @Test(description = "Test functionality of getAvailableTopics() function")
-    public void testKafkaConsumerGetAvailableTopics () {
+    public void testKafkaConsumerGetAvailableTopicsFromNoTimeoutConsumer () {
+        produceToKafkaCluster(TOPIC_TEST_1, TEST_MESSAGE);
+        produceToKafkaCluster(TOPIC_TEST_2, TEST_MESSAGE);
         BValue[] returnBValues = BRunUtil.invoke(result,
-                "funcKafkaGetAvailableTopicsFromNoTimeoutConsumerWithDuration");
+                "funcKafkaGetAvailableTopicsFromNoTimeoutConsumer");
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertTrue(returnBValues[0] instanceof BValueArray);
         Assert.assertEquals((returnBValues[0]).size(), 2);
-        Assert.assertEquals(((BValueArray) returnBValues[0]).getString(0), "test-2");
-        Assert.assertEquals(((BValueArray) returnBValues[0]).getString(1), "test");
+        Assert.assertEquals(((BValueArray) returnBValues[0]).getString(0), TOPIC_TEST_2);
+        Assert.assertEquals(((BValueArray) returnBValues[0]).getString(1), TOPIC_TEST_1);
+    }
+
+
+    @Test(description = "Test functionality of getTopicPartitions() function")
+    @SuppressWarnings("unchecked")
+    public void testKafkaConsumerGetTopicPartitions () {
+        BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaGetTopicPartitions");
+        Assert.assertEquals(returnBValues.length, 1);
+        BMap<String, BValue> tpReturned = (BMap<String, BValue>) returnBValues[0];
+        Assert.assertEquals(tpReturned.get("topic").stringValue(), TOPIC_TEST_1);
     }
 
     @AfterClass
@@ -103,9 +122,9 @@ public class KafkaConsumerGetAvailableTopicsTest {
         }
     }
 
-    private static void produceToKafkaCluster() {
+    private static void produceToKafkaCluster(String topic, String message) {
         CountDownLatch completion = new CountDownLatch(1);
-        kafkaCluster.useTo().produceStrings("test", 10, completion::countDown, () -> "test_string");
+        kafkaCluster.useTo().produceStrings(topic, 10, completion::countDown, () -> message);
         try {
             completion.await();
         } catch (Exception ex) {
