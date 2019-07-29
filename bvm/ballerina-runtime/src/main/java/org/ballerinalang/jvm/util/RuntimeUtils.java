@@ -17,7 +17,6 @@
   */
  package org.ballerinalang.jvm.util;
 
-
  import org.ballerinalang.jvm.TypeConverter;
  import org.ballerinalang.jvm.types.BArrayType;
  import org.ballerinalang.jvm.types.BType;

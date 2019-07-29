@@ -31,22 +31,19 @@ public function main() {
     Person jane = { name: "Jane Doe", age: 20, address: adr };
     io:println(jane);
 
-    (anydata|error)[] fields = toFieldsArray(john);
+    anydata[] fields = toFieldsArray(john);
     io:println(fields);
 }
 
-// This function accepts any record with pure typed fields
-// (i.e., `anydata` or `error` fields). Anonymous record types are implicitly public.
-// Hence, non-public normal records will never be structurally equivalent
-// to anonymous records even if they have the same fields.
-function toFieldsArray(record {} pureRecord) returns (anydata|error)[] {
-    (anydata|error)[] fields = [];
+// This function accepts any record with `anydata`-typed fields.
+// Anonymous record types are implicitly public.
+function toFieldsArray(record {} anydataRecord) returns anydata[] {
+    anydata[] fields = [];
     int i = 0;
 
-    foreach var (_, field) in pureRecord {
+    foreach var field in anydataRecord {
         fields[i] = field;
         i += 1;
     }
-
     return fields;
 }

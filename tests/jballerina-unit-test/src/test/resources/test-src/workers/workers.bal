@@ -52,9 +52,9 @@ public function workerSendToWorker() returns int {
     io:println(j);
       return j;
     }
+    int ret = wait w2;
 
-    int res = wait w2;
-    return res + 1;
+    return ret + 1;
 }
 
 function workerSendToDefault() returns int{
@@ -92,7 +92,9 @@ public function receiveWithTrap() returns error|int {
      return j;
    }
 
-   return wait w2;
+   error|int ret = wait w2;
+
+   return ret;
 }
 
 public function receiveWithCheck() returns error|int {

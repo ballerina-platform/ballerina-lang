@@ -1,4 +1,4 @@
-import ballerina/jms;
+import ballerinax/java.jms;
 import ballerina/log;
 
 // Initialize a JMS connection with the provider. This example makes use of the
@@ -17,18 +17,22 @@ jms:Session jmsSession = new(jmsConnection, {
     });
 
 // Initialize a queue sender.
-jms:QueueSender queueSender = new(jmsSession, queueName = "MyQueue");
+jms:QueueSender queueSender = new(jmsSession, "MyQueue");
 
 public function main() {
     // Message is published within the `transaction` block.
     transaction {
         // Create a text message.
-        var msg = jmsSession.createTextMessage("Hello from Ballerina");
+        var msg = new jms:Message(jmsSession, jms:TEXT_MESSAGE);
         if (msg is jms:Message) {
+            var err = msg.setPayload("Hello from Ballerina");
+            if (err is error) {
+                log:printError("Unable to set payload" , err);
+            }
             // Send the message to the JMS provider.
             var result = queueSender->send(msg);
             if (result is error) {
-                log:printError("Error occurred while sending message", err = result);
+                log:printError("Error occurred while sending message", result);
             }
         } else {
             log:printError("Error occurred while creating message",

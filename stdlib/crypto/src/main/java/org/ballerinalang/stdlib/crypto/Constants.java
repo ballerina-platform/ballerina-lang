@@ -28,12 +28,6 @@ public class Constants {
     // Name of the Ballerina crypto module, used to create struct instances.
     public static final String CRYPTO_PACKAGE = "ballerina/crypto";
 
-    // Record used to reference to a key store.
-    public static final String KEY_STORE_RECORD = "KeyStore";
-
-    // Record used to reference to a trust store.
-    public static final String TRUST_STORE_RECORD = "TrustStore";
-
     // Record used to reference to a private key.
     public static final String PRIVATE_KEY_RECORD = "PrivateKey";
 
@@ -57,12 +51,6 @@ public class Constants {
 
     // Password field in KEY_STORE_RECORD record.
     public static final String KEY_STORE_RECORD_PASSWORD_FIELD = "password";
-
-    // Path field in TRUST_STORE_RECORD record.
-    public static final String TRUST_STORE_RECORD_PATH_FIELD = "path";
-
-    // Password field in TRUST_STORE_RECORD record.
-    public static final String TRUST_STORE_RECORD_PASSWORD_FIELD = "password";
 
     // Algorithm field in PRIVATE_KEY_RECORD.
     public static final String PRIVATE_KEY_RECORD_ALGORITHM_FIELD = "algorithm";
@@ -104,7 +92,7 @@ public class Constants {
     public static final String MESSAGE = "message";
 
     // Error code for crypto error
-    public static final String CRYPTO_ERROR_CODE = "{ballerina/crypto}CryptoError";
+    public static final String CRYPTO_ERROR_CODE = "{ballerina/crypto}Error";
 
     // PKCS12 keystore type
     public static final String KEYSTORE_TYPE_PKCS12 = "PKCS12";

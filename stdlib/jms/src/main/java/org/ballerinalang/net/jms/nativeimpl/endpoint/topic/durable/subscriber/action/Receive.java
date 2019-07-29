@@ -19,7 +19,7 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.durable.subscriber.action;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -40,7 +40,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.ReceiveActionHandler
 public class Receive {
 
     public static Object receive(Strand strand, ObjectValue durableCaller, long timeoutInMilliSeconds) {
-        return ReceiveActionHandler.handle(durableCaller, timeoutInMilliSeconds);
+        return ReceiveActionHandler.handle(strand, durableCaller, timeoutInMilliSeconds);
     }
 
     private Receive() {

@@ -25,11 +25,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 /**
  * Implementation for the lock tree node.
@@ -89,5 +92,66 @@ public class BLangLock extends BLangStatement implements LockNode {
     public String toString() {
         return "lock {"
                 + (body != null ? String.valueOf(body) : "") + "}";
+    }
+
+    /**
+     * Implementation for the lock statement, used only in desugar phase.
+     *
+     * @since 1.0.0
+     */
+    public static class BLangLockStmt extends BLangLock {
+
+        public Set<BVarSymbol> lockVariables = new HashSet<>();
+
+        public Map<BVarSymbol, Set<String>> fieldVariables = new HashMap<>();
+
+        public BLangLockStmt(DiagnosticPos pos) {
+            this.pos = pos;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public String toString() {
+            return "lock [" + lockVariables.stream().map(s -> s.name.value).collect(Collectors.joining(", "))
+                    + "] [" + fieldVariables.entrySet().stream().map(e -> e.getKey().name.value + "["
+                    + String.join(", ", e.getValue()) + "]").collect(Collectors.joining(", ")) + "]";
+
+        }
+
+        public boolean addLockVariable(BVarSymbol variable) {
+            return lockVariables.add(variable);
+        }
+
+        public void addFieldVariable(BVarSymbol varSymbol, String field) {
+            fieldVariables.putIfAbsent(varSymbol, new TreeSet<>());
+            Set<String> exprList = fieldVariables.get(varSymbol);
+            exprList.add(field);
+        }
+    }
+
+    /**
+     * Implementation for the unlock statement, used only in desugar phase.
+     *
+     * @since 1.0.0
+     */
+    public static class BLangUnLockStmt extends BLangLock {
+
+        public BLangUnLockStmt(DiagnosticPos pos) {
+            this.pos = pos;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public String toString() {
+            return "unlock []";
+        }
     }
 }

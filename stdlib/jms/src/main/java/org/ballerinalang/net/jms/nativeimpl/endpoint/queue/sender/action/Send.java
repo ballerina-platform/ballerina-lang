@@ -19,7 +19,7 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.sender.action;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -40,7 +40,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SendActionHandler;
 public class Send {
 
     public static Object send(Strand strand, ObjectValue queueSender, ObjectValue msgObj) {
-        return SendActionHandler.handle(queueSender, msgObj);
+        return SendActionHandler.handle(strand, queueSender, msgObj);
     }
 
     private Send() {

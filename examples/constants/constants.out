@@ -4,3 +4,6 @@ $ ballerina run constant.bal
 GET action
 POST action
 135
+user=Ballerina ID=1234
+data=user=Ballerina ID=1234 data2=user=WSO2
+Ballerina

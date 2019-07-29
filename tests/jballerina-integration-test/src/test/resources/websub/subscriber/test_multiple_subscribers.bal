@@ -23,10 +23,7 @@ listener websub:Listener websubEP = new websub:Listener(23383);
 
 @websub:SubscriberServiceConfig {
     path:"/websub",
-    subscribeOnStartUp:true,
-    topic: "http://three.websub.topic.com",
-    hub: "http://localhost:23191/websub/hub",
-    resourceUrl: "https://localhost:8080/publish", //invalid resource URL to test hub/topic prioritization
+    target: ["http://localhost:23191/websub/hub", "http://three.websub.topic.com"],
     leaseSeconds: 3600,
     secret: "Kslk30SNF2AChs2"
 }
@@ -43,8 +40,7 @@ service websubSubscriber on websubEP {
 
 @websub:SubscriberServiceConfig {
     path:"/websubTwo",
-    subscribeOnStartUp:true,
-    resourceUrl: "http://localhost:23080/publisherTwo/discover",
+    target: "http://localhost:23080/publisherTwo/discover",
     leaseSeconds: 1200,
     secret: "SwklSSf42DLA"
 }
