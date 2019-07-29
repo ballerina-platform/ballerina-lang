@@ -230,7 +230,7 @@ public class RunCommand implements BLauncherCmd {
                         .addTask(new CreateBirTask())
                         .addTask(new CreateJarTask())
                         .addTask(new RunTestsTask())
-                        .addTask(new CreateExecutableTask())
+                        .addTask(new CreateExecutableTask(true))
                         .addTask(new RunExecutableTask(programArgs, runtimeParams, configFilePath, observeFlag))
                         .build();
         
