@@ -28,7 +28,6 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -73,7 +72,7 @@ public class FilterUtils {
      */
     public static List<SymbolInfo> filterVariableEntriesOnDelimiter(LSContext context, String varName, int delimiter,
                                                                     List<CommonToken> defaultTokens, int delimIndex) {
-        List<SymbolInfo> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         visibleSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
         if (BallerinaParser.RARROW == delimiter) {
             SymbolInfo variable = getVariableByName(varName, visibleSymbols);
@@ -143,7 +142,7 @@ public class FilterUtils {
         List<ChainedFieldModel> invocationFieldList = getInvocationFieldList(defaultTokens, delimIndex);
 
         ChainedFieldModel startField = invocationFieldList.get(0);
-        List<SymbolInfo> symbolList = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> symbolList = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         BSymbol bSymbol = getVariableByName(startField.name.getText(), symbolList).getScopeEntry().symbol;
         BType symbolType = bSymbol instanceof BInvokableSymbol ? ((BInvokableSymbol) bSymbol).retType : bSymbol.type;
         BType modifiedSymbolBType = getModifiedBType(symbolType);
@@ -223,7 +222,7 @@ public class FilterUtils {
             BSymbol symbol = scopeEntry.symbol;
             if (((symbol instanceof BInvokableSymbol && ((BInvokableSymbol) symbol).receiverSymbol == null)
                     || isBTypeEntry(scopeEntry)
-                    || symbol instanceof BVarSymbol || symbol instanceof BConstantSymbol)
+                    || symbol instanceof BVarSymbol)
                     && (symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
                 SymbolInfo entry = new SymbolInfo(name.toString(), scopeEntry);
                 actionFunctionList.add(entry);

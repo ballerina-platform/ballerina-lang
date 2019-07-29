@@ -31,9 +31,3 @@ public type CallStackElement record {|
 #
 # + return - Array of `CallStackElement` elements
 public function getCallStack() returns CallStackElement[] = external;
-
-# Retrieves the Call Stack Frame for a particular error
-#
-# + e - `error` instance
-# + return - Array of `CallStackElement` elements
-public function getErrorCallStackFrame(error e) returns CallStackElement[] = external;
