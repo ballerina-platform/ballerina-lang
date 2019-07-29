@@ -82,7 +82,7 @@ public class BuildCommandTest extends CommandTest {
         zipFile(libs.resolve("json.jar").toFile(), "json.class");
 
         // Build the project
-        String[] compileArgs = {"--skip-tests", "-c"};
+        String[] compileArgs = {};
         BuildCommand buildCommand = new BuildCommand(projectDirectory, printStream, false);
         new CommandLine(buildCommand).parse(compileArgs);
         buildCommand.execute();
