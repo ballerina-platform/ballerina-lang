@@ -723,7 +723,7 @@ public class ArrayValue implements RefValue, CollectionValue {
         }
     }
 
-    public void grow(int newLength) {
+    public void resizeInternalArray(int newLength) {
         if (elementType != null) {
             switch (elementType.getTag()) {
                 case TypeTags.INT_TAG:
@@ -872,7 +872,7 @@ public class ArrayValue implements RefValue, CollectionValue {
 
             // Now get the minimum value of new array size and maximum array size
             newArraySize = Math.min(newArraySize, maxArraySize);
-            grow(newArraySize);
+            resizeInternalArray(newArraySize);
         }
     }
 
@@ -1016,6 +1016,17 @@ public class ArrayValue implements RefValue, CollectionValue {
     @Override
     public IteratorValue getIterator() {
         return new ArrayIterator(this);
+    }
+
+    public void setLength(long length) {
+        handleFrozenArrayValue();
+
+        int newLength = (int) length;
+        rangeCheck(length, size);
+        fillerValueCheck(newLength, size);
+        resizeInternalArray(newLength);
+        fillValues(newLength);
+        size = newLength;
     }
 
     /**
