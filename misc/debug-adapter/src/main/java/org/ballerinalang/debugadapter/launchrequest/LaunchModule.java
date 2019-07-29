@@ -17,50 +17,30 @@
 
 package org.ballerinalang.debugadapter.launchrequest;
 
-import com.sun.jdi.VirtualMachine;
-import com.sun.jdi.connect.IllegalConnectorArgumentsException;
-import com.sun.jdi.request.ClassPrepareRequest;
-import com.sun.jdi.request.EventRequestManager;
-import org.ballerinalang.debugadapter.DebuggerAttachingVM;
 import org.ballerinalang.debugadapter.PackageUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
 /**
  * Launches a ballerina module.
  */
-public class LaunchModule implements Launch {
-    private final String ballerinaExec;
-    private final String balFile;
-    private final String debuggeePort;
+public class LaunchModule extends LauncherImpl implements Launch {
 
-    public VirtualMachine attachToLaunchedProcess() {
-        try {
-            VirtualMachine debuggee = new DebuggerAttachingVM(Integer.parseInt(debuggeePort)).initialize();
-            EventRequestManager erm = debuggee.eventRequestManager();
-            ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
-            classPrepareRequest.enable();
-            return debuggee;
-        } catch (IOException e) {
-        } catch (IllegalConnectorArgumentsException e) {
-        }
-        return null;
-    }
+    private final Map<String, Object> args;
 
-    LaunchModule(String ballerinaExec, String balFile, String debuggeePort) {
-        this.ballerinaExec = ballerinaExec;
-        this.balFile = balFile;
-        this.debuggeePort = debuggeePort;
+    LaunchModule(Map<String, Object> args) {
+        super(args);
+        this.args = args;
     }
 
     @Override
     public Process start() {
         ProcessBuilder processBuilder = new ProcessBuilder();
-
-        processBuilder.command(ballerinaExec, "run", "--debug", debuggeePort, "--experimental",
-                PackageUtils.getModuleName(balFile));
+        String balFile = args.get("script").toString();
+        processBuilder.command(getLauncherCommand(PackageUtils.getModuleName(balFile)));
 
         Path projectRoot = PackageUtils.findProjectRoot(Paths.get(balFile));
 

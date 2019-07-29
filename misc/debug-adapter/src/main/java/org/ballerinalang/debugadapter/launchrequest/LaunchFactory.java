@@ -18,7 +18,6 @@ package org.ballerinalang.debugadapter.launchrequest;
 
 import org.ballerinalang.debugadapter.PackageUtils;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -28,15 +27,12 @@ import java.util.Map;
  */
 public class LaunchFactory {
     public Launch getLauncher(Map<String, Object> args) {
-        String ballerinaHome = args.get("ballerina.home").toString();
-        String ballerinaExec = ballerinaHome + File.separator + "bin" + File.separator + "ballerina";
         String balFile = args.get("script").toString();
-        // TODO: validate file path
-        String debuggeePort = args.get("debuggeePort").toString();
+
         Path projectRoot = PackageUtils.findProjectRoot(Paths.get(balFile));
         if (projectRoot == null) {
-            return new LaunchSingleFile(ballerinaExec, balFile, debuggeePort);
+            return new LaunchSingleFile(args);
         }
-        return new LaunchModule(ballerinaExec, balFile, debuggeePort);
+        return new LaunchModule(args);
     }
 }
