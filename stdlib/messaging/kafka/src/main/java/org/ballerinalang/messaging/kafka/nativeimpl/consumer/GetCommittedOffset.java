@@ -24,6 +24,7 @@ import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -32,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.Objects;
 import java.util.Properties;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_DURATION;
@@ -48,6 +50,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getDefaultApiTimeout;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getIntFromLong;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getPartitionOffsetRecord;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.populatePartitionOffsetRecord;
 
 /**
@@ -83,6 +86,7 @@ public class GetCommittedOffset {
 
         try {
             OffsetAndMetadata offsetAndMetadata;
+            MapValue<String, Object> offset = new MapValueImpl<>(getPartitionOffsetRecord().getType());
             if (apiTimeout > DURATION_UNDEFINED_VALUE) {
                 offsetAndMetadata = getOffsetAndMetadataWithDuration(kafkaConsumer, tp, apiTimeout);
             } else if (defaultApiTimeout > DURATION_UNDEFINED_VALUE) {
@@ -90,7 +94,11 @@ public class GetCommittedOffset {
             } else {
                 offsetAndMetadata = kafkaConsumer.committed(tp);
             }
-            return populatePartitionOffsetRecord(topicPartition, offsetAndMetadata.offset());
+            if (Objects.isNull(offsetAndMetadata)) {
+                return offset;
+            }
+            offset = populatePartitionOffsetRecord(topicPartition, offsetAndMetadata.offset());
+            return offset;
         } catch (KafkaException e) {
             return createKafkaError("Failed to retrieve committed offsets: " + e.getMessage(), CONSUMER_ERROR);
         }

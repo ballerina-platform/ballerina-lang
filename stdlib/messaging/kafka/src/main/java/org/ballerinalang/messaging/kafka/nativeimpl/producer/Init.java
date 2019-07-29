@@ -41,7 +41,6 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_STRUCT_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
-import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaRecord;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.processKafkaProducerConfig;
 
 /**
@@ -60,7 +59,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.processKafkaPro
 )
 public class Init {
 
-    public static Object init(Strand strand, ObjectValue producer, MapValue<String, Object> configs) {
+    public static void init(Strand strand, ObjectValue producerObject, MapValue<String, Object> configs) {
         final NonBlockingCallback callback = new NonBlockingCallback(strand);
         Properties producerProperties = processKafkaProducerConfig(configs);
         try {
@@ -68,7 +67,6 @@ public class Init {
             if (Objects.nonNull(producerProperties.get(ProducerConfig.TRANSACTIONAL_ID_CONFIG))) {
                 kafkaProducer.initTransactions();
             }
-            MapValue producerObject = createKafkaRecord(PRODUCER_STRUCT_NAME);
             producerObject.addNativeData(NATIVE_PRODUCER, kafkaProducer);
             producerObject.addNativeData(NATIVE_PRODUCER_CONFIG, producerProperties);
         } catch (IllegalStateException | KafkaException e) {
@@ -76,6 +74,5 @@ public class Init {
             callback.notifyFailure(error);
         }
         callback.notifySuccess();
-        return null;
     }
 }

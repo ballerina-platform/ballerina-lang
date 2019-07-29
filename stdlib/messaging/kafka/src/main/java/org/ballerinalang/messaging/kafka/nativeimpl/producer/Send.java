@@ -26,7 +26,6 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.messaging.kafka.utils.KafkaUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -38,12 +37,12 @@ import java.util.Properties;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_PARTITION;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONNECTOR_ID;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_PRODUCER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_PRODUCER_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_STRUCT_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.UNCHECKED;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
@@ -89,14 +88,15 @@ public class Send {
             producer.send(kafkaRecord, (metadata, e) -> {
                 if (Objects.nonNull(e)) {
                     ErrorValue error = createKafkaError("Failed to send data to Kafka server: " + e.getMessage(),
-                            CONSUMER_ERROR);
+                            PRODUCER_ERROR);
                     callback.setReturnValues(error);
                 }
-                callback.notifySuccess();
             });
         } catch (IllegalStateException | KafkaException e) {
-            return KafkaUtils.createKafkaError("Failed to send data to Kafka server: " + e.getMessage());
+            callback.setReturnValues(createKafkaError("Failed to send data to Kafka server: "
+                    + e.getMessage(), PRODUCER_ERROR));
         }
+        callback.notifySuccess();
         return null;
     }
 }
