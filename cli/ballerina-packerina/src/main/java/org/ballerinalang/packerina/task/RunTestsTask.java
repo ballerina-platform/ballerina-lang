@@ -25,5 +25,7 @@ import org.ballerinalang.packerina.buildcontext.BuildContext;
  */
 public class RunTestsTask implements Task {
     @Override
-    public void execute(BuildContext buildContext) {}
+    public void execute(BuildContext buildContext) {
+
+    }
 }
