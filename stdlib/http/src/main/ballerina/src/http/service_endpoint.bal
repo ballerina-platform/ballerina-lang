@@ -271,28 +271,19 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
         AuthzHandler authzHandler = new(positiveAuthzCache, negativeAuthzCache);
         AuthzFilter authzFilter = new(authzHandler, scopes);
 
-        if (config.filters.length() == 0) {
-            // add authn and authz filters directly
-            config.filters = [authnFilter, authzFilter];
+        if (auth.position == 1) {
+            config.filters.unshift(authnFilter, authzFilter);
         } else {
-            int position = auth.position;
-            Filter[] newFilters = [];
-            int configIndex = 0;
-            int filterIndex = 0;
-            while (configIndex < config.filters.length()) {
-                if (filterIndex == position - 1) {
-                    // add authn and authz filters into the position
-                    newFilters[filterIndex] = authnFilter;
-                    filterIndex = filterIndex + 1;
-                    newFilters[filterIndex] = authzFilter;
-                } else {
-                    // add the rest of filters
-                    newFilters[filterIndex] = config.filters[configIndex];
-                    configIndex = configIndex + 1;
-                }
-                filterIndex = filterIndex + 1;
+            int count = 1;
+            while (count < auth.position) {
+                config.filters.push(config.filters.shift());
+                count += 1;
             }
-            config.filters = newFilters;
+            config.filters.unshift(authnFilter, authzFilter);
+            while (count > 1) {
+                config.filters.unshift(config.filters.pop());
+                count -= 1;
+            }
         }
     }
     // No need to validate else part since the function is called if and only if the `auth is ListenerAuth`
