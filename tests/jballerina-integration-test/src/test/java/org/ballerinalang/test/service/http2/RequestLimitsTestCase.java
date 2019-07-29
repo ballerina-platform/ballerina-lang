@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A test case for http2 with multiparts (with and without prior knowledge).
+ * A test case for http2 with request limits.
  */
 @Test(groups = "http2-test")
 public class RequestLimitsTestCase extends Http2BaseTest {
