@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.compiler.LSContext;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.TextEdit;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,10 +73,16 @@ public class SnippetBlock {
     public CompletionItem build(LSContext ctx) {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setInsertText(this.snippet);
+        List<BLangImportPackage> currentModuleImports = CommonUtil.getCurrentModuleImports(ctx);
         if (imports != null) {
             List<TextEdit> importTextEdits = new ArrayList<>();
             for (Pair<String, String> pair : imports) {
-                importTextEdits.addAll(CommonUtil.getAutoImportTextEdits(ctx, pair.getLeft(), pair.getRight()));
+                boolean pkgAlreadyImported = currentModuleImports.stream()
+                        .anyMatch(importPkg -> importPkg.orgName.value.equals(pair.getLeft())
+                                && importPkg.alias.value.equals(pair.getRight()));
+                if (!pkgAlreadyImported) {
+                    importTextEdits.addAll(CommonUtil.getAutoImportTextEdits(pair.getLeft(), pair.getRight(), ctx));
+                }
             }
             completionItem.setAdditionalTextEdits(importTextEdits);
         }

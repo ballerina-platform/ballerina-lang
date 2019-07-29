@@ -31,7 +31,7 @@ service simple7 on new http:Listener(21016) {
             error err = error("Query param not set");
             panic err;
         }
-        wsServiceEp.attributes["Query1"] = queryParam;
+        wsServiceEp.setAttribute("Query1", queryParam);
     }
 }
 
@@ -39,27 +39,27 @@ service castErrror = @http:WebSocketServiceConfig {idleTimeoutInSeconds: 10} ser
 
     resource function onText(http:WebSocketCaller wsEp, string text) {
         http:WebSocketClient val;
-        var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION];
+        var returnVal = <http:WebSocketClient>wsEp.getAttribute(ASSOCIATED_CONNECTION);
         val = returnVal;
     }
     resource function onBinary(http:WebSocketCaller wsEp, byte[] data) {
         http:WebSocketClient val;
-        var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION];
+        var returnVal = <http:WebSocketClient>wsEp.getAttribute(ASSOCIATED_CONNECTION);
         val = returnVal;
     }
     resource function onPing(http:WebSocketCaller wsEp, byte[] data) {
         http:WebSocketClient val;
-        var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION];
+        var returnVal = <http:WebSocketClient>wsEp.getAttribute(ASSOCIATED_CONNECTION);
         val = returnVal;
     }
     resource function onIdleTimeout(http:WebSocketCaller wsEp) {
         http:WebSocketClient val;
-        var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION];
+        var returnVal = <http:WebSocketClient>wsEp.getAttribute(ASSOCIATED_CONNECTION);
         val = returnVal;
     }
     resource function onClose(http:WebSocketCaller wsEp, int code, string reason) {
         http:WebSocketClient val;
-        var returnVal = <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION];
+        var returnVal = <http:WebSocketClient>wsEp.getAttribute(ASSOCIATED_CONNECTION);
         val = returnVal;
     }
 };

@@ -675,7 +675,7 @@ function testEmptySQLType() returns int {
     return insertCount;
 }
 
-function testBatchUpdate() returns [int[], jdbc:Error?] {
+function testBatchUpdate() returns [int[], jdbc:Error?, int, int] {
     jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
@@ -699,10 +699,44 @@ function testBatchUpdate() returns [int[], jdbc:Error?] {
     para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
     jdbc:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
-    jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-                                     values (?,?,?,?,?)", false, parameters1, parameters2);
+    jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,
+                                     creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
+    anydata[]? generatedKeys = ret.generatedKeys["CUSTOMERID"];
+    int key1 = -1;
+    int key2 = -1;
+    if (generatedKeys is int[]) {
+        key1 = generatedKeys[0];
+        key2 = generatedKeys[1];
+    }
     checkpanic testDB.stop();
-    return [ret.updatedRowCount, ret.returnedError];
+    return [ret.updatedRowCount, ret.returnedError, key1, key2];
+}
+
+function testBatchUpdateWithoutGeneratedKeys() returns [int[], jdbc:Error?, int] {
+    jdbc:Client testDB = new({
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
+
+    //Batch 1
+    jdbc:Parameter para1 = { sqlType: jdbc:TYPE_INTEGER, value: 44 };
+    jdbc:Parameter para2 = { sqlType: jdbc:TYPE_INTEGER, value: 45 };
+    jdbc:Parameter para3 = { sqlType: jdbc:TYPE_VARCHAR, value: "Alex" };
+    jdbc:Parameter?[] parameters1 = [para1, para2, para3];
+
+    //Batch 2
+    para1 = { sqlType: jdbc:TYPE_INTEGER, value: 54 };
+    para2 = { sqlType: jdbc:TYPE_INTEGER, value: 55 };
+    para3 = { sqlType: jdbc:TYPE_VARCHAR, value: "Jane" };
+    jdbc:Parameter?[] parameters2 = [para1, para2, para3];
+
+    jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into DataTypeTable (row_id,int_type,string_type)
+                                     values (?,?,?)", false, parameters1, parameters2);
+    int mapSize = ret.generatedKeys.length();
+    checkpanic testDB.stop();
+    return [ret.updatedRowCount, ret.returnedError, mapSize];
 }
 
 function testBatchUpdateSingleValParamArray() returns int[] {

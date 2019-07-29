@@ -182,7 +182,7 @@ public class MatchStructuredRecordPatternsTest {
         Assert.assertEquals(results.getString(++i), msg + "default : true");
     }
 
-    @Test(description = "Test structured pattern match with type guard 3", groups = "brokenOnLangLibChange")
+    @Test(description = "Test structured pattern match with type guard 4")
     public void testStructuredMatchPatternWithTypeGuard4() {
         BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard4", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
