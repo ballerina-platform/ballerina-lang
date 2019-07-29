@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_CONFIG_STRUCT_NAME;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_CONFIG_FIELD_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_GROUP_ID_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
@@ -70,7 +70,7 @@ public class CommitConsumer {
             partitionToMetadataMap.put(new TopicPartition(topicPartition.topic(), topicPartition.partition()),
                     new OffsetAndMetadata(position));
         });
-        MapValue<String, Object> consumerConfig = consumer.getMapValue(CONSUMER_CONFIG_STRUCT_NAME);
+        MapValue<String, Object> consumerConfig = consumer.getMapValue(CONSUMER_CONFIG_FIELD_NAME);
         String groupId = consumerConfig.getStringValue(CONSUMER_GROUP_ID_CONFIG);
         try {
             commitKafkaConsumer(strand, producerObject, partitionToMetadataMap, groupId);

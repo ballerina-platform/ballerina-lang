@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
 
@@ -106,7 +107,7 @@ public class KafkaServiceCompilerPlugin extends AbstractTransportCompilerPlugin 
         if (!isReturnTypeValid) {
             String message = "Invalid return type for the resource function:"
                     + "Expected error? or subset of error? but found: "
-                    + resource.getReturnTypeNode().getKind().toString();
+                    + ((BLangFunction) resource).returnTypeNode;
             logError(message, position);
         }
     }

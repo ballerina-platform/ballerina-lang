@@ -9,7 +9,7 @@ This connector supports kafka 1.x.x and 2.0.0 versions.
 Following is a simple service which is subscribed to a topic 'test-kafka-topic' on remote Kafka broker cluster.
 
 ```ballerina
-import wso2/kafka;
+import ballerina/kafka;
 import ballerina/encoding;
 import ballerina/io;
 
@@ -88,7 +88,7 @@ Please find the consumer parameters below:
 Following is a simple program which publishes a message to 'test-kafka-topic' topic in a remote Kafka broker cluster.
 
 ```ballerina
-import wso2/kafka;
+import ballerina/kafka;
 
 kafka:ProducerConfig producerConfigs = {
     // Here we create a producer configs with optional parameters client.id - used for broker side logging.

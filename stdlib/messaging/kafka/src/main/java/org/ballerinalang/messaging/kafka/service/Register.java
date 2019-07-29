@@ -33,7 +33,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 
 import java.util.Properties;
 
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_CONFIG_STRUCT_NAME;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_CONFIG_FIELD_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_SERVER_CONNECTOR_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_STRUCT_NAME;
@@ -60,7 +60,7 @@ public class Register {
 
     @SuppressWarnings(UNCHECKED)
     public static Object register(Strand strand, ObjectValue listener, ObjectValue service, Object name) {
-        MapValue<String, Object> listenerConfigurations = listener.getMapValue(CONSUMER_CONFIG_STRUCT_NAME);
+        MapValue<String, Object> listenerConfigurations = listener.getMapValue(CONSUMER_CONFIG_FIELD_NAME);
         Properties configs = KafkaUtils.processKafkaConsumerConfig(listenerConfigurations);
 
         try {
