@@ -159,23 +159,6 @@
       }
     },
     {
-      "label": "toJSON(record {\nstring attributePrefix;\nboolean preserveNamespaces;\n} options)(json)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml_  \n  \nConverts a XML object to a JSON representation.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    The xml source  \n  \n- _options_  \n    xmlOptions struct for XML to JSON conversion properties  \n  \n  \n**Return**  \njson"
-        }
-      },
-      "insertText": "toJSON(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "getTarget()(string)",
       "kind": "Function",
       "detail": "Function",
