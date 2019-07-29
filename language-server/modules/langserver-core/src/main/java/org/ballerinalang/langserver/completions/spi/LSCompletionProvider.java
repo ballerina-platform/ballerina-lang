@@ -88,6 +88,8 @@ import java.util.stream.IntStream;
 public abstract class LSCompletionProvider {
 
     protected List<Class> attachmentPoints = new ArrayList<>();
+    
+    private Precedence precedence = Precedence.LOW;
 
     /**
      * Get Completion items for the scope/ context.
@@ -104,6 +106,15 @@ public abstract class LSCompletionProvider {
      */
     public List<Class> getAttachmentPoints() {
         return this.attachmentPoints;
+    }
+
+    /**
+     * Get the precedence of the provider.
+     * 
+     * @return {@link Precedence} precedence of the provider
+     */
+    public Precedence getPrecedence() {
+        return precedence;
     }
 
     /**
@@ -790,5 +801,15 @@ public abstract class LSCompletionProvider {
         if (!found) {
             items.add(snippet.build(ctx));
         }
+    }
+
+    /**
+     * Precedence for a given provider.
+     * 
+     * @since 1.0
+     */
+    public enum Precedence {
+        LOW,
+        HIGH
     }
 }
