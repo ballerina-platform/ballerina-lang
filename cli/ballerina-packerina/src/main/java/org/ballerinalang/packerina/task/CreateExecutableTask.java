@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -52,9 +53,23 @@ import java.util.stream.Stream;
  * Task for creating the executable jar file.
  */
 public class CreateExecutableTask implements Task {
+    
+    private final boolean disableLogging;
+    
+    public CreateExecutableTask() {
+        this.disableLogging = false;
+    }
+    
+    public CreateExecutableTask(boolean disableLogging) {
+        this.disableLogging = disableLogging;
+    }
+    
     @Override
     public void execute(BuildContext buildContext) {
-        OUT.println("Generating executables");
+        if (!disableLogging) {
+            OUT.println("Generating executables");
+        }
+        
         for (BLangPackage module : buildContext.getModules()) {
             if (module.symbol.entryPointExists) {
                 assembleExecutable(buildContext, module);
@@ -62,49 +77,51 @@ public class CreateExecutableTask implements Task {
         }
     }
     
-    private static void assembleExecutable(BuildContext buildContext, BLangPackage bLangPackage) {
-        Path sourceRoot = buildContext.get(BuildContextField.SOURCE_ROOT);
+    private void assembleExecutable(BuildContext buildContext, BLangPackage bLangPackage) {
+        Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         try {
             // Copy the jar from cache to bin directory
-            Path executable = buildContext.getExecutablePathFromTarget(bLangPackage.packageID);
-            Path moduleJar = buildContext.getJarPathFromTargetCache(bLangPackage.packageID);
+            Path executablePath = buildContext.getExecutablePathFromTarget(bLangPackage.packageID);
+            Path jarFromCachePath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID);
             
             // Check if the package has an entry point.
             if (bLangPackage.symbol.entryPointExists) {
-                Files.copy(moduleJar, executable, StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(jarFromCachePath, executablePath, StandardCopyOption.REPLACE_EXISTING);
                 // Get the fs handle to the jar file
                 
                 // Iterate through the imports and copy dependencies.
                 for (BPackageSymbol importz : bLangPackage.symbol.imports) {
-                    Path importJar = findImportJarPath(buildContext, importz, sourceRoot);
+                    Path importJar = findImportJarPath(buildContext, importz, sourceRootPath);
                     
                     if (importJar != null && Files.exists(importJar)) {
-                        copyFromJarToJar(importJar, executable);
+                        copyFromJarToJar(importJar, executablePath);
                     }
                 }
     
                 // Iterate through .balo and copy the platform libs
-                Path baloAbsolutePath = buildContext.getBaloFromTarget(bLangPackage.packageID);
-                String destination = extractJar(baloAbsolutePath.toString());
-    
-                if (Files.exists(Paths.get(destination).resolve(ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME))) {
-                    try (Stream<Path> walk = Files.walk(Paths.get(destination)
-                            .resolve(ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME))) {
-            
-                        List<String> result = walk.filter(Files::isRegularFile)
-                                .map(Path::toString)
-                                .collect(Collectors.toList());
-            
-                        result.forEach(lib -> {
-                            try {
-                                copyFromJarToJar(Paths.get(lib), executable);
-                            } catch (Exception e) {
-                                throw new BLangCompilerException("unable to create the executable :" +
-                                                                 e.getMessage());
-                            }
-                        });
-                    } catch (IOException e) {
-                        throw new BLangCompilerException("unable to create the executable :" + e.getMessage());
+                if (buildContext.getSourceType() != SourceType.SINGLE_BAL_FILE) {
+                    Path baloAbsolutePath = buildContext.getBaloFromTarget(bLangPackage.packageID);
+                    String destination = extractJar(baloAbsolutePath.toString());
+        
+                    if (Files.exists(Paths.get(destination).resolve(ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME))) {
+                        try (Stream<Path> walk = Files.walk(Paths.get(destination)
+                                .resolve(ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME))) {
+                
+                            List<String> result = walk.filter(Files::isRegularFile)
+                                    .map(Path::toString)
+                                    .collect(Collectors.toList());
+                
+                            result.forEach(lib -> {
+                                try {
+                                    copyFromJarToJar(Paths.get(lib), executablePath);
+                                } catch (Exception e) {
+                                    throw new BLangCompilerException("unable to create the executable :" +
+                                                                     e.getMessage());
+                                }
+                            });
+                        } catch (IOException e) {
+                            throw new BLangCompilerException("unable to create the executable :" + e.getMessage());
+                        }
                     }
                 }
     
@@ -112,7 +129,9 @@ public class CreateExecutableTask implements Task {
             // Copy dependency jar
             // Copy dependency libraries
             // Executable is created at give location.
-            OUT.println(sourceRoot.relativize(executable).toString());
+            if (!this.disableLogging) {
+                OUT.println(sourceRootPath.relativize(executablePath).toString());
+            }
             // If no entry point is found we do nothing.
         } catch (IOException e) {
             throw new BLangCompilerException("Unable to create the executable :" + e.getMessage());

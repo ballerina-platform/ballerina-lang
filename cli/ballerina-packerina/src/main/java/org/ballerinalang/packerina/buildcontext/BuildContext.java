@@ -52,10 +52,10 @@ import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_INSTALL_DIR_PROP;
  */
 public class BuildContext extends HashMap<BuildContextField, Object> {
     private static final long serialVersionUID = 6363519534259706585L;
-    private final transient Path executableDir;
-    private final transient Path targetJarCacheDir;
-    private final transient Path targetBirCacheDir;
-    private final transient Path baloCacheDir;
+    private transient Path executableDir;
+    private transient Path targetJarCacheDir;
+    private transient Path targetBirCacheDir;
+    private transient Path baloCacheDir;
     private SourceType srcType;
     
     /**
@@ -155,7 +155,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
             source.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
         
             this.put(BuildContextField.SOURCE_CONTEXT, new SingleFileContext(source));
-            this.srcType = SourceType.BAL_FILE;
+            this.srcType = SourceType.SINGLE_BAL_FILE;
         } else if (Files.isDirectory(absoluteSourcePath) &&
                    !source.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
             
@@ -173,6 +173,15 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     
     public SourceType getSourceType() {
         return this.srcType;
+    }
+    
+    /**
+     * Update the path of executables directory.
+     *
+     * @param executablesDir Directory of the executables.
+     */
+    public void updateExecutableDir(Path executablesDir) {
+        this.executableDir = executablesDir;
     }
     
     public Path getSystemRepoBirCache() {
@@ -194,7 +203,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     public List<BLangPackage> getModules() {
         List<BLangPackage> modules = new LinkedList<>();
         switch (this.getSourceType()) {
-            case BAL_FILE:
+            case SINGLE_BAL_FILE:
                 SingleFileContext singleFileContext = this.get(BuildContextField.SOURCE_CONTEXT);
                 modules.add(singleFileContext.getModule());
                 break;
@@ -240,8 +249,8 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
         try {
             Files.createDirectories(baloCacheDir);
             switch (this.getSourceType()) {
-                case BAL_FILE:
-                    throw new BLangCompilerException("balo for single bal files are not supported");
+                case SINGLE_BAL_FILE:
+                    throw new BLangCompilerException("balo file for single ballerina files are not supported");
                 case SINGLE_MODULE:
                 case ALL_MODULES:
                     CompilerContext context = this.get(BuildContextField.COMPILER_CONTEXT);
@@ -272,7 +281,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
         try {
             Files.createDirectories(targetBirCacheDir);
             switch (this.getSourceType()) {
-                case BAL_FILE:
+                case SINGLE_BAL_FILE:
                     SingleFileContext singleFileContext = this.get(BuildContextField.SOURCE_CONTEXT);
                     String birFileName = singleFileContext.getBalFileNameWithoutExtension() +
                                          BLANG_COMPILED_PKG_BIR_EXT;
@@ -296,10 +305,10 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
         try {
             Files.createDirectories(targetJarCacheDir);
             switch (this.getSourceType()) {
-                case BAL_FILE:
+                case SINGLE_BAL_FILE:
                     SingleFileContext singleFileContext = this.get(BuildContextField.SOURCE_CONTEXT);
                     String birFileName = singleFileContext.getBalFileNameWithoutExtension() +
-                                         BLANG_COMPILED_PKG_BIR_EXT;
+                                         BLANG_COMPILED_JAR_EXT;
                     return targetJarCacheDir.resolve(birFileName);
                 case SINGLE_MODULE:
                 case ALL_MODULES:
@@ -307,7 +316,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                             .resolve(moduleID.orgName.value)
                             .resolve(moduleID.name.value)
                             .resolve(moduleID.version.value));
-                    return moduleBirCacheDir.resolve(moduleID.name.value + BLANG_COMPILED_PKG_BIR_EXT);
+                    return moduleBirCacheDir.resolve(moduleID.name.value + BLANG_COMPILED_JAR_EXT);
                 default:
                     throw new BLangCompilerException("unknown source type found: " + this.getSourceType());
             }
@@ -319,16 +328,16 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     
     public Path getExecutablePathFromTarget(PackageID moduleID) {
         try {
-            Files.createDirectories(executableDir);
+            Files.createDirectories(this.executableDir);
             switch (this.getSourceType()) {
-                case BAL_FILE:
+                case SINGLE_BAL_FILE:
                     SingleFileContext singleFileContext = this.get(BuildContextField.SOURCE_CONTEXT);
                     String executableFileName = singleFileContext.getBalFileNameWithoutExtension() +
                                                 ProjectDirConstants.EXEC_SUFFIX + BLANG_COMPILED_JAR_EXT;
-                    return executableDir.resolve(executableFileName);
+                    return this.executableDir.resolve(executableFileName);
                 case SINGLE_MODULE:
                 case ALL_MODULES:
-                    return executableDir.resolve(moduleID.name.value +
+                    return this.executableDir.resolve(moduleID.name.value +
                                                  ProjectDirConstants.EXEC_SUFFIX + BLANG_COMPILED_JAR_EXT);
     
                 default:
@@ -336,7 +345,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
             }
             
         } catch (IOException e) {
-            throw new BLangCompilerException("error creating bir_cache dir for module(s): " + executableDir);
+            throw new BLangCompilerException("error creating bir_cache dir for module(s): " + this.executableDir);
         }
     }
 }
