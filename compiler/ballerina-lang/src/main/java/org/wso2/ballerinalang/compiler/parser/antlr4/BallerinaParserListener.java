@@ -1136,26 +1136,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitRecordRefBindingPattern(BallerinaParser.RecordRefBindingPatternContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#openRecordRefBindingPattern}.
-	 * @param ctx the parse tree
-	 */
-	void enterOpenRecordRefBindingPattern(BallerinaParser.OpenRecordRefBindingPatternContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#openRecordRefBindingPattern}.
-	 * @param ctx the parse tree
-	 */
-	void exitOpenRecordRefBindingPattern(BallerinaParser.OpenRecordRefBindingPatternContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#closedRecordRefBindingPattern}.
-	 * @param ctx the parse tree
-	 */
-	void enterClosedRecordRefBindingPattern(BallerinaParser.ClosedRecordRefBindingPatternContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#closedRecordRefBindingPattern}.
-	 * @param ctx the parse tree
-	 */
-	void exitClosedRecordRefBindingPattern(BallerinaParser.ClosedRecordRefBindingPatternContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#errorRefBindingPattern}.
 	 * @param ctx the parse tree
 	 */

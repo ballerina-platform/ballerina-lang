@@ -218,7 +218,6 @@ import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
-import org.wso2.ballerinalang.compiler.util.RestBindingPatternState;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -878,21 +877,16 @@ public class BLangPackageBuilder {
         this.varStack.push(recordVariable);
     }
 
-    void addRecordVariableReference(DiagnosticPos pos, Set<Whitespace> ws, RestBindingPatternState restBindingPattern) {
+    void addRecordVariableReference(DiagnosticPos pos, Set<Whitespace> ws, boolean hasRestBindingPattern) {
         BLangRecordVarRef recordVarRef = (BLangRecordVarRef) TreeBuilder.createRecordVariableReferenceNode();
         recordVarRef.pos = pos;
         recordVarRef.addWS(ws);
-        switch (restBindingPattern) {
-            case OPEN_REST_BINDING_PATTERN:
-                recordVarRef.restParam = this.exprNodeStack.pop();
-                break;
-            case CLOSED_REST_BINDING_PATTERN:
-                recordVarRef.isClosed = true;
-                break;
-            case NO_BINDING_PATTERN:
-                break;
-        }
         recordVarRef.recordRefFields = this.recordVarRefListStack.pop();
+
+        if (hasRestBindingPattern) {
+            recordVarRef.restParam = this.exprNodeStack.pop();
+        }
+
         this.exprNodeStack.push(recordVarRef);
     }
 
