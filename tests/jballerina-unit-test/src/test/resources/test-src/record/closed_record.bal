@@ -266,3 +266,25 @@ function testLiteralsAsMappingConstructorKeys() returns boolean {
     Foo f = { "bar": "hello", baz: 1 };
     return f.bar == "hello" && f.baz == 1;
 }
+
+type Baz record {|
+    string s;
+    int i?;
+    float? f = ();
+|};
+
+string iValue = "i";
+
+function testExpressionAsKeys() returns boolean {
+    Baz b = { s: "hello", [iValue]: 1, [getChar("f")]: 2.0 };
+    return b.s == "hello" && b?.i == 1 && b?.f == 2.0;
+}
+
+function testExpressionAsKeysWithSameKeysDefinedAsLiteralsOrFieldNames() returns boolean {
+    Baz b = { s: "hello", [getChar("s")]: "world", [getChar("f")]: 2.0, f: 4.0 };
+    return b.s == "world" && b?.f == 4.0;
+}
+
+function getChar(string st) returns string {
+    return st;
+}

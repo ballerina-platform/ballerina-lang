@@ -297,4 +297,25 @@ public class ClosedRecordTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testLiteralsAsMappingConstructorKeys");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
+
+    @Test
+    public void testExpressionsAsKeys() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testExpressionAsKeys");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+
+        returns = BRunUtil.invoke(compileResult, "testExpressionAsKeysWithSameKeysDefinedAsLiteralsOrFieldNames");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testInvalidExprsAsRecordLiteralKeys() {
+        CompileResult result = BCompileUtil.compile("test-src/record/closed_record_invalid_key_expr_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 6);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found 'float'", 34, 27);
+        BAssertUtil.validateError(result, 1, "missing non-defaultable required record field 's'", 35, 14);
+        BAssertUtil.validateError(result, 2, "incompatible types: expected 'string', found 'int'", 36, 27);
+        BAssertUtil.validateError(result, 3, "incompatible types: expected 'string', found 'boolean'", 37, 37);
+        BAssertUtil.validateError(result, 4, "missing non-defaultable required record field 's'", 38, 14);
+        BAssertUtil.validateError(result, 5, "incompatible types: expected '(string|int)', found 'error'", 41, 44);
+    }
 }

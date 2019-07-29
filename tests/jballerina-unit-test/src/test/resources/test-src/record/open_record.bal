@@ -428,3 +428,25 @@ public function testRecordInitWithFuncCalls() returns Bar {
     Bar b = {};
     return b;
 }
+
+type Baz record {
+    string s;
+    int i?;
+    float? f = ();
+};
+
+string iValue = "i";
+
+function testExpressionAsKeys() returns boolean {
+    Baz b = { s: "hello", [iValue]: 1, [getChar("f")]: 2.0, [getChar("b")]: true };
+    return b.s == "hello" && b?.i == 1 && b?.f == 2.0 && b["b"] == true;
+}
+
+function testExpressionAsKeysWithSameKeysDefinedAsLiteralsOrFieldNames() returns boolean {
+    Baz b = { s: "hello", [getChar("s")]: "world", [getChar("f")]: 2.0, f: 4.0 };
+    return b.s == "world" && b?.f == 4.0;
+}
+
+function getChar(string st) returns string {
+    return st;
+}
