@@ -34,7 +34,6 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
-import org.ballerinalang.langserver.sourceprune.SourcePruner;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.TopLevelNode;
