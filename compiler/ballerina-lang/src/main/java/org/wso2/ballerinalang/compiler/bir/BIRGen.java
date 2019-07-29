@@ -415,6 +415,8 @@ public class BIRGen extends BLangNodeVisitor {
 
         // Populate annotation attachments on external in BIRFunction node
         populateBIRAnnotAttachments(astFunc.externalAnnAttachments, birFunc.annotAttachments, this.env);
+        // Populate annotation attachments on function in BIRFunction node
+        populateBIRAnnotAttachments(astFunc.annAttachments, birFunc.annotAttachments, this.env);
 
         birFunc.argsCount = astFunc.requiredParams.size()
                 + (astFunc.restParam != null ? 1 : 0) + astFunc.paramClosureMap.size();
