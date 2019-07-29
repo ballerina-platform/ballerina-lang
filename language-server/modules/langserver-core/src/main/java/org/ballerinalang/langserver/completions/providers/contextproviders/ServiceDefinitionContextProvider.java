@@ -84,8 +84,8 @@ public class ServiceDefinitionContextProvider extends LSCompletionProvider {
                 break;
             }
             case BallerinaParser.NEW: {
-                List<SymbolInfo> filteredSymbols =
-                        this.filterListenerTypes(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+                List<SymbolInfo> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+                List<SymbolInfo> filteredSymbols = this.filterListenerTypes(visibleSymbols);
                 completionItems.addAll(this.getCompletionItemList(filteredSymbols, context));
                 completionItems.addAll(this.getPackagesCompletionItems(context));
                 break;
@@ -113,7 +113,7 @@ public class ServiceDefinitionContextProvider extends LSCompletionProvider {
     private List<SymbolInfo> filterListenersFromPackage(LSContext context) {
         List<CommonToken> defaultTokens = context.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
         List<Integer> tokenTypes = context.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
-        List<SymbolInfo> symbolInfos = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         if (tokenTypes == null) {
             return new ArrayList<>();
         }
@@ -124,7 +124,7 @@ public class ServiceDefinitionContextProvider extends LSCompletionProvider {
         }
         String pkgName = defaultTokens.get(colonIndex - 1).getText();
 
-        Optional<SymbolInfo> symbolWithName = symbolInfos.stream()
+        Optional<SymbolInfo> symbolWithName = visibleSymbols.stream()
                 .filter(symbolInfo -> symbolInfo.getSymbolName().equals(pkgName))
                 .findAny();
         if (!symbolWithName.isPresent() || !(symbolWithName.get().getScopeEntry().symbol instanceof BPackageSymbol)) {

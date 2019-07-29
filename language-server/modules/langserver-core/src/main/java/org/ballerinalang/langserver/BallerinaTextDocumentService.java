@@ -168,10 +168,24 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
             try {
                 SourcePruner.pruneSource(context);
+                /*
+                If the token at cursor is within the hidden channel we stop calculating the completions. This will
+                avoid completions within the line comments
+                 */
+                if (context.get(DocumentServiceKeys.TERMINATE_OPERATION_KEY) != null
+                        && context.get(DocumentServiceKeys.TERMINATE_OPERATION_KEY)) {
+                    return Either.forLeft(completions);
+                }
                 BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false, null, false);
                 context.put(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY, bLangPackage.packageID);
                 context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
+                // Fill the current file imports
+                context.put(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY, CommonUtil.getCurrentFileImports(context));
                 CompletionUtil.resolveSymbols(context);
+                if (context.get(DocumentServiceKeys.TERMINATE_OPERATION_KEY) != null
+                        && context.get(DocumentServiceKeys.TERMINATE_OPERATION_KEY)) {
+                    return Either.forLeft(completions);
+                }
                 completions.addAll(CompletionUtil.getCompletionItems(context));
             } catch (Exception | AssertionError e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
@@ -244,7 +258,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 // Capture visible symbols of the cursor position
                 SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(context);
                 bLangPackage.accept(signatureTreeVisitor);
-                List<SymbolInfo> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+                List<SymbolInfo> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
 
                 // Search function invocation symbol
                 List<SignatureInformation> signatures = new ArrayList<>();

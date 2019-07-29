@@ -167,7 +167,8 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, symbolEnv);
         blockNode.stmts.forEach(stmt -> this.acceptNode(stmt, blockEnv));
         if (!terminateVisitor && this.isCursorWithinBlock()) {
-            Map<Name, Scope.ScopeEntry> visibleSymbolEntries = symbolResolver.getAllVisibleInScopeSymbols(blockEnv);
+            Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries
+                    = symbolResolver.getAllVisibleInScopeSymbols(blockEnv);
             this.populateSymbols(visibleSymbolEntries);
         }
     }
@@ -243,6 +244,9 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
     }
 
     private boolean isCursorWithinBlock() {
+        if (blockPositionStack.isEmpty()) {
+            return false;
+        }
         DiagnosticPos blockPosition = CommonUtil.toZeroBasedPosition(blockPositionStack.peek());
         int cursorLine = cursorPosition.getLine();
         int cursorColumn = cursorPosition.getCharacter();
@@ -266,11 +270,18 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
      * Populate the symbols.
      * @param symbolEntries symbol entries
      */
-    private void populateSymbols(Map<Name, Scope.ScopeEntry> symbolEntries) {
+    private void populateSymbols(Map<Name, List<Scope.ScopeEntry>> symbolEntries) {
         this.terminateVisitor = true;
         List<SymbolInfo> visibleSymbols = new ArrayList<>();
 
-        symbolEntries.forEach((k, v) -> visibleSymbols.add(new SymbolInfo(k.getValue(), v)));
+        for (Map.Entry<Name, List<Scope.ScopeEntry>> entry : symbolEntries.entrySet()) {
+            Name name = entry.getKey();
+            List<Scope.ScopeEntry> entryList = entry.getValue();
+            List<SymbolInfo> filteredSymbolInfos = entryList.stream()
+                    .map(scopeEntry -> new SymbolInfo(name.value, scopeEntry))
+                    .collect(Collectors.toList());
+            visibleSymbols.addAll(filteredSymbolInfos);
+        }
         lsContext.put(CommonKeys.VISIBLE_SYMBOLS_KEY, visibleSymbols);
     }
 }
