@@ -183,9 +183,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     return Either.forLeft(completions);
                 }
                 completions.addAll(CompletionUtil.getCompletionItems(context));
-            } catch (UserErrorException e) {
-                notifyUser(e, languageServer);
             } catch (Throwable e) {
+                // Note: Not catching UserErrorException separately to avoid flooding error msgs popups
                 String msg = "Operation 'text/completion' failed!";
                 logError(msg, e, languageServer, position.getTextDocument(), position.getPosition());
             } finally {
@@ -211,13 +210,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 List<BLangPackage> modules = ReferencesUtil.getPreparedModules(document, documentManager, lsCompiler,
                         position.getPosition(), context, false);
                 hover = ReferencesUtil.getHover(modules, context, position.getPosition());
-            } catch (UserErrorException e) {
-                notifyUser(e, languageServer);
-                hover = new Hover();
-                List<Either<String, MarkedString>> contents = new ArrayList<>();
-                contents.add(Either.forLeft(""));
-                hover.setContents(contents);
             } catch (Throwable e) {
+                // Note: Not catching UserErrorException separately to avoid flooding error msgs popups
                 String msg = "Operation 'text/hover' failed!";
                 logError(msg, e, languageServer, position.getTextDocument(), position.getPosition());
                 hover = new Hover();
@@ -299,9 +293,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
             String fileUri = position.getTextDocument().getUri();
             LSServiceOperationContext context = new LSServiceOperationContext();
             LSDocument document = new LSDocument(fileUri);
-            List<BLangPackage> modules = ReferencesUtil.getPreparedModules(document, documentManager, lsCompiler,
-                    position.getPosition(), context, true);
             try {
+                List<BLangPackage> modules = ReferencesUtil.getPreparedModules(document, documentManager, lsCompiler,
+                                                                               position.getPosition(), context, true);
                 return ReferencesUtil.getDefinition(modules, context, position.getPosition());
             } catch (UserErrorException e) {
                 notifyUser(e, languageServer);
@@ -320,9 +314,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
             String fileUri = params.getTextDocument().getUri();
             LSDocument document = new LSDocument(fileUri);
             LSServiceOperationContext context = new LSServiceOperationContext();
-            List<BLangPackage> modules = ReferencesUtil.getPreparedModules(document, documentManager, lsCompiler,
-                    params.getPosition(), context, true);
             try {
+                List<BLangPackage> modules = ReferencesUtil.getPreparedModules(document, documentManager, lsCompiler,
+                                                                               params.getPosition(), context, true);
                 return ReferencesUtil.getReferences(modules, context, params.getPosition());
             } catch (UserErrorException e) {
                 notifyUser(e, languageServer);
@@ -547,9 +541,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
             LSServiceOperationContext context = new LSServiceOperationContext();
             Position position = params.getPosition();
             LSDocument document = new LSDocument(fileUri);
-            List<BLangPackage> modules = ReferencesUtil.getPreparedModules(document, documentManager, lsCompiler,
-                   position, context, true);
             try {
+                List<BLangPackage> modules = ReferencesUtil.getPreparedModules(document, documentManager, lsCompiler,
+                                                                               position, context, true);
                 return ReferencesUtil.getRenameWorkspaceEdits(modules, context, params.getNewName(), position);
             } catch (UserErrorException e) {
                 notifyUser(e, languageServer);
