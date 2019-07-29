@@ -1514,11 +1514,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             lhsVarRef.recordRefFields.forEach(field -> types.checkType(field.variableReference.pos,
                     expectedType, field.variableReference.type, DiagnosticCode.INCOMPATIBLE_TYPES));
 
-            if (lhsVarRef.isClosed) {
-                dlog.error(pos, DiagnosticCode.INVALID_CLOSED_RECORD_BINDING_PATTERN, rhsType);
-                return;
-            }
-
             if (lhsVarRef.restParam != null) {
                 types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos, rhsMapType,
                         ((BLangSimpleVarRef) lhsVarRef.restParam).type, DiagnosticCode.INCOMPATIBLE_TYPES);
@@ -1534,23 +1529,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BRecordType rhsRecordType = (BRecordType) rhsType;
 
-        if (lhsVarRef.isClosed) {
-            if (!rhsRecordType.sealed) {
-                dlog.error(pos, DiagnosticCode.INVALID_CLOSED_RECORD_BINDING_PATTERN, rhsType);
-                return;
-            }
-
-            if (lhsVarRef.recordRefFields.size() != rhsRecordType.fields.size()) {
-                dlog.error(pos, DiagnosticCode.NOT_ENOUGH_FIELDS_TO_MATCH_CLOSED_RECORDS, rhsType);
-                return;
-            }
-
-            if (lhsVarRef.restParam != null) {
-                types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos, getRestParamType(rhsRecordType),
-                        ((BLangSimpleVarRef) lhsVarRef.restParam).type, DiagnosticCode.INCOMPATIBLE_TYPES);
-            }
-        }
-
         // check if all fields in record var ref are found in rhs record type
         lhsVarRef.recordRefFields.stream()
                 .filter(lhsField -> rhsRecordType.fields.stream()
@@ -1564,9 +1542,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     .collect(Collectors.toList());
 
             if (expField.isEmpty()) {
-                if (lhsVarRef.isClosed) {
-                    dlog.error(lhsVarRef.pos, DiagnosticCode.NO_MATCHING_RECORD_REF_PATTERN, rhsField.name);
-                }
                 continue;
             }
 
