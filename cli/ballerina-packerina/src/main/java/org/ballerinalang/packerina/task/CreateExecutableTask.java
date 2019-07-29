@@ -63,23 +63,23 @@ public class CreateExecutableTask implements Task {
     }
     
     private static void assembleExecutable(BuildContext buildContext, BLangPackage bLangPackage) {
-        Path sourceRoot = buildContext.get(BuildContextField.SOURCE_ROOT);
+        Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         try {
             // Copy the jar from cache to bin directory
-            Path executable = buildContext.getExecutablePathFromTarget(bLangPackage.packageID);
-            Path moduleJar = buildContext.getJarPathFromTargetCache(bLangPackage.packageID);
+            Path executablePath = buildContext.getExecutablePathFromTarget(bLangPackage.packageID);
+            Path jarFromCachePath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID);
             
             // Check if the package has an entry point.
             if (bLangPackage.symbol.entryPointExists) {
-                Files.copy(moduleJar, executable, StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(jarFromCachePath, executablePath, StandardCopyOption.REPLACE_EXISTING);
                 // Get the fs handle to the jar file
                 
                 // Iterate through the imports and copy dependencies.
                 for (BPackageSymbol importz : bLangPackage.symbol.imports) {
-                    Path importJar = findImportJarPath(buildContext, importz, sourceRoot);
+                    Path importJar = findImportJarPath(buildContext, importz, sourceRootPath);
                     
                     if (importJar != null && Files.exists(importJar)) {
-                        copyFromJarToJar(importJar, executable);
+                        copyFromJarToJar(importJar, executablePath);
                     }
                 }
     
@@ -97,10 +97,9 @@ public class CreateExecutableTask implements Task {
             
                         result.forEach(lib -> {
                             try {
-                                copyFromJarToJar(Paths.get(lib), executable);
+                                copyFromJarToJar(Paths.get(lib), executablePath);
                             } catch (Exception e) {
-                                throw new BLangCompilerException("unable to create the executable :" +
-                                                                 e.getMessage());
+                                throw new BLangCompilerException("unable to create the executable :" + e.getMessage());
                             }
                         });
                     } catch (IOException e) {
@@ -112,7 +111,7 @@ public class CreateExecutableTask implements Task {
             // Copy dependency jar
             // Copy dependency libraries
             // Executable is created at give location.
-            OUT.println(sourceRoot.relativize(executable).toString());
+            OUT.println(sourceRootPath.relativize(executablePath).toString());
             // If no entry point is found we do nothing.
         } catch (IOException e) {
             throw new BLangCompilerException("Unable to create the executable :" + e.getMessage());
