@@ -222,3 +222,18 @@ function testUnshift() returns int[] {
     s.unshift(8, 8);
     return s;
 }
+
+type Obj object {
+    int i;
+    int j;
+    function __init(int i, int j) {
+        self.i = i;
+        self.j = j;
+    }
+};
+
+function testUnshiftTypeWithoutFillerValues () returns Obj[] {
+    Obj[] arr = [];
+    arr.unshift(new Obj(1, 1), new Obj(1,2));
+    return arr;
+}

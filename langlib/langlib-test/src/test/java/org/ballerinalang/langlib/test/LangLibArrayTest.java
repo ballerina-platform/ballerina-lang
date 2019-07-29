@@ -254,4 +254,10 @@ public class LangLibArrayTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testUnshift");
         assertEquals(returns[0].stringValue(), "[8, 8, 1, 2, 3, 4, 5]");
     }
+
+    @Test
+    public void testUnshiftTypeWithoutFillerValues() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUnshiftTypeWithoutFillerValues");
+        assertEquals(returns.length, 2);
+    }
 }

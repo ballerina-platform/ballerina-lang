@@ -433,7 +433,7 @@ public class ArrayValue implements RefValue, CollectionValue {
 
     private void unshiftArray(long index, int unshiftByN, int arrLength) {
         int lastIndex = size() + unshiftByN - 1;
-        prepareForAdd(lastIndex, arrLength);
+        prepareForConsecutiveMultiAdd(lastIndex, arrLength);
         Object arr = getArrayFromType(elementType.getTag());
 
         if (index > lastIndex) {
@@ -856,6 +856,20 @@ public class ArrayValue implements RefValue, CollectionValue {
         fillerValueCheck(intIndex, size);
         ensureCapacity(intIndex + 1, currentArraySize);
         fillValues(intIndex);
+        resetSize(intIndex);
+    }
+
+    /**
+     * Same as {@code prepareForAdd}, except fillerValueCheck is not performed as we are guaranteed to add
+     * elements to consecutive positions.
+     *
+     * @param index last index after add operation completes
+     * @param currentArraySize current array size
+     */
+    void prepareForConsecutiveMultiAdd(long index, int currentArraySize) {
+        int intIndex = (int) index;
+        rangeCheck(index, size);
+        ensureCapacity(intIndex + 1, currentArraySize);
         resetSize(intIndex);
     }
 
