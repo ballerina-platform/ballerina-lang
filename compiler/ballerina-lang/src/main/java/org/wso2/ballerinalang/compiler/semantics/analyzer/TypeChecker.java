@@ -1414,25 +1414,24 @@ public class TypeChecker extends BLangNodeVisitor {
                 fieldAccessExpr.compoundAssignmentLhsVar;
         BType varRefType = getTypeOfExprInFieldAccess(fieldAccessExpr.expr);
 
+        BType actualType;
         // Accessing all fields using * is only supported for XML.
         if (fieldAccessExpr.fieldKind == FieldKind.ALL && varRefType.tag != TypeTags.XML) {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_GET_ALL_FIELDS, varRefType);
-        }
-
-        BType actualType;
-
-        if (fieldAccessExpr.optionalFieldAccess) {
-            if (fieldAccessExpr.lhsVar || fieldAccessExpr.compoundAssignmentLhsVar) {
-                dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPTIONAL_FIELD_ACCESS_NOT_REQUIRED_ON_LHS);
-                resultType = symTable.semanticError;
-                return;
-            }
-            actualType = checkOptionalFieldAccessExpr(fieldAccessExpr, varRefType,
-                    names.fromIdNode(fieldAccessExpr.field));
+            actualType = symTable.semanticError;
         } else {
-            actualType = checkFieldAccessExpr(fieldAccessExpr, varRefType, names.fromIdNode(fieldAccessExpr.field));
+            if (fieldAccessExpr.optionalFieldAccess) {
+                if (fieldAccessExpr.lhsVar || fieldAccessExpr.compoundAssignmentLhsVar) {
+                    dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPTIONAL_FIELD_ACCESS_NOT_REQUIRED_ON_LHS);
+                    resultType = symTable.semanticError;
+                    return;
+                }
+                actualType = checkOptionalFieldAccessExpr(fieldAccessExpr, varRefType,
+                                                          names.fromIdNode(fieldAccessExpr.field));
+            } else {
+                actualType = checkFieldAccessExpr(fieldAccessExpr, varRefType, names.fromIdNode(fieldAccessExpr.field));
+            }
         }
-
         resultType = types.checkType(fieldAccessExpr, actualType, this.expType);
     }
 
