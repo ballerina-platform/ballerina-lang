@@ -16,7 +16,7 @@ function name1() {
 
     foreach var [k, v] in words {
         io:println("letter: ", k, ", word: ", v);
-        foreach var[j, l] in words {
+        foreach var [j, l] in words {
             io:println("letter: ", j, ", word: ", l);
             break;
         }
