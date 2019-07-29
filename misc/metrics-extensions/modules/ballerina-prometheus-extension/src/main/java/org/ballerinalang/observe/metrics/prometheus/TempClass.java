@@ -20,13 +20,12 @@
 package org.ballerinalang.observe.metrics.prometheus;
 
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.net.http.WebSocketConstants;
 
 /**
  * Added as a workaround to force gradle to create this.map.json.
  */
 @BallerinaFunction(
-        orgName = WebSocketConstants.BALLERINA_ORG,
+        orgName = "ballerina",
         packageName = "prometheus",
         functionName = "mockFunction"
 )

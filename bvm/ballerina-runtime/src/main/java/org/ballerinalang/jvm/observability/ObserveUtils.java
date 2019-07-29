@@ -82,11 +82,16 @@ public class ObserveUtils {
             observerContext = new ObserverContext();
             setObserverContextToCurrentFrame(strand, observerContext);
         }
+        if (serviceName == null) {
+            serviceName = UNKNOWN_SERVICE;
+            strand.setProperty(ObservabilityConstants.SERVICE_NAME, serviceName);
+        }
         observerContext.setServiceName(serviceName);
         observerContext.setResourceName(resourceName);
         observerContext.setServer();
         observerContext.setStarted();
         observers.forEach(observer -> observer.startServerObservation(strand.observerContext));
+        strand.setProperty(ObservabilityConstants.SERVICE_NAME, serviceName);
     }
 
     /**
@@ -125,9 +130,9 @@ public class ObserveUtils {
         if (observerCtx == null) {
             observerCtx = new ObserverContext();
             observerCtx.addTag(TAG_KEY_SPAN_KIND, TAG_SPAN_KIND_SERVER);
-            observerCtx.setConnectorName(UNKNOWN_CONNECTOR);
             observerCtx.setServiceName(UNKNOWN_SERVICE);
-//            observerCtx.setResourceName(strand.getId());
+            observerCtx.setConnectorName(UNKNOWN_CONNECTOR);
+            observerCtx.setResourceName(UNKNOWN_CONNECTOR);
             observerCtx.setServer();
             observerCtx.setStarted();
             for (BallerinaObserver observer : observers) {
