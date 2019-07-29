@@ -28,13 +28,13 @@ import java.util.Queue;
  * This Handler is responsible for issuing frame by frame when the WebSocket connection is asked to read next frame
  * when autoRead is set to false.
  */
-public class MessageQueueHandler extends ChannelInboundHandlerAdapter {
+public class WebSocketMessageQueueHandler extends ChannelInboundHandlerAdapter {
 
     private final Queue<Object> messageQueue;
     private ChannelHandlerContext ctx;
     private boolean readNext;
 
-    public MessageQueueHandler() {
+    public WebSocketMessageQueueHandler() {
         this.messageQueue = new LinkedList<>();
     }
 
