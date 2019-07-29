@@ -86,8 +86,8 @@ function genJMethodForBFunc(bir:Function func,
         tryStart = labelGen.getLabel("try-start");
         tryEnd = labelGen.getLabel("try-end");
         tryHandler = labelGen.getLabel("try-handler");
-        if (tryStart is jvm:Label && tryEnd is jvm:Label && tryHandler is jvm:Label) {
-            mv.visitTryCatchBlock(tryStart, tryEnd, tryHandler, ());
+        if (tryStart is jvm:Label) {
+            // start try block
             mv.visitLabel(tryStart);
         }
     }
@@ -311,7 +311,9 @@ function genJMethodForBFunc(bir:Function func,
     }
 
     // generate the try finally to stop observing if an error occurs.
-    if (isObserved && tryEnd is jvm:Label && tryHandler is jvm:Label) {
+    if (isObserved && tryEnd is jvm:Label && tryStart is jvm:Label && tryHandler is jvm:Label) {
+        // visiting at the end since order matters in error table
+        mv.visitTryCatchBlock(tryStart, tryEnd, tryHandler, ());
         mv.visitLabel(tryEnd);
         bir:VariableDcl throwableVarDcl = { typeValue: "string", name: { value: "$_throwable_$" } };
         int throwableVarIndex = indexMap.getIndex(throwableVarDcl);
