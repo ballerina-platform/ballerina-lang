@@ -6,8 +6,10 @@ ToLower: lion in town. catch the lion
 SubString: Lion
 IndexOf: 2
 Length: 28
-Trim: Lion in Town. Catch the Lion
+Concat: Hello Ballerina!
+Join: Hello,Ballerina!
+From bytes: Hello
+Trim: Ballerina Programming Language
 HasSuffix: true
 HasPrefix: true
-Bytes: Lion in Town. Catch the Lion
 Sprintf: Sam scored 90 for English and has an average of 71.50.

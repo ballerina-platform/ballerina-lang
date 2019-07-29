@@ -9,7 +9,7 @@
       "label": "lang.object",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027lang\\.object as ${1}",
+      "insertText": "lang.\u0027object;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -30,7 +30,7 @@
       "label": "lang.xml",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027lang\\.xml as ${1}",
+      "insertText": "lang.\u0027xml;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -44,7 +44,7 @@
       "label": "lang.array",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027lang\\.array as ${1}",
+      "insertText": "lang.\u0027array;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -128,7 +128,7 @@
       "label": "lang.string",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027lang\\.string as ${1}",
+      "insertText": "lang.\u0027string;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -191,14 +191,14 @@
       "label": "lang.future",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027lang\\.future as ${1}",
+      "insertText": "lang.\u0027future;",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "lang.value",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027lang\\.value as ${1}",
+      "insertText": "lang.\u0027value;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -240,7 +240,7 @@
       "label": "lang.float",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027lang\\.float as ${1}",
+      "insertText": "lang.\u0027float;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -268,7 +268,7 @@
       "label": "lang.decimal",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027lang\\.decimal as ${1}",
+      "insertText": "lang.\u0027decimal;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -296,14 +296,14 @@
       "label": "lang.table",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027lang\\.table as ${1}",
+      "insertText": "lang.\u0027table;",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "lang.annotations",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027lang\\.annotations as ${1}",
+      "insertText": "lang.\u0027annotations;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -324,35 +324,35 @@
       "label": "lang.stream",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027lang\\.stream as ${1}",
+      "insertText": "lang.\u0027stream;",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "lang.error",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027lang\\.error as ${1}",
+      "insertText": "lang.\u0027error;",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "lang.typedesc",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027lang\\.typedesc as ${1}",
+      "insertText": "lang.\u0027typedesc;",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "lang.map",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027lang\\.map as ${1}",
+      "insertText": "lang.\u0027map;",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "lang.int",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "\u0027lang\\.int as ${1}",
+      "insertText": "lang.\u0027int;",
       "insertTextFormat": "Snippet"
     },
     {
