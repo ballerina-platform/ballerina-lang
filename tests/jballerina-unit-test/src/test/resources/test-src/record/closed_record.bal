@@ -257,10 +257,10 @@ function testEmptyClosedRecords() returns record {||}[] {
     return recArr;
 }
 
-type Foo record {
+type Foo record {|
     string bar;
     int baz;
-};
+|};
 
 function testLiteralsAsMappingConstructorKeys() returns boolean {
     Foo f = { "bar": "hello", baz: 1 };
