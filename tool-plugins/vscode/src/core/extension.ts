@@ -30,10 +30,10 @@ import {
 import * as path from 'path';
 import * as fs from 'fs';
 import { exec, execSync } from 'child_process';
-import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, DidChangeConfigurationParams } from "vscode-languageclient";
+import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, DidChangeConfigurationParams, Message, ErrorAction, CloseAction } from "vscode-languageclient";
 import { getServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
-import { info, getOutputChannel } from '../utils/index';
+import { info, getOutputChannel, log as debug } from '../utils/index';
 import { AssertionError } from "assert";
 import { OVERRIDE_BALLERINA_HOME, BALLERINA_HOME, ALLOW_EXPERIMENTAL, ENABLE_DEBUG_LOG } from "./preferences";
 
@@ -60,6 +60,18 @@ export class BallerinaExtension {
             documentSelector: [{ scheme: 'file', language: 'ballerina' }],
             outputChannel: getOutputChannel(),
             revealOutputChannelOn: RevealOutputChannelOn.Never,
+            errorHandler: {
+                error: (error: Error, message: Message, count: number): ErrorAction => {
+                    info("Error occurred in language server. ");
+                    info(error.message);
+                    // dump rpc response to debug channel
+                    debug(message.jsonrpc);
+                    // shutdown server upon an error
+                    return ErrorAction.Shutdown;
+                },
+                // restart server when the connection breaks
+                closed: () => CloseAction.Restart,
+            }
         };
     }
 
