@@ -1,5 +1,3 @@
-
-import { ASTNode } from "@ballerina/ast-model";
 import classNames from "classnames";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
@@ -10,9 +8,6 @@ const config: DiagramConfig = DiagramUtils.getConfig();
 
 export const ClientLine: React.StatelessComponent<{
     model: SimpleBBox,
-    title: string,
-    icon: string,
-    astModel?: ASTNode,
     activeRange?: [number, number]
 }> = ({
     model,
