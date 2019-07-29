@@ -119,6 +119,20 @@ public const COMPRESSION_ALWAYS = "ALWAYS";
 # Never set accept-encoding/content-encoding header in outbound request/response.
 public const COMPRESSION_NEVER = "NEVER";
 
+# Defines worker pool usage for resource execution.
+#
+# `ENABLE`: Resource function is executed using ballerian worker pool and connector(I/O) thread is released immediately.
+# `DISABLE`: Use the same connector(I/O) thread for resource execution. Mostly applicable when performance tuning for
+#            passthrough resources
+public type WorkerPoolStatus ENABLE|DISABLE;
+
+# Resource function is executed using ballerian worker pool and connector(I/O) thread is released immediately.
+public const ENABLE = "ENABLE";
+
+# Use the same connector(I/O) thread for resource execution. Mostly applicable when performance tuning for passthrough
+# resources
+public const DISABLE = "DISABLE";
+
 # The types of messages that are accepted by HTTP `client` when sending out the outbound request.
 public type RequestMessage Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|();
 

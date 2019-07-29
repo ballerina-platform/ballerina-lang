@@ -111,6 +111,7 @@ public annotation WSServiceConfig WebSocketServiceConfig on service;
 # + transactionInfectable - Allow to participate in the distributed transactions if value is true
 # + webSocketUpgrade - Annotation to define HTTP to WebSocket upgrade
 # + auth - Authentication Configs to secure the resource
+# + workerPool - Defines worker pool usage for resource execution.
 public type HttpResourceConfig record {|
     string[] methods = [];
     string path = "";
@@ -121,6 +122,7 @@ public type HttpResourceConfig record {|
     boolean transactionInfectable = true;
     WebSocketUpgradeConfig? webSocketUpgrade = ();
     ServiceResourceAuth auth?;
+    WorkerPoolStatus workerPool = ENABLE;
 |};
 
 # Resource configuration to upgrade from HTTP to WebSocket.

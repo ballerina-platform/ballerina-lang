@@ -19,6 +19,7 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.net.uri.DispatcherUtil;
@@ -56,6 +57,7 @@ public class HttpResource {
     private static final String PRODUCES_FIELD = "produces";
     private static final String CORS_FIELD = "cors";
     private static final String TRANSACTION_INFECTABLE_FIELD = "transactionInfectable";
+    private static final String WORKER_POOL_STATUS_FIELD = "workerPool";
 
     private AttachedFunction balResource;
     private List<String> methods;
@@ -69,8 +71,8 @@ public class HttpResource {
     private HttpService parentService;
     private boolean transactionInfectable = true; //default behavior
     private boolean interruptible;
-
     private boolean transactionAnnotated = false;
+    private boolean workerPoolStatus = true;
 
     protected HttpResource(AttachedFunction resource, HttpService parentService) {
         this.balResource = resource;
@@ -171,6 +173,10 @@ public class HttpResource {
         this.transactionInfectable = transactionInfectable;
     }
 
+    public void setWorkerPoolSTransactionInfectable(boolean transactionInfectable) {
+        this.transactionInfectable = transactionInfectable;
+    }
+
     public boolean isInterruptible() {
         return interruptible;
     }
@@ -205,6 +211,7 @@ public class HttpResource {
             httpResource.setCorsHeaders(CorsHeaders.buildCorsHeaders(resourceConfigAnnotation.getMapValue(CORS_FIELD)));
             httpResource
                     .setTransactionInfectable(resourceConfigAnnotation.getBooleanValue(TRANSACTION_INFECTABLE_FIELD));
+            httpResource.setWorkerPoolStatus(resourceConfigAnnotation.get(WORKER_POOL_STATUS_FIELD).toString());
 
             processResourceCors(httpResource, httpService);
             httpResource.prepareAndValidateSignatureParams();
@@ -284,5 +291,23 @@ public class HttpResource {
         List<BType> paramTypes = new ArrayList<>();
         paramTypes.addAll(Arrays.asList(this.balResource.getParameterType()));
         return paramTypes;
+    }
+
+    boolean WorkerPoolExecution() {
+        return workerPoolStatus;
+    }
+
+    private void setWorkerPoolStatus(String workerPoolStatus) {
+        switch (workerPoolStatus) {
+            case "ENABLE":
+                this.workerPoolStatus = true;
+                break;
+            case "DISABLE":
+                this.workerPoolStatus = false;
+                break;
+            default:
+                throw new BallerinaConnectorException(
+                        "Invalid configuration found for WorkerPool status: " + workerPoolStatus);
+        }
     }
 }
