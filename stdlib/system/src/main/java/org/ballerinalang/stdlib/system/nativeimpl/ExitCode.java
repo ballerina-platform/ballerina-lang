@@ -29,28 +29,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * External function for ballerina.system:Process.waitForExit.
+ * External function for ballerina.system:Process.exitCode.
  *
- * @since 1.0.0
+ * @since 0.995.0
  */
 @BallerinaFunction(
         orgName = SystemConstants.ORG_NAME,
         packageName = SystemConstants.PACKAGE_NAME,
-        functionName = "nativeWaitForExit"
+        functionName = "nativeExitCode"
 )
-public class WaitForExit extends BlockingNativeCallableUnit {
-
+public class ExitCode extends BlockingNativeCallableUnit {
+    
     private static final Logger log = LoggerFactory.getLogger(WaitForExit.class);
 
     @Override
     public void execute(Context context) { }
 
-    public static Object nativeWaitForExit(Strand strand, ObjectValue objVal) {
+    public static Object nativeExitCode(Strand strand, ObjectValue objVal) {
         Process process = SystemUtils.processFromObject(objVal);
         try {
-            return process.waitFor();
-        } catch (InterruptedException e) {
-            log.error("Interrupted error while process wait for exit", e);
+            return process.exitValue();
+        } catch (java.lang.IllegalThreadStateException e) {
+            log.error("Error while getting process exit code", e);
             return SystemUtils.getBallerinaError(SystemConstants.PROCESS_EXEC_ERROR, e);
         }
     }

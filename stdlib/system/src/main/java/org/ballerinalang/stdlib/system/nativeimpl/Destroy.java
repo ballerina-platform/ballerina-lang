@@ -25,34 +25,25 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * External function for ballerina.system:Process.waitForExit.
+ * External function for ballerina.system:Process.destroy.
  *
  * @since 1.0.0
  */
 @BallerinaFunction(
         orgName = SystemConstants.ORG_NAME,
         packageName = SystemConstants.PACKAGE_NAME,
-        functionName = "nativeWaitForExit"
+        functionName = "nativeDestroy"
 )
-public class WaitForExit extends BlockingNativeCallableUnit {
-
-    private static final Logger log = LoggerFactory.getLogger(WaitForExit.class);
+public class Destroy extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) { }
 
-    public static Object nativeWaitForExit(Strand strand, ObjectValue objVal) {
+    public static void nativeDestroy(Strand strand, ObjectValue objVal) {
         Process process = SystemUtils.processFromObject(objVal);
-        try {
-            return process.waitFor();
-        } catch (InterruptedException e) {
-            log.error("Interrupted error while process wait for exit", e);
-            return SystemUtils.getBallerinaError(SystemConstants.PROCESS_EXEC_ERROR, e);
-        }
+        process.destroy();
     }
 
 }

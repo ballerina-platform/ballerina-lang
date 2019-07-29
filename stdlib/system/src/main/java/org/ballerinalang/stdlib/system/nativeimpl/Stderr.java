@@ -18,41 +18,36 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import java.io.InputStream;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.stdlib.io.channels.AbstractNativeChannel;
+import org.ballerinalang.stdlib.io.channels.BlobChannel;
+import org.ballerinalang.stdlib.io.channels.BlobIOChannel;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * External function for ballerina.system:Process.waitForExit.
+ * External function for ballerina.system:Process.stderr.
  *
  * @since 1.0.0
  */
 @BallerinaFunction(
         orgName = SystemConstants.ORG_NAME,
         packageName = SystemConstants.PACKAGE_NAME,
-        functionName = "nativeWaitForExit"
+        functionName = "nativeStderr"
 )
-public class WaitForExit extends BlockingNativeCallableUnit {
+public class Stderr extends AbstractNativeChannel {
 
-    private static final Logger log = LoggerFactory.getLogger(WaitForExit.class);
-
-    @Override
-    public void execute(Context context) { }
-
-    public static Object nativeWaitForExit(Strand strand, ObjectValue objVal) {
+    public static ObjectValue nativeStderr(Strand strand, ObjectValue objVal) {
         Process process = SystemUtils.processFromObject(objVal);
-        try {
-            return process.waitFor();
-        } catch (InterruptedException e) {
-            log.error("Interrupted error while process wait for exit", e);
-            return SystemUtils.getBallerinaError(SystemConstants.PROCESS_EXEC_ERROR, e);
-        }
+        InputStream in = process.getErrorStream();
+        ReadableByteChannel readableByteChannel = Channels.newChannel(in);        
+        return createChannel(new BlobIOChannel(new BlobChannel(readableByteChannel)));
     }
 
 }

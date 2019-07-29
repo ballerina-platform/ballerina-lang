@@ -38,7 +38,7 @@ import java.util.List;
 /**
  * Extern function ballerina.system:exec.
  *
- * @since 0.995.0
+ * @since 1.0.0
  */
 @BallerinaFunction(
         orgName = SystemConstants.ORG_NAME,
@@ -53,13 +53,13 @@ public class Exec extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) { }
 
-    public static Object exec(Strand strand, String command, MapValue<String, String> env, String dir, ArrayValue args) {
+    public static Object exec(Strand strand, String command, MapValue<String, String> env, Object dir, ArrayValue args) {
         List<String> commandList = new ArrayList<String>();
         commandList.add(command);
         commandList.addAll(Arrays.asList(args.getStringArray()));
         ProcessBuilder pb = new ProcessBuilder(commandList);
         if (dir != null) {
-            pb.directory(new File(dir));
+            pb.directory(new File((String) dir));
         }
         if (env != null) {
             pb.environment().putAll(env);
