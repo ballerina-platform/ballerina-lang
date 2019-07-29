@@ -22,5 +22,12 @@ package org.ballerinalang.packerina.buildcontext.sourcecontext;
  * Enum for types of sources.
  */
 public enum SourceType {
-    BAL_FILE, SINGLE_MODULE, ALL_MODULES
+    // when single ballerina file given with .bal extension
+    SINGLE_BAL_FILE,
+    
+    // when a module of a project is used
+    SINGLE_MODULE,
+    
+    // when all the modules of a project is used
+    ALL_MODULES
 }

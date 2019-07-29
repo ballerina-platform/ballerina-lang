@@ -29,6 +29,8 @@ dependencies {
     bir project(path: ':ballerina-io',  configuration: 'bir')
 
     implementation project(':ballerina-lang')
+    implementation project(':ballerina-config')
+    implementation project(':ballerina-logging')
     implementation project(':ballerina-backend-jvm')
     implementation project(':ballerina-core')
     implementation project(':ballerina-tool')
