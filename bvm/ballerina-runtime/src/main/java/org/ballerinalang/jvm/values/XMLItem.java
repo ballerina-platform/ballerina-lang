@@ -18,7 +18,6 @@ package org.ballerinalang.jvm.values;
 
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMComment;
-import org.apache.axiom.om.OMDocument;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMNode;
@@ -27,7 +26,6 @@ import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.OMXMLBuilderFactory;
 import org.apache.axiom.om.impl.common.OMChildrenQNameIterator;
 import org.apache.axiom.om.impl.common.OMNamespaceImpl;
-import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.impl.llom.OMElementImpl;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.jvm.BallerinaErrors;
@@ -630,31 +628,20 @@ public final class XMLItem extends XMLValue<OMNode> {
             return this;
         }
 
-        OMNode clonedNode;
         switch (nodeType) {
             case ELEMENT:
-                clonedNode = ((OMElement) omNode).cloneOMElement();
-                break;
+                return new XMLItem(((OMElement) omNode).cloneOMElement());
             case TEXT:
-                clonedNode = (OMNode) XMLFactory.createXMLText(((OMText) omNode).getText()).value();
-                break;
+                return XMLFactory.createXMLText(((OMText) omNode).getText());
             case COMMENT:
-                clonedNode = (OMNode) XMLFactory.createXMLComment(((OMComment) omNode).getValue()).value();
-                break;
+                return XMLFactory.createXMLComment(((OMComment) omNode).getValue());
             case PI:
-                clonedNode = (OMNode) XMLFactory.createXMLProcessingInstruction(
+                return XMLFactory.createXMLProcessingInstruction(
                         ((OMProcessingInstruction) omNode).getTarget(),
-                        ((OMProcessingInstruction) omNode).getValue()).value();
-                break;
+                        ((OMProcessingInstruction) omNode).getValue());
             default:
-                clonedNode = omNode;
-                break;
+                return new XMLItem(omNode);
         }
-
-        // adding the document element as parent, to get xpPaths work
-        OMDocument doc = new OMDocumentImpl();
-        doc.addChild(clonedNode);
-        return new XMLItem(clonedNode);
     }
 
     /**
