@@ -43,7 +43,7 @@ import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
-import org.wso2.transport.http.netty.contractimpl.listener.MessageQueueHandler;
+import org.wso2.transport.http.netty.contractimpl.listener.WebSocketMessageQueueHandler;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultClientHandshakeFuture;
 
 import java.net.URI;
@@ -111,10 +111,10 @@ public class WebSocketClient {
             final boolean ssl = Constants.WSS_SCHEME.equalsIgnoreCase(scheme);
             WebSocketClientHandshaker webSocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
                     uri, WebSocketVersion.V13, subProtocols, true, headers, maxFrameSize);
-            MessageQueueHandler messageQueueHandler = new MessageQueueHandler();
+            WebSocketMessageQueueHandler webSocketMessageQueueHandler = new WebSocketMessageQueueHandler();
             clientHandshakeHandler = new WebSocketClientHandshakeHandler(webSocketHandshaker, handshakeFuture,
-                                                                         messageQueueHandler, ssl, autoRead, url,
-                                                                         handshakeFuture);
+                                                                         webSocketMessageQueueHandler, ssl, autoRead,
+                                                                         url, handshakeFuture);
             Bootstrap clientBootstrap = initClientBootstrap(host, port, handshakeFuture);
             clientBootstrap.connect(uri.getHost(), port).sync();
         } catch (Exception throwable) {
