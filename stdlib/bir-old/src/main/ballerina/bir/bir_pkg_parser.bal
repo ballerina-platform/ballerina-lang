@@ -128,7 +128,6 @@ public type PackageParser object {
 
     public function parseFunction(TypeDef?[] typeDefs) returns Function {
         map<VariableDcl> localVarMap = {};
-        FuncBodyParser bodyParser = new(self.reader, self.globalVarMap, localVarMap, typeDefs);
         DiagnosticPos pos = parseDiagnosticPos(self.reader);
         var name = self.reader.readStringCpRef();
         int flags = self.reader.readInt32();
@@ -146,10 +145,10 @@ public type PackageParser object {
             _ = self.reader.readInt32();
         }
 
-        BType? receiverType = ();
-        boolean hasReceiverType = self.reader.readBoolean();
-        if (hasReceiverType) {
-            receiverType = self.reader.readTypeCpRef();
+        VariableDcl? receiver = ();
+        boolean hasReceiver = self.reader.readBoolean();
+        if (hasReceiver) {
+            receiver = self.parseVariableDcl();
         }
 
         int taintLength = self.reader.readInt64();
@@ -172,7 +171,7 @@ public type PackageParser object {
                 argsCount: 0,
                 typeValue: sig,
                 workerChannels: [],
-                receiverType : receiverType,
+                receiver : receiver,
                 restParamExist : restParamExist,
                 annotAttachments: annotAttachments
             };
@@ -221,6 +220,7 @@ public type PackageParser object {
             count += 1;
         }
 
+        FuncBodyParser bodyParser = new(self.reader, self.globalVarMap, localVarMap, typeDefs, receiver);
         count = 0;
         BasicBlock?[][] paramDefaultBBs = [];
         while (count < numDefaultParams) {
@@ -244,7 +244,7 @@ public type PackageParser object {
             argsCount: argsCount,
             typeValue: sig,
             workerChannels:workerChannels,
-            receiverType : receiverType,
+            receiver : receiver,
             restParamExist : restParamExist,
             annotAttachments: annotAttachments
         };
@@ -360,8 +360,21 @@ public type PackageParser object {
             BType typeValue = tDef.typeValue;
             if (typeValue is BObjectType || typeValue is BRecordType || typeValue is BServiceType) {
                 tDef.attachedFuncs = self.parseFunctions(typeDefs);
+                tDef.typeRefs = self.parseReferencedTypes();
             }
         }
+    }
+
+    function parseReferencedTypes() returns BType?[] {
+        var numTypes = self.reader.readInt32();
+        BType?[] typeRefs = [];
+        int i = 0;
+        while (i < numTypes) {
+            typeRefs[i] = self.reader.readTypeCpRef();
+            i += 1;
+        }
+
+        return typeRefs;
     }
 
     function parseTypeDef() returns TypeDef {
@@ -373,7 +386,7 @@ public type PackageParser object {
         skipMarkDownDocAttachement(self.reader);
 
         var bType = self.reader.readTypeCpRef();
-        return { pos:pos, name: { value: name }, flags: flags, typeValue: bType, attachedFuncs: () };
+        return { pos:pos, name: { value: name }, flags: flags, typeValue: bType, attachedFuncs: (), typeRefs : [] };
     }
 
     function parseGlobalVars(GlobalVariableDcl?[] globalVars) {       

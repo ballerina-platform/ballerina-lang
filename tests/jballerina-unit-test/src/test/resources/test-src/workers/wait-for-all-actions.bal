@@ -284,7 +284,7 @@ function waitTest26() returns map<anydata|error> {
     map<anydata|error> m = {};
     m["id"] = anonRec.id;
     m["name"] = anonRec.name;
-    m["status"] = anonRec.status;
+    m["status"] = anonRec["status"];
     return m;
 }
 
@@ -297,7 +297,7 @@ function waitTest27() returns map<anydata> {
     map<anydata> m = {};
     m["id"] = anonRec.id;
     m["name"] = anonRec.name;
-    m["greet"] = anonRec.greet;
+    m["greet"] = anonRec["greet"];
     return m;
 }
 

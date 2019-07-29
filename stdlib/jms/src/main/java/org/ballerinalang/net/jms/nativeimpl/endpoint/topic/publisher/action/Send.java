@@ -19,7 +19,7 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.publisher.action;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -40,7 +40,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SendActionHandler;
 public class Send {
 
     public static Object send(Strand strand, ObjectValue publisherObj, ObjectValue msgObj) {
-        return SendActionHandler.handle(publisherObj, msgObj);
+        return SendActionHandler.handle(strand, publisherObj, msgObj);
     }
 
 }

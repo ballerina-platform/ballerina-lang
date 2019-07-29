@@ -18,17 +18,10 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
-import java.nio.charset.StandardCharsets;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
@@ -42,22 +35,10 @@ import java.util.zip.Checksum;
         functionName = "crc32b", isPublic = true)
 public class Crc32b {
 
-    public static String crc32b(Strand strand, Object entityBody) {
+    public static String crc32b(Strand strand, ArrayValue input) {
         Checksum checksum = new CRC32();
-        byte[] bytes;
+        byte[] bytes = input.getBytes();
         long checksumVal;
-
-        BType argType = TypeChecker.getType(entityBody);
-        if (argType == BTypes.typeJSON || argType == BTypes.typeXML || argType == BTypes.typeString) {
-            // TODO: Look at the possibility of making the encoding configurable
-            bytes = entityBody.toString().getBytes(StandardCharsets.UTF_8);
-        } else if (argType.getTag() == TypeTags.ARRAY_TAG &&
-                ((BArrayType) argType).getElementType().getTag() == TypeTags.BYTE_TAG) {
-            bytes = ((ArrayValue) entityBody).getBytes();
-        } else {
-            throw new BallerinaException("Failed to generate hash: unsupported data type: " +
-                    TypeChecker.getType(entityBody).getName());
-        }
 
         checksum.update(bytes, 0, bytes.length);
         checksumVal = checksum.getValue();

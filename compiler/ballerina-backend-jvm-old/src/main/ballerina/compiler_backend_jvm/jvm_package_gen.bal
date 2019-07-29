@@ -130,6 +130,9 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
 
     boolean serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
 
+    // Desugar the record init function
+    rewriteRecordInits(module.typeDefs);
+
     // generate object value classes
     ObjectGenerator objGen = new(module);
     objGen.generateValueClasses(module.typeDefs, jarFile.pkgEntries);
@@ -457,7 +460,7 @@ function getFunctionWrapper(bir:Function currentFunc, string orgName ,string mod
                             string versionValue,  string  moduleClass) returns BIRFunctionWrapper {
 
     bir:BInvokableType functionTypeDesc = currentFunc.typeValue;
-    bir:BType? attachedType = currentFunc.receiverType;
+    bir:BType? attachedType = currentFunc.receiver.typeValue;
     string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
                                                 attachedType = attachedType);
     return {

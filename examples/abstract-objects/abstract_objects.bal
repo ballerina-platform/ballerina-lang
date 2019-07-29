@@ -30,21 +30,17 @@ type Employee object {
         self.lastName = lastName;
     }
 
-    // Methods should have a body either within the object or as outside method definitions.
+    // Methods should have a body.
     function getFullName() returns string {
         return self.firstName + " " + self.lastName;
     }
 
-    // Otherwise, it must be defined outside.
-    function checkAndModifyAge(int condition, int a);
-};
-
-// Implements the declared method.
-function Employee.checkAndModifyAge(int condition, int a) {
-    if (self.age < condition) {
-        self.age = a;
+    function checkAndModifyAge(int condition, int a) {
+        if (self.age < condition) {
+            self.age = a;
+        }
     }
-}
+};
 
 public function main() {
     // An abstract object type cannot be initialized. It does not have 
@@ -54,7 +50,7 @@ public function main() {
     // and then assigns the value to the abstract object type variable.
     Person p = new Employee(5, "John", "Doe");
     io:println(p.getFullName());
-
+    
     p.checkAndModifyAge(10, 50);
 
     io:println(p);

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;

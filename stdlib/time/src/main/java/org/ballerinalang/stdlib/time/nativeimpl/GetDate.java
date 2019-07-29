@@ -18,7 +18,7 @@
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;

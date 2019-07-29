@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -48,7 +48,7 @@ public class EncryptRsaEcb {
         } else if (keyMap.getNativeData(Constants.NATIVE_DATA_PUBLIC_KEY) != null) {
             key = (PublicKey) keyMap.getNativeData(Constants.NATIVE_DATA_PUBLIC_KEY);
         } else {
-            return CryptoUtils.createCryptoError("Uninitialized private/public key");
+            return CryptoUtils.createError("Uninitialized private/public key");
         }
         return CryptoUtils.rsaEncryptDecrypt(CryptoUtils.CipherMode.ENCRYPT, Constants.ECB, padding.toString(), key,
                                              input, null, -1);

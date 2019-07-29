@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http.nativeimpl.request;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.model.types.TypeKind;

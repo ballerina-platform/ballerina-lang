@@ -48,6 +48,8 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Responsible for serializing BIR instructions and operands.
@@ -109,12 +111,28 @@ public class BIRInstructionWriter extends BIRVisitor {
         addCpAndWriteString(lock.lockedBB.id.value);
     }
 
+    public void visit(BIRTerminator.FieldLock lock) {
+        writePosition(lock.pos);
+        buf.writeByte(lock.kind.getValue());
+        addCpAndWriteString(lock.localVar.name.value);
+        addCpAndWriteString(lock.field);
+        addCpAndWriteString(lock.lockedBB.id.value);
+    }
+
     public void visit(BIRTerminator.Unlock unlock) {
         writePosition(unlock.pos);
         buf.writeByte(unlock.kind.getValue());
         buf.writeInt(unlock.globalVars.size());
         for (BIRNode.BIRGlobalVariableDcl globalVar : unlock.globalVars) {
             addCpAndWriteString(globalVar.name.value);
+        }
+        buf.writeInt(unlock.fieldLocks.size());
+        for (Map.Entry<BIRNode.BIRVariableDcl, Set<String>> entry : unlock.fieldLocks.entrySet()) {
+            addCpAndWriteString(entry.getKey().name.value);
+            buf.writeInt(entry.getValue().size());
+            for (String field : entry.getValue()) {
+                addCpAndWriteString(field);
+            }
         }
         addCpAndWriteString(unlock.unlockBB.id.value);
     }

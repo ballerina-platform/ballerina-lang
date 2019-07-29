@@ -173,11 +173,11 @@ public function hmacSha384(byte[] input, byte[] key) returns byte[] = external;
 # + return - HMAC output
 public function hmacSha512(byte[] input, byte[] key) returns byte[] = external;
 
-# Returns Hex encoded CRC32B value for the provided element. This accepts `string`, `byte[]`, `json` and `xml` content.
+# Returns Hex encoded CRC32B value for the provided element.
 #
 # + input - Value for checksum generation
 # + return - The generated checksum
-public function crc32b(any input) returns string = external;
+public function crc32b(byte[] input) returns string = external;
 
 # Returns RSA-MD5 based signature value for the given data.
 #

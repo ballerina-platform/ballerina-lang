@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;

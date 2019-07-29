@@ -215,7 +215,9 @@ function createOldStyleExternalFunctionWrapper(bir:Function birFunc, string orgN
     bir:BType?[] jMethodPramTypes = birFunc.typeValue.paramTypes.clone();
     addDefaultableBooleanVarsToSignature(birFunc);
     bir:BInvokableType functionTypeDesc = birFunc.typeValue;
-    bir:BType? attachedType = birFunc.receiverType;
+
+    bir:VariableDcl? receiver = birFunc.receiver;
+    bir:BType? attachedType = receiver is bir:VariableDcl ? receiver.typeValue : ();
     string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, <bir:BType?> functionTypeDesc?.retType,
                                                 attachedType = attachedType);
     string jMethodVMSig = getMethodDesc(jMethodPramTypes, <bir:BType?> functionTypeDesc?.retType,

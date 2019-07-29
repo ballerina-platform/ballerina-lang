@@ -19,7 +19,7 @@ service sample on echoEP {
 
     resource function getCount(http:Caller conn, http:Request req) {
         http:Response res = new;
-        res.setTextPayload("count - " + sampleRequestCount);
+        res.setTextPayload("count - " + sampleRequestCount.toString());
         checkpanic conn->respond(res);
     }
 }
@@ -43,8 +43,8 @@ service sample1 on echoEP {
             sample1FinalText = sample1FinalText + "3";
             sample1FloatArr[0] = sample1FloatArr[0] + 1;
             sample1FloatArr[1] = sample1FloatArr[1] + 2;
-            var strVal = <string> sample1MapVal.name;
-            sample1MapVal.name = strVal + "7";
+            var strVal = <string> sample1MapVal["name"];
+            sample1MapVal["name"] = strVal + "7";
         }
        http:Response res = new;
         checkpanic conn->respond(res);
@@ -56,8 +56,8 @@ service sample1 on echoEP {
             sample1FinalText = sample1FinalText + "3";
             sample1FloatArr[0] = sample1FloatArr[0] + 1;
             sample1RequestCount = sample1RequestCount + 1;
-            var strVal = <string> sample1MapVal.name;
-            sample1MapVal.name = strVal + "7";
+            var strVal = <string> sample1MapVal["name"];
+            sample1MapVal["name"] = strVal + "7";
             sample1Person.address.line1 = sample1Person.address.line1 + "5";
             sample1Person.age = sample1Person.age + 1;
             sample1Price = sample1Price + 2;
@@ -74,8 +74,8 @@ service sample1 on echoEP {
             sample1FloatArr[1] = sample1FloatArr[1] + 2;
             sample1FinalText = sample1FinalText + "3";
             sample1Price = sample1Price + 2;
-            var strVal = <string> sample1MapVal.name;
-            sample1MapVal.name = strVal + "7";
+            var strVal = <string> sample1MapVal["name"];
+            sample1MapVal["name"] = strVal + "7";
             sample1FloatArr[0] = sample1FloatArr[0] + 1;
         }
         http:Response res = new;
@@ -84,9 +84,9 @@ service sample1 on echoEP {
 
     resource function getResult(http:Caller conn, http:Request req) {
         http:Response res = new;
-        var strVal = <string> sample1MapVal.name;
-        res.setTextPayload(sample1FinalText + sample1RequestCount + sample1Price + sample1Person.age + sample1Person.address.line1
-                             + sample1FloatArr[0] + sample1FloatArr[1] + strVal);
+        var strVal = <string> sample1MapVal["name"];
+        res.setTextPayload(sample1FinalText + sample1RequestCount.toString() + sample1Price.toString() + sample1Person.age.toString() + sample1Person.address.line1
+                             + sample1FloatArr[0].toString() + sample1FloatArr[1].toString() + strVal);
         checkpanic conn->respond(res);
     }
 }
@@ -125,8 +125,8 @@ service sample2 on echoEP {
             finalText1 = finalText1 + "3";
             floatArr1[0] = floatArr1[0] + 1;
             floatArr1[1] = floatArr1[1] + 2;
-            var strVal  = <string> sample2MapVal.name;
-            sample2MapVal.name = strVal + "7";
+            var strVal  = <string> sample2MapVal["name"];
+            sample2MapVal["name"] = strVal + "7";
         }
         http:Response res = new;
         checkpanic conn->respond(res);
@@ -139,8 +139,8 @@ service sample2 on echoEP {
             finalText1 = finalText1 + "3";
             floatArr1[0] = floatArr1[0] + 1;
             sample2RequestCount = sample2RequestCount + 1;
-            var strVal = <string> sample2MapVal.name;
-            sample2MapVal.name = strVal + "7";
+            var strVal = <string> sample2MapVal["name"];
+            sample2MapVal["name"] = strVal + "7";
             person1.address.line1 = person1.address.line1 + "5";
             person1.age = person1.age + 1;
             sample2Price = sample2Price + 2;
@@ -158,8 +158,8 @@ service sample2 on echoEP {
             floatArr1[1] = floatArr1[1] + 2;
             finalText1 = finalText1 + "3";
             sample2Price = sample2Price + 2;
-            var strVal = <string> sample2MapVal.name;
-            sample2MapVal.name = strVal + "7";
+            var strVal = <string> sample2MapVal["name"];
+            sample2MapVal["name"] = strVal + "7";
             floatArr1[0] = floatArr1[0] + 1;
         }
         http:Response res = new;
@@ -168,9 +168,9 @@ service sample2 on echoEP {
 
     resource function getResult(http:Caller conn, http:Request req) {
         http:Response res = new;
-        var strVal = <string> sample2MapVal.name;
-        res.setTextPayload(finalText1 + sample2RequestCount + sample2Price + person1.age + person1.address.line1
-                                + floatArr1[0] + floatArr1[1] + strVal);
+        var strVal = <string> sample2MapVal["name"];
+        res.setTextPayload(finalText1 + sample2RequestCount.toString() + sample2Price.toString() + person1.age.toString() + person1.address.line1
+                                + floatArr1[0].toString() + floatArr1[1].toString() + strVal);
         checkpanic conn->respond(res);
     }
 }
@@ -213,7 +213,7 @@ service sample4 on echoEP {
        workerFunc(p);
 
         http:Response res = new;
-        res.setTextPayload(string.convert(p.age));
+        res.setTextPayload(p.age.toString());
         checkpanic conn->respond(res);
     }
 }

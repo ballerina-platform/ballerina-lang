@@ -15,8 +15,7 @@ jms:Session jmsSession = new(conn, {
     });
 
 // Initializes a queue receiver using the created session.
-listener jms:QueueListener consumerEndpoint = new(jmsSession,
-    queueName = "MyQueue");
+listener jms:QueueListener consumerEndpoint = new(jmsSession, "MyQueue");
 
 // Binds the created consumer to the listener service.
 service jmsListener on consumerEndpoint {
@@ -29,7 +28,7 @@ service jmsListener on consumerEndpoint {
                 initialContextFactory: 
                 "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory",
                 providerUrl: "tcp://localhost:61616"
-            }, queueName = "RequestQueue");
+            }, "RequestQueue");
 
         var content = message.getPayload();
         if (content is string) {
@@ -39,7 +38,7 @@ service jmsListener on consumerEndpoint {
         }
 
         // Retrieves the JMS message headers.
-        var headers = message.getDeveloperAssignedHeaders();
+        var headers = message.getCustomHeaders();
         if (headers is error) {
             log:printError("Error retrieving developer assigned headers ",
                 err = headers);
@@ -71,7 +70,7 @@ service jmsListener on consumerEndpoint {
         var msg = new jms:Message(queueSender.session, jms:TEXT_MESSAGE);
         if (msg is jms:Message) {
             // Sets the JMS header and Correlation ID.
-            var cid = msg.setDeveloperAssignedHeaders({correlationId: "Msg:1"});
+            var cid = msg.setCustomHeaders({correlationId: "Msg:1"});
             if (cid is error) {
                 log:printError("Error setting correlation id",
                     err = cid);
