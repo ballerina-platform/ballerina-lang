@@ -17,11 +17,13 @@
 */
 package org.ballerinalang.langserver.compiler;
 
+import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -56,5 +58,11 @@ public class DocumentServiceKeys {
     public static final LSContext.Key<List<BLangPackage>> BLANG_PACKAGES_CONTEXT_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<String> SYMBOL_QUERY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<LSDocument> LS_DOCUMENT_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<List<BLangImportPackage>> CURRENT_DOC_IMPORTS_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<Boolean> TERMINATE_OPERATION_KEY
             = new LSContext.Key<>();
 }

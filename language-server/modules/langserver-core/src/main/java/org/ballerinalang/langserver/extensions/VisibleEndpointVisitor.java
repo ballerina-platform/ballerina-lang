@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -195,13 +196,17 @@ public class VisibleEndpointVisitor extends LSNodeVisitor {
         List<BSymbol> parameters = ownerFunction.getParameters().stream()
                 .map(bLangSimpleVariable -> bLangSimpleVariable.symbol)
                 .collect(Collectors.toList());
-        return symbolResolver.getAllVisibleInScopeSymbols(symbolEnv).entrySet().stream()
-                .map(entry -> entry.getValue().symbol)
-                .collect(Collectors.toList()).stream()
+        List<BSymbol> visibleSymbols = new ArrayList<>();
+        symbolResolver.getAllVisibleInScopeSymbols(symbolEnv).forEach((key, value) -> 
+                visibleSymbols.addAll(
+                        value.stream()
+                                .map(scopeEntry -> scopeEntry.symbol)
+                                .collect(Collectors.toList())));
+        
+        return visibleSymbols.stream()
                 .filter(symbol -> symbol instanceof BVarSymbol && CommonUtil.isClientObject(symbol)
                     && (parameters.contains(symbol) || symbol.owner instanceof BPackageSymbol))
                 .map(symbol -> {
-
                     BLangImportPackage importPackage = this.packageMap.get(symbol.type.tsymbol.pkgID);
                     String typeName = symbol.type.tsymbol.getName().getValue();
                     String pkgName = symbol.pkgID.getName().getValue();
