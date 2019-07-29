@@ -203,6 +203,14 @@ function testForEach() returns string {
     return result;
 }
 
+function testSetLength(int newLength) returns [int, int[], int[]] {
+    int[] ar = [1, 2, 3, 4, 5, 6, 7];
+    ar.setLength(newLength);
+    int [] ar2 = ar.clone();
+    ar2.setLength(newLength+1);
+    return [ar.length(), ar, ar2];
+}
+
 function testShift() returns [int[], int] {
     int[] s = [1, 2, 3, 4, 5];
     var e = s.shift();
