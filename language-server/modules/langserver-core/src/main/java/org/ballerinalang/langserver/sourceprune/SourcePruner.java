@@ -120,7 +120,6 @@ public class SourcePruner {
 
         // Execute Ballerina Parser
         BallerinaParser parser = CommonUtil.prepareParser(documentContent);
-        parser.removeErrorListeners();
         parser.compilationUnit();
 
         // Process tokens
