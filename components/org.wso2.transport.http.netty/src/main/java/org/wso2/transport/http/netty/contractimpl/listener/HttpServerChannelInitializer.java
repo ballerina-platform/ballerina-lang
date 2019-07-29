@@ -108,8 +108,10 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         ChannelPipeline serverPipeline = ch.pipeline();
 
         if (http2Enabled) {
+            // this is http2 pipeline
             if (sslHandlerFactory != null) {
                 if (ocspStaplingEnabled) {
+                    //this is http2 ocsp pipeline
                     OCSPResp response = getOcspResponse();
 
                     ReferenceCountedOpenSslContext context = (ReferenceCountedOpenSslContext) keystoreHttp2SslContext;
@@ -120,17 +122,21 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
                     setSslHandshakeTimeOut(sslConfig, sslHandler);
                     ch.pipeline().addLast(sslHandler, new Http2PipelineConfiguratorForServer(this));
                 } else {
+                    //this is http2 ssl pipeline
                     SslHandler sslHandler = keystoreHttp2SslContext.newHandler(ch.alloc());
                     setSslHandshakeTimeOut(sslConfig, sslHandler);
                     serverPipeline.addLast(sslHandler, new Http2PipelineConfiguratorForServer(this));
                 }
             } else {
+                // this is pure http2 pipeline without ssl/ocsp
                 configureH2cPipeline(serverPipeline);
             }
         } else {
             if (sslHandlerFactory != null) {
+                // this is http1.1 pipeline with ssl
                 configureSslForHttp(serverPipeline, ch);
             } else {
+                // this is pure http1.1 pipeline without ssl
                 configureHttpPipeline(serverPipeline, Constants.HTTP_SCHEME);
             }
         }

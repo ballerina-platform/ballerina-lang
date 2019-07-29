@@ -185,6 +185,7 @@ public final class Constants {
     public static final String WSS_SCHEME = "wss";
     public static final String WEBSOCKET_UPGRADE = "websocket";
     public static final String WEBSOCKET_FRAME_HANDLER = "WEBSOCKET_FRAME_HANDLER";
+    public static final String WEBSOCKET_EXCEPTION_HANDLER = "WEBSOCKET_EXCEPTION_HANDLER";
     public static final String MESSAGE_QUEUE_HANDLER = "MESSAGE_QUEUE_HANDLER";
     public static final int WEBSOCKET_STATUS_CODE_NORMAL_CLOSURE = 1000;
     public static final int WEBSOCKET_STATUS_CODE_GOING_AWAY = 1001;

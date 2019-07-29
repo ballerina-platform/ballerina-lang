@@ -51,6 +51,7 @@ import java.net.InetSocketAddress;
 
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_OBJECT_AGGREGATOR;
 import static org.wso2.transport.http.netty.contract.Constants.WEBSOCKET_COMPRESSION_HANDLER;
+import static org.wso2.transport.http.netty.contract.Constants.WEBSOCKET_EXCEPTION_HANDLER;
 
 /**
  * WebSocket handshake handler for carbon transports.
@@ -113,6 +114,7 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
                                               ctx.fireChannelInactive();
                                           }
                                       });
+                    pipeline.addLast(WEBSOCKET_EXCEPTION_HANDLER, new WebSocketExceptionHandler());
                     decoderCtx.fireChannelRead(msg);
                 } else {
                     // According to spec since client must send a request with "GET" method, if method is not "GET"
