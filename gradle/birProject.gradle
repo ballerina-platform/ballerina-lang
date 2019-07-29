@@ -96,10 +96,7 @@ task copySelfToBirCache(type: Copy) {
 
 task createBirZipArtifact(type: Zip) {
     from "$buildDir/generated-bir"
-    include '*'
-    include '*/*'
-    include '*/*/*'
-    include '*/*/*/*'
+    include '**/*'
     archiveName "$project.name-bir-artifact.zip"
     destinationDir(file("$buildDir/bir-artifact/"))
 }
