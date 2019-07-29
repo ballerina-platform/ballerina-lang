@@ -70,10 +70,11 @@ public class OpenTracerBallerinaWrapper {
     /**
      * Method to start a span using parent span context.
      *
+     * @param serviceName  name of the service to which the span is attached to
      * @param spanName     name of the span
      * @param tags         key value paired tags to attach to the span
      * @param parentSpanId id of parent span
-     * @param strand      native context
+     * @param strand       native context
      * @return unique id of the created span
      */
     public long startSpan(String serviceName, String spanName, Map<String, String> tags, long parentSpanId,
