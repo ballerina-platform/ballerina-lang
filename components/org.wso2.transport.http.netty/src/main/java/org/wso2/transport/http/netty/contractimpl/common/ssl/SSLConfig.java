@@ -62,6 +62,7 @@ public class SSLConfig {
     private String clientKeyPassword;
     private int sessionTimeOut;
     private long handshakeTimeOut;
+    private boolean disableSsl = false;
 
     public SSLConfig() {}
 
@@ -325,5 +326,13 @@ public class SSLConfig {
 
     public void setHandshakeTimeOut(long handshakeTimeOut) {
         this.handshakeTimeOut = handshakeTimeOut;
+    }
+
+    public boolean isDisableSsl() {
+        return disableSsl;
+    }
+
+    public void disableSsl() {
+        this.disableSsl = true;
     }
 }
