@@ -1213,7 +1213,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addKeyValueRecord(getWS(ctx));
+        this.pkgBuilder.addKeyValueRecord(getWS(ctx), ctx.recordKey().LEFT_BRACKET() != null);
     }
 
     @Override

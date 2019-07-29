@@ -962,6 +962,10 @@ public class TypeChecker extends BLangNodeVisitor {
     private String getFieldName(BLangRecordKey key) {
         BLangExpression keyExpression = key.expr;
 
+        if (key.computedKey) {
+            return null;
+        }
+
         if (keyExpression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             return ((BLangSimpleVarRef) keyExpression).variableName.value;
         } else if (keyExpression.getKind() == NodeKind.LITERAL) {
@@ -3220,7 +3224,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangExpression valueExpr = keyValuePair.valueExpr;
         switch (recType.tag) {
             case TypeTags.RECORD:
-                fieldType = checkStructLiteralKeyExpr(keyValuePair.key, recType);
+                fieldType = checkRecordLiteralKeyExpr(keyValuePair.key, (BRecordType) recType);
                 break;
             case TypeTags.MAP:
                 fieldType = checkMapLiteralKeyExpr(keyValuePair.key.expr, recType);
@@ -3248,17 +3252,32 @@ public class TypeChecker extends BLangNodeVisitor {
         checkExpr(valueExpr, this.env, fieldType);
     }
 
-    private BType checkStructLiteralKeyExpr(BLangRecordKey key, BType recordType) {
+    private BType checkRecordLiteralKeyExpr(BLangRecordKey key, BRecordType recordType) {
         Name fieldName;
         BLangExpression keyExpr = key.expr;
 
-        if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+        if (key.computedKey) {
+            checkExpr(keyExpr, this.env, symTable.stringType);
+
+            if (keyExpr.type == symTable.semanticError) {
+                return symTable.semanticError;
+            }
+
+            LinkedHashSet<BType> fieldTypes = recordType.fields.stream()
+                    .map(field -> field.type)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+
+            if (recordType.restFieldType.tag != TypeTags.NONE) {
+                fieldTypes.add(recordType.restFieldType);
+            }
+
+            return BUnionType.create(null, fieldTypes);
+        } else if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) keyExpr;
             fieldName = names.fromIdNode(varRef.variableName);
         } else if (keyExpr.getKind() == NodeKind.LITERAL && ((BLangLiteral) keyExpr).type.tag == TypeTags.STRING) {
             fieldName = names.fromString((String) ((BLangLiteral) keyExpr).value);
         } else {
-            // keys of the struct literal can only be a varRef (identifier)
             dlog.error(keyExpr.pos, DiagnosticCode.INVALID_RECORD_LITERAL_KEY);
             return symTable.semanticError;
         }
@@ -3267,13 +3286,13 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol fieldSymbol = symResolver.resolveStructField(keyExpr.pos, this.env,
                 fieldName, recordType.tsymbol);
         if (fieldSymbol == symTable.notFoundSymbol) {
-            if (((BRecordType) recordType).sealed) {
+            if (recordType.sealed) {
                 dlog.error(keyExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, fieldName,
                         recordType.tsymbol.type.getKind().typeName(), recordType.tsymbol);
                 return symTable.semanticError;
             }
 
-            return ((BRecordType) recordType).restFieldType;
+            return recordType.restFieldType;
         }
 
         return fieldSymbol.type;

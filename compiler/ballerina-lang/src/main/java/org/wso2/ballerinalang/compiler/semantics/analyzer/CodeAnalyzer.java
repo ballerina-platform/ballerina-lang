@@ -1418,6 +1418,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         Set<Object> names = new HashSet<>();
         for (BLangRecordKeyValue recFieldDecl : keyValuePairs) {
             BLangExpression key = recFieldDecl.getKey();
+            if (recFieldDecl.key.computedKey) {
+                analyzeExpr(key);
+                continue;
+            }
             if (key.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef keyRef = (BLangSimpleVarRef) key;
                 if (names.contains(keyRef.variableName.value)) {
