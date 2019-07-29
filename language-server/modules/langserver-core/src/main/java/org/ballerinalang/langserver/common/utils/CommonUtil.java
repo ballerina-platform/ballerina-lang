@@ -1021,15 +1021,14 @@ public class CommonUtil {
                 .replaceAll("(\\$\\{\\d\\})", "");
     }
 
-    public static BallerinaParser prepareParser(String content, boolean removeErrorListener) {
+    public static BallerinaParser prepareParser(String content) {
         ANTLRInputStream inputStream = new ANTLRInputStream(content);
         BallerinaLexer lexer = new BallerinaLexer(inputStream);
-        if (removeErrorListener) {
-            lexer.removeErrorListeners();
-        }
+        lexer.removeErrorListeners();
         CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
-
-        return new BallerinaParser(commonTokenStream);
+        BallerinaParser parser = new BallerinaParser(commonTokenStream);
+        parser.removeErrorListeners();
+        return parser;
     }
 
     public static boolean symbolContainsInvalidChars(BSymbol bSymbol) {
