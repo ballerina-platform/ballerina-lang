@@ -60,7 +60,7 @@ function genJMethodForBFunc(bir:Function func,
     }
 
     jvm:MethodVisitor mv = cw.visitMethod(access, funcName, desc, (), ());
-    InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
+    InstructionGenerator instGen = new(mv, indexMap, module);
     ErrorHandlerGenerator errorGen = new(mv, indexMap, currentPackageName);
 
     mv.visitCode();
