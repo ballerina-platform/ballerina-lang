@@ -274,6 +274,10 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
         if (auth.position == 1) {
             config.filters.unshift(authnFilter, authzFilter);
         } else {
+            if (auth.position < 1 || auth.position > config.filters.length()) {
+                error err = error("Position of the auth filters should be beteween 1 and length of the filter array.");
+                panic err;
+            }
             int count = 1;
             while (count < auth.position) {
                 config.filters.push(config.filters.shift());
