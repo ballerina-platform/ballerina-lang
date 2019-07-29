@@ -20,9 +20,6 @@ package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
-import org.ballerinalang.packerina.buildcontext.sourcecontext.MultiModuleContext;
-import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
-import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.LockFileWriter;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -38,14 +35,8 @@ public class CreateLockFileTask implements Task {
         LockFileWriter lockFileWriter = LockFileWriter.getInstance(compilerContext);
         lockFileWriter.writeLockFile(ManifestProcessor.getInstance(compilerContext).getManifest());
     
-        if (buildContext.getSourceType() == SourceType.SINGLE_MODULE) {
-            SingleModuleContext moduleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-            lockFileWriter.addEntryPkg(moduleContext.getModule().symbol);
-        } else {
-            MultiModuleContext multiModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-            for (BLangPackage module : multiModuleContext.getModules()) {
-                lockFileWriter.addEntryPkg(module.symbol);
-            }
+        for (BLangPackage module : buildContext.getModules()) {
+            lockFileWriter.addEntryPkg(module.symbol);
         }
     }
 }

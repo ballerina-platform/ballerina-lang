@@ -43,7 +43,7 @@ public class CompileTask implements Task {
     
         Compiler compiler = Compiler.getInstance(context);
         
-        if (buildContext.getSourceType() == SourceType.BAL_FILE) {
+        if (buildContext.getSourceType() == SourceType.SINGLE_BAL_FILE) {
             SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
             Path balFile = singleFileContext.getBalFile().getFileName();
             if (null != balFile) {
@@ -61,7 +61,15 @@ public class CompileTask implements Task {
             List<BLangPackage> compiledModules = compiler.build();
             multiModuleContext.setModules(compiledModules);
         }
-        
+    
+        // check if there are any build errors
+        List<BLangPackage> modules = buildContext.getModules();
+        for (BLangPackage module : modules) {
+            if (module.diagCollector.hasErrors()) {
+                throw new BLangCompilerException("compilation contains errors");
+            }
+        }
+    
         // update build context.
         buildContext.put(BuildContextField.COMPILER_CONTEXT, context);
     }
