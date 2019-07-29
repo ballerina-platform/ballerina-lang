@@ -177,11 +177,13 @@ public type ServiceEndpointConfiguration record {|
 # should successfully be authorozed.
 # + positiveAuthzCache - The caching configurations for positive authorizations.
 # + negativeAuthzCache - The caching configurations for negative authorizations.
+# + position - The authn/authz filter position of the filter array. The position values starts from 1 and it is set to 1 implicitly.
 public type ListenerAuth record {|
     InboundAuthHandler[]|InboundAuthHandler[][] authHandlers;
     string[]|string[][] scopes?;
     AuthCacheConfig positiveAuthzCache = {};
     AuthCacheConfig negativeAuthzCache = {};
+    int position = 1;
 |};
 
 # Configures the SSL/TLS options to be used for HTTP service.
@@ -250,15 +252,14 @@ public const KEEPALIVE_NEVER = "NEVER";
 #
 # + config - `ServiceEndpointConfiguration` instance
 function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
-    // add authentication and authorization filters as the first two filters.
-    // if there are any other filters specified, those should be added after the authn and authz filters.
-    Filter[] authFilters = [];
+    // Add authentication and authorization filters as the first two filters if there are no any filters specified OR
+    // the auth filter position is specified as 0. If there are any filters specified, the authentication and
+    // authorization filters should be added into the position specified.
 
     var auth = config["auth"];
     if (auth is ListenerAuth) {
         InboundAuthHandler[]|InboundAuthHandler[][] authHandlers = auth.authHandlers;
         AuthnFilter authnFilter = new(authHandlers);
-        authFilters[0] = authnFilter;
 
         var scopes = auth["scopes"];
         cache:Cache positiveAuthzCache = new(auth.positiveAuthzCache.expiryTimeMillis,
@@ -269,18 +270,27 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
                                              auth.negativeAuthzCache.evictionFactor);
         AuthzHandler authzHandler = new(positiveAuthzCache, negativeAuthzCache);
         AuthzFilter authzFilter = new(authzHandler, scopes);
-        authFilters[1] = authzFilter;
 
         if (config.filters.length() == 0) {
-            // can add authn and authz filters directly
-            config.filters = authFilters;
+            // add authn and authz filters directly
+            config.filters = [authnFilter, authzFilter];
         } else {
-            Filter[] newFilters = authFilters;
-            // add existing filters next
-            int i = 0;
-            while (i < config.filters.length()) {
-                newFilters[i + (newFilters.length())] = config.filters[i];
-                i = i + 1;
+            int position = auth.position;
+            Filter[] newFilters = [];
+            int configIndex = 0;
+            int filterIndex = 0;
+            while (configIndex < config.filters.length()) {
+                if (filterIndex == position - 1) {
+                    // add authn and authz filters into the position
+                    newFilters[filterIndex] = authnFilter;
+                    filterIndex = filterIndex + 1;
+                    newFilters[filterIndex] = authzFilter;
+                } else {
+                    // add the rest of filters
+                    newFilters[filterIndex] = config.filters[configIndex];
+                    configIndex = configIndex + 1;
+                }
+                filterIndex = filterIndex + 1;
             }
             config.filters = newFilters;
         }
