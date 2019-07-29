@@ -29,25 +29,41 @@ import java.util.List;
  */
 public class TaskExecutor {
     private final List<Task> tasks = new LinkedList<>();
-    private TaskExecutor() {}
-    
+
+    private TaskExecutor() {
+    }
+
     public void executeTasks(BuildContext buildContext) {
         for (Task task : tasks) {
             task.execute(buildContext);
         }
     }
-    
+
     /**
      * Task executor builder class.
      */
     public static class TaskBuilder {
         private TaskExecutor taskExecutor = new TaskExecutor();
-        
+
         public TaskBuilder addTask(Task task) {
             this.taskExecutor.tasks.add(task);
             return this;
         }
-        
+
+        /**
+         *  Add a task to the build schedule.
+         *
+         * @param task Task to execute during the build.
+         * @param skip If true task will be skipped.
+         * @return TaskBuilder instance.
+         */
+        public TaskBuilder addTask(Task task, boolean skip) {
+            if (!skip) {
+                this.taskExecutor.tasks.add(task);
+            }
+            return this;
+        }
+
         public TaskExecutor build() {
             return this.taskExecutor;
         }

@@ -78,7 +78,7 @@ public class CompileCommandTest extends CommandTest {
         Files.createFile(libs.resolve("json.jar"));
 
         // Compile the project
-        String[] compileArgs = {"--skip-tests", "-c"};
+        String[] compileArgs = {};
         CompileCommand compileCommand = new CompileCommand(projectDirectory, printStream, false);
         new CommandLine(compileCommand).parse(compileArgs);
         compileCommand.execute();
@@ -217,7 +217,7 @@ public class CompileCommandTest extends CommandTest {
         Files.write(balFile, question.getBytes());
 
         // Compile the project
-        String[] compileArgs = {"--skip-tests", "-c"};
+        String[] compileArgs = {};
         CompileCommand compileCommand = new CompileCommand(tmpDir, printStream, false);
         new CommandLine(compileCommand).parse(compileArgs);
         compileCommand.execute();
