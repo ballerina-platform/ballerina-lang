@@ -639,20 +639,15 @@ public final class XMLItem extends XMLValue<OMNode> {
                 clonedNode = ((OMElement) omNode).cloneOMElement();
                 break;
             case TEXT:
-                TextImpl text = new TextImpl();
-                text.setTextContent(((OMText) omNode).getText());
-                clonedNode = text;
+                clonedNode = (OMNode) XMLFactory.createXMLText(((OMText) omNode).getText()).value();
                 break;
             case COMMENT:
-                CommentImpl comment = new CommentImpl();
-                comment.setTextContent(((OMComment) omNode).getValue());
-                clonedNode = comment;
+                clonedNode = (OMNode) XMLFactory.createXMLComment(((OMComment) omNode).getValue()).value();
                 break;
             case PI:
-                OMProcessingInstructionImpl pi = new OMProcessingInstructionImpl();
-                pi.setTarget(((OMProcessingInstruction) omNode).getTarget());
-                pi.setValue(((OMProcessingInstruction) omNode).getValue());
-                clonedNode = pi;
+                clonedNode = (OMNode) XMLFactory.createXMLProcessingInstruction(
+                        ((OMProcessingInstruction) omNode).getTarget(),
+                        ((OMProcessingInstruction) omNode).getValue()).value();
                 break;
             default:
                 clonedNode = omNode;
