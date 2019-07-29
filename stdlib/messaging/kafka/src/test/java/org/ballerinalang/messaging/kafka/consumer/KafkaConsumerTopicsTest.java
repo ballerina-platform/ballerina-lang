@@ -34,11 +34,11 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.KAFKA_BROKER_PORT;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.ZOOKEEPER_PORT_1;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.produceToKafkaCluster;
 
 /**
  * Test cases for ballerina.net.kafka consumer for get list of available topics
@@ -64,8 +64,8 @@ public class KafkaConsumerTopicsTest {
 
     @Test(description = "Test Kafka getAvailableTopics function")
     public void testKafkaGetAvailableTopics() {
-        produceToKafkaCluster(TOPIC_TEST_1, TEST_MESSAGE);
-        produceToKafkaCluster(TOPIC_TEST_2, TEST_MESSAGE);
+        produceToKafkaCluster(kafkaCluster, TOPIC_TEST_1, TEST_MESSAGE);
+        produceToKafkaCluster(kafkaCluster, TOPIC_TEST_2, TEST_MESSAGE);
         BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaGetAvailableTopics");
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertTrue(returnBValues[0] instanceof BValueArray);
@@ -76,8 +76,8 @@ public class KafkaConsumerTopicsTest {
 
     @Test(description = "Test Kafka getAvailableTopics with duration parameter")
     public void testKafkaGetAvailableTopicsWithDuration() {
-        produceToKafkaCluster(TOPIC_TEST_1, TEST_MESSAGE);
-        produceToKafkaCluster(TOPIC_TEST_2, TEST_MESSAGE);
+        produceToKafkaCluster(kafkaCluster, TOPIC_TEST_1, TEST_MESSAGE);
+        produceToKafkaCluster(kafkaCluster, TOPIC_TEST_2, TEST_MESSAGE);
         BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaGetAvailableTopicsWithDuration");
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertTrue(returnBValues[0] instanceof BValueArray);
@@ -88,8 +88,8 @@ public class KafkaConsumerTopicsTest {
 
     @Test(description = "Test functionality of getAvailableTopics() function")
     public void testKafkaConsumerGetAvailableTopicsFromNoTimeoutConsumer () {
-        produceToKafkaCluster(TOPIC_TEST_1, TEST_MESSAGE);
-        produceToKafkaCluster(TOPIC_TEST_2, TEST_MESSAGE);
+        produceToKafkaCluster(kafkaCluster, TOPIC_TEST_1, TEST_MESSAGE);
+        produceToKafkaCluster(kafkaCluster, TOPIC_TEST_2, TEST_MESSAGE);
         BValue[] returnBValues = BRunUtil.invoke(result,
                 "funcKafkaGetAvailableTopicsFromNoTimeoutConsumer");
         Assert.assertEquals(returnBValues.length, 1);
@@ -119,16 +119,6 @@ public class KafkaConsumerTopicsTest {
             if (!delete) {
                 dataDir.deleteOnExit();
             }
-        }
-    }
-
-    private static void produceToKafkaCluster(String topic, String message) {
-        CountDownLatch completion = new CountDownLatch(1);
-        kafkaCluster.useTo().produceStrings(topic, 10, completion::countDown, () -> message);
-        try {
-            completion.await();
-        } catch (Exception ex) {
-            //Ignore
         }
     }
 

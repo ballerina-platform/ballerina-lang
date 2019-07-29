@@ -37,11 +37,13 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
+import static org.awaitility.Awaitility.await;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.KAFKA_BROKER_PORT;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.ZOOKEEPER_PORT_1;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.produceToKafkaCluster;
 
 /**
  * Test cases for ballerina.kafka consumer native functions.
@@ -53,12 +55,15 @@ public class KafkaConsumerTest {
     private static File dataDir;
     private static KafkaCluster kafkaCluster;
 
+    private static final String TOPIC = "test";
+    private static final String MESSAGE = "test_string";
+
     @BeforeClass
     public void setup() throws IOException {
         Properties prop = new Properties();
         kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true)
                 .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(1).startup();
-        kafkaCluster.createTopic("test", 2, 1);
+        kafkaCluster.createTopic(TOPIC, 1, 1);
         result = BCompileUtil.compile(getFilePath("consumer/kafka_consumer.bal"));
     }
 
@@ -71,25 +76,13 @@ public class KafkaConsumerTest {
 
     @Test(description = "Test kafka consumer poll function")
     public void testKafkaPoll() {
-        CountDownLatch completion = new CountDownLatch(1);
-        kafkaCluster.useTo().produceStrings("test", 10, completion::countDown, () -> "test_string");
-        try {
-            completion.await();
-        } catch (Exception ex) {
-            //Ignore
-        }
-        BValue[] returnBValues;
-        int msgCount = 0;
-        while (true) {
-            returnBValues = BRunUtil.invoke(result, "funcKafkaPoll");
+        produceToKafkaCluster(kafkaCluster, TOPIC, MESSAGE);
+        await().atMost(5000, TimeUnit.MILLISECONDS).until(() -> {
+            BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaPoll");
             Assert.assertEquals(returnBValues.length, 1);
             Assert.assertTrue(returnBValues[0] instanceof BInteger);
-            msgCount = msgCount + new Long(((BInteger) returnBValues[0]).intValue()).intValue();
-            if (msgCount == 10) {
-                break;
-            }
-        }
-        Assert.assertEquals(msgCount, 10);
+            return (new Long(((BInteger) returnBValues[0]).intValue()).intValue() == 10);
+        });
     }
 
     @Test(description = "Test Kafka getSubscription function")
@@ -98,7 +91,7 @@ public class KafkaConsumerTest {
         Assert.assertEquals(returnBValues.length, 1);
         Assert.assertTrue(returnBValues[0] instanceof BValueArray);
         Assert.assertEquals((returnBValues[0]).size(), 1);
-        Assert.assertEquals(((BValueArray) returnBValues[0]).getString(0), "test");
+        Assert.assertEquals(((BValueArray) returnBValues[0]).getString(0), TOPIC);
     }
 
     @Test(description = "Test Kafka consumer close function")
