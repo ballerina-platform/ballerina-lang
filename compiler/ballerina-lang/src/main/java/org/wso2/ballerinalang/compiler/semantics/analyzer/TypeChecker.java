@@ -932,8 +932,7 @@ public class TypeChecker extends BLangNodeVisitor {
         for (BLangRecordKeyValue literalKeyValuePair : recordLiteral.getKeyValuePairs()) {
             boolean matched = false;
             for (BField field : bRecordType.getFields()) {
-                matched = ((BLangSimpleVarRef) literalKeyValuePair.getKey()).variableName.value
-                        .equals(field.getName().getValue());
+                matched = field.getName().getValue().equals(getFieldName(literalKeyValuePair.key));
                 if (matched) {
                     break;
                 }

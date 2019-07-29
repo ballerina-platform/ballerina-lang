@@ -1417,7 +1417,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         Set<Object> names = new HashSet<>();
         BType type = recordLiteral.type;
-        boolean isRecord = type.tag == TypeTags.RECORD;
+        boolean isOpenRecord = type != null && type.tag == TypeTags.RECORD && !((BRecordType) type).sealed;
         for (BLangRecordKeyValue recFieldDecl : keyValuePairs) {
             BLangExpression key = recFieldDecl.getKey();
             if (recFieldDecl.key.computedKey) {
@@ -1433,7 +1433,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     this.dlog.error(key.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL, assigneeType, keyRef);
                 }
 
-                if (isRecord && ((BRecordType) type).fields.stream()
+                if (isOpenRecord && ((BRecordType) type).fields.stream()
                         .noneMatch(field -> fieldName.equals(field.name.value))) {
                     dlog.error(key.pos, DiagnosticCode.INVALID_RECORD_LITERAL_IDENTIFIER_KEY, fieldName);
                 }
