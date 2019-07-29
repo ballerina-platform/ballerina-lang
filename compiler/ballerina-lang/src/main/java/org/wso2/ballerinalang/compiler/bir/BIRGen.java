@@ -2317,7 +2317,7 @@ public class BIRGen extends BLangNodeVisitor {
             return keyRegIndex;
         }
 
-        BIRVariableDcl tempQNameVarDcl = new BIRVariableDcl(qnameExpr.type,
+        BIRVariableDcl tempQNameVarDcl = new BIRVariableDcl(symTable.anyType,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempQNameVarDcl);
         BIROperand qnameVarRef = new BIROperand(tempQNameVarDcl);
