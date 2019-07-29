@@ -41,6 +41,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.AnnotationSymbol;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -70,6 +71,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -166,7 +168,7 @@ public class TreeVisitor extends LSNodeVisitor {
         this.symbolEnv = pkgEnv;
 
         List<TopLevelNode> topLevelNodes = CommonUtil.getCurrentFileTopLevelNodes(evalPkg, lsContext);
-        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(evalPkg, lsContext);
+        List<BLangImportPackage> imports = CommonUtil.getCurrentModuleImports(lsContext);
         
         imports.forEach(bLangImportPackage -> {
             cursorPositionResolver = TopLevelNodeScopeResolver.class;
@@ -450,7 +452,8 @@ public class TreeVisitor extends LSNodeVisitor {
         // eg: string modifiedStr = sampleStr.replace("hello", "Hello").<cursor>toLower();
         if (!terminateVisitor && (CompletionVisitorUtil.withinInvocationArguments(invocationNode, this.lsContext)
                 || CompletionVisitorUtil.cursorBeforeInvocationNode(invocationNode, this.lsContext))) {
-            Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(this.symbolEnv);
+            Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries
+                    = this.resolveAllVisibleSymbols(this.symbolEnv);
             this.populateSymbols(visibleSymbolEntries, symbolEnv);
             this.forceTerminateVisitor();
         }
@@ -792,6 +795,26 @@ public class TreeVisitor extends LSNodeVisitor {
         cpr.isCursorBeforeNode(bLangTupleVariableDef.getPosition(), this, this.lsContext, bLangTupleVariableDef, null);
     }
 
+    @Override
+    public void visit(BLangLiteral literalExpr) {
+        if (literalExpr.getPosition() == null) {
+            return;
+        }
+        DiagnosticPos pos = CommonUtil.toZeroBasedPosition(literalExpr.getPosition());
+        Position position = lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        int cLine = position.getLine();
+        int cCol = position.getCharacter();
+        int sLine = pos.sLine;
+        int eLine = pos.eLine;
+        int sCol = pos.sCol;
+        int eCol = pos.eCol;
+        
+        if ((sLine < cLine && eLine > cLine) || (sLine == cLine && eLine == cLine && cCol >= sCol && cCol <= eCol)) {
+            this.terminateVisitor = true;
+            this.lsContext.put(DocumentServiceKeys.TERMINATE_OPERATION_KEY, true);
+        }
+    }
+
     ///////////////////////////////////
     /////   Other Public Methods  /////
     ///////////////////////////////////
@@ -802,7 +825,7 @@ public class TreeVisitor extends LSNodeVisitor {
      * @param symbolEnv symbol environment
      * @return all visible symbols for current scope
      */
-    public Map<Name, Scope.ScopeEntry> resolveAllVisibleSymbols(SymbolEnv symbolEnv) {
+    public Map<Name, List<Scope.ScopeEntry>> resolveAllVisibleSymbols(SymbolEnv symbolEnv) {
         return symbolResolver.getAllVisibleInScopeSymbols(symbolEnv);
     }
 
@@ -812,10 +835,14 @@ public class TreeVisitor extends LSNodeVisitor {
      * @param symbolEntries     symbol entries
      * @param symbolEnv         Symbol environment
      */
-    public void populateSymbols(Map<Name, Scope.ScopeEntry> symbolEntries, @Nonnull SymbolEnv symbolEnv) {
+    public void populateSymbols(Map<Name, List<Scope.ScopeEntry>> symbolEntries, @Nonnull SymbolEnv symbolEnv) {
         List<SymbolInfo> visibleSymbols = new ArrayList<>();
         this.populateSymbolEnvNode(symbolEnv.node);
-        symbolEntries.forEach((k, v) -> visibleSymbols.add(new SymbolInfo(k.getValue(), v)));
+        symbolEntries.forEach((name, entryHolders) ->
+                visibleSymbols.addAll(
+                        entryHolders.stream()
+                                .map(scopeEntry -> new SymbolInfo(name.value, scopeEntry))
+                                .collect(Collectors.toList())));
         lsContext.put(CommonKeys.VISIBLE_SYMBOLS_KEY, visibleSymbols);
     }
 

@@ -1,7 +1,7 @@
 import {
     ASTKindChecker, ASTUtil, Block, CompilationUnit, Foreach,
-    Function as BalFunction, If, Lambda, Match, MatchStaticPatternClause, ObjectType, Service,
-    TypeDefinition, Variable, VariableDef, VisibleEndpoint, Visitor, While
+    Function as BalFunction, Function as FunctionNode, If, Lambda, Match, MatchStaticPatternClause, ObjectType,
+    Service, TypeDefinition, Variable, VariableDef, VisibleEndpoint, Visitor, While
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -79,28 +79,6 @@ class PositioningVisitor implements Visitor {
         let workerY: number;
 
         const workers = node.body.statements.filter((element: any) => ASTUtil.isWorker(element));
-        let visibleEndpoints: VisibleEndpoint[] = [];
-        if (node.VisibleEndpoints) {
-            visibleEndpoints = node.VisibleEndpoints.filter((ep) => !ep.caller && ep.viewState.visible);
-            if (!(node.viewState as FunctionViewState).isExpandedFunction && !node.resource) {
-                node.VisibleEndpoints.forEach((ep) => {
-                    // Find of one of the visible endpoints is actually a parameter to the function
-                    if (node.parameters) {
-                        node.parameters.forEach((p, i) => {
-                            let variableName = "";
-                            if (ASTKindChecker.isVariable(p)) {
-                                variableName = p.name.value;
-                            }
-
-                            if (variableName === ep.name) {
-                                // ep is a parameter to the function which is an endpoint
-                                visibleEndpoints.push(ep);
-                            }
-                        });
-                    }
-                });
-            }
-        }
 
         // They way we position function components depends on whether this is an expanded function
         // or a regular functions
@@ -162,12 +140,6 @@ class PositioningVisitor implements Visitor {
 
         this.epX = workerX + config.lifeLine.gutter.h;
         this.epY = workerY;
-        // Position endpoints
-        visibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
-            endpoint.viewState.bBox.x = this.epX;
-            endpoint.viewState.bBox.y = this.epY;
-            this.epX = this.epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
-        });
 
         // Position drop down menu for adding workers and endpoints
         viewState.menuTrigger.x = this.epX;
@@ -253,21 +225,28 @@ class PositioningVisitor implements Visitor {
         };
         viewState.hoverRect.x = viewState.bBox.x - viewState.hoverRect.leftMargin;
         viewState.hoverRect.y = viewState.bBox.y;
-    }
 
-    public beginVisitVariableDef(node: VariableDef) {
-        if (ASTUtil.isWorker(node)) {
-            const variable = node.variable;
-            const lambda: Lambda = variable.initialExpression as Lambda;
-            const functionNode = lambda.functionNode;
-            if (functionNode.VisibleEndpoints) {
-                // Position endpoints
-                functionNode.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
+        const paramEndpointFilter = (ep: VisibleEndpoint) => {
+            if (node.parent && ASTKindChecker.isFunction(node.parent)) {
+                const functionNode = (node.parent as FunctionNode);
+                const matchingParam = functionNode.parameters.find(
+                   (param) => ASTKindChecker.isVariable(param) && param.name.value === ep.name
+                );
+                return !functionNode.resource && matchingParam !== undefined;
+            }
+            return false;
+        };
+
+        if (node.VisibleEndpoints) {
+            const visibleEps = [...node.VisibleEndpoints.filter(paramEndpointFilter),
+                ...node.VisibleEndpoints.filter((ep) => !ep.caller && ep.viewState.visible)];
+            // Position endpoints
+            visibleEps
+                .forEach((endpoint: VisibleEndpoint) => {
                     endpoint.viewState.bBox.x = this.epX;
                     endpoint.viewState.bBox.y = this.epY;
                     this.epX = this.epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
                 });
-            }
         }
     }
 
@@ -276,28 +255,12 @@ class PositioningVisitor implements Visitor {
         node.body.viewState.bBox.x = viewState.bBox.x;
         node.body.viewState.bBox.y = viewState.bBox.y + + config.flowCtrl.condition.bottomMargin
             + config.flowCtrl.condition.height;
-        if ((node as any).VisibleEndpoints) { // FIXME remove cast to any on While node to get VisibleEndpoints
-        // Position endpoints // FIXME remove cast to any on While node to get VisibleEndpoints
-            (node as any).VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
-                endpoint.viewState.bBox.x = this.epX;
-                endpoint.viewState.bBox.y = this.epY;
-                this.epX = this.epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
-            });
-        }
     }
 
     public beginVisitForeach(node: Foreach) {
         const viewState: ViewState = node.viewState;
         node.body.viewState.bBox.x = viewState.bBox.x;
         node.body.viewState.bBox.y = viewState.bBox.y + config.flowCtrl.foreach.height;
-        if (node.VisibleEndpoints) {
-            // Position endpoints
-            node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
-                endpoint.viewState.bBox.x = this.epX;
-                endpoint.viewState.bBox.y = this.epY;
-                this.epX = this.epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
-            });
-        }
     }
 
     public beginVisitIf(node: If) {
@@ -310,14 +273,6 @@ class PositioningVisitor implements Visitor {
             node.elseStatement.viewState.bBox.x = viewState.bBox.x + node.body.viewState.bBox.w;
             node.elseStatement.viewState.bBox.y = viewState.bBox.y +
                 config.flowCtrl.condition.height + node.body.viewState.bBox.h;
-        }
-        if (node.VisibleEndpoints) {
-            // Position endpoints
-            node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
-                endpoint.viewState.bBox.x = this.epX;
-                endpoint.viewState.bBox.y = this.epY;
-                this.epX = this.epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
-            });
         }
     }
 
