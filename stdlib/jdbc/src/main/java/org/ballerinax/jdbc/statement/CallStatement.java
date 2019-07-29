@@ -240,7 +240,7 @@ public class CallStatement extends AbstractSQLStatement {
                 break;
                 case Constants.SQLDataTypes.NVARCHAR:
                 case Constants.SQLDataTypes.NCHAR: {
-                String value = stmt.getNString(index + 1);
+                    String value = stmt.getNString(index + 1);
                     paramValue.put(PARAMETER_VALUE_FIELD, value);
                 }
                 break;
