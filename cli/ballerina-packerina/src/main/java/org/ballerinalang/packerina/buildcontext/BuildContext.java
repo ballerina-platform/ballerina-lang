@@ -52,10 +52,10 @@ import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_INSTALL_DIR_PROP;
  */
 public class BuildContext extends HashMap<BuildContextField, Object> {
     private static final long serialVersionUID = 6363519534259706585L;
-    private final transient Path executableDir;
-    private final transient Path targetJarCacheDir;
-    private final transient Path targetBirCacheDir;
-    private final transient Path baloCacheDir;
+    private transient Path executableDir;
+    private transient Path targetJarCacheDir;
+    private transient Path targetBirCacheDir;
+    private transient Path baloCacheDir;
     private SourceType srcType;
     
     /**
@@ -175,6 +175,15 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
         return this.srcType;
     }
     
+    /**
+     * Update the path of executables directory.
+     *
+     * @param executablesDir Directory of the executables.
+     */
+    public void updateExecutableDir(Path executablesDir) {
+        this.executableDir = executablesDir;
+    }
+    
     public Path getSystemRepoBirCache() {
         return Paths.get(System.getProperty(BALLERINA_INSTALL_DIR_PROP)).resolve("bir-cache");
     }
@@ -241,7 +250,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
             Files.createDirectories(baloCacheDir);
             switch (this.getSourceType()) {
                 case SINGLE_BAL_FILE:
-                    throw new BLangCompilerException("balo for single bal files are not supported");
+                    throw new BLangCompilerException("balo file for single ballerina files are not supported");
                 case SINGLE_MODULE:
                 case ALL_MODULES:
                     CompilerContext context = this.get(BuildContextField.COMPILER_CONTEXT);
