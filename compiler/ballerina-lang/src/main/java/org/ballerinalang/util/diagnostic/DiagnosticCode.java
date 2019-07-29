@@ -183,6 +183,7 @@ public enum DiagnosticCode {
     ARRAY_LITERAL_NOT_ALLOWED("array.literal.not.allowed"),
     STRING_TEMPLATE_LIT_NOT_ALLOWED("string.template.literal.not.allowed"),
     INVALID_RECORD_LITERAL_KEY("invalid.record.literal.key"),
+    INVALID_RECORD_LITERAL_IDENTIFIER_KEY("invalid.record.literal.identifier.key"),
     INVALID_FIELD_NAME_RECORD_LITERAL("invalid.field.name.record.lit"),
     REST_FIELD_NOT_ALLOWED_IN_SEALED_RECORDS("rest.field.not.allowed"),
     OPEN_RECORD_CONSTRAINT_NOT_ALLOWED("open.record.constraint.not.allowed"),
