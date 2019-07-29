@@ -506,6 +506,8 @@ function getJVMTypeSign(bir:BType bType) returns string {
         jvmType = io:sprintf("L%s;", FUTURE_VALUE);
     } else if (bType is bir:BInvokableType) {
         jvmType = io:sprintf("L%s;", FUNCTION_POINTER);
+    } else if (bType is bir:BTypeHandle) {
+        jvmType = io:sprintf("L%s;", HANDLE_VALUE);
     } else if (bType is bir:BTypeDesc) {
         jvmType = io:sprintf("L%s;", TYPEDESC_VALUE);
     }   else if (bType is bir:BTypeNil 
