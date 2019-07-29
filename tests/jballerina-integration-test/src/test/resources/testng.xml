@@ -92,6 +92,7 @@
             <class name="org.ballerinalang.test.service.http2.Http2GenericScenarioTestCase"/>
             <class name="org.ballerinalang.test.service.http2.MultipartTestCase"/>
             <class name="org.ballerinalang.test.service.http2.ClientUpgradeWithLargePayload"/>
+            <class name="org.ballerinalang.test.service.http2.RequestLimitsTestCase"/>
         </classes>
     </test>
 

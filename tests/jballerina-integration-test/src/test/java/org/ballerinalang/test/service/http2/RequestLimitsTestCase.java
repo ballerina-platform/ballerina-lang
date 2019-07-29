@@ -31,29 +31,22 @@ import java.util.Map;
  * A test case for http2 with multiparts (with and without prior knowledge).
  */
 @Test(groups = "http2-test")
-public class MultipartTestCase extends Http2BaseTest {
+public class RequestLimitsTestCase extends Http2BaseTest {
+    private int servicePort = 9104;
 
-    @Test(description = "Test http2 with multiparts without prior knowledge")
-    public void testMultipart() throws IOException {
-        Map<String, String> headersMap = new HashMap<>();
-        headersMap.put("priorKnowledge", "false");
-        assertResponse(headersMap);
-    }
-
-    @Test(description = "Test http2 with multiparts with prior knowledge.")
-    public void testMultipartsWithPriorKnowledge() throws IOException {
-        Map<String, String> headersMap = new HashMap<>();
-        headersMap.put("priorKnowledge", "true");
-        assertResponse(headersMap);
-    }
-
-    private void assertResponse(Map<String, String> headersMap) throws IOException {
-        int servicePort = 9100;
+    @Test(description = "Test http2 with maxUriLength config")
+    public void testUriTooLong() throws IOException {
         HttpResponse response = HttpClientRequest
-                .doGet(serverInstance.getServiceURLHttp(servicePort, "multiparts/initial"), headersMap);
+                .doGet(serverInstance.getServiceURLHttp(servicePort, "initial/uriTooLong"));
         Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "{\"name\":\"wso2\"}<message>Hello world</message>text content",
-                "Incorrect data received");
+        Assert.assertEquals(response.getData(), "414", "Response code mismatched");
+    }
+
+    @Test(description = "Test http2 with maxHeaderSize config")
+    public void testMultipartsWithPriorKnowledge() throws IOException {
+        HttpResponse response = HttpClientRequest
+                .doGet(serverInstance.getServiceURLHttp(servicePort, "initial/entityHeaderTooLong"));
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getData(), "413", "Response code mismatched");
     }
 }
