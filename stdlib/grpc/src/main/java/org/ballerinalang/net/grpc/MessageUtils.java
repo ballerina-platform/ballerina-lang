@@ -31,10 +31,6 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.IOException;
@@ -56,7 +52,6 @@ import static org.ballerinalang.net.grpc.Status.Code.UNKNOWN;
  */
 public class MessageUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MessageUtils.class);
     private static final String UNKNOWN_ERROR_DETAIL = "Unknown error occurred";
 
     /** maximum buffer to be read is 16 KB. */
@@ -246,10 +241,6 @@ public class MessageUtils {
         return nextChar == '+' || nextChar == ';';
     }
 
-    public static HttpWsConnectorFactory createHttpWsConnectionFactory() {
-        return new DefaultHttpWsConnectorFactory();
-    }
-
     public static HttpCarbonMessage createHttpCarbonMessage(boolean isRequest) {
         HttpCarbonMessage httpCarbonMessage;
         if (isRequest) {
@@ -296,34 +287,25 @@ public class MessageUtils {
         switch (code) {
             case CANCELLED:
                 return 499; // Client Closed Request
-            case UNKNOWN:
-                return 500; // Internal Server Error
             case INVALID_ARGUMENT:
+            case FAILED_PRECONDITION:
+            case OUT_OF_RANGE:
                 return 400; // Bad Request
             case DEADLINE_EXCEEDED:
                 return 504; // Gateway timeout
             case NOT_FOUND:
                 return 404; // Not Found
             case ALREADY_EXISTS:
+            case ABORTED:
                 return 409; // Conflicts
             case PERMISSION_DENIED:
                 return 403; // Forbidden
             case UNAUTHENTICATED:
                 return 401; // Unauthorized
-            case FAILED_PRECONDITION:
-                return 400; // Bad Request
-            case ABORTED:
-                return 409; // Conflicts
-            case OUT_OF_RANGE:
-                return 400; // Bad Request
             case UNIMPLEMENTED:
                 return 501; // Not Implemented
-            case INTERNAL:
-                return 500; // Internal Server Error
             case UNAVAILABLE:
                 return 503; // Service Unavailable
-            case DATA_LOSS:
-                return 500; // Internal Server Error
             default:
                 return 500; // Internal Server Error
         }
