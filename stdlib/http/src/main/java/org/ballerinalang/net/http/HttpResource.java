@@ -293,7 +293,7 @@ public class HttpResource {
         return paramTypes;
     }
 
-    boolean WorkerPoolExecution() {
+    boolean workerPoolExecution() {
         return workerPoolStatus;
     }
 

@@ -71,6 +71,23 @@ service testRedirect on serviceEndpoint3 {
 
     @http:ResourceConfig {
         methods: ["GET"],
+        path: "/singleThreaded",
+        workerPool: http:DISABLE
+    }
+    resource function redirectClientSingleThreaded(http:Caller caller, http:Request req) {
+        http:Client endPoint1 = new("http://localhost:9103", endPoint1Config );
+        var response = endPoint1->get("/redirect1");
+        http:Response finalResponse = new;
+        if (response is http:Response) {
+            finalResponse.setPayload(response.resolvedRequestedURI);
+            checkpanic caller->respond(finalResponse);
+        } else {
+            io:println("Connector error!");
+        }
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
         path: "/maxRedirect"
     }
     resource function maxRedirectClient(http:Caller caller, http:Request req) {

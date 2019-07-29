@@ -49,6 +49,35 @@ service testService16 on new http:Listener(9118) {
             checkpanic caller->respond(<@untainted> err.reason());
         }
     }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/singleThreaded",
+        workerPool: http:DISABLE
+    }
+    resource function getPayloadSingleThreaded(http:Caller caller, http:Request request) {
+        var res = clientEP19->get("/payloadTest", ());
+        if (res is http:Response) {
+            //First get the payload as a byte array, then take it as an xml
+            var binaryPayload = res.getBinaryPayload();
+            if (binaryPayload is byte[]) {
+                var payload = res.getXmlPayload();
+                if (payload is xml) {
+                    xml descendants = payload.selectDescendants("title");
+                    checkpanic caller->respond(<@untainted> descendants.getTextValue());
+                } else {
+                    error err = payload;
+                    checkpanic caller->respond(<@untainted> err.reason());
+                }
+            } else {
+                error err = binaryPayload;
+                checkpanic caller->respond(<@untainted> err.reason());
+            }
+        } else {
+            error err = res;
+            checkpanic caller->respond(<@untainted> err.reason());
+        }
+    }
 }
 
 @http:ServiceConfig {

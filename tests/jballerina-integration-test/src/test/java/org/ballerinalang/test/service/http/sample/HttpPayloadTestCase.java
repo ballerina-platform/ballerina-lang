@@ -41,4 +41,13 @@ public class HttpPayloadTestCase extends HttpBaseTest {
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
         Assert.assertEquals(response.getData(), "W3Schools Home PageRSS Tutorial", "Message content mismatched");
     }
+
+    @Test
+    public void testXmlPayloadSingleThreaded() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9118, "test/singleThreaded"));
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
+                , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+        Assert.assertEquals(response.getData(), "W3Schools Home PageRSS Tutorial", "Message content mismatched");
+    }
 }
