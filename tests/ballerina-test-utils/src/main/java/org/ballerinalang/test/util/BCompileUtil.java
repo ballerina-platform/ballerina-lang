@@ -150,15 +150,11 @@ public class BCompileUtil {
                                                                TestConstant.MODULE_INIT_CLASS_NAME);
         Class<?> initClazz = classLoader.loadClass(initClassName);
         final Scheduler scheduler = new Scheduler(4, false);
+        runOnSchedule(initClazz, bLangPackage.initFunction.name, scheduler);
+        runOnSchedule(initClazz, bLangPackage.startFunction.name, scheduler);
         if (temp) {
-            runOnSchedule(initClazz, bLangPackage.initFunction.name, scheduler);
-            runOnSchedule(initClazz, bLangPackage.startFunction.name, scheduler);
             scheduler.immortal = true;
             new Thread(scheduler::start).start();
-
-        } else {
-            runOnSchedule(initClazz, bLangPackage.initFunction.name, scheduler);
-            runOnSchedule(initClazz, bLangPackage.startFunction.name, scheduler);
         }
     }
 
