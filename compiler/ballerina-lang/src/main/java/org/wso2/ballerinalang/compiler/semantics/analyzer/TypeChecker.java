@@ -3227,10 +3227,12 @@ public class TypeChecker extends BLangNodeVisitor {
                 fieldType = checkRecordLiteralKeyExpr(keyValuePair.key, (BRecordType) recType);
                 break;
             case TypeTags.MAP:
-                fieldType = checkMapLiteralKeyExpr(keyValuePair.key.expr, recType);
+                fieldType = checkValidJsonOrMapLiteralKeyExpr(keyValuePair.key) ? ((BMapType) recType).constraint :
+                        symTable.semanticError;
                 break;
             case TypeTags.JSON:
-                fieldType = checkJSONLiteralKeyExpr(keyValuePair.key);
+                fieldType = checkValidJsonOrMapLiteralKeyExpr(keyValuePair.key) ? symTable.jsonType :
+                        symTable.semanticError;
 
                 // First visit the expression having field type, as the expected type.
                 checkExpr(valueExpr, this.env, fieldType);
@@ -3298,20 +3300,21 @@ public class TypeChecker extends BLangNodeVisitor {
         return fieldSymbol.type;
     }
 
-    private BType checkJSONLiteralKeyExpr(BLangRecordKey key) {
-        if (checkRecLiteralKeyExpr(key.expr).tag != TypeTags.STRING) {
-            return symTable.semanticError;
+    private boolean checkValidJsonOrMapLiteralKeyExpr(BLangRecordKey key) {
+        BLangExpression keyExpr = key.expr;
+        if (key.computedKey) {
+            checkExpr(keyExpr, this.env, symTable.stringType);
+
+            if (keyExpr.type == symTable.semanticError) {
+                return false;
+            }
+            return true;
+        } else if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF ||
+                (keyExpr.getKind() == NodeKind.LITERAL && ((BLangLiteral) keyExpr).type.tag == TypeTags.STRING)) {
+            return true;
         }
-
-        return symTable.jsonType;
-    }
-
-    private BType checkMapLiteralKeyExpr(BLangExpression keyExpr, BType recordType) {
-        if (checkRecLiteralKeyExpr(keyExpr).tag != TypeTags.STRING) {
-            return symTable.semanticError;
-        }
-
-        return ((BMapType) recordType).constraint;
+        dlog.error(keyExpr.pos, DiagnosticCode.INVALID_RECORD_LITERAL_KEY);
+        return false;
     }
 
     private BType checkRecLiteralKeyExpr(BLangExpression keyExpr) {
