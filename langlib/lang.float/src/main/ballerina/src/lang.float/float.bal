@@ -48,7 +48,7 @@ public function isInfinite(float x) returns boolean = external;
 public function isNaN(float x) returns boolean = external;
 
 # Sum of all the arguments.
-# +0.0 if no args
+# (positive)0.0 if no args
 # NaN if any arg is NaN
 #
 # + xs - float numbers to sum
@@ -56,7 +56,7 @@ public function isNaN(float x) returns boolean = external;
 public function sum(float... xs) returns float = external;
 
 # Maximum of all the arguments.
-# -∞ if no args
+# (positive)∞ if no args
 # NaN if any arg is NaN
 #
 # + xs - parameters to check for max value
@@ -64,7 +64,7 @@ public function sum(float... xs) returns float = external;
 public function max(float... xs) returns float = external;
 
 # Minimum of all the arguments.
-# +∞ if no args
+# ∞ if no args
 # NaN if any arg is NaN
 #
 # + xs - parameters to check for min value
