@@ -18,8 +18,8 @@
 
 package org.ballerinalang.testerina.core.entity;
 
+import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
 import org.ballerinalang.util.codegen.FunctionInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,8 +35,9 @@ public class TestSuite {
     private String suiteName;
     private String sourceFileName;
     private TesterinaFunction initFunction;
+    private TesterinaFunction startFunction;
     private List<Test> tests = new ArrayList<>();
-    private ProgramFile programFile;
+    private JBallerinaInMemoryClassLoader programFile;
     private List<String> beforeSuiteFunctionNames = new ArrayList<>();
     private List<String> afterSuiteFunctionNames = new ArrayList<>();
 
@@ -120,7 +121,7 @@ public class TestSuite {
         this.suiteName = suiteName;
     }
 
-    public ProgramFile getProgramFile() {
+    public JBallerinaInMemoryClassLoader getProgramFile() {
         return programFile;
     }
 
@@ -129,6 +130,13 @@ public class TestSuite {
     }
     public void setInitFunction(TesterinaFunction initFunction) {
         this.initFunction = initFunction;
+    }
+
+    public TesterinaFunction getStartFunction() {
+        return startFunction;
+    }
+    public void setStartFunction(TesterinaFunction startFunction) {
+        this.startFunction = startFunction;
     }
 
     public List<TesterinaFunction> getTestUtilityFunctions() {
@@ -239,7 +247,7 @@ public class TestSuite {
         this.afterSuiteFunctions = afterSuiteFunctions;
     }
 
-    public void setProgramFile(ProgramFile programFile) {
+    public void setProgramFile(JBallerinaInMemoryClassLoader programFile) {
         this.programFile = programFile;
     }
 

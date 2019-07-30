@@ -1,5 +1,5 @@
-import testOrg/myimport;
+// import testOrg/myimport;
 
 public function main(string... args) {
-    int x = myimport:foo();
+    // int x = myimport:foo();
 }
