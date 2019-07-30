@@ -47,7 +47,7 @@ public type ClientEndpointConfig record {|
 #                Default value is `true` and it can be changed through the configuration API with the key
 #                `b7a.jdbc.pool.autoCommit`.
 # + isXA - Whether Connections are used for a distributed transaction. Default value is `false` and it
-#          can be set through the configuration API with the key `7a.jdbc.pool.isXA`.
+#          can be set through the configuration API with the key `b7a.jdbc.pool.isXA`.
 # + maximumPoolSize - Maximum size that the pool is allowed to reach, including both idle and in-use connections.
 #                     Default value is 15 and it can be changed through the configuration API with the key
 #                     `b7a.jdbc.pool.maximumPoolSize`.
