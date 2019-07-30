@@ -21,6 +21,7 @@ package org.ballerinalang.net.jms.nativeimpl.endpoint.common;
 
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.jms.JmsConstants;
+import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -34,22 +35,17 @@ public class StartNonDaemonThreadHandler {
 
     public static void handle(ObjectValue listenerObj) {
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        ObjectValue sessionObj = listenerObj.getObjectValue("session");
-        ObjectValue connectionObj = sessionObj.getObjectValue("conn");
-
         // It is essential to keep a non-daemon thread running in order to avoid the java program or the
         // Ballerina service from exiting
-        boolean nonDaemonThread = (boolean) connectionObj.getNativeData(JmsConstants.NON_DAEMON_THREAD_RUNNING);
-        if (!nonDaemonThread) {
-            listenerObj.addNativeData(JmsConstants.COUNTDOWN_LATCH, countDownLatch);
-            new Thread(() -> {
-                try {
-                    countDownLatch.await();
-                } catch (InterruptedException ex) {
-                    Thread.currentThread().interrupt();
-                }
-            }).start();
-        }
+        listenerObj.addNativeData(JmsConstants.COUNTDOWN_LATCH, countDownLatch);
+        new Thread(() -> {
+            try {
+                countDownLatch.await();
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+                BallerinaAdapter.throwBallerinaException("The current thread got interrupted");
+            }
+        }).start();
     }
 
 }

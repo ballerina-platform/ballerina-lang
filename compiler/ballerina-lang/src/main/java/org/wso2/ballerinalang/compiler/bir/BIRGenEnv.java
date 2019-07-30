@@ -21,6 +21,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRGlobalVariableDcl;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRLockDetailsHolder;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
@@ -31,6 +32,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 /**
  * Stores the state such as the current node, enclosing package, function etc, during bir generation.
@@ -55,12 +57,19 @@ class BIRGenEnv {
     private int currentGlobalVarId = -1;
 
     BIRBasicBlock enclBB;
-    BIRBasicBlock trapBB;
     BIROperand targetOperand;
     BIRBasicBlock enclLoopBB;
     BIRBasicBlock enclLoopEndBB;
 
     List<BIRAnnotationAttachment> enclAnnotAttachments;
+
+    Stack<List<BIRBasicBlock>> trapBlocks = new Stack<>();
+
+    // This is to hold variables to unlock in each scope
+    // for example when we are to return from somewhere, we need to unlock all the
+    // values in this list, but if we are to do break or continue, we need to pop
+    // list and unlock variables in that
+    Stack<Stack<BIRLockDetailsHolder>> unlockVars = new Stack<>();
 
     // This is the basic block that contains the return instruction for the current function.
     // A function can have only one basic block that has a return instruction.

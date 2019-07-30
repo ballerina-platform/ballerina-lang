@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BType;

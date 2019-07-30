@@ -19,7 +19,7 @@
 package org.ballerinalang.stdlib.file.service;
 
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.Scheduler;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;

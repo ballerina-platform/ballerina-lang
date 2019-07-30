@@ -21,6 +21,8 @@ package org.ballerinalang.jvm;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BStructureType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -34,6 +36,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Includes utility methods required for table related operations.
@@ -44,7 +47,7 @@ public class TableUtils {
 
     private static final String DEFAULT_ERROR_DETAIL_MESSAGE = "Error occurred during table manipulation";
 
-    public static String generateInsertDataStatment(String tableName, MapValueImpl<?, ?> constrainedType) {
+    public static String generateInsertDataStatement(String tableName, MapValueImpl<?, ?> constrainedType) {
         StringBuilder sbSql = new StringBuilder();
         StringBuilder sbValues = new StringBuilder();
         sbSql.append(TableConstants.SQL_INSERT_INTO).append(tableName).append(" (");
@@ -60,19 +63,6 @@ public class TableUtils {
         return sbSql.toString();
     }
 
-    public static String generateDeleteDataStatment(String tableName, MapValueImpl<?, ?> constrainedType) {
-        StringBuilder sbSql = new StringBuilder();
-        sbSql.append(TableConstants.SQL_DELETE_FROM).append(tableName).append(TableConstants.SQL_WHERE);
-        Collection<BField> structFields = ((BStructureType) constrainedType.getType()).getFields().values();
-        String sep = "";
-        for (BField sf : structFields) {
-            String name = sf.getFieldName();
-            sbSql.append(sep).append(name).append(" = ? ");
-            sep = TableConstants.SQL_AND;
-        }
-        return sbSql.toString();
-    }
-
     public static void prepareAndExecuteStatement(PreparedStatement stmt, MapValueImpl<?, ?> data) {
         try {
             Collection<BField> structFields = ((BStructureType) data.getType()).getFields().values();
@@ -82,38 +72,28 @@ public class TableUtils {
                 String fieldName = sf.getFieldName();
                 switch (type) {
                     case TypeTags.INT_TAG:
-                        stmt.setLong(index, data.getIntValue(fieldName));
-                        break;
                     case TypeTags.STRING_TAG:
-                        stmt.setString(index, data.getStringValue(fieldName));
-                        break;
                     case TypeTags.FLOAT_TAG:
-                        stmt.setDouble(index,  data.getFloatValue(fieldName));
-                        break;
                     case TypeTags.DECIMAL_TAG:
-                        stmt.setDouble(index,  (Double) data.get(fieldName));
-                        break;
                     case TypeTags.BOOLEAN_TAG:
-                        stmt.setBoolean(index, data.getBooleanValue(fieldName));
-                        break;
                     case TypeTags.XML_TAG:
                     case TypeTags.JSON_TAG:
-                        stmt.setString(index, data.get(fieldName).toString());
-                        break;
                     case TypeTags.ARRAY_TAG:
-                        boolean isBlobType =
-                                ((BArrayType) sf.getFieldType()).getElementType().getTag() == TypeTags.BYTE_TAG;
-                        if (isBlobType) {
-                            Object value = data.get(fieldName);
-                            if (value != null) {
-                                byte[] blobData = ((ArrayValue) data.get(fieldName)).getBytes();
-                                stmt.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
-                            } else {
-                                stmt.setNull(index, Types.BLOB);
-                            }
+                        prepareAndExecuteStatement(stmt, data, index, sf, type, fieldName);
+                        break;
+                    case TypeTags.UNION_TAG:
+                        List<BType> members = ((BUnionType) sf.getFieldType()).getMemberTypes();
+                        if (members.size() != 2) {
+                            throw new BallerinaException(
+                                    "Corresponding Union type in the record is not an assignable nillable type");
+                        }
+                        if (members.get(0).getTag() == TypeTags.NULL_TAG) {
+                            prepareAndExecuteStatement(stmt, data, index, sf, members.get(1).getTag(), fieldName);
+                        } else if (members.get(1).getTag() == TypeTags.NULL_TAG) {
+                            prepareAndExecuteStatement(stmt, data, index, sf, members.get(0).getTag(), fieldName);
                         } else {
-                            Object[] arrayData = getArrayData((ArrayValue) data.get(fieldName));
-                            stmt.setObject(index, arrayData);
+                            throw new BallerinaException(
+                                    "Corresponding Union type in the record is not an assignable nillable type");
                         }
                         break;
                 }
@@ -122,6 +102,70 @@ public class TableUtils {
             stmt.execute();
         } catch (SQLException e) {
             throw new BallerinaException("execute update failed: " + e.getMessage(), e);
+        }
+    }
+
+    private static void prepareAndExecuteStatement(PreparedStatement stmt, MapValueImpl<?, ?> data, int index,
+            BField sf, int type, String fieldName) throws SQLException {
+        Object value = data.get(fieldName);
+        switch (type) {
+            case TypeTags.INT_TAG:
+                if (value == null) {
+                    stmt.setNull(index, Types.BIGINT);
+                } else {
+                    stmt.setLong(index, data.getIntValue(fieldName));
+                }
+                break;
+            case TypeTags.STRING_TAG:
+                if (value == null) {
+                    stmt.setNull(index, Types.VARCHAR);
+                } else {
+                    stmt.setString(index, data.getStringValue(fieldName));
+                }
+                break;
+            case TypeTags.FLOAT_TAG:
+                if (value == null) {
+                    stmt.setNull(index, Types.DOUBLE);
+                } else {
+                    stmt.setDouble(index, data.getFloatValue(fieldName));
+                }
+                break;
+            case TypeTags.DECIMAL_TAG:
+                if (value == null) {
+                    stmt.setNull(index, Types.DOUBLE);
+                } else {
+                    stmt.setDouble(index, (Double) data.get(fieldName));
+                }
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                if (value == null) {
+                    stmt.setNull(index, Types.BOOLEAN);
+                } else {
+                    stmt.setBoolean(index, data.getBooleanValue(fieldName));
+                }
+                break;
+            case TypeTags.XML_TAG:
+            case TypeTags.JSON_TAG:
+                if (value == null) {
+                    stmt.setNull(index, Types.VARCHAR);
+                } else {
+                    stmt.setString(index, data.get(fieldName).toString());
+                }
+                break;
+            case TypeTags.ARRAY_TAG:
+                boolean isBlobType = ((BArrayType) sf.getFieldType()).getElementType().getTag() == TypeTags.BYTE_TAG;
+                if (isBlobType) {
+                    if (value != null) {
+                        byte[] blobData = ((ArrayValue) data.get(fieldName)).getBytes();
+                        stmt.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
+                    } else {
+                        stmt.setNull(index, Types.BLOB);
+                    }
+                } else {
+                    Object[] arrayData = getArrayData((ArrayValue) data.get(fieldName));
+                    stmt.setObject(index, arrayData);
+                }
+                break;
         }
     }
 

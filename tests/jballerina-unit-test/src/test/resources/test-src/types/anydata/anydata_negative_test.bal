@@ -65,7 +65,7 @@ function testInvalidMapAssignments() {
     map<typedesc<any>> mtd = {};
     ad = mtd;
 
-    map<stream<any>> mst = {};
+    map<stream<anydata>> mst = {};
     ad = mst;
 
     map<any[]> mar = {};
@@ -102,7 +102,7 @@ function testInvalidArrayAssignments() {
     typedesc<any>[] atd = [];
     ad = atd;
 
-    stream<any>?[] ast = [];
+    stream<anydata>?[] ast = [];
     ad = ast;
 
     any[][] a2a = [];

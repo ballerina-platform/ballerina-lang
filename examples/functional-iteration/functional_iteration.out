@@ -2,13 +2,20 @@
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run functional_iteration.bal
 Number of elements in 'words': 5
-["ANT", "BEAR", "CAT", "DEAR", "ELEPHANT"]
-Average of positive numbers: 7.0
+a=ANT b=BEAR c=CAT d=DEAR e=ELEPHANT
+-5
+-3
+2
+7
+12
+Total: 13
+Total with initial value: 18
 
 Execution Order:-
 - map operation's value: apple
--- foreach operation's value: apple
 - map operation's value: ["red", "green"]
--- foreach operation's value: ["red", "green"]
 - map operation's value: 5
+-- foreach operation's value: apple
+-- foreach operation's value: ["red", "green"]
 -- foreach operation's value: 5
+

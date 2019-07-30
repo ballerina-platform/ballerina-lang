@@ -19,9 +19,9 @@ package org.ballerinax.jdbc.statement;
 
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.ColumnDefinition;
-import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TableResourceManager;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.transactions.BallerinaTransactionContext;
 import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.transactions.TransactionResourceManager;
@@ -34,6 +34,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
@@ -172,6 +173,36 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             columnNames.add(colName);
         }
         return columnDefs;
+    }
+
+    Object extractValueFromResultSet(ResultSetMetaData rsMeta, ResultSet rs, int index) throws SQLException {
+        Object value;
+        int columnType;
+        columnType = rsMeta.getColumnType(index);
+        switch (columnType) {
+        case Types.INTEGER:
+        case Types.TINYINT:
+        case Types.SMALLINT:
+        case Types.BIGINT:
+            value = rs.getLong(index);
+            break;
+        case Types.DOUBLE:
+        case Types.FLOAT:
+            value = rs.getDouble(index);
+            break;
+        case Types.BOOLEAN:
+        case Types.BIT:
+            value = rs.getBoolean(index);
+            break;
+        case Types.DECIMAL:
+        case Types.NUMERIC:
+            value = new DecimalValue(rs.getBigDecimal(index));
+            break;
+        default:
+            value = rs.getString(index);
+            break;
+        }
+        return value;
     }
 
     /**

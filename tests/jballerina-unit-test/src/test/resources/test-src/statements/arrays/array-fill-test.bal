@@ -282,11 +282,11 @@ function testArrayFillWithObjs() returns Obj[][] {
     return multiDimObjArray;
 }
 
-function testArrayFillWithStreams() returns stream<Obj>[] {
-    stream<Obj>[] objStreamArr = [];
-    stream<Obj> objStream = new;
-    objStreamArr[1] = objStream;
-    return objStreamArr;
+function testArrayFillWithStreams() returns stream<string>[] {
+    stream<string>[] strStreamArr = [];
+    stream<string> strStream = new;
+    strStreamArr[1] = strStream;
+    return strStreamArr;
 }
 
 type Rec record {

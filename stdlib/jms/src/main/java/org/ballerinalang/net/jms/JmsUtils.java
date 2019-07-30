@@ -232,7 +232,7 @@ public class JmsUtils {
             destObj = BallerinaValues.createObjectValue(JmsConstants.PROTOCOL_INTERNAL_PACKAGE_JMS,
                                                         JmsConstants.JMS_DESTINATION_OBJ_NAME,
                                                         ((Topic) destination).getTopicName(),
-                                                        JmsConstants.DESTINATION_TYPE_QUEUE);
+                                                        JmsConstants.DESTINATION_TYPE_TOPIC);
         }
         destObj.addNativeData(JmsConstants.JMS_DESTINATION_OBJECT, destination);
         return destObj;

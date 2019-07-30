@@ -301,8 +301,8 @@ function testClosedRecord() returns string[] {
 
 function matchClosedRecordPattern(any matchExpr) returns string {
     match matchExpr {
-        var {| var1 |} => return "Matched with closed pattern";
-        var {var1} => return "Matched with opened pattern";
+        var {var1, var2, ...rest} => return "Matched with opened pattern";
+        var {var1} => return "Matched with closed pattern";
     }
 
     return "Default";

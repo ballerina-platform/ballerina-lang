@@ -9,6 +9,15 @@ export interface Visitor {
   beginVisitAbort?(node: Ballerina.Abort, parent?: Ballerina.ASTNode): void;
   endVisitAbort?(node: Ballerina.Abort, parent?: Ballerina.ASTNode): void;
 
+  beginVisitAnnotAccessExpression?(
+    node: Ballerina.AnnotAccessExpression,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitAnnotAccessExpression?(
+    node: Ballerina.AnnotAccessExpression,
+    parent?: Ballerina.ASTNode
+  ): void;
+
   beginVisitAnnotation?(
     node: Ballerina.Annotation,
     parent?: Ballerina.ASTNode
@@ -24,15 +33,6 @@ export interface Visitor {
   ): void;
   endVisitAnnotationAttachment?(
     node: Ballerina.AnnotationAttachment,
-    parent?: Ballerina.ASTNode
-  ): void;
-
-  beginVisitArrayLiteralExpr?(
-    node: Ballerina.ArrayLiteralExpr,
-    parent?: Ballerina.ASTNode
-  ): void;
-  endVisitArrayLiteralExpr?(
-    node: Ballerina.ArrayLiteralExpr,
     parent?: Ballerina.ASTNode
   ): void;
 
@@ -74,15 +74,6 @@ export interface Visitor {
 
   beginVisitBlock?(node: Ballerina.Block, parent?: Ballerina.ASTNode): void;
   endVisitBlock?(node: Ballerina.Block, parent?: Ballerina.ASTNode): void;
-
-  beginVisitBracedTupleExpr?(
-    node: Ballerina.BracedTupleExpr,
-    parent?: Ballerina.ASTNode
-  ): void;
-  endVisitBracedTupleExpr?(
-    node: Ballerina.BracedTupleExpr,
-    parent?: Ballerina.ASTNode
-  ): void;
 
   beginVisitBreak?(node: Ballerina.Break, parent?: Ballerina.ASTNode): void;
   endVisitBreak?(node: Ballerina.Break, parent?: Ballerina.ASTNode): void;
@@ -147,15 +138,6 @@ export interface Visitor {
     parent?: Ballerina.ASTNode
   ): void;
 
-  beginVisitDeprecated?(
-    node: Ballerina.Deprecated,
-    parent?: Ballerina.ASTNode
-  ): void;
-  endVisitDeprecated?(
-    node: Ballerina.Deprecated,
-    parent?: Ballerina.ASTNode
-  ): void;
-
   beginVisitDocumentationDescription?(
     node: Ballerina.DocumentationDescription,
     parent?: Ballerina.ASTNode
@@ -183,15 +165,6 @@ export interface Visitor {
     parent?: Ballerina.ASTNode
   ): void;
 
-  beginVisitErrorConstructor?(
-    node: Ballerina.ErrorConstructor,
-    parent?: Ballerina.ASTNode
-  ): void;
-  endVisitErrorConstructor?(
-    node: Ballerina.ErrorConstructor,
-    parent?: Ballerina.ASTNode
-  ): void;
-
   beginVisitErrorDestructure?(
     node: Ballerina.ErrorDestructure,
     parent?: Ballerina.ASTNode
@@ -207,6 +180,15 @@ export interface Visitor {
   ): void;
   endVisitErrorType?(
     node: Ballerina.ErrorType,
+    parent?: Ballerina.ASTNode
+  ): void;
+
+  beginVisitErrorVariable?(
+    node: Ballerina.ErrorVariable,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitErrorVariable?(
+    node: Ballerina.ErrorVariable,
     parent?: Ballerina.ASTNode
   ): void;
 
@@ -276,8 +258,14 @@ export interface Visitor {
   beginVisitGroupBy?(node: Ballerina.GroupBy, parent?: Ballerina.ASTNode): void;
   endVisitGroupBy?(node: Ballerina.GroupBy, parent?: Ballerina.ASTNode): void;
 
-  beginVisitHaving?(node: Ballerina.Having, parent?: Ballerina.ASTNode): void;
-  endVisitHaving?(node: Ballerina.Having, parent?: Ballerina.ASTNode): void;
+  beginVisitGroupExpr?(
+    node: Ballerina.GroupExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitGroupExpr?(
+    node: Ballerina.GroupExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
 
   beginVisitIdentifier?(
     node: Ballerina.Identifier,
@@ -323,6 +311,18 @@ export interface Visitor {
 
   beginVisitLambda?(node: Ballerina.Lambda, parent?: Ballerina.ASTNode): void;
   endVisitLambda?(node: Ballerina.Lambda, parent?: Ballerina.ASTNode): void;
+
+  beginVisitLimit?(node: Ballerina.Limit, parent?: Ballerina.ASTNode): void;
+  endVisitLimit?(node: Ballerina.Limit, parent?: Ballerina.ASTNode): void;
+
+  beginVisitListConstructorExpr?(
+    node: Ballerina.ListConstructorExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
+  endVisitListConstructorExpr?(
+    node: Ballerina.ListConstructorExpr,
+    parent?: Ballerina.ASTNode
+  ): void;
 
   beginVisitLiteral?(node: Ballerina.Literal, parent?: Ballerina.ASTNode): void;
   endVisitLiteral?(node: Ballerina.Literal, parent?: Ballerina.ASTNode): void;
@@ -387,18 +387,6 @@ export interface Visitor {
   ): void;
   endVisitObjectType?(
     node: Ballerina.ObjectType,
-    parent?: Ballerina.ASTNode
-  ): void;
-
-  beginVisitOrderBy?(node: Ballerina.OrderBy, parent?: Ballerina.ASTNode): void;
-  endVisitOrderBy?(node: Ballerina.OrderBy, parent?: Ballerina.ASTNode): void;
-
-  beginVisitOrderByVariable?(
-    node: Ballerina.OrderByVariable,
-    parent?: Ballerina.ASTNode
-  ): void;
-  endVisitOrderByVariable?(
-    node: Ballerina.OrderByVariable,
     parent?: Ballerina.ASTNode
   ): void;
 
@@ -764,15 +752,6 @@ export interface Visitor {
 
   beginVisitWhile?(node: Ballerina.While, parent?: Ballerina.ASTNode): void;
   endVisitWhile?(node: Ballerina.While, parent?: Ballerina.ASTNode): void;
-
-  beginVisitWindowClause?(
-    node: Ballerina.WindowClause,
-    parent?: Ballerina.ASTNode
-  ): void;
-  endVisitWindowClause?(
-    node: Ballerina.WindowClause,
-    parent?: Ballerina.ASTNode
-  ): void;
 
   beginVisitWorkerFlush?(
     node: Ballerina.WorkerFlush,

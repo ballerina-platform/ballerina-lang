@@ -1,3 +1,5 @@
+import ballerina/'lang\.int as ints;
+
 xmlns "http://sample.com/wso2/a1" as ns0;
 public function main (string... args) returns error? {
     string x = "static";
@@ -8,7 +10,7 @@ public function main (string... args) returns error? {
     x1 += "static";
     secureFunction(x1, x1);
 
-    var x3 = int.convert(args[0]);
+    var x3 = ints:fromString(args[0]);
     if (x3 is int) {
         x3 += 1;
         secureFunction(x3,x3);

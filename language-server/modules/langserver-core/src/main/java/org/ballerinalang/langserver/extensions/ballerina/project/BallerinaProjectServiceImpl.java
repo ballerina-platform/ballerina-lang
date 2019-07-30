@@ -100,7 +100,7 @@ public class BallerinaProjectServiceImpl implements BallerinaProjectService {
                 jsonCUnit.addProperty("name", cUnit.name);
                 Path sourceRoot = Paths.get(new URI(astContext.get(DocumentServiceKeys.SOURCE_ROOT_KEY)));
                 String uri = sourceRoot.resolve(
-                        Paths.get(module.getPosition().getSource().cUnitName,
+                        Paths.get("src", module.getPosition().getSource().cUnitName,
                         cUnit.getPosition().getSource().cUnitName)).toUri().toString();
                 jsonCUnit.addProperty("uri", uri);
                 JsonElement jsonAST = TextDocumentFormatUtil.generateJSON(cUnit, new HashMap<>(), visibleEPsByNode);

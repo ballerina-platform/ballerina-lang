@@ -26,6 +26,8 @@ function orderingTest() returns string[] {
         i += 1;
     }
 
+    wait ap;
+
     append(log, "parent: end");
     return log;
 }

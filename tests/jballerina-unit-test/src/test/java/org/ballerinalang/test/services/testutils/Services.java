@@ -19,7 +19,7 @@
 package org.ballerinalang.test.services.testutils;
 
 import io.netty.handler.codec.http.HttpContent;
-import org.ballerinalang.jvm.Scheduler;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.Executor;
@@ -58,6 +58,10 @@ public class Services {
     }
 
     public static HttpCarbonMessage invoke(int listenerPort, HTTPTestRequest request) {
+        return invoke(listenerPort, request, true);
+    }
+
+    public static HttpCarbonMessage invoke(int listenerPort, HTTPTestRequest request, boolean startScheduler) {
         RegistryHolder registryHolder =
                 MockHTTPConnectorListener.getInstance().getHttpServicesRegistry(listenerPort);
         TestCallableUnitCallback callback = new TestCallableUnitCallback(request);
@@ -90,7 +94,9 @@ public class Services {
         ObjectValue service = resource.getParentService().getBalService();
         Scheduler scheduler = registryHolder.getRegistry().getScheduler();
         Executor.submit(scheduler, service, resource.getName(), callback, properties, signatureParams);
-        Executors.newSingleThreadExecutor().submit(scheduler::start);
+        if (startScheduler) {
+            Executors.newSingleThreadExecutor().submit(scheduler::start);
+        }
         callback.sync();
 
         HttpCarbonMessage originalMsg = callback.getResponseMsg();

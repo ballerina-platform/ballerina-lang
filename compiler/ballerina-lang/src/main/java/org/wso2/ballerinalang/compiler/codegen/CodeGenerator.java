@@ -149,6 +149,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock.BLangLockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock.BLangUnLockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
@@ -2848,6 +2850,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.emit(gotoTopJumpInstr);
 
         exitLoopJumpAddr.value = nextIP();
+    }
+
+    public void visit(BLangLockStmt lockStmt) {
+
+    }
+
+    public void visit(BLangUnLockStmt unLockStmt) {
+
     }
 
     public void visit(BLangLock lockNode) {

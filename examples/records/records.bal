@@ -59,6 +59,6 @@ public function main() {
     // This adds an additional field, which is not defined in the record type descriptor above.
     // An attempt to add additional fields to a closed record results in compile errors.
     // E.g., `peter.address.street = "Palm Grove";` will result in a compile error.
-    peter.address = <Address>{ city: "Colombo", country: "Sri Lanka" };
+    peter["address"] = <Address>{ city: "Colombo", country: "Sri Lanka" };
     io:println(peter);
 }

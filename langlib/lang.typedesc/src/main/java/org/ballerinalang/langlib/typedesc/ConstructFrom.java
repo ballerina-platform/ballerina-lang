@@ -20,9 +20,9 @@ package org.ballerinalang.langlib.typedesc;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.JSONUtils;
-import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.values.RefValue;
@@ -62,13 +62,13 @@ public class ConstructFrom {
         BType describingType = t.getDescribingType();
         // typedesc<json>.constructFrom like usage
         if (describingType.getTag() == org.ballerinalang.jvm.types.TypeTags.TYPEDESC_TAG) {
-            return convert(strand, ((BTypedescType) t.getDescribingType()).getConstraint(), v);
+            return convert(((BTypedescType) t.getDescribingType()).getConstraint(), v);
         }
         // json.constructFrom like usage
-        return convert(strand, describingType, v);
+        return convert(describingType, v);
     }
 
-    public static Object convert(Strand strand, BType convertType, Object inputValue) {
+    public static Object convert(BType convertType, Object inputValue) {
         RefValue convertedValue;
         org.ballerinalang.jvm.types.BType targetType;
         if (convertType.getTag() == org.ballerinalang.jvm.types.TypeTags.UNION_TAG) {

@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langlib.stream;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -32,13 +32,13 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         orgName = "ballerina", packageName = "lang.stream",
         functionName = "publish",
         args = {
-                @Argument(name = "s", type = TypeKind.STREAM),
+                @Argument(name = "strm", type = TypeKind.STREAM),
                 @Argument(name = "data", type = TypeKind.ANY)
         },
         isPublic = true)
 public class Publish {
 
-    public static void publish(Strand strand, StreamValue streamValue, Object data) {
-        streamValue.publish(strand, data);
+    public static void publish(Strand strand, StreamValue strm, Object data) {
+        strm.publish(strand, data);
     }
 }
