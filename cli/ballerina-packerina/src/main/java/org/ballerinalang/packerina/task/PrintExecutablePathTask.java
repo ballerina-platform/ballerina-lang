@@ -19,25 +19,21 @@
 package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.packerina.buildcontext.BuildContext;
-import org.ballerinalang.packerina.writer.BaloFileWriter;
+import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.nio.file.Path;
-import java.util.List;
 
 /**
- * Task for creating balo file. Balo file writer is meant for modules only and not for single files.
+ * Task to print the location of the executable.
  */
-public class CreateBaloTask implements Task {
+public class PrintExecutablePathTask implements Task {
     @Override
     public void execute(BuildContext buildContext) {
-        List<BLangPackage> modules = buildContext.getModules();
-        for (BLangPackage module : modules) {
-            Path baloPath = buildContext.getBaloFromTarget(module.packageID);
-    
-            // generate balo for each module.
-            BaloFileWriter baloWriter = BaloFileWriter.getInstance(buildContext);
-            baloWriter.write(module, baloPath);
+        Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
+        for (BLangPackage module : buildContext.getModules()) {
+            Path executablePath = buildContext.getExecutablePathFromTarget(module.packageID);
+            buildContext.out().println(sourceRootPath.relativize(executablePath).toString());
         }
     }
 }

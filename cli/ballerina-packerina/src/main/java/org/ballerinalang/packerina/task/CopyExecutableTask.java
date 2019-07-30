@@ -84,10 +84,6 @@ public class CopyExecutableTask implements Task {
                 
                 // copy the executable. replace the existing executable if exists.
                 Files.copy(executableFile, this.outputFileOrDirectoryName, StandardCopyOption.REPLACE_EXISTING);
-    
-                Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
-                OUT.println("Generating executables");
-                OUT.println(sourceRootPath.relativize(this.outputFileOrDirectoryName).toString());
                 
                 // update executable location and target dir
                 // this is to avoid spotbugs

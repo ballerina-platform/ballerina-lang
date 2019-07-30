@@ -16,13 +16,23 @@
  * under the License.
  */
 
-package org.ballerinalang.packerina.task;
+package org.ballerinalang.packerina.utils;
 
-import org.ballerinalang.packerina.buildcontext.BuildContext;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 
 /**
- * Task interface for executing a task in packaging.
+ * A print stream that doesn't print anything.
  */
-public interface Task {
-    void execute(BuildContext buildContext);
+public class EmptyPrintStream extends PrintStream {
+    public EmptyPrintStream() throws UnsupportedEncodingException {
+        super(new OutputStream() {
+            @Override
+            public void write(int b) {}
+        }, true, "UTF-8");
+    }
 }
+
+
+

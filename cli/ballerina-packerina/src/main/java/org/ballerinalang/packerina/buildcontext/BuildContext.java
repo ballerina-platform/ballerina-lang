@@ -84,7 +84,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                 
                 // set source context
                 this.setSource(source);
-                
+        
                 // save '<target>/balo' dir for balo files
                 this.baloCacheDir = targetPath.resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY);
                 
@@ -92,14 +92,14 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                 this.targetBirCacheDir = targetPath
                         .resolve(ProjectDirConstants.CACHES_DIR_NAME)
                         .resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME);
-                
+        
                 this.put(BuildContextField.BIR_CACHE_DIR, this.targetBirCacheDir);
-                
+        
                 // save '<target>/cache/jar_cache' dir for jar files
                 this.targetJarCacheDir = targetPath
                         .resolve(ProjectDirConstants.CACHES_DIR_NAME)
                         .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
-                
+        
                 // save '<target>/bin' dir for executables
                 this.executableDir = targetPath.resolve(ProjectDirConstants.BIN_DIR_NAME);
             } else {
