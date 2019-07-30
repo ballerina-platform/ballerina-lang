@@ -120,6 +120,7 @@
             <package name="org.ballerinalang.test.taintchecking.*"/>
             <package name="org.ballerinalang.test.statements.transaction.*"/>
             <package name="org.ballerinalang.test.functions.*"/>
+            <package name="org.ballerinalang.test.javainterop.*"/>
         </packages>
 
         <classes>

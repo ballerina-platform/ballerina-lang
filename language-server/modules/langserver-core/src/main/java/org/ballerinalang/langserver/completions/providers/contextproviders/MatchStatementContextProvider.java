@@ -70,7 +70,7 @@ public class MatchStatementContextProvider extends LSCompletionProvider {
                 .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
                 .collect(Collectors.toList());
         List<Integer> defaultTokenTypes = defaultTokens.stream().map(CommonToken::getType).collect(Collectors.toList());
-        List<SymbolInfo> symbolInfoList = ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         int delimiter = ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
         if (delimiter > -1) {
             String varName = defaultTokens.get(defaultTokenTypes.indexOf(delimiter) - 1).getText();
@@ -84,8 +84,8 @@ public class MatchStatementContextProvider extends LSCompletionProvider {
                 }
             });
         } else {
-            symbolInfoList.removeIf(CommonUtil.invalidSymbolsPredicate());
-            symbolInfoList.forEach(symbolInfo -> {
+            visibleSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
+            visibleSymbols.forEach(symbolInfo -> {
                 BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
                 if (CommonUtil.isValidInvokableSymbol(symbolInfo.getScopeEntry().symbol)
                         && ((bSymbol.flags & Flags.ATTACHED) != Flags.ATTACHED)) {
@@ -97,8 +97,7 @@ public class MatchStatementContextProvider extends LSCompletionProvider {
                     completionItems.add(BVariableCompletionItemBuilder.build((BVarSymbol) bSymbol,
                                                                              symbolInfo.getSymbolName(), typeName));
                 } else if (bSymbol instanceof BPackageSymbol) {
-                    completionItems.add(
-                            BTypeCompletionItemBuilder.build((BPackageSymbol) bSymbol, symbolInfo.getSymbolName()));
+                    completionItems.add(BTypeCompletionItemBuilder.build(bSymbol, symbolInfo.getSymbolName()));
                 }
             });
         }

@@ -14,22 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-channel<string> strChn = new;
-channel<int> intChn = new;
-
 public function basicWorkerTest() returns int {
     int i = 10;
     worker w1 {
       i = i + 40;
       i -> w2;
-      "message" -> strChn, 66;
     }
 
     worker w2 returns int {
-      string strResult = <- strChn, 66;
       int j = 25;
-      i = j;
       j = <- w1;
+      i = j;
       return j;
     }
 
@@ -44,16 +39,12 @@ public function testWithTuples() returns [string, int] {
     worker w1 {
       str = "Changed inside worker 1!!!";
       i = i + 40;
-      i -> w2;
-      "message" -> strChn, 66;
     }
 
     worker w2 returns int {
-      string strResult = <- strChn, 66;
       i = 100 + i;
-      int j = <- w1;
       str = str + " -- Changed inside worker 2!!!";
-      return j;
+      return i;
     }
 
     _ = wait {w1, w2};
@@ -65,18 +56,15 @@ public function testWithMaps() returns map<string> {
     worker w1 {
       m1["e"] = "EE";
       m1["a"] = "AA";
-      "message" -> strChn, 66;
     }
 
     worker w2 {
-       string strResult = <- strChn, 66;
        m1["a"] = "AAA";
        m1["n"] = "N";
-       "message" -> strChn, 33;
     }
 
      worker w3 {
-        string strResult = <- strChn, 33;
+        _ = wait {w1, w2};
         m1["e"] = "EEE";
         m1["a"] = "AAAA";
      }
@@ -94,25 +82,19 @@ public function complexWorkerTest() returns [int, map<string>] {
     worker w1 {
       m1["e"] = "EE";
       m1["a"] = "AA";
-      4 -> intChn, 24;
 
       fork {
         worker w4 {
-            int intResult = <- intChn, 24;
             int j = 100 * 2;
             i = j;
             m1["b"] = "BB";
-            1 -> intChn, 11;
         }
 
         worker w5 {
-            int intResult = <- intChn, 11;
-            5 -> intChn, 55;
             i = i + 50;
             m1["m"] = "M";
             fork {
                 worker w6 {
-                    intResult = <- intChn, 55;
                     i = i + 100;
                     m1["m"] = "MMM";
                     m1["a"] = "AAAA";
@@ -136,25 +118,22 @@ public function complexWorkerTest() returns [int, map<string>] {
 public type Student record {|
     string name;
     int age;
+    string email?;
     string...;
 |};
 
 public function testWithRecords() returns Student {
     Student stu = {name: "John Doe", age: 17};
     worker w1 {
-      "message" -> strChn, 100;
        stu.name = "Adam Page";
     }
 
     worker w2 {
-       string strResult = <- strChn, 100;
        stu = {name: "Adam Page", age: 24};
        stu.email = "adamp@gmail.com";
-       "message" -> strChn, 111;
     }
 
      worker w3 {
-        string strResult = <- strChn, 111;
         stu.email = "adamp@wso2.com";
      }
 
@@ -178,19 +157,16 @@ public type Person object {
 public function testWithObjects() returns Person {
     Person p1 = new(5, "John", "John Doe");
     worker w1 {
-      "message" -> strChn, 100;
        p1.age = 10;
        p1.name = "Joe";
     }
 
     worker w2 {
-       string res = <- strChn, 100;
        p1.age = 25;
-       "message" -> strChn, 111;
     }
 
      worker w3 {
-        string res1 = <- strChn, 111;
+        _ = wait {w1, w2};
         p1 = new(40, "Adam", "Adam Adam Page");
      }
 

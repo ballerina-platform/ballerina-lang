@@ -31,7 +31,7 @@ public function reason(error<StringType> e) returns StringType = external;
 public function detail(error<string,RecordType> e) returns RecordType = external;
 
 // Returns an object representing the stack trace of the error
-public function stackTrace(error e) returns object { } = external;
+public function stackTrace(error e) returns CallStack = external;
 
 
 public type Detail record {|
@@ -39,3 +39,20 @@ public type Detail record {|
     error cause?;
     (anydata|error)...;
 |};
+
+# Representation of `CallStackElement`
+#
+# + callableName - Callable name
+# + moduleName - Module name
+# + fileName - File name
+# + lineNumber - Line number
+public type CallStackElement record {|
+    string callableName;
+    string moduleName;
+    string fileName;
+    int lineNumber;
+|};
+
+public type CallStack object {
+    public CallStackElement[] callStack;
+};

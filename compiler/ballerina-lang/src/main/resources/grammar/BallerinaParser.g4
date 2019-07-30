@@ -472,21 +472,12 @@ listBindingPattern
     ;
 
 recordBindingPattern
-    :   openRecordBindingPattern
-    |   closedRecordBindingPattern
-    ;
-
-openRecordBindingPattern
     :   LEFT_BRACE entryBindingPattern RIGHT_BRACE
-    ;
-
-closedRecordBindingPattern
-    :   LEFT_CLOSED_RECORD_DELIMITER fieldBindingPattern (COMMA fieldBindingPattern)* RIGHT_CLOSED_RECORD_DELIMITER
     ;
 
 entryBindingPattern
     :   fieldBindingPattern (COMMA fieldBindingPattern)* (COMMA restBindingPattern)?
-    |   restBindingPattern
+    |   restBindingPattern?
     ;
 
 fieldBindingPattern
@@ -514,16 +505,7 @@ listRefBindingPattern
     ;
 
 recordRefBindingPattern
-    :   openRecordRefBindingPattern
-    |   closedRecordRefBindingPattern
-    ;
-
-openRecordRefBindingPattern
-    :   LEFT_BRACE entryRefBindingPattern RIGHT_BRACE
-    ;
-
-closedRecordRefBindingPattern
-    :   LEFT_CLOSED_RECORD_DELIMITER fieldRefBindingPattern (COMMA fieldRefBindingPattern)* RIGHT_CLOSED_RECORD_DELIMITER
+    :  LEFT_BRACE entryRefBindingPattern RIGHT_BRACE
     ;
 
 errorRefBindingPattern
@@ -540,7 +522,7 @@ errorRefRestPattern
 
 entryRefBindingPattern
     :   fieldRefBindingPattern (COMMA fieldRefBindingPattern)* (COMMA restRefBindingPattern)?
-    |   restRefBindingPattern
+    |   restRefBindingPattern?
     ;
 
 fieldRefBindingPattern

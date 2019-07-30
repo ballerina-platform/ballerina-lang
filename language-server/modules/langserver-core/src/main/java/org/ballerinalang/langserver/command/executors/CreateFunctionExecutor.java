@@ -155,7 +155,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
                 );
                 if (notFound) {
                     String pkgName = orgName + "/" + alias;
-                    edits.add(addPackage(pkgName, packageNode, context));
+                    edits.add(addPackage(pkgName, context));
                 }
             };
             returnType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, parent);
@@ -235,12 +235,10 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         return new ImmutablePair<>(null, hasFunctions);
     }
 
-    private TextEdit addPackage(String pkgName, BLangPackage srcOwnerPkg, LSContext context) {
+    private TextEdit addPackage(String pkgName, LSContext context) {
         DiagnosticPos pos = null;
-
         // Filter the imports except the runtime import
-        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(srcOwnerPkg, context);
-
+        List<BLangImportPackage> imports = CommonUtil.getCurrentModuleImports(context);
         if (!imports.isEmpty()) {
             BLangImportPackage lastImport = CommonUtil.getLastItem(imports);
             pos = lastImport.getPosition();

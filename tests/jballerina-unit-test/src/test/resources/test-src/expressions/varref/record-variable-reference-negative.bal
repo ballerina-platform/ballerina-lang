@@ -40,7 +40,7 @@ type Person2 record {|
 
 function testUndefinedSymbol() {
     // undefined symbols. age is not a closed record
-    {name: fName, married, age: {| age: theAge, format |}, ...theMap} = getPerson1();
+    {name: fName, married, age: { age: theAge, format }, ...theMap} = getPerson1();
 }
 
 function getPerson1() returns Person {
@@ -59,17 +59,17 @@ function testClosedRecordVarRef() {
 
     Age age1 = {age:12, format: "Y", "three": "three"};
     Person p1 = {name: "Peter", married: true, age: age1, extra: ["extra", 12]};
-    {name: fName, married, age: {| age: theAge, format |}, ...theMap} = p1;  // Age is not a closed record
+    {name: fName, married, age: { age: theAge, format }, ...theMap} = p1;  // Age is not a closed record
 
     ClosedAge age2 = {age:12, format: "Y"};
     Person2 p2 = {name: "Peter", married: true, age: age2, extra: ["extra", 12]};
-    {name: fName, married, age: {| age: theAge, format |}, ...theMap} = p2;  // valid
+    {name: fName, married, age: { age: theAge, format }, ...theMap} = p2;  // valid
 
     Person p5 = {name: "Peter", married: true, age: {age:12, format: "Y"}, extra: ["extra", 12]};
-    {| name: fName, married, age: { age: theAge, format} |} = p5; // not enough fields to match to closed record type 'Person'
+    { name: fName, married, age: { age: theAge, format} } = p5; // not enough fields to match to closed record type 'Person'
 
     Person2 p6 = {name: "Peter", married: true, age: {age:12, format: "Y"}, extra: ["extra", 12]};
-    {name: fName, married, age: {| age: theAge, format |}} = p6; // valid
+    {name: fName, married, age: { age: theAge, format }} = p6; // valid
 
     Person p7 = {name: "Peter", married: true, age: {age:12, format: "Y", "three": "three"}, extra: ["extra", 12]};
     {name: fName, married, age: { age: theAge, format}} = p7; // valid
