@@ -19,6 +19,17 @@
 package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.packerina.buildcontext.BuildContext;
+import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.testerina.util.TesterinaUtils;
+import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.Names;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Task for executing tests.
@@ -26,6 +37,32 @@ import org.ballerinalang.packerina.buildcontext.BuildContext;
 public class RunTestsTask implements Task {
     @Override
     public void execute(BuildContext buildContext) {
+        Map<BLangPackage, JBallerinaInMemoryClassLoader> programFileMap = new HashMap<>();
+        Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
+        List<BLangPackage> moduleBirMap = buildContext.getModules();
+        // Only tests in packages are executed so default packages i.e. single bal files which has the package name
+        // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
+        // in packages.
+        moduleBirMap.stream().filter(bLangPackage -> !bLangPackage.packageID.getName().equals(Names.DEFAULT_PACKAGE))
+            .forEach(bLangPackage -> {
+                // todo following is some legacy logic check if we need to do this.
+                // if (bLangPackage.containsTestablePkg()) {
+                // } else {
+                    // In this package there are no tests to be executed. But we need to say to the users that
+                    // there are no tests found in the package to be executed as :
+                    // Running tests
+                    //     <org-name>/<package-name>:<version>
+                    //         No tests found
+                // }
+                Path jarPath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID);
+                JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(jarPath,
+                        Paths.get(System.getProperty("ballerina.home"), "bre", "lib").toFile());
+                programFileMap.put(bLangPackage, classLoader);
+            });
+        // Create a class loader to
 
+        if (programFileMap.size() > 0) {
+            TesterinaUtils.executeTests(sourceRootPath, programFileMap);
+        }
     }
 }
