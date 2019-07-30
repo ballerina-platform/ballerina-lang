@@ -51,6 +51,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
@@ -233,7 +235,7 @@ public class FilterUtils {
     }
     
     private static BType getModifiedBType(BType bType) {
-        return bType instanceof BUnionType ? getBTypeForUnionType((BUnionType) bType) : bType.tsymbol.type;
+        return bType instanceof BUnionType ? getBTypeForUnionType((BUnionType) bType) : bType;
     }
 
     private static List<ChainedFieldModel> getInvocationFieldList(List<CommonToken> defaultTokens, int startIndex) {
@@ -241,10 +243,12 @@ public class FilterUtils {
         int rightParenthesisCount = 0;
         boolean invocation = false;
         List<ChainedFieldModel> fieldList = new ArrayList<>();
+        Pattern pattern = Pattern.compile("^\\w+$");
+        boolean captureNextValidField = false;
         while (traverser >= 0) {
             CommonToken token = defaultTokens.get(traverser);
             int type = token.getType();
-
+            Matcher matcher = pattern.matcher(token.getText());
             if (type == BallerinaParser.RIGHT_PARENTHESIS) {
                 if (!invocation) {
                     invocation = true;
@@ -256,8 +260,9 @@ public class FilterUtils {
                 traverser--;
             } else if (type == BallerinaParser.DOT || type == BallerinaParser.NOT
                     || type == BallerinaParser.OPTIONAL_FIELD_ACCESS || rightParenthesisCount > 0) {
+                captureNextValidField = true;
                 traverser--;
-            } else if (type == BallerinaParser.Identifier && rightParenthesisCount == 0) {
+            } else if (matcher.find() && rightParenthesisCount == 0 && captureNextValidField) {
                 InvocationFieldType fieldType;
                 CommonToken packageAlias = null;
                 traverser--;
@@ -274,6 +279,7 @@ public class FilterUtils {
                 }
                 ChainedFieldModel model = new ChainedFieldModel(fieldType, token, packageAlias);
                 fieldList.add(model);
+                captureNextValidField = false;
             } else {
                 break;
             }
