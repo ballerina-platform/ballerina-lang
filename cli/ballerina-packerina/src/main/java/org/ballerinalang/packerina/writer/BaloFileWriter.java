@@ -19,8 +19,8 @@ package org.ballerinalang.packerina.writer;
 
 import com.moandjiezana.toml.TomlWriter;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.packerina.BuilderUtils;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
+import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.model.BaloToml;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Module;
@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystem;
@@ -60,21 +59,23 @@ import java.util.stream.Collectors;
 public class BaloFileWriter {
     private static final CompilerContext.Key<BaloFileWriter> MODULE_FILE_WRITER_KEY =
             new CompilerContext.Key<>();
-    private PrintStream outStream = System.out;
-
     private final SourceDirectory sourceDirectory;
     private final Manifest manifest;
-
-    public static BaloFileWriter getInstance(CompilerContext context) {
+    private final BuildContext buildContext;
+    
+    public static BaloFileWriter getInstance(BuildContext buildContext) {
+        CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
         BaloFileWriter baloFileWriter = context.get(MODULE_FILE_WRITER_KEY);
         if (baloFileWriter == null) {
-            baloFileWriter = new BaloFileWriter(context);
+            baloFileWriter = new BaloFileWriter(buildContext);
         }
         return baloFileWriter;
     }
 
-    private BaloFileWriter(CompilerContext context) {
+    private BaloFileWriter(BuildContext buildContext) {
+        CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
         context.put(MODULE_FILE_WRITER_KEY, this);
+        this.buildContext = buildContext;
         this.sourceDirectory = context.get(SourceDirectory.class);
         if (this.sourceDirectory == null) {
             throw new IllegalArgumentException("source directory has not been initialized");
@@ -88,7 +89,7 @@ public class BaloFileWriter {
      * @param module ballerina module
      * @param buildContext build context
      */
-    public void write(BLangPackage module, BuildContext buildContext) {
+    public void write(BLangPackage module, Path baloFilePath) {
         // Get the project directory
         Path projectDirectory = this.sourceDirectory.getPath();
 
@@ -99,18 +100,17 @@ public class BaloFileWriter {
         }
         
         // Create the archive over write if exists
-        Path baloFile = BuilderUtils.resolveBaloPath(buildContext, module.packageID);
-        try (FileSystem balo = createBaloArchive(baloFile)) {
+        try (FileSystem balo = createBaloArchive(baloFilePath)) {
             // Now lets put stuff in
             populateBaloArchive(balo, module);
-            outStream.println("Created " + projectDirectory.relativize(baloFile));
+            buildContext.out().println("Created " + projectDirectory.relativize(baloFilePath));
         } catch (IOException e) {
             // todo Check for permission
             throw new BLangCompilerException("Failed to create balo :" + e.getMessage(), e);
         } catch (BLangCompilerException be) {
             // clean up if an error occur
             try {
-                Files.delete(baloFile);
+                Files.delete(baloFilePath);
             } catch (IOException e) {
                 // We ignore this error and throw out the original blang compiler error to the user
             }
