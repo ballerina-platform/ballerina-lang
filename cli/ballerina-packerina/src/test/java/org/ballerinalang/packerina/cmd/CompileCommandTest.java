@@ -79,7 +79,7 @@ public class CompileCommandTest extends CommandTest {
 
         // Compile the project
         String[] compileArgs = {};
-        CompileCommand compileCommand = new CompileCommand(projectDirectory, printStream, false);
+        CompileCommand compileCommand = new CompileCommand(projectDirectory, printStream, printStream, false);
         new CommandLine(compileCommand).parse(compileArgs);
         compileCommand.execute();
 
@@ -218,7 +218,7 @@ public class CompileCommandTest extends CommandTest {
 
         // Compile the project
         String[] compileArgs = {};
-        CompileCommand compileCommand = new CompileCommand(tmpDir, printStream, false);
+        CompileCommand compileCommand = new CompileCommand(tmpDir, printStream, printStream, false);
         new CommandLine(compileCommand).parse(compileArgs);
         compileCommand.execute();
 
