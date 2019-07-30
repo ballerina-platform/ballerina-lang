@@ -84,13 +84,6 @@ public class CompileCommand implements BLauncherCmd {
         this.exitWhenFinish = exitWhenFinish;
     }
 
-
-    @CommandLine.Option(names = {"-c"}, description = "build a compiled module")
-    private boolean buildCompiledPkg;
-
-    @CommandLine.Option(names = {"-o"}, description = "write output to the given file")
-    private String outputFileName;
-
     @CommandLine.Option(names = {"--offline"})
     private boolean offline;
 
@@ -98,7 +91,7 @@ public class CompileCommand implements BLauncherCmd {
     private boolean lockEnabled;
 
     @CommandLine.Option(names = {"--skip-tests"})
-    private boolean skiptests;
+    private boolean skipTests;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -179,7 +172,7 @@ public class CompileCommand implements BLauncherCmd {
             options.put(OFFLINE, Boolean.toString(offline));
             options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
             options.put(LOCK_ENABLED, Boolean.toString(lockEnabled));
-            options.put(SKIP_TESTS, Boolean.toString(skiptests));
+            options.put(SKIP_TESTS, Boolean.toString(skipTests));
             options.put(TEST_ENABLED, "true");
             options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(experimentalFlag));
             options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(siddhiRuntimeFlag));
@@ -194,7 +187,7 @@ public class CompileCommand implements BLauncherCmd {
                     .addTask(new CreateBaloTask())
                     .addTask(new CreateBirTask())
                     .addTask(new CreateJarTask())
-                    .addTask(new RunTestsTask())
+                    .addTask(new RunTestsTask(), this.skipTests)
                     .addTask(new CreateLockFileTask())
                     .addTask(new CreateDocsTask())
                     .build();
@@ -207,7 +200,7 @@ public class CompileCommand implements BLauncherCmd {
             options.put(OFFLINE, Boolean.toString(offline));
             options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
             options.put(LOCK_ENABLED, Boolean.toString(lockEnabled));
-            options.put(SKIP_TESTS, Boolean.toString(skiptests));
+            options.put(SKIP_TESTS, Boolean.toString(skipTests));
             options.put(TEST_ENABLED, "true");
             options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(experimentalFlag));
             options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(siddhiRuntimeFlag));
@@ -274,7 +267,7 @@ public class CompileCommand implements BLauncherCmd {
                         .addTask(new CreateBaloTask())
                         .addTask(new CreateBirTask())
                         .addTask(new CreateJarTask())
-                        .addTask(new RunTestsTask())
+                        .addTask(new RunTestsTask(), this.skipTests)
                         .addTask(new CreateLockFileTask())
                         .addTask(new CreateDocsTask())
                         .build();

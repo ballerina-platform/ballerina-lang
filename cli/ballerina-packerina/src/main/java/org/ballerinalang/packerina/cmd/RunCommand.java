@@ -30,7 +30,6 @@ import org.ballerinalang.packerina.task.CreateExecutableTask;
 import org.ballerinalang.packerina.task.CreateJarTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
 import org.ballerinalang.packerina.task.RunExecutableTask;
-import org.ballerinalang.packerina.task.RunTestsTask;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.BallerinaCliCommands;
 import org.ballerinalang.tool.LauncherUtils;
@@ -229,7 +228,6 @@ public class RunCommand implements BLauncherCmd {
                         .addTask(new CreateBaloTask())
                         .addTask(new CreateBirTask())
                         .addTask(new CreateJarTask())
-                        .addTask(new RunTestsTask())
                         .addTask(new CreateExecutableTask(true))
                         .addTask(new RunExecutableTask(programArgs, runtimeParams, configFilePath, observeFlag))
                         .build();
