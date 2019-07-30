@@ -203,3 +203,12 @@ function testErrorWithUnderscore() returns [string, map<string>] {
 
     return [reason, detail];
 }
+
+type SampleError error;
+
+function testDefaultErrorRefBindingPattern() returns string {
+    SampleError e = error("the reason");
+    string reason;
+    error(reason, ... _) = e;
+    return reason;
+}
