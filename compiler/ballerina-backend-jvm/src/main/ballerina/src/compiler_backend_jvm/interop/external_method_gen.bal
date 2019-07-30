@@ -76,16 +76,11 @@ function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extF
     jvm:Label? tryStart = ();
     jvm:Label? tryEnd = ();
     jvm:Label? tryHandler = ();
-    boolean isObserved = false;
     if (isRemote) {
-        isObserved = true;
         tryStart = labelGen.getLabel("try-start");
         tryEnd = labelGen.getLabel("try-end");
         tryHandler = labelGen.getLabel("try-handler");
-        if (tryStart is jvm:Label && tryEnd is jvm:Label && tryHandler is jvm:Label) {
-            mv.visitTryCatchBlock(tryStart, tryEnd, tryHandler, ());
-            mv.visitLabel(tryStart);
-        }
+        mv.visitLabel(<jvm:Label>tryStart);
     }
 
     jvm:Label paramLoadLabel = labelGen.getLabel("param_load");
@@ -177,15 +172,16 @@ function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extF
     mv.visitLineNumber(birFunc.pos.sLine, retLabel);
     termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, birFunc);
 
-    if (isRemote && tryEnd is jvm:Label && tryHandler is jvm:Label) {
-        mv.visitLabel(tryEnd);
+    if (isRemote) {
+        mv.visitTryCatchBlock(<jvm:Label>tryStart, <jvm:Label>tryEnd, <jvm:Label>tryHandler, ());
+        mv.visitLabel(<jvm:Label>tryEnd);
         bir:VariableDcl throwableVarDcl = { typeValue: "string", name: { value: "$_throwable_$" } };
         int throwableVarIndex = indexMap.getIndex(throwableVarDcl);
         emitStopObservationInvocation(mv, strandIndex);
 
         jvm:Label l3 = new();
         mv.visitLabel(l3);
-        mv.visitLabel(tryHandler);
+        mv.visitLabel(<jvm:Label>tryHandler);
         mv.visitVarInsn(ASTORE, throwableVarIndex);
         mv.visitVarInsn(ALOAD, strandIndex);
         emitStopObservationInvocation(mv, strandIndex);

@@ -86,10 +86,7 @@ function genJMethodForBFunc(bir:Function func,
         tryStart = labelGen.getLabel("try-start");
         tryEnd = labelGen.getLabel("try-end");
         tryHandler = labelGen.getLabel("try-handler");
-        if (tryStart is jvm:Label) {
-            // start try block
-            mv.visitLabel(tryStart);
-        }
+        mv.visitLabel(<jvm:Label>tryStart);
     }
 
     if (isModuleInitFunction(module, func)) {
@@ -311,17 +308,17 @@ function genJMethodForBFunc(bir:Function func,
     }
 
     // generate the try finally to stop observing if an error occurs.
-    if (isObserved && tryEnd is jvm:Label && tryStart is jvm:Label && tryHandler is jvm:Label) {
+    if (isObserved) {
         // visiting at the end since order matters in error table
-        mv.visitTryCatchBlock(tryStart, tryEnd, tryHandler, ());
-        mv.visitLabel(tryEnd);
+        mv.visitTryCatchBlock(<jvm:Label>tryStart, <jvm:Label>tryEnd, <jvm:Label>tryHandler, ());
+        mv.visitLabel(<jvm:Label>tryEnd);
         bir:VariableDcl throwableVarDcl = { typeValue: "string", name: { value: "$_throwable_$" } };
         int throwableVarIndex = indexMap.getIndex(throwableVarDcl);
         emitStopObservationInvocation(mv, localVarOffset);
 
         jvm:Label l3 = new();
         mv.visitLabel(l3);
-        mv.visitLabel(tryHandler);
+        mv.visitLabel(<jvm:Label>tryHandler);
         mv.visitVarInsn(ASTORE, throwableVarIndex);
         mv.visitVarInsn(ALOAD, localVarOffset);
         emitStopObservationInvocation(mv, localVarOffset);
