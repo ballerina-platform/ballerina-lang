@@ -65,10 +65,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -390,6 +391,11 @@ public abstract class LSCompletionProvider {
             if (!assignmentType.isPresent()) {
                 return completionItems;
             }
+            
+            boolean isTypeDesc = assignmentType.get() instanceof BLangConstrainedType
+                    && ((BLangConstrainedType) assignmentType.get()).type instanceof BLangBuiltInRefTypeNode
+                    && ((BLangBuiltInRefTypeNode) ((BLangConstrainedType) assignmentType.get()).type).typeKind ==
+                    TypeKind.TYPEDESC;
             if (assignmentType.get() instanceof BLangFunctionTypeNode) {
                 // Function Type Suggestion
                 fillFunctionWithBodySnippet((BLangFunctionTypeNode) assignmentType.get(), context, completionItems);
@@ -430,8 +436,7 @@ public abstract class LSCompletionProvider {
                             signature.getLeft());
                 }
                 completionItems.add(newCItem);
-            } else if (assignmentType.get() instanceof BLangValueType
-                    && ((BLangValueType) assignmentType.get()).typeKind == TypeKind.TYPEDESC) {
+            } else if (isTypeDesc) {
                 completionItems.add(Snippet.KW_TYPEOF.get().build(context));
             }
         } catch (LSCompletionException ex) {

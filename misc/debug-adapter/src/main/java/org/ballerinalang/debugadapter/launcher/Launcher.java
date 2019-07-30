@@ -40,6 +40,7 @@ public class Launcher {
         Socket clientSocket;
 
         try {
+            // TODO: use dynamic ports
             int port = 4711;
             server = new ServerSocket(port);
             PrintStream out = System.out;

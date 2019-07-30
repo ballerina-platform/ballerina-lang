@@ -166,6 +166,12 @@ public class ErrorVariableReferenceTest {
         Assert.assertEquals(results.get("fatal").stringValue(), "true");
     }
 
+    @Test(description = "Test default error var ref with rest underscore")
+    public void testDefaultErrorRefBindingPattern() {
+        BValue[] returns = BRunUtil.invoke(result, "testDefaultErrorRefBindingPattern");
+        Assert.assertEquals(returns[0].stringValue(), "the reason");
+    }
+
     @Test
     public void testNegativeRecordVariables() {
         Assert.assertEquals(resultNegative.getErrorCount(), 12);

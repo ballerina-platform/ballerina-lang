@@ -317,6 +317,9 @@ const string SCHEDULE_CONSUMER_METHOD =  "scheduleConsumer";
 const string SCHEDULE_FUNCTION_METHOD =  "scheduleFunction";
 const string SCHEDULER_START_METHOD =  "start";
 
+// observability related constants
+const string OBSERVER_CONTEXT = "org/ballerinalang/jvm/observability/ObserverContext";
+
 // visibility flags
 const int BAL_PUBLIC = 1;
 const int BAL_NATIVE = 2;
