@@ -16,27 +16,27 @@ function printSalaryDetails(int baseSalary,
 }
 
 public function main() {
-    // Call the function by passing only the `baseSalary`.
-    // The `annualIncrement` and the `bonusRate` default to 20 and 0.02
-    // respectively.
+    // Call the function by passing a value only for the `baseSalary` parameter.
+    // The `annualIncrement` and `bonusRate` parameters default to
+    // 20 and 0.02 respectively.
     printSalaryDetails(2500);
 
-    // Call the function by passing only the `baseSalary` and `annualIncrement`.
-    // `annualIncrement` is passed as a named argument.
-    // The `bonusRate` defaults to 0.02.
+    // Call the function by passing values only for the `baseSalary` and `annualIncrement`
+    // parameters. The value for the `annualIncrement` parameter is passed as a named argument.
+    // The `bonusRate` parameter defaults to 0.02.
     printSalaryDetails(2500, annualIncrement = 100);
 
-    // Call the function again by passing only `baseSalary` and `annualIncrement`.
-    // Now pass `annualIncrement` as a positional argument.
-    // The `bonusRate` defaults to 0.02.
+    // Call the function again by passing values only for the `baseSalary` and `annualIncrement`
+    // parameters, now passing the value for the `annualIncrement` parameter as a positional argument.
+    // The `bonusRate` parameter defaults to 0.02.
     printSalaryDetails(2500, 100);
 
-    // Call the function by passing only the `baseSalary` and `bonusRate`.
-    // The `annualIncrement` defaults to 20.
+    // Call the function by passing values only for the `baseSalary` and `bonusRate` parameters.
+    // The `annualIncrement` parameter defaults to 20.
     printSalaryDetails(2500, bonusRate = 0.1);
 
-    // In order to pass `bonusRate` as a positional argument, a value would
-    // have to be specified for `annualIncrement` too.
+    // In order to pass the value for `bonusRate` as a positional argument, a value would
+    // have to be specified for the `annualIncrement` parameter too.
     // All arguments are positional arguments here.
     printSalaryDetails(2500, 20, 0.1);
 
