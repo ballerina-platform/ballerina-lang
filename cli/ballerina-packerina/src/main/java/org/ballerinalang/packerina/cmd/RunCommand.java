@@ -30,6 +30,7 @@ import org.ballerinalang.packerina.task.CreateExecutableTask;
 import org.ballerinalang.packerina.task.CreateJarTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
 import org.ballerinalang.packerina.task.RunExecutableTask;
+import org.ballerinalang.packerina.task.RunTestsTask;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.BallerinaCliCommands;
 import org.ballerinalang.tool.LauncherUtils;
@@ -68,8 +69,8 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COM
  */
 @CommandLine.Command(name = "run", description = "compile and run Ballerina programs")
 public class RunCommand implements BLauncherCmd {
-
-    private PrintStream errStream;
+    
+    private final PrintStream errStream;
 
     @CommandLine.Parameters(description = "arguments")
     private List<String> argList;
@@ -106,7 +107,7 @@ public class RunCommand implements BLauncherCmd {
     private boolean siddhiRuntimeFlag;
 
     public RunCommand() {
-        errStream = System.err;
+        this.errStream = System.err;
     }
 
     public RunCommand(PrintStream errStream) {
@@ -228,7 +229,8 @@ public class RunCommand implements BLauncherCmd {
                         .addTask(new CreateBaloTask())
                         .addTask(new CreateBirTask())
                         .addTask(new CreateJarTask())
-                        .addTask(new CreateExecutableTask(true))
+                        .addTask(new RunTestsTask())
+                        .addTask(new CreateExecutableTask())
                         .addTask(new RunExecutableTask(programArgs, runtimeParams, configFilePath, observeFlag))
                         .build();
         

@@ -83,7 +83,7 @@ public class BuildCommandTest extends CommandTest {
 
         // Build the project
         String[] compileArgs = {};
-        BuildCommand buildCommand = new BuildCommand(projectDirectory, printStream, false);
+        BuildCommand buildCommand = new BuildCommand(projectDirectory, printStream, printStream, false);
         new CommandLine(buildCommand).parse(compileArgs);
         buildCommand.execute();
 
@@ -249,7 +249,7 @@ public class BuildCommandTest extends CommandTest {
 
         // Build the project
         String[] compileArgs = {};
-        BuildCommand buildCommand = new BuildCommand(tmpDir, printStream, false);
+        BuildCommand buildCommand = new BuildCommand(tmpDir, printStream, printStream, false);
         new CommandLine(buildCommand).parse(compileArgs);
         buildCommand.execute();
 
@@ -263,7 +263,7 @@ public class BuildCommandTest extends CommandTest {
     public void testBuildCommandSingleFile() throws IOException {
         // Build the project
         String[] compileArgs = {"main.bal"};
-        BuildCommand buildCommand = new BuildCommand(tmpDir, printStream, false);
+        BuildCommand buildCommand = new BuildCommand(tmpDir, printStream, printStream, false);
         new CommandLine(buildCommand).parse(compileArgs);
         buildCommand.execute();
 
@@ -282,7 +282,7 @@ public class BuildCommandTest extends CommandTest {
     public void testBuildCommandSingleFileWithOutput() throws IOException {
         // Build the project
         String[] compileArgs = {"main.bal"};
-        BuildCommand buildCommand = new BuildCommand(tmpDir, printStream, false);
+        BuildCommand buildCommand = new BuildCommand(tmpDir, printStream, printStream, false);
         new CommandLine(buildCommand).parse(compileArgs);
         buildCommand.execute();
 
