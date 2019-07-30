@@ -31,12 +31,21 @@ type RecordType record {|
 type StringType string;
 
 # Returns the error's reason string.
+#
+# + e - the error value
+# + return - error reason
 public function reason(error<StringType> e) returns StringType = external;
 
-# Returns the error's detail record as a frozen mapping.
+# Returns the error's detail record as an immutable mapping.
+#
+# + e - the error value
+# + return - error detail value
 public function detail(error<string,RecordType> e) returns RecordType = external;
 
 # Returns an object representing the stack trace of the error.
+#
+# + e - the error value
+# + return - stack trace of the error value
 public function stackTrace(error e) returns object { } = external;
 
 # Default error detail record.

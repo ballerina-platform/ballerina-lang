@@ -29,6 +29,7 @@ public const float E =  2.718281828459045;
 
 # Tests whether a float is finite.
 # Exactly one of isFinite, isInfinite and IsNaN will be true for any float value
+#
 # + x - the float to be tested
 # + return - true if `x` is finite, i.e. neither NaN nor +∞ nor -∞
 public function isFinite(float x) returns boolean = external;
@@ -41,24 +42,39 @@ public function isInfinite(float x) returns boolean = external;
 
 # Tests whether a float is NaN.
 # Exactly one of isFinite, isInfinite and IsNaN will be true for any float value.
+#
 # + x - the float to be tested
 # + return - true if `x` is NaN
 public function isNaN(float x) returns boolean = external;
 
-# Sum of all the arguments. +0.0 if no args.
-# NaN if any arg is NaN.
+# Sum of all the arguments.
+# +0.0 if no args
+# NaN if any arg is NaN
+#
+# + xs - float numbers to sum
+# + return - sum of the parameters
 public function sum(float... xs) returns float = external;
 
 # Maximum of all the arguments.
-# -∞ if no args.
-# NaN if any arg is NaN.
+# -∞ if no args
+# NaN if any arg is NaN
+#
+# + xs - parameters to check for max value
+# + return - maximum value of all provided values
 public function max(float... xs) returns float = external;
 
-# Minimum of all the arguments. +∞ if no args.
-# NaN if any arg is NaN.
+# Minimum of all the arguments.
+# +∞ if no args
+# NaN if any arg is NaN
+#
+# + xs - parameters to check for min value
+# + return - minimum value of all provided values
 public function min(float... xs) returns float = external;
 
-# Returns the IEEE abs value of `x`.
+# IEEE abs operation.
+#
+# + x - whose absolute value is to be determined
+# + return - absolute value of the argument
 public function abs(float x) returns float = external;
 
 # Floating point value that is a mathematical integer and closest to `x`.
@@ -68,34 +84,62 @@ public function abs(float x) returns float = external;
 # Same as .NET Math.round method
 # IEEE roundToIntegralTiesToEven operation
 # Note that `<int>x` is the same as `<int>x.round()`
+#
+# + x - whose value to be rounded
+# + return - rounded value
 public function round(float x) returns float = external;
 
-# Largest (closest to +∞) floating point value not greater than `x` that is a mathematical integer.
+# Largest (closest to +∞) floating point value not greater than `x` that is a mathematical integer
+#
+# + x - whose value to be floored
+# + return - floored value
 public function floor(float x) returns float = external;
 
-# Smallest (closest to -∞) floating point value not less than `x` that is a mathematical integer.
+# Smallest (closest to -∞) floating point value not less than `x` that is a mathematical integer
+#
+# + x - value to performe ceiling on
+# + return - integer ceiling value of the argument in float
 public function ceiling(float x) returns float = external;
 
-# Returns IEEE squareRoot of `x`.
+# IEEE squareRoot operation.
+#
+# + x - value to performe squareRoot operation on
+# + return - squareRoot of the argument
 public function sqrt(float x) returns float = external;
 
-# Cube root
+# Cube root.
 # IEEE rootn(x, 3)
+#
+# + x - value to performe cube root operation on
+# + return - cube root of the argument
 public function cbrt(float x) returns float = external;
 
-# `x` to the power of `y`
+# `x` to the power of `y`.
 # IEEE pow(x, y)
+#
+# + x - base value
+# + y - the exponent
+# + return - `x` raise to the power of `y`
 public function pow(float x, float y) returns float = external;
 
-# Natural logarithm
+# Natural logarithm.
 # IEEE log operation
+#
+# + x - value to take log
+# + return - natural logarithm of `x`
 public function log(float x) returns float = external;
 
-# Base 10 log
+# Base 10 log.
 # IEEE log10 operation
+#
+# + x - value to take log
+# + return - base 10 logarithm of `x`
 public function log10(float x) returns float = external;
 
 # IEEE exp operation
+#
+# + x - exponent
+# + return - Euler's number raised to the power `x`
 public function exp(float x) returns float = external;
 
 # IEEE sin operation
@@ -136,6 +180,9 @@ public function tanh(float x) returns float = external;
 # - `Infinity` is allowed with an optional leading `+` or `-` sign
 # - a FloatingPointTypeSuffix is not allowed
 # This is the inverse of `value:toString` applied to an `float`.
+#
+# + s - string representation of a float
+# + return - float value or error
 public function fromString(string s) returns float|error = external;
 
 # Returns a string that represents `x` as a hexadecimal floating point number.
@@ -146,6 +193,9 @@ public function fromString(string s) returns float|error = external;
 # - negative infinity will be represented by `-Infinity`
 # - NaN will be represented by `NaN`
 # The representation includes `0x` for finite numbers.
+#
+# + x - float value
+# + return - hexadecimal floating point hex string representation
 public function toHexString(float x) returns string = external;
 
 # Return the float value represented by `s`.
@@ -154,11 +204,20 @@ public function toHexString(float x) returns string = external;
 # - the HexFloatingPointLiteral may have a leading `+` or `-` sign
 # - `NaN` is allowed
 # - `Infinity` is allowed with an optional leading `+` or `-` sign
+#
+# + s - hexadecimal floating point hex string representation
+# + return - float value or error
 public function fromHexString(string s) returns float|error = external;
 
 # Returns IEEE 64-bit binary floating point format representation of `x` as an int.
+#
+# + x - float value
+# + return - `x` bit pattern as an int
 public function toBitsInt(float x) returns int = external;
 
 # Returns the float that is represented in IEEE 64-bit floating point by `x`.
 # All bit patterns that IEEE defines to be NaNs will all be mapped to the single float NaN value.
+#
+# + x - int value
+# + return - `x` bit pattern as a float
 public function fromBitsInt(int x) returns float = external;
