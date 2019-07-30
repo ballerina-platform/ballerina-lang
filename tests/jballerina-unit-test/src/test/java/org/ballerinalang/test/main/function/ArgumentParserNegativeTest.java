@@ -426,7 +426,7 @@ public class ArgumentParserNegativeTest {
     }
 
     @Test
-    public void InvalidMixedArgs() {
+    public void testInvalidMixedArgs() {
         try {
             CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                                                                        "test_main_with_defaultable_param.bal");

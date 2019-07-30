@@ -90,7 +90,7 @@ public class ArgumentParser {
         int requiredParamsCount = hasRestParam ? argsCountExceptRestArgs - defaultableCount :
                 argsCountExceptRestArgs - defaultableCount;
 
-        // populate required args and named args
+        // populate positional args and named args
         List<String> restArgs = new ArrayList<>();
         int providedRequiredArgsCount = 0;
         for (int i = 0; i < args.length; i++) {
@@ -102,7 +102,7 @@ public class ArgumentParser {
                 ParamInfo info = namedArgs.get(getParamName(arg));
                 bValueArgs[info.index * 2 + 1] = getBValue(info.type, getValueString(arg));
                 bValueArgs[info.index * 2 + 2] = true;
-                if(!info.hasDefaultable){
+                if (!info.hasDefaultable) {
                     providedRequiredArgsCount++;
                 }
             } else {
@@ -120,7 +120,7 @@ public class ArgumentParser {
                         providedRequiredArgsCount++;
                     }
                 } else {
-                    // if arg is not a positional or name arg will be considered as rest arg.
+                    // if arg is not a positional or name arg, it will be considered as rest arg.
                     restArgs.add(arg);
                 }
             }
@@ -140,7 +140,7 @@ public class ArgumentParser {
             bValueArgs[funcInfo.length * 2] = true;
         }
 
-        // handle default values which does not have any argument.
+        // handle default values which does not have any arg value.
         for (int i = requiredParamsCount; i < argsCountExceptRestArgs; i++) {
             int defaultableArgIndex = i * 2 + 1;
             if (bValueArgs[defaultableArgIndex + 1] == null) {
