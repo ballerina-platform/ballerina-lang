@@ -36,23 +36,23 @@ CUSTOM_CLASSPATH="";
 # ----------------------------------------------------------------------------
 
 # ---------------------- Command Line Args ---------------------------
-while [ "$1" != "" ]; do
-    if [ "$1" = "--debug" ];
-    then
-       DEBUG_MODE=true;
-    elif [ "$1" = "--classpath" ];
-    then
-       shift
-       CUSTOM_CLASSPATH="$1";
-    elif [ "$1" = "--experimental" ];
-    then
-       ALLOW_EXPERIMETAL=true;
-    fi
-    # Add more if elseif clauses or use a switch case to check $1
-    # if parsing more arguments is required in future.
-    # Shift all the parameters down by one
-    shift
-done
+#while [ "$1" != "" ]; do
+#    if [ "$1" = "--debug" ];
+#    then
+#       DEBUG_MODE=true;
+#    elif [ "$1" = "--classpath" ];
+#    then
+#       shift
+#       CUSTOM_CLASSPATH="$1";
+#    elif [ "$1" = "--experimental" ];
+#    then
+#       ALLOW_EXPERIMETAL=true;
+#    fi
+#    # Add more if elseif clauses or use a switch case to check $1
+#    # if parsing more arguments is required in future.
+#    # Shift all the parameters down by one
+#    shift
+#done
 # ---------------------- Command Line Args ---------------------------
 
 # OS specific support.  $var _must_ be set to either true or false.
@@ -159,7 +159,7 @@ echo $BALLERINA_HOME
 
 # echo JAVA_HOME environment variable is set to $JAVA_HOME
 # echo BALLERINA_HOME environment variable is set to $BALLERINA_HOME
-
+echo "$@"
 $JAVACMD \
 	-XX:+HeapDumpOnOutOfMemoryError \
 	-XX:HeapDumpPath="$BALLERINA_HOME"/debug-adapter-heap-dump.hprof \
@@ -168,4 +168,4 @@ $JAVACMD \
 	-Dballerina.debugLog=$DEBUG_LOG \
 	-Dexperimental=$ALLOW_EXPERIMETAL \
 	-cp "$CLASSPATHS" \
-	 org.ballerinalang.debugadapter.launcher.Launcher
+	 org.ballerinalang.debugadapter.launcher.Launcher "$@"

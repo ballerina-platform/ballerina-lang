@@ -38,10 +38,10 @@ public class Launcher {
         DataOutputStream os;
         DataInputStream is;
         Socket clientSocket;
+        int DEFAULT_PORT = 4711;
 
         try {
-            // TODO: use dynamic ports
-            int port = 4711;
+            int port = args.length == 0 ? DEFAULT_PORT : Integer.parseInt(args[0]);
             server = new ServerSocket(port);
             PrintStream out = System.out;
             out.println("Debug server started on " + port);
