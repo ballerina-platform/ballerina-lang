@@ -51,17 +51,15 @@ function testAnonStructAsStructField() returns string {
     return e.dateOfBirth.month + ":" + e.address.line01 + ":" + e.address["state"] + ":" + e.fname;
 }
 
-function testRestField() returns person {
-    person p = {fname:"John", lname:"Doe", age:20};
-    p["location"] = "Colombo";
-    p["height"] = 5.5;
-    return p;
+function testRestField() returns boolean {
+    person["location"] = "Colombo";
+    person["height"] = 5.5;
+    return person["location"] == "Colombo" && person["height"] == 5.5;
 }
 
 record {| string kind = ""; string name = ""; int...; |} animal = {};
 
-function testAnonRecWithExplicitRestField() returns animal {
-    animal a = {kind:"Cat", name:"Miaw"};
-    a["legs"] = 4;
-    return a;
+function testAnonRecWithExplicitRestField() returns boolean {
+    animal["legs"] = 4;
+    return animal["legs"] == 4;
 }

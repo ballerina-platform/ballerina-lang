@@ -20,8 +20,6 @@ package org.ballerinalang.stdlib.ldap.nativeimpl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -45,15 +43,10 @@ import javax.naming.ldap.LdapContext;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "ldap",
         functionName = "doAuthenticate", isPublic = true)
-public class Authenticate extends BlockingNativeCallableUnit {
+public class Authenticate {
 
     private static final Log LOG = LogFactory.getLog(Authenticate.class);
     private static LdapConnectionContext connectionSource;
-
-    @Override
-    public void execute(Context context) {
-
-    }
 
     public static Object doAuthenticate(Strand strand, MapValue<?, ?> ldapConnection, String userName,
                                         String password) {

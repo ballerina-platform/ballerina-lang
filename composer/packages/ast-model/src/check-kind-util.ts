@@ -129,6 +129,12 @@ export class ASTKindChecker {
     return node.kind === "ErrorType";
   }
 
+  public static isErrorVariable(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.ErrorVariable {
+    return node.kind === "ErrorVariable";
+  }
+
   public static isErrorVariableRef(
     node: Ballerina.ASTNode
   ): node is Ballerina.ErrorVariableRef {

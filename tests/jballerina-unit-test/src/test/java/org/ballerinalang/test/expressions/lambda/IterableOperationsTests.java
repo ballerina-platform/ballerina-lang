@@ -194,16 +194,16 @@ public class IterableOperationsTests {
         Assert.assertEquals(returns[0].stringValue(), sb.toString().trim());
     }
 
-    @Test(enabled = false)
+    @Test
     public void testBasicMap1() {
         BValue[] returns = BRunUtil.invoke(basic, "testBasicMap1");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(returns[0].stringValue(), "5");
-        Assert.assertEquals(returns[1].stringValue(), "[\"a\", \"e\"]");
+        Assert.assertEquals(returns[1].stringValue(), "{\"a\":\"a\", \"e\":\"e\"}");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testBasicMap2() {
         BValue[] returns = BRunUtil.invoke(basic, "testBasicMap2");
         Assert.assertNotNull(returns);
@@ -212,15 +212,15 @@ public class IterableOperationsTests {
         Assert.assertEquals(returns[0].stringValue(), "[\"aA\", \"eE\"]");
     }
 
-    @Test(enabled = false) //TODO fix
+    @Test
     public void testXML() {
         BValue[] returns = BRunUtil.invoke(basic, "xmlTest");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 3);
         Assert.assertEquals(returns[0].stringValue(), "35");
         Assert.assertEquals(returns[1].stringValue(), "3");
-        Assert.assertEquals(returns[2].stringValue(), "{\"0\":<p:city xmlns:p=\"foo\" xmlns:q=\"bar\">NY</p:city>, " +
-                "\"1\":<q:country xmlns:q=\"bar\" xmlns:p=\"foo\">US</q:country>}");
+        Assert.assertEquals(returns[2].stringValue(), "<p:city xmlns:p=\"foo\" xmlns:q=\"bar\">NY</p:city>" +
+                "<q:country xmlns:q=\"bar\" xmlns:p=\"foo\">US</q:country>");
     }
 
     @Test
@@ -284,7 +284,7 @@ public class IterableOperationsTests {
         Assert.assertEquals(a5.intValue(), 4);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testIterableReturnLambda() {
         BValue[] returns = BRunUtil.invoke(basic, "testIterableReturnLambda");
         Assert.assertNotNull(returns);

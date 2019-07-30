@@ -326,10 +326,11 @@ task generateDocs(type: JavaExec) {
 
     systemProperty("BALLERINA_DEV_COMPILE_BALLERINA_ORG", true)
     systemProperty("BALLERINA_DEV_LOAD_BUILTIN_FROM_SOURCE", true)
+    def basePath = '/' + project.name + '-' + project.version + '/'
+    systemProperty("ballerina.home", basePath)
     
     classpath = files(pathingJar.archivePath)
     main = 'org.ballerinalang.plugin.gradle.doc.DocerinaGen'
-
     def libs = "$buildDir/ballerina/"
     args("$libs", "$buildDir/api-docs")
 }

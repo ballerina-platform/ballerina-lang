@@ -1568,35 +1568,17 @@ public class FormattingNodeTree {
                         wsItem.addProperty(FormattingConstants.WS,
                                 this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
                                         + indentWithParentIndentation);
-                    }
-
-                    // Update whitespace for the opening parentheses.
-                    if (text.equals(Tokens.OPENING_PARENTHESES)) {
+                    } else if (text.equals(Tokens.OPENING_PARENTHESES)) {
                         wsItem.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    }
-
-                    // Update whitespace for the param separator.
-                    if (text.equals(Tokens.COMMA)) {
+                    } else if (text.equals(Tokens.COMMA)) {
                         wsItem.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                    }
-
-                    // Update the whitespace for in keyword.
-                    if (text.equals(Tokens.IN)) {
+                    } else if (text.equals(Tokens.IN)) {
                         wsItem.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    }
-
-                    // Update whitespace for the closing parentheses.
-                    if (text.equals(Tokens.CLOSING_PARENTHESES)) {
+                    } else if (text.equals(Tokens.CLOSING_PARENTHESES)) {
                         wsItem.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                    }
-
-                    // Update the whitespace for opening bracket.
-                    if (text.equals(Tokens.OPENING_BRACE)) {
+                    } else if (text.equals(Tokens.OPENING_BRACE)) {
                         wsItem.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    }
-
-                    // Update the whitespace for closing bracket.
-                    if (text.equals(Tokens.CLOSING_BRACE)) {
+                    } else if (text.equals(Tokens.CLOSING_BRACE)) {
                         if (node.has(FormattingConstants.BODY) &&
                                 node.getAsJsonObject(FormattingConstants.BODY).has(FormattingConstants.STATEMENTS) &&
                                 node.getAsJsonObject(FormattingConstants.BODY)
@@ -1608,6 +1590,8 @@ public class FormattingNodeTree {
                             wsItem.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE +
                                     indentWithParentIndentation);
                         }
+                    } else {
+                        wsItem.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                     }
                 }
             }
@@ -1637,6 +1621,12 @@ public class FormattingNodeTree {
                 JsonObject collectionFormatConfig = this.getFormattingConfig(0, 1, 0, false,
                         this.getWhiteSpaceCount(indentWithParentIndentation), false);
                 collection.add(FormattingConstants.FORMATTING_CONFIG, collectionFormatConfig);
+            }
+
+            if (node.has("variableDefinitionNode")) {
+                node.getAsJsonObject("variableDefinitionNode").add(FormattingConstants.FORMATTING_CONFIG,
+                        this.getFormattingConfig(0, 1, 0, false,
+                                this.getWhiteSpaceCount(indentWithParentIndentation), true));
             }
         }
     }
