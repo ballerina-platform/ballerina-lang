@@ -42,6 +42,7 @@
             <class name="org.ballerinalang.test.service.http.sample.RoutingServiceSampleTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.MutualSSLTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.MutualSSLWithCerts"/>
+            <class name="org.ballerinalang.test.service.http.sample.DisableSslTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPVerbsPassthruTestCases"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPClientActionsTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.EchoServiceSampleTestCase"/>

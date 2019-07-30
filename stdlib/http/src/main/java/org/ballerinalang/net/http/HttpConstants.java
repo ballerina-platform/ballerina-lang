@@ -334,6 +334,7 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_TRUST_CERTIFICATES = "trustedCertFile";
     public static final String ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT = "handshakeTimeout";
     public static final String ENDPOINT_CONFIG_SESSION_TIMEOUT = "sessionTimeout";
+    public static final String ENDPOINT_CONFIG_DISABLE_SSL = "disable";
 
     //SslConfiguration indexes
     public static final String SSL_CONFIG_SSL_VERIFY_CLIENT = "sslVerifyClient";
