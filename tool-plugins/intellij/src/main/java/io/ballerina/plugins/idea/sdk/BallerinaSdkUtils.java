@@ -253,11 +253,6 @@ public class BallerinaSdkUtils {
                 // Tries to retrieve ballerina distribution path by executing "which ballerina" command.
                 ballerinaPath = getByCommand("which ballerina");
 
-                // If "which ballerina" fails, falls back to "BALLERINA_HOME" environment variable.
-                if (ballerinaPath.isEmpty()) {
-                    ballerinaPath = System.getenv("BALLERINA_HOME");
-                }
-
                 // Removes ballerina bin from ballerinaPath.
                 if (!ballerinaPath.isEmpty()) {
                     ballerinaPath = ballerinaPath.replace("/bin/ballerina", "");
@@ -271,11 +266,6 @@ public class BallerinaSdkUtils {
             case (UNIX):
                 // Tries to retrieve ballerina distribution path by executing "which ballerina" command.
                 ballerinaPath = getByCommand("which ballerina");
-
-                // If "which ballerina" fails, falls back to "BALLERINA_HOME" environment variable.
-                if (ballerinaPath.isEmpty()) {
-                    ballerinaPath = System.getenv("BALLERINA_HOME");
-                }
 
                 // Removes ballerina bin from ballerinaPath.
                 if (!ballerinaPath.isEmpty()) {
