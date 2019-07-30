@@ -228,7 +228,7 @@ public class Http2ClientTimeoutHandler implements Http2DataEventListener {
         private void notifyTimeoutError(OutboundMsgHolder msgHolder, boolean primary) {
             if (primary) {
                 msgHolder.getRequest().getHttp2MessageStateContext().getSenderState()
-                        .handleStreamTimeout(ctx, msgHolder, false);
+                        .handleStreamTimeout(msgHolder, false);
 
             } else {
                 msgHolder.getResponseFuture().notifyPushResponse(streamId, new EndpointTimeOutException(
