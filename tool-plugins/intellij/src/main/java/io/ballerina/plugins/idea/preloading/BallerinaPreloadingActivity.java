@@ -19,7 +19,6 @@ import com.google.common.base.Strings;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PreloadingActivity;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
@@ -31,7 +30,6 @@ import io.ballerina.plugins.idea.extensions.BallerinaLSPExtensionManager;
 import io.ballerina.plugins.idea.sdk.BallerinaPathModificationTracker;
 import io.ballerina.plugins.idea.sdk.BallerinaSdk;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
-import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionConfigurable;
 import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -40,6 +38,8 @@ import org.wso2.lsp4intellij.client.languageserver.serverdefinition.RawCommandSe
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINAX_SOURCE_PATH;
 import static io.ballerina.plugins.idea.BallerinaConstants.LAUNCHER_SCRIPT_PATH;
@@ -51,7 +51,7 @@ import static io.ballerina.plugins.idea.preloading.OSUtils.getOperatingSystem;
 public class BallerinaPreloadingActivity extends PreloadingActivity {
 
     private static final Logger LOG = Logger.getInstance(BallerinaPreloadingActivity.class);
-    private static CloudNotifier notifier = new CloudNotifier("Ballerina Home Auto Detection");
+    private static Map<String, CloudNotifier> projectNotifiers = new HashMap<>();
 
     /**
      * Preloading of the ballerina plugin.
@@ -106,9 +106,8 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
         if (balSdkPath == null && BallerinaAutoDetectionSettings.getInstance(project).getIsAutoDetectionEnabled()) {
 
             //If a ballerina SDK is not configured for the project, Plugin tries to auto detect the ballerina SDK.
-            ApplicationManager.getApplication().invokeLater(() -> notifier.showMessage(String.format(
-                    "No ballerina SDK is found for project: %s\n Trying to Auto detect Ballerina Home...",
-                    project.getBasePath()), MessageType.INFO));
+            showInIdeaEventLog(project.getBasePath(), String.format("No ballerina SDK is found for project: %s\n " +
+                    "Trying to Auto detect Ballerina Home...", project.getBasePath()));
 
             balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
             autoDetected = true;
@@ -119,17 +118,12 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
             if (success && autoDetected) {
                 LOG.info(String.format("Auto-detected Ballerina Home: %s for the project: %s",
                         balSdkPath, project.getBasePath()));
-                String finalBalSdkPath = balSdkPath;
-                ShowSettingsUtil.getInstance().editConfigurable(project, new BallerinaAutoDetectionConfigurable(
-                        project, false));
-                ApplicationManager.getApplication().invokeLater(() -> notifier.showMessage(String.format(
-                        "Auto-Detected Ballerina Home: %s", finalBalSdkPath), MessageType.INFO));
+                showInIdeaEventLog(project.getBasePath(), "Auto-Detected Ballerina Home: " + balSdkPath);
             }
             return success;
         } else {
             if (BallerinaAutoDetectionSettings.getInstance(project).getIsAutoDetectionEnabled()) {
-                ApplicationManager.getApplication().invokeLater(() ->
-                        notifier.showMessage("Auto-Detection Failed", MessageType.WARNING));
+                showInIdeaEventLog(project.getBasePath(), "Auto-Detection Failed");
             }
         }
         return false;
@@ -155,6 +149,15 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
             return false;
         }
         return false;
+    }
+
+    private static void showInIdeaEventLog(String project, String message) {
+        if (projectNotifiers.get(project) == null) {
+            projectNotifiers.put(project,
+                    new CloudNotifier("Ballerina Home Auto Detection notifier for " + project));
+        }
+        ApplicationManager.getApplication().invokeLater(() ->
+                projectNotifiers.get(project).showMessage(message, MessageType.INFO));
     }
 
     /**
