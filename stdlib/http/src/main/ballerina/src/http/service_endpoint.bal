@@ -253,7 +253,7 @@ public const KEEPALIVE_NEVER = "NEVER";
 # + config - `ServiceEndpointConfiguration` instance
 function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
     // Add authentication and authorization filters as the first two filters if there are no any filters specified OR
-    // the auth filter position is specified as 0. If there are any filters specified, the authentication and
+    // the auth filter position is specified as 1. If there are any filters specified, the authentication and
     // authorization filters should be added into the position specified.
 
     var auth = config["auth"];
