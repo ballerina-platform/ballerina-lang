@@ -18,13 +18,17 @@ package io.ballerina.plugins.idea.sdk;
 
 import com.google.common.base.Strings;
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ex.ApplicationManagerEx;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ex.ProjectManagerEx;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.io.FileUtil;
@@ -442,6 +446,24 @@ public class BallerinaSdkUtils {
             return "";
         }
         return searchForBallerinaProjectRoot(currentDir.getParentFile().getAbsolutePath(), root);
+    }
+
+
+    @Messages.YesNoResult
+    public static void showRestartDialog(Project project) {
+        ApplicationManager.getApplication().invokeLater(() -> {
+            ProjectManagerEx.getInstanceEx().canClose(project);
+            String action = ProjectManagerEx.getInstanceEx().canClose(project) ? "Reload Project" : "Restart IDE";
+            String message = "Project/IDE reloading action is required to apply changes. Do you wish to continue?";
+            if (Messages.showYesNoDialog(message, "Apply Changes", action, "Postpone",
+                    Messages.getQuestionIcon()) == Messages.YES) {
+                if (action.equals("Reload Project")) {
+                    ProjectManagerEx.getInstanceEx().reloadProject(project);
+                } else {
+                    ApplicationManagerEx.getApplicationEx().restart(true);
+                }
+            }
+        });
     }
 
     @Nullable
