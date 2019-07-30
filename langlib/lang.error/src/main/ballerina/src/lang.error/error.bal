@@ -68,6 +68,9 @@ public type CallStackElement record {|
     int lineNumber;
 |};
 
+# Represent error call stack.
+#
+# + callStack - call stack
 public type CallStack object {
     public CallStackElement[] callStack;
 };
