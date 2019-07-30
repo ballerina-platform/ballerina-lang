@@ -673,7 +673,7 @@ public class BCompileUtil {
 
         BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
         try {
-            Path buildDir = Paths.get("build").toAbsolutePath();
+            Path buildDir = Paths.get("build").toAbsolutePath().normalize();
             Path systemBirCache = buildDir.resolve("bir-cache");
             JBallerinaInMemoryClassLoader cl = BootstrapRunner.createClassLoaders(bLangPackage,
                                                                                   systemBirCache,

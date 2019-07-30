@@ -344,7 +344,12 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             DiagnosticPos pos;
             // Type node is null when the variable is for type binding patterns
             if (typeNode != null) {
-                boolean isNested = varNode.flagSet.contains(Flag.PUBLIC) || varNode.flagSet.contains(Flag.LISTENER)
+                /*
+                for the public keyword check, we combine it with the record type instance check for the parent.
+                this is because even though the record field contains the public tag, it does not allow public keyword
+                 */
+                boolean isNested = (varNode.flagSet.contains(Flag.PUBLIC)
+                        && !(varNode.parent instanceof BLangRecordTypeNode)) || varNode.flagSet.contains(Flag.LISTENER)
                         || varNode.flagSet.contains(Flag.FINAL);
                 int sSol = varPos.sCol + (isNested ? this.getCharLengthBeforeToken(this.tokenName, wsList)
                         : wsList.get(0).getWs().length());
@@ -498,8 +503,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             DiagnosticPos pos = fieldAccessExpr.pos;
             // Calculate field name position
             int sCol = pos.getStartColumn() + this.getCharLengthBeforeToken(".", wsList) + 1;
-            wsList.remove(0);
-            int eCol = sCol + this.getCharLengthBeforeToken(this.tokenName, wsList);
+            int eCol = sCol + this.getWSLengthOfToken(wsList, this.tokenName) + this.tokenName.length();
             DiagnosticPos symbolPos = new DiagnosticPos(pos.src, pos.sLine, pos.sLine, sCol, eCol);
             this.addSymbol(fieldAccessExpr, fieldAccessExpr.symbol, false, symbolPos);
         }
@@ -966,6 +970,18 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         int eCol = sCol + typeName.length();
 
         return new DiagnosticPos(typePos.src, typePos.sLine, typePos.eLine, sCol, eCol);
+    }
+    
+    private int getWSLengthOfToken(List<Whitespace> wsList, String tokenName) {
+        int length = 0;
+        for (Whitespace whitespace : wsList) {
+            if (whitespace.getPrevious().equals(tokenName)) {
+                length = whitespace.getWs().length();
+                break;
+            }
+        }
+        
+        return length;
     }
 
     private boolean forEachVariableDef(List<Whitespace> wsList) {
