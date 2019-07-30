@@ -70,18 +70,15 @@ public class WebSocketConstants {
     // WebSocketListener struct field names
     public static final String LISTENER_ID_FIELD = "id";
     public static final String LISTENER_NEGOTIATED_SUBPROTOCOLS_FIELD = "negotiatedSubProtocol";
-    public static final String LISTENER_IS_SECURE_FIELD = "isSecure";
-    public static final String LISTENER_IS_OPEN_FIELD = "isOpen";
+    public static final String LISTENER_IS_SECURE_FIELD = "secure";
+    public static final String LISTENER_IS_OPEN_FIELD = "open";
     public static final String LISTENER_CONNECTOR_FIELD = "conn";
-    public static final int LISTENER_HTTP_ENDPOINT_FIELD = 3;
 
     // WebSocketClient struct field names
     public static final String CLIENT_RESPONSE_FIELD = "response";
     public static final String CLIENT_CONNECTOR_FIELD = "conn";
 
-    public static final String WEBSOCKET_ERROR_CODE = "{" + FULL_PACKAGE_HTTP + "}WebSocketError";
     public static final String WEBSOCKET_ERROR_DETAILS = "Detail";
-    public static final String WEBSOCKET_ERROR = "WebSocket Error: ";
 
     // WebSocketConnector
     public static final String CONNECTOR_IS_READY_FIELD = "isReady";

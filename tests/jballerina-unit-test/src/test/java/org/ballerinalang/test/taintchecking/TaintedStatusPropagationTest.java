@@ -391,14 +391,14 @@ public class TaintedStatusPropagationTest {
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test(groups = { "brokenOnLangLibChange" })
+    @Test
     public void testCompoundAssignmentNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/compound-assignment-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 3);
-        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 5, 20);
-        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 9, 20);
-        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'secureIn'", 14, 24);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 7, 20);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 11, 20);
+        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'secureIn'", 16, 24);
     }
 
     @Test

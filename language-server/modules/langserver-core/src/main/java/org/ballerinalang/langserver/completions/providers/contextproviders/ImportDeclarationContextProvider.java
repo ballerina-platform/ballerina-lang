@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -55,12 +54,8 @@ public class ImportDeclarationContextProvider extends LSCompletionProvider {
         Stream.of(LSPackageLoader.getSdkPackages(), LSPackageLoader.getHomeRepoPackages())
                 .forEach(packagesList::addAll);
         List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY);
-        List<CommonToken> lhsDefaultTokens = lhsTokens.stream()
-                .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
-                .collect(Collectors.toList());
-        List<Integer> lhsDefaultTokenTypes = lhsDefaultTokens.stream()
-                .map(CommonToken::getType)
-                .collect(Collectors.toList());
+        List<CommonToken> lhsDefaultTokens = ctx.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
+        List<Integer> lhsDefaultTokenTypes = ctx.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
         int divIndex = lhsDefaultTokenTypes.indexOf(BallerinaParser.DIV);
         int importTokenIndex = lhsDefaultTokenTypes.indexOf(BallerinaParser.IMPORT);
         CommonToken lastToken = CommonUtil.getLastItem(lhsTokens);
@@ -110,7 +105,7 @@ public class ImportDeclarationContextProvider extends LSCompletionProvider {
     }
     
     private String getLangLibModuleNameInsertText(String pkgName) {
-        return "'" + pkgName.replace(".", "\\.") + " as ${1}";
+        return pkgName.replace(".", ".'") + ";";
     }
 
     private ArrayList<CompletionItem> getPackageNameCompletions(String orgName, List<BallerinaPackage> packagesList) {
