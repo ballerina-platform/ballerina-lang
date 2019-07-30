@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.writer.BaloFileWriter;
 import org.ballerinalang.packerina.writer.BirFileWriter;
 import org.ballerinalang.packerina.writer.LockFileWriter;
@@ -241,12 +242,13 @@ public class BuilderUtils {
         // TODO: need to place the follow in a better place. I took these out from the compiler -
         // to separate them from the compiler write. I am unable to refactor the compiler write ATM
         // since the build rely on output of that. We need to fix the build and refactor this code.
-        baloFileWriter = BaloFileWriter.getInstance(context);
+        // TODO: This will throw an error. Remove method.
+        BuildContext buildContext = new BuildContext(Paths.get(""));
+        baloFileWriter = BaloFileWriter.getInstance(buildContext);
         birFileWriter = BirFileWriter.getInstance(context);
         // todo put the lock file writer in a seperate package.
         lockFileWriter = LockFileWriter.getInstance(context);
         lockFileWriter.writeLockFile(ManifestProcessor.getInstance(context).getManifest());
-        // TODO: This will throw an error
         packages.forEach(module -> baloFileWriter.write(module, Paths.get("")));
         packages.forEach(module -> birFileWriter.write(module, Paths.get("")));
         packages.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));

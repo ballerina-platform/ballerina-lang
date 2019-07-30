@@ -224,7 +224,7 @@ public class CompileCommandTest extends CommandTest {
 
         Assert.assertFalse(Files.exists(tmpDir.resolve(ProjectDirConstants.TARGET_DIR_NAME)),
                 "Check if target directory is not created");
-        Assert.assertTrue(readOutput().contains("Compile command can be only run inside a Ballerina project"));
+        Assert.assertTrue(readOutput().contains("compile command can be only run inside a Ballerina project"));
         Path lockFile = tmpDir.resolve(ProjectDirConstants.LOCK_FILE_NAME);
         Assert.assertFalse(Files.exists(lockFile), "Check if lock file is created");
     }
