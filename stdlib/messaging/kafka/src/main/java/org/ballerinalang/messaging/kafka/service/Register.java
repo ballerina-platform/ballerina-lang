@@ -18,6 +18,7 @@
 
 package org.ballerinalang.messaging.kafka.service;
 
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -31,6 +32,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
+import java.util.Objects;
 import java.util.Properties;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_CONFIG_FIELD_NAME;
@@ -39,6 +41,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_SE
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_STRUCT_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.UNCHECKED;
 
@@ -64,9 +67,14 @@ public class Register {
         Properties configs = KafkaUtils.processKafkaConsumerConfig(listenerConfigurations);
 
         try {
+            KafkaConsumer<byte[], byte[]> kafkaConsumer = null;
+            if (Objects.nonNull(listener.getNativeData(NATIVE_CONSUMER))) {
+                kafkaConsumer = (KafkaConsumer) listener.getNativeData(NATIVE_CONSUMER);
+            }
             KafkaListener kafkaListener = new KafkaListenerImpl(strand, listener, service);
-            String serviceId = (String) name;
-            KafkaServerConnector serverConnector = new KafkaServerConnectorImpl(serviceId, configs, kafkaListener);
+            String serviceId = service.getType().getQualifiedName();
+            KafkaServerConnector serverConnector = new KafkaServerConnectorImpl(serviceId, configs, kafkaListener,
+                    kafkaConsumer);
             listener.addNativeData(CONSUMER_SERVER_CONNECTOR_NAME, serverConnector);
         } catch (KafkaConnectorException e) {
             return KafkaUtils.createKafkaError(e.getMessage(), CONSUMER_ERROR);

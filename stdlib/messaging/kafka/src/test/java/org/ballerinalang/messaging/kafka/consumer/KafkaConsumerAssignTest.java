@@ -35,8 +35,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.KAFKA_BROKER_PORT;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.ZOOKEEPER_PORT_1;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
 
 /**
@@ -50,11 +48,11 @@ public class KafkaConsumerAssignTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        result = BCompileUtil.compile(getFilePath("consumer/kafka_consumer_assign.bal"));
+        result = BCompileUtil.compile(getFilePath("test-src/consumer/kafka_consumer_assign.bal"));
         Properties prop = new Properties();
         kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true)
                 .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(1).startup();
-        kafkaCluster.createTopic("test", 1, 1);
+        kafkaCluster.createTopic("test-1", 1, 1);
     }
 
     @Test(description = "Test assign functions functionality")
@@ -71,7 +69,7 @@ public class KafkaConsumerAssignTest {
 
     }
 
-    @Test(description = "Test Kafka consumer getAssignment function")
+    @Test(description = "Test Kafka consumer getAssignment function", dependsOnMethods = "testKafkaConsumerAssign")
     public void testKafkaGetAssignment() {
         BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaGetAssignment");
         Assert.assertEquals(returnBValues.length, 1);
@@ -97,7 +95,7 @@ public class KafkaConsumerAssignTest {
             throw new IllegalStateException();
         }
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-assign-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(ZOOKEEPER_PORT_1, KAFKA_BROKER_PORT);
+        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(2181, 9094);
         return kafkaCluster;
     }
 }

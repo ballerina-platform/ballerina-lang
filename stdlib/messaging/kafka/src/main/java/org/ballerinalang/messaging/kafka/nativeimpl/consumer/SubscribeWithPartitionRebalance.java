@@ -28,6 +28,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -66,16 +67,19 @@ public class SubscribeWithPartitionRebalance {
     public static Object subscribeWithPartitionRebalance(Strand strand, ObjectValue consumerObject, ArrayValue topics,
                                                          FPValue onPartitionsRevoked, FPValue onPartitionsAssigned) {
 
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
         KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         ArrayList<String> topicsList = getStringListFromStringArrayValue(topics);
-        ConsumerRebalanceListener consumer = new KafkaRebalanceListener(strand, onPartitionsRevoked,
+        ConsumerRebalanceListener consumer = new KafkaRebalanceListener(onPartitionsRevoked,
                 onPartitionsAssigned, consumerObject);
 
         try {
             kafkaConsumer.subscribe(topicsList, consumer);
         } catch (IllegalArgumentException | IllegalStateException | KafkaException e) {
-            return createKafkaError("Failed to subscribe the consumer: " + e.getMessage(), CONSUMER_ERROR);
+            callback.setReturnValues(
+                    createKafkaError("Failed to subscribe the consumer: " + e.getMessage(), CONSUMER_ERROR));
         }
+        callback.notifySuccess();
         return null;
     }
 
@@ -87,16 +91,13 @@ public class SubscribeWithPartitionRebalance {
      */
     static class KafkaRebalanceListener implements ConsumerRebalanceListener {
 
-        private Strand strand;
         private FPValue onPartitionsRevoked;
         private FPValue onPartitionsAssigned;
         private ObjectValue consumer;
 
-        KafkaRebalanceListener(Strand strand,
-                               FPValue onPartitionsRevoked,
+        KafkaRebalanceListener(FPValue onPartitionsRevoked,
                                FPValue onPartitionsAssigned,
                                ObjectValue consumer) {
-            this.strand = strand;
             this.onPartitionsRevoked = onPartitionsRevoked;
             this.onPartitionsAssigned = onPartitionsAssigned;
             this.consumer = consumer;
@@ -108,7 +109,7 @@ public class SubscribeWithPartitionRebalance {
         @Override
         public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
             Object[] inputArgs = {consumer, getPartitionsArray(partitions)};
-            strand.scheduler.scheduleFunction(inputArgs, onPartitionsRevoked, strand);
+            this.onPartitionsRevoked.apply(inputArgs);
         }
 
         /**
@@ -117,7 +118,7 @@ public class SubscribeWithPartitionRebalance {
         @Override
         public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
             Object[] inputArgs = {consumer, getPartitionsArray(partitions)};
-            strand.scheduler.scheduleFunction(inputArgs, onPartitionsAssigned, strand);
+            this.onPartitionsAssigned.apply(inputArgs);
         }
 
         private ArrayValue getPartitionsArray(Collection<TopicPartition> partitions) {

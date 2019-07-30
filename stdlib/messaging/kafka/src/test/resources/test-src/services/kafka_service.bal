@@ -28,19 +28,14 @@ kafka:ConsumerConfig consumerConfigs = {
 
 listener kafka:Consumer kafkaConsumer = new(consumerConfigs);
 
-boolean isSuccess = false;
+int count = 0;
 
 service kafkaTestService on kafkaConsumer {
     resource function onMessage(kafka:Consumer consumer, kafka:ConsumerRecord[] records) {
-        foreach kafka:ConsumerRecord kafkaRecord in records {
-            byte[] result = kafkaRecord.value;
-            if (result.length() > 0) {
-                isSuccess = true;
-            }
-        }
+        count = 10;
     }
 }
 
-function funcKafkaGetResultText() returns boolean {
-    return isSuccess;
+public function funcKafkaGetResult() returns int {
+    return count;
 }

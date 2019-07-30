@@ -27,8 +27,8 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.messaging.kafka.utils.KafkaConstants;
-import org.ballerinalang.messaging.kafka.utils.KafkaUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -39,6 +39,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ER
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
+import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getConsumerRecord;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.populateConsumerRecord;
 
@@ -59,6 +60,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.populateConsume
 public class Poll {
 
     public static Object poll(Strand strand, ObjectValue consumerObject, long timeout) {
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
         KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         Duration duration = Duration.ofMillis(timeout);
         ArrayValue consumerRecordsArray = new ArrayValue(new BArrayType(getConsumerRecord().getType()));
@@ -76,11 +78,13 @@ public class Poll {
                 MapValue<String, Object> partition = populateConsumerRecord(record);
                 consumerRecordsArray.add(i++, partition);
             }
-            return consumerRecordsArray;
+            callback.setReturnValues(consumerRecordsArray);
         } catch (IllegalStateException | IllegalArgumentException | KafkaException e) {
-            return KafkaUtils.createKafkaError("Failed to poll from the Kafka server: " + e.getMessage(),
-                    CONSUMER_ERROR);
+            callback.setReturnValues(createKafkaError("Failed to poll from the Kafka server: " + e.getMessage(),
+                    CONSUMER_ERROR));
         }
+        callback.notifySuccess();
+        return null;
     }
 }
 

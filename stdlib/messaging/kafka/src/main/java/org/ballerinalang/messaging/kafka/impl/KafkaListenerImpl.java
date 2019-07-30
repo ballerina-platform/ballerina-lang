@@ -20,6 +20,7 @@ package org.ballerinalang.messaging.kafka.impl;
 
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.ballerinalang.jvm.Scheduler;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -40,13 +41,13 @@ public class KafkaListenerImpl implements KafkaListener {
 
     private static final Logger logger = LoggerFactory.getLogger(KafkaListenerImpl.class);
 
-    private Strand strand;
+    private Scheduler scheduler;
     private ObjectValue service;
     private ObjectValue listener;
     private ResponseCallback callback;
 
     public KafkaListenerImpl(Strand strand, ObjectValue listener, ObjectValue service) {
-        this.strand = strand;
+        this.scheduler = strand.scheduler;
         this.listener = listener;
         this.service = service;
         callback = new ResponseCallback();
@@ -58,7 +59,7 @@ public class KafkaListenerImpl implements KafkaListener {
     @Override
     public void onRecordsReceived(ConsumerRecords records, KafkaConsumer kafkaConsumer, String groupId) {
         listener.addNativeData(NATIVE_CONSUMER, kafkaConsumer);
-        Executor.submit(strand.scheduler, service, KAFKA_RESOURCE_ON_MESSAGE, callback,
+        Executor.submit(this.scheduler, service, KAFKA_RESOURCE_ON_MESSAGE, callback,
                 null, getResourceParameters(service, this.listener, records, groupId));
     }
 
@@ -71,7 +72,7 @@ public class KafkaListenerImpl implements KafkaListener {
                                   String groupID,
                                   KafkaPollCycleFutureListener consumer) {
         listener.addNativeData(NATIVE_CONSUMER, kafkaConsumer);
-        Executor.submit(strand.scheduler, service, KAFKA_RESOURCE_ON_MESSAGE, consumer, null,
+        Executor.submit(this.scheduler, service, KAFKA_RESOURCE_ON_MESSAGE, consumer, null,
                 getResourceParameters(service, this.listener, records, groupID));
 
     }

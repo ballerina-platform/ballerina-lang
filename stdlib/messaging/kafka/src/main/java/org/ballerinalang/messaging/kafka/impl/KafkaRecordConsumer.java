@@ -65,11 +65,16 @@ public class KafkaRecordConsumer {
     public KafkaRecordConsumer(KafkaListener kafkaListener,
                                Properties configParams,
                                String serviceId,
-                               int consumerId) {
+                               int consumerId,
+                               KafkaConsumer<byte[], byte[]> kafkaConsumer) {
         this.serviceId = serviceId;
         this.consumerId = consumerId;
         // Initialize Kafka Consumer.
-        this.kafkaConsumer = new KafkaConsumer<>(configParams);
+        if (Objects.isNull(kafkaConsumer)) {
+            this.kafkaConsumer = new KafkaConsumer<>(configParams);
+        } else {
+            this.kafkaConsumer = kafkaConsumer;
+        }
         List<String> topics = (ArrayList<String>) configParams.get(KafkaConstants.ALIAS_TOPICS);
         // Subscribe Kafka Consumer to given topics.
         this.kafkaConsumer.subscribe(topics);

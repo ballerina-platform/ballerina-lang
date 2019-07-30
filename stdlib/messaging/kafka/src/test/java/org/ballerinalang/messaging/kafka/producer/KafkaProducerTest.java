@@ -40,8 +40,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.KAFKA_BROKER_PORT;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.ZOOKEEPER_PORT_1;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
 
 /**
@@ -55,13 +53,13 @@ public class KafkaProducerTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        result = BCompileUtil.compile(getFilePath("producer/kafka_producer.bal"));
+        result = BCompileUtil.compile(getFilePath("test-src/producer/kafka_producer.bal"));
         Properties prop = new Properties();
         kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true)
                 .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(1).startup();
     }
 
-    @Test(description = "Test Basic produce", enabled = false)
+    @Test(description = "Test Basic produce")
     public void testKafkaProducer() {
         String topic = "producer-test-topic";
         BRunUtil.invoke(result, "funcTestKafkaProduce");
@@ -145,7 +143,7 @@ public class KafkaProducerTest {
             throw new IllegalStateException();
         }
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-producer-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(ZOOKEEPER_PORT_1, KAFKA_BROKER_PORT);
+        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(2189, 9102);
         return kafkaCluster;
     }
 

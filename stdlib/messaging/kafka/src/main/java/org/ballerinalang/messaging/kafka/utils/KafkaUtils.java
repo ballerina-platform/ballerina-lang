@@ -157,7 +157,7 @@ public class KafkaUtils {
 
         ArrayValue consumerRecordsArray = new ArrayValue(new BArrayType(getConsumerRecord().getType()));
 
-        if (service.getType().getAttachedFunctions()[0].paramTypes.length == 2) {
+        if (service.getType().getAttachedFunctions()[0].getParameterType().length == 2) {
 //            records.forEach(record -> {
 //                MapValue<String, Object> consumerRecord = populateConsumerRecord(record);
 //                consumerRecordsArray.append(consumerRecord);
@@ -167,7 +167,7 @@ public class KafkaUtils {
             for (ConsumerRecord<byte[], byte[]> record : records) {
                 consumerRecordsArray.add(i++, record);
             }
-            return new Object[]{listener, consumerRecordsArray};
+            return new Object[]{listener, true, consumerRecordsArray, true, null, false, null, false};
         } else {
             ArrayValue partitionOffsetsArray = new ArrayValue(new BArrayType(getPartitionOffsetRecord().getType()));
 //            records.forEach(record -> {
@@ -192,7 +192,7 @@ public class KafkaUtils {
                 partitionOffsetsArray.add(i, partitionOffset);
                 i++;
             }
-            return new Object[]{listener, consumerRecordsArray, partitionOffsetsArray, groupId};
+            return new Object[]{listener, true, consumerRecordsArray, true, partitionOffsetsArray, true, groupId, true};
         }
     }
 

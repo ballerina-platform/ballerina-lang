@@ -23,7 +23,7 @@ const TOPIC_2 = "test-2";
 
 function funcKafkaGetAvailableTopics() returns string[]|error {
     kafka:ConsumerConfig consumerConfigs = {
-        bootstrapServers: "localhost:9094",
+        bootstrapServers: "localhost:9101",
         groupId: "get-topics-group-1",
         clientId: "available-topic-consumer-1",
         offsetReset: "earliest",
@@ -35,7 +35,7 @@ function funcKafkaGetAvailableTopics() returns string[]|error {
 
 function funcKafkaGetAvailableTopicsWithDuration() returns string[]|error {
     kafka:ConsumerConfig consumerConfigs = {
-        bootstrapServers: "localhost:9094",
+        bootstrapServers: "localhost:9101",
         groupId: "get-topics-group-2",
         clientId: "available-topic-consumer-2",
         offsetReset: "earliest",
@@ -47,7 +47,7 @@ function funcKafkaGetAvailableTopicsWithDuration() returns string[]|error {
 
 function funcKafkaGetAvailableTopicsFromNoTimeoutConsumer() returns string[]|error {
     kafka:ConsumerConfig consumerConfigs = {
-        bootstrapServers: "localhost:9094",
+        bootstrapServers: "localhost:9101",
         groupId: "get-topics-group-3",
         clientId: "available-topic-consumer-3",
         offsetReset: "earliest",
@@ -60,7 +60,7 @@ function funcKafkaGetAvailableTopicsFromNoTimeoutConsumer() returns string[]|err
 
 function funcKafkaGetTopicPartitions() returns kafka:TopicPartition[]|error {
     kafka:ConsumerConfig consumerConfigs = {
-        bootstrapServers: "localhost:9094",
+        bootstrapServers: "localhost:9101",
         groupId: "get-topics-group-4",
         clientId: "available-topic-consumer-4",
         offsetReset: "earliest",

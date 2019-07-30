@@ -35,8 +35,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.KAFKA_BROKER_PORT;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.ZOOKEEPER_PORT_1;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.produceToKafkaCluster;
 
@@ -56,7 +54,7 @@ public class KafkaConsumerTopicsTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        result = BCompileUtil.compile(getFilePath("consumer/kafka_consumer_topics.bal"));
+        result = BCompileUtil.compile(getFilePath("test-src/consumer/kafka_consumer_topics.bal"));
         Properties prop = new Properties();
         kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true)
                 .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(1).startup();
@@ -74,7 +72,7 @@ public class KafkaConsumerTopicsTest {
         Assert.assertEquals(((BValueArray) returnBValues[0]).getString(1), TOPIC_TEST_1);
     }
 
-    @Test(description = "Test Kafka getAvailableTopics with duration parameter")
+    @Test(description = "Test Kafka getAvailableTopics with duration parameter", dependsOnMethods = "testKafkaGetAvailableTopics")
     public void testKafkaGetAvailableTopicsWithDuration() {
         produceToKafkaCluster(kafkaCluster, TOPIC_TEST_1, TEST_MESSAGE);
         produceToKafkaCluster(kafkaCluster, TOPIC_TEST_2, TEST_MESSAGE);
@@ -86,7 +84,7 @@ public class KafkaConsumerTopicsTest {
         Assert.assertEquals(((BValueArray) returnBValues[0]).getString(1), TOPIC_TEST_1);
     }
 
-    @Test(description = "Test functionality of getAvailableTopics() function")
+    @Test(description = "Test functionality of getAvailableTopics() function", dependsOnMethods = "testKafkaGetAvailableTopicsWithDuration")
     public void testKafkaConsumerGetAvailableTopicsFromNoTimeoutConsumer () {
         produceToKafkaCluster(kafkaCluster, TOPIC_TEST_1, TEST_MESSAGE);
         produceToKafkaCluster(kafkaCluster, TOPIC_TEST_2, TEST_MESSAGE);
@@ -100,7 +98,7 @@ public class KafkaConsumerTopicsTest {
     }
 
 
-    @Test(description = "Test functionality of getTopicPartitions() function")
+    @Test(description = "Test functionality of getTopicPartitions() function", dependsOnMethods = "testKafkaGetAvailableTopicsWithDuration")
     @SuppressWarnings("unchecked")
     public void testKafkaConsumerGetTopicPartitions () {
         BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaGetTopicPartitions");
@@ -127,7 +125,7 @@ public class KafkaConsumerTopicsTest {
             throw new IllegalStateException();
         }
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-get-available-topics-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(ZOOKEEPER_PORT_1, KAFKA_BROKER_PORT);
+        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(2188, 9101);
         return kafkaCluster;
     }
 }

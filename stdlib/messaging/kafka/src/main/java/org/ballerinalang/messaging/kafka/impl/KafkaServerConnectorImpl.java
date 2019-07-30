@@ -18,6 +18,7 @@
 
 package org.ballerinalang.messaging.kafka.impl;
 
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.KafkaException;
 import org.ballerinalang.messaging.kafka.api.KafkaListener;
 import org.ballerinalang.messaging.kafka.api.KafkaServerConnector;
@@ -43,9 +44,10 @@ public class KafkaServerConnectorImpl implements KafkaServerConnector {
     private Properties configParams;
     private int numOfConcurrentConsumers = 1;
     private List<KafkaRecordConsumer> messageConsumers;
+    private KafkaConsumer<byte[], byte[]> kafkaConsumer;
 
-    public KafkaServerConnectorImpl(String serviceId, Properties configParams,
-                                    KafkaListener kafkaListener) throws KafkaConnectorException {
+    public KafkaServerConnectorImpl(String serviceId, Properties configParams, KafkaListener kafkaListener,
+                                    KafkaConsumer<byte[], byte[]> kafkaConsumer) throws KafkaConnectorException {
         this.kafkaListener = kafkaListener;
         this.serviceId = serviceId;
         if (configParams.get(KafkaConstants.ALIAS_CONCURRENT_CONSUMERS) != null) {
@@ -56,6 +58,7 @@ public class KafkaServerConnectorImpl implements KafkaServerConnector {
                     "integer value greater than zero.");
         }
         this.configParams = configParams;
+        this.kafkaConsumer = kafkaConsumer;
     }
 
     /**
@@ -67,7 +70,7 @@ public class KafkaServerConnectorImpl implements KafkaServerConnector {
             this.messageConsumers = new ArrayList<>();
             for (int counter = 0; counter < numOfConcurrentConsumers; counter++) {
                 KafkaRecordConsumer consumer = new KafkaRecordConsumer(this.kafkaListener, this.configParams,
-                        this.serviceId, counter);
+                        this.serviceId, counter, this.kafkaConsumer);
                 this.messageConsumers.add(consumer);
                 consumer.consume();
                 if (logger.isDebugEnabled()) {

@@ -20,12 +20,10 @@ package org.ballerinalang.messaging.kafka.consumer;
 
 import io.debezium.kafka.KafkaCluster;
 import io.debezium.util.Testing;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -44,36 +42,30 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.produceToKafkaCluster;
 
 /**
- * Test cases for ballerina.kafka consumer native functions.
+ * Test cases for ballerina.net.kafka consumer ( with manual commit enabled ) manual offset commit
+ * using commit() native function.
  */
 @Test(singleThreaded = true)
-public class KafkaConsumerTest {
-
+public class KafkaConsumerManualCommitTest {
     private CompileResult result;
     private static File dataDir;
     private static KafkaCluster kafkaCluster;
 
     private static final String TOPIC = "test";
-    private static final String MESSAGE = "test_string";
+    private static final String MESSAGE = "test-message";
 
     @BeforeClass
     public void setup() throws IOException {
         Properties prop = new Properties();
         kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true)
                 .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(1).startup();
-        kafkaCluster.createTopic(TOPIC, 1, 1);
-        result = BCompileUtil.compile(getFilePath("test-src/consumer/kafka_consumer.bal"));
+        result = BCompileUtil.compile(getFilePath("test-src/consumer/kafka_consumer_manual_commit.bal"));
     }
 
-    @Test(description = "Checks Kafka consumer creation")
-    public void testCreateConsumer() {
-        BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaConnect");
-        Assert.assertEquals(returnBValues.length, 1);
-        Assert.assertTrue(returnBValues[0] instanceof BMap);
-    }
-
-    @Test(description = "Test kafka consumer poll function")
-    public void testKafkaPoll() {
+    // This test has to be a large single method to maintain the state of the consumer.
+    @SuppressWarnings("unchecked")
+    @Test(description = "Test Kafka consumer polling with manual offset commit")
+    public void testKafkaConsumerPollWithManualOffsetCommit() {
         produceToKafkaCluster(kafkaCluster, TOPIC, MESSAGE);
         await().atMost(5000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaPoll");
@@ -81,43 +73,47 @@ public class KafkaConsumerTest {
             Assert.assertTrue(returnBValues[0] instanceof BInteger);
             return (new Long(((BInteger) returnBValues[0]).intValue()).intValue() == 10);
         });
-    }
 
-    @Test(description = "Test Kafka getSubscription function")
-    public void testKafkaConsumerGetSubscription() {
-        BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaGetSubscription");
-        Assert.assertEquals(returnBValues.length, 1);
-        Assert.assertTrue(returnBValues[0] instanceof BValueArray);
-        Assert.assertEquals((returnBValues[0]).size(), 1);
-        Assert.assertEquals(((BValueArray) returnBValues[0]).getString(0), TOPIC);
-    }
+        BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaGetCommittedOffset");
+        Assert.assertNotNull(returnBValues[0]);
+        Assert.assertTrue(returnBValues[0] instanceof BMap);
+        Assert.assertEquals((returnBValues[0]).size(), 0, "Partitioned committed already.");
 
-    @Test(description = "Test Kafka consumer close function")
-    public void testKafkaConsumerClose() {
-        BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaClose");
-        Assert.assertEquals(returnBValues.length, 1);
-        Assert.assertTrue(returnBValues[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returnBValues[0]).booleanValue());
-    }
+        returnBValues = BRunUtil.invoke(result, "funcKafkaGetPositionOffset");
+        validatePositionOffset(returnBValues);
 
-    @Test(description = "Test kafka consumer connect with no config values")
-    public void testKafkaConsumerConnectNegative() {
-        BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaConnectNegative");
-        Assert.assertEquals(returnBValues.length, 1);
+        BRunUtil.invoke(result, "funcKafkaCommit");
+        returnBValues = BRunUtil.invoke(result, "funcKafkaGetCommittedOffset");
+        Assert.assertNotNull(returnBValues[0]);
+        validateCommittedOffset(returnBValues);
+
+        returnBValues = BRunUtil.invoke(result, "funcKafkaGetPositionOffset");
+        validatePositionOffset(returnBValues);
+
+        returnBValues = BRunUtil.invoke(result, "funcKafkaGetCommittedOffsetForNonExistingTopic");
+        Assert.assertNotNull(returnBValues);
+        Assert.assertEquals(returnBValues[0].size(), 0);
+
+        returnBValues = BRunUtil.invoke(result, "funcKafkaGetPositionOffsetForNonExistingTopic");
+        Assert.assertNotNull(returnBValues);
         Assert.assertTrue(returnBValues[0] instanceof BError);
-        String errorReason = "{ballerina/kafka}ConsumerError";
-        String errorMessage =
-                "{message:\"Cannot connect to the kafka server: Failed to construct kafka consumer\", cause:()}";
-        Assert.assertEquals(((BError) returnBValues[0]).getReason(), errorReason);
-        Assert.assertEquals(((BError) returnBValues[0]).getDetails().stringValue(), errorMessage);
+        Assert.assertEquals(((BMap) ((BError) returnBValues[0]).getDetails()).get("message").stringValue(),
+                "Failed to retrieve position offset: " +
+                        "You can only check the position for partitions assigned to this consumer.");
     }
 
-    @Test(description = "Test functionality of unsubscribe() function")
-    public void testKafkaConsumerUnsubscribe() {
-        BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaTestUnsubscribe");
+    private static void validatePositionOffset(BValue[] returnBValues) {
         Assert.assertEquals(returnBValues.length, 1);
-        Assert.assertTrue(returnBValues[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returnBValues[0]).booleanValue());
+        Assert.assertNotNull(returnBValues[0]);
+        Assert.assertTrue(returnBValues[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returnBValues[0]).intValue(), 10);
+    }
+
+    private static void validateCommittedOffset(BValue[] returnBValues) {
+        Assert.assertTrue(returnBValues[0] instanceof BMap);
+        Assert.assertEquals(returnBValues.length, 1, "Committed partitions map is empty: ");
+        Assert.assertEquals(((BMap) ((BMap) returnBValues[0]).get("partition")).get("topic").stringValue(), TOPIC);
+        Assert.assertEquals(((BInteger) ((BMap) (returnBValues[0])).get("offset")).intValue(), 10);
     }
 
     @AfterClass
@@ -137,9 +133,8 @@ public class KafkaConsumerTest {
         if (kafkaCluster != null) {
             throw new IllegalStateException();
         }
-        dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(2187, 9100);
+        dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-manual-commit-test");
+        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(2182, 9095);
         return kafkaCluster;
     }
-
 }

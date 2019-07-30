@@ -17,7 +17,7 @@
 import ballerina/kafka;
 
 kafka:ConsumerConfig consumerConfig = {
-    bootstrapServers: "localhost:9094",
+    bootstrapServers: "localhost:9100",
     groupId: "test-group",
     clientId: "basic-consumer",
     offsetReset: "earliest",
@@ -59,5 +59,37 @@ function funcKafkaPoll() returns int|error {
         return results;
     } else {
         return results.length();
+    }
+}
+
+string topic1 = "consumer-unsubscribe-test-1";
+string topic2 = "consumer-unsubscribe-test-2";
+
+function funcKafkaTestUnsubscribe() returns boolean {
+    kafka:Consumer kafkaConsumer = new({
+            bootstrapServers: "localhost:9100",
+            groupId: "test-group",
+            clientId: "unsubscribe-consumer",
+            offsetReset: "earliest",
+            topics: [topic1, topic2]
+        });
+    var subscribedTopics = kafkaConsumer->getSubscription();
+    if (subscribedTopics is error) {
+        return false;
+    }
+    else {
+        if (subscribedTopics.length() != 2) {
+            return false;
+        }
+    }
+    var result = kafkaConsumer->unsubscribe();
+    subscribedTopics = kafkaConsumer->getSubscription();
+    if (subscribedTopics is error) {
+        return false;
+    } else {
+        if (subscribedTopics.length() != 0) {
+            return false;
+        }
+        return true;
     }
 }

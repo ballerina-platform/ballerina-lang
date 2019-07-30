@@ -35,7 +35,7 @@ public class KafkaTestUtils {
     public static final int KAFKA_BROKER_PORT = 9094;
     public static final int ZOOKEEPER_PORT_1 = 2181;
 
-    private static final Path TEST_PATH = Paths.get("src", "test", "resources", "test-src");
+    private static final Path TEST_PATH = Paths.get("src", "test", "resources");
 
     public static String getFilePath(String fileName) {
         return TEST_PATH.resolve(fileName).toAbsolutePath().toString();

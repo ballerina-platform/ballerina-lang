@@ -16,12 +16,11 @@
  * under the License.
  */
 
-package org.ballerinalang.messaging.kafka.services;
+package org.ballerinalang.messaging.kafka.transactions;
 
 import io.debezium.kafka.KafkaCluster;
 import io.debezium.util.Testing;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -37,53 +36,33 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.KAFKA_BROKER_PORT;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.ZOOKEEPER_PORT_1;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.produceToKafkaCluster;
 
 /**
- * Test cases for ballerina kafka consumer endpoint bind to a service .
+ * Test cases for Kafka abortTransaction method on kafka producer
  */
-public class KafkaServiceTest {
+public class KafkaProducerTransactionsTest {
 
-    private CompileResult compileResult;
     private static File dataDir;
-    private static KafkaCluster kafkaCluster;
-    private static String topic = "service-test";
-    private static String message = "test_string";
+    protected static KafkaCluster kafkaCluster;
+    CompileResult result;
 
     @BeforeClass
     public void setup() throws IOException {
         Properties prop = new Properties();
         kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true)
-                .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(1).startup();
+                .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(3).startup();
     }
 
-    // TODO: Check the service implementation again for make disabled tests pass
-    @Test(description = "Test endpoint bind to a service")
-    public void testKafkaServiceEndpoint() {
-        compileResult = BCompileUtil.compile(getFilePath("test-src/services/kafka_service.bal"));
-        produceToKafkaCluster(kafkaCluster, topic, message);
-
+    @Test(description = "Test abort transaction in producer")
+    public void testKafkaProduce() {
+        result = BCompileUtil.compile(getFilePath("test-src/transactions/kafka_transactions_abort_transaction.bal"));
+        BValue[] inputBValues = {};
+        BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaAbortTransactionTest", inputBValues);
         try {
-            await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-                BValue[] returnBValues = BRunUtil.invoke(compileResult, "funcKafkaGetResult");
-                Assert.assertEquals(returnBValues.length, 1);
-                Assert.assertTrue(returnBValues[0] instanceof BInteger);
-                return (((BInteger) returnBValues[0]).intValue() == 10);
-            });
-        } catch (Throwable e) {
-            Assert.fail(e.getMessage());
-        }
-    }
-
-    @Test(description = "Test endpoint bind to a service")
-    public void testKafkaAdvancedService() {
-        compileResult = BCompileUtil.compile(getFilePath("test-src/services/kafka_service_advanced.bal"));
-        BRunUtil.invoke(compileResult, "funcKafkaProduce");
-
-        try {
-            await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-                BValue[] returnBValues = BRunUtil.invoke(compileResult, "funcKafkaGetResultText");
+            await().atMost(5000, TimeUnit.MILLISECONDS).until(() -> {
                 Assert.assertEquals(returnBValues.length, 1);
                 Assert.assertTrue(returnBValues[0] instanceof BBoolean);
                 return ((BBoolean) returnBValues[0]).booleanValue();
@@ -93,16 +72,44 @@ public class KafkaServiceTest {
         }
     }
 
-    @Test(description = "Test kafka service stop() function")
-    public void testKafkaServiceStop() {
-        compileResult = BCompileUtil.compile(getFilePath("test-src/services/kafka_service_stop.bal"));
-        BRunUtil.invoke(compileResult, "funcKafkaProduce");
+    @Test(description = "Test kafka producer commitConsumerOffsets() function")
+    public void testKafkaCommitConsumerOffsetsTest() {
+        result = BCompileUtil.compile(getFilePath("test-src/transactions/kafka_transactions_commit_consumer_offsets.bal"));
+        BValue[] inputBValues = {};
+        BRunUtil.invoke(result, "funcTestKafkaProduce", inputBValues);
         try {
             await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-                BValue[] results = BRunUtil.invoke(compileResult, "funcKafkaGetResult");
-                Assert.assertEquals(results.length, 1);
-                Assert.assertTrue(results[0] instanceof BBoolean);
-                return ((BBoolean) results[0]).booleanValue();
+                BValue[] returnBValues = BRunUtil.invoke(result, "funcTestKafkaCommitOffsets");
+                Assert.assertEquals(returnBValues.length, 1);
+                Assert.assertTrue(returnBValues[0] instanceof BBoolean);
+                return ((BBoolean) returnBValues[0]).booleanValue();
+            });
+        } catch (Throwable e) {
+            Assert.fail(e.getMessage());
+        }
+
+        try {
+            await().atMost(5000, TimeUnit.MILLISECONDS).until(() -> {
+                BValue[] returnBValues = BRunUtil.invoke(result, "funcTestPollAgain");
+                Assert.assertEquals(returnBValues.length, 1);
+                Assert.assertTrue(returnBValues[0] instanceof BBoolean);
+                return ((BBoolean) returnBValues[0]).booleanValue();
+            });
+        } catch (Throwable e) {
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    @Test(description = "Test producer commit consumer functionality")
+    public void testKafkaCommitConsumerTest() {
+        result = BCompileUtil.compile(getFilePath("test-src/transactions/kafka_transactions_commit_consumer.bal"));
+        BRunUtil.invoke(result, "funcTestKafkaProduce");
+        try {
+            await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
+                BValue[] returnBValues = BRunUtil.invoke(result, "funcTestKafkaConsume");
+                Assert.assertEquals(returnBValues.length, 1);
+                Assert.assertTrue(returnBValues[0] instanceof BBoolean);
+                return (((BBoolean) returnBValues[0]).booleanValue());
             });
         } catch (Throwable e) {
             Assert.fail(e.getMessage());
@@ -122,12 +129,12 @@ public class KafkaServiceTest {
         }
     }
 
-    private static KafkaCluster kafkaCluster() {
+    protected static KafkaCluster kafkaCluster() {
         if (kafkaCluster != null) {
             throw new IllegalStateException();
         }
-        dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-service-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(2190, 9094);
+        dataDir = Testing.Files.createTestingDirectory("cluster-kafka-transaction-test");
+        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(ZOOKEEPER_PORT_1, KAFKA_BROKER_PORT);
         return kafkaCluster;
     }
 }

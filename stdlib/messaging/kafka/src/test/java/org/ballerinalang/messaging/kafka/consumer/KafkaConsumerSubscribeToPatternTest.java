@@ -16,11 +16,10 @@
  * under the License.
  */
 
-package org.ballerinalang.messaging.kafka.services;
+package org.ballerinalang.messaging.kafka.consumer;
 
 import io.debezium.kafka.KafkaCluster;
 import io.debezium.util.Testing;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -38,18 +37,12 @@ import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.produceToKafkaCluster;
 
-/**
- * Test cases for ballerina kafka consumer endpoint bind to a service .
- */
-public class KafkaServiceTest {
-
-    private CompileResult compileResult;
+@Test(singleThreaded = true)
+public class KafkaConsumerSubscribeToPatternTest {
+    private CompileResult result;
     private static File dataDir;
     private static KafkaCluster kafkaCluster;
-    private static String topic = "service-test";
-    private static String message = "test_string";
 
     @BeforeClass
     public void setup() throws IOException {
@@ -58,51 +51,44 @@ public class KafkaServiceTest {
                 .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(1).startup();
     }
 
-    // TODO: Check the service implementation again for make disabled tests pass
-    @Test(description = "Test endpoint bind to a service")
-    public void testKafkaServiceEndpoint() {
-        compileResult = BCompileUtil.compile(getFilePath("test-src/services/kafka_service.bal"));
-        produceToKafkaCluster(kafkaCluster, topic, message);
-
+    @Test(description = "Test functionality of getAvailableTopics() function")
+    public void testKafkaConsumerSubscribeToPattern () {
+        result = BCompileUtil.compile(getFilePath("test-src/consumer/kafka_consumer_subscribe_to_pattern.bal"));
         try {
-            await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-                BValue[] returnBValues = BRunUtil.invoke(compileResult, "funcKafkaGetResult");
+            await().atMost(5000, TimeUnit.MILLISECONDS).until(() -> {
+                BValue[] returnBValuesAll = BRunUtil.invoke(result, "funcKafkaGetAvailableTopicsCount");
+                Assert.assertEquals(returnBValuesAll.length, 1);
+                Assert.assertTrue(returnBValuesAll[0] instanceof BInteger);
+                long availableTopicCount = ((BInteger) returnBValuesAll[0]).intValue();
+
+                BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaTestGetSubscribedTopicCount");
                 Assert.assertEquals(returnBValues.length, 1);
                 Assert.assertTrue(returnBValues[0] instanceof BInteger);
-                return (((BInteger) returnBValues[0]).intValue() == 10);
+                long topicCount = ((BInteger) returnBValues[0]).intValue();
+                return (topicCount == 0 && availableTopicCount == 0);
             });
         } catch (Throwable e) {
             Assert.fail(e.getMessage());
         }
-    }
 
-    @Test(description = "Test endpoint bind to a service")
-    public void testKafkaAdvancedService() {
-        compileResult = BCompileUtil.compile(getFilePath("test-src/services/kafka_service_advanced.bal"));
-        BRunUtil.invoke(compileResult, "funcKafkaProduce");
+        kafkaCluster.createTopic("test1", 1, 1);
+        kafkaCluster.createTopic("test2", 1, 1);
+        kafkaCluster.createTopic("tester", 1, 1);
+        kafkaCluster.createTopic("another-topic", 1, 1);
 
         try {
             await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-                BValue[] returnBValues = BRunUtil.invoke(compileResult, "funcKafkaGetResultText");
+                BRunUtil.invoke(result, "funcKafkaTestSubscribeToPattern");
+                BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaTestGetSubscribedTopicCount");
                 Assert.assertEquals(returnBValues.length, 1);
-                Assert.assertTrue(returnBValues[0] instanceof BBoolean);
-                return ((BBoolean) returnBValues[0]).booleanValue();
-            });
-        } catch (Throwable e) {
-            Assert.fail(e.getMessage());
-        }
-    }
+                Assert.assertTrue(returnBValues[0] instanceof BInteger);
+                long subscribedTopicCount = ((BInteger) returnBValues[0]).intValue();
 
-    @Test(description = "Test kafka service stop() function")
-    public void testKafkaServiceStop() {
-        compileResult = BCompileUtil.compile(getFilePath("test-src/services/kafka_service_stop.bal"));
-        BRunUtil.invoke(compileResult, "funcKafkaProduce");
-        try {
-            await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-                BValue[] results = BRunUtil.invoke(compileResult, "funcKafkaGetResult");
-                Assert.assertEquals(results.length, 1);
-                Assert.assertTrue(results[0] instanceof BBoolean);
-                return ((BBoolean) results[0]).booleanValue();
+                BValue[] returnBValuesAll = BRunUtil.invoke(result, "funcKafkaGetAvailableTopicsCount");
+                Assert.assertEquals(returnBValuesAll.length, 1);
+                Assert.assertTrue(returnBValuesAll[0] instanceof BInteger);
+                long availableTopicCount = ((BInteger) returnBValuesAll[0]).intValue();
+                return (subscribedTopicCount == 3 && availableTopicCount == 4);
             });
         } catch (Throwable e) {
             Assert.fail(e.getMessage());
@@ -126,8 +112,8 @@ public class KafkaServiceTest {
         if (kafkaCluster != null) {
             throw new IllegalStateException();
         }
-        dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-service-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(2190, 9094);
+        dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-subscribe-to-pattern-test");
+        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(2186, 9099);
         return kafkaCluster;
     }
 }
