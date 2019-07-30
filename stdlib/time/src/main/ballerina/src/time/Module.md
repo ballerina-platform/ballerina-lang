@@ -101,11 +101,10 @@ int diffInMillis = time3.time - time4.time;
 ```
 ## Patterns for formatting and parsing
 
-The below patterns can be used for `TimeFormat` when using the `format()` and `parse()` functions.
+The below patterns can be used to generate the formatter string when using the `format()` and `parse()` functions.
 
 **Symbol**|**Meaning**|**Presentation**|**Examples**
 :-----:|:-----:|:-----:|:-----:
-------|-------|------------|-------
 G|era|text|AD; Anno Domini; A
 u|year|year|2004; 04
 y|year-of-era|year|2004; 04
@@ -139,5 +138,4 @@ p|pad next|pad modifier|1
 '|escape for text|delimiter|
 ''|single quote|literal|'
 [|optional section start|
-]|optional section end|
-
+]|optional section end
