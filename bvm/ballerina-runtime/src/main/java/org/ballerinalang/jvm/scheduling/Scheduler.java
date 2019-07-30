@@ -355,9 +355,9 @@ public class Scheduler {
 
     private synchronized void debugLog(String msg) {
         try {
-            Thread.sleep(1);
+            Thread.sleep(100);
             DEBUG_LOG.add(msg);
-            Thread.sleep(1);
+            Thread.sleep(100);
         } catch (InterruptedException ignored) { }
     }
 

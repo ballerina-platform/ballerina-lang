@@ -173,10 +173,6 @@ public class HttpResource {
         this.transactionInfectable = transactionInfectable;
     }
 
-    public void setWorkerPoolSTransactionInfectable(boolean transactionInfectable) {
-        this.transactionInfectable = transactionInfectable;
-    }
-
     public boolean isInterruptible() {
         return interruptible;
     }
@@ -293,10 +289,6 @@ public class HttpResource {
         return paramTypes;
     }
 
-    boolean workerPoolExecution() {
-        return workerPoolStatus;
-    }
-
     private void setWorkerPoolStatus(String workerPoolStatus) {
         switch (workerPoolStatus) {
             case "ENABLE":
@@ -309,5 +301,9 @@ public class HttpResource {
                 throw new BallerinaConnectorException(
                         "Invalid configuration found for WorkerPool status: " + workerPoolStatus);
         }
+    }
+
+    boolean workerPoolExecution() {
+        return workerPoolStatus;
     }
 }
