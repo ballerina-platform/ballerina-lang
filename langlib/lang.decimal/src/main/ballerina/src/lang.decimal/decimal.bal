@@ -46,7 +46,7 @@ public function abs(decimal x) returns decimal = external;
 # (this is the round-to-nearest rounding mode, which is the default for IEEE
 # and for Ballerina).
 # Same as Java Math.rint method
-# Same as .NET Math.round method
+# Same as .NET Math.Round method
 # IEEE 754 roundToIntegralTiesToEven operation
 # Note that `<int>x` is the same as `<int>x.round()`
 #

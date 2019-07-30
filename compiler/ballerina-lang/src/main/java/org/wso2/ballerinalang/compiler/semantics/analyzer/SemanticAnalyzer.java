@@ -428,7 +428,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorType errorType) {
-         BType reasonType = errorType.reasonType.type;
+        BType reasonType = errorType.reasonType.type;
 
         if (!types.isAssignable(reasonType, symTable.stringType)) {
             dlog.error(errorType.reasonType.pos, DiagnosticCode.INVALID_ERROR_REASON_TYPE, reasonType);
