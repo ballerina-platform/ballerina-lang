@@ -24,8 +24,6 @@ import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.util.Arrays;
-
 /**
  * Test cases for the type_params library.
  *
