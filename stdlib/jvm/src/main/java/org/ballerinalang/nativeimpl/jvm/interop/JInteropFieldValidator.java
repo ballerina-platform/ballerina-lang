@@ -19,9 +19,10 @@ package org.ballerinalang.nativeimpl.jvm.interop;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.nativeimpl.jvm.interop.JavaField.JFieldKind;
 import org.ballerinalang.nativeimpl.jvm.interop.JavaField.JFieldMethod;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+
+import java.lang.reflect.Field;
 
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.CLASS_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.FIELD_TYPE_FIELD;
@@ -43,7 +44,6 @@ public class JInteropFieldValidator {
     public static Object validateAndGetJField(Strand strand, MapValue<String, Object> jFieldValidationRequest) {
         try {
             // 1) Load Java class  - validate
-            JFieldKind kind = getFieldKind(jFieldValidationRequest);
             JFieldMethod method = getFieldMethod(jFieldValidationRequest);
             String className = (String) jFieldValidationRequest.get(CLASS_FIELD);
             Class clazz = JInterop.loadClass(className);
@@ -53,7 +53,8 @@ public class JInteropFieldValidator {
             String fieldName = (String) jFieldValidationRequest.get(NAME_FIELD);
             JavaField javaField;
             try {
-                javaField = new JavaField(kind, method, clazz.getField(fieldName));
+                Field field = clazz.getField(fieldName);
+                javaField = new JavaField(method, field);
             } catch (NoSuchFieldException e) {
                 throw new JInteropException(JInteropException.FIELD_NOT_FOUND_REASON,
                         "No such field '" + fieldName + "' found in class '" + className + "'");
@@ -65,11 +66,6 @@ public class JInteropFieldValidator {
         // Any other exceptions will cause a panic.
     }
 
-    private static JFieldKind getFieldKind(MapValue<String, Object> jFieldValidationRequest) {
-        boolean isStatic = (boolean) jFieldValidationRequest.get(IS_STATIC_FIELD);
-        return isStatic ? JFieldKind.STATIC : JFieldKind.INSTANCE;
-    }
-
     private static JFieldMethod getFieldMethod(MapValue<String, Object> jFieldValidationRequest) {
         return JFieldMethod.getKind((String) jFieldValidationRequest.get(METHOD_FIELD));
     }
@@ -78,7 +74,7 @@ public class JInteropFieldValidator {
         MapValue<String, Object> jFieldBRecord = JInterop.createRecordBValue(JInterop.FIELD_TYPE_NAME);
         jFieldBRecord.put(NAME_FIELD, javaField.getName());
         jFieldBRecord.put(CLASS_FIELD, javaField.getDeclaringClassName().replace('.', '/'));
-        jFieldBRecord.put(IS_STATIC_FIELD, javaField.getKind() == JFieldKind.STATIC);
+        jFieldBRecord.put(IS_STATIC_FIELD, javaField.isStatic());
         jFieldBRecord.put(METHOD_FIELD, javaField.getMethod().getStringValue());
         jFieldBRecord.put(SIG_FIELD, javaField.getSignature());
         jFieldBRecord.put(FIELD_TYPE_FIELD, JInterop.createJTypeBValue(javaField.getFieldType()));

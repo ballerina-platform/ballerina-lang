@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl.jvm.interop;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 /**
  * Represents a Java field in this implementation.
@@ -25,12 +26,10 @@ import java.lang.reflect.Field;
  * @since 1.0.0
  */
 class JavaField {
-    private JFieldKind kind;
     private JFieldMethod method;
     private Field field;
 
-    JavaField(JFieldKind kind, JFieldMethod method, Field field) {
-        this.kind = kind;
+    JavaField(JFieldMethod method, Field field) {
         this.method = method;
         this.field = field;
     }
@@ -43,8 +42,8 @@ class JavaField {
         return field.getName();
     }
 
-    JFieldKind getKind() {
-        return kind;
+    boolean isStatic() {
+        return Modifier.isStatic(field.getModifiers());
     }
 
     JFieldMethod getMethod() {
