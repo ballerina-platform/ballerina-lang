@@ -1228,7 +1228,7 @@ public class TypeChecker extends BLangNodeVisitor {
         recordSymbol.type = bRecordType;
         varRefExpr.symbol = new BVarSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID, bRecordType, env.scope.owner);
 
-        if (varRefExpr.isClosed) {
+        if (varRefExpr.restParam == null) {
             bRecordType.sealed = true;
         } else {
             bRecordType.restFieldType = symTable.mapType;

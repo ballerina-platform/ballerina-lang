@@ -33,7 +33,6 @@ import java.util.Arrays;
  *
  * @since 0.995.0
  */
-@Test(groups = { "brokenOnJBallerina" })
 public class VarMutabilityWithWorkersTest {
 
     private CompileResult compileResult;
@@ -48,15 +47,15 @@ public class VarMutabilityWithWorkersTest {
     public void basicWorkerTest() {
         BValue[] returns = BRunUtil.invoke(compileResult, "basicWorkerTest", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 25);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
     }
 
     @Test(description = "Test variable mutability with tuples")
     public void testWithTuples() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testWithTuples", new BValue[0]);
         Assert.assertEquals(returns.length, 2);
-        Assert.assertTrue(returns[0].stringValue().contains("Changed inside worker 1!!! -- Changed inside " +
-                "worker 2!!!"));
+        Assert.assertTrue(returns[0].stringValue().contains("Changed inside worker 1!!!"));
+        Assert.assertTrue(returns[0].stringValue().contains("Changed inside worker 2!!!"));
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 150);
     }
 

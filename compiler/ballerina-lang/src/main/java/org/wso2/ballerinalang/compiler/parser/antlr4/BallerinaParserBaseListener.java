@@ -1252,30 +1252,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterOpenRecordBindingPattern(BallerinaParser.OpenRecordBindingPatternContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitOpenRecordBindingPattern(BallerinaParser.OpenRecordBindingPatternContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterClosedRecordBindingPattern(BallerinaParser.ClosedRecordBindingPatternContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitClosedRecordBindingPattern(BallerinaParser.ClosedRecordBindingPatternContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterEntryBindingPattern(BallerinaParser.EntryBindingPatternContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1367,30 +1343,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitRecordRefBindingPattern(BallerinaParser.RecordRefBindingPatternContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterOpenRecordRefBindingPattern(BallerinaParser.OpenRecordRefBindingPatternContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitOpenRecordRefBindingPattern(BallerinaParser.OpenRecordRefBindingPatternContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterClosedRecordRefBindingPattern(BallerinaParser.ClosedRecordRefBindingPatternContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitClosedRecordRefBindingPattern(BallerinaParser.ClosedRecordRefBindingPatternContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

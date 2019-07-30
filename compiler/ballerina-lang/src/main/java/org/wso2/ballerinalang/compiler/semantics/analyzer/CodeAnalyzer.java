@@ -803,7 +803,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             for (int i = 0; i < precedingRecVar.variableList.size(); i++) {
                 BLangRecordVariableKeyValue precedingKeyValue = precedingRecVar.variableList.get(i);
                 if (!recVarAsMap.containsKey(precedingKeyValue.key.value)) {
-                    continue;
+                    return false;
                 }
                 if (!checkStructuredPatternSimilarity(
                         precedingKeyValue.valueBindingPattern, recVarAsMap.get(precedingKeyValue.key.value))) {
@@ -811,11 +811,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
             }
 
-            if (!precedingRecVar.isClosed && !recVar.isClosed) {
+            if (precedingRecVar.hasRestParam() && recVar.hasRestParam()) {
                 return true;
             }
 
-            return !precedingRecVar.isClosed || recVar.isClosed;
+            return precedingRecVar.hasRestParam() || !recVar.hasRestParam();
         }
 
         if (precedingVar.getKind() == NodeKind.TUPLE_VARIABLE && var.getKind() == NodeKind.TUPLE_VARIABLE) {

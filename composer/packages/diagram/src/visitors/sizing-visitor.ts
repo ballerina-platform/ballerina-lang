@@ -71,7 +71,7 @@ class SizingVisitor implements Visitor {
 
         // Initialize the client width and height to default.
         client.bBox.h = config.lifeLine.line.height + (config.lifeLine.header.height * 2);
-        client.bBox.w = config.lifeLine.width;
+        client.bBox.w = 4;
 
         // Size default worker
         defaultWorker.bBox.h = node.body!.viewState.bBox.h + (config.lifeLine.header.height * 2)
