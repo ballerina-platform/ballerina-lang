@@ -119,8 +119,7 @@ public class SourcePruner {
         String documentContent = documentManager.getFileContent(path);
 
         // Execute Ballerina Parser
-        BallerinaParser parser = CommonUtil.prepareParser(documentContent, true);
-        parser.removeErrorListeners();
+        BallerinaParser parser = CommonUtil.prepareParser(documentContent);
         parser.compilationUnit();
 
         // Process tokens

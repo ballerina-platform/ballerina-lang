@@ -365,8 +365,7 @@ public class ArrayValue implements RefValue, CollectionValue {
     public void unshift(long index, ArrayValue vals) {
         handleFrozenArrayValue();
 
-        Object valArr = getArrayFromType(elementType.getTag());
-        unshiftArray(index, vals.size, valArr, getCurrentArrayLength());
+        unshiftArray(index, vals.size, getCurrentArrayLength());
 
         switch (elementType.getTag()) {
             case TypeTags.INT_TAG:
@@ -432,9 +431,10 @@ public class ArrayValue implements RefValue, CollectionValue {
         }
     }
 
-    private void unshiftArray(long index, int unshiftByN, Object arr, int arrLength) {
-        int lastIndex = arrLength + unshiftByN - 1;
-        prepareForAdd(lastIndex, arrLength);
+    private void unshiftArray(long index, int unshiftByN, int arrLength) {
+        int lastIndex = size() + unshiftByN - 1;
+        prepareForConsecutiveMultiAdd(lastIndex, arrLength);
+        Object arr = getArrayFromType(elementType.getTag());
 
         if (index > lastIndex) {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
@@ -443,8 +443,6 @@ public class ArrayValue implements RefValue, CollectionValue {
 
         int i = (int) index;
         System.arraycopy(arr, i, arr, i + unshiftByN, this.size - i);
-
-        this.size += unshiftByN;
     }
 
     private Object getArrayFromType(int typeTag) {
@@ -858,6 +856,20 @@ public class ArrayValue implements RefValue, CollectionValue {
         fillerValueCheck(intIndex, size);
         ensureCapacity(intIndex + 1, currentArraySize);
         fillValues(intIndex);
+        resetSize(intIndex);
+    }
+
+    /**
+     * Same as {@code prepareForAdd}, except fillerValueCheck is not performed as we are guaranteed to add
+     * elements to consecutive positions.
+     *
+     * @param index last index after add operation completes
+     * @param currentArraySize current array size
+     */
+    void prepareForConsecutiveMultiAdd(long index, int currentArraySize) {
+        int intIndex = (int) index;
+        rangeCheck(index, size);
+        ensureCapacity(intIndex + 1, currentArraySize);
         resetSize(intIndex);
     }
 

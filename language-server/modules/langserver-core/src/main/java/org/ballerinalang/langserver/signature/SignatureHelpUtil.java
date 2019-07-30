@@ -518,7 +518,7 @@ public class SignatureHelpUtil {
         String documentContent = documentManager.getFileContent(path);
 
         // Execute Ballerina Parser
-        BallerinaParser parser = CommonUtil.prepareParser(documentContent, true);
+        BallerinaParser parser = CommonUtil.prepareParser(documentContent);
         parser.removeErrorListeners();
         parser.compilationUnit();
 
