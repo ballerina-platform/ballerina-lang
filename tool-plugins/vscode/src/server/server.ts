@@ -19,9 +19,9 @@
  */
 import * as path from 'path';
 import { log } from '../utils/logger';
-import { ServerOptions } from 'vscode-languageclient';
+import { ServerOptions, ExecutableOptions } from 'vscode-languageclient';
 
-export function getServerOptions(ballerinaHome: string, experimental: boolean) : ServerOptions {
+export function getServerOptions(ballerinaHome: string, experimental: boolean, debugLogsEnabled: boolean) : ServerOptions {
     log(`Using Ballerina installation at ${ballerinaHome} for Language server.`);
 
     let cmd;
@@ -34,9 +34,15 @@ export function getServerOptions(ballerinaHome: string, experimental: boolean) :
         args.push(path.join(cwd, 'language-server-launcher.sh'));
     }
 
+    let opt: ExecutableOptions = {cwd: cwd};
+    opt.env = Object.assign({}, process.env);
     if (process.env.LSDEBUG === "true") {
         log('Language Server is starting in debug mode.');
         args.push('--debug');
+    }
+    if (debugLogsEnabled) {
+        log('Language Server debug logs enabled.');
+        opt.env.DEBUG_LOG = debugLogsEnabled;
     }
     if (process.env.LS_CUSTOM_CLASSPATH) {
         args.push('--classpath', process.env.LS_CUSTOM_CLASSPATH);
@@ -48,8 +54,6 @@ export function getServerOptions(ballerinaHome: string, experimental: boolean) :
     return {
         command: cmd,
         args,
-        options: {
-            cwd,
-        },
-    }; 
+        options: opt
+    };
 }

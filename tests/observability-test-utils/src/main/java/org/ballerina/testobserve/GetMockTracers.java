@@ -22,10 +22,9 @@ package org.ballerina.testobserve;
 import com.google.gson.Gson;
 import io.opentracing.mock.MockTracer;
 import org.ballerina.testobserve.extension.BMockTracer;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.JSONParser;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -42,17 +41,17 @@ import java.util.List;
         returnType = {@ReturnType(type = TypeKind.JSON)},
         isPublic = true
 )
-public class GetMockTracers extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
+public class GetMockTracers {
+    public static Object getMockTracers(Strand strand) {
         List<MockTracer> mockTracers = BMockTracer.getTracerMap();
         List<BMockSpan> mockSpans = new ArrayList<>();
-        mockTracers
-                .forEach(mockTracer -> mockTracer.finishedSpans()
-                        .forEach(mockSpan -> mockSpans
-                                .add(new BMockSpan(mockSpan.operationName(), mockSpan.context().traceId(),
-                                        mockSpan.context().spanId(), mockSpan.parentId(), mockSpan.tags()))));
-        context.setReturnValues(JsonParser.parse(new Gson().toJson(mockSpans)));
+        mockTracers.forEach(mockTracer -> mockTracer.finishedSpans()
+                .forEach(mockSpan -> mockSpans.add(
+                        new BMockSpan(mockSpan.operationName(),
+                                mockSpan.context().traceId(),
+                                mockSpan.context().spanId(),
+                                mockSpan.parentId(),
+                                mockSpan.tags()))));
+        return JSONParser.parse(new Gson().toJson(mockSpans));
     }
 }

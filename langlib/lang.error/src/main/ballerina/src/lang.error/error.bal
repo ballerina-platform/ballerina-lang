@@ -46,7 +46,7 @@ public function detail(error<string,RecordType> e) returns RecordType = external
 #
 # + e - the error value
 # + return - stack trace of the error value
-public function stackTrace(error e) returns object { } = external;
+public function stackTrace(error e) returns CallStack = external;
 
 # Default error detail record.
 public type Detail record {|
@@ -54,3 +54,20 @@ public type Detail record {|
     error cause?;
     (anydata|error)...;
 |};
+
+# Representation of `CallStackElement`
+#
+# + callableName - Callable name
+# + moduleName - Module name
+# + fileName - File name
+# + lineNumber - Line number
+public type CallStackElement record {|
+    string callableName;
+    string moduleName;
+    string fileName;
+    int lineNumber;
+|};
+
+public type CallStack object {
+    public CallStackElement[] callStack;
+};

@@ -97,7 +97,7 @@ public class GlobalVarDefContextProvider extends LSCompletionProvider {
             }
             // TODO: usage of index
         } else if (assignToken.isPresent()) {
-            completionItems.addAll(this.getVarDefExpressionCompletions(ctx));
+            completionItems.addAll(this.getVarDefExpressionCompletions(ctx, true));
         } else {
             completionItems.addAll(this.getAllTopLevelItems(ctx));
             completionItems.addAll(this.getPackagesCompletionItems(ctx));

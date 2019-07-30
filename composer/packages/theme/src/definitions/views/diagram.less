@@ -319,6 +319,11 @@
                 }
                 .panel-body {
                     fill: ~"@{@{color}-diagram-panel-body-background-color}";
+
+                    .client-line {
+                        stroke: ~"@{@{color}-diagram-client-line-stroke-color}";
+                        stroke-width: @diagram-client-line-stroke-width;
+                    }
                     
                     .life-line {
                         stroke: ~"@{@{color}-diagram-life-line-stroke-color}";
@@ -432,9 +437,9 @@
                             font-weight: bold;
                         }
                         .collapser {
-                            stroke: ~"@{@{color}-diagram-collapse-func-color}";
                             cursor: pointer;
                             fill: ~"@{@{color}-diagram-collapse-func-color}";
+                            font-size: 10px;
                         }
                         .life-line {
                             stroke: ~"@{@{color}-diagram-condition-line-stroke-color}";

@@ -57,7 +57,7 @@ public class VarDefContextProvider extends LSCompletionProvider {
             completionItems.addAll(this.getCompletionItemList(filteredList, context));
         } else {
             sorterKey = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getClass();
-            completionItems.addAll(this.getVarDefExpressionCompletions(context));
+            completionItems.addAll(this.getVarDefExpressionCompletions(context, false));
         }
 
         CompletionItemSorter itemSorter = ItemSorters.get(sorterKey);

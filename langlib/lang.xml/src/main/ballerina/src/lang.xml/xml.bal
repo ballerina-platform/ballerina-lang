@@ -120,16 +120,6 @@ public function slice(xml x, int startIndex, int endIndex) returns xml = externa
 # + attributes - Attributes map
 public function setAttributes(xml x, map<any> attributes) = external;
 
-# Converts a XML object to a JSON representation.
-#
-# + x - The xml source
-# + options - xmlOptions struct for XML to JSON conversion properties
-# + return - JSON representation of the given XML
-public function toJSON(xml x, record {
-                                         string attributePrefix = "@";
-                                         boolean preserveNamespaces = true;
-                                     } options) returns json = external;
-
 # Searches in children recursively for elements matching the qualified name and returns a sequence containing them
 # all. Does not search within a matched result.
 #

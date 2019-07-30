@@ -75,7 +75,9 @@ public class RenameTest {
     @DataProvider
     public Object[][] testDataProvider() throws IOException {
         return new Object[][]{
-                {"renameFunction1.json", "function"}
+                {"renameFunction1.json", "function"},
+                {"renameObject1.json", "object"},
+                {"renameRecord1.json", "record"}
         };
     }
 

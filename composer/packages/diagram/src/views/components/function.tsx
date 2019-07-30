@@ -10,6 +10,7 @@ import { DiagramContext } from "../../diagram/index";
 import { FunctionViewState } from "../../view-model/index";
 import { AddWorkerOrEndpointMenu } from "./add-worker-or-endpoint-menu";
 import { Block } from "./block";
+import { ClientLine } from "./client-line";
 import { LifeLine } from "./life-line";
 import { Panel } from "./panel";
 import { StartInvocation } from "./start-invocation";
@@ -25,7 +26,7 @@ export const Function = (props: { model: FunctionNode }) => {
         <Panel model={viewState} title={model.name.value}
             icon={viewState.icon} astModel={model}>
             {!model.resource &&
-                <LifeLine title="Client" icon="client" model={viewState.client.bBox} />}
+            <ClientLine model={viewState.client.bBox} />}
             <LifeLine title="Default" icon="worker" model={viewState.defaultWorker.lifeline.bBox}
                 astModel={model} />
             {model.body!.statements.filter((statement) => ASTUtil.isWorker(statement)).map((worker) => {
