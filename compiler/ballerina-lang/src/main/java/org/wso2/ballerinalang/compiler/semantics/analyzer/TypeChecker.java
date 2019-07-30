@@ -629,13 +629,21 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (actualType.tag == TypeTags.ARRAY) {
                     checkExprs(listConstructor.exprs, this.env, ((BArrayType) actualType).eType);
                 } else {
+                    BTupleType tupleType = (BTupleType) actualType;
                     List<BType> results = new ArrayList<>();
+                    BType restType = null;
                     for (int i = 0; i < listConstructor.exprs.size(); i++) {
-                        BType expType = ((BTupleType) actualType).tupleTypes.get(i);
-                        BType actType = checkExpr(listConstructor.exprs.get(i), env, expType);
-                        results.add(expType.tag != TypeTags.NONE ? expType : actType);
+                        BType expType, actType;
+                        if (i < tupleType.tupleTypes.size()) {
+                            expType = tupleType.tupleTypes.get(i);
+                            actType = checkExpr(listConstructor.exprs.get(i), env, expType);
+                            results.add(expType.tag != TypeTags.NONE ? expType : actType);
+                        } else {
+                            restType = checkExpr(listConstructor.exprs.get(i), env, tupleType.restType);
+                        }
                     }
                     actualType = new BTupleType(results);
+                    ((BTupleType) actualType).restType = restType;
                 }
             } else {
                 // If more than one array type, visit the literal to get its type and use that type to filter the
@@ -822,17 +830,28 @@ public class TypeChecker extends BLangNodeVisitor {
                 || expression.getKind() == NodeKind.TUPLE_LITERAL_EXPR) {
             BTupleType tupleType = (BTupleType) type;
             BLangListConstructorExpr tupleExpr = (BLangListConstructorExpr) expression;
-            if (tupleType.tupleTypes.size() == tupleExpr.exprs.size()) {
-                for (int i = 0; i < tupleExpr.exprs.size(); i++) {
-                    BLangExpression expr = tupleExpr.exprs.get(i);
+
+            if (tupleType.restType == null && tupleType.tupleTypes.size() != tupleExpr.exprs.size()) {
+                return false;
+            }
+
+            for (int i = 0; i < tupleExpr.exprs.size(); i++) {
+                BLangExpression expr = tupleExpr.exprs.get(i);
+                if (i < tupleType.tupleTypes.size()) {
                     if (!checkTupleType(expr, tupleType.tupleTypes.get(i))) {
                         return false;
                     }
+                } else {
+                    if (tupleType.restType != null) {
+                        if (!checkTupleType(expr, tupleType.restType)) {
+                            return false;
+                        }
+                    } else {
+                        return false;
+                    }
                 }
-                return true;
-            } else {
-                return false;
             }
+            return true;
         } else {
             return types.isAssignable(checkExpr(expression, env), type);
         }

@@ -917,6 +917,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         memberTupleTypes.add(varNode.type);
                     }
                     tupleTypeNode = new BTupleType(memberTupleTypes);
+                    if (varNode.restVariable != null) {
+                        tupleTypeNode.restType = varNode.type;
+                    }
                     break;
                 case TypeTags.TUPLE:
                     tupleTypeNode = (BTupleType) varNode.type;
@@ -927,15 +930,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        if ((tupleTypeNode.restType == null && tupleTypeNode.tupleTypes.size() != varNode.memberVariables.size()) ||
-                (tupleTypeNode.restType != null && tupleTypeNode.tupleTypes.size() > varNode.memberVariables.size())) {
+        if (tupleTypeNode.tupleTypes.size() != varNode.memberVariables.size()
+                || (tupleTypeNode.restType == null && varNode.restVariable != null)
+                ||  (tupleTypeNode.restType != null && varNode.restVariable == null)) {
             dlog.error(varNode.pos, DiagnosticCode.INVALID_TUPLE_BINDING_PATTERN);
             return false;
         }
 
         int ignoredCount = 0;
-        for (int i = 0; i < varNode.memberVariables.size(); i++) {
-            BLangVariable var = varNode.memberVariables.get(i);
+        List<BLangVariable> memberVariables = new ArrayList<>(varNode.memberVariables);
+        if (varNode.restVariable != null) {
+            memberVariables.add(varNode.restVariable);
+        }
+        for (int i = 0; i < memberVariables.size(); i++) {
+            BLangVariable var = memberVariables.get(i);
             BType type = (i <= tupleTypeNode.tupleTypes.size() - 1) ? tupleTypeNode.tupleTypes.get(i) :
                     new BArrayType(tupleTypeNode.restType);
             if (var.getKind() == NodeKind.VARIABLE) {

@@ -820,8 +820,24 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         if (precedingVar.getKind() == NodeKind.TUPLE_VARIABLE && var.getKind() == NodeKind.TUPLE_VARIABLE) {
             List<BLangVariable> precedingMemberVars = ((BLangTupleVariable) precedingVar).memberVariables;
+            BLangVariable precedingRestVar = ((BLangTupleVariable) precedingVar).restVariable;
             List<BLangVariable> memberVars = ((BLangTupleVariable) var).memberVariables;
-            if (precedingMemberVars.size() != memberVars.size()) {
+            BLangVariable memberRestVar = ((BLangTupleVariable) var).restVariable;
+
+            if (precedingRestVar != null && memberRestVar != null) {
+                return true;
+            }
+
+            if (precedingRestVar == null && memberRestVar == null
+                    && precedingMemberVars.size() != memberVars.size()) {
+                return false;
+            }
+
+            if (precedingRestVar != null && precedingMemberVars.size() > memberVars.size()) {
+                return false;
+            }
+
+            if (memberRestVar != null) {
                 return false;
             }
 

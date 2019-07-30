@@ -833,13 +833,16 @@ public class BLangPackageBuilder {
         }
     }
 
-    void addTupleVariable(DiagnosticPos pos, Set<Whitespace> ws, int members) {
+    void addTupleVariable(DiagnosticPos pos, Set<Whitespace> ws, int members, boolean restBindingAvailable) {
 
         BLangTupleVariable tupleVariable = (BLangTupleVariable) TreeBuilder.createTupleVariableNode();
         tupleVariable.pos = pos;
         tupleVariable.addWS(ws);
         if (this.bindingPatternIdentifierWS.size() > 0) {
             tupleVariable.addWS(this.bindingPatternIdentifierWS.pop());
+        }
+        if (restBindingAvailable) {
+            tupleVariable.restVariable = this.varStack.pop();
         }
         for (int i = 0; i < members; i++) {
             final BLangVariable member = this.varStack.pop();

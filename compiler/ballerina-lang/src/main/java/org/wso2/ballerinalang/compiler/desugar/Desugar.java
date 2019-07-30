@@ -881,54 +881,52 @@ public class Desugar extends BLangNodeVisitor {
 
     private void createRestFieldVarDefStmts(BLangTupleVariable parentTupleVariable, BLangBlockStmt blockStmt,
                                             BVarSymbol tupleVarSymbol) {
-        if (parentTupleVariable.type.tag == TypeTags.TUPLE) {
-            BTupleType tupleType = (BTupleType) parentTupleVariable.type;
-            DiagnosticPos pos = blockStmt.pos;
-            if (tupleType.restType != null) {
-                // T[] t = [];
-                final BLangSimpleVariable arrayVar = (BLangSimpleVariable) parentTupleVariable.memberVariables
-                        .get(parentTupleVariable.memberVariables.size() - 1);
-                BLangArrayLiteral arrayExpr = createArrayLiteralExprNode();
-                arrayExpr.type = arrayVar.type;
-                arrayVar.expr = arrayExpr;
-                BLangSimpleVariableDef arrayVarDef = ASTBuilderUtil.createVariableDefStmt(arrayVar.pos, blockStmt);
-                arrayVarDef.var = arrayVar;
+        final BLangSimpleVariable arrayVar = (BLangSimpleVariable) parentTupleVariable.restVariable;
+        boolean isTupleType = parentTupleVariable.type.tag == TypeTags.TUPLE;
+        DiagnosticPos pos = blockStmt.pos;
+        if (arrayVar != null) {
+            // T[] t = [];
+            BLangArrayLiteral arrayExpr = createArrayLiteralExprNode();
+            arrayExpr.type = arrayVar.type;
+            arrayVar.expr = arrayExpr;
+            BLangSimpleVariableDef arrayVarDef = ASTBuilderUtil.createVariableDefStmt(arrayVar.pos, blockStmt);
+            arrayVarDef.var = arrayVar;
 
-                // foreach var $foreach$i in tupleTypes.length()...tupleLiteral.length() {
-                //     t[t.length()] = <T> tupleLiteral[$foreach$i];
-                // }
-                BLangExpression tupleExpr = parentTupleVariable.expr;
-                BLangSimpleVarRef arrayVarRef = ASTBuilderUtil.createVariableRef(pos, arrayVar.symbol);
+            // foreach var $foreach$i in tupleTypes.length()...tupleLiteral.length() {
+            //     t[t.length()] = <T> tupleLiteral[$foreach$i];
+            // }
+            BLangExpression tupleExpr = parentTupleVariable.expr;
+            BLangSimpleVarRef arrayVarRef = ASTBuilderUtil.createVariableRef(pos, arrayVar.symbol);
 
-                BLangLiteral startIndexLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
-                startIndexLiteral.value = (long) tupleType.tupleTypes.size();
-                startIndexLiteral.type = symTable.intType;
-                BLangInvocation lengthInvocation = createLengthInvocation(pos, tupleExpr);
-                BLangInvocation intRangeInvocation = replaceWithIntRange(pos, startIndexLiteral,
-                        getModifiedIntRangeEndExpr(lengthInvocation));
+            BLangLiteral startIndexLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+            startIndexLiteral.value = (long) (isTupleType ? ((BTupleType) parentTupleVariable.type).tupleTypes.size()
+                    : parentTupleVariable.memberVariables.size());
+            startIndexLiteral.type = symTable.intType;
+            BLangInvocation lengthInvocation = createLengthInvocation(pos, tupleExpr);
+            BLangInvocation intRangeInvocation = replaceWithIntRange(pos, startIndexLiteral,
+                    getModifiedIntRangeEndExpr(lengthInvocation));
 
-                BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
-                foreach.pos = pos;
-                foreach.collection = intRangeInvocation;
-                types.setForeachTypedBindingPatternType(foreach);
+            BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
+            foreach.pos = pos;
+            foreach.collection = intRangeInvocation;
+            types.setForeachTypedBindingPatternType(foreach);
 
-                final BLangSimpleVariable foreachVariable = ASTBuilderUtil.createVariable(pos,
-                        "$foreach$i", foreach.varType);
-                foreachVariable.symbol = new BVarSymbol(0, names.fromIdNode(foreachVariable.name),
-                        this.env.scope.owner.pkgID, foreachVariable.type, this.env.scope.owner);
-                BLangSimpleVarRef foreachVarRef = ASTBuilderUtil.createVariableRef(pos, foreachVariable.symbol);
-                foreach.variableDefinitionNode = ASTBuilderUtil.createVariableDef(pos, foreachVariable);
-                foreach.isDeclaredWithVar = true;
-                BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(pos);
+            final BLangSimpleVariable foreachVariable = ASTBuilderUtil.createVariable(pos,
+                    "$foreach$i", foreach.varType);
+            foreachVariable.symbol = new BVarSymbol(0, names.fromIdNode(foreachVariable.name),
+                    this.env.scope.owner.pkgID, foreachVariable.type, this.env.scope.owner);
+            BLangSimpleVarRef foreachVarRef = ASTBuilderUtil.createVariableRef(pos, foreachVariable.symbol);
+            foreach.variableDefinitionNode = ASTBuilderUtil.createVariableDef(pos, foreachVariable);
+            foreach.isDeclaredWithVar = true;
+            BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(pos);
 
-                // t[t.length()] = <T> tupleLiteral[$foreach$i];
-                BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(arrayVarRef,
-                        createLengthInvocation(pos, arrayVarRef));
-                indexAccessExpr.type = tupleType.restType;
-                createSimpleVarRefAssignmentStmt(indexAccessExpr, foreachBody, foreachVarRef, tupleVarSymbol, null);
-                foreach.body = foreachBody;
-                blockStmt.addStatement(foreach);
-            }
+            // t[t.length()] = <T> tupleLiteral[$foreach$i];
+            BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(arrayVarRef,
+                    createLengthInvocation(pos, arrayVarRef));
+            indexAccessExpr.type = (isTupleType ? ((BTupleType) parentTupleVariable.type).restType : symTable.anyType);
+            createSimpleVarRefAssignmentStmt(indexAccessExpr, foreachBody, foreachVarRef, tupleVarSymbol, null);
+            foreach.body = foreachBody;
+            blockStmt.addStatement(foreach);
         }
     }
 
@@ -991,18 +989,7 @@ public class Desugar extends BLangNodeVisitor {
     private void createVarDefStmts(BLangTupleVariable parentTupleVariable, BLangBlockStmt parentBlockStmt,
                                    BVarSymbol tupleVarSymbol, BLangIndexBasedAccess parentIndexAccessExpr) {
 
-        final List<BLangVariable> memberVars;
-        if (parentTupleVariable.type.tag == TypeTags.TUPLE) {
-            BTupleType tupleType = (BTupleType) parentTupleVariable.type;
-            int varCount = parentTupleVariable.memberVariables.size();
-            if (tupleType.restType != null && varCount > 1) {
-                memberVars = parentTupleVariable.memberVariables.subList(0, varCount - 1);
-            } else {
-                memberVars = parentTupleVariable.memberVariables;
-            }
-        } else {
-            memberVars = parentTupleVariable.memberVariables;
-        }
+        final List<BLangVariable> memberVars = parentTupleVariable.memberVariables;
         for (int index = 0; index < memberVars.size(); index++) {
             BLangVariable variable = memberVars.get(index);
             BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(variable.pos, symTable.intType, (long) index);
@@ -5307,7 +5294,12 @@ public class Desugar extends BLangNodeVisitor {
             for (int i = 0; i < tupleVariable.memberVariables.size(); i++) {
                 memberTypes.add(getStructuredBindingPatternType(tupleVariable.memberVariables.get(i)));
             }
-            return new BTupleType(memberTypes);
+            BTupleType tupleType = new BTupleType(memberTypes);
+            if (tupleVariable.restVariable != null) {
+                BArrayType restArrayType = (BArrayType) getStructuredBindingPatternType(tupleVariable.restVariable);
+                tupleType.restType = restArrayType.eType;
+            }
+            return tupleType;
         }
 
         if (NodeKind.RECORD_VARIABLE == bindingPatternVariable.getKind()) {

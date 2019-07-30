@@ -280,8 +280,8 @@ annotationAttachment
 
 statement
     :   errorDestructuringStatement
-    |   variableDefinitionStatement
     |   assignmentStatement
+    |   variableDefinitionStatement
     |   listDestructuringStatement
     |   recordDestructuringStatement
     |   compoundAssignmentStatement
@@ -467,7 +467,7 @@ errorDetailBindingPattern
     ;
 
 listBindingPattern
-    :   LEFT_BRACKET bindingPattern (COMMA bindingPattern)+ RIGHT_BRACKET
+    :   LEFT_BRACKET ((bindingPattern (COMMA bindingPattern)* (COMMA restBindingPattern)?) | restBindingPattern?) RIGHT_BRACKET
     ;
 
 recordBindingPattern
