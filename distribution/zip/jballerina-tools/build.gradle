@@ -133,7 +133,7 @@ dependencies {
     birJar project(path: ':ballerina-cli-module-search', configuration: 'cliModuleSearchJar')
     birJar project(path: ':ballerina-cli-module-token-update', configuration: 'cliModuleTokenUpdateJar')
 
-//    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
+    birJar project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'prometheusJar')
 }
 
 

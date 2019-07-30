@@ -54,7 +54,7 @@ public class FinishSpan extends BlockingNativeCallableUnit {
     }
 
     public static Object finishSpan(Strand strand, long spanId) {
-        boolean isFinished = OpenTracerBallerinaWrapper.getInstance().finishSpan(strand, (int) spanId);
+        boolean isFinished = OpenTracerBallerinaWrapper.getInstance().finishSpan(strand, spanId);
 
         if (isFinished) {
             return null;

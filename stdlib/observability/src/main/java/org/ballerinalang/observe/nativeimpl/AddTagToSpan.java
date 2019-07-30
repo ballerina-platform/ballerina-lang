@@ -58,7 +58,7 @@ public class AddTagToSpan extends BlockingNativeCallableUnit {
 //        }
     }
 
-    public static Object addTagToSpan(Strand strand, String tagKey, String tagValue, int spanId) {
+    public static Object addTagToSpan(Strand strand, String tagKey, String tagValue, long spanId) {
         boolean tagAdded = OpenTracerBallerinaWrapper.getInstance().addTag(tagKey, tagValue, spanId, strand);
 
         if (tagAdded) {
