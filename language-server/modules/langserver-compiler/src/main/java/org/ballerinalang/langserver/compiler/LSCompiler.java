@@ -238,6 +238,7 @@ public class LSCompiler {
             context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
         }
         LSDocument sourceDoc = new LSDocument(uri);
+        context.put(DocumentServiceKeys.LS_DOCUMENT_KEY, sourceDoc);
         String projectRoot = sourceDoc.getProjectRoot();
         PackageRepository pkgRepo = new WorkspacePackageRepository(projectRoot, docManager);
         List<BLangPackage> packages = new ArrayList<>();

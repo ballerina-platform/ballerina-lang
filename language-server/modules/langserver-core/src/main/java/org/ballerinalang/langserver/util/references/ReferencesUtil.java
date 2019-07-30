@@ -267,15 +267,20 @@ public class ReferencesUtil {
         List<SymbolReferencesModel.Reference> references = new ArrayList<>(referencesModel.getDefinitions());
         references.addAll(referencesModel.getReferences());
         references.add(referencesModel.getReferenceAtCursor().get());
-        String sourceRoot = context.get(DocumentServiceKeys.SOURCE_ROOT_KEY);
+        LSDocument sourceDoc = context.get(DocumentServiceKeys.LS_DOCUMENT_KEY);
 
         references.forEach(reference -> {
             DiagnosticPos referencePos = reference.getPosition();
             String pkgName = reference.getSourcePkgName();
             String cUnitName = reference.getCompilationUnit();
-            // If evaluating a single file which is not in a project/module, we skip adding the package name to root
-            Path baseRoot = pkgName.equals(".") ? Paths.get(sourceRoot) : Paths.get(sourceRoot).resolve(pkgName);
-            String uri = baseRoot.resolve(cUnitName).toUri().toString();
+            String uri;
+            Path basePath = sourceDoc.getProjectRootPath();
+            if (sourceDoc.isWithinProject()) {
+                basePath = basePath.resolve("src").resolve(pkgName);
+            }
+            basePath = basePath.resolve(cUnitName);
+            
+            uri = basePath.toUri().toString();
             TextEdit textEdit = new TextEdit(getRange(referencePos), newName);
             if (workspaceEdit.getChanges().containsKey(uri)) {
                 workspaceEdit.getChanges().get(uri).add(textEdit);

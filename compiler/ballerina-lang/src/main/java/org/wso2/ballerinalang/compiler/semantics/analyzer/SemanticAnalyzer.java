@@ -1046,18 +1046,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 return false;
         }
 
-        if (recordVar.isClosed) {
-            if (!recordVarType.sealed) {
-                dlog.error(recordVar.pos, DiagnosticCode.INVALID_CLOSED_RECORD_BINDING_PATTERN, recordVarType);
-                return false;
-            }
-
-            if (recordVar.variableList.size() != recordVarType.fields.size()) {
-                dlog.error(recordVar.pos, DiagnosticCode.NOT_ENOUGH_FIELDS_TO_MATCH_CLOSED_RECORDS, recordVarType);
-                return false;
-            }
-        }
-
         Map<String, BField> recordVarTypeFields = recordVarType.fields.stream()
                 .collect(Collectors.toMap(field -> field.getName().getValue(), field -> field));
 
@@ -1299,7 +1287,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private BRecordType createSameTypedFieldsRecordType(BLangRecordVariable recordVar, BType fieldTypes) {
         BType fieldType;
-        if (fieldTypes.tag == TypeTags.ANYDATA || fieldTypes.tag == TypeTags.ANY) {
+        if (fieldTypes.isNullable()) {
             fieldType = fieldTypes;
         } else {
             fieldType = BUnionType.create(null, fieldTypes, symTable.nilType);
@@ -1318,12 +1306,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         recordVarType.fields = fields;
         recordSymbol.type = recordVarType;
         recordVarType.tsymbol = recordSymbol;
-        if (recordVar.isClosed) {
-            recordVarType.sealed = true;
-        } else {
-            recordVarType.sealed = false;
-            recordVarType.restFieldType = fieldTypes;
-        }
+
+        // Since this is for record variables, we consider its record type as an open record type.
+        recordVarType.sealed = false;
+        recordVarType.restFieldType = fieldTypes; // TODO: 7/26/19 Check if this should be `fieldType`
 
         return recordVarType;
     }
@@ -1528,11 +1514,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             lhsVarRef.recordRefFields.forEach(field -> types.checkType(field.variableReference.pos,
                     expectedType, field.variableReference.type, DiagnosticCode.INCOMPATIBLE_TYPES));
 
-            if (lhsVarRef.isClosed) {
-                dlog.error(pos, DiagnosticCode.INVALID_CLOSED_RECORD_BINDING_PATTERN, rhsType);
-                return;
-            }
-
             if (lhsVarRef.restParam != null) {
                 types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos, rhsMapType,
                         ((BLangSimpleVarRef) lhsVarRef.restParam).type, DiagnosticCode.INCOMPATIBLE_TYPES);
@@ -1548,23 +1529,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BRecordType rhsRecordType = (BRecordType) rhsType;
 
-        if (lhsVarRef.isClosed) {
-            if (!rhsRecordType.sealed) {
-                dlog.error(pos, DiagnosticCode.INVALID_CLOSED_RECORD_BINDING_PATTERN, rhsType);
-                return;
-            }
-
-            if (lhsVarRef.recordRefFields.size() != rhsRecordType.fields.size()) {
-                dlog.error(pos, DiagnosticCode.NOT_ENOUGH_FIELDS_TO_MATCH_CLOSED_RECORDS, rhsType);
-                return;
-            }
-
-            if (lhsVarRef.restParam != null) {
-                types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos, getRestParamType(rhsRecordType),
-                        ((BLangSimpleVarRef) lhsVarRef.restParam).type, DiagnosticCode.INCOMPATIBLE_TYPES);
-            }
-        }
-
         // check if all fields in record var ref are found in rhs record type
         lhsVarRef.recordRefFields.stream()
                 .filter(lhsField -> rhsRecordType.fields.stream()
@@ -1578,9 +1542,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     .collect(Collectors.toList());
 
             if (expField.isEmpty()) {
-                if (lhsVarRef.isClosed) {
-                    dlog.error(lhsVarRef.pos, DiagnosticCode.NO_MATCHING_RECORD_REF_PATTERN, rhsField.name);
-                }
                 continue;
             }
 
