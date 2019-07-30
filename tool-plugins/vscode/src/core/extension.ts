@@ -21,7 +21,7 @@
 import {
     workspace, window, commands, languages, Uri,
     ConfigurationChangeEvent, extensions,
-    Extension, ExtensionContext, IndentAction,
+    Extension, ExtensionContext, IndentAction, WebviewPanel,
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY,
@@ -44,16 +44,19 @@ export interface ConstructIdentifier {
 }
 
 export class BallerinaExtension {
-
     public ballerinaHome: string;
     public extension: Extension<any>;
     private clientOptions: LanguageClientOptions;
     public langClient?: ExtendedLangClient;
     public context?: ExtensionContext;
     private projectTreeElementClickedCallbacks: Array<(construct: ConstructIdentifier) => void> = [];
+    private webviewPanels: {
+        [name: string]: WebviewPanel;
+    };
 
     constructor() {
         this.ballerinaHome = '';
+        this.webviewPanels = {};
         // Load the extension
         this.extension = extensions.getExtension('ballerina.ballerina')!;
         this.clientOptions = {
@@ -424,6 +427,14 @@ export class BallerinaExtension {
 
     public onProjectTreeElementClicked(callback: (construct: ConstructIdentifier) => void) {
         this.projectTreeElementClickedCallbacks.push(callback);
+    }
+
+    public addWebviewPanel(name: string, panel: WebviewPanel) {
+		this.webviewPanels[name] = panel;
+    }
+
+    public getWebviewPanels() {
+        return this.webviewPanels;
     }
 }
 
