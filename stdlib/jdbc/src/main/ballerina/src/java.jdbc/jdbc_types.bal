@@ -53,7 +53,7 @@ public type ClientEndpointConfig record {|
 #                     `b7a.jdbc.pool.maximumPoolSize`.
 # + connectionTimeoutInMillis - Maximum number of milliseconds that a client will wait for a connection from the pool.
 #                       Default is 30000 (30 seconds) and it can be changed through the configuration API with the key
-#                       `b7a.jdbc.pool.connectionTimeoutInMillis`. Lowest acceptable connection timeout is 250 ms.
+#                       `b7a.jdbc.pool.connectionTimeoutInMillis`. Lowest acceptable connection timeout value is 250 ms.
 # + idleTimeoutInMillis - The maximum amount of time that a connection is allowed to sit idle in the pool. Default is
 #                 600000 (10 minutes) and it can be changed through the configuration API with the key
 #                 `b7a.jdbc.pool.idleTimeoutInMillis`. The minimum allowed value is 10000ms (10 seconds).
