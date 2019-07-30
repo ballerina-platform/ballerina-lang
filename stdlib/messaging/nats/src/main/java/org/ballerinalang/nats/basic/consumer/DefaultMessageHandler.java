@@ -21,7 +21,7 @@ package org.ballerinalang.nats.basic.consumer;
 import io.nats.client.Message;
 import io.nats.client.MessageHandler;
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.Scheduler;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;

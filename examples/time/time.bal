@@ -58,10 +58,10 @@ public function main() {
     string weekday = time:getWeekday(time);
     io:println("Weekday: ", weekday);
     // This fetches the date component of the time using a single function.
-    (year, month, day) = time:getDate(time);
+    [year, month, day] = time:getDate(time);
     io:println("Date: ", year, ":", month, ":", day);
     // This fetches the time component using a single function.
-    (hour, minute, second, milliSecond) = time:getTime(time);
+    [hour, minute, second, milliSecond] = time:getTime(time);
     io:println("Time: ", hour, ":", minute, ":", second, ":", milliSecond);
     // This adds a given duration to a time. This example adds
     // one year, one month, and one second to the current time.

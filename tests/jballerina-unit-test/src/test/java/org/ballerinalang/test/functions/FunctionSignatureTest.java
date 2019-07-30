@@ -435,16 +435,4 @@ public class FunctionSignatureTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 60);
         Assert.assertEquals(returns[1].stringValue(), "inner default world");
     }
-
-    @Test(groups = { "brokenOnLangLibChange" })
-    public void defaultValueForObjectOuterFunctionParam() {
-        BValue[] returns = BRunUtil.invoke(result, "testDefaultableParamOuterFunc");
-
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BString.class);
-
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
-        Assert.assertEquals(returns[1].stringValue(), "hello world");
-    }
 }

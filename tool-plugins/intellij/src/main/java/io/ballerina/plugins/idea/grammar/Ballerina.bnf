@@ -33,9 +33,6 @@
 
     tokens = [
 
-        DEPRECATED          = 'deprecated';
-
-
         // Separators
         SEMICOLON           = ';' ;
         COLON               = ':' ;
@@ -121,9 +118,9 @@
 
 CompilationUnit ::=(ImportDeclaration | NamespaceDeclaration)* (DefinitionWithoutAnnotationAttachments |  DefinitionWithMultipleAnnotationAttachments | DefinitionWithSingleAnnotationAttachment)* <<eof>>
 
-DefinitionWithMultipleAnnotationAttachments ::=  documentationString? AnnotationAttachment AnnotationAttachment+ Definition {pin=4 elementType=Definition}
-DefinitionWithSingleAnnotationAttachment ::= documentationString? AnnotationAttachment Definition {pin=3 elementType=Definition}
-DefinitionWithoutAnnotationAttachments ::= documentationString? Definition {pin=3 elementType=Definition}
+DefinitionWithMultipleAnnotationAttachments ::=  documentationString? AnnotationAttachment AnnotationAttachment+ Definition {pin=3 elementType=Definition}
+DefinitionWithSingleAnnotationAttachment ::= documentationString? AnnotationAttachment Definition {pin=2 elementType=Definition}
+DefinitionWithoutAnnotationAttachments ::= documentationString? Definition {pin=2 elementType=Definition}
 
 CompletePackageName ::= PackageName (DOT PackageName)* {
     pin(".*")=1
@@ -155,7 +152,7 @@ Definition ::= ( TypeDefinition
                | ConstantDefinition )
 {recoverWhile=TopLevelDefinitionRecover}
 
-private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|DEPRECATED_TEMPLATE_START|'@'|external|remote|client|abstract|public|type|typedesc|service|listener|function|enum|annotation|int|float|decimal|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|record|channel|const|final|var|future|identifier|'{')
+private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|'@'|external|remote|client|abstract|public|type|typedesc|service|listener|function|enum|annotation|int|float|decimal|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|record|channel|const|final|var|future|identifier|'{')
 
 ServiceDefinition ::= service identifier? on ExpressionList ServiceBody {pin=3}
 ServiceBody ::= LEFT_BRACE ServiceBodyMember* RIGHT_BRACE
@@ -362,7 +359,7 @@ Statement ::=
 // Todo - Add more tokens (for record destructuring and panic)
 // Note - Literals are added for worker interactions - 10 -> w2;
 // NULL_LITERAL is added for match pattern -  null => return "error";
-private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|DECIMAL_FLOATING_POINT_NUMBER|HEXADECIMAL_FLOATING_POINT_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'('|'{'|'['|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|service|check|error|panic|from|worker|record|identifier|wait)
+private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|DECIMAL_FLOATING_POINT_NUMBER|HEXADECIMAL_FLOATING_POINT_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'{'|'['|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|service|check|error|panic|from|worker|record|identifier|wait)
 
 // Note - VariableDefinitionStatementInService
 //TODO - change pin
@@ -575,8 +572,10 @@ XmlAttrib ::= AT (LEFT_BRACKET Expression RIGHT_BRACKET)? {pin=1}
 
 // Todo - Need to pin?
 FunctionInvocation ::= functionNameReference LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS {pin=2}
-InvocationArgList ::= InvocationArg (COMMA InvocationArg)* {pin(".*")=1}
+InvocationArgList ::= InvocationArg (COMMA InvocationArg)* {pin(".*")=1 recoverWhile = InvocationArgListRecover }
 InvocationArg ::= NamedArgs | RestArgs | Expression
+
+private InvocationArgListRecover ::= !(')')
 
 // Todo - Update the recovery rule
 ActionInvocation ::= (AnnotationAttachment* start)? VariableReference RARROW FunctionInvocation {/*pin=3 recoverWhile=StatementRecover*/}
@@ -663,7 +662,7 @@ Expression
 
 TypeAccessExpression ::= TypeName
 
-TypeTestExpression ::= Expression is TypeName  {pin=2}
+TypeTestExpression ::= Expression is TypeName
 
 BinaryRefEqualExpression ::= Expression (REF_EQUAL | REF_NOT_EQUAL) Expression
 
@@ -689,7 +688,7 @@ ListConstructorExpression ::= ListConstructorExpr
 RecordLiteralExpression ::= RecordLiteral
 XmlLiteralExpression ::= XmlLiteral
 StringTemplateLiteralExpression ::= StringTemplateLiteral
-VariableReferenceExpression ::= (AnnotationAttachment* start)? VariableReference
+VariableReferenceExpression ::= AnnotationAttachment* start? VariableReference
 LambdaFunctionExpression ::= LambdaFunction
 TypeConversionExpression ::= LT (AnnotationAttachment+ TypeName? | TypeName) GT Expression {pin=1}
 UnaryExpression ::= (ADD | SUB | BIT_COMPLEMENT | NOT | typeof) Expression {pin=1}
@@ -749,7 +748,9 @@ DefaultableParameter ::= Parameter ASSIGN Expression
 
 RestParameter ::= AnnotationAttachment* TypeName ELLIPSIS identifier {pin=3}
 
-FormalParameterList ::= (DefaultableParameter | Parameter) (COMMA (DefaultableParameter | Parameter))* (COMMA RestParameter)? | RestParameter
+FormalParameterList ::= (DefaultableParameter | Parameter) (COMMA (DefaultableParameter | Parameter))* (COMMA RestParameter)? | RestParameter {pin=1 recoverWhile=FormalParameterListRecover}
+
+private FormalParameterListRecover::= !(')')
 
 SimpleLiteral ::= SUB? IntegerLiteral
                   | SUB? FloatingPointLiteral

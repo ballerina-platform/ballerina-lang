@@ -34,11 +34,13 @@ type TerminatorGenerator object {
     }
 
     function genTerminator(bir:Terminator terminator, bir:Function func, string funcName,
-                           int localVarOffset, int returnVarRefIndex, bir:BType? attachedType) {
+                           int localVarOffset, int returnVarRefIndex, bir:BType? attachedType, boolean isObserved = false) {
         if (terminator is bir:Lock) {
-            self.genLockTerm(terminator, funcName);
+            self.genLockTerm(terminator, funcName, localVarOffset);
+        } else if (terminator is bir:FieldLock) {
+            self.genFieldLockTerm(terminator, funcName, localVarOffset, attachedType);
         } else if (terminator is bir:Unlock) {
-            self.genUnlockTerm(terminator, funcName);
+            self.genUnlockTerm(terminator, funcName, attachedType);
         } else if (terminator is bir:GOTO) {
             self.genGoToTerm(terminator, funcName);
         } else if (terminator is bir:Call) {
@@ -48,7 +50,7 @@ type TerminatorGenerator object {
         } else if (terminator is bir:Branch) {
             self.genBranchTerm(terminator, funcName);
         } else if (terminator is bir:Return) {
-            self.genReturnTerm(terminator, returnVarRefIndex, func);
+            self.genReturnTerm(terminator, returnVarRefIndex, func, isObserved = isObserved, localVarOffset = localVarOffset);
         } else if (terminator is bir:Panic) {
             self.errorGen.genPanic(terminator);
         } else if (terminator is bir:Wait) {
@@ -75,33 +77,84 @@ type TerminatorGenerator object {
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    function genLockTerm(bir:Lock lockIns, string funcName) {
+    function genLockTerm(bir:Lock lockIns, string funcName, int localVarOffset) {
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + lockIns.lockBB.id.value);
-        foreach var globleVar in lockIns.globleVars {
-            var varClassName = lookupGlobalVarClassName(self.currentPackageName + globleVar);
-            var lockName = computeLockNameFromString(globleVar);
-            self.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, "Ljava/lang/Object;");
-            self.mv.visitInsn(MONITORENTER);
-        }
+        string lockClass = "L" + LOCK_VALUE + ";";
+        var varClassName = lookupGlobalVarClassName(self.currentPackageName + lockIns.globleVar.name.value);
+        var lockName = computeLockNameFromString(lockIns.globleVar.name.value);
+        self.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, lockClass);
+        self.mv.visitVarInsn(ALOAD, localVarOffset);
+        self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", io:sprintf("(L%s;)Z", STRAND), false);
+        self.mv.visitInsn(POP);
+        genYieldCheckForLock(self.mv, self.labelGen, funcName, localVarOffset);
 
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    function genUnlockTerm(bir:Unlock unlockIns, string funcName) {
+    function genFieldLockTerm(bir:FieldLock lockIns, string funcName, int localVarOffset, bir:BType? attachedType) {
+        jvm:Label gotoLabel = self.labelGen.getLabel(funcName + lockIns.lockBB.id.value);
+        string lockClass = "L" + LOCK_VALUE + ";";
+        var lockName = computeLockNameFromString(lockIns.field);
+        self.loadVar(lockIns.localVar);
+
+        if (attachedType is bir:BObjectType) {
+            string className = getTypeValueClassName(self.module, attachedType.name.value);
+            self.mv.visitFieldInsn(GETFIELD, className, lockName, lockClass);
+            self.mv.visitVarInsn(ALOAD, localVarOffset);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", io:sprintf("(L%s;)Z", STRAND), false);
+            self.mv.visitInsn(POP);
+            genYieldCheckForLock(self.mv, self.labelGen, funcName, localVarOffset);
+
+            self.mv.visitJumpInsn(GOTO, gotoLabel);
+        } else {
+            error err = error( "JVM field lock generation is not supported for type " +
+                            io:sprintf("%s", attachedType));
+            panic err;
+        }
+    }
+
+    function genUnlockTerm(bir:Unlock unlockIns, string funcName, bir:BType? attachedType) {
         jvm:Label gotoLabel = self.labelGen.getLabel(funcName + unlockIns.unlockBB.id.value);
 
+        string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
+
+        string lockClass = "L" + LOCK_VALUE + ";";
         // unlocked in the same order https://yarchive.net/comp/linux/lock_ordering.html
-        foreach var globleVar in unlockIns.globleVars {
-            var varClassName = lookupGlobalVarClassName(self.currentPackageName + globleVar);
-            var lockName = computeLockNameFromString(globleVar);
-            self.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, "Ljava/lang/Object;");
-            self.mv.visitInsn(MONITOREXIT);
+        foreach var globalVariable in unlockIns.globleVars {
+            bir:VariableDcl globleVar = self.cleanupVariableDecl(globalVariable);
+            var varClassName = lookupGlobalVarClassName(self.currentPackageName + globleVar.name.value);
+            var lockName = computeLockNameFromString(globleVar.name.value);
+            self.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, lockClass);
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
+        }
+
+        foreach var lockDetail in unlockIns.localLocks {
+            bir:LocalLocks localLock = self.cleanupLocalLock(lockDetail);
+
+            if (attachedType is bir:BObjectType) {
+                string className = getTypeValueClassName(self.module, attachedType.name.value);
+                foreach var fieldName in localLock.fields {
+                    var lockName = computeLockNameFromString(fieldName);
+                    self.loadVar(localLock.localVar);
+                    self.mv.visitFieldInsn(GETFIELD, className, lockName, lockClass);
+                    self.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
+                }
+            } else {
+                error err = error( "JVM field unlock generation is not supported for type " +
+                                io:sprintf("%s", attachedType));
+                panic err;
+            }
+
         }
 
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    function genReturnTerm(bir:Return returnIns, int returnVarRefIndex, bir:Function func) {
+    function genReturnTerm(bir:Return returnIns, int returnVarRefIndex, bir:Function func,
+                           boolean isObserved = false, int localVarOffset = -1) {
+        if (isObserved) {
+            emitStopObservationInvocation(self.mv, localVarOffset);
+        }
         bir:BType bType = func.typeValue.retType;
         if (bType is bir:BTypeNil) {
             self.mv.visitInsn(RETURN);
@@ -212,16 +265,16 @@ type TerminatorGenerator object {
             jvm:Label notBlockedOnExternLabel = new;
 
             self.mv.visitVarInsn(ALOAD, localVarOffset);
-            self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "blockedOnExtern", "Z");
+            self.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "isBlockedOnExtern", "()Z", false);
             self.mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
 
             self.mv.visitVarInsn(ALOAD, localVarOffset);
             self.mv.visitInsn(ICONST_0);
-            self.mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/Strand", "blockedOnExtern", "Z");
+            self.mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/scheduling/Strand", "blockedOnExtern", "Z");
 
             if (callIns.lhsOp.variableDcl is bir:VariableDcl) {
                 self.mv.visitVarInsn(ALOAD, localVarOffset);
-                self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "returnValue", "Ljava/lang/Object;");
+                self.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue", "Ljava/lang/Object;");
                 addUnboxInsn(self.mv, callIns.lhsOp.typeValue);
                 // store return
                 self.storeReturnFromCallIns(callIns);
@@ -244,6 +297,22 @@ type TerminatorGenerator object {
             // store return
             self.storeReturnFromCallIns(callIns);
         }
+    }
+
+    private function cleanupVariableDecl(bir:VariableDcl? varDecl) returns bir:VariableDcl {
+        if(varDecl is bir:VariableDcl) {
+            return varDecl;
+        }
+        error err = error("Invalid variable declaration");
+        panic err;
+    }
+
+    private function cleanupLocalLock(bir:LocalLocks? localLock) returns bir:LocalLocks {
+        if(localLock is bir:LocalLocks) {
+            return localLock;
+        }
+        error err = error("Invalid lock variable detail");
+        panic err;
     }
 
     private function storeReturnFromCallIns(bir:Call callIns) {
@@ -670,6 +739,14 @@ type TerminatorGenerator object {
         generateVarStore(self.mv, varDcl, self.currentPackageName, self.getJVMIndexOfVarRef(varDcl));
     }
 };
+
+function genYieldCheckForLock(jvm:MethodVisitor mv, LabelGenerator labelGen, string funcName,
+                        int localVarOffset) {
+    mv.visitVarInsn(ALOAD, localVarOffset);
+    mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "isYielded", "()Z", false);
+    jvm:Label yieldLabel = labelGen.getLabel(funcName + "yield");
+    mv.visitJumpInsn(IFNE, yieldLabel);
+}
 
 function loadChannelDetails(jvm:MethodVisitor mv, bir:ChannelDetail[] channels) {
     mv.visitIntInsn(BIPUSH, channels.length());

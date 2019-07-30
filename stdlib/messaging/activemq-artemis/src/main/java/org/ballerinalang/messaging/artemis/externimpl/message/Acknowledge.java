@@ -21,7 +21,7 @@ package org.ballerinalang.messaging.artemis.externimpl.message;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.ballerinalang.bre.bvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.artemis.ArtemisConstants;
 import org.ballerinalang.messaging.artemis.ArtemisTransactionContext;
@@ -57,7 +57,7 @@ public class Acknowledge {
         try {
             message.acknowledge();
             if (transactionContext != null) {
-                transactionContext.handleTransactionBlock(ArtemisConstants.MESSAGE_OBJ);
+                transactionContext.handleTransactionBlock(ArtemisConstants.MESSAGE_OBJ, strand);
             }
         } catch (ActiveMQException e) {
             return ArtemisUtils.getError(e);

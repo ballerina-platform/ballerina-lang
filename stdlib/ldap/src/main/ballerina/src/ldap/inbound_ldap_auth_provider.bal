@@ -52,17 +52,28 @@ public type InboundLdapAuthProvider object {
         string username;
         string password;
         [username, password] = check auth:extractUsernameAndPassword(credential);
-        boolean authenticated = doAuthenticate(self.ldapConnection, username, password);
-        if (authenticated) {
-            runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-            if (principal is runtime:Principal) {
-                principal.userId = self.ldapConnectionConfig.domainName + ":" + username;
-                // By default set userId as username.
-                principal.username = username;
-                principal.scopes = getGroups(self.ldapConnection, username);
+        var authenticated = doAuthenticate(self.ldapConnection, username, password);
+        if (authenticated is boolean) {
+            if (authenticated) {
+                runtime:Principal? principal = runtime:getInvocationContext()?.principal;
+                if (principal is runtime:Principal) {
+                    principal.userId = self.ldapConnectionConfig.domainName + ":" + username;
+                    // By default set userId as username.
+                    principal.username = username;
+                    var groups = getGroups(self.ldapConnection, username);
+                    if (groups is string[]) {
+                        principal.scopes = groups;
+                    } else {
+                        return auth:prepareError("Failed to get groups from LDAP with the username: " + username,
+                                                 groups);
+                    }
+                }
             }
+            return authenticated;
+        } else {
+            return auth:prepareError("Failed to authenticate LDAP with username: " + username + " and password: "
+                                     + password, authenticated);
         }
-        return authenticated;
     }
 };
 
@@ -130,17 +141,17 @@ public type LdapConnection record {|
 #
 # + ldapConnection - `LdapConnection` instance
 # + username - Username
-# + return - Array of groups for the user denoted by the username
-public function getGroups(LdapConnection ldapConnection, string username) returns string[] = external;
+# + return - Array of groups for the user denoted by the username or `Error` if error occurred
+public function getGroups(LdapConnection ldapConnection, string username) returns string[]|Error = external;
 
 # Authenticate with username and password.
 #
 # + ldapConnection - `LdapConnection` instance
 # + username - Username
 # + password - Password
-# + return - true if authentication is a success, else false
+# + return - true if authentication is a success, else false or `Error` if error occurred
 public function doAuthenticate(LdapConnection ldapConnection, string username, string password)
-                               returns boolean = external;
+                               returns boolean|Error = external;
 
 # Initailizes LDAP connection context.
 #

@@ -44,9 +44,9 @@ public function main() {
 
     // The type test expression can be used with any expression.
     boolean isStudent = foo("student") is Student;
-    io:println("Is foo returns a student?", isStudent);
+    io:println("Does foo return a student? ", isStudent);
     isStudent = foo("vehicle") is Student;
-    io:println("Is foo returns a student?", isStudent);
+    io:println("Does foo return a student? ", isStudent);
 }
 
 type Person record {

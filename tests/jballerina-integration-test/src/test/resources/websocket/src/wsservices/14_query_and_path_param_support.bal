@@ -33,10 +33,10 @@ service simple6 on new http:Listener(21015) {
     resource function websocketProxy(http:Caller httpEp, http:Request req, string path1, string path2) {
         http:WebSocketCaller wsServiceEp;
         wsServiceEp = httpEp->acceptWebSocketUpgrade({ "X-some-header": "some-header-value" });
-        wsServiceEp.attributes[PATH1] = path1;
-        wsServiceEp.attributes[PATH2] = path2;
-        wsServiceEp.attributes[QUERY1] = req.getQueryParamValue("q1");
-        wsServiceEp.attributes[QUERY2] = req.getQueryParamValue("q2");
+        wsServiceEp.setAttribute(PATH1, path1);
+        wsServiceEp.setAttribute(PATH2, path2);
+        wsServiceEp.setAttribute(QUERY1, req.getQueryParamValue("q1"));
+        wsServiceEp.setAttribute(QUERY2, req.getQueryParamValue("q2"));
     }
 }
 
@@ -44,10 +44,10 @@ service simpleProxy6 = @http:WebSocketServiceConfig {} service {
 
     resource function onText(http:WebSocketCaller wsEp, string text) {
         if (text == "send") {
-            string path1 = <string>wsEp.attributes[PATH1];
-            string path2 = <string>wsEp.attributes[PATH2];
-            string query1 = <string>wsEp.attributes[QUERY1];
-            string query2 = <string>wsEp.attributes[QUERY2];
+            string path1 = <string>wsEp.getAttribute(PATH1);
+            string path2 = <string>wsEp.getAttribute(PATH2);
+            string query1 = <string>wsEp.getAttribute(QUERY1);
+            string query2 = <string>wsEp.getAttribute(QUERY2);
 
             string msg = string `path-params: ${path1}, ${path2}; query-params: ${query1}, ${query2}`;
             var returnVal = wsEp->pushText(msg);

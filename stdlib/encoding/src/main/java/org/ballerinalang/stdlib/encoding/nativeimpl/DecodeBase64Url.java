@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.encoding.nativeimpl;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.encoding.EncodingUtil;
@@ -41,7 +41,7 @@ public class DecodeBase64Url {
             byte[] output = Base64.getUrlDecoder().decode(input);
             return new ArrayValue(output);
         } catch (IllegalArgumentException e) {
-            return EncodingUtil.createEncodingError("Input is not a valid Base64 URL encoded value");
+            return EncodingUtil.createError("Input is not a valid Base64 URL encoded value");
         }
     }
 }

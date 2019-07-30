@@ -37,7 +37,7 @@ public type DistinctCount object {
     #
     # + return - Updated distinct count.
     public function process(anydata value, EventType eventType) returns anydata {
-        string key = crypto:crc32b(value);
+        string key = crypto:crc32b(value.toString().toBytes());
         if (eventType == "CURRENT") {
             int preVal = self.distinctValues[key] ?: 0;
             preVal += 1;

@@ -1,88 +1,71 @@
-import ballerina/encoding;
 import ballerina/io;
+import ballerina/lang.'string as strings;
 
 public function main() {
 
     string statement = "Lion in Town. Catch the Lion";
 
-    string s1 = statement.toUpper();
-    io:println("ToUpper: " + s1);
+    string s1 = statement.toUpperAscii();
+    io:println("ToUpper: ", s1);
 
-    string s2 = statement.toLower();
-    io:println("ToLower: " + s2);
+    string s2 = statement.toLowerAscii();
+    io:println("ToLower: ", s2);
 
-    // Compare stwo strings ignoring the case.
-    // Returns `true` if the strings are equal or `false` if they are not equal.
-    boolean isEqual =
-            statement.equalsIgnoreCase("lion in town. catch the lion");
-    io:println("EqualsIgnoreCase: " + isEqual);
-
-    // Creates a new `string`, which is a substring of the specified string. 
+    // Create a new `string`, which is a substring of the specified string.
     // You must provide the original `string`
     // and the starting and ending indexes of the substring.
     string s3 = statement.substring(0, 4);
-    io:println("SubString: " + s3);
+    io:println("SubString: ", s3);
 
-    // Checks if the `statement` string contains the string "Lion".
-    boolean contains = statement.contains("Lion");
-    io:println("Contains: " + contains);
+    // Retrieve the starting index of the first occurrence of the substring "on" within the `statement` string.
+    int? index = statement.indexOf("on");
+    if (index is int) {
+        io:println("IndexOf: ", index);
+    }
 
-    // Retrieves the starting index of the first occurrence of the substring "on" within the `statement` string.
-    int index = statement.indexOf("on");
-    io:println("IndexOf: " + index);
-
-    // Retrieves the starting index of the last occurrence of the substring "on" within the `statement` string.
-    int lastIndex = statement.lastIndexOf("on");
-    io:println("LastIndexOf: " + lastIndex);
-
-    // Replaces the first instance of the string "Lion" in the `statement` string with the string "Tiger".
-    string s5 = statement.replaceFirst("Lion", "Tiger");
-    io:println("ReplaceFirst: " + s5);
-
-    // Replaces the string "Lion" in the `statement` string with the string "Tiger".
-    string s6 = statement.replace("Lion", "Tiger");
-    io:println("Replace: " + s6);
-
-    // Replaces each substring of the `statement` string, which matches the given
-    // regular expression with the replacement string "0".
-    string s7 = statement.replaceAll("[o]+", "0");
-    io:println("ReplaceAll: " + s7);
-
-    // Retrieves the length of the `string`.
+    // Retrieve the length of the `string`.
     int length = statement.length();
-    io:println("Length: " + length);
+    io:println("Length: ", length);
 
-    // Removes any leading and trailing white spaces.
-    string s8 = statement.trim();
-    io:println("Trim: " + s8);
+    string hello = "Hello";
+    string ballerina = "Ballerina!";
 
-    // Checks whether the given `string` ends with the suffix "Lion".
-    boolean hasSuffix = statement.hasSuffix("Lion");
-    io:println("HasSuffix: " + hasSuffix);
+    // Concat multiple strings.
+    string s4 = hello.concat(" ", ballerina);
+    io:println("Concat: ", s4);
 
-    // Checks whether the given `string` starts with the prefix "Lion".
-    boolean hasPrefix = statement.hasPrefix("Lion");
-    io:println("HasPrefix: " + hasPrefix);
+    // Join strings with a separator.
+    string s5 = ",".'join(hello, ballerina);
+    io:println("Join: ", s5);
 
-    // Retrieves an unescaped string by omitting the escape characters of the original string.
-    string s9 = statement.unescape();
-    io:println("Unescape: " + s9);
+    // Convert `hello` to a `byte` array.
+    byte[] bArray = hello.toBytes();
 
-    // Splits the `string` based on the given regular expression to produce a String array.
-    string[] array = statement.split(" ");
-    io:println("Split: " + array[0]);
-    io:println("Split: " + array[1]);
-    io:println("Split: " + array[2]);
+    // Convert a `byte` array to a `string`.
+    string|error s6 = strings:fromBytes(bArray);
+    if (s6 is string) {
+        io:println("From bytes: ", s6);
+    }
 
-    // Converts the `string` to a `byte` array.
-    byte[] bytes = statement.toByteArray("UTF-8");
+    // Remove leading and trailing white spaces.
+    string toTrim = "  Ballerina Programming Language  ";
+    string s7 = toTrim.trim();
+    io:println("Trim: ", s7);
 
-    // Converts a `byte` array to a string.
-    string s10 = encoding:byteArrayToString(bytes);
-    io:println("Bytes: " + s10);
+    // Check whether the given `string` ends with the suffix "Lion".
+    boolean hasSuffix = statement.endsWith("Lion");
+    io:println("HasSuffix: ", hasSuffix);
 
-    // Formats a `string` according to the given format arguments.
-    float value = 5.8;
-    string s11 = io:sprintf("%s %f", array[0], value);
-    io:println("Sprintf: " + s11);
+    // Check whether the given `string` starts with the prefix "Lion".
+    boolean hasPrefix = statement.startsWith("Lion");
+    io:println("HasPrefix: ", hasPrefix);
+
+    // Format a `string` according to the given format arguments.
+    string name = "Sam";
+    int marks = 90;
+    string[] subjects = ["English", "Science"];
+    float average = 71.5;
+    string s8 = io:sprintf("%s scored %d for %s and has an average of %.2f.",
+     name, marks, subjects[0], average);
+    io:println("Sprintf: ", s8);
 }

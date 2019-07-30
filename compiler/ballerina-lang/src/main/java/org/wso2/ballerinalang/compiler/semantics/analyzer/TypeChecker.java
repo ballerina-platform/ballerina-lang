@@ -1204,7 +1204,7 @@ public class TypeChecker extends BLangNodeVisitor {
         recordSymbol.type = bRecordType;
         varRefExpr.symbol = new BVarSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID, bRecordType, env.scope.owner);
 
-        if (varRefExpr.isClosed) {
+        if (varRefExpr.restParam == null) {
             bRecordType.sealed = true;
         } else {
             bRecordType.restFieldType = symTable.mapType;
@@ -3926,9 +3926,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             if (actualType == symTable.semanticError) {
                 if (indexExpr.type.tag == TypeTags.STRING && isConst(indexExpr)) {
-                    String fieldName = indexExpr.getKind() == NodeKind.LITERAL ?
-                            (String) ((BLangLiteral) indexExpr).value :
-                            (String) ((BConstantSymbol) ((BLangSimpleVarRef) indexExpr).symbol).value.value;
+                    String fieldName = getConstFieldName(indexExpr);
                     dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD,
                                fieldName, indexBasedAccessExpr.expr.type);
                     return actualType;
@@ -3952,10 +3950,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
             if (actualType == symTable.semanticError) {
                 if (indexExpr.type.tag == TypeTags.INT && isConst(indexExpr)) {
-                    Long index = indexExpr.getKind() == NodeKind.NUMERIC_LITERAL ?
-                            (Long) ((BLangLiteral) indexExpr).value :
-                            (Long) ((BConstantSymbol) ((BLangSimpleVarRef) indexExpr).symbol).value.value;
-                    dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.LIST_INDEX_OUT_OF_RANGE, index);
+                    dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.LIST_INDEX_OUT_OF_RANGE,
+                               getConstIndex(indexExpr));
                     return actualType;
                 }
                 dlog.error(indexExpr.pos, DiagnosticCode.INVALID_LIST_INDEX_EXPR, indexExpr.type);
@@ -4004,6 +4000,16 @@ public class TypeChecker extends BLangNodeVisitor {
         return actualType;
     }
 
+    private Long getConstIndex(BLangExpression indexExpr) {
+        return indexExpr.getKind() == NodeKind.NUMERIC_LITERAL ? (Long) ((BLangLiteral) indexExpr).value :
+                (Long) ((BConstantSymbol) ((BLangSimpleVarRef) indexExpr).symbol).value.value;
+    }
+
+    private String getConstFieldName(BLangExpression indexExpr) {
+        return indexExpr.getKind() == NodeKind.LITERAL ? (String) ((BLangLiteral) indexExpr).value :
+                (String) ((BConstantSymbol) ((BLangSimpleVarRef) indexExpr).symbol).value.value;
+    }
+
     private BType checkArrayIndexBasedAccess(BLangIndexBasedAccess indexBasedAccess, BType indexExprType,
                                              BArrayType arrayType) {
         BType actualType = symTable.semanticError;
@@ -4014,12 +4020,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     actualType = arrayType.eType;
                     break;
                 }
-
-                Long index = indexExpr.getKind() == NodeKind.NUMERIC_LITERAL ?
-                        (Long) ((BLangLiteral) indexExpr).value :
-                        (Long) ((BConstantSymbol) ((BLangSimpleVarRef) indexExpr).symbol).value.value;
-
-                actualType = index >= arrayType.size ? symTable.semanticError : arrayType.eType;
+                actualType = getConstIndex(indexExpr) >= arrayType.size ? symTable.semanticError : arrayType.eType;
                 break;
             case TypeTags.FINITE:
                 BFiniteType finiteIndexExpr = (BFiniteType) indexExprType;
@@ -4099,10 +4100,7 @@ public class TypeChecker extends BLangNodeVisitor {
         switch (currentType.tag) {
             case TypeTags.INT:
                 if (isConst(indexExpr)) {
-                    Long index = indexExpr.getKind() == NodeKind.NUMERIC_LITERAL ?
-                            (Long) ((BLangLiteral) indexExpr).value :
-                            (Long) ((BConstantSymbol) ((BLangSimpleVarRef) indexExpr).symbol).value.value;
-                    actualType = checkTupleFieldType(tuple, index.intValue());
+                    actualType = checkTupleFieldType(tuple, getConstIndex(indexExpr).intValue());
                 } else {
                     BTupleType tupleExpr = (BTupleType) accessExpr.expr.type;
                     LinkedHashSet<BType> tupleTypes = collectTupleFieldTypes(tupleExpr, new LinkedHashSet<>());
@@ -4186,7 +4184,6 @@ public class TypeChecker extends BLangNodeVisitor {
             return accessExpr.lhsVar ? constraint : addNilForNillableIndexBasedAccess(constraint);
         }
 
-        // TODO: 7/23/19 fix record access by const
         if (type.tag == TypeTags.RECORD) {
             return checkRecordIndexBasedAccess(accessExpr, (BRecordType) type, accessExpr.indexExpr.type);
         }
@@ -4227,9 +4224,7 @@ public class TypeChecker extends BLangNodeVisitor {
         switch (currentType.tag) {
             case TypeTags.STRING:
                 if (isConst(indexExpr)) {
-                    String fieldName = indexExpr.getKind() == NodeKind.LITERAL ?
-                            (String) ((BLangLiteral) indexExpr).value :
-                            (String) ((BConstantSymbol) ((BLangSimpleVarRef) indexExpr).symbol).value.value;
+                    String fieldName = getConstFieldName(indexExpr);
                     actualType = checkRecordRequiredFieldAccess(accessExpr, names.fromString(fieldName), record);
                     if (actualType != symTable.semanticError) {
                         return actualType;

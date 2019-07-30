@@ -26,14 +26,14 @@ service isOpen on socketListener {
 
     resource function onText(http:WebSocketCaller caller, string text) {
         http:WebSocketError? err = caller->close(timeoutInSecs = 0);
-        io:println("In onText isOpen " + caller.isOpen.toString());
+        io:println("In onText isOpen " + caller.isOpen().toString());
     }
 
     resource function onClose(http:WebSocketCaller caller, int code, string reason) {
-        io:println("In onClose isOpen " + caller.isOpen.toString());
+        io:println("In onClose isOpen " + caller.isOpen().toString());
     }
 
     resource function onError(http:WebSocketCaller caller, error err) {
-        io:println("In onError isOpen " + caller.isOpen.toString());
+        io:println("In onError isOpen " + caller.isOpen().toString());
     }
 }

@@ -25,8 +25,9 @@ public const int INS_WK_RECEIVE = 8;
 public const int INS_WK_SEND = 9;
 public const int INS_FLUSH = 10;
 public const int INS_LOCK = 11;
-public const int INS_UNLOCK = 12;
-public const int INS_WAIT_ALL = 13;
+public const int INS_FIELD_LOCK = 12;
+public const int INS_UNLOCK = 13;
+public const int INS_WAIT_ALL = 14;
 
 // Non-terminating instructions
 public const int INS_MOVE = 20;

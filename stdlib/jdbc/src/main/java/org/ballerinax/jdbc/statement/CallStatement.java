@@ -18,13 +18,14 @@
 package org.ballerinax.jdbc.statement;
 
 import org.ballerinalang.jvm.ColumnDefinition;
-import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TableResourceManager;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
@@ -81,9 +82,9 @@ public class CallStatement extends AbstractSQLStatement {
 
     @Override
     public Object execute() {
-        //TODO: JBalMigration Commenting out transaction handling and observability
+        //TODO: JBalMigration Commenting out transaction handling
         //TODO: #16033
-        // checkAndObserveSQLAction(context, datasource, query);
+        checkAndObserveSQLAction(strand, datasource, query);
         Connection conn = null;
         CallableStatement stmt = null;
         List<ResultSet> resultSets = null;
@@ -125,12 +126,12 @@ public class CallStatement extends AbstractSQLStatement {
         } catch (SQLException e) {
             cleanupResources(resultSets, stmt, conn, !isInTransaction);
             handleErrorOnTransaction(this.strand);
-            // checkAndObserveSQLError(context, "execute stored procedure failed: " + e.getMessage());
+            checkAndObserveSQLError(strand, "execute stored procedure failed: " + e.getMessage());
             return ErrorGenerator.getSQLDatabaseError(e, errorMessagePrefix);
         } catch (ApplicationException e) {
             cleanupResources(resultSets, stmt, conn, !isInTransaction);
             handleErrorOnTransaction(this.strand);
-            // checkAndObserveSQLError(context, "execute stored procedure failed: " + e.getMessage());
+            checkAndObserveSQLError(strand, "execute stored procedure failed: " + e.getMessage());
             return ErrorGenerator.getSQLApplicationError(e, errorMessagePrefix);
         }
         return null;
@@ -234,7 +235,7 @@ public class CallStatement extends AbstractSQLStatement {
                 case Constants.SQLDataTypes.INTEGER: {
                     int value = stmt.getInt(index + 1);
                     //Value is the first position of the struct
-                    paramValue.put(PARAMETER_VALUE_FIELD, value);
+                    paramValue.put(PARAMETER_VALUE_FIELD, (long) value);
                 }
                 break;
                 case Constants.SQLDataTypes.VARCHAR: {
@@ -248,7 +249,7 @@ public class CallStatement extends AbstractSQLStatement {
                     if (value == null) {
                         paramValue.put(PARAMETER_VALUE_FIELD, 0);
                     } else {
-                        paramValue.put(PARAMETER_VALUE_FIELD, value);
+                        paramValue.put(PARAMETER_VALUE_FIELD, new DecimalValue(value));
                     }
                 }
                 break;
@@ -265,7 +266,7 @@ public class CallStatement extends AbstractSQLStatement {
                 break;
                 case Constants.SQLDataTypes.SMALLINT: {
                     short value = stmt.getShort(index + 1);
-                    paramValue.put(PARAMETER_VALUE_FIELD, value);
+                    paramValue.put(PARAMETER_VALUE_FIELD, (long) value);
                 }
                 break;
                 case Constants.SQLDataTypes.BIGINT: {
@@ -276,7 +277,7 @@ public class CallStatement extends AbstractSQLStatement {
                 case Constants.SQLDataTypes.REAL:
                 case Constants.SQLDataTypes.FLOAT: {
                     float value = stmt.getFloat(index + 1);
-                    paramValue.put(PARAMETER_VALUE_FIELD, value);
+                    paramValue.put(PARAMETER_VALUE_FIELD, (double) value);
                 }
                 break;
                 case Constants.SQLDataTypes.DOUBLE: {

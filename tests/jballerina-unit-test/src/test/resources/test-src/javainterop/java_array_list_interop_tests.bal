@@ -8,12 +8,17 @@ public function interopWithJavaArrayList() returns handle {
         return toString(aList);
 }
 
-@java:Constructor {class:"java.util.ArrayList"}
-public function newArrayList() returns handle = external;
+public function newArrayList() returns handle = @java:Constructor {
+    class:"java.util.ArrayList"
+} external;
 
-@java:Method {class: "java.util.ArrayList", name:"add"}
-public function addElement(handle receiver, handle e) = external;
+public function addElement(handle receiver, handle e) = @java:Method {
+    name:"add",
+    class: "java.util.ArrayList"
+} external;
 
-@java:Method {class: "java.util.ArrayList", name:"toString"}
-public function toString(handle receiver) returns handle = external;
+public function toString(handle receiver) returns handle = @java:Method {
+    class: "java.util.ArrayList",
+    name:"toString"
+} external;
 

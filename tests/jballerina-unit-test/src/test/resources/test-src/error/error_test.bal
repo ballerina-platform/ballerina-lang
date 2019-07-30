@@ -76,6 +76,19 @@ public function testErrorWithErrorConstructor() returns string {
     return errorData.data;
 }
 
+function testTrapWithSuccessScenario() returns int {
+    var a = trap retIntSuccess();
+    if(a is int) {
+        return a;
+    } else {
+        panic a;
+    }
+}
+
+function retIntSuccess() returns int {
+    return 1;
+}
+
 function getCallStackTest() returns runtime:CallStackElement[] {
     return runtime:getCallStack();
 }

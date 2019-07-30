@@ -34,7 +34,6 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
-import org.ballerinalang.langserver.sourceprune.SourcePruner;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -85,6 +84,7 @@ import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.getLastItem;
 import static org.ballerinalang.langserver.common.utils.FilterUtils.getLangLibScopeEntries;
+import static org.ballerinalang.langserver.util.TokensUtil.searchTokenAtCursor;
 
 /**
  * Utility functions for the signature help.
@@ -454,8 +454,7 @@ public class SignatureHelpUtil {
                                            String nodeName) {
         String pkgAlias = identifierNode.getValue();
         if (!pkgAlias.isEmpty()) {
-            BLangPackage pkg = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-            Optional<BLangImportPackage> optImport = CommonUtil.getCurrentFileImports(pkg, context).stream()
+            Optional<BLangImportPackage> optImport = CommonUtil.getCurrentModuleImports(context).stream()
                     .filter(p -> pkgAlias.equals(p.alias.value))
                     .findFirst();
             nodeName = (optImport.isPresent() ? optImport.get().getQualifiedPackageName() : pkgAlias) + ":" + nodeName;
@@ -519,15 +518,15 @@ public class SignatureHelpUtil {
         String documentContent = documentManager.getFileContent(path);
 
         // Execute Ballerina Parser
-        BallerinaParser parser = CommonUtil.prepareParser(documentContent, true);
+        BallerinaParser parser = CommonUtil.prepareParser(documentContent);
         parser.removeErrorListeners();
         parser.compilationUnit();
 
         // Process tokens
         TokenStream tokenStream = parser.getTokenStream();
         List<Token> tokenList = new ArrayList<>(((CommonTokenStream) tokenStream).getTokens());
-        Optional<Token> tokenAtCursor = SourcePruner.searchTokenAtCursor(tokenList, cursorPosition.getLine(),
-                                                                         cursorPosition.getCharacter());
+        Optional<Token> tokenAtCursor = searchTokenAtCursor(tokenList, cursorPosition.getLine(),
+                                                                         cursorPosition.getCharacter(), false);
 
         if (!tokenAtCursor.isPresent()) {
             return;

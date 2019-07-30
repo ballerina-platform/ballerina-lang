@@ -45,7 +45,6 @@ import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.definition.LSReferencesException;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.model.elements.PackageID;
@@ -79,6 +78,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -318,7 +318,7 @@ public class CommandUtil {
                         actions.add(action);
                     }
                 }
-            } catch (LSReferencesException | WorkspaceDocumentException | IOException e) {
+            } catch (LSCompilerException | WorkspaceDocumentException | IOException e) {
                 // ignore
             }
         } else if (isUnresolvedPackage(diagnosticMessage)) {
@@ -514,11 +514,16 @@ public class CommandUtil {
             String pkgId = orgName + "/" + alias;
             PackageID currentPkgId = context.get(
                     DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).packageID;
-            if (pkgId.equals(currentPkgId.toString()) || ("ballerina".equals(orgName) &&
-                    "builtin".equals(alias))) {
+            if (pkgId.equals(currentPkgId.toString())) {
                 foundType = typeName;
             } else {
-                edits.addAll(CommonUtil.getAutoImportTextEdits(context, orgName, alias));
+                List<BLangImportPackage> currentModuleImports = CommonUtil.getCurrentModuleImports(context);
+                boolean pkgAlreadyImported = currentModuleImports.stream()
+                        .anyMatch(importPkg -> importPkg.orgName.value.equals(orgName)
+                                && importPkg.alias.value.equals(alias));
+                if (!pkgAlreadyImported) {
+                    edits.addAll(CommonUtil.getAutoImportTextEdits(orgName, alias, context));
+                }
                 foundType = alias + CommonKeys.PKG_DELIMITER_KEYWORD + typeName;
             }
         }

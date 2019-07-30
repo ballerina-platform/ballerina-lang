@@ -155,7 +155,7 @@ function genJFieldForInteropField(JFieldFunctionWrapper jFieldFuncWrapper,
 
         bir:BasicBlock?[] basicBlocks = birFunc.paramDefaultBBs[paramDefaultsBBIndex];
         generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, birFunc, -1,
-                            -1, strandParamIndex, true, birModule, currentPackageName, ());
+                            -1, strandParamIndex, true, birModule, currentPackageName, (), false);
         mv.visitLabel(paramNextLabel);
 
         birFuncParamIndex += 1;
@@ -303,7 +303,7 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
 
         bir:BasicBlock?[] basicBlocks = birFunc.paramDefaultBBs[paramDefaultsBBIndex];
         generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, birFunc, -1,
-                            -1, strandParamIndex, true, birModule, currentPackageName, ());
+                            -1, strandParamIndex, true, birModule, currentPackageName, (), false);
         mv.visitLabel(paramNextLabel);
 
         birFuncParamIndex += 1;
