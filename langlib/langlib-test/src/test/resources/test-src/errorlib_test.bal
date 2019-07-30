@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/'lang\.error as errorLib;
+
 type Detail record {|
     string message?;
     error cause?;
@@ -70,4 +72,29 @@ public function funcFoo() returns int|ErrorUnion {
 
 public function getAnotherDetail(error e) returns AnotherDetail {
     return <AnotherDetail>e.detail();
+}
+
+function stack0() returns error {
+    return stack1();
+}
+
+function stack1() returns error {
+    return stack2();
+}
+
+function stack2() returns error {
+    return <error>getError();
+}
+
+function getErrorStackTrace() returns any {
+    error e = stack0();
+    return e.stackTrace();
+}
+
+public function testErrorStackTrace() returns [int, string] {
+        error e = stack0();
+        string[] ar = e.stackTrace().callStack.map(function (errorLib:CallStackElement elem) returns string {
+            return elem.callableName + ":" + elem.fileName;
+        });
+        return [e.stackTrace().callStack.length(), ar.toString()];
 }

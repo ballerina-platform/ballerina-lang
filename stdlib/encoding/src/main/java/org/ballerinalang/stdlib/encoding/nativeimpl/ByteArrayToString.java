@@ -18,10 +18,10 @@
 
 package org.ballerinalang.stdlib.encoding.nativeimpl;
 
-import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.stdlib.encoding.EncodingUtil;
 
 import java.io.UnsupportedEncodingException;
 
@@ -40,7 +40,7 @@ public class ByteArrayToString {
         try {
             return new String(bytes.getBytes(), encoding);
         } catch (UnsupportedEncodingException e) {
-            throw new BallerinaException("Unsupported encoding: " + encoding , e);
+            throw EncodingUtil.createError("Unsupported encoding: " + encoding);
         }
     }
 }

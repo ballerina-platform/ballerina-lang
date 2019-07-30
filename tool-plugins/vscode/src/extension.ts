@@ -72,7 +72,6 @@ export function activate(context: ExtensionContext): Promise<any> {
         activateTestRunner(ballerinaExtInstance);
         // Enable API Docs Live Preview
         activateDocs(ballerinaExtInstance);
-        activateDebugConfigProvider(ballerinaExtInstance);
 		// Enable Ballerina API Designer
         activateAPIEditor(ballerinaExtInstance);
         // Enable Ballerina Project related features

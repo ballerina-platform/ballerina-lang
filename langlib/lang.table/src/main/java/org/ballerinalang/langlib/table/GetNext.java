@@ -19,7 +19,7 @@ package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BTable;

@@ -16,10 +16,10 @@ service basic on new http:WebSocketListener(9090) {
     // This `resource` is triggered after a successful client connection.
     resource function onOpen(http:WebSocketCaller caller) {
         io:println("\nNew client connected");
-        io:println("Connection ID: " + caller.id);
-        io:println("Negotiated Sub protocol: " + caller.negotiatedSubProtocol);
-        io:println("Is connection open: " + caller.isOpen.toString());
-        io:println("Is connection secured: " + caller.isSecure.toString());
+        io:println("Connection ID: " + caller.getConnectionId());
+        io:println("Negotiated Sub protocol: " + caller.getNegotiatedSubProtocol().toString());
+        io:println("Is connection open: " + caller.isOpen().toString());
+        io:println("Is connection secured: " + caller.isSecure().toString());
     }
 
     // This `resource` is triggered when a new text frame is received from a client.
@@ -77,7 +77,7 @@ service basic on new http:WebSocketListener(9090) {
     // `http:WebSocketServiceConfig` annotation.
     resource function onIdleTimeout(http:WebSocketCaller caller) {
         io:println("\nReached idle timeout");
-        io:println("Closing connection " + caller.id);
+        io:println("Closing connection " + caller.getConnectionId());
         var err = caller->close(statusCode = 1001, reason =
                                     "Connection timeout");
         if (err is http:WebSocketError) {

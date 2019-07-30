@@ -81,7 +81,7 @@ public class StatementContextProvider extends LSCompletionProvider {
         // Add the statement templates
         Either<List<CompletionItem>, List<SymbolInfo>> itemList = SymbolFilters.get(StatementTemplateFilter.class)
                 .filterItems(context);
-        List<SymbolInfo> filteredList = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> filteredList = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
 
         completionItems.addAll(this.getCompletionItemList(itemList, context));
         filteredList.removeIf(this.attachedOrSelfKeywordFilter());

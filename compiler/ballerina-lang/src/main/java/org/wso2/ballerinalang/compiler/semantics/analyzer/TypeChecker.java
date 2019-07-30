@@ -61,7 +61,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -1203,7 +1202,7 @@ public class TypeChecker extends BLangNodeVisitor {
         recordSymbol.type = bRecordType;
         varRefExpr.symbol = new BVarSymbol(0, Names.EMPTY, env.enclPkg.symbol.pkgID, bRecordType, env.scope.owner);
 
-        if (varRefExpr.isClosed) {
+        if (varRefExpr.restParam == null) {
             bRecordType.sealed = true;
         } else {
             bRecordType.restFieldType = symTable.mapType;
@@ -2731,8 +2730,11 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        BErrorType lhsErrorType = (BErrorType) expType;
-        BErrorType ctorType = (BErrorType) lhsErrorType.ctorSymbol.type;
+        BErrorType expectedError = getExpectedErrorType(iExpr.pos, expType, iExpr.symbol);
+        if (expectedError == null) {
+            return;
+        }
+        BErrorType ctorType = (BErrorType) expectedError.ctorSymbol.type;
 
         if (iExpr.argExprs.isEmpty() && checkNoArgErrorCtorInvocation(ctorType, iExpr.pos)) {
             return;
@@ -2772,8 +2774,32 @@ public class TypeChecker extends BLangNodeVisitor {
         setErrorReasonParam(iExpr, reasonArgGiven, ctorType);
         setErrorDetailArgsToNamedArgsList(iExpr);
 
-        resultType = expType;
-        iExpr.symbol = lhsErrorType.ctorSymbol;
+        resultType = expectedError;
+        iExpr.symbol = expectedError.ctorSymbol;
+    }
+
+    private BErrorType getExpectedErrorType(DiagnosticPos pos, BType expType, BSymbol iExprSymbol) {
+        // Direct error ctor invocation.
+        if (iExprSymbol == symTable.errorType.tsymbol) {
+            if (expType.tag == TypeTags.UNION) {
+                List<BType> matchedErrors = ((BUnionType) expType).getMemberTypes().stream()
+                        .filter(m -> types.isAssignable(m, iExprSymbol.type))
+                        .collect(Collectors.toList());
+                if (matchedErrors.size() == 1) {
+                    return (BErrorType) matchedErrors.get(0);
+                } else {
+                    // More than one matched, Cannot infer error type from error constructor.
+                    // 'Error0|Error1|T3 e = error(...);
+                    dlog.error(pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType);
+                    resultType = symTable.semanticError;
+                    return null;
+                }
+            }
+            return (BErrorType) expType;
+        } else {
+            // Indirect error constructor.
+            return (BErrorType) iExprSymbol.type;
+        }
     }
 
     private boolean nonNamedArgsGiven(BLangInvocation iExpr) {
@@ -3874,11 +3900,10 @@ public class TypeChecker extends BLangNodeVisitor {
             actualType = checkMappingIndexBasedAccess(indexBasedAccessExpr, varRefType);
 
             if (actualType == symTable.semanticError) {
-                if (indexExpr.type.tag == TypeTags.STRING && indexExpr.getKind() == NodeKind.LITERAL) {
-                    if (!isMapConstIndexAccess(indexBasedAccessExpr)) {
-                        dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD,
-                                   ((BLangLiteral) indexExpr).value, indexBasedAccessExpr.expr.type);
-                    }
+                if (indexExpr.type.tag == TypeTags.STRING && isConst(indexExpr)) {
+                    String fieldName = getConstFieldName(indexExpr);
+                    dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD,
+                               fieldName, indexBasedAccessExpr.expr.type);
                     return actualType;
                 }
 
@@ -3899,14 +3924,30 @@ public class TypeChecker extends BLangNodeVisitor {
             indexBasedAccessExpr.originalType = actualType;
 
             if (actualType == symTable.semanticError) {
-                if (indexExpr.type.tag == TypeTags.INT && indexExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
+                if (indexExpr.type.tag == TypeTags.INT && isConst(indexExpr)) {
                     dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.LIST_INDEX_OUT_OF_RANGE,
-                            ((BLangLiteral) indexExpr).value);
+                               getConstIndex(indexExpr));
                     return actualType;
                 }
                 dlog.error(indexExpr.pos, DiagnosticCode.INVALID_LIST_INDEX_EXPR, indexExpr.type);
                 return actualType;
             }
+        } else if (types.isAssignable(varRefType, symTable.stringType)) {
+            if (indexBasedAccessExpr.lhsVar) {
+                dlog.error(indexBasedAccessExpr.pos,
+                           DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEX_ACCESS_FOR_ASSIGNMENT,
+                           indexBasedAccessExpr.expr.type);
+                return symTable.semanticError;
+            }
+
+            checkExpr(indexExpr, this.env, symTable.intType);
+
+            if (indexExpr.type == symTable.semanticError) {
+                return symTable.semanticError;
+            }
+
+            indexBasedAccessExpr.originalType = symTable.stringType;
+            actualType = symTable.stringType;
         } else if (varRefType.tag == TypeTags.XML) {
             if (indexBasedAccessExpr.lhsVar) {
                 indexExpr.type = symTable.semanticError;
@@ -3934,19 +3975,27 @@ public class TypeChecker extends BLangNodeVisitor {
         return actualType;
     }
 
+    private Long getConstIndex(BLangExpression indexExpr) {
+        return indexExpr.getKind() == NodeKind.NUMERIC_LITERAL ? (Long) ((BLangLiteral) indexExpr).value :
+                (Long) ((BConstantSymbol) ((BLangSimpleVarRef) indexExpr).symbol).value.value;
+    }
+
+    private String getConstFieldName(BLangExpression indexExpr) {
+        return indexExpr.getKind() == NodeKind.LITERAL ? (String) ((BLangLiteral) indexExpr).value :
+                (String) ((BConstantSymbol) ((BLangSimpleVarRef) indexExpr).symbol).value.value;
+    }
+
     private BType checkArrayIndexBasedAccess(BLangIndexBasedAccess indexBasedAccess, BType indexExprType,
                                              BArrayType arrayType) {
         BType actualType = symTable.semanticError;
         switch (indexExprType.tag) {
             case TypeTags.INT:
-                if (indexBasedAccess.indexExpr.getKind() != NodeKind.NUMERIC_LITERAL ||
-                        arrayType.state == BArrayState.UNSEALED) {
+                BLangExpression indexExpr = indexBasedAccess.indexExpr;
+                if (!isConst(indexExpr) || arrayType.state == BArrayState.UNSEALED) {
                     actualType = arrayType.eType;
                     break;
                 }
-
-                actualType = ((Long) ((BLangLiteral) indexBasedAccess.indexExpr).value) >= arrayType.size ?
-                        symTable.semanticError : arrayType.eType;
+                actualType = getConstIndex(indexExpr) >= arrayType.size ? symTable.semanticError : arrayType.eType;
                 break;
             case TypeTags.FINITE:
                 BFiniteType finiteIndexExpr = (BFiniteType) indexExprType;
@@ -4025,9 +4074,8 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangExpression indexExpr = accessExpr.indexExpr;
         switch (currentType.tag) {
             case TypeTags.INT:
-                if (indexExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
-                    int indexValue = ((Long) ((BLangLiteral) indexExpr).value).intValue();
-                    actualType = checkTupleFieldType(tuple, indexValue);
+                if (isConst(indexExpr)) {
+                    actualType = checkTupleFieldType(tuple, getConstIndex(indexExpr).intValue());
                 } else {
                     BTupleType tupleExpr = (BTupleType) accessExpr.expr.type;
                     LinkedHashSet<BType> tupleTypes = collectTupleFieldTypes(tupleExpr, new LinkedHashSet<>());
@@ -4107,19 +4155,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkMappingIndexBasedAccess(BLangIndexBasedAccess accessExpr, BType type) {
         if (type.tag == TypeTags.MAP) {
-            if (isMapConstIndexAccess(accessExpr)) {
-                if (!isResolvedConst(accessExpr) && accessExpr.indexExpr.getKind() == NodeKind.LITERAL) {
-                    // Error will be logged later on for invalid keys
-                    return ((BMapType) type).constraint;
-                }
-
-                BType actualType = checkMapConstantAccess(accessExpr);
-
-                if (actualType != symTable.semanticError || accessExpr.indexExpr.getKind() == NodeKind.LITERAL) {
-                    return actualType;
-                }
-            }
-
             BType constraint = ((BMapType) type).constraint;
             return accessExpr.lhsVar ? constraint : addNilForNillableIndexBasedAccess(constraint);
         }
@@ -4163,8 +4198,8 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangExpression indexExpr = accessExpr.indexExpr;
         switch (currentType.tag) {
             case TypeTags.STRING:
-                if (indexExpr.getKind() == NodeKind.LITERAL) {
-                    String fieldName = (String) ((BLangLiteral) indexExpr).value;
+                if (isConst(indexExpr)) {
+                    String fieldName = getConstFieldName(indexExpr);
                     actualType = checkRecordRequiredFieldAccess(accessExpr, names.fromString(fieldName), record);
                     if (actualType != symTable.semanticError) {
                         return actualType;
@@ -4475,51 +4510,15 @@ public class TypeChecker extends BLangNodeVisitor {
         return false;
     }
 
-    private BType checkMapConstantAccess(BLangIndexBasedAccess indexAccessExpr) {
-        BType varRefType = indexAccessExpr.expr.type;
-
-        if (varRefType.tag == TypeTags.SEMANTIC_ERROR) {
-            return symTable.semanticError;
+    private boolean isConst(BLangExpression expression) {
+        if (symbolEnter.isValidConstantExpression(expression)) {
+            return true;
         }
 
-        if (indexAccessExpr.indexExpr.getKind() != NodeKind.LITERAL) {
-            return symTable.semanticError;
+        if (expression.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            return false;
         }
 
-        BConstantSymbol constantSymbol = (BConstantSymbol) ((BLangSimpleVarRef) indexAccessExpr.expr).symbol;
-        Map<String, BLangConstantValue> value = (Map<String, BLangConstantValue>) constantSymbol.value.value;
-        String key = (String) ((BLangLiteral) indexAccessExpr.indexExpr).value;
-
-        if (!value.containsKey(key)) {
-            dlog.error(indexAccessExpr.indexExpr.pos, DiagnosticCode.KEY_NOT_FOUND, key, indexAccessExpr.expr);
-            return symTable.semanticError;
-        }
-        return value.get(key).type;
-    }
-
-    private boolean isMapConstIndexAccess(BLangIndexBasedAccess indexAccessExpr) {
-        BLangExpression expression = indexAccessExpr.expr;
-        if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            return ((((BLangSimpleVarRef) expression).symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT);
-        }
-
-        if (expression.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
-            return isMapConstIndexAccess((BLangIndexBasedAccess) expression);
-        }
-
-        return false;
-    }
-
-    private boolean isResolvedConst(BLangIndexBasedAccess indexAccessExpr) {
-        return ((BConstantSymbol) getBaseVarRef(indexAccessExpr).symbol).value != null;
-    }
-
-    private BLangSimpleVarRef getBaseVarRef(BLangIndexBasedAccess indexAccessExpr) {
-        BLangExpression expression = indexAccessExpr.expr;
-        if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            return (BLangSimpleVarRef) expression;
-        }
-
-        return getBaseVarRef((BLangIndexBasedAccess) expression);
+        return (((BLangSimpleVarRef) expression).symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT;
     }
 }

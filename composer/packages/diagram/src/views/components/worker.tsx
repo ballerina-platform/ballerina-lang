@@ -1,4 +1,4 @@
-import { Lambda, VariableDef } from "@ballerina/ast-model";
+import { Lambda, VariableDef, VisibleEndpoint } from "@ballerina/ast-model";
 import * as React from "react";
 import { ViewState } from "../../view-model/index";
 import { WorkerViewState } from "../../view-model/worker";
@@ -23,6 +23,6 @@ export const Worker: React.SFC<WorkerProps> = ({ model, startY, client }) => {
         <LifeLine title={workerViewState.name} icon="worker"
             model={workerViewState.lifeline.bBox} astModel={model} />
         {functionNode.body && <Block model={functionNode.body}
-            visibleEndpoints={functionNode.VisibleEndpoints!.filter((ep) => ep.isLocal)} />}
+            visibleEPFilter={(ep: VisibleEndpoint) => ep.isLocal} />}
     </g>;
 };

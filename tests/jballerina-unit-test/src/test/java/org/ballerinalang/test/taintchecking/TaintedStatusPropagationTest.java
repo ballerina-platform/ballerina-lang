@@ -20,6 +20,7 @@ import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 /**
@@ -217,7 +218,7 @@ public class TaintedStatusPropagationTest {
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test(groups = { "brokenOnLangLibChange" })
+    @Ignore ("Refer git issue https://github.com/ballerina-platform/ballerina-lang/issues/17018")
     public void testLambdaNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/lambda-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
@@ -257,7 +258,7 @@ public class TaintedStatusPropagationTest {
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test(groups = { "brokenOnLangLibChange" })
+    @Ignore ("Refer git issue https://github.com/ballerina-platform/ballerina-lang/issues/17018")
     public void testIterableNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/iterable-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 2);
@@ -271,7 +272,7 @@ public class TaintedStatusPropagationTest {
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test(groups = { "brokenOnJBallerina" })
+    @Ignore ("Refer git issue https://github.com/ballerina-platform/ballerina-lang/issues/17018")
     public void testIterableWitinIterableNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/iterable-within-iterable-negative.bal");
@@ -354,9 +355,10 @@ public class TaintedStatusPropagationTest {
     @Test
     public void testGlobalVariablesNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/global-variables-negative.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 2);
-        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'pa'", 6, 9);
-        BAssertUtil.validateError(result, 1, "tainted value passed to global variable 'globalVariable'", 14, 5);
+        Assert.assertEquals(result.getDiagnostics().length, 3);
+        BAssertUtil.validateError(result, 0, "tainted value passed to global variable 'KK'", 3, 1);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'pa'", 7, 9);
+        BAssertUtil.validateError(result, 2, "tainted value passed to global variable 'globalVariable'", 15, 5);
     }
 
     @Test
@@ -389,14 +391,14 @@ public class TaintedStatusPropagationTest {
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test(groups = { "brokenOnLangLibChange" })
+    @Test
     public void testCompoundAssignmentNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/compound-assignment-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 3);
-        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 5, 20);
-        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 9, 20);
-        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'secureIn'", 14, 24);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 7, 20);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 11, 20);
+        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'secureIn'", 16, 24);
     }
 
     @Test

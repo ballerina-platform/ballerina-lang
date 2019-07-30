@@ -35,7 +35,6 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 /**
  * identifier literals in service and resource names.
  */
-@Test(groups = { "brokenOnJBallerina" })
 public class IdentifierLiteralServiceTest {
 
     private static final int MOCK_ENDPOINT_PORT = 9090;

@@ -19,7 +19,7 @@
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel;
 
 import com.rabbitmq.client.Channel;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
@@ -48,13 +48,14 @@ import java.io.IOException;
 public class QueuePurge {
 
     public static Object queuePurge(Strand strand, ObjectValue channelObjectValue, String queueName) {
+        boolean isInTransaction = strand.isInTransaction();
         Channel channel = (Channel) channelObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
         RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) channelObjectValue.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         try {
             channel.queuePurge(queueName);
-            if (transactionContext != null) {
-                transactionContext.handleTransactionBlock();
+            if (isInTransaction) {
+                transactionContext.handleTransactionBlock(strand);
             }
         } catch (RabbitMQConnectorException exception) {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.RABBITMQ_CLIENT_ERROR

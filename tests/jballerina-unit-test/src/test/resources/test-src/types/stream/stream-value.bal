@@ -18,20 +18,6 @@ type Job record {
     string description;
 };
 
-type Captain object {
-    public string name;
-    public int id;
-
-    function __init(string name, int id) {
-        self.name = name;
-        self.id = id;
-    }
-
-    function logName() {
-        log:printInfo(self.name);
-    }
-};
-
 type Member object {
     public string name;
     public int id;
@@ -61,38 +47,6 @@ type Coach object {
         log:printInfo(self.name);
     }
 };
-
-function testInvalidRecordPublishingToStream() {
-    stream<Employee> s1 = new;
-    Job j1 = { description:"Dummy Description 1" };
-    s1.publish(j1);
-}
-
-function testSubscriptionFunctionWithIncorrectRecordParameter() {
-    stream<Employee> s1 = new;
-    s1.subscribe(printJobDescription);
-}
-
-function testInvalidObjectPublishingToStream() {
-    stream<Captain> s1 = new;
-    Coach c1 = new("Maryam", 120384, 1000.0);
-    s1.publish(c1);
-}
-
-function testSubscriptionFunctionWithIncorrectObjectParameter() {
-    stream<Captain> s1 = new;
-    s1.subscribe(printCoachName);
-}
-
-function testSubscriptionFunctionWithUnassignableUnionParameter() {
-    stream<int[]|string|boolean|float> unionStream = new;
-    unionStream.subscribe(addToGlobalAnyArrayForUnionType);
-}
-
-function testSubscriptionFunctionWithUnassignableTupleTypeParameter() {
-    stream<[int, float]> tupleStream = new;
-    tupleStream.subscribe(addToGlobalAnyArrayForTupleType);
-}
 
 int arrayIndex = 0;
 Employee globalEmployee = {};
@@ -187,72 +141,72 @@ function testStreamPublishingAndSubscriptionForBooleanStream() returns [boolean[
     return [publishedBooleanEvents, globalBooleanArray];
 }
 
-any[] globalAnyArray = [];
+anydata[] globalAnydataArray = [];
 
 function testStreamPublishingAndSubscriptionForUnionTypeStream() returns [any[], any[]] {
-    globalAnyArray = [];
+    globalAnydataArray = [];
     arrayIndex = 0;
     stream<int[]|string|boolean> unionStream = new;
-    unionStream.subscribe(addToGlobalAnyArrayForUnionType);
+    unionStream.subscribe(addToGlobalAnydataArrayForUnionType);
     int[] intarray = [1, 2, 3];
-    any[] publishedEvents = [intarray, "Maryam", false];
+    (int[]|string|boolean)[] publishedEvents = [intarray, "Maryam", false];
     foreach var event in publishedEvents {
         unionStream.publish(event);
     }
     int startTime = time:currentTime().time;
 
     //allow for value update
-    while (globalAnyArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
+    while (globalAnydataArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
         runtime:sleep(100);
     }
-    return [publishedEvents, globalAnyArray];
+    return [publishedEvents, globalAnydataArray];
 }
 
 function testStreamPublishingAndSubscriptionForAssignableUnionTypeStream(int intVal) returns [any[], any[]] {
-    globalAnyArray = [];
+    globalAnydataArray = [];
     arrayIndex = 0;
     stream<string|boolean|int|int[]> unionStream = new;
-    unionStream.subscribe(addToGlobalAnyArrayForAssignableUnionType);
+    unionStream.subscribe(addToGlobalAnydataArrayForAssignableUnionType);
     int[] intarray = [1, 2, 3];
-    any[] publishedEvents = [intarray, "Maryam", false, intVal];
+    (string|boolean|int|int[])[] publishedEvents = [intarray, "Maryam", false, intVal];
     foreach var event in publishedEvents {
         unionStream.publish(event);
     }
     int startTime = time:currentTime().time;
 
     //allow for value update
-    while (globalAnyArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
+    while (globalAnydataArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
         runtime:sleep(100);
     }
-    return [publishedEvents, globalAnyArray];
+    return [publishedEvents, globalAnydataArray];
 }
 
 function testStreamPublishingAndSubscriptionForTupleTypeStream() returns [any[], any[]] {
-    globalAnyArray = [];
+    globalAnydataArray = [];
     arrayIndex = 0;
     stream<[string, int]> tupleStream = new;
-    tupleStream.subscribe(addToGlobalAnyArrayForTupleType);
+    tupleStream.subscribe(addToGlobalAnydataArrayForTupleType);
     [string, int] tuple = ["tuple1", 1234];
     [string, int] tuple2 = ["tuple2", 9876];
-    any[] publishedEvents = [tuple, tuple2];
+    [string, int][] publishedEvents = [tuple, tuple2];
     foreach var event in publishedEvents {
         tupleStream.publish(event);
     }
     int startTime = time:currentTime().time;
 
     //allow for value update
-    while (globalAnyArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
+    while (globalAnydataArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
         runtime:sleep(100);
     }
-    return [publishedEvents, globalAnyArray];
+    return [publishedEvents, globalAnydataArray];
 }
 
 function testStreamPublishingAndSubscriptionForAssignableTupleTypeStream(string s1, int i1, string s2, int i2) returns
                                                                                                                any[] {
-    globalAnyArray = [];
+    globalAnydataArray = [];
     arrayIndex = 0;
     stream<[string, int]> tupleStream = new;
-    tupleStream.subscribe(addToGlobalAnyArrayForAssignableTupleType);
+    tupleStream.subscribe(addToGlobalAnydataArrayForAssignableTupleType);
     [string, int][] publishedEvents = [[s1, i1], [s2, i2]];
     foreach var event in publishedEvents {
         tupleStream.publish(event);
@@ -260,29 +214,29 @@ function testStreamPublishingAndSubscriptionForAssignableTupleTypeStream(string 
     int startTime = time:currentTime().time;
 
     //allow for value update
-    while (globalAnyArray.length() / 2 < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
+    while (globalAnydataArray.length() / 2 < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
         runtime:sleep(100);
     }
-    return globalAnyArray;
+    return globalAnydataArray;
 }
 
-function testStreamPublishingAndSubscriptionForAnyTypeStream() returns [any[], any[]] {
-    globalAnyArray = [];
+function testStreamPublishingAndSubscriptionForAnydataTypeStream() returns [anydata[], anydata[]] {
+    globalAnydataArray = [];
     arrayIndex = 0;
-    stream<any> anyStream = new;
-    anyStream.subscribe(addToGlobalAnyArrayForAnyType);
+    stream<anydata> anydataStream = new;
+    anydataStream.subscribe(addToGlobalAnydataArrayForAnyType);
     [string, int] tuple = ["anyStream", 1234];
-    any[] publishedEvents = [tuple, "any", false, 0.5];
+    anydata[] publishedEvents = [tuple, "any", false, 0.5];
     foreach var event in publishedEvents {
-        anyStream.publish(event);
+        anydataStream.publish(event);
     }
     int startTime = time:currentTime().time;
 
     //allow for value update
-    while (globalAnyArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
+    while (globalAnydataArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
         runtime:sleep(100);
     }
-    return [publishedEvents, globalAnyArray];
+    return [publishedEvents, globalAnydataArray];
 }
 
 function testStreamsPublishingForStructurallyEquivalentRecords() returns [any[], any[]] {
@@ -305,27 +259,6 @@ function testStreamsPublishingForStructurallyEquivalentRecords() returns [any[],
     return [publishedEvents, globalEmployeeArray];
 }
 
-Member?[] globalMemberArray = [];
-
-function testStreamsPublishingForStructurallyEquivalentObjects() returns [any[], any[]] {
-    globalMemberArray = [];
-    arrayIndex = 0;
-    stream<Member> memberStream = new;
-    memberStream.subscribe(addCaptainToGlobalMemberArray);
-    Captain c1 = new("Maryam", 123456);
-    Captain c2 = new("Ziyad", 654321);
-    Captain?[] publishedCaptains = [c1, c2];
-    foreach var event in publishedCaptains {
-        memberStream.publish(event);
-    }
-    int startTime = time:currentTime().time;
-
-    //allow for value update
-    while (globalMemberArray.length() < publishedCaptains.length() && time:currentTime().time - startTime < 5000) {
-        runtime:sleep(100);
-    }
-    return [publishedCaptains, globalMemberArray];
-}
 
 function printJobDescription(Job j) {
     log:printInfo(j.description);
@@ -349,11 +282,6 @@ function addToGlobalEmployeeArray (Employee e) {
     arrayIndex = arrayIndex + 1;
 }
 
-function addCaptainToGlobalMemberArray (Captain c) {
-    globalMemberArray[arrayIndex] = c;
-    arrayIndex = arrayIndex + 1;
-}
-
 function addToGlobalBooleanArray (boolean b) {
     globalBooleanArray[arrayIndex] = b;
     arrayIndex = arrayIndex + 1;
@@ -364,32 +292,32 @@ function addToGlobalIntegerArray (int i) {
     arrayIndex = arrayIndex + 1;
 }
 
-function addToGlobalAnyArrayForUnionType(int[]|string|boolean val) {
-    globalAnyArray[arrayIndex] = val;
+function addToGlobalAnydataArrayForUnionType(int[]|string|boolean val) {
+    globalAnydataArray[arrayIndex] = val;
     arrayIndex = arrayIndex + 1;
 }
 
-function addToGlobalAnyArrayForAssignableUnionType(string|boolean|int|int[]|boolean[] val) {
-    globalAnyArray[arrayIndex] = val;
+function addToGlobalAnydataArrayForAssignableUnionType(string|boolean|int|int[]|boolean[] val) {
+    globalAnydataArray[arrayIndex] = val;
     arrayIndex = arrayIndex + 1;
 }
 
-function addToGlobalAnyArrayForTupleType([string, int] val) {
-    globalAnyArray[arrayIndex] = val;
+function addToGlobalAnydataArrayForTupleType([string, int] val) {
+    globalAnydataArray[arrayIndex] = val;
     arrayIndex = arrayIndex + 1;
 }
 
-function addToGlobalAnyArrayForAssignableTupleType([json, int] val) {
+function addToGlobalAnydataArrayForAssignableTupleType([json, int] val) {
     json jsonVal;
     int intVal;
     [jsonVal, intVal] = val;
-    globalAnyArray[arrayIndex] = jsonVal;
+    globalAnydataArray[arrayIndex] = jsonVal;
     arrayIndex = arrayIndex + 1;
-    globalAnyArray[arrayIndex] = intVal;
+    globalAnydataArray[arrayIndex] = intVal;
     arrayIndex = arrayIndex + 1;
 }
 
-function addToGlobalAnyArrayForAnyType (any val) {
-    globalAnyArray[arrayIndex] = val;
+function addToGlobalAnydataArrayForAnyType(anydata val) {
+    globalAnydataArray[arrayIndex] = val;
     arrayIndex = arrayIndex + 1;
 }

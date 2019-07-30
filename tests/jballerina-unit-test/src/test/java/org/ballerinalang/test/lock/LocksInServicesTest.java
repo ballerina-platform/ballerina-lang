@@ -22,7 +22,7 @@ import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
-import org.ballerinalang.test.util.BServiceUtil;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -42,12 +42,12 @@ import java.util.concurrent.TimeUnit;
 public class LocksInServicesTest {
 
     CompileResult compileResult;
-    private static final String MOCK_ENDPOINT_NAME = "echoEP";
+    private static final int MOCK_ENDPOINT_PORT = 9090;
 
     @BeforeClass()
     public void setup() {
-        compileResult = BServiceUtil
-                .setupProgramFile(this, "test-src/lock/locks-in-services.bal");
+        compileResult = BCompileUtil
+                .compile(true, "test-src/lock/locks-in-services.bal");
     }
 
     @Test(description = "Test locking service level variable basic")
@@ -57,7 +57,7 @@ public class LocksInServicesTest {
         ExecutorService executor = TestThreadPool.getInstance().getExecutor();
 
         for (int i = 0; i < 10000; i++) {
-            executor.submit(new TestRequestSender(compileResult, semaphore, "/sample/echo"));
+            executor.submit(new TestRequestSender(semaphore, "/sample/echo"));
         }
 
         try {
@@ -66,7 +66,7 @@ public class LocksInServicesTest {
             }
             String path = "/sample/getCount";
             HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-            HttpCarbonMessage response = Services.invokeNew(compileResult, MOCK_ENDPOINT_NAME, cMsg);
+            HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, cMsg, false);
 
             Assert.assertNotNull(response, "Response message not found");
             String responseMsgPayload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response)
@@ -85,9 +85,9 @@ public class LocksInServicesTest {
         ExecutorService executor = TestThreadPool.getInstance().getExecutor();
 
         for (int i = 0; i < 4; i++) {
-            executor.submit(new TestRequestSender(compileResult, semaphore, "/sample1/echo"));
-            executor.submit(new TestRequestSender(compileResult, semaphore, "/sample1/echo1"));
-            executor.submit(new TestRequestSender(compileResult, semaphore, "/sample1/echo2"));
+            executor.submit(new TestRequestSender(semaphore, "/sample1/echo"));
+            executor.submit(new TestRequestSender(semaphore, "/sample1/echo1"));
+            executor.submit(new TestRequestSender(semaphore, "/sample1/echo2"));
         }
 
         try {
@@ -96,7 +96,7 @@ public class LocksInServicesTest {
             }
             String path = "/sample1/getResult";
             HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-            HttpCarbonMessage response = Services.invokeNew(compileResult, MOCK_ENDPOINT_NAME, cMsg);
+            HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, cMsg, false);
 
             Assert.assertNotNull(response, "Response message not found");
             String responseMsgPayload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response)
@@ -115,9 +115,9 @@ public class LocksInServicesTest {
         ExecutorService executor = TestThreadPool.getInstance().getExecutor();
 
         for (int i = 0; i < 4; i++) {
-            executor.submit(new TestRequestSender(compileResult, semaphore, "/sample2/echo"));
-            executor.submit(new TestRequestSender(compileResult, semaphore, "/sample2/echo1"));
-            executor.submit(new TestRequestSender(compileResult, semaphore, "/sample2/echo2"));
+            executor.submit(new TestRequestSender(semaphore, "/sample2/echo"));
+            executor.submit(new TestRequestSender(semaphore, "/sample2/echo1"));
+            executor.submit(new TestRequestSender(semaphore, "/sample2/echo2"));
         }
 
         try {
@@ -126,7 +126,7 @@ public class LocksInServicesTest {
             }
             String path = "/sample2/getResult";
             HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-            HttpCarbonMessage response = Services.invokeNew(compileResult, MOCK_ENDPOINT_NAME, cMsg);
+            HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, cMsg, false);
 
             Assert.assertNotNull(response, "Response message not found");
             String responseMsgPayload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response)
@@ -144,7 +144,7 @@ public class LocksInServicesTest {
 
         ExecutorService executor = TestThreadPool.getInstance().getExecutor();
 
-        executor.submit(new TestRequestSender(compileResult, semaphore, "/sample3/echo"));
+        executor.submit(new TestRequestSender(semaphore, "/sample3/echo"));
 
         try {
             if (!semaphore.tryAcquire(500, TimeUnit.MILLISECONDS)) {
@@ -152,7 +152,7 @@ public class LocksInServicesTest {
             }
             String path = "/sample3/getMsg";
             HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-            HttpCarbonMessage response = Services.invokeNew(compileResult, MOCK_ENDPOINT_NAME, cMsg);
+            HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, cMsg, false);
 
             Assert.assertNotNull(response, "Response message not found");
             String responseMsgPayload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response)
@@ -168,7 +168,7 @@ public class LocksInServicesTest {
 
         String path = "/sample4/echo";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HttpCarbonMessage response = Services.invokeNew(compileResult, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, cMsg, false);
 
         Assert.assertNotNull(response, "Response message not found");
         String responseMsgPayload =
@@ -180,14 +180,11 @@ public class LocksInServicesTest {
 
     private class TestRequestSender implements Runnable {
 
-        private CompileResult compileResult;
-
         private Semaphore semaphore;
 
         private String path;
 
-        TestRequestSender(CompileResult compileResult, Semaphore semaphore, String path) {
-            this.compileResult = compileResult;
+        TestRequestSender(Semaphore semaphore, String path) {
             this.semaphore = semaphore;
             this.path = path;
         }
@@ -195,7 +192,7 @@ public class LocksInServicesTest {
         @Override
         public void run() {
             HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-            Services.invokeNew(compileResult, MOCK_ENDPOINT_NAME, cMsg);
+            Services.invoke(MOCK_ENDPOINT_PORT, cMsg, false);
             semaphore.release();
         }
     }

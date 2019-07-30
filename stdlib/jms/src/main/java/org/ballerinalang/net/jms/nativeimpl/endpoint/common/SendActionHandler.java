@@ -19,6 +19,7 @@
 
 package org.ballerinalang.net.jms.nativeimpl.endpoint.common;
 
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.jms.JmsConstants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
@@ -35,14 +36,14 @@ public class SendActionHandler {
     private SendActionHandler() {
     }
 
-    public static Object handle(ObjectValue sender, ObjectValue msgObj) {
+    public static Object handle(Strand strand, ObjectValue sender, ObjectValue msgObj) {
 
         MessageProducer messageProducer = (MessageProducer) sender.getNativeData(JmsConstants.JMS_PRODUCER_OBJECT);
-//        SessionConnector sessionConnector =
-//                (SessionConnector) sender.getNativeData(JmsConstants.SESSION_CONNECTOR_OBJECT);
+        SessionConnector sessionConnector =
+                (SessionConnector) sender.getNativeData(JmsConstants.SESSION_CONNECTOR_OBJECT);
         Message message = (Message) msgObj.getNativeData(JmsConstants.JMS_MESSAGE_OBJECT);
         try {
-//            sessionConnector.handleTransactionBlock(context);
+            sessionConnector.handleTransactionBlock(strand);
             messageProducer.send(message);
         } catch (JMSException e) {
             return BallerinaAdapter.getError("Message sending failed.", e);

@@ -19,7 +19,7 @@
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel;
 
 import com.rabbitmq.client.Channel;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
@@ -50,6 +50,7 @@ public class BasicPublish {
 
     public static Object basicPublish(Strand strand, ObjectValue channelObjectValue, Object messageContent,
                                       String routingKey, String exchangeName, Object properties) {
+        boolean isInTransaction = strand.isInTransaction();
         String defaultExchangeName = "";
         if (exchangeName != null) {
             defaultExchangeName = exchangeName;
@@ -60,8 +61,8 @@ public class BasicPublish {
         try {
             ChannelUtils.basicPublish(channel, routingKey, messageContent.toString().getBytes(StandardCharsets.UTF_8),
                     defaultExchangeName, properties);
-            if (transactionContext != null) {
-                transactionContext.handleTransactionBlock();
+            if (isInTransaction) {
+                transactionContext.handleTransactionBlock(strand);
             }
         } catch (RabbitMQConnectorException exception) {
             return RabbitMQUtils.returnErrorValue(RabbitMQConstants.RABBITMQ_CLIENT_ERROR +

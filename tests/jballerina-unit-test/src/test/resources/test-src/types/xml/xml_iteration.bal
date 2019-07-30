@@ -1,3 +1,4 @@
+import ballerina/'lang\.int as intlib;
 import ballerina/io;
 
 // Sample XML taken from: https://www.w3schools.com/xml/books.xml
@@ -56,7 +57,7 @@ function foreachOpTest() returns [int, string][] {
 
     count = 0;
 
-    bookstore["book"].foreach(function (xml|string entry) {
+    bookstore["book"].forEach(function (xml|string entry) {
         if entry is xml {
             titles[count] = [count, entry["title"].getTextValue()];
             count += 1;
@@ -66,8 +67,8 @@ function foreachOpTest() returns [int, string][] {
     return titles;
 }
 
-function mapOpTest() returns xml[] {
-    xml[] titles = bookstore["book"].map(function (xml|string book) returns xml {
+function mapOpTest() returns xml {
+    xml titles = bookstore["book"].map(function (xml|string book) returns xml {
         if book is xml {
             return book["author"];
         }
@@ -76,10 +77,10 @@ function mapOpTest() returns xml[] {
     return titles;
 }
 
-function filterOpTest() returns xml[] {
-    xml[] books = bookstore["book"].filter(function (xml|string book) returns boolean {
+function filterOpTest() returns xml {
+    xml books = bookstore["book"].filter(function (xml|string book) returns boolean {
                                                 if book is xml {
-                                                    var result = int.convert(book["year"].getTextValue());
+                                                    var result = intlib:fromString(book["year"].getTextValue());
                                                     if (result is int) {
                                                        return result > 2004;
                                                     } else {
@@ -96,10 +97,10 @@ function filterOpTest() returns xml[] {
     return books;
 }
 
-function chainedIterableOps() returns xml[] {
-    xml[] authors = bookstore["book"].filter(function (xml|string book) returns boolean {
+function chainedIterableOps() returns xml {
+    xml authors = bookstore["book"].filter(function (xml|string book) returns boolean {
                                                 if book is xml {
-                                                    var result = int.convert(book["year"].getTextValue());
+                                                    var result = intlib:fromString(book["year"].getTextValue());
                                                     if (result is int) {
                                                        return result > 2004;
                                                     } else {

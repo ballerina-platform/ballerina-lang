@@ -72,6 +72,14 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                         && (next3Element == BallerinaTypes.RIGHT_BRACE || next3Element == BallerinaTypes.COMMA
                         || next3Element == BallerinaTypes.DOT)
                 )) {
+
+                    // This is added for following cases.
+                    // { name: "child" };
+                    // { name: "child", age:13 }
+                    if (next3Element == BallerinaTypes.RIGHT_BRACE || next3Element == BallerinaTypes.COMMA) {
+                        return false;
+                    }
+
                     // Note - Another raw lookup is added for situations like below. Second record key value
                     // pair does not get identified correctly otherwise.
                     // {sqlType:sql:Type.INTEGER, value:xmlDataArray};
@@ -117,7 +125,7 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                 && !(rawLookup == BallerinaTypes.LEFT_BRACE && rawLookup2 == BallerinaTypes.RETURN)
                                 && !(rawLookup == BallerinaTypes.QUESTION_MARK
                                 && rawLookup2 == BallerinaTypes.QUESTION_MARK)
-                                ) {
+                        ) {
                             IElementType rawLookup3;
                             do {
                                 rawLookup3 = builder.rawLookup(steps--);
@@ -129,7 +137,7 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                     return false;
                                 }
                                 return true;
-                            }  while (rawLookup3 != null && isWhiteSpaceOrComment(rawLookup3));
+                            } while (rawLookup3 != null && isWhiteSpaceOrComment(rawLookup3));
                         } else {
                             LighterASTNode latestDoneMarker = builder.getLatestDoneMarker();
                             if (rawLookup == BallerinaTypes.COMMA && rawLookup2 == BallerinaTypes.COLON) {
@@ -188,7 +196,7 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                             || tokenType == BallerinaTypes.VARIABLE_REFERENCE_EXPRESSION
                                             || tokenType == BallerinaTypes.SIMPLE_TYPE_NAME
                                             || tokenType == BallerinaTypes.INTEGER_RANGE_EXPRESSION
-                                            ) {
+                                    ) {
                                         return true;
                                     }
                                 }

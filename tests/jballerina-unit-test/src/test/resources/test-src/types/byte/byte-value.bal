@@ -230,10 +230,10 @@ function testBitwiseRightShiftOperator2(byte a, byte b, int i, int j) returns [i
     return [r1, r2, r3];
 }
 
-function testBitwiseLeftShiftOperator1(byte a, byte b, int i, int j) returns [byte, int, byte]{
-    byte r1 = a << b;
+function testBitwiseLeftShiftOperator1(byte a, byte b, int i, int j) returns [int, int, int]{
+    int r1 = a << b;
     int r2 = i << j;
-    byte r3 = a << j;
+    int r3 = a << j;
     return [r1, r2, r3];
 }
 
@@ -250,10 +250,10 @@ function testBitwiseUnsignedRightShiftOperator(byte a, int i, int j) returns [in
     return [r1, r2];
 }
 
-function testByteShift() returns byte {
+function testByteShift() returns int {
     byte a = 129;
-    byte c = a << 1;
-    byte d = c >> 1;
+    int c = a << 1;
+    int d = c >> 1;
     return d;
 }
 

@@ -142,19 +142,19 @@ type Protocol record {
     string url;
 };
 
-function testJSONToStructCast () returns string|error {
-    json j = {data:"data", plist:[{name:"a", url:"h1"}, {name:"b", url:"h2"}]};
-    var result = check Protocols.convert(j);
-    foreach var protocol in result.plist {
-    }
-    return "";
-}
+// function testJSONToStructCast () returns string|error {
+//     json j = {data:"data", plist:[{name:"a", url:"h1"}, {name:"b", url:"h2"}]};
+//     var result = check Protocols.convert(j);
+//     foreach var protocol in result.plist {
+//     }
+//     return "";
+// }
 
 function testMapWithArityOne () returns (string) | error {
-    map<any> m = {a:"1A", b:"2B", c:"3C", d:"4D"};
+    map<string> m = {a:"1A", b:"2B", c:"3C", d:"4D"};
     string val;
     // case covers goto def of map as well
-    foreach var [k, v] in m {
+    foreach var v in m {
         val = <string> v;
     }
     return "";
@@ -163,7 +163,7 @@ function testMapWithArityOne () returns (string) | error {
 function testTupleInRecordWithoutType() {
     Data3 d3 = { i: 1, v: [1, "A"] };
     int i = 0;
-    foreach var [k, v] in d3 {
+    foreach var v in d3 {
         i += 1;
     }
 }

@@ -28,8 +28,8 @@ service PingPongTestService1 on new http:WebSocketListener(21011) {
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new("ws://localhost:15100/websocket", { callbackService:
             clientCallbackService, readyOnConnect: false, customHeaders: { "X-some-header": "some-header-value" } });
-        wsEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
-        wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsEp;
+        wsEp.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
+        wsClientEp.setAttribute(ASSOCIATED_CONNECTION, wsEp);
         var returnVal = wsClientEp->ready();
         if (returnVal is http:WebSocketError) {
             panic <error> returnVal;
@@ -47,9 +47,12 @@ service PingPongTestService1 on new http:WebSocketListener(21011) {
         }
         if (text == "server-headers") {
             clientEp = getAssociatedClientEndpoint(wsEp);
-            var returnVal = clientEp->pushText(clientEp.response.getHeader("X-server-header"));
-            if (returnVal is http:WebSocketError) {
-                panic <error> returnVal;
+            var resp = clientEp.getHttpResponse();
+            if (resp is http:Response) {
+                var returnVal = clientEp->pushText(resp.getHeader("X-server-header"));
+                if (returnVal is http:WebSocketError) {
+                    panic <error> returnVal;
+                }
             }
         }
     }

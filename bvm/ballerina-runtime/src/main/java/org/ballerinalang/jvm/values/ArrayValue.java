@@ -86,6 +86,9 @@ public class ArrayValue implements RefValue, CollectionValue {
         this.refValues = values;
         this.arrayType = type;
         this.size = values.length;
+        if (type.getTag() == TypeTags.ARRAY_TAG) {
+            this.elementType = ((BArrayType) type).getElementType();
+        }
     }
 
     public ArrayValue(long[] values) {
@@ -234,27 +237,47 @@ public class ArrayValue implements RefValue, CollectionValue {
 
     public long getInt(long index) {
         rangeCheckForGet(index, size);
-        return intValues[(int) index];
+        if (elementType.getTag() == TypeTags.INT_TAG) {
+            return intValues[(int) index];
+        } else {
+            return (Long) refValues[(int) index];
+        }
     }
 
     public boolean getBoolean(long index) {
         rangeCheckForGet(index, size);
-        return booleanValues[(int) index];
+        if (elementType.getTag() == TypeTags.BOOLEAN_TAG) {
+            return booleanValues[(int) index];
+        } else {
+            return (Boolean) refValues[(int) index];
+        }
     }
 
     public byte getByte(long index) {
         rangeCheckForGet(index, size);
-        return byteValues[(int) index];
+        if (elementType.getTag() == TypeTags.BYTE_TAG) {
+            return byteValues[(int) index];
+        } else {
+            return (Byte) refValues[(int) index];
+        }
     }
 
     public double getFloat(long index) {
         rangeCheckForGet(index, size);
-        return floatValues[(int) index];
+        if (elementType.getTag() == TypeTags.FLOAT_TAG) {
+            return floatValues[(int) index];
+        } else {
+            return (Double) refValues[(int) index];
+        }
     }
 
     public String getString(long index) {
         rangeCheckForGet(index, size);
-        return stringValues[(int) index];
+        if (elementType.getTag() == TypeTags.STRING_TAG) {
+            return stringValues[(int) index];
+        } else {
+            return (String) refValues[(int) index];
+        }
     }
 
     public Object get(long index) {
@@ -342,8 +365,7 @@ public class ArrayValue implements RefValue, CollectionValue {
     public void unshift(long index, ArrayValue vals) {
         handleFrozenArrayValue();
 
-        Object valArr = getArrayFromType(elementType.getTag());
-        unshiftArray(index, vals.size, valArr, getCurrentArrayLength());
+        unshiftArray(index, vals.size, getCurrentArrayLength());
 
         switch (elementType.getTag()) {
             case TypeTags.INT_TAG:
@@ -409,9 +431,10 @@ public class ArrayValue implements RefValue, CollectionValue {
         }
     }
 
-    private void unshiftArray(long index, int unshiftByN, Object arr, int arrLength) {
-        int lastIndex = arrLength + unshiftByN - 1;
-        prepareForAdd(lastIndex, arrLength);
+    private void unshiftArray(long index, int unshiftByN, int arrLength) {
+        int lastIndex = size() + unshiftByN - 1;
+        prepareForConsecutiveMultiAdd(lastIndex, arrLength);
+        Object arr = getArrayFromType(elementType.getTag());
 
         if (index > lastIndex) {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
@@ -420,8 +443,6 @@ public class ArrayValue implements RefValue, CollectionValue {
 
         int i = (int) index;
         System.arraycopy(arr, i, arr, i + unshiftByN, this.size - i);
-
-        this.size += unshiftByN;
     }
 
     private Object getArrayFromType(int typeTag) {
@@ -585,7 +606,8 @@ public class ArrayValue implements RefValue, CollectionValue {
                 return;
             }
 
-            if (isBasicType(arrayElementType) && !isBasicType(elementType)) {
+            if (isBasicType(arrayElementType) &&
+                    (arrayType.getTag() == TypeTags.TUPLE_TAG || !isBasicType(elementType))) {
                 moveRefValueArrayToBasicTypeArray(type, arrayElementType);
                 return;
             }
@@ -699,7 +721,7 @@ public class ArrayValue implements RefValue, CollectionValue {
         }
     }
 
-    public void grow(int newLength) {
+    public void resizeInternalArray(int newLength) {
         if (elementType != null) {
             switch (elementType.getTag()) {
                 case TypeTags.INT_TAG:
@@ -837,6 +859,20 @@ public class ArrayValue implements RefValue, CollectionValue {
         resetSize(intIndex);
     }
 
+    /**
+     * Same as {@code prepareForAdd}, except fillerValueCheck is not performed as we are guaranteed to add
+     * elements to consecutive positions.
+     *
+     * @param index last index after add operation completes
+     * @param currentArraySize current array size
+     */
+    void prepareForConsecutiveMultiAdd(long index, int currentArraySize) {
+        int intIndex = (int) index;
+        rangeCheck(index, size);
+        ensureCapacity(intIndex + 1, currentArraySize);
+        resetSize(intIndex);
+    }
+
     private void ensureCapacity(int requestedCapacity, int currentArraySize) {
         if ((requestedCapacity) - currentArraySize > 0 && this.arrayType.getTag() == TypeTags.ARRAY_TAG &&
                 ((BArrayType) this.arrayType).getState() == ArrayState.UNSEALED) {
@@ -848,7 +884,7 @@ public class ArrayValue implements RefValue, CollectionValue {
 
             // Now get the minimum value of new array size and maximum array size
             newArraySize = Math.min(newArraySize, maxArraySize);
-            grow(newArraySize);
+            resizeInternalArray(newArraySize);
         }
     }
 
@@ -903,10 +939,9 @@ public class ArrayValue implements RefValue, CollectionValue {
     public synchronized boolean isFrozen() {
         return this.freezeStatus.isFrozen();
     }
-    
+
     private boolean isBasicType(BType type) {
-        return type == BTypes.typeString || type == BTypes.typeInt || type == BTypes.typeFloat ||
-                type == BTypes.typeBoolean || type == BTypes.typeByte;
+        return type.getTag() <= TypeTags.BOOLEAN_TAG && type.getTag() != TypeTags.DECIMAL_TAG;
     }
 
     private void moveBasicTypeArrayToRefValueArray() {
@@ -993,6 +1028,17 @@ public class ArrayValue implements RefValue, CollectionValue {
     @Override
     public IteratorValue getIterator() {
         return new ArrayIterator(this);
+    }
+
+    public void setLength(long length) {
+        handleFrozenArrayValue();
+
+        int newLength = (int) length;
+        rangeCheck(length, size);
+        fillerValueCheck(newLength, size);
+        resizeInternalArray(newLength);
+        fillValues(newLength);
+        size = newLength;
     }
 
     /**
