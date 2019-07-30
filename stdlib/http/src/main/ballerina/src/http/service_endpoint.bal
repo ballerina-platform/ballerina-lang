@@ -91,7 +91,7 @@ public type Listener object {
     # Stops the registered service.
     function stop() = external;
 
-    # Disengage an attached service from listener.
+    # Disengage an attached service from the listener.
     #
     # + s - The service that needs to be detached
     # + return - An `error` if there is any error occurred during the service detachment process or else nil
