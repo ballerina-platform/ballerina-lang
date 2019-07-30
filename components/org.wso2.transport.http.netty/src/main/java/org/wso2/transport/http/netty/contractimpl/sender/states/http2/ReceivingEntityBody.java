@@ -103,8 +103,7 @@ public class ReceivingEntityBody implements SenderState {
     }
 
     @Override
-    public void handleStreamTimeout(ChannelHandlerContext ctx, OutboundMsgHolder outboundMsgHolder,
-                                    boolean serverPush) {
+    public void handleStreamTimeout(OutboundMsgHolder outboundMsgHolder, boolean serverPush) {
         //This is handled by {@link Http2ClientTimeoutHandler#handleIncompleteResponse(OutboundMsgHolder, boolean)}
         // method.
     }

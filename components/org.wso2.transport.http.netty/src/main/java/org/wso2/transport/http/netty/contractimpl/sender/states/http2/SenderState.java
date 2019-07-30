@@ -93,9 +93,8 @@ public interface SenderState {
     /**
      * Handles stream timeout.
      *
-     * @param ctx               the channel handler context
      * @param outboundMsgHolder the outbound message holder
      * @param serverPush        indicates the response type
      */
-    void handleStreamTimeout(ChannelHandlerContext ctx, OutboundMsgHolder outboundMsgHolder, boolean serverPush);
+    void handleStreamTimeout(OutboundMsgHolder outboundMsgHolder, boolean serverPush);
 }

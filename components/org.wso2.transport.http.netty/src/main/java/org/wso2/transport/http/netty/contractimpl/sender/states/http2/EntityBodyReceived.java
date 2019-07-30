@@ -107,8 +107,7 @@ public class EntityBodyReceived implements SenderState {
     }
 
     @Override
-    public void handleStreamTimeout(ChannelHandlerContext ctx, OutboundMsgHolder outboundMsgHolder,
-                                    boolean serverPush) {
+    public void handleStreamTimeout(OutboundMsgHolder outboundMsgHolder, boolean serverPush) {
         LOG.warn("handleStreamTimeout {}", ILLEGAL_STATE_ERROR);
     }
 }
