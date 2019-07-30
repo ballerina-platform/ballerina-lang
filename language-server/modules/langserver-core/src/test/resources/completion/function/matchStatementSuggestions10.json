@@ -235,6 +235,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "var3",
+      "kind": "Variable",
+      "detail": "([string,int]|[float,[string,boolean]]|[float,[string,[boolean,int]]]|float)",
+      "sortText": "120",
+      "insertText": "var3",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "var2",
       "kind": "Variable",
       "detail": "[string,int,boolean]",
@@ -1542,6 +1550,14 @@
           "newText": "import ballerina/socket;\n"
         }
       ]
+    },
+    {
+      "label": "var3 - typeguard var3",
+      "kind": "Snippet",
+      "detail": "Destructure the variable var3 with typeguard",
+      "sortText": "120",
+      "insertText": "if (var3 is [string,int]) {\n\t${1}\n} else if (var3 is [float,[string,boolean]]) {\n\t${2}\n} else if (var3 is [float,[string,[boolean,int]]]) {\n\t${3}\n} else {\n\t${4}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "var1 - typeguard var1",
