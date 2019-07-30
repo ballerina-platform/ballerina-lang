@@ -166,7 +166,7 @@ public type ServiceEndpointConfiguration record {|
     string httpVersion = "1.1";
     RequestLimits requestLimits = {};
     //TODO: update as a optional field
-    Filter[] filters = [];
+    (RequestFilter | ResponseFilter)[] filters = [];
     int timeoutMillis = DEFAULT_LISTENER_TIMEOUT;
     int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
     ListenerAuth auth?;
@@ -258,7 +258,7 @@ public const KEEPALIVE_NEVER = "NEVER";
 function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
     // add authentication and authorization filters as the first two filters.
     // if there are any other filters specified, those should be added after the authn and authz filters.
-    Filter[] authFilters = [];
+    (RequestFilter | ResponseFilter)[] authFilters = [];
 
     var auth = config["auth"];
     if (auth is ListenerAuth) {
@@ -281,7 +281,7 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
             // can add authn and authz filters directly
             config.filters = authFilters;
         } else {
-            Filter[] newFilters = authFilters;
+            (RequestFilter| ResponseFilter)[] newFilters = authFilters;
             // add existing filters next
             int i = 0;
             while (i < config.filters.length()) {
