@@ -33,9 +33,9 @@ public function main() {
     // not been matched in the record binding pattern will be assigned as a `map<anydata|error>` to the variable
     // `otherDetails`.
     { name: firstName, age: personAge, ...otherDetails } = getPerson();
-    io:println("Name: " + firstName);
-    io:println("Age: " + personAge);
-    io:println("Other Details: " + io:sprintf("%s", otherDetails));
+    io:println("Name: ", firstName);
+    io:println("Age: ", personAge);
+    io:println("Other Details: ", otherDetails);
 
     string name;
     int age;
@@ -43,24 +43,24 @@ public function main() {
     // i.e., {name, age} is same as {name: name, age: age}.
     // Since a rest parameter is not given, all remaining fields are ignored.
     { name, age } = getPerson();
-    io:println("Name: " + name);
-    io:println("Age: " + age);
+    io:println("Name: ", name);
+    io:println("Age: ", age);
 
     string empName;
     int empAge;
     // The `{|` and `|}` delimiters specify that there should not be any other fields other than `name` and `age`. Hence,
     // `Employee` should be a closed record.
     {| name: empName, age: empAge |} = getEmployee();
-    io:println("Name: " + empName);
-    io:println("Age: " + empAge);
+    io:println("Name: ", empName);
+    io:println("Age: ", empAge);
 
     string countryName;
     string capitalName;
     // Binding patterns are recursive in nature. `capital`, which is a field of type `Capital` in `Country` can also be
     // destructured as follows:
     { name: countryName, capital: {| name: capitalName |}} = getCountry();
-    io:println("Country Name: " + countryName);
-    io:println("Capital Name: " + capitalName);
+    io:println("Country Name: ", countryName);
+    io:println("Capital Name: ", capitalName);
 }
 
 function getPerson() returns Person {
