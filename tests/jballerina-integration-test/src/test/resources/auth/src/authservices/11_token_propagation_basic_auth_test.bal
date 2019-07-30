@@ -36,7 +36,7 @@ listener http:Listener listener11_1 = new(20013, {
 jwt:OutboundJwtAuthProvider jwtAuthProvider11_2 = new({
     issuer: "ballerina",
     audience: ["ballerina"],
-    issuerConfig: {
+    keyStoreConfig: {
         keyAlias: "ballerina",
         keyPassword: "ballerina",
         keyStore: {
