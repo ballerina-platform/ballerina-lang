@@ -32,13 +32,12 @@ import java.net.UnknownHostException;
  * Launch debugger adapter protocol server instance.
  */
 public class Launcher {
-
+    private static final int DEFAULT_PORT = 4711;
     public static void main(String[] args) {
         ServerSocket server;
         DataOutputStream os;
         DataInputStream is;
         Socket clientSocket;
-        int DEFAULT_PORT = 4711;
 
         try {
             int port = args.length == 0 ? DEFAULT_PORT : Integer.parseInt(args[0]);

@@ -245,8 +245,7 @@ public class EventBus {
                                 } else {
                                     moduleName = PackageUtils.getRelativeFilePath(path.toString());
                                 }
-
-                                if (moduleName.equals(balName)) {
+                                if (moduleName.equals(balName) || evt.referenceType().name().contains("__service_0")) {
                                     Location location = null;
                                     try {
                                         location = evt.referenceType().locationsOfLine(breakpoint.getLine()
