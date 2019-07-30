@@ -79,7 +79,7 @@ dependencies {
     implementation project(':ballerina-oauth2')
     implementation project(':ballerina-backend-jvm')
     implementation project(':ballerina-jvm')
-//    implementation project(':observability-test-utils')
+    implementation project(':observability-test-utils')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
 
 
@@ -105,7 +105,7 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
-//    baloTestImplementation project(path: ':observability-test-utils', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':observability-test-utils', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-activemq-artemis', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
@@ -143,7 +143,7 @@ dependencies {
 
     testUtils project(path: ':ballerina-test-utils', configuration: 'shadow')
     jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
-//    observeTestUtils project(path: ':observability-test-utils', configuration: 'shadow')
+    observeTestUtils project(path: ':observability-test-utils', configuration: 'shadow')
 }
 
 task createBre(type: org.gradle.api.tasks.Copy) {
@@ -159,12 +159,13 @@ test {
     maxParallelForks = 1
     systemProperty 'basedir', "$buildDir"
     systemProperty 'libdir', "$buildDir"
+    systemProperty 'observability.test.utils', "$buildDir/../../observability-test-utils/"
     systemProperty 'server.zip', configurations.jballerinaTools.asPath
     systemProperty 'jballerina.server.zip', configurations.jballerinaTools.asPath
     systemProperty 'java.util.logging.config.file', "$buildDir/resources/test/logging.properties"
     systemProperty 'java.util.logging.manager', 'org.ballerinalang.logging.BLogManager'
     systemProperty 'ballerina.agent.path', configurations.testUtils.asPath
-//    systemProperty 'observability-test-natives.jar', configurations.observeTestUtils.asPath
+    systemProperty 'observability-test-natives.jar', configurations.observeTestUtils.asPath
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }

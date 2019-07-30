@@ -18,9 +18,7 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -41,7 +39,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class ToCodePointInts {
 
     public static ArrayValue toCodePointInts(Strand strand, String str) {
-        throw BallerinaErrors.createError(BallerinaErrorReasons.OPERATION_NOT_SUPPORTED,
-                                          "toCodePointInts() function not supported");
+        long[] ints = str.codePoints().asLongStream().toArray();
+        return new ArrayValue(ints);
     }
 }

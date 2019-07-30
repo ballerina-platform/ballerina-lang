@@ -45,7 +45,6 @@ import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.definition.LSReferencesException;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.model.elements.PackageID;
@@ -319,7 +318,7 @@ public class CommandUtil {
                         actions.add(action);
                     }
                 }
-            } catch (LSReferencesException | WorkspaceDocumentException | IOException e) {
+            } catch (LSCompilerException | WorkspaceDocumentException | IOException e) {
                 // ignore
             }
         } else if (isUnresolvedPackage(diagnosticMessage)) {
