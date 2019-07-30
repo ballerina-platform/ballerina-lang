@@ -1431,12 +1431,11 @@ function loadCLIArgsForMain(jvm:MethodVisitor mv, bir:FunctionParam?[] params, b
         if (param is bir:FunctionParam) {
             if (param.hasDefaultExpr) {
                 mv.visitInsn(ICONST_1);
-                mv.visitLdcInsn(defaultableNames[defaultableIndex]);
-                defaultableIndex += 1;
             } else {
                 mv.visitInsn(ICONST_0);
-                mv.visitLdcInsn(param.name.value);
             }
+            mv.visitLdcInsn(defaultableNames[defaultableIndex]);
+            defaultableIndex += 1;
             // var varIndex = indexMap.getIndex(param);
             loadType(mv, param.typeValue);
         }
