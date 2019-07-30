@@ -25,23 +25,27 @@ import org.ballerinalang.model.values.BIterator;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.testerina.core.entity.Test;
 import org.ballerinalang.testerina.core.entity.TestSuite;
+import org.ballerinalang.testerina.core.entity.TesterinaFunction;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
 import org.ballerinalang.testerina.core.entity.TesterinaResult;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.tool.BLauncherException;
 import org.ballerinalang.tool.LauncherUtils;
 import org.ballerinalang.tool.util.BCompileUtil;
+import org.ballerinalang.tool.util.BFileUtil;
 import org.ballerinalang.tool.util.CompileResult;
+import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -52,7 +56,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Queue;
 import java.util.ServiceLoader;
+import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -60,6 +66,8 @@ import java.util.stream.Collectors;
  * BTestRunner entity class.
  */
 public class BTestRunner {
+
+    public static final String MODULE_INIT_CLASS_NAME = "___init";
 
     private static PrintStream errStream = System.err;
     private static PrintStream outStream = System.out;
@@ -108,7 +116,7 @@ public class BTestRunner {
      *
      * @param packageList map containing bLangPackage nodes along with their compiled program files
      */
-    public void runTest(Map<BLangPackage, CompiledBinaryFile.ProgramFile> packageList) {
+    public void runTest(Map<BLangPackage, JBallerinaInMemoryClassLoader> packageList) {
         registry.setGroups(Collections.emptyList());
         registry.setShouldIncludeGroups(true);
         buildSuites(packageList);
@@ -173,6 +181,7 @@ public class BTestRunner {
     }
 
     /**
+     * todo remove
      * Compiles the source and populate the registry with suites when executing tests using the test command.
      * @param sourceRoot source root
      * @param enableExpFeatures Flag indicating to enable the experimental features
@@ -217,7 +226,7 @@ public class BTestRunner {
 
             // set the debugger
             ProgramFile programFile = compileResult.getProgFile();
-            processProgramFile(programFile);
+            // processProgramFile(programFile);
         });
         registry.setTestSuitesCompiled(true);
     }
@@ -227,16 +236,15 @@ public class BTestRunner {
      *
      * @param packageList map containing bLangPackage nodes along with their compiled program files
      */
-    private void buildSuites(Map<BLangPackage, CompiledBinaryFile.ProgramFile> packageList) {
-        packageList.forEach((sourcePackage, compiledBinaryFile) -> {
+    private void buildSuites(Map<BLangPackage, JBallerinaInMemoryClassLoader> packageList) {
+        packageList.forEach((sourcePackage, classLoader) -> {
             String packageName = TesterinaUtils.getFullModuleName(sourcePackage.packageID.getName().getValue());
             // Add a test suite to registry if not added. In this module there are no tests to be executed. But we need
             // to say that there are no tests found in the module to be executed
             addTestSuite(packageName);
             // Keeps a track of the sources that are being built
             sourcePackages.add(packageName);
-            ProgramFile pFile = LauncherUtils.getExecutableProgram(compiledBinaryFile);
-            processProgramFile(pFile);
+            processProgramFile(sourcePackage, classLoader);
         });
 
         registry.setTestSuitesCompiled(true);
@@ -255,18 +263,13 @@ public class BTestRunner {
      *
      * @param programFile program file generated
      */
-    private void processProgramFile(ProgramFile programFile) {
-        // set the debugger
-        Debugger debugger = new Debugger(programFile);
-        TesterinaUtils.initDebugger(programFile, debugger);
-        registry.addProgramFile(programFile);
-
+    private void processProgramFile(BLangPackage programFile, JBallerinaInMemoryClassLoader classLoader) {
         // process the compiled files
         ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
         processorServiceLoader.forEach(plugin -> {
             if (plugin instanceof TestAnnotationProcessor) {
                 try {
-                    ((TestAnnotationProcessor) plugin).packageProcessed(programFile);
+                    packageProcessed(programFile, classLoader);
                 } catch (BLauncherException e) {
                     throw e;
                 } catch (Exception e) {
@@ -275,6 +278,256 @@ public class BTestRunner {
                 }
             }
         });
+    }
+
+    /**
+     * TODO this is a temporary solution, till we get a proper API from Ballerina Core.
+     * This method will get executed at the completion of the processing of a ballerina module.
+     *
+     * @param bLangPackage {@link BLangPackage} corresponds to the current ballerina module
+     */
+    public void packageProcessed(BLangPackage bLangPackage, JBallerinaInMemoryClassLoader classLoader) {
+        //packageInit = false;
+        // TODO the below line is required since this method is currently getting explicitly called from BTestRunner
+        TestSuite suite = TesterinaRegistry.getInstance().getTestSuites().get(bLangPackage.packageID.toString());
+        if (suite == null) {
+            throw LauncherUtils.createLauncherException("No test suite found for [module]: "
+                    + bLangPackage.packageID.getName());
+        }
+        // By default the test init function is set as the init function of the test suite
+        // FunctionInfo initFunction = programFile.getEntryPackage().getTestInitFunctionInfo();
+        // But if there is no test init function, then the package init function is set as the init function of the
+        // test suite
+        //if (initFunction == null) {
+        //    initFunction = programFile.getEntryPackage().getInitFunctionInfo();
+        //}
+        String initClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                bLangPackage.packageID.name.value,
+                MODULE_INIT_CLASS_NAME);
+        Class<?> initClazz = classLoader.loadClass(initClassName);
+
+        suite.setInitFunction(new TesterinaFunction(initClazz,
+                bLangPackage.initFunction, TesterinaFunction.Type.TEST_INIT));
+        suite.setStartFunction(new TesterinaFunction(initClazz,
+                bLangPackage.startFunction, TesterinaFunction.Type.TEST_INIT));
+        // add all functions of the package as utility functions
+        bLangPackage.functions.stream().forEach(function -> {
+            String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                    bLangPackage.packageID.name.value,
+                    getClassName(function));
+            Class<?> functionClass = classLoader.loadClass(functionClassName);
+            suite.addTestUtilityFunction(new TesterinaFunction(functionClass, function, TesterinaFunction.Type.UTIL));
+        });
+        resolveFunctions(suite);
+        int[] testExecutionOrder = checkCyclicDependencies(suite.getTests());
+        List<Test> sortedTests = orderTests(suite.getTests(), testExecutionOrder);
+        suite.setTests(sortedTests);
+        suite.setProgramFile(classLoader);
+    }
+
+    private String getClassName(BLangFunction function) {
+        return function.pos.src.cUnitName.replace(".bal","").replace("/", "-");
+    }
+
+    private static List<Test> orderTests(List<Test> tests, int[] testExecutionOrder) {
+        List<Test> sortedTests = new ArrayList<>();
+//        outStream.println("Test execution order: ");
+        for (int idx : testExecutionOrder) {
+            sortedTests.add(tests.get(idx));
+//            outStream.println(sortedTests.get(sortedTests.size() - 1).getTestFunction().getName());
+        }
+//        outStream.println("**********************");
+        return sortedTests;
+    }
+
+    /**
+     * Resolve function names to {@link TesterinaFunction}s.
+     *
+     * @param suite {@link TestSuite} whose functions to be resolved.
+     */
+    private static void resolveFunctions(TestSuite suite) {
+        List<TesterinaFunction> functions = suite.getTestUtilityFunctions();
+        List<String> functionNames = functions.stream().map(testerinaFunction -> testerinaFunction.getName()).collect
+                (Collectors.toList());
+        for (Test test : suite.getTests()) {
+            if (test.getTestName() != null && functionNames.contains(test.getTestName())) {
+                test.setTestFunction(functions.stream().filter(e -> e.getName().equals(test
+                        .getTestName())).findFirst().get());
+            }
+
+            if (test.getBeforeTestFunction() != null) {
+                if (functionNames.contains(test.getBeforeTestFunction())) {
+                    test.setBeforeTestFunctionObj(functions.stream().filter(e -> e.getName().equals(test
+                            .getBeforeTestFunction())).findFirst().get());
+                } else {
+                    String msg = String.format("Cannot find the specified before function : [%s] for testerina " +
+                            "function : [%s]", test.getBeforeTestFunction(), test.getTestName());
+                    throw LauncherUtils.createLauncherException(msg);
+                }
+            }
+            if (test.getAfterTestFunction() != null) {
+                if (functionNames.contains(test.getAfterTestFunction())) {
+                    test.setAfterTestFunctionObj(functions.stream().filter(e -> e.getName().equals(test
+                            .getAfterTestFunction())).findFirst().get());
+                } else {
+                    String msg = String.format("Cannot find the specified after function : [%s] for testerina " +
+                            "function : [%s]", test.getBeforeTestFunction(), test.getTestName());
+                    throw LauncherUtils.createLauncherException(msg);
+                }
+            }
+
+            if (test.getDataProvider() != null && functionNames.contains(test.getDataProvider())) {
+                String dataProvider = test.getDataProvider();
+                test.setDataProviderFunction(functions.stream().filter(e -> e.getName().equals(test.getDataProvider()
+                )).findFirst().map(func -> {
+                    // TODO these validations are not working properly with the latest refactoring
+                    if (func.getbFunction().getReturnTypeNode() != null) {
+                        BLangType bType = func.getbFunction().getReturnTypeNode();
+                        /*if (bType.getTag() == TypeTags.ARRAY_TAG) {
+                            BArrayType bArrayType = (BArrayType) bType;
+                            int tag = bArrayType.getElementType().getTag();
+                            if (!(tag == TypeTags.ARRAY_TAG || tag == TypeTags.TUPLE_TAG)) {
+                                String message = String.format("Data provider function [%s] should return an array of" +
+                                        " arrays or an array of tuples.", dataProvider);
+                                throw LauncherUtils.createLauncherException(message);
+                            }
+                        } else {
+                            String message = String.format("Data provider function [%s] should return an array of " +
+                                    "arrays or an array of tuples.", dataProvider);
+                            throw LauncherUtils.createLauncherException(message);
+                        }*/
+                    } else {
+                        String message = String.format("Data provider function [%s] should have only one return type" +
+                                ".", dataProvider);
+                        throw LauncherUtils.createLauncherException(message);
+                    }
+                    return func;
+                }).get());
+
+                if (test.getDataProviderFunction() == null) {
+                    String message = String.format("Data provider function [%s] cannot be found.", dataProvider);
+                    throw LauncherUtils.createLauncherException(message);
+                }
+            }
+            for (String dependsOnFn : test.getDependsOnTestFunctions()) {
+                if (!functions.stream().parallel().anyMatch(func -> func.getName().equals(dependsOnFn))) {
+                    throw LauncherUtils.createLauncherException("Cannot find the specified dependsOn function : "
+                            + dependsOnFn);
+                }
+                test.addDependsOnTestFunction(functions.stream().filter(e -> e.getName().equals(dependsOnFn))
+                        .findFirst().get());
+            }
+        }
+
+        // resolve mock functions
+        suite.getMockFunctionNamesMap().forEach((id, functionName) -> {
+            TesterinaFunction function = suite.getTestUtilityFunctions().stream().filter(e -> e.getName().equals
+                    (functionName)).findFirst().get();
+            suite.addMockFunctionObj(id, function);
+        });
+
+        suite.getBeforeSuiteFunctionNames().forEach(functionName -> {
+            TesterinaFunction function = suite.getTestUtilityFunctions().stream().filter(e -> e.getName().equals
+                    (functionName)).findFirst().get();
+            suite.addBeforeSuiteFunctionObj(function);
+        });
+
+        suite.getAfterSuiteFunctionNames().forEach(functionName -> {
+            TesterinaFunction function = suite.getTestUtilityFunctions().stream().filter(e -> e.getName().equals
+                    (functionName)).findFirst().get();
+            suite.addAfterSuiteFunctionObj(function);
+        });
+
+        suite.getBeforeEachFunctionNames().forEach(functionName -> {
+            TesterinaFunction function = suite.getTestUtilityFunctions().stream().filter(e -> e.getName().equals
+                    (functionName)).findFirst().get();
+            suite.addBeforeEachFunctionObj(function);
+        });
+
+        suite.getAfterEachFunctionNames().forEach(functionName -> {
+            TesterinaFunction function = suite.getTestUtilityFunctions().stream().filter(e -> e.getName().equals
+                    (functionName)).findFirst().get();
+            suite.addAfterEachFunctionObj(function);
+        });
+
+    }
+
+    private static int[] checkCyclicDependencies(List<Test> tests) {
+        int numberOfNodes = tests.size();
+        int[] indegrees = new int[numberOfNodes];
+        int[] sortedElts = new int[numberOfNodes];
+
+        List<Integer> dependencyMatrix[] = new ArrayList[numberOfNodes];
+        for (int i = 0; i < numberOfNodes; i++) {
+            dependencyMatrix[i] = new ArrayList<>();
+        }
+        List<String> testNames = tests.stream().map(k -> k.getTestName()).collect(Collectors.toList());
+
+        int i = 0;
+        for (Test test : tests) {
+            if (!test.getDependsOnTestFunctions().isEmpty()) {
+                for (String dependsOnFn : test.getDependsOnTestFunctions()) {
+                    int idx = testNames.indexOf(dependsOnFn);
+                    if (idx == -1) {
+                        String message = String.format("Test [%s] depends on function [%s], but it couldn't be found" +
+                                ".", test.getTestFunction().getName(), dependsOnFn);
+                        throw LauncherUtils.createLauncherException(message);
+                    }
+                    dependencyMatrix[i].add(idx);
+                }
+            }
+            i++;
+        }
+
+        // fill in degrees
+        for (int j = 0; j < numberOfNodes; j++) {
+            List<Integer> dependencies = dependencyMatrix[j];
+            for (int node : dependencies) {
+                indegrees[node]++;
+            }
+        }
+
+        // Create a queue and enqueue all vertices with indegree 0
+        Queue<Integer> q = new LinkedList<Integer>();
+        for (i = 0; i < numberOfNodes; i++) {
+            if (indegrees[i] == 0) {
+                q.add(i);
+            }
+        }
+
+        // Initialize count of visited vertices
+        int cnt = 0;
+
+        // Create a vector to store result (A topological ordering of the vertices)
+        Vector<Integer> topOrder = new Vector<Integer>();
+        while (!q.isEmpty()) {
+            // Extract front of queue (or perform dequeue) and add it to topological order
+            int u = q.poll();
+            topOrder.add(u);
+
+            // Iterate through all its neighbouring nodes of dequeued node u and decrease their in-degree by 1
+            for (int node : dependencyMatrix[u]) {
+                // If in-degree becomes zero, add it to queue
+                if (--indegrees[node] == 0) {
+                    q.add(node);
+                }
+            }
+            cnt++;
+        }
+
+        // Check if there was a cycle
+        if (cnt != numberOfNodes) {
+            String message = "Cyclic test dependency detected";
+            throw LauncherUtils.createLauncherException(message);
+        }
+
+        i = numberOfNodes - 1;
+        for (int elt : topOrder) {
+            sortedElts[i] = elt;
+            i--;
+        }
+
+        return sortedElts;
     }
 
     /**
@@ -319,6 +572,7 @@ public class BTestRunner {
             tReport.addPackageReport(packageName);
             if (suite.getInitFunction() != null && TesterinaUtils.isPackageInitialized(packageName)) {
                 suite.getInitFunction().invoke();
+                suite.getStartFunction().invoke();
             }
 
             suite.getBeforeSuiteFunctions().forEach(test -> {

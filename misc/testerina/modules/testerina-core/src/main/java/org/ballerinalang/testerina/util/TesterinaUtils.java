@@ -22,6 +22,7 @@ import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
@@ -194,7 +195,7 @@ public class TesterinaUtils {
      * @param sourceRootPath source root path
      * @param programFileMap map containing bLangPackage nodes along with their compiled program files
      */
-    public static void executeTests(Path sourceRootPath, Map<BLangPackage, CompiledBinaryFile.ProgramFile>
+    public static void executeTests(Path sourceRootPath, Map<BLangPackage, JBallerinaInMemoryClassLoader>
             programFileMap) {
         // Set org-name and version to the Testerina Registry.
         setManifestConfigs(sourceRootPath);
