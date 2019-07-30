@@ -19,7 +19,7 @@
 package org.ballerinalang.messaging.kafka.service;
 
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.kafka.api.KafkaListener;
