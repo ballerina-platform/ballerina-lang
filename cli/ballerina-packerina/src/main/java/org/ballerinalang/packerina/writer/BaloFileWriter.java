@@ -87,7 +87,7 @@ public class BaloFileWriter {
      * Generate balo file for the given module.
      *
      * @param module ballerina module
-     * @param buildContext build context
+     * @param baloFilePath path to the balo file
      */
     public void write(BLangPackage module, Path baloFilePath) {
         // Get the project directory
