@@ -969,7 +969,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-        this.pkgBuilder.endErrorMatchPattern(getWS(ctx));
+        boolean isIndirectErrorMatchPatern = ctx.typeName() != null;
+        this.pkgBuilder.endErrorMatchPattern(getWS(ctx), isIndirectErrorMatchPatern);
     }
 
     @Override

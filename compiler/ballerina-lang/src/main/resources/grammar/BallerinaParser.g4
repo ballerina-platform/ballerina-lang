@@ -442,11 +442,17 @@ errorBindingPattern
 
 errorMatchPattern
     :   TYPE_ERROR LEFT_PARENTHESIS errorArgListMatchPattern RIGHT_PARENTHESIS
+    |   typeName LEFT_PARENTHESIS errorFieldMatchPatterns RIGHT_PARENTHESIS
     ;
 
 errorArgListMatchPattern
     :   simpleMatchPattern (COMMA errorDetailBindingPattern)* (COMMA restMatchPattern)?
     |   errorDetailBindingPattern (COMMA errorDetailBindingPattern)* (COMMA restMatchPattern)?
+    |   restMatchPattern
+    ;
+
+errorFieldMatchPatterns
+    :   errorDetailBindingPattern (COMMA errorDetailBindingPattern)* (COMMA restMatchPattern)?
     |   restMatchPattern
     ;
 
