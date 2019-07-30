@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -53,7 +54,7 @@ public class FunctionNodeScopeResolver extends CursorPositionResolver {
         boolean isWithinScopeAfterLastChild = isLastWorker && line > nodeELine && line < invokeableNodeEndLine;
 
         if (line < nodeSLine || (line == nodeSLine && col <= nodeSCol) || isWithinScopeAfterLastChild) {
-            Map<Name, Scope.ScopeEntry> visibleSymbolEntries =
+            Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries =
                     treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(visibleSymbolEntries, treeVisitor.getSymbolEnv());
             treeVisitor.forceTerminateVisitor();

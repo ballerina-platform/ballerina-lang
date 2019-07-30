@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.util.CompletionVisitorUtil;
+import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -29,6 +30,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -44,10 +46,14 @@ public class ObjectTypeScopeResolver extends CursorPositionResolver {
         if (!(treeVisitor.getBlockOwnerStack().peek() instanceof BLangObjectTypeNode)) {
             return false;
         }
+        Node blockOwner = treeVisitor.getBlockOwnerStack().peek();
+        if (blockOwner == null) {
+            return false;
+        }
         BLangObjectTypeNode ownerObject = (BLangObjectTypeNode) treeVisitor.getBlockOwnerStack().peek();
         DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(nodePosition);
         DiagnosticPos blockOwnerPos = CommonUtil.toZeroBasedPosition(
-                ((BLangObjectTypeNode) treeVisitor.getBlockOwnerStack().peek()).parent.getPosition());
+                ((BLangObjectTypeNode) blockOwner).parent.getPosition());
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
         BLangNode lastItem = CommonUtil.getLastItem(CompletionVisitorUtil.getObjectItemsOrdered(ownerObject));
@@ -58,7 +64,7 @@ public class ObjectTypeScopeResolver extends CursorPositionResolver {
                 || (isLastItem && ((blockOwnerPos.getEndLine() > line && zeroBasedPos.getEndLine() < line)
                 || (blockOwnerPos.getEndLine() == line && blockOwnerPos.getEndColumn() > col)))) {
             
-            Map<Name, Scope.ScopeEntry> visibleSymbolEntries =
+            Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries =
                     treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(visibleSymbolEntries, treeVisitor.getSymbolEnv());
             treeVisitor.forceTerminateVisitor();

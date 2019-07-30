@@ -116,7 +116,8 @@ public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
     }
 
     private void fillTypes(LSContext context, List<CompletionItem> completionItems) {
-        List<SymbolInfo> filteredTypes = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY).stream()
+        List<SymbolInfo> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<SymbolInfo> filteredTypes = visibleSymbols.stream()
                 .filter(symbolInfo -> FilterUtils.isBTypeEntry(symbolInfo.getScopeEntry()))
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredTypes, context));
@@ -127,7 +128,7 @@ public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
                                       LSContext ctx) {
         if (CommonUtil.getLastItem(lhsDefaultTokens).getType() == BallerinaParser.COLON) {
             String pkgName = lhsDefaultTokens.get(1).getText();
-            List<SymbolInfo> visibleSymbols = ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+            List<SymbolInfo> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
             Optional<SymbolInfo> pkgSymbolInfo = visibleSymbols.stream()
                     .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BPackageSymbol
                             && symbolInfo.getScopeEntry().symbol.pkgID.getName().getValue().equals(pkgName))
@@ -152,7 +153,7 @@ public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
     }
 
     private void fillVisibleObjectsAndPackages(List<CompletionItem> completionItems, LSContext ctx) {
-        List<SymbolInfo> visibleSymbols = ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         List<SymbolInfo> filteredList = visibleSymbols.stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BObjectTypeSymbol)
                 .collect(Collectors.toList());
