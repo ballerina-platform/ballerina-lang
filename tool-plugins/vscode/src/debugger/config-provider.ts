@@ -136,7 +136,7 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
         } else {
             startScriptPath = path.resolve(ballerinaPath, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.bat");
         }
-        const port = "4722";
+        const port = "4711";
         const serverProcess = child_process.spawn(startScriptPath, [
             port
         ]);
