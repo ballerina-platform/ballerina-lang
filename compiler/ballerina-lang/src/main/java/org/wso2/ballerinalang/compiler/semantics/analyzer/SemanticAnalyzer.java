@@ -428,7 +428,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorType errorType) {
-        BType reasonType = errorType.reasonType.type;
+        BType reasonType = getReasonType(errorType);
 
         if (!types.isAssignable(reasonType, symTable.stringType)) {
             dlog.error(errorType.reasonType.pos, DiagnosticCode.INVALID_ERROR_REASON_TYPE, reasonType);
@@ -443,6 +443,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(errorType.detailType.pos, DiagnosticCode.INVALID_ERROR_DETAIL_TYPE, detailType,
                     symTable.detailType);
         }
+    }
+
+    private BType getReasonType(BLangErrorType errorType) {
+        // Reason type not specified take default reason type.
+        if (errorType.reasonType == null) {
+            return symTable.stringType;
+        }
+        return errorType.reasonType.type;
     }
 
     public void visit(BLangAnnotation annotationNode) {
