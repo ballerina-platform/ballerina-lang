@@ -64,7 +64,7 @@ public type ClientEndpointConfig record {|
 # + maxLifetimeInMillis - Maximum lifetime of a connection in the pool. Default is 1800000 (30 minutes) and it can be
 #                  changed through the configuration API with the key `b7a.jdbc.pool.maxLifetimeInMillis`. A value of 0
 #                  indicates unlimited maximum lifetime (infinite lifetime), subject of course to the `idleTimeoutInMillis`.
-# + validationTimeoutInMillis - Maximum amount of time that a connection will be tested for aliveness. Default is
+# + validationTimeoutInMillis - Maximum duration of time that a connection will be tested for aliveness. Default is
 #                       5000 (5 seconds) and it can be changed through the configuration API with the key
 #                       `b7a.jdbc.pool.validationTimeoutInMillis`.  Lowest acceptable validation timeout is 250 ms.
 public type PoolOptions record {|
