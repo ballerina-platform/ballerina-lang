@@ -108,8 +108,18 @@ function buildParamTypeConstraints(bir:AnnotationValue? annotValue,
                                     "count in annotation '%s' on function '%s'", annotTagRef, birFunc.name.value));
         }
         foreach var annotArrayElement in annotArrayElements {
-            string paramJavaTypeConstraint = <string>getLiteralValueFromAnnotValue(annotArrayElement);
-            jvm:JType jType = jvm:getJTypeFromTypeName(paramJavaTypeConstraint);
+            jvm:JType jType;
+            if annotArrayElement is bir:AnnotationLiteralValue {
+                jType = jvm:getJTypeFromTypeName(<string> annotArrayElement.literalValue);
+            } else if annotArrayElement is bir:AnnotationRecordValue {
+                map<bir:AnnotationValue> annotValueMap = annotArrayElement.annotValueMap;
+                string elementClass = <string> getLiteralValueFromAnnotValue(annotValueMap.get("elementClass"));
+                int dimensions = <int> getLiteralValueFromAnnotValue(annotValueMap.get("dimensions"));
+                jType = jvm:getJArrayTypeFromTypeName(elementClass, dimensions);
+            } else {
+                panic error(io:sprintf("unexpected annotation value, expected a literal value, found %s", annotArrayElement));
+            }
+
             constraints[constraints.length()] = jType;
         }
     } else {

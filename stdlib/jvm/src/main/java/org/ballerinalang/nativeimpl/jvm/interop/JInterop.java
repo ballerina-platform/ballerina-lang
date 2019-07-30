@@ -65,6 +65,9 @@ class JInterop {
     static final String J_REF_TYPE_NAME = "RefType";
     static final String TYPE_NAME_FIELD = "typeName";
     static final String NO_TYPE_NAME = "NoType";
+    static final String J_ARRAY_TYPE_NAME = "ArrayType";
+    static final String ELEMENT_TYPE_FIELD = "elementType";
+    static final String DIMENSIONS_FIELD = "dimensions";
 
     static MapValue<String, Object> createRecordBValue(String typeName) {
         return BallerinaValues.createRecordValue(JVM_PACKAGE_PATH, typeName);
@@ -92,6 +95,16 @@ class JInterop {
             return jTypeClass.getName();
         } else if (jTypeClass == Void.class) {
             throw new IllegalArgumentException("The Java Void type is not yet supported.");
+        } else if (jTypeClass.isArray()) {
+            MapValue<String, Object> jArrayTypeBRecord = createRecordBValue(J_ARRAY_TYPE_NAME);
+            int dimensions = 0;
+            while (jTypeClass.isArray()) {
+                jTypeClass = jTypeClass.getComponentType();
+                dimensions++;
+            }
+            jArrayTypeBRecord.put(DIMENSIONS_FIELD, dimensions);
+            jArrayTypeBRecord.put(ELEMENT_TYPE_FIELD, jTypeClass.getName().replace('.', '/'));
+            return jArrayTypeBRecord;
         }
 
         MapValue<String, Object> jRefTypeBRecord = createRecordBValue(J_REF_TYPE_NAME);

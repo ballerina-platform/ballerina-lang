@@ -194,7 +194,8 @@ function genJFieldForInteropField(JFieldFunctionWrapper jFieldFuncWrapper,
     if (birFuncParamIndex < birFuncParams.length()) {
         var birFuncParam = <bir:FunctionParam>birFuncParams[birFuncParamIndex];
         int paramLocalVarIndex = indexMap.getIndex(birFuncParam);
-        loadMethodParamToStackInInteropFunction(mv, birFuncParam, jFieldType, currentPackageName, paramLocalVarIndex);
+        loadMethodParamToStackInInteropFunction(mv, birFuncParam, jFieldType, currentPackageName, paramLocalVarIndex,
+                                                indexMap);
     }
 
     if jField.isStatic {
@@ -350,7 +351,8 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
         var birFuncParam = <bir:FunctionParam>birFuncParams[birFuncParamIndex];
         int paramLocalVarIndex = indexMap.getIndex(birFuncParam);
         loadMethodParamToStackInInteropFunction(mv, birFuncParam,
-                                    jMethodParamTypes[jMethodParamIndex], currentPackageName, paramLocalVarIndex);
+                                    jMethodParamTypes[jMethodParamIndex], currentPackageName, paramLocalVarIndex,
+                                    indexMap);
         birFuncParamIndex += 2;
         jMethodParamIndex += 1;
     }
@@ -366,7 +368,6 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
     } else {
         // jMethod.kind is jvm:CONSTRUCTOR
         mv.visitMethodInsn(INVOKESPECIAL, jMethod.class, jMethod.name, jMethod.sig, false);
-
     }
 
     // Handle return type
@@ -462,14 +463,153 @@ function loadMethodParamToStackInInteropFunction(jvm:MethodVisitor mv,
                                                  bir:FunctionParam birFuncParam,
                                                  jvm:JType jMethodParamType,
                                                  string currentPackageName,
-                                                 int localVarIndex) {
-    // Load the parameter value to the stack
-    generateVarLoad(mv, birFuncParam, currentPackageName, localVarIndex);
+                                                 int localVarIndex,
+                                                 BalToJVMIndexMap indexMap) {
     bir:BType bFuncParamType = birFuncParam.typeValue;
-    if bFuncParamType is bir:BTypeHandle && jMethodParamType is jvm:RefType {
-        mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
-        mv.visitTypeInsn(CHECKCAST, jMethodParamType.typeName);
+    // FIXME!!!
+    if (true) {
+        genVarArg(mv, indexMap, bFuncParamType, jMethodParamType, localVarIndex);
     } else {
-        performNarrowingPrimitiveConversion(mv, <BValueType>bFuncParamType, <jvm:PrimitiveType>jMethodParamType);
+        // Load the parameter value to the stack
+        generateVarLoad(mv, birFuncParam, currentPackageName, localVarIndex);
+        convertToJVMValue(mv, bFuncParamType, jMethodParamType);
+    }
+}
+
+function convertToJVMValue(jvm:MethodVisitor mv, bir:BType bType, jvm:JType jvmType) {
+    if bType is bir:BTypeHandle && jvmType is jvm:RefType {
+        mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
+        mv.visitTypeInsn(CHECKCAST, jvmType.typeName);
+    } else {
+        performNarrowingPrimitiveConversion(mv, <BValueType>bType, <jvm:PrimitiveType>jvmType);
+    }
+}
+
+function genVarArg(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, bir:BType bType, jvm:JType jvmType,
+                   int varArgIndex) {
+    jvm:JType jElementType;
+    bir:BType bElementType;
+    if (jvmType is jvm:ArrayType && bType is bir:BArrayType) {
+        jElementType = jvmType.elementType;
+        bElementType = bType.eType;
+    } else {
+        error e = error(io:sprintf("invalid type for var-arg: %s", jvmType));
+        panic e;
+    }
+
+    bir:VariableDcl varArgsLen = { typeValue: bir:TYPE_INT,
+                                   name: { value: "$varArgsLen" },
+                                   kind: bir:VAR_KIND_TEMP };
+    bir:VariableDcl index = { typeValue: bir:TYPE_INT,
+                              name: { value: "$index" },
+                              kind: bir:VAR_KIND_TEMP };
+    bir:VariableDcl valueArray = { typeValue: bir:TYPE_ANY,
+                                   name: { value: "$valueArray" },
+                                   kind: bir:VAR_KIND_TEMP };
+
+    int varArgsLenVarIndex = indexMap.getIndex(varArgsLen);
+    int indexVarIndex = indexMap.getIndex(index);
+    int valueArrayIndex = indexMap.getIndex(valueArray);
+
+    // get the number of var args provided
+    mv.visitVarInsn(ALOAD, varArgIndex);
+    mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "size", "()I", false);
+    mv.visitInsn(DUP);  // duplicate array size - needed for array new
+    mv.visitVarInsn(ISTORE, varArgsLenVarIndex);
+
+    // create an array to hold the results. i.e: jvm values
+    genArrayNew(mv, jElementType);
+    mv.visitVarInsn(ASTORE, valueArrayIndex);
+
+    mv.visitInsn(ICONST_0);
+    mv.visitVarInsn(ISTORE, indexVarIndex);
+    jvm:Label l1 = new jvm:Label();
+    jvm:Label l2 = new jvm:Label();
+    mv.visitLabel(l1);
+
+    // if index >= varArgsLen, then jump to end
+    mv.visitVarInsn(ILOAD, indexVarIndex);
+    mv.visitVarInsn(ILOAD, varArgsLenVarIndex);
+    mv.visitJumpInsn(IF_ICMPGE, l2);
+
+    // `valueArray` and `index` to stack, for lhs of assignment
+    mv.visitVarInsn(ALOAD, valueArrayIndex);
+    mv.visitVarInsn(ILOAD, indexVarIndex);
+
+    // load `varArg[index]`
+    mv.visitVarInsn(ALOAD, varArgIndex);
+    mv.visitVarInsn(ILOAD, indexVarIndex);
+    mv.visitInsn(I2L);
+
+    if (bElementType is bir:BTypeInt) {
+        mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getInt", "(J)J", false);
+    } else if (bElementType is bir:BTypeString) {
+        mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getString", io:sprintf("(J)L%s;", STRING_VALUE), false);
+    } else if (bElementType is bir:BTypeBoolean) {
+        mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getBoolean", "(J)Z", false);
+    } else if (bElementType is bir:BTypeByte) {
+        mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getByte", "(J)B", false);
+    } else if (bElementType is bir:BTypeFloat) {
+        mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getFloat", "(J)D", false);
+    } else {
+        mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_VALUE, "getRefValue", io:sprintf("(J)L%s;", OBJECT), false);
+        mv.visitTypeInsn(CHECKCAST, HANDLE_VALUE);
+    }
+
+    // unwrap from handleValue
+    convertToJVMValue(mv, bElementType, jElementType);
+
+    // valueArray[index] = varArg[index]
+    genArrayStore(mv, jElementType);
+
+    // // increment index, and go to the condition again
+    mv.visitIincInsn(indexVarIndex, 1);
+    mv.visitJumpInsn(GOTO, l1);
+
+    mv.visitLabel(l2);
+    mv.visitVarInsn(ALOAD, valueArrayIndex);
+}
+
+function genArrayStore(jvm:MethodVisitor mv, jvm:JType jType) {
+    int code;
+    if jType is jvm:Int {
+        code = IASTORE;
+    } else if jType is jvm:Long {
+        code = LASTORE;
+    } else if jType is jvm:Double {
+        code = DASTORE;
+    } else if jType is jvm:Byte || jType is jvm:Boolean {
+        code = BASTORE;
+    } else if jType is jvm:Short {
+        code = SASTORE;
+    } else if jType is jvm:Char {
+        code = CASTORE;
+    } else if jType is jvm:Float {
+        code = FASTORE;
+    } else {
+        code = AASTORE;
+    }
+
+    mv.visitInsn(code);
+}
+
+function genArrayNew(jvm:MethodVisitor mv, jvm:JType elementType) {
+    if elementType is jvm:Int {
+        mv.visitIntInsn(NEWARRAY, T_INT);
+    } else if elementType is jvm:Long {
+        mv.visitIntInsn(NEWARRAY, T_LONG);
+    } else if elementType is jvm:Double {
+        mv.visitIntInsn(NEWARRAY, T_DOUBLE);
+    } else if elementType is jvm:Byte || elementType is jvm:Boolean {
+        mv.visitIntInsn(NEWARRAY, T_BOOLEAN);
+    } else if elementType is jvm:Short {
+        mv.visitIntInsn(NEWARRAY, T_SHORT);
+    } else if elementType is jvm:Char {
+        mv.visitIntInsn(NEWARRAY, T_CHAR);
+    } else if elementType is jvm:Float {
+        mv.visitIntInsn(NEWARRAY, T_FLOAT);
+    } else {
+        jvm:RefType varArgElementType = <jvm:RefType> elementType;
+        mv.visitTypeInsn(ANEWARRAY, varArgElementType.typeName);
     }
 }

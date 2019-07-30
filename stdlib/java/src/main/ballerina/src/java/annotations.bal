@@ -16,14 +16,19 @@
 
 public type ConstructorData record {|
     string class;
-    string[] paramTypes?;
+    ParamType[] paramTypes?;
 |};
 
 public type MethodData record {|
     string name?;
     string class;
     boolean isStatic = false;
-    string[] paramTypes?;
+    ParamType[] paramTypes?;
+|};
+
+public type ParamType string | record {|
+    string elementClass;
+    int dimensions;
 |};
 
 public type FieldData record {|
