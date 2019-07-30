@@ -26,8 +26,8 @@ public function main() {
     // The `bonusRate` defaults to 0.02.
     printSalaryDetails(2500, annualIncrement = 100);
 
-    // Call the function by passing only `baseSalary` and `annualIncrement`
-    // again, but now pass `annualIncrement` as a positional argument.
+    // Call the function again by passing only `baseSalary` and `annualIncrement`.
+    // Now pass `annualIncrement` as a positional argument.
     // The `bonusRate` defaults to 0.02.
     printSalaryDetails(2500, 100);
 
