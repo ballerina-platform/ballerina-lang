@@ -198,11 +198,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
         case Types.DECIMAL:
         case Types.NUMERIC:
             BigDecimal bigDecimal = rs.getBigDecimal(index);
-            if (bigDecimal == null) {
-                value = 0;
-            } else {
-                value = new DecimalValue(bigDecimal);
-            }
+            value = (bigDecimal == null) ? null : new DecimalValue(bigDecimal);
             break;
         default:
             value = rs.getString(index);
