@@ -250,8 +250,15 @@ public class BallerinaSdkUtils {
                 }
                 return ballerinaPath;
             case (MAC):
+                // Tries to retrieve ballerina distribution path by executing "which ballerina" command.
                 ballerinaPath = getByCommand("which ballerina");
-                // remove ballerina bin from ballerinaPath
+
+                // If "which ballerina" fails, falls back to "BALLERINA_HOME" environmental variable.
+                if (ballerinaPath.isEmpty()) {
+                    ballerinaPath = System.getenv("BALLERINA_HOME");
+                }
+
+                // Removes ballerina bin from ballerinaPath.
                 if (!ballerinaPath.isEmpty()) {
                     ballerinaPath = ballerinaPath.replace("/bin/ballerina", "");
                     // For homebrew installations ballerina executables are in libexcec
@@ -262,8 +269,15 @@ public class BallerinaSdkUtils {
                 }
                 return ballerinaPath;
             case (UNIX):
+                // Tries to retrieve ballerina distribution path by executing "which ballerina" command.
                 ballerinaPath = getByCommand("which ballerina");
-                // remove ballerina bin from path
+
+                // If "which ballerina" fails, falls back to "BALLERINA_HOME" environmental variable.
+                if (ballerinaPath.isEmpty()) {
+                    ballerinaPath = System.getenv("BALLERINA_HOME");
+                }
+
+                // Removes ballerina bin from ballerinaPath.
                 if (!ballerinaPath.isEmpty()) {
                     ballerinaPath = ballerinaPath.replace("/bin/ballerina", "");
                 }
