@@ -48,24 +48,26 @@ public type ClientEndpointConfig record {|
 #                `b7a.jdbc.pool.autoCommit`.
 # + isXA - Whether Connections are used for a distributed transaction. Default value is `false` and it
 #          can be set through the configuration API with the key `b7a.jdbc.pool.isXA`.
-# + maximumPoolSize - Maximum size that the pool is allowed to reach, including both idle and in-use connections.
+# + maximumPoolSize - The maximum size that the pool is allowed to reach, including both idle and in-use connections.
 #                     Default value is 15 and it can be changed through the configuration API with the key
 #                     `b7a.jdbc.pool.maximumPoolSize`.
-# + connectionTimeoutInMillis - Maximum number of milliseconds that a client will wait for a connection from the pool.
-#                       Default is 30000 (30 seconds) and it can be changed through the configuration API with the key
-#                       `b7a.jdbc.pool.connectionTimeoutInMillis`. Lowest acceptable connection timeout value is 250 ms.
-# + idleTimeoutInMillis - The maximum amount of time that a connection is allowed to sit idle in the pool. Default is
-#                 600000 (10 minutes) and it can be changed through the configuration API with the key
+# + connectionTimeoutInMillis - The maximum number of milliseconds that a client will wait for a connection from the
+#                       pool. Default value is 30000 (30 seconds) and it can be changed through the configuration API
+#                       with the key `b7a.jdbc.pool.connectionTimeoutInMillis`. Lowest acceptable connection timeout
+#                       value is 250 ms.
+# + idleTimeoutInMillis - The maximum amount of time that a connection is allowed to sit idle in the pool. Default value
+#                 is 600000 (10 minutes) and it can be changed through the configuration API with the key
 #                 `b7a.jdbc.pool.idleTimeoutInMillis`. The minimum allowed value is 10000ms (10 seconds).
 #                 This setting only applies when minimumIdle is defined to be less than maximumPoolSize.
-# + minimumIdle - Minimum number of idle connections that pool tries to maintain in the pool. Default is same as
+# + minimumIdle - The minimum number of idle connections that pool tries to maintain in the pool. Default is same as
 #                 maximumPoolSize and it can be changed through the configuration API with the key
 #                 `b7a.jdbc.pool.minimumIdle`.
-# + maxLifetimeInMillis - Maximum lifetime of a connection in the pool. Default is 1800000 (30 minutes) and it can be
-#                  changed through the configuration API with the key `b7a.jdbc.pool.maxLifetimeInMillis`. A value of 0
-#                  indicates unlimited maximum lifetime (infinite lifetime), subject to the `idleTimeoutInMillis`.
-# + validationTimeoutInMillis - Maximum duration of time that a connection will be tested for aliveness. Default is
-#                       5000 (5 seconds) and it can be changed through the configuration API with the key
+# + maxLifetimeInMillis - The maximum lifetime of a connection in the pool. Default value is 1800000 (30 minutes)
+#                  and it can be changed through the configuration API with the key `b7a.jdbc.pool.maxLifetimeInMillis`.
+#                  A value of 0 indicates unlimited maximum lifetime (infinite lifetime), subject to
+#                  the `idleTimeoutInMillis`.
+# + validationTimeoutInMillis - The maximum duration of time that a connection will be tested for aliveness. Default
+#                       value is 5000 (5 seconds) and it can be changed through the configuration API with the key
 #                       `b7a.jdbc.pool.validationTimeoutInMillis`.  Lowest acceptable validation timeout is 250 ms.
 public type PoolOptions record {|
     string connectionInitSql = config:getAsString("b7a.jdbc.pool.connectionInitSql", "");
