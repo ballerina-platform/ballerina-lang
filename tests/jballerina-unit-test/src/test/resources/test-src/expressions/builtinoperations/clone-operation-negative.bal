@@ -20,14 +20,8 @@ public function cloneWithParams() {
 }
 
 public function cloneInvalidType() {
-    typedesc a = int;
-    typedesc x = a.clone();
-}
-
-public function cloneNil() returns [(), ()] {
-    () a = ();
-    () x = a.clone();
-    return [a, x];
+    typedesc<int> a = int;
+    typedesc<int> x = a.clone();
 }
 
 public function cloneError() returns error {

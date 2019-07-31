@@ -330,14 +330,6 @@ public class LengthOperationTest {
         BRunUtil.invoke(result, "accessLengthOfNullArray", args);
     }
 
-    @Test(description = "Test length of json when reference point to json that is null.",
-            expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: NullReferenceException \\{\\}.*")
-    public void testJsonLengthOfNull() {
-        BValue[] args = new BValue[0];
-        BRunUtil.invoke(result, "accessLengthOfNullJson", args);
-    }
-
     @Test(description = "Test length of map when reference point to null map.")
     public void testMapLengthOfNull() {
         BValue[] args = new BValue[0];
