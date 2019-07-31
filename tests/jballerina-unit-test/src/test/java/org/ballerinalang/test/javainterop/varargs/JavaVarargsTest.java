@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.javainterop.varargs;
 
+import org.ballerinalang.model.values.BHandleValue;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -26,7 +27,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Test cases for java interop with functions with varargs.
@@ -89,28 +92,13 @@ public class JavaVarargsTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
     }
 
-//    @Test(description = "Test passing Java array objects")
-//    public void testPassingJavaStringArray() {
-//        String[] names = {"John", "Jane", "Peter", "Amber", "Autumn", "Harold"};
-//        String[] namesCopy = {"John", "Jane", "Peter", "Amber", "Autumn", "Harold"};
-//        Arrays.sort(namesCopy);
-//        BValue[] args = new BValue[1];
-//        args[0] = new BHandleValue(names);
-//        BValue[] returns = BRunUtil.invoke(result, "testPassingJavaStringArray", args);
-//        Assert.assertEquals(returns.length, 1);
-//        Assert.assertEquals(((BHandleValue) returns[0]).getValue(), namesCopy);
-//    }
-//
-//    @Test(description = "Test Returning Java string array")
-//    public void testReturningSortedJavaStringArray() {
-//        BValue[] returns = BRunUtil.invoke(result, "testReturningSortedJavaStringArray");
-//        Assert.assertEquals(returns.length, 1);
-//
-//        String strValue = "Ballerina Programming Language Specification";
-//        String[] parts = strValue.split(" ");
-//        Arrays.sort(parts);
-//        Assert.assertEquals(((BHandleValue) returns[0]).getValue(), parts);
-//    }
+    @Test
+    public void testJavaListVarargs() {
+        BValue[] returns = BRunUtil.invoke(result, "testJavaListVarargs");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BHandleValue) returns[0]).getValue().toString(),
+                "[apples, arranges, grapes, pineapple, mangoes]");
+    }
 
     // Java methods for interop
 
@@ -140,5 +128,17 @@ public class JavaVarargsTest {
             sum += Arrays.stream(val).reduce(0, Integer::sum);
         }
         return sum;
+    }
+
+    public static List<String> getList(String... vals) {
+        return Arrays.asList(vals);
+    }
+
+    public static List<String> merge(List<String>... lists) {
+        List<String> mergedList = new ArrayList<String>();
+        for (List<String> list : lists) {
+            mergedList.addAll(list);
+        }
+        return mergedList;
     }
 }

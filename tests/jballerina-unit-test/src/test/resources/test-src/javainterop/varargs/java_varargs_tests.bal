@@ -29,6 +29,12 @@ public function testGetSumOfIntArrays() returns int {
     return calculateSumOfIntArrays(array1, array2, array3);
 }
 
+public function testJavaListVarargs() returns handle {
+    handle arrayList1 = getArrayList(java:toJString("apples"), java:toJString("arranges"), java:toJString("grapes"));
+    handle arrayList2 = getArrayList(java:toJString("pineapple"));
+    handle arrayList3 = getArrayList(java:toJString("mangoes"));
+    return mergeLists(arrayList1, arrayList2, arrayList3);
+}
 
 // ------------ External functions -------------
 
@@ -55,4 +61,15 @@ public function getIntArray(int size) returns handle = @java:Method {
 public function calculateSumOfIntArrays(handle... values) returns int = @java:Method {
     name:"getSumOfIntArrays",
     class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
+} external;
+
+public function getArrayList(handle... values) returns handle = @java:Method {
+    name:"getList",
+    class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
+} external;
+
+public function mergeLists(handle... values) returns handle = @java:Method {
+    name:"merge",
+    class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest",
+    paramTypes:["[Ljava.util.List;"]
 } external;
