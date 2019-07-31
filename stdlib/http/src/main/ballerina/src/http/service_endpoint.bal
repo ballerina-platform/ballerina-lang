@@ -177,13 +177,13 @@ public type ServiceEndpointConfiguration record {|
 # should successfully be authorozed.
 # + positiveAuthzCache - The caching configurations for positive authorizations.
 # + negativeAuthzCache - The caching configurations for negative authorizations.
-# + position - The authn/authz filter position of the filter array. The position values starts from 1 and it is set to 1 implicitly.
+# + position - The authn/authz filter position of the filter array. The position values starts from 0 and it is set to 0 implicitly.
 public type ListenerAuth record {|
     InboundAuthHandler[]|InboundAuthHandler[][] authHandlers;
     string[]|string[][] scopes?;
     AuthCacheConfig positiveAuthzCache = {};
     AuthCacheConfig negativeAuthzCache = {};
-    int position = 1;
+    int position = 0;
 |};
 
 # Configures the SSL/TLS options to be used for HTTP service.
@@ -253,7 +253,7 @@ public const KEEPALIVE_NEVER = "NEVER";
 # + config - `ServiceEndpointConfiguration` instance
 function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
     // Add authentication and authorization filters as the first two filters if there are no any filters specified OR
-    // the auth filter position is specified as 1. If there are any filters specified, the authentication and
+    // the auth filter position is specified as 0. If there are any filters specified, the authentication and
     // authorization filters should be added into the position specified.
 
     var auth = config["auth"];
@@ -271,20 +271,20 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
         AuthzHandler authzHandler = new(positiveAuthzCache, negativeAuthzCache);
         AuthzFilter authzFilter = new(authzHandler, scopes);
 
-        if (auth.position == 1) {
+        if (auth.position == 0) {
             config.filters.unshift(authnFilter, authzFilter);
         } else {
-            if (auth.position < 1 || auth.position > config.filters.length()) {
-                error err = error("Position of the auth filters should be beteween 1 and length of the filter array.");
+            if (auth.position < 0 || auth.position > config.filters.length()) {
+                error err = error("Position of the auth filters should be beteween 0 and length of the filter array.");
                 panic err;
             }
-            int count = 1;
+            int count = 0;
             while (count < auth.position) {
                 config.filters.push(config.filters.shift());
                 count += 1;
             }
             config.filters.unshift(authnFilter, authzFilter);
-            while (count > 1) {
+            while (count > 0) {
                 config.filters.unshift(config.filters.pop());
                 count -= 1;
             }
