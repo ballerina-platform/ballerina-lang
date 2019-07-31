@@ -107,6 +107,20 @@ public class JavaVarargsTest {
                 "[apples, arranges, grapes, pineapple, mangoes]");
     }
 
+    @Test
+    public void testPrimitiveVarargsWithGenerics() {
+        BValue[] returns = BRunUtil.invoke(result, "testPrimitiveVarargsWithGenerics");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BHandleValue) returns[0]).getValue().toString(), "[3, 6, 9]");
+    }
+
+    @Test
+    public void testPasingValueTypeToJavaObject() {
+        BValue[] returns = BRunUtil.invoke(result, "testPasingValueTypeToJavaObject");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
+    }
+
     // Java methods for interop
 
     public static int getSum(int... vals) {
@@ -147,5 +161,9 @@ public class JavaVarargsTest {
             mergedList.addAll(list);
         }
         return mergedList;
+    }
+
+    public static int toShort(Object vals) {
+        return ((Number) vals).shortValue();
     }
 }

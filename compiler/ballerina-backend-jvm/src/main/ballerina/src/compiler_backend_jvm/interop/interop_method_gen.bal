@@ -478,12 +478,23 @@ function loadMethodParamToStackInInteropFunction(jvm:MethodVisitor mv,
 }
 
 function convertToJVMValue(jvm:MethodVisitor mv, bir:BType bType, jvm:JType jvmType) {
-    if bType is bir:BTypeHandle && (jvmType is jvm:RefType|jvm:ArrayType) {
-        mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
-        string classSig = getSignatureForJType(jvmType);
-        mv.visitTypeInsn(CHECKCAST, classSig);
+    if bType is bir:BTypeHandle {
+        if (jvmType is jvm:RefType|jvm:ArrayType) {
+            mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
+            string classSig = getSignatureForJType(jvmType);
+            mv.visitTypeInsn(CHECKCAST, classSig);
+        } else {
+            // should never reach here
+            error e = error(io:sprintf("invalid java method type: %s", jvmType));
+            panic e;
+        }
     } else {
-        performNarrowingPrimitiveConversion(mv, <BValueType>bType, <jvm:PrimitiveType>jvmType);
+        // bType is a value-type
+        if (jvmType is jvm:PrimitiveType) {
+            performNarrowingPrimitiveConversion(mv, <BValueType>bType, jvmType);
+        } else {
+            addBoxInsn(mv, bType);
+        }
     }
 }
 

@@ -43,6 +43,14 @@ public function testJavaListVarargs() returns handle {
     return mergeLists(arrayList1, arrayList2, arrayList3);
 }
 
+public function testPrimitiveVarargsWithGenerics() returns handle {
+    return asList(3, 6, 9);
+}
+
+public function testPasingValueTypeToJavaObject() returns int {
+    return toShort(4);
+}
+
 // ------------ External functions -------------
 
 public function calculateSum(int... values) returns int = @java:Method {
@@ -85,4 +93,14 @@ public function calculateSumOfIntArraysWithAnnot(handle... values) returns int =
     name:"getSumOfIntArrays",
     class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest",
     paramTypes:[{elementClass:"int", dimensions:2}]
+} external;
+
+public function asList(int... values) returns handle = @java:Method {
+    name:"asList",
+    class: "java.util.Arrays"
+} external;
+
+public function toShort(int value) returns int = @java:Method {
+    name:"toShort",
+    class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
 } external;
