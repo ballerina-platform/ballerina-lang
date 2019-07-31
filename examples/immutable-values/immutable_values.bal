@@ -7,7 +7,7 @@ public function main() {
     // Call `.cloneReadOnly()` on the map `m1` and assign the returned value to another variable.
     map<string|int> m2 = m1.cloneReadOnly();
 
-    // Reference equality checks for `m1` and `m2` should evaluate to false, due to a clone being created
+    // Reference equality checks for `m1` and `m2` should evaluate to false due to a clone being created
     // since `m1` is not an immutable value.
     io:println("m1 === m2: ", m1 === m2);
 
@@ -16,10 +16,10 @@ public function main() {
     io:println("m1 is immutable: ", m1.isReadOnly());
 
     // Check if `m2` is immutable. This evaluates to true since the returned clone is
-    // marked immutable.
+    // marked as immutable.
     io:println("m2 is immutable: ", m2.isReadOnly());
 
-    // Attempt to add an entry to the `map`, and trap the panic if it results in a panic.
+    // Attempt to add an entry to the `map` and trap the panic if it results in a panic.
     error? updateResult = trap addEntryToMap(m2, "intValTwo", 10);
     if (updateResult is error) {
         // An error should occur since `m2` is frozen.
@@ -30,7 +30,7 @@ public function main() {
     // Now call `.cloneReadOnly()` on the immutable value `m2`.
     map<string|int> m3 = m2.cloneReadOnly();
 
-    // Reference equality checks for `m2` and `m3` should evaluate to true, due to no clones being created
+    // Reference equality checks for `m2` and `m3` should evaluate to true due to no clones being created
     // since `m2` is already an immutable value.
     io:println("m2 === m3: ", m2 === m3);
 
@@ -40,7 +40,7 @@ public function main() {
     // values of the type `string` only.
     map<string|int> m5 = { valueType: "map", constraint: "string" };
     // Make the map immutable. The resultant value would only
-    // contains values of the type `string`, and no values can now be
+    // contain values of the type `string` and no values can now be
     // added to the map.
     var frozenVal = m5.cloneReadOnly();
     // Checking if the frozen value is of the type `map<string>` thus

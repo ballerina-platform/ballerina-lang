@@ -29,7 +29,7 @@ public function main() {
     io:println(j7);
 
     // The `.mergeJson()` method can be used to merge two `json` values.
-    // If either of the two values is `null` the result of `.mergeJson()` is
+    // If either of the two values is `null`, the result of `.mergeJson()` is
     // the other value.
     json|error j8 = j5.mergeJson(j7);
     io:println(j8);
@@ -61,7 +61,7 @@ public function main() {
     io:println(s);
 
     // The `.fromJsonString()` defined on `string` values attempts parsing the
-    // string expected to be in JSON format and returns the JSON value represented
+    // string expected to be in the JSON format and returns the represented JSON value 
     // if successful. This method returns an error if the string cannot be parsed.
     json|error j14 = s.fromJsonString();
     io:println(j14);

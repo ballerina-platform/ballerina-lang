@@ -14,7 +14,7 @@ public function main() {
     json j3 = j2[4];
     io:println(j3);
 
-    // Similarly, member access could be used with `json[]` typed variables to add or
+    // Similarly, member access could be used with `json[]`-typed variables to add or
     // change members in a `json` array.
     j2[4] = 8.00;
     io:println(j1);

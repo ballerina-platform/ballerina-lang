@@ -1,6 +1,6 @@
 // Ballerina allows creating immutable or read-only clones of values.
 //
-// The `.cloneReadOnly()` method can be called on a value of type `anydata` to create a clone of the value
+// The `.cloneReadOnly()` method can be called on a value of type `anydata` to create a clone of the value,
 // which is immutable. No changes are done to the original value.
 // Calling `.cloneReadOnly()` on structures would deeply clone the elements and mark them as immutable.
 // Moreover, if the value is already an immutable value, `.cloneReadOnly()` returns the value itself (no cloning is

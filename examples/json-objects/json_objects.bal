@@ -19,15 +19,15 @@ public function main() {
     json p = { fname: "John", lname: "Stallone", "age": age };
     io:println(p);
 
-    // You can add or change JSON object values, using member access (`[expr]` operator).
+    // You can add or change JSON object values using member access (i.e., the `[expr]` operator).
     // In order to change fields of an object value, it needs to be accessed
     // as a `map<json>`. This is done by casting `p` to `map<json>`.
-    // Alternatively `p` could have been defined as a `map<json>`.
+    // Alternatively, `p` could have been defined as a `map<json>`.
     map<json> mp = <map<json>> p;
     mp["age"] = 31;
     io:println(p);
 
-    // Create a Nested JSON object.
+    // Create a nested JSON object.
     // This could also be defined as a `json` variable instead of `map<json>`.
     map<json> p2 = {
          fname: "Peter",

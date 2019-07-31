@@ -43,6 +43,6 @@ public function main() {
 
     io:println("Source value: ", person);
     io:println("Cloned value: ", result);
-    // Check reference inequality of the original value and the cloned value.
+    // Check reference inequality between the original value and the cloned value.
     io:println("Source and Clone are at two different memory locations: ", result !== person);
 }
