@@ -29,7 +29,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
  */
 class JValues {
 
-    static ErrorValue getJavaNullRererenceError() {
+    static ErrorValue getJavaNullReferenceError() {
         return BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.JAVA_NULL_REFERENCE_ERROR,
                 RuntimeErrors.JAVA_NULL_REFERENCE);
     }

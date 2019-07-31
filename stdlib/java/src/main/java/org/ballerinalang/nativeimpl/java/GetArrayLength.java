@@ -35,7 +35,7 @@ public class GetArrayLength {
     public static long getArrayLength(Strand strand, HandleValue arrayValue) {
         Object[] arr = (Object[]) arrayValue.getValue();
         if (arr == null) {
-            throw JValues.getJavaNullRererenceError();
+            throw JValues.getJavaNullReferenceError();
         }
         return arr.length;
     }

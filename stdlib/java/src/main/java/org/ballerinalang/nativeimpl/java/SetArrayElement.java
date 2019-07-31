@@ -35,7 +35,7 @@ public class SetArrayElement {
     public static void setArrayElement(Strand strand, HandleValue arrayValue, long index, HandleValue value) {
         Object[] arr = (Object[]) arrayValue.getValue();
         if (arr == null) {
-            throw JValues.getJavaNullRererenceError();
+            throw JValues.getJavaNullReferenceError();
         }
         JValues.rangeCheck(index, arr);
         arr[(int) index] = value.getValue();

@@ -35,7 +35,7 @@ public class GetArrayElement {
     public static HandleValue getArrayElement(Strand strand, HandleValue arrayValue, long index) {
         Object[] arr = (Object[]) arrayValue.getValue();
         if (arr == null) {
-            throw JValues.getJavaNullRererenceError();
+            throw JValues.getJavaNullReferenceError();
         }
 
         JValues.rangeCheck(index, arr);
