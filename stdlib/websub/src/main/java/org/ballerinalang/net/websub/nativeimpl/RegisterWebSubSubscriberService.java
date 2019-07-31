@@ -41,20 +41,20 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERV
 
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
-        functionName = "registerWebSubSubscriberServiceEndpoint",
+        functionName = "registerWebSubSubscriberService",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = WEBSUB_SERVICE_LISTENER,
                 structPackage = WEBSUB_PACKAGE),
         args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
         isPublic = true
 )
-public class RegisterWebSubSubscriberServiceEndpoint extends BlockingNativeCallableUnit {
+public class RegisterWebSubSubscriberService extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
     }
 
-    public static void registerWebSubSubscriberServiceEndpoint(Strand strand, ObjectValue subscriberServiceEndpoint,
-                                                               ObjectValue service) {
+    public static void registerWebSubSubscriberService(Strand strand, ObjectValue subscriberServiceEndpoint,
+                                                       ObjectValue service) {
         ObjectValue serviceEndpoint = (ObjectValue) subscriberServiceEndpoint.get(LISTENER_SERVICE_ENDPOINT);
         WebSubServicesRegistry webSubServicesRegistry =
                 (WebSubServicesRegistry) serviceEndpoint.getNativeData(WEBSUB_SERVICE_REGISTRY);
