@@ -59,5 +59,3 @@ public class Commit {
         return null;
     }
 }
-
-

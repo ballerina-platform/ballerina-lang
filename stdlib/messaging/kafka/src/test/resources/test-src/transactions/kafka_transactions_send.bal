@@ -48,4 +48,3 @@ function kafkaAdvancedTransactionalProduce(byte[] msg) returns error? {
     }
     return returnValue;
 }
-

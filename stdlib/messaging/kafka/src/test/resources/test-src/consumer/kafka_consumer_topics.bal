@@ -69,5 +69,3 @@ function funcKafkaGetTopicPartitions() returns kafka:TopicPartition[]|error {
     kafka:Consumer kafkaConsumer = new(consumerConfigs);
     return kafkaConsumer->getTopicPartitions(TOPIC_1);
 }
-
-

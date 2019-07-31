@@ -48,20 +48,19 @@ public class KafkaServiceTest {
     private CompileResult compileResult;
     private static File dataDir;
     private static KafkaCluster kafkaCluster;
-    private static String topic = "service-test";
-    private static String message = "test_string";
 
     @BeforeClass
     public void setup() throws IOException {
         Properties prop = new Properties();
-        kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true)
-                .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(1).startup();
+        kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true).deleteDataUponShutdown(true).
+                withKafkaConfiguration(prop).addBrokers(1).startup();
     }
 
-    // TODO: Check the service implementation again for make disabled tests pass
-    @Test(description = "Test endpoint bind to a service", enabled = false)
+    @Test(description = "Test endpoint bind to a service")
     public void testKafkaServiceEndpoint() {
-        compileResult = BCompileUtil.compile(getFilePath("test-src/services/kafka_service.bal"));
+        compileResult = BCompileUtil.compile(true, getFilePath("test-src/services/kafka_service.bal"));
+        String topic = "service-test";
+        String message = "test_string";
         produceToKafkaCluster(kafkaCluster, topic, message);
 
         try {
@@ -76,9 +75,9 @@ public class KafkaServiceTest {
         }
     }
 
-    @Test(description = "Test endpoint bind to a service", enabled = false)
+    @Test(description = "Test endpoint bind to a service")
     public void testKafkaAdvancedService() {
-        compileResult = BCompileUtil.compile(getFilePath("test-src/services/kafka_service_advanced.bal"));
+        compileResult = BCompileUtil.compile(true, getFilePath("test-src/services/kafka_service_advanced.bal"));
         BRunUtil.invoke(compileResult, "funcKafkaProduce");
 
         try {
@@ -93,9 +92,9 @@ public class KafkaServiceTest {
         }
     }
 
-    @Test(description = "Test kafka service stop() function", enabled = false)
+    @Test(description = "Test kafka service stop() function")
     public void testKafkaServiceStop() {
-        compileResult = BCompileUtil.compile(getFilePath("test-src/services/kafka_service_stop.bal"));
+        compileResult = BCompileUtil.compile(true, getFilePath("test-src/services/kafka_service_stop.bal"));
         BRunUtil.invoke(compileResult, "funcKafkaProduce");
         try {
             await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {

@@ -100,4 +100,3 @@ public class GetPositionOffset {
         return kafkaConsumer.position(topicPartition, duration);
     }
 }
-

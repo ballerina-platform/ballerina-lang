@@ -48,36 +48,36 @@ import ballerina/system;
 # + enableIdempotence - Exactly one copy of each message is written in the stream when enabled.
 # + secureSocket - SSL/TLS related options
 public type ProducerConfig record {|
-    string? bootstrapServers = (); // BOOTSTRAP_SERVERS_CONFIG 0
-    string? acks = (); // ACKS_CONFIG 1
-    string? compressionType = (); // COMPRESSION_TYPE_CONFIG 2
-    string? clientId = (); // CLIENT_ID_CONFIG 3
-    string? metricsRecordingLevel = (); // METRICS_RECORDING_LEVEL_CONFIG 4
-    string? metricReporterClasses = (); // METRIC_REPORTER_CLASSES_CONFIG 5
-    string? partitionerClass = (); // PARTITIONER_CLASS_CONFIG 6
-    string? interceptorClasses = (); // INTERCEPTOR_CLASSES_CONFIG 7
-    string? transactionalId = (); // TRANSACTIONAL_ID_CONFIG 8
+    string? bootstrapServers = ();
+    string? acks = ();
+    string? compressionType = ();
+    string? clientId = ();
+    string? metricsRecordingLevel = ();
+    string? metricReporterClasses = ();
+    string? partitionerClass = ();
+    string? interceptorClasses = ();
+    string? transactionalId = ();
 
-    int bufferMemory = -1; // BUFFER_MEMORY_CONFIG 0
-    int noRetries = -1; // RETRIES_CONFIG 1
-    int batchSize = -1; // BATCH_SIZE_CONFIG 2
-    int linger = -1; // LINGER_MS_CONFIG 3
-    int sendBuffer = -1; // SEND_BUFFER_CONFIG 4
-    int receiveBuffer = -1; // RECEIVE_BUFFER_CONFIG 5
-    int maxRequestSize = -1; // MAX_REQUEST_SIZE_CONFIG 6
-    int reconnectBackoff = -1; // RECONNECT_BACKOFF_MS_CONFIG 7
-    int reconnectBackoffMax = -1; // RECONNECT_BACKOFF_MAX_MS_CONFIG  8
-    int retryBackoff = -1; // RETRY_BACKOFF_MS_CONFIG 9
-    int maxBlock = -1; // MAX_BLOCK_MS_CONFIG 10
-    int requestTimeout = -1; // REQUEST_TIMEOUT_MS_CONFIG  11
-    int metadataMaxAge = -1; // METADATA_MAX_AGE_CONFIG 12
-    int metricsSampleWindow = -1; // METRICS_SAMPLE_WINDOW_MS_CONFIG 13
-    int metricsNumSamples = -1; // METRICS_NUM_SAMPLES_CONFIG  14
-    int maxInFlightRequestsPerConnection = -1; // MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION 15
-    int connectionsMaxIdle = -1; // CONNECTIONS_MAX_IDLE_MS_CONFIG 16
-    int transactionTimeout = -1; // TRANSACTION_TIMEOUT_CONFIG 17
+    int bufferMemory = -1;
+    int noRetries = -1;
+    int batchSize = -1;
+    int linger = -1;
+    int sendBuffer = -1;
+    int receiveBuffer = -1;
+    int maxRequestSize = -1;
+    int reconnectBackoff = -1;
+    int reconnectBackoffMax = -1;
+    int retryBackoff = -1;
+    int maxBlock = -1;
+    int requestTimeout = -1;
+    int metadataMaxAge = -1;
+    int metricsSampleWindow = -1;
+    int metricsNumSamples = -1;
+    int maxInFlightRequestsPerConnection = -1;
+    int connectionsMaxIdle = -1;
+    int transactionTimeout = -1;
 
-    boolean enableIdempotence = false; // ENABLE_IDEMPOTENCE_CONFIG 0
+    boolean enableIdempotence = false;
 
     SecureSocket secureSocket?;
 |};
@@ -101,38 +101,38 @@ public type Producer client object {
     # Initialize the producer endpoint. Panics if the initialization fails.
     #
     # + config - Configurations related to the endpoint.
-    # + return - `kafka:ProducerError` if fails to initiate the `kafka:Producer`
+    # + return - `kafka:ProducerError` if fails to initiate the `kafka:Producer`, nil otherwise.
     function init(ProducerConfig config) returns error? = external;
 
     public string connectorId = system:uuid();
 
     # Closes producer connection to the external Kafka broker.
     #
-    # + return - `kafka:ProducerError` if closing the producer failed, none otherwise.
+    # + return - `kafka:ProducerError` if closing the producer failed, nil otherwise.
     public remote function close() returns ProducerError? = external;
 
     # Commits consumer action which commits consumer consumed offsets to offset topic.
     #
     # + consumer - Consumer which needs offsets to be committed.
-    # + return - `kafka:ProducerError` if committing the consumer failed, none otherwise.
+    # + return - `kafka:ProducerError` if committing the consumer failed, nil otherwise.
     public remote function commitConsumer(Consumer consumer) returns ProducerError? = external;
 
     # CommitConsumerOffsets action which commits consumer offsets in given transaction.
     #
     # + offsets - Consumer offsets to commit for given transaction.
     # + groupID - Consumer group id.
-    # + return - `kafka:ProducerError` if committing consumer offsets failed, none otherwise.
+    # + return - `kafka:ProducerError` if committing consumer offsets failed, nil otherwise.
     public remote function commitConsumerOffsets(PartitionOffset[] offsets, string groupID) returns ProducerError? = external;
 
     # Flush action which flush batch of records.
     #
-    # + return - `kafka:ProducerError` if records couldn't be flushed, none otherwise.
+    # + return - `kafka:ProducerError` if records couldn't be flushed, nil otherwise.
     public remote function flushRecords() returns ProducerError? = external;
 
     # GetTopicPartitions action which returns given topic partition information.
     #
     # + topic - Topic which the partition information is given.
-    # + return - Partitions for the given topic, returns `kafka:ProducerError` if operation fails.
+    # + return - `kafka:TopicPartition` array for the given topic, returns `kafka:ProducerError` if operation fails.
     public remote function getTopicPartitions(string topic) returns TopicPartition[]|ProducerError = external;
 
     # Simple Send action which produce records to Kafka server.
@@ -142,13 +142,8 @@ public type Producer client object {
     # + key - Key that will be included in the record.
     # + partition - Partition to which the record should be sent.
     # + timestamp - Timestamp of the record, in milliseconds since epoch.
-    # + return - Returns `kafka:ProducerError` if send action fails to send data, none otherwise.
-    public remote function send(
-                                          byte[] value,
-                                          string topic,
-                                          public byte[]? key = (),
-                                          public int? partition = (),
-                                          public int? timestamp = ()
-                                      ) returns ProducerError? = external;
+    # + return - Returns `kafka:ProducerError` if send action fails to send data, nil otherwise.
+    public remote function send(byte[] value, string topic, public byte[]? key = (), public int? partition = (),
+                                public int? timestamp = ()) returns ProducerError? = external;
 
 };

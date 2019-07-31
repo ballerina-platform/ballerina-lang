@@ -20,7 +20,11 @@ public type Detail record {
 };
 
 public const CONSUMER_ERROR = "{ballerina/kafka}ConsumerError";
+
+# Kafka Consumer related errors
 public type ConsumerError error<CONSUMER_ERROR, Detail>;
 
 public const PRODUCER_ERROR = "{ballerina/kafka}ProducerError";
+
+# Kafka Producer related errors
 public type ProducerError error<PRODUCER_ERROR, Detail>;

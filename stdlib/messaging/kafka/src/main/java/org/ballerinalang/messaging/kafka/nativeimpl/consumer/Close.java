@@ -87,4 +87,3 @@ public class Close {
         kafkaConsumer.close(duration);
     }
 }
-

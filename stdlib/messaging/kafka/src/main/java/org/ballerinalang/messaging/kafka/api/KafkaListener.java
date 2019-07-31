@@ -57,5 +57,3 @@ public interface KafkaListener {
     void onError(Throwable throwable);
 
 }
-
-

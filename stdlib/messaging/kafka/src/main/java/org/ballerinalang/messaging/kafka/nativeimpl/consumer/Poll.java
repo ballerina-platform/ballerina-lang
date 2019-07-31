@@ -87,5 +87,3 @@ public class Poll {
         return null;
     }
 }
-
-

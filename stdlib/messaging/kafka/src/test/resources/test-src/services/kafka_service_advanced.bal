@@ -47,11 +47,8 @@ service kafkaService on kafkaConsumer {
         kafka:PartitionOffset[] offsets,
         string groupId
     ) {
-        foreach kafka:ConsumerRecord kafkaRecord in records {
-            byte[] result = kafkaRecord.value;
-            if (result.length() > 0) {
-                isSuccess = true;
-            }
+        if (records.length() > 0 && groupId == "advanced-service-test-group") {
+            isSuccess = true;
         }
     }
 }

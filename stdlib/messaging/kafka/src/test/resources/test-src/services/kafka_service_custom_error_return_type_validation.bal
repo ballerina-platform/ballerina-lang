@@ -36,5 +36,3 @@ service kafkaTestService on kafkaConsumer {
         return;
     }
 }
-
-

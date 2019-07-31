@@ -62,4 +62,3 @@ public class SubscribeToPattern {
         return null;
     }
 }
-

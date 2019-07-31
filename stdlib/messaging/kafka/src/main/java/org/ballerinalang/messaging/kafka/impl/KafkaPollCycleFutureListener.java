@@ -75,5 +75,3 @@ public class KafkaPollCycleFutureListener implements CallableUnitCallback {
 
 
 }
-
-
