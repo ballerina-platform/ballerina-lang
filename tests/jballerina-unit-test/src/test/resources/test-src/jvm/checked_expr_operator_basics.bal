@@ -78,12 +78,16 @@ type Person record {
 };
 
 public type MyErrorData record {|
+    string message?;
+    error cause?;
 |};
 
 type MyError error<string, MyErrorData>;
 
 public type CustomErrorData record {|
     string data;
+    string message?;
+    error cause?;
 |};
 
 type CustomError error<string, CustomErrorData>;

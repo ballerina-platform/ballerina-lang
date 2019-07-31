@@ -23,9 +23,9 @@ public function main() {
 }
 
 // Writes `xml` content to a given path.
-function write(xml content, string path) returns error? {
+function write(xml content, string path) returns @tainted error? {
     // Creates a byte channel from the given path.
-    io:WritableByteChannel wbc = io:openWritableFile(path);
+    io:WritableByteChannel wbc = check io:openWritableFile(path);
     // Derives the character channel from the byte channel.
     io:WritableCharacterChannel wch = new(wbc, "UTF8");
     var result = wch.writeXml(content);
@@ -35,9 +35,9 @@ function write(xml content, string path) returns error? {
 }
 
 // Reads `xml` from a given path.
-function read(string path) returns xml|error {
+function read(string path) returns @tainted xml|error {
     // Creates a byte channel from the given path.
-    io:ReadableByteChannel rbc = io:openReadableFile(path);
+    io:ReadableByteChannel rbc = check io:openReadableFile(path);
     // Derives the character channel from the byte Channel.
     io:ReadableCharacterChannel rch = new(rbc, "UTF8");
     // Reads the XML content from the character channel.

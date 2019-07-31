@@ -26,7 +26,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "110",
-      "insertText": "error ${1:name} \u003d error(\"${2:errorCode}\", detail \u003d { message: \"${3}\" });",
+      "insertText": "error ${1:name} \u003d error(\"${2:errorCode}\", message \u003d \"${3}\");",
       "insertTextFormat": "Snippet"
     },
     {
@@ -410,29 +410,6 @@
       ]
     },
     {
-      "label": "ballerinax/java.jms",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "java.jms",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 2,
-              "character": 0
-            },
-            "end": {
-              "line": 2,
-              "character": 0
-            }
-          },
-          "newText": "import ballerinax/java.jms;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.object",
       "kind": "Module",
       "detail": "Package",
@@ -774,29 +751,6 @@
             }
           },
           "newText": "import ballerina/streams;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/artemis",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "artemis",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 2,
-              "character": 0
-            },
-            "end": {
-              "line": 2,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/artemis;\n"
         }
       ]
     },

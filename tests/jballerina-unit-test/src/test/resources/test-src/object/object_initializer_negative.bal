@@ -69,12 +69,16 @@ type Person3 object {
 
 type FooErrData record {
     string f;
+    string message?;
+    error cause?;
 };
 
 type FooErr error<string, FooErrData>;
 
 type BarErrData record {
     string b;
+    string message?;
+    error cause?;
 };
 
 type BarErr error<string, BarErrData>;

@@ -291,7 +291,7 @@ service echo18 on listener18 {
             checkpanic caller->respond(backendResponse);
         } else {
             http:Response errResponse = new;
-            errResponse.statusCode = http:INTERNAL_SERVER_ERROR_500;
+            errResponse.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
             var cause = backendResponse.detail()?.cause;
             if (cause is error) {
                 var innerCause = cause.detail()?.cause;

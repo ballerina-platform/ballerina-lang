@@ -16,24 +16,36 @@ function printSalaryDetails(int baseSalary,
 }
 
 public function main() {
-    // Calls the function by passing only the `baseSalary`.
-    // The `annualIncrement` and the `bonusRate` defaults to 20 and 0.02
-    // respectively.
+    // Call the function by passing a value only for the `baseSalary` parameter.
+    // The `annualIncrement` and `bonusRate` parameters default to
+    // 20 and 0.02 respectively.
     printSalaryDetails(2500);
 
-    // Calls the function by passing only the `baseSalary` and `annualIncrement`.
-    // Passes the defaultable parameter as a key-value pair when invoking the
-    // function. The `bonusRate` defaults to 0.02.
+    // Call the function by passing values only for the `baseSalary` and `annualIncrement`
+    // parameters. The value for the `annualIncrement` parameter is passed as a named argument.
+    // The `bonusRate` parameter defaults to 0.02.
     printSalaryDetails(2500, annualIncrement = 100);
 
-    // Calls the function by passing only the `baseSalary` and `bonusRate`.
-    // The `annualIncrement` defaults to 20.
+    // Call the function again by passing values only for the `baseSalary` and `annualIncrement`
+    // parameters, now passing the value for the `annualIncrement` parameter as a positional argument.
+    // The `bonusRate` parameter defaults to 0.02.
+    printSalaryDetails(2500, 100);
+
+    // Call the function by passing values only for the `baseSalary` and `bonusRate` parameters.
+    // The `annualIncrement` parameter defaults to 20.
     printSalaryDetails(2500, bonusRate = 0.1);
 
-    // Calls the function by passing all three parameters.
+    // In order to pass the value for `bonusRate` as a positional argument, a value would
+    // have to be specified for the `annualIncrement` parameter too.
+    // All arguments are positional arguments here.
+    printSalaryDetails(2500, 20, 0.1);
+
+    // Call the function by passing values for all three parameters, the first argument as
+    // a positional argument and the rest as named arguments.
     printSalaryDetails(2500, annualIncrement = 100, bonusRate = 0.1);
 
-    // The placement of the defaultable arguments can be mixed when invoking the
-    // function.
-    printSalaryDetails(2500, bonusRate = 0.1, annualIncrement = 100);
+    // Call the function by passing all three arguments as named arguments.
+    // Any and all arguments after the first named argument need to be specified
+    // as named arguments but could be specified in any order.
+    printSalaryDetails(annualIncrement = 100, baseSalary = 2500, bonusRate = 0.1);
 }

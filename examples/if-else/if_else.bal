@@ -9,14 +9,14 @@ public function main() {
         io:println("a == 10");
     }
 
-    // This is an `If-else` scenario.
+    // This is an `if-else` scenario.
     if (a < b) {
         io:println("a < b");
     } else {
         io:println("a >= b");
     }
 
-    // This is an `Else-if` scenario.
+    // This is an `if-else-if-else` scenario.
     if (b < 0) {
         io:println("b < 0");
     } else if (b > 0) {

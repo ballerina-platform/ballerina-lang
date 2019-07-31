@@ -64,7 +64,7 @@ public class PackageUtils {
         if (packagePath.startsWith("src")) {
             packagePath = packagePath.replaceFirst("src", orgName);
         }
-        return packagePath.replace(File.separator, ".");
+        return packagePath;
     }
 
     public static String getModuleName(String balFilePath) {
