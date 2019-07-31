@@ -75,12 +75,8 @@ public type InboundOAuth2Provider object {
         }
 
         if (authenticated) {
-            runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-            if (principal is runtime:Principal) {
-                principal.userId = username;
-                principal.username = username;
-                principal.scopes = getScopes(scopes);
-            }
+            auth:setAuthenticationContext("oauth2", credential);
+            setPrincipal(username, scopes);
         }
         return authenticated;
     }
@@ -105,3 +101,12 @@ public type IntrospectionServerConfig record {|
     string tokenTypeHint?;
     http:ClientEndpointConfig clientConfig = {};
 |};
+
+function setPrincipal(string username, string scopes) {
+    runtime:Principal? principal = runtime:getInvocationContext()?.principal;
+    if (principal is runtime:Principal) {
+        principal.userId = username;
+        principal.username = username;
+        principal.scopes = getScopes(scopes);
+    }
+}
