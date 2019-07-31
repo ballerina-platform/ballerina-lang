@@ -387,9 +387,13 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
     bir:BType retType = <bir:BType>birFunc.typeValue["retType"];
     if retType is bir:BTypeNil {
     } else {
+        bir:BType? realType = retType;
+        if (retType is bir:BUnionType) {
+            realType = getActualType(retType);
+        }
         bir:VariableDcl retVarDcl = { typeValue: <bir:BType>retType, name: { value: "$_ret_var_$" }, kind: "LOCAL" };
         returnVarRefIndex = indexMap.getIndex(retVarDcl);
-        if retType is bir:BTypeHandle {
+        if realType is bir:BTypeHandle {
             // Here the corresponding Java method parameter type is 'jvm:RefType'. This has been verified before
             bir:VariableDcl retJObjectVarDcl = { typeValue: "any", name: { value: "$_ret_jobject_var_$" }, kind: "LOCAL" };
             int returnJObjectVarRefIndex = indexMap.getIndex(retJObjectVarDcl);
@@ -398,16 +402,26 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
             mv.visitInsn(DUP);
             mv.visitVarInsn(ALOAD, returnJObjectVarRefIndex);
             mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, "<init>", "(Ljava/lang/Object;)V", false);
+            generateVarStore(mv, retVarDcl, currentPackageName, returnVarRefIndex);
+        } else if (realType is bir:BTypeNil) {
         } else {
             performWideningPrimitiveConversion(mv, <BValueType>retType, <jvm:PrimitiveType>jMethodRetType);
+            generateVarStore(mv, retVarDcl, currentPackageName, returnVarRefIndex);
         }
-        generateVarStore(mv, retVarDcl, currentPackageName, returnVarRefIndex);
+        
     }
 
     jvm:Label retLabel = labelGen.getLabel("return_lable");
     mv.visitLabel(retLabel);
     mv.visitLineNumber(birFunc.pos.sLine, retLabel);
-    termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, birFunc);
+    
+    if (retType is bir:BUnionType && getActualType(retType) is bir:BTypeNil) {
+        mv.visitInsn(ACONST_NULL);
+        mv.visitInsn(ARETURN);
+    } else {
+        termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, birFunc);
+    }
+    
     
     // iterate the exception classes and generate catch blocks
     foreach var exception in extFuncWrapper.jMethod.throws {
@@ -430,7 +444,7 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
     mv.visitEnd();
 }
 
-type BValueType bir:BTypeInt | bir:BTypeFloat | bir:BTypeBoolean | bir:BTypeByte;
+type BValueType bir:BTypeInt | bir:BTypeFloat | bir:BTypeBoolean | bir:BTypeByte | bir:BUnionType;
 
 // These conversions are already validate beforehand, therefore I am just emitting type conversion instructions here.
 // We can improve following logic with a type lattice.
@@ -449,7 +463,31 @@ function performWideningPrimitiveConversion(jvm:MethodVisitor mv, BValueType bTy
         } else {
             mv.visitInsn(I2D);
         }
+    } else if bType is bir:BUnionType {
+        // this is always a error|sometype.
+        bir:BType? retType = ();
+        foreach var member in bType.members {
+            if (!(member is bir:BErrorType)) {
+                retType = member;
+                break;
+            }
+        }
+        if (retType is BValueType) {
+            performWideningPrimitiveConversion(mv, retType, jType);
+        }
+        addBoxInsn(mv, retType);
     }
+}
+// Get real type when there is a union which ois always error|sometype
+function getActualType(bir:BUnionType unionType) returns bir:BType? {
+    bir:BType? retType = ();
+    foreach var member in unionType.members {
+        if (!(member is bir:BErrorType)) {
+            retType = member;
+            break;
+        }
+    }
+    return retType;
 }
 
 // We can improve following logic with a type lattice.

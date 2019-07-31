@@ -14,7 +14,7 @@ public function createBoxedByteFromBInt(int value) returns handle = @java:Constr
     paramTypes:["byte"]
 } external;
 
-public function createBoxedByteFromJString(handle stringValue) returns handle = @java:Constructor {
+public function createBoxedByteFromJString(handle stringValue) returns handle|error = @java:Constructor {
     class:"java.lang.Byte",
     paramTypes:["java.lang.String"]
 } external;
@@ -24,7 +24,12 @@ public function testCreateBoxedByteFromBInt(int value)  returns handle {
 }
 
 public function testCreateBoxedByteFromJString(handle stringValue)  returns handle {
-    return createBoxedByteFromJString(stringValue);
+    var ret = createBoxedByteFromJString(stringValue);
+    if (ret is error) {
+        panic error("failed");
+    } else {
+        return ret;
+    }
 }
 
 public function createBoxedShortFromBInt(int value) returns handle = @java:Constructor {

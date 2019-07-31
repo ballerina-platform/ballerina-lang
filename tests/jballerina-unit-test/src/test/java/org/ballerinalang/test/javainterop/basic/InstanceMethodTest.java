@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
+import org.ballerinalang.model.types.BErrorType;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BHandleValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.jvm.tests.InstanceMethods;
@@ -53,6 +55,20 @@ public class InstanceMethodTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNull(returns[0]);
         Assert.assertEquals(testIns.getCounter(), new Integer(1));
+    }
+
+    @Test(description = "Test invoking a java instance function that accepts and return nothing")
+    public void testVoidWithThrows() {
+        InstanceMethods testIns = new InstanceMethods();
+        BValue[] args = new BValue[1];
+        args[0] = new BHandleValue(testIns);
+
+        BValue[] returns = BRunUtil.invoke(result, "testAcceptNothingAndReturnVoidThrows", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0].getType() instanceof BErrorType);
+        Assert.assertEquals(((BError) returns[0]).getReason(), "java.lang.InterruptedException");
     }
 
     @Test(description = "Test invoking a java instance function that accepts and return nothing")

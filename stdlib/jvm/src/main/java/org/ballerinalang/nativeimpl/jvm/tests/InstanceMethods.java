@@ -47,4 +47,8 @@ public class InstanceMethods {
         this.counter = newValue1 + newValue2;
         return this.counter;
     }
+
+    public int testThrowsWithVoid() throws InterruptedException {
+        throw new InterruptedException();
+    }
 }

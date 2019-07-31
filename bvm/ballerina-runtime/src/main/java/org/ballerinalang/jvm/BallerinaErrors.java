@@ -131,15 +131,6 @@ public class BallerinaErrors {
             detailMap.put(ERROR_CAUSE_FIELD, createError(e.getCause().getClass().getName(), e.getCause().getMessage()));
         }
 
-        ArrayValue stackTraceArray = new ArrayValue(new BArrayType(BTypes.typeString), e.getStackTrace().length);
-        for (int i = 0; i < stackTraceArray.size(); i++) {
-            stackTraceArray.add(i, e.getStackTrace()[i].toString());
-        }
-
-        if (stackTraceArray.size() > 0) {
-            detailMap.put(ERROR_STACK_TRACE, stackTraceArray);
-        }
-
         return createError(e.getClass().getName(), detailMap);
     }
 
