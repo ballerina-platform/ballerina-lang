@@ -13,7 +13,7 @@ public function main() {
         io:println(j);
         j = j + 1;
 
-        // If you want to break the loop, use the `break` statement like this.
+        // The `break` statement can be used to break the loop.
         if (j == 3) {
             break;
         }
@@ -21,7 +21,8 @@ public function main() {
 
     int k = 0;
     while (k < 5) {
-        // If you want to move to the next loop iteration immediately, use the `continue` statement liek this.
+        // The `continue` statement can be used to move to the
+        // next loop iteration immediately.
         if (k < 3) {
             k = k + 1;
             continue;
