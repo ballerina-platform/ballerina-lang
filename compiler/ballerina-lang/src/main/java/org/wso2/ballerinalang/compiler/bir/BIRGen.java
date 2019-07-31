@@ -506,6 +506,7 @@ public class BIRGen extends BLangNodeVisitor {
         // TODO Compile time literal constants
         switch (expr.getKind()) {
             case LITERAL:
+            case NUMERIC_LITERAL:
                 return true;
             case RECORD_LITERAL_EXPR:
                 BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expr;
@@ -534,6 +535,7 @@ public class BIRGen extends BLangNodeVisitor {
         // TODO Compile time literal constants
         switch (expr.getKind()) {
             case LITERAL:
+            case NUMERIC_LITERAL:
                 return createAnnotationLiteralValue((BLangLiteral) expr);
             case RECORD_LITERAL_EXPR:
                 return createAnnotationRecordValue((BLangRecordLiteral) expr);

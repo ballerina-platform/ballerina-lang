@@ -179,6 +179,8 @@ class JInterop {
     private static ParamTypeConstraint buildParamTypeConstraint(Object javaTypeConstraint) {
         if (isJavaRefType(javaTypeConstraint)) {
             return buildConstraintFromJavaRefType((MapValue<String, Object>) javaTypeConstraint);
+        } else if (isJavaArrayType(javaTypeConstraint)) {
+            return buildConstraintFromJavaArrayType((MapValue<String, Object>) javaTypeConstraint);
         } else if (isJavaNoType(javaTypeConstraint)) {
             return ParamTypeConstraint.NO_CONSTRAINT;
         } else {
@@ -189,6 +191,29 @@ class JInterop {
     private static ParamTypeConstraint buildConstraintFromJavaRefType(MapValue<String, Object> javaRefType) {
         String constraintBValue = (String) javaRefType.get(TYPE_NAME_FIELD);
         return new ParamTypeConstraint(loadClass(constraintBValue));
+    }
+
+    private static ParamTypeConstraint buildConstraintFromJavaArrayType(MapValue<String, Object> javaRefType) {
+        String typeSig = getJavaArrayTypeSig(javaRefType);
+        return new ParamTypeConstraint(loadClass(typeSig));
+    }
+
+    private static String getJavaArrayTypeSig(MapValue<String, Object> javaRefType) {
+        Object elementType = javaRefType.get(ELEMENT_TYPE_FIELD);
+        String elementTypeSig = "[";
+        if (elementType instanceof MapValue) {
+            MapValue<String, Object> jRefTypeBValue = (MapValue) elementType;
+            String tagValue = (String) jRefTypeBValue.get(TAG_FIELD);
+            if (tagValue.equals(J_REF_TYPE_NAME)) {
+                elementTypeSig += "L" + (String) jRefTypeBValue.get(TYPE_NAME_FIELD) + ";";
+            } else {
+                elementTypeSig += getJavaArrayTypeSig(jRefTypeBValue);
+            }
+        } else {
+            elementTypeSig += getSignatureFromJavaPrimitiveType((String) elementType);
+        }
+
+        return elementTypeSig;
     }
 
     private static ParamTypeConstraint buildConstraintFromJavaPrimitiveType(String primitiveTypeName) {
@@ -226,11 +251,46 @@ class JInterop {
         return new ParamTypeConstraint(constraintClass);
     }
 
+    private static String getSignatureFromJavaPrimitiveType(String primitiveTypeName) {
+        // Java primitive types: byte, short, char, int, long, float, double, boolean
+        switch (primitiveTypeName) {
+            case "byte":
+                return "B";
+            case "short":
+                return "S";
+            case "char":
+                return "C";
+            case "int":
+                return "I";
+            case "long":
+                return "J";
+            case "float":
+                return "F";
+            case "double":
+                return "D";
+            case "boolean":
+                return "Z";
+            default:
+                throw new JInteropException(UNSUPPORTED_PRIMITIVE_TYPE_READON,
+                        "Unsupported Java primitive type '" + primitiveTypeName + "'");
+        }
+    }
+
     private static boolean isJavaRefType(Object javaTypeConstraint) {
         if (javaTypeConstraint instanceof MapValue) {
             MapValue jRefTypeBValue = (MapValue) javaTypeConstraint;
             String tagValue = (String) jRefTypeBValue.get(TAG_FIELD);
             return tagValue != null && tagValue.equals(J_REF_TYPE_NAME);
+        } else {
+            return false;
+        }
+    }
+
+    private static boolean isJavaArrayType(Object javaTypeConstraint) {
+        if (javaTypeConstraint instanceof MapValue) {
+            MapValue jRefTypeBValue = (MapValue) javaTypeConstraint;
+            String tagValue = (String) jRefTypeBValue.get(TAG_FIELD);
+            return tagValue != null && tagValue.equals(J_ARRAY_TYPE_NAME);
         } else {
             return false;
         }

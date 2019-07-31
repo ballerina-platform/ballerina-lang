@@ -93,6 +93,13 @@ public class JavaVarargsTest {
     }
 
     @Test
+    public void testGetSumOfIntArraysWithAnnot() {
+        BValue[] returns = BRunUtil.invoke(result, "testGetSumOfIntArraysWithAnnot");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+    }
+
+    @Test
     public void testJavaListVarargs() {
         BValue[] returns = BRunUtil.invoke(result, "testJavaListVarargs");
         Assert.assertEquals(returns.length, 1);
