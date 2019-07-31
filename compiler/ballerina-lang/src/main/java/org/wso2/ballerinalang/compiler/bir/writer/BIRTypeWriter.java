@@ -240,6 +240,12 @@ public class BIRTypeWriter implements TypeVisitor {
         for (BType memberType : bTupleType.tupleTypes) {
             writeTypeCpIndex(memberType);
         }
+        if (bTupleType.restType != null) {
+            buff.writeBoolean(true);
+            writeTypeCpIndex(bTupleType.restType);
+        } else {
+            buff.writeBoolean(false);
+        }
     }
 
     @Override

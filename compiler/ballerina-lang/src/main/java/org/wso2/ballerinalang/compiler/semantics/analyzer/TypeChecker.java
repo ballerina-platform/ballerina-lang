@@ -629,13 +629,21 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (actualType.tag == TypeTags.ARRAY) {
                     checkExprs(listConstructor.exprs, this.env, ((BArrayType) actualType).eType);
                 } else {
+                    BTupleType tupleType = (BTupleType) actualType;
                     List<BType> results = new ArrayList<>();
+                    BType restType = null;
                     for (int i = 0; i < listConstructor.exprs.size(); i++) {
-                        BType expType = ((BTupleType) actualType).tupleTypes.get(i);
-                        BType actType = checkExpr(listConstructor.exprs.get(i), env, expType);
-                        results.add(expType.tag != TypeTags.NONE ? expType : actType);
+                        BType expType, actType;
+                        if (i < tupleType.tupleTypes.size()) {
+                            expType = tupleType.tupleTypes.get(i);
+                            actType = checkExpr(listConstructor.exprs.get(i), env, expType);
+                            results.add(expType.tag != TypeTags.NONE ? expType : actType);
+                        } else {
+                            restType = checkExpr(listConstructor.exprs.get(i), env, tupleType.restType);
+                        }
                     }
                     actualType = new BTupleType(results);
+                    ((BTupleType) actualType).restType = restType;
                 }
             } else {
                 // If more than one array type, visit the literal to get its type and use that type to filter the
@@ -669,24 +677,29 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         } else if (expTypeTag == TypeTags.TUPLE) {
             BTupleType tupleType = (BTupleType) this.expType;
-            // Fix this.
-            List<BType> expTypes;
-            if (tupleType.tupleTypes.size() != listConstructor.exprs.size()) {
+            if ((tupleType.restType != null && (tupleType.tupleTypes.size() > listConstructor.exprs.size()))
+                    || (tupleType.restType == null && tupleType.tupleTypes.size() != listConstructor.exprs.size())) {
                 dlog.error(listConstructor.pos, DiagnosticCode.SYNTAX_ERROR,
                         "tuple and expression size does not match");
                 return;
-            } else {
-                expTypes = tupleType.tupleTypes;
             }
+            List<BType> expTypes = tupleType.tupleTypes;
             List<BType> results = new ArrayList<>();
+            BType restType = null;
             for (int i = 0; i < listConstructor.exprs.size(); i++) {
                 // Infer type from lhs since lhs might be union
                 // TODO: Need to fix with tuple casting
-                BType expType = expTypes.get(i);
-                BType actType = checkExpr(listConstructor.exprs.get(i), env, expType);
-                results.add(expType.tag != TypeTags.NONE ? expType : actType);
+                BType expType, actType;
+                if (i < expTypes.size()) {
+                    expType = expTypes.get(i);
+                    actType = checkExpr(listConstructor.exprs.get(i), env, expType);
+                    results.add(expType.tag != TypeTags.NONE ? expType : actType);
+                } else {
+                    restType = checkExpr(listConstructor.exprs.get(i), env, tupleType.restType);
+                }
             }
             actualType = new BTupleType(results);
+            ((BTupleType) actualType).restType = restType;
         } else if (listConstructor.exprs.size() > 1) {
             // This is an array.
             List<BType> narrowTypes = new ArrayList<>();
@@ -817,17 +830,24 @@ public class TypeChecker extends BLangNodeVisitor {
                 || expression.getKind() == NodeKind.TUPLE_LITERAL_EXPR) {
             BTupleType tupleType = (BTupleType) type;
             BLangListConstructorExpr tupleExpr = (BLangListConstructorExpr) expression;
-            if (tupleType.tupleTypes.size() == tupleExpr.exprs.size()) {
-                for (int i = 0; i < tupleExpr.exprs.size(); i++) {
-                    BLangExpression expr = tupleExpr.exprs.get(i);
+
+            if (tupleType.restType == null && tupleType.tupleTypes.size() != tupleExpr.exprs.size()) {
+                return false;
+            }
+
+            for (int i = 0; i < tupleExpr.exprs.size(); i++) {
+                BLangExpression expr = tupleExpr.exprs.get(i);
+                if (i < tupleType.tupleTypes.size()) {
                     if (!checkTupleType(expr, tupleType.tupleTypes.get(i))) {
                         return false;
                     }
+                } else {
+                    if (tupleType.restType == null || !checkTupleType(expr, tupleType.restType)) {
+                        return false;
+                    }
                 }
-                return true;
-            } else {
-                return false;
             }
+            return true;
         } else {
             return types.isAssignable(checkExpr(expression, env), type);
         }
@@ -1365,7 +1385,18 @@ public class TypeChecker extends BLangNodeVisitor {
             ((BLangVariableReference) varRefExpr.expressions.get(i)).lhsVar = true;
             results.add(checkExpr(varRefExpr.expressions.get(i), env, symTable.noType));
         }
-        BType actualType = new BTupleType(results);
+        BTupleType actualType = new BTupleType(results);
+        if (varRefExpr.restParam != null) {
+            BLangExpression restExpr = (BLangExpression) varRefExpr.restParam;
+            ((BLangVariableReference) restExpr).lhsVar = true;
+            BType checkedType = checkExpr(restExpr, env, symTable.noType);
+            if (checkedType.tag != TypeTags.ARRAY) {
+                dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_TYPE_FOR_REST_DESCRIPTOR, checkedType);
+                resultType = symTable.semanticError;
+                return;
+            }
+            actualType.restType = ((BArrayType) checkedType).eType;
+        }
         resultType = types.checkType(varRefExpr, actualType, expType);
     }
 
@@ -3441,11 +3472,13 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkTupleFieldType(BType tupleType, int indexValue) {
-        List<BType> tupleTypes = ((BTupleType) tupleType).tupleTypes;
-        if (indexValue < 0 || tupleTypes.size() <= indexValue) {
+        BTupleType bTupleType = (BTupleType) tupleType;
+        if (bTupleType.tupleTypes.size() <= indexValue && bTupleType.restType != null) {
+            return bTupleType.restType;
+        } else if (indexValue < 0 || bTupleType.tupleTypes.size() <= indexValue) {
             return symTable.semanticError;
         }
-        return tupleTypes.get(indexValue);
+        return bTupleType.tupleTypes.get(indexValue);
     }
 
     private void validateTags(BLangXMLElementLiteral bLangXMLElementLiteral, SymbolEnv xmlElementEnv) {

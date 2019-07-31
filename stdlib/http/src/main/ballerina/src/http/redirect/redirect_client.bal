@@ -351,7 +351,7 @@ function createNewEndpointConfig(ClientEndpointConfig config) returns ClientEndp
         http1Settings: config.http1Settings,
         http2Settings: config.http2Settings,
         circuitBreaker: config.circuitBreaker,
-        timeoutMillis: config.timeoutMillis,
+        timeoutInMillis: config.timeoutInMillis,
         httpVersion: config.httpVersion,
         forwarded: config.forwarded,
         followRedirects: config.followRedirects,

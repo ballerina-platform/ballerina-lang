@@ -51,23 +51,19 @@ public type InboundLdapAuthProvider object {
         }
         string username;
         string password;
+        string[] scopes;
         [username, password] = check auth:extractUsernameAndPassword(credential);
         var authenticated = doAuthenticate(self.ldapConnection, username, password);
+        var groups = getGroups(self.ldapConnection, username);
+        if (groups is string[]) {
+            scopes = groups;
+        } else {
+            return auth:prepareError("Failed to get groups from LDAP with the username: " + username, groups);
+        }
         if (authenticated is boolean) {
             if (authenticated) {
-                runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-                if (principal is runtime:Principal) {
-                    principal.userId = self.ldapConnectionConfig.domainName + ":" + username;
-                    // By default set userId as username.
-                    principal.username = username;
-                    var groups = getGroups(self.ldapConnection, username);
-                    if (groups is string[]) {
-                        principal.scopes = groups;
-                    } else {
-                        return auth:prepareError("Failed to get groups from LDAP with the username: " + username,
-                                                 groups);
-                    }
-                }
+                auth:setAuthenticationContext("ldap", credential);
+                setPrincipal(username, self.ldapConnectionConfig.domainName, scopes);
             }
             return authenticated;
         } else {
@@ -160,3 +156,12 @@ public function doAuthenticate(LdapConnection ldapConnection, string username, s
 # + return - `LdapConnection` instance
 public function initLdapConnectionContext(LdapConnectionConfig ldapConnectionConfig, string instanceId)
                                           returns LdapConnection = external;
+
+function setPrincipal(string username, string domainName, string[] scopes) {
+    runtime:Principal? principal = runtime:getInvocationContext()?.principal;
+    if (principal is runtime:Principal) {
+        principal.userId = domainName + ":" + username;
+        principal.username = username;
+        principal.scopes = scopes;
+    }
+}

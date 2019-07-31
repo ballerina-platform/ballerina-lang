@@ -283,8 +283,8 @@ function getInitiatorClient(string registerAtURL) returns InitiatorClientEP {
             if (httpClientCache.hasKey(registerAtURL)) {
                 return <InitiatorClientEP>httpClientCache.get(registerAtURL);
             }
-            initiatorEP = new({ registerAtURL: registerAtURL, timeoutMillis: 15000,
-                retryConfig: { count: 2, interval: 5000 }
+            initiatorEP = new({ registerAtURL: registerAtURL, timeoutInMillis: 15000,
+                retryConfig: { count: 2, intervalInMillis: 5000 }
             });
             httpClientCache.put(registerAtURL, initiatorEP);
             return initiatorEP;
@@ -302,7 +302,7 @@ function getParticipant2pcClient(string participantURL) returns Participant2pcCl
                 return <Participant2pcClientEP>httpClientCache.get(<@untainted>participantURL);
             }
             participantEP = new({ participantURL: participantURL,
-                timeoutMillis: 15000, retryConfig: { count: 2, interval: 5000 }
+                timeoutInMillis: 15000, retryConfig: { count: 2, intervalInMillis: 5000 }
             });
             httpClientCache.put(participantURL, participantEP);
             return participantEP;

@@ -27,7 +27,7 @@ function testSuccessScenario () returns @tainted http:Response | error {
         targets: [
                  {url: "http://invalidEP"},
                  {url: "http://localhost:8080"}],
-        timeoutMillis:5000
+        timeoutInMillis:5000
     });
 
     http:Response clientResponse = new;
@@ -54,7 +54,7 @@ function testFailureScenario () returns @tainted http:Response | error {
         targets: [
                  {url: "http://invalidEP"},
                  {url: "http://localhost:50000000"}],
-        timeoutMillis:5000
+        timeoutInMillis:5000
     });
 
     http:Response response = new;
