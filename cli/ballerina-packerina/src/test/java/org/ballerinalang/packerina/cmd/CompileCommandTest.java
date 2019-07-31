@@ -202,10 +202,21 @@ public class CompileCommandTest extends CommandTest {
                     }
                 });
 
-        // Check if the native libs are in the tmp folder
+
         Path tmpDir = projectDirectory.resolve(ProjectDirConstants.TARGET_DIR_NAME).
-                resolve(ProjectDirConstants.TARGET_TMP_DIRECTORY).resolve("toml4j.jar");
-        Assert.assertTrue(Files.exists(tmpDir));
+                resolve(ProjectDirConstants.TARGET_TMP_DIRECTORY);
+
+        // Check if the native libs are in the tmp folder
+        Path tomlJarInTmpDir = tmpDir.resolve("toml4j.jar");
+        Assert.assertTrue(Files.exists(tomlJarInTmpDir));
+
+        // Check if the module libs are in the tmp folder
+        Path moduleJar = tmpDir.resolve("mymodule.jar");
+        Assert.assertTrue(Files.exists(moduleJar));
+
+        // Check if the imported libs are in the tmp folder
+        Path importJar = tmpDir.resolve("myimport.jar");
+        Assert.assertTrue(Files.exists(importJar));
     }
 
     @Test(dependsOnMethods = {"testCompileCommand"})

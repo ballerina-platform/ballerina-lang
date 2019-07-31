@@ -287,11 +287,11 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     
     public Path getJarPathFromHomeCache(PackageID moduleID) {
         try {
-            Path moduleBirCacheDir = Files.createDirectories(getJarCacheFromHome()
+            Path moduleJarCacheDir = Files.createDirectories(getJarCacheFromHome()
                     .resolve(moduleID.orgName.value)
                     .resolve(moduleID.name.value)
                     .resolve(moduleID.version.value));
-            return moduleBirCacheDir.resolve(moduleID.name.value + BLANG_COMPILED_PKG_BIR_EXT);
+            return moduleJarCacheDir.resolve(moduleID.name.value + BLANG_COMPILED_JAR_EXT);
         } catch (IOException e) {
             throw new BLangCompilerException("error resolving bir_cache dir for module: " + moduleID);
         }
