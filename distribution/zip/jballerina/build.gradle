@@ -69,6 +69,8 @@ dependencies {
 
     dist 'info.picocli:picocli:3.3.0'
     dist 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
+    dist 'org.apache.kafka:kafka-clients:2.0.0'
+    dist 'org.apache.kafka:kafka_2.11:2.0.0'
     dist 'org.apache.james:apache-mime4j-core:0.7.2'
     dist 'org.apache.ws.commons.axiom:axiom-api:1.2.20'
     dist 'org.apache.ws.commons.axiom:axiom-c14n:1.2.22'
