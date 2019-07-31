@@ -384,9 +384,9 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
             mv.visitInsn(DUP);
             mv.visitVarInsn(ALOAD, returnJObjectVarRefIndex);
             mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, "<init>", "(Ljava/lang/Object;)V", false);
-        } else {
+        } else if(!(jMethodRetType is jvm:RefType)) {
             performWideningPrimitiveConversion(mv, <BValueType>retType, <jvm:PrimitiveType>jMethodRetType);
-        }
+        } 
         generateVarStore(mv, retVarDcl, currentPackageName, returnVarRefIndex);
     }
 
@@ -468,7 +468,7 @@ function loadMethodParamToStackInInteropFunction(jvm:MethodVisitor mv,
     if bFuncParamType is bir:BTypeHandle && jMethodParamType is jvm:RefType {
         mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
         mv.visitTypeInsn(CHECKCAST, jMethodParamType.typeName);
-    } else {
+    } else if (!(jMethodParamType is jvm:RefType)) {
         performNarrowingPrimitiveConversion(mv, <BValueType>bFuncParamType, <jvm:PrimitiveType>jMethodParamType);
-    }
+    } 
 }
