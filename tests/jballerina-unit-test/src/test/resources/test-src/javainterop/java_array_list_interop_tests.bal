@@ -2,9 +2,9 @@ import ballerina/java;
 
 public function interopWithJavaArrayList() returns [handle, int, handle] {
         handle aList = newArrayListWithInitialSize(10);
-        addElement(aList, java:toJString("Ballerina"));
-        addElement(aList, java:toJString("Language"));
-        addElement(aList, java:toJString("Specification"));
+        boolean a = addElement(aList, java:toJString("Ballerina"));
+        boolean b = addElement(aList, java:toJString("Language"));
+        boolean c = addElement(aList, java:toJString("Specification"));
         handle element = getElement(aList, 2);
         int listSize = size(aList);
         return [toString(aList), listSize, element];
@@ -19,7 +19,7 @@ public function newArrayListWithInitialSize(int initialSize) returns handle = @j
     paramTypes:["int"]
 } external;
 
-public function addElement(handle receiver, handle e) = @java:Method {
+public function addElement(handle receiver, handle e) returns boolean = @java:Method {
     name:"add",
     class: "java.util.ArrayList"
 } external;
