@@ -159,7 +159,7 @@ echo $BALLERINA_HOME
 
 # echo JAVA_HOME environment variable is set to $JAVA_HOME
 # echo BALLERINA_HOME environment variable is set to $BALLERINA_HOME
-echo "$@"
+
 $JAVACMD \
 	-XX:+HeapDumpOnOutOfMemoryError \
 	-XX:HeapDumpPath="$BALLERINA_HOME"/debug-adapter-heap-dump.hprof \
