@@ -244,6 +244,7 @@ const string STRAND_STATE = "org/ballerinalang/jvm/scheduling/State";
 const string FUNCTION_POINTER = "org/ballerinalang/jvm/values/FPValue";
 const string FUNCTION = "java/util/function/Function";
 const string CONSUMER = "java/util/function/Consumer";
+const string EXCEPTION = "java/lamg/Exception";
 
 const string STRING_BUILDER = "java/lang/StringBuilder";
 const string COMPARABLE = "java/lang/Comparable";

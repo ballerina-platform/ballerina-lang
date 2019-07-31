@@ -263,6 +263,20 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
     TerminatorGenerator termGen = new(mv, indexMap, labelGen, errorGen, birModule);
     mv.visitCode();
 
+    // start try
+    jvm:Label tryBodyLabel = new;
+    jvm:Label tryHandleLabel = labelGen.getLabel("return_lable");
+
+    // iterate the exception classes and generate visitTryCatch
+    foreach var exception in extFuncWrapper.jMethod.throws {
+        jvm:Label catchLabel = labelGen.getLabel(exception + "$label$");
+        mv.visitTryCatchBlock(tryBodyLabel, tryHandleLabel, catchLabel, exception);
+    }
+    // catch all the unhandled exceptions
+    jvm:Label throwableLabel = labelGen.getLabel("throwable" + "$label$");
+    mv.visitTryCatchBlock(tryBodyLabel, tryHandleLabel, throwableLabel, THROWABLE);
+
+    mv.visitLabel(tryBodyLabel);
     jvm:Label paramLoadLabel = labelGen.getLabel("param_load");
     mv.visitLabel(paramLoadLabel);
     mv.visitLineNumber(birFunc.pos.sLine, paramLoadLabel);
@@ -395,6 +409,24 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
     mv.visitLabel(retLabel);
     mv.visitLineNumber(birFunc.pos.sLine, retLabel);
     termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, birFunc);
+    
+    // iterate the exception classes and generate catch blocks
+    foreach var exception in extFuncWrapper.jMethod.throws {
+        jvm:Label catchLabel = labelGen.getLabel(exception + "$label$");
+        mv.visitLabel(catchLabel);
+        //mv.visitLdcInsn(exception);
+        mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createInteropError", io:sprintf("(L%s;)L%s;", EXCEPTION, ERROR_VALUE), false);
+        mv.visitInsn(ARETURN);
+    }
+
+    // throw unhandled exception error
+    mv.visitLabel(throwableLabel);
+    // get the class name of the error
+    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Class", "getName", "()Ljava/lang/String;", false);
+    mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createError", io:sprintf("(L%s;)L%s;", STRING_VALUE, ERROR_VALUE), false);
+    mv.visitInsn(ATHROW);
+
     mv.visitMaxs(200, 400);
     mv.visitEnd();
 }

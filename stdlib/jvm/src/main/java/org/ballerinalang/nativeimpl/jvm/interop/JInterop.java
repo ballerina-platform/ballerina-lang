@@ -65,6 +65,7 @@ class JInterop {
     static final String J_REF_TYPE_NAME = "RefType";
     static final String TYPE_NAME_FIELD = "typeName";
     static final String NO_TYPE_NAME = "NoType";
+    static final String METHOD_THROWS_FIELD = "throws";
 
     static MapValue<String, Object> createRecordBValue(String typeName) {
         return BallerinaValues.createRecordValue(JVM_PACKAGE_PATH, typeName);

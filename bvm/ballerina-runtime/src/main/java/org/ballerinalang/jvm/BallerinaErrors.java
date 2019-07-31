@@ -46,6 +46,8 @@ public class BallerinaErrors {
     public static final String ERROR_MESSAGE_FIELD = "message";
     public static final String NULL_REF_EXCEPTION = "NullReferenceException";
     public static final String CALL_STACK_ELEMENT = "CallStackElement";
+    public static final String ERROR_CAUSE_FIELD = "cause";
+    public static final String ERROR_STACK_TRACE = "stackTrace";
 
     public static final String ERROR_PRINT_PREFIX = "error: ";
 
@@ -113,6 +115,32 @@ public class BallerinaErrors {
 
     public static ErrorValue createUsageError(String errorMsg) {
         return createError("ballerina: " + errorMsg);
+    }
+
+    /**
+     * Create ballerian error using java exception for interop.
+     * @param e java exception
+     * @return ballerina error
+     */
+    public static ErrorValue createInteropError(Exception e) {
+        MapValueImpl<String, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
+        if (e.getMessage() != null) {
+            detailMap.put(ERROR_MESSAGE_FIELD, e.getMessage());
+        }
+        if (e.getCause() != null) {
+            detailMap.put(ERROR_CAUSE_FIELD, createError(e.getCause().getClass().getName(), e.getCause().getMessage()));
+        }
+
+        ArrayValue stackTraceArray = new ArrayValue(new BArrayType(BTypes.typeString), e.getStackTrace().length);
+        for (int i = 0; i < stackTraceArray.size(); i++) {
+            stackTraceArray.add(i, e.getStackTrace()[i].toString());
+        }
+
+        if (stackTraceArray.size() > 0) {
+            detailMap.put(ERROR_STACK_TRACE, stackTraceArray);
+        }
+
+        return createError(e.getClass().getName(), detailMap);
     }
 
     public static Object handleResourceError(Object returnValue) {

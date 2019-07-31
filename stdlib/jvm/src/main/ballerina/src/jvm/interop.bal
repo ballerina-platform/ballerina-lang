@@ -62,6 +62,7 @@ public type Method record {|
     MethodKind kind;
     string sig;
     MethodType mType;
+    string[] throws;
 |};
 
 public type MethodType record {|
