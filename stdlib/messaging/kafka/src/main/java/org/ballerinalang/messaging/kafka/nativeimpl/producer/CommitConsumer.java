@@ -20,6 +20,7 @@ package org.ballerinalang.messaging.kafka.nativeimpl.producer;
 
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -38,11 +39,12 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_GR
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_PRODUCER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_STRUCT_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
-import static org.ballerinalang.messaging.kafka.utils.TransactionUtils.commitKafkaConsumer;
+import static org.ballerinalang.messaging.kafka.utils.TransactionUtils.handleTransactions;
 
 /**
  * Native action commits the consumer offsets in transaction.
@@ -62,6 +64,7 @@ public class CommitConsumer {
 
     public static Object commitConsumer(Strand strand, ObjectValue producerObject, ObjectValue consumer) {
         KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumer.getNativeData(NATIVE_CONSUMER);
+        KafkaProducer<byte[], byte[]> kafkaProducer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
         Map<TopicPartition, OffsetAndMetadata> partitionToMetadataMap = new HashMap<>();
         Set<TopicPartition> topicPartitions = kafkaConsumer.assignment();
 
@@ -73,7 +76,10 @@ public class CommitConsumer {
         MapValue<String, Object> consumerConfig = consumer.getMapValue(CONSUMER_CONFIG_FIELD_NAME);
         String groupId = consumerConfig.getStringValue(CONSUMER_GROUP_ID_CONFIG);
         try {
-            commitKafkaConsumer(strand, producerObject, partitionToMetadataMap, groupId);
+            if (strand.isInTransaction()) {
+                handleTransactions(strand, producerObject);
+            }
+            kafkaProducer.sendOffsetsToTransaction(partitionToMetadataMap, groupId);
         } catch (IllegalStateException | KafkaException e) {
             return createKafkaError("Failed to commit consumer: " + e.getMessage(), PRODUCER_ERROR);
         }

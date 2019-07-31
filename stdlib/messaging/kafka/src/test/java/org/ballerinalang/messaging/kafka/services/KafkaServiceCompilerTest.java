@@ -81,7 +81,8 @@ public class KafkaServiceCompilerTest {
     @Test(description = "Test endpoint bind to a service with invalid number of arguments in resource function")
     public void testKafkaServiceInvalidNumberOfArguments() {
         String msg = "Invalid number of input parameters found in resource onMessage";
-        compileResult = BCompileUtil.compile(getFilePath("test-src/services/kafka_service_invalid_number_of_arguments.bal"));
+        compileResult = BCompileUtil.compile(
+                getFilePath("test-src/services/kafka_service_invalid_number_of_arguments.bal"));
         validateCompilerErrors(compileResult, msg);
     }
 

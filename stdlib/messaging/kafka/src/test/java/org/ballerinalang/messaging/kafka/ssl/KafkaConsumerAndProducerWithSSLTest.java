@@ -104,7 +104,8 @@ public class KafkaConsumerAndProducerWithSSLTest {
 
     @Test(
             description = "Test consumer polling with SSL",
-            dependsOnMethods = "testKafkaProducerWithSSL"
+            dependsOnMethods = "testKafkaProducerWithSSL",
+            enabled = false
     )
     @SuppressWarnings("unchecked")
     public void testKafkaConsumerWithSSL() {

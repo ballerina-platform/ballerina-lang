@@ -92,49 +92,48 @@ public type Producer client object {
 
     public function __init(ProducerConfig config) {
         self.producerConfig = config;
-        self.init(config);
+        var result = self.init(config);
+        if (result is error) {
+            panic result;
+        }
     }
 
     # Initialize the producer endpoint. Panics if the initialization fails.
     #
     # + config - Configurations related to the endpoint.
-    function init(ProducerConfig config) = external;
+    # + return - `kafka:ProducerError` if fails to initiate the `kafka:Producer`
+    function init(ProducerConfig config) returns error? = external;
 
     public string connectorId = system:uuid();
 
-    # Aborts ongoing transaction, if transaction is initialized.
-    #
-    # + return - Error if aborting the transaction failed, none otherwise.
-    public remote function abortTransaction() returns error? = external;
-
     # Closes producer connection to the external Kafka broker.
     #
-    # + return - Error if closing the producer failed, none otherwise.
-    public remote function close() returns error? = external;
+    # + return - `kafka:ProducerError` if closing the producer failed, none otherwise.
+    public remote function close() returns ProducerError? = external;
 
     # Commits consumer action which commits consumer consumed offsets to offset topic.
     #
     # + consumer - Consumer which needs offsets to be committed.
-    # + return - Error if committing the consumer failed, none otherwise.
-    public remote function commitConsumer(Consumer consumer) returns error? = external;
+    # + return - `kafka:ProducerError` if committing the consumer failed, none otherwise.
+    public remote function commitConsumer(Consumer consumer) returns ProducerError? = external;
 
     # CommitConsumerOffsets action which commits consumer offsets in given transaction.
     #
     # + offsets - Consumer offsets to commit for given transaction.
     # + groupID - Consumer group id.
-    # + return - Error if committing consumer offsets failed, none otherwise.
-    public remote function commitConsumerOffsets(PartitionOffset[] offsets, string groupID) returns error? = external;
+    # + return - `kafka:ProducerError` if committing consumer offsets failed, none otherwise.
+    public remote function commitConsumerOffsets(PartitionOffset[] offsets, string groupID) returns ProducerError? = external;
 
     # Flush action which flush batch of records.
     #
-    # + return - Error if records couldn't be flushed, none otherwise.
-    public remote function flushRecords() returns error? = external;
+    # + return - `kafka:ProducerError` if records couldn't be flushed, none otherwise.
+    public remote function flushRecords() returns ProducerError? = external;
 
     # GetTopicPartitions action which returns given topic partition information.
     #
     # + topic - Topic which the partition information is given.
-    # + return - Partitions for the given topic, returns error if operation fails.
-    public remote function getTopicPartitions(string topic) returns TopicPartition[]|error = external;
+    # + return - Partitions for the given topic, returns `kafka:ProducerError` if operation fails.
+    public remote function getTopicPartitions(string topic) returns TopicPartition[]|ProducerError = external;
 
     # Simple Send action which produce records to Kafka server.
     #
@@ -143,13 +142,13 @@ public type Producer client object {
     # + key - Key that will be included in the record.
     # + partition - Partition to which the record should be sent.
     # + timestamp - Timestamp of the record, in milliseconds since epoch.
-    # + return - Returns error if send action fails to send data, none otherwise.
+    # + return - Returns `kafka:ProducerError` if send action fails to send data, none otherwise.
     public remote function send(
                                           byte[] value,
                                           string topic,
-                                          byte[]? key = (),
-                                          int? partition = (),
-                                          int? timestamp = ()
-                                      ) returns error? = external;
+                                          public byte[]? key = (),
+                                          public int? partition = (),
+                                          public int? timestamp = ()
+                                      ) returns ProducerError? = external;
 
 };

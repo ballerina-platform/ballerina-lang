@@ -148,7 +148,7 @@ public type Consumer client object {
         return self.register(s, name);
     }
 
-    function init(ConsumerConfig config) returns error? {
+    function init(ConsumerConfig config) returns ConsumerError? {
         if (config.bootstrapServers is string) {
             var result = self->connect();
             if (result is error) {
@@ -166,161 +166,161 @@ public type Consumer client object {
         return;
     }
 
-    function register(service serviceType, string? name) returns error? = external;
+    function register(service serviceType, string? name) returns ConsumerError? = external;
 
-    function start() returns error? = external;
+    function start() returns ConsumerError? = external;
 
-    function stop() returns error? = external;
+    function stop() returns ConsumerError? = external;
 
     # Assigns consumer to a set of topic partitions.
     #
     # + partitions - Topic partitions to be assigned.
-    # + return - Returns an error if encounters an error, returns nil otherwise.
-    public remote function assign(TopicPartition[] partitions) returns error? = external;
+    # + return - Returns a `kafka:ConsumerError` if encounters an error, returns nil otherwise.
+    public remote function assign(TopicPartition[] partitions) returns ConsumerError? = external;
 
     # Closes consumer connection to the external Kafka broker.
     #
     # + duration - Timeout duration for the close operation execution.
-    # + return - Returns an error if encounters an error, returns nil otherwise.
-    public remote function close(public int duration = -1) returns error? = external;
+    # + return - Returns a `kafka:ConsumerError` if encounters an error, returns nil otherwise.
+    public remote function close(public int duration = -1) returns ConsumerError? = external;
 
     # Commits current consumed offsets for consumer.
     #
-    # + return - Error if commit fails, none otherwise.
-    public remote function commit() returns error? = external;
+    # + return - `kafka:ConsumerError` if commit fails, none otherwise.
+    public remote function commit() returns ConsumerError? = external;
 
     # Commits given offsets and partitions for the given topics, for consumer.
     #
     # + duration - Timeout duration for the commit operation execution.
     # + offsets - Offsets to be commited.
-    # + return - Error if committing offset is failed, none otherwise.
-    public remote function commitOffset(PartitionOffset[] offsets, int duration = -1) returns error? = external;
+    # + return - `kafka:ConsumerError` if committing offset is failed, none otherwise.
+    public remote function commitOffset(PartitionOffset[] offsets, public int duration = -1) returns ConsumerError? = external;
 
     # Connects consumer to the provided host in the consumer configs.
     #
-    # + return - Returns an error if encounters an error, returns nill otherwise.
-    public remote function connect() returns error? = external;
+    # + return - Returns an `kafka:ConsumerError` if encounters an error, returns nill otherwise.
+    public remote function connect() returns ConsumerError? = external;
 
     # Returns the currently assigned partitions for the consumer.
     #
-    # + return - Array of assigned partitions for the consumer if executes successfully, error otherwise.
-    public remote function getAssignment() returns TopicPartition[]|error = external;
+    # + return - Array of assigned partitions for the consumer if executes successfully, `kafka:ConsumerError` otherwise.
+    public remote function getAssignment() returns TopicPartition[]|ConsumerError = external;
 
     # Returns the available list of topics for a particular consumer.
     #
     # + duration - Timeout duration for the get available topics execution.
-    # + return - Array of topics currently available (authorized) for the consumer to subscribe, returns error if the operation fails..
-    public remote function getAvailableTopics(public int duration = -1) returns string[]|error = external;
+    # + return - Array of topics currently available (authorized) for the consumer to subscribe, returns `kafka:ConsumerError` if the operation fails..
+    public remote function getAvailableTopics(public int duration = -1) returns string[]|ConsumerError = external;
 
     # Returns start offsets for given set of partitions.
     #
     # + partitions - Array of topic partitions to get the starting offsets.
     # + duration - Timeout duration for the get beginning offsets execution.
-    # + return - Starting offsets for the given partitions if executes successfully, error otherwise.
-    public remote function getBeginningOffsets(TopicPartition[] partitions, int duration = -1)
-                               returns PartitionOffset[]|error = external;
+    # + return - Starting offsets for the given partitions if executes successfully, `kafka:ConsumerError` otherwise.
+    public remote function getBeginningOffsets(TopicPartition[] partitions, public int duration = -1)
+                               returns PartitionOffset[]|ConsumerError = external;
 
     # Returns last committed offsets for the given topic partitions.
     #
     # + partition - Topic partition in which the committed offset is returned for consumer.
     # + duration - Timeout duration for the get committed offset operation to execute.
-    # + return - Committed offset for the consumer for the given partition if executes successfully, error otherwise.
+    # + return - Committed offset for the consumer for the given partition if executes successfully, `kafka:ConsumerError` otherwise.
     public remote function getCommittedOffset(TopicPartition partition, public int duration = -1)
-                               returns PartitionOffset|error = external;
+                               returns PartitionOffset|ConsumerError = external;
 
     # Returns last offsets for given set of partitions.
     #
     # + partitions - Set of partitions to get the last offsets.
     # + duration - Timeout duration for the get end offsets operation to execute.
-    # + return - End offsets for the given partitions if executes successfully, error otherwise.
+    # + return - End offsets for the given partitions if executes successfully, `kafka:ConsumerError` otherwise.
     public remote function getEndOffsets(TopicPartition[] partitions, public int duration = -1)
-                               returns PartitionOffset[]|error = external;
+                               returns PartitionOffset[]|ConsumerError = external;
 
     # Returns the partitions, which are currently paused.
     #
-    # + return - Set of partitions paused from message retrieval if executes successfully, error otherwise.
-    public remote function getPausedPartitions() returns TopicPartition[]|error = external;
+    # + return - Set of partitions paused from message retrieval if executes successfully, `kafka:ConsumerError` otherwise.
+    public remote function getPausedPartitions() returns TopicPartition[]|ConsumerError = external;
 
     # Returns the offset of the next record that will be fetched, if a records exists in that position.
     #
     # + partition - Topic partition in which the position is required.
     # + duration - Timeout duration for the get position offset operation to execute.
-    # + return - Offset which will be fetched next (if a records exists in that offset), returns error if the operation fails.
-    public remote function getPositionOffset(TopicPartition partition, public int duration = -1) returns int|error = external;
+    # + return - Offset which will be fetched next (if a records exists in that offset), returns `kafka:ConsumerError` if the operation fails.
+    public remote function getPositionOffset(TopicPartition partition, public int duration = -1) returns int|ConsumerError = external;
 
     # Returns set of topics wich are currently subscribed by the consumer.
     #
-    # + return - Array of subscribed topics for the consumer if executes successfully, error otherwise.
-    public remote function getSubscription() returns string[]|error = external;
+    # + return - Array of subscribed topics for the consumer if executes successfully, `kafka:ConsumerError` otherwise.
+    public remote function getSubscription() returns string[]|ConsumerError = external;
 
     # Retrieve the set of partitions in which the topic belongs.
     #
     # + topic - Given topic for partition information is needed.
     # + duration - Timeout duration for the get topic partitions operation to execute.
-    # + return - Array of partitions for the given topic if executes successfully, error otherwise.
-    public remote function getTopicPartitions(string topic, public int duration = -1) returns TopicPartition[]|error = external;
+    # + return - Array of partitions for the given topic if executes successfully, `kafka:ConsumerError` otherwise.
+    public remote function getTopicPartitions(string topic, public int duration = -1) returns TopicPartition[]|ConsumerError = external;
 
     # Pause consumer retrieving messages from set of partitions.
     #
     # + partitions - Set of partitions to pause the retrieval of messages.
-    # + return - Returns an error if encounters an error, returns nil otherwise.
-    public remote function pause(TopicPartition[] partitions) returns error? = external;
+    # + return - Returns an `kafka:ConsumerError` if encounters an error, returns nil otherwise.
+    public remote function pause(TopicPartition[] partitions) returns ConsumerError? = external;
 
     # Poll the consumer for external broker for records.
     #
     # + timeoutValue - Polling time in milliseconds.
-    # + return - Array of consumer records if executes successfully, error otherwise.
-    public remote function poll(int timeoutValue) returns ConsumerRecord[]|error = external;
+    # + return - Array of consumer records if executes successfully, `kafka:ConsumerError` otherwise.
+    public remote function poll(int timeoutValue) returns ConsumerRecord[]|ConsumerError = external;
 
     # Resume consumer retrieving messages from set of partitions which were paused earlier.
     #
     # + partitions - Set of partitions to resume the retrieval of messages.
-    # + return - Returns an error if encounters an error, returns nil otherwise.
-    public remote function resume(TopicPartition[] partitions) returns error? = external;
+    # + return - Returns an `kafka:ConsumerError` if encounters an error, returns nil otherwise.
+    public remote function resume(TopicPartition[] partitions) returns ConsumerError? = external;
 
     # Seek the consumer for a given offset in a topic partition.
     #
     # + offset - PartitionOffset to seek.
-    # + return - Returns an error if encounters an error, returns nil otherwise.
-    public remote function seek(PartitionOffset offset) returns error? = external;
+    # + return - Returns an `kafka:ConsumerError` if encounters an error, returns nil otherwise.
+    public remote function seek(PartitionOffset offset) returns ConsumerError? = external;
 
     # Seek consumer to the beginning of the offsets for the given set of topic partitions.
     #
     # + partitions - Set of topic partitions to seek.
-    # + return - Returns an error if encounters an error, returns nil otherwise.
-    public remote function seekToBeginning(TopicPartition[] partitions) returns error? = external;
+    # + return - Returns an `kafka:ConsumerError` if encounters an error, returns nil otherwise.
+    public remote function seekToBeginning(TopicPartition[] partitions) returns ConsumerError? = external;
 
     # Seek consumer for end of the offsets for the given set of topic partitions.
     #
     # + partitions - Set of topic partitions to seek.
-    # + return - Returns an error if encounters an error, returns nil otherwise.
-    public remote function seekToEnd(TopicPartition[] partitions) returns error? = external;
+    # + return - Returns an `kafka:ConsumerError` if encounters an error, returns nil otherwise.
+    public remote function seekToEnd(TopicPartition[] partitions) returns ConsumerError? = external;
 
     # Subscribes the consumer to the provided set of topics.
     #
     # + topics - Array of topics to be subscribed.
-    # + return - Returns an error if encounters an error, returns nil otherwise.
-    public remote function subscribe(string[] topics) returns error? = external;
+    # + return - Returns an `kafka:ConsumerError` if encounters an error, returns nil otherwise.
+    public remote function subscribe(string[] topics) returns ConsumerError? = external;
 
     # Subscribes the consumer to the topics which matches to the provided pattern.
     #
     # + regex - Pattern which should be matched with the topics to be subscribed.
-    # + return - Returns an error if encounters an error, returns nil otherwise.
-    public remote function subscribeToPattern(string regex) returns error? = external;
+    # + return - Returns an `kafka:ConsumerError` if encounters an error, returns nil otherwise.
+    public remote function subscribeToPattern(string regex) returns ConsumerError? = external;
 
     # Subscribes to consumer to the provided set of topics with rebalance listening is enabled.
     #
     # + topics - Array of topics to be subscribed.
     # + onPartitionsRevoked - Function which will be executed if partitions are revoked from this consumer.
     # + onPartitionsAssigned - Function which will be executed if partitions are assigned this consumer.
-    # + return - Returns an error if encounters an error, returns nil otherwise.
+    # + return - Returns an `kafka:ConsumerError` if encounters an error, returns nil otherwise.
     public remote function subscribeWithPartitionRebalance(string[] topics,
                            function(Consumer consumer, TopicPartition[] partitions) onPartitionsRevoked,
                            function(Consumer consumer, TopicPartition[] partitions) onPartitionsAssigned)
-                           returns error? = external;
+                           returns ConsumerError? = external;
 
     # Unsubscribe the consumer from all the topic subscriptions.
     #
-    # + return - Returns an error if encounters an error, returns nil otherwise.
-    public remote function unsubscribe() returns error? = external;
+    # + return - Returns an `kafka:ConsumerError` if encounters an error, returns nil otherwise.
+    public remote function unsubscribe() returns ConsumerError? = external;
 };

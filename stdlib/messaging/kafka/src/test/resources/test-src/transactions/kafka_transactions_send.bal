@@ -20,14 +20,12 @@ import ballerina/transactions;
 string topic = "abort-transaction-topic";
 
 kafka:ProducerConfig producerConfigs = {
-    bootstrapServers:"localhost:9094, localhost:9095, localhost:9096",
+    bootstrapServers:"localhost:9144, localhost:9145, localhost:9146",
     clientId:"abort-transaction-producer",
     acks:"all",
     noRetries:3,
     transactionalId:"abort-transaction-test-producer"
 };
-
-kafka:Producer kafkaProducer = new(producerConfigs);
 
 function funcKafkaAbortTransactionTest() returns boolean {
     string msg = "Hello World Transaction";
@@ -37,17 +35,17 @@ function funcKafkaAbortTransactionTest() returns boolean {
 }
 
 function kafkaAdvancedTransactionalProduce(byte[] msg) returns error? {
+    kafka:Producer kafkaProducer = new(producerConfigs);
     error? returnValue = ();
     error err = error("custom error");
     transaction {
-        var result = kafkaProducer->send(msg, topic, partition = 0);
-        returnValue = kafkaProducer->abortTransaction();
-    } onretry {
-        // Do nothing
+        var result = kafkaProducer->send(msg, topic, (), 0, ());
+        result = kafkaProducer->send(msg, topic, (), 0, ());
     } committed {
-        // Do nothing
+        returnValue = ();
     } aborted {
         return err;
     }
     return returnValue;
 }
+

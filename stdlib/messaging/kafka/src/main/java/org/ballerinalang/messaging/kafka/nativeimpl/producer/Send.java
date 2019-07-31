@@ -33,14 +33,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
-import java.util.Properties;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_PARTITION;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONNECTOR_ID;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_PRODUCER;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_PRODUCER_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_STRUCT_NAME;
@@ -48,8 +45,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.UNCHECKED;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getIntValue;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getLongValue;
-import static org.ballerinalang.messaging.kafka.utils.TransactionUtils.initiateTransaction;
-import static org.ballerinalang.messaging.kafka.utils.TransactionUtils.isTransactional;
+import static org.ballerinalang.messaging.kafka.utils.TransactionUtils.handleTransactions;
 
 /**
  * Native action produces blob value to given string topic.
@@ -79,11 +75,10 @@ public class Send {
         byte[] keyValue = Objects.nonNull(key) ? ((ArrayValue) key).getBytes() : null;
         ProducerRecord<byte[], byte[]> kafkaRecord = new ProducerRecord(topic, partitionValue, timestampValue,
                 keyValue, value.getBytes());
-        Properties producerProperties = (Properties) producerObject.getNativeData(NATIVE_PRODUCER_CONFIG);
         KafkaProducer<byte[], byte[]> producer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
         try {
-            if (isTransactional(strand, producerProperties)) {
-                initiateTransaction(strand, (String) producerObject.get(CONNECTOR_ID), producer);
+            if (strand.isInTransaction()) {
+                handleTransactions(strand, producerObject);
             }
             producer.send(kafkaRecord, (metadata, e) -> {
                 if (Objects.nonNull(e)) {

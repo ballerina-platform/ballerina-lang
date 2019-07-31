@@ -19,6 +19,7 @@
 package org.ballerinalang.messaging.kafka.nativeimpl.producer;
 
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -32,12 +33,13 @@ import java.util.Map;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PACKAGE_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KAFKA_PROTOCOL_PACKAGE;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_PRODUCER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_STRUCT_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getPartitionToMetadataMap;
-import static org.ballerinalang.messaging.kafka.utils.TransactionUtils.commitKafkaConsumer;
+import static org.ballerinalang.messaging.kafka.utils.TransactionUtils.handleTransactions;
 
 /**
  * Native action commits the consumer for given offsets in transaction.
@@ -57,9 +59,13 @@ public class CommitConsumerOffsets {
 
     public static Object commitConsumerOffsets(Strand strand, ObjectValue producerObject, ArrayValue offsets,
                                                String groupId) {
+        KafkaProducer<byte[], byte[]> kafkaProducer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
         Map<TopicPartition, OffsetAndMetadata> partitionToMetadataMap = getPartitionToMetadataMap(offsets);
         try {
-            commitKafkaConsumer(strand, producerObject, partitionToMetadataMap, groupId);
+            if (strand.isInTransaction()) {
+                handleTransactions(strand, producerObject);
+            }
+            kafkaProducer.sendOffsetsToTransaction(partitionToMetadataMap, groupId);
         } catch (IllegalStateException | KafkaException e) {
             return createKafkaError("Failed to commit consumer offsets: " + e.getMessage(), PRODUCER_ERROR);
         }

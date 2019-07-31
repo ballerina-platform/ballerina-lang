@@ -36,6 +36,9 @@ import java.util.Properties;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
 
+/**
+ * Tests for ballerina Kafka subscribeWithPartitionRebalance function.
+ */
 @Test(singleThreaded = true)
 public class KafkaConsumerSubscribePartitionRebalanceTest {
 
@@ -50,7 +53,7 @@ public class KafkaConsumerSubscribePartitionRebalanceTest {
                 .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(1).startup();
     }
 
-    @Test(description = "Test functionality of getAvailableTopics() function")
+    @Test(description = "Test functionality of getAvailableTopics() function", enabled = false)
     public void testKafkaConsumerSubscribeWithPartitionRebalance() {
         result = BCompileUtil.compile(
                 getFilePath("test-src/consumer/kafka_consumer_subscribe_with_partition_rebalance.bal"));

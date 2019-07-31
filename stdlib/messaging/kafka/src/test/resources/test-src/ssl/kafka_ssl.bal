@@ -81,12 +81,14 @@ function funcKafkaPollWithSSL() returns string|error {
     var results = consumer->poll(1000);
     if (results is error) {
         return results;
-    } else if (results.length() == 1) {
-        var kafkaRecord = results[0];
-        byte[] serializedMsg = kafkaRecord.value;
-        return encoding:byteArrayToString(serializedMsg, "UTF-8");
     } else {
-        return "";
+        if (results.length() == 1) {
+            var kafkaRecord = results[0];
+            byte[] serializedMsg = kafkaRecord.value;
+            return encoding:byteArrayToString(serializedMsg, "UTF-8");
+        } else {
+            return "";
+        }
     }
 }
 

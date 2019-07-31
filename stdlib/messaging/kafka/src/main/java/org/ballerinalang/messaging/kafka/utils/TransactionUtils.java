@@ -18,22 +18,17 @@
 
 package org.ballerinalang.messaging.kafka.utils;
 
-import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.TopicPartition;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.kafka.impl.KafkaTransactionContext;
 
-import java.util.Map;
 import java.util.Objects;
-import java.util.Properties;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONNECTOR_ID;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_PRODUCER;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_PRODUCER_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.TRANSACTION_CONTEXT;
 
 /**
  * Utility functions for ballerina kafka transactions.
@@ -43,35 +38,25 @@ public class TransactionUtils {
     private TransactionUtils() {
     }
 
-    public static boolean isTransactional(Strand strand, Properties properties) {
-        return (Objects.nonNull(properties.get(ProducerConfig.TRANSACTIONAL_ID_CONFIG)) && strand.isInTransaction());
+    public static void handleTransactions(Strand strand, ObjectValue producer) {
+        KafkaTransactionContext transactionContext = (KafkaTransactionContext) producer
+                .getNativeData(TRANSACTION_CONTEXT);
+        transactionContext.beginTransaction();
+        registerKafkaTransactionContext(strand, producer, transactionContext);
     }
 
-    public static boolean isTransactionInitiated(TransactionLocalContext localTransactionInfo, String connectorKey) {
-        return Objects.nonNull(localTransactionInfo.getTransactionContext(connectorKey));
+    public static KafkaTransactionContext createKafkaTransactionContext(ObjectValue producer) {
+        KafkaProducer<byte[], byte[]> kafkaProducer = (KafkaProducer) producer.getNativeData(NATIVE_PRODUCER);
+        return new KafkaTransactionContext(kafkaProducer);
     }
 
-    public static void commitKafkaConsumer(Strand strand, ObjectValue producerObject, Map<TopicPartition,
-            OffsetAndMetadata> partitionToMetadataMap, String groupID) {
-
-        Properties producerProperties = (Properties) producerObject.getNativeData(NATIVE_PRODUCER_CONFIG);
-        KafkaProducer<byte[], byte[]> producer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
-        if (isTransactional(strand, producerProperties)) {
-            initiateTransaction(strand, (String) producerObject.get(CONNECTOR_ID), producer);
-        }
-        producer.sendOffsetsToTransaction(partitionToMetadataMap, groupID);
-    }
-    public static void initiateTransaction(Strand strand, String connectorKey, KafkaProducer producer) {
-        TransactionLocalContext localTransactionInfo = strand.getLocalTransactionContext();
-        beginTransaction(localTransactionInfo, connectorKey, producer);
-    }
-
-    private static void beginTransaction(TransactionLocalContext localTransactionInfo, String connectorKey,
-                                         KafkaProducer producer) {
-        if (!isTransactionInitiated(localTransactionInfo, connectorKey)) {
-            KafkaTransactionContext txContext = new KafkaTransactionContext(producer);
-            localTransactionInfo.registerTransactionContext(connectorKey, txContext);
-            producer.beginTransaction();
+    public static void registerKafkaTransactionContext(Strand strand,
+                                                       ObjectValue producer,
+                                                       KafkaTransactionContext transactionContext) {
+        String connectorId = producer.getStringValue(CONNECTOR_ID);
+        if (Objects.isNull(strand.getLocalTransactionContext().getTransactionContext(connectorId))) {
+            TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
+            transactionLocalContext.registerTransactionContext(connectorId, transactionContext);
         }
     }
 }

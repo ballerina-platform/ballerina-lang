@@ -20,17 +20,15 @@ import ballerina/transactions;
 string topic = "commit-consumer-test-topic";
 
 kafka:ProducerConfig producerConfigs = {
-    bootstrapServers: "localhost:9094, localhost:9095, localhost:9096",
+    bootstrapServers: "localhost:9144, localhost:9145, localhost:9146",
     clientId: "commit-producer",
     acks: "all",
     transactionalId: "comit-consumer-test-producer",
     noRetries: 3
 };
 
-kafka:Producer kafkaProducer = new(producerConfigs);
-
 kafka:ConsumerConfig consumerConfigs = {
-    bootstrapServers: "localhost:9094, localhost:9095, localhost:9096",
+    bootstrapServers: "localhost:9144, localhost:9145, localhost:9146",
     groupId: "commit-consumer-test-group",
     offsetReset: "earliest",
     topics: [topic]
@@ -41,27 +39,35 @@ kafka:Consumer kafkaConsumer = new(consumerConfigs);
 function funcTestKafkaProduce() {
     string msg = "Hello World";
     byte[] byteMsg = msg.toBytes();
-    kafkaProduce(byteMsg);
+    var result = kafkaProduce(byteMsg);
 }
 
-function kafkaProduce(byte[] value) {
+function kafkaProduce(byte[] value) returns boolean {
+    var transactionComplete = false;
+    kafka:Producer kafkaProducer = new(producerConfigs);
     transaction {
         var result = kafkaProducer->send(value, topic);
-    } onretry {
-         // Do nothing
-     } committed {
-         committedBlockExecuted = true;
-     } aborted {
-         // Do nothing
-     }
+    } committed {
+        transactionComplete = true;
+    } aborted {
+        transactionComplete = false;
+    }
+    return transactionComplete;
 }
 
 function funcTestKafkaConsume() returns boolean {
+    kafka:Producer kafkaProducer = new(producerConfigs);
+    boolean transactionComplete = false;
     var records = kafkaConsumer->poll(3000);
     if (records is error) {
         return false;
-    } else {
-        var result = kafkaProducer->commitConsumer(kafkaConsumer);
-        return !(result is error);
     }
+    transaction {
+        var result = kafkaProducer->commitConsumer(kafkaConsumer);
+    } committed {
+        transactionComplete = true;
+    } aborted {
+        transactionComplete = false;
+    }
+    return transactionComplete;
 }

@@ -22,10 +22,9 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.KafkaException;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
+import org.ballerinalang.messaging.kafka.impl.KafkaTransactionContext;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -40,8 +39,10 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_PROD
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ORG_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_STRUCT_NAME;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.TRANSACTION_CONTEXT;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.processKafkaProducerConfig;
+import static org.ballerinalang.messaging.kafka.utils.TransactionUtils.createKafkaTransactionContext;
 
 /**
  * Native action initializes a producer instance for connector.
@@ -59,20 +60,21 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.processKafkaPro
 )
 public class Init {
 
-    public static void init(Strand strand, ObjectValue producerObject, MapValue<String, Object> configs) {
-        final NonBlockingCallback callback = new NonBlockingCallback(strand);
+    public static Object init(Strand strand, ObjectValue producerObject, MapValue<String, Object> configs) {
         Properties producerProperties = processKafkaProducerConfig(configs);
+
         try {
             KafkaProducer<byte[], byte[]> kafkaProducer = new KafkaProducer<>(producerProperties);
-            if (Objects.nonNull(producerProperties.get(ProducerConfig.TRANSACTIONAL_ID_CONFIG))) {
-                kafkaProducer.initTransactions();
-            }
             producerObject.addNativeData(NATIVE_PRODUCER, kafkaProducer);
             producerObject.addNativeData(NATIVE_PRODUCER_CONFIG, producerProperties);
+
+            if (Objects.nonNull(producerProperties.get(ProducerConfig.TRANSACTIONAL_ID_CONFIG))) {
+                KafkaTransactionContext transactionContext = createKafkaTransactionContext(producerObject);
+                producerObject.addNativeData(TRANSACTION_CONTEXT, transactionContext);
+            }
         } catch (IllegalStateException | KafkaException e) {
-            ErrorValue error = createKafkaError("Failed to initialize the producer: " + e.getMessage(), PRODUCER_ERROR);
-            callback.notifyFailure(error);
+            return createKafkaError("Failed to initialize the producer: " + e.getMessage(), PRODUCER_ERROR);
         }
-        callback.notifySuccess();
+        return null;
     }
 }

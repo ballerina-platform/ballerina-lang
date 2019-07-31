@@ -72,7 +72,10 @@ public class KafkaConsumerTopicsTest {
         Assert.assertEquals(((BValueArray) returnBValues[0]).getString(1), TOPIC_TEST_1);
     }
 
-    @Test(description = "Test Kafka getAvailableTopics with duration parameter", dependsOnMethods = "testKafkaGetAvailableTopics")
+    @Test(
+            description = "Test Kafka getAvailableTopics with duration parameter",
+            dependsOnMethods = "testKafkaGetAvailableTopics"
+    )
     public void testKafkaGetAvailableTopicsWithDuration() {
         produceToKafkaCluster(kafkaCluster, TOPIC_TEST_1, TEST_MESSAGE);
         produceToKafkaCluster(kafkaCluster, TOPIC_TEST_2, TEST_MESSAGE);
@@ -84,7 +87,10 @@ public class KafkaConsumerTopicsTest {
         Assert.assertEquals(((BValueArray) returnBValues[0]).getString(1), TOPIC_TEST_1);
     }
 
-    @Test(description = "Test functionality of getAvailableTopics() function", dependsOnMethods = "testKafkaGetAvailableTopicsWithDuration")
+    @Test(
+            description = "Test functionality of getAvailableTopics() function",
+            dependsOnMethods = "testKafkaGetAvailableTopicsWithDuration"
+    )
     public void testKafkaConsumerGetAvailableTopicsFromNoTimeoutConsumer () {
         produceToKafkaCluster(kafkaCluster, TOPIC_TEST_1, TEST_MESSAGE);
         produceToKafkaCluster(kafkaCluster, TOPIC_TEST_2, TEST_MESSAGE);
@@ -98,7 +104,10 @@ public class KafkaConsumerTopicsTest {
     }
 
 
-    @Test(description = "Test functionality of getTopicPartitions() function", dependsOnMethods = "testKafkaGetAvailableTopicsWithDuration")
+    @Test(
+            description = "Test functionality of getTopicPartitions() function",
+            dependsOnMethods = "testKafkaGetAvailableTopicsWithDuration"
+    )
     @SuppressWarnings("unchecked")
     public void testKafkaConsumerGetTopicPartitions () {
         BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaGetTopicPartitions");

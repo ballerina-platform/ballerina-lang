@@ -46,6 +46,10 @@
         <classes>
             <class name="org.ballerinalang.messaging.kafka.services.KafkaServiceTest"/>
             <class name="org.ballerinalang.messaging.kafka.services.KafkaServiceCompilerTest"/>
+        </classes>
+    </test>
+    <test name="ballerina-kafka-transactions-test">
+        <classes>
             <!-- Kafka transactions related tests -->
             <class name="org.ballerinalang.messaging.kafka.transactions.KafkaProducerTransactionsTest"/>
         </classes>

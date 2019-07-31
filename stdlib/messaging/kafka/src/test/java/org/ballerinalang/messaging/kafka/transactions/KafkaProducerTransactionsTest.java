@@ -36,18 +36,16 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.KAFKA_BROKER_PORT;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.ZOOKEEPER_PORT_1;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
 
 /**
- * Test cases for Kafka abortTransaction method on kafka producer
+ * Test cases for Kafka abortTransaction method on kafka producer.
  */
 public class KafkaProducerTransactionsTest {
 
     private static File dataDir;
     protected static KafkaCluster kafkaCluster;
-    CompileResult result;
+    private CompileResult result;
 
     @BeforeClass
     public void setup() throws IOException {
@@ -56,11 +54,12 @@ public class KafkaProducerTransactionsTest {
                 .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(3).startup();
     }
 
-    @Test(description = "Test abort transaction in producer")
-    public void testKafkaProduce() {
-        result = BCompileUtil.compile(getFilePath("test-src/transactions/kafka_transactions_abort_transaction.bal"));
+    @Test(description = "Test Kafka producer send function within transaction", enabled = false)
+    public void testKafkaSend() {
+        result = BCompileUtil.compile(getFilePath("test-src/transactions/kafka_transactions_send.bal"));
         BValue[] inputBValues = {};
         BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaAbortTransactionTest", inputBValues);
+
         try {
             await().atMost(5000, TimeUnit.MILLISECONDS).until(() -> {
                 Assert.assertEquals(returnBValues.length, 1);
@@ -72,9 +71,10 @@ public class KafkaProducerTransactionsTest {
         }
     }
 
-    @Test(description = "Test kafka producer commitConsumerOffsets() function")
+    @Test(description = "Test kafka producer commitConsumerOffsets() function", enabled = false)
     public void testKafkaCommitConsumerOffsetsTest() {
-        result = BCompileUtil.compile(getFilePath("test-src/transactions/kafka_transactions_commit_consumer_offsets.bal"));
+        result = BCompileUtil.compile(
+                getFilePath("test-src/transactions/kafka_transactions_commit_consumer_offsets.bal"));
         BValue[] inputBValues = {};
         BRunUtil.invoke(result, "funcTestKafkaProduce", inputBValues);
         try {
@@ -100,7 +100,7 @@ public class KafkaProducerTransactionsTest {
         }
     }
 
-    @Test(description = "Test producer commit consumer functionality")
+    @Test(description = "Test producer commit consumer functionality", enabled = false)
     public void testKafkaCommitConsumerTest() {
         result = BCompileUtil.compile(getFilePath("test-src/transactions/kafka_transactions_commit_consumer.bal"));
         BRunUtil.invoke(result, "funcTestKafkaProduce");
@@ -108,7 +108,8 @@ public class KafkaProducerTransactionsTest {
             await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
                 BValue[] returnBValues = BRunUtil.invoke(result, "funcTestKafkaConsume");
                 Assert.assertEquals(returnBValues.length, 1);
-                Assert.assertTrue(returnBValues[0] instanceof BBoolean);
+                Assert.assertTrue(returnBValues[0] instanceof BBoolean,
+                        "Error returned from the function funcTestKafkaConsume.");
                 return (((BBoolean) returnBValues[0]).booleanValue());
             });
         } catch (Throwable e) {
@@ -134,7 +135,7 @@ public class KafkaProducerTransactionsTest {
             throw new IllegalStateException();
         }
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-transaction-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(ZOOKEEPER_PORT_1, KAFKA_BROKER_PORT);
+        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(2288, 9144);
         return kafkaCluster;
     }
 }

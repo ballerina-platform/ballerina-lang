@@ -20,17 +20,15 @@ import ballerina/transactions;
 string topic = "commit-consumer-offsets-topic";
 
 kafka:ProducerConfig producerConfigs = {
-    bootstrapServers: "localhost:9094, localhost:9095, localhost:9096",
+    bootstrapServers: "localhost:9144, localhost:9145, localhost:9146",
     clientId: "commit-consumer-offsets-producer",
     acks: "all",
     transactionalId: "comit-consumer-offset-test-producer",
     noRetries: 3
 };
 
-kafka:Producer kafkaProducer = new(producerConfigs);
-
 kafka:ConsumerConfig consumerConfigs1 = {
-    bootstrapServers: "localhost:9094, localhost:9095, localhost:9096",
+    bootstrapServers: "localhost:9144, localhost:9145, localhost:9146",
     groupId: "commit-consumer-offsets-test-group-1",
     offsetReset: "earliest",
     topics: [topic],
@@ -40,7 +38,7 @@ kafka:ConsumerConfig consumerConfigs1 = {
 kafka:Consumer kafkaConsumer1 = new(consumerConfigs1);
 
 kafka:ConsumerConfig consumerConfigs2 = {
-    bootstrapServers: "localhost:9094, localhost:9095, localhost:9096",
+    bootstrapServers: "localhost:9144, localhost:9145, localhost:9146",
     groupId: "commit-consumer-offsets-test-group-2",
     offsetReset: "earliest",
     topics: [topic],
@@ -56,6 +54,8 @@ function funcTestKafkaProduce() {
 }
 
 function kafkaProduce(byte[] value) {
+    kafka:Producer kafkaProducer = new(producerConfigs);
+    boolean committedBlockExecuted = false;
     transaction {
         var result = kafkaProducer->send(value, topic);
     } onretry {
@@ -68,20 +68,27 @@ function kafkaProduce(byte[] value) {
 }
 
 function funcTestKafkaCommitOffsets() returns boolean {
+    kafka:Producer kafkaProducer = new(producerConfigs);
     var results = funcGetPartitionOffset(kafkaConsumer1);
+    boolean isSuccess = false;
+    kafka:PartitionOffset[] offsets;
     if (results is error) {
         return false;
     } else {
         if (results.length() == 0) {
             return false;
-        } else {
-            var result = kafkaProducer->commitConsumerOffsets(results, "commit-consumer-offsets-test-group-1");
-            if (result is error) {
-                return false;
-            }
-            return true;
         }
+        offsets = results;
     }
+    transaction {
+        var result = kafkaProducer->commitConsumerOffsets(offsets, "commit-consumer-offsets-test-group-1");
+        isSuccess = !(result is error);
+    } committed {
+        isSuccess = true;
+    } aborted {
+        isSuccess = false;
+    }
+    return isSuccess;
 }
 
 function funcTestPollAgain() returns boolean {
@@ -113,4 +120,3 @@ function funcGetPartitionOffset(kafka:Consumer consumer) returns kafka:Partition
         return offsets;
     }
 }
-

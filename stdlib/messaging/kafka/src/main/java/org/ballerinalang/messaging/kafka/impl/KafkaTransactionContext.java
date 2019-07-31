@@ -32,6 +32,11 @@ public class KafkaTransactionContext implements BallerinaTransactionContext {
 
     public KafkaTransactionContext(KafkaProducer<byte[], byte[]> kafkaProducer) {
         this.kafkaProducer = kafkaProducer;
+        this.kafkaProducer.initTransactions();
+    }
+
+    public void beginTransaction() {
+        this.kafkaProducer.beginTransaction();
     }
 
     /**

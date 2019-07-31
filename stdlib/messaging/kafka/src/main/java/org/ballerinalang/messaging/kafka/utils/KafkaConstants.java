@@ -47,6 +47,9 @@ public class KafkaConstants {
     public static final String CONNECTOR_ID = "connectorId";
     public static final String PRODUCER_HOLDER_FILED = "producerHolder";
 
+    public static final String TRANSACTION_INITIATED = "TransactionInitiated";
+    public static final String TRANSACTION_CONTEXT = "TransactionInitiated";
+
     public static final String TOPIC_PARTITION_STRUCT_NAME = "TopicPartition";
     public static final String OFFSET_STRUCT_NAME = "PartitionOffset";
 

@@ -41,6 +41,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_ST
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getTopicPartitionRecord;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.populateTopicPartitionRecord;
+import static org.ballerinalang.messaging.kafka.utils.TransactionUtils.handleTransactions;
 
 /**
  * Native action retrieves partitions for given Topic via remote call.
@@ -61,6 +62,9 @@ public class GetTopicPartitions {
     public static Object getTopicPartitions(Strand strand, ObjectValue producerObject, String topic) {
         KafkaProducer<byte[], byte[]> kafkaProducer = (KafkaProducer) producerObject.getNativeData(NATIVE_PRODUCER);
         try {
+            if (strand.isInTransaction()) {
+                handleTransactions(strand, producerObject);
+            }
             List<PartitionInfo> partitionInfoList = kafkaProducer.partitionsFor(topic);
             ArrayValue topicPartitionArray = new ArrayValue(new BArrayType(getTopicPartitionRecord().getType()));
 //            if (!partitionInfoList.isEmpty()) {

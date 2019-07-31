@@ -38,6 +38,9 @@ import java.util.concurrent.TimeUnit;
 import static org.awaitility.Awaitility.await;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
 
+/**
+ * Tests for ballerina kafka subscribeToPattern function.
+ */
 @Test(singleThreaded = true)
 public class KafkaConsumerSubscribeToPatternTest {
     private CompileResult result;
