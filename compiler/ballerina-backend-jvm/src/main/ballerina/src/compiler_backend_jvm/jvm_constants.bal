@@ -204,6 +204,18 @@ const int COMPUTE_MAXS = 1;
 const int COMPUTE_FRAMES = 2;
 final int V1_8 = 0 << 16 | 52;
 
+// Possible values for the type operand of the NEWARRAY instruction.
+// See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-6.html#jvms-6.5.newarray.
+int T_BOOLEAN = 4;
+int T_CHAR = 5;
+int T_FLOAT = 6;
+int T_DOUBLE = 7;
+int T_BYTE = 8;
+int T_SHORT = 9;
+int T_INT = 10;
+int T_LONG = 11;
+
+
 // jvm runtime values related classes
 const string MAP_VALUE = "org/ballerinalang/jvm/values/MapValue";
 const string MAP_VALUE_IMPL = "org/ballerinalang/jvm/values/MapValueImpl";

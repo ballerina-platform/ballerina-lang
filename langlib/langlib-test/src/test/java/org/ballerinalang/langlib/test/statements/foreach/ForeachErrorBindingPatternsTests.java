@@ -82,9 +82,9 @@ public class ForeachErrorBindingPatternsTests {
         BAssertUtil.validateError(negative, i++, "incompatible types: expected '(string|boolean)', found 'string?'",
                 110, 28);
         BAssertUtil.validateError(negative, i++,
-                "invalid error binding pattern with type '$anonType$28'",
-                125, 17);
+                                  "invalid error binding pattern with type '$anonType$28'",
+                                  126, 17);
         BAssertUtil.validateError(negative, i++,
-                "undefined symbol 'otherVar'", 128, 17);
+                                  "undefined symbol 'otherVar'", 129, 17);
     }
 }

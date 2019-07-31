@@ -334,8 +334,11 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         return thread;
     }
 
-    private void exit() {
-        new TerminatorFactory().getTerminator(OSUtils.getOperatingSystem()).terminate();
+    private void exit(boolean terminateDebuggee) {
+        if (terminateDebuggee) {
+            new TerminatorFactory().getTerminator(OSUtils.getOperatingSystem()).terminate();
+        }
+
         if (launchedErrorStream != null) {
             try {
                 launchedErrorStream.close();
@@ -364,13 +367,14 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Void> disconnect(DisconnectArguments args) {
-        this.exit();
+        boolean terminateDebuggee = args.getTerminateDebuggee() == null ? false : args.getTerminateDebuggee();
+        this.exit(terminateDebuggee);
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public CompletableFuture<Void> terminate(TerminateArguments args) {
-        this.exit();
+        this.exit(true);
         return CompletableFuture.completedFuture(null);
     }
 

@@ -25,7 +25,7 @@ import ballerina/'lang\.int as langint;
 # Represents JWT validator configurations.
 # + issuer - Expected issuer
 # + audience - Expected audience
-# + clockSkew - Clock skew in seconds
+# + clockSkewInSeconds - Clock skew in seconds
 # + trustStore - Trust store used for signature verification
 # + certificateAlias - Token signed public key certificate alias
 # + validateCertificate - Validate public key certificate notBefore and notAfter periods
@@ -33,7 +33,7 @@ import ballerina/'lang\.int as langint;
 public type JwtValidatorConfig record {|
     string issuer?;
     string|string[] audience?;
-    int clockSkew = 0;
+    int clockSkewInSeconds = 0;
     crypto:TrustStore trustStore?;
     string certificateAlias?;
     boolean validateCertificate?;
@@ -400,8 +400,8 @@ function validateExpirationTime(JwtPayload jwtPayload, JwtValidatorConfig config
     //Convert current time which is in milliseconds to seconds.
     int? expTime = jwtPayload?.exp;
     if (expTime is int) {
-        if (config.clockSkew > 0){
-            expTime = expTime + config.clockSkew;
+        if (config.clockSkewInSeconds > 0){
+            expTime = expTime + config.clockSkewInSeconds;
         }
         return expTime > time:currentTime().time / 1000;
     }

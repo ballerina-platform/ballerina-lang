@@ -1,17 +1,17 @@
-["b7a.websub.hub.auth"]
+[b7a.websub.hub.auth]
 enabled=true
 scopes="scope1"
 
-["b7a.users"]
+[b7a.users]
 
-["b7a.users.tom"]
+[b7a.users.tom]
 password="1234"
 scopes="scope1"
 
-["b7a.users.mary"]
+[b7a.users.mary]
 password="xyz"
 scopes="scope2"
 
-["b7a.users.peter"]
+[b7a.users.peter]
 password="pqr"
 scopes="scope1"

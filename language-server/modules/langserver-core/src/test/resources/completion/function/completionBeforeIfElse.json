@@ -26,7 +26,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "110",
-      "insertText": "error ${1:name} \u003d error(\"${2:errorCode}\", detail \u003d { message: \"${3}\" });",
+      "insertText": "error ${1:name} \u003d error(\"${2:errorCode}\", message \u003d \"${3}\");",
       "insertTextFormat": "Snippet"
     },
     {
@@ -336,7 +336,7 @@
     },
     {
       "label": "sampleService",
-      "kind": "Variable",
+      "kind": "Unit",
       "detail": "sampleService",
       "sortText": "120",
       "insertText": "sampleService",
