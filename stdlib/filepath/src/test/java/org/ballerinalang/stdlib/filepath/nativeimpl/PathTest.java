@@ -164,7 +164,7 @@ public class PathTest {
         if ("error".equals(expected)) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/filepath}INVALID_UNC_PATH");
+            assertEquals(error.getReason(), "{ballerina/filepath}Error");
             log.info("Ballerina error: " + error.getDetails().stringValue());
         } else {
             assertTrue(returns[0] instanceof BString);
@@ -192,7 +192,7 @@ public class PathTest {
         if ("error".equals(expected)) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/filepath}INVALID_UNC_PATH");
+            assertEquals(error.getReason(), "{ballerina/filepath}Error");
             log.info("Ballerina error: " + error.getDetails().stringValue());
         } else {
             assertTrue(returns[0] instanceof BString);
@@ -221,7 +221,7 @@ public class PathTest {
         if ("error".equals(expected)) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/filepath}INVALID_UNC_PATH");
+            assertEquals(error.getReason(), "{ballerina/filepath}Error");
             log.info("Ballerina error: " + error.getDetails().stringValue());
         } else {
             assertTrue(returns[0] instanceof BString);
@@ -249,7 +249,7 @@ public class PathTest {
         if ("error".equals(expected)) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/filepath}INVALID_UNC_PATH");
+            assertEquals(error.getReason(), "{ballerina/filepath}Error");
             log.info("Ballerina error: " + error.getDetails().stringValue());
         } else {
             assertTrue(returns[0] instanceof BValueArray);
@@ -291,7 +291,7 @@ public class PathTest {
         if ("error".equals(expected)) {
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), "{ballerina/filepath}INVALID_UNC_PATH");
+            assertEquals(error.getReason(), "{ballerina/filepath}Error");
             log.info("Ballerina error: " + error.getDetails().stringValue());
         } else {
             assertTrue(returns[0] instanceof BString);
