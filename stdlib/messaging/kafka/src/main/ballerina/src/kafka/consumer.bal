@@ -44,7 +44,7 @@ import ballerina/'lang\.object as lang;
 # + metricsSampleWindowInMillis - Window of time a metrics sample is computed over.
 # + metricsNumSamples - Number of samples maintained to compute metrics.
 # + requestTimeoutInMillis - Wait time for response of a request.
-# + connectionMaxIdleInMillis - Close idle connections after the number of milliseconds.
+# + connectionMaxIdleTimeInMillis - Close idle connections after the number of milliseconds.
 # + maxPollRecords - Maximum number of records returned in a single call to poll.
 # + maxPollInterval - Maximum delay between invocations of poll.
 # + reconnectBackoffTimeInMillis - Time to wait before attempting to reconnect.
@@ -86,7 +86,7 @@ public type ConsumerConfig record {|
     int metricsSampleWindowInMillis = -1;
     int metricsNumSamples = -1;
     int requestTimeoutInMillis = -1;
-    int connectionMaxIdleInMillis = -1;
+    int connectionMaxIdleTimeInMillis = -1;
     int maxPollRecords = -1;
     int maxPollInterval = -1;
     int reconnectBackoffTimeInMillis = -1;

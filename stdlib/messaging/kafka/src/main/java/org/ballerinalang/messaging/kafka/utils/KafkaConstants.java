@@ -119,7 +119,7 @@ public class KafkaConstants {
     public static final String CONSUMER_METRICS_SAMPLE_WINDOW_MS_CONFIG = "metricsSampleWindowInMillis";
     public static final String CONSUMER_METRICS_NUM_SAMPLES_CONFIG = "metricsNumSamples";
     public static final String CONSUMER_REQUEST_TIMEOUT_MS_CONFIG = "requestTimeoutInMillis";
-    public static final String CONSUMER_CONNECTIONS_MAX_IDLE_MS_CONFIG = "connectionMaxIdleInMillis";
+    public static final String CONSUMER_CONNECTIONS_MAX_IDLE_MS_CONFIG = "connectionMaxIdleTimeInMillis";
     public static final String CONSUMER_MAX_POLL_RECORDS_CONFIG = "maxPollRecords";
     public static final String CONSUMER_MAX_POLL_INTERVAL_MS_CONFIG = "maxPollInterval";
     public static final String CONSUMER_RECONNECT_BACKOFF_MAX_MS_CONFIG = "reconnectBackoffTimeMaxInMillis";
