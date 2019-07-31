@@ -21,6 +21,9 @@ import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.TableResourceManager;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.observability.ObservabilityConstants;
+import org.ballerinalang.jvm.observability.ObserveUtils;
+import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.transactions.BallerinaTransactionContext;
 import org.ballerinalang.jvm.transactions.TransactionLocalContext;
@@ -47,6 +50,7 @@ import org.ballerinax.jdbc.table.SQLDataIterator;
 import org.ballerinax.jdbc.transaction.SQLTransactionContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -58,12 +62,18 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 
 import javax.sql.XAConnection;
 import javax.transaction.xa.XAResource;
 
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_DB_TYPE_SQL;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_DB_INSTANCE;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_DB_STATEMENT;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_DB_TYPE;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_PEER_ADDRESS;
 import static org.ballerinax.jdbc.Constants.PARAMETER_DIRECTION_FIELD;
 import static org.ballerinax.jdbc.Constants.PARAMETER_SQL_TYPE_FIELD;
 import static org.ballerinax.jdbc.Constants.PARAMETER_VALUE_FIELD;
@@ -196,7 +206,8 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             break;
         case Types.DECIMAL:
         case Types.NUMERIC:
-            value = new DecimalValue(rs.getBigDecimal(index));
+            BigDecimal bigDecimal = rs.getBigDecimal(index);
+            value = (bigDecimal == null) ? null : new DecimalValue(bigDecimal);
             break;
         default:
             value = rs.getString(index);
@@ -449,5 +460,24 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             }
         }
         return builder.toString();
+    }
+
+
+    protected void checkAndObserveSQLAction(Strand strand, SQLDatasource datasource, String query) {
+        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(strand);
+        observerContext.ifPresent(ctx -> {
+            ctx.addTag(TAG_KEY_PEER_ADDRESS, datasource.getPeerAddress());
+            ctx.addTag(TAG_KEY_DB_INSTANCE, datasource.getDatabaseProductName());
+            ctx.addTag(TAG_KEY_DB_STATEMENT, query);
+            ctx.addTag(TAG_KEY_DB_TYPE, TAG_DB_TYPE_SQL);
+        });
+    }
+
+    protected void checkAndObserveSQLError(Strand context, String message) {
+        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
+        observerContext.ifPresent(ctx -> {
+            ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR, Boolean.TRUE);
+            ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR_MESSAGE, message);
+        });
     }
 }

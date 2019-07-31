@@ -104,7 +104,8 @@ export class BallerinaExtension {
                 this.checkCompatibleVersion(pluginVersion, ballerinaVersion);
                 // if Home is found load Language Server.
                 this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client',
-                    getServerOptions(this.getBallerinaHome(), this.isExperimental()), this.clientOptions, false);
+                    getServerOptions(this.getBallerinaHome(), this.isExperimental(), this.isDebugLogsEnabled()),
+                                                         this.clientOptions, false);
 
                 // 0.983.0 and 0.982.0 versions are incapable of handling client capabilities 
                 if (ballerinaVersion !== "0.983.0" && ballerinaVersion !== "0.982.0") {
@@ -262,7 +263,7 @@ export class BallerinaExtension {
                     return;
                 }
                 
-                resolve(version.replace(/Ballerina /, '').replace(/[\n\t\r]/g, ''));
+                resolve(version.split('\n')[0].replace(/Ballerina /, '').replace(/[\n\t\r]/g, ''));
             });
         });
     }
@@ -353,6 +354,10 @@ export class BallerinaExtension {
         return <boolean>workspace.getConfiguration().get(ALLOW_EXPERIMENTAL);
     }
 
+    isDebugLogsEnabled(): boolean {
+        return <boolean>workspace.getConfiguration().get(ENABLE_DEBUG_LOG);
+    }
+
     autoDetectBallerinaHome(): string {
         // try to detect the environment.
         const platform: string = process.platform;
@@ -363,7 +368,7 @@ export class BallerinaExtension {
                     return process.env.BALLERINA_HOME;
                 }
                 try {
-                    ballerinaPath = execSync('where ballerina').toString().trim();
+                    ballerinaPath = execSync('where ballerina.bat').toString().trim();
                 } catch (error) {
                     return ballerinaPath;
                 }

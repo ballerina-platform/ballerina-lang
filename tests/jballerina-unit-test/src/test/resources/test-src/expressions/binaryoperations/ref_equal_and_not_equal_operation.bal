@@ -85,7 +85,7 @@ function testOpenRecordRefEqualityPositive() returns boolean {
     OpenEmployee e3 = { name: "Em" };
     OpenEmployee e4 = e3;
 
-    OpenEmployee e5 = { name: "Em", id: 4000, dept: "finance" };
+    OpenEmployee e5 = { name: "Em", id: 4000, "dept": "finance" };
     OpenPerson e6 = e5;
 
     OpenEmployee e7 = {};
@@ -99,8 +99,8 @@ function testOpenRecordRefEqualityNegative() returns boolean {
     OpenEmployee e1 = { name: "Em", id: 4000 };
     OpenEmployee e2 = {};
 
-    OpenEmployee e3 = { name: "Em", area: 51 };
-    OpenEmployee e4 = { name: "Em", area: 51 };
+    OpenEmployee e3 = { name: "Em", "area": 51 };
+    OpenEmployee e4 = { name: "Em", "area": 51 };
 
     OpenEmployee e5 = { name: "Em", id: 4100 };
     OpenEmployee e6 = { name: "Em", id: 4100 };

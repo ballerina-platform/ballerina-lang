@@ -84,7 +84,7 @@ public class Start {
             SocketService socketService = (SocketService) listener.getNativeData(SOCKET_SERVICE);
             ChannelRegisterCallback registerCallback = new ChannelRegisterCallback(socketService, callback, OP_ACCEPT);
             selectorManager.registerChannel(registerCallback);
-            String socketListenerStarted = "[ballerina/socket] started socket listener ";
+            String socketListenerStarted = "[ballerina/socket] started Socket Listener ";
             PrintStream console = System.out;
             console.println(socketListenerStarted + channel.socket().getLocalPort());
         } catch (SelectorInitializeException e) {

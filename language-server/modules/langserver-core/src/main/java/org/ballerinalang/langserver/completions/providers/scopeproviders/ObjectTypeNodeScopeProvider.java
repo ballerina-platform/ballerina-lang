@@ -33,8 +33,6 @@ import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
-import org.ballerinalang.langserver.completions.util.sorters.DefaultItemSorter;
-import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.ballerinalang.langserver.index.LSIndexException;
 import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.ballerinalang.langserver.index.dao.BPackageSymbolDAO;
@@ -109,8 +107,6 @@ public class ObjectTypeNodeScopeProvider extends LSCompletionProvider {
             completionItems.add(Snippet.DEF_STOP_FUNCTION.get().build(context));
             completionItems.add(Snippet.KW_PUBLIC.get().build(context));
         }
-
-        ItemSorters.get(DefaultItemSorter.class).sortItems(context, completionItems);
 
         return completionItems;
     }

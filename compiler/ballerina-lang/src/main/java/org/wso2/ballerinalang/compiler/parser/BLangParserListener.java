@@ -37,7 +37,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
-import org.wso2.ballerinalang.compiler.util.RestBindingPatternState;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
@@ -53,9 +52,6 @@ import java.util.StringJoiner;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
-import static org.wso2.ballerinalang.compiler.util.RestBindingPatternState.CLOSED_REST_BINDING_PATTERN;
-import static org.wso2.ballerinalang.compiler.util.RestBindingPatternState.NO_BINDING_PATTERN;
-import static org.wso2.ballerinalang.compiler.util.RestBindingPatternState.OPEN_REST_BINDING_PATTERN;
 
 /**
  * @since 0.94
@@ -702,7 +698,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-        this.pkgBuilder.addTupleType(getCurrentPos(ctx), getWS(ctx), ctx.tupleTypeDescriptor().typeName().size());
+        this.pkgBuilder.addTupleType(getCurrentPos(ctx), getWS(ctx), ctx.tupleTypeDescriptor().typeName().size(),
+                ctx.tupleTypeDescriptor().tupleRestDescriptor() != null);
     }
 
     @Override
@@ -969,7 +966,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-        this.pkgBuilder.endErrorMatchPattern(getWS(ctx));
+        boolean isIndirectErrorMatchPatern = ctx.typeName() != null;
+        this.pkgBuilder.endErrorMatchPattern(getWS(ctx), isIndirectErrorMatchPatern);
     }
 
     @Override
@@ -1011,8 +1009,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-
-        this.pkgBuilder.addTupleVariable(getCurrentPos(ctx), getWS(ctx), ctx.bindingPattern().size());
+        boolean restBindingAvailable = ctx.restBindingPattern() != null;
+        this.pkgBuilder.addTupleVariable(getCurrentPos(ctx), getWS(ctx), ctx.bindingPattern().size(),
+                restBindingAvailable);
     }
 
     @Override
@@ -1021,46 +1020,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addTupleVariableReference(getCurrentPos(ctx), getWS(ctx), ctx.bindingRefPattern().size());
+        boolean restPatternAvailable = ctx.listRefRestPattern() != null;
+        this.pkgBuilder.addTupleVariableReference(getCurrentPos(ctx), getWS(ctx), ctx.bindingRefPattern().size(),
+                restPatternAvailable);
     }
 
     @Override
-    public void enterOpenRecordBindingPattern(BallerinaParser.OpenRecordBindingPatternContext ctx) {
+    public void enterRecordBindingPattern(BallerinaParser.RecordBindingPatternContext ctx) {
         if (isInErrorState) {
             return;
         }
 
         this.pkgBuilder.startRecordVariableList();
-    }
-
-    @Override
-    public void exitOpenRecordBindingPattern(BallerinaParser.OpenRecordBindingPatternContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        RestBindingPatternState restBindingPattern = (ctx.entryBindingPattern().restBindingPattern() == null) ?
-                NO_BINDING_PATTERN : OPEN_REST_BINDING_PATTERN;
-
-        this.pkgBuilder.addRecordVariable(getCurrentPos(ctx), getWS(ctx), restBindingPattern);
-    }
-
-    @Override
-    public void enterClosedRecordBindingPattern(BallerinaParser.ClosedRecordBindingPatternContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.startRecordVariableList();
-    }
-
-    @Override
-    public void exitClosedRecordBindingPattern(BallerinaParser.ClosedRecordBindingPatternContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.addRecordVariable(getCurrentPos(ctx), getWS(ctx), CLOSED_REST_BINDING_PATTERN);
     }
 
     @Override
@@ -1069,11 +1040,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addRecordBindingWS(getWS(ctx));
+        boolean hasRestBindingPattern = ctx.entryBindingPattern().restBindingPattern() != null;
+
+        this.pkgBuilder.addRecordVariable(getCurrentPos(ctx), getWS(ctx), hasRestBindingPattern);
     }
 
     @Override
-    public void enterOpenRecordRefBindingPattern(BallerinaParser.OpenRecordRefBindingPatternContext ctx) {
+    public void enterRecordRefBindingPattern(BallerinaParser.RecordRefBindingPatternContext ctx) {
         if (isInErrorState) {
             return;
         }
@@ -1082,34 +1055,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void enterClosedRecordRefBindingPattern(BallerinaParser.ClosedRecordRefBindingPatternContext ctx) {
+    public void exitRecordRefBindingPattern(BallerinaParser.RecordRefBindingPatternContext ctx) {
         if (isInErrorState) {
             return;
         }
 
-        this.pkgBuilder.startRecordVariableReferenceList();
-    }
+        boolean hasRestBindingPattern = ctx.entryRefBindingPattern().restRefBindingPattern() != null;
 
-    @Override
-    public void exitOpenRecordRefBindingPattern(BallerinaParser.OpenRecordRefBindingPatternContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        RestBindingPatternState restRefBindingPattern = (ctx.entryRefBindingPattern().restRefBindingPattern() == null) ?
-                NO_BINDING_PATTERN : OPEN_REST_BINDING_PATTERN;
-
-        this.pkgBuilder.addRecordVariableReference(getCurrentPos(ctx), getWS(ctx), restRefBindingPattern);
-    }
-
-    @Override
-    public void exitClosedRecordRefBindingPattern(BallerinaParser.ClosedRecordRefBindingPatternContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.addRecordVariableReference(getCurrentPos(ctx), getWS(ctx),
-                                                   RestBindingPatternState.CLOSED_REST_BINDING_PATTERN);
+        this.pkgBuilder.addRecordVariableReference(getCurrentPos(ctx), getWS(ctx), hasRestBindingPattern);
     }
 
     @Override
@@ -1184,7 +1137,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.addRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar);
         } else if (ctx.bindingPattern().structuredBindingPattern().errorBindingPattern() != null) {
             this.pkgBuilder.addErrorVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar);
-        } else {
+        } else if (ctx.bindingPattern().structuredBindingPattern().listBindingPattern() != null) {
             this.pkgBuilder.addTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar);
         }
     }
@@ -1213,7 +1166,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addKeyValueRecord(getWS(ctx));
+        this.pkgBuilder.addKeyValueRecord(getWS(ctx), ctx.recordKey().LEFT_BRACKET() != null);
     }
 
     @Override

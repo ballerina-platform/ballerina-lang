@@ -1,12 +1,11 @@
-// Ballerina allows making values immutable or read-only.
+// Ballerina allows creating immutable or read-only clones of values.
 //
-// A value of the type `anydata` can be made immutable by calling the `.freeze()` built-in method on it. A successful
-// freeze attempt would return the value with the frozen flag set. Calling freeze on structures would deeply
-// freeze all elements.
+// The `.cloneReadOnly()` method can be called on a value of type `anydata` to create a clone of the value,
+// which is immutable. No changes are done to the original value.
+// Calling `.cloneReadOnly()` on structures would deeply clone the elements and mark them as immutable.
+// Moreover, if the value is already an immutable value, `.cloneReadOnly()` returns the value itself (no cloning is
+// done).
 //
-// Freeze is also defined on values that may be of the type `anydata` at runtime (e.g., `any`, unions consisting of
-// `anydata`, and `non-anydata` types). If a `non-anydata` value is found, the freeze attempt would return an error.
+// The `.isReadOnly()` method could be used on `anydata` values to check if they are immutable.
 //
-// The built-in method `.isFrozen()` could be used to check if a value is frozen.
-//
-// Attempts to modify a frozen value would cause panicking.
+// Attempts to modify an immutable/read-only value would cause panicking.

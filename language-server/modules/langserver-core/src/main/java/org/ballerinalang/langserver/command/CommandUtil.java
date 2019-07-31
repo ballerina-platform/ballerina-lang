@@ -45,9 +45,9 @@ import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.definition.LSReferencesException;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -195,6 +195,13 @@ public class CommandUtil {
             throws LSCompilerException {
         Pair<BLangNode, Object> bLangNode = getBLangNode(position.getLine(), position.getCharacter(), document,
                                                          documentManager, lsCompiler, context);
+
+        // Only supported for 'public' functions
+        if (bLangNode.getLeft() instanceof BLangFunction &&
+                !((BLangFunction) bLangNode.getLeft()).getFlags().contains(Flag.PUBLIC)) {
+            return false;
+        }
+
         // Only supported for top-level nodes
         return (bLangNode.getLeft().parent instanceof BLangPackage);
     }
@@ -319,7 +326,7 @@ public class CommandUtil {
                         actions.add(action);
                     }
                 }
-            } catch (LSReferencesException | WorkspaceDocumentException | IOException e) {
+            } catch (LSCompilerException | WorkspaceDocumentException | IOException e) {
                 // ignore
             }
         } else if (isUnresolvedPackage(diagnosticMessage)) {

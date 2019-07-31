@@ -1,0 +1,5 @@
+// The optional field access operator can be used to access record fields including optional fields.
+// The `Optional Type` example demonstrates how to eliminate null reference errors by using optional types in Ballerina.
+// Further, it demonstrates how to operate on optional-typed variables.
+// E.g., the `+` operator cannot operate on values of the `int?` type. But the optional field access operator can work
+// on optional record types.

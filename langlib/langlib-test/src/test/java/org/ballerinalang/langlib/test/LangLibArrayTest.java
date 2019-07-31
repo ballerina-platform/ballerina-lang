@@ -241,4 +241,23 @@ public class LangLibArrayTest {
                 { 8, 8, "[1, 2, 3, 4, 5, 6, 7, 0]", "[1, 2, 3, 4, 5, 6, 7, 0, 0]"},
         };
     }
+
+    @Test
+    public void testShift() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testShift");
+        assertEquals(returns[0].stringValue(), "[2, 3, 4, 5]");
+        assertEquals(returns[1].stringValue(), "1");
+    }
+
+    @Test
+    public void testUnshift() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUnshift");
+        assertEquals(returns[0].stringValue(), "[8, 8, 1, 2, 3, 4, 5]");
+    }
+
+    @Test
+    public void testUnshiftTypeWithoutFillerValues() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUnshiftTypeWithoutFillerValues");
+        assertEquals(returns.length, 2);
+    }
 }

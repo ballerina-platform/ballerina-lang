@@ -214,6 +214,7 @@ public const int INTERFACE = 128;
 public const int REQUIRED = 256;
 public const int PRIVATE = 1024;
 public const int OPTIONAL = 8192;
+public const int REMOTE = 65536;
 public const SERVICE = 524288;
 
 
@@ -412,6 +413,7 @@ public type BUnionType record {|
 
 public type BTupleType record {|
    BType?[]  tupleTypes;
+   BType?  restType = ();
 |};
 
 public type BFutureType record {|

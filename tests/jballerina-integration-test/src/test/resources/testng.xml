@@ -42,6 +42,7 @@
             <class name="org.ballerinalang.test.service.http.sample.RoutingServiceSampleTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.MutualSSLTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.MutualSSLWithCerts"/>
+            <class name="org.ballerinalang.test.service.http.sample.DisableSslTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPVerbsPassthruTestCases"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPClientActionsTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.EchoServiceSampleTestCase"/>
@@ -202,18 +203,6 @@
         <!--</classes>-->
     <!--</test>-->
 
-<!--    <test name="ballerina-observability-tests" parallel="false">-->
-<!--        <groups>-->
-<!--            <run>-->
-<!--                <exclude name="broken"/>-->
-<!--            </run>-->
-<!--        </groups>-->
-<!--        <classes>-->
-<!--            <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>-->
-<!--        </classes>-->
-<!--    </test>-->
-
 <!--    <test name="ballerina-streaming-tests" parallel="false" enabled="false">-->
 <!--        <classes>-->
 <!--            <class name="org.ballerinalang.test.streaming.StreamsWithinServicesTestCase"/>-->
@@ -276,6 +265,16 @@
             <class name="org.ballerinalang.test.messaging.artemis.SimpleConsumerTest"/>
             <class name="org.ballerinalang.test.messaging.artemis.LocalTransactionTest"/>
             <class name="org.ballerinalang.test.messaging.artemis.DataBindingTest"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-observability-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class
+                    name="org.ballerinalang.test.observability.tracing.TracingTestCase" />
+            <!--<class-->
+            <!--name="org.ballerinalang.test.observability.metrics.MetricsTestCase" />-->
         </classes>
     </test>
 </suite>

@@ -53,10 +53,10 @@ orderId=2314 personName=jane items=dhal, rice, carrot amount=14.75
 orderId=5643 personName=kane items=Macbook Pro amount=2334.75
 orderId=8765 personName=jack items=Tshirt amount=20.75
 
+
 table<OrderDetails> orderDetailsWithFilter = from personTable where name != 'jane' as tempPersonTable
              join orderTable where personId != 3 as tempOrderTable on tempPersonTable.id == tempOrderTable.personId
              select tempOrderTable.orderId as orderId, tempPersonTable.name as personName,tempOrderTable.items as items,
                     tempOrderTable.amount as amount;
 orderDetailsWithFilter:
 orderId=5643 personName=kane items=Macbook Pro amount=2334.75
-

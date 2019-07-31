@@ -22,20 +22,20 @@ import ballerina/encoding;
 # + keyStore - Keystore to be used in JWT signing
 # + keyAlias - Signing key alias
 # + keyPassword - Signing key password
-public type JwtIssuerConfig record {|
+public type JwtKeyStoreConfig record {|
     crypto:KeyStore keyStore;
     string keyAlias;
     string keyPassword;
 |};
 
 # Issue a JWT token based on provided header and payload. JWT will be signed (JWS) if `keyStore` information is provided
-# in the `JwtIssuerConfig` and the `alg` field of `JwtHeader` is not `NONE`.
+# in the `JwtKeyStoreConfig` and the `alg` field of `JwtHeader` is not `NONE`.
 #
 # + header - JwtHeader object
 # + payload - JwtPayload object
-# + config - JWT issuer config record
+# + config - JWT key store config record
 # + return - JWT token string or an `Error` if token validation fails
-public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? config) returns string|Error {
+public function issueJwt(JwtHeader header, JwtPayload payload, JwtKeyStoreConfig? config) returns string|Error {
     string jwtHeader = check buildHeaderString(header);
     string jwtPayload = check buildPayloadString(payload);
     string jwtAssertion = jwtHeader + "." + jwtPayload;
@@ -44,7 +44,7 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? 
         if (alg == NONE) {
             return jwtAssertion;
         } else {
-            if (config is JwtIssuerConfig) {
+            if (config is JwtKeyStoreConfig) {
                 crypto:KeyStore keyStore = config.keyStore;
                 string keyAlias = config.keyAlias;
                 string keyPassword = config.keyPassword;
@@ -78,7 +78,7 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? 
                     return prepareError("Private key decoding failed.", privateKey);
                 }
             } else {
-                return prepareError("Signing JWT requires JwtIssuerConfig with keystore information.");
+                return prepareError("Signing JWT requires JwtKeyStoreConfig with keystore information.");
             }
         }
     }

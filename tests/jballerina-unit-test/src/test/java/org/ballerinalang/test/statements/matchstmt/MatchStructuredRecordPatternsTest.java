@@ -26,7 +26,6 @@ import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 /**
@@ -198,7 +197,6 @@ public class MatchStructuredRecordPatternsTest {
     }
 
     // TODO : Syntax used in test case should be invalid per spec. Please refer git issue #16961.
-    @Ignore
     @Test(description = "Test structured pattern with closed record")
     public void testClosedRecord() {
         BValue[] returns = BRunUtil.invoke(result, "testClosedRecord", new BValue[]{});
