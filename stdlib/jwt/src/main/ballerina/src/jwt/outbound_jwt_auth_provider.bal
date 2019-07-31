@@ -31,7 +31,7 @@ public type OutboundJwtAuthProvider object {
     # Provides authentication based on the provided JWT configuration.
     #
     # + jwtAuthProviderConfig - Inferred JWT issuer configurations
-    public function __init(InferredJwtIssuerConfig? jwtIssuerConfig) {
+    public function __init(InferredJwtIssuerConfig? jwtIssuerConfig = ()) {
         self.jwtIssuerConfig = jwtIssuerConfig;
     }
 
