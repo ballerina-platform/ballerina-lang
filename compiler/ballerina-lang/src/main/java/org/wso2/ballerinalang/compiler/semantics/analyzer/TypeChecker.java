@@ -842,7 +842,9 @@ public class TypeChecker extends BLangNodeVisitor {
                         return false;
                     }
                 } else {
-                    if (tupleType.restType == null || !checkTupleType(expr, tupleType.restType)) return false;
+                    if (tupleType.restType == null || !checkTupleType(expr, tupleType.restType)) {
+                        return false;
+                    }
                 }
             }
             return true;
