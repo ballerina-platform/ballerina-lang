@@ -938,45 +938,6 @@
         ]
     },
     {
-        "title": "ActiveMQ Artemis",
-        "column": 2,
-        "category": "Working over the network",
-        "samples": [
-            {
-                "name": "ANYCAST Consumer",
-                "url": "artemis-anycast-session-consumer"
-            },
-            {
-                "name": "ANYCAST Producer",
-                "url": "artemis-anycast-session-producer"
-            },
-            {
-                "name": "Basic MULTICAST Consumer",
-                "url": "artemis-multicast-consumer"
-            },
-            {
-                "name": "Basic MULTICAST Producer",
-                "url": "artemis-multicast-producer"
-            },
-            {
-                "name": "Basic Blocking Transaction Consumer",
-                "url": "artemis-simple-transaction-consumer"
-            },
-            {
-                "name": "Basic Blocking Transaction Producer",
-                "url": "artemis-simple-transaction-producer"
-            },
-            {
-                "name": "Transaction Producer",
-                "url": "artemis-transaction-producer"
-            },
-            {
-                "name": "Data Binding",
-                "url": "artemis-data-binding"
-            }
-        ]
-    },
-    {
         "title": "Socket",
         "column": 3,
         "category": "Working over the network",

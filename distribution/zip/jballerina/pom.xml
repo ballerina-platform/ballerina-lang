@@ -104,10 +104,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-activemq-artemis</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-rabbitmq</artifactId>
         </dependency>
         <dependency>
@@ -162,14 +158,6 @@
         <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jzlib</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-core-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-commons</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-beanutils</groupId>
@@ -452,12 +440,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-activemq-artemis</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-rabbitmq</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
@@ -665,12 +647,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-activemq-artemis</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-sources</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-rabbitmq</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
@@ -826,7 +802,6 @@
                         <configuration>
                             <includeArtifactIds>
                                 <!-- stdlib dependencies -->
-                                ballerina-activemq-artemis,
                                 ballerina-auth,
                                 ballerina-builtin,
                                 ballerina-cache,
@@ -892,11 +867,6 @@
                             <!--<outputDirectory>${project.build.directory}/extracted-distributions/ballerina-all-sources-->
                             <!--</outputDirectory>-->
                             <!--<resources>-->
-                                <!--<resource>-->
-                                    <!--<directory>-->
-                                        <!--${project.build.directory}/extracted-distributions/ballerina-activemq-artemis-ballerina-sources-zip/ballerina-->
-                                    <!--</directory>-->
-                                <!--</resource>-->
                                 <!--<resource>-->
                                     <!--<directory>-->
                                         <!--${project.build.directory}/extracted-distributions/ballerina-auth-ballerina-sources-zip/ballerina-->

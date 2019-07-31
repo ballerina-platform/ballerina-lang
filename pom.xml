@@ -515,48 +515,6 @@
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
-            <!-- ballerina-jms -->
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-jms</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-jms</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-sources</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-jms</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
-            </dependency>
-
-            <!--ballerina-activemq-artemis-->
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-activemq-artemis</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-activemq-artemis</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-sources</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-activemq-artemis</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
-            </dependency>
-
             <!-- ballerina-rabbitmq -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -1708,23 +1666,6 @@
                 <version>${rabbitmq.version}</version>
             </dependency>
 
-            <!--Artemis dependencies -->
-            <dependency>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>artemis-core-client</artifactId>
-                <version>${artemis.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>artemis-commons</artifactId>
-                <version>${artemis.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>artemis-server</artifactId>
-                <version>${artemis.version}</version>
-                <scope>test</scope>
-            </dependency>
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
@@ -1877,7 +1818,6 @@
                 <module>stdlib/observability</module>
                 <module>stdlib/jdbc</module>
                 <module>stdlib/streams</module>
-                <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
                 <module>stdlib/ldap</module>
@@ -1976,7 +1916,6 @@
                 <module>stdlib/observability</module>
                 <module>stdlib/jdbc</module>
                 <module>stdlib/streams</module>
-                <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
                 <module>stdlib/ldap</module>
@@ -2069,7 +2008,6 @@
                 <module>stdlib/observability</module>
                 <module>stdlib/jdbc</module>
                 <module>stdlib/streams</module>
-                <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
                 <module>stdlib/ldap</module>
@@ -2172,7 +2110,6 @@
                 <module>stdlib/database/sql</module>
                 <module>stdlib/streams</module>
                 <module>stdlib/privacy</module>
-                <module>stdlib/messaging/activemq-artemis</module>
                 <module>stdlib/messaging/rabbitmq</module>
                 <module>stdlib/nats</module>
 
@@ -2668,9 +2605,6 @@
 
         <javacpp.llvm.version>6.0.1-1.4.2</javacpp.llvm.version>
         <wso2.securevault.version>1.1.2</wso2.securevault.version>
-
-        <!-- Artemis connector -->
-        <artemis.version>2.7.0</artemis.version>
         <beanutils.version>1.9.3</beanutils.version>
         <jboss.version>3.3.2.Final</jboss.version>
         <commons-collections.version>3.2.2</commons-collections.version>
