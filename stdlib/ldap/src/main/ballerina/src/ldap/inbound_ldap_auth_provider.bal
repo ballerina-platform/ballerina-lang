@@ -97,7 +97,7 @@ public type InboundLdapAuthProvider object {
 # + userRolesCacheEnabled -  To indicate whether to cache the role list of a user
 # + connectionPoolingEnabled - Define whether LDAP connection pooling is enabled
 # + ldapConnectionTimeout - Timeout in making the initial LDAP connection
-# + readTimeout - The value of this property is the read timeout in milliseconds for LDAP operations
+# + readTimeoutInMillis - The value of this property is the read timeout in milliseconds for LDAP operations
 # + retryAttempts - Retry the authentication request if a timeout happened
 # + secureClientSocket - The SSL configurations for the ldap client socket. This needs to be configured in order to
 #                  communicate through ldaps.
@@ -120,7 +120,7 @@ public type LdapConnectionConfig record {|
     boolean userRolesCacheEnabled = false;
     boolean connectionPoolingEnabled = true;
     int ldapConnectionTimeout = 5000;
-    int readTimeout = 60000;
+    int readTimeoutInMillis = 60000;
     int retryAttempts = 0;
     SecureClientSocket? secureClientSocket = ();
 |};

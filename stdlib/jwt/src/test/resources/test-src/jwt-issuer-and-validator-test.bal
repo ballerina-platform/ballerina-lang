@@ -90,7 +90,7 @@ function testValidateJwt(string jwtToken, string trustStorePath) returns @tainte
         issuer: "wso2",
         certificateAlias: "ballerina",
         audience: ["ballerina", "ballerinaSamples"],
-        clockSkew: 60,
+        clockSkewInSeconds: 60,
         trustStore: trustStore
     };
 
@@ -108,7 +108,7 @@ function testValidateJwtWithSingleAud(string jwtToken, string trustStorePath) re
         issuer: "wso2",
         certificateAlias: "ballerina",
         audience: "ballerina",
-        clockSkew: 60,
+        clockSkewInSeconds: 60,
         trustStore: trustStore
     };
 
@@ -127,7 +127,7 @@ function testValidateJwtWithSingleAudAndAudAsArray(string jwtToken, string trust
         issuer: "wso2",
         certificateAlias: "ballerina",
         audience: "ballerina",
-        clockSkew: 60,
+        clockSkewInSeconds: 60,
         trustStore: trustStore
     };
 
@@ -185,7 +185,7 @@ function testValidateJwtWithNoIssOrSub(string jwtToken, string trustStorePath) r
     jwt:JwtValidatorConfig config = {
         certificateAlias: "ballerina",
         audience: "ballerinaSamples",
-        clockSkew: 60,
+        clockSkewInSeconds: 60,
         trustStore: trustStore
     };
 

@@ -69,7 +69,7 @@ function verifyJwt(string jwt, string trustStorePath) returns @tainted (jwt:JwtP
         issuer: "wso2",
         certificateAlias: "ballerina",
         audience: "ballerina",
-        clockSkew: 0,
+        clockSkewInSeconds: 0,
         trustStore: trustStore
     };
     return jwt:validateJwt(jwt, validatorConfig);
