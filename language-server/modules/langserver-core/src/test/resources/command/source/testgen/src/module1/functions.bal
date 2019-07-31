@@ -59,7 +59,7 @@ public function complexInput(task:Scheduler scheduler) returns error? {
     return ();
 }
 
-function complexReturnType(string url) returns http:Client {
+public function complexReturnType(string url) returns http:Client {
     http:Client myclient = new("https://postman-echo.com/get?foo1=bar1&foo2=bar2");
     return myclient;
 }

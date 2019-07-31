@@ -47,6 +47,7 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentExceptio
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -194,6 +195,13 @@ public class CommandUtil {
             throws LSCompilerException {
         Pair<BLangNode, Object> bLangNode = getBLangNode(position.getLine(), position.getCharacter(), document,
                                                          documentManager, lsCompiler, context);
+
+        // Only supported for 'public' functions
+        if (bLangNode.getLeft() instanceof BLangFunction &&
+                !((BLangFunction) bLangNode.getLeft()).getFlags().contains(Flag.PUBLIC)) {
+            return false;
+        }
+
         // Only supported for top-level nodes
         return (bLangNode.getLeft().parent instanceof BLangPackage);
     }
