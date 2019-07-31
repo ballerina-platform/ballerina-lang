@@ -63,7 +63,7 @@ public class BallerinaModuleBuilder extends JavaModuleBuilder implements SourceP
         if (Strings.isNullOrEmpty(ballerinaSdkPath)) {
             LOG.info("Ballerina SDK is not found. Trying to auto detect ballerina distribution to init" +
                     " the ballerina project");
-            ballerinaSdkPath = BallerinaSdkUtils.autoDetectSdk();
+            ballerinaSdkPath = BallerinaSdkUtils.autoDetectSdk(rootModel.getProject());
         }
 
         if (!ballerinaSdkPath.isEmpty()) {

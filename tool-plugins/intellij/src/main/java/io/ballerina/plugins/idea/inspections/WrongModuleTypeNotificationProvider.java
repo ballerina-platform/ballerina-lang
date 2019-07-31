@@ -65,7 +65,7 @@ public class WrongModuleTypeNotificationProvider extends EditorNotifications.Pro
         Module module = ModuleUtilCore.findModuleForFile(file, myProject);
         return (module == null || BallerinaSdkService.getInstance(myProject).isBallerinaModule(module)
                 || getIgnoredModules(myProject).contains(module.getName())
-                || !BallerinaSdkUtils.autoDetectSdk().isEmpty()) ? null : createPanel(myProject, module);
+                || !BallerinaSdkUtils.autoDetectSdk(myProject).isEmpty()) ? null : createPanel(myProject, module);
     }
 
     @NotNull
