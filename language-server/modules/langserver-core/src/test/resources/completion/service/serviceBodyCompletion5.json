@@ -424,6 +424,28 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ENABLE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "sortText": "221",
+      "insertText": "ENABLE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "DISABLE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "sortText": "221",
+      "insertText": "DISABLE",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "REDIRECT_MULTIPLE_CHOICES_300",
       "kind": "Variable",
       "detail": "int",
@@ -1803,7 +1825,7 @@
       "kind": "Class",
       "detail": "Object",
       "documentation": {
-        "left": "Representation of Authorization Handler for HTTP\n"
+        "left": "Representation of Authorization Handler for HTTP.\n"
       },
       "sortText": "221",
       "insertText": "AuthzHandler",
@@ -2104,6 +2126,17 @@
       },
       "sortText": "221",
       "insertText": "Compression",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WorkerPoolStatus",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "Defines worker pool usage for resource execution.\n\n`ENABLE`: Resource function is executed using ballerian worker pool and connector(I/O) thread is released immediately.\n`DISABLE`: Use the same connector(I/O) thread for resource execution. Mostly applicable when performance tuning for\n           passthrough resources"
+      },
+      "sortText": "221",
+      "insertText": "WorkerPoolStatus",
       "insertTextFormat": "Snippet"
     },
     {
@@ -2969,7 +3002,7 @@
       "kind": "Class",
       "detail": "Object",
       "documentation": {
-        "left": "Represents a WebSocket caller.\n"
+        "left": "Represents a WebSocket caller."
       },
       "sortText": "221",
       "insertText": "WebSocketCaller",
@@ -2980,7 +3013,7 @@
       "kind": "Class",
       "detail": "Object",
       "documentation": {
-        "left": "Represents a WebSocket client endpoint.\n"
+        "left": "Represents a WebSocket client endpoint."
       },
       "sortText": "221",
       "insertText": "WebSocketClient",

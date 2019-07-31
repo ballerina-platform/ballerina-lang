@@ -386,6 +386,26 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ENABLE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "ENABLE",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "DISABLE",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "left": "Constant"
+      },
+      "insertText": "DISABLE",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "REDIRECT_MULTIPLE_CHOICES_300",
       "kind": "Variable",
       "detail": "int",
@@ -1640,7 +1660,7 @@
       "kind": "Class",
       "detail": "Object",
       "documentation": {
-        "left": "Representation of Authorization Handler for HTTP\n"
+        "left": "Representation of Authorization Handler for HTTP.\n"
       },
       "insertText": "AuthzHandler",
       "insertTextFormat": "Snippet"
@@ -1913,6 +1933,16 @@
         "left": "Options to compress using gzip or deflate.\n\n`AUTO`: When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the\n        outbound request/response accept-encoding/content-encoding option\n`ALWAYS`: Always set accept-encoding/content-encoding in outbound request/response\n`NEVER`: Never set accept-encoding/content-encoding header in outbound request/response"
       },
       "insertText": "Compression",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WorkerPoolStatus",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "Defines worker pool usage for resource execution.\n\n`ENABLE`: Resource function is executed using ballerian worker pool and connector(I/O) thread is released immediately.\n`DISABLE`: Use the same connector(I/O) thread for resource execution. Mostly applicable when performance tuning for\n           passthrough resources"
+      },
+      "insertText": "WorkerPoolStatus",
       "insertTextFormat": "Snippet"
     },
     {
@@ -2688,7 +2718,7 @@
       "kind": "Class",
       "detail": "Object",
       "documentation": {
-        "left": "Represents a WebSocket caller.\n"
+        "left": "Represents a WebSocket caller."
       },
       "insertText": "WebSocketCaller",
       "insertTextFormat": "Snippet"
@@ -2698,7 +2728,7 @@
       "kind": "Class",
       "detail": "Object",
       "documentation": {
-        "left": "Represents a WebSocket client endpoint.\n"
+        "left": "Represents a WebSocket client endpoint."
       },
       "insertText": "WebSocketClient",
       "insertTextFormat": "Snippet"
