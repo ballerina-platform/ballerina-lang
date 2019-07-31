@@ -79,7 +79,13 @@ public class KafkaProducerTest {
         Assert.assertEquals(messagesRead.get(), 2);
     }
 
-    @Test(description = "Test Producer close() action")
+    @Test(description = "Test Producer close() action",
+            dependsOnMethods = {
+                    "testKafkaProducer",
+                    "testKafkaProducerFlushRecords",
+                    "testKafkaTopicPartitionRetrieval"
+            }
+    )
     public void testKafkaProducerClose() {
         String expMsg = "Failed to send data to Kafka server: Cannot perform operation after producer has been closed";
         BValue[] returnBValue = BRunUtil.invoke(result, "funcTestKafkaClose");

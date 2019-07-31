@@ -86,12 +86,13 @@ public class Send {
                             PRODUCER_ERROR);
                     callback.setReturnValues(error);
                 }
+                callback.notifySuccess();
             });
         } catch (IllegalStateException | KafkaException e) {
             callback.setReturnValues(createKafkaError("Failed to send data to Kafka server: "
                     + e.getMessage(), PRODUCER_ERROR));
+            callback.notifySuccess();
         }
-        callback.notifySuccess();
         return null;
     }
 }
