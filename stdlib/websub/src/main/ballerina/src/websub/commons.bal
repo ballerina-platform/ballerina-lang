@@ -172,10 +172,10 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
     string challenge = intentVerificationRequest.challenge;
 
     if (reqMode == mode && reqTopic == topic) {
-        response.statusCode = http:ACCEPTED_202;
+        response.statusCode = http:STATUS_ACCEPTED;
         response.setTextPayload(challenge);
     } else {
-        response.statusCode = http:NOT_FOUND_404;
+        response.statusCode = http:STATUS_NOT_FOUND;
     }
     return response;
 }

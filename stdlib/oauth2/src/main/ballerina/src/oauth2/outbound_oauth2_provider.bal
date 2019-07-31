@@ -77,7 +77,7 @@ public type OutboundOAuth2Provider object {
         if (oauth2ProviderConfig is ()) {
             return ();
         } else {
-            if (data[http:STATUS_CODE] == http:UNAUTHORIZED_401) {
+            if (data[http:STATUS_CODE] == http:STATUS_UNAUTHORIZED) {
                 var authToken = getAuthTokenForOAuth2(oauth2ProviderConfig, self.tokenCache, true);
                 if (authToken is string) {
                     return authToken;
@@ -586,7 +586,7 @@ function prepareRequest(RequestConfig config) returns http:Request|Error {
 # + return - Extracted access token or `Error` if an error occurred during the HTTP client invocation
 function extractAccessTokenFromResponse(http:Response response, @tainted CachedToken tokenCache, int clockSkew)
                                         returns @tainted (string|Error) {
-    if (response.statusCode == http:OK_200) {
+    if (response.statusCode == http:STATUS_OK) {
         var payload = response.getJsonPayload();
         if (payload is json) {
             log:printDebug(function () returns string {
