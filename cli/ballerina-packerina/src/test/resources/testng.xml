@@ -24,7 +24,6 @@ under the License.
         <groups>
             <run>
                 <exclude name="broken"/>
-                <!--<exclude name="BuildCommandTest"/>-->
             </run>
         </groups>
 
