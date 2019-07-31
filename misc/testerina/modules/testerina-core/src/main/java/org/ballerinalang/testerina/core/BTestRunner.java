@@ -718,8 +718,9 @@ public class BTestRunner {
 
     private String formatErrorMessage(Throwable e) {
         String message = e.getMessage();
-        if (e.getCause() instanceof ErrorValue) {
-            message = ((ErrorValue) e.getCause()).getPrintableStackTrace();
+        Throwable cause = e.getCause();
+        if (cause instanceof ErrorValue) {
+            message = ((ErrorValue) cause).getPrintableStackTrace();
         }
         return message;
     }

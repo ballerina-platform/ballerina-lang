@@ -113,9 +113,9 @@ public class TesterinaFunction {
      * @param args function arguments
      * @return a BValue array
      */
-    public BValue[] invoke(BValue[] args) {
+    public void invoke(BValue[] args) {
         // return BVMExecutor.executeFunction(programFile, bFunction, args);
-        return new BValue[0];
+//        return new BValue[0];
     }
 
     public String getName() {
