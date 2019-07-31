@@ -23,8 +23,6 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
-import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
-import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
 import org.ballerinalang.tool.util.BFileUtil;
 import org.ballerinalang.util.BootstrapRunner;
 import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
@@ -108,29 +106,8 @@ public class RunExecutableTask implements Task {
         BLangPackage executableModule = null;
         // set executable path from an executable built on the go
         if (null == this.executablePath) {
-            for (BLangPackage module : buildContext.getModules()) {
-                if (module.symbol.entryPointExists) {
-                    this.executablePath = buildContext.getExecutablePathFromTarget(module.packageID);
-                    executableModule = module;
-                    break;
-                }
-            }
-            
-            // check if executable found with entry points.
-            if (null == this.executablePath) {
-                switch (buildContext.getSourceType()) {
-                    case SINGLE_BAL_FILE:
-                        SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                        throw new BLangCompilerException("no entry points found in '" +
-                                                         singleFileContext.getBalFile() + "'");
-                    case SINGLE_MODULE:
-                        SingleModuleContext singleModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                        throw new BLangCompilerException("no entry points found in '" +
-                                                         singleModuleContext.getModuleName() + "'");
-                    default:
-                        throw new BLangCompilerException("cannot run given source.");
-                }
-            }
+            executableModule = buildContext.getModules().get(0);
+            this.executablePath = buildContext.getExecutablePathFromTarget(executableModule.packageID);
         }
         
         if (!this.executablePath.isAbsolute()) {

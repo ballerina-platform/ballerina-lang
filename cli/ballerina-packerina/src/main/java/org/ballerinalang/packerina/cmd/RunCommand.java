@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.packerina.TaskExecutor;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.packerina.task.CheckEntryPointsTask;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.packerina.task.CompileTask;
 import org.ballerinalang.packerina.task.CreateBaloTask;
@@ -199,6 +200,7 @@ public class RunCommand implements BLauncherCmd {
                     TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                             .addTask(new CreateTargetDirTask())
                             .addTask(new CompileTask())
+                            .addTask(new CheckEntryPointsTask())
                             .addTask(new CreateBirTask())
                             .addTask(new CreateJarTask())
                             .addTask(new CreateExecutableTask())
@@ -226,6 +228,7 @@ public class RunCommand implements BLauncherCmd {
                         .addTask(new CleanTargetDirTask())
                         .addTask(new CreateTargetDirTask())
                         .addTask(new CompileTask())
+                        .addTask(new CheckEntryPointsTask())
                         .addTask(new CreateBaloTask())
                         .addTask(new CreateBirTask())
                         .addTask(new CreateJarTask())

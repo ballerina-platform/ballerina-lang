@@ -60,9 +60,7 @@ public class CreateExecutableTask implements Task {
         buildContext.out().println("Generating executables");
         
         for (BLangPackage module : buildContext.getModules()) {
-            if (module.symbol.entryPointExists) {
-                assembleExecutable(buildContext, module);
-            }
+            assembleExecutable(buildContext, module);
         }
     }
     
