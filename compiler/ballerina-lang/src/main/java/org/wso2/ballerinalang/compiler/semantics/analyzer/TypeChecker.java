@@ -2991,6 +2991,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 resultType = symTable.semanticError;
                 return;
             }
+        } else {
+            iExpr.symbol = funcSymbol;
         }
         if (Symbols.isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX);
@@ -2998,7 +3000,6 @@ public class TypeChecker extends BLangNodeVisitor {
         if (Symbols.isFlagOn(funcSymbol.flags, Flags.RESOURCE)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_RESOURCE_FUNCTION_INVOCATION);
         }
-        iExpr.symbol = funcSymbol;
         checkInvocationParamAndReturnType(iExpr);
     }
 

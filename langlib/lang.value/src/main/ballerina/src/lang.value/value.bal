@@ -36,7 +36,7 @@
 #         1. a space character
 #         2. the result of calling toString on the detail record
 # - if `value` is an object, then
-#     - if `value` provides a `toString` method with a string return type and no required methods,
+#     - if `value` provides a `toString` method with a string return type and no required arguments,
 #       then the result of calling that method on `value`
 #     - otherwise, `object` followed by some implementation-dependent string
 # - if `value` is any other behavioral type, then the identifier for the behavioral type

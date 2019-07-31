@@ -3168,20 +3168,11 @@ public class Desugar extends BLangNodeVisitor {
         }
         switch (iExpr.expr.type.tag) {
             case TypeTags.OBJECT:
-                List<BLangExpression> argExprs = new ArrayList<>(iExpr.requiredArgs);
-                argExprs.add(0, iExpr.expr);
-                BLangAttachedFunctionInvocation attachedFunctionInvocation =
-                        new BLangAttachedFunctionInvocation(iExpr.pos, argExprs, iExpr.restArgs,
-                                                            iExpr.symbol, iExpr.type, iExpr.expr, iExpr.async);
-                attachedFunctionInvocation.actionInvocation = iExpr.actionInvocation;
-                attachedFunctionInvocation.name = iExpr.name;
-                result = genIExpr = attachedFunctionInvocation;
-                break;
             case TypeTags.RECORD:
                 if (!iExpr.langLibInvocation) {
-                    argExprs = new ArrayList<>(iExpr.requiredArgs);
+                    List<BLangExpression> argExprs = new ArrayList<>(iExpr.requiredArgs);
                     argExprs.add(0, iExpr.expr);
-                    attachedFunctionInvocation =
+                    BLangAttachedFunctionInvocation attachedFunctionInvocation =
                             new BLangAttachedFunctionInvocation(iExpr.pos, argExprs, iExpr.restArgs, iExpr.symbol,
                                                                 iExpr.type, iExpr.expr, iExpr.async);
                     attachedFunctionInvocation.actionInvocation = iExpr.actionInvocation;

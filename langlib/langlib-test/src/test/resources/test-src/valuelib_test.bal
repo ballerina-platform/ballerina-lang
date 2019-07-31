@@ -156,3 +156,93 @@ function testMappingJsonWithIntersectionMergeSuccess() returns boolean {
             mj4 == expMap && mj.five == 5;
     }
 }
+
+public type AnotherDetail record {
+    string message;
+    error cause?;
+};
+
+public const REASON_1 = "Reason1";
+public type FirstError error<REASON_1, AnotherDetail>;
+
+public type Student object {
+
+    string name;
+    string school;
+
+    public function __init(string name, string school) {
+        self.name = name;
+        self.school = school;
+    }
+
+    public function getDetails() returns string {
+        return self.name + " from " + self.school;
+    }
+};
+
+public type Teacher object {
+
+    string name;
+    string school;
+
+    public function __init(string name, string school) {
+        self.name = name;
+        self.school = school;
+    }
+
+    public function getDetails() returns string {
+        return self.name + " from " + self.school;
+    }
+
+    public function toString() returns string {
+        return self.getDetails();
+    }
+};
+
+function testToString() returns string[] {
+    int varInt = 6;
+    float varFloat = 6.0;
+    string varStr = "toString";
+    () varNil = ();
+    boolean varBool = true;
+    decimal varDecimal = 345.2425341;
+    map<any|error> varMap = {};
+    json varJson = {a: "STRING", b: 12, c: 12.4, d: true, e: {x:"x", y: ()}};
+    any[] varArr = ["str", 23, 23.4, true];
+    FirstError varErr = error(REASON_1, message = "Test passing error union to a function");
+    Student varObj = new("Alaa", "MMV");
+    Teacher varObj2 = new("Rola", "MMV");
+    any[] varObjArr = [varObj, varObj2];
+    xml varXml = xml `<CATALOG>
+                       <CD>
+                           <TITLE>Empire Burlesque</TITLE>
+                           <ARTIST>Bob Dylan</ARTIST>
+                       </CD>
+                       <CD>
+                           <TITLE>Hide your heart</TITLE>
+                           <ARTIST>Bonnie Tyler</ARTIST>
+                       </CD>
+                       <CD>
+                           <TITLE>Greatest Hits</TITLE>
+                           <ARTIST>Dolly Parton</ARTIST>
+                       </CD>
+                   </CATALOG>`;
+
+    varMap["varInt"] = varInt;
+    varMap["varFloat"] = varFloat;
+    varMap["varStr"] = varStr;
+    varMap["varNil"] = varNil;
+    varMap["varBool"] = varBool;
+    varMap["varDecimal"] = varDecimal;
+    varMap["varjson"] = varJson;
+    varMap["varXml"] = varXml;
+    varMap["varArr"] = varArr;
+    varMap["varErr"] = varErr;
+    varMap["varObj"] = varObj;
+    varMap["varObj2"] = varObj2;
+    varMap["varObjArr"] = varObjArr;
+
+    return [varInt.toString(), varFloat.toString(), varStr.toString(), varNil.toString(), varBool.toString(),
+            varDecimal.toString(), varJson.toString(), varXml.toString(), varArr.toString(), varErr.toString(),
+            varObj.toString(), varObj2.toString(), varObjArr.toString(), varMap.toString()];
+}
