@@ -177,7 +177,7 @@ function testDynamicIndexAccessTypesWithRestParam(string arg) returns string {
     Bar f = {
         fieldOne: 50,
         fieldTwo: "string",
-        fieldThree: true
+        "fieldThree": true
     };
 
     string result = "";
@@ -223,7 +223,7 @@ function testDynamicIndexAccessTypesWithOpenRecord() returns string {
 
     string result = "";
 
-    FooBar fb = { fieldOne: obj, fieldTwo: aFn, fieldThree: jVal, fieldFour: true };
+    FooBar fb = { fieldOne: obj, fieldTwo: aFn, fieldThree: jVal, "fieldFour": true };
     int[5] indexArr = [1, 2, 3, 4, 5];
 
     foreach var index in indexArr {
@@ -269,7 +269,7 @@ type Qux record {|
 |};
 
 function testDynamicIndexAccessWithSingleType() returns int {
-    Qux q = { fieldOne: 95, fieldTwo: 96, fieldThree: 100 };
+    Qux q = { fieldOne: 95, fieldTwo: 96, "fieldThree": 100 };
     string[] index = ["fieldOne", "fieldTwo", "fieldThree"];
     int marks = 0;
 
@@ -293,7 +293,7 @@ type Quux record {|
 |};
 
 function testDynamicIndexAccessWithRecordInsideRecord() returns [int?, int?] {
-    Qux q = { fieldOne: 95, fieldTwo: 96, fieldThree: 100 };
+    Qux q = { fieldOne: 95, fieldTwo: 96, "fieldThree": 100 };
     Quux qu = { fieldOne: q };
 
     string index = "fieldOne";
@@ -322,11 +322,11 @@ function testFiniteTypeAsIndex() returns string {
     Bar bar = {
         fieldOne: 50,
         fieldTwo: "barField",
-        fieldThree: true
+        "fieldThree": true
     };
 
-    Qux q = { fieldOne: 95, fieldTwo: 96, fieldThree: 100 };
-    FooQux foo = { fieldOne: "string", fieldTwo: bar, fieldThree: 98.9, fieldFour: 12, fieldFive: q };
+    Qux q = { fieldOne: 95, fieldTwo: 96, "fieldThree": 100 };
+    FooQux foo = { fieldOne: "string", fieldTwo: bar, fieldThree: 98.9, fieldFour: 12, "fieldFive": q };
 
     string|boolean|Bar|float|Obj|anydata|error r1 = foo[index1];
     var r2 = foo[index2];
@@ -402,7 +402,7 @@ function testUnionInFiniteTypeAsIndexNoField() returns string {
     Bar f = {
         fieldOne: 50,
         fieldTwo: "string",
-        fieldThree: true
+        "fieldThree": true
     };
 
     var r1 = f[index];

@@ -95,7 +95,7 @@ class PositioningVisitor implements Visitor {
             viewState.client.bBox.w = 0;
 
             workerX = viewState.bBox.x + bodyViewState.bBox.w + config.lifeLine.gutter.h;
-            workerY = bodyViewState.bBox.y;
+            workerY = defaultWorker.lifeline.bBox.y;
         } else {
             // Position the header
             viewState.header.x = viewState.bBox.x;
@@ -153,12 +153,16 @@ class PositioningVisitor implements Visitor {
     public beginVisitBlock(node: Block) {
         const viewState: BlockViewState = node.viewState;
         let height = 0;
+        let workersPresent = false;
 
         node.statements.forEach((element) => {
             const elViewState: StmntViewState = element.viewState;
 
             if (ASTUtil.isWorker(element)) {
-                height += config.statement.height;
+                if (!workersPresent) {
+                    workersPresent = true;
+                    height += config.statement.height;
+                }
                 return;
             }
 

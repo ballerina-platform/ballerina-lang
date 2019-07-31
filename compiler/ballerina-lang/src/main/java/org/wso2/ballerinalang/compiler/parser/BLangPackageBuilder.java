@@ -734,7 +734,17 @@ public class BLangPackageBuilder {
         this.simpleMatchPatternWS.push(ws);
     }
 
-    void endErrorMatchPattern(Set<Whitespace> ws) {
+    void endErrorMatchPattern(Set<Whitespace> ws, boolean isIndirectErrorMatchPatern) {
+        if (isIndirectErrorMatchPatern) {
+            BLangErrorVariable errorVariable = (BLangErrorVariable) this.varStack.peek();
+            BLangUserDefinedType errorType = (BLangUserDefinedType) this.typeNodeStack.pop();
+            errorVariable.typeNode = errorType;
+
+            errorVariable.reason = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+            BLangIdentifier ignore = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+            ignore.value = Names.IGNORE.value;
+            errorVariable.reason.name = ignore;
+        }
         this.errorMatchPatternWS.push(ws);
     }
 
@@ -1329,11 +1339,12 @@ public class BLangPackageBuilder {
         addExpressionNode(listConstructorExpr);
     }
 
-    void addKeyValueRecord(Set<Whitespace> ws) {
+    void addKeyValueRecord(Set<Whitespace> ws, boolean computedKey) {
         BLangRecordKeyValue keyValue = (BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
         keyValue.addWS(ws);
         keyValue.valueExpr = (BLangExpression) exprNodeStack.pop();
         keyValue.key = new BLangRecordKey((BLangExpression) exprNodeStack.pop());
+        keyValue.key.computedKey = computedKey;
         recordLiteralNodes.peek().keyValuePairs.add(keyValue);
     }
 

@@ -1,15 +1,22 @@
 import ballerina/java;
 
-public function interopWithJavaArrayList() returns handle {
-        handle aList = newArrayList();
+public function interopWithJavaArrayList() returns [handle, int, handle] {
+        handle aList = newArrayListWithInitialSize(10);
         addElement(aList, java:toJString("Ballerina"));
         addElement(aList, java:toJString("Language"));
         addElement(aList, java:toJString("Specification"));
-        return toString(aList);
+        handle element = getElement(aList, 2);
+        int listSize = size(aList);
+        return [toString(aList), listSize, element];
 }
 
 public function newArrayList() returns handle = @java:Constructor {
     class:"java.util.ArrayList"
+} external;
+
+public function newArrayListWithInitialSize(int initialSize) returns handle = @java:Constructor {
+    class:"java.util.ArrayList",
+    paramTypes:["int"]
 } external;
 
 public function addElement(handle receiver, handle e) = @java:Method {
@@ -20,5 +27,14 @@ public function addElement(handle receiver, handle e) = @java:Method {
 public function toString(handle receiver) returns handle = @java:Method {
     class: "java.util.ArrayList",
     name:"toString"
+} external;
+
+public function size(handle receiver) returns int = @java:Method {
+    class: "java.util.ArrayList"
+} external;
+
+public function getElement(handle receiver, int index) returns handle = @java:Method {
+    name: "get",
+    class: "java.util.ArrayList"
 } external;
 

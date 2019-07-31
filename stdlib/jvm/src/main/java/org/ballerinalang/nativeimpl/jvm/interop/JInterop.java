@@ -66,6 +66,7 @@ class JInterop {
     static final String TYPE_NAME_FIELD = "typeName";
     static final String NO_TYPE_NAME = "NoType";
     static final String METHOD_THROWS_FIELD = "throws";
+    static final String B_FUNC_TYPE_FIELD = "bFuncType";
 
     static MapValue<String, Object> createRecordBValue(String typeName) {
         return BallerinaValues.createRecordValue(JVM_PACKAGE_PATH, typeName);
@@ -156,11 +157,13 @@ class JInterop {
         return false;
     }
 
-    static ParamTypeConstraint[] buildParamTypeConstraints(ArrayValue javaTypeConstraints, JMethodKind kind) {
+    static ParamTypeConstraint[] buildParamTypeConstraints(ArrayValue javaTypeConstraints) {
+        if (javaTypeConstraints == null) {
+            return new ParamTypeConstraint[0];
+        }
+
         List<ParamTypeConstraint> constraintList = new ArrayList<>();
-        // Here the assumption is that all param types are handle types. This will be improved soon.
-        int startParamOffset = (kind == JMethodKind.INSTANCE) ? 1 : 0;
-        for (int paramIndex = startParamOffset; paramIndex < javaTypeConstraints.size(); paramIndex++) {
+        for (int paramIndex = 0; paramIndex < javaTypeConstraints.size(); paramIndex++) {
             Object javaTypeConstraint = javaTypeConstraints.get(paramIndex);
             constraintList.add(buildParamTypeConstraint(javaTypeConstraint));
         }
