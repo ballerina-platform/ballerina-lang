@@ -17,11 +17,12 @@
 import ballerina/bir;
 import ballerina/jvm;
 
-const NAME_FILED_NAME = "name";
-const CLASS_FILED_NAME = "class";
-const FIELD_METHOD_FILED_NAME = "method";
-const PARAM_TYPES_FILED_NAME = "paramTypes";
-
+const NAME_FIELD_NAME = "name";
+const CLASS_FIELD_NAME = "class";
+const FIELD_METHOD_FIELD_NAME = "method";
+const PARAM_TYPES_FIELD_NAME = "paramTypes";
+const string ELEMENT_CLASS_FIELD_NAME = "elementClass";
+const string DIMENSIONS_FIELD_NAME = "dimensions";
 
 function getInteropAnnotValue(bir:Function birFunc) returns jvm:InteropValidationRequest? {
     var optionalAnnotAttach = getInteropAnnotAttachment(birFunc);
@@ -67,13 +68,13 @@ function createJMethodValidationRequest(jvm:MethodAnnotTag annotTagRef,
                                         bir:Function birFunc) returns jvm:MethodValidationRequest {
 
     jvm:MethodValidationRequest valRequest = {
-        name:  getJMethodNameFromAnnot(annotTagRef, annotValueMap[NAME_FILED_NAME], birFunc),
-        class: <string>getLiteralValueFromAnnotValue(annotValueMap[CLASS_FILED_NAME]),
+        name:  getJMethodNameFromAnnot(annotTagRef, annotValueMap[NAME_FIELD_NAME], birFunc),
+        class: <string>getLiteralValueFromAnnotValue(annotValueMap[CLASS_FIELD_NAME]),
         kind: jvm:getMethodKindFromAnnotTag(annotTagRef),
         bFuncType: birFunc.typeValue
     };
 
-    var paramTypeConstraints = buildParamTypeConstraints(annotValueMap[PARAM_TYPES_FILED_NAME], birFunc, annotTagRef);
+    var paramTypeConstraints = buildParamTypeConstraints(annotValueMap[PARAM_TYPES_FIELD_NAME], birFunc, annotTagRef);
     if !(paramTypeConstraints is ()) {
         valRequest["paramTypeConstraints"] = paramTypeConstraints;
     }
@@ -85,8 +86,8 @@ function createJFieldValidationRequest(jvm:FieldAnnotTag annotTagRef,
                                        bir:Function birFunc) returns jvm:FieldValidationRequest {
 
     return {
-        name: getJFieldNameFromAnnot(annotValueMap[NAME_FILED_NAME], birFunc),
-        class: <string>getLiteralValueFromAnnotValue(annotValueMap[CLASS_FILED_NAME]),
+        name: getJFieldNameFromAnnot(annotValueMap[NAME_FIELD_NAME], birFunc),
+        class: <string>getLiteralValueFromAnnotValue(annotValueMap[CLASS_FIELD_NAME]),
         method: jvm:getFieldMethodFromAnnotTag(annotTagRef),
         bFuncType: birFunc.typeValue
     };
@@ -108,11 +109,11 @@ function buildParamTypeConstraints(bir:AnnotationValue? annotValue,
                 jType = jvm:getJTypeFromTypeName(<string> annotArrayElement.literalValue);
             } else if annotArrayElement is bir:AnnotationRecordValue {
                 map<bir:AnnotationValue> annotValueMap = annotArrayElement.annotValueMap;
-                string elementClass = <string> getLiteralValueFromAnnotValue(annotValueMap.get("elementClass"));
-                byte dimensions = <byte> getLiteralValueFromAnnotValue(annotValueMap.get("dimensions"));
+                string elementClass = <string> getLiteralValueFromAnnotValue(annotValueMap.get(ELEMENT_CLASS_FIELD_NAME));
+                byte dimensions = <byte> getLiteralValueFromAnnotValue(annotValueMap.get(DIMENSIONS_FIELD_NAME));
                 jType = jvm:getJArrayTypeFromTypeName(elementClass, dimensions);
             } else {
-                panic error(io:sprintf("unexpected annotation value, expected a literal value, found %s", annotArrayElement));
+                panic error(io:sprintf("unexpected annotation value: %s", annotArrayElement));
             }
 
             constraints[constraints.length()] = jType;
