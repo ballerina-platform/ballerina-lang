@@ -70,7 +70,6 @@ public class MatchStructuredPatternsTest {
 
     @Test(description = "Test pattern will not be matched")
     public void testPatternNotMatched() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 14);
         int i = -1;
         String patternNotMatched = "pattern will not be matched";
         String invalidRecordPattern = "invalid record binding pattern; ";
@@ -87,7 +86,6 @@ public class MatchStructuredPatternsTest {
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 38, 9);
         BAssertUtil.validateError(resultNegative, ++i,
                 invalidTuplePattern + "expecting a tuple type but found 'ClosedFoo' in type definition", 39, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 48, 13);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 49, 9);
         BAssertUtil.validateError(resultNegative, ++i,
                 invalidTuplePattern + "expecting a tuple type but found 'OpenedFoo' in type definition", 50, 13);
@@ -102,6 +100,8 @@ public class MatchStructuredPatternsTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 invalidRecordPattern + "unknown field 'f' in record type 'ClosedFoo'", 65, 20);
         BAssertUtil.validateError(resultNegative, ++i, "pattern will always be matched", 75, 9);
+
+        Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 
     @Test(description = "Test pattern will not be matched 2")

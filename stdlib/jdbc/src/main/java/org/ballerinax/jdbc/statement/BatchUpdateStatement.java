@@ -67,15 +67,15 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
 
     @Override
     public MapValue<String, Object> execute() {
-        //TODO: JBalMigration Commenting out transaction handling and observability
+        //TODO: JBalMigration Commenting out transaction handling
         //TODO: #16033
-        // checkAndObserveSQLAction(context, datasource, query);
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs;
         MapValue<String, ArrayValue> generatedKeys = new MapValueImpl<>();
         int[] updatedCount;
         int paramArrayCount = 0;
+        checkAndObserveSQLAction(strand, datasource, query);
         if (parameters != null) {
             paramArrayCount = parameters.size();
         }
@@ -115,6 +115,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
             // might have a requirement to ignore a few failed commands in the batch and let the rest of the commands
             // run if driver allows it.
             updatedCount = e.getUpdateCounts();
+            checkAndObserveSQLError(strand, e.getMessage());
             if (!isInTransaction && rollbackAllInFailure) {
                 try {
                     conn.rollback();
@@ -126,13 +127,13 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
             return createFrozenBatchUpdateResultRecord(createUpdatedCountArray(updatedCount, paramArrayCount),
                     generatedKeys, ErrorGenerator.getSQLDatabaseError(e, errorMessagePrefix + ": "));
         } catch (SQLException e) {
-             handleErrorOnTransaction(this.strand);
-             //checkAndObserveSQLError(context, e.getMessage());
+            handleErrorOnTransaction(this.strand);
+            checkAndObserveSQLError(strand, e.getMessage());
             return createFrozenBatchUpdateResultRecord(createUpdatedCountArray(null, paramArrayCount),
                     generatedKeys, ErrorGenerator.getSQLDatabaseError(e, errorMessagePrefix + ": "));
         } catch (ApplicationException e) {
             handleErrorOnTransaction(this.strand);
-            // checkAndObserveSQLError(context, e.getMessage());
+            checkAndObserveSQLError(strand, e.getMessage());
             return createFrozenBatchUpdateResultRecord(createUpdatedCountArray(null, paramArrayCount),
                     generatedKeys, ErrorGenerator.getSQLApplicationError(e, errorMessagePrefix + ": "));
         } finally {

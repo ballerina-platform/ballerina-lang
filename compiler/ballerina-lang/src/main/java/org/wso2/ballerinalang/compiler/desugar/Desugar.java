@@ -2734,7 +2734,7 @@ public class Desugar extends BLangNodeVisitor {
         // Process the key-val pairs in the record literal
         recordLiteral.keyValuePairs.forEach(keyValue -> {
             BLangExpression keyExpr = keyValue.key.expr;
-            if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            if (!keyValue.key.computedKey && keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef varRef = (BLangSimpleVarRef) keyExpr;
                 keyValue.key.expr = createStringLiteral(varRef.pos, varRef.variableName.value);
             } else {
@@ -5211,15 +5211,12 @@ public class Desugar extends BLangNodeVisitor {
 
             BRecordType recordVarType = new BRecordType(recordSymbol);
             recordVarType.fields = fields;
-            if (recordVariable.isClosed) {
-                recordVarType.sealed = true;
-                recordVarType.restFieldType = symTable.noType;
-            } else {
-                // if rest param is null we treat it as an open record with anydata rest param
-                recordVarType.restFieldType = recordVariable.restParam != null ?
+
+            // if rest param is null we treat it as an open record with anydata rest param
+            recordVarType.restFieldType = recordVariable.restParam != null ?
                         ((BMapType) ((BLangSimpleVariable) recordVariable.restParam).type).constraint :
-                        symTable.pureType;
-            }
+                    symTable.anydataType;
+
             BLangRecordTypeNode recordTypeNode = createRecordTypeNode(typeDefFields, recordVarType);
             recordTypeNode.pos = bindingPatternVariable.pos;
             recordSymbol.type = recordVarType;

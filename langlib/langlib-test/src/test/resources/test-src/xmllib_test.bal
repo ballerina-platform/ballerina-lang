@@ -175,3 +175,11 @@ function testCreateProcessingInstruction() returns xml {
 function testCreateComment() returns xml {
     return xmllib:createComment("This text should be wraped in xml comment");
 }
+
+function testCopingComment() returns xml {
+    xml bookComment = xml `<!--some comment-->`;
+
+    // Makes a copy of an XML element.
+    xml x = bookComment.copy();
+    return x;
+}

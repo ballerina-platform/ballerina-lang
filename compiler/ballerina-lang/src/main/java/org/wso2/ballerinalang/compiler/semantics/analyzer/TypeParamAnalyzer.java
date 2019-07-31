@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -79,6 +80,7 @@ public class TypeParamAnalyzer {
 
     private SymbolTable symTable;
     private Types types;
+    private BLangDiagnosticLog dlog;
 
     public static TypeParamAnalyzer getInstance(CompilerContext context) {
 
@@ -96,6 +98,7 @@ public class TypeParamAnalyzer {
 
         this.symTable = SymbolTable.getInstance(context);
         this.types = Types.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     static boolean isTypeParam(BType expType) {
@@ -111,7 +114,7 @@ public class TypeParamAnalyzer {
 
     void checkForTypeParamsInArg(BType actualType, SymbolEnv env, BType expType) {
         // Not a langlib module invocation
-        if (env.typeParamsEntries == null) {
+        if (notRequireTypeParams(env)) {
             return;
         }
 
@@ -119,12 +122,17 @@ public class TypeParamAnalyzer {
         findTypeParam(expType, actualType, env, new HashSet<>(), findTypeParamResult);
     }
 
+    boolean notRequireTypeParams(SymbolEnv env) {
+
+        return env.typeParamsEntries == null;
+    }
+
     BType getReturnTypeParams(SymbolEnv env, BType expType) {
 
-        if (env.typeParamsEntries == null || env.typeParamsEntries.isEmpty()) {
+        if (notRequireTypeParams(env) || env.typeParamsEntries.isEmpty()) {
             return expType;
         }
-        return getMatchingBoundType(expType, env, new HashSet<>());
+        return getMatchingBoundType(expType, env);
     }
 
     public BType getNominalType(BType type, Name name, int flag) {
@@ -139,6 +147,11 @@ public class TypeParamAnalyzer {
 
         int flag = type.flags | Flags.TYPE_PARAM;
         return createBuiltInType(type, name, flag);
+    }
+
+    BType getMatchingBoundType(BType expType, SymbolEnv env) {
+
+        return getMatchingBoundType(expType, env, new HashSet<>());
     }
 
     // Private methods.
@@ -345,6 +358,10 @@ public class TypeParamAnalyzer {
         if (env.typeParamsEntries.stream()
                 .noneMatch(entry -> entry.typeParam.tsymbol.pkgID.equals(typeParamType.tsymbol.pkgID)
                         && entry.typeParam.tsymbol.name.equals(typeParamType.tsymbol.name))) {
+            if (boundType == symTable.noType) {
+                dlog.error(env.node.pos, DiagnosticCode.CANNOT_INFER_TYPE);
+                return;
+            }
             env.typeParamsEntries.add(new SymbolEnv.TypeParamEntry(typeParamType, boundType));
         }
     }
@@ -477,7 +494,8 @@ public class TypeParamAnalyzer {
             return env.typeParamsEntries.stream().filter(typeParamEntry -> typeParamEntry.typeParam == expType)
                     .findFirst()
                     .map(typeParamEntry -> typeParamEntry.boundType)
-                    .orElse(expType);
+                    // Else, this need to be inferred from the context.
+                    .orElse(symTable.noType);
         }
 
         if (resolvedTypes.contains(expType)) {

@@ -33,7 +33,10 @@ import java.util.function.Supplier;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_CONNECTOR;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_SERVICE;
 import static org.ballerinalang.jvm.observability.tracer.TraceConstants.KEY_SPAN;
+import static org.ballerinalang.jvm.observability.tracer.TraceConstants.TAG_KEY_SPAN_KIND;
+import static org.ballerinalang.jvm.observability.tracer.TraceConstants.TAG_SPAN_KIND_SERVER;
 
 /**
  * Util class used for observability.
@@ -44,7 +47,6 @@ public class ObserveUtils {
     private static final List<BallerinaObserver> observers = new CopyOnWriteArrayList<>();
     private static final boolean enabled;
     private static final boolean tracingEnabled;
-    private static final String PACKAGE_SEPARATOR = ".";
 
     static {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
@@ -62,43 +64,51 @@ public class ObserveUtils {
     }
 
     /**
-     * Start observability for the resource invocation.
+     * Start observation of a resource invocation.
      *
-     * @param strand          strand
-     * @param observerContext observer context
+     * @param strand which holds the observer context being started.
+     * @param serviceName name of the service to which the observer context belongs.
+     * @param resourceName name of the resource being invoked.
      */
-    public static void startResourceObservation(Strand strand, ObserverContext observerContext) {
+    public static void startResourceObservation(Strand strand, String serviceName, String resourceName) {
         if (!enabled) {
             return;
         }
-        ObserverContext newObContext = observerContext;
-        if (newObContext == null) {
-//            CallableUnitInfo callableUnitInfo = strand.currentFrame.callableUnitInfo;
-            newObContext = new ObserverContext();
-            newObContext.setConnectorName(UNKNOWN_CONNECTOR);
-//            newObContext.setServiceName(getFullServiceName(callableUnitInfo.attachedToType));
-//            newObContext.setResourceName(callableUnitInfo.getName());
-        }
-        newObContext.setServer();
-        newObContext.setStarted();
-        strand.observerContext = newObContext;
-        observers.forEach(observer -> observer.startServerObservation(strand.observerContext));
-    }
 
+        ObserverContext observerContext;
+        if (strand.observerContext != null) {
+            observerContext = strand.observerContext;
+        } else {
+            observerContext = new ObserverContext();
+            setObserverContextToCurrentFrame(strand, observerContext);
+        }
+        if (serviceName == null) {
+            serviceName = UNKNOWN_SERVICE;
+            strand.setProperty(ObservabilityConstants.SERVICE_NAME, serviceName);
+        }
+        observerContext.setServiceName(serviceName);
+        observerContext.setResourceName(resourceName);
+        observerContext.setServer();
+        observerContext.setStarted();
+        observers.forEach(observer -> observer.startServerObservation(strand.observerContext));
+        strand.setProperty(ObservabilityConstants.SERVICE_NAME, serviceName);
+    }
 
     /**
      * Stop observation of an observer context.
      *
-     * @param observerContext observer context to be stopped
+     * @param strand which holds the observer context.
      */
-    public static void stopObservation(ObserverContext observerContext) {
-        if (!enabled || observerContext == null) {
+    public static void stopObservation(Strand strand) {
+        if (!enabled || strand.observerContext == null) {
             return;
         }
+        ObserverContext observerContext = strand.observerContext;
         if (observerContext.isServer()) {
             observers.forEach(observer -> observer.stopServerObservation(observerContext));
         } else {
             observers.forEach(observer -> observer.stopClientObservation(observerContext));
+            setObserverContextToCurrentFrame(strand, observerContext.getParent());
         }
         observerContext.setFinished();
     }
@@ -106,108 +116,39 @@ public class ObserveUtils {
     /**
      * Start observability for the synchronous function/action invocations.
      *
-     * @param strand current frame
-     * @param flags  action invocation flags
+     * @param strand which holds the observer context being started.
+     * @param connectorName name of the connector to which the observer context belongs.
+     * @param actionName name of the action/function being invoked.
      */
-    public static void startCallableObservation(Strand strand, int flags) {
+    public static void startCallableObservation(Strand strand, String connectorName, String actionName) {
         if (!enabled) {
-            return;
-        }
-        
-        if (isObserved(strand)) {
             return;
         }
 
         ObserverContext observerCtx = strand.observerContext;
         // If parent context is null, create a new context and start it as a server.
         if (observerCtx == null) {
-//            observerCtx = new ObserverContext();
-//            observerCtx.addTag(TAG_KEY_SPAN_KIND, TAG_SPAN_KIND_SERVER);
-//            // We have to set this explicitly as it'll give errors when
-//            observerCtx.setConnectorName(UNKNOWN_CONNECTOR);
-//            // monitoring metrics
-//            // We have to set this explicitly as it'll give errors when
-//            observerCtx.setServiceName(UNKNOWN_SERVICE);
-//            // monitoring metrics
-////            observerCtx.setResourceName(strand.getId());
-//            observerCtx.setServer();
-//            observerCtx.setStarted();
-//            observers.forEach(observer -> observer.startServerObservation(strand.respCallback.getObserverContext()));
+            observerCtx = new ObserverContext();
+            observerCtx.addTag(TAG_KEY_SPAN_KIND, TAG_SPAN_KIND_SERVER);
+            observerCtx.setServiceName(UNKNOWN_SERVICE);
+            observerCtx.setConnectorName(UNKNOWN_CONNECTOR);
+            observerCtx.setResourceName(UNKNOWN_CONNECTOR);
+            observerCtx.setServer();
+            observerCtx.setStarted();
+            for (BallerinaObserver observer : observers) {
+                observer.startServerObservation(observerCtx);
+            }
         }
 
         ObserverContext newObContext = new ObserverContext();
         newObContext.setParent(observerCtx);
         newObContext.setStarted();
-//        newObContext.setConnectorName(strand.currentFrame.callableUnitInfo.attachedToType.toString());
-//        newObContext.setActionName(strand.currentFrame.callableUnitInfo.getName());
-        newObContext.setServiceName(getServiceName(strand));
+
+        newObContext.setServiceName(observerCtx.getServiceName());
+        newObContext.setConnectorName(connectorName);
+        newObContext.setActionName(actionName);
         strand.observerContext = newObContext;
         observers.forEach(observer -> observer.startClientObservation(newObContext));
-
-    }
-
-    /**
-     * Get service name from the current strand.
-     *
-     * @param strand current strand
-     * @return service name
-     */
-    private static String getServiceName(Strand strand) {
-        return ObservabilityConstants.UNKNOWN_SERVICE;
-    }
-
-    /**
-     * Start observability for the asynchronous function/action invocations.
-     *
-     * @param strand    callee strand
-     * @param parentCtx parent observer context
-     */
-    public static void startCallableObservation(Strand strand, ObserverContext parentCtx) {
-        if (!enabled) {
-            return;
-        }
-        ObserverContext newObContext = new ObserverContext();
-        newObContext.setParent(parentCtx);
-        newObContext.setStarted();
-//        String connectorName = strand.currentFrame.callableUnitInfo.attachedToType != null ?
-//                strand.currentFrame.callableUnitInfo.attachedToType.toString() : "ballerina:worker";
-//        newObContext.setConnectorName(connectorName);
-//        newObContext.setActionName(strand.currentFrame.callableUnitInfo.getName());
-        newObContext.setServiceName(getServiceName(strand));
-        strand.observerContext = newObContext;
-        observers.forEach(observer -> observer.startClientObservation(newObContext));
-    }
-
-    /**
-     * Stop observability for both synchronous and asynchronous function/action invocations.
-     *
-     * @param strand current strand
-     */
-    public static void stopCallableObservation(Strand strand) {
-        if (!enabled) {
-            return;
-        }
-
-//        if (isObserved(strand)) {
-//            strand.peekFrame(1).observerContext = strand.observerContext;
-//            return;
-//        }
-//
-//        // Peek the immediate frame at the top and set the parent observer context of 
-//        // the current frame as the observer context
-//        strand.peekFrame(1).observerContext = strand.currentFrame.observerContext.getParent();
-//        stopObservation(strand.currentFrame.observerContext);
-        // TODO:
-    }
-
-    /**
-     * Get the full service name.
-     *
-     * @param strand Strand
-     * @return service name
-     */
-    public static String getFullServiceName(Strand strand) {
-        return null;
     }
 
     /**
@@ -287,9 +228,5 @@ public class ObserveUtils {
             return;
         }
         strand.observerContext = observerContext;
-    }
-    
-    private static boolean isObserved(Strand strand) {
-        return false;
     }
 }
