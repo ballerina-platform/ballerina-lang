@@ -50,6 +50,7 @@ import org.ballerinax.jdbc.table.SQLDataIterator;
 import org.ballerinax.jdbc.transaction.SQLTransactionContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -205,7 +206,8 @@ public abstract class AbstractSQLStatement implements SQLStatement {
             break;
         case Types.DECIMAL:
         case Types.NUMERIC:
-            value = new DecimalValue(rs.getBigDecimal(index));
+            BigDecimal bigDecimal = rs.getBigDecimal(index);
+            value = (bigDecimal == null) ? null : new DecimalValue(bigDecimal);
             break;
         default:
             value = rs.getString(index);
