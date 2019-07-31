@@ -28,7 +28,7 @@ function concatBoolean(int index, boolean value) {
 }
 
 function concatJSON(int index, json value) {
-    var stringValue = value.toString();
+    var stringValue = value.toJsonString();
     output = output + index.toString() + ":" + stringValue + " ";
 }
 

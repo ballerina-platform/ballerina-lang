@@ -12,7 +12,7 @@ function testJSONObject () returns string|error {
     output = "";
     json j1 = {name:"bob", age:10, pass:true, subjects: [{subject:"maths", marks:75}, {subject:"English", marks:85}]};
     foreach var j in  <map<json>>j1.cloneReadOnly() {
-        concatString(j.toString());
+        concatString(j.toJsonString());
     }
     return output;
 }
@@ -23,7 +23,7 @@ function testJSONArray () returns (string) {
     json element = <json> j1.subjects;
     if element is json[] {
         foreach var j in element {
-            concatString(j.toString());
+            concatString(j.toJsonString());
         }
     }
     return output;
@@ -40,7 +40,7 @@ function testArrayOfJSON () returns string | error {
 
     int i = 0;
     foreach var j in array {
-        concatIntString(i, j.toString());
+        concatIntString(i, j.toJsonString());
         i += 1;
     }
     return output;
@@ -50,7 +50,7 @@ function testJSONString () returns string|error {
     output = "";
     json j1 = {name:"bob", age:10, pass:true, subjects: [{subject:"maths", marks:75}, {subject:"English", marks:85}]};
     foreach var j in <map<json>>j1.name {
-        concatString(j.toString());
+        concatString(j.toJsonString());
     }
     return output;
 }
@@ -59,7 +59,7 @@ function testJSONNumber () returns string|error {
     output = "";
     json j1 = {name:"bob", age:10, pass:true, subjects: [{subject:"maths", marks:75}, {subject:"English", marks:85}]};
     foreach var j in <map<json>>j1.age {
-        concatString(j.toString());
+        concatString(j.toJsonString());
     }
     return output;
 }
@@ -68,7 +68,7 @@ function testJSONBoolean () returns string|error {
     output = "";
     json j1 = {name:"bob", age:10, pass:true, subjects: [{subject:"maths", marks:75}, {subject:"English", marks:85}]};
     foreach var j in <map<json>>j1.pass {
-        concatString(j.toString());
+        concatString(j.toJsonString());
     }
     return output;
 }
@@ -77,7 +77,7 @@ function testJSONNull () returns string|error {
     output = "";
     json j1 = {name:"bob", age:10, pass:true, subjects: [{subject:"maths", marks:75}, {subject:"English", marks:85}]};
     foreach var j in <map<json>>j1.city {
-        concatString(j.toString());
+        concatString(j.toJsonString());
     }
     return output;
 }
@@ -114,7 +114,7 @@ function testAddWhileIteration () returns string|error {
         }
     }
     foreach var j in <map<json>>j1 {
-        concatString(j.toString());
+        concatString(j.toJsonString());
     }
     return output;
 }
@@ -123,7 +123,7 @@ function testDeleteWhileIteration () returns string|error {
     output = "";
     json j1 = {name:"bob", age:10, pass:true, subjects: [{subject:"maths", marks:75}, {subject:"English", marks:85}]};
     foreach var j in <map<json>>j1 {
-        string str = j.toString();
+        string str = j.toJsonString();
         if (str == "bob") {
             map<json> temp = (<map<json>>j1);
             any x = temp.remove("subjects");
@@ -132,7 +132,7 @@ function testDeleteWhileIteration () returns string|error {
     }
 
     foreach var j in <map<json>>j1 {
-        concatString(j.toString());
+        concatString(j.toJsonString());
     }
     return output;
 }

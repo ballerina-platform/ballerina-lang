@@ -27,7 +27,7 @@ public function testSendString() {
 public function testSendJson() {
     artemis:Producer prod = new(config, "queue2", addressConfig);
     json name = {"name": "Riyafa"};
-    var err = prod->send(name);
+    var err = prod->send(name.toJsonString());
 }
 
 public function testSendXml() {
@@ -39,7 +39,7 @@ public function testSendXml() {
 public function testSendRecord() {
     artemis:Producer prod = new(config, "queue4", addressConfig);
     json person = {"name": "John", "age":20};
-    var err = prod->send(person);
+    var err = prod->send(person.toJsonString());
 }
 
 public function testSendByteArray() {

@@ -31,7 +31,7 @@ service websubSubscriber on websubEP {
     resource function onNotification (websub:Notification notification) {
         var payload = notification.getJsonPayload();
         if (payload is json) {
-            io:println("WebSub Notification Received by One: " + payload.toString());
+            io:println("WebSub Notification Received by One: " + payload.toJsonString());
         } else {
             panic payload;
         }
@@ -48,7 +48,7 @@ service websubSubscriberTwo on websubEP {
     resource function onNotification (websub:Notification notification) {
         var payload = notification.getJsonPayload();
         if (payload is json) {
-            io:println("WebSub Notification Received by Two: " + payload.toString());
+            io:println("WebSub Notification Received by Two: " + payload.toJsonString());
         } else {
             panic payload;
         }

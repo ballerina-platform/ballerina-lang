@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.TypeConverter;
 import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
@@ -39,6 +40,7 @@ import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -428,6 +430,22 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                         sj.add(key + "=" + getStringValue(value));
                     }
                     break;
+            }
+            return sj.toString();
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    @Override
+    public String stringValue(Strand strand) {
+        readLock.lock();
+        StringJoiner sj = new StringJoiner(" ");
+        try {
+            for (Map.Entry<K, V> kvEntry : this.entrySet()) {
+                K key = kvEntry.getKey();
+                V value = kvEntry.getValue();
+                sj.add(key + "=" + StringUtils.getStringValue(strand, value));
             }
             return sj.toString();
         } finally {

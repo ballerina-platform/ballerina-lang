@@ -46,7 +46,7 @@ service websubSubscriber on websubEP {
         } else if (notification.getContentType() == mime:APPLICATION_JSON) {
             var payload = notification.getJsonPayload();
             if (payload is json) {
-                io:println("JSON WebSub Notification Received by websubSubscriber: ", payload);
+                io:println("JSON WebSub Notification Received by websubSubscriber: ", payload.toJsonString());
             } else {
                 panic payload;
             }
@@ -79,7 +79,7 @@ service websubSubscriberTwo on websubEP {
         } else if (notification.getContentType() == mime:APPLICATION_JSON) {
             var payload = notification.getJsonPayload();
             if (payload is json) {
-                io:println("JSON WebSub Notification Received by websubSubscriberTwo: ", payload);
+                io:println("JSON WebSub Notification Received by websubSubscriberTwo: ", payload.toJsonString());
             } else {
                 panic payload;
             }

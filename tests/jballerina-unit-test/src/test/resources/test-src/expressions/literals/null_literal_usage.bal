@@ -41,7 +41,7 @@ function testNullStringRepresentation2() returns string {
 
 function testNullStringRepresentation3() returns string|error {
     json j = {name:"John Doe", age:25, location:null};
-    return j.toString();
+    return j.toJsonString();
 }
 
 function testNullStringRepresentation4() returns string {

@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.commons.TypeValuePair;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -38,6 +39,16 @@ import java.util.Map;
 public interface RefValue {
 
     String stringValue();
+
+    /**
+     * Returns the string presentation of the value on which the method is called. This is used only by ArrayValue
+     * and MapValueImpl.
+     * @param strand The strand on which the stringValue method is called
+     * @return String representation of value
+     */
+    default String stringValue(Strand strand) {
+        throw new BallerinaException("'stringValue(Strand strand)' not allowed on '" + getType() + "'");
+    }
 
     BType getType();
 

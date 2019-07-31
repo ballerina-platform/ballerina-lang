@@ -30,7 +30,7 @@ listener websub:Listener websubEP = new websub:Listener(23181, { host: "0.0.0.0"
 service websubSubscriber on websubEP {
     resource function onNotification (websub:Notification notification) {
         json payload = <json> notification.getJsonPayload();
-        io:println("WebSub Notification Received: ", payload.toString());
+        io:println("WebSub Notification Received: ", payload.toJsonString());
     }
 }
 

@@ -46,8 +46,6 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
  */
 public class FreezeAndIsFrozenTest {
 
-    private static final String FREEZE_ERROR_OCCURRED_ERR_MSG =
-            "error occurred on freeze: 'freeze()' not allowed on 'PersonObj'";
     private static final String FREEZE_SUCCESSFUL = "freeze successful";
 
     private CompileResult result;
@@ -459,8 +457,8 @@ public class FreezeAndIsFrozenTest {
         Assert.assertEquals(negativeResult.getErrorCount(), 29);
         int index = 0;
         validateError(negativeResult, index++, "incompatible types: expected 'anydata', found 'PersonObj'", 19, 19);
-        validateError(negativeResult, index++, "function invocation on type 'other' is not supported", 19, 19);
-        validateError(negativeResult, index++, "incompatible types: expected 'PersonObj', found 'other'", 19, 19);
+        validateError(negativeResult, index++, "incompatible types: expected 'anydata', found 'PersonObj'", 19, 19);
+        validateError(negativeResult, index++, "incompatible types: expected 'PersonObj', found 'anydata'", 19, 19);
         validateError(negativeResult, index++, "incompatible types: expected 'anydata', found 'stream<int>'", 22, 9);
         validateError(negativeResult, index++, "incompatible types: expected 'anydata', found 'future<boolean>'", 25,
                       9);

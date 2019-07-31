@@ -177,7 +177,7 @@ function testUpdateInMemory() returns @tainted [int, string] {
     if (x is table<Customer>) {
         var res = typedesc<json>.constructFrom(x);
         if (res is json) {
-            s = res.toString();
+            s = res.toJsonString();
         }
     }
 

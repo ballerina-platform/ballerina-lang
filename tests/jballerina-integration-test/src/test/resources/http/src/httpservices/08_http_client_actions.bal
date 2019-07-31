@@ -213,7 +213,7 @@ service testService on new http:Listener(9098) {
         if (jsonResponse is http:Response) {
             var result = jsonResponse.getJsonPayload();
             if (result is json) {
-                value = value + result.toString();
+                value = value + result.toJsonString();
             } else {
                 error err = result;
                 value = value + err.reason();
@@ -294,7 +294,7 @@ service testService on new http:Listener(9098) {
                         if (mime:APPLICATION_JSON == baseType) {
                             var payload = bodyPart.getJson();
                             if (payload is json) {
-                                value = payload.toString();
+                                value = payload.toJsonString();
                             } else {
                                 error err = payload;
                                 value = err.reason();
