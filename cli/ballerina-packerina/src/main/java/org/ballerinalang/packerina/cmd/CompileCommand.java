@@ -23,6 +23,7 @@ import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.packerina.task.CompileTask;
+import org.ballerinalang.packerina.task.CopyModuleJarTask;
 import org.ballerinalang.packerina.task.CopyNativeLibTask;
 import org.ballerinalang.packerina.task.CreateBaloTask;
 import org.ballerinalang.packerina.task.CreateBirTask;
@@ -189,6 +190,7 @@ public class CompileCommand implements BLauncherCmd {
                     .addTask(new CreateBirTask())
                     .addTask(new CopyNativeLibTask())
                     .addTask(new CreateJarTask())
+                    .addTask(new CopyModuleJarTask())
                     .addTask(new RunTestsTask(), this.skipTests)
                     .addTask(new CreateLockFileTask())
                     .addTask(new CreateDocsTask())
@@ -249,6 +251,7 @@ public class CompileCommand implements BLauncherCmd {
                     .addTask(new CreateBirTask())
                     .addTask(new CopyNativeLibTask())
                     .addTask(new CreateJarTask())
+                    .addTask(new CopyModuleJarTask())
                     .addTask(new RunTestsTask(), this.skipTests)
                     .addTask(new CreateLockFileTask())
                     .addTask(new CreateDocsTask())
