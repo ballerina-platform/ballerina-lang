@@ -7,9 +7,9 @@ listener http:Listener backendEP = new(8080);
 
 // Define the failover client endpoint to call the backend services.
 http:FailoverClient foBackendEP = new({
-        timeoutMillis: 5000,
+        timeoutInMillis: 5000,
         failoverCodes: [501, 502, 503],
-        intervalMillis: 5000,
+        intervalInMillis: 5000,
         // Define a set of HTTP Clients that are targeted for failover.
         targets: [
             { url: "http://nonexistentEP/mock1" },

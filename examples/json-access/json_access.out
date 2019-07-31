@@ -1,0 +1,8 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command.
+$ ballerina run json_access.bal
+Mary
+Colombo 03
+error {ballerina}KeyNotFound message=Key 'age' not found in JSON mapping
+
+

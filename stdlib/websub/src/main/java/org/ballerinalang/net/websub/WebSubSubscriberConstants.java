@@ -30,6 +30,7 @@ public class WebSubSubscriberConstants {
 
     public static final String SERVICE_ENDPOINT_CONFIG_NAME = "config";
     public static final String ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
+    public static final String ANN_NAME_WEBSUB_SPECIFIC_SUBSCRIBER = "SpecificSubscriber";
     public static final String BALLERINA = "ballerina";
     public static final String WEBSUB = "websub";
     public static final String WEBSUB_PACKAGE = "ballerina/websub";

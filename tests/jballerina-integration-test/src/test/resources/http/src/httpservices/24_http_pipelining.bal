@@ -52,7 +52,7 @@ service pipeliningTest on new http:Listener(9220) {
     }
 }
 
-service pipelining on new http:Listener(9221, { timeoutMillis: 1000 }) {
+service pipelining on new http:Listener(9221, { timeoutInMillis: 1000 }) {
 
     resource function testTimeout(http:Caller caller, http:Request req) {
         http:Response response = new;

@@ -12,7 +12,7 @@ http:LoadBalanceClient lbBackendEP = new({
             { url: "http://localhost:8080/mock2" },
             { url: "http://localhost:8080/mock3" }
         ],
-        timeoutMillis: 5000
+        timeoutInMillis: 5000
 });
 
 
