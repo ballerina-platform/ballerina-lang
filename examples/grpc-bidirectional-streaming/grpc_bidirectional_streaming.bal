@@ -23,8 +23,8 @@ service Chat on new grpc:Listener(9090) {
         log:printInfo("Server received message: " + msg);
         foreach var [callerId, connection] in self.consMap.entries() {
             ep = connection;
-            error? err = ep->send(msg);
-            if (err is error) {
+            grpc:Error? err = ep->send(msg);
+            if (err is grpc:Error) {
                 log:printError("Error from Connector: " + err.reason() + " - "
                             + <string> err.detail()["message"]);
             } else {
@@ -44,11 +44,11 @@ service Chat on new grpc:Listener(9090) {
         grpc:Caller ep;
         string msg = string `${caller.getId()} left the chat`;
         log:printInfo(msg);
-        var v = self.consMap.remove(string.convert(caller.getId()));
+        var v = self.consMap.remove(caller.getId().toString());
         foreach var [callerId, connection] in self.consMap.entries() {
             ep = connection;
-            error? err = ep->send(msg);
-            if (err is error) {
+            grpc:Error? err = ep->send(msg);
+            if (err is grpc:Error) {
                 log:printError("Error from Connector: " + err.reason() + " - "
                         + <string> err.detail()["message"]);
             } else {
