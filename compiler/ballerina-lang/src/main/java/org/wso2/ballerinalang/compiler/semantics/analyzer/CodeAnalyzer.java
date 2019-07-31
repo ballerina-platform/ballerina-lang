@@ -1416,15 +1416,29 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         keyValuePairs.forEach(kv -> analyzeExpr(kv.valueExpr));
 
         Set<Object> names = new HashSet<>();
+        BType type = recordLiteral.type;
+        boolean isOpenRecord = type != null && type.tag == TypeTags.RECORD && !((BRecordType) type).sealed;
         for (BLangRecordKeyValue recFieldDecl : keyValuePairs) {
             BLangExpression key = recFieldDecl.getKey();
+            if (recFieldDecl.key.computedKey) {
+                analyzeExpr(key);
+                continue;
+            }
             if (key.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef keyRef = (BLangSimpleVarRef) key;
-                if (names.contains(keyRef.variableName.value)) {
+                String fieldName = keyRef.variableName.value;
+
+                if (names.contains(fieldName)) {
                     String assigneeType = recordLiteral.parent.type.getKind().typeName();
                     this.dlog.error(key.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL, assigneeType, keyRef);
                 }
-                names.add(keyRef.variableName.value);
+
+                if (isOpenRecord && ((BRecordType) type).fields.stream()
+                        .noneMatch(field -> fieldName.equals(field.name.value))) {
+                    dlog.error(key.pos, DiagnosticCode.INVALID_RECORD_LITERAL_IDENTIFIER_KEY, fieldName);
+                }
+
+                names.add(fieldName);
             } else if (key.getKind() == NodeKind.LITERAL || key.getKind() == NodeKind.NUMERIC_LITERAL) {
                 BLangLiteral keyLiteral = (BLangLiteral) key;
                 if (names.contains(keyLiteral.value)) {

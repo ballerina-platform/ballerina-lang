@@ -8,7 +8,7 @@ import ballerina/runtime;
 // with/without passing the JWT issuer configurations as a record. If the JWT
 // issuer configurations are passed, a new JWT will be issued and it will be
 // used for the outbound authentication.
-jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new(());
+jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new;
 
 // Create a Bearer Auth handler with the created JWT Auth provider.
 http:BearerAuthHandler outboundJwtAuthHandler = new(outboundJwtAuthProvider);

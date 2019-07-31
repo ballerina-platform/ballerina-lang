@@ -391,4 +391,10 @@ public class XMLAttributesTest {
         BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "nonSingletonXmlAttributeAccess");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
+
+    @Test
+    public void testAttributeAccessUsingDirectAtCharacter() {
+        BValue[] returns = BRunUtil.invoke(xmlAttrProgFile, "testAttributeAccess");
+        Assert.assertEquals(returns[0].stringValue(), "available");
+    }
 }
