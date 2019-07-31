@@ -15,16 +15,11 @@ service hello on new http:Listener(9090) {
     # + request - Request
     resource function sayHello(http:Caller caller, http:Request request) {
 
-        // Create object to carry data back to caller
-        http:Response response = new;
-
-        // Set a string payload to be sent to the caller
-        response.setTextPayload("Hello Ballerina!");
-
         // Send a response back to caller
         // -> indicates a synchronous network-bound call
-        error? result = caller -> respond(response);
+        error? result = caller->respond("Hello Ballerina!");
         if (result is error) {
             io:println("Error in responding", result);
-        }    }
+        }
+    }
 }

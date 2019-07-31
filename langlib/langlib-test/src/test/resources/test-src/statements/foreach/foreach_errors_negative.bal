@@ -115,6 +115,7 @@ function testMapWithErrors3() returns string {
 type ReasonT record {|
     string message;
     boolean fatal;
+    error cause?;
 |};
 
 function testForeachReasonBinding() {

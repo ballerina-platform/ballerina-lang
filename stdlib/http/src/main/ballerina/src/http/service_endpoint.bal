@@ -144,33 +144,40 @@ public type RequestLimits record {|
 # Provides a set of configurations for HTTP service endpoints.
 #
 # + host - The host name/IP of the endpoint
-# + keepAlive - Can be set to either `KEEPALIVE_AUTO`, which respects the `connection` header, or `KEEPALIVE_ALWAYS`,
-#               which always keeps the connection alive, or `KEEPALIVE_NEVER`, which always closes the connection
+# + http1Settings - Configurations related to HTTP/1.x protocol
 # + secureSocket - The SSL configurations for the service endpoint. This needs to be configured in order to
 #                  communicate through HTTPS.
 # + httpVersion - Highest HTTP version supported by the endpoint
 # + requestLimits - Configures the parameters for request validation
 # + filters - If any pre-processing needs to be done to the request before dispatching the request to the
 #             resource, filters can applied
-# + timeoutMillis - Period of time in milliseconds that a connection waits for a read/write operation. Use value 0 to
+# + timeoutInMillis - Period of time in milliseconds that a connection waits for a read/write operation. Use value 0 to
 #                   disable timeout
-# + maxPipelinedRequests - Defines the maximum number of requests that can be processed at a given time on a single
-#                          connection. By default, 10 requests can be pipelined on a single connection and the user can
-#                          change this limit appropriately. This will be applicable only for HTTP 1.1
 # + auth - Listener authenticaton configurations
 # + server - The server name which should appear as a response header
 public type ServiceEndpointConfiguration record {|
     string host = "0.0.0.0";
-    KeepAlive keepAlive = KEEPALIVE_AUTO;
+    ServiceHttp1Settings http1Settings = {};
     ServiceSecureSocket? secureSocket = ();
     string httpVersion = "1.1";
     RequestLimits requestLimits = {};
     //TODO: update as a optional field
     Filter[] filters = [];
-    int timeoutMillis = DEFAULT_LISTENER_TIMEOUT;
-    int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
+    int timeoutInMillis = DEFAULT_LISTENER_TIMEOUT;
     ListenerAuth auth?;
     string? server = ();
+|};
+
+# Provides settings related to HTTP/1.x protocol.
+#
+# + keepAlive - Can be set to either `KEEPALIVE_AUTO`, which respects the `connection` header, or `KEEPALIVE_ALWAYS`,
+#               which always keeps the connection alive, or `KEEPALIVE_NEVER`, which always closes the connection
+# + maxPipelinedRequests - Defines the maximum number of requests that can be processed at a given time on a single
+#                          connection. By default 10 requests can be pipelined on a single cinnection and user can
+#                          change this limit appropriately.
+public type ServiceHttp1Settings record {|
+    KeepAlive keepAlive = KEEPALIVE_AUTO;
+    int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
 |};
 
 # Authentication configurations for the listener.
@@ -206,8 +213,8 @@ public type ListenerAuth record {|
 #             TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA)
 # + sslVerifyClient - The type of client certificate verification
 # + shareSession - Enable/disable new SSL session creation
-# + handshakeTimeout - SSL handshake time out
-# + sessionTimeout - SSL session time out
+# + handshakeTimeoutInSeconds - SSL handshake time out
+# + sessionTimeoutInSeconds - SSL session time out
 # + ocspStapling - Enable/disable OCSP stapling
 public type ServiceSecureSocket record {|
     crypto:TrustStore? trustStore = ();
@@ -225,8 +232,8 @@ public type ServiceSecureSocket record {|
                         "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256"];
     string sslVerifyClient = "";
     boolean shareSession = true;
-    int? handshakeTimeout = ();
-    int? sessionTimeout = ();
+    int? handshakeTimeoutInSeconds = ();
+    int? sessionTimeoutInSeconds = ();
     ServiceOcspStapling? ocspStapling = ();
 |};
 
@@ -234,13 +241,13 @@ public type ServiceSecureSocket record {|
 #
 # + enabled - Specifies whether authorization caching is enabled. Caching is enabled by default.
 # + capacity - The capacity of the cache
-# + expiryTimeMillis - The number of milliseconds to keep an entry in the cache
+# + expiryTimeInMillis - The number of milliseconds to keep an entry in the cache
 # + evictionFactor - The fraction of entries to be removed when the cache is full. The value should be
 #                    between 0 (exclusive) and 1 (inclusive).
 public type AuthCacheConfig record {|
     boolean enabled = true;
     int capacity = 100;
-    int expiryTimeMillis = 5 * 1000; // 5 seconds;
+    int expiryTimeInMillis = 5 * 1000; // 5 seconds;
     float evictionFactor = 1;
 |};
 
@@ -268,10 +275,10 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
         AuthnFilter authnFilter = new(authHandlers);
 
         var scopes = auth["scopes"];
-        cache:Cache positiveAuthzCache = new(auth.positiveAuthzCache.expiryTimeMillis,
+        cache:Cache positiveAuthzCache = new(auth.positiveAuthzCache.expiryTimeInMillis,
                                              auth.positiveAuthzCache.capacity,
                                              auth.positiveAuthzCache.evictionFactor);
-        cache:Cache negativeAuthzCache = new(auth.negativeAuthzCache.expiryTimeMillis,
+        cache:Cache negativeAuthzCache = new(auth.negativeAuthzCache.expiryTimeInMillis,
                                              auth.negativeAuthzCache.capacity,
                                              auth.negativeAuthzCache.evictionFactor);
         AuthzHandler authzHandler = new(positiveAuthzCache, negativeAuthzCache);

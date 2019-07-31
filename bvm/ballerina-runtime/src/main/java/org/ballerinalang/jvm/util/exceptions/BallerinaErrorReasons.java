@@ -54,7 +54,7 @@ public class BallerinaErrorReasons {
     public static final String INDEX_OUT_OF_RANGE_ERROR = BALLERINA_PREFIX.concat("IndexOutOfRange");
     public static final String INHERENT_TYPE_VIOLATION_ERROR = BALLERINA_PREFIX.concat("InherentTypeViolation");
     public static final String KEY_NOT_FOUND_ERROR = BALLERINA_PREFIX.concat("KeyNotFound");
-    public static final String ILLEGAL_ARRAY_INSERTION_ERROR = BALLERINA_PREFIX.concat("IllegalArrayInsertion");
+    public static final String ILLEGAL_LIST_INSERTION_ERROR = BALLERINA_PREFIX.concat("IllegalListInsertion");
 
     public static final String DIVISION_BY_ZERO_ERROR = BALLERINA_PREFIX.concat("DivisionByZero");
     public static final String ARITHMETIC_OPERATION_ERROR = BALLERINA_PREFIX.concat("ArithmeticOperationError");

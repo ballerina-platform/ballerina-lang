@@ -18,6 +18,8 @@ import ballerina/io;
 
 type ClosedFoo record {|
     string s;
+    string message?;
+    error cause?;
 |};
 
 function testErrorPattern1() returns string {
@@ -67,6 +69,7 @@ function testErrorPattern3() returns string {
 
 type OpenedFoo record {
     string message;
+    error cause?;
 };
 
 function testErrorPattern5() returns string {

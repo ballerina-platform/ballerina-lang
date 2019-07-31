@@ -2846,6 +2846,17 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ServiceHttp1Settings",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Provides settings related to HTTP/1.x protocol.\n"
+      },
+      "sortText": "221",
+      "insertText": "ServiceHttp1Settings",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ListenerAuth",
       "kind": "Class",
       "detail": "Record",

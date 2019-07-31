@@ -25,7 +25,7 @@ listener http:WebSocketListener socketListener = new(21001);
 service isOpen on socketListener {
 
     resource function onText(http:WebSocketCaller caller, string text) {
-        http:WebSocketError? err = caller->close(timeoutInSecs = 0);
+        http:WebSocketError? err = caller->close(timeoutInSeconds = 0);
         io:println("In onText isOpen " + caller.isOpen().toString());
     }
 
