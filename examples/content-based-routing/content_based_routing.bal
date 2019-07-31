@@ -20,11 +20,10 @@ service contentBasedRouting on new http:Listener(9090) {
 
         if (jsonMsg is json) {
             // Get the `string` value relevant to the key `name`.
-            if (jsonMsg is map<json>){
-                string nameString = jsonMsg["name"].toString();
-                http:Response|error clientResponse;
-
-                if (nameString == "sanFrancisco") {
+            json|error nameString = jsonMsg.name;
+            http:Response|error clientResponse;
+            if (nameString is json) {
+                if (nameString.toString() == "sanFrancisco") {
                     // Here, `post` remote function represents the POST operation of
                     // the HTTP client.
                     // This routes the payload to the relevant service when the server
@@ -52,6 +51,15 @@ service contentBasedRouting on new http:Listener(9090) {
                     if (result is error) {
                        log:printError("Error sending response", err = result);
                     }
+                }
+            } else {
+                http:Response res = new;
+                res.statusCode = 500;
+                res.setPayload(<@untainted> <string>nameString.detail()?.message);
+
+                var result = outboundEP->respond(res);
+                if (result is error) {
+                   log:printError("Error sending response", err = result);
                 }
             }
         } else {
