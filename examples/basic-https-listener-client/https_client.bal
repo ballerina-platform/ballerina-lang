@@ -1,7 +1,7 @@
 import ballerina/http;
 import ballerina/log;
 
-// This is a client endpoint configured to connect to the above HTTPS service.
+// This is a client endpoint configured to connect to the HTTPS service.
 // As this is a 1-way SSL connection, the client needs to provide
 // trust store file path and its password.
 http:ClientEndpointConfig clientEPConfig = {

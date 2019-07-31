@@ -46,4 +46,3 @@ service helloWorld on helloWorldEP {
         }
     }
 }
-
