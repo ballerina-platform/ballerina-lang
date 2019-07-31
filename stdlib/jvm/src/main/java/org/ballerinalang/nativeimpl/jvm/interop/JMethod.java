@@ -93,7 +93,7 @@ class JMethod {
         ArrayValue arrayValue = new ArrayValue(new BArrayType(BTypes.typeString), method.getExceptionTypes().length);
         int i = 0;
         for (Class<?> exceptionType : method.getExceptionTypes()) {
-            arrayValue.add(i++, exceptionType.getName().replace(".", "/") );
+            arrayValue.add(i++, exceptionType.getName().replace(".", "/"));
         }
         return arrayValue;
     }
