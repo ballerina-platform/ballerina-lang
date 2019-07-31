@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type SMS error <string, record {| string...; |}>;
-type SMA error <string, record {| string|boolean...; |}>;
+type SMS error <string, record {| string message?; error cause?; string...; |}>;
+type SMA error <string, record {| string message?; error cause?; string|boolean...; |}>;
 
 function testBasicErrorVariableWithMapDetails() {
     SMS err1 = error("Error One", message = "Msg One", detail = "Detail Msg");
@@ -46,6 +46,7 @@ function testBasicErrorVariableWithMapDetails() {
 type Foo record {
     string message;
     boolean fatal;
+    error cause?;
 };
 
 type FooError error <string, Foo>;
