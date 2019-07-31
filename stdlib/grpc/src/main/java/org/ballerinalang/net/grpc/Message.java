@@ -328,11 +328,10 @@ public class Message {
                         break;
                     }
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE: {
-                        BRecordType recordType = null;
+                        BRecordType recordType;
                         if (bType instanceof BRecordType) {
                             recordType = (BRecordType) bType;
-                        }
-                        if (recordType == null) {
+                        } else {
                             throw Status.Code.INTERNAL.toStatus().withDescription("Error while decoding request " +
                                     "message. record type is not supported : " +
                                     fieldDescriptor.getType()).asRuntimeException();

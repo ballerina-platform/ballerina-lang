@@ -102,11 +102,6 @@ public class UnaryBlockingBasicTestCase extends GrpcBaseTest {
 
     @Test
     public void testStructBlockingBallerinaClient() {
-//        MapValue<String, Object> request = BallerinaValues.createRecordValue(".", "Request");
-//        request.put("name", "Sam");
-//        request.put("message", "Testing.");
-//        request.put("age", 10);
-
         BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingStructClient", new Object[]{});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BMap);
