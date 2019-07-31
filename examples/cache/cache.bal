@@ -7,7 +7,7 @@ public function main() {
     // and clears all the expired caches. In this example, the cache expiry time
     // is set to four seconds in order to demonstrate how cache cleaning is
     // carried out.
-    cache:Cache cache = new(expiryTimeMillis = 4000);
+    cache:Cache cache = new(4000);
 
     // Adds a new entry to the cache.
     cache.put("Name", "Ballerina");

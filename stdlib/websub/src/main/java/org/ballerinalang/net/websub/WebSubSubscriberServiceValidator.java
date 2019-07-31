@@ -19,11 +19,11 @@
 
 package org.ballerinalang.net.websub;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -102,8 +102,8 @@ public class WebSubSubscriberServiceValidator {
                                                                          serviceRegistry.getResourceDetails());
 
         if (!invalidResourceNames.isEmpty()) {
-            throw new BallerinaException("Resource name(s) not included in the topic-resource mapping found: "
-                                                 + invalidResourceNames);
+            throw BallerinaErrors.createError("Resource name(s) not included in the topic-resource mapping " +
+                                                      "found: " + invalidResourceNames);
         }
     }
 
@@ -138,8 +138,8 @@ public class WebSubSubscriberServiceValidator {
 
     private static void validateCustomParamNumber(List<BType> paramTypes, String resourceName) {
         if (paramTypes == null || paramTypes.size() < CUSTOM_RESOURCE_PARAM_COUNT) {
-            throw new BallerinaException(String.format("Invalid param count for WebSub Resource \"%s\"",
-                                                       resourceName));
+            throw BallerinaErrors.createError(String.format("Invalid param count for WebSub Resource \"%s\"",
+                                                            resourceName));
         }
     }
 
@@ -155,7 +155,7 @@ public class WebSubSubscriberServiceValidator {
     private static void validateStructType(String resourceName, BType paramVarType, String packageName,
                                            String structName) {
         if (!(packageName.concat(":").concat(structName)).equals((paramVarType.getQualifiedName()))) {
-            throw new BallerinaException(
+            throw BallerinaErrors.createError(
                     String.format("Invalid parameter type %s in resource %s. Requires %s:%s",
                                   paramVarType.getQualifiedName(), resourceName, packageName, structName));
         }

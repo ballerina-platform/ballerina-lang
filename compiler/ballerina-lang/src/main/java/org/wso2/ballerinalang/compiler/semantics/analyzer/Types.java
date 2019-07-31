@@ -708,12 +708,24 @@ public class Types {
         BTupleType lhsTupleType = (BTupleType) target;
         BTupleType rhsTupleType = (BTupleType) source;
 
-        if (lhsTupleType.tupleTypes.size() != rhsTupleType.tupleTypes.size()) {
+        if (lhsTupleType.restType == null && rhsTupleType.restType != null) {
             return false;
         }
 
-        for (int i = 0; i < lhsTupleType.tupleTypes.size(); i++) {
-            if (!isAssignable(rhsTupleType.tupleTypes.get(i), lhsTupleType.tupleTypes.get(i), unresolvedTypes)) {
+        if (lhsTupleType.restType == null && lhsTupleType.tupleTypes.size() != rhsTupleType.tupleTypes.size()) {
+            return false;
+        }
+
+        if (lhsTupleType.restType != null && rhsTupleType.restType != null) {
+            if (!isAssignable(rhsTupleType.restType, lhsTupleType.restType, unresolvedTypes)) {
+                return false;
+            }
+        }
+
+        for (int i = 0; i < rhsTupleType.tupleTypes.size(); i++) {
+            BType lhsType = (lhsTupleType.tupleTypes.size() > i)
+                    ? lhsTupleType.tupleTypes.get(i) : lhsTupleType.restType;
+            if (!isAssignable(rhsTupleType.tupleTypes.get(i), lhsType, unresolvedTypes)) {
                 return false;
             }
         }
@@ -988,6 +1000,9 @@ public class Types {
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) collectionType;
                 LinkedHashSet<BType> tupleTypes = new LinkedHashSet<>(tupleType.tupleTypes);
+                if (tupleType.restType != null) {
+                    tupleTypes.add(tupleType.restType);
+                }
                 varType = tupleTypes.size() == 1 ?
                         tupleTypes.iterator().next() : BUnionType.create(null, tupleTypes);
                 break;
@@ -1847,13 +1862,18 @@ public class Types {
         for (BField lhsField : lhsType.fields) {
             BField rhsField = rhsFields.get(lhsField.name);
 
-            // If the LHS field is a required one, there has to be a corresponding required field in the RHS record.
-            if (!Symbols.isOptional(lhsField.symbol) && (rhsField == null || Symbols.isOptional(rhsField.symbol))) {
+            // There should be a corresponding RHS field
+            if (rhsField == null) {
                 return false;
             }
 
-            // If there is a corresponding RHS field, it should be assignable to the LHS field.
-            if (rhsField != null && !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
+            // If LHS field is required, so should the RHS field
+            if (!Symbols.isOptional(lhsField.symbol) && Symbols.isOptional(rhsField.symbol)) {
+                return false;
+            }
+
+            // The corresponding RHS field should be assignable to the LHS field.
+            if (!isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
                 return false;
             }
 

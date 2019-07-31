@@ -34,6 +34,7 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.LSCompletionException;
 import org.ballerinalang.langserver.completions.LSCompletionProviderFactory;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.builder.BConstantCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.BVariableCompletionItemBuilder;
@@ -136,15 +137,20 @@ public abstract class LSCompletionProvider {
      * @return {@link List}     list of completion items
      */
     protected List<CompletionItem> getCompletionItemList(List<SymbolInfo> symbolInfoList, LSContext context) {
+        List<String> processedSymbols = new ArrayList<>();
         List<CompletionItem> completionItems = new ArrayList<>();
         symbolInfoList.removeIf(CommonUtil.invalidSymbolsPredicate());
         symbolInfoList.forEach(symbolInfo -> {
+            if (processedSymbols.contains(symbolInfo.getSymbolName())) {
+                // In the case of type guarded variables multiple symbols with the same symbol name and we ignore those
+                return;
+            }
             Optional<BSymbol> bTypeSymbol;
             BSymbol bSymbol = symbolInfo.isCustomOperation() ? null : symbolInfo.getScopeEntry().symbol;
             if (CommonUtil.isValidInvokableSymbol(bSymbol) || symbolInfo.isCustomOperation()) {
                 completionItems.add(populateBallerinaFunctionCompletionItem(symbolInfo, context));
             } else if (bSymbol instanceof BConstantSymbol) {
-                completionItems.add(this.getBallerinaConstantCompletionItem(symbolInfo, context));
+                completionItems.add(BConstantCompletionItemBuilder.build((BConstantSymbol) bSymbol, context));
             } else if (!(bSymbol instanceof BInvokableSymbol) && bSymbol instanceof BVarSymbol) {
                 String typeName = CommonUtil.getBTypeName(symbolInfo.getScopeEntry().symbol.type, context);
                 completionItems.add(
@@ -154,6 +160,7 @@ public abstract class LSCompletionProvider {
                 // Here skip all the package symbols since the package is added separately
                 completionItems.add(BTypeCompletionItemBuilder.build(bTypeSymbol.get(), symbolInfo.getSymbolName()));
             }
+            processedSymbols.add(symbolInfo.getSymbolName());
         });
         return completionItems;
     }
@@ -534,29 +541,6 @@ public abstract class LSCompletionProvider {
             return null;
         }
         return BFunctionCompletionItemBuilder.build((BInvokableSymbol) bSymbol, context);
-    }
-
-    /**
-     * Get the Ballerina Constant Completion Item.
-     *
-     * @param symbolInfo symbol information
-     * @param context    Language Server Operation Context
-     * @return {@link CompletionItem}   completion item
-     */
-    private CompletionItem getBallerinaConstantCompletionItem(SymbolInfo symbolInfo, LSContext context) {
-        BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-        if (!(bSymbol instanceof BConstantSymbol)) {
-            return null;
-        }
-
-        CompletionItem completionItem = new CompletionItem();
-        completionItem.setLabel(bSymbol.getName().getValue());
-        completionItem.setInsertText(bSymbol.getName().getValue());
-        completionItem.setDetail(CommonUtil.getBTypeName(((BConstantSymbol) bSymbol).literalType, context));
-        completionItem.setDocumentation(ItemResolverConstants.CONSTANT_TYPE);
-        completionItem.setKind(CompletionItemKind.Variable);
-
-        return completionItem;
     }
 
     private List<SymbolInfo> filterListenerVariables(List<SymbolInfo> symbolInfos) {

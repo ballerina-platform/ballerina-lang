@@ -317,7 +317,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 List<BLangPackage> modules = ReferencesUtil.getPreparedModules(document, documentManager, lsCompiler,
                                                                                params.getPosition(), context, true);
-                return ReferencesUtil.getReferences(modules, context, params.getPosition());
+                boolean includeDeclaration = params.getContext().isIncludeDeclaration();
+                return ReferencesUtil.getReferences(modules, context, params.getPosition(), includeDeclaration);
             } catch (UserErrorException e) {
                 notifyUser(e, languageServer);
                 return new ArrayList<>();

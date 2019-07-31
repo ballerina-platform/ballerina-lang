@@ -15,6 +15,8 @@
 // under the License.
 
 # The type bound for a table row.
+# Has the special semantic that when used in a declaration
+# all uses in the declaration must refer to same type.
 @typeParam
 type RowType map<anydata|error>;
 

@@ -30,7 +30,6 @@ import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemB
 import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.BVariableCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
-import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.ballerinalang.langserver.completions.util.sorters.MatchContextItemSorter;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
@@ -101,7 +100,7 @@ public class MatchStatementContextProvider extends LSCompletionProvider {
                 }
             });
         }
-        ItemSorters.get(MatchContextItemSorter.class).sortItems(ctx, completionItems);
+        ctx.put(CompletionKeys.ITEM_SORTER_KEY, MatchContextItemSorter.class);
 
         return completionItems;
     }

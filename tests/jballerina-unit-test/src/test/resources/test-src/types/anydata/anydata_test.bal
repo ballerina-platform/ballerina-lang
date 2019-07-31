@@ -863,6 +863,8 @@ type MyError error<string, MyErrorDetail>;
 type MyErrorDetail record {|
     error e1;
     error e2;
+    string message?;
+    error cause?;
 |};
 
 error e1 = error("err reason");

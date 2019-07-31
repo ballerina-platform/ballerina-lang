@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -185,7 +186,7 @@ public class FunctionGenerator {
         } else if (bType instanceof BUnionType) {
             // Check for union type assignment eg. int | string
             List<String> list = new ArrayList<>();
-            Set<BType> memberTypes = ((BUnionType) bType).getMemberTypes();
+            List<BType> memberTypes = new ArrayList<>(((BUnionType) bType).getMemberTypes());
             if (memberTypes.size() == 2 && memberTypes.stream().anyMatch(bType1 -> bType1 instanceof BNilType)) {
                 Optional<BType> type = memberTypes.stream()
                         .filter(bType1 -> !(bType1 instanceof BNilType)).findFirst();
@@ -193,8 +194,22 @@ public class FunctionGenerator {
                     return generateTypeDefinition(importsAcceptor, currentPkgId, type.get()) + "?";
                 }
             }
+            // Check for multiple error member types and add generic error to avoid flooding member types eg.http errors
+            long errorTypesCount = memberTypes.stream().filter(t -> t instanceof BErrorType).count();
+            boolean addErrorTypeAtEnd = false;
+            if (errorTypesCount > 1) {
+                memberTypes.removeIf(s -> s instanceof BErrorType);
+                if (memberTypes.size() == 1 && memberTypes.get(0) instanceof BNilType) {
+                    return "error?";
+                } else {
+                    addErrorTypeAtEnd = true;
+                }
+            }
             for (BType memberType : memberTypes) {
                 list.add(generateTypeDefinition(importsAcceptor, currentPkgId, memberType));
+            }
+            if (addErrorTypeAtEnd) {
+                list.add("error");
             }
             return "(" + String.join("|", list) + ")";
         } else if (bType instanceof BTupleType) {
