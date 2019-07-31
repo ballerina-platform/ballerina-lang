@@ -256,7 +256,7 @@ public class HttpConstants {
     //Retry Struct field names
     public static final int RETRY_STRUCT_FIELD = 4;
     public static final String RETRY_COUNT_FIELD = "count";
-    public static final String RETRY_INTERVAL_FIELD = "interval";
+    public static final String RETRY_INTERVAL_FIELD = "intervalInMillis";
 
     // ResponseCacheControl struct field names
     public static final String RES_CACHE_CONTROL_MUST_REVALIDATE_FIELD = "mustRevalidate";
@@ -305,7 +305,7 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_HOST = "host";
     public static final String ENDPOINT_CONFIG_PORT = "port";
     public static final String ENDPOINT_CONFIG_KEEP_ALIVE = "keepAlive";
-    public static final String ENDPOINT_CONFIG_TIMEOUT = "timeoutMillis";
+    public static final String ENDPOINT_CONFIG_TIMEOUT = "timeoutInMillis";
     public static final String ENDPOINT_CONFIG_CHUNKING = "chunking";
     public static final String ENDPOINT_CONFIG_VERSION = "httpVersion";
     public static final String ENDPOINT_REQUEST_LIMITS = "requestLimits";
@@ -332,8 +332,8 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_KEY = "keyFile";
     public static final String ENDPOINT_CONFIG_KEY_PASSWORD = "keyPassword";
     public static final String ENDPOINT_CONFIG_TRUST_CERTIFICATES = "trustedCertFile";
-    public static final String ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT = "handshakeTimeout";
-    public static final String ENDPOINT_CONFIG_SESSION_TIMEOUT = "sessionTimeout";
+    public static final String ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT = "handshakeTimeoutInSeconds";
+    public static final String ENDPOINT_CONFIG_SESSION_TIMEOUT = "sessionTimeoutInSeconds";
     public static final String ENDPOINT_CONFIG_DISABLE_SSL = "disable";
 
     //SslConfiguration indexes
@@ -353,7 +353,7 @@ public class HttpConstants {
 
     //Client Endpoint Config
     public static final String CLIENT_EP_CHUNKING = "chunking";
-    public static final String CLIENT_EP_ENDPOINT_TIMEOUT = "timeoutMillis";
+    public static final String CLIENT_EP_ENDPOINT_TIMEOUT = "timeoutInMillis";
     public static final String CLIENT_EP_IS_KEEP_ALIVE = "keepAlive";
     public static final String CLIENT_EP_HTTP_VERSION = "httpVersion";
     public static final String CLIENT_EP_FORWARDED = "forwarded";
@@ -373,7 +373,7 @@ public class HttpConstants {
     //Client connection pooling configs
     public static final String CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS = "maxActiveConnections";
     public static final String CONNECTION_POOLING_MAX_IDLE_CONNECTIONS = "maxIdleConnections";
-    public static final String CONNECTION_POOLING_WAIT_TIME = "waitTimeinMillis";
+    public static final String CONNECTION_POOLING_WAIT_TIME = "waitTimeInMillis";
     public static final String CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION = "maxActiveStreamsPerConnection";
     public static final String HTTP_CLIENT_CONNECTION_POOL = "PoolConfiguration";
     public static final String CONNECTION_MANAGER = "ConnectionManager";
@@ -401,7 +401,7 @@ public class HttpConstants {
     // Retry Config
     public static final String CLIENT_EP_RETRY = "retry";
     public static final String RETRY_COUNT = "count";
-    public static final String RETRY_INTERVAL = "interval";
+    public static final String RETRY_INTERVAL = "intervalInMillis";
 
     public static final String SERVICE_ENDPOINT_PROTOCOL_FIELD = "protocol";
 
