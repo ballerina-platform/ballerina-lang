@@ -175,8 +175,8 @@
                 "url": "constants"
             },
             {
-                "name": "Integer Ranges",
-                "url": "integer-ranges"
+                "name": "Range Expressions",
+                "url": "range-expressions"
             },
             {
                 "name": "String Template Literal",
@@ -266,8 +266,8 @@
                 "url": "type-cast"
             },
             {
-                "name": "Nil Lifting",
-                "url": "nil-lifting"
+                "name": "Optional Field Access",
+                "url": "optional-field-access"
             },
             {
                 "name": "Immutable Values",
