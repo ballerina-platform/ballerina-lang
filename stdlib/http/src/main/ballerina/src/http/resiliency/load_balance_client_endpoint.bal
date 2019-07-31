@@ -131,7 +131,7 @@ public type LoadBalanceClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function delete(string path, RequestMessage message) returns Response|ClientError {
+    public remote function delete(string path, RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         return performLoadBalanceAction(self, path, req, HTTP_DELETE);
     }

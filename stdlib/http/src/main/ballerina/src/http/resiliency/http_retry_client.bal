@@ -167,7 +167,7 @@ public type RetryClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function delete(string path, RequestMessage message) returns Response|ClientError {
+    public remote function delete(string path, RequestMessage message = ()) returns Response|ClientError {
         var result = performRetryAction(path, <Request>message, HTTP_DELETE, self);
         if (result is HttpFuture) {
             return getInvalidTypeError();
