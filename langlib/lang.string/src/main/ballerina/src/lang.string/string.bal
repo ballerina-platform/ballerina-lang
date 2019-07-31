@@ -55,7 +55,7 @@ public function concat(string... strs) returns string = external;
 
 # Returns the unicode codepoint at index `i`.
 #
-# + strs - the string
+# + str - the string
 # + i - code point index
 # + return - code point
 public function getCodePoint(string str, int i) returns int = external;
@@ -66,7 +66,7 @@ public function getCodePoint(string str, int i) returns int = external;
 # + str - source string.
 # + startIndex - the beginning index, inclusive.
 # + endIndex - the ending index, exclusive.
-# + returns - specified substring.
+# + return - specified substring.
 public function substring(string str, int startIndex, int endIndex) returns string = external;
 
 # Lexicographically compare strings using their Unicode code points.

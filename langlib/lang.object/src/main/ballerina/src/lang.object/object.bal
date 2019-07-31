@@ -18,14 +18,14 @@
 public type AbstractListener abstract object {
 
     # Handle listner start.
-    # + returns - error when fail to start, nil otherwise.
+    # + return - error when fail to start, nil otherwise.
     public function __start() returns error?;
 
     # Handle listner stop.
-    # + returns - error when fail to stop, nil otherwise.
+    # + return - error when fail to stop, nil otherwise.
     public function __stop() returns error?;
 
     # Handle attaching to service `s`.
-    # + returns - error if attachment failes, nil othrwise.
+    # + return - error if attachment failes, nil othrwise.
     public function __attach(service s, string? name = ()) returns error?;
 };

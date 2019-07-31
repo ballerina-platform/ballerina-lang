@@ -38,7 +38,7 @@ public function length(xml x) returns int = external;
 
 # Returns an iterator over the xml items of `x`
 #
-# + x - xml iteam to iterate
+# + x - xml item to iterate
 # + return - iterator object
 public function iterator(xml x) returns abstract object {
     public function next() returns record {|
@@ -157,19 +157,19 @@ public function concat((xml|string)... xs) returns xml = external;
 # Returns true if `x` is a singleton xml sequence consisting of an element item.
 #
 # + x - xml value
-# + return - true if `x` is an element item
+# + return - true if `x` is an xml element item
 public function isElement(xml x) returns boolean = external;
 
 # Returns true if `x` is a singleton xml sequence consisting of a processing instruction item.
 #
 # + x - xml value
-# + return - true if `x` is a processing instruction
+# + return - true if `x` is a xml processing instruction
 public function isProcessingInstruction(xml x) returns boolean = external;
 
 # Returns true if `x` is a singleton xml sequence consisting of a comment item.
 #
 # + x - xml value
-# + return - true if `x` is a comment iteam
+# + return - true if `x` is a xml comment item
 public function isComment(xml x) returns boolean = external;
 
 # Returns true if `x` is an xml sequence consisting of one or more character items.
@@ -210,6 +210,7 @@ public function getChildren(Element elem) returns xml = external;
 # Panics if `isElement(elem)` is not true.
 #
 # + elem - xml element
+# + children - xml or string to set as children
 public function setChildren(Element elem, xml|string children) = external;
 
 # Returns the map representing the attributes of `elem`.
@@ -264,7 +265,7 @@ public function createComment(string content) returns Comment = external;
 # For xml element returns the result of applying function `funct` to `item`.
 #
 # + arr - the x
-# + func - a function to apply to each child or `iteam`
+# + func - a function to apply to each child or `item`
 # + return - new xml value containing result of applying function `func` to each child or `item`
 public function map(xml x, function(xml|string item) returns xml|string func) returns xml = external;
 
