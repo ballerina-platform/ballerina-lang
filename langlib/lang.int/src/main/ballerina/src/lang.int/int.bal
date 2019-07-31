@@ -32,15 +32,15 @@ public function sum(int... ns) returns int = external;
 
 # Maximum of all the arguments.
 #
-# + n - first paramter to check for max value
-# + ns - rest of the parameter to check for max value
+# + n - first argument to check for max value
+# + ns - rest of the argument to check for max value
 # + return - maximum value of all provided values
 public function max(int n, int... ns) returns int = external;
 
 # Minimum of all the arguments.
 #
-# + n - first paramter to check for min value
-# + ns - rest of the parameter to check for min value
+# + n - first argument to check for min value
+# + ns - rest of the argument to check for min value
 # + return - min value of all provided values
 public function min(int n, int... ns) returns int = external;
 
@@ -69,5 +69,5 @@ public function toHexString(int n) returns string = external;
 # Returns an error if the `s` is not in an allowed format.
 #
 # + s - hexadecimal string representation of int value
-# + return - intdd value or error
+# + return - int value or error
 public function fromHexString(string s) returns int|error = external;

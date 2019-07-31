@@ -18,7 +18,7 @@
 # 0 if no args.
 #
 # + xs - decimal numbers to sum
-# + return - sum of the parameters
+# + return - sum of the arguments
 public function sum(decimal... xs) returns decimal = external;
 
 # Maximum of all the arguments.

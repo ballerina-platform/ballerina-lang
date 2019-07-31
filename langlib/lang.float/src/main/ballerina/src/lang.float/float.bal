@@ -36,8 +36,9 @@ public function isFinite(float x) returns boolean = external;
 
 # Tests whether a float is infinite.
 # Exactly one of isFinite, isInfinite and IsNaN will be true for any float value
+#
 # + x - the float to be tested
-# +return - true if `x` is either +∞ nor -∞
+# + return - true if `x` is either +∞ nor -∞
 public function isInfinite(float x) returns boolean = external;
 
 # Tests whether a float is NaN.
@@ -81,7 +82,7 @@ public function abs(float x) returns float = external;
 # If there are two such integers, choose the one that is even
 # (this is the round-to-nearest rounding mode, which is the default for IEEE and for Ballerina).
 # Same as Java Math.rint method
-# Same as .NET Math.round method
+# Same as .NET Math.Round method
 # IEEE roundToIntegralTiesToEven operation
 # Note that `<int>x` is the same as `<int>x.round()`
 #
@@ -143,33 +144,64 @@ public function log10(float x) returns float = external;
 public function exp(float x) returns float = external;
 
 # IEEE sin operation
+#
+# + x - an angle, in radians
+# + return - the sin of the argument
 public function sin(float x) returns float = external;
 
 # IEEE cos operation
+#
+# + x - an angle, in radians
+# + return - the cos of the argument
 public function cos(float x) returns float = external;
 
 # IEEE tan operation
+#
+# + x - an angle, in radians
+# + return - the tan of the argument
 public function tan(float x) returns float = external;
 
 # IEEE acos operation
+#
+# + x - a cos value
+# + return - the arc cosine of the argument
 public function acos(float x) returns float = external;
 
 # IEEE atan operation
+#
+# + x - a tan value
+# + return - the arc tan of the argument
 public function atan(float x) returns float = external;
 
 # IEEE asin operation
+#
+# + x - a sin value
+# + return - the arc sin of the argument
 public function asin(float x) returns float = external;
 
 # IEEE atan2(y, x) operation
+#
+# + y - the ordinate coordinate
+# + x - the abscissa coordinate
+# + return - the angle component in polar coordinate
 public function atan2(float y, float x) returns float = external;
 
 # IEEE sinh operation
+#
+# + x - the number to take sinh
+# + return - hyperbolic sin of `x`
 public function sinh(float x) returns float = external;
 
 # IEEE cosh operation
+#
+# + x - the number to take cosh
+# + return - hyperbolic cos of x
 public function cosh(float x) returns float = external;
 
 # IEEE tanh operation
+#
+# + x - the number to take tanh
+# + return - hyperbolic tangent of x
 public function tanh(float x) returns float = external;
 
 # Return the float value represented by `s`.

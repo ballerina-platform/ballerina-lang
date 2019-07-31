@@ -49,10 +49,10 @@ type MapIterator object {
 # Returns number of members in `m`.
 #
 # + m - the map
-# + returns - number of members in the map
+# + return - number of members in the map
 public function length(map<any|error> m) returns int = external;
 
-# Returns an iterator over the members of `m`
+# Returns an iterator over the members of `m`.
 #
 # + m - the map
 # + return - iterator object
@@ -65,8 +65,8 @@ public function iterator(map<Type> m) returns abstract object {
     return mapIterator;
 }
 
-# Returns the member of map m with key k.
-# Panics if m does not have a member with key k.
+# Returns the member of map `m` with key `k`.
+# Panics if `m` does not have a member with key `k`.
 #
 # + m - the map
 # + k - the key
@@ -76,7 +76,7 @@ public function get(map<Type> m, string k) returns Type = external;
 # Returns a map containing [key, member] pair as the value for each key.
 #
 # + m - the map
-# + return - map containing [key, member] pairs
+# + return - map of [key, member] pairs
 public function entries(map<Type> m) returns map<[string, Type]> = external;
 
 // Functional iteration
