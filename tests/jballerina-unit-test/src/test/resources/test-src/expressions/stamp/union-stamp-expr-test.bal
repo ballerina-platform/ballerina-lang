@@ -52,7 +52,7 @@ type EmployeeObj object {
 //-----------------------Union Type Stamp -------------------------------------------------------------------
 
 function stampUnionToRecord() returns Employee|error  {
-    int|float|Employee unionVar = { name: "Raja", status: "single", batch: "LK2014", school: "Hindu College" };
+    int|float|Employee unionVar = { name: "Raja", status: "single", batch: "LK2014", "school": "Hindu College" };
 
     Employee|error  employee = Employee.constructFrom(unionVar);
     return employee;

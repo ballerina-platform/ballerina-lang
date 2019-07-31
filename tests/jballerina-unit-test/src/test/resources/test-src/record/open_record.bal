@@ -162,7 +162,7 @@ function testSetFieldOfNonInitStruct () {
 }
 
 function testAdditionOfARestField() returns Person {
-    Person p = {name:"Foo", mname:"Bar", age:25, height: 5.9};
+    Person p = { name: "Foo", "mname": "Bar", age: 25, "height": 5.9};
     p["firstName"] = "John";
     return p;
 }
@@ -180,7 +180,7 @@ type Person2 record {|
 |};
 
 function testStringRestField() returns Person2 {
-    Person2 p = {name:"Foo", age:25, lname: "Bar", address:"Colombo"};
+    Person2 p = { name: "Foo", age: 25, "lname": "Bar", "address": "Colombo"};
     return p;
 }
 
@@ -198,7 +198,7 @@ type Person3 record {|
 |};
 
 function testIntRestField() returns Person3 {
-    Person3 p = {name:"Foo", age:25, year: 3};
+    Person3 p = { name: "Foo", age: 25, "year": 3 };
     return p;
 }
 
@@ -216,12 +216,12 @@ type Person4 record {|
 |};
 
 function testFloatRestField() returns Person4 {
-    Person4 p = {name:"Foo", age:25, height: 5.9};
+    Person4 p = { name: "Foo", age: 25, "height": 5.9};
     return p;
 }
 
 function testFloatRestFieldRHSIndexAccess() returns [float?, float?] {
-    Person4 p = {weight: 61.5};
+    Person4 p = { "weight": 61.5 };
     float? height = p["height"];
     return [p["weight"], height];
 }
@@ -233,12 +233,12 @@ type Person5 record {|
 |};
 
 function testBooleanRestField() returns Person5 {
-    Person5 p = {name:"Foo", age:25, isEmployed: true};
+    Person5 p = { name: "Foo", age: 25, "isEmployed": true};
     return p;
 }
 
 function testBooleanRestFieldRHSIndexAccess() returns [boolean?, boolean?] {
-    Person5 p = {isStudent: true};
+    Person5 p = { "isStudent": true };
     boolean? isEmployed = p["isEmployed"];
     return [p["isStudent"], isEmployed];
 }
@@ -250,13 +250,13 @@ type Person6 record {|
 |};
 
 function testMapRestField() returns Person6 {
-    Person6 p = {name:"Foo", age:25, misc:{lname:"Bar", height:5.9, isEmployed:true}};
+    Person6 p = { name:"Foo", age: 25, "misc": { lname: "Bar", height: 5.9, isEmployed: true } };
     return p;
 }
 
 function testMapRestFieldRHSIndexAccess() returns [map<any>?, map<any>?] {
     map<any> misc = {};
-    Person6 p = {misc:misc};
+    Person6 p = { "misc": misc };
     map<any>? invMap = p["invMap"];
     return [p["misc"], invMap];
 }
@@ -268,12 +268,12 @@ type Person7 record {|
 |};
 
 function testUnionRestField() returns Person7 {
-    Person7 p = {name:"Foo", age:25, lname:"Bar", height:5.9, isEmployed:true};
+    Person7 p = { name: "Foo", age: 25, "lname": "Bar", "height": 5.9, "isEmployed": true };
     return p;
 }
 
 function testUnionRestFieldRHSIndexAccess() returns [(float|string|boolean)?, (float|string|boolean)?] {
-    Person7 p = {miscField: "Foo"};
+    Person7 p = { "miscField": "Foo" };
     float|string|boolean|() invField = p["invField"];
     return [p["miscField"], invField];
 }
@@ -285,7 +285,7 @@ type Person8 record {|
 |};
 
 function testNilRestField() returns Person8 {
-    Person8 p = {name:"Foo", age:25, lname:()};
+    Person8 p = { name: "Foo", age: 25, "lname": () };
     return p;
 }
 
@@ -296,12 +296,12 @@ type Person9 record {|
 |};
 
 function testRecordRestField() returns Person9 {
-    Person9 p = {name:"Foo", age:25, dpt:{dptName:"Engineering", employees:[]}};
+    Person9 p = { name: "Foo", age: 25, "dpt": { dptName: "Engineering", employees: [] } };
     return p;
 }
 
 function testRecordRestFieldRHSIndexAccess() returns [Department?, Department?] {
-    Person9 p = {dept:{}};
+    Person9 p = { "dept": {} };
     Department? dept = p["department"];
     return [p["dept"], dept];
 }
@@ -323,13 +323,13 @@ type Person10 record {|
 |};
 
 function testObjectRestField() returns Person10 {
-    Person10 p = {name:"Foo", age:25, pet:new Animal("Miaw", "Cat")};
+    Person10 p = { name: "Foo", age: 25, "pet": new Animal("Miaw", "Cat") };
     return p;
 }
 
 function testObjectRestFieldRHSIndexAccess() returns [Animal?, Animal?] {
     Animal anim = new("Rocky", "Dog");
-    Person10 p = {pet:anim};
+    Person10 p = { "pet": anim };
     Animal? pet = p["invPet"];
     return [p["pet"], pet];
 }
@@ -341,12 +341,12 @@ type Person11 record {|
 |};
 
 function testTupleRestField() returns Person11 {
-    Person11 p = {name:"Foo", age:25, misc:[5.9, "Bar", new Animal("Miaw", "Cat")]};
+    Person11 p = { name: "Foo", age: 25, "misc": [5.9, "Bar", new Animal("Miaw", "Cat")] };
     return p;
 }
 
 function testTupleRestFieldRHSIndexAccess() returns [[float, string, Animal]?, [float, string, Animal]?] {
-    Person11 p = {tup:[4.5, "foo", new Animal("Miaw", "Cat")]};
+    Person11 p = { "tup": [4.5, "foo", new Animal("Miaw", "Cat")] };
     [float, string, Animal]? tupType = p["invTup"];
     return [p["tup"], tupType];
 }
@@ -359,13 +359,13 @@ type Person12 record {|
 
 function testAnyRestField() returns Person12 {
     Animal?[] pets = [new Animal("Miaw", "Cat"), new Animal("Woof", "Dog")];
-    Person12 p = {name:"Foo", age:25, pets:pets};
+    Person12 p = { name: "Foo", age: 25, "pets": pets};
     return p;
 }
 
 function testAnyRestFieldRHSIndexAccess() returns [any, any] {
     Animal?[] pets = [new Animal("Miaw", "Cat"), new Animal("Woof", "Dog")];
-    Person12 p = {pets:pets};
+    Person12 p = { "pets": pets };
     any a = p["anyField"];
     return [p["pets"], a];
 }
@@ -427,4 +427,36 @@ public type Bar record {
 public function testRecordInitWithFuncCalls() returns Bar {
     Bar b = {};
     return b;
+}
+
+type Qux record {
+    string bar;
+    int baz;
+};
+
+function testLiteralsAsMappingConstructorKeys() returns boolean {
+    Qux f = { "bar": "hello", baz: 1 };
+    return f.bar == "hello" && f.baz == 1;
+}
+
+type Baz record {
+    string s;
+    int i?;
+    float? f = ();
+};
+
+string iValue = "i";
+
+function testExpressionAsKeys() returns boolean {
+    Baz b = { s: "hello", [iValue]: 1, [getChar("f")]: 2.0, [getChar("b")]: true };
+    return b.s == "hello" && b?.i == 1 && b?.f == 2.0 && b["b"] == true;
+}
+
+function testExpressionAsKeysWithSameKeysDefinedAsLiteralsOrFieldNames() returns boolean {
+    Baz b = { s: "hello", [getChar("s")]: "world", [getChar("f")]: 2.0, f: 4.0 };
+    return b.s == "world" && b?.f == 4.0;
+}
+
+function getChar(string st) returns string {
+    return st;
 }

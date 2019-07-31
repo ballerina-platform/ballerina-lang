@@ -1329,11 +1329,12 @@ public class BLangPackageBuilder {
         addExpressionNode(listConstructorExpr);
     }
 
-    void addKeyValueRecord(Set<Whitespace> ws) {
+    void addKeyValueRecord(Set<Whitespace> ws, boolean computedKey) {
         BLangRecordKeyValue keyValue = (BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
         keyValue.addWS(ws);
         keyValue.valueExpr = (BLangExpression) exprNodeStack.pop();
         keyValue.key = new BLangRecordKey((BLangExpression) exprNodeStack.pop());
+        keyValue.key.computedKey = computedKey;
         recordLiteralNodes.peek().keyValuePairs.add(keyValue);
     }
 

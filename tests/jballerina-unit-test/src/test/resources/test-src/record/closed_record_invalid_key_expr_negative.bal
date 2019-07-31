@@ -14,22 +14,29 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const map<boolean> bm1 = { "key": true };
-const map<boolean> bm2 = { "key": bm1["key"] };
+type Foo record {|
+    string s;
+    int i?;
+|};
 
-const map<float> fm1 = { [getKey()]: getFloatValue() };
+float f = 1.0;
+string s = "not s";
 
-function getKey() returns string {
-    return "key";
+function getInt() returns int {
+    return 1;
 }
 
-function getFloatValue() returns float {
-    return 12.5;
+function getString(string s) returns string {
+    return s;
 }
 
-// Const map update via compound assignment
-const map<string> m = { one: "hello", two: "world" };
+function testInvalidExprAsRecordKey() {
+    Foo f1 = { s: "str", [f]: 1.0 };
+    Foo f2 = { [getString("s")]: "str" };
+    Foo f3 = { s: "str", [getInt()]: 1 };
+    Foo f4 = { s: "str", [getString(true)]: 1 };
+    Foo f5 = { [s]: "str" };
 
-function testInvalidUpdate() {
-    m["one"] += " world";
+    error e = error("test error");
+    Foo f6 = { s: "str", [getString("e")]: e };
 }
