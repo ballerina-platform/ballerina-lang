@@ -57,7 +57,15 @@ public class Executor {
      */
     public static void submit(Scheduler scheduler, ObjectValue service, String resourceName,
                               CallableUnitCallback callback, Map<String, Object> properties, Object... args) {
-        Function<Object[], Object> func = objects -> service.call((Strand) objects[0], resourceName, args);
+        Function<Object[], Object> func = objects -> {
+            Strand strand = (Strand) objects[0];
+            if (ObserveUtils.isObservabilityEnabled() &&
+                    properties.containsKey(ObservabilityConstants.KEY_OBSERVER_CONTEXT)) {
+                strand.observerContext =
+                        (ObserverContext) properties.remove(ObservabilityConstants.KEY_OBSERVER_CONTEXT);
+            }
+            return service.call(strand, resourceName, args);
+        };
         scheduler.schedule(new Object[1], func, null, callback, properties);
     }
 
@@ -74,23 +82,8 @@ public class Executor {
      */
     public static void execute(Scheduler scheduler, ObjectValue service, String resourceName,
                               CallableUnitCallback callback, Map<String, Object> properties, Object... args) {
-
-        //TODO Remove null check once scheduler logic is migrated for WebSocket. Scheduler cannot be null
-        if (scheduler == null) {
-            scheduler = new Scheduler(4, false);
-            scheduler.start();
-        }
-
-        Function<Object[], Object> func = objects -> {
-            Strand strand = (Strand) objects[0];
-            if (ObserveUtils.isObservabilityEnabled() &&
-                    properties.containsKey(ObservabilityConstants.KEY_OBSERVER_CONTEXT)) {
-                strand.observerContext =
-                        (ObserverContext) properties.remove(ObservabilityConstants.KEY_OBSERVER_CONTEXT);
-            }
-            return service.call(strand, resourceName, args);
-        };
-        scheduler.schedule(new Object[1], func, null, callback, properties);
+        Function<Object[], Object> func = objects -> service.call((Strand) objects[0], resourceName, args);
+        scheduler.execute(new Object[1], func, null, callback, properties);
     }
 
     /**
@@ -110,7 +103,6 @@ public class Executor {
             throw new RuntimeException("Wrong number of arguments. Required: " + requiredArgNo + " , found: " +
                                                providedArgNo + ".");
         }
-
         return service.call(new Strand(strand.scheduler), resource.getName(), args);
     }
 
