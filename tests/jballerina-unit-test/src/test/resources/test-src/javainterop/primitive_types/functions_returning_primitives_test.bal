@@ -87,8 +87,7 @@ public function getBIntJShort(handle receiver) returns int = @java:Method {
 
 public function getBIntJInt(handle receiver) returns int = @java:Method {
     name:"intValue",
-    class:"java.lang.Long",
-    isStatic: false
+    class:"java.lang.Long"
 } external;
 
 public function getBIntJLong(handle receiver) returns int = @java:Method {
