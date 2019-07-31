@@ -24,6 +24,8 @@ import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.packerina.task.CompileTask;
 import org.ballerinalang.packerina.task.CopyExecutableTask;
+import org.ballerinalang.packerina.task.CopyModuleJarTask;
+import org.ballerinalang.packerina.task.CopyNativeLibTask;
 import org.ballerinalang.packerina.task.CreateBaloTask;
 import org.ballerinalang.packerina.task.CreateBirTask;
 import org.ballerinalang.packerina.task.CreateDocsTask;
@@ -181,7 +183,9 @@ public class BuildCommand implements BLauncherCmd {
                     .addTask(new CompileTask())
                     .addTask(new CreateBaloTask())
                     .addTask(new CreateBirTask())
+                    .addTask(new CopyNativeLibTask())
                     .addTask(new CreateJarTask())
+                    .addTask(new CopyModuleJarTask())
                     .addTask(new RunTestsTask(), this.skipTests)
                     .addTask(new CreateExecutableTask())
                     .addTask(new PrintExecutablePathTask())
@@ -260,6 +264,7 @@ public class BuildCommand implements BLauncherCmd {
                             .addTask(new CompileTask())
                             .addTask(new CreateBirTask())
                             .addTask(new CreateJarTask())
+                            .addTask(new CopyModuleJarTask())
                             .addTask(new CreateExecutableTask())
                             .addTask(new CopyExecutableTask(executableFilePath))
                             .addTask(new PrintExecutablePathTask())
@@ -291,7 +296,9 @@ public class BuildCommand implements BLauncherCmd {
                         .addTask(new CompileTask())
                         .addTask(new CreateBaloTask())
                         .addTask(new CreateBirTask())
+                        .addTask(new CopyNativeLibTask())
                         .addTask(new CreateJarTask())
+                        .addTask(new CopyModuleJarTask())
                         .addTask(new RunTestsTask(), this.skipTests)
                         .addTask(new CreateExecutableTask())
                         .addTask(new PrintExecutablePathTask())
