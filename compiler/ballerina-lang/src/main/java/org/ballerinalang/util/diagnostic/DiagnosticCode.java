@@ -389,6 +389,7 @@ public enum DiagnosticCode {
     STREAMING_INCOMPATIBLE_TYPES("streaming.incompatible.types"),
     UNDEFINED_INVOCATION_ALIAS("undefined.invocation.alias"),
     INVALID_STREAMING_MODEL_TYPE("invalid.streaming.model.type"),
+    PATTERNS_NOT_SUPPORTED("patterns.not.supported"),
 
     // Taint checking related codes
     ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED("entry.point.parameters.cannot.be.untainted"),
