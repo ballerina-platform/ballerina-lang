@@ -55,7 +55,9 @@
         <renamePsiElementProcessor implementation="org.wso2.lsp4intellij.contributors.rename.LSPRenameProcessor"
                                    id="LSPRenameProcessor" order="first"/>
 
-
+        <typedHandler implementation="org.wso2.lsp4intellij.editor.listeners.LSPTypedHandler"
+                      id="BallerinaLspTypedHandler"/>
+        
         <!--Ballerina plugin extensions-->
         <fileTypeFactory implementation="io.ballerina.plugins.idea.BallerinaFileTypeFactory"/>
 
@@ -177,7 +179,7 @@
         <directoryProjectGenerator
                 implementation="io.ballerina.plugins.idea.BallerinaProjectGenerator"/> <!-- for small IDEs-->
 
-        <applicationService
+        <projectService
                 serviceImplementation="io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings"/>
         <preloadingActivity
                 implementation="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"
