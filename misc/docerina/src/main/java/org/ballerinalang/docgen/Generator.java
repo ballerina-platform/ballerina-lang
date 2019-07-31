@@ -147,7 +147,7 @@ public class Generator {
                     Arrays.asList(Type.fromTypeNode(userDefinedType))));
             added = true;
         } else if (kind == NodeKind.TUPLE_TYPE_NODE) {
-            // FIXME: handle tuple type nodes
+            // TODO: handle tuple type nodes
             added = true;
         } else if (kind == NodeKind.ERROR_TYPE) {
             BLangErrorType errorType = (BLangErrorType) typeNode;
