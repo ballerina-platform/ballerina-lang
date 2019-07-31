@@ -177,7 +177,7 @@ public type CircuitBreakerClient client object {
     #             or `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream
     #            server
-    public function head(string path, RequestMessage message = ()) returns Response|ClientError {
+    public function head(string path, public RequestMessage message = ()) returns Response|ClientError {
         CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
         self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -262,7 +262,7 @@ public type CircuitBreakerClient client object {
     #             `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream
     #            server
-    public function delete(string path, RequestMessage message) returns Response|ClientError {
+    public function delete(string path, public RequestMessage message = ()) returns Response|ClientError {
         CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
         self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -283,7 +283,7 @@ public type CircuitBreakerClient client object {
     #            `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream
     #            server
-    public function get(string path, RequestMessage message = ()) returns Response|ClientError {
+    public function get(string path, public RequestMessage message = ()) returns Response|ClientError {
         CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
         self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -304,7 +304,7 @@ public type CircuitBreakerClient client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream
     #            server
-    public function options(string path, RequestMessage message = ()) returns Response|ClientError {
+    public function options(string path, public RequestMessage message = ()) returns Response|ClientError {
         CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
         self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 

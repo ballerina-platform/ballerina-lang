@@ -94,7 +94,7 @@ public type FailoverClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function head(string path, RequestMessage message = ()) returns Response|ClientError {
+    public remote function head(string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_HEAD, self);
         if (result is HttpFuture) {
@@ -142,7 +142,7 @@ public type FailoverClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function options(string path, RequestMessage message = ()) returns Response|ClientError {
+    public remote function options(string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_OPTIONS, self);
         if (result is HttpFuture) {
@@ -187,10 +187,10 @@ public type FailoverClient client object {
     # The DELETE remote function implementation of the Failover Connector.
     #
     # + path - Resource path
-    # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
+    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function delete(string path, RequestMessage message) returns Response|ClientError {
+    public remote function delete(string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_DELETE, self);
         if (result is HttpFuture) {
@@ -206,7 +206,7 @@ public type FailoverClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function get(string path, RequestMessage message = ()) returns Response|ClientError {
+    public remote function get(string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_GET, self);
         if (result is HttpFuture) {
