@@ -19,30 +19,68 @@ import ballerina/kafka;
 
 string topic = "test-topic-ssl";
 
+kafka:ProducerConfig producerConfigs = {
+    bootstrapServers: "localhost:9094",
+    clientId:"ssl-producer",
+    acks:"all",
+    noRetries:3,
+    secureSocket: {
+        keyStore:{
+            location:"<FILE_PATH>/kafka.client.keystore.jks",
+            password:"test1234"
+        },
+        trustStore: {
+            location:"<FILE_PATH>/kafka.client.truststore.jks",
+            password:"test1234"
+        },
+        protocol: {
+            sslProtocol:"TLS",
+            sslProtocolVersions:"TLSv1.2,TLSv1.1,TLSv1",
+            securityProtocol:"SSL"
+        },
+        sslKeyPassword:"test1234"
+    }
+};
+
+kafka:Producer kafkaProducer = new(producerConfigs);
+
+kafka:ProducerConfig producerNegativeConfigs = {
+    bootstrapServers: "localhost:9094",
+    clientId:"ssl-producer-negative",
+    acks:"all",
+    maxBlock: 1000,
+    noRetries:3
+};
+
+kafka:Producer negativeProducer = new (producerNegativeConfigs);
+
+kafka:ConsumerConfig consumerConfig = {
+    bootstrapServers:"localhost:9094",
+    groupId:"test-group",
+    clientId: "ssl-consumer",
+    offsetReset:"earliest",
+    topics:["test-topic-ssl"],
+    secureSocket: {
+        keyStore:{
+            location:"<FILE_PATH>/kafka.client.keystore.jks",
+            password:"test1234"
+        },
+        trustStore: {
+            location:"<FILE_PATH>/kafka.client.truststore.jks",
+            password:"test1234"
+        },
+        protocol: {
+            sslProtocol:"TLS",
+            sslProtocolVersions:"TLSv1.2,TLSv1.1,TLSv1",
+            securityProtocol:"SSL"
+        },
+        sslKeyPassword:"test1234"
+    }
+};
+
+kafka:Consumer consumer = new(consumerConfig);
+
 function funcTestKafkaProduceWithSSL(string msg) returns boolean|error {
-    kafka:ProducerConfig producerConfigs = {
-        bootstrapServers: "localhost:9094",
-        clientId:"ssl-producer",
-        acks:"all",
-        noRetries:3,
-        secureSocket: {
-            keyStore:{
-                location:"<FILE_PATH>/kafka.client.keystore.jks",
-                password:"test1234"
-            },
-            trustStore: {
-                location:"<FILE_PATH>/kafka.client.truststore.jks",
-                password:"test1234"
-            },
-            protocol: {
-                sslProtocol:"TLS",
-                sslProtocolVersions:"TLSv1.2,TLSv1.1,TLSv1",
-                securityProtocol:"SSL"
-            },
-            sslKeyPassword:"test1234"
-        }
-    };
-    kafka:Producer kafkaProducer = new(producerConfigs);
     byte[] byteMsg = msg.toBytes();
     var result = kafkaProducer->send(byteMsg, topic);
     if (result is error) {
@@ -53,31 +91,7 @@ function funcTestKafkaProduceWithSSL(string msg) returns boolean|error {
 }
 
 function funcKafkaPollWithSSL() returns string|error {
-    kafka:ConsumerConfig consumerConfig = {
-        bootstrapServers:"localhost:9094",
-        groupId:"test-group",
-        clientId: "ssl-consumer",
-        offsetReset:"earliest",
-        topics:["test-topic-ssl"],
-        secureSocket: {
-            keyStore:{
-                location:"<FILE_PATH>/kafka.client.keystore.jks",
-                password:"test1234"
-            },
-            trustStore: {
-                location:"<FILE_PATH>/kafka.client.truststore.jks",
-                password:"test1234"
-            },
-            protocol: {
-                sslProtocol:"TLS",
-                sslProtocolVersions:"TLSv1.2,TLSv1.1,TLSv1",
-                securityProtocol:"SSL"
-            },
-            sslKeyPassword:"test1234"
-        }
-    };
 
-    kafka:Consumer consumer = new(consumerConfig);
     var results = consumer->poll(1000);
     if (results is error) {
         return results;
@@ -93,14 +107,6 @@ function funcKafkaPollWithSSL() returns string|error {
 }
 
 function funcKafkaSSLConnectNegative() returns int|error {
-    kafka:ProducerConfig producerNegativeConfigs = {
-        bootstrapServers: "localhost:9094",
-        clientId:"ssl-producer-negative",
-        acks:"all",
-        maxBlock: 1000,
-        noRetries:3
-    };
-    kafka:Producer negativeProducer = new (producerNegativeConfigs);
     string msg = "Hello World SSL Negative Test";
     byte[] byteMsg = msg.toBytes();
     var result = negativeProducer->send(byteMsg, topic);

@@ -27,6 +27,8 @@ kafka:ProducerConfig producerConfigs = {
     noRetries: 3
 };
 
+kafka:Producer kafkaProducer = new(producerConfigs);
+
 kafka:ConsumerConfig consumerConfigs1 = {
     bootstrapServers: "localhost:9144, localhost:9145, localhost:9146",
     groupId: "commit-consumer-offsets-test-group-1",
@@ -54,7 +56,6 @@ function funcTestKafkaProduce() {
 }
 
 function kafkaProduce(byte[] value) {
-    kafka:Producer kafkaProducer = new(producerConfigs);
     boolean committedBlockExecuted = false;
     transaction {
         var result = kafkaProducer->send(value, topic);
@@ -68,7 +69,6 @@ function kafkaProduce(byte[] value) {
 }
 
 function funcTestKafkaCommitOffsets() returns boolean {
-    kafka:Producer kafkaProducer = new(producerConfigs);
     var results = funcGetPartitionOffset(kafkaConsumer1);
     boolean isSuccess = false;
     kafka:PartitionOffset[] offsets;

@@ -27,6 +27,8 @@ kafka:ProducerConfig producerConfigs = {
     noRetries: 3
 };
 
+kafka:Producer kafkaProducer = new(producerConfigs);
+
 kafka:ConsumerConfig consumerConfigs = {
     bootstrapServers: "localhost:9144, localhost:9145, localhost:9146",
     groupId: "commit-consumer-test-group",
@@ -44,7 +46,6 @@ function funcTestKafkaProduce() {
 
 function kafkaProduce(byte[] value) returns boolean {
     var transactionComplete = false;
-    kafka:Producer kafkaProducer = new(producerConfigs);
     transaction {
         var result = kafkaProducer->send(value, topic);
     } committed {
@@ -56,7 +57,6 @@ function kafkaProduce(byte[] value) returns boolean {
 }
 
 function funcTestKafkaConsume() returns boolean {
-    kafka:Producer kafkaProducer = new(producerConfigs);
     boolean transactionComplete = false;
     var records = kafkaConsumer->poll(3000);
     if (records is error) {

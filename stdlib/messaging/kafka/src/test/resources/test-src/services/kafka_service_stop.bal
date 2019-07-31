@@ -44,8 +44,9 @@ kafka:ProducerConfig producerConfigs = {
     noRetries: 3
 };
 
+kafka:Producer kafkaProducer = new(producerConfigs);
+
 function funcKafkaProduce() {
-    kafka:Producer kafkaProducer = new(producerConfigs);
     string msg = "test_string";
     byte[] byteMsg = msg.toBytes();
     var result = kafkaProducer->send(byteMsg, topic);

@@ -26,6 +26,8 @@ kafka:ProducerConfig producerConfigs = {
     noRetries: 3
 };
 
+kafka:Producer kafkaProducer = new(producerConfigs);
+
 public function funcTestKafkaProduce() {
     string msg = "Hello World";
     byte[] byteMsg = msg.toBytes();
@@ -37,13 +39,10 @@ public function funcTestKafkaProduce() {
 }
 
 public function kafkaProduce(byte[] value) {
-    kafka:Producer kafkaProducer = new(producerConfigs);
     var result = kafkaProducer->send(value, topic);
-    var closeResult = kafkaProducer->close();
 }
 
 function funcTestKafkaClose() returns string {
-    kafka:Producer kafkaProducer = new(producerConfigs);
     string msg = "Test Message";
     byte[] byteMsg = msg.toBytes();
     var result = kafkaProducer->send(byteMsg, topic);
@@ -65,22 +64,18 @@ function funcTestKafkaClose() returns string {
 }
 
 function funcKafkaTestFlush() returns boolean {
-    kafka:Producer kafkaProducer = new(producerConfigs);
     string msg = "Hello World";
     byte[] byteMsg = msg.toBytes();
     var result = kafkaProducer->send(byteMsg, "test");
 
     if (result is error) {
-        var closeResult = kafkaProducer->close();
         return false;
     }
 
     result = kafkaProducer->flushRecords();
     if (result is error) {
-        var closeResult = kafkaProducer->close();
         return false;
     }
-
     return true;
 }
 
@@ -89,9 +84,7 @@ function funcTestPartitionInfoRetrieval(string topic) returns kafka:TopicPartiti
 }
 
 function getPartitionInfo(string topic) returns kafka:TopicPartition[]? {
-    kafka:Producer kafkaProducer = new(producerConfigs);
     kafka:TopicPartition[]|error partitions = kafkaProducer->getTopicPartitions(topic);
-    var result = kafkaProducer->close();
     if (partitions is error) {
         return;
     } else {
