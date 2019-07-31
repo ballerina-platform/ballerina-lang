@@ -2,8 +2,8 @@ import ballerina/io;
 
 public function main() {
     string name = "Ballerina";
-    // This creates a `string` template.
+    // Create a `string` template, embedding the `name` variable.
     string template = string `Hello ${name}!!!`;
-    // This prints the defined string template.
+    // Print the defined string value.
     io:println(template);
 }

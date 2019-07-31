@@ -14,11 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Represent the listener shape that is used to provide values to services.
 public type AbstractListener abstract object {
 
+    # Handle listner start.
+    # + return - error when fail to start, nil otherwise.
     public function __start() returns error?;
 
+    # Handle listner stop.
+    # + return - error when fail to stop, nil otherwise.
     public function __stop() returns error?;
 
+    # Handle attaching to service `s`.
+    # + return - error if attachment failes, nil othrwise.
     public function __attach(service s, string? name = ()) returns error?;
 };
