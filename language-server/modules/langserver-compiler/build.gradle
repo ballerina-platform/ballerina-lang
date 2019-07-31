@@ -39,7 +39,6 @@ dependencies {
     implementation project(':ballerina-jdbc')
     implementation project(':ballerina-transactions')
     // implementation project(':ballerina-websub')
-    implementation project(':ballerina-jms')
     // implementation project(':ballerina-grpc')
     implementation project(':ballerina-filepath')
     implementation project(':ballerina-activemq-artemis')

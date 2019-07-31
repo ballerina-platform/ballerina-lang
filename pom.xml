@@ -1650,12 +1650,7 @@
                 <artifactId>HdrHistogram</artifactId>
                 <version>${hdrhistogram.version}</version>
             </dependency>
-            <!-- JMS connector dependencies -->
-            <dependency>
-                <groupId>javax.jms</groupId>
-                <artifactId>javax.jms-api</artifactId>
-                <version>${javax.jms.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>org.bytedeco.javacpp-presets</groupId>
                 <artifactId>llvm-platform</artifactId>
@@ -1879,7 +1874,6 @@
                 <module>stdlib/filepath</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/xslt</module>
-                <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/jdbc</module>
                 <module>stdlib/streams</module>
@@ -1979,7 +1973,6 @@
                 <module>stdlib/utils</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/xslt</module>
-                <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/jdbc</module>
                 <module>stdlib/streams</module>
@@ -2073,7 +2066,6 @@
                 <module>stdlib/filepath</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/xslt</module>
-                <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/jdbc</module>
                 <module>stdlib/streams</module>
@@ -2174,7 +2166,6 @@
                 <module>stdlib/grpc</module>
                 <module>stdlib/filepath</module>
                 <module>stdlib/websub</module>
-                <module>stdlib/jms</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/mysql</module>
@@ -2675,8 +2666,6 @@
         <okio.version>2.2.2</okio.version>
         <hdrhistogram.version>2.1.11</hdrhistogram.version>
 
-        <!-- JMS Connector -->
-        <javax.jms.version>2.0.1</javax.jms.version>
         <javacpp.llvm.version>6.0.1-1.4.2</javacpp.llvm.version>
         <wso2.securevault.version>1.1.2</wso2.securevault.version>
 
