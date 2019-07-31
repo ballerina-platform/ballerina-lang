@@ -429,7 +429,7 @@ function testValidComplexArrayFreeze() returns [string, boolean] {
 }
 
 function testValidComplexRecordFreeze() returns [string, boolean] {
-    FreezeAllowedDepartment fd = { head: "John", e1: 234, e2: 10 };
+    FreezeAllowedDepartment fd = { head: "John", "e1": 234, "e2": 10 };
 
     anydata res = fd.cloneReadOnly();
     return [FREEZE_SUCCESSFUL, (res.isReadOnly() && !fd.isReadOnly())];

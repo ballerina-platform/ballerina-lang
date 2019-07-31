@@ -257,3 +257,14 @@ function testErrorConstReasonMatchPattern() returns string {
     }
     return "Default";
 }
+
+
+type ER error<string, ErrorData>;
+
+function testIndirectErrorMatchPattern() returns string {
+    ER err1 = error("Error Code", message = "Msg");
+    match err1 {
+        ER(message = m, ... var rest) => return <string>m;
+    }
+    return "Default";
+}

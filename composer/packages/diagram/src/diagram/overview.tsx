@@ -304,7 +304,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         const fitToWidthZoomScale = containerWidth / diagramWidth;
 
         this.panZoomComp.zoomAbs(0, 0, fitToWidthZoomScale);
-        this.panZoomComp.moveTo(0, 0);
+        this.panZoomComp.moveTo(20, 20);
     }
 
     private handleZoomIn() {

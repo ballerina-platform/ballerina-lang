@@ -109,13 +109,13 @@ type Bar record {|
 |};
 
 function testRestFieldToRestField1() returns Bar {
-    Foo f = {s:"qwerty", rest1:"asdf", rest2:123};
+    Foo f = {s:"qwerty", "rest1": "asdf", "rest2": 123};
     Bar b = f;
     return b;
 }
 
 function testRestFieldToRestField2() returns Bar {
-    Foo f = {s:"qwerty", rest1:"asdf", rest2:123};
+    Foo f = {s:"qwerty", "rest1":"asdf", "rest2":123};
     Bar b = f;
     b["rest3"] = 23.45;
     return b;

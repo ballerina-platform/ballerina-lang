@@ -33,7 +33,7 @@ function redeclaredSymbol() {
     Person p1 = {name: "Peter", married: true};
     Person {name: fName, married} = p1;
 
-    PersonWithAge p2 = {name: "Peter", age: {age:29, format: "Y"}, work: "SE"};
+    PersonWithAge p2 = {name: "Peter", age: {age:29, format: "Y"}, "work": "SE"};
     PersonWithAge {name: fName, age: {age: theAge, format}} = p2; // redeclared symbol 'fName'
 
     Person p3 = {name: "Peter", married: true};
@@ -41,28 +41,28 @@ function redeclaredSymbol() {
 }
 
 function bindingPatternError() {
-    Person p1 = {name: "John", married: true, age: 12};
+    Person p1 = {name: "John", married: true, "age": 12};
     Person {name1: fName1, married: maritalStatus1} = p1;
 
-    Person p2 = {name1: "John", married: true, age: 12};
+    Person p2 = {"name1": "John", married: true, "age": 12};
     Person {name1: fName2, married: maritalStatus2} = p2;
 
-    Person p3 = {name1: "John", married: true, age: 12};
+    Person p3 = {"name1": "John", married: true, "age": 12};
     Person {name: fName3, married: maritalStatus3} = p3;
 
-    Person p4 = {name: "John", married: true, age: 12};
-    Person {| name: fName4, married: maritalStatus4 |} = p4; // type 'Person' is not a closed record type
+    Person p4 = {name: "John", married: true, "age": 12};
+    Person {name: fName4, married: maritalStatus4} = p4; // valid
 
-    Person p5 = {married: true, age: 12};
+    Person p5 = {married: true, "age": 12};
     Person {name: fName5, married: maritalStatus5} = p5;
 }
 
 function mismatchTypes() {
-    PersonWithAge p = {name: "James", age: {age: 54, format: "DD"}, married: true};
+    PersonWithAge p = {name: "James", age: {age: 54, format: "DD"}, "married": true};
     Person {name: fName, married} = p; // incompatible types: expected 'Person', found 'PersonWithAge'
 }
 
-Person gPerson = {name: "Peter", married: true, extra: "extra"};
+Person gPerson = {name: "Peter", married: true, "extra": "extra"};
 
 type ClosedFoo record {|
     int a;
@@ -75,12 +75,12 @@ type ClosedBar record {|
 |};
 
 function testClosedBindingPattern() {
-    Person {| name, married |} = gPerson; // type 'Person' is not a closed record type
+    Person { name, married } = gPerson; // valid
     ClosedFoo clf = {a: 56, b: {a: 2.0, b: "A"}};
     ClosedFoo {a, b} = clf;
-    ClosedFoo {| a: a1 |} = clf; // not enough fields to match to closed record type 'ClosedFoo'
-    ClosedFoo {| a: a2, b: {| a: a3 |} |} = clf; // not enough fields to match to closed record type 'ClosedBar'
-    ClosedFoo {| a: a3, b: {| a: a4, b: b2 |} |} = clf; // valid
+    ClosedFoo { a: a1 } = clf; // valid
+    ClosedFoo { a: a2, b: { a: a3 } } = clf; // valid
+    ClosedFoo { a: a4, b: { a: a5, b: b2 } } = clf; // valid
 }
 
 type EmployeeWithAge record {
@@ -90,7 +90,7 @@ type EmployeeWithAge record {
 };
 
 function testVariableAssignment2() {
-    EmployeeWithAge person = {name: "Peter", age: {age:29, format: "Y"}, married: true, work: "SE"};
+    EmployeeWithAge person = {name: "Peter", age: {age:29, format: "Y"}, married: true, "work": "SE"};
     var {name: fName, age: {age, format}, married, ...rest} = person;
     fName = 30;
     age = "N";
@@ -116,7 +116,7 @@ type UnionThree record {
 };
 
 function testRecordVarWithUnionType() {
-    UnionOne u1 = {var1: false, var2: 12, restP1: "stringP1", restP2: true};
+    UnionOne u1 = {var1: false, var2: 12, "restP1": "stringP1", "restP2": true};
     UnionThree u3 = {var1: 50, var2: 51.1, var3: u1};
     UnionThree {var1, var2, var3: {var1: var3, var2: var4}, ...rest} = u3;
 }
@@ -153,7 +153,7 @@ function testMapRecordVar() returns [string, anydata, any, string] { // incompat
 }
 
 function ignoreVariables() {
-    PersonWithAge p = {name: "James", age: {age: 54, format: "DD"}, married: true};
+    PersonWithAge p = {name: "James", age: {age: 54, format: "DD"}, "married": true};
     PersonWithAge {_: fName, _} = p; // underscore not allowed
     PersonWithAge {name: _, age: _} = p; // no new variables on left side
 }
