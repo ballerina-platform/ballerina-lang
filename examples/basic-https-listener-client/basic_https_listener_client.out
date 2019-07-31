@@ -1,6 +1,0 @@
-# To start the service and run the main function, navigate to the directory that contains the
-# `.bal` file and use the `ballerina run` command.
-$ ballerina run basic_https_listener_client.bal
-# This command will first start the service and then run the main function.
-[ballerina/http] started HTTPS/WSS endpoint 0.0.0.0:9095
-INFO  [] - Hello World!

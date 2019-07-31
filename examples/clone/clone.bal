@@ -18,7 +18,7 @@ public type Address record {
 };
 
 public function main() {
-    // Defines an `Address` record.
+    // Define an `Address` value.
     Address address = {
         country : "USA",
         state: "NC",
@@ -26,7 +26,7 @@ public function main() {
         street: "Daniels St"
     };
 
-    // Defines a `Person` record.
+    // Define a `Person` value.
     Person person = {
         name: "Alex",
         age: 24,
@@ -35,30 +35,14 @@ public function main() {
         address: address
     };
 
-    // Assigns the `person` value to an `any`-typed variable called `anyValue`.
-    // The type of the value held by `anyValue` is determined at runtime.
-    any anyValue = person;
+    // Invoke the `.clone()` method. The return type is also `Person`.
+    // Provided that the type of the value being cloned belongs to `anydata`, the return type of `.clone()` would be
+    // the same as the type of the value being cloned.
+    // E.g., `anydata result = anydataValue.clone();` where `anydataValue` is a variable of type `anydata`.
+    Person result = person.clone();
 
-    // Invokes the `.clone()` built-in method. The return type is either `Person` or `error`. `error` could be
-    // returned if the variable on which `.clone()` is called is not of the type `anydata`.
-    // If the type of the value that is cloned can be determined at compile time and is `anydata`, the type of the
-    // return value is exactly the type of the value being cloned.
-    // E.g., `Person result = person.clone();`
-    // If `person` is cloned instead of `anyValue`, at compile time the compiler will determine that the return type is
-    // `Person`.
-    var result = anyValue.clone();
-
-    // The type of the value held by an `any`-typed variable is only determined at runtime.
-    // Therefore, the type of the returned value on a clone attempt could be `error`, if a non-`anydata` value is
-    // found.
-    // Checks if the `.clone()` attempt is successful, and returns a `Person` value.
-    if (result is Person) {
-        io:println("Source value: ", person);
-        io:println("Cloned value: ", result);
-        // Checks reference inequality of the original value and the cloned value.
-        io:println("Source and Clone are at two different memory locations: ", result !== person);
-    // If the result is an error, prints the detailed error message.
-    } else if (result is error) {
-        io:println("Cannot clone: ", result.detail().message);
-    }
+    io:println("Source value: ", person);
+    io:println("Cloned value: ", result);
+    // Check reference inequality between the original value and the cloned value.
+    io:println("Source and Clone are at two different memory locations: ", result !== person);
 }

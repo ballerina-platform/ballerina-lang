@@ -79,7 +79,7 @@ public class SourcePruneTest {
             SourcePruner.pruneSource(lsContext);
             String prunedSource = documentManager.getFileContent(compilationPath);
             Path expectedPath = expectedRoot.resolve(configObject.getAsJsonPrimitive("expected").getAsString());
-            String expected = new String(Files.readAllBytes(expectedPath));
+            String expected = new String(Files.readAllBytes(expectedPath)).replaceAll("\r?\n", LINE_SEPARATOR);
             boolean sourceMatch = prunedSource.equals(expected);
             if (!sourceMatch) {
                 Assert.fail("Sources Does not Match for " + configPath + System.lineSeparator()

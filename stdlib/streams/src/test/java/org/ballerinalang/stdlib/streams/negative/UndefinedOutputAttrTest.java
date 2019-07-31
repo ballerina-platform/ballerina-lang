@@ -42,10 +42,13 @@ public class UndefinedOutputAttrTest {
 
     @Test
     public void testOutputputFieldInSelect() {
-        Assert.assertEquals(result.getErrorCount(), 2);
-        BAssertUtil.validateError(result, 0, "undefined stream attribute 'unknownField' found in select clause", 64,
+        Assert.assertEquals(result.getErrorCount(), 3);
+        BAssertUtil.validateError(result, 0, "invalid operation: type 'Teacher' does not " +
+                "support field access for non-required field 'unknownField'", 64, 56);
+
+        BAssertUtil.validateError(result, 1, "undefined stream attribute 'unknownField' found in select clause", 64,
                                   56);
-        BAssertUtil.validateError(result, 1, "fields defined in select clause, incompatible with output fields " +
+        BAssertUtil.validateError(result, 2, "fields defined in select clause, incompatible with output fields " +
                 "in type 'Teacher', expected '[name, age, status, batch, school]' but found '[school, batch, " +
                                              "unknownOutputField, age, status]'", 66, 9);
 

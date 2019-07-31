@@ -3504,6 +3504,9 @@ public class BLangPackageBuilder {
     }
 
     void startPatternStreamingInputNode(DiagnosticPos pos) {
+        //TODO: Patterns will be supported after 1.0.0
+        dlog.error(pos, DiagnosticCode.PATTERNS_NOT_SUPPORTED);
+
         PatternStreamingInputNode patternStreamingInputNode = TreeBuilder.createPatternStreamingInputNode();
         ((BLangPatternStreamingInput) patternStreamingInputNode).pos = pos;
         this.patternStreamingInputStack.push(patternStreamingInputNode);
