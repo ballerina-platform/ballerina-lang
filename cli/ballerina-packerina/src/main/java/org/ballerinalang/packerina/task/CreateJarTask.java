@@ -24,6 +24,7 @@ import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.util.BootstrapRunner;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
 import java.nio.file.Files;
@@ -39,6 +40,8 @@ public class CreateJarTask implements Task {
     public void execute(BuildContext buildContext) {
         Path sourceRoot = buildContext.get(BuildContextField.SOURCE_ROOT);
         Path projectBIRCache = buildContext.get(BuildContextField.BIR_CACHE_DIR);
+        Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
+        Path tmpDir = targetDir.resolve(ProjectDirConstants.TARGET_TMP_DIRECTORY);
         Path homeBIRCache = buildContext.getBirCacheFromHome();
         Path systemBIRCache = buildContext.getSystemRepoBirCache();
         
@@ -52,9 +55,9 @@ public class CreateJarTask implements Task {
             
             // get the jar path of the module.
             Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
-            
-            BootstrapRunner.generateJarBinary(entryBir.toString(), jarOutput.toString(), false,
-                    projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
+
+            BootstrapRunner.generateJarBinaryViaCompiledBackend(tmpDir, entryBir.toString(), jarOutput.toString(),
+                    false, projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
         }
     }
     
