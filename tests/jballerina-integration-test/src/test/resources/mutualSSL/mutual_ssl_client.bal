@@ -36,8 +36,8 @@ http:ClientEndpointConfig mutualSslClientConf = {
             enable: false
         },
         ocspStapling: false,
-        handshakeTimeout: 20,
-        sessionTimeout: 30
+        handshakeTimeoutInSeconds: 20,
+        sessionTimeoutInSeconds: 30
     }
 };
 
