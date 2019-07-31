@@ -210,3 +210,30 @@ function testSetLength(int newLength) returns [int, int[], int[]] {
     ar2.setLength(newLength+1);
     return [ar.length(), ar, ar2];
 }
+
+function testShift() returns [int[], int] {
+    int[] s = [1, 2, 3, 4, 5];
+    var e = s.shift();
+    return [s, e];
+}
+
+function testUnshift() returns int[] {
+    int[] s = [1, 2, 3, 4, 5];
+    s.unshift(8, 8);
+    return s;
+}
+
+type Obj object {
+    int i;
+    int j;
+    function __init(int i, int j) {
+        self.i = i;
+        self.j = j;
+    }
+};
+
+function testUnshiftTypeWithoutFillerValues () returns Obj[] {
+    Obj[] arr = [];
+    arr.unshift(new Obj(1, 1), new Obj(1,2));
+    return arr;
+}

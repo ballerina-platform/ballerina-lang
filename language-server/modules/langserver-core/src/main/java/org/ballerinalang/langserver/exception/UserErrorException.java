@@ -13,29 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.definition;
+package org.ballerinalang.langserver.exception;
 
 /**
- * Language Server Definition Context Exception.
+ * Exception for User Notifications through the Language Server.
  *
- * @since 0.990.3
+ * @since 1.0.0
  */
-public class LSReferencesException extends Exception {
-    public LSReferencesException(String message) {
+public class UserErrorException extends RuntimeException {
+    public UserErrorException(String message) {
         super(message);
     }
-
-    public LSReferencesException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public LSReferencesException(Throwable cause) {
-        super(cause);
-    }
-
-    public LSReferencesException(String message, Throwable cause, boolean enableSuppression,
-                                 boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }
-

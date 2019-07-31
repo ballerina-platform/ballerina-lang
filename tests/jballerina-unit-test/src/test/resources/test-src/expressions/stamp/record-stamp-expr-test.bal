@@ -108,7 +108,7 @@ function stampWithOpenRecords() returns Employee|error {
 }
 
 function stampWithOpenRecordsNonAssignable() returns Teacher|Employee {
-    Employee e1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
+    Employee e1 = { name: "Raja", "age": 25, status: "single", batch: "LK2014", "school": "Hindu College" };
 
     Teacher|error t = Teacher.constructFrom(e1);
     if (t is Teacher) {
@@ -133,7 +133,7 @@ function stampClosedRecordWithClosedRecord() returns Student|error {
 }
 
 function stampRecordToJSON() returns json|error {
-    Employee employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
+    Employee employee = { name: "John", status: "single", batch: "LK2014", "school": "Hindu College" };
 
     json|error jsonValue = json.constructFrom(employee);
 
@@ -141,14 +141,14 @@ function stampRecordToJSON() returns json|error {
 }
 
 function stampRecordToMap() returns map<anydata>|error {
-    Employee employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
+    Employee employee = { name: "John", status: "single", batch: "LK2014", "school": "Hindu College" };
     map<anydata>|error mapValue = map<anydata>.constructFrom(employee);
 
     return mapValue;
 }
 
 function stampRecordToMapV2() returns map<string>|error {
-    Employee employee = { name: "John", status: "single", batch: "LK2014", school: "Hindu College" };
+    Employee employee = { name: "John", status: "single", batch: "LK2014", "school": "Hindu College" };
     map<string>|error mapValue = map<string>.constructFrom(employee);
 
     return mapValue;
@@ -156,8 +156,8 @@ function stampRecordToMapV2() returns map<string>|error {
 
 function stampRecordToMapV3() returns map<anydata>|error {
     Employee employee = { name: "John", status: "single", batch: "LK2014" };
-    Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College", emp: employee
-    };
+    Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College",
+                            "emp": employee };
     map<anydata>|error mapValue = map<anydata>.constructFrom(teacher);
 
     return mapValue;
@@ -246,7 +246,7 @@ function stampExtendedRecordToOpenRecordV5() returns ExtendedEmployee|error {
 
 function stampExtendedRecordToOpenRecordV6() returns ExtendedEmployeeWithUnionRest|error {
     map<anydata> addressValue = { no: 23, streetName: "Palm Grove", city: "Colombo" };
-    Employee employee = { name: "Raja", status: "single", batch: "LK2014", address: addressValue };
+    Employee employee = { name: "Raja", status: "single", batch: "LK2014", "address": addressValue };
 
     ExtendedEmployeeWithUnionRest|error outputValue = ExtendedEmployeeWithUnionRest.constructFrom(employee);
 
@@ -402,7 +402,7 @@ function stampOpenRecordToMap() returns map<string>|error {
 }
 
 function stampOpenRecordToTypeClosedRecordNegative() returns NonAcademicStaff|error {
-    Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College", postalCode:
+    Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College", "postalCode":
     600 };
     NonAcademicStaff|error returnValue = NonAcademicStaff.constructFrom(teacher);
 
@@ -417,7 +417,7 @@ function stampWithOpenRecordsNonAssignableNegative() returns Teacher|error {
 }
 
 function stampOpenRecordWithInvalidValues() returns Teacher|error {
-    Employee e1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: 789 };
+    Employee e1 = { name: "Raja", "age": 25, status: "single", batch: "LK2014", "school": 789 };
 
     Teacher|error t = Teacher.constructFrom(e1);
 

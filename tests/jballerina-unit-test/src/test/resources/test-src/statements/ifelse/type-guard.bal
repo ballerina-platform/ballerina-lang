@@ -784,7 +784,7 @@ function testTypeNarrowingForIntersectingAssignableUnion_1() returns boolean {
 }
 
 function testTypeNarrowingForIntersectingAssignableUnion_2() returns boolean {
-    record{} t = { name: "Maryam" };
+    record{} t = { "name": "Maryam" };
     string|record{} st = t;
     if (st is json|xml) {
         return false;

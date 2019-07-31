@@ -39,8 +39,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class GetCodePoint {
 
-    public static int getCodePoint(Strand strand, String str, int i) {
-        throw BallerinaErrors.createError(BallerinaErrorReasons.OPERATION_NOT_SUPPORTED,
-                                          "getCodePoint() function not supported");
+    public static long getCodePoint(Strand strand, String str, long i) {
+        try {
+            return str.codePointAt((int) i);
+        } catch (IndexOutOfBoundsException e) {
+            throw BallerinaErrors.createError(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                    "String codepoint index out of range: " + i);
+        }
     }
 }

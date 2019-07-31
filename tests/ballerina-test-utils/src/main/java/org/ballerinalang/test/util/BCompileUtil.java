@@ -149,41 +149,12 @@ public class BCompileUtil {
                                                                bLangPackage.packageID.name.value,
                                                                TestConstant.MODULE_INIT_CLASS_NAME);
         Class<?> initClazz = classLoader.loadClass(initClassName);
+        final Scheduler scheduler = new Scheduler(4, false);
+        runOnSchedule(initClazz, bLangPackage.initFunction.name, scheduler);
+        runOnSchedule(initClazz, bLangPackage.startFunction.name, scheduler);
         if (temp) {
-            final Scheduler scheduler = new Scheduler(4, false);
-            runOnSchedule(initClazz, bLangPackage.initFunction.name, scheduler);
-            runOnSchedule(initClazz, bLangPackage.startFunction.name, scheduler);
             scheduler.immortal = true;
             new Thread(scheduler::start).start();
-
-        } else {
-            runOnSchedule(initClazz, bLangPackage.initFunction.name);
-            runOnSchedule(initClazz, bLangPackage.startFunction.name);
-        }
-    }
-
-    private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name) {
-        String funcName = cleanupFunctionName(name);
-        try {
-            final Method method = initClazz.getDeclaredMethod(funcName, Strand.class);
-            Scheduler scheduler = new Scheduler(4, false);
-            //TODO fix following method invoke to scheduler.schedule()
-            method.invoke(null, new Strand(scheduler));
-        } catch (InvocationTargetException e) {
-            Throwable t = e.getTargetException();
-            if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {
-                throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
-            }
-            if (t instanceof org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException) {
-                throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
-            }
-            if (t instanceof ErrorValue) {
-                throw new org.ballerinalang.util.exceptions
-                        .BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
-            }
-            throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
-        } catch (Exception e) {
-            throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
         }
     }
 
@@ -702,7 +673,7 @@ public class BCompileUtil {
 
         BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
         try {
-            Path buildDir = Paths.get("build").toAbsolutePath();
+            Path buildDir = Paths.get("build").toAbsolutePath().normalize();
             Path systemBirCache = buildDir.resolve("bir-cache");
             JBallerinaInMemoryClassLoader cl = BootstrapRunner.createClassLoaders(bLangPackage,
                                                                                   systemBirCache,

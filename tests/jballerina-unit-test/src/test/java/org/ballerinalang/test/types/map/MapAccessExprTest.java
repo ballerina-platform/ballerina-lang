@@ -26,6 +26,7 @@ import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -91,11 +92,9 @@ public class MapAccessExprTest {
     @Test(description = "Test nested map access")
     public void testNestedMapAccess() {
         CompileResult incorrectCompileResult = BCompileUtil.compile("test-src/types/map/nested-map-access.bal");
-        Assert.assertEquals(incorrectCompileResult.getDiagnostics().length, 2);
-        Assert.assertEquals(incorrectCompileResult.getDiagnostics()[0].getMessage(),
-                "invalid operation: type 'any' does not support field access");
-        Assert.assertEquals(incorrectCompileResult.getDiagnostics()[1].getMessage(),
-                "incompatible types: expected 'string', found 'other?'");
+        Assert.assertEquals(incorrectCompileResult.getDiagnostics().length, 1);
+        BAssertUtil.validateError(incorrectCompileResult, 0, "invalid operation: type 'any' does not support " +
+                "indexing", 4, 12);
     }
 
     @Test(description = "Test array access expression as the index of a map")
@@ -110,9 +109,9 @@ public class MapAccessExprTest {
     }
 
     @Test(description = "Test map clear.")
-    public void testMapClear() {
+    public void testMapRemoveAll() {
         BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMapClear", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMapRemoveAll", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -187,19 +186,10 @@ public class MapAccessExprTest {
         Assert.assertEquals(((BBoolean) returns[2]).value(), new Boolean(false));
     }
 
-    @Test(description = "Test map remove key negative.")
+    @Test(expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}KeyNotFound message=cannot find key 'fname2'.*")
     public void testMapRemoveNegative() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMapRemoveNegative", args);
-
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        Assert.assertSame(returns[2].getClass(), BBoolean.class);
-
-        Assert.assertEquals(((BBoolean) returns[0]).value(), new Boolean(false));
-        Assert.assertEquals(((BBoolean) returns[1]).value(), new Boolean(false));
-        Assert.assertEquals(((BBoolean) returns[2]).value(), new Boolean(false));
+        BRunUtil.invoke(compileResult, "testMapRemoveNegative");
     }
 
     @Test(description = "Test concurrent map access.")

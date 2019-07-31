@@ -29,6 +29,7 @@ public class ObservabilityConstants {
     private ObservabilityConstants() {
     }
 
+    public static final String SERVICE_NAME = "service_name";
     public static final String KEY_TRACE_CONTEXT = "_trace_context_";
     public static final String KEY_OBSERVER_CONTEXT = "__observer_context__";
     public static final String UNKNOWN_SERVICE = "Unknown Service";
