@@ -330,6 +330,7 @@ recordKeyValue
 
 recordKey
     :   Identifier
+    |   LEFT_BRACKET expression RIGHT_BRACKET
     |   expression
     ;
 
