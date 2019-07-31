@@ -50,7 +50,7 @@ type ArrayIterator object {
 # Returns the number of members contained in `arr`.
 #
 # + arr - the array
-# + returns - number of members in the array
+# + return - number of members in the array
 public function length((any|error)[] arr) returns int = external;
 
 # Returns an iterator over the members of `arr`
