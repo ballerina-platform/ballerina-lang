@@ -207,13 +207,15 @@ public type LoadBalanceClient client object {
 
 # Represents an error occurred in an remote function of the Load Balance connector.
 #
-# + message - An error message explaining about the error
-# + statusCode - HTTP status code of the LoadBalanceActionError
+# + statusCode - HTTP status code of the `LoadBalanceActionError`
 # + httpActionErr - Array of errors occurred at each endpoint
+# + message - An explanation of the error
+# + cause - The original error which resulted in a `LoadBalanceActionError`
 public type LoadBalanceActionErrorData record {|
-    string message = "";
     int statusCode = 0;
     error?[] httpActionErr = [];
+    string message?;
+    error cause?;
 |};
 
 public type LoadBalanceActionError error<string, LoadBalanceActionErrorData>;

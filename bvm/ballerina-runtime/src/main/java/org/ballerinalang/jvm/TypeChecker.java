@@ -551,12 +551,17 @@ public class TypeChecker {
         for (BField targetField : targetType.getFields().values()) {
             BField sourceField = sourceFields.get(targetField.getFieldName());
 
-            // If the LHS field is a required one, there has to be a corresponding required field in the RHS record.
-            if (sourceField == null && !Flags.isFlagOn(targetField.flags, Flags.OPTIONAL)) {
+            if (sourceField == null) {
                 return false;
             }
 
-            if (sourceField != null && !checkIsType(sourceField.type, targetField.type, unresolvedTypes)) {
+            // If the target field is required, the source field should be required as well.
+            if (!Flags.isFlagOn(targetField.flags, Flags.OPTIONAL)
+                    && Flags.isFlagOn(sourceField.flags, Flags.OPTIONAL)) {
+                return false;
+            }
+
+            if (!checkIsType(sourceField.type, targetField.type, unresolvedTypes)) {
                 return false;
             }
         }
