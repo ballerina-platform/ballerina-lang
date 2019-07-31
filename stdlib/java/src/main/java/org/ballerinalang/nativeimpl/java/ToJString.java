@@ -19,22 +19,18 @@ package org.ballerinalang.nativeimpl.java;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.HandleValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * This class contains helper methods useful for Java interoperability in Ballerina.
+ * This class contains the implementation of the "toJString" ballerina function in ballerina/java module.
  *
  * @since 1.0.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "java",
-        functionName = "toJString",
-        args = {@Argument(name = "values", type = TypeKind.STRING)},
-        isPublic = true
+        functionName = "toJString"
 )
-public class BallerinaValuesToJavaValues {
+public class ToJString {
 
     public static HandleValue toJString(Strand strand, String strValue) {
         return new HandleValue(strValue);

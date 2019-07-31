@@ -15,3 +15,15 @@
 // under the License.
 
 public function toJString(string value) returns handle = external;
+
+public function fromJString(handle value) returns string? = external;
+
+public function isNull(handle value) returns boolean = external;
+
+public function createNull() returns handle = external;
+
+public function getArrayElement(handle receiver, int index) returns handle = external;
+
+public function setArrayElement(handle receiver, int index, handle value) = external;
+
+public function getArrayLength(handle receiver) returns int = external;
