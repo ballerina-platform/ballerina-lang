@@ -11,8 +11,8 @@ public function testPassingJavaStringArray(handle arrayValue) returns handle {
 }
 
 public function testReturningSortedJavaStringArray() returns handle {
-    handle receiver = java:toJString("Ballerina Programming Language Specification");
-    handle regex = java:toJString(" ");
+    handle receiver = java:fromString("Ballerina Programming Language Specification");
+    handle regex = java:fromString(" ");
     handle parts = splitString(receiver, regex);
     sortJavaStringArray(parts);
     return parts;

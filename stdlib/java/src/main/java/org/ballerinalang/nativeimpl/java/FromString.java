@@ -22,17 +22,17 @@ import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * This class contains the implementation of the "toJString" ballerina function in ballerina/java module.
+ * This class contains the implementation of the "fromString" ballerina function in ballerina/java module.
  *
  * @since 1.0.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "java",
-        functionName = "toJString"
+        functionName = "fromString"
 )
-public class ToJString {
+public class FromString {
 
-    public static HandleValue toJString(Strand strand, String strValue) {
+    public static HandleValue fromString(Strand strand, String strValue) {
         return new HandleValue(strValue);
     }
 }
