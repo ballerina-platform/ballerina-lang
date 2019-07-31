@@ -17,7 +17,7 @@ service hello on new http:Listener(9090) {
 
         // Send a response back to caller
         // -> indicates a synchronous network-bound call
-        error? result = caller -> respond("Hello Ballerina!");
+        error? result = caller->respond("Hello Ballerina!");
         if (result is error) {
             io:println("Error in responding", result);
         }
