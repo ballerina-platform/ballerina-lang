@@ -16,38 +16,23 @@
  * under the License.
  */
 
-package org.ballerinalang.packerina.buildcontext;
+package org.ballerinalang.packerina.utils;
+
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 
 /**
- * Key names for build context.
+ * A print stream that doesn't print anything.
  */
-public enum BuildContextField {
-    SOURCE_CONTEXT("sourceContext"),
-    
-    HOME_REPO("homeRepo"),
-    
-    HOME_BIR_CACHE_REPO("homeBirCacheRepo"),
-    
-    HOME_JAR_CACHE_REPO("homeJarCacheRepo"),
-    
-    SYSTEM_BIR_CACHE("systemBirCache"),
-    
-    SOURCE_ROOT("sourceRoot"),
-    
-    TARGET_DIR("targetDir"),
-    
-    COMPILER_CONTEXT("compilerContext"),
-    
-    BIR_CACHE_DIR("birCacheDir");
-    
-    public final String name;
-    
-    BuildContextField(String name) {
-        this.name = name;
-    }
-    
-    @Override
-    public String toString() {
-        return name;
+public class EmptyPrintStream extends PrintStream {
+    public EmptyPrintStream() throws UnsupportedEncodingException {
+        super(new OutputStream() {
+            @Override
+            public void write(int b) {}
+        }, true, "UTF-8");
     }
 }
+
+
+

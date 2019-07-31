@@ -31,6 +31,7 @@ import org.ballerinalang.packerina.task.CreateExecutableTask;
 import org.ballerinalang.packerina.task.CreateJarTask;
 import org.ballerinalang.packerina.task.CreateLockFileTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
+import org.ballerinalang.packerina.task.PrintExecutablePathTask;
 import org.ballerinalang.packerina.task.RunCompilerPluginTask;
 import org.ballerinalang.packerina.task.RunTestsTask;
 import org.ballerinalang.tool.BLauncherCmd;
@@ -67,19 +68,22 @@ import static org.ballerinalang.packerina.cmd.Constants.BUILD_COMMAND;
  */
 @CommandLine.Command(name = BUILD_COMMAND, description = "build the Ballerina source")
 public class BuildCommand implements BLauncherCmd {
-
+    
     private Path userDir;
-    private PrintStream errStream;
+    private final PrintStream outStream;
+    private final PrintStream errStream;
     private boolean exitWhenFinish;
 
     public BuildCommand() {
         userDir = Paths.get(System.getProperty("user.dir"));
+        outStream = System.out;
         errStream = System.err;
         exitWhenFinish = true;
     }
 
-    public BuildCommand(Path userDir, PrintStream errStream, boolean exitWhenFinish) {
+    public BuildCommand(Path userDir, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
         this.userDir = userDir;
+        this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
     }
@@ -167,6 +171,8 @@ public class BuildCommand implements BLauncherCmd {
             options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(siddhiRuntimeFlag));
             
             BuildContext buildContext = new BuildContext(sourceRootPath);
+            buildContext.setOut(outStream);
+            buildContext.setOut(errStream);
             buildContext.put(BuildContextField.COMPILER_CONTEXT, context);
             
             TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
@@ -178,6 +184,7 @@ public class BuildCommand implements BLauncherCmd {
                     .addTask(new CreateJarTask())
                     .addTask(new RunTestsTask(), this.skipTests)
                     .addTask(new CreateExecutableTask())
+                    .addTask(new PrintExecutablePathTask())
                     .addTask(new CreateLockFileTask())
                     .addTask(new CreateDocsTask())
                     .addTask(new RunCompilerPluginTask())
@@ -244,6 +251,8 @@ public class BuildCommand implements BLauncherCmd {
                     // TODO: use a files system
                     Path tempTarget = Files.createTempDirectory(pkgOrSourceFileNameAsString);
                     BuildContext buildContext = new BuildContext(sourceRootPath, tempTarget, sourceFullPath);
+                    buildContext.setOut(outStream);
+                    buildContext.setOut(errStream);
                     buildContext.put(BuildContextField.COMPILER_CONTEXT, context);
         
                     TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
@@ -251,8 +260,9 @@ public class BuildCommand implements BLauncherCmd {
                             .addTask(new CompileTask())
                             .addTask(new CreateBirTask())
                             .addTask(new CreateJarTask())
-                            .addTask(new CreateExecutableTask(true))
+                            .addTask(new CreateExecutableTask())
                             .addTask(new CopyExecutableTask(executableFilePath))
+                            .addTask(new PrintExecutablePathTask())
                             .addTask(new RunCompilerPluginTask())
                             .build();
         
@@ -271,6 +281,8 @@ public class BuildCommand implements BLauncherCmd {
                 }
                 
                 BuildContext buildContext = new BuildContext(sourceRootPath, pkgOrSourceFileName);
+                buildContext.setOut(outStream);
+                buildContext.setOut(errStream);
                 buildContext.put(BuildContextField.COMPILER_CONTEXT, context);
     
                 TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
@@ -282,6 +294,7 @@ public class BuildCommand implements BLauncherCmd {
                         .addTask(new CreateJarTask())
                         .addTask(new RunTestsTask(), this.skipTests)
                         .addTask(new CreateExecutableTask())
+                        .addTask(new PrintExecutablePathTask())
                         .addTask(new CreateLockFileTask())
                         .addTask(new CreateDocsTask())
                         .addTask(new RunCompilerPluginTask())

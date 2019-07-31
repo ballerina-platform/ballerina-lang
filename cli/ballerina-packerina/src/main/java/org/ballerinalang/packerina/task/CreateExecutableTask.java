@@ -54,21 +54,10 @@ import java.util.stream.Stream;
  */
 public class CreateExecutableTask implements Task {
     
-    private final boolean disableLogging;
-    
-    public CreateExecutableTask() {
-        this.disableLogging = false;
-    }
-    
-    public CreateExecutableTask(boolean disableLogging) {
-        this.disableLogging = disableLogging;
-    }
-    
     @Override
     public void execute(BuildContext buildContext) {
-        if (!disableLogging) {
-            OUT.println("Generating executables");
-        }
+        
+        buildContext.out().println("Generating executables");
         
         for (BLangPackage module : buildContext.getModules()) {
             if (module.symbol.entryPointExists) {
@@ -129,9 +118,6 @@ public class CreateExecutableTask implements Task {
             // Copy dependency jar
             // Copy dependency libraries
             // Executable is created at give location.
-            if (!this.disableLogging) {
-                OUT.println(sourceRootPath.relativize(executablePath).toString());
-            }
             // If no entry point is found we do nothing.
         } catch (IOException e) {
             throw new BLangCompilerException("Unable to create the executable :" + e.getMessage());
