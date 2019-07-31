@@ -23,41 +23,41 @@
     <test name="ballerina-kafka-consumer-tests">
         <!-- Consumer-Related tests -->
         <classes>
-            <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerAssignTest"/>
-            <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerTopicsTest"/>
-            <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerTest"/>
-            <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerManualCommitTest"/>
-            <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerPauseTest"/>
-            <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerSubscribeToPatternTest"/>
-            <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerSeekTest"/>
+<!--            <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerAssignTest"/>-->
+<!--            <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerTopicsTest"/>-->
+<!--            <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerTest"/>-->
+<!--            <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerManualCommitTest"/>-->
+<!--            <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerPauseTest"/>-->
+<!--            <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerSubscribeToPatternTest"/>-->
+<!--            <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerSeekTest"/>-->
 
-            <!-- FAILING TESTS -->
+<!--            &lt;!&ndash; FAILING TESTS &ndash;&gt;-->
             <class name="org.ballerinalang.messaging.kafka.consumer.KafkaConsumerSubscribePartitionRebalanceTest"/>
         </classes>
     </test>
-    <test name="ballerina-kafka-producer-tests">
-        <!-- Producer-Related tests -->
-        <classes>
-            <class name="org.ballerinalang.messaging.kafka.producer.KafkaProducerTest"/>
-        </classes>
-    </test>
-    <test name="ballerina-kafka-service-tests">
-        <!-- Kafka service related tests -->
-        <classes>
-            <class name="org.ballerinalang.messaging.kafka.services.KafkaServiceTest"/>
-            <class name="org.ballerinalang.messaging.kafka.services.KafkaServiceCompilerTest"/>
-        </classes>
-    </test>
-    <test name="ballerina-kafka-transactions-test">
-        <classes>
-            <!-- Kafka transactions related tests -->
-            <class name="org.ballerinalang.messaging.kafka.transactions.KafkaProducerTransactionsTest"/>
-        </classes>
-    </test>
-    <test name="ballerina-kafka-ssl-tests">
-        <classes>
-            <!-- Kafka SSL related tests -->
-            <class name="org.ballerinalang.messaging.kafka.ssl.KafkaConsumerAndProducerWithSSLTest"/>
-        </classes>
-    </test>
+<!--    <test name="ballerina-kafka-producer-tests">-->
+<!--        &lt;!&ndash; Producer-Related tests &ndash;&gt;-->
+<!--        <classes>-->
+<!--            <class name="org.ballerinalang.messaging.kafka.producer.KafkaProducerTest"/>-->
+<!--        </classes>-->
+<!--    </test>-->
+<!--    <test name="ballerina-kafka-service-tests">-->
+<!--        &lt;!&ndash; Kafka service related tests &ndash;&gt;-->
+<!--        <classes>-->
+<!--            <class name="org.ballerinalang.messaging.kafka.services.KafkaServiceTest"/>-->
+<!--            <class name="org.ballerinalang.messaging.kafka.services.KafkaServiceCompilerTest"/>-->
+<!--        </classes>-->
+<!--    </test>-->
+<!--    <test name="ballerina-kafka-transactions-test">-->
+<!--        <classes>-->
+<!--            &lt;!&ndash; Kafka transactions related tests &ndash;&gt;-->
+<!--            <class name="org.ballerinalang.messaging.kafka.transactions.KafkaProducerTransactionsTest"/>-->
+<!--        </classes>-->
+<!--    </test>-->
+<!--    <test name="ballerina-kafka-ssl-tests">-->
+<!--        <classes>-->
+<!--            &lt;!&ndash; Kafka SSL related tests &ndash;&gt;-->
+<!--            <class name="org.ballerinalang.messaging.kafka.ssl.KafkaConsumerAndProducerWithSSLTest"/>-->
+<!--        </classes>-->
+<!--    </test>-->
 </suite>
