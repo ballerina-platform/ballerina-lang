@@ -40,7 +40,7 @@ function testTypicalScenario() returns [http:Response[], error?[]] {
                 requestVolumeThreshold: 0
             },
             failureThreshold:0.3,
-            resetTimeMillis:1000,
+            resetTimeInMillis:1000,
             statusCodes:[400, 404, 500, 502, 503]
         },
         timeoutInMillis:2000
@@ -80,7 +80,7 @@ function testTrialRunFailure() returns [http:Response[], error?[]] {
                 requestVolumeThreshold: 0
             },
             failureThreshold:0.3,
-            resetTimeMillis:1000,
+            resetTimeInMillis:1000,
             statusCodes:[400, 404, 500, 502, 503]
         },
         timeoutInMillis:2000
@@ -121,7 +121,7 @@ function testHttpStatusCodeFailure() returns [http:Response[], error?[]] {
                 requestVolumeThreshold: 0
             },
             failureThreshold:0.3,
-            resetTimeMillis:1000,
+            resetTimeInMillis:1000,
             statusCodes:[400, 404, 500, 502, 503]
         },
         timeoutInMillis:2000
@@ -157,7 +157,7 @@ function testForceOpenScenario() returns [http:Response[], error?[]] {
                 requestVolumeThreshold: 0
             },
             failureThreshold:0.3,
-            resetTimeMillis:1000,
+            resetTimeInMillis:1000,
             statusCodes:[500, 502, 503]
         },
         timeoutInMillis:2000
@@ -196,7 +196,7 @@ function testForceCloseScenario() returns [http:Response[], error?[]] {
                 requestVolumeThreshold: 0
             },
             failureThreshold:0.3,
-            resetTimeMillis:1000,
+            resetTimeInMillis:1000,
             statusCodes:[500, 502, 503]
         },
         timeoutInMillis:2000
@@ -236,7 +236,7 @@ function testRequestVolumeThresholdSuccessResponseScenario() returns [http:Respo
                 requestVolumeThreshold: 6
             },
             failureThreshold:0.3,
-            resetTimeMillis:1000,
+            resetTimeInMillis:1000,
             statusCodes:[500, 502, 503]
         },
         timeoutInMillis:2000
@@ -273,7 +273,7 @@ function testRequestVolumeThresholdFailureResponseScenario() returns [http:Respo
                 requestVolumeThreshold: 6
             },
             failureThreshold:0.3,
-            resetTimeMillis:1000,
+            resetTimeInMillis:1000,
             statusCodes:[500, 502, 503]
         },
         timeoutInMillis:2000
@@ -549,7 +549,7 @@ http:Client clientEP = new("http://localhost:8080", {
             bucketSizeInMillis: 2000
         },
         failureThreshold: 0.3,
-        resetTimeMillis: 1000,
+        resetTimeInMillis: 1000,
         statusCodes: [500, 502, 503]
     },
     timeoutInMillis: 2000
