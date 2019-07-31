@@ -252,6 +252,8 @@ function testIndirectErrorConstructor() returns [UserDefErrorTwoA, UserDefErrorT
 
 type Detail record {
     int code;
+    string message?;
+    error cause?;
 };
 
 const FOO = "foo";

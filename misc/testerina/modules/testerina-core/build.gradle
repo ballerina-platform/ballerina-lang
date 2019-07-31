@@ -32,7 +32,6 @@ dependencies {
     implementation project(':ballerina-http')
     implementation project(':ballerina-internal')
     implementation project(':ballerina-io')
-    implementation project(':ballerina-jms')
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-math')
     implementation project(':ballerina-mime')

@@ -16,6 +16,10 @@
 
 
 # Returns a simple, human-readable representation of `value` as a string.
+#
+# + value - source value
+# + return - simple, human-readable string representation of `value`
+#
 # - if `value` is a string, then returns `value`
 # - if `value` is `()`, then returns an empty string
 # - if `value` is boolean, then the string `true` or `false`
@@ -47,6 +51,9 @@
 # that are not equal (in the sense of the `==` operator).
 public function toString (any|error value) returns string = external;
 
+# A type parameter that is a subtype of `anydata`.
+# Has the special semantic that when used in a declaration
+# all uses in the declaration must refer to same type.
 @typeParam
 type anydataType anydata;
 
@@ -55,26 +62,46 @@ type anydataType anydata;
 # A clone can therefore safely be used concurrently with the original.
 # It corresponds to the Clone(v) abstract operation,
 # defined in the Ballerina Language Specification.
+#
+# + value - source value
+# + return - clone of `value`
 public function clone(anydataType value) returns anydataType = external;
 
 # Returns a clone of `value` that is read-only, i.e. immutable.
 # It corresponds to the ImmutableClone(v) abstract operation,
 # defined in the Ballerina Language Specification.
+#
+# + value - source value
+# + return - immutable clone of `value`
 public function cloneReadOnly(anydataType value) returns anydataType = external;
 
 # Tests whether `v` is read-only, i.e. immutable
 # Returns true if read-only, false otherwise.
+#
+# + value - source value
+# + return - true if read-only, false otherwise
 public function isReadOnly(anydataType value) returns boolean = external;
 
 # Return the string that represents `v` in JSON format.
+#
+# + value - json value
+# + return - string representation of json
 public function toJsonString(json v) returns string = external;
 
 # Parse a string in JSON format and return the the value that it represents.
 # All numbers in the JSON will be represented as float values.
 # Returns an error if the string cannot be parsed.
+#
+# + value - string representation of json
+# + return - `value` parsed to json or error
 public function fromJsonString(string str) returns json|error = external;
 
 # Return the result of merging json value `j1` with `j2`.
+#
+# + j1 - json value
+# + j2 - json value
+# + return - merged json value or error
+#
 # If the merge fails, then return an error.
 # The merge of j1 with j2 is defined as follows:
 # - if j1 is (), then the result is j2

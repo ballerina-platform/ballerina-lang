@@ -68,4 +68,10 @@ public function main() {
     string s8 = io:sprintf("%s scored %d for %s and has an average of %.2f.",
      name, marks, subjects[0], average);
     io:println("Sprintf: ", s8);
+
+    // Member access is allowed with strings to access individual characters
+    // of a string. Member access panics if the integer index is out of range.
+    string country = "Sri Lanka";
+    string c = country[4];
+    io:println("Member Access: ", c);
 }

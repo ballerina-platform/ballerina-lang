@@ -1862,13 +1862,18 @@ public class Types {
         for (BField lhsField : lhsType.fields) {
             BField rhsField = rhsFields.get(lhsField.name);
 
-            // If the LHS field is a required one, there has to be a corresponding required field in the RHS record.
-            if (!Symbols.isOptional(lhsField.symbol) && (rhsField == null || Symbols.isOptional(rhsField.symbol))) {
+            // There should be a corresponding RHS field
+            if (rhsField == null) {
                 return false;
             }
 
-            // If there is a corresponding RHS field, it should be assignable to the LHS field.
-            if (rhsField != null && !isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
+            // If LHS field is required, so should the RHS field
+            if (!Symbols.isOptional(lhsField.symbol) && Symbols.isOptional(rhsField.symbol)) {
+                return false;
+            }
+
+            // The corresponding RHS field should be assignable to the LHS field.
+            if (!isAssignable(rhsField.type, lhsField.type, unresolvedTypes)) {
                 return false;
             }
 

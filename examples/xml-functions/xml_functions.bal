@@ -52,6 +52,6 @@ public function main() {
     io:println(x);
 
     // Makes a copy of an XML element.
-    x = bookComment.copy();
+    x = bookName.copy();
     io:println(x);
 }

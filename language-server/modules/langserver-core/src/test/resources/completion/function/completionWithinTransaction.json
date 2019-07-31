@@ -26,7 +26,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "110",
-      "insertText": "error ${1:name} \u003d error(\"${2:errorCode}\", detail \u003d { message: \"${3}\" });",
+      "insertText": "error ${1:name} \u003d error(\"${2:errorCode}\", message \u003d \"${3}\");",
       "insertTextFormat": "Snippet"
     },
     {
@@ -336,7 +336,7 @@
     },
     {
       "label": "sampleService",
-      "kind": "Variable",
+      "kind": "Unit",
       "detail": "sampleService",
       "sortText": "120",
       "insertText": "sampleService",
@@ -418,29 +418,6 @@
             }
           },
           "newText": "import ballerinax/java.jdbc;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerinax/java.jms",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "java.jms",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 3,
-              "character": 0
-            },
-            "end": {
-              "line": 3,
-              "character": 0
-            }
-          },
-          "newText": "import ballerinax/java.jms;\n"
         }
       ]
     },
@@ -786,29 +763,6 @@
             }
           },
           "newText": "import ballerina/streams;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/artemis",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "artemis",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 3,
-              "character": 0
-            },
-            "end": {
-              "line": 3,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/artemis;\n"
         }
       ]
     },
@@ -1553,7 +1507,7 @@
       "kind": "Snippet",
       "detail": "Destructure the variable resp with typeguard",
       "sortText": "120",
-      "insertText": "if (resp is http:Response) {\n\t${1}\n} else if (resp is http:FailoverAllEndpointsFailedError) {\n\t${2}\n} else if (resp is http:FailoverActionFailedError) {\n\t${3}\n} else if (resp is http:UpstreamServiceUnavailableError) {\n\t${4}\n} else if (resp is http:AllLoadBalanceEndpointsFailedError) {\n\t${5}\n} else if (resp is http:AllRetryAttemptsFailed) {\n\t${6}\n} else if (resp is http:IdleTimeoutError) {\n\t${7}\n} else if (resp is http:AuthenticationError) {\n\t${8}\n} else if (resp is http:AuthorizationError) {\n\t${9}\n} else if (resp is http:InitializingOutboundRequestError) {\n\t${10}\n} else if (resp is http:WritingOutboundRequestHeadersError) {\n\t${11}\n} else if (resp is http:WritingOutboundRequestBodyError) {\n\t${12}\n} else if (resp is http:InitializingInboundResponseError) {\n\t${13}\n} else if (resp is http:ReadingInboundResponseHeadersError) {\n\t${14}\n} else if (resp is http:ReadingInboundResponseBodyError) {\n\t${15}\n} else if (resp is http:UnsupportedActionError) {\n\t${16}\n} else if (resp is http:Http2ClientError) {\n\t${17}\n} else if (resp is http:MaximumWaitTimeExceededError) {\n\t${18}\n} else if (resp is http:SslError) {\n\t${19}\n} else {\n\t${20}\n}",
+      "insertText": "if (resp is error) {\n\t${1}\n} else {\n\t${20}\n}",
       "insertTextFormat": "Snippet"
     }
   ]
