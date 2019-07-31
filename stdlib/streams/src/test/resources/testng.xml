@@ -23,8 +23,8 @@
     <test name="ballerina-streaming-tests" enabled="true" preserve-order="true" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
        <packages>
-           <package name="org.ballerinalang.stdlib.streams.*">
-               <exclude name="org.ballerinalang.stdlib.streams.legacy"/>
+           <!--package name="org.ballerinalang.stdlib.streams.*"-->
+               <!--exclude name="org.ballerinalang.stdlib.streams.legacy"/-->
            </package>
        </packages>
     </test>
