@@ -81,26 +81,19 @@ public class ConfigProcessor {
         if (obj instanceof String) {
             String strObj = (String) obj;
             map.put(currentPath, strObj);
-            return;
         } else if (obj instanceof Long) {
             Long longObj = (Long) obj;
             map.put(currentPath, longObj);
-            return;
         } else if (obj instanceof Double) {
             Double doubleObj = (Double) obj;
             map.put(currentPath, doubleObj);
-            return;
         } else if (obj instanceof List) {
             List listObj = (List) obj;
             map.put(currentPath, listObj);
-            return;
         } else if (obj instanceof Boolean) {
             Boolean booleanObj = (Boolean) obj;
             map.put(currentPath, booleanObj);
-            return;
-        }
-
-        if (obj instanceof Map) {
+        } else if (obj instanceof Map) {
             Map<String, Object> m = (Map<String, Object>) obj;
             String pathPrefix = currentPath.isEmpty() ? "" : currentPath + ".";
             for (Map.Entry<String, Object> entry : m.entrySet()) {
