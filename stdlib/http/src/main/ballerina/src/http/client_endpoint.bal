@@ -70,7 +70,7 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function head(@untainted string path, RequestMessage message = ()) returns Response|ClientError {
+    public remote function head(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         return self.httpClient->head(path, message = req);
     }
@@ -112,10 +112,10 @@ public type Client client object {
     # The `delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
     #
     # + path - Resource path
-    # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
+    # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function delete(@untainted string path, RequestMessage message) returns Response|ClientError {
+    public remote function delete(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         return self.httpClient->delete(path, req);
     }
@@ -126,7 +126,7 @@ public type Client client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function get(@untainted string path, RequestMessage message = ()) returns Response|ClientError {
+    public remote function get(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         return self.httpClient->get(path, message = req);
     }
@@ -137,7 +137,7 @@ public type Client client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function options(@untainted string path, RequestMessage message = ()) returns Response|ClientError {
+    public remote function options(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         return self.httpClient->options(path, message = req);
     }

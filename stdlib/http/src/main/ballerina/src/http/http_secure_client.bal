@@ -140,7 +140,7 @@ public type HttpSecureClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The inbound response message or the error if one occurred while attempting to fulfill the HTTP request
-    public remote function delete(string path, RequestMessage message) returns Response|ClientError {
+    public remote function delete(string path, RequestMessage message = ()) returns Response|ClientError {
         Request req = <Request>message;
         req = check prepareSecureRequest(req, self.config);
         Response res = check self.httpClient->delete(path, req);
