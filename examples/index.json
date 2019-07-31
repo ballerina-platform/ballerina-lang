@@ -880,72 +880,6 @@
         ]
     },
     {
-        "title": "JMS",
-        "column": 3,
-        "category": "Working over the network",
-        "samples": [{
-                "name": "Basic Queue Receiver",
-                "url": "jms-simple-queue-message-receiver"
-            },
-            {
-                "name": "Basic Queue Producer",
-                "url": "jms-simple-queue-message-producer"
-            },
-            {
-                "name": "Basic Topic Subscriber",
-                "url": "jms-simple-topic-message-subscriber"
-            },
-            {
-                "name": "Basic Topic Producer",
-                "url": "jms-simple-topic-message-producer"
-            },
-            {
-                "name": "Basic Durable Topic Subscriber",
-                "url": "jms-simple-durable-topic-message-subscriber"
-            },
-            {
-                "name": "Queue Receiver",
-                "url": "jms-queue-message-receiver"
-            },
-            {
-                "name": "Queue Producer",
-                "url": "jms-queue-message-producer"
-            },
-            {
-                "name": "Topic Subscriber",
-                "url": "jms-topic-message-subscriber"
-            },
-            {
-                "name": "Topic Producer",
-                "url": "jms-topic-message-producer"
-            },
-            {
-                "name": "Synchronous Queue Receiver",
-                "url": "jms-synchronous-queue-message-receiver"
-            },
-            {
-                "name": "Queue Receiver with Client Acknowledgment",
-                "url": "jms-queue-message-receiver-with-client-acknowledgment"
-            },
-            {
-                "name": "Durable Topic Subscriber",
-                "url": "jms-durable-topic-message-subscriber"
-            },
-            {
-                "name": "Transactional Queue Producer",
-                "url": "transactional-queue-message-producer"
-            },
-            {
-                "name": "JMS Headers and Properties",
-                "url": "jms-headers-and-properties"
-            },
-            {
-                "name": "Send JMS Message to HTTP Endpoint",
-                "url": "send-jms-message-to-http-endpoint"
-            }
-        ]
-    },
-    {
         "title": "NATS",
         "column": 3,
         "category": "Working over the network",
@@ -1008,45 +942,6 @@
             {
                 "name": "Transaction Consumer",
                 "url": "rabbitmq-transaction-consumer"
-            }
-        ]
-    },
-    {
-        "title": "ActiveMQ Artemis",
-        "column": 2,
-        "category": "Working over the network",
-        "samples": [
-            {
-                "name": "ANYCAST Consumer",
-                "url": "artemis-anycast-session-consumer"
-            },
-            {
-                "name": "ANYCAST Producer",
-                "url": "artemis-anycast-session-producer"
-            },
-            {
-                "name": "Basic MULTICAST Consumer",
-                "url": "artemis-multicast-consumer"
-            },
-            {
-                "name": "Basic MULTICAST Producer",
-                "url": "artemis-multicast-producer"
-            },
-            {
-                "name": "Basic Blocking Transaction Consumer",
-                "url": "artemis-simple-transaction-consumer"
-            },
-            {
-                "name": "Basic Blocking Transaction Producer",
-                "url": "artemis-simple-transaction-producer"
-            },
-            {
-                "name": "Transaction Producer",
-                "url": "artemis-transaction-producer"
-            },
-            {
-                "name": "Data Binding",
-                "url": "artemis-data-binding"
             }
         ]
     },
