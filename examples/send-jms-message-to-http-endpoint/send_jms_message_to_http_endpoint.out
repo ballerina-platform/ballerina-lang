@@ -5,4 +5,4 @@
 # `.bal` file, and use the `ballerina run` command.
 $ ballerina run send_jms_message_to_http_endpoint.bal
 2018-06-14 15:43:04,283 INFO  [ballerina/jms] - Message receiver created for queue MyQueue
-ballerina: started HTTP/WS Listener 0.0.0.0:9090
+ballerina: started HTTP/WS listener 0.0.0.0:9090

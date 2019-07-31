@@ -5,7 +5,7 @@
 $ ballerina run --experimental artemis_transaction_producer.bal
 # The ActiveMQ Artemis producer runs as a Ballerina service and listens to the subscribed queue.
 
-[ballerina/http] started HTTP/WS Listener 172.17.0.1:34153
+[ballerina/http] started HTTP/WS listener 172.17.0.1:34153
 2019-04-22 13:45:23,505 INFO  [ballerina/transactions] - Created transaction: 5575660b-9777-4065-a777-4e704df3a807 
 2019-04-22 13:45:25,245 INFO  [ballerina/transactions] - Running 2-phase commit for transaction: 5575660b-9777-4065-a777-4e704df3a807:$anon$.$1 
-[ballerina/http] stopped HTTP/WS Listener 172.17.0.1:34153
+[ballerina/http] stopped HTTP/WS listener 172.17.0.1:34153
