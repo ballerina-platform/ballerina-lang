@@ -17,6 +17,11 @@
 
 apply from: "$rootDir/gradle/javaProject.gradle"
 
+configurations {
+    // configuration that holds jars to copy into runtime jar
+    uberJarLibs
+}
+
 dependencies {
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.apache.ws.commons.axiom:axiom-impl'
@@ -32,4 +37,12 @@ dependencies {
     implementation 'io.opentracing:opentracing-api'
     implementation 'io.opentracing:opentracing-util'
     implementation 'org.awaitility:awaitility'
+    uberJarLibs 'org.apache.commons:commons-lang3:3.8.1'
+    uberJarLibs 'org.apache.ws.commons.axiom:axiom-impl:1.2.22'
+    uberJarLibs 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
+    uberJarLibs 'org.apache.ws.commons.axiom:axiom-c14n:1.2.22'
+}
+
+jar {
+    from configurations.uberJarLibs.asFileTree.files.collect { zipTree(it) }
 }
