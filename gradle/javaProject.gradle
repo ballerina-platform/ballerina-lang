@@ -52,6 +52,7 @@ dependencies {
         implementation 'com.zaxxer:HikariCP:3.3.1'
 
         implementation 'org.apache.commons:commons-lang3:3.8.1'
+        implementation 'org.apache.commons:commons-text:1.7'
         implementation 'org.apache.directory.server:apacheds-all:2.0.0-M24'
         implementation 'org.apache.geronimo.specs:geronimo-stax-api_1.0_spec:1.0.1'
         implementation 'org.apache.mina:mina-core:2.0.16'
