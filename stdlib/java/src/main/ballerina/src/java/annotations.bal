@@ -22,7 +22,6 @@ public type ConstructorData record {|
 public type MethodData record {|
     string name?;
     string class;
-    boolean isStatic = false;
     ParamType[] paramTypes?;
 |};
 

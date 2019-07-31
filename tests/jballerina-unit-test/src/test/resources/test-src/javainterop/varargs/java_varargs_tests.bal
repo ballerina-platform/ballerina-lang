@@ -34,30 +34,25 @@ public function testGetSumOfIntArrays() returns int {
 
 public function calculateSum(int... values) returns int = @java:Method {
     name:"getSum",
-    class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest",
-    isStatic:true
+    class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
 } external;
 
 public function calculateMax(int a, int b, int... values) returns int = @java:Method {
     name:"getMax",
-    class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest",
-    isStatic:true
+    class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
 } external;
 
 public function calculateLongSum(int... values) returns int = @java:Method {
     name:"getLongSum",
-    class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest",
-    isStatic:true
+    class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
 } external;
 
 public function getIntArray(int size) returns handle = @java:Method {
     name:"getIntArray",
-    class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest",
-    isStatic:true
+    class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
 } external;
 
 public function calculateSumOfIntArrays(handle... values) returns int = @java:Method {
     name:"getSumOfIntArrays",
-    class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest",
-    isStatic:true
+    class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
 } external;

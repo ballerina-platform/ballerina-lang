@@ -504,40 +504,47 @@ public class BIRGen extends BLangNodeVisitor {
 
     private boolean isCompileTimeAnnotationValue(BLangExpression expr) {
         // TODO Compile time literal constants
-        if (expr.getKind() == NodeKind.LITERAL) {
-            return true;
-        } else if (expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
-            BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expr;
-            for (BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
-                if (!isCompileTimeAnnotationValue(keyValuePair.valueExpr)) {
-                    return false;
+        switch (expr.getKind()) {
+            case LITERAL:
+                return true;
+            case RECORD_LITERAL_EXPR:
+                BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expr;
+                for (BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
+                    if (!isCompileTimeAnnotationValue(keyValuePair.valueExpr)) {
+                        return false;
+                    }
                 }
-            }
-            return true;
-        } else if (expr.getKind() == NodeKind.ARRAY_LITERAL_EXPR) {
-            BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) expr;
-            for (BLangExpression bLangExpr : arrayLiteral.exprs) {
-                if (!isCompileTimeAnnotationValue(bLangExpr)) {
-                    return false;
+                return true;
+            case ARRAY_LITERAL_EXPR:
+                BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) expr;
+                for (BLangExpression bLangExpr : arrayLiteral.exprs) {
+                    if (!isCompileTimeAnnotationValue(bLangExpr)) {
+                        return false;
+                    }
                 }
-            }
-            return true;
+                return true;
+            case TYPE_CONVERSION_EXPR:
+                return isCompileTimeAnnotationValue(((BLangTypeConversionExpr) expr).expr);
+            default:
+                return false;
         }
-        return false;
     }
 
     private BIRAnnotationValue createAnnotationValue(BLangExpression expr) {
         // TODO Compile time literal constants
-        if (expr.getKind() == NodeKind.LITERAL) {
-            return createAnnotationLiteralValue((BLangLiteral) expr);
-        } else if (expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
-            return createAnnotationRecordValue((BLangRecordLiteral) expr);
-        } else if (expr.getKind() == NodeKind.ARRAY_LITERAL_EXPR) {
-            return createAnnotationArrayValue((BLangArrayLiteral) expr);
+        switch (expr.getKind()) {
+            case LITERAL:
+                return createAnnotationLiteralValue((BLangLiteral) expr);
+            case RECORD_LITERAL_EXPR:
+                return createAnnotationRecordValue((BLangRecordLiteral) expr);
+            case ARRAY_LITERAL_EXPR:
+                return createAnnotationArrayValue((BLangArrayLiteral) expr);
+            case TYPE_CONVERSION_EXPR:
+                return createAnnotationValue(((BLangTypeConversionExpr) expr).expr);
+            default:
+                // This following line will not be executed
+                throw new IllegalStateException("Invalid annotation value expression kind: " + expr.getKind());
         }
-
-        // This following line will not be executed
-        throw new IllegalStateException("Invalid annotation value expression kind: " + expr.getKind());
     }
 
     private BIRNode.BIRAnnotationRecordValue createAnnotationRecordValue(BLangRecordLiteral recordLiteral) {
