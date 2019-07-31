@@ -35,7 +35,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.ballerinalang.jvm.BallerinaErrors.ERROR_PRINT_PREFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
 
 /**
  * Represent an error in ballerina.
@@ -161,18 +160,8 @@ public class ErrorValue extends RuntimeException implements RefValue {
     }
 
     private void printStackElement(StringBuilder sb, StackTraceElement stackTraceElement, String tab) {
-        String pkgName = stackTraceElement.getClassName();
-        String fileName = stackTraceElement.getFileName();
-
-        // clean file name from pkgName since we print the file name after the method name.
-        fileName = fileName.replace(BLANG_SRC_FILE_SUFFIX, "");
-        fileName = fileName.replace("/", "-");
-        pkgName = pkgName.replace("." + fileName, "");
-        // todo we need to seperate orgname and module name with '/'
-
-        sb.append(tab).append(pkgName).append(":");
         // Append the method name
-        sb.append(stackTraceElement.getMethodName());
+        sb.append(tab).append(stackTraceElement.getMethodName());
         // Append the filename
         sb.append("(").append(stackTraceElement.getFileName());
         // Append the line number
