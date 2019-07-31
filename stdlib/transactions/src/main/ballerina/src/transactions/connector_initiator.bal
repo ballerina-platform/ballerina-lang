@@ -53,7 +53,7 @@ type InitiatorClientEP client object {
         var result = httpClient->post("", req);
         http:Response res = check result;
         int statusCode = res.statusCode;
-        if (statusCode != http:OK_200) {
+        if (statusCode != http:STATUS_200) {
             error err = error("Registration for transaction: " + transactionId + " failed response code: "
                 + statusCode.toString());
             return err;

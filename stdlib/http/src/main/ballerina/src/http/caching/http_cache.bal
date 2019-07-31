@@ -140,12 +140,12 @@ public type HttpCache object {
 };
 
 function isCacheableStatusCode (int statusCode) returns boolean {
-    return statusCode == OK_200 || statusCode == NON_AUTHORITATIVE_INFORMATION_203 ||
-           statusCode == NO_CONTENT_204 || statusCode == PARTIAL_CONTENT_206 ||
-           statusCode == MULTIPLE_CHOICES_300 || statusCode == MOVED_PERMANENTLY_301 ||
-           statusCode == NOT_FOUND_404 || statusCode == METHOD_NOT_ALLOWED_405 ||
-           statusCode == GONE_410 || statusCode == URI_TOO_LONG_414 ||
-           statusCode == NOT_IMPLEMENTED_501;
+    return statusCode == STATUS_200 || statusCode == STATUS_203 ||
+           statusCode == STATUS_204 || statusCode == STATUS_206 ||
+           statusCode == STATUS_300 || statusCode == STATUS_301 ||
+           statusCode == STATUS_404 || statusCode == STATUS_405 ||
+           statusCode == STATUS_410 || statusCode == STATUS_414 ||
+           statusCode == STATUS_501;
 }
 
 function addEntry (cache:Cache cache, string key, Response inboundResponse) {
