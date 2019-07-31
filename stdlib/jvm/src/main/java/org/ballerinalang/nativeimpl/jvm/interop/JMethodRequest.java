@@ -17,15 +17,18 @@
  */
 package org.ballerinalang.nativeimpl.jvm.interop;
 
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.BIR_UNION_TYPE_VALUE;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.B_FUNC_TYPE_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.CLASS_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.KIND_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.NAME_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.PARAM_TYPES_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.PARAM_TYPE_CONSTRAINTS_FIELD;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.RETURN_TYPE_FIELD;
 
 /**
  * {@code JMethodRequest} represents Java method request bean issued by the Java interop logic written in Ballerina.
@@ -39,6 +42,10 @@ class JMethodRequest {
     ParamTypeConstraint[] paramTypeConstraints = {};
     // Parameter count of the Ballerina function
     int bFuncParamCount;
+
+    ArrayValue bParamTypes;
+    Object bReturnTypes;
+    boolean throwsException = false;
 
     private JMethodRequest() {
     }
@@ -54,6 +61,11 @@ class JMethodRequest {
         MapValue bFuncType = (MapValue) jMethodReqBValue.get(B_FUNC_TYPE_FIELD);
         ArrayValue paramTypes = (ArrayValue) bFuncType.get(PARAM_TYPES_FIELD);
         jMethodReq.bFuncParamCount = paramTypes.size();
+        jMethodReq.bParamTypes = paramTypes;
+        Object returnTypes = bFuncType.get(RETURN_TYPE_FIELD);
+        jMethodReq.bReturnTypes = returnTypes;
+        jMethodReq.throwsException = TypeChecker.checkIsLikeType(BIR_UNION_TYPE_VALUE,
+                TypeChecker.getType(returnTypes));
 
         return jMethodReq;
     }

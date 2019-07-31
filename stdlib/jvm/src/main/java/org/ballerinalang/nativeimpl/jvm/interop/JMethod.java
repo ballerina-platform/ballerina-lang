@@ -65,6 +65,10 @@ class JMethod {
         return kind;
     }
 
+    Executable getMethod() {
+        return method;
+    }
+
     String getSignature() {
         if (kind == JMethodKind.CONSTRUCTOR) {
             return JInterop.getMethodSig(void.class, method.getParameterTypes());

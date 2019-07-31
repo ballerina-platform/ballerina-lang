@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.nativeimpl.jvm.interop;
 
+import org.ballerinalang.jvm.values.ArrayValue;
+
 import java.lang.reflect.Executable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,7 +57,11 @@ class JMethodResolver {
         }
 
         // 5) Now resolve the most specific method using the constraints.
-        return resolve(jMethodRequest, jMethods);
+        JMethod jMethod = resolve(jMethodRequest, jMethods);
+
+        validateMethodSignature(jMethodRequest, jMethod);
+
+        return jMethod;
     }
 
     private List<JMethod> resolveByMethodName(Class<?> declaringClass,
@@ -89,6 +95,59 @@ class JMethodResolver {
             return resolveMatchingMethod(jMethodRequest, jMethods);
         }
         return jMethod;
+    }
+
+    private void validateMethodSignature(JMethodRequest jMethodRequest, JMethod jMethod) {
+        validateExceptionTypes(jMethodRequest, jMethod);
+
+        validateArgumentTypes(jMethodRequest, jMethod);
+
+        validateReturnTypes(jMethodRequest, jMethod);
+    }
+
+    private void validateExceptionTypes(JMethodRequest jMethodRequest, JMethod jMethod) {
+        boolean hasCheckedExceptionInSignature = false;
+        for (Class<?> exceptionType : jMethod.getMethod().getExceptionTypes()) {
+            if (!RuntimeException.class.isAssignableFrom(exceptionType)) {
+                hasCheckedExceptionInSignature = true;
+                break;
+            }
+        }
+
+        if ((hasCheckedExceptionInSignature && !jMethodRequest.throwsException) ||
+                (jMethodRequest.throwsException && !hasCheckedExceptionInSignature)) {
+            throw new JInteropException(JInteropException.METHOD_SIGNATURE_NOT_MATCH_REASON,
+                    "No such Java method '" + jMethodRequest.methodName + "' which throws checked exception " +
+                            "found in class '" + jMethodRequest.declaringClass + "'");
+        }
+    }
+
+    private void validateArgumentTypes(JMethodRequest jMethodRequest, JMethod jMethod) {
+        Class<?>[] jParamTypes = jMethod.getParamTypes();
+        ArrayValue bParamTypes = jMethodRequest.bParamTypes;
+        for (int i = 0; i < jParamTypes.length ; i++) {
+            if (!isValidBType(jParamTypes[i], bParamTypes.get(i))) {
+                throw new JInteropException(JInteropException.METHOD_SIGNATURE_NOT_MATCH_REASON,
+                        "No such Java method '" + jMethodRequest.methodName +
+                                "' with method argument type '" + jParamTypes[i] + "' found in class '" +
+                                jMethodRequest.declaringClass + "'");
+            }
+        }
+    }
+
+    private void validateReturnTypes(JMethodRequest jMethodRequest, JMethod jMethod) {
+        Class<?> jReturnType = jMethod.getReturnType();
+        Object bReturnTypes = jMethodRequest.bReturnTypes;
+        if (!isValidBType(jReturnType, bReturnTypes)) {
+            throw new JInteropException(JInteropException.METHOD_SIGNATURE_NOT_MATCH_REASON,
+                    "No such Java method '" + jMethodRequest.methodName +
+                            "' with method return type '" + jReturnType + "' found in class '" +
+                            jMethodRequest.declaringClass + "'");
+        }
+    }
+
+    private boolean isValidBType(Class<?> jParamType, Object bParamType) {
+        return true;
     }
 
     private JMethod resolveExactMethod(Class clazz, String name, JMethodKind kind, ParamTypeConstraint[] constraints) {
