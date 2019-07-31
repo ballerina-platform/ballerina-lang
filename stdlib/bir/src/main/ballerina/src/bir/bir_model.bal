@@ -39,6 +39,7 @@ public type TypeDef record {
     int flags = PRIVATE;
     BType typeValue = "()";
     Function?[]? attachedFuncs = ();
+    BType?[] typeRefs;
 };
 
 public type TypeRef record {|
@@ -58,7 +59,7 @@ public type Function record {|
     BInvokableType typeValue = {};
     int flags = PRIVATE;
     ChannelDetail[] workerChannels;
-    BType? receiverType;
+    VariableDcl? receiver;
     boolean restParamExist;
     AnnotationAttachment?[] annotAttachments = [];
 |};
@@ -215,6 +216,7 @@ public const int INTERFACE = 128;
 public const int REQUIRED = 256;
 public const int PRIVATE = 1024;
 public const int OPTIONAL = 8192;
+public const int REMOTE = 65536;
 public const SERVICE = 524288;
 
 
@@ -413,6 +415,7 @@ public type BUnionType record {|
 
 public type BTupleType record {|
    BType?[]  tupleTypes;
+   BType?  restType = ();
 |};
 
 public type BFutureType record {|

@@ -63,7 +63,7 @@ dependencies {
     dist 'org.wso2.orbit.com.lmax:disruptor:3.3.2.wso2v2'
     dist 'org.wso2.securevault:org.wso2.securevault:1.0.0-wso2v2'
     dist 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
-    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.298'
+    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.1.1'
     dist 'org.bouncycastle:bcprov-jdk15on:1.61'
     dist 'org.bouncycastle:bcpkix-jdk15on:1.61'
 
@@ -269,7 +269,7 @@ dependencies {
     dist project(':ballerina-xslt')
     dist project(':ballerina-utils')
     dist project(':metrics-extensions:ballerina-metrics-extension')
-//    dist project(':metrics-extensions:ballerina-prometheus-extension')
+    dist project(':metrics-extensions:ballerina-prometheus-extension')
     dist project(':toml-parser')
     dist project(':tracing-extensions:ballerina-jaeger-extension')
     dist project(':ballerina-activemq-artemis')
@@ -297,7 +297,7 @@ dependencies {
     dist project(':ballerina-lang:value')
     dist project(':ballerina-lang:xml')
 
-//    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
+    birJar project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'prometheusJar')
 
     staticArtifacts files('COPYRIGHT', 'LICENSE', 'README.md')
 }

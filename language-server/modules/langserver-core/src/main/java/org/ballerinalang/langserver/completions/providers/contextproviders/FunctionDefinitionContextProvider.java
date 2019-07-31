@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
@@ -32,7 +33,6 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
@@ -98,12 +98,13 @@ public class FunctionDefinitionContextProvider extends LSCompletionProvider {
             Eg: function 
                 function x
              */
-            return context.get(CommonKeys.VISIBLE_SYMBOLS_KEY).stream()
+            List<SymbolInfo> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+            return visibleSymbols.stream()
                     .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BObjectTypeSymbol)
                     .map(symbolInfo -> {
                         BSymbol symbol = symbolInfo.getScopeEntry().symbol;
                         String symbolName = symbol.getName().getValue();
-                        CompletionItem item = BTypeCompletionItemBuilder.build((BTypeSymbol) symbol, symbolName);
+                        CompletionItem item = BTypeCompletionItemBuilder.build(symbol, symbolName);
                         item.setInsertText(symbolName + ".");
                         return item;
                     }).collect(Collectors.toList());
@@ -114,7 +115,8 @@ public class FunctionDefinitionContextProvider extends LSCompletionProvider {
     private List<CompletionItem> getObjectAttachedFunctions(LSContext context, List<CommonToken> lhsDefaultTokens) {
         String objectName = lhsDefaultTokens.get(1).getText();
         List<CompletionItem> completionItems = new ArrayList<>();
-        Optional<BObjectTypeSymbol> filtered = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY)
+        List<SymbolInfo> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        Optional<BObjectTypeSymbol> filtered = visibleSymbols
                 .stream()
                 .filter(symbolInfo -> {
                     BSymbol symbol = symbolInfo.getScopeEntry().symbol;

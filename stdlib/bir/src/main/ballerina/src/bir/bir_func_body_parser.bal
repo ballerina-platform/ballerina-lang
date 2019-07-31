@@ -22,12 +22,15 @@ public type FuncBodyParser object {
     map<VariableDcl> localVarMap;
     map<VariableDcl> globalVarMap;
     TypeDef?[] typeDefs;
+    VariableDcl? receiver;
 
-    public function __init(BirChannelReader reader, map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap, TypeDef?[] typeDefs) {
+    public function __init(BirChannelReader reader, map<VariableDcl> globalVarMap, map<VariableDcl> localVarMap,
+                           TypeDef?[] typeDefs, VariableDcl? receiver) {
         self.reader = reader;
         self.localVarMap = localVarMap;
         self.globalVarMap = globalVarMap;
         self.typeDefs = typeDefs;
+        self.receiver = receiver;
     }
 
     public function parseBB(boolean addInterimBB) returns BasicBlock[] {
@@ -719,13 +722,9 @@ public type FuncBodyParser object {
             }
         }
 
-        // for self referrence, create a dummy varDecl
+        // for self referrence, return the receiver
         if (kind == VAR_KIND_SELF) {
-            VariableDcl varDecl = { kind : kind, 
-                                    varScope : varScope, 
-                                    name : {value : varName}
-                                };
-            return varDecl;
+            return <VariableDcl> self.receiver;
         }
 
         var possibleDcl = self.localVarMap[varName];

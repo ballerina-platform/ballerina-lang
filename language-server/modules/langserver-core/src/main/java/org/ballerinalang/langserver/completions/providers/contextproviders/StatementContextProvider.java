@@ -31,7 +31,6 @@ import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
-import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
@@ -81,7 +80,7 @@ public class StatementContextProvider extends LSCompletionProvider {
         // Add the statement templates
         Either<List<CompletionItem>, List<SymbolInfo>> itemList = SymbolFilters.get(StatementTemplateFilter.class)
                 .filterItems(context);
-        List<SymbolInfo> filteredList = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> filteredList = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
 
         completionItems.addAll(this.getCompletionItemList(itemList, context));
         filteredList.removeIf(this.attachedOrSelfKeywordFilter());
@@ -91,7 +90,7 @@ public class StatementContextProvider extends LSCompletionProvider {
         // Now we need to sort the completion items and populate the completion items specific to the scope owner
         // as an example, resource, action, function scopes are different from the if-else, while, and etc
         Class itemSorter = context.get(CompletionKeys.BLOCK_OWNER_KEY).getClass();
-        ItemSorters.get(itemSorter).sortItems(context, completionItems);
+        context.put(CompletionKeys.ITEM_SORTER_KEY, itemSorter);
 
         return completionItems;
     }

@@ -67,15 +67,15 @@ public class StructNegativeTest {
     public void testInvalidStructLiteralKey() {
         CompileResult result = BCompileUtil.compile("test-src/structs/invalid-struct-literal-key-negative.bal");
         // test struct init with invalid field name
-        BAssertUtil.validateError(result, 0, "invalid key: only identifiers are allowed for record literal keys", 12,
-                23);
+        BAssertUtil.validateError(result, 0, "invalid key: only identifiers and strings are allowed as " +
+                                          "record literal keys", 12, 23);
     }
 
     @Test
     public void testExpressionAsStructLiteralKey() {
         CompileResult result = BCompileUtil.compile("test-src/structs/expression-as-struct-literal-key-negative.bal");
-        BAssertUtil.validateError(result, 0, "invalid key: only identifiers are allowed for record literal keys", 7,
-                21);
+        BAssertUtil.validateError(result, 0, "invalid key: only identifiers and strings are allowed as " +
+                                          "record literal keys", 7, 21);
     }
 
     @Test(description = "Test defining a struct constant")

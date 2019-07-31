@@ -18,7 +18,7 @@ import ballerina/auth;
 import ballerina/http;
 import ballerina/jwt;
 
-auth:InboundBasicAuthProvider basicAuthProvider19 = new(());
+auth:InboundBasicAuthProvider basicAuthProvider19 = new;
 http:BasicAuthHandler basicAuthHandler19 = new(basicAuthProvider19);
 
 jwt:InboundJwtAuthProvider jwtAuthProvider19_1 = new({

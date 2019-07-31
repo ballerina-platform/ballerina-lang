@@ -28,7 +28,6 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -52,6 +51,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
@@ -73,7 +74,7 @@ public class FilterUtils {
      */
     public static List<SymbolInfo> filterVariableEntriesOnDelimiter(LSContext context, String varName, int delimiter,
                                                                     List<CommonToken> defaultTokens, int delimIndex) {
-        List<SymbolInfo> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         visibleSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
         if (BallerinaParser.RARROW == delimiter) {
             SymbolInfo variable = getVariableByName(varName, visibleSymbols);
@@ -143,7 +144,7 @@ public class FilterUtils {
         List<ChainedFieldModel> invocationFieldList = getInvocationFieldList(defaultTokens, delimIndex);
 
         ChainedFieldModel startField = invocationFieldList.get(0);
-        List<SymbolInfo> symbolList = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> symbolList = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         BSymbol bSymbol = getVariableByName(startField.name.getText(), symbolList).getScopeEntry().symbol;
         BType symbolType = bSymbol instanceof BInvokableSymbol ? ((BInvokableSymbol) bSymbol).retType : bSymbol.type;
         BType modifiedSymbolBType = getModifiedBType(symbolType);
@@ -223,7 +224,7 @@ public class FilterUtils {
             BSymbol symbol = scopeEntry.symbol;
             if (((symbol instanceof BInvokableSymbol && ((BInvokableSymbol) symbol).receiverSymbol == null)
                     || isBTypeEntry(scopeEntry)
-                    || symbol instanceof BVarSymbol || symbol instanceof BConstantSymbol)
+                    || symbol instanceof BVarSymbol)
                     && (symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
                 SymbolInfo entry = new SymbolInfo(name.toString(), scopeEntry);
                 actionFunctionList.add(entry);
@@ -234,7 +235,7 @@ public class FilterUtils {
     }
     
     private static BType getModifiedBType(BType bType) {
-        return bType instanceof BUnionType ? getBTypeForUnionType((BUnionType) bType) : bType.tsymbol.type;
+        return bType instanceof BUnionType ? getBTypeForUnionType((BUnionType) bType) : bType;
     }
 
     private static List<ChainedFieldModel> getInvocationFieldList(List<CommonToken> defaultTokens, int startIndex) {
@@ -242,10 +243,12 @@ public class FilterUtils {
         int rightParenthesisCount = 0;
         boolean invocation = false;
         List<ChainedFieldModel> fieldList = new ArrayList<>();
+        Pattern pattern = Pattern.compile("^\\w+$");
+        boolean captureNextValidField = false;
         while (traverser >= 0) {
             CommonToken token = defaultTokens.get(traverser);
             int type = token.getType();
-
+            Matcher matcher = pattern.matcher(token.getText());
             if (type == BallerinaParser.RIGHT_PARENTHESIS) {
                 if (!invocation) {
                     invocation = true;
@@ -257,8 +260,9 @@ public class FilterUtils {
                 traverser--;
             } else if (type == BallerinaParser.DOT || type == BallerinaParser.NOT
                     || type == BallerinaParser.OPTIONAL_FIELD_ACCESS || rightParenthesisCount > 0) {
+                captureNextValidField = true;
                 traverser--;
-            } else if (type == BallerinaParser.Identifier && rightParenthesisCount == 0) {
+            } else if (matcher.find() && rightParenthesisCount == 0 && captureNextValidField) {
                 InvocationFieldType fieldType;
                 CommonToken packageAlias = null;
                 traverser--;
@@ -275,6 +279,7 @@ public class FilterUtils {
                 }
                 ChainedFieldModel model = new ChainedFieldModel(fieldType, token, packageAlias);
                 fieldList.add(model);
+                captureNextValidField = false;
             } else {
                 break;
             }

@@ -208,7 +208,7 @@ public class OpenApiResourceMapper {
      * @return {@link String} generated UUID
      */
     private String getOperationId(int idIncrement, String postFix) {
-        return "operation" + idIncrement + "-" + postFix;
+        return "operation" + idIncrement + "_" + postFix;
     }
 
     /**

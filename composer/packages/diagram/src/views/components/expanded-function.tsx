@@ -106,7 +106,7 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
                             <LifeLine model={model.viewState.defaultWorker.lifeline.bBox}
                                 title="Default" icon={"worker"}></LifeLine>
                             <Block model={model.body} />
-                            {model.VisibleEndpoints && model.VisibleEndpoints
+                            {model.body.VisibleEndpoints && model.body.VisibleEndpoints
                                 .filter((element) => element.viewState.visible)
                                 .map((element: VisibleEndpoint) => {
                                     return <LifeLine title={element.name} icon="endpoint"

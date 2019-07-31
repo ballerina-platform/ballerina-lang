@@ -20,23 +20,25 @@ function testInstanceFieldMutate(handle receiver, handle value) {
 // Java interoperability external functions
 
 // Static field access and mutate
-@java:FieldGet {name:"contractId",
-                class:"org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate",
-                isStatic:true}
-public function getContractId() returns handle = external;
+public function getContractId() returns handle = @java:FieldGet {
+    name:"contractId",
+    class:"org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate"
+} external;
 
-@java:FieldSet {name:"contractId",
-                class:"org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate",
-                isStatic:true}
-public function setContractId(handle contractId) = external;
+public function setContractId(handle contractId) = @java:FieldSet {
+    name:"contractId",
+    class:"org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate"
+} external;
 
 
 // Instance field access and mutate
-@java:FieldGet {name:"createdAt",
-                class:"org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate"}
-public function getCreatedAt(handle receiver) returns handle = external;
+public function getCreatedAt(handle receiver) returns handle = @java:FieldGet {
+    name:"createdAt",
+    class:"org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate"
+} external;
 
-@java:FieldSet {name:"uuid",
-                class:"org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate"}
-public function setUUID(handle receiver, handle uuid) = external;
+public function setUUID(handle receiver, handle uuid) = @java:FieldSet {
+    name:"uuid",
+    class:"org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate"
+} external;
 

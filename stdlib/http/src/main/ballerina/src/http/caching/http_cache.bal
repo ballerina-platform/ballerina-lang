@@ -35,7 +35,7 @@ public type HttpCache object {
     #
     # + config - The configurations for the HTTP cache
     public function __init(CacheConfig cacheConfig) {
-            self.cache = new cache:Cache(cacheConfig.expiryTimeMillis, cacheConfig.capacity, cacheConfig.evictionFactor);
+            self.cache = new cache:Cache(cacheConfig.expiryTimeInMillis, cacheConfig.capacity, cacheConfig.evictionFactor);
             self.policy = cacheConfig.policy;
             self.isShared = cacheConfig.isShared;
     }

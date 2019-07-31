@@ -149,7 +149,7 @@ public type InboundCustomAuthProvider object {
 
     public function authenticate(string credential) returns boolean|auth:Error {
         string token = "4ddb0c25";
-        boolean authenticated = crypto:crc32b(credential) == token;
+        boolean authenticated = crypto:crc32b(credential.toBytes()) == token;
         if (authenticated) {
             runtime:Principal? principal = runtime:getInvocationContext()?.principal;
             if (principal is runtime:Principal) {

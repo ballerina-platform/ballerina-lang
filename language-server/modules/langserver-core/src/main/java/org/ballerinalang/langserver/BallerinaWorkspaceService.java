@@ -21,31 +21,31 @@ import org.ballerinalang.langserver.client.config.BallerinaClientConfig;
 import org.ballerinalang.langserver.client.config.BallerinaClientConfigHolder;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.command.LSCommandExecutor;
+import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvider;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
-import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
+import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.ExecuteCommandParams;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.WorkspaceService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,12 +54,14 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.langserver.common.utils.CommonUtil.logError;
+import static org.ballerinalang.langserver.common.utils.CommonUtil.notifyUser;
+
 /**
  * Workspace service implementation for Ballerina.
  */
 public class BallerinaWorkspaceService implements WorkspaceService {
-    private static final Logger logger = LoggerFactory.getLogger(BallerinaWorkspaceService.class);
-    private BallerinaLanguageServer ballerinaLanguageServer;
+    private BallerinaLanguageServer languageServer;
     private WorkspaceDocumentManager workspaceDocumentManager;
     private DiagnosticsHelper diagnosticsHelper;
     private LSCompiler lsCompiler;
@@ -68,7 +70,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
     private BallerinaClientConfigHolder configHolder = BallerinaClientConfigHolder.getInstance();
 
     BallerinaWorkspaceService(LSGlobalContext globalContext) {
-        this.ballerinaLanguageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
+        this.languageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
         this.workspaceDocumentManager = globalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
         this.diagnosticsHelper = globalContext.get(LSGlobalContextKeys.DIAGNOSTIC_HELPER_KEY);
         this.lsCompiler = new LSCompiler(workspaceDocumentManager);
@@ -76,46 +78,49 @@ public class BallerinaWorkspaceService implements WorkspaceService {
 
     @Override
     public CompletableFuture<List<? extends SymbolInformation>> symbol(WorkspaceSymbolParams params) {
-        List<Either<SymbolInformation, DocumentSymbol>> symbols = new ArrayList<>();
-        LSServiceOperationContext symbolsContext = new LSServiceOperationContext();
-        Map<String, Object[]> compUnits = new HashMap<>();
-        this.workspaceDocumentManager.getAllFilePaths().forEach(path -> {
-            symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
-            symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, path.toUri().toString());
+        return CompletableFuture.supplyAsync(() -> {
+            List<Either<SymbolInformation, DocumentSymbol>> symbols = new ArrayList<>();
+            LSServiceOperationContext symbolsContext = new LSServiceOperationContext();
+            Map<String, Object[]> compUnits = new HashMap<>();
             try {
-                List<BLangPackage> bLangPackage = lsCompiler.getBLangPackages(symbolsContext, workspaceDocumentManager,
-                        false, LSCustomErrorStrategy.class, true, false);
-                if (bLangPackage != null) {
-                    bLangPackage.forEach(aPackage -> aPackage.compUnits.forEach(compUnit -> {
-                        String unitName = compUnit.getName();
-                        String sourceRoot = LSCompilerUtil.getProjectRoot(path);
-                        String basePath = sourceRoot + File.separator + compUnit.getPosition().src.getPackageName();
-                        String hash = generateHash(compUnit, basePath);
-                        compUnits.put(hash, new Object[]{
-                                new File(basePath + File.separator + unitName).toURI(), compUnit});
-                    }));
+                for (Path path : this.workspaceDocumentManager.getAllFilePaths()) {
+                    symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
+                    symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, path.toUri().toString());
+                    List<BLangPackage> bLangPackage = lsCompiler.getBLangPackages(symbolsContext,
+                                                                                  workspaceDocumentManager,
+                                                                                  false, LSCustomErrorStrategy.class,
+                                                                                  true, false);
+                    if (bLangPackage != null) {
+                        bLangPackage.forEach(aPackage -> aPackage.compUnits.forEach(compUnit -> {
+                            String unitName = compUnit.getName();
+                            String sourceRoot = LSCompilerUtil.getProjectRoot(path);
+                            String basePath = sourceRoot + File.separator + compUnit.getPosition().src.getPackageName();
+                            String hash = generateHash(compUnit, basePath);
+                            compUnits.put(hash, new Object[]{
+                                    new File(basePath + File.separator + unitName).toURI(), compUnit});
+                        }));
+                    }
                 }
-            } catch (LSCompilerException e) {
-                if (CommonUtil.LS_DEBUG_ENABLED) {
-                    String msg = e.getMessage();
-                    logger.error("Error while resolving symbols" + ((msg != null) ? ": " + msg : ""), e);
-                }
-            }
-        });
 
-        compUnits.values().forEach(compilationUnit -> {
-            symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
-            symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, compilationUnit[0].toString());
-            symbolsContext.put(DocumentServiceKeys.SYMBOL_QUERY, params.getQuery());
-            SymbolFindingVisitor visitor = new SymbolFindingVisitor(symbolsContext);
-            ((BLangCompilationUnit) compilationUnit[1]).accept(visitor);
+                compUnits.values().forEach(compilationUnit -> {
+                    symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
+                    symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, compilationUnit[0].toString());
+                    symbolsContext.put(DocumentServiceKeys.SYMBOL_QUERY, params.getQuery());
+                    SymbolFindingVisitor visitor = new SymbolFindingVisitor(symbolsContext);
+                    ((BLangCompilationUnit) compilationUnit[1]).accept(visitor);
+                });
+            } catch (UserErrorException e) {
+                notifyUser(e, languageServer);
+            } catch (Throwable e) {
+                String msg = "Operation 'workspace/symbol' failed!";
+                logError(msg, e, languageServer, null, (Position) null);
+            }
+            // Here we should extract only the Symbol information only.
+            // TODO: Need to find a decoupled way to manage both with the same Symbol finding visitor
+            return symbols.stream()
+                    .filter(Either::isLeft).map(Either::getLeft)
+                    .collect(Collectors.toList());
         });
-        // Here we should extract only the Symbol information only.
-        // TODO: Need to find a decoupled way to manage both with the same Symbol finding visitor
-        List<SymbolInformation> extractedSymbols = symbols.stream()
-                .filter(Either::isLeft).map(Either::getLeft)
-                .collect(Collectors.toList());
-        return CompletableFuture.completedFuture(extractedSymbols);
     }
 
     private String generateHash(BLangCompilationUnit compUnit, String basePath) {
@@ -137,25 +142,29 @@ public class BallerinaWorkspaceService implements WorkspaceService {
 
     @Override
     public CompletableFuture<Object> executeCommand(ExecuteCommandParams params) {
-        LSServiceOperationContext executeCommandContext = new LSServiceOperationContext();
-        executeCommandContext.put(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY, params.getArguments());
-        executeCommandContext.put(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY, this.workspaceDocumentManager);
-        executeCommandContext.put(ExecuteCommandKeys.LANGUAGE_SERVER_KEY, this.ballerinaLanguageServer);
-        executeCommandContext.put(ExecuteCommandKeys.LS_COMPILER_KEY, this.lsCompiler);
-        executeCommandContext.put(ExecuteCommandKeys.DIAGNOSTICS_HELPER_KEY, this.diagnosticsHelper);
-
         return CompletableFuture.supplyAsync(() -> {
+            LSServiceOperationContext executeCommandContext = new LSServiceOperationContext();
+            executeCommandContext.put(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY, params.getArguments());
+            executeCommandContext.put(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY, this.workspaceDocumentManager);
+            executeCommandContext.put(ExecuteCommandKeys.LANGUAGE_SERVER_KEY, this.languageServer);
+            executeCommandContext.put(ExecuteCommandKeys.LS_COMPILER_KEY, this.lsCompiler);
+            executeCommandContext.put(ExecuteCommandKeys.DIAGNOSTICS_HELPER_KEY, this.diagnosticsHelper);
+
             try {
                 Optional<LSCommandExecutor> executor = LSCommandExecutorProvider.getInstance()
                         .getCommandExecutor(params.getCommand());
                 if (executor.isPresent()) {
                     return executor.get().execute(executeCommandContext);
                 }
-            } catch (Exception e) {
-                logger.error(e.getMessage());
+            } catch (UserErrorException e) {
+                notifyUser(e, languageServer);
+            } catch (Throwable e) {
+                String msg = "Operation 'workspace/executeCommand' failed!";
+                logError(msg, e, languageServer, null, (Position) null);
             }
-
-            logger.warn("No command executor found for \"" + params.getCommand() + "\"");
+            logError("Operation 'workspace/executeCommand' failed!",
+                     new LSCommandExecutorException("No command executor found for '" + params.getCommand() + "'"),
+                     languageServer, null, (Position) null);
             return false;
         });
     }

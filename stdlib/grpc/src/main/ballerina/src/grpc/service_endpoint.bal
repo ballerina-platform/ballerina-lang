@@ -84,7 +84,7 @@ const int DEFAULT_LISTENER_TIMEOUT = 120000; //2 mins
 #               which always keeps the connection alive, or `KEEPALIVE_NEVER`, which always closes the connection
 # + secureSocket - The SSL configurations for the client endpoint.
 # + httpVersion - HTTP version supported by the endpoint. This should be 2.0 as gRPC works only with HTTP/2.
-# + timeoutMillis - Period of time in milliseconds that a connection waits for a read/write operation. Use value 0 to
+# + timeoutInMillis - Period of time in milliseconds that a connection waits for a read/write operation. Use value 0 to
 #                   disable timeout.
 # + requestLimits - Configures the parameters for request validation.
 # + maxPipelinedRequests - Defines the maximum number of requests that can be processed at a given time on a single
@@ -96,7 +96,7 @@ public type ServiceEndpointConfiguration record {|
     ServiceSecureSocket? secureSocket = ();
     string httpVersion = "2.0";
     RequestLimits? requestLimits = ();
-    int timeoutMillis = DEFAULT_LISTENER_TIMEOUT;
+    int timeoutInMillis = DEFAULT_LISTENER_TIMEOUT;
     int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
 |};
 
@@ -115,8 +115,8 @@ public type ServiceEndpointConfiguration record {|
 # + sslVerifyClient - The type of client certificate verification
 # + shareSession - Enable/disable new SSL session creation
 # + ocspStapling - Enable/disable OCSP stapling
-# + handshakeTimeout - SSL handshake time out
-# + sessionTimeout - SSL session time out
+# + handshakeTimeoutInSeconds - SSL handshake time out
+# + sessionTimeoutInSeconds - SSL session time out
 public type ServiceSecureSocket record {|
     crypto:TrustStore? trustStore = ();
     crypto:KeyStore? keyStore = ();
@@ -130,8 +130,8 @@ public type ServiceSecureSocket record {|
     string sslVerifyClient = "";
     boolean shareSession = true;
     ServiceOcspStapling? ocspStapling = ();
-    int handshakeTimeout?;
-    int sessionTimeout?;
+    int handshakeTimeoutInSeconds?;
+    int sessionTimeoutInSeconds?;
 |};
 
 # Configures limits for requests. If these limits are violated, the request is rejected.

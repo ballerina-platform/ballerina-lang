@@ -25,7 +25,7 @@ type Address record {
     string city;
 };
 
-Person p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }, profession: "Software Engineer" };
+Person p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }, "profession": "Software Engineer" };
 
 function testInvalidArgForForeachWithOpenRecords() {
     any[] vals = [];
@@ -53,7 +53,7 @@ function testInvalidMapOpWithOpenRecords() {
         return ["", ""];
     });
 
-    newp = p.'map(function (string|int|Address entry) returns any {
+    newp = p.'map(function (anydata entry) returns any {
         return "";
     });
 
@@ -75,7 +75,7 @@ function testInvalidFilterOpWithOpenRecords() {
         return true;
     });
 
-    newp = p.filter(function (string|int|Address entry) returns boolean {
+    newp = p.filter(function (anydata entry) returns boolean {
         return true;
     });
 
@@ -102,7 +102,7 @@ type RestrictedGrades record {|
 
 
 function testInvalidChainedItrOpReturns() {
-    RestrictedGrades f = {maths: 80, physics: 75, chemistry: 65, english: 78};
+    RestrictedGrades f = {maths: 80, physics: 75, chemistry: 65, "english": 78};
 
     map<int> m = f.'map(function (int grade) returns int {
         return grade + 10;
@@ -128,7 +128,7 @@ function testInvalidChainedItrOpReturns() {
 }
 
 function testInvalidChainedItrOpReturns2() {
-    RestrictedGrades f = {maths: 80, physics: 75, chemistry: 65, english: 78};
+    RestrictedGrades f = {maths: 80, physics: 75, chemistry: 65, "english": 78};
 
     int[] ar = f.'map(function (int grade) returns int {
         return grade + 10;

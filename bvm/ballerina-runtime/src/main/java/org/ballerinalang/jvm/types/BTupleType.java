@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 public class BTupleType extends BType {
 
     private List<BType> tupleTypes;
+    private BType restType;
 
     /**
      * Create a {@code BTupleType} which represents the tuple type.
@@ -39,10 +40,27 @@ public class BTupleType extends BType {
     public BTupleType(List<BType> typeList) {
         super(null, null, Object.class);
         this.tupleTypes = typeList;
+        this.restType = null;
+    }
+
+    /**
+     * Create a {@code BTupleType} which represents the tuple type.
+     *
+     * @param typeList of the tuple type
+     * @param restType of the tuple type
+     */
+    public BTupleType(List<BType> typeList, BType restType) {
+        super(null, null, Object.class);
+        this.tupleTypes = typeList;
+        this.restType = restType;
     }
 
     public List<BType> getTupleTypes() {
         return tupleTypes;
+    }
+
+    public BType getRestType() {
+        return restType;
     }
 
     @Override

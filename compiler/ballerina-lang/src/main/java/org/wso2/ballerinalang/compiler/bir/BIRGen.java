@@ -151,6 +151,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
@@ -284,6 +286,14 @@ public class BIRGen extends BLangNodeVisitor {
 
         typeDef.setMarkdownDocAttachment(astTypeDefinition.symbol.markdownDocumentation);
 
+        if (astTypeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE ||
+                astTypeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+            BLangStructureTypeNode typeNode = (BLangStructureTypeNode) astTypeDefinition.typeNode;
+            for (BLangType typeRef : typeNode.typeRefs) {
+                typeDef.referencedTypes.add(typeRef.type);
+            }
+        }
+
         // Write referenced functions, if this is an abstract-object
         if (astTypeDefinition.symbol.tag != SymTag.OBJECT ||
                 !Symbols.isFlagOn(astTypeDefinition.symbol.flags, Flags.ABSTRACT)) {
@@ -297,7 +307,12 @@ public class BIRGen extends BLangNodeVisitor {
 
             BInvokableSymbol funcSymbol = func.symbol;
             BIRFunction birFunc = new BIRFunction(astTypeDefinition.pos, func.funcName, funcSymbol.flags, func.type,
-                    funcSymbol.receiverSymbol.type, names.fromString(DEFAULT_WORKER_NAME), 0, new TaintTable());
+                    names.fromString(DEFAULT_WORKER_NAME), 0, new TaintTable());
+
+            if (funcSymbol.receiverSymbol != null) {
+                birFunc.receiver = new BIRVariableDcl(astTypeDefinition.pos, funcSymbol.receiverSymbol.type,
+                        funcSymbol.receiverSymbol.name, VarScope.FUNCTION, VarKind.SELF, null);
+            }
 
             birFunc.setMarkdownDocAttachment(funcSymbol.markdownDocumentation);
 
@@ -369,12 +384,11 @@ public class BIRGen extends BLangNodeVisitor {
 
         if (isTypeAttachedFunction) {
             Name funcName = names.fromString(astFunc.symbol.name.value);
-            birFunc = new BIRFunction(astFunc.pos, funcName, astFunc.symbol.flags, type, astFunc.receiver.type,
-                                      workerName, astFunc.sendsToThis.size(), taintTable);
+            birFunc = new BIRFunction(astFunc.pos, funcName, astFunc.symbol.flags, type, workerName,
+                    astFunc.sendsToThis.size(), taintTable);
         } else {
             Name funcName = getFuncName(astFunc.symbol);
-            birFunc = new BIRFunction(astFunc.pos, funcName, astFunc.symbol.flags, type,
-                    astFunc.receiver != null ? astFunc.receiver.type : null, workerName,
+            birFunc = new BIRFunction(astFunc.pos, funcName, astFunc.symbol.flags, type, workerName,
                     astFunc.sendsToThis.size(), taintTable);
         }
         if (astFunc.receiver != null) {
@@ -382,6 +396,11 @@ public class BIRGen extends BLangNodeVisitor {
                     this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG,
                     astFunc.receiver.name.value, false);
             this.env.symbolVarMap.put(astFunc.receiver.symbol, birVarDcl);
+        }
+
+        if (astFunc.receiver != null) {
+            birFunc.receiver = new BIRVariableDcl(astFunc.pos, astFunc.receiver.type, astFunc.receiver.symbol.name,
+                    VarScope.FUNCTION, VarKind.SELF, null);
         }
 
         birFunc.setMarkdownDocAttachment(astFunc.symbol.markdownDocumentation);
@@ -395,6 +414,8 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         // Populate annotation attachments on external in BIRFunction node
+        populateBIRAnnotAttachments(astFunc.externalAnnAttachments, birFunc.annotAttachments, this.env);
+        // Populate annotation attachments on function in BIRFunction node
         populateBIRAnnotAttachments(astFunc.annAttachments, birFunc.annotAttachments, this.env);
 
         birFunc.argsCount = astFunc.requiredParams.size()
@@ -2298,7 +2319,7 @@ public class BIRGen extends BLangNodeVisitor {
             return keyRegIndex;
         }
 
-        BIRVariableDcl tempQNameVarDcl = new BIRVariableDcl(qnameExpr.type,
+        BIRVariableDcl tempQNameVarDcl = new BIRVariableDcl(symTable.anyType,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempQNameVarDcl);
         BIROperand qnameVarRef = new BIROperand(tempQNameVarDcl);

@@ -94,6 +94,29 @@ task copySelfToBirCache(type: Copy) {
     into "$buildDir/bir-cache"
 }
 
+task createBirZipArtifact(type: Zip) {
+    from "$buildDir/generated-bir"
+    include '**/*'
+    archiveName "$project.name-bir-artifact.zip"
+    destinationDir(file("$buildDir/bir-artifact/"))
+}
+
+publishing {
+    publications {
+        mavenJava {
+            if (file("$buildDir/generated-bir-jar/" + moduleName + ".jar").exists()) {
+                artifact source: file("$buildDir/generated-bir-jar/" + moduleName + ".jar"), classifier: "bir-jar"
+            }
+            if (file("$buildDir/generated-bir/ballerina/" + moduleName + "/0.0.0/" + moduleName + ".bir").exists()) {
+                artifact source: createBirZipArtifact, classifier: "bir", extension: 'zip'
+            }
+            if (file("$buildDir/generated-bir/ballerinax/" + moduleName + "/0.0.0/" + moduleName + ".bir").exists()) {
+                artifact source: createBirZipArtifact, classifier: "bir", extension: 'zip'
+            }
+        }
+    }
+}
+
 test {
     dependsOn copySelfToBirCache
     dependsOn createBirJar

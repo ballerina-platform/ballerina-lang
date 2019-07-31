@@ -87,7 +87,7 @@ public class SourcePruneTest {
                         + "Expected Source [" + expected + "]");
             }
             Assert.assertEquals(prunedSource, expected);
-            BallerinaParser parser = CommonUtil.prepareParser(prunedSource, true);
+            BallerinaParser parser = CommonUtil.prepareParser(prunedSource);
             parser.compilationUnit();
             boolean prunedSourceErrors = parser.getNumberOfSyntaxErrors() != 0;
             if (prunedSourceErrors) {
