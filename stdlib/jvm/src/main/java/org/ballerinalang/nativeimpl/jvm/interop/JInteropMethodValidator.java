@@ -69,7 +69,7 @@ public class JInteropMethodValidator {
         jMethodRecord.put(CLASS_FIELD, jMethod.getClassName().replace('.', '/'));
         jMethodRecord.put(IS_INTERFACE_FIELD, jMethod.isDeclaringClassInterface());
         jMethodRecord.put(KIND_FIELD, jMethod.getKind().getStringValue());
-        jMethodRecord.put(IS_STATIC_FIELD, jMethod.getKind() == JMethodKind.STATIC);
+        jMethodRecord.put(IS_STATIC_FIELD, jMethod.isStatic());
         jMethodRecord.put(SIG_FIELD, jMethod.getSignature());
         jMethodRecord.put(METHOD_TYPE_FIELD, JInterop.createJMethodTypeBValue(jMethod));
         return jMethodRecord;

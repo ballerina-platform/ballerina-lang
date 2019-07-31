@@ -737,7 +737,17 @@ public class BLangPackageBuilder {
         this.simpleMatchPatternWS.push(ws);
     }
 
-    void endErrorMatchPattern(Set<Whitespace> ws) {
+    void endErrorMatchPattern(Set<Whitespace> ws, boolean isIndirectErrorMatchPatern) {
+        if (isIndirectErrorMatchPatern) {
+            BLangErrorVariable errorVariable = (BLangErrorVariable) this.varStack.peek();
+            BLangUserDefinedType errorType = (BLangUserDefinedType) this.typeNodeStack.pop();
+            errorVariable.typeNode = errorType;
+
+            errorVariable.reason = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+            BLangIdentifier ignore = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+            ignore.value = Names.IGNORE.value;
+            errorVariable.reason.name = ignore;
+        }
         this.errorMatchPatternWS.push(ws);
     }
 
