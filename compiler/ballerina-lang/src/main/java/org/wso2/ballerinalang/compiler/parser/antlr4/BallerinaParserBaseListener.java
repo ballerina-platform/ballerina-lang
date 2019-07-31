@@ -1180,6 +1180,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterErrorFieldMatchPatterns(BallerinaParser.ErrorFieldMatchPatternsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitErrorFieldMatchPatterns(BallerinaParser.ErrorFieldMatchPatternsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterErrorRestBindingPattern(BallerinaParser.ErrorRestBindingPatternContext ctx) { }
 	/**
 	 * {@inheritDoc}

@@ -76,7 +76,7 @@ type OpenRecord record {
 };
 
 function testRestParam() returns map<anydata|error> {
-    OpenRecord openRecord = {var1: "var1", var2: false, var3: 12, var4: "text"};
+    OpenRecord openRecord = {var1: "var1", var2: false, "var3": 12, "var4": "text"};
     string var1;
     boolean var2;
     map<anydata|error> rest = {};
@@ -199,7 +199,7 @@ function testRestParameterType() returns boolean {
     map<anydata|error> other1 = {};
     map<any> other2 = {};
 
-    IntRestRecord rec1 = { name: "A", married: true, age: 19, token: 200 };
+    IntRestRecord rec1 = { name: "A", married: true, "age": 19, "token": 200 };
     { name, ...other1 } = rec1;
 
     any a1 = other1;

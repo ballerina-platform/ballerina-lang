@@ -4,7 +4,7 @@ import ballerina/runtime;
 
 http:Client backendClientEP = new("http://localhost:8080", config = {
     // Timeout configuration.
-    timeoutMillis: 10000
+    timeoutInMillis: 10000
 
 });
 

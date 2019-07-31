@@ -17,7 +17,7 @@
 const map<boolean> bm1 = { "key": true };
 const map<boolean> bm2 = { "key": bm1["key"] };
 
-const map<float> fm1 = { getKey(): getFloatValue() };
+const map<float> fm1 = { [getKey()]: getFloatValue() };
 
 function getKey() returns string {
     return "key";

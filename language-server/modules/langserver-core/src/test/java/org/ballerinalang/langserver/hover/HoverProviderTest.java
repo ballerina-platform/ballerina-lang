@@ -97,7 +97,8 @@ public class HoverProviderTest {
         log.info("Test textDocument/hover for builtin functions");
         return new Object[][]{
                 {new Position(43, 11), "builtin-function1.json"},
-                {new Position(44, 19), "builtin-function2.json"}
+                {new Position(44, 19), "builtin-function2.json"},
+                {new Position(59, 60), "hoverOverConstant.json"}
         };
     }
 
