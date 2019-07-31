@@ -38,6 +38,8 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
+import java.util.Locale;
 
 /**
  * Represents an Update SQL statement.
@@ -79,11 +81,15 @@ public class UpdateStatement extends AbstractSQLStatement {
                     datasource.getDatabaseProductName());
             stmt = processedStatement.prepare();
             int count = stmt.executeUpdate();
-            rs = stmt.getGeneratedKeys();
-            //This result set contains the auto generated keys.
             MapValue<String, Object> generatedKeys;
-            if (rs.next()) {
-                generatedKeys = getGeneratedKeys(rs);
+            if (!isDdlStatement()) {
+                rs = stmt.getGeneratedKeys();
+                //This result set contains the auto generated keys.
+                if (rs.next()) {
+                    generatedKeys = getGeneratedKeys(rs);
+                } else {
+                    generatedKeys = new MapValueImpl<>();
+                }
             } else {
                 generatedKeys = new MapValueImpl<>();
             }
@@ -99,6 +105,11 @@ public class UpdateStatement extends AbstractSQLStatement {
         } finally {
             cleanupResources(rs, stmt, conn, !isInTransaction);
         }
+    }
+
+    private boolean isDdlStatement() {
+        String query = this.query.trim().toUpperCase(Locale.ENGLISH);
+        return Arrays.stream(DdlKeyword.values()).anyMatch(ddlKeyword -> query.startsWith(ddlKeyword.name()));
     }
 
     private MapValue<String, Object> getGeneratedKeys(ResultSet rs) throws SQLException {
@@ -122,5 +133,9 @@ public class UpdateStatement extends AbstractSQLStatement {
                 .createRecord(updateResultRecord, count, generatedKeys);
         populatedUpdateResultRecord.attemptFreeze(new Status(State.FROZEN));
         return populatedUpdateResultRecord;
+    }
+
+    private enum DdlKeyword {
+        CREATE, ALTER, DROP, TRUNCATE, COMMENT, RENAME
     }
 }
