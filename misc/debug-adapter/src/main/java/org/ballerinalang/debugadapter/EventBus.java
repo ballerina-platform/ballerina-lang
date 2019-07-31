@@ -266,8 +266,6 @@ public class EventBus {
                          * If this is BreakpointEvent, then read & print variables.
                          */
                         if (event instanceof BreakpointEvent) {
-                            // disable the breakpoint event
-                            event.request().disable();
                             StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
                             populateMaps();
                             stoppedEventArguments.setReason(StoppedEventArgumentsReason.BREAKPOINT);
@@ -275,7 +273,6 @@ public class EventBus {
                             stoppedEventArguments.setAllThreadsStopped(true);
                             context.getClient().stopped(stoppedEventArguments);
                         } else if (event instanceof StepEvent) {
-                            event.request().disable();
                             populateMaps();
                             StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
                             stoppedEventArguments.setReason(StoppedEventArgumentsReason.STEP);
