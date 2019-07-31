@@ -117,6 +117,7 @@ public type ProxyConfig record {|
 
 # Provides configurations for facilitating secure communication with a remote HTTP endpoint.
 #
+# + disable - Disable ssl validation.
 # + trustStore - Configurations associated with TrustStore
 # + keyStore - Configurations associated with KeyStore
 # + certFile - A file containing the certificate of the client
@@ -130,7 +131,10 @@ public type ProxyConfig record {|
 # + verifyHostname - Enable/disable host name verification
 # + shareSession - Enable/disable new SSL session creation
 # + ocspStapling - Enable/disable OCSP stapling
+# + handshakeTimeoutInSeconds - SSL handshake time out
+# + sessionTimeoutInSeconds - SSL session time out
 public type SecureSocket record {|
+    boolean disable = false;
     crypto:TrustStore? trustStore = ();
     crypto:KeyStore? keyStore = ();
     string certFile = "";
@@ -143,4 +147,6 @@ public type SecureSocket record {|
     boolean verifyHostname = true;
     boolean shareSession = true;
     boolean ocspStapling = false;
+    int handshakeTimeoutInSeconds?;
+    int sessionTimeoutInSeconds?;
 |};
