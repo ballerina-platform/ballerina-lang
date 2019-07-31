@@ -22,7 +22,7 @@ kafka:ProducerConfig producerConfigs = {
     bootstrapServers: "localhost:9102",
     clientId: "basic-producer",
     acks: "all",
-    requestTimeout: 1000,
+    requestTimeoutInMillis: 1000,
     noRetries: 3
 };
 

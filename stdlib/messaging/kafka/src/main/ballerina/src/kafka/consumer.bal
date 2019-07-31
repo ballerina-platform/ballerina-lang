@@ -29,29 +29,29 @@ import ballerina/'lang\.object as lang;
 # + isolationLevel - Transactional message reading method. Use "read_committed" to read committed messages only in transactional mode when poll() is called. Use "read_uncommitted" to read all the messages, even the aborted ones.
 # + topics - Topics to be subscribed by the consumer.
 # + properties - Additional properties if required.
-# + sessionTimeout - Timeout used to detect consumer failures when heartbeat threshold is reached.
-# + heartBeatInterval - Expected time between heartbeats.
-# + metadataMaxAge - Maximum time to force a refresh of metadata.
-# + autoCommitInterval - Auto committing interval for commit offset, when auto-commit is enabled.
+# + sessionTimeoutInMillis - Timeout used to detect consumer failures when heartbeat threshold is reached.
+# + heartBeatIntervalInMillis - Expected time between heartbeats.
+# + metadataMaxAgeInMillis - Maximum time to force a refresh of metadata.
+# + autoCommitIntervalInMillis - Auto committing interval for commit offset, when auto-commit is enabled.
 # + maxPartitionFetchBytes - The maximum amount of data per-partition the server returns.
 # + sendBuffer - Size of the TCP send buffer (SO_SNDBUF).
 # + receiveBuffer - Size of the TCP receive buffer (SO_RCVBUF).
 # + fetchMinBytes - Minimum amount of data the server should return for a fetch request.
 # + fetchMaxBytes - Maximum amount of data the server should return for a fetch request.
-# + fetchMaxWait - Maximum amount of time the server will block before answering the fetch request.
-# + reconnectBackoffMax - Maximum amount of time in milliseconds to wait when reconnecting.
-# + retryBackoff - Time to wait before attempting to retry a failed request.
-# + metricsSampleWindow - Window of time a metrics sample is computed over.
+# + fetchMaxWaitTimeInMillis - Maximum amount of time the server will block before answering the fetch request.
+# + reconnectBackoffTimeMaxInMillis - Maximum amount of time in milliseconds to wait when reconnecting.
+# + retryBackoffInMillis - Time to wait before attempting to retry a failed request.
+# + metricsSampleWindowInMillis - Window of time a metrics sample is computed over.
 # + metricsNumSamples - Number of samples maintained to compute metrics.
-# + requestTimeout - Wait time for response of a request.
-# + connectionMaxIdle - Close idle connections after the number of milliseconds.
+# + requestTimeoutInMillis - Wait time for response of a request.
+# + connectionMaxIdleInMillis - Close idle connections after the number of milliseconds.
 # + maxPollRecords - Maximum number of records returned in a single call to poll.
 # + maxPollInterval - Maximum delay between invocations of poll.
-# + reconnectBackoff - Time to wait before attempting to reconnect.
-# + pollingTimeout - Timeout interval for polling.
-# + pollingInterval - Polling interval for the consumer.
+# + reconnectBackoffTimeInMillis - Time to wait before attempting to reconnect.
+# + pollingTimeoutInMillis - Timeout interval for polling.
+# + pollingIntervalInMillis - Polling interval for the consumer.
 # + concurrentConsumers - Number of concurrent consumers.
-# + defaultApiTimeout - Default API timeout value for APIs with duration.
+# + defaultApiTimeoutInMillis - Default API timeout value for APIs with duration.
 # + autoCommit - Enables auto committing offsets.
 # + checkCRCS - Check the CRC32 of the records consumed.
 # + excludeInternalTopics - Whether records from internal topics should be exposed to the consumer.
@@ -71,29 +71,29 @@ public type ConsumerConfig record {|
     string[]? topics = ();
     string[]? properties = ();
 
-    int sessionTimeout = -1;
-    int heartBeatInterval = -1;
-    int metadataMaxAge = -1;
-    int autoCommitInterval = -1;
+    int sessionTimeoutInMillis = -1;
+    int heartBeatIntervalInMillis = -1;
+    int metadataMaxAgeInMillis = -1;
+    int autoCommitIntervalInMillis = -1;
     int maxPartitionFetchBytes = -1;
     int sendBuffer = -1;
     int receiveBuffer = -1;
     int fetchMinBytes = -1;
     int fetchMaxBytes = -1;
-    int fetchMaxWait = -1;
-    int reconnectBackoffMax = -1;
-    int retryBackoff = -1;
-    int metricsSampleWindow = -1;
+    int fetchMaxWaitTimeInMillis = -1;
+    int reconnectBackoffTimeMaxInMillis = -1;
+    int retryBackoffInMillis = -1;
+    int metricsSampleWindowInMillis = -1;
     int metricsNumSamples = -1;
-    int requestTimeout = -1;
-    int connectionMaxIdle = -1;
+    int requestTimeoutInMillis = -1;
+    int connectionMaxIdleInMillis = -1;
     int maxPollRecords = -1;
     int maxPollInterval = -1;
-    int reconnectBackoff = -1;
-    int pollingTimeout = -1;
-    int pollingInterval = -1;
+    int reconnectBackoffTimeInMillis = -1;
+    int pollingTimeoutInMillis = -1;
+    int pollingIntervalInMillis = -1;
     int concurrentConsumers = -1;
-    int defaultApiTimeout = 30000;
+    int defaultApiTimeoutInMillis = 30000;
 
     boolean autoCommit = true;
     boolean checkCRCS = true;

@@ -52,7 +52,7 @@ function funcKafkaGetAvailableTopicsFromNoTimeoutConsumer() returns string[]|err
         clientId: "available-topic-consumer-3",
         offsetReset: "earliest",
         topics: [TOPIC_1, TOPIC_2],
-        defaultApiTimeout: -1
+        defaultApiTimeoutInMillis: -1
     };
     kafka:Consumer kafkaConsumer = new(consumerConfigs);
     return kafkaConsumer->getAvailableTopics();

@@ -20,8 +20,8 @@ kafka:ConsumerConfig consumerConfigs = {
     bootstrapServers: "localhost:9099",
     groupId: "test-group",
     clientId: "subscribe-to-pattern-consumer",
-    metadataMaxAge: 100,
-    defaultApiTimeout: 100
+    metadataMaxAgeInMillis: 100,
+    defaultApiTimeoutInMillis: 100
 };
 
 kafka:Consumer kafkaConsumer = new(consumerConfigs);

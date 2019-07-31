@@ -37,7 +37,6 @@ public class KafkaConstants {
     public static final String VERSION = "0.0.0";
 
     public static final String FULL_PACKAGE_NAME = KAFKA_PACKAGE_NAME + BLOCK_SEPARATOR + VERSION;
-    public static final String KAFKA_NATIVE_PACKAGE = BALLERINA_PACKAGE_PREFIX + FULL_PACKAGE_NAME;
     public static final String KAFKA_PROTOCOL_PACKAGE = BALLERINA_PACKAGE_PREFIX + KAFKA_PACKAGE_NAME;
 
     public static final String NATIVE_CONSUMER = "KafkaConsumer";
@@ -45,9 +44,7 @@ public class KafkaConstants {
     public static final String NATIVE_PRODUCER_CONFIG = "KafkaProducerConfig";
     public static final String NATIVE_CONSUMER_CONFIG = "KafkaConsumerConfig";
     public static final String CONNECTOR_ID = "connectorId";
-    public static final String PRODUCER_HOLDER_FILED = "producerHolder";
 
-    public static final String TRANSACTION_INITIATED = "TransactionInitiated";
     public static final String TRANSACTION_CONTEXT = "TransactionInitiated";
 
     public static final String TOPIC_PARTITION_STRUCT_NAME = "TopicPartition";
@@ -59,7 +56,6 @@ public class KafkaConstants {
 
     public static final String CONSUMER_RECORD_STRUCT_NAME = "ConsumerRecord";
     public static final String CONSUMER_STRUCT_NAME = "Consumer";
-    public static final String CONSUMER_CONFIG_STRUCT_NAME = "ConsumerConfig";
     public static final String CONSUMER_SERVER_CONNECTOR_NAME = "serverConnector";
 
     public static final String CONSUMER_CONFIG_FIELD_NAME = "consumerConfig";
@@ -79,8 +75,8 @@ public class KafkaConstants {
 
     public static final String ALIAS_CONCURRENT_CONSUMERS = "concurrentConsumers";
     public static final String ALIAS_TOPICS = "topics";
-    public static final String ALIAS_POLLING_TIMEOUT = "pollingTimeout";
-    public static final String ALIAS_POLLING_INTERVAL = "pollingInterval";
+    public static final String ALIAS_POLLING_TIMEOUT = "pollingTimeoutInMillis";
+    public static final String ALIAS_POLLING_INTERVAL = "pollingIntervalInMillis";
     public static final String ALIAS_DECOUPLE_PROCESSING = "decoupleProcessing";
     public static final String ALIAS_TOPIC = "topic";
     public static final String ALIAS_PARTITION = "partition";
@@ -107,29 +103,30 @@ public class KafkaConstants {
     public static final String CONSUMER_CLIENT_ID_CONFIG = "clientId";
     public static final String CONSUMER_INTERCEPTOR_CLASSES_CONFIG = "interceptorClasses";
     public static final String CONSUMER_ISOLATION_LEVEL_CONFIG = "isolationLevel";
-    public static final String CONSUMER_SESSION_TIMEOUT_MS_CONFIG = "sessionTimeout";
-    public static final String CONSUMER_HEARTBEAT_INTERVAL_MS_CONFIG = "heartBeatInterval";
-    public static final String CONSUMER_METADATA_MAX_AGE_CONFIG = "metadataMaxAge";
-    public static final String CONSUMER_AUTO_COMMIT_INTERVAL_MS_CONFIG = "autoCommitInterval";
+
+    public static final String CONSUMER_SESSION_TIMEOUT_MS_CONFIG = "sessionTimeoutInMillis";
+    public static final String CONSUMER_HEARTBEAT_INTERVAL_MS_CONFIG = "heartBeatIntervalInMillis";
+    public static final String CONSUMER_METADATA_MAX_AGE_CONFIG = "metadataMaxAgeInMillis";
+    public static final String CONSUMER_AUTO_COMMIT_INTERVAL_MS_CONFIG = "autoCommitIntervalInMillis";
     public static final String CONSUMER_MAX_PARTITION_FETCH_BYTES_CONFIG = "maxPartitionFetchBytes";
     public static final String CONSUMER_SEND_BUFFER_CONFIG = "sendBuffer";
     public static final String CONSUMER_RECEIVE_BUFFER_CONFIG = "receiveBuffer";
     public static final String CONSUMER_FETCH_MIN_BYTES_CONFIG = "fetchMinBytes";
     public static final String CONSUMER_FETCH_MAX_BYTES_CONFIG = "fetchMaxBytes";
-    public static final String CONSUMER_FETCH_MAX_WAIT_MS_CONFIG = "fetchMaxWait";
-    public static final String CONSUMER_RECONNECT_BACKOFF_MS_CONFIG = "reconnectBackoff";
-    public static final String CONSUMER_RETRY_BACKOFF_MS_CONFIG = "retryBackoff";
-    public static final String CONSUMER_METRICS_SAMPLE_WINDOW_MS_CONFIG = "metricsSampleWindow";
+    public static final String CONSUMER_FETCH_MAX_WAIT_MS_CONFIG = "fetchMaxWaitTimeInMillis";
+    public static final String CONSUMER_RECONNECT_BACKOFF_MS_CONFIG = "reconnectBackoffTimeInMillis";
+    public static final String CONSUMER_RETRY_BACKOFF_MS_CONFIG = "retryBackoffInMillis";
+    public static final String CONSUMER_METRICS_SAMPLE_WINDOW_MS_CONFIG = "metricsSampleWindowInMillis";
     public static final String CONSUMER_METRICS_NUM_SAMPLES_CONFIG = "metricsNumSamples";
-    public static final String CONSUMER_REQUEST_TIMEOUT_MS_CONFIG = "requestTimeout";
-    public static final String CONSUMER_CONNECTIONS_MAX_IDLE_MS_CONFIG = "connectionMaxIdle";
+    public static final String CONSUMER_REQUEST_TIMEOUT_MS_CONFIG = "requestTimeoutInMillis";
+    public static final String CONSUMER_CONNECTIONS_MAX_IDLE_MS_CONFIG = "connectionMaxIdleInMillis";
     public static final String CONSUMER_MAX_POLL_RECORDS_CONFIG = "maxPollRecords";
     public static final String CONSUMER_MAX_POLL_INTERVAL_MS_CONFIG = "maxPollInterval";
-    public static final String CONSUMER_RECONNECT_BACKOFF_MAX_MS_CONFIG = "reconnectBackoffMax";
+    public static final String CONSUMER_RECONNECT_BACKOFF_MAX_MS_CONFIG = "reconnectBackoffTimeMaxInMillis";
     public static final String CONSUMER_ENABLE_AUTO_COMMIT_CONFIG = "autoCommit";
     public static final String CONSUMER_CHECK_CRCS_CONFIG = "checkCRCS";
     public static final String CONSUMER_EXCLUDE_INTERNAL_TOPICS_CONFIG = "excludeInternalTopics";
-    public static final String CONSUMER_DEFAULT_API_TIMEOUT_CONFIG = "defaultApiTimeout";
+    public static final String CONSUMER_DEFAULT_API_TIMEOUT_CONFIG = "defaultApiTimeoutInMillis";
 
     // Producer Configuration.
     public static final String PRODUCER_BOOTSTRAP_SERVERS_CONFIG = "bootstrapServers";
@@ -148,17 +145,17 @@ public class KafkaConstants {
     public static final String PRODUCER_SEND_BUFFER_CONFIG = "sendBuffer";
     public static final String PRODUCER_RECEIVE_BUFFER_CONFIG = "receiveBuffer";
     public static final String PRODUCER_MAX_REQUEST_SIZE_CONFIG = "maxRequestSize";
-    public static final String PRODUCER_RECONNECT_BACKOFF_MS_CONFIG = "reconnectBackoff";
-    public static final String PRODUCER_RECONNECT_BACKOFF_MAX_MS_CONFIG = "reconnectBackoffMax";
-    public static final String PRODUCER_RETRY_BACKOFF_MS_CONFIG = "retryBackoff";
+    public static final String PRODUCER_RECONNECT_BACKOFF_MS_CONFIG = "reconnectBackoffTimeInMillis";
+    public static final String PRODUCER_RECONNECT_BACKOFF_MAX_MS_CONFIG = "reconnectBackoffMaxTimeInMillis";
+    public static final String PRODUCER_RETRY_BACKOFF_MS_CONFIG = "retryBackoffTimeInMillis";
     public static final String PRODUCER_MAX_BLOCK_MS_CONFIG = "maxBlock";
-    public static final String PRODUCER_REQUEST_TIMEOUT_MS_CONFIG = "requestTimeout";
-    public static final String PRODUCER_METADATA_MAX_AGE_CONFIG = "metadataMaxAge";
-    public static final String PRODUCER_METRICS_SAMPLE_WINDOW_MS_CONFIG = "metricsSampleWindow";
+    public static final String PRODUCER_REQUEST_TIMEOUT_MS_CONFIG = "requestTimeoutInMillis";
+    public static final String PRODUCER_METADATA_MAX_AGE_CONFIG = "metadataMaxAgeInMillis";
+    public static final String PRODUCER_METRICS_SAMPLE_WINDOW_MS_CONFIG = "metricsSampleWindowInMillis";
     public static final String PRODUCER_METRICS_NUM_SAMPLES_CONFIG = "metricsNumSamples";
     public static final String PRODUCER_MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION = "maxInFlightRequestsPerConnection";
-    public static final String PRODUCER_CONNECTIONS_MAX_IDLE_MS_CONFIG = "connectionsMaxIdle";
-    public static final String PRODUCER_TRANSACTION_TIMEOUT_CONFIG = "transactionTimeout";
+    public static final String PRODUCER_CONNECTIONS_MAX_IDLE_MS_CONFIG = "connectionsMaxIdleTimeInMillis";
+    public static final String PRODUCER_TRANSACTION_TIMEOUT_CONFIG = "transactionTimeoutInMillis";
     public static final String PRODUCER_ENABLE_IDEMPOTENCE_CONFIG = "enableIdempotence";
 
     // SSL Configuration parameters.

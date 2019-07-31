@@ -34,17 +34,17 @@ import ballerina/system;
 # + sendBuffer - Size of the TCP send buffer (SO_SNDBUF).
 # + receiveBuffer - Size of the TCP receive buffer (SO_RCVBUF).
 # + maxRequestSize - The maximum size of a request in bytes.
-# + reconnectBackoff - Time to wait before attempting to reconnect.
-# + reconnectBackoffMax - Maximum amount of time in milliseconds to wait when reconnecting.
-# + retryBackoff - Time to wait before attempting to retry a failed request.
+# + reconnectBackoffTimeInMillis - Time to wait before attempting to reconnect.
+# + reconnectBackoffMaxTimeInMillis - Maximum amount of time in milliseconds to wait when reconnecting.
+# + retryBackoffTimeInMillis - Time to wait before attempting to retry a failed request.
 # + maxBlock - Maximum block time which the send is blocked, when the buffer is full.
-# + requestTimeout - Wait time for response of a request.
-# + metadataMaxAge - Maximum time to force a refresh of metadata.
-# + metricsSampleWindow - Time window for a metrics sample to computed over.
+# + requestTimeoutInMillis - Wait time for response of a request.
+# + metadataMaxAgeInMillis - Maximum time to force a refresh of metadata.
+# + metricsSampleWindowInMillis - Time window for a metrics sample to computed over.
 # + metricsNumSamples - Number of samples maintained to compute metrics.
 # + maxInFlightRequestsPerConnection - Maximum number of unacknowledged requests on a single connection.
-# + connectionsMaxIdle - Close idle connections after the number of milliseconds.
-# + transactionTimeout - Timeout for transaction status update from the producer.
+# + connectionsMaxIdleTimeInMillis - Close idle connections after the number of milliseconds.
+# + transactionTimeoutInMillis - Timeout for transaction status update from the producer.
 # + enableIdempotence - Exactly one copy of each message is written in the stream when enabled.
 # + secureSocket - SSL/TLS related options
 public type ProducerConfig record {|
@@ -65,17 +65,17 @@ public type ProducerConfig record {|
     int sendBuffer = -1;
     int receiveBuffer = -1;
     int maxRequestSize = -1;
-    int reconnectBackoff = -1;
-    int reconnectBackoffMax = -1;
-    int retryBackoff = -1;
+    int reconnectBackoffTimeInMillis = -1;
+    int reconnectBackoffMaxTimeInMillis = -1;
+    int retryBackoffTimeInMillis = -1;
     int maxBlock = -1;
-    int requestTimeout = -1;
-    int metadataMaxAge = -1;
-    int metricsSampleWindow = -1;
+    int requestTimeoutInMillis = -1;
+    int metadataMaxAgeInMillis = -1;
+    int metricsSampleWindowInMillis = -1;
     int metricsNumSamples = -1;
     int maxInFlightRequestsPerConnection = -1;
-    int connectionsMaxIdle = -1;
-    int transactionTimeout = -1;
+    int connectionsMaxIdleTimeInMillis = -1;
+    int transactionTimeoutInMillis = -1;
 
     boolean enableIdempotence = false;
 
