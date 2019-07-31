@@ -1,3 +1,3 @@
 ## Module Overview
 
-This module provide langLib functions which operate on Ballerina `decimal` values.
+This module provides lang library operations on `decimal` values defined by the language specification 2019R2.

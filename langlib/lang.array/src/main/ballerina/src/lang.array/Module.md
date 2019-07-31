@@ -1,3 +1,3 @@
 ## Module Overview
 
-This module provide langLib functions which operate on Ballerina arrays.
+This module provides lang library list operations defined by the language specification 2019R2.

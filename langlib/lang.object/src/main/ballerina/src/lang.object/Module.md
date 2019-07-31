@@ -1,3 +1,3 @@
 ## Module Overview
 
-This module provide langLib functions which operate on Ballerina `object` values.
+This module provides lang library operations on `object` values defined by the language specification 2019R2.

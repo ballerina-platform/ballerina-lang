@@ -1,3 +1,3 @@
 ## Module Overview
 
-This module provide langLib functions which operate on Ballerina mapping values.
+This module provides lang library map operations defined by the language specification 2019R2.

@@ -1,3 +1,3 @@
 ## Module Overview
 
-This module provide langLib functions which operate on Ballerina strings.
+This module provides lang library string operations defined by the language specification 2019R2.
