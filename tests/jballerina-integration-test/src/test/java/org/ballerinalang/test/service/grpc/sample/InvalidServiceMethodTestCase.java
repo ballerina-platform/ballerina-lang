@@ -18,7 +18,6 @@
 
 package org.ballerinalang.test.service.grpc.sample;
 
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
@@ -82,18 +81,6 @@ public class InvalidServiceMethodTestCase extends GrpcBaseTest {
                 "the message";
 
         BValue[] responses = BRunUtil.invoke(result, "testInvalidOutputResponse", new BValue[]{request});
-        Assert.assertEquals(responses.length, 1);
-        Assert.assertEquals(responses[0].stringValue(), expectedMsg);
-    }
-
-    @Test(description = "Test invoking non existence remote method. Connector error is expected with method not found" +
-            " message")
-    public void testNonExistenceRemoteMethod() {
-        BBoolean request = new BBoolean(false);
-        final String expectedMsg = "Error from Connector: {ballerina/grpc}InternalError - No registered method " +
-                "descriptor for 'grpcservices.HelloWorld98/testBoolean'";
-
-        BValue[] responses = BRunUtil.invoke(result, "testNonExistenceRemoteMethod", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);
         Assert.assertEquals(responses[0].stringValue(), expectedMsg);
     }

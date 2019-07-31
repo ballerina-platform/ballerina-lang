@@ -31,7 +31,7 @@ const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 //    io:println("4. " + resp4.toString());
 //    var resp5 = testResponseInsideMatch("WSO2");
 //    io:println(resp5);
-//    Response resp6 = testUnaryBlockingStructClient({name: "Danesh", message: "OK", age:25});
+//    Response resp6 = testUnaryBlockingStructClient();
 //    io:print("7. ");
 //    io:println(resp6);
 //}
@@ -111,8 +111,8 @@ function testResponseInsideMatch(string msg) returns Response {
     }
 }
 
-function testUnaryBlockingStructClient(Request req) returns (Response) {
-    //Request req = {name:"Sam", age:25, message:"Testing."};
+function testUnaryBlockingStructClient() returns (Response) {
+    Request req = {name:"Sam", age:10, message:"Testing."};
     [Response, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->testStruct(req);
     if (unionResp is grpc:Error) {
         string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
@@ -129,12 +129,14 @@ function testUnaryBlockingStructClient(Request req) returns (Response) {
 
 public type HelloWorldBlockingClient client object {
 
+    *grpc:AbstractClientEndpoint;
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
-        grpc:Error? result = c.initStub("blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        grpc:Error? result = c.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is grpc:Error) {
             error err = result;
             panic err;
@@ -220,12 +222,14 @@ public type HelloWorldBlockingClient client object {
 
 public type helloWorldClient client object {
 
+    *grpc:AbstractClientEndpoint;
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
-        grpc:Error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is grpc:Error) {
             error err = result;
             panic err;

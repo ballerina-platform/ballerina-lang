@@ -30,10 +30,7 @@ const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 //    var resp2 = testOutputNestedStruct("WSO2");
 //    io:println(resp2);
 //
-//    StockRequest sp = {
-//        name: "GOOGL"
-//    };
-//    var resp3 = testInputStructOutputStruct(sp);
+//    var resp3 = testInputStructOutputStruct();
 //    io:println(resp3);
 //
 //    var resp4 = testNoInputOutputStruct();
@@ -53,7 +50,8 @@ const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 //    io:println(resp6);
 //}
 
-function testInputNestedStruct(Person p) returns (string) {
+function testInputNestedStruct() returns (string) {
+    Person p = {name:"Sam", address:{postalCode:10300, state:"Western", country:"Sri Lanka"}};
     io:println("testInputNestedStruct: input:");
     io:println(p);
     [string, grpc:Headers]|error unionResp = HelloWorldBlockingEp->testInputNestedStruct(p);
@@ -84,7 +82,8 @@ function testOutputNestedStruct(string name) returns (Person|string) {
     }
 }
 
-function testInputStructOutputStruct(StockRequest request) returns (StockQuote|string) {
+function testInputStructOutputStruct() returns (StockQuote|string) {
+    StockRequest request = {name: "WSO2"};
     io:println("testInputStructOutputStruct: input:");
     io:println(request);
     [StockQuote, grpc:Headers]|grpc:Error unionResp = HelloWorldBlockingEp->testInputStructOutputStruct(request);
@@ -147,12 +146,14 @@ function testInputStructNoOutput(StockQuote quote) returns (string) {
 
 public type HelloWorldBlockingClient client object {
 
+    *grpc:AbstractClientEndpoint;
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
-        grpc:Error? result = c.initStub("blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        grpc:Error? result = c.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is grpc:Error) {
             error err = result;
             panic err;
@@ -235,12 +236,14 @@ public type HelloWorldBlockingClient client object {
 
 public type HelloWorldClient client object {
 
+    *grpc:AbstractClientEndpoint;
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
-        grpc:Error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is grpc:Error) {
             error err = result;
             panic err;

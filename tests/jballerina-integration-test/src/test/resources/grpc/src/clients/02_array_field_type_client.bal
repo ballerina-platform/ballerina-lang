@@ -39,7 +39,7 @@ const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 //    io:println(resp4);
 //
 //    TestStruct testStruct = {values: [{name: "A"}, {name: "B"}, {name: "C"}]};
-//    var resp5 = testStructArrayInput(testStruct);
+//    var resp5 = testStructArrayInput();
 //    io:println(resp5);
 //
 //    var resp6 = testIntArrayOutput();
@@ -122,10 +122,11 @@ function testBooleanArrayInput(TestBoolean req) returns (boolean|string) {
     }
 }
 
-function testStructArrayInput(TestStruct req) returns (string) {
+function testStructArrayInput() returns (string) {
+    TestStruct testStruct = {values: [{name: "Sam"}, {name: "John"}]};
     io:println("testStructArrayInput: input:");
-    io:println(req);
-    [string, grpc:Headers]|grpc:Error unionResp = HelloWorldBlockingEp->testStructArrayInput(req);
+    io:println(testStruct);
+    [string, grpc:Headers]|grpc:Error unionResp = HelloWorldBlockingEp->testStructArrayInput(testStruct);
     io:println(unionResp);
     if (unionResp is grpc:Error) {
         return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
@@ -215,12 +216,14 @@ function testStructArrayOutput() returns (TestStruct|string) {
 
 public type HelloWorldBlockingClient client object {
 
+    *grpc:AbstractClientEndpoint;
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
-        grpc:Error? result = c.initStub("blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        grpc:Error? result = c.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is grpc:Error) {
             error err = result;
             panic err;
@@ -357,12 +360,14 @@ public type HelloWorldBlockingClient client object {
 
 public type HelloWorldClient client object {
 
+    *grpc:AbstractClientEndpoint;
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
-        grpc:Error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is grpc:Error) {
             error err = result;
             panic err;

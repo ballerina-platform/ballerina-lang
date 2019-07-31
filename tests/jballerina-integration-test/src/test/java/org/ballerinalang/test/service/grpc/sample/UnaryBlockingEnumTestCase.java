@@ -47,7 +47,7 @@ public class UnaryBlockingEnumTestCase extends GrpcBaseTest {
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
     }
 
-    @Test(enabled = false)
+    @Test
     public void testEnumBlockingBallerinaClient() {
         final String serverMsg = "r";
         BValue[] responses = BRunUtil.invoke(result, "testEnum");

@@ -18,8 +18,6 @@
 
 package org.ballerinalang.test.service.grpc.sample;
 
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -102,14 +100,14 @@ public class UnaryBlockingBasicTestCase extends GrpcBaseTest {
         Assert.assertEquals(Boolean.parseBoolean(responses[0].stringValue()), response);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testStructBlockingBallerinaClient() {
-        MapValue<String, Object> request = BallerinaValues.createRecordValue(".", "Request");
-        request.put("name", "Sam");
-        request.put("message", "Testing.");
-        request.put("age", 10);
+//        MapValue<String, Object> request = BallerinaValues.createRecordValue(".", "Request");
+//        request.put("name", "Sam");
+//        request.put("message", "Testing.");
+//        request.put("age", 10);
 
-        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingStructClient", new Object[]{request});
+        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingStructClient", new Object[]{});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BMap);
         final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];

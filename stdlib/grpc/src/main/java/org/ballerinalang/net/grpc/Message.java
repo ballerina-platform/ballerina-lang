@@ -21,20 +21,18 @@ import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.WireFormat;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.net.grpc.GrpcConstants.NO_PACKAGE;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.toCamelCase;
 
 /**
@@ -95,12 +93,8 @@ public class Message {
             throws IOException {
         this(messageName);
         MapValue<String, Object> bMapValue = null;
-        Map<String, BType> bMapFields = new HashMap<>();
         if (bType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            bMapValue = BallerinaValues.createRecordValue(NO_PACKAGE, messageName);
-            for (Object messageField : ((MapValue) bMapValue).getKeys()) {
-                bMapFields.put(messageField.toString(), TypeChecker.getType(bMapValue.get(messageField)));
-            }
+            bMapValue = new MapValueImpl<>(bType);
             bMessage = bMapValue;
         }
         boolean done = false;
@@ -118,6 +112,8 @@ public class Message {
                                 ArrayValue floatArray = new ArrayValue(new BArrayType(BTypes.typeFloat));
                                 if (bMapValue.containsKey(name)) {
                                     floatArray = (ArrayValue) bMapValue.get(name);
+                                } else {
+                                    bMapValue.put(name, floatArray);
                                 }
                                 floatArray.add(floatArray.size(), input.readDouble());
                             } else if (fieldDescriptor.getContainingOneof() != null) {
@@ -136,6 +132,8 @@ public class Message {
                                 ArrayValue floatArray = new ArrayValue(new BArrayType(BTypes.typeFloat));
                                 if (bMapValue.containsKey(name)) {
                                     floatArray = (ArrayValue) bMapValue.get(name);
+                                } else {
+                                    bMapValue.put(name, floatArray);
                                 }
                                 floatArray.add(floatArray.size(),
                                         Double.parseDouble(String.valueOf(input.readFloat())));
@@ -156,6 +154,8 @@ public class Message {
                                 ArrayValue intArray = new ArrayValue(new BArrayType(BTypes.typeInt));
                                 if (bMapValue.containsKey(name)) {
                                     intArray = (ArrayValue) bMapValue.get(name);
+                                } else {
+                                    bMapValue.put(name, intArray);
                                 }
                                 intArray.add(intArray.size(), input.readInt64());
                             } else if (fieldDescriptor.getContainingOneof() != null) {
@@ -174,6 +174,8 @@ public class Message {
                                 ArrayValue intArray = new ArrayValue(new BArrayType(BTypes.typeInt));
                                 if (bMapValue.containsKey(name)) {
                                     intArray = (ArrayValue) bMapValue.get(name);
+                                } else {
+                                    bMapValue.put(name, intArray);
                                 }
                                 intArray.add(intArray.size(), input.readUInt64());
                             } else if (fieldDescriptor.getContainingOneof() != null) {
@@ -192,6 +194,8 @@ public class Message {
                                 ArrayValue intArray = new ArrayValue(new BArrayType(BTypes.typeInt));
                                 if (bMapValue.containsKey(name)) {
                                     intArray = (ArrayValue) bMapValue.get(name);
+                                } else {
+                                    bMapValue.put(name, intArray);
                                 }
                                 intArray.add(intArray.size(), input.readInt32());
                             } else if (fieldDescriptor.getContainingOneof() != null) {
@@ -210,6 +214,8 @@ public class Message {
                                 ArrayValue intArray = new ArrayValue(new BArrayType(BTypes.typeInt));
                                 if (bMapValue.containsKey(name)) {
                                     intArray = (ArrayValue) bMapValue.get(name);
+                                } else {
+                                    bMapValue.put(name, intArray);
                                 }
                                 intArray.add(intArray.size(), input.readFixed64());
                             } else if (fieldDescriptor.getContainingOneof() != null) {
@@ -228,6 +234,8 @@ public class Message {
                                 ArrayValue intArray = new ArrayValue(new BArrayType(BTypes.typeInt));
                                 if (bMapValue.containsKey(name)) {
                                     intArray = (ArrayValue) bMapValue.get(name);
+                                } else {
+                                    bMapValue.put(name, intArray);
                                 }
                                 intArray.add(intArray.size(), input.readFixed32());
                             } else if (fieldDescriptor.getContainingOneof() != null) {
@@ -246,6 +254,8 @@ public class Message {
                                 ArrayValue booleanArray = new ArrayValue(new BArrayType(BTypes.typeBoolean));
                                 if (bMapValue.containsKey(name)) {
                                     booleanArray = (ArrayValue) bMapValue.get(name);
+                                } else {
+                                    bMapValue.put(name, booleanArray);
                                 }
                                 booleanArray.add(booleanArray.size(), input.readBool());
                             } else if (fieldDescriptor.getContainingOneof() != null) {
@@ -264,6 +274,8 @@ public class Message {
                                 ArrayValue stringArray = new ArrayValue(new BArrayType(BTypes.typeString));
                                 if (bMapValue.containsKey(name)) {
                                     stringArray = (ArrayValue) bMapValue.get(name);
+                                } else {
+                                    bMapValue.put(name, stringArray);
                                 }
                                 stringArray.add(stringArray.size(), input.readStringRequireUtf8());
                                 bMapValue.put(name, stringArray);
@@ -283,6 +295,8 @@ public class Message {
                                 ArrayValue stringArray = new ArrayValue(new BArrayType(BTypes.typeString));
                                 if (bMapValue.containsKey(name)) {
                                     stringArray = (ArrayValue) bMapValue.get(name);
+                                } else {
+                                    bMapValue.put(name, stringArray);
                                 }
                                 stringArray.add(stringArray.size(), fieldDescriptor.getEnumType().findValueByNumber
                                         (input.readEnum()).toString());
@@ -314,26 +328,36 @@ public class Message {
                         break;
                     }
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE: {
+                        BRecordType recordType = null;
+                        if (bType instanceof BRecordType) {
+                            recordType = (BRecordType) bType;
+                        }
+                        if (recordType == null) {
+                            throw Status.Code.INTERNAL.toStatus().withDescription("Error while decoding request " +
+                                    "message. record type is not supported : " +
+                                    fieldDescriptor.getType()).asRuntimeException();
+                        }
                         if (bMapValue != null) {
                             if (fieldDescriptor.isRepeated()) {
                                 ArrayValue structArray = bMapValue.get(name) != null ?
                                         (ArrayValue) bMapValue.get(name) : null;
                                 if (structArray == null || structArray.size() == 0) {
-                                    structArray = new ArrayValue(bMapFields.get(name));
+                                    structArray = new ArrayValue(new BArrayType(bType));
                                     bMapValue.put(name, structArray);
                                 }
-
+                                BType fieldType = recordType.getFields().get(name).getFieldType();
                                 structArray.add(structArray.size(), readMessage(fieldDescriptor,
-                                        ((BArrayType) bMapFields.get(name)).getElementType(), input).bMessage);
-                                bMapValue.put(name, structArray);
+                                        ((BArrayType) fieldType).getElementType(), input).bMessage);
                             } else if (fieldDescriptor.getContainingOneof() != null) {
                                 Object bValue = readMessage(fieldDescriptor, bType, input).bMessage;
                                 updateBMapValue(bType, bMapValue, fieldDescriptor, bValue);
                             } else {
-                                bMapValue.put(name, readMessage(fieldDescriptor, bMapFields.get(name), input).bMessage);
+                                BType fieldType = recordType.getFields().get(name).getFieldType();
+                                bMapValue.put(name, readMessage(fieldDescriptor, fieldType, input).bMessage);
                             }
                         } else {
-                            bMessage = readMessage(fieldDescriptor, bMapFields.get(name), input).bMessage;
+                            BType fieldType = recordType.getFields().get(name).getFieldType();
+                            bMessage = readMessage(fieldDescriptor, fieldType, input).bMessage;
                         }
                         break;
                     }
@@ -357,7 +381,7 @@ public class Message {
         Descriptors.OneofDescriptor oneofDescriptor = fieldDescriptor.getContainingOneof();
         String msgType = oneofDescriptor.getContainingType().getName() + "_" + toCamelCase
                 (fieldDescriptor.getName());
-        MapValue<String, Object> bMsg = BallerinaValues.createRecordValue(NO_PACKAGE, msgType);
+        MapValue<String, Object> bMsg = new MapValueImpl<>(new BRecordType(msgType, bType.getPackage(), 0, true));
         bMsg.put(fieldDescriptor.getName(), bValue);
         return bMsg;
     }

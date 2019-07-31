@@ -26,8 +26,6 @@ HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9095");
 //    io:println(resp2);
 //    var resp3 = testInvalidOutputResponse(1.0);
 //    io:println(resp3);
-//    var resp4 = testNonExistenceRemoteMethod(true);
-//    io:println(resp4);
 //}
 
 function testInvalidRemoteMethod(string name) returns (string) {
@@ -73,28 +71,16 @@ function testInvalidOutputResponse(float salary) returns (float|string) {
     }
 }
 
-function testNonExistenceRemoteMethod(boolean isAvailable) returns (boolean|string) {
-    [boolean, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->testBoolean(isAvailable);
-    if (unionResp is grpc:Error) {
-        string message = io:sprintf("Error from Connector: %s - %s", unionResp.reason(), <string> unionResp.detail()["message"]);
-        io:println(message);
-        return message;
-    } else {
-        io:println("Client got response : ");
-        boolean result = false;
-        [result, _] = unionResp;
-        io:println(result);
-        return result;
-    }
-}
-
 public type HelloWorldBlockingClient client object {
+
+    *grpc:AbstractClientEndpoint;
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
-        grpc:Error? result = c.initStub("blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        grpc:Error? result = c.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
         if (result is grpc:Error) {
             error err = result;
             panic err;
@@ -131,19 +117,6 @@ public type HelloWorldBlockingClient client object {
         [result, resHeaders] = unionResp;
         var value = typedesc<float>.constructFrom(result);
         if (value is float) {
-            return [value, resHeaders];
-        } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
-        }
-    }
-
-    remote function testBoolean(boolean req, grpc:Headers? headers = ()) returns ([boolean, grpc:Headers]|grpc:Error) {
-        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld98/testBoolean", req, headers);
-        anydata result = ();
-        grpc:Headers resHeaders = new;
-        [result, resHeaders] = unionResp;
-        var value = typedesc<boolean>.constructFrom(result);
-        if (value is boolean) {
             return [value, resHeaders];
         } else {
             return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);

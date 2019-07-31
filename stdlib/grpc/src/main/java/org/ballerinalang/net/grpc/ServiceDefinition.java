@@ -21,15 +21,23 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.InvalidProtocolBufferException;
+import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.types.BTupleType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.BUnionType;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.MessageUtils.setNestedMessages;
 import static org.ballerinalang.net.grpc.MethodDescriptor.generateFullMethodName;
 import static org.ballerinalang.net.grpc.ServicesBuilderUtils.getBallerinaValueType;
@@ -86,8 +94,9 @@ public final class ServiceDefinition {
         int i = 0;
         for (ByteString dependency : descriptorProto.getDependencyList().asByteStringList()) {
             if (descriptorMap.containsKey(dependency.toStringUtf8())) {
-                fileDescriptors[i++] = getFileDescriptor((String) descriptorMap.get(dependency.toString(Charset.forName
-                        ("UTF8"))), descriptorMap);
+                fileDescriptors[i++] =
+                        getFileDescriptor((String) descriptorMap.get(dependency.toString(StandardCharsets.UTF_8)),
+                                descriptorMap);
             }
         }
         if (fileDescriptors.length > 0 && i == 0) {
@@ -110,12 +119,18 @@ public final class ServiceDefinition {
         return descriptor.getFile().getServices().get(0);
     }
 
-    public Map<String, MethodDescriptor> getMethodDescriptors() throws GrpcClientException {
+    public Map<String, MethodDescriptor> getMethodDescriptors(AttachedFunction[] attachedFunctions)
+            throws GrpcClientException {
         Map<String, MethodDescriptor> descriptorMap = new HashMap<>();
         Descriptors.ServiceDescriptor serviceDescriptor = getServiceDescriptor();
 
-        for (Descriptors.MethodDescriptor methodDescriptor:  serviceDescriptor.getMethods()) {
-            String methodName = methodDescriptor.getName();
+        for (AttachedFunction attachedFunction : attachedFunctions) {
+            String methodName = attachedFunction.getName();
+            Descriptors.MethodDescriptor methodDescriptor = serviceDescriptor.findMethodByName(methodName);
+            if (methodDescriptor == null) {
+                throw new GrpcClientException("Error while initializing client stub. Couldn't find method descriptor " +
+                        "for remote function: " + methodName);
+            }
             Descriptors.Descriptor reqMessage = methodDescriptor.getInputType();
             Descriptors.Descriptor resMessage = methodDescriptor.getOutputType();
             MessageRegistry messageRegistry = MessageRegistry.getInstance();
@@ -126,18 +141,53 @@ public final class ServiceDefinition {
             messageRegistry.addMessageDescriptor(resMessage.getName(), resMessage);
             setNestedMessages(resMessage, messageRegistry);
             String fullMethodName = generateFullMethodName(serviceDescriptor.getFullName(), methodName);
+            BType requestType = getInputParameterType(attachedFunction);
+            BType responseType = getReturnParameterType(attachedFunction);
             MethodDescriptor descriptor =
                     MethodDescriptor.newBuilder()
                             .setType(MessageUtils.getMethodType(methodDescriptor.toProto()))
                             .setFullMethodName(fullMethodName)
                             .setRequestMarshaller(ProtoUtils.marshaller(new MessageParser(reqMessage.getName(),
-                                    getBallerinaValueType(reqMessage.getName()))))
+                                    requestType)))
                             .setResponseMarshaller(ProtoUtils.marshaller(new MessageParser(resMessage.getName(),
-                                    getBallerinaValueType(resMessage.getName()))))
+                                    responseType == null ?
+                                            getBallerinaValueType(attachedFunction.getPackage(),
+                                                    resMessage.getName()) : responseType)))
                             .setSchemaDescriptor(methodDescriptor)
                             .build();
             descriptorMap.put(fullMethodName, descriptor);
         }
         return Collections.unmodifiableMap(descriptorMap);
+    }
+
+    private BType getReturnParameterType(AttachedFunction attachedFunction) {
+        BType functionReturnType = attachedFunction.type.getReturnParameterType();
+        if (functionReturnType.getTag() == TypeTags.UNION_TAG) {
+            BUnionType unionReturnType = (BUnionType) functionReturnType;
+            BType firstParamType = unionReturnType.getMemberTypes().get(0);
+            if (firstParamType.getTag() == TypeTags.TUPLE_TAG) {
+                BTupleType tupleType = (BTupleType) firstParamType;
+                return tupleType.getTupleTypes().get(0);
+            } else if ("Headers".equals(firstParamType.getName()) &&
+                    firstParamType.getPackage() != null &&
+                    PROTOCOL_PACKAGE_GRPC.equals(firstParamType.getPackage().getName())) {
+                return BTypes.typeNull;
+            }
+        }
+        return null;
+    }
+
+    private BType getInputParameterType(AttachedFunction attachedFunction) {
+        BType[] inputParams = attachedFunction.type.getParameterType();
+        if (inputParams.length > 0) {
+            BType inputType = inputParams[0];
+            if (inputType != null && "Headers".equals(inputType.getName()) &&
+                    inputType.getPackage() != null && PROTOCOL_PACKAGE_GRPC.equals(inputType.getPackage().getName())) {
+                return BTypes.typeNull;
+            } else {
+                return inputParams[0];
+            }
+        }
+        return BTypes.typeNull;
     }
 }
