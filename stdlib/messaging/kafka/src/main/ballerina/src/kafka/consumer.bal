@@ -198,7 +198,7 @@ public type Consumer client object {
 
     # Connects consumer to the provided host in the consumer configs.
     #
-    # + return - Returns an `kafka:ConsumerError` if encounters an error, returns nill otherwise.
+    # + return - Returns a `kafka:ConsumerError` if encounters an error, returns nill otherwise.
     public remote function connect() returns ConsumerError? = external;
 
     # Returns the currently assigned partitions for the consumer.
