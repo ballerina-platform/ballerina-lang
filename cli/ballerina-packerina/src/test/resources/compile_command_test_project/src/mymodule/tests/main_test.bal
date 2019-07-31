@@ -22,7 +22,7 @@ function beforeFunc () {
 }
 function testFunction () {
     io:println("I'm in test function!");
-    test:assertTrue(true , msg = "Failed!");
+    test:assertTrue(false , msg = "Something Failed!");
 }
 
 # After test function

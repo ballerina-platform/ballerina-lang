@@ -162,15 +162,21 @@ public class TesterinaFunction {
                 try {
                     return method.invoke(null, objects[0]);
                 } catch (InvocationTargetException e) {
-                    e.printStackTrace();
-                    throw (RuntimeException) e.getTargetException();
-                } catch (IllegalAccessException e) {
-                    throw new BallerinaException("Method has private access", e);
+                    //throw new BallerinaException(e);
+
+                    return e.getTargetException();
+                }
+                catch (IllegalAccessException e) {
+                    throw new BallerinaException("Error while invoking function '" + funcName + "'", e);
                 }
             };
             final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null);
             scheduler.start();
             final Throwable t = out.panic;
+            final Object result = out.result;
+            if(result instanceof ErrorValue){
+                throw new BallerinaException((ErrorValue)result);
+            }
             if (t != null) {
                 if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {
                     throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
@@ -185,7 +191,7 @@ public class TesterinaFunction {
                 throw (RuntimeException) t;
             }
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException("Error while invoking function '" + funcName + "'", e);
+            throw new BallerinaException("Error while invoking function '" + funcName + "'", e);
         }
     }
 
