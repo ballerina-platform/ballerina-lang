@@ -1,0 +1,2 @@
+// Ballerina functions can have required parameters. Invoking a function with required parameters requires arguments
+// to be specified for each and every required parameter.
