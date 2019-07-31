@@ -32,7 +32,7 @@ public type InboundBasicAuthProvider object {
     # Provides authentication based on the provided configuration.
     #
     # + basicAuthConfig - The Basic Auth provider configurations.
-    public function __init(BasicAuthConfig? basicAuthConfig) {
+    public function __init(BasicAuthConfig? basicAuthConfig = ()) {
         if (basicAuthConfig is BasicAuthConfig) {
             self.basicAuthConfig = basicAuthConfig;
         } else {

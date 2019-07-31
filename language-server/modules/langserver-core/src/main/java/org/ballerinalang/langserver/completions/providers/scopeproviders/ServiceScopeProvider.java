@@ -30,7 +30,6 @@ import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.providers.contextproviders.AnnotationAttachmentContextProvider;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -79,7 +78,7 @@ public class ServiceScopeProvider extends LSCompletionProvider {
         completionItems.addAll(this.getResourceSnippets(ctx));
         completionItems.add(Snippet.DEF_FUNCTION.get().build(ctx));
 
-        ItemSorters.get(BLangService.class).sortItems(ctx, completionItems);
+        ctx.put(CompletionKeys.ITEM_SORTER_KEY, BLangService.class);
 
         return completionItems;
     }

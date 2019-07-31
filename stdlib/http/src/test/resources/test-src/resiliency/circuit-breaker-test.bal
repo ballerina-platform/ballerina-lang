@@ -344,7 +344,7 @@ public type MockClient client object {
     }
 
     public remote function delete(string path,
-                           http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
+                           http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
                                                                                 returns http:Response|http:ClientError {
         return getUnsupportedError();
     }

@@ -57,7 +57,7 @@ public type RedirectClient client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
     #             `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function get(string path, RequestMessage message = ()) returns Response|ClientError {
+    public function get(string path, public RequestMessage message = ()) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_GET);
         if (result is Response) {
             return result;
@@ -89,7 +89,7 @@ public type RedirectClient client object {
     # + message - An optional HTTP outbound request message or or any payload of type `string`, `xml`, `json`,
     #             `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function head(string path, RequestMessage message = ()) returns Response|ClientError {
+    public function head(string path, public RequestMessage message = ()) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_HEAD);
         if (result is Response) {
             return result;
@@ -168,7 +168,7 @@ public type RedirectClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function delete(string path, RequestMessage message) returns Response|ClientError {
+    public function delete(string path, public RequestMessage message = ()) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_DELETE);
         if (result is Response) {
             return result;
@@ -184,7 +184,7 @@ public type RedirectClient client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
     #             `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public function options(string path, RequestMessage message = ()) returns Response|ClientError {
+    public function options(string path, public RequestMessage message = ()) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_OPTIONS);
         if (result is Response) {
             return result;
