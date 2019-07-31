@@ -25,8 +25,6 @@ import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.ballerinalang.langserver.completions.util.sorters.ActionAndFieldAccessContextItemSorter;
-import org.ballerinalang.langserver.completions.util.sorters.CompletionItemSorter;
-import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
@@ -57,12 +55,10 @@ public class VarDefContextProvider extends LSCompletionProvider {
             completionItems.addAll(this.getCompletionItemList(filteredList, context));
         } else {
             sorterKey = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getClass();
-            completionItems.addAll(this.getVarDefExpressionCompletions(context));
+            completionItems.addAll(this.getVarDefExpressionCompletions(context, false));
         }
 
-        CompletionItemSorter itemSorter = ItemSorters.get(sorterKey);
-        itemSorter.sortItems(context, completionItems);
-
+        context.put(CompletionKeys.ITEM_SORTER_KEY, sorterKey);
         return completionItems;
     }
 }

@@ -96,6 +96,10 @@ public class Scheduler {
     public FutureValue schedule(Object[] params, Function function, Strand parent, CallableUnitCallback callback,
                                 Map<String, Object> properties) {
         FutureValue future = createFuture(parent, callback, properties);
+        return schedule(params, function, parent, future);
+    }
+
+    private FutureValue schedule(Object[] params, Function function, Strand parent, FutureValue future) {
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(function, params, future);
         future.strand.schedulerItem = item;

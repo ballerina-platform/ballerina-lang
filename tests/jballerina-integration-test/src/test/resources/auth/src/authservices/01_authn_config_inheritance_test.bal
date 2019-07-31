@@ -17,7 +17,7 @@
 import ballerina/auth;
 import ballerina/http;
 
-auth:InboundBasicAuthProvider basicAuthProvider01 = new(());
+auth:InboundBasicAuthProvider basicAuthProvider01 = new;
 http:BasicAuthHandler basicAuthHandler01 = new(basicAuthProvider01);
 
 listener http:Listener listener01 = new(20000, {

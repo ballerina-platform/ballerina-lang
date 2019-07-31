@@ -102,12 +102,12 @@ function testMixedVariables() returns string {
 function testClosedRecordPatterns() returns string {
     any k = 1;
     match k {
-        var {| var1: name |} => return "A";
-        var {| var1: name2 |} => return "A"; // unreachable
-        var {var3: name} => return "A";
-        var {| var3: name |} => return "A"; // unreachable
-        var [a, b, {var1, var2: [d, {var2}]}, c] => return "B";
-        var [a, b, {var1, var2: [d, {| var2 |}]}, c] => return "B"; // unreachable
+        var { var1: name } => return "A";
+        var { var1: name2 } => return "B"; // unreachable
+        var { var3: name } => return "C";
+        var { var3: name } => return "D"; // unreachable
+        var [a, b, {var1, var2: [d, {var2}]}, c] => return "E";
+        var [a, b, {var1, var2: [d, { var2 }]}, c] => return "D"; // unreachable
     }
 
     return "Default";

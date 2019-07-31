@@ -18,6 +18,7 @@
 
 package org.ballerinalang.net.http;
 
+import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.types.AttachedFunction;
@@ -35,6 +36,9 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.SERVER_CONNECTOR_WEBSOCKET;
 
@@ -74,22 +78,19 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             httpConnection.addNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
             httpConnection.addNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER, connectionManager);
 
-            // TODO: Need to revisit this code of observation.
             ObserverContext observerContext = null;
+            Map<String, Object> properties = new HashMap<>();
             if (ObserveUtils.isObservabilityEnabled()) {
                 observerContext = new ObserverContext();
                 observerContext.setConnectorName(SERVER_CONNECTOR_WEBSOCKET);
-                //TODO Fix following along with JBal migration
-//                observerContext.setServiceName(ObserveUtils.getFullServiceName(wsService.getServiceInfo()));
                 observerContext.setResourceName(balResource.getName());
+                // TODO: extract span context as a map and add to the observer context
+                properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
             }
-            //TODO Fix observerContext usage
-//            Executor.submit(balResource, new OnUpgradeResourceCallableUnitCallback(webSocketHandshaker, wsService),
-//                            null, observerContext, signatureParams);
             //TODO this is temp fix till we get the service.start() API
             Executor.submit(wsService.getScheduler(), onUpgradeResource.getParentService().getBalService(),
                             balResource.getName(), new OnUpgradeResourceCallableUnitCallback(
-                            webSocketHandshaker, wsService), null, signatureParams);
+                            webSocketHandshaker, wsService), properties, signatureParams);
         } else {
             WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketHandshaker, null);
         }

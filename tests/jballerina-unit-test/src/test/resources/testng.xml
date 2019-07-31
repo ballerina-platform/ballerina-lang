@@ -57,7 +57,7 @@
             <package name="org.ballerinalang.test.error.*"/>
             <package name="org.ballerinalang.test.types.finaltypes.*"/>
             <package name="org.ballerinalang.test.types.finite.*"/>
-            <!--<package name="org.ballerinalang.test.types.map.*"/>-->
+            <package name="org.ballerinalang.test.types.map.*"/>
             <package name="org.ballerinalang.test.types.string.*"/>
             <package name="org.ballerinalang.test.types.errors.*"/>
             <package name="org.ballerinalang.test.types.var.*"/>
@@ -120,6 +120,7 @@
             <package name="org.ballerinalang.test.taintchecking.*"/>
             <package name="org.ballerinalang.test.statements.transaction.*"/>
             <package name="org.ballerinalang.test.functions.*"/>
+            <package name="org.ballerinalang.test.javainterop.*"/>
         </packages>
 
         <classes>

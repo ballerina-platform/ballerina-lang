@@ -71,7 +71,7 @@ class SizingVisitor implements Visitor {
 
         // Initialize the client width and height to default.
         client.bBox.h = config.lifeLine.line.height + (config.lifeLine.header.height * 2);
-        client.bBox.w = config.lifeLine.width;
+        client.bBox.w = 4;
 
         // Size default worker
         defaultWorker.bBox.h = node.body!.viewState.bBox.h + (config.lifeLine.header.height * 2)
@@ -393,6 +393,8 @@ class SizingVisitor implements Visitor {
         if (viewState.hidden && !viewState.isInHiddenBlock) {
             viewState.bBox.h = 0;
             viewState.bBox.w = 0;
+            viewState.bBox.leftMargin = 0;
+            viewState.bBox.paddingTop = 0;
             return;
         }
 
@@ -544,17 +546,19 @@ class SizingVisitor implements Visitor {
         const sendReceivePairs: Array<{
             send: WorkerSend,
             sendIndex: number,
+            sendHolder: ASTNode,
             receive: WorkerReceive,
             receiveIndex: number,
             receiveHolder: ASTNode}> = [];
         const sends: {[fromWorker: string]: {[toWorker: string]:
-            Array<{statement: WorkerSend, index: number}>}} = {};
+            Array<{statement: WorkerSend, index: number,  holder: ASTNode}>}} = {};
         const receives: {[toWorker: string]: {[fromWorker: string]:
             Array<{statement: WorkerReceive, index: number, holder: ASTNode}>}} = {};
 
         const workersMap: {[workerName: string]: WorkerTuple} = {};
         const workerHeightInfo: {[workerName: string]: {currentHeight: number, currentIndex: number}} = {};
 
+        // 1. Collect all sends and receives
         workers.forEach((worker) => {
             sends[worker.view.name] = {};
             receives[worker.view.name] = {};
@@ -565,14 +569,31 @@ class SizingVisitor implements Visitor {
             };
 
             worker.block.statements.forEach((statement, index) => {
+                // Check if the statement is a send
                 if (ASTKindChecker.isWorkerSend(statement)) {
                     if (sends[worker.view.name][statement.workerName.value] === undefined) {
                         sends[worker.view.name][statement.workerName.value] = [];
                     }
-                    sends[worker.view.name][statement.workerName.value].push({statement, index});
+                    sends[worker.view.name][statement.workerName.value].push({statement, index, holder: statement});
                     return;
                 }
 
+                // Check if the statement is a sync send
+                if (ASTKindChecker.isVariableDef(statement) && statement.variable.initialExpression &&
+                        ASTKindChecker.isWorkerSyncSend(statement.variable.initialExpression)) {
+                    const sendExp = statement.variable.initialExpression;
+                    if (sends[worker.view.name][sendExp.workerName.value] === undefined) {
+                        sends[worker.view.name][sendExp.workerName.value] = [];
+                    }
+                    sends[worker.view.name][sendExp.workerName.value].push({
+                        holder: statement,
+                        index,
+                        statement: sendExp,
+                    });
+                    return;
+                }
+
+                // Check if the statement is a receive
                 const receiveStatement = ASTUtil.extractWorkerReceive(statement);
                 if (receiveStatement) {
                     if (receives[worker.view.name][receiveStatement.workerName.value] === undefined) {
@@ -584,6 +605,7 @@ class SizingVisitor implements Visitor {
             });
         });
 
+        // 2. Pair up sends and receives
         workers.forEach((fromWorker) => {
             workers.forEach((toWorker) => {
                 if (fromWorker === toWorker) {
@@ -593,20 +615,28 @@ class SizingVisitor implements Visitor {
                     || !receives[toWorker.view.name][fromWorker.view.name]) {
                     return;
                 }
-                sends[fromWorker.view.name][toWorker.view.name].forEach(({statement: send, index: sendIndex}) => {
+                sends[fromWorker.view.name][toWorker.view.name].forEach((sendInfo) => {
+                    const { statement: send, index: sendIndex, holder: sendHolder } = sendInfo;
                     (send.viewState as WorkerSendViewState).to = toWorker.view;
+                    // Since sends and receives are added to the list on order, the first available receive in the
+                    // array is the matching receive to this send.
                     const r = receives[toWorker.view.name][fromWorker.view.name].shift();
                     if (!r) {
                         return;
                     }
 
                     const { statement: receive, index: receiveIndex, holder: receiveHolder } = r;
-                    sendReceivePairs.push({ send, sendIndex, receive, receiveIndex, receiveHolder});
+                    sendReceivePairs.push({ send, sendIndex, sendHolder, receive, receiveIndex, receiveHolder});
                 });
             });
         });
+
+        // 3. Sort the pairs in the order they should appear top to bottom
         sendReceivePairs.sort((p1, p2) => {
             if (p1.send.workerName.value === p2.send.workerName.value) {
+                // If two pairs has the same receiver (send.workerName is the receiver name) one with
+                // higher lower receiver index (one defined heigher up in the receiver) should be rendered
+                // higher in the list of pairs. Same logic is used for all the cases following.
                 return p1.receiveIndex - p2.receiveIndex;
             }
             if (p1.send.workerName.value === p2.receive.workerName.value) {
@@ -620,6 +650,8 @@ class SizingVisitor implements Visitor {
             }
             return 0;
         });
+
+        // 4. Calculate heights
         sendReceivePairs.forEach((pair) => {
             const sendWorker = workersMap[pair.receive.workerName.value];
             for (let index = workerHeightInfo[sendWorker.view.name].currentIndex; index < pair.sendIndex; index++) {
@@ -639,11 +671,11 @@ class SizingVisitor implements Visitor {
             workerHeightInfo[receiveWorker.view.name].currentIndex = pair.receiveIndex;
             const sendHeight = workerHeightInfo[sendWorker.view.name].currentHeight;
             const receiveHeight = workerHeightInfo[receiveWorker.view.name].currentHeight;
-
+            (pair.send.viewState as WorkerSendViewState).isSynced = true;
             if (sendHeight > receiveHeight) {
                 pair.receiveHolder.viewState.bBox.paddingTop = sendHeight - receiveHeight;
             } else {
-                pair.send.viewState.bBox.paddingTop = receiveHeight - sendHeight;
+                pair.sendHolder.viewState.bBox.paddingTop = receiveHeight - sendHeight;
             }
         });
     }

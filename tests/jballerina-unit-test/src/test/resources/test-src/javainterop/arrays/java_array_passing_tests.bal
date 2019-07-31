@@ -18,12 +18,20 @@ public function testReturningSortedJavaStringArray() returns handle {
     return parts;
 }
 
-@java:Method {name:"sort", class: "java.util.Arrays", isStatic:true, paramTypes:["[I"]}
-public function sortJavaIntArray(handle arrayValue) = external;
+public function sortJavaIntArray(handle arrayValue) = @java:Method {
+    name:"sort",
+    class: "java.util.Arrays",
+    paramTypes:["[I"]
+} external;
 
-@java:Method {name:"sort", class: "java.util.Arrays", isStatic:true, paramTypes:["[Ljava.lang.String;"]}
-public function sortJavaStringArray(handle arrayValue) = external;
+public function sortJavaStringArray(handle arrayValue) = @java:Method {
+    name:"sort",
+    class: "java.util.Arrays",
+    paramTypes:["[Ljava.lang.String;"]
+} external;
 
-@java:Method {name:"split", class: "java/lang/String", isStatic:false}
-public function splitString(handle receiver, handle regex) returns handle = external;
+public function splitString(handle receiver, handle regex) returns handle = @java:Method {
+    name:"split",
+    class: "java/lang/String"
+} external;
 

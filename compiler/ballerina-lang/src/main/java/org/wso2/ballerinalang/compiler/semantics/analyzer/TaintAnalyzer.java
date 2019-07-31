@@ -1000,6 +1000,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public void visit(BLangRecordLiteral recordLiteral) {
         TaintedStatus isTainted = TaintedStatus.UNTAINTED;
         for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
+            if (keyValuePair.key.computedKey) {
+                keyValuePair.key.expr.accept(this);
+                if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+                    isTainted = TaintedStatus.TAINTED;
+                }
+            }
+
             keyValuePair.valueExpr.accept(this);
             // Used to update the variable this literal is getting assigned to.
             if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {

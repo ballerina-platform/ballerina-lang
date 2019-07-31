@@ -19,6 +19,7 @@ package org.ballerinalang.nativeimpl.jvm.interop;
 
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 /**
  * Represents a java method in this implementation.
@@ -46,6 +47,10 @@ class JMethod {
 
     boolean isDeclaringClassInterface() {
         return this.method.getDeclaringClass().isInterface();
+    }
+
+    boolean isStatic() {
+        return Modifier.isStatic(method.getModifiers());
     }
 
     String getName() {
