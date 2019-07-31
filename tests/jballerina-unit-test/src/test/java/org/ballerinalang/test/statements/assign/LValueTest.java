@@ -160,7 +160,7 @@ public class LValueTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IllegalArrayInsertion message=array of length 2 " +
+            expectedExceptionsMessageRegExp = ".*\\{ballerina\\}IllegalListInsertion message=array of length 2 " +
                     "cannot be expanded into array of length 4 without filler values.*")
     public void testArrayFillFailure() {
         BRunUtil.invoke(result, "testArrayFillFailure");

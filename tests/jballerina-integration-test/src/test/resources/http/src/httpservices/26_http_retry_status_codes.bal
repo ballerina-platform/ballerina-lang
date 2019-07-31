@@ -20,13 +20,13 @@ import ballerina/runtime;
 
 http:Client internalErrorEP = new("http://localhost:8080", {
     retryConfig: {
-        interval: 3000,
+        intervalInMillis: 3000,
         count: 3,
         backOffFactor: 2.0,
-        maxWaitInterval: 20000,
+        maxWaitIntervalInMillis: 20000,
         statusCodes: [501, 502, 503]
     },
-    timeoutMillis: 2000
+    timeoutInMillis: 2000
 });
 
 @http:ServiceConfig {

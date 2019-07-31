@@ -24,15 +24,15 @@ listener http:Listener circuitBreakerEP03 = new(9309);
 http:ClientEndpointConfig conf03 = {
     circuitBreaker: {
         rollingWindow: {
-            timeWindowMillis: 60000,
-            bucketSizeMillis: 20000,
+            timeWindowInMillis: 60000,
+            bucketSizeInMillis: 20000,
             requestVolumeThreshold: 0
         },
         failureThreshold: 0.2,
-        resetTimeMillis: 1000,
+        resetTimeInMillis: 1000,
         statusCodes: [501, 502, 503]
     },
-    timeoutMillis: 2000
+    timeoutInMillis: 2000
 };
 
 http:Client simpleClientEP = new("http://localhost:8089", conf03);

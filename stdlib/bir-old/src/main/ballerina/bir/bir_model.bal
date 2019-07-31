@@ -413,6 +413,7 @@ public type BUnionType record {|
 
 public type BTupleType record {|
    BType?[]  tupleTypes;
+   BType?  restType = ();
 |};
 
 public type BFutureType record {|

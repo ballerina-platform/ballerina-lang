@@ -269,6 +269,7 @@ public enum DiagnosticCode {
     LIST_INDEX_OUT_OF_RANGE("list.index.out.of.range"),
     ARRAY_INDEX_OUT_OF_RANGE("array.index.out.of.range"),
     TUPLE_INDEX_OUT_OF_RANGE("tuple.index.out.of.range"),
+    INVALID_TYPE_FOR_REST_DESCRIPTOR("invalid.type.for.rest.descriptor"),
     INVALID_TYPE_NEW_LITERAL("invalid.type.new.literal"),
     INVALID_USAGE_OF_KEYWORD("invalid.usage.of.keyword"),
 

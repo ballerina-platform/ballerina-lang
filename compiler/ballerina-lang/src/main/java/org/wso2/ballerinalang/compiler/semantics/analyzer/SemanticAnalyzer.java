@@ -925,6 +925,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         memberTupleTypes.add(varNode.type);
                     }
                     tupleTypeNode = new BTupleType(memberTupleTypes);
+                    if (varNode.restVariable != null) {
+                        tupleTypeNode.restType = varNode.type;
+                    }
                     break;
                 case TypeTags.TUPLE:
                     tupleTypeNode = (BTupleType) varNode.type;
@@ -935,14 +938,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        if (tupleTypeNode.tupleTypes.size() != varNode.memberVariables.size()) {
+        if (tupleTypeNode.tupleTypes.size() != varNode.memberVariables.size()
+                || (tupleTypeNode.restType == null && varNode.restVariable != null)
+                ||  (tupleTypeNode.restType != null && varNode.restVariable == null)) {
             dlog.error(varNode.pos, DiagnosticCode.INVALID_TUPLE_BINDING_PATTERN);
             return false;
         }
 
         int ignoredCount = 0;
-        for (int i = 0; i < varNode.memberVariables.size(); i++) {
-            BLangVariable var = varNode.memberVariables.get(i);
+        List<BLangVariable> memberVariables = new ArrayList<>(varNode.memberVariables);
+        if (varNode.restVariable != null) {
+            memberVariables.add(varNode.restVariable);
+        }
+        for (int i = 0; i < memberVariables.size(); i++) {
+            BLangVariable var = memberVariables.get(i);
+            BType type = (i <= tupleTypeNode.tupleTypes.size() - 1) ? tupleTypeNode.tupleTypes.get(i) :
+                    new BArrayType(tupleTypeNode.restType);
             if (var.getKind() == NodeKind.VARIABLE) {
                 // '_' is allowed in tuple variables. Not allowed if all variables are named as '_'
                 BLangSimpleVariable simpleVar = (BLangSimpleVariable) var;
@@ -950,12 +961,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if (varName == Names.IGNORE) {
                     ignoredCount++;
                     simpleVar.type = symTable.anyType;
-                    types.checkType(varNode.pos, tupleTypeNode.tupleTypes.get(i), simpleVar.type,
+                    types.checkType(varNode.pos, type, simpleVar.type,
                             DiagnosticCode.INCOMPATIBLE_TYPES);
                     continue;
                 }
             }
-            var.type = tupleTypeNode.tupleTypes.get(i);
+            var.type = type;
             analyzeNode(var, env);
         }
 
@@ -1642,21 +1653,29 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, varRef.type, rhsType);
             return;
         }
-        if (varRef.expressions.size() != ((BTupleType) rhsType).tupleTypes.size()) {
+        List<BLangExpression> expressions = new ArrayList<>(varRef.expressions);
+        if (varRef.restParam != null) {
+            expressions.add((BLangExpression) varRef.restParam);
+        }
+        List<BType> tupleTypes = new ArrayList<>(((BTupleType) rhsType).tupleTypes);
+        if (((BTupleType) rhsType).restType != null) {
+            tupleTypes.add(new BArrayType(((BTupleType) rhsType).restType));
+        }
+        if (expressions.size() != tupleTypes.size()) {
             dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, varRef.type, rhsType);
             return;
         }
-        for (int i = 0; i < varRef.expressions.size(); i++) {
-            BLangExpression varRefExpr = varRef.expressions.get(i);
+        for (int i = 0; i < expressions.size(); i++) {
+            BLangExpression varRefExpr = expressions.get(i);
             if (NodeKind.RECORD_VARIABLE_REF == varRefExpr.getKind()) {
                 BLangRecordVarRef recordVarRef = (BLangRecordVarRef) varRefExpr;
-                checkRecordVarRefEquivalency(pos, recordVarRef, ((BTupleType) rhsType).tupleTypes.get(i), rhsPos);
+                checkRecordVarRefEquivalency(pos, recordVarRef, tupleTypes.get(i), rhsPos);
             } else if (NodeKind.TUPLE_VARIABLE_REF == varRefExpr.getKind()) {
                 BLangTupleVarRef tupleVarRef = (BLangTupleVarRef) varRefExpr;
-                checkTupleVarRefEquivalency(pos, tupleVarRef, ((BTupleType) rhsType).tupleTypes.get(i), rhsPos);
+                checkTupleVarRefEquivalency(pos, tupleVarRef, tupleTypes.get(i), rhsPos);
             } else if (NodeKind.ERROR_VARIABLE_REF == varRefExpr.getKind()) {
                 BLangErrorVarRef errorVarRef = (BLangErrorVarRef) varRefExpr;
-                checkErrorVarRefEquivalency(pos, errorVarRef, ((BTupleType) rhsType).tupleTypes.get(i), rhsPos);
+                checkErrorVarRefEquivalency(pos, errorVarRef, tupleTypes.get(i), rhsPos);
             } else {
                 if (varRefExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                     BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRefExpr;
@@ -1665,7 +1684,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         continue;
                     }
                 }
-                if (!types.isAssignable(((BTupleType) rhsType).tupleTypes.get(i), varRefExpr.type)) {
+                if (!types.isAssignable(tupleTypes.get(i), varRefExpr.type)) {
                     dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, varRef.type, rhsType);
                     break;
                 }
