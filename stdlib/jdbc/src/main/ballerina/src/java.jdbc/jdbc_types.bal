@@ -113,41 +113,41 @@ public function getGlobalPoolConfigContainer() returns GlobalPoolConfigContainer
 
 # The SQL Datatype of the parameter.
 #
-# VARCHAR - Small, variable length character string
-# CHAR - Small, fixed length character string
-# LONGVARCHAR - Large, variable length character string
-# NCHAR - Small, fixed length character string with unicode support
-# LONGNVARCHAR - Large, variable length character string with unicode support
+# `VARCHAR` - Small, variable length character string
+# `CHAR` - Small, fixed length character string
+# `LONGVARCHAR` - Large, variable length character string
+# `NCHAR` - Small, fixed length character string with unicode support
+# `LONGNVARCHAR` - Large, variable length character string with unicode support
 #
-# BIT - Single bit value that can be zero or one, or nil
-# BOOLEAN - Boolean value either True or false
-# TINYINT - 8-bit integer value which may be unsigned or signed
-# SMALLINT - 16-bit signed integer value which may be unsigned or signed
-# INTEGER - 32-bit signed integer value which may be unsigned or signed
-# BIGINT - 64-bit signed integer value which may be unsigned or signed
+# `BIT` - Single bit value that can be zero or one, or nil
+# `BOOLEAN` - Boolean value either True or false
+# `TINYINT` - 8-bit integer value which may be unsigned or signed
+# `SMALLINT` - 16-bit signed integer value which may be unsigned or signed
+# `INTEGER` - 32-bit signed integer value which may be unsigned or signed
+# `BIGINT` - 64-bit signed integer value which may be unsigned or signed
 #
-# NUMERIC - Fixed-precision and scaled decimal values
-# DECIMAL - Fixed-precision and scaled decimal values
-# REAL - Single precision floating point number
-# FLOAT - Double precision floating point number
-# DOUBLE - Double precision floating point number
+# `NUMERIC` - Fixed-precision and scaled decimal values
+# `DECIMAL` - Fixed-precision and scaled decimal values
+# `REAL` - Single precision floating point number
+# `FLOAT` - Double precision floating point number
+# `DOUBLE` - Double precision floating point number
 #
-# BINARY - Small, fixed-length binary value
-# BLOB - Binary Large Object
-# LONGVARBINARY - Large, variable length binary value
-# VARBINARY - Small, variable length binary value
+# `BINARY` - Small, fixed-length binary value
+# `BLOB` - Binary Large Object
+# `LONGVARBINARY` - Large, variable length binary value
+# `VARBINARY` - Small, variable length binary value
 #
-# CLOB - Character Large Object.
-# NCLOB - Character large objects in multibyte national character set
+# `CLOB` - Character Large Object.
+# `NCLOB` - Character large objects in multibyte national character set
 #
-# DATE - Date consisting of day, month, and year
-# TIME - Time consisting of hours, minutes, and seconds
-# DATETIME - Both DATE and TIME with additional a nanosecond field
-# TIMESTAMP - Both DATE and TIME with additional a nanosecond field
+# `DATE` - Date consisting of day, month, and year
+# `TIME` - Time consisting of hours, minutes, and seconds
+# `DATETIME` - Both DATE and TIME with additional a nanosecond field
+# `TIMESTAMP` - Both DATE and TIME with additional a nanosecond field
 #
-# ARRAY - Composite data value that consists of zero or more elements of a specified data type
-# STRUCT - User defined structured type, consists of one or more attributes
-# REFCURSOR - Cursor value
+# `ARRAY` - Composite data value that consists of zero or more elements of a specified data type
+# `STRUCT` - User defined structured type, consists of one or more attributes
+# `REFCURSOR` - Cursor value
 public type SQLType TYPE_VARCHAR|TYPE_CHAR|TYPE_LONGVARCHAR|TYPE_NCHAR|TYPE_LONGNVARCHAR|TYPE_NVARCHAR|TYPE_BIT|
 TYPE_BOOLEAN|TYPE_TINYINT|TYPE_SMALLINT|TYPE_INTEGER|TYPE_BIGINT|TYPE_NUMERIC|TYPE_DECIMAL|TYPE_REAL|TYPE_FLOAT|
 TYPE_DOUBLE|TYPE_BINARY|TYPE_BLOB|TYPE_LONGVARBINARY|TYPE_VARBINARY|TYPE_CLOB|TYPE_NCLOB|TYPE_DATE|TYPE_TIME|
@@ -186,9 +186,9 @@ public const TYPE_REFCURSOR = "REFCURSOR";
 
 # The direction of the parameter.
 #
-# IN - IN parameters are used to send values to stored procedures
-# OUT - OUT parameters are used to get values from stored procedures
-# INOUT - INOUT parameters are used to send values and get values from stored procedures
+# `IN` - IN parameters are used to send values to stored procedures
+# `OUT` - OUT parameters are used to get values from stored procedures
+# `INOUT` - INOUT parameters are used to send values and get values from stored procedures
 public type Direction DIRECTION_IN|DIRECTION_OUT|DIRECTION_INOUT;
 
 public const DIRECTION_IN = "IN";
