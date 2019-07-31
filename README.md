@@ -7,7 +7,7 @@
     [![codecov](https://codecov.io/gh/ballerina-platform/ballerina-lang/branch/master/graph/badge.svg)](https://codecov.io/gh/ballerina-platform/ballerina-lang)
   [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Ballerina is a general-purpose programming language with features optimized for network distributed applications.
+In the cloud, applications interact with their environment over the network. Ballerina is a general-purpose programming language with features optimized for these network distributed applications. It is easy to write and modify and is suitable for application programmers.
 
 #### Services
 It has first-class language constructs for providing and consuming services,
