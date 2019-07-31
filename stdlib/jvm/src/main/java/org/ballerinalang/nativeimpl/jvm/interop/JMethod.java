@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.nativeimpl.jvm.interop;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -51,6 +52,10 @@ class JMethod {
 
     boolean isStatic() {
         return Modifier.isStatic(method.getModifiers());
+    }
+
+    boolean isInstanceMethod() {
+        return !isStatic() && !(method instanceof Constructor);
     }
 
     String getName() {

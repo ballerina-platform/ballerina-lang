@@ -40,10 +40,8 @@ class JInterop {
 
     static final String ORG_NAME = "ballerina";
     static final String MODULE_NAME = "jvm";
-    static final String BIR_MODULE_NAME = "bir";
     static final String JAVA_MODULE_NAME = "java";
     static final String JVM_PACKAGE_PATH = ORG_NAME + ORG_NAME_SEPARATOR + MODULE_NAME;
-    static final String BIR_PACKAGE_PATH = ORG_NAME + ORG_NAME_SEPARATOR + BIR_MODULE_NAME;
     static final String ERROR_REASON_PREFIX = "{" + ORG_NAME + "/" + JAVA_MODULE_NAME + "}";
     static final String PARAM_TYPE_CONSTRAINTS_FIELD = "paramTypeConstraints";
     static final String CLASS_FIELD = "class";
@@ -59,7 +57,6 @@ class JInterop {
     static final String RETURN_TYPE_FIELD = "retType";
     static final String METHOD_FIELD = "method";
     static final String TAG_FIELD = "tag";
-    static final String BFUNC_TYPE_FIELD = "bFuncType";
     static final String HANDLE_TYPE_NAME = "handle";
     static final String METHOD_TYPE_NAME = "Method";
     static final String FIELD_TYPE_NAME = "Field";
@@ -68,9 +65,7 @@ class JInterop {
     static final String TYPE_NAME_FIELD = "typeName";
     static final String NO_TYPE_NAME = "NoType";
     static final String B_FUNC_TYPE_FIELD = "bFuncType";
-    static final String BIR_UNION_TYPE_NAME = "BUnionType";
-    static final MapValue BIR_UNION_TYPE_VALUE = BallerinaValues.createRecordValue(BIR_PACKAGE_PATH,
-            BIR_UNION_TYPE_NAME);
+    static final String B_ERROR_TYPE_NAME = "error";
 
     static MapValue<String, Object> createRecordBValue(String typeName) {
         return BallerinaValues.createRecordValue(JVM_PACKAGE_PATH, typeName);

@@ -17,9 +17,18 @@
  */
 package org.ballerinalang.nativeimpl.jvm.interop;
 
-import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BUnionType;
+import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.StreamValue;
+import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.XMLValue;
 
 import java.lang.reflect.Executable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -124,12 +133,23 @@ class JMethodResolver {
 
     private void validateArgumentTypes(JMethodRequest jMethodRequest, JMethod jMethod) {
         Class<?>[] jParamTypes = jMethod.getParamTypes();
-        ArrayValue bParamTypes = jMethodRequest.bParamTypes;
-        for (int i = 0; i < jParamTypes.length ; i++) {
-            if (!isValidBType(jParamTypes[i], bParamTypes.get(i))) {
+        BType[] bParamTypes = jMethodRequest.bParamTypes;
+        int i = 0;
+        if (jMethod.isInstanceMethod() && bParamTypes.length > 0) {
+            if (!isValidExpectedBType(jMethodRequest.declaringClass, bParamTypes[i])) {
                 throw new JInteropException(JInteropException.METHOD_SIGNATURE_NOT_MATCH_REASON,
                         "No such Java method '" + jMethodRequest.methodName +
                                 "' with method argument type '" + jParamTypes[i] + "' found in class '" +
+                                jMethodRequest.declaringClass + "'");
+            }
+            i = 1;
+        }
+
+        for (int j = 0; j < jParamTypes.length; i++, j++) {
+            if (!isValidExpectedBType(jParamTypes[j], bParamTypes[i])) {
+                throw new JInteropException(JInteropException.METHOD_SIGNATURE_NOT_MATCH_REASON,
+                        "No such Java method '" + jMethodRequest.methodName +
+                                "' with method argument type '" + jParamTypes[j] + "' found in class '" +
                                 jMethodRequest.declaringClass + "'");
             }
         }
@@ -137,8 +157,8 @@ class JMethodResolver {
 
     private void validateReturnTypes(JMethodRequest jMethodRequest, JMethod jMethod) {
         Class<?> jReturnType = jMethod.getReturnType();
-        Object bReturnTypes = jMethodRequest.bReturnTypes;
-        if (!isValidBType(jReturnType, bReturnTypes)) {
+        BType bReturnType = jMethodRequest.bReturnType;
+        if (!isValidExpectedBType(jReturnType, bReturnType)) {
             throw new JInteropException(JInteropException.METHOD_SIGNATURE_NOT_MATCH_REASON,
                     "No such Java method '" + jMethodRequest.methodName +
                             "' with method return type '" + jReturnType + "' found in class '" +
@@ -146,8 +166,50 @@ class JMethodResolver {
         }
     }
 
-    private boolean isValidBType(Class<?> jParamType, Object bParamType) {
-        return true;
+    private boolean isValidExpectedBType(Class<?> jParamType, BType bParamType) {
+        String jParamTypeName = jParamType.getTypeName();
+        switch (bParamType.getTag()) {
+            case TypeTags.HANDLE_TAG:
+                return !jParamType.isPrimitive();
+            case TypeTags.NULL_TAG:
+                return jParamTypeName.equals("void");
+            case TypeTags.INT_TAG:
+            case TypeTags.BYTE_TAG:
+            case TypeTags.FLOAT_TAG:
+                return jParamType.isPrimitive() &&
+                        (jParamTypeName.equals("int") || jParamTypeName.equals("byte") ||
+                                jParamTypeName.equals("short") || jParamTypeName.equals("long") ||
+                                jParamTypeName.equals("char") || jParamTypeName.equals("float") ||
+                                jParamTypeName.equals("double"));
+            case TypeTags.BOOLEAN_TAG:
+                return jParamType.isPrimitive() && jParamTypeName.equals("boolean");
+            case TypeTags.DECIMAL_TAG:
+                return BigDecimal.class.isAssignableFrom(jParamType);
+            case TypeTags.STRING_TAG:
+                return String.class.isAssignableFrom(jParamType);
+            case TypeTags.MAP_TAG:
+            case TypeTags.RECORD_TYPE_TAG:
+            case TypeTags.JSON_TAG:
+                return MapValue.class.isAssignableFrom(jParamType);
+            case TypeTags.OBJECT_TYPE_TAG:
+                return ObjectValue.class.isAssignableFrom(jParamType);
+            case TypeTags.ERROR_TAG:
+                return ErrorValue.class.isAssignableFrom(jParamType);
+            case TypeTags.STREAM_TAG:
+                return StreamValue.class.isAssignableFrom(jParamType);
+            case TypeTags.TABLE_TAG:
+                return TableValue.class.isAssignableFrom(jParamType);
+            case TypeTags.XML_TAG:
+                return XMLValue.class.isAssignableFrom(jParamType);
+            case TypeTags.UNION_TAG:
+                List<BType> members = ((BUnionType)bParamType).getMemberTypes();
+                for (BType member : members) {
+                    if (isValidExpectedBType(jParamType, member)){
+                        return true;
+                    }
+                }
+        }
+        return false;
     }
 
     private JMethod resolveExactMethod(Class clazz, String name, JMethodKind kind, ParamTypeConstraint[] constraints) {
