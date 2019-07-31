@@ -14,7 +14,7 @@ public function main() {
     string info;
     boolean fatal;
     // This error-destructure binding pattern will destructure an `error` value of the type `SampleError`
-    // and assign the values to relevant variable references.
+    // and assign the values to the relevant variable references.
     // The value of the reason string in the `SampleError` will be assigned to the variable `reason`.
     // The values in the detail mapping will be assigned to the relevant variables.
     error(reason, info = info, fatal = fatal) = getSampleError();

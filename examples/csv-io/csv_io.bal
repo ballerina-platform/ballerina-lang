@@ -26,7 +26,7 @@ function process(io:ReadableCSVChannel csvChannel) returns error? {
 public function main() returns error? {
     string srcFileName = "./files/sample.csv";
     // Opens a CSV channel in the `write` mode and writes some data to
-    // the ./files/sample.csv file for later use.
+    // the `./files/sample.csv` file for later use.
     // The record separator of the `.CSV` file is a
     // new line and the field separator is a comma (,).
     io:WritableCSVChannel wCsvChannel = check io:openWritableCsvFile(srcFileName);

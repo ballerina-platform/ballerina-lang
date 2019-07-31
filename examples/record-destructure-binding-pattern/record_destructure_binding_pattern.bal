@@ -39,7 +39,8 @@ public function main() {
 
     string name;
     int age;
-    // If no variable name is given for a field, the value of the field will be assigned to a variable reference of the same name as the field
+    // If no variable name is given for a field, the value of the field will be assigned to a variable reference of the
+    // same name as the field.
     // i.e., {name, age} is same as {name: name, age: age}.
     // Since a rest parameter is not given, all remaining fields are ignored.
     { name, age } = getPerson();

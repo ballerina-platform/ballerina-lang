@@ -3,12 +3,12 @@ import ballerina/io;
 public function main() {
 
     // Tuple variables can be destructured with new values when used as a tuple variable
-    // reference-based binding pattern.
+    // reference based binding pattern.
     [string, [int, boolean]] [a1, [a2, a3]] = ["Hello", [123, true]];
     [a1, [a2, a3]] = ["Ballerina", [453, false]];
     io:println("Tuple variable : ", a1, " ", a2, " ", a3);
 
-    // The variable can also be updated individually because once they are defined, they are treated as individual
+    // The variable can also be updated individually because once they are defined they are treated as individual
     // variables at runtime.
     [string, [int, boolean]] [b1, [b2, b3]] = ["Hello", [123, true]];
     b1 = "Ballerina";
@@ -33,7 +33,7 @@ public function main() {
     io:println("Tuple variable : ",
                     d1, " ", d2, " ", d3, " ", d4, " ", d5, " ", d6);
 
-    // Tuple type can also take "var" as the type label in which the type will be inferred from the RHS.
+    // Tuple type can also take "var" as the type label in which the type will be inferred from the right hand side.
     var [e1, [e2, e3]] = foo();
     io:println("Tuple variable : ", e1, " ", e2, " ", e3);
 
