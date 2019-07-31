@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.nativeimpl.jvm.tests;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.UUID;
 
@@ -50,5 +51,62 @@ public class StaticMethods {
 
     public static String getString(UUID uuid) {
         return uuid.toString() + ": Sameera";
+    }
+
+    public static void acceptNothingReturnNothingAndThrowsCheckedException() throws JavaInteropTestCheckedException {
+
+    }
+
+    public static void acceptNothingReturnNothingAndThrowsMultipleCheckedException()
+            throws JavaInteropTestCheckedException, IOException, ClassNotFoundException {
+
+    }
+
+    public static void acceptNothingReturnNothingAndThrowsUncheckedException() throws UnsupportedOperationException {
+
+    }
+
+    public static void acceptNothingReturnNothingAndThrowsCheckedAndUncheckedException()
+            throws JavaInteropTestCheckedException, UnsupportedOperationException, ClassNotFoundException {
+
+    }
+
+
+    public static void acceptNothingReturnSomethingAndThrowsCheckedException() throws JavaInteropTestCheckedException {
+
+    }
+
+    public static Date acceptNothingReturnSomethingAndThrowsMultipleCheckedException()
+            throws JavaInteropTestCheckedException, IOException, ClassNotFoundException {
+        return new Date();
+    }
+
+    public static Date acceptNothingReturnSomethingAndThrowsUncheckedException() throws UnsupportedOperationException {
+        return new Date();
+    }
+
+    public static Date acceptSomethingReturnSomethingAndThrowsCheckedAndUncheckedException(Date date)
+            throws JavaInteropTestCheckedException, UnsupportedOperationException, ClassNotFoundException {
+        return date;
+    }
+
+    public static Date acceptSomethingReturnSomethingAndThrowsCheckedException(Date date)
+            throws JavaInteropTestCheckedException {
+        return date;
+    }
+
+    public static Date acceptSomethingReturnSomethingAndThrowsMultipleCheckedException(Date date)
+            throws JavaInteropTestCheckedException, IOException, ClassNotFoundException {
+        return date;
+    }
+
+    public static Date acceptSomethingReturnSomethingAndThrowsUncheckedException(Date date)
+            throws UnsupportedOperationException {
+        return date;
+    }
+
+    public static Date acceptNothingReturnSomethingAndThrowsCheckedAndUncheckedException(Date date)
+            throws JavaInteropTestCheckedException, UnsupportedOperationException, ClassNotFoundException {
+        return date;
     }
 }
