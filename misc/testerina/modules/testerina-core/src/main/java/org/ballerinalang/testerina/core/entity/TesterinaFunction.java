@@ -165,8 +165,7 @@ public class TesterinaFunction {
                     //throw new BallerinaException(e);
 
                     return e.getTargetException();
-                }
-                catch (IllegalAccessException e) {
+                } catch (IllegalAccessException e) {
                     throw new BallerinaException("Error while invoking function '" + funcName + "'", e);
                 }
             };
@@ -174,8 +173,8 @@ public class TesterinaFunction {
             scheduler.start();
             final Throwable t = out.panic;
             final Object result = out.result;
-            if(result instanceof ErrorValue){
-                throw new BallerinaException((ErrorValue)result);
+            if (result instanceof ErrorValue) {
+                throw new BallerinaException((ErrorValue) result);
             }
             if (t != null) {
                 if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {
