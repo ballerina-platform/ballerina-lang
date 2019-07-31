@@ -53,12 +53,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.regex.Matcher;
+import java.util.stream.Stream;
 
 import static com.intellij.util.containers.ContainerUtil.newLinkedHashSet;
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_COMPOSER_LIB_PATH;
@@ -79,6 +82,11 @@ public class BallerinaSdkUtils {
 
     private static final Logger LOG = Logger.getInstance(BallerinaSdkUtils.class);
     private static final Key<String> VERSION_DATA_KEY = Key.create("BALLERINA_VERSION_KEY");
+
+    private static final String INSTALLER_PATH_UNIX = "/usr/bin/ballerina";
+    private static final String INSTALLER_PATH_MAC = "/etc/paths.d/ballerina";
+    // Todo
+    private static final String INSTALLER_PATH_WINDOWS = "";
 
     private BallerinaSdkUtils() {
 
@@ -283,16 +291,49 @@ public class BallerinaSdkUtils {
             // This may returns a symlink which links to the real path.
             s = new java.util.Scanner(Runtime.getRuntime().exec(cmd).getInputStream()).useDelimiter("\\A");
             String path = s.hasNext() ? s.next().trim().replace(System.lineSeparator(), "") : "";
-            LOG.info("Which ballerina command returned: " + path);
+            LOG.info(cmd + "command returned: " + path);
+            if (path.isEmpty()) {
+                // Todo - Remove after having ballerina version manager
+                // Tries for default installer based locations since "which/where ballerina" commands might not work
+                // because of the IntelliJ issue of PATH variable might not being identified by the IntelliJ java
+                // runtime.
+                path = getDefaultInstallerPath();
+            }
+
             if (path.isEmpty()) {
                 return path;
             }
-
             // Gets the actual file path if there are the symbolic links using "toRealPath()".
             String realPath = new File(path).toPath().toRealPath().toString();
             return realPath;
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOG.warn("Error occurred when executing the command: " + cmd);
+            return "";
+        }
+    }
+
+    private static String getDefaultInstallerPath() {
+        String os = OSUtils.getOperatingSystem();
+        switch (os) {
+            case UNIX:
+                return INSTALLER_PATH_UNIX;
+            case MAC:
+                // Reads the file content to get the ballerina home location.
+                return getContentAsString(INSTALLER_PATH_MAC);
+            case WINDOWS:
+                return INSTALLER_PATH_WINDOWS;
+            default:
+                return "";
+        }
+    }
+
+    private static String getContentAsString(String filePath) {
+        try {
+            Stream<String> stream = Files.lines(Paths.get(filePath), StandardCharsets.UTF_8);
+            StringBuilder contentBuilder = new StringBuilder();
+            stream.forEach(s -> contentBuilder.append(s).append("\n"));
+            return contentBuilder.toString().trim();
+        } catch (Exception ignored) {
             return "";
         }
     }
