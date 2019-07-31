@@ -24,7 +24,8 @@ public type Caller client object {
 
     # Sends the response to the caller.
     #
-    # + message - The response or any payload of type `http:ResponseMessage`
+    # + message - The response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
+    #             or `mime:Entity[]`
     # + return - Returns an `error` on failure
     public remote function respond(http:ResponseMessage message = ()) returns error? {
         return self.httpCaller->respond(message);
@@ -32,7 +33,7 @@ public type Caller client object {
 
     # Sends the response to the caller with the status 200 OK.
     #
-    # + message - The response or any payload of type `http:ResponseMessage`
+    # + message - The response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - Returns an `error` on failure
     public remote function ok(http:ResponseMessage message = ()) returns error? {
