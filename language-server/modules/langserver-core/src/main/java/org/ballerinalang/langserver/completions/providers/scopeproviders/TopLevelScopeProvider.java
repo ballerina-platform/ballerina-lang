@@ -26,7 +26,6 @@ import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.providers.contextproviders.AnnotationAttachmentContextProvider;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
-import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.ballerinalang.langserver.completions.util.sorters.TopLevelContextSorter;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
@@ -65,7 +64,7 @@ public class TopLevelScopeProvider extends LSCompletionProvider {
         completionItems.addAll(getBasicTypes(visibleSymbols));
         completionItems.addAll(this.getPackagesCompletionItems(ctx));
 
-        ItemSorters.get(TopLevelContextSorter.class).sortItems(ctx, completionItems);
+        ctx.put(CompletionKeys.ITEM_SORTER_KEY, TopLevelContextSorter.class);
         return completionItems;
     }
 
