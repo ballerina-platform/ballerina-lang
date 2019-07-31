@@ -58,10 +58,11 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     private transient Path executableDir;
     private transient Path targetJarCacheDir;
     private transient Path targetBirCacheDir;
-    private transient Path baloCacheDir;
-    private SourceType srcType;
+    private transient Path targetBaloDir;
     private transient PrintStream out;
     private transient PrintStream err;
+    private transient List<BLangPackage> modules;
+    private SourceType srcType;
     
     /**
      * Create a build context with context fields.
@@ -86,7 +87,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                 this.setSource(source);
         
                 // save '<target>/balo' dir for balo files
-                this.baloCacheDir = targetPath.resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY);
+                this.targetBaloDir = targetPath.resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY);
                 
                 // save '<target>/cache/bir_cache' dir for bir files
                 this.targetBirCacheDir = targetPath
@@ -248,24 +249,32 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     }
     
     public List<BLangPackage> getModules() {
-        List<BLangPackage> modules = new LinkedList<>();
-        switch (this.getSourceType()) {
-            case SINGLE_BAL_FILE:
-                SingleFileContext singleFileContext = this.get(BuildContextField.SOURCE_CONTEXT);
-                modules.add(singleFileContext.getModule());
-                break;
-            case SINGLE_MODULE:
-                SingleModuleContext singleModuleContext = this.get(BuildContextField.SOURCE_CONTEXT);
-                modules.add(singleModuleContext.getModule());
-                break;
-            case ALL_MODULES:
-                MultiModuleContext multiModuleContext = this.get(BuildContextField.SOURCE_CONTEXT);
-                modules = multiModuleContext.getModules();
-                break;
-            default:
-                throw new BLangCompilerException("unknown source type found: " + this.getSourceType());
+        if (null == this.modules) {
+            List<BLangPackage> modules = new LinkedList<>();
+            switch (this.getSourceType()) {
+                case SINGLE_BAL_FILE:
+                    SingleFileContext singleFileContext = this.get(BuildContextField.SOURCE_CONTEXT);
+                    modules.add(singleFileContext.getModule());
+                    break;
+                case SINGLE_MODULE:
+                    SingleModuleContext singleModuleContext = this.get(BuildContextField.SOURCE_CONTEXT);
+                    modules.add(singleModuleContext.getModule());
+                    break;
+                case ALL_MODULES:
+                    MultiModuleContext multiModuleContext = this.get(BuildContextField.SOURCE_CONTEXT);
+                    modules = multiModuleContext.getModules();
+                    break;
+                default:
+                    throw new BLangCompilerException("unknown source type found: " + this.getSourceType());
+            }
+            this.modules = modules;
         }
-        return modules;
+    
+        return this.modules;
+    }
+    
+    public void updateModules(List<BLangPackage> modules) {
+        this.modules = modules;
     }
     
     public Path getBirPathFromHomeCache(PackageID moduleID) {
@@ -294,7 +303,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     
     public Path getBaloFromTarget(PackageID moduleID) {
         try {
-            Files.createDirectories(baloCacheDir);
+            Files.createDirectories(targetBaloDir);
             switch (this.getSourceType()) {
                 case SINGLE_BAL_FILE:
                     throw new BLangCompilerException("balo file for single ballerina files are not supported");
@@ -315,12 +324,12 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                                           + versionNo
                                           + ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
                     
-                    return baloCacheDir.resolve(baloFileName);
+                    return targetBaloDir.resolve(baloFileName);
                 default:
                     throw new BLangCompilerException("unable to resolve balo location for build source");
             }
         } catch (IOException e) {
-            throw new BLangCompilerException("error creating bir_cache dir for module(s): " + baloCacheDir);
+            throw new BLangCompilerException("error creating bir_cache dir for module(s): " + targetBaloDir);
         }
     }
     
