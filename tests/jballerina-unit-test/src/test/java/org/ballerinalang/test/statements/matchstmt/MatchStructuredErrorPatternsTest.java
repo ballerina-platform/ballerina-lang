@@ -178,6 +178,12 @@ public class MatchStructuredErrorPatternsTest {
         Assert.assertEquals(returns[++i].stringValue(), "Const reason:Msg");
     }
 
+    @Test(description = "Test indirect error match pattern")
+    public void testIndirectErrorMatchPattern() {
+        BValue[] returns = BRunUtil.invoke(result, "testIndirectErrorMatchPattern", new BValue[]{});
+        Assert.assertEquals(returns[0].stringValue(), "Msg");
+    }
+
     @Test(description = "Test pattern will not be matched 2")
     public void testUnreachablePatterns() {
         Assert.assertEquals(resultNegative.getErrorCount(), 8);
