@@ -698,7 +698,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-        this.pkgBuilder.addTupleType(getCurrentPos(ctx), getWS(ctx), ctx.tupleTypeDescriptor().typeName().size());
+        this.pkgBuilder.addTupleType(getCurrentPos(ctx), getWS(ctx), ctx.tupleTypeDescriptor().typeName().size(),
+                ctx.tupleTypeDescriptor().tupleRestDescriptor() != null);
     }
 
     @Override
@@ -1008,8 +1009,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-
-        this.pkgBuilder.addTupleVariable(getCurrentPos(ctx), getWS(ctx), ctx.bindingPattern().size());
+        boolean restBindingAvailable = ctx.restBindingPattern() != null;
+        this.pkgBuilder.addTupleVariable(getCurrentPos(ctx), getWS(ctx), ctx.bindingPattern().size(),
+                restBindingAvailable);
     }
 
     @Override
@@ -1018,7 +1020,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addTupleVariableReference(getCurrentPos(ctx), getWS(ctx), ctx.bindingRefPattern().size());
+        boolean restPatternAvailable = ctx.listRefRestPattern() != null;
+        this.pkgBuilder.addTupleVariableReference(getCurrentPos(ctx), getWS(ctx), ctx.bindingRefPattern().size(),
+                restPatternAvailable);
     }
 
     @Override
@@ -1133,7 +1137,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.addRecordVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar);
         } else if (ctx.bindingPattern().structuredBindingPattern().errorBindingPattern() != null) {
             this.pkgBuilder.addErrorVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar);
-        } else {
+        } else if (ctx.bindingPattern().structuredBindingPattern().listBindingPattern() != null) {
             this.pkgBuilder.addTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx), isFinal, isDeclaredWithVar);
         }
     }

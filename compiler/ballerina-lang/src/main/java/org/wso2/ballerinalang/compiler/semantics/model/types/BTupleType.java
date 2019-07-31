@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 public class BTupleType extends BType implements TupleType {
 
     public List<BType> tupleTypes;
+    public BType restType;
 
     public BTupleType(List<BType> tupleTypes) {
         super(TypeTags.TUPLE, null);
@@ -67,7 +68,8 @@ public class BTupleType extends BType implements TupleType {
 
     @Override
     public String toString() {
-        return "[" + tupleTypes.stream().map(BType::toString).collect(Collectors.joining(",")) + "]";
+        return "[" + tupleTypes.stream().map(BType::toString).collect(Collectors.joining(","))
+                + ((restType != null) ? (tupleTypes.size() > 0 ? "," : "") + restType.toString() + "...]" : "]");
     }
 
     @Override

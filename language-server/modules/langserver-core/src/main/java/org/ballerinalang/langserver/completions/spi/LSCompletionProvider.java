@@ -34,6 +34,7 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.LSCompletionException;
 import org.ballerinalang.langserver.completions.LSCompletionProviderFactory;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.builder.BConstantCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.BVariableCompletionItemBuilder;
@@ -144,7 +145,7 @@ public abstract class LSCompletionProvider {
             if (CommonUtil.isValidInvokableSymbol(bSymbol) || symbolInfo.isCustomOperation()) {
                 completionItems.add(populateBallerinaFunctionCompletionItem(symbolInfo, context));
             } else if (bSymbol instanceof BConstantSymbol) {
-                completionItems.add(this.getBallerinaConstantCompletionItem(symbolInfo, context));
+                completionItems.add(BConstantCompletionItemBuilder.build((BConstantSymbol) bSymbol, context));
             } else if (!(bSymbol instanceof BInvokableSymbol) && bSymbol instanceof BVarSymbol) {
                 String typeName = CommonUtil.getBTypeName(symbolInfo.getScopeEntry().symbol.type, context);
                 completionItems.add(
@@ -534,29 +535,6 @@ public abstract class LSCompletionProvider {
             return null;
         }
         return BFunctionCompletionItemBuilder.build((BInvokableSymbol) bSymbol, context);
-    }
-
-    /**
-     * Get the Ballerina Constant Completion Item.
-     *
-     * @param symbolInfo symbol information
-     * @param context    Language Server Operation Context
-     * @return {@link CompletionItem}   completion item
-     */
-    private CompletionItem getBallerinaConstantCompletionItem(SymbolInfo symbolInfo, LSContext context) {
-        BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-        if (!(bSymbol instanceof BConstantSymbol)) {
-            return null;
-        }
-
-        CompletionItem completionItem = new CompletionItem();
-        completionItem.setLabel(bSymbol.getName().getValue());
-        completionItem.setInsertText(bSymbol.getName().getValue());
-        completionItem.setDetail(CommonUtil.getBTypeName(((BConstantSymbol) bSymbol).literalType, context));
-        completionItem.setDocumentation(ItemResolverConstants.CONSTANT_TYPE);
-        completionItem.setKind(CompletionItemKind.Variable);
-
-        return completionItem;
     }
 
     private List<SymbolInfo> filterListenerVariables(List<SymbolInfo> symbolInfos) {

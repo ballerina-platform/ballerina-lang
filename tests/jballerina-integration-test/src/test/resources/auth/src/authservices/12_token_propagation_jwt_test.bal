@@ -40,7 +40,7 @@ listener http:Listener listener12_1 = new(20015, {
     }
 });
 
-jwt:OutboundJwtAuthProvider jwtAuthProvider12_2 = new(());
+jwt:OutboundJwtAuthProvider jwtAuthProvider12_2 = new;
 http:BearerAuthHandler jwtAuthHandler12_2 = new(jwtAuthProvider12_2);
 
 http:Client nyseEP12 = new("https://localhost:20016", {

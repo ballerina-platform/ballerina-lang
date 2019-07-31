@@ -39,8 +39,8 @@ http:ServiceEndpointConfiguration mutualSslServiceConf = {
         ocspStapling: {
             enable: false
         },
-        handshakeTimeout: 20,
-        sessionTimeout: 30
+        handshakeTimeoutInSeconds: 20,
+        sessionTimeoutInSeconds: 30
     }
 };
 
