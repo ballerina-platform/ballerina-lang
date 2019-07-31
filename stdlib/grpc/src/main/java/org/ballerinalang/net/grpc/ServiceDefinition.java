@@ -31,7 +31,6 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
