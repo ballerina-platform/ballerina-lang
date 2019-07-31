@@ -34,8 +34,8 @@ map<TwoPhaseCommitTransaction> participatedTransactions = {};
 cache:Cache httpClientCache = new;
 
 listener task:Listener timer = new({
-    interval: 60000,
-    initialDelay: 1000
+    intervalInMillis: 60000,
+    initialDelayInMillis: 1000
 });
 
 service scheduleTimer on timer {

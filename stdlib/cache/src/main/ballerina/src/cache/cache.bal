@@ -72,8 +72,8 @@ public type Cache object {
         self.evictionFactor = evictionFactor;
 
         task:TimerConfiguration cacheCleanupTimerConfiguration = {
-            interval: CACHE_CLEANUP_INTERVAL,
-            initialDelay: CACHE_CLEANUP_START_DELAY
+            intervalInMillis: CACHE_CLEANUP_INTERVAL,
+            initialDelayInMillis: CACHE_CLEANUP_START_DELAY
         };
         task:Scheduler cacheCleanupTimer = new(cacheCleanupTimerConfiguration);
 

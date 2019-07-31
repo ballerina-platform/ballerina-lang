@@ -18,7 +18,7 @@ import ballerina/task;
 
 public function triggerTimer() {
     int interval = 1000;
-    task:Scheduler timer = new({ interval: interval });
+    task:Scheduler timer = new({ intervalInMillis: interval });
 
     checkpanic timer.attach(service1);
     checkpanic timer.attach(service2);
