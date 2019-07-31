@@ -7,9 +7,9 @@ listener http:Listener failoverEP06 = new(9314, { httpVersion: "2.0" });
 listener http:Listener backendEP06 = new(8094, { httpVersion: "2.0" });
 
 http:FailoverClient foBackendEP06 = new({
-    timeoutMillis: 5000,
+    timeoutInMillis: 5000,
     failoverCodes: [500, 501, 502, 503],
-    intervalMillis: 5000,
+    intervalInMillis: 5000,
     httpVersion: "2.0",
     // Define set of HTTP Clients that needs to be Failover.
     targets: [

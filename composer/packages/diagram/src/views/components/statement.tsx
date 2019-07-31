@@ -1,16 +1,18 @@
 import {
-    Assignment, ASTUtil, Break,
+    Assignment, ASTKindChecker, ASTUtil, Break,
     CompoundAssignment, ExpressionStatement, Panic, VariableDef
 } from "@ballerina/ast-model";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
 import { StmntViewState } from "../../view-model";
+import { WorkerSendViewState } from "../../view-model/worker-send";
 import { ActionInvocation } from "./action-invocation";
 import { ExpandedFunction, FunctionExpander } from "./expanded-function";
 import { HiddenBlock } from "./hidden-block";
 import { ReturnActionInvocation } from "./return-action-invocation";
 import { SourceLinkedLabel } from "./source-linked-label";
+import { WorkerSend } from "./worker-send";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
@@ -78,12 +80,27 @@ export const Statement: React.StatelessComponent<{
             }
         }
 
+        let syncSend;
+        if (ASTKindChecker.isVariableDef(model) && model.variable.initialExpression &&
+            ASTKindChecker.isWorkerSyncSend(model.variable.initialExpression)) {
+            syncSend = model.variable.initialExpression;
+            const sendVS = syncSend.viewState as WorkerSendViewState;
+            sendVS.bBox.x = viewState.bBox.x;
+            sendVS.bBox.y = viewState.bBox.y;
+            sendVS.bBox.h = viewState.bBox.h;
+            sendVS.bBox.w = viewState.bBox.w;
+            sendVS.bBox.label = viewState.bBox.label;
+        }
+
         return (
             <g>
                 {viewState.hiddenBlock &&
                     <HiddenBlock model={model} />
                 }
-                {(!viewState.hiddenBlock && !viewState.hidden) &&
+                {(!viewState.hiddenBlock && !viewState.hidden && syncSend) &&
+                    <WorkerSend model={syncSend}/>
+                }
+                {(!viewState.hiddenBlock && !viewState.hidden && !syncSend) &&
                     <g className="statement">
                         {viewState.isAction && !viewState.isReturn
                             && <ActionInvocation

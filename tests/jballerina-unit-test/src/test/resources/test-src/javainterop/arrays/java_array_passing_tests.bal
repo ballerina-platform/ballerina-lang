@@ -21,20 +21,17 @@ public function testReturningSortedJavaStringArray() returns handle {
 public function sortJavaIntArray(handle arrayValue) = @java:Method {
     name:"sort",
     class: "java.util.Arrays",
-    isStatic:true,
     paramTypes:["[I"]
 } external;
 
 public function sortJavaStringArray(handle arrayValue) = @java:Method {
     name:"sort",
     class: "java.util.Arrays",
-    isStatic:true,
     paramTypes:["[Ljava.lang.String;"]
 } external;
 
 public function splitString(handle receiver, handle regex) returns handle = @java:Method {
     name:"split",
-    class: "java/lang/String",
-    isStatic:false
+    class: "java/lang/String"
 } external;
 

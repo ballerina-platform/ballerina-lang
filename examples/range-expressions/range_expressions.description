@@ -1,0 +1,2 @@
+// Range expressions result in iterables objects that allow iterating over a sequence of integers in increasing order.
+// Range expressions are mainly expected to be used in `foreach` statements but could be used anywhere.

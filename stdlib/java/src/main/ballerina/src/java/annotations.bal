@@ -22,14 +22,12 @@ public type ConstructorData record {|
 public type MethodData record {|
     string name?;
     string class;
-    boolean isStatic = false;
     string[] paramTypes?;
 |};
 
 public type FieldData record {|
     string name;
     string class;
-    boolean isStatic = false;
 |};
 
 public const annotation ConstructorData Constructor on source external;

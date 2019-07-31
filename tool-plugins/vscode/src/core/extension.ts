@@ -368,7 +368,7 @@ export class BallerinaExtension {
                     return process.env.BALLERINA_HOME;
                 }
                 try {
-                    ballerinaPath = execSync('where ballerina').toString().trim();
+                    ballerinaPath = execSync('where ballerina.bat').toString().trim();
                 } catch (error) {
                     return ballerinaPath;
                 }

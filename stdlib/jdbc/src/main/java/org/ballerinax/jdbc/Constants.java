@@ -146,11 +146,11 @@ public final class Constants {
 
         //Int
         public static final String MAXIMUM_POOL_SIZE = "maximumPoolSize";
-        public static final String CONNECTION_TIMEOUT = "connectionTimeout";
-        public static final String IDLE_TIMEOUT = "idleTimeout";
+        public static final String CONNECTION_TIMEOUT_IN_MILLIS = "connectionTimeoutInMillis";
+        public static final String IDLE_TIMEOUT_IN_MILLIS = "idleTimeoutInMillis";
         public static final String MINIMUM_IDLE = "minimumIdle";
-        public static final String MAX_LIFE_TIME = "maxLifetime";
-        public static final String VALIDATION_TIMEOUT = "validationTimeout";
+        public static final String MAX_LIFETIME_IN_MILLIS = "maxLifetimeInMillis";
+        public static final String VALIDATION_TIMEOUT_IN_MILLIS = "validationTimeoutInMillis";
     }
 
     /**

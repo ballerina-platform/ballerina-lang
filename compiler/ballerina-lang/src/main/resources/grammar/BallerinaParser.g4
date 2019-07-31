@@ -198,7 +198,7 @@ inclusiveRecordTypeDescriptor
     ;
 
 tupleTypeDescriptor
-    : LEFT_BRACKET typeName (COMMA typeName)* (COMMA tupleRestDescriptor)? RIGHT_BRACKET
+    : LEFT_BRACKET ((typeName (COMMA typeName)* (COMMA tupleRestDescriptor)?) | tupleRestDescriptor) RIGHT_BRACKET
     ;
 
 tupleRestDescriptor
@@ -280,8 +280,8 @@ annotationAttachment
 
 statement
     :   errorDestructuringStatement
-    |   variableDefinitionStatement
     |   assignmentStatement
+    |   variableDefinitionStatement
     |   listDestructuringStatement
     |   recordDestructuringStatement
     |   compoundAssignmentStatement
@@ -330,6 +330,7 @@ recordKeyValue
 
 recordKey
     :   Identifier
+    |   LEFT_BRACKET expression RIGHT_BRACKET
     |   expression
     ;
 
@@ -442,11 +443,17 @@ errorBindingPattern
 
 errorMatchPattern
     :   TYPE_ERROR LEFT_PARENTHESIS errorArgListMatchPattern RIGHT_PARENTHESIS
+    |   typeName LEFT_PARENTHESIS errorFieldMatchPatterns RIGHT_PARENTHESIS
     ;
 
 errorArgListMatchPattern
     :   simpleMatchPattern (COMMA errorDetailBindingPattern)* (COMMA restMatchPattern)?
     |   errorDetailBindingPattern (COMMA errorDetailBindingPattern)* (COMMA restMatchPattern)?
+    |   restMatchPattern
+    ;
+
+errorFieldMatchPatterns
+    :   errorDetailBindingPattern (COMMA errorDetailBindingPattern)* (COMMA restMatchPattern)?
     |   restMatchPattern
     ;
 
@@ -467,7 +474,7 @@ errorDetailBindingPattern
     ;
 
 listBindingPattern
-    :   LEFT_BRACKET bindingPattern (COMMA bindingPattern)+ RIGHT_BRACKET
+    :   LEFT_BRACKET ((bindingPattern (COMMA bindingPattern)* (COMMA restBindingPattern)?) | restBindingPattern?) RIGHT_BRACKET
     ;
 
 recordBindingPattern
@@ -498,9 +505,12 @@ structuredRefBindingPattern
     |   recordRefBindingPattern
     ;
 
-// TODO : Add rest binding pattern to comply with 2019r1 spec.
 listRefBindingPattern
-    :   LEFT_BRACKET bindingRefPattern (COMMA bindingRefPattern)+ RIGHT_BRACKET
+    :   LEFT_BRACKET ((bindingRefPattern (COMMA bindingRefPattern)* (COMMA listRefRestPattern)?) | listRefRestPattern) RIGHT_BRACKET
+    ;
+
+listRefRestPattern
+    : ELLIPSIS variableReference
     ;
 
 recordRefBindingPattern

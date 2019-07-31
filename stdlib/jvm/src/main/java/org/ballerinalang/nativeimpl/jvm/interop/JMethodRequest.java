@@ -20,9 +20,11 @@ package org.ballerinalang.nativeimpl.jvm.interop;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.B_FUNC_TYPE_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.CLASS_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.KIND_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.NAME_FIELD;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.PARAM_TYPES_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.PARAM_TYPE_CONSTRAINTS_FIELD;
 
 /**
@@ -35,6 +37,8 @@ class JMethodRequest {
     String methodName;
     JMethodKind kind;
     ParamTypeConstraint[] paramTypeConstraints = {};
+    // Parameter count of the Ballerina function
+    int bFuncParamCount;
 
     private JMethodRequest() {
     }
@@ -45,7 +49,12 @@ class JMethodRequest {
         jMethodReq.methodName = (String) jMethodReqBValue.get(NAME_FIELD);
         jMethodReq.declaringClass = JInterop.loadClass((String) jMethodReqBValue.get(CLASS_FIELD));
         jMethodReq.paramTypeConstraints = JInterop.buildParamTypeConstraints(
-                (ArrayValue) jMethodReqBValue.get(PARAM_TYPE_CONSTRAINTS_FIELD), jMethodReq.kind);
+                (ArrayValue) jMethodReqBValue.get(PARAM_TYPE_CONSTRAINTS_FIELD));
+
+        MapValue bFuncType = (MapValue) jMethodReqBValue.get(B_FUNC_TYPE_FIELD);
+        ArrayValue paramTypes = (ArrayValue) bFuncType.get(PARAM_TYPES_FIELD);
+        jMethodReq.bFuncParamCount = paramTypes.size();
+
         return jMethodReq;
     }
 }

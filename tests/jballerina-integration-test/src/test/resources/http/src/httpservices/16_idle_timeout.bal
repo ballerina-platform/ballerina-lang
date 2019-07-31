@@ -21,7 +21,7 @@ import ballerina/runtime;
 @http:ServiceConfig {
     basePath: "/idle"
 }
-service idleTimeout on new http:Listener(9112, { timeoutMillis: 1000, server: "Mysql" }) {
+service idleTimeout on new http:Listener(9112, { timeoutInMillis: 1000, server: "Mysql" }) {
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/timeout408"

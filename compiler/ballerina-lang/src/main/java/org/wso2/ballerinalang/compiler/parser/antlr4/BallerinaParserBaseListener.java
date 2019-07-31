@@ -1180,6 +1180,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterErrorFieldMatchPatterns(BallerinaParser.ErrorFieldMatchPatternsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitErrorFieldMatchPatterns(BallerinaParser.ErrorFieldMatchPatternsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterErrorRestBindingPattern(BallerinaParser.ErrorRestBindingPatternContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1319,6 +1331,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitListRefBindingPattern(BallerinaParser.ListRefBindingPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterListRefRestPattern(BallerinaParser.ListRefRestPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitListRefRestPattern(BallerinaParser.ListRefRestPatternContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
