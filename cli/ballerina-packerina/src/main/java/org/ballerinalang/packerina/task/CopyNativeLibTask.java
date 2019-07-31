@@ -5,11 +5,14 @@
 package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,23 +33,50 @@ public class CopyNativeLibTask implements Task {
 
         Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
         Path tmpDir = targetDir.resolve(ProjectDirConstants.TARGET_TMP_DIRECTORY);
-
+        Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         // Create target/tmp folder
         try {
             Files.createDirectory(tmpDir);
         } catch (IOException e) {
             throw new BallerinaException("unable to copy the native libary :" +
-            e.getMessage());
+                    e.getMessage());
         }
-
-        // Iterate through
         List<BLangPackage> moduleBirMap = buildContext.getModules();
+        // Iterate through the imports and copy dependencies.
+        for (BLangPackage pkg : moduleBirMap) {
+            for (BPackageSymbol importz : pkg.symbol.imports) {
+                Path importJar = findImportBaloPath(buildContext, importz, sourceRootPath);
+                if (importJar != null && Files.exists(importJar)) {
+                    copyLibsFromBalo(importJar.toString(), tmpDir.toString());
+                }
+            }
+        }
+        // Iterate through module  balo
         for (BLangPackage module : moduleBirMap) {
             Path baloAbsolutePath = buildContext.getBaloFromTarget(module.packageID);
             copyLibsFromBalo(baloAbsolutePath.toString(), tmpDir.toString());
 
         }
 
+    }
+
+    private static Path findImportBaloPath(BuildContext buildContext, BPackageSymbol importz, Path project) {
+        // Get the jar paths
+        PackageID id = importz.pkgID;
+
+        // Skip ballerina and ballerinax
+        if (id.orgName.value.equals("ballerina") || id.orgName.value.equals("ballerinax")) {
+            return null;
+        }
+        // Look if it is a project module.
+        if (ProjectDirs.isModuleExist(project, id.name.value)) {
+            // If so fetch from project balo cache
+            return buildContext.getBaloFromTarget(id);
+        } else {
+            // If not fetch from home balo cache.
+            return buildContext.getBaloFromHomeCache(id);
+        }
+        // return the path
     }
 
     private static void copyLibsFromBalo(String jarFileName, String destFile) throws NullPointerException {
@@ -76,3 +106,4 @@ public class CopyNativeLibTask implements Task {
     }
 
 }
+

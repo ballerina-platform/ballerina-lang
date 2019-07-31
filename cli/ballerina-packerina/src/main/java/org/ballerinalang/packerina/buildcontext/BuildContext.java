@@ -45,6 +45,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BIR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_DIR_NAME;
 import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_INSTALL_DIR_PROP;
@@ -246,6 +247,10 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     public Path getJarCacheFromHome() {
         return RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
     }
+
+    public Path getBaloCacheFromHome() {
+        return RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME);
+    }
     
     public List<BLangPackage> getModules() {
         List<BLangPackage> modules = new LinkedList<>();
@@ -291,6 +296,18 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
             throw new BLangCompilerException("error resolving bir_cache dir for module: " + moduleID);
         }
     }
+
+    public Path getBaloFromHomeCache(PackageID moduleID) {
+        try {
+            Path moduleBaloCacheDir = Files.createDirectories(getBaloCacheFromHome()
+                    .resolve(moduleID.orgName.value)
+                    .resolve(moduleID.name.value)
+                    .resolve(moduleID.version.value));
+            return moduleBaloCacheDir.resolve(moduleID.name.value + BLANG_COMPILED_PKG_BINARY_EXT);
+        } catch (IOException e) {
+            throw new BLangCompilerException("error resolving balo_cache dir for module: " + moduleID);
+        }
+    }
     
     public Path getBaloFromTarget(PackageID moduleID) {
         try {
@@ -313,7 +330,7 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                                           + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
                                           + platform + "-"
                                           + versionNo
-                                          + ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
+                                          + BLANG_COMPILED_PKG_BINARY_EXT;
                     
                     return baloCacheDir.resolve(baloFileName);
                 default:
