@@ -708,12 +708,24 @@ public class Types {
         BTupleType lhsTupleType = (BTupleType) target;
         BTupleType rhsTupleType = (BTupleType) source;
 
-        if (lhsTupleType.tupleTypes.size() != rhsTupleType.tupleTypes.size()) {
+        if (lhsTupleType.restType == null && rhsTupleType.restType != null) {
             return false;
         }
 
-        for (int i = 0; i < lhsTupleType.tupleTypes.size(); i++) {
-            if (!isAssignable(rhsTupleType.tupleTypes.get(i), lhsTupleType.tupleTypes.get(i), unresolvedTypes)) {
+        if (lhsTupleType.restType == null && lhsTupleType.tupleTypes.size() != rhsTupleType.tupleTypes.size()) {
+            return false;
+        }
+
+        if (lhsTupleType.restType != null && rhsTupleType.restType != null) {
+            if (!isAssignable(rhsTupleType.restType, lhsTupleType.restType, unresolvedTypes)) {
+                return false;
+            }
+        }
+
+        for (int i = 0; i < rhsTupleType.tupleTypes.size(); i++) {
+            BType lhsType = (lhsTupleType.tupleTypes.size() > i)
+                    ? lhsTupleType.tupleTypes.get(i) : lhsTupleType.restType;
+            if (!isAssignable(rhsTupleType.tupleTypes.get(i), lhsType, unresolvedTypes)) {
                 return false;
             }
         }

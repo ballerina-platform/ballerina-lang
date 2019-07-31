@@ -842,13 +842,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         return false;
                     }
                 } else {
-                    if (tupleType.restType != null) {
-                        if (!checkTupleType(expr, tupleType.restType)) {
-                            return false;
-                        }
-                    } else {
-                        return false;
-                    }
+                    if (tupleType.restType == null || !checkTupleType(expr, tupleType.restType)) return false;
                 }
             }
             return true;
@@ -1394,11 +1388,12 @@ public class TypeChecker extends BLangNodeVisitor {
             BLangExpression restExpr = (BLangExpression) varRefExpr.restParam;
             ((BLangVariableReference) restExpr).lhsVar = true;
             BType checkedType = checkExpr(restExpr, env, symTable.noType);
-            if (checkedType.tag == TypeTags.ARRAY) {
-                actualType.restType = ((BArrayType) checkedType).eType;
-            } else {
-                actualType.restType = checkedType;
+            if (checkedType.tag != TypeTags.ARRAY) {
+                dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_TYPE_FOR_REST_DESCRIPTOR, checkedType);
+                resultType = symTable.semanticError;
+                return;
             }
+            actualType.restType = ((BArrayType) checkedType).eType;
         }
         resultType = types.checkType(varRefExpr, actualType, expType);
     }
