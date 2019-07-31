@@ -96,6 +96,7 @@ public class CompileCommandTest extends CommandTest {
         // -- kubernetes/    <- output of kubernetes compiler extension if used
         // -- potato/        <- output of potato compiler extension
         // -- cache          <- BIR cache directory
+        // --tmp             <- tmp dir that contains the native libs
 
         Path target = projectDirectory.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         Assert.assertTrue(Files.exists(target), "Check if target directory is created");
@@ -108,6 +109,10 @@ public class CompileCommandTest extends CommandTest {
                 .resolve(baloName);
         Assert.assertTrue(Files.exists(target.resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY)),
                 "Check if balo file exists");
+
+        // Check if tmp folder exists
+        Path tmpDir = target.resolve(ProjectDirConstants.TARGET_TMP_DIRECTORY);
+        Assert.assertTrue(Files.exists(tmpDir));
 
         Path lockFile = projectDirectory.resolve(ProjectDirConstants.LOCK_FILE_NAME);
         Assert.assertTrue(Files.exists(lockFile), "Check if lock file is created");
@@ -196,6 +201,11 @@ public class CompileCommandTest extends CommandTest {
                         throw new AssertionError("Error while reading balo content");
                     }
                 });
+
+        // Check if the native libs are in the tmp folder
+        Path tmpDir = projectDirectory.resolve(ProjectDirConstants.TARGET_DIR_NAME).
+                resolve(ProjectDirConstants.TARGET_TMP_DIRECTORY).resolve("toml4j.jar");
+        Assert.assertTrue(Files.exists(tmpDir));
     }
 
     @Test(dependsOnMethods = {"testCompileCommand"})
