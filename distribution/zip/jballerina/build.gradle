@@ -269,7 +269,7 @@ dependencies {
     dist project(':ballerina-xslt')
     dist project(':ballerina-utils')
     dist project(':metrics-extensions:ballerina-metrics-extension')
-//    dist project(':metrics-extensions:ballerina-prometheus-extension')
+    dist project(':metrics-extensions:ballerina-prometheus-extension')
     dist project(':toml-parser')
     dist project(':tracing-extensions:ballerina-jaeger-extension')
     dist project(':ballerina-activemq-artemis')
@@ -297,7 +297,7 @@ dependencies {
     dist project(':ballerina-lang:value')
     dist project(':ballerina-lang:xml')
 
-//    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
+    birJar project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'prometheusJar')
 
     staticArtifacts files('COPYRIGHT', 'LICENSE', 'README.md')
 }

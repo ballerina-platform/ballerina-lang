@@ -44,7 +44,7 @@ function testUndefinedSymbol() {
 }
 
 function getPerson1() returns Person {
-    Age a = {age:12, format: "Y", three: "three"};
+    Age a = {age:12, format: "Y", "three": "three"};
     return {name: "Peter", married: true, age: a, extra: ["extra", 12]};
 }
 
@@ -57,7 +57,7 @@ function testClosedRecordVarRef() {
     int extraInt;
     map<any|error> theMap;
 
-    Age age1 = {age:12, format: "Y", three: "three"};
+    Age age1 = {age:12, format: "Y", "three": "three"};
     Person p1 = {name: "Peter", married: true, age: age1, extra: ["extra", 12]};
     {name: fName, married, age: { age: theAge, format }, ...theMap} = p1;  // Age is not a closed record
 
@@ -71,7 +71,7 @@ function testClosedRecordVarRef() {
     Person2 p6 = {name: "Peter", married: true, age: {age:12, format: "Y"}, extra: ["extra", 12]};
     {name: fName, married, age: { age: theAge, format }} = p6; // valid
 
-    Person p7 = {name: "Peter", married: true, age: {age:12, format: "Y", three: "three"}, extra: ["extra", 12]};
+    Person p7 = {name: "Peter", married: true, age: {age:12, format: "Y", "three": "three"}, extra: ["extra", 12]};
     {name: fName, married, age: { age: theAge, format}} = p7; // valid
 }
 
@@ -157,9 +157,9 @@ function testRestParameterType() {
     map<int> other1 = {};
     map<error> other2 = {};
 
-    IntRestRecord rec1 = { name: "A", married: true, age: 19, token: 200 };
+    IntRestRecord rec1 = { name: "A", married: true, "age": 19, "token": 200 };
     { name, ...other1 } = rec1; // incompatible types: expected 'map<int>', found 'map<anydata>'
 
-    ObjectRestRecord rec2 = { name: "A", married: true, extra: new };
+    ObjectRestRecord rec2 = { name: "A", married: true, "extra": new };
     { name, ...other2 } = rec2; // incompatible types: expected 'map<error>', found 'map'
 }

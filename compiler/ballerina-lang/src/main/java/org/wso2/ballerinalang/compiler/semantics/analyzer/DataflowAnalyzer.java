@@ -525,7 +525,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
-        recordLiteral.keyValuePairs.forEach(keyValPar -> analyzeNode(keyValPar.valueExpr, env));
+        recordLiteral.keyValuePairs.forEach(keyValPar -> {
+            if (keyValPar.key.computedKey) {
+                analyzeNode(keyValPar.key.expr, env);
+            }
+            analyzeNode(keyValPar.valueExpr, env);
+        });
     }
 
     @Override

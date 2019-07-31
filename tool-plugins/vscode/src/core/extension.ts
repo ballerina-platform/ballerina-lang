@@ -263,7 +263,7 @@ export class BallerinaExtension {
                     return;
                 }
                 
-                resolve(version.replace(/Ballerina /, '').replace(/[\n\t\r]/g, ''));
+                resolve(version.split('\n')[0].replace(/Ballerina /, '').replace(/[\n\t\r]/g, ''));
             });
         });
     }
