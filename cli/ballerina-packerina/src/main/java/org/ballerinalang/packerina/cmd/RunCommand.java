@@ -24,6 +24,8 @@ import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.packerina.task.CompileTask;
+import org.ballerinalang.packerina.task.CopyModuleJarTask;
+import org.ballerinalang.packerina.task.CopyNativeLibTask;
 import org.ballerinalang.packerina.task.CreateBaloTask;
 import org.ballerinalang.packerina.task.CreateBirTask;
 import org.ballerinalang.packerina.task.CreateExecutableTask;
@@ -201,6 +203,7 @@ public class RunCommand implements BLauncherCmd {
                             .addTask(new CompileTask())
                             .addTask(new CreateBirTask())
                             .addTask(new CreateJarTask())
+                            .addTask(new CopyModuleJarTask())
                             .addTask(new CreateExecutableTask())
                             .addTask(new RunExecutableTask(programArgs, runtimeParams, configFilePath, observeFlag))
                             .build();
@@ -227,8 +230,10 @@ public class RunCommand implements BLauncherCmd {
                         .addTask(new CreateTargetDirTask())
                         .addTask(new CompileTask())
                         .addTask(new CreateBaloTask())
+                        .addTask(new CopyNativeLibTask())
                         .addTask(new CreateBirTask())
                         .addTask(new CreateJarTask())
+                        .addTask(new CopyModuleJarTask())
                         .addTask(new RunTestsTask())
                         .addTask(new CreateExecutableTask())
                         .addTask(new RunExecutableTask(programArgs, runtimeParams, configFilePath, observeFlag))
