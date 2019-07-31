@@ -18,10 +18,10 @@ import ballerina/http;
 
 public type Participant2pcClientConfig record {
     string participantURL = "";
-    int timeoutMillis = 0;
+    int timeoutInMillis = 0;
     record {
         int count = 0;
-        int interval = 0;
+        int intervalInMillis = 0;
     } retryConfig = {};
 };
 
@@ -32,9 +32,9 @@ public type Participant2pcClientEP client object {
 
     public function __init(Participant2pcClientConfig c) {
         http:Client httpEP = new(c.participantURL, {
-            timeoutMillis: c.timeoutMillis,
+            timeoutInMillis: c.timeoutInMillis,
             retryConfig:{
-                count: c.retryConfig.count, interval: c.retryConfig.interval
+                count: c.retryConfig.count, intervalInMillis: c.retryConfig.intervalInMillis
             }
         });
         self.httpClient = httpEP;

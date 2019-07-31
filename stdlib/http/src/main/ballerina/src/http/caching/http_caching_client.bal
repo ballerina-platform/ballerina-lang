@@ -54,7 +54,7 @@ public const RFC_7234 = "RFC_7234";
 #
 # + enabled - Specifies whether HTTP caching is enabled. Caching is enabled by default.
 # + isShared - Specifies whether the HTTP caching layer should behave as a public cache or a private cache
-# + expiryTimeMillis - The number of milliseconds to keep an entry in the cache
+# + expiryTimeInMillis - The number of milliseconds to keep an entry in the cache
 # + capacity - The capacity of the cache
 # + evictionFactor - The fraction of entries to be removed when the cache is full. The value should be
 #                    between 0 (exclusive) and 1 (inclusive).
@@ -64,7 +64,7 @@ public const RFC_7234 = "RFC_7234";
 public type CacheConfig record {|
     boolean enabled = true;
     boolean isShared = false;
-    int expiryTimeMillis = 86400;
+    int expiryTimeInMillis = 86400;
     int capacity = 8388608; // 8MB
     float evictionFactor = 0.2;
     CachingPolicy policy = CACHE_CONTROL_AND_VALIDATORS;
