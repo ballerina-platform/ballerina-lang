@@ -243,17 +243,17 @@ public class HoverUtil {
     public static MarkdownDocAttachment getMarkdownDocForSymbol(BSymbol bSymbol) {
         SymbolKind symbolKind = bSymbol.kind == null ? bSymbol.type.tsymbol.kind : bSymbol.kind;
         if (symbolKind == null) {
-            return null;
+            return bSymbol.markdownDocumentation;
         }
         MarkdownDocAttachment markdownDocAttachment = null;
         
         switch (symbolKind) {
-            case FUNCTION:
-                markdownDocAttachment = bSymbol.markdownDocumentation;
-                break;
             case RECORD:
             case OBJECT:
                 markdownDocAttachment = bSymbol.type.tsymbol.markdownDocumentation;
+                break;
+            case FUNCTION:
+                markdownDocAttachment = bSymbol.markdownDocumentation;
                 break;
             default:
                 break;
@@ -297,6 +297,9 @@ public class HoverUtil {
         Map<String, List<MarkdownDocAttachment.Parameter>> filteredAttributes = new HashMap<>();
         String paramType = "";
         SymbolKind symbolKind = symbol.kind == null ? symbol.type.tsymbol.kind : symbol.kind;
+        if (symbolKind == null) {
+            return filteredAttributes;
+        }
         switch (symbolKind) {
             case FUNCTION:
                 paramType = ContextConstants.DOC_PARAM;

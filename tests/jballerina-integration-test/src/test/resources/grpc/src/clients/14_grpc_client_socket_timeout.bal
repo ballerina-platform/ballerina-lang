@@ -26,7 +26,7 @@ import ballerina/io;
 public function testClientSocketTimeout() returns string {
     // Client endpoint configuration
     HelloWorld14BlockingClient helloWorldBlockingEp = new("http://localhost:9104", {
-                                        timeoutMillis : 1000});
+                                        timeoutInMillis : 1000});
 
     // Executes unary blocking call.
     var unionResp = helloWorldBlockingEp->hello("WSO2");
