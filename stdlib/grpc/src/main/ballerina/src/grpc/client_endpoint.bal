@@ -77,7 +77,7 @@ public type Client client object {
 
 # Represents client endpoint configuration.
 #
-# + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
+# + timeoutInMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
 # + httpVersion - The HTTP version understood by the client
 # + forwarded - The choice of setting `forwarded`/`x-forwarded` header
 # + proxy - Proxy server related options
@@ -85,7 +85,7 @@ public type Client client object {
 # + secureSocket - SSL/TLS related options
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
 public type ClientEndpointConfig record {|
-    int timeoutMillis = 60000;
+    int timeoutInMillis = 60000;
     string httpVersion = "2.0";
     string forwarded = "disable";
     ProxyConfig? proxy = ();

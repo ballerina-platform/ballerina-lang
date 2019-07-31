@@ -16,8 +16,8 @@
 import ballerinax/java.jdbc;
 
 jdbc:PoolOptions properties = { maximumPoolSize: 1,
-    idleTimeout: 600000, connectionTimeout: 30000, autoCommit: true, maxLifetime: 1800000,
-    minimumIdle: 1, validationTimeout: 5000,
+    idleTimeoutInMillis: 600000, connectionTimeoutInMillis: 30000, autoCommit: true, maxLifetimeInMillis: 1800000,
+    minimumIdle: 1, validationTimeoutInMillis: 5000,
     connectionInitSql: "SELECT 1" };
 
 map<any> propertiesMap = { "loginTimeout": "1000" };
