@@ -190,7 +190,7 @@ public class ErrorVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "error constructor expression is not supported for error binding pattern", 43, 81);
         BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'boolean', found 'string'", 64, 18);
+                incompatibleTypes + "expected 'boolean', found 'string'", 65, 18);
         BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes +
                 "expected '[any,string,map,[error,any]]', found '[int,string,error,[error,Foo]]'", 78, 58);
         BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes + "expected 'Bar', " +

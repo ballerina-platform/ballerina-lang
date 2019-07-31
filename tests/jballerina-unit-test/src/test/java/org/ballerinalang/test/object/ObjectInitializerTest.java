@@ -92,7 +92,7 @@ public class ObjectInitializerTest {
         validateError(result, 6,
                       "invalid object constructor for 'Person4': expected sub-type of 'error?', but found " +
                               "'(FooErr|BarErr)'",
-                      85, 5);
+                      89, 5);
     }
 
     @Test(description = "Test object initializer invocation")

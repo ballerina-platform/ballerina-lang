@@ -67,6 +67,7 @@ function testErrorPattern3() returns string {
 
 type OpenedFoo record {
     string message;
+    error cause?;
 };
 
 function testErrorPattern5() returns string {
