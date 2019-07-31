@@ -322,10 +322,6 @@
             {
                 "name": "XML Access",
                 "url": "xml-access"
-            },
-            {
-                "name": "XML/JSON Conversion",
-                "url": "xml-to-json-conversion"
             }
         ]
     },
