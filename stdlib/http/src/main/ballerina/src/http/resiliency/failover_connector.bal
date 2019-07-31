@@ -22,10 +22,10 @@
 //# Provides a set of configurations for controlling the failover behaviour of the endpoint.
 //#
 //# + failoverCodes - Array of HTTP response status codes for which the failover mechanism triggers
-//# + interval - Failover delay interval in milliseconds
+//# + intervalInMillis - Failover delay intervalInMillis in milliseconds
 //public type FailoverConfig record {
 //    int[] failoverCodes = [];
-//    int interval = 0;
+//    int intervalInMillis = 0;
 //    !...;
 //};
 //
@@ -35,7 +35,7 @@
 //#
 //# + failoverClientsArray - Array of HTTP Clients that needs to be Failover
 //# + failoverCodesIndex - An indexed array of HTTP response status codes for which the failover mechanism triggers
-//# + failoverInterval - Failover delay interval in milliseconds
+//# + failoverInterval - Failover delay intervalInMillis in milliseconds
 //public type FailoverInferredConfig record {
 //    CallerActions[] failoverClientsArray = [];
 //    boolean[] failoverCodesIndex = [];
