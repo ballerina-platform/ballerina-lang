@@ -39,7 +39,7 @@ public function main() {
 
 // Defines the sample backend service, which is secured with Basic Auth
 // authentication.
-auth:InboundBasicAuthProvider inboundBasicAuthProvider = new(());
+auth:InboundBasicAuthProvider inboundBasicAuthProvider = new;
 http:BasicAuthHandler inboundBasicAuthHandler = new(inboundBasicAuthProvider);
 listener http:Listener ep  = new(9090, config = {
     auth: {

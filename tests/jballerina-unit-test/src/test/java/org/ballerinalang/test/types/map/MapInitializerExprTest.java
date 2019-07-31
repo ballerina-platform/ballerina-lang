@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.types.map;
 
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -121,7 +122,7 @@ public class MapInitializerExprTest {
         Assert.assertEquals(((BMap) address).get("city").stringValue(), "Galle");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testMapInitWithPackageVars() {
         CompileResult result = BCompileUtil.compile(this, "test-src/types/map/", "a.b");
         BValue[] returns = BRunUtil.invoke(result, "testMapInitWithPackageVars");
@@ -166,5 +167,14 @@ public class MapInitializerExprTest {
 
         Assert.assertTrue(returns[0] instanceof BMap<?, ?>, "empty map initialization with {}");
         Assert.assertEquals(((BMap) returns[0]).size(), 0, "incorrect empty map size");
+    }
+
+    @Test
+    public void testExpressionsAsKeys() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testExpressionAsKeys");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+
+        returns = BRunUtil.invoke(compileResult, "testExpressionAsKeysWithSameKeysDefinedAsLiteralsOrFieldNames");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 }

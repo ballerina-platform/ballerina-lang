@@ -1006,6 +1006,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitErrorArgListMatchPattern(BallerinaParser.ErrorArgListMatchPatternContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#errorFieldMatchPatterns}.
+	 * @param ctx the parse tree
+	 */
+	void enterErrorFieldMatchPatterns(BallerinaParser.ErrorFieldMatchPatternsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#errorFieldMatchPatterns}.
+	 * @param ctx the parse tree
+	 */
+	void exitErrorFieldMatchPatterns(BallerinaParser.ErrorFieldMatchPatternsContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#errorRestBindingPattern}.
 	 * @param ctx the parse tree
 	 */
@@ -1125,6 +1135,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitListRefBindingPattern(BallerinaParser.ListRefBindingPatternContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#listRefRestPattern}.
+	 * @param ctx the parse tree
+	 */
+	void enterListRefRestPattern(BallerinaParser.ListRefRestPatternContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#listRefRestPattern}.
+	 * @param ctx the parse tree
+	 */
+	void exitListRefRestPattern(BallerinaParser.ListRefRestPatternContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#recordRefBindingPattern}.
 	 * @param ctx the parse tree

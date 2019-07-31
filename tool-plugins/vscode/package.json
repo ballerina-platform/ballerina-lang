@@ -293,7 +293,7 @@
         "postinstall": "node ./node_modules/vscode/bin/install",
         "update-version": "node ./scripts/update-version.js",
         "test-compile": "tsc -p ./",
-        "test-disabled": "npm run test-compile && node ./node_modules/vscode/bin/test",
+        "test": "npm run test-compile && node ./node_modules/vscode/bin/test",
         "test-coverage": "cross-env COVER_CONFIG=html npm run test",
         "package": "vsce package"
     },

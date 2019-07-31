@@ -30,13 +30,13 @@ public type OutboundOAuth2Provider object {
 
     *auth:OutboundAuthProvider;
 
-    public ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig oauth2ProviderConfig;
+    public ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig? oauth2ProviderConfig;
     public CachedToken tokenCache;
 
     # Provides authentication based on the provided OAuth2 configuration.
     #
     # + outboundJwtAuthConfig - Outbound OAuth2 authentication configurations
-    public function __init(ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig oauth2ProviderConfig) {
+    public function __init(ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig? oauth2ProviderConfig) {
         self.oauth2ProviderConfig = oauth2ProviderConfig;
         self.tokenCache = {
             accessToken: "",
@@ -49,11 +49,22 @@ public type OutboundOAuth2Provider object {
     #
     # + return - Generated token or `auth:Error` if an error occurred
     public function generateToken() returns @tainted (string|auth:Error) {
-        var authToken = getAuthTokenForOAuth2(self.oauth2ProviderConfig, self.tokenCache, false);
-        if (authToken is string) {
-            return authToken;
+        var oauth2ProviderConfig = self.oauth2ProviderConfig;
+        if (oauth2ProviderConfig is ()) {
+            runtime:AuthenticationContext? authContext = runtime:getInvocationContext()?.authenticationContext;
+            if (authContext is runtime:AuthenticationContext) {
+                return authContext.authToken;
+            } else {
+                return auth:prepareError("Failed to generate OAuth2 token since OAuth2 provider config is not defined
+                and auth token is not defined in the authentication context at invocation context.");
+            }
         } else {
-            return auth:prepareError("Failed to generate OAuth2 token.", authToken);
+            var authToken = getAuthTokenForOAuth2(oauth2ProviderConfig, self.tokenCache, false);
+            if (authToken is string) {
+                return authToken;
+            } else {
+                return auth:prepareError("Failed to generate OAuth2 token.", authToken);
+            }
         }
     }
 
@@ -62,15 +73,20 @@ public type OutboundOAuth2Provider object {
     # + data - Map of data which is extracted from the HTTP response
     # + return - String token, or `auth:Error` occurred when generating token or `()` if nothing to be returned
     public function inspect(map<anydata> data) returns @tainted (string|auth:Error?) {
-        if (data[http:STATUS_CODE] == http:UNAUTHORIZED_401) {
-            var authToken = getAuthTokenForOAuth2(self.oauth2ProviderConfig, self.tokenCache, true);
-            if (authToken is string) {
-                return authToken;
-            } else {
-                return auth:prepareError("Failed to generate OAuth2 token at inspection.", authToken);
+        var oauth2ProviderConfig = self.oauth2ProviderConfig;
+        if (oauth2ProviderConfig is ()) {
+            return ();
+        } else {
+            if (data[http:STATUS_CODE] == http:UNAUTHORIZED_401) {
+                var authToken = getAuthTokenForOAuth2(oauth2ProviderConfig, self.tokenCache, true);
+                if (authToken is string) {
+                    return authToken;
+                } else {
+                    return auth:prepareError("Failed to generate OAuth2 token at inspection.", authToken);
+                }
             }
+            return ();
         }
-        return ();
     }
 };
 

@@ -41,6 +41,10 @@
                 "url": "functions"
             },
             {
+                "name": "Required Parameters",
+                "url": "functions-with-required-parameters"
+            },
+            {
                 "name": "Defaultable Parameters",
                 "url": "functions-with-defaultable-parameters"
             },
@@ -175,8 +179,8 @@
                 "url": "constants"
             },
             {
-                "name": "Integer Ranges",
-                "url": "integer-ranges"
+                "name": "Range Expressions",
+                "url": "range-expressions"
             },
             {
                 "name": "String Template Literal",
@@ -258,28 +262,24 @@
                 "url": "length"
             },
             {
-                "name": "Type Conversion",
-                "url": "type-conversion"
-            },
-            {
                 "name": "Type Cast",
                 "url": "type-cast"
             },
             {
-                "name": "Nil Lifting",
-                "url": "nil-lifting"
-            },
-            {
-                "name": "Immutable Values",
-                "url": "immutable-values"
+                "name": "Optional Field Access",
+                "url": "optional-field-access"
             },
             {
                 "name": "Cloning Values",
                 "url": "clone"
             },
             {
-                "name": "Stamping Values",
-                "url": "stamp"
+                "name": "Immutable Values",
+                "url": "immutable-values"
+            },
+            {
+                "name": "Type Conversion",
+                "url": "type-conversion"
             }
         ]
     },
@@ -292,8 +292,16 @@
                 "url": "json"
             },
             {
+                "name": "JSON Objects",
+                "url": "json-objects"
+            },
+            {
                 "name": "JSON Arrays",
                 "url": "json-arrays"
+            },
+            {
+                "name": "JSON Access",
+                "url": "json-access"
             },
             {
                 "name": "JSON/Record/Map Conversion",

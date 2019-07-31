@@ -97,7 +97,7 @@ function testRecordStaticMatch() returns string[] {
 
     Foo f1 = {x: 12, y: "Ballerina"};
     map<any> m1 = {x: 10, y: "B"};
-    Foo f2 = {x: 12, y: "Ballerina", z: true};
+    Foo f2 = { x: 12, y: "Ballerina", "z": true };
     map<any> m2 = {x: 10, z: "Ballerina"};
 
     string[] result = [tar1(f1), tar1(m1), tar1(15), tar1(f2), tar1(m2)];
@@ -154,8 +154,8 @@ type Bar record {
 
 function testRecordAndTupleComplexStaticMatch() returns string[] {
     [boolean, float] t1 = [true, 12.1];
-    Foo f1 = {x: 12, y: "Ballerina", z: t1};
-    Bar b1 = {x: 15, y: ["John", f1, "Snow"], z: 15.1};
+    Foo f1 = {x: 12, y: "Ballerina", "z": t1};
+    Bar b1 = {x: 15, y: ["John", f1, "Snow"], "z": 15.1};
 
     string[] result = [tar3(b1)];
 
@@ -302,12 +302,12 @@ function testStaticMatchOrPatterns3() returns string[] {
 
     Foo f1 = {x: 12, y: "Ballerina"};
     map<any> m1 = {x: 10, y: "B"};
-    Foo f2 = {x: 12, y: "Ballerina", z: true};
+    Foo f2 = {x: 12, y: "Ballerina", "z": true};
     map<any> m2 = { x: 10, z: "Ballerina" };
-    AnotherFoo af1 = { x: 15, y: ["John", { x: 12, y: "Ballerina" }, "Snow"], z: 15.1 };
-    AnotherFoo af2 = { x: 15, y: ["Stark", f1, "Sansa"], z: 15.1 };
-    AnotherFoo af3 = { x: 15, y: ["Stark", { x: 12, y: "Ballerina", z: true }, "Sansa"], z: 15.1 };
-    AnotherFoo af4 = { x: 40, y: ["Tyrion", { x: 12, y: "Ballerina" }, "Lanister"], z: 56.9 };
+    AnotherFoo af1 = { x: 15, y: ["John", { x: 12, y: "Ballerina" }, "Snow"], "z": 15.1 };
+    AnotherFoo af2 = { x: 15, y: ["Stark", f1, "Sansa"], "z": 15.1 };
+    AnotherFoo af3 = { x: 15, y: ["Stark", { x: 12, y: "Ballerina", "z": true }, "Sansa"], "z": 15.1 };
+    AnotherFoo af4 = { x: 40, y: ["Tyrion", { x: 12, y: "Ballerina" }, "Lanister"], "z": 56.9 };
     int i1 = 16;
     int i2 = 12;
 
@@ -335,12 +335,12 @@ function testStaticMatchOrPatterns4() returns string[] {
 
     Foo f1 = {x: 12, y: "Ballerina"};
     map<any> m1 = { x: 10, y: "B" };
-    Foo f2 = { x: 12, y: "Ballerina", z: true };
+    Foo f2 = { x: 12, y: "Ballerina", "z": true };
     map<any> m2 = { x: 10, z: "Ballerina" };
-    AnotherFoo af1 = { x: 15, y: ["John", { x: 12, y: "Ballerina" }, "Snow"], z: 15.1 };
-    AnotherFoo af2 = { x: 15, y: ["Stark", f1, "Sansa"], z: 15.1 };
-    AnotherFoo af3 = { x: 15, y: ["Stark", { x: 12, y: "Ballerina", z: true }, "Sansa"], z: 15.1 };
-    AnotherFoo af4 = { x: 40, y: ["Tyrion", { x: 12, y: "Ballerina" }, "Lanister"], z: 56.9 };
+    AnotherFoo af1 = { x: 15, y: ["John", { x: 12, y: "Ballerina" }, "Snow"], "z": 15.1 };
+    AnotherFoo af2 = { x: 15, y: ["Stark", f1, "Sansa"], "z": 15.1 };
+    AnotherFoo af3 = { x: 15, y: ["Stark", { x: 12, y: "Ballerina", "z": true }, "Sansa"], "z": 15.1 };
+    AnotherFoo af4 = { x: 40, y: ["Tyrion", { x: 12, y: "Ballerina" }, "Lanister"], "z": 56.9 };
     int i1 = 16;
     int i2 = 12;
     float f = 7.8;

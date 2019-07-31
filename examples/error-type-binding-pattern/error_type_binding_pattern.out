@@ -2,10 +2,7 @@
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run error_type_binding_pattern.bal
 Reason String: Sample Error
-Detail Mapping: {"detail":"Detail Msg", "fatal":true}
-Reason String: Sample Error
-Detail Mapping Field One: Detail Msg
-Detail Mapping Field Two: true
-Reason String: Sample Error
-Detail Mapping: {"detail":"Detail Msg", "fatal":true}
-Detail Mapping: {detailMsg:"Failed Message", isFatal:true}
+Info: Detail Msg
+Fatal: true
+Detail Mapping: info=Detail Msg fatal=true
+Detail Message: Failed Message
