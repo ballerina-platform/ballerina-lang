@@ -21,15 +21,12 @@ package org.ballerinalang.testerina.core;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.model.values.BIterator;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.testerina.core.entity.Test;
-import org.ballerinalang.testerina.core.entity.TestSuite;
-import org.ballerinalang.testerina.core.entity.TesterinaFunction;
-import org.ballerinalang.testerina.core.entity.TesterinaReport;
-import org.ballerinalang.testerina.core.entity.TesterinaResult;
+import org.ballerinalang.testerina.core.entity.*;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.tool.BLauncherException;
 import org.ballerinalang.tool.LauncherUtils;
@@ -49,16 +46,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Queue;
-import java.util.ServiceLoader;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -280,11 +268,12 @@ public class BTestRunner {
         });
     }
 
+
     /**
-     * TODO this is a temporary solution, till we get a proper API from Ballerina Core.
-     * This method will get executed at the completion of the processing of a ballerina module.
+     * This method will process BLangPackage and assign functions to test suite.
      *
-     * @param bLangPackage {@link BLangPackage} corresponds to the current ballerina module
+     * @param bLangPackage compiled package.
+     * @param classLoader class loader to load and run package tests.
      */
     public void packageProcessed(BLangPackage bLangPackage, JBallerinaInMemoryClassLoader classLoader) {
         //packageInit = false;
@@ -326,7 +315,7 @@ public class BTestRunner {
     }
 
     private String getClassName(BLangFunction function) {
-        return function.pos.src.cUnitName.replace(".bal","").replace("/", "-");
+        return function.pos.src.cUnitName.replace(".bal", "").replace("/", "-");
     }
 
     private static List<Test> orderTests(List<Test> tests, int[] testExecutionOrder) {
@@ -661,7 +650,7 @@ public class BTestRunner {
                     failedOrSkippedTests.add(test.getTestFunction().getName());
                     // report the test result
                     functionResult = new TesterinaResult(test.getTestFunction().getName(), false, shouldSkip.get(),
-                                                         e.getMessage());
+                                                         formatErrorMessage(e));
                     tReport.addFunctionResult(packageName, functionResult);
                 }
 
@@ -712,6 +701,14 @@ public class BTestRunner {
             // Call module stop and test stop function
             suite.getInitFunction().invokeStopFunctions();
         });
+    }
+
+    private String formatErrorMessage(Throwable e) {
+        String message = e.getMessage();
+        if (e.getCause() instanceof ErrorValue) {
+            message = ((ErrorValue) e.getCause()).getPrintableStackTrace();
+        }
+        return message;
     }
 
     private boolean isTestDependsOnFailedFunctions(List<String> failedOrSkippedTests, List<String> dependentTests) {

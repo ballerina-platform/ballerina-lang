@@ -24,8 +24,6 @@ import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.testerina.core.entity.Test;
 import org.ballerinalang.testerina.core.entity.TestSuite;
-import org.ballerinalang.util.codegen.FunctionInfo;
-import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -300,11 +298,11 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         return bLangPackage.packageID.toString();
     }
 
-    private static int getTestInstructionsPosition(PackageInfo packageInfo) {
+    /*private static int getTestInstructionsPosition(PackageInfo packageInfo) {
         FunctionInfo testInitFunctionInfo = packageInfo.getTestInitFunctionInfo();
         if (testInitFunctionInfo != null) {
             return testInitFunctionInfo.getDefaultWorkerInfo().getCodeAttributeInfo().getCodeAddrs();
         }
         return packageInfo.getInstructions().length;
-    }
+    }*/
 }
