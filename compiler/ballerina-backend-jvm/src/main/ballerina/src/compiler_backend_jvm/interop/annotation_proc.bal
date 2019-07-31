@@ -114,7 +114,7 @@ function buildParamTypeConstraints(bir:AnnotationValue? annotValue,
             } else if annotArrayElement is bir:AnnotationRecordValue {
                 map<bir:AnnotationValue> annotValueMap = annotArrayElement.annotValueMap;
                 string elementClass = <string> getLiteralValueFromAnnotValue(annotValueMap.get("elementClass"));
-                int dimensions = <int> getLiteralValueFromAnnotValue(annotValueMap.get("dimensions"));
+                byte dimensions = <byte> getLiteralValueFromAnnotValue(annotValueMap.get("dimensions"));
                 jType = jvm:getJArrayTypeFromTypeName(elementClass, dimensions);
             } else {
                 panic error(io:sprintf("unexpected annotation value, expected a literal value, found %s", annotArrayElement));

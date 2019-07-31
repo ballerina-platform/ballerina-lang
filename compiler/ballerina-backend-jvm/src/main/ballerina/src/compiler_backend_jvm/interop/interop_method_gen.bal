@@ -195,7 +195,7 @@ function genJFieldForInteropField(JFieldFunctionWrapper jFieldFuncWrapper,
         var birFuncParam = <bir:FunctionParam>birFuncParams[birFuncParamIndex];
         int paramLocalVarIndex = indexMap.getIndex(birFuncParam);
         loadMethodParamToStackInInteropFunction(mv, birFuncParam, jFieldType, currentPackageName, paramLocalVarIndex,
-                                                indexMap);
+                                                indexMap, false);
     }
 
     if jField.isStatic {
@@ -347,12 +347,14 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
     // Load java method parameters
     birFuncParamIndex = jMethod.kind is jvm:INSTANCE ? 2: 0;
     int jMethodParamIndex = 0;
-    while (birFuncParamIndex < birFuncParams.length()) {
+    int paramCount = birFuncParams.length();
+    while (birFuncParamIndex < paramCount) {
         var birFuncParam = <bir:FunctionParam>birFuncParams[birFuncParamIndex];
         int paramLocalVarIndex = indexMap.getIndex(birFuncParam);
+        boolean isVarArg = (birFuncParamIndex == (paramCount - 2)) && birFunc.restParamExist;
         loadMethodParamToStackInInteropFunction(mv, birFuncParam,
                                     jMethodParamTypes[jMethodParamIndex], currentPackageName, paramLocalVarIndex,
-                                    indexMap);
+                                    indexMap, isVarArg);
         birFuncParamIndex += 2;
         jMethodParamIndex += 1;
     }
@@ -464,10 +466,10 @@ function loadMethodParamToStackInInteropFunction(jvm:MethodVisitor mv,
                                                  jvm:JType jMethodParamType,
                                                  string currentPackageName,
                                                  int localVarIndex,
-                                                 BalToJVMIndexMap indexMap) {
+                                                 BalToJVMIndexMap indexMap,
+                                                 boolean isVarArg) {
     bir:BType bFuncParamType = birFuncParam.typeValue;
-    // FIXME!!!
-    if (true) {
+    if (isVarArg) {
         genVarArg(mv, indexMap, bFuncParamType, jMethodParamType, localVarIndex);
     } else {
         // Load the parameter value to the stack
@@ -477,11 +479,46 @@ function loadMethodParamToStackInInteropFunction(jvm:MethodVisitor mv,
 }
 
 function convertToJVMValue(jvm:MethodVisitor mv, bir:BType bType, jvm:JType jvmType) {
-    if bType is bir:BTypeHandle && jvmType is jvm:RefType {
+    if bType is bir:BTypeHandle && (jvmType is jvm:RefType|jvm:ArrayType) {
         mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
-        mv.visitTypeInsn(CHECKCAST, jvmType.typeName);
+        string classSig = getSignatureForJType(jvmType);
+        mv.visitTypeInsn(CHECKCAST, classSig);
     } else {
         performNarrowingPrimitiveConversion(mv, <BValueType>bType, <jvm:PrimitiveType>jvmType);
+    }
+}
+
+function getSignatureForJType(jvm:RefType|jvm:ArrayType jType) returns string {
+    if (jType is jvm:RefType) {
+        return jType.typeName;
+    } else {
+        jvm:JType eType = jType.elementType;
+        string sig = "[";
+        while (eType is jvm:ArrayType) {
+            eType = eType.elementType;
+            sig += "[";
+        }
+
+        if (eType is jvm:RefType) {
+            return sig + "L" + getSignatureForJType(eType) + ";";
+        } else if (eType is jvm:Char) {
+            return sig + "C";
+        } else if (eType is jvm:Short) {
+            return sig + "S";
+        } else if (eType is jvm:Int) {
+            return sig + "I";
+        } else if (eType is jvm:Long) {
+            return sig + "J";
+        } else if (eType is jvm:Float) {
+            return sig + "F";
+        } else if (eType is jvm:Double) {
+            return sig + "D";
+        } else if (eType is jvm:Boolean ) {
+            return sig + "Z";
+        } else {
+            error e = error(io:sprintf("invalid element type: %s", eType));
+            panic e;
+        }
     }
 }
 
@@ -608,8 +645,10 @@ function genArrayNew(jvm:MethodVisitor mv, jvm:JType elementType) {
         mv.visitIntInsn(NEWARRAY, T_CHAR);
     } else if elementType is jvm:Float {
         mv.visitIntInsn(NEWARRAY, T_FLOAT);
+    } else if elementType is jvm:RefType|jvm:ArrayType {
+        mv.visitTypeInsn(ANEWARRAY, getSignatureForJType(elementType));
     } else {
-        jvm:RefType varArgElementType = <jvm:RefType> elementType;
-        mv.visitTypeInsn(ANEWARRAY, varArgElementType.typeName);
+        error e = error(io:sprintf("invalid type for var-arg: %s", elementType));
+        panic e;
     }
 }

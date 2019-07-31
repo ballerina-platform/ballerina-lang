@@ -97,13 +97,7 @@ class JInterop {
             throw new IllegalArgumentException("The Java Void type is not yet supported.");
         } else if (jTypeClass.isArray()) {
             MapValue<String, Object> jArrayTypeBRecord = createRecordBValue(J_ARRAY_TYPE_NAME);
-            int dimensions = 0;
-            while (jTypeClass.isArray()) {
-                jTypeClass = jTypeClass.getComponentType();
-                dimensions++;
-            }
-            jArrayTypeBRecord.put(DIMENSIONS_FIELD, dimensions);
-            jArrayTypeBRecord.put(ELEMENT_TYPE_FIELD, jTypeClass.getName().replace('.', '/'));
+            jArrayTypeBRecord.put(ELEMENT_TYPE_FIELD, createJTypeBValue(jTypeClass.getComponentType()));
             return jArrayTypeBRecord;
         }
 

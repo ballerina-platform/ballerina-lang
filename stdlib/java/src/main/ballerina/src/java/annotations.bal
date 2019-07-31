@@ -28,7 +28,7 @@ public type MethodData record {|
 
 public type ParamType string | record {|
     string elementClass;
-    int dimensions;
+    byte dimensions;
 |};
 
 public type FieldData record {|

@@ -32,8 +32,7 @@ const REF_TYPE_TAG = "RefType";
 public type PrimitiveType Byte | Char | Short | Int | Long | Float | Double | Boolean | Void;
 
 public type ArrayType record {|
-    PrimitiveType|RefType elementType;
-    int dimensions;
+    JType elementType;
 |};
 
 public type RefType record {
@@ -55,7 +54,12 @@ public function getJTypeFromTypeName(string typeName) returns PrimitiveType|RefT
     }
 }
 
-public function getJArrayTypeFromTypeName(string typeName, int dimensions) returns ArrayType {
-    ArrayType arrayType = { elementType : getJTypeFromTypeName(typeName), dimensions: dimensions};
+public function getJArrayTypeFromTypeName(string typeName, byte dimensions) returns ArrayType {
+    ArrayType arrayType = { elementType : getJTypeFromTypeName(typeName)};
+    int i = 0;
+    while(i < (<int>dimensions)) {
+        arrayType = { elementType : arrayType};
+    }
+
     return arrayType;
 }

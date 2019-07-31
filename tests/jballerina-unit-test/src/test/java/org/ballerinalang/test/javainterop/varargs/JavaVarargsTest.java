@@ -1,0 +1,144 @@
+/*
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+package org.ballerinalang.test.javainterop.varargs;
+
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
+import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import java.util.Arrays;
+
+/**
+ * Test cases for java interop with functions with varargs.
+ *
+ * @since 1.0.0
+ */
+public class JavaVarargsTest {
+
+    private CompileResult result;
+
+    @BeforeClass
+    public void setup() {
+        result = BCompileUtil.compile("test-src/javainterop/varargs/java_varargs_tests.bal");
+    }
+
+    @Test
+    public void testIntVarargs_1() {
+        BValue[] returns = BRunUtil.invoke(result, "testIntVarargs_1");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 6);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
+    }
+
+    @Test
+    public void testIntVarargs_2() {
+        BValue[] returns = BRunUtil.invoke(result, "testIntVarargs_2");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+    }
+
+    @Test
+    public void testIntVarargs_3() {
+        BValue[] returns = BRunUtil.invoke(result, "testIntVarargs_3");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 9);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 6);
+    }
+
+    @Test
+    public void testIntVarargs_4() {
+        BValue[] returns = BRunUtil.invoke(result, "testIntVarargs_4");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 8);
+    }
+
+    @Test
+    public void testLongVarargs() {
+        BValue[] returns = BRunUtil.invoke(result, "testLongVarargs");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 6);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
+    }
+
+    @Test
+    public void testGetSumOfIntArrays() {
+        BValue[] returns = BRunUtil.invoke(result, "testGetSumOfIntArrays");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+    }
+
+//    @Test(description = "Test passing Java array objects")
+//    public void testPassingJavaStringArray() {
+//        String[] names = {"John", "Jane", "Peter", "Amber", "Autumn", "Harold"};
+//        String[] namesCopy = {"John", "Jane", "Peter", "Amber", "Autumn", "Harold"};
+//        Arrays.sort(namesCopy);
+//        BValue[] args = new BValue[1];
+//        args[0] = new BHandleValue(names);
+//        BValue[] returns = BRunUtil.invoke(result, "testPassingJavaStringArray", args);
+//        Assert.assertEquals(returns.length, 1);
+//        Assert.assertEquals(((BHandleValue) returns[0]).getValue(), namesCopy);
+//    }
+//
+//    @Test(description = "Test Returning Java string array")
+//    public void testReturningSortedJavaStringArray() {
+//        BValue[] returns = BRunUtil.invoke(result, "testReturningSortedJavaStringArray");
+//        Assert.assertEquals(returns.length, 1);
+//
+//        String strValue = "Ballerina Programming Language Specification";
+//        String[] parts = strValue.split(" ");
+//        Arrays.sort(parts);
+//        Assert.assertEquals(((BHandleValue) returns[0]).getValue(), parts);
+//    }
+
+    // Java methods for interop
+
+    public static int getSum(int... vals) {
+        return Arrays.stream(vals).reduce(0, Integer::sum);
+    }
+
+    public static int getMax(int a, int b, int... vals) {
+        return Integer.max(Integer.max(a, b), Arrays.stream(vals).reduce(0, Integer::max));
+    }
+
+    public static long getLongSum(long... vals) {
+        return Arrays.stream(vals).reduce(0, Long::sum);
+    }
+
+    public static int[] getIntArray(int size) {
+        int[] array = new int[size];
+        for (int i = 0; i < size; i++) {
+            array[i] = i;
+        }
+        return array;
+    }
+
+    public static int getSumOfIntArrays(int[]... vals) {
+        int sum = 0;
+        for (int[] val : vals) {
+            sum += Arrays.stream(val).reduce(0, Integer::sum);
+        }
+        return sum;
+    }
+}
