@@ -317,7 +317,7 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
     jvm:JType jMethodRetType = jMethodType.retType;
 
     // Load receiver which is the 0th parameter in the birFunc
-    if jMethod.kind is jvm:INSTANCE {
+    if jMethod.kind is jvm:METHOD && !jMethod.isStatic {
         //var receiverParam = <bir:FunctionParam>birFuncParams[0];
         var receiverLocalVarIndex = indexMap.getIndex(<bir:FunctionParam>birFuncParams[0]);
         //var receiverJType = <jvm:RefType> jMethodParamTypes[0];
@@ -345,7 +345,7 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
     }
 
     // Load java method parameters
-    birFuncParamIndex = jMethod.kind is jvm:INSTANCE ? 2: 0;
+    birFuncParamIndex = jMethod.kind is jvm:METHOD && !jMethod.isStatic  ? 2: 0;
     int jMethodParamIndex = 0;
     int paramCount = birFuncParams.length();
     while (birFuncParamIndex < paramCount) {
@@ -359,16 +359,15 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
         jMethodParamIndex += 1;
     }
 
-    if jMethod.kind is jvm:INSTANCE {
+    if jMethod.kind is jvm:METHOD && !jMethod.isStatic {
         if jMethod.isInterface {
             mv.visitMethodInsn(INVOKEINTERFACE, jMethod.class, jMethod.name, jMethod.sig, true);
         } else {
             mv.visitMethodInsn(INVOKEVIRTUAL, jMethod.class, jMethod.name, jMethod.sig, false);
         }
-    } else if jMethod.kind is jvm:STATIC {
+    } else if jMethod.kind is jvm:METHOD && jMethod.isStatic {
         mv.visitMethodInsn(INVOKESTATIC, jMethod.class, jMethod.name, jMethod.sig, false);
     } else {
-        // jMethod.kind is jvm:CONSTRUCTOR
         mv.visitMethodInsn(INVOKESPECIAL, jMethod.class, jMethod.name, jMethod.sig, false);
     }
 
