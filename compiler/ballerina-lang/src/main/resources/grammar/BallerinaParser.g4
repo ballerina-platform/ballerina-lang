@@ -439,6 +439,12 @@ structuredBindingPattern
 
 errorBindingPattern
     :   TYPE_ERROR LEFT_PARENTHESIS Identifier (COMMA errorDetailBindingPattern)* (COMMA errorRestBindingPattern)? RIGHT_PARENTHESIS
+    |   typeName LEFT_PARENTHESIS errorFieldBindingPatterns RIGHT_PARENTHESIS
+    ;
+
+errorFieldBindingPatterns
+    :   errorDetailBindingPattern (COMMA errorDetailBindingPattern)* (COMMA errorRestBindingPattern)?
+    |   errorRestBindingPattern
     ;
 
 errorMatchPattern
