@@ -37,6 +37,22 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_BOOLEAN_OBJ_TNAME;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_BYTE_OBJ_TNAME;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_DOUBLE_OBJ_TNAME;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_FLOAT_OBJ_TNAME;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_INTEGER_OBJ_TNAME;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_LONG_OBJ_TNAME;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_OBJECT_TNAME;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_PRIMITIVE_BOOLEAN_TNAME;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_PRIMITIVE_BYTE_TNAME;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_PRIMITIVE_CHAR_TNAME;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_PRIMITIVE_DOUBLE_TNAME;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_PRIMITIVE_FLOAT_TNAME;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_PRIMITIVE_INT_TNAME;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_PRIMITIVE_LONG_TNAME;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_PRIMITIVE_SHORT_TNAME;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_VOID_TNAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInteropException.OVERLOADED_METHODS_REASON;
 
 /**
@@ -181,29 +197,32 @@ class JMethodResolver {
             case TypeTags.ANYDATA_TAG:
                 return !jParamType.isPrimitive();
             case TypeTags.NULL_TAG:
-                return jParamTypeName.equals("void");
+                return jParamTypeName.equals(J_VOID_TNAME);
             case TypeTags.INT_TAG:
-                if (jParamTypeName.equals(Object.class.getTypeName()) ||
-                        jParamTypeName.equals(Integer.class.getTypeName())) {
+                if (jParamTypeName.equals(J_OBJECT_TNAME) || jParamTypeName.equals(J_LONG_OBJ_TNAME)) {
                     return true;
                 }
             case TypeTags.BYTE_TAG:
-                if (jParamTypeName.equals(Object.class.getTypeName()) ||
-                        jParamTypeName.equals(Byte.class.getTypeName())) {
+                if (jParamTypeName.equals(J_OBJECT_TNAME) || jParamTypeName.equals(J_INTEGER_OBJ_TNAME)) {
                     return true;
                 }
             case TypeTags.FLOAT_TAG:
-                if (jParamTypeName.equals(Object.class.getTypeName()) ||
-                        jParamTypeName.equals(Float.class.getTypeName())) {
+                if (jParamTypeName.equals(J_OBJECT_TNAME) || jParamTypeName.equals(J_DOUBLE_OBJ_TNAME)) {
                     return true;
                 }
                 return jParamType.isPrimitive() &&
-                        (jParamTypeName.equals("int") || jParamTypeName.equals("byte") ||
-                                jParamTypeName.equals("short") || jParamTypeName.equals("long") ||
-                                jParamTypeName.equals("char") || jParamTypeName.equals("float") ||
-                                jParamTypeName.equals("double"));
+                        (jParamTypeName.equals(J_PRIMITIVE_INT_TNAME) ||
+                                jParamTypeName.equals(J_PRIMITIVE_BYTE_TNAME) ||
+                                jParamTypeName.equals(J_PRIMITIVE_SHORT_TNAME) ||
+                                jParamTypeName.equals(J_PRIMITIVE_LONG_TNAME) ||
+                                jParamTypeName.equals(J_PRIMITIVE_CHAR_TNAME) ||
+                                jParamTypeName.equals(J_PRIMITIVE_FLOAT_TNAME) ||
+                                jParamTypeName.equals(J_PRIMITIVE_DOUBLE_TNAME));
             case TypeTags.BOOLEAN_TAG:
-                return jParamType.isPrimitive() && jParamTypeName.equals("boolean");
+                if (jParamTypeName.equals(J_OBJECT_TNAME) || jParamTypeName.equals(J_BOOLEAN_OBJ_TNAME)) {
+                    return true;
+                }
+                return jParamType.isPrimitive() && jParamTypeName.equals(J_PRIMITIVE_BOOLEAN_TNAME);
             case TypeTags.DECIMAL_TAG:
                 return BigDecimal.class.isAssignableFrom(jParamType);
             case TypeTags.STRING_TAG:

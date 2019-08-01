@@ -79,6 +79,24 @@ class JInterop {
     static final String TUPLE_TNAME = "tuple";
     static final String ARRAY_TNAME = "array";
 
+    //jvm type names
+    static final String J_OBJECT_TNAME = Object.class.getTypeName();
+    static final String J_BOOLEAN_OBJ_TNAME = Boolean.class.getTypeName();
+    static final String J_INTEGER_OBJ_TNAME = Integer.class.getTypeName();
+    static final String J_BYTE_OBJ_TNAME = Byte.class.getTypeName();
+    static final String J_LONG_OBJ_TNAME = Long.class.getTypeName();
+    static final String J_DOUBLE_OBJ_TNAME = Double.class.getTypeName();
+    static final String J_FLOAT_OBJ_TNAME = Float.class.getTypeName();
+    static final String J_PRIMITIVE_INT_TNAME = int.class.getTypeName();
+    static final String J_PRIMITIVE_LONG_TNAME = long.class.getTypeName();
+    static final String J_PRIMITIVE_BYTE_TNAME = byte.class.getTypeName();
+    static final String J_PRIMITIVE_SHORT_TNAME = short.class.getTypeName();
+    static final String J_PRIMITIVE_CHAR_TNAME = char.class.getTypeName();
+    static final String J_PRIMITIVE_FLOAT_TNAME = float.class.getTypeName();
+    static final String J_PRIMITIVE_DOUBLE_TNAME = double.class.getTypeName();
+    static final String J_PRIMITIVE_BOOLEAN_TNAME = boolean.class.getTypeName();
+    static final String J_VOID_TNAME = void.class.getTypeName();
+
     static MapValue<String, Object> createRecordBValue(String typeName) {
         return BallerinaValues.createRecordValue(JVM_PACKAGE_PATH, typeName);
     }
