@@ -10,4 +10,4 @@ $ ballerina grpc --input grpc_unary_blocking_cont.proto --output src/client --mo
 $ ballerina build client
 
 # Run the client using the following command.
-$ ballerina run target/client.balx
+$ ballerina run target/bin/client-executable.jar
