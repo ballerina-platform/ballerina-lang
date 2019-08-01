@@ -17,19 +17,36 @@
 
 apply from: "$rootDir/gradle/javaProject.gradle"
 
+configurations {
+    // configuration that holds jars to copy into runtime jar
+    includedJarLibs
+    excludedJarLibs
+    compile.extendsFrom includedJarLibs
+    compile.extendsFrom excludedJarLibs
+}
+
 dependencies {
-    implementation 'org.apache.commons:commons-lang3'
     implementation 'org.apache.ws.commons.axiom:axiom-impl'
     implementation 'org.apache.ws.commons.axiom:axiom-dom'
     implementation 'org.apache.ws.commons.axiom:axiom-c14n'
-
-    implementation project(':ballerina-streaming:siddhi-core')
-    implementation project(':ballerina-streaming:siddhi-query-api')
-    implementation project(':ballerina-streaming:siddhi-query-compiler')
-    implementation project(':ballerina-streaming:siddhi-annotations')
-    implementation project(':ballerina-config')
-
     implementation 'io.opentracing:opentracing-api'
     implementation 'io.opentracing:opentracing-util'
     implementation 'org.awaitility:awaitility'
+
+    implementation project(':ballerina-config')
+
+    includedJarLibs 'org.apache.ws.commons.axiom:axiom-c14n'
+    includedJarLibs 'org.apache.ws.commons.axiom:axiom-dom'
+    includedJarLibs 'org.apache.ws.commons.axiom:axiom-impl'
+    includedJarLibs 'io.opentracing:opentracing-api'
+    includedJarLibs 'io.opentracing:opentracing-util'
+    includedJarLibs 'org.awaitility:awaitility'
+    includedJarLibs project(':ballerina-config')
+
+    excludedJarLibs 'org.codehaus.woodstox:stax2-api:3.1.1'
+    excludedJarLibs 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
+}
+
+jar {
+    from { (configurations.includedJarLibs - configurations.excludedJarLibs).collect { it.isDirectory() ? it : zipTree(it) } }
 }

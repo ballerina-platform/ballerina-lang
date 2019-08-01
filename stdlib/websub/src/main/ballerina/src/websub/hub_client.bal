@@ -79,7 +79,7 @@ public type Client client object {
         http:Request request = buildTopicRegistrationChangeRequest(MODE_REGISTER, topic);
         var registrationResponse = httpClientEndpoint->post("", request);
         if (registrationResponse is http:Response) {
-            if (registrationResponse.statusCode != http:ACCEPTED_202) {
+            if (registrationResponse.statusCode != http:STATUS_ACCEPTED) {
                 var result = registrationResponse.getTextPayload();
                 string payload = result is string ? result : "";
                 error webSubError = error(WEBSUB_ERROR_CODE, message = "Error occurred during topic registration: " + payload);
@@ -102,7 +102,7 @@ public type Client client object {
         http:Request request = buildTopicRegistrationChangeRequest(MODE_UNREGISTER, topic);
         var unregistrationResponse = httpClientEndpoint->post("", request);
         if (unregistrationResponse is http:Response) {
-            if (unregistrationResponse.statusCode != http:ACCEPTED_202) {
+            if (unregistrationResponse.statusCode != http:STATUS_ACCEPTED) {
                 var result = unregistrationResponse.getTextPayload();
                 string payload = result is string ? result : "";
                 error webSubError = error(WEBSUB_ERROR_CODE, message = "Error occurred during topic unregistration: " + payload);
@@ -257,8 +257,8 @@ function processHubResponse(@untainted string hub, @untainted string mode,
         return webSubError;
     } else {
         int responseStatusCode = response.statusCode;
-        if (responseStatusCode == http:TEMPORARY_REDIRECT_307
-                || responseStatusCode == http:PERMANENT_REDIRECT_308) {
+        if (responseStatusCode == http:STATUS_TEMPORARY_REDIRECT
+                || responseStatusCode == http:STATUS_PERMANENT_REDIRECT) {
             if (remainingRedirects > 0) {
                 string redirected_hub = response.getHeader("Location");
                 return invokeClientConnectorOnRedirection(redirected_hub, mode, subscriptionChangeRequest,
@@ -281,7 +281,7 @@ function processHubResponse(@untainted string hub, @untainted string mode,
             error webSubError = error(WEBSUB_ERROR_CODE, message = errorMessage);
             return webSubError;
         } else {
-            if (responseStatusCode != http:ACCEPTED_202) {
+            if (responseStatusCode != http:STATUS_ACCEPTED) {
                 log:printDebug("Subscription request considered successful for non 202 status code: "
                                 + responseStatusCode.toString());
             }

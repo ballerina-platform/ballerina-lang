@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type SMS error <string, record {| string...; |}>;
-type SMA error <string, record {| anydata...; |}>;
+type SMS error <string, record {| string message?; error cause?; string...; |}>;
+type SMA error <string, record {| string message?; error cause?; anydata...; |}>;
 
 function testBasicErrorVariableWithMapDetails() {
     SMS err1 = error("Error One", message = "Msg One", detail = "Detail Msg");
@@ -63,13 +63,13 @@ function errorVarInTupleVar() {
 }
 
 function errorVarWithConstrainedMap() {
-    error <string, record {| string...; |}> err = error("Error Code", message = "Fatal");
+    error <string, record {| string message?; error cause?; string...; |}> err = error("Error Code", message = "Fatal");
     var error (reason, message = message) = err;
     string m = message; // incompatible types: expected 'string', found 'string?'
 }
 
 function errorVarWithUnderscore() {
-    error <string, record {| string...; |}> err = error("Error Code", message = "Fatal");
+    error <string, record {| string message?; error cause?; string...; |}> err = error("Error Code", message = "Fatal");
     var error (_, ..._) = err; // no new variables on left side
     var error (_) = err; // no new variables on left side
 }

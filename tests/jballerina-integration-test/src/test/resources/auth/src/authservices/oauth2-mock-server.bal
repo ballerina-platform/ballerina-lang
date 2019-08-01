@@ -80,7 +80,7 @@ service oauth2 on oauth2Server {
                 res = getResponseForHeaderBearerRequest(req, authorizationHeader, bearer);
             } else {
                 // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-                res.statusCode = http:UNAUTHORIZED_401;
+                res.statusCode = http:STATUS_UNAUTHORIZED;
                 res.setPayload(INVALID_CLIENT);
             }
         } else if (bearer == BODY_BEARER) {
@@ -91,7 +91,7 @@ service oauth2 on oauth2Server {
                 res = getResponseForPostBodyBearerRequest(payload, bearer);
             } else {
                 // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-                res.statusCode = http:UNAUTHORIZED_401;
+                res.statusCode = http:STATUS_UNAUTHORIZED;
                 res.setPayload(INVALID_CLIENT);
             }
         } else if (bearer == NO_BEARER) {
@@ -100,7 +100,7 @@ service oauth2 on oauth2Server {
                 res = getResponseForNoBearerRequest(payload, bearer);
             } else {
                 // Invalid request. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-                res.statusCode = http:BAD_REQUEST_400;
+                res.statusCode = http:STATUS_BAD_REQUEST;
                 res.setPayload(INVALID_REQUEST);
             }
         }
@@ -120,7 +120,7 @@ service oauth2 on oauth2Server {
             res = getResponseForRefreshRequest(req, authorizationHeader);
         } else {
             // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-            res.statusCode = http:UNAUTHORIZED_401;
+            res.statusCode = http:STATUS_UNAUTHORIZED;
             res.setPayload(INVALID_CLIENT);
         }
         checkpanic caller->respond(res);
@@ -138,7 +138,7 @@ service oauth2 on oauth2Server {
             res = getResponseForIntrospectRequest(req, authorizationHeader);
         } else {
             // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-            res.statusCode = http:UNAUTHORIZED_401;
+            res.statusCode = http:STATUS_UNAUTHORIZED;
             res.setPayload(INVALID_CLIENT);
         }
         checkpanic caller->respond(res);
@@ -169,12 +169,12 @@ function getResponseForHeaderBearerRequest(http:Request req, string authorizatio
             res = prepareResponse(res, grantType, scopes, username, password, bearer);
         } else {
             // Invalid request. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-            res.statusCode = http:BAD_REQUEST_400;
+            res.statusCode = http:STATUS_BAD_REQUEST;
             res.setPayload(INVALID_REQUEST);
         }
     } else {
         // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-        res.statusCode = http:UNAUTHORIZED_401;
+        res.statusCode = http:STATUS_UNAUTHORIZED;
         res.setPayload(INVALID_CLIENT);
     }
     return res;
@@ -210,12 +210,12 @@ function getResponseForPostBodyBearerRequest(string payload, string bearer) retu
             res = prepareResponse(res, grantType, scopes, username, password, bearer);
         } else {
             // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-            res.statusCode = http:UNAUTHORIZED_401;
+            res.statusCode = http:STATUS_UNAUTHORIZED;
             res.setPayload(INVALID_CLIENT);
         }
     } else {
         // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-        res.statusCode = http:UNAUTHORIZED_401;
+        res.statusCode = http:STATUS_UNAUTHORIZED;
         res.setPayload(INVALID_CLIENT);
     }
     return res;
@@ -281,22 +281,22 @@ function getResponseForRefreshRequest(http:Request req, string authorizationHead
                     res.setPayload(response);
                 } else {
                     // Invalid `grant_type`. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-                    res.statusCode = http:BAD_REQUEST_400;
+                    res.statusCode = http:STATUS_BAD_REQUEST;
                     res.setPayload(INVALID_GRANT);
                 }
             } else {
                 // Invalid `grant_type`. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-                res.statusCode = http:BAD_REQUEST_400;
+                res.statusCode = http:STATUS_BAD_REQUEST;
                 res.setPayload(INVALID_GRANT);
             }
         } else {
             // Invalid request. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-            res.statusCode = http:BAD_REQUEST_400;
+            res.statusCode = http:STATUS_BAD_REQUEST;
             res.setPayload(INVALID_REQUEST);
         }
     } else {
         // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-        res.statusCode = http:UNAUTHORIZED_401;
+        res.statusCode = http:STATUS_UNAUTHORIZED;
         res.setPayload(INVALID_CLIENT);
     }
     return res;
@@ -333,12 +333,12 @@ function getResponseForIntrospectRequest(http:Request req, string authorizationH
             }
         } else {
             // Invalid request. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-            res.statusCode = http:BAD_REQUEST_400;
+            res.statusCode = http:STATUS_BAD_REQUEST;
             res.setPayload(INVALID_REQUEST);
         }
     } else {
         // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-        res.statusCode = http:UNAUTHORIZED_401;
+        res.statusCode = http:STATUS_UNAUTHORIZED;
         res.setPayload(INVALID_CLIENT);
     }
     return res;
@@ -385,12 +385,12 @@ function prepareResponse(http:Response res, string grantType, string scopes, str
             }
         } else {
             // Invalid client. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-            res.statusCode = http:UNAUTHORIZED_401;
+            res.statusCode = http:STATUS_UNAUTHORIZED;
             res.setPayload(UNAUTHORIZED_CLIENT);
         }
     } else {
         // Invalid `grant_type`. (Refer: https://tools.ietf.org/html/rfc6749#section-5.2)
-        res.statusCode = http:BAD_REQUEST_400;
+        res.statusCode = http:STATUS_BAD_REQUEST;
         res.setPayload(INVALID_GRANT);
     }
     return res;
@@ -437,12 +437,12 @@ service foo on apiEndpoint {
                 res.setPayload(ACCESS_GRANTED);
                 checkpanic caller->respond(res);
             } else {
-                res.statusCode = http:UNAUTHORIZED_401;
+                res.statusCode = http:STATUS_UNAUTHORIZED;
                 res.setPayload(ACCESS_DENIED);
                 checkpanic caller->respond(res);
             }
         } else {
-            res.statusCode = http:UNAUTHORIZED_401;
+            res.statusCode = http:STATUS_UNAUTHORIZED;
             res.setPayload(AUTHORIZATION_HEADER_NOT_PROVIDED);
             checkpanic caller->respond(res);
         }

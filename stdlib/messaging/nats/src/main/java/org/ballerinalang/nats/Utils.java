@@ -62,6 +62,7 @@ public class Utils {
         Object dispatchedData;
         switch (dataParamTypeTag) {
         case TypeTags.STRING_TAG:
+        case TypeTags.JSON_TAG:
             dispatchedData = new String(data, StandardCharsets.UTF_8);
             break;
         case TypeTags.INT_TAG:
@@ -78,9 +79,6 @@ public class Utils {
             break;
         case TypeTags.ARRAY_TAG:
             dispatchedData = new ArrayValue(data);
-            break;
-        case TypeTags.JSON_TAG:
-            dispatchedData = JSONParser.parse(new String(data, StandardCharsets.UTF_8));
             break;
         case TypeTags.XML_TAG:
             dispatchedData = XMLFactory.parse(new String(data, StandardCharsets.UTF_8));

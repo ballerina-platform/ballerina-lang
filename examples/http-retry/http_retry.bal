@@ -3,7 +3,7 @@ import ballerina/log;
 import ballerina/runtime;
 
 // Define the endpoint to the call the `mockHelloService`.
-http:Client backendClientEP = new("http://localhost:8080", config = {
+http:Client backendClientEP = new("http://localhost:8080", {
         // Retry configuration options.
         retryConfig: {
 
@@ -58,8 +58,8 @@ service retryDemoService on new http:Listener(9090) {
 
         } else {
             http:Response response = new;
-            response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-            string errCause = <string> backendResponse.detail().message;
+            response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
+            string errCause = <string> backendResponse.detail()?.message;
             response.setPayload(errCause);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {

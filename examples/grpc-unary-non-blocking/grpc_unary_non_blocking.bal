@@ -10,14 +10,14 @@ service HelloWorld on new grpc:Listener(9090) {
         string message = "Hello " + name;
 
         // Send a response message to the caller.
-        error? result = caller->send(message);
-        if (result is error) {
+        grpc:Error? result = caller->send(message);
+        if (result is grpc:Error) {
             log:printError("Error from Connector: " + result.reason() + " - "
                     + <string> result.detail()["message"]);
         }
         // Send the `completed` notification to the caller.
         result = caller->complete();
-        if (result is error) {
+        if (result is grpc:Error) {
             log:printError("Error from Connector: " + result.reason() + " - "
                     + <string> result.detail()["message"]);
         }

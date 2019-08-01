@@ -35,12 +35,16 @@ type ErrorData record {
     string a?;
     error err?;
     map<string> m?;
+    string message?;
+    error cause?;
 };
 
 type ErrorData2 record {
     string a?;
     error err?;
     map<string|boolean> m?;
+    string message?;
+    error cause?;
 };
 
 function testBasicErrorMatch() returns string {
@@ -104,6 +108,7 @@ function testBasicErrorMatch3() returns string {
 type Foo record {|
     boolean fatal;
     string message?;
+    error cause?;
 |};
 
 type ER1 error <string, Foo>;

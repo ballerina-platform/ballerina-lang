@@ -403,7 +403,7 @@ function testTypeGuardsWithRecords_2() returns string {
     }
 }
 
-public type CustomError error<string, record { int status = 500; }>;
+public type CustomError error<string, record { int status = 500; string message?; error cause?; }>;
 
 function testTypeGuardsWithError() returns string {
     CustomError err = error("some error");
@@ -903,6 +903,7 @@ const ERR_REASON_TWO = "error reason two";
 
 type Details record {
     string message;
+    error cause?;
 };
 
 type MyError error<ERR_REASON, Details>;

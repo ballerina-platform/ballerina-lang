@@ -6,6 +6,13 @@ import * as os from 'os';
 import { BallerinaExtension, ExtendedLangClient } from '../core/index';
 import { ProjectTreeElement } from './project-tree';
 
+const errorNode = new ProjectTreeElement(
+    "Couldn't create the project overview. Please make sure your code compiles successfully and refresh.",
+    vscode.TreeItemCollapsibleState.None);
+
+const noBalFileNode = new ProjectTreeElement(
+    "Please open a ballerina file to see the ballerina project overview",
+    vscode.TreeItemCollapsibleState.None);
 /**
  * This class will provide Tree Data required to draw the Ballerina Project Overview 
  * on the explorer panel. 
@@ -16,7 +23,7 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
     readonly onDidChangeTreeData: vscode.Event<ProjectTreeElement | undefined> = this._onDidChangeTreeData.event;
     private langClient?: ExtendedLangClient;
     private sourceRoot?: string;
-    private currentFilePath!: string;
+    private currentFilePath?: string;
     private ballerinaExtInstance!: BallerinaExtension;
     private balProjectTree: TreeStructure = {};
 
@@ -26,12 +33,24 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
 
         vscode.window.onDidChangeActiveTextEditor((activatedTextEditor) => {
             if (!activatedTextEditor) {
+                setTimeout(() => {
+                    // The active state is only updated in the next event loop. We need a setTimeout
+                    if (balExt.getWebviewPanels()["overview"].active) {
+                        // keep the tree view as is
+                        return;
+                    }
+
+                    this.refresh();
+                }, 0);
                 return;
             }
 
-            if (activatedTextEditor.document.languageId === "ballerina") {
-                this.refresh(activatedTextEditor.document);
+            if (activatedTextEditor.document.languageId !== "ballerina") {
+                this.refresh();
+                return;
             }
+
+            this.refresh(activatedTextEditor.document);
         });
 
         vscode.commands.registerCommand("ballerina.refreshProjectTree", (moduleName, constructName) => {
@@ -45,9 +64,9 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
         }
     }
 
-    private refresh(document: vscode.TextDocument): void {
-		this.currentFilePath = document.fileName;
-        this.sourceRoot = this.getSourceRoot(this.currentFilePath, path.parse(this.currentFilePath).root);
+    private refresh(document?: vscode.TextDocument): void {
+		this.currentFilePath = document ? document.fileName: undefined;
+        this.sourceRoot = this.currentFilePath? this.getSourceRoot(this.currentFilePath, path.parse(this.currentFilePath).root) : undefined;
 
         this._onDidChangeTreeData.fire();
 	}
@@ -65,12 +84,12 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
     }
 
     private getProjectStructure(): Promise<any> {
-        return new Promise<any>(resolve => {
+        return new Promise<any>((resolve, reject) => {
             this.ballerinaExtInstance.onReady().then(() => {
                 if (this.langClient) {
                     if(this.sourceRoot) {
                         this.langClient.getProjectAST(vscode.Uri.file(this.sourceRoot).toString()).then((result: any) => {
-                            if (result.modules) {
+                            if (result.modules && (Object.keys(result.modules).length > 0)) {
                                 let treeNode: ProjectTreeElement[] = [];
                                 this.balProjectTree = this.buildProjectTree(result.modules);
                                 Object.keys(this.balProjectTree).map((node: any) => {
@@ -78,8 +97,17 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
                                 });
                                 treeNode.sort((node1, node2) => node1.label.localeCompare(node2.label));
                                 resolve(treeNode);
+                            } else {
+                                resolve([errorNode]);
                             }
+                        }, (error) => {
+                            resolve([errorNode]);
                         });
+                        return;
+                    }
+
+                    if (!this.currentFilePath) {
+                        resolve([noBalFileNode]);
                         return;
                     }
 
@@ -88,6 +116,11 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
                     this.langClient.getAST(docUri)
                         .then((result: any) => {
                             const ast = result.ast as any;
+                            if (!ast) {
+                                resolve([errorNode]);
+                                return;
+                            }
+
                             const projectLikeAST = {
                                 modules: {
                                     [ast.name]: {
@@ -109,7 +142,7 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
                             });
                             treeNode.sort((node1, node2) => node1.label.localeCompare(node2.label));
                             resolve(treeNode);
-                        });
+                        }, () =>{ resolve([errorNode]); });
                 } else {
                     resolve();
                 }
@@ -209,7 +242,7 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
      * @param root - root path
      */
     private getSourceRoot(currentPath: string, root: string): string|undefined {
-        if (fs.existsSync(path.join(currentPath, 'Ballerina.Toml'))) {
+        if (fs.existsSync(path.join(currentPath, 'Ballerina.toml'))) {
             if (currentPath !== os.homedir()) {
                 return currentPath;
             }

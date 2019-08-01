@@ -118,18 +118,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-jms</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-sources</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-activemq-artemis</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-sources</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-rabbitmq</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
@@ -429,7 +417,6 @@
                         <configuration>
                             <includeArtifactIds>
                                 <!-- stdlib artifacts -->
-                                ballerina-activemq-artemis,
                                 ballerina-auth,
                                 ballerina-bir,
                                 ballerina-builtin,
@@ -445,7 +432,6 @@
                                 ballerina-internal,
                                 ballerina-io,
                                 ballerina-jvm,
-                                ballerina-jms,
                                 ballerina-log-api,
                                 ballerina-math,
                                 ballerina-mime,
@@ -502,11 +488,6 @@
                             <!--<outputDirectory>${project.build.directory}/extracted-distributions/ballerina-->
                             <!--</outputDirectory>-->
                             <!--<resources>-->
-                                <!--<resource>-->
-                                    <!--<directory>-->
-                                        <!--${project.build.directory}/extracted-distributions/ballerina-activemq-artemis-ballerina-sources-zip/ballerina-->
-                                    <!--</directory>-->
-                                <!--</resource>-->
                                 <!--<resource>-->
                                     <!--<directory>-->
                                         <!--${project.build.directory}/extracted-distributions/ballerina-auth-ballerina-sources-zip/ballerina-->
@@ -575,11 +556,6 @@
                                 <!--<resource>-->
                                     <!--<directory>-->
                                         <!--${project.build.directory}/extracted-distributions/ballerina-io-ballerina-sources-zip/ballerina-->
-                                    <!--</directory>-->
-                                <!--</resource>-->
-                                <!--<resource>-->
-                                    <!--<directory>-->
-                                        <!--${project.build.directory}/extracted-distributions/ballerina-jms-ballerina-sources-zip/ballerina-->
                                     <!--</directory>-->
                                 <!--</resource>-->
                                 <!--<resource>-->

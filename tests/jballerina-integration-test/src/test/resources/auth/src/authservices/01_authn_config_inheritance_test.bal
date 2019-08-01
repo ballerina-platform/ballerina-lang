@@ -47,7 +47,7 @@ service echo01_1 on listener01 {
         }
     }
     resource function test1(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 
     @http:ResourceConfig {
@@ -57,7 +57,7 @@ service echo01_1 on listener01 {
         }
     }
     resource function test2(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 }
 
@@ -76,7 +76,7 @@ service echo01_2 on listener01 {
         }
     }
     resource function test1(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 
     @http:ResourceConfig {
@@ -86,6 +86,6 @@ service echo01_2 on listener01 {
         }
     }
     resource function test2(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 }

@@ -33,11 +33,11 @@ service HelloWorld3 on ep2 {
         foreach var number in numbers {
             result = result + number;
         }
-        error? err = caller->send(result);
-        if (err is error) {
+        grpc:Error? err = caller->send(result);
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         } else {
-            io:println("Result: " + result);
+            io:println("Result: " + result.toString());
         }
         checkpanic caller->complete();
     }
@@ -49,8 +49,8 @@ service HelloWorld3 on ep2 {
         foreach var value in values {
             result = result + "," + value;
         }
-        error? err = caller->send(result);
-        if (err is error) {
+        grpc:Error? err = caller->send(result);
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         } else {
             io:println("Result: " + result);
@@ -65,11 +65,11 @@ service HelloWorld3 on ep2 {
         foreach var value in values {
             result = result + value;
         }
-        error? err = caller->send(result);
-        if (err is error) {
+        grpc:Error? err = caller->send(result);
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         } else {
-            io:println("Result: " + result);
+            io:println("Result: " + result.toString());
         }
         checkpanic caller->complete();
     }
@@ -81,11 +81,11 @@ service HelloWorld3 on ep2 {
         foreach var value in values {
             result = result || value;
         }
-        error? err = caller->send(result);
-        if (err is error) {
+        grpc:Error? err = caller->send(result);
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         } else {
-            io:println("Result: " + result);
+            io:println("Result: " + result.toString());
         }
         checkpanic caller->complete();
     }
@@ -97,8 +97,8 @@ service HelloWorld3 on ep2 {
         foreach var value in values {
             result = result + "," + <string> value.name;
         }
-        error? err = caller->send(result);
-        if (err is error) {
+        grpc:Error? err = caller->send(result);
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         } else {
             io:println("Result: " + result);
@@ -108,8 +108,8 @@ service HelloWorld3 on ep2 {
 
     resource function testIntArrayOutput(grpc:Caller caller) {
         TestInt intArray = {values:[1, 2, 3, 4, 5]};
-        error? err = caller->send(intArray);
-        if (err is error) {
+        grpc:Error? err = caller->send(intArray);
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         } else {
             io:println(intArray);
@@ -119,8 +119,8 @@ service HelloWorld3 on ep2 {
 
     resource function testStringArrayOutput(grpc:Caller caller) {
         TestString stringArray = {values:["A", "B", "C"]};
-        error? err = caller->send(stringArray);
-        if (err is error) {
+        grpc:Error? err = caller->send(stringArray);
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         } else {
             io:println(stringArray);
@@ -130,8 +130,8 @@ service HelloWorld3 on ep2 {
 
     resource function testFloatArrayOutput(grpc:Caller caller) {
         TestFloat floatArray = {values:[1.1, 1.2, 1.3, 1.4, 1.5]};
-        error? err = caller->send(floatArray);
-        if (err is error) {
+        grpc:Error? err = caller->send(floatArray);
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         } else {
             io:println(floatArray);
@@ -141,8 +141,8 @@ service HelloWorld3 on ep2 {
 
     resource function testBooleanArrayOutput(grpc:Caller caller) {
         TestBoolean booleanArray = {values:[true, false, true]};
-        error? err = caller->send(booleanArray);
-        if (err is error) {
+        grpc:Error? err = caller->send(booleanArray);
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         } else {
             io:println(booleanArray);
@@ -154,8 +154,8 @@ service HelloWorld3 on ep2 {
         A a1 = {name:"Sam"};
         A a2 = {name:"John"};
         TestStruct structArray = {values:[a1, a2]};
-        error? err = caller->send(structArray);
-        if (err is error) {
+        grpc:Error? err = caller->send(structArray);
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         } else {
             io:println(structArray);

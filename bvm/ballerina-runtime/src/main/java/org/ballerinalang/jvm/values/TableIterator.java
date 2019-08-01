@@ -445,18 +445,22 @@ public class TableIterator implements DataIterator {
             BType type = sf.getFieldType();
             int typeTag = TypeTags.ANY_TAG;
             switch (type.getTag()) {
-                case TypeTags.INT_TAG | TypeTags.STRING_TAG | TypeTags.FLOAT_TAG | TypeTags.BOOLEAN_TAG
-                     | TypeTags.JSON_TAG | TypeTags.XML_TAG:
-                    typeTag = type.getTag();
-                    break;
-                case TypeTags.ARRAY_TAG:
-                    BType elementType = ((BArrayType) type).getElementType();
-                    if (elementType.getTag() == TypeTags.BYTE_TAG) {
-                        typeTag = TypeTags.BYTE_TAG;
-                    } else {
-                        typeTag = TypeTags.ARRAY_TAG;
-                    }
-                    break;
+            case TypeTags.INT_TAG:
+            case TypeTags.STRING_TAG:
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.BOOLEAN_TAG:
+            case TypeTags.JSON_TAG:
+            case TypeTags.XML_TAG:
+                typeTag = type.getTag();
+                break;
+            case TypeTags.ARRAY_TAG:
+                BType elementType = ((BArrayType) type).getElementType();
+                if (elementType.getTag() == TypeTags.BYTE_TAG) {
+                    typeTag = TypeTags.BYTE_TAG;
+                } else {
+                    typeTag = TypeTags.ARRAY_TAG;
+                }
+                break;
             }
             ColumnDefinition def = new ColumnDefinition(sf.getFieldName(), typeTag);
             columnDefs.add(def);

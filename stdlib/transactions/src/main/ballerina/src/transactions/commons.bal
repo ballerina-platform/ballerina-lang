@@ -34,8 +34,8 @@ map<TwoPhaseCommitTransaction> participatedTransactions = {};
 cache:Cache httpClientCache = new;
 
 listener task:Listener timer = new({
-    interval: 60000,
-    initialDelay: 1000
+    intervalInMillis: 60000,
+    initialDelayInMillis: 1000
 });
 
 service scheduleTimer on timer {
@@ -154,7 +154,7 @@ function protocolCompatible(string coordinationType, UProtocol?[] participantPro
 
 function respondToBadRequest(http:Caller ep, string msg) {
     log:printError(msg);
-    http:Response res = new;  res.statusCode = http:BAD_REQUEST_400;
+    http:Response res = new;  res.statusCode = http:STATUS_BAD_REQUEST;
     RequestError requestError = {errorMessage:msg};
     var resPayload = typedesc<json>.constructFrom(requestError);
     if (resPayload is json) {

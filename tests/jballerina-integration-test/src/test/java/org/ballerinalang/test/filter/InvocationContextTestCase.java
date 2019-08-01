@@ -18,15 +18,9 @@
 
 package org.ballerinalang.test.filter;
 
-import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
-import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Test cases for writing/reading to/from the InvocationContext.
@@ -36,11 +30,7 @@ public class InvocationContextTestCase extends FilterTestCommons {
 
     @Test(description = "Single filter execution success case")
     public void testCustomAttributes() throws Exception {
-        Map<String, String> headers = new HashMap<>();
-        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9098, "echo/test"),
-                headers);
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        HttpResponse response = getHttpResponse(9098, "echo/test");
+        Assert.assertEquals(response.getResponseCode(), 200, RESPONSE_CODE_MISMATCHED);
     }
 }
