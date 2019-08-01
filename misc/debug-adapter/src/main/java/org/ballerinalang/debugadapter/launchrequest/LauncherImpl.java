@@ -21,6 +21,7 @@ import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
 import org.ballerinalang.debugadapter.DebuggerAttachingVM;
+import org.ballerinalang.debugadapter.terminator.OSUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +45,9 @@ public abstract class LauncherImpl {
         String ballerinaHome = args.get("ballerina.home").toString();
         String debuggeePort = args.get("debuggeePort").toString();
         String ballerinaExec = ballerinaHome + File.separator + "bin" + File.separator + "ballerina";
+        if (OSUtils.getOperatingSystem() == "windows") {
+            ballerinaExec = ballerinaExec + ".bat";
+        }
 
         // TODO: validate file path
         ArrayList<String> command = new ArrayList<String>();
