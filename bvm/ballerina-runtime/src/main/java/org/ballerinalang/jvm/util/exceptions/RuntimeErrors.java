@@ -65,7 +65,9 @@ public enum RuntimeErrors {
     INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION("incompatible.simple.type.convert.operation", "RUNTIME_0040"),
     TUPLE_INDEX_OUT_OF_RANGE("tuple.index.out.of.range", "RUNTIME_0038"),
     ILLEGAL_ARRAY_INSERTION("illegal.array.insertion", "RUNTIME_0041"),
-    XML_FUNC_TYPE_ERROR("unexpected.xml.type", "RUNTIME_0042");
+    XML_FUNC_TYPE_ERROR("unexpected.xml.type", "RUNTIME_0042"),
+    JAVA_NULL_REFERENCE("java.null.reference", "RUNTIME_0043"),
+    ILLEGAL_TUPLE_INSERTION("illegal.tuple.insertion", "RUNTIME_0044");
 
     private String errorMsgKey;
     private String errorCode;

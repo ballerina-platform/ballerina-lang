@@ -51,7 +51,7 @@ public class ServiceDefinitionCompletionTest extends CompletionTest {
             {"serviceBodyCompletion2.json", "service"},
             {"serviceBodyCompletion3.json", "service"},
             {"serviceBodyCompletion4.json", "service"},
-            {"serviceBodyCompletion5.json", "service"},
+//            {"serviceBodyCompletion5.json", "service"},
             {"serviceBodyCompletion6.json", "service"},
             {"serviceBodyCompletion7.json", "service"},
             {"serviceVariableAndFieldsCompletion1.json", "service"},

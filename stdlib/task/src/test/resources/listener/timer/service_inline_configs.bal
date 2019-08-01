@@ -16,7 +16,7 @@
 
 import ballerina/task;
 
-listener task:Listener timer = new({ interval: 2000, initialDelay: 1000 });
+listener task:Listener timer = new({ intervalInMillis: 2000, initialDelayInMillis: 1000 });
 
 int count = 0;
 

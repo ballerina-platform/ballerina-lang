@@ -35,6 +35,7 @@ public class BallerinaConfigurableProvider extends ConfigurableProvider {
 
     @NotNull
     private final Project myProject;
+    private BallerinaCompositeConfigurable myProjectConfigurable;
 
     public BallerinaConfigurableProvider(@NotNull Project project) {
         myProject = project;
@@ -52,7 +53,8 @@ public class BallerinaConfigurableProvider extends ConfigurableProvider {
         BallerinaCompositeConfigurable configurableWithoutSDK = new BallerinaCompositeConfigurable(
                 librariesConfigurable, langServerAutoDetectionConfigurable);
 
-        return sdkConfigurable != null ? configurableWithSDK : configurableWithoutSDK;
+        myProjectConfigurable = sdkConfigurable != null ? configurableWithSDK : configurableWithoutSDK;
+        return myProjectConfigurable;
     }
 
     private static class BallerinaCompositeConfigurable extends SearchableConfigurable.Parent.Abstract {

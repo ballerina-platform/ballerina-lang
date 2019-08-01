@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.ballerinalang.langserver.util.references;
 
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
@@ -35,8 +34,6 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -57,8 +54,6 @@ import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFi
  * Utility class for go to definition functionality of language server.
  */
 public class ReferencesUtil {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReferencesUtil.class);
-
     private ReferencesUtil() {
     }
 
@@ -157,11 +152,15 @@ public class ReferencesUtil {
         return getWorkspaceEdit(referencesModel, context, newName);
     }
 
-    public static List<Location> getReferences(List<BLangPackage> modules, LSContext context, Position position) {
+    public static List<Location> getReferences(List<BLangPackage> modules, LSContext context, Position position,
+                                               boolean includeDeclaration) {
         SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
         prepareReferences(modules, context, position);
         fillAllReferences(modules, context, position);
-        List<SymbolReferencesModel.Reference> references = new ArrayList<>(referencesModel.getDefinitions());
+        List<SymbolReferencesModel.Reference> references = new ArrayList<>();
+        if (includeDeclaration) {
+            references.addAll(referencesModel.getDefinitions());
+        }
         references.addAll(referencesModel.getReferences());
         references.add(referencesModel.getReferenceAtCursor().get());
 

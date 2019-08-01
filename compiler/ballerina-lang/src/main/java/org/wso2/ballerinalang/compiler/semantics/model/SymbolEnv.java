@@ -250,6 +250,14 @@ public class SymbolEnv {
     }
 
     public static SymbolEnv createStreamingQueryEnv(BLangStreamingQueryStatement node, SymbolEnv env) {
+        return createEnv(node, env);
+    }
+
+    public static SymbolEnv createStreamingInputEnv(BLangNode node, SymbolEnv env) {
+        return createEnv(node, env);
+    }
+
+    private static SymbolEnv createEnv(BLangNode node, SymbolEnv env) {
         SymbolEnv symbolEnv = new SymbolEnv(node, new Scope(env.scope.owner));
         symbolEnv.envCount = 0;
         env.copyTo(symbolEnv);

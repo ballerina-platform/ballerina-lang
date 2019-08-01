@@ -64,25 +64,25 @@ public type CircuitHealth record {|
 # + rollingWindow - `RollingWindow` options of the `CircuitBreaker`
 # + failureThreshold - The threshold for request failures. When this threshold exceeds, the circuit trips.
 #                      The threshold should be a value between 0 and 1.
-# + resetTimeMillis - The time period(in milliseconds) to wait before attempting to make another request to
+# + resetTimeInMillis - The time period(in milliseconds) to wait before attempting to make another request to
 #                     the upstream service
 # + statusCodes - Array of HTTP response status codes which are considered as failures
 public type CircuitBreakerConfig record {|
     RollingWindow rollingWindow = {};
     float failureThreshold = 0.0;
-    int resetTimeMillis = 0;
+    int resetTimeInMillis = 0;
     int[] statusCodes = [];
 |};
 
 # Represents a rolling window in the Circuit Breaker.
 #
 # + requestVolumeThreshold - Minimum number of requests in a `RollingWindow` that will trip the circuit.
-# + timeWindowMillis - Time period in milliseconds for which the failure threshold is calculated
-# + bucketSizeMillis - The granularity at which the time window slides. This is measured in milliseconds.
+# + timeWindowInMillis - Time period in milliseconds for which the failure threshold is calculated
+# + bucketSizeInMillis - The granularity at which the time window slides. This is measured in milliseconds.
 public type RollingWindow record {|
     int requestVolumeThreshold = 10;
-    int timeWindowMillis = 60000;
-    int bucketSizeMillis = 10000;
+    int timeWindowInMillis = 60000;
+    int bucketSizeInMillis = 10000;
 |};
 
 # Represents a discrete sub-part of the time window (Bucket).
@@ -102,14 +102,14 @@ public type Bucket record {|
 #
 # + failureThreshold - The threshold for request failures. When this threshold exceeds, the circuit trips.
 #                      The threshold should be a value between 0 and 1
-# + resetTimeMillis - The time period(in milliseconds) to wait before attempting to make another request to
+# + resetTimeInMillis - The time period(in milliseconds) to wait before attempting to make another request to
 #                     the upstream service
 # + statusCodes - Array of HTTP response status codes which are considered as failures
 # + noOfBuckets - Number of buckets derived from the `RollingWindow`
 # + rollingWindow - `RollingWindow` options provided in the `CircuitBreakerConfig`
 public type CircuitBreakerInferredConfig record {|
     float failureThreshold = 0.0;
-    int resetTimeMillis = 0;
+    int resetTimeInMillis = 0;
     boolean[] statusCodes = [];
     int noOfBuckets = 0;
     RollingWindow rollingWindow = {};
@@ -177,7 +177,7 @@ public type CircuitBreakerClient client object {
     #             or `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream
     #            server
-    public function head(string path, RequestMessage message = ()) returns Response|ClientError {
+    public function head(string path, public RequestMessage message = ()) returns Response|ClientError {
         CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
         self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -262,7 +262,7 @@ public type CircuitBreakerClient client object {
     #             `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream
     #            server
-    public function delete(string path, RequestMessage message) returns Response|ClientError {
+    public function delete(string path, public RequestMessage message = ()) returns Response|ClientError {
         CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
         self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -283,7 +283,7 @@ public type CircuitBreakerClient client object {
     #            `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream
     #            server
-    public function get(string path, RequestMessage message = ()) returns Response|ClientError {
+    public function get(string path, public RequestMessage message = ()) returns Response|ClientError {
         CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
         self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -304,7 +304,7 @@ public type CircuitBreakerClient client object {
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream
     #            server
-    public function options(string path, RequestMessage message = ()) returns Response|ClientError {
+    public function options(string path, public RequestMessage message = ()) returns Response|ClientError {
         CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
         self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
@@ -415,7 +415,7 @@ public type CircuitBreakerClient client object {
     }
 
     # Force the circuit into a open state in which it will suspend all requests
-    # until `resetTimeMillis` interval exceeds.
+    # until `resetTimeInMillis` interval exceeds.
     public function forceOpen() {
         self.currentCircuitState = CB_OPEN_STATE;
         self.circuitHealth.lastForcedOpenTime = time:currentTime();
@@ -540,7 +540,7 @@ function handleOpenCircuit(CircuitHealth circuitHealth, CircuitBreakerInferredCo
     updateRejectedRequestCount(circuitHealth, circuitBreakerInferredConfig);
     time:Time effectiveErrorTime = getEffectiveErrorTime(circuitHealth);
     int timeDif = time:currentTime().time - effectiveErrorTime.time;
-    int timeRemaining = circuitBreakerInferredConfig.resetTimeMillis - timeDif;
+    int timeRemaining = circuitBreakerInferredConfig.resetTimeInMillis - timeDif;
     string errorMessage = "Upstream service unavailable. Requests to upstream service will be suspended for "
         + timeRemaining.toString() + " milliseconds.";
     UpstreamServiceUnavailableError httpConnectorErr = error(UPSTREAM_SERVICE_UNAVAILABLE, message = errorMessage);
@@ -601,8 +601,8 @@ function getTotalRequestsCount(CircuitHealth circuitHealth) returns int {
 function getCurrentBucketId(CircuitHealth circuitHealth, CircuitBreakerInferredConfig circuitBreakerInferredConfig)
              returns int {
     int elapsedTime = (time:currentTime().time - circuitHealth.startTime.time) % circuitBreakerInferredConfig.
-        rollingWindow.timeWindowMillis;
-    int currentBucketId = ((elapsedTime / circuitBreakerInferredConfig.rollingWindow.bucketSizeMillis) + 1)
+        rollingWindow.timeWindowInMillis;
+    int currentBucketId = ((elapsedTime / circuitBreakerInferredConfig.rollingWindow.bucketSizeInMillis) + 1)
         % circuitBreakerInferredConfig.noOfBuckets;
     return currentBucketId;
 }
@@ -653,16 +653,16 @@ function prepareRollingWindow(CircuitHealth circuitHealth, CircuitBreakerInferre
         idleTime = currentTime - lastRequestTime.time;
     }
     RollingWindow rollingWindow = circuitBreakerInferredConfig.rollingWindow;
-    // If the time duration between two requests greater than timeWindowMillis values, reset the buckets to default.
-    if (idleTime > rollingWindow.timeWindowMillis) {
+    // If the time duration between two requests greater than timeWindowInMillis values, reset the buckets to default.
+    if (idleTime > rollingWindow.timeWindowInMillis) {
         reInitializeBuckets(circuitHealth);
     } else {
         int currentBucketId = getCurrentBucketId(circuitHealth, circuitBreakerInferredConfig);
         int lastUsedBucketId = circuitHealth.lastUsedBucketId;
         // Check whether subsequent requests received within same bucket(sub time window). If the idle time is greater
-        // than bucketSizeMillis means subsequent calls are received time exceeding the rolling window. if we need to
+        // than bucketSizeInMillis means subsequent calls are received time exceeding the rolling window. if we need to
         // reset the buckets to default.
-        if (currentBucketId == circuitHealth.lastUsedBucketId && idleTime > rollingWindow.bucketSizeMillis) {
+        if (currentBucketId == circuitHealth.lastUsedBucketId && idleTime > rollingWindow.bucketSizeInMillis) {
             reInitializeBuckets(circuitHealth);
         // If the current bucket (sub time window) is less than last updated bucket. Stats of the current bucket to
         // zeroth bucket and Last bucket to last used bucket needs to be reset to default.
@@ -680,7 +680,7 @@ function prepareRollingWindow(CircuitHealth circuitHealth, CircuitBreakerInferre
         } else {
             // If the current bucket (sub time window) is greater than last updated bucket. Stats of current bucket to
             // last used bucket needs to be reset without resetting last used bucket stat.
-            while (currentBucketId > lastUsedBucketId && idleTime > rollingWindow.bucketSizeMillis) {
+            while (currentBucketId > lastUsedBucketId && idleTime > rollingWindow.bucketSizeInMillis) {
                 resetBucketStats(circuitHealth, currentBucketId);
                 currentBucketId -= 1;
             }
@@ -724,7 +724,7 @@ function switchCircuitStateOpenToHalfOpenOnResetTime(CircuitBreakerInferredConfi
     if (currentState == CB_OPEN_STATE) {
         time:Time effectiveErrorTime = getEffectiveErrorTime(circuitHealth);
         int elapsedTime = time:currentTime().time - effectiveErrorTime.time;
-        if (elapsedTime > circuitBreakerInferredConfig.resetTimeMillis) {
+        if (elapsedTime > circuitBreakerInferredConfig.resetTimeInMillis) {
             currentCircuitState = CB_HALF_OPEN_STATE;
             log:printInfo("CircuitBreaker reset timeout reached. Circuit switched from OPEN to HALF_OPEN state.");
         }

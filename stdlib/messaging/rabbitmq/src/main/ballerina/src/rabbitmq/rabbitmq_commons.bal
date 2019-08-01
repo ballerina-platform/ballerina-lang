@@ -86,21 +86,21 @@ public type ExchangeConfiguration record {|
 # + port - The port used for establishing the connection.
 # + username - The username used for establishing the connection.
 # + password - The password used for establishing the connection.
-# + connectionTimeout - Connection TCP establishment timeout in milliseconds; zero for infinite.
-# + handshakeTimeout -  The AMQP 0-9-1 protocol handshake timeout in milliseconds.
-# + shutdownTimeout - Shutdown timeout in milliseconds; zero for infinite; default 10000. If consumers exceed
+# + connectionTimeoutInMillis - Connection TCP establishment timeout in milliseconds; zero for infinite.
+# + handshakeTimeoutMillis -  The AMQP 0-9-1 protocol handshake timeout in milliseconds.
+# + shutdownTimeoutInMillis - Shutdown timeout in milliseconds; zero for infinite; default 10000. If consumers exceed
 #                     this timeout then any remaining queued deliveries (and other Consumer callbacks) will be lost.
-# + heartbeat - The initially requested heartbeat timeout in seconds; zero for none.
+# + heartbeatInSeconds - The initially requested heartbeat timeout in seconds; zero for none.
 # + secureSocket - Configurations for facilitating secure connections.
 public type ConnectionConfiguration record {|
     string host;
     int port = 5672;
     string? username = ();
     string? password = ();
-    int? connectionTimeout = ();
-    int? handshakeTimeout = ();
-    int? shutdownTimeout = ();
-    int? heartbeat = ();
+    int? connectionTimeoutInMillis = ();
+    int? handshakeTimeoutMillis = ();
+    int? shutdownTimeoutInMillis = ();
+    int? heartbeatInSeconds = ();
     SecureSocket? secureSocket = ();
 |};
 

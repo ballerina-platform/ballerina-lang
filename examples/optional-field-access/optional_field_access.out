@@ -1,0 +1,10 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command.
+$ ballerina run optional_field_access.bal
+Age:
+Age: 24
+name=John age=30 addr=line01=No. 61 line02=Brandon street city=Santa Clara state=CA zipcode=95134
+Santa Clara
+
+
+San Jose

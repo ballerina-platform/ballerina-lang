@@ -24,15 +24,15 @@ listener http:Listener circuitBreakerEP05 = new(9311);
 http:ClientEndpointConfig conf05 = {
     circuitBreaker: {
         rollingWindow: {
-            timeWindowMillis: 60000,
-            bucketSizeMillis: 20000,
+            timeWindowInMillis: 60000,
+            bucketSizeInMillis: 20000,
             requestVolumeThreshold: 3
         },
         failureThreshold: 0.3,
-        resetTimeMillis: 1000,
+        resetTimeInMillis: 1000,
         statusCodes: [501, 502, 503]
     },
-    timeoutMillis: 2000
+    timeoutInMillis: 2000
 };
 
 http:Client backendClientEP05 = new("http://localhost:8091", conf05);
@@ -55,7 +55,7 @@ service circuitbreaker05 on circuitBreakerEP05 {
         } else {
             error err = backendRes;
             http:Response response = new;
-            response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+            response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
             string errCause = <string> err.detail()?.message;
             response.setPayload(errCause);
             var responseToCaller = caller->respond(response);
@@ -74,7 +74,7 @@ service statuscodeservice on new http:Listener(8091) {
     }
     resource function sayHello(http:Caller caller, http:Request req) {
         http:Response res = new;
-        res.statusCode = http:SERVICE_UNAVAILABLE_503;
+        res.statusCode = http:STATUS_SERVICE_UNAVAILABLE;
         res.setPayload("Service unavailable.");
         var responseToCaller = caller->respond(res);
         if (responseToCaller is error) {

@@ -418,8 +418,11 @@ public class BLangPackageBuilder {
         this.typeNodeStack.push(unionTypeNode);
     }
 
-    void addTupleType(DiagnosticPos pos, Set<Whitespace> ws, int members) {
+    void addTupleType(DiagnosticPos pos, Set<Whitespace> ws, int members, boolean hasRestParam) {
         BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
+        if (hasRestParam) {
+            tupleTypeNode.restParamType = (BLangType) this.typeNodeStack.pop();
+        }
         for (int i = 0; i < members; i++) {
             final BLangType member = (BLangType) this.typeNodeStack.pop();
             tupleTypeNode.memberTypeNodes.add(0, member);
@@ -839,13 +842,16 @@ public class BLangPackageBuilder {
         }
     }
 
-    void addTupleVariable(DiagnosticPos pos, Set<Whitespace> ws, int members) {
+    void addTupleVariable(DiagnosticPos pos, Set<Whitespace> ws, int members, boolean restBindingAvailable) {
 
         BLangTupleVariable tupleVariable = (BLangTupleVariable) TreeBuilder.createTupleVariableNode();
         tupleVariable.pos = pos;
         tupleVariable.addWS(ws);
         if (this.bindingPatternIdentifierWS.size() > 0) {
             tupleVariable.addWS(this.bindingPatternIdentifierWS.pop());
+        }
+        if (restBindingAvailable) {
+            tupleVariable.restVariable = this.varStack.pop();
         }
         for (int i = 0; i < members; i++) {
             final BLangVariable member = this.varStack.pop();
@@ -854,16 +860,18 @@ public class BLangPackageBuilder {
         this.varStack.push(tupleVariable);
     }
 
-    void addTupleVariableReference(DiagnosticPos pos, Set<Whitespace> ws, int members) {
+    void addTupleVariableReference(DiagnosticPos pos, Set<Whitespace> ws, int members, boolean restPatternAvailable) {
         BLangTupleVarRef tupleVarRef = (BLangTupleVarRef) TreeBuilder.createTupleVariableReferenceNode();
         tupleVarRef.pos = pos;
         tupleVarRef.addWS(ws);
+        if (restPatternAvailable) {
+            tupleVarRef.restParam = this.exprNodeStack.pop();
+        }
         for (int i = 0; i < members; i++) {
             final BLangExpression expr = (BLangExpression) this.exprNodeStack.pop();
             tupleVarRef.expressions.add(0, expr);
         }
         this.exprNodeStack.push(tupleVarRef);
-
     }
 
     void startRecordVariableList() {
@@ -3685,6 +3693,9 @@ public class BLangPackageBuilder {
 
     void endPatternClause(boolean isForEvents, boolean isWithinClauseAvailable, DiagnosticPos pos,
                           Set<Whitespace> ws) {
+        //TODO: Patterns will be supported after 1.0.0
+        dlog.error(pos, DiagnosticCode.PATTERNS_NOT_SUPPORTED);
+
         PatternClause patternClause = this.patternClauseStack.peek();
         ((BLangPatternClause) patternClause).pos = pos;
         patternClause.addWS(ws);

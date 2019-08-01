@@ -20,7 +20,7 @@
               "documentation": {
                 "right": {
                   "kind": "markdown",
-                  "value": "The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`"
+                  "value": "The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`"
                 }
               }
             }

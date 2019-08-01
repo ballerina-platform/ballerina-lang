@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>0.992.0</version>
+    <version>1.0.0-alpha</version>
     <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
@@ -11,9 +11,10 @@
     <change-notes><![CDATA[
       <ul>
         <li>Added ballerina sequence diagram view and editing support. </li>
+        <li>Added ballerina home auto detection. </li>
         <li>Added language server based in-place renaming support. </li>
         <li>Added language server based signature-help. </li>
-        <li>Added Debugger Adaptor Protocol Support. </li>
+        <li>Added Debugger Adaptor Protocol support. </li>
       </ul>
     ]]>
     </change-notes>
@@ -54,7 +55,9 @@
         <renamePsiElementProcessor implementation="org.wso2.lsp4intellij.contributors.rename.LSPRenameProcessor"
                                    id="LSPRenameProcessor" order="first"/>
 
-
+        <typedHandler implementation="org.wso2.lsp4intellij.editor.listeners.LSPTypedHandler"
+                      id="BallerinaLspTypedHandler"/>
+        
         <!--Ballerina plugin extensions-->
         <fileTypeFactory implementation="io.ballerina.plugins.idea.BallerinaFileTypeFactory"/>
 
@@ -176,7 +179,7 @@
         <directoryProjectGenerator
                 implementation="io.ballerina.plugins.idea.BallerinaProjectGenerator"/> <!-- for small IDEs-->
 
-        <applicationService
+        <projectService
                 serviceImplementation="io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings"/>
         <preloadingActivity
                 implementation="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"

@@ -17,15 +17,9 @@
  */
 package org.ballerinalang.test.filter;
 
-import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
-import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Test cases for verifying multiple http filters for a service.
@@ -35,48 +29,39 @@ public class MultpleFiltersTestCase extends FilterTestCommons {
 
     @Test(description = "Single filter execution success case")
     public void testMultipleFiltersSuccess() throws Exception {
-        Map<String, String> headers = new HashMap<>();
-        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9092, "echo/test"), headers);
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        HttpResponse response = getHttpResponse(9092, "echo/test");
+        Assert.assertEquals(response.getResponseCode(), 200, RESPONSE_CODE_MISMATCHED);
     }
 
     @Test(description = "Single filter execution failure case")
     public void testMultipleFiltersFailureFromLast() throws Exception {
-        Map<String, String> headers = new HashMap<>();
-        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9094, "echo/test"), headers);
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
+        HttpResponse response = getHttpResponse(9094, "echo/test");
+        Assert.assertEquals(response.getResponseCode(), 403, RESPONSE_CODE_MISMATCHED);
     }
 
     @Test(description = "Single filter execution failure case")
     public void testMultipleFiltersFailureFromMiddle() throws Exception {
-        Map<String, String> headers = new HashMap<>();
-        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9091, "echo/test"), headers);
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 405, "Response code mismatched");
+        HttpResponse response = getHttpResponse(9091, "echo/test");
+        Assert.assertEquals(response.getResponseCode(), 405, RESPONSE_CODE_MISMATCHED);
     }
 
     @Test(description = "Multiple filter attribute sharing test")
     public void testMultipleFiltersContextSharingTest() throws Exception {
-        Map<String, String> headers = new HashMap<>();
-        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9090, "echo/test"),
-                headers);
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        HttpResponse response = getHttpResponse(9090, "echo/test");
+        Assert.assertEquals(response.getResponseCode(), 200, RESPONSE_CODE_MISMATCHED);
     }
 
     @Test(description = "Single response filter execution failure case")
     public void testMultipleResponseFiltersFailure() throws Exception {
-        Map<String, String> headers = new HashMap<>();
-        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9093, "echo/test"),
-                headers);
-        Assert.assertNotNull(response);
-        Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
+        HttpResponse response = getHttpResponse(9093, "echo/test");
+        Assert.assertEquals(response.getResponseCode(), 500, RESPONSE_CODE_MISMATCHED);
+    }
+
+    @Test(description = "Tests the ordering of the request and response filters")
+    public void testFilterOrdering() throws Exception {
+        HttpResponse response = getHttpResponse(9099, "filter/order");
+        Assert.assertEquals(response.getResponseCode(), 200, RESPONSE_CODE_MISMATCHED);
+        Assert.assertEquals(response.getData(), "RequestFilter1 RequestFilter2 CommonFilterReq CommonFilterResp " +
+                "ResponseFilter2 ResponseFilter1 ", "Response mismatch");
     }
 }
