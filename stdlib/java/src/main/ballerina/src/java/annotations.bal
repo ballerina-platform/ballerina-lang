@@ -30,7 +30,7 @@ public type ArrayType record {|
     byte dimensions;
 |};
 
-# ConstructorData describes a Java constructor. If the `paramTypes` field is not specified,
+# `ConstructorData` describes a Java constructor. If the `paramTypes` field is not specified,
 # then parameter types are inferred from the corresponding Ballerina function.
 #
 # + class - The class in which the constructor exists
