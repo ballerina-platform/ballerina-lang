@@ -36,6 +36,7 @@ dependencies {
     includedJarLibs 'com.moandjiezana.toml:toml4j'
     includedJarLibs 'org.wso2.orbit.org.antlr:antlr4-runtime'
     includedJarLibs 'org.slf4j:slf4j-api'
+    includedJarLibs 'org.slf4j:slf4j-simple'
     includedJarLibs 'org.apache.commons:commons-lang3'
 }
 
