@@ -24,7 +24,10 @@ import java.nio.channels.ReadableByteChannel;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.AbstractNativeChannel;
 import org.ballerinalang.stdlib.io.channels.BlobChannel;
 import org.ballerinalang.stdlib.io.channels.BlobIOChannel;
@@ -39,11 +42,14 @@ import org.ballerinalang.stdlib.system.utils.SystemUtils;
 @BallerinaFunction(
         orgName = SystemConstants.ORG_NAME,
         packageName = SystemConstants.PACKAGE_NAME,
-        functionName = "nativeStderr"
+        functionName = "stderr",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Process",
+        structPackage = "ballerina/system"),
+        returnType = { @ReturnType(type = TypeKind.OBJECT) }        
 )
 public class Stderr extends AbstractNativeChannel {
 
-    public static ObjectValue nativeStderr(Strand strand, ObjectValue objVal) {
+    public static ObjectValue stderr(Strand strand, ObjectValue objVal) {
         Process process = SystemUtils.processFromObject(objVal);
         InputStream in = process.getErrorStream();
         ReadableByteChannel readableByteChannel = Channels.newChannel(in);        
