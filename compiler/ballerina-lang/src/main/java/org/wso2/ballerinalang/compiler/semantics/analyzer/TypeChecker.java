@@ -2804,12 +2804,27 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean checkErrorReasonArg(BLangInvocation iExpr, BErrorType ctorType) {
+        // User defined error
+        if (iExpr.type != symTable.errorType) {
+            if (ctorType.reasonType.getKind() != TypeKind.FINITE) {
+                dlog.error(iExpr.pos, DiagnosticCode.INDIRECT_ERROR_CTOR_NOT_ALLOWED_ON_NON_CONST_REASON,
+                        iExpr.type);
+                return false;
+            } else {
+                BFiniteType reasonType = (BFiniteType) ctorType.reasonType;
+                if (reasonType.valueSpace.size() > 1) {
+                    dlog.error(iExpr.pos, DiagnosticCode.INDIRECT_ERROR_CTOR_NOT_ALLOWED_ON_NON_CONST_REASON,
+                            iExpr.type);
+                    return false;
+                }
+            }
+        }
         if (iExpr.argExprs.isEmpty()) {
             return false;
         }
 
-        BLangExpression firstErrorArg = iExpr.argExprs.get(0);
         // if present, error reason should be the first and only positional argument to error constructor.
+        BLangExpression firstErrorArg = iExpr.argExprs.get(0);
         if (firstErrorArg.getKind() != NodeKind.NAMED_ARGS_EXPR) {
             checkExpr(firstErrorArg, env, ctorType.reasonType, DiagnosticCode.INVALID_ERROR_REASON_TYPE);
             return true;
