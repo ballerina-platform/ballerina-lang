@@ -47,7 +47,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
 
-    testCompile 'org.awaitility:awaitility'
     testCompile 'org.testng:testng'
     testCompile 'org.scala-lang:scala-library'
     testCompile 'io.debezium:debezium-core'
