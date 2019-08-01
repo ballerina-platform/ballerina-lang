@@ -31,6 +31,8 @@ import org.ballerinalang.jvm.values.RefValue;
 
 /**
  * This class contains the methods that deals with Strings.
+ *
+ * @since 1.0
  */
 public class StringUtils {
 

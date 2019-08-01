@@ -499,7 +499,30 @@ public class ArrayValue implements RefValue, CollectionValue {
     public String stringValue() {
         if (elementType != null) {
             StringJoiner sj = new StringJoiner(" ");
-            if (generateStringForBasicTypes(sj)) {
+            if (elementType.getTag() == TypeTags.INT_TAG) {
+                for (int i = 0; i < size; i++) {
+                    sj.add(Long.toString(intValues[i]));
+                }
+                return sj.toString();
+            } else if (elementType.getTag() == TypeTags.BOOLEAN_TAG) {
+                for (int i = 0; i < size; i++) {
+                    sj.add(Boolean.toString(booleanValues[i]));
+                }
+                return sj.toString();
+            } else if (elementType.getTag() == TypeTags.BYTE_TAG) {
+                for (int i = 0; i < size; i++) {
+                    sj.add(Long.toString(Byte.toUnsignedLong(byteValues[i])));
+                }
+                return sj.toString();
+            } else if (elementType.getTag() == TypeTags.FLOAT_TAG) {
+                for (int i = 0; i < size; i++) {
+                    sj.add(Double.toString(floatValues[i]));
+                }
+                return sj.toString();
+            } else if (elementType.getTag() == TypeTags.STRING_TAG) {
+                for (int i = 0; i < size; i++) {
+                    sj.add(stringValues[i]);
+                }
                 return sj.toString();
             }
         }
@@ -526,41 +549,34 @@ public class ArrayValue implements RefValue, CollectionValue {
         return sj.toString();
     }
 
-    private boolean generateStringForBasicTypes(StringJoiner sj) {
-        if (elementType.getTag() == TypeTags.INT_TAG) {
-            for (int i = 0; i < size; i++) {
-                sj.add(Long.toString(intValues[i]));
-            }
-            return true;
-        } else if (elementType.getTag() == TypeTags.BOOLEAN_TAG) {
-            for (int i = 0; i < size; i++) {
-                sj.add(Boolean.toString(booleanValues[i]));
-            }
-            return true;
-        } else if (elementType.getTag() == TypeTags.BYTE_TAG) {
-            for (int i = 0; i < size; i++) {
-                sj.add(Long.toString(Byte.toUnsignedLong(byteValues[i])));
-            }
-            return true;
-        } else if (elementType.getTag() == TypeTags.FLOAT_TAG) {
-            for (int i = 0; i < size; i++) {
-                sj.add(Double.toString(floatValues[i]));
-            }
-            return true;
-        } else if (elementType.getTag() == TypeTags.STRING_TAG) {
-            for (int i = 0; i < size; i++) {
-                sj.add(stringValues[i]);
-            }
-            return true;
-        }
-        return false;
-    }
-
     @Override
     public String stringValue(Strand strand) {
         if (elementType != null) {
             StringJoiner sj = new StringJoiner(" ");
-            if (generateStringForBasicTypes(sj)) {
+            if (elementType.getTag() == TypeTags.INT_TAG) {
+                for (int i = 0; i < size; i++) {
+                    sj.add(Long.toString(intValues[i]));
+                }
+                return sj.toString();
+            } else if (elementType.getTag() == TypeTags.BOOLEAN_TAG) {
+                for (int i = 0; i < size; i++) {
+                    sj.add(Boolean.toString(booleanValues[i]));
+                }
+                return sj.toString();
+            } else if (elementType.getTag() == TypeTags.BYTE_TAG) {
+                for (int i = 0; i < size; i++) {
+                    sj.add(Long.toString(Byte.toUnsignedLong(byteValues[i])));
+                }
+                return sj.toString();
+            } else if (elementType.getTag() == TypeTags.FLOAT_TAG) {
+                for (int i = 0; i < size; i++) {
+                    sj.add(Double.toString(floatValues[i]));
+                }
+                return sj.toString();
+            } else if (elementType.getTag() == TypeTags.STRING_TAG) {
+                for (int i = 0; i < size; i++) {
+                    sj.add(stringValues[i]);
+                }
                 return sj.toString();
             }
         }
