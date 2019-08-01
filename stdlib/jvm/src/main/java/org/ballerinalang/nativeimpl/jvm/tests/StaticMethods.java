@@ -64,7 +64,8 @@ public class StaticMethods {
         return arrayValue;
     }
 
-    public static MapValue acceptRefTypesAndReturnMap(ObjectValue a, ArrayValue b, Object c, ErrorValue d, Object e, Object f, MapValue g) {
+    public static MapValue acceptRefTypesAndReturnMap(ObjectValue a, ArrayValue b, Object c,
+                                                      ErrorValue d, Object e, Object f, MapValue g) {
         MapValue<String, Object> mapValue = new MapValueImpl();
         mapValue.put("a", a);
         mapValue.put("b", b);
