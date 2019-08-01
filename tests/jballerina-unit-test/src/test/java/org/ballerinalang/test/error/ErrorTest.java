@@ -261,9 +261,9 @@ public class ErrorTest {
         BAssertUtil.validateError(negativeCompileResult, 12,
                 "cannot infer type of the error from '(UserDefErrorOne|UserDefErrorTwo)'", 75, 12);
         BAssertUtil.validateError(negativeCompileResult, 13,
-                "cannot infer reason from error constructor: 'RNError'", 95, 18);
+                "cannot infer reason from error constructor: 'RNError'", 96, 18);
         BAssertUtil.validateError(negativeCompileResult, 14,
-                "cannot infer reason from error constructor: 'RNStrError'", 96, 21);
+                "cannot infer reason from error constructor: 'RNStrError'", 97, 21);
     }
     @DataProvider(name = "userDefTypeAsReasonTests")
     public Object[][] userDefTypeAsReasonTests() {
