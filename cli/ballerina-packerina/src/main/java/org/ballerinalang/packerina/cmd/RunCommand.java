@@ -141,8 +141,14 @@ public class RunCommand implements BLauncherCmd {
         // Check if programArg is a path not a file if so we calculate the source root from that
         if (programArg.contains(File.separator)) {
             Path programArgPath = Paths.get(programArg);
-            programArg = programArgPath.getFileName().toString();
-            sourceRoot = programArgPath.getParent().toString();
+            Path tempProgramFile = programArgPath.getFileName();
+            if (null != tempProgramFile) {
+                programArg = tempProgramFile.toString();
+            }
+            Path balFileRoot = programArgPath.getParent();
+            if (null != balFileRoot) {
+                sourceRoot = balFileRoot.toString();
+            }
         }
 
         Path sourcePath = Paths.get(programArg).normalize();
