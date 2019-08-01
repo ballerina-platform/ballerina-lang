@@ -72,7 +72,8 @@ public class TesterinaFunction {
             this.prefix = prefix;
         }
 
-        @Override public String toString() {
+        @Override
+        public String toString() {
             return prefix;
         }
     }
@@ -107,16 +108,10 @@ public class TesterinaFunction {
         }*/
     }
 
-    /**
-     * Invokes a ballerina test function, in blocking mode.
-     *
-     * @param args function arguments
-     * @return a BValue array
-     */
-    public BValue[] invoke(BValue[] args) {
+    /*public BValue[] invoke(BValue[] args) {
         // return BVMExecutor.executeFunction(programFile, bFunction, args);
         return new BValue[0];
-    }
+    }*/
 
     public String getName() {
         return name;
@@ -151,7 +146,6 @@ public class TesterinaFunction {
     }
 
 
-
     private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler1) {
         String funcName = cleanupFunctionName(name);
         try {
@@ -165,8 +159,7 @@ public class TesterinaFunction {
                     //throw new BallerinaException(e);
 
                     return e.getTargetException();
-                }
-                catch (IllegalAccessException e) {
+                } catch (IllegalAccessException e) {
                     throw new BallerinaException("Error while invoking function '" + funcName + "'", e);
                 }
             };
@@ -174,8 +167,8 @@ public class TesterinaFunction {
             scheduler.start();
             final Throwable t = out.panic;
             final Object result = out.result;
-            if(result instanceof ErrorValue){
-                throw new BallerinaException((ErrorValue)result);
+            if (result instanceof ErrorValue) {
+                throw new BallerinaException((ErrorValue) result);
             }
             if (t != null) {
                 if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {

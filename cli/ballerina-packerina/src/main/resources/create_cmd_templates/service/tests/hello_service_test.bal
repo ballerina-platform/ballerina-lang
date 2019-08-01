@@ -10,7 +10,7 @@ function beforeSuiteServiceFunc () {
 
 # Test function
 
-@test:Config
+@test:Config{}
 function testServiceFunction () {
     io:println("Do your service Tests!");
     test:assertTrue(true , msg = "Failed!");
