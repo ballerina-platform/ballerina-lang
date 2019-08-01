@@ -10,4 +10,4 @@ $ ballerina grpc --input grpc_unary_blocking_cont.proto --output src/service --m
 $ ballerina build service
 
 # Run the service using the following command.
-$ ballerina run target/service.balx
+$ ballerina run target/bin/service-executable.jar

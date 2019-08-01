@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.test.javainterop;
 
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -48,5 +51,70 @@ public class RefTypeTests {
         Assert.assertTrue(returns[0] instanceof BValueArray);
         BValueArray arr = (BValueArray) returns[0];
         Assert.assertEquals(arr.stringValue(), "[1, 8]");
+    }
+
+    @Test(description = "Test interoperability with ballerina ref types as params and map return")
+    public void testInteropWithRefTypesAndMapReturn() {
+        BValue[] returns = BRunUtil.invoke(result, "interopWithRefTypesAndMapReturn");
+        Assert.assertEquals(returns.length, 1);
+
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap bMap = (BMap) returns[0];
+        Assert.assertEquals(bMap.stringValue(), "{\"a\":{}, \"b\":[5, \"hello\", {}]," +
+                " \"c\":{name:\"sameera\"}, \"e\":{}, \"f\":83, \"g\":{name:\"sample\"}}");
+    }
+
+    @Test(description = "Test interoperability with ballerina error return")
+    public void testInteropWithErrorReturn() {
+        BValue[] returns = BRunUtil.invoke(result, "interopWithErrorReturn");
+        Assert.assertEquals(returns.length, 1);
+
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "example error with given reason");
+    }
+
+    @Test(description = "Test interoperability with ballerina union return")
+    public void testInteropWithUnionReturn() {
+        BValue[] returns = BRunUtil.invoke(result, "interopWithUnionReturn");
+        Assert.assertEquals(returns.length, 1);
+
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test interoperability with ballerina object return")
+    public void testInteropWithObjectReturn() {
+        BValue[] returns = BRunUtil.invoke(result, "interopWithObjectReturn");
+        Assert.assertEquals(returns.length, 1);
+
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test interoperability with ballerina record return")
+    public void testInteropWithRecordReturn() {
+        BValue[] returns = BRunUtil.invoke(result, "interopWithRecordReturn");
+        Assert.assertEquals(returns.length, 1);
+
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test interoperability with ballerina any return")
+    public void testInteropWithAnyReturn() {
+        BValue[] returns = BRunUtil.invoke(result, "interopWithAnyReturn");
+        Assert.assertEquals(returns.length, 1);
+
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test interoperability with ballerina anydata return")
+    public void testInteropWithAnydataReturn() {
+        BValue[] returns = BRunUtil.invoke(result, "interopWithAnydataReturn");
+        Assert.assertEquals(returns.length, 1);
+
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 }

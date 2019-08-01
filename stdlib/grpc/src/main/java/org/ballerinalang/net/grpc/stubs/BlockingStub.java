@@ -55,9 +55,10 @@ public class BlockingStub extends AbstractStub {
      * @param request          request message.
      * @param methodDescriptor method descriptor
      * @param dataContext data context
+     * @throws Exception if an error occur while processing client call.
      */
     public void executeUnary(Message request, MethodDescriptor methodDescriptor,
-                                           DataContext dataContext) {
+                                           DataContext dataContext) throws Exception {
         ClientCall call = new ClientCall(getConnector(), createOutboundRequest(request
                 .getHeaders()), methodDescriptor);
         call.start(new CallBlockingListener(dataContext));
@@ -65,7 +66,7 @@ public class BlockingStub extends AbstractStub {
             call.sendMessage(request);
             call.halfClose();
         } catch (Exception e) {
-            throw cancelThrow(call, e);
+            cancelThrow(call, e);
         }
     }
 

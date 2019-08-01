@@ -22,14 +22,14 @@ package org.ballerinalang.net.grpc.exception;
  *
  * @since 1.0.0
  */
-public class UnsupportedFieldTypeException extends RuntimeException {
+public class CodeBuilderException extends Exception {
 
     /**
      * Constructs an UnsupportedFieldTypeException with the specified detail message.
      *
      * @param message the detail message
      */
-    public UnsupportedFieldTypeException(String message) {
+    public CodeBuilderException(String message) {
         super(message);
     }
 
@@ -39,16 +39,7 @@ public class UnsupportedFieldTypeException extends RuntimeException {
      * @param  message the detail message
      * @param  cause the cause
      */
-    public UnsupportedFieldTypeException(String message, Throwable cause) {
+    public CodeBuilderException(String message, Throwable cause) {
         super(message, cause);
-    }
-
-    /**
-     * Constructs a new exception with the specified cause.
-     *
-     * @param  cause the cause
-     */
-    public UnsupportedFieldTypeException(Throwable cause) {
-        super(cause);
     }
 }

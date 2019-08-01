@@ -81,6 +81,6 @@ public function main() {
 }
 
 function printOutOfStocksAlert(OutOfStockAlert a) {
-    io:println("Alert! : " + a.itemName +
+    io:println("Alert! : ", a.itemName,
             " stock is not enough to satisfy the order.");
 }

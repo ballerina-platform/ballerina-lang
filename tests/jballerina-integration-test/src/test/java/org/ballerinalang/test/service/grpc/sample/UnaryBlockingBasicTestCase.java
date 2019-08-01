@@ -18,8 +18,6 @@
 
 package org.ballerinalang.test.service.grpc.sample;
 
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -48,7 +46,8 @@ public class UnaryBlockingBasicTestCase extends GrpcBaseTest {
     @BeforeClass
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "07_unary_blocking_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients", "07_unary_blocking_client" +
+                ".bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
     }
 
@@ -64,7 +63,7 @@ public class UnaryBlockingBasicTestCase extends GrpcBaseTest {
 
     @Test
     public void testBlockingErrorResponse() {
-        final String serverMsg = "Error from Connector: {ballerina/grpc}ABORTED - Operation aborted";
+        final String serverMsg = "Error from Connector: {ballerina/grpc}AbortedError - Operation aborted";
 
         BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient", new Object[]{"invalid"});
         Assert.assertEquals(responses.length, 1);
@@ -103,12 +102,7 @@ public class UnaryBlockingBasicTestCase extends GrpcBaseTest {
 
     @Test
     public void testStructBlockingBallerinaClient() {
-        MapValue<String, Object> request = BallerinaValues.createRecordValue(".", "Request");
-        request.put("name", "Sam");
-        request.put("message", "Testing.");
-        request.put("age", 10);
-
-        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingStructClient", new Object[]{request});
+        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingStructClient", new Object[]{});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BMap);
         final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];
@@ -128,7 +122,8 @@ public class UnaryBlockingBasicTestCase extends GrpcBaseTest {
 
     @Test
     public void testNonBlockingBallerinaClient() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "07_unary_nonblocking_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients",
+                "07_unary_nonblocking_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
 
         BValue[] responses = BRunUtil.invoke(result, "testUnaryNonBlockingClient", new Object[]{});
