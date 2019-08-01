@@ -480,7 +480,7 @@ class ProcessedStatement {
                 break;
             case TypeTags.INT_TAG:
                 Long lVal = (Long) value;
-                if(lVal == 0 || lVal == 1) {
+                if (lVal == 0 || lVal == 1) {
                     val = lVal == 1;
                 } else {
                     throw new ApplicationException("Invalid integer value \"" + lVal + "\" specified for boolean");
