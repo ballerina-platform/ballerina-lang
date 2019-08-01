@@ -100,7 +100,7 @@ public const annotation MethodData Method on source external;
 # which has an external function body.
 public const annotation FieldData FieldGet on source external;
 
-# FieldSet annotation describes a Java Field mutate that provides an implementation to a Ballerina function
+# The `FieldSet` annotation describes a Java Field mutate, which provides an implementation of a Ballerina function,
 # which has an external function body.
 public const annotation FieldData FieldSet on source external;
 
