@@ -146,10 +146,13 @@ public class Generator {
             module.unionTypes.add(new UnionType(typeName, description(typeDefinition),
                     Arrays.asList(Type.fromTypeNode(userDefinedType))));
             added = true;
+        } else if (kind == NodeKind.TUPLE_TYPE_NODE) {
+            // TODO: handle tuple type nodes
+            added = true;
         } else if (kind == NodeKind.ERROR_TYPE) {
             BLangErrorType errorType = (BLangErrorType) typeNode;
-            module.errors.add(new Error(errorType.type.tsymbol.name.value, description(typeDefinition),
-                    Type.fromTypeNode(errorType.detailType)));
+            Type detailType = errorType.detailType != null ? Type.fromTypeNode(errorType.detailType) : null;
+            module.errors.add(new Error(errorType.type.tsymbol.name.value, description(typeDefinition), detailType));
             added = true;
         }
         if (!added) {

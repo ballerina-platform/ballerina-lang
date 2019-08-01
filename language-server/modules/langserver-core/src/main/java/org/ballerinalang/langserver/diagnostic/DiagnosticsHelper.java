@@ -99,8 +99,8 @@ public class DiagnosticsHelper {
     private Map<String, List<Diagnostic>> getDiagnostics(List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics,
                                                          LSDocument lsDocument) {
         Map<String, List<Diagnostic>> diagnosticsMap = new HashMap<>();
-        Path diagnosticRoot = lsDocument.getProjectRootPath();
         for (org.ballerinalang.util.diagnostic.Diagnostic diag : diagnostics) {
+            Path diagnosticRoot = lsDocument.getProjectRootPath();
             final org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition position = diag.getPosition();
             String moduleName = position.getSource().getPackageName();
             String fileName = position.getSource().getCompilationUnitName();

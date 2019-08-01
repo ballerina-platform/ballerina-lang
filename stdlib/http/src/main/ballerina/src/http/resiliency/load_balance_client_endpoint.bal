@@ -207,13 +207,15 @@ public type LoadBalanceClient client object {
 
 # Represents an error occurred in an remote function of the Load Balance connector.
 #
-# + message - An error message explaining about the error
-# + statusCode - HTTP status code of the LoadBalanceActionError
+# + statusCode - HTTP status code of the `LoadBalanceActionError`
 # + httpActionErr - Array of errors occurred at each endpoint
+# + message - An explanation of the error
+# + cause - The original error which resulted in a `LoadBalanceActionError`
 public type LoadBalanceActionErrorData record {|
-    string message = "";
     int statusCode = 0;
     error?[] httpActionErr = [];
+    string message?;
+    error cause?;
 |};
 
 public type LoadBalanceActionError error<string, LoadBalanceActionErrorData>;
@@ -295,7 +297,7 @@ function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBa
     string message = "All the load balance endpoints failed. Last error was: " + lastErrorMessage;
     AllLoadBalanceEndpointsFailedError err = error(ALL_LOAD_BALANCE_ENDPOINTS_FAILED,
                                                     message = message,
-                                                    statusCode = INTERNAL_SERVER_ERROR_500,
+                                                    statusCode = STATUS_INTERNAL_SERVER_ERROR,
                                                     httpActionError = loadBalanceActionErrorData.httpActionErr);
     return err;
 }

@@ -41,25 +41,6 @@ function testClosedToClosedAssignment2() returns AnotherPerson2 {
     return ap;
 }
 
-type AnotherPerson3 record {|
-    string name;
-    int age;
-    float weight?;
-|};
-
-// Tests assignment when the LHS type has optional fields which don't correspond to any fields in the RHS type.
-function testClosedToClosedAssignment3() returns AnotherPerson3 {
-    Person1 p = {name:"John Doe", age:25};
-    AnotherPerson3 ap = p;
-    return ap;
-}
-
-function testClosedToClosedAssignment4() {
-    Person1 p = {name:"John Doe", age:25};
-    AnotherPerson3 ap = p;
-    ap.weight = 60.5;
-}
-
 
 //////////////////////////////////////////////////////////////////
 // Test for when the LHS type has optional fields which correspond to required fields of the RHS type.

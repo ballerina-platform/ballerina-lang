@@ -39,7 +39,7 @@ public type Snapshotable abstract object {
 };
 
 // Global variables to be used with snapshot persistence.
-task:Scheduler persistScheduler = new({ interval: 1 });
+task:Scheduler persistScheduler = new({ intervalInMillis: 1 });
 map<map<any>> streamsPersistanceState = {};
 map<Snapshotable> snapshotables = {};
 string persistanceDirectory = "snapshots";
@@ -303,8 +303,8 @@ function persistStatesAndPurgeOldSnapshots() returns error? {
 # Function to initilize a Scheduler task and start periodic snapshotting.
 function startPersisting() {
     persistScheduler = new({
-            interval: persistanceIntervalInMillis,
-            initialDelay: persistanceIntervalInMillis
+            intervalInMillis: persistanceIntervalInMillis,
+            initialDelayInMillis: persistanceIntervalInMillis
         }
     );
     checkpanic persistScheduler.attach(persistanceSchedulerService);
