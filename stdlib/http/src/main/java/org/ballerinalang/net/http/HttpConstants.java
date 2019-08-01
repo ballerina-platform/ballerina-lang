@@ -28,10 +28,10 @@ import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
  */
 public class HttpConstants {
 
-    public static final String HTTPS_ENDPOINT_STARTED = "[ballerina/http] started HTTPS/WSS endpoint ";
-    public static final String HTTP_ENDPOINT_STARTED = "[ballerina/http] started HTTP/WS endpoint ";
-    public static final String HTTPS_ENDPOINT_STOPPED = "[ballerina/http] stopped HTTPS/WSS endpoint ";
-    public static final String HTTP_ENDPOINT_STOPPED = "[ballerina/http] stopped HTTP/WS endpoint ";
+    public static final String HTTPS_ENDPOINT_STARTED = "[ballerina/http] started HTTPS/WSS listener ";
+    public static final String HTTP_ENDPOINT_STARTED = "[ballerina/http] started HTTP/WS listener ";
+    public static final String HTTPS_ENDPOINT_STOPPED = "[ballerina/http] stopped HTTPS/WSS listener ";
+    public static final String HTTP_ENDPOINT_STOPPED = "[ballerina/http] stopped HTTP/WS listener ";
 
     public static final String BASE_PATH = "BASE_PATH";
     public static final String SUB_PATH = "SUB_PATH";
@@ -51,8 +51,6 @@ public class HttpConstants {
     public static final String HTTP_CALLER_NAME = "ballerina/http:Caller";
     public static final String HTTP_MOCK_SERVER_ENDPOINT_NAME = "Tballerina/http:MockListener;";
     public static final String PROTOCOL_HTTPS = "https";
-    public static final String HTTP_METHOD = "HTTP_METHOD";
-    public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
     public static final String RESOLVED_REQUESTED_URI = "RESOLVED_REQUESTED_URI";
     public static final String HTTP_REASON_PHRASE = "HTTP_REASON_PHRASE";
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
@@ -134,6 +132,8 @@ public class HttpConstants {
     public static final String ANNOTATION_METHOD_PATCH = HTTP_METHOD_PATCH;
     public static final String ANNOTATION_METHOD_DELETE = HTTP_METHOD_DELETE;
     public static final String ANNOTATION_METHOD_OPTIONS = HTTP_METHOD_OPTIONS;
+    public static final String ANN_NAME_PARAM_ORDER_CONFIG = "ParamOrderConfig";
+    public static final String ANN_FIELD_PATH_PARAM_ORDER = "pathParamOrder";
 
     public static final String VALUE_ATTRIBUTE = "value";
 
@@ -156,10 +156,9 @@ public class HttpConstants {
     public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
     public static final String PACKAGE_BALLERINA_BUILTIN = BALLERINA_BUILTIN_PKG;
 
-    public static final String HTTP_CLIENT = "Client";
-    public static final String HTTP_CALLER = "HttpCaller";
+    public static final String CLIENT = "Client";
+    public static final String HTTP_CLIENT = "HttpClient";
 
-    public static final String REQUEST_URL = "REQUEST_URL";
     public static final String SRC_HANDLER = "SRC_HANDLER";
     public static final String REMOTE_ADDRESS = "REMOTE_ADDRESS";
     public static final String ORIGIN_HOST = "ORIGIN_HOST";
@@ -190,6 +189,7 @@ public class HttpConstants {
     public static final String HTTP_TIMEOUT_ERROR = "HttpTimeoutError";
     public static final String TYPE_STRING = "string";
     public static final String TRANSPORT_MESSAGE = "transport_message";
+    public static final String QUERY_PARAM_MAP = "queryParamMap";
     public static final String TRANSPORT_HANDLE = "transport_handle";
     public static final String TRANSPORT_PUSH_PROMISE = "transport_push_promise";
     public static final String MESSAGE_OUTPUT_STREAM = "message_output_stream";
@@ -256,7 +256,7 @@ public class HttpConstants {
     //Retry Struct field names
     public static final int RETRY_STRUCT_FIELD = 4;
     public static final String RETRY_COUNT_FIELD = "count";
-    public static final String RETRY_INTERVAL_FIELD = "interval";
+    public static final String RETRY_INTERVAL_FIELD = "intervalInMillis";
 
     // ResponseCacheControl struct field names
     public static final String RES_CACHE_CONTROL_MUST_REVALIDATE_FIELD = "mustRevalidate";
@@ -298,12 +298,14 @@ public class HttpConstants {
     //Service Endpoint
     public static final int SERVICE_ENDPOINT_NAME_INDEX = 0;
     public static final String SERVICE_ENDPOINT_CONFIG = "config";
+    public static final String SERVER_NAME = "server";
+    public static final String SERVER_ENDPOINT_CONFIG = "ServiceEndpointConfiguration";
 
     //Service Endpoint Config
     public static final String ENDPOINT_CONFIG_HOST = "host";
     public static final String ENDPOINT_CONFIG_PORT = "port";
     public static final String ENDPOINT_CONFIG_KEEP_ALIVE = "keepAlive";
-    public static final String ENDPOINT_CONFIG_TIMEOUT = "timeoutMillis";
+    public static final String ENDPOINT_CONFIG_TIMEOUT = "timeoutInMillis";
     public static final String ENDPOINT_CONFIG_CHUNKING = "chunking";
     public static final String ENDPOINT_CONFIG_VERSION = "httpVersion";
     public static final String ENDPOINT_REQUEST_LIMITS = "requestLimits";
@@ -319,7 +321,7 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_TRUST_STORE = "trustStore";
     public static final String FILE_PATH = "path";
     public static final String PASSWORD = "password";
-    public static final String PROTOCOL_VERSION = "name";
+    public static final String SSL_PROTOCOL_VERSION = "name";
     public static final String ENABLED_PROTOCOLS = "versions";
     public static final String ENABLE = "enable";
     public static final String ENDPOINT_CONFIG_OCSP_STAPLING = "ocspStapling";
@@ -330,8 +332,9 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_KEY = "keyFile";
     public static final String ENDPOINT_CONFIG_KEY_PASSWORD = "keyPassword";
     public static final String ENDPOINT_CONFIG_TRUST_CERTIFICATES = "trustedCertFile";
-    public static final String ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT = "handshakeTimeout";
-    public static final String ENDPOINT_CONFIG_SESSION_TIMEOUT = "sessionTimeout";
+    public static final String ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT = "handshakeTimeoutInSeconds";
+    public static final String ENDPOINT_CONFIG_SESSION_TIMEOUT = "sessionTimeoutInSeconds";
+    public static final String ENDPOINT_CONFIG_DISABLE_SSL = "disable";
 
     //SslConfiguration indexes
     public static final String SSL_CONFIG_SSL_VERIFY_CLIENT = "sslVerifyClient";
@@ -347,15 +350,18 @@ public class HttpConstants {
     public static final int CLIENT_ENDPOINT_CONFIG_INDEX = 0;
     public static final int CLIENT_ENDPOINT_URL_INDEX = 0;
     public static final int CLIENT_GLOBAL_POOL_INDEX = 1;
-    
+
     //Client Endpoint Config
     public static final String CLIENT_EP_CHUNKING = "chunking";
-    public static final String CLIENT_EP_ENDPOINT_TIMEOUT = "timeoutMillis";
+    public static final String CLIENT_EP_ENDPOINT_TIMEOUT = "timeoutInMillis";
     public static final String CLIENT_EP_IS_KEEP_ALIVE = "keepAlive";
     public static final String CLIENT_EP_HTTP_VERSION = "httpVersion";
     public static final String CLIENT_EP_FORWARDED = "forwarded";
     public static final String TARGET_SERVICES = "targets";
     public static final String CLIENT_EP_ACCEPT_ENCODING = "acceptEncoding";
+    public static final String HTTP2_PRIOR_KNOWLEDGE = "http2PriorKnowledge";
+    public static final String HTTP1_SETTINGS = "http1Settings";
+    public static final String HTTP2_SETTINGS = "http2Settings";
 
     //Connection Throttling field names
     public static final String CONNECTION_THROTTLING_STRUCT_REFERENCE = "connectionThrottling";
@@ -367,7 +373,7 @@ public class HttpConstants {
     //Client connection pooling configs
     public static final String CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS = "maxActiveConnections";
     public static final String CONNECTION_POOLING_MAX_IDLE_CONNECTIONS = "maxIdleConnections";
-    public static final String CONNECTION_POOLING_WAIT_TIME = "waitTimeinMillis";
+    public static final String CONNECTION_POOLING_WAIT_TIME = "waitTimeInMillis";
     public static final String CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION = "maxActiveStreamsPerConnection";
     public static final String HTTP_CLIENT_CONNECTION_POOL = "PoolConfiguration";
     public static final String CONNECTION_MANAGER = "ConnectionManager";
@@ -395,7 +401,7 @@ public class HttpConstants {
     // Retry Config
     public static final String CLIENT_EP_RETRY = "retry";
     public static final String RETRY_COUNT = "count";
-    public static final String RETRY_INTERVAL = "interval";
+    public static final String RETRY_INTERVAL = "intervalInMillis";
 
     public static final String SERVICE_ENDPOINT_PROTOCOL_FIELD = "protocol";
 
@@ -421,6 +427,11 @@ public class HttpConstants {
 
     public static final String COLON = ":";
     public static final String DOLLAR = "$";
+
+    public static final String HTTP_VERSION_1_1 = "1.1";
+
+    // Ballerina error types related constants
+    public static final String HTTP_ERROR_DETAIL_RECORD = "Detail";
 
     private HttpConstants() {
     }

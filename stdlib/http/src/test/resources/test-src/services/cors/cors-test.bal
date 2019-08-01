@@ -1,6 +1,6 @@
 import ballerina/http;
 
-listener http:MockListener testEP = new(9090, config = { host: "localhost" });
+listener http:MockListener testEP = new(9090, { host: "localhost" });
 
 @http:ServiceConfig {
     basePath:"/hello1",

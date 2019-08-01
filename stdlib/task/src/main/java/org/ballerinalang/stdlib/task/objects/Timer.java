@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.stdlib.task.objects;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.utils.TaskJob;
 import org.quartz.JobDataMap;
@@ -74,12 +73,12 @@ public class Timer extends AbstractTask {
      * {@inheritDoc}
      */
     @Override
-    public void start(Context context) throws SchedulingException {
+    public void start() throws SchedulingException {
         JobDataMap jobDataMap = getJobDataMapFromTask();
         try {
             scheduleTimer(jobDataMap);
         } catch (SchedulerException e) {
-            throw new SchedulingException("Failed to schedule Task.", e);
+            throw new SchedulingException("Failed to schedule task.", e);
         }
     }
 
@@ -106,7 +105,7 @@ public class Timer extends AbstractTask {
      *
      * @return the number of times the timer runs before shutdown.
      */
-    public long getMaxRuns() {
+    private long getMaxRuns() {
         return this.maxRuns;
     }
 

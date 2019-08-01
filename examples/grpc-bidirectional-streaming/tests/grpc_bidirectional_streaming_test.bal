@@ -13,8 +13,8 @@ function testBidiStreamingService() {
     grpc:StreamingClient ep;
     // Executes unary non-blocking call registering server message listener.
     var res = chatEp->chat(MessageListener);
-    if (res is error) {
-        string errorMsg = "Error from Connector: " + res.reason() + " - " + <string>res.detail().message;
+    if (res is grpc:Error) {
+        string errorMsg = "Error from Connector: " + res.reason() + " - " + <string> res.detail()["message"];
         test:assertFail(msg = errorMsg);
         return;
     } else {
@@ -24,9 +24,9 @@ function testBidiStreamingService() {
 
     // Sends multiple messages to the server.
     ChatMessage mes = { name: "Sam", message: "Hi" };
-    error? connErr = ep->send(mes);
-    if (connErr is error) {
-        string errorMsg = "Error from Connector: " + connErr.reason() + " - " + <string>connErr.detail().message;
+    grpc:Error? connErr = ep->send(mes);
+    if (connErr is grpc:Error) {
+        string errorMsg = "Error from Connector: " + connErr.reason() + " - " + <string> connErr.detail()["message"];
         test:assertFail(msg = errorMsg);
     }
 
@@ -58,7 +58,7 @@ service MessageListener = service {
     // Resource registered to receive server error messages.
     resource function onError(error err) {
         responseMsg = "Error reported from server: " + untaint err.reason() + " - "
-                                                                            + untaint <string>err.detail().message;
+                                                                            + untaint <string> err.detail()["message"];
         received = true;
     }
 

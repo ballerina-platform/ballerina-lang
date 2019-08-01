@@ -21,8 +21,19 @@
 
 <suite name="Ballerina-Streaming-Test-Suite">
     <test name="ballerina-streaming-tests" enabled="true" preserve-order="true" parallel="false">
-        <packages>
-            <package name="org.ballerinalang.stdlib.streams.*"/>
-        </packages>
+        <parameter name="enableJBallerinaTests" value="true"/>
+       <packages>
+           <package name="org.ballerinalang.stdlib.streams.nativeimpl"/>
+       </packages>
+        <classes>
+            <class name="org.ballerinalang.stdlib.streams.BallerinaStreamsV2TableJoinTest" />
+            <class name="org.ballerinalang.stdlib.streams.BallerinaStreamsV2PipelineTest" />
+            <class name="org.ballerinalang.stdlib.streams.BallerinaStreamsV2JoinTest" />
+            <class name="org.ballerinalang.stdlib.streams.BallerinaStreamsV2AggregatorWithGroupByAndWindowTest" />
+            <class name="org.ballerinalang.stdlib.streams.BallerinaStreamsV2HavingTest" />
+            <class name="org.ballerinalang.stdlib.streams.BallerinaStreamsV2OrderByTest" />
+            <class name="org.ballerinalang.stdlib.streams.BallerinaStreamsV2HoppingWindowTest" />
+            <class name="org.ballerinalang.stdlib.streams.BallerinaStreamsV2CustomWindowTest" />
+        </classes>
     </test>
 </suite>

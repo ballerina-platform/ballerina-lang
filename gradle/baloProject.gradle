@@ -1,0 +1,72 @@
+import org.gradle.internal.os.OperatingSystem;
+
+apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
+
+configurations {
+    balo { transitive false }
+    balx { transitive false }
+}
+
+def duplicateSrcPath = "$buildDir/duplicate-src"
+def baloCreationPath = "$duplicateSrcPath/.ballerina/repo/ballerina"
+def balxCreationPath = "$duplicateSrcPath/target"
+
+
+// We duplicate source to avoid creating garbage in source dir
+task duplicateBalSouce(type: Copy) {
+    from("src/main/ballerina/") {
+        exclude '.ballerina/**', 'target/**', 'ballerina-internal.log'
+    }
+    into duplicateSrcPath
+
+    outputs.cacheIf { false }
+}
+
+task convertDuplicateSrcToProject() {
+    dependsOn duplicateBalSouce
+
+    def dotBalDir = duplicateSrcPath + "/.ballerina";
+    doLast {
+        mkdir dotBalDir
+    }
+
+    outputs.upToDateWhen {
+        file(dotBalDir).exists()
+    }
+    outputs.cacheIf { false }
+}
+
+task createBalo(type: Exec) {
+    dependsOn configurations.balo
+    dependsOn convertDuplicateSrcToProject
+    workingDir "$buildDir/duplicate-src"
+
+    doFirst {
+        configurations.balo.each {
+            if (OperatingSystem.current().isWindows()) {
+                commandLine 'cmd.exe', '/c', new File(it, '/bin/ballerina.bat'), 'build', '--skiptests'
+            } else {
+                commandLine 'sh', new File(it, '/bin/ballerina'), 'build', '--skiptests'
+            }
+        }
+    }
+
+    doLast {
+        if (file("$duplicateSrcPath/ballerina-internal.log").exists()) {
+            println file("$duplicateSrcPath/ballerina-internal.log").text
+            throw new GradleException("ballerina internal error")
+        }
+    }
+
+    inputs.files configurations.balo
+    inputs.dir "src/main/ballerina/"
+    outputs.dir baloCreationPath
+    outputs.dir balxCreationPath
+    outputs.cacheIf { true }
+}
+
+
+artifacts {
+    balo file(baloCreationPath), { builtBy(createBalo) }
+    balx file(balxCreationPath), { builtBy(createBalo) }
+}

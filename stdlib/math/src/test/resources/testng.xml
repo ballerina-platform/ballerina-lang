@@ -21,7 +21,12 @@ under the License.
 
 <suite name="ballerina-test-suite">
     <!-- Ballerina math Test Cases. -->
+    <listeners>
+        <listener class-name="org.ballerinalang.test.listener.JBallerinaTestInitializer"/>
+    </listeners>
+    
     <test name="ballerina-math-test-suite" preserve-order="true" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
         <packages>
             <package name="org.ballerinalang.stdlib.math.nativeimpl"/>
         </packages>

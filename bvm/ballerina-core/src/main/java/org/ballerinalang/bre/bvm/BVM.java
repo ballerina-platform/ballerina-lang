@@ -75,7 +75,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.util.FunctionFlags;
@@ -96,6 +95,7 @@ import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.ObjectTypeInfo;
+import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.codegen.TypeDefInfo;
@@ -108,6 +108,7 @@ import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.IntegerCPEntry;
+import org.ballerinalang.util.codegen.cpentries.MapCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StringCPEntry;
 import org.ballerinalang.util.codegen.cpentries.StructureRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.TypeRefCPEntry;
@@ -304,6 +305,7 @@ public class BVM {
                 case InstructionCodes.RGLOAD:
                 case InstructionCodes.MAPLOAD:
                 case InstructionCodes.JSONLOAD:
+                case InstructionCodes.MCONST:
                     execLoadOpcodes(strand, sf, opcode, operands);
                     break;
 
@@ -1464,6 +1466,13 @@ public class BVM {
                 k = operands[2];
                 sf.refRegs[k] = JSONUtils.getElement(sf.refRegs[i], sf.stringRegs[j]);
                 break;
+            case InstructionCodes.MCONST:
+                pkgIndex = operands[0];
+                i = operands[1];
+                j = operands[2];
+                PackageInfo packageInfoEntry = ctx.programFile.getPackageInfoEntries()[pkgIndex];
+                sf.refRegs[j] = ((MapCPEntry) packageInfoEntry.getConstPoolEntries()[i]).getBMap();
+                break;
             default:
                 throw new UnsupportedOperationException();
         }
@@ -2061,7 +2070,7 @@ public class BVM {
                 i = operands[0];
                 j = operands[1];
                 xmlVal = (BXML) sf.refRegs[i];
-                sf.refRegs[j] = new BXMLAttributes(xmlVal);
+                sf.refRegs[j] = xmlVal.getAttributesMap();
                 break;
             case InstructionCodes.S2QNAME:
                 i = operands[0];
@@ -2660,11 +2669,8 @@ public class BVM {
                 convertJSONToStruct(ctx, operands, sf);
                 break;
             case InstructionCodes.XMLATTRS2MAP:
-                i = operands[0];
-                j = operands[1];
-                bRefType = sf.refRegs[i];
-                sf.refRegs[j] = ((BXMLAttributes) sf.refRegs[i]).value();
-                break;
+                // should never reach here
+                throw new UnsupportedOperationException();
             case InstructionCodes.XML2S:
                 i = operands[0];
                 j = operands[1];

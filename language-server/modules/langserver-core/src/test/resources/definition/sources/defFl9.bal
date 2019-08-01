@@ -1,4 +1,4 @@
-function testIfStmt(int aa, int b, int c) returns (int, int) {
+function testIfStmt(int aa, int b, int c) returns [int, int] {
 
     int x;
     x = 10;
@@ -14,7 +14,7 @@ function testIfStmt(int aa, int b, int c) returns (int, int) {
 
     int b1 = c;
 
-    return (a1 + x, b1 + 1);
+    return [a1 + x, b1 + 1];
 }
 
 function testMultipleTypeGuardsWithAndOperator() returns int {

@@ -1,6 +1,0 @@
-# Make sure to have the RabbitMQ broker running.
-#
-# Navigate to the directory that contains the
-# 'rabbitmq-simple-producer.bal' file and issue the 'ballerina run' command as follows..
-
-$ ballerina run rabbitmq-simple-producer.bal

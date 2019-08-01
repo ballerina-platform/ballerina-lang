@@ -3,7 +3,6 @@ import { sync as globSync } from 'glob';
 import { balToolsPath } from './server';
 import URI from 'vscode-uri';
 import * as React from "react";
-import {  } from "../resources/composer-library/api-editor"
 import { Diagram, DiagramMode } from '@ballerina/composer/packages/diagram';
 import { DiagramUtils } from '@ballerina/composer/packages/diagram/lib/src/diagram/diagram-utils';
 import * as fontUtils from '@ballerina/composer/packages/diagram/lib/src/utils';

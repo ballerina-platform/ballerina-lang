@@ -77,8 +77,11 @@ public abstract class BallerinaSdkService extends SimpleModificationTracker {
     public abstract void chooseAndSetSdk(@Nullable Module module);
 
     /**
-     * Use this method in order to check whether the method is appropriate for providing Ballerina-specific code
+     * Use this method in order to check whether the module is appropriate for providing Ballerina-specific code
      * insight.
+     *
+     * @param module module instance.
+     * @return true if the module is a ballerina module.
      */
     @Contract("null -> false")
     public boolean isBallerinaModule(@Nullable Module module) {

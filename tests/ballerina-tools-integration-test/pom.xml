@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.991.1-SNAPSHOT</version>
+        <version>0.992.0-m2-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -80,6 +80,9 @@
                         <server.zip>
                             ${basedir}/../../distribution/zip/ballerina-tools/target/ballerina-tools-${project.version}.zip
                         </server.zip>
+                        <jballerina.server.zip>
+                            ${basedir}/../../distribution/zip/jballerina-tools/target/jballerina-tools-${project.version}.zip
+                        </jballerina.server.zip>
                         <jacoco.agent.argLine>${jacoco.agent.argLine}</jacoco.agent.argLine>
                         <ballerina.agent.path>${project.build.directory}/ballerina-test-utils-${project.version}.jar</ballerina.agent.path>
                         <integration.test.utils.service.file>
@@ -221,15 +224,12 @@
                                                         <fileset dir="${basedir}/../../stdlib/builtin/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/config-api/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/crypto/target/classes" />
-                                                        <fileset dir="${basedir}/../../stdlib/database/h2/target/classes" />
-                                                        <fileset dir="${basedir}/../../stdlib/database/mysql/target/classes" />
-                                                        <fileset dir="${basedir}/../../stdlib/database/sql/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/jdbc/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/file/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/grpc/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/http/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/internal/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/io/target/classes" />
-                                                        <fileset dir="${basedir}/../../stdlib/jms/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/log-api/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/math/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/mime/target/classes" />
@@ -265,15 +265,12 @@
                                                         <fileset dir="${basedir}/../../stdlib/builtin/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/config-api/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/crypto/src/main/java" />
-                                                        <fileset dir="${basedir}/../../stdlib/database/h2/src/main/java" />
-                                                        <fileset dir="${basedir}/../../stdlib/database/mysql/src/main/java" />
-                                                        <fileset dir="${basedir}/../../stdlib/database/sql/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/jdbc/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/file/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/grpc/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/http/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/internal/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/io/src/main/java" />
-                                                        <fileset dir="${basedir}/../../stdlib/jms/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/log-api/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/math/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/mime/src/main/java" />

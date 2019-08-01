@@ -18,17 +18,17 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.bre.Context;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.io.channels.AbstractNativeChannel;
 import org.ballerinalang.stdlib.io.channels.BlobChannel;
 import org.ballerinalang.stdlib.io.channels.BlobIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.stdlib.io.utils.IOUtils;
 
 import java.io.ByteArrayInputStream;
 import java.nio.channels.Channels;
@@ -46,10 +46,27 @@ import java.nio.channels.ReadableByteChannel;
         isPublic = true
 )
 public class CreateMemoryChannel extends AbstractNativeChannel {
-    /**
-     * Holds the index of the message content.
-     */
-    private static final int MESSAGE_CONTENT_INDEX = 0;
+
+    public static Object createReadableChannel(Strand strand, ArrayValue content) {
+        try {
+            Channel channel = inFlow(content);
+            return createChannel(channel);
+        } catch (BallerinaException e) {
+            return IOUtils.createError(e.getMessage());
+        }
+    }
+
+    private static Channel inFlow(ArrayValue contentArr) {
+        try {
+            byte[] content = shrink(contentArr);
+            ByteArrayInputStream contentStream = new ByteArrayInputStream(content);
+            ReadableByteChannel readableByteChannel = Channels.newChannel(contentStream);
+            return new BlobIOChannel(new BlobChannel(readableByteChannel));
+        } catch (Throwable e) {
+            String message = "Error occurred while obtaining channel";
+            throw new BallerinaException(message, e);
+        }
+    }
 
     /**
      * Shrink the byte array to fit with the given content.
@@ -57,26 +74,10 @@ public class CreateMemoryChannel extends AbstractNativeChannel {
      * @param array byte array with elements initialized.
      * @return byte array which is shrunk.
      */
-    private byte[] shrink(BValueArray array) {
-        int contentLength = (int) array.size();
+    private static byte[] shrink(ArrayValue array) {
+        int contentLength = array.size();
         byte[] content = new byte[contentLength];
         System.arraycopy(array.getBytes(), 0, content, 0, contentLength);
         return content;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Channel inFlow(Context context) throws BallerinaException {
-        try {
-            byte[] content = shrink(((BValueArray) context.getRefArgument(MESSAGE_CONTENT_INDEX)));
-            ByteArrayInputStream contentStream = new ByteArrayInputStream(content);
-            ReadableByteChannel readableByteChannel = Channels.newChannel(contentStream);
-            return new BlobIOChannel(new BlobChannel(readableByteChannel));
-        } catch (Throwable e) {
-            String message = "Error occurred while obtaining channel";
-            throw new BallerinaIOException(message, e);
-        }
     }
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -43,33 +43,33 @@ public class BallerinaErrorRefBindingPatternImpl extends ASTWrapperPsiElement im
   }
 
   @Override
+  @NotNull
+  public List<BallerinaErrorNamedArgRefPattern> getErrorNamedArgRefPatternList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaErrorNamedArgRefPattern.class);
+  }
+
+  @Override
   @Nullable
-  public BallerinaRecordRefBindingPattern getRecordRefBindingPattern() {
-    return findChildByClass(BallerinaRecordRefBindingPattern.class);
+  public BallerinaErrorRefRestPattern getErrorRefRestPattern() {
+    return findChildByClass(BallerinaErrorRefRestPattern.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaVariableReference getVariableReference() {
+    return findChildByClass(BallerinaVariableReference.class);
   }
 
   @Override
   @NotNull
-  public List<BallerinaVariableReference> getVariableReferenceList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaVariableReference.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getComma() {
-    return findChildByType(COMMA);
-  }
-
-  @Override
-  @Nullable
   public PsiElement getLeftParenthesis() {
-    return findChildByType(LEFT_PARENTHESIS);
+    return findNotNullChildByType(LEFT_PARENTHESIS);
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getRightParenthesis() {
-    return findChildByType(RIGHT_PARENTHESIS);
+    return findNotNullChildByType(RIGHT_PARENTHESIS);
   }
 
   @Override

@@ -19,6 +19,7 @@ function name3() {
     name2({
         a: "apple",
         b: "banana",
-        c: "cherry"
+        c:
+        "cherry"
     });
 }

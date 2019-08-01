@@ -19,6 +19,7 @@
 package org.ballerinalang.net.uri.parser;
 
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpResourceArguments;
 import org.ballerinalang.net.uri.URITemplateException;
 
 import java.util.Collections;
@@ -62,9 +63,8 @@ public abstract class Node<DataType, InboundMsgType> {
         return node;
     }
 
-    public boolean matchAll(String uriFragment, Map<String, String> variables,
-                                                          int start, InboundMsgType inboundMsg,
-                                                          DataReturnAgent<DataType> dataReturnAgent) {
+    public boolean matchAll(String uriFragment, HttpResourceArguments variables, int start, InboundMsgType inboundMsg,
+                            DataReturnAgent<DataType> dataReturnAgent) {
         int matchLength = match(uriFragment, variables);
         if (matchLength < 0) {
             return false;
@@ -118,13 +118,13 @@ public abstract class Node<DataType, InboundMsgType> {
         return dataElement != null && dataElement.hasData();
     }
 
-    private void setUriPostFix(Map<String, String> variables, String subUriFragment) {
-        variables.putIfAbsent(HttpConstants.EXTRA_PATH_INFO, "/" + subUriFragment);
+    private void setUriPostFix(HttpResourceArguments variables, String subUriFragment) {
+        variables.getMap().putIfAbsent(HttpConstants.EXTRA_PATH_INFO, "/" + subUriFragment);
     }
 
     abstract String expand(Map<String, String> variables);
 
-    abstract int match(String uriFragment, Map<String, String> variables);
+    abstract int match(String uriFragment, HttpResourceArguments variables);
 
     abstract String getToken();
 

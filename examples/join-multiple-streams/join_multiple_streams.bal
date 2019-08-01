@@ -16,7 +16,7 @@ type MaterialUsage record {
 stream<ProductMaterial> rawMaterialStream = new;
 stream<ProductMaterial> productionInputStream = new;
 
-// This is the output stream that contains the events/alerts that are generated based on streaming logic.
+// This is the output stream, which contains the events/alerts that are generated based on the streaming logic.
 stream<MaterialUsage> materialUsageStream = new;
 
 function initRealtimeProductionAlert() returns () {
@@ -25,11 +25,12 @@ function initRealtimeProductionAlert() returns () {
     materialUsageStream.subscribe(printMaterialUsageAlert);
 
 
-    // Gather events related to raw materials through the `rawMaterialStream` stream and production related events
+    // Gathers events related to raw materials through the `rawMaterialStream` stream and production-related events
     // through the `productionInputStream`. The raw materials usage and production outcome for the last
     // 10 seconds are calculated and an alert is triggered if the raw material usage is 5% higher than the
-    // production outcome. This `forever` block is executed once, when initializing the service. The processing happens
+    // production outcome. This `forever` block is executed once when initializing the service. The processing happens
     // asynchronously each time the `requestStream` or `productionInputStream` receives an event.
+
     forever {
         from productionInputStream window time(10000) as p
         join rawMaterialStream window time(10000) as r
@@ -54,9 +55,9 @@ function printMaterialUsageAlert(MaterialUsage materialUsage) {
             materialUsage.totalConsumption) * 100.0 /
                 (materialUsage.totalRawMaterial);
 
-    io:println("ALERT!! : Material usage is higher than the expected"
-            + " limit for material : " + materialUsage.name +
-            " , usage difference (%) : " + materialUsageDifference);
+    io:println("ALERT!! : Material usage is higher than the expected",
+            " limit for material : ", materialUsage.name,
+            ", usage difference (%) : ", materialUsageDifference);
 }
 
 listener http:Listener productMaterialListener = new (9090);
@@ -67,8 +68,9 @@ listener http:Listener productMaterialListener = new (9090);
 }
 service productMaterialService on productMaterialListener {
 
-    // Initialize the function that contains streaming queries.
-    future<()> ftr = start initRealtimeProductionAlert();
+    // Initializes the function, which contains streaming queries.
+    // TODO: issue #17267
+    () ftr = initRealtimeProductionAlert();
 
     @http:ResourceConfig {
         methods: ["POST"],
@@ -77,7 +79,7 @@ service productMaterialService on productMaterialListener {
     resource function rawmaterialrequests(http:Caller caller, http:Request req) {
         var jsonMsg = req.getJsonPayload();
         if (jsonMsg is json) {
-            var conversionResult = ProductMaterial.convert(jsonMsg);
+            var conversionResult = ProductMaterial.constructFrom(jsonMsg);
             if (conversionResult is error) {
                 io:println("Error in sending response to caller",
                                                         conversionResult);
@@ -95,7 +97,7 @@ service productMaterialService on productMaterialListener {
         } else {
             http:Response res = new;
             res.statusCode = 500;
-            res.setPayload(untaint jsonMsg.reason());
+            res.setPayload(<@untainted> jsonMsg.reason());
             error? result = caller->respond(res);
             if (result is error) {
                 io:println("Error in sending response to caller", result);
@@ -111,7 +113,7 @@ service productMaterialService on productMaterialListener {
                                http:Request req) {
         var jsonMsg = req.getJsonPayload();
         if (jsonMsg is json) {
-            var conversionResult = ProductMaterial.convert(jsonMsg);
+            var conversionResult = ProductMaterial.constructFrom(jsonMsg);
             if (conversionResult is error) {
                 io:println("Error in sending response to caller",
                                                     conversionResult);
@@ -130,7 +132,7 @@ service productMaterialService on productMaterialListener {
         } else {
             http:Response res = new;
             res.statusCode = 500;
-            res.setPayload(untaint jsonMsg.reason());
+            res.setPayload(<@untainted> jsonMsg.reason());
             error? result = caller->respond(res);
             if (result is error) {
                 io:println("Error in sending response to caller", result);

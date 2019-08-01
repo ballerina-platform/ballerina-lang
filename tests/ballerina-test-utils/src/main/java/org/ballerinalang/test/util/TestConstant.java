@@ -36,6 +36,7 @@ public class TestConstant {
     public static final String DEFLATE = "deflate";
     public static final String IDENTITY = "identity";
     public static final String ENABLE_JBALLERINA_TESTS = "enableJBallerinaTests";
+    public static final String MODULE_INIT_CLASS_NAME = "___init";
 
     //HTTP2 related Constants
     public static final long HTTP2_RESPONSE_TIME_OUT = 10;

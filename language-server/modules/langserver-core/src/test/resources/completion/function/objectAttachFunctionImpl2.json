@@ -6,10 +6,11 @@
   "source": "function/source/objectAttachFunctionImpl2.bal",
   "items": [
     {
-      "label":"Person",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"Person."
+      "label": "Person",
+      "kind": "Class",
+      "detail": "Object",
+      "insertText": "Person.",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

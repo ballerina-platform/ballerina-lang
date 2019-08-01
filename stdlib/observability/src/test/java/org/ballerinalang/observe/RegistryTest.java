@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.observe;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -43,7 +43,7 @@ public class RegistryTest extends MetricTest {
         String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         Path testResourceRoot = Paths.get(resourceRoot, "test-src");
         compileResult = BCompileUtil.
-                compileAndSetup(testResourceRoot.resolve("metrics_registry_test.bal").toString());
+                compile(testResourceRoot.resolve("metrics_registry_test.bal").toString());
     }
 
     @Test(groups = "RegistryTest.testGetAllMetrics", dependsOnGroups = "SummaryTest.testRegisteredGauge")
@@ -53,7 +53,7 @@ public class RegistryTest extends MetricTest {
                 "There shouldn't be any metrics registered in initial state.");
     }
 
-    @Test(dependsOnMethods = "testGetAllMetrics")
+    @Test(groups = "RegistryTest.testRegister", dependsOnMethods = "testGetAllMetrics")
     public void testRegister() {
         BValue[] returns = BRunUtil.invoke(compileResult, "registerAngGetMetrics");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2,

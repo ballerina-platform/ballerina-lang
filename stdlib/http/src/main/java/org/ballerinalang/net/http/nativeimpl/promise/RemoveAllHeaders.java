@@ -18,11 +18,9 @@
 
 package org.ballerinalang.net.http.nativeimpl.promise;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpUtil;
@@ -38,14 +36,10 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
                 structPackage = "ballerina/http"),
         isPublic = true
 )
-public class RemoveAllHeaders extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        BMap<String, BValue> pushPromiseStruct = (BMap<String, BValue>) context.getRefArgument(0);
+public class RemoveAllHeaders {
+    public static void removeAllHeaders(Strand strand, ObjectValue pushPromiseObj) {
         Http2PushPromise http2PushPromise =
-                HttpUtil.getPushPromise(pushPromiseStruct, HttpUtil.createHttpPushPromise(pushPromiseStruct));
+                HttpUtil.getPushPromise(pushPromiseObj, HttpUtil.createHttpPushPromise(pushPromiseObj));
         http2PushPromise.removeAllHeaders();
-        context.setReturnValues();
     }
 }

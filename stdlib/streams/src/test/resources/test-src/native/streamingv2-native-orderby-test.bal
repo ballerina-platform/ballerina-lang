@@ -95,7 +95,7 @@ function foo() {
     function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
         foreach var m in events {
             // just cast input map into the output type
-            TeacherOutput t = <TeacherOutput>TeacherOutput.stamp(m.clone());
+            TeacherOutput t = <TeacherOutput>TeacherOutput.constructFrom(m);
             outputStream.publish(t);
         }
     };
@@ -118,16 +118,16 @@ function foo() {
     streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {orderByProcess.process(e);},
         aggregatorArr,
         [function (streams:StreamEvent e) returns anydata {
-            return e.data["inputStream.name"];
+            return e.get("inputStream.name");
         }],
         function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
             streams:Sum sumAggregator1 = <streams:Sum>aggregatorArr1[0];
             streams:Count countAggregator1 = <streams:Count>aggregatorArr1[1];
             // got rid of type casting
             return {
-                "name": e.data["inputStream.name"],
-                "age": e.data["inputStream.age"],
-                "sumAge": sumAggregator1.process(e.data["inputStream.age"], e.eventType),
+                "name": e.get("inputStream.name"),
+                "age": e.get("inputStream.age"),
+                "sumAge": sumAggregator1.process(e.get("inputStream.age"), e.eventType),
                 "count": countAggregator1.process((), e.eventType)
             };
         }

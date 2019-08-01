@@ -18,10 +18,10 @@
 
 package org.ballerinalang.stdlib.services.basics;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BServiceUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -87,15 +87,18 @@ public class SignatureTest {
     public void testSignatureWithInvalidBodyIntParam() {
         CompileResult compileResult = BCompileUtil.compile(new File(getClass().getClassLoader().getResource(
                 "test-src/services/signature/invalid-body-param.bal").getPath()).getAbsolutePath());
-        BServiceUtil.runService(compileResult);
+        // BServiceUtil.runService(compileResult);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*expected 'person' as param name, but found 'ballerina'.*")
+    @Test
     public void testSignatureWithMismatchedBodyParam() {
         CompileResult compileResult = BCompileUtil.compile(new File(getClass().getClassLoader().getResource(
                 "test-src/services/signature/mismatched-body-param.bal").getPath()).getAbsolutePath());
-        BServiceUtil.runService(compileResult);
+        Diagnostic[] diag = compileResult.getDiagnostics();
+        Assert.assertEquals(diag.length, 2);
+        Assert.assertEquals(diag[0].getMessage(), "Invalid parameter(s) in the resource signature");
+        Assert.assertEquals(diag[1].getMessage(),
+                            "Invalid data binding param in the signature : expected 'person', but found 'ballerina'");
     }
 
     @Test

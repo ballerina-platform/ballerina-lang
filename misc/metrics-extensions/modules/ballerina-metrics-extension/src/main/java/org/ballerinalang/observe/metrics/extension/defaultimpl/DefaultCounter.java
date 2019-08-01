@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.observe.metrics.extension.defaultimpl;
 
-import org.ballerinalang.util.metrics.AbstractMetric;
-import org.ballerinalang.util.metrics.Counter;
-import org.ballerinalang.util.metrics.MetricId;
+import org.ballerinalang.jvm.observability.metrics.AbstractMetric;
+import org.ballerinalang.jvm.observability.metrics.Counter;
+import org.ballerinalang.jvm.observability.metrics.MetricId;
 
 import java.util.concurrent.atomic.LongAdder;
 

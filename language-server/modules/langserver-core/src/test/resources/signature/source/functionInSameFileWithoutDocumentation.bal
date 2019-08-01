@@ -1,5 +1,5 @@
 function testSignatureHelp () {
-    getGreeting(
+    getGreeting()
 }
 
 function getGreeting (int year, string message) returns string {

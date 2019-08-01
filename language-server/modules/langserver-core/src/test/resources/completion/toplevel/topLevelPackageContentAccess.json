@@ -6,16 +6,16 @@
   "source": "toplevel/source/topLevelPackageContentAccess.bal",
   "items": [
     {
-      "label": "extractBasicAuthHeaderValue(http:Request req)(string?)",
+      "label": "extractAuthorizationHeaderValue(http:Request req)(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "markdown**Package:** _ballerina/http_  \n  \nExtracts the basic authentication header value from the request.\n  \n  \n---    \n**Parameters**  \n- _req_  \n    Request instance  \n  \n  \n**Return**  \nballerina/http:"
+          "value": "**Package:** _ballerina/http_  \n  \nExtracts the Authorization header value from the request.\n  \n  \n---    \n**Parameters**  \n- _req_  \n    Request instance  \n  \n  \n**Return**  \nstring"
         }
       },
-      "insertText": "extractBasicAuthHeaderValue(${1:req})",
+      "insertText": "extractAuthorizationHeaderValue(${1})",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -31,19 +31,23 @@
           },
           "newText": "import ballerina/http;\n"
         }
-      ]
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "createHttpCachingClient(string url, http:ClientEndpointConfig config, http:CacheConfig cacheConfig)(ballerina/http:Client|error)",
+      "label": "createHttpCachingClient(string url, http:ClientEndpointConfig config, http:CacheConfig cacheConfig)((http:HttpClient|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "markdown**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of caching HTTP responses.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    The URL of the HTTP endpoint to connect to  \n  \n- _config_  \n    The configurations for the client endpoint associated with the caching client  \n  \n- _cacheConfig_  \n    The configurations for the HTTP cache to be used with the caching client  \n  \n  \n**Return**  \nballerina/http:"
+          "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of caching HTTP responses.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    The URL of the HTTP endpoint to connect to  \n  \n- _config_  \n    The configurations for the client endpoint associated with the caching client  \n  \n- _cacheConfig_  \n    The configurations for the HTTP cache to be used with the caching client  \n  \n  \n**Return**  \n(ballerina/http:HttpClient|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
-      "insertText": "createHttpCachingClient(${1:url}, ${2:config}, ${3:cacheConfig})",
+      "insertText": "createHttpCachingClient(${1})",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -59,19 +63,23 @@
           },
           "newText": "import ballerina/http;\n"
         }
-      ]
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "parseHeader(string headerValue)((string,map)|error)",
+      "label": "parseHeader(string headerValue)(([string,map\u003cany\u003e]|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "markdown**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n  \n---    \n**Parameters**  \n- _headerValue_  \n    The header value  \n  \n  \n**Return**  \nballerina/http:"
+          "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n  \n---    \n**Parameters**  \n- _headerValue_  \n    The header value  \n  \n  \n**Return**  \n([string,map]|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
-      "insertText": "parseHeader(${1:headerValue})",
+      "insertText": "parseHeader(${1})",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -87,19 +95,23 @@
           },
           "newText": "import ballerina/http;\n"
         }
-      ]
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "invokeEndpoint(string path, http:Request outRequest, FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|NONE requestAction, http:Client httpClient)(ballerina/http:Response|error)",
+      "label": "invokeEndpoint(string path, http:Request outRequest, (FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|SUBMIT|NONE) requestAction, http:HttpClient httpClient, string verb)((http:Response|http:HttpFuture|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "markdown**Package:** _ballerina/http_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP remote function provider.  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _outRequest_  \n    A Request struct  \n  \n- _requestAction_  \n    `HttpOperation` related to the request  \n  \n- _httpClient_  \n    HTTP client which uses to call the relavant functions  \n  \n  \n**Return**  \nballerina/http:"
+          "value": "**Package:** _ballerina/http_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP remote function provider.  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _outRequest_  \n    A Request struct  \n  \n- _requestAction_  \n    `HttpOperation` related to the request  \n  \n- _httpClient_  \n    HTTP client which uses to call the relevant functions  \n  \n- _verb_  \n    HTTP verb used for submit method  \n(Default Parameter)  \n  \n**Return**  \n(ballerina/http:Response|ballerina/http:HttpFuture|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
-      "insertText": "invokeEndpoint(${1:path}, ${2:outRequest}, ${3:requestAction}, ${4:httpClient})",
+      "insertText": "invokeEndpoint(${1})",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -115,19 +127,23 @@
           },
           "newText": "import ballerina/http;\n"
         }
-      ]
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "createHttpSecureClient(string url, http:ClientEndpointConfig config)(ballerina/http:Client|error)",
+      "label": "createHttpSecureClient(string url, http:ClientEndpointConfig config)((http:HttpClient|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "markdown**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of securing HTTP requests with authentication.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    Base URL  \n  \n- _config_  \n    Client endpoint configurations  \n  \n  \n**Return**  \nballerina/http:"
+          "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of securing HTTP requests with authentication.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    Base URL  \n  \n- _config_  \n    Client endpoint configurations  \n  \n  \n**Return**  \n(ballerina/http:HttpClient|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
-      "insertText": "createHttpSecureClient(${1:url}, ${2:config})",
+      "insertText": "createHttpSecureClient(${1})",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -143,19 +159,23 @@
           },
           "newText": "import ballerina/http;\n"
         }
-      ]
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "encode(string url, string charset)(string|error)",
+      "label": "encode(string url, string charset)((string|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "markdown**Package:** _ballerina/http_  \n  \nEncodes the given URL.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    URL to be encoded  \n  \n- _charset_  \n    Charactor set that URL to be encoded in  \n  \n  \n**Return**  \nballerina/http:"
+          "value": "**Package:** _ballerina/http_  \n  \nEncodes the given URL.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    URL to be encoded  \n  \n- _charset_  \n    Charactor set that URL to be encoded in  \n  \n  \n**Return**  \n(string|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
-      "insertText": "encode(${1:url}, ${2:charset})",
+      "insertText": "encode(${1})",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -171,19 +191,23 @@
           },
           "newText": "import ballerina/http;\n"
         }
-      ]
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "decode(string url, string charset)(string|error)",
+      "label": "decode(string url, string charset)((string|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "markdown**Package:** _ballerina/http_  \n  \nDecodes the given URL.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    URL to be decoded  \n  \n- _charset_  \n    Charactor set that URL to be decoded from  \n  \n  \n**Return**  \nballerina/http:"
+          "value": "**Package:** _ballerina/http_  \n  \nDecodes the given URL.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    URL to be decoded  \n  \n- _charset_  \n    Character set from which the URL is decoded  \n  \n  \n**Return**  \n(string|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
-      "insertText": "decode(${1:url}, ${2:charset})",
+      "insertText": "decode(${1})",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -199,12 +223,16 @@
           },
           "newText": "import ballerina/http;\n"
         }
-      ]
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "HttpServiceConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Contains the configurations for an HTTP service.\n"
       },
@@ -229,7 +257,7 @@
     {
       "label": "CorsConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Configurations for CORS support.\n"
       },
@@ -254,7 +282,7 @@
     {
       "label": "Versioning",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Configurations for service versioning.\n"
       },
@@ -279,7 +307,7 @@
     {
       "label": "WSServiceConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Configurations for a WebSocket service.\n"
       },
@@ -304,7 +332,7 @@
     {
       "label": "HttpResourceConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Configuration for an HTTP resource.\n"
       },
@@ -329,7 +357,7 @@
     {
       "label": "WebSocketUpgradeConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Resource configuration to upgrade from HTTP to WebSocket.\n"
       },
@@ -352,38 +380,13 @@
       ]
     },
     {
-      "label": "ListenerAuthConfig",
+      "label": "ServiceResourceAuth",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Configures the authentication scheme for a service or a resource.\n"
       },
-      "insertText": "ListenerAuthConfig",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
-    },
-    {
-      "label": "Authentication",
-      "kind": "Class",
-      "detail": "BType",
-      "documentation": {
-        "left": "Can be used for enabling/disabling authentication in an HTTP service.\n"
-      },
-      "insertText": "Authentication",
+      "insertText": "ServiceResourceAuth",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -404,7 +407,7 @@
     {
       "label": "CacheConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Provides a set of configurations for controlling the caching behaviour of the endpoint.\n"
       },
@@ -429,7 +432,7 @@
     {
       "label": "TargetService",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Represents a single service and its related configurations.\n"
       },
@@ -454,7 +457,7 @@
     {
       "label": "ClientEndpointConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.\n"
       },
@@ -477,11 +480,61 @@
       ]
     },
     {
+      "label": "Http1Settings",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Provides settings related to HTTP/1.x protocol.\n"
+      },
+      "insertText": "Http1Settings",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "Http2Settings",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Provides settings related to HTTP/2 protocol.\n"
+      },
+      "insertText": "Http2Settings",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
       "label": "RetryConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
-        "left": "Provides configurations for controlling the retry behaviour in failure scenarios.\n"
+        "left": "Provides configurations for controlling the retrying behavior in failure scenarios.\n"
       },
       "insertText": "RetryConfig",
       "insertTextFormat": "Snippet",
@@ -504,7 +557,7 @@
     {
       "label": "SecureSocket",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Provides configurations for facilitating secure communication with a remote HTTP endpoint.\n"
       },
@@ -529,7 +582,7 @@
     {
       "label": "FollowRedirects",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Provides configurations for controlling the endpoint\u0027s behaviour in response to HTTP redirect related responses.\n"
       },
@@ -554,7 +607,7 @@
     {
       "label": "ProxyConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Proxy server configurations to be used with the HTTP client endpoint.\n"
       },
@@ -577,88 +630,13 @@
       ]
     },
     {
-      "label": "AuthConfig",
+      "label": "OutboundAuthConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
-        "left": "AuthConfig record can be used to configure the authentication mechanism used by the HTTP endpoint.\n"
+        "left": "The `OutboundAuthConfig` record can be used to configure the authentication mechanism used by the HTTP endpoint.\n"
       },
-      "insertText": "AuthConfig",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
-    },
-    {
-      "label": "BasicAuthConfig",
-      "kind": "Class",
-      "detail": "BType",
-      "documentation": {
-        "left": "BasicAuthConfig record can be used to configure Basic Authentication used by the HTTP endpoint.\n"
-      },
-      "insertText": "BasicAuthConfig",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
-    },
-    {
-      "label": "OAuth2AuthConfig",
-      "kind": "Class",
-      "detail": "BType",
-      "documentation": {
-        "left": "OAuth2AuthConfig record can be used to configure OAuth2 based authentication used by the HTTP endpoint.\n"
-      },
-      "insertText": "OAuth2AuthConfig",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
-    },
-    {
-      "label": "JwtAuthConfig",
-      "kind": "Class",
-      "detail": "BType",
-      "documentation": {
-        "left": "JwtAuthConfig record can be used to configure JWT based authentication used by the HTTP endpoint.\n"
-      },
-      "insertText": "JwtAuthConfig",
+      "insertText": "OutboundAuthConfig",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -679,7 +657,7 @@
     {
       "label": "HttpTimeoutError",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Defines a timeout error occurred during service invocation.\n"
       },
@@ -704,7 +682,7 @@
     {
       "label": "PoolConfiguration",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Configurations for managing HTTP client connection pool.\n"
       },
@@ -729,7 +707,7 @@
     {
       "label": "Protocols",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "A record for configuring SSL/TLS protocol and version to be used.\n"
       },
@@ -754,7 +732,7 @@
     {
       "label": "ValidateCert",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "A record for providing configurations for certificate revocation status checks.\n"
       },
@@ -779,7 +757,7 @@
     {
       "label": "ServiceOcspStapling",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "A record for providing configurations for certificate revocation status checks.\n"
       },
@@ -804,7 +782,7 @@
     {
       "label": "CompressionConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "A record for providing configurations for content compression.\n"
       },
@@ -827,9 +805,34 @@
       ]
     },
     {
+      "label": "Detail",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Holds the details of an HTTP error\n"
+      },
+      "insertText": "Detail",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
       "label": "MutualSslHandshake",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "A record for providing mutual ssl handshake results.\n"
       },
@@ -854,7 +857,7 @@
     {
       "label": "FailoverConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Provides a set of configurations for controlling the failover behaviour of the endpoint.\n"
       },
@@ -879,7 +882,7 @@
     {
       "label": "FailoverInferredConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Inferred failover configurations passed into the failover client.\n"
       },
@@ -904,7 +907,7 @@
     {
       "label": "FailoverClientEndpointConfiguration",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Provides a set of HTTP related configurations and failover related configurations.\n"
       },
@@ -929,7 +932,7 @@
     {
       "label": "CircuitHealth",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Maintains the health of the Circuit Breaker.\n"
       },
@@ -954,7 +957,7 @@
     {
       "label": "CircuitBreakerConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Provides a set of configurations for controlling the behaviour of the Circuit Breaker.\n"
       },
@@ -979,7 +982,7 @@
     {
       "label": "RollingWindow",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Represents a rolling window in the Circuit Breaker.\n"
       },
@@ -1004,7 +1007,7 @@
     {
       "label": "Bucket",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Represents a discrete sub-part of the time window (Bucket).\n"
       },
@@ -1029,7 +1032,7 @@
     {
       "label": "CircuitBreakerInferredConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Derived set of configurations from the `CircuitBreakerConfig`.\n"
       },
@@ -1054,7 +1057,7 @@
     {
       "label": "RetryInferredConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Derived set of configurations from the `RetryConfig`.\n"
       },
@@ -1079,7 +1082,7 @@
     {
       "label": "LoadBalanceActionErrorData",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Represents an error occurred in an remote function of the Load Balance connector.\n"
       },
@@ -1104,7 +1107,7 @@
     {
       "label": "LoadBalanceClientEndpointConfiguration",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "The configurations related to the load balance client endpoint.\n"
       },
@@ -1129,7 +1132,7 @@
     {
       "label": "Remote",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Presents a read-only view of the remote address.\n"
       },
@@ -1154,7 +1157,7 @@
     {
       "label": "Local",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Presents a read-only view of the local address.\n"
       },
@@ -1179,7 +1182,7 @@
     {
       "label": "RequestLimits",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Configures limits for requests. If these limits are violated, the request is rejected.\n"
       },
@@ -1204,7 +1207,7 @@
     {
       "label": "ServiceEndpointConfiguration",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Provides a set of configurations for HTTP service endpoints.\n"
       },
@@ -1227,9 +1230,34 @@
       ]
     },
     {
+      "label": "ListenerAuth",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Authentication configurations for the listener.\n"
+      },
+      "insertText": "ListenerAuth",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
       "label": "ServiceSecureSocket",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Configures the SSL/TLS options to be used for HTTP service.\n"
       },
@@ -1254,7 +1282,7 @@
     {
       "label": "AuthCacheConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.\n"
       },
@@ -1277,34 +1305,9 @@
       ]
     },
     {
-      "label": "AuthProvider",
-      "kind": "Class",
-      "detail": "BType",
-      "documentation": {
-        "left": "Configuration for authentication providers.\n"
-      },
-      "insertText": "AuthProvider",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
-    },
-    {
       "label": "WebSocketClientEndpointConfig",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Record",
       "documentation": {
         "left": "Configuration for the WebSocket client endpoint.\n"
       },
@@ -1327,34 +1330,9 @@
       ]
     },
     {
-      "label": "AuthHandlerRegistry",
-      "kind": "Class",
-      "detail": "BType",
-      "documentation": {
-        "left": "Representation of the Http Auth Handler Registry.\n"
-      },
-      "insertText": "AuthHandlerRegistry",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
-    },
-    {
       "label": "AuthnFilter",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Representation of the Authentication filter.\n"
       },
@@ -1377,59 +1355,9 @@
       ]
     },
     {
-      "label": "HttpAuthnHandler",
-      "kind": "Class",
-      "detail": "BType",
-      "documentation": {
-        "left": "Representation of Authentication handler for HTTP traffic.\n"
-      },
-      "insertText": "HttpAuthnHandler",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
-    },
-    {
-      "label": "AuthnHandlerChain",
-      "kind": "Class",
-      "detail": "BType",
-      "documentation": {
-        "left": "Representation of Authentication handler chain\n"
-      },
-      "insertText": "AuthnHandlerChain",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
-    },
-    {
       "label": "AuthzFilter",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Representation of the Authorization filter\n"
       },
@@ -1452,13 +1380,13 @@
       ]
     },
     {
-      "label": "HttpAuthzHandler",
+      "label": "AuthzHandler",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Representation of Authorization Handler for HTTP\n"
       },
-      "insertText": "HttpAuthzHandler",
+      "insertText": "AuthzHandler",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1477,13 +1405,13 @@
       ]
     },
     {
-      "label": "HttpBasicAuthnHandler",
+      "label": "InboundAuthHandler",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
-        "left": "Defines Basic Auth handler for HTTP traffic.\n"
+        "left": "The representation of an inbound authentication handler for HTTP traffic."
       },
-      "insertText": "HttpBasicAuthnHandler",
+      "insertText": "InboundAuthHandler",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1502,13 +1430,13 @@
       ]
     },
     {
-      "label": "HttpJwtAuthnHandler",
+      "label": "OutboundAuthHandler",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
-        "left": "Representation of JWT Auth handler for HTTP traffic\n"
+        "left": "The representation of an outbound authentication handler for HTTP traffic."
       },
-      "insertText": "HttpJwtAuthnHandler",
+      "insertText": "OutboundAuthHandler",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1529,7 +1457,7 @@
     {
       "label": "RequestCacheControl",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Configures cache control directives for a `Request`.\n"
       },
@@ -1554,7 +1482,7 @@
     {
       "label": "ResponseCacheControl",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Configures cache control directives for a `Response`.\n"
       },
@@ -1579,7 +1507,10 @@
     {
       "label": "HttpCache",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
+      "documentation": {
+        "left": "Implements a cache for storing HTTP responses. This cache complies with the caching policy set when configuring\nHTTP caching in the HTTP client endpoint.\n"
+      },
       "insertText": "HttpCache",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -1601,7 +1532,7 @@
     {
       "label": "HttpFuture",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents a \u0027future\u0027 that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
       },
@@ -1626,7 +1557,7 @@
     {
       "label": "PushPromise",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents an HTTP/2 `PUSH_PROMISE` frame.\n"
       },
@@ -1651,7 +1582,7 @@
     {
       "label": "Filter",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Representation of a HTTP Request Filter. This filter will be applied before the request is dispatched to the relevant resource. Any Filter implementation should be structurally similar to the Filter object."
       },
@@ -1676,7 +1607,7 @@
     {
       "label": "FilterContext",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Representation of request filter Context.\n"
       },
@@ -1701,7 +1632,7 @@
     {
       "label": "Request",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents an HTTP request.\n"
       },
@@ -1726,7 +1657,7 @@
     {
       "label": "Response",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents an HTTP response.\n"
       },
@@ -1751,7 +1682,7 @@
     {
       "label": "MockListener",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Mock server endpoint which does not open a listening port."
       },
@@ -1774,34 +1705,9 @@
       ]
     },
     {
-      "label": "CircuitBreakerClient",
-      "kind": "Class",
-      "detail": "BType",
-      "documentation": {
-        "left": "A Circuit Breaker implementation which can be used to gracefully handle network failures.\n"
-      },
-      "insertText": "CircuitBreakerClient",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
-    },
-    {
       "label": "LoadBalancerRule",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "\nLoadBalancerRule provides a required interfaces to implement different algorithms.\n"
       },
@@ -1826,7 +1732,7 @@
     {
       "label": "LoadBalancerRounRobinRule",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Implementation of round robin load balancing strategy.\n"
       },
@@ -1851,7 +1757,7 @@
     {
       "label": "Listener",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "This is used for creating HTTP server endpoints. An HTTP server endpoint is capable of responding to\nremote callers. The `Listener` is responsible for initializing the endpoint using the provided configurations."
       },
@@ -1876,7 +1782,7 @@
     {
       "label": "WebSocketListener",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents a WebSocket service endpoint."
       },
@@ -1899,13 +1805,13 @@
       ]
     },
     {
-      "label": "InboundAuthScheme",
-      "kind": "Enum",
-      "detail": "BType",
+      "label": "BasicAuthHandler",
+      "kind": "Class",
+      "detail": "Object",
       "documentation": {
-        "left": "Inbound authentication schemes."
+        "left": "Defines the Basic Auth header handler for inbound and outbound HTTP traffic.\n"
       },
-      "insertText": "InboundAuthScheme",
+      "insertText": "BasicAuthHandler",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1924,13 +1830,13 @@
       ]
     },
     {
-      "label": "OutboundAuthScheme",
-      "kind": "Enum",
-      "detail": "BType",
+      "label": "BearerAuthHandler",
+      "kind": "Class",
+      "detail": "Object",
       "documentation": {
-        "left": "Outbound authentication schemes."
+        "left": "Representation of the Bearer Auth header handler for both inbound and outbound HTTP traffic.\n"
       },
-      "insertText": "OutboundAuthScheme",
+      "insertText": "BearerAuthHandler",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1949,13 +1855,13 @@
       ]
     },
     {
-      "label": "AuthStoreProvider",
+      "label": "CredentialBearer",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
-        "left": "Authentication storage providers for BasicAuth scheme."
+        "left": "Specifies how to send the authentication credentials when exchanging tokens."
       },
-      "insertText": "AuthStoreProvider",
+      "insertText": "CredentialBearer",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -1976,7 +1882,7 @@
     {
       "label": "CachingPolicy",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
         "left": "Used for configuring the caching behaviour. Setting the `policy` field in the `CacheConfig` record allows\nthe user to control the caching behaviour."
       },
@@ -1999,9 +1905,34 @@
       ]
     },
     {
+      "label": "HttpVersion",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "Defines the supported HTTP protocols.\n\n`HTTP_1_0`: HTTP/1.0 protocol\n`HTTP_1_1`: HTTP/1.1 protocol\n`HTTP_2_0`: HTTP/2.0 protocol"
+      },
+      "insertText": "HttpVersion",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
       "label": "Chunking",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
         "left": "Defines the possible values for the chunking configuration in HTTP services and clients.\n\n`AUTO`: If the payload is less than 8KB, content-length header is set in the outbound request/response,\n        otherwise chunking header is set in the outbound request/response\n`ALWAYS`: Always set chunking header in the response\n`NEVER`: Never set the chunking header even if the payload is larger than 8KB in the outbound request/response"
       },
@@ -2026,7 +1957,7 @@
     {
       "label": "Compression",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
         "left": "Options to compress using gzip or deflate.\n\n`AUTO`: When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the\n        outbound request/response accept-encoding/content-encoding option\n`ALWAYS`: Always set accept-encoding/content-encoding in outbound request/response\n`NEVER`: Never set accept-encoding/content-encoding header in outbound request/response"
       },
@@ -2051,9 +1982,9 @@
     {
       "label": "HttpOperation",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
-        "left": "Defines the HTTP operations related to circuit breaker, failover and load balancer.\n\n`FORWARD`: Forward the specified payload\n`GET`: Request a resource\n`POST`: Create a new resource\n`DELETE`: Deletes the specified resource\n`OPTIONS`: Request communication options available\n`PUT`: Replace the target resource\n`PATCH`: Apply partial modification to the resource\n`HEAD`: Identical to `GET` but no resource body should be returned\n`NONE`: No operation should be performed"
+        "left": "Defines the HTTP operations related to circuit breaker, failover and load balancer.\n\n`FORWARD`: Forward the specified payload\n`GET`: Request a resource\n`POST`: Create a new resource\n`DELETE`: Deletes the specified resource\n`OPTIONS`: Request communication options available\n`PUT`: Replace the target resource\n`PATCH`: Apply partial modification to the resource\n`HEAD`: Identical to `GET` but no resource body should be returned\n`SUBMIT`: Submits a http request and returns an HttpFuture object\n`NONE`: No operation should be performed"
       },
       "insertText": "HttpOperation",
       "insertTextFormat": "Snippet",
@@ -2076,7 +2007,7 @@
     {
       "label": "RedirectCode",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
         "left": "Defines the HTTP redirect codes as a type."
       },
@@ -2099,11 +2030,190 @@
       ]
     },
     {
+      "label": "ResiliencyError",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "Ballerina Http Union Errors"
+      },
+      "insertText": "ResiliencyError",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "ClientAuthError",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "ClientAuthError",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "OutboundRequestError",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "OutboundRequestError",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "InboundResponseError",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "InboundResponseError",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "InboundRequestError",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "InboundRequestError",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "OutboundResponseError",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "OutboundResponseError",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "ClientError",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "ClientError",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "ListenerError",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "ListenerError",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
       "label": "MutualSslStatus",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
-        "left": "Defines the possible values for the mutual ssl status.\n\n`passed`: Mutual SSL handshake is succesful.\n`failed`: Mutual SSL handshake has failed."
+        "left": "Defines the possible values for the mutual ssl status.\n\n`passed`: Mutual SSL handshake is successful.\n`failed`: Mutual SSL handshake has failed."
       },
       "insertText": "MutualSslStatus",
       "insertTextFormat": "Snippet",
@@ -2124,34 +2234,9 @@
       ]
     },
     {
-      "label": "CredentialBearer",
-      "kind": "Enum",
-      "detail": "BType",
-      "documentation": {
-        "left": "Specifies how the authentication credentials should be sent when using the refresh token to refresh the access token"
-      },
-      "insertText": "CredentialBearer",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
-    },
-    {
       "label": "CircuitState",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
         "left": "A finite type for modeling the states of the Circuit Breaker. The Circuit Breaker starts in the `CLOSED` state.\nIf any failure thresholds are exceeded during execution, the circuit trips and goes to the `OPEN` state. After\nthe specified timeout period expires, the circuit goes to the `HALF_OPEN` state. If the trial request sent while\nin the `HALF_OPEN` state succeeds, the circuit goes back to the `CLOSED` state."
       },
@@ -2176,7 +2261,7 @@
     {
       "label": "KeepAlive",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
         "left": "Defines the possible values for the keep-alive configuration in service and client endpoints."
       },
@@ -2199,9 +2284,31 @@
       ]
     },
     {
+      "label": "WebSocketError",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "WebSocketError",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
       "label": "RequestMessage",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
         "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
       },
@@ -2226,11 +2333,333 @@
     {
       "label": "ResponseMessage",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
         "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
       },
       "insertText": "ResponseMessage",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "HttpResponse",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "HttpResponse",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "HttpCachingClient",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "An HTTP caching client implementation which takes an `HttpActions` instance and wraps it with an HTTP caching layer.\n"
+      },
+      "insertText": "HttpCachingClient",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "Client",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
+      },
+      "insertText": "Client",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "HttpClient",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods, `forward()`\nand `execute()` functions are provided. More complex and specific endpoint types can be created by wrapping this\ngeneric HTTP actions implementation.\n"
+      },
+      "insertText": "HttpClient",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "Caller",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "The caller actions for responding to client requests.\n"
+      },
+      "insertText": "Caller",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "HttpSecureClient",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Provides secure HTTP remote functions for interacting with HTTP endpoints. This will make use of the authentication\nschemes configured in the HTTP client endpoint to secure the HTTP requests.\n"
+      },
+      "insertText": "HttpSecureClient",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "RedirectClient",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Provides redirect functionality for HTTP client remote functions.\n"
+      },
+      "insertText": "RedirectClient",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "FailoverClient",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "An HTTP client endpoint which provides failover support over multiple HTTP clients.\n"
+      },
+      "insertText": "FailoverClient",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "CircuitBreakerClient",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "A Circuit Breaker implementation which can be used to gracefully handle network failures.\n"
+      },
+      "insertText": "CircuitBreakerClient",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "RetryClient",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Provides the HTTP remote functions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client\nto provide retrying over HTTP requests.\n"
+      },
+      "insertText": "RetryClient",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "LoadBalanceClient",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "LoadBalanceClient endpoint provides load balancing functionality over multiple HTTP clients.\n"
+      },
+      "insertText": "LoadBalanceClient",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "WebSocketCaller",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents a WebSocket caller.\n"
+      },
+      "insertText": "WebSocketCaller",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "WebSocketClient",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents a WebSocket client endpoint.\n"
+      },
+      "insertText": "WebSocketClient",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {

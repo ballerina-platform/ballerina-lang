@@ -17,9 +17,11 @@
 */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,12 +49,17 @@ public final class XMLAttributes implements RefValue {
     }
 
     @Override
+    public String stringValue() {
+        return value.stringValue();
+    }
+
+    @Override
     public BType getType() {
         return BTypes.typeXMLAttributes;
     }
 
     @Override
-    public void stamp(BType type) {
+    public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
     }
 
     @Override
@@ -60,7 +67,7 @@ public final class XMLAttributes implements RefValue {
         if (obj == null || !(obj instanceof XMLAttributes)) {
             return false;
         }
-        return ((XMLAttributes) obj).toString().equals(value.toString());
+        return obj.toString().equals(value.toString());
     }
 
     @Override
@@ -70,5 +77,17 @@ public final class XMLAttributes implements RefValue {
         }
 
         return new XMLAttributes(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+        XMLAttributes copy = (XMLAttributes) copy(refs);
+        if (!copy.isFrozen()) {
+            copy.freezeDirect();
+        }
+        return copy;
     }
 }

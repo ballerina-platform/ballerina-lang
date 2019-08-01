@@ -41,6 +41,10 @@
                 "url": "functions"
             },
             {
+                "name": "Required Parameters",
+                "url": "functions-with-required-parameters"
+            },
+            {
                 "name": "Defaultable Parameters",
                 "url": "functions-with-defaultable-parameters"
             },
@@ -175,8 +179,8 @@
                 "url": "constants"
             },
             {
-                "name": "Integer Ranges",
-                "url": "integer-ranges"
+                "name": "Range Expressions",
+                "url": "range-expressions"
             },
             {
                 "name": "String Template Literal",
@@ -258,28 +262,24 @@
                 "url": "length"
             },
             {
-                "name": "Type Conversion",
-                "url": "type-conversion"
-            },
-            {
                 "name": "Type Cast",
                 "url": "type-cast"
             },
             {
-                "name": "Nil Lifting",
-                "url": "nil-lifting"
-            },
-            {
-                "name": "Immutable Values",
-                "url": "immutable-values"
+                "name": "Optional Field Access",
+                "url": "optional-field-access"
             },
             {
                 "name": "Cloning Values",
                 "url": "clone"
             },
             {
-                "name": "Stamping Values",
-                "url": "stamp"
+                "name": "Immutable Values",
+                "url": "immutable-values"
+            },
+            {
+                "name": "Type Conversion",
+                "url": "type-conversion"
             }
         ]
     },
@@ -292,8 +292,16 @@
                 "url": "json"
             },
             {
+                "name": "JSON Objects",
+                "url": "json-objects"
+            },
+            {
                 "name": "JSON Arrays",
                 "url": "json-arrays"
+            },
+            {
+                "name": "JSON Access",
+                "url": "json-access"
             },
             {
                 "name": "JSON/Record/Map Conversion",
@@ -322,10 +330,6 @@
             {
                 "name": "XML Access",
                 "url": "xml-access"
-            },
-            {
-                "name": "XML/JSON Conversion",
-                "url": "xml-to-json-conversion"
             }
         ]
     },
@@ -408,10 +412,6 @@
             {
                 "name": "Fork Variable Access",
                 "url": "fork-variable-access"
-            },
-            {
-                "name": "Async",
-                "url": "async"
             },
             {
                 "name": "Lock",
@@ -510,26 +510,6 @@
         "samples": [{
                 "name": "Taint Checking",
                 "url": "taint-checking"
-            },
-            {
-                "name": "Secured Service With JWT",
-                "url": "secured-service-with-jwt"
-            },
-            {
-                "name": "Secured Service With Basic Auth",
-                "url": "secured-service-with-basic-auth"
-            },
-            {
-                "name": "Secured Client With Basic Auth",
-                "url": "secured-client-with-basic-auth"
-            },
-            {
-                "name": "Secured Client With JWT Auth",
-                "url": "secured-client-with-jwt-auth"
-            },
-            {
-                "name": "Secured Client With OAuth2",
-                "url": "secured-client-with-oauth2"
             },
             {
                 "name": "Cryptographic Operations",
@@ -706,7 +686,7 @@
         "column": 1,
         "category": "Working over the network",
         "samples": [{
-                "name": "WebSocket Basic Example",
+                "name": "Basic Server Functionalities",
                 "url": "websocket-basic-sample"
             },
             {
@@ -714,11 +694,11 @@
                 "url": "http-to-websocket-upgrade"
             },
             {
-                "name": "WebSocket Proxy Server",
+                "name": "Proxy Server",
                 "url": "websocket-proxy-server"
             },
             {
-                "name": "WebSocket Chat Application",
+                "name": "Chat Application",
                 "url": "websocket-chat-application"
             }
         ]
@@ -772,19 +752,19 @@
         "column": 1,
         "category": "Working over the network",
         "samples": [{
-                "name": "WebSub Internal Hub Sample",
+                "name": "Internal Hub Sample",
                 "url": "websub-internal-hub-sample"
             },
             {
-                "name": "WebSub Remote Hub Sample",
+                "name": "Remote Hub Sample",
                 "url": "websub-remote-hub-sample"
             },
             {
-                "name": "WebSub Hub Client Sample",
+                "name": "Hub Client Sample",
                 "url": "websub-hub-client-sample"
             },
             {
-                "name": "WebSub Service Integration Sample",
+                "name": "Service Integration Sample",
                 "url": "websub-service-integration-sample"
             }
         ]
@@ -802,14 +782,7 @@
         "title": "Database",
         "column": 2,
         "category": "Working over the network",
-        "samples": [{
-                "name": "H2 Client",
-                "url": "h2-client"
-            },
-            {
-                "name": "MySQL Client",
-                "url": "mysql-client"
-            },
+        "samples": [
             {
                 "name": "JDBC Client CRUD Operations",
                 "url": "jdbc-client-crud-operations"
@@ -824,7 +797,7 @@
             },
             {
                 "name": "Streaming a Big Dataset",
-                "url": "streaming-big-dataset"
+                "url": "jdbc-streaming-big-dataset"
             }
         ]
     },
@@ -899,113 +872,68 @@
         ]
     },
     {
-        "title": "JMS",
-        "column": 3,
-        "category": "Working over the network",
-        "samples": [{
-                "name": "Simple Queue Receiver",
-                "url": "jms-simple-queue-message-receiver"
-            },
-            {
-                "name": "Simple Queue Producer",
-                "url": "jms-simple-queue-message-producer"
-            },
-            {
-                "name": "Simple Topic Subscriber",
-                "url": "jms-simple-topic-message-subscriber"
-            },
-            {
-                "name": "Simple Topic Producer",
-                "url": "jms-simple-topic-message-producer"
-            },
-            {
-                "name": "Simple Durable Topic Subscriber",
-                "url": "jms-simple-durable-topic-message-subscriber"
-            },
-            {
-                "name": "Queue Receiver",
-                "url": "jms-queue-message-receiver"
-            },
-            {
-                "name": "Queue Producer",
-                "url": "jms-queue-message-producer"
-            },
-            {
-                "name": "Topic Subscriber",
-                "url": "jms-topic-message-subscriber"
-            },
-            {
-                "name": "Topic Producer",
-                "url": "jms-topic-message-producer"
-            },
-            {
-                "name": "Synchronous Queue Receiver",
-                "url": "jms-synchronous-queue-message-receiver"
-            },
-            {
-                "name": "Queue Receiver with Client Acknowledgment",
-                "url": "jms-queue-message-receiver-with-client-acknowledgment"
-            },
-            {
-                "name": "Durable Topic Subscriber",
-                "url": "jms-durable-topic-message-subscriber"
-            },
-            {
-                "name": "Transactional Queue Producer",
-                "url": "transactional-queue-message-producer"
-            },
-            {
-                "name": "JMS Headers and Properties",
-                "url": "jms-headers-and-properties"
-            },
-            {
-                "name": "Send JMS Message to HTTP Endpoint",
-                "url": "send-jms-message-to-http-endpoint"
-            }
-        ]
-    },
-    {
         "title": "NATS",
         "column": 3,
         "category": "Working over the network",
-        "samples": [{
-            "name": "NATS Basic Example",
-            "url": "nats-basic-client"
-        }]
+        "samples": [
+            {
+                "name": "Basic Publisher and Subscriber",
+                "url": "nats-basic-client"
+            },
+            {
+                "name": "Basic Streaming Publisher and Subscriber",
+                "url": "nats-streaming-client"
+            },
+            {
+                "name": "Streaming Publisher and Subscriber With Data Binding",
+                "url": "nats-streaming-consumer-with-data-binding"
+            },
+            {
+                "name": "Durable Subscriptions",
+                "url": "nats-streaming-durable-subscriptions"
+            },
+            {
+                "name": "Queue Groups",
+                "url": "nats-streaming-queue-group"
+            },
+            {
+                "name": "Historical Message Replay",
+                "url": "nats-streaming-start-position"
+            }
+        ]
     },
     {
         "title": "RabbitMQ",
         "column": 3,
         "category": "Working over the network",
-        "samples": [{
-            "name": "RabbitMQ Simple Producer",
-            "url": "rabbitmq-simple-producer"
-        },
-          {
-            "name": "RabbitMQ Simple Consumer",
-            "url": "rabbitmq-simple-consumer"
-          }]
-    },
-    {
-        "title": "ActiveMQ Artemis",
-        "column": 2,
-        "category": "Working over the network",
         "samples": [
             {
-                "name": "Artemis ANYCAST consumer",
-                "url": "artemis-anycast-session-consumer"
+                "name": "Producer",
+                "url": "rabbitmq-producer"
             },
             {
-                "name": "Artemis ANYCAST producer",
-                "url": "artemis-anycast-session-producer"
+                "name": "Consumer",
+                "url": "rabbitmq-consumer"
             },
             {
-                "name": "Artemis Simple MULTICAST Consumer",
-                "url": "artemis-multicast-consumer"
+                "name": "Consumer Acknowledgements",
+                "url": "rabbitmq-consumer-with-client-acknowledgement"
             },
             {
-                "name": "Artemis Simple MULTICAST Producer",
-                "url": "artemis-multicast-producer"
+                "name": "QoS Settings",
+                "url": "rabbitmq-consumer-with-qos-settings"
+            },
+            {
+                "name": "Data Binding",
+                "url": "rabbitmq-consumer-with-data-binding"
+            },
+            {
+                "name": "Transaction Producer",
+                "url": "rabbitmq-transaction-producer"
+            },
+            {
+                "name": "Transaction Consumer",
+                "url": "rabbitmq-transaction-consumer"
             }
         ]
     },
@@ -1014,12 +942,38 @@
         "column": 3,
         "category": "Working over the network",
         "samples": [{
-                "name": "TCP Socket Basic Example",
+                "name": "Basic TCP Socket",
                 "url": "tcp-socket-listener-client"
             },
             {
-                "name": "UDP Client Socket Basic Example",
+                "name": "Basic UDP Client Socket",
                 "url": "udp-socket-client"
+            }
+        ]
+    },
+    {
+        "title": "Access Control",
+        "column": 3,
+        "category": "Working over the network",
+        "samples": [{
+                "name": "Secured Service with JWT",
+                "url": "secured-service-with-jwt"
+            },
+            {
+                "name": "Secured Service with Basic Auth",
+                "url": "secured-service-with-basic-auth"
+            },
+            {
+                "name": "Secured Client with Basic Auth",
+                "url": "secured-client-with-basic-auth"
+            },
+            {
+                "name": "Secured Client with JWT Auth",
+                "url": "secured-client-with-jwt-auth"
+            },
+            {
+                "name": "Secured Client with OAuth2",
+                "url": "secured-client-with-oauth2"
             }
         ]
     },
@@ -1044,7 +998,7 @@
                 "url": "temporal-aggregations-and-windows"
             },
             {
-                "name": "Join Mutiple Streams",
+                "name": "Join Multiple Streams",
                 "url": "join-multiple-streams"
             },
             {
@@ -1076,22 +1030,8 @@
         ]
     },
     {
-        "title": "Channels",
-        "column": 2,
-        "category": "Experimental features",
-        "samples": [{
-                "name": "Message Correlation with Channels",
-                "url": "channels-correlation"
-            },
-            {
-                "name": "Worker Interactions with Channels",
-                "url": "channels-workers"
-            }
-        ]
-    },
-    {
         "title": "Table Queries",
-        "column": 3,
+        "column": 2,
         "category": "Experimental features",
         "samples": [{
                 "name": "Table Queries",

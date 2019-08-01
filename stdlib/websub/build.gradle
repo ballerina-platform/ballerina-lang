@@ -1,33 +1,57 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+ 
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+
+configurations.testCompileClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
 
 dependencies {
+    baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-http')
+    implementation project(':ballerina-runtime')
+    implementation project(":ballerina-http")
     implementation project(':ballerina-encoding')
-    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-mime')
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-io')
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-reflect')
     implementation project(':ballerina-config-api')
-    implementation project(':ballerina-http')
-    implementation project(':ballerina-sql')
-    implementation project(':ballerina-h2')
-    implementation project(":ballerina-launcher")
+    implementation project(':ballerina-jdbc')
+    implementation 'io.ballerina.messaging:broker-core'
+    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
 
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-h2', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-jdbc', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
 
@@ -43,24 +67,17 @@ dependencies {
     baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
 
-    implementation 'io.ballerina.messaging:broker-core:0.970.5'
-    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.275'
-
-    testCompile 'org.slf4j:slf4j-simple:1.7.22'
-    testCompile 'org.testng:testng:6.13.1'
+    testCompile project(':ballerina-test-utils')
+    testCompile 'org.slf4j:slf4j-simple'
+    testCompile 'org.testng:testng'
 }
 
-test {
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/lib/repo/ballerina"
-        }
-    }
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+createBalo {
+    jvmTarget = 'true'
 }
 
 description = 'Ballerina - WebSub'
+
+configurations.all {
+    resolutionStrategy.preferProjectModules()
+}

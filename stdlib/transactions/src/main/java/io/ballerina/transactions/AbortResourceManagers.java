@@ -18,14 +18,13 @@
  */
 package io.ballerina.transactions;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.transactions.TransactionResourceManager;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.transactions.TransactionResourceManager;
+
 
 /**
  * Extern function ballerina.transactions:abortResourceManagers.
@@ -39,13 +38,9 @@ import org.ballerinalang.util.transactions.TransactionResourceManager;
                 @Argument(name = "transactionBlockId", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)}
 )
-public class AbortResourceManagers extends BlockingNativeCallableUnit {
-
-    public void execute(Context ctx) {
-        String transactionId = ctx.getStringArgument(0);
-        String transactionBlockId = ctx.getStringArgument(1);
-        boolean abortSuccessful =
-                TransactionResourceManager.getInstance().notifyAbort(transactionId, transactionBlockId, false);
-        ctx.setReturnValues(new BBoolean(abortSuccessful));
+public class AbortResourceManagers  {
+    
+    public static boolean abortResourceManagers(Strand strand, String transactionId, String transactionBlockId) {
+        return TransactionResourceManager.getInstance().notifyAbort(transactionId, transactionBlockId);
     }
 }

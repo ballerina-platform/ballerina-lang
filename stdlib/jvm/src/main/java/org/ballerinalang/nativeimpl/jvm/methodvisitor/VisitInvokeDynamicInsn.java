@@ -19,6 +19,8 @@ package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -28,10 +30,13 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import static org.ballerinalang.model.types.TypeKind.BOOLEAN;
+import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.OBJECT;
 import static org.ballerinalang.model.types.TypeKind.STRING;
 import static org.ballerinalang.nativeimpl.jvm.ASMUtil.FUNCTION_DESC;
 import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
+import static org.ballerinalang.nativeimpl.jvm.ASMUtil.MAP_VALUE_DESC;
 import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_TYPE_DESC;
 import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
 import static org.ballerinalang.nativeimpl.jvm.ASMUtil.OBJECT_DESC;
@@ -49,27 +54,52 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.STRING_DESC;
         args = {
                 @Argument(name = "className", type = STRING),
                 @Argument(name = "lambdaName", type = STRING),
+                @Argument(name = "isVoid", type = BOOLEAN),
+                @Argument(name = "closureMapCount", type = INT)
         }
 )
 public class VisitInvokeDynamicInsn extends BlockingNativeCallableUnit {
 
     @Override
+    @Deprecated
     public void execute(Context context) {
+        throw new UnsupportedOperationException("BVM Unsupported");
+    }
 
-        String className = context.getStringArgument(0);
-        String lambdaName = context.getStringArgument(1);
+    public static void visitInvokeDynamicInsn(Strand strand, ObjectValue oMv, String className, String lambdaName,
+                                    boolean isVoid, long mapsCount) {
+
+        String mapDesc = getMapsDesc(mapsCount);
 
 
         //Function<Object[], Object> - create a dynamic lambda invocation with object[] param and returns object
-        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(context, 0);
-        mv.visitInvokeDynamicInsn("apply", "()" + FUNCTION_DESC,
-                new Handle(Opcodes.H_INVOKESTATIC, "java/lang/invoke/LambdaMetafactory",
-                        "metafactory", "(Ljava/lang/invoke/MethodHandles$Lookup;"
-                        + STRING_DESC + METHOD_TYPE_DESC + METHOD_TYPE_DESC + "Ljava/lang/invoke/MethodHandle;"
-                        + METHOD_TYPE_DESC + ")Ljava/lang/invoke/CallSite;", false),
+        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(oMv);
+        Handle handle = new Handle(Opcodes.H_INVOKESTATIC, "java/lang/invoke/LambdaMetafactory",
+                "metafactory", "(Ljava/lang/invoke/MethodHandles$Lookup;"
+                + STRING_DESC + METHOD_TYPE_DESC + METHOD_TYPE_DESC + "Ljava/lang/invoke/MethodHandle;"
+                + METHOD_TYPE_DESC + ")Ljava/lang/invoke/CallSite;", false);
+
+        if (isVoid) {
+            mv.visitInvokeDynamicInsn("accept", "(" + mapDesc + ")Ljava/util/function/Consumer;", handle,
+                    new Object[]{Type.getType("(" + OBJECT_DESC + ")V"),
+                            new Handle(Opcodes.H_INVOKESTATIC, className, lambdaName,
+                                       "(" + mapDesc + "[" + OBJECT_DESC + ")V", false),
+                            Type.getType("([" + OBJECT_DESC + ")V")});
+            return;
+        }
+
+        mv.visitInvokeDynamicInsn("apply", "(" + mapDesc + ")" + FUNCTION_DESC, handle,
                 new Object[]{Type.getType("(" + OBJECT_DESC + ")" + OBJECT_DESC),
                         new Handle(Opcodes.H_INVOKESTATIC, className, lambdaName,
-                                "([" + OBJECT_DESC + ")" + OBJECT_DESC, false),
+                                   "(" + mapDesc + "[" + OBJECT_DESC + ")" + OBJECT_DESC, false),
                         Type.getType("([" + OBJECT_DESC + ")" + OBJECT_DESC)});
+    }
+
+    private static String getMapsDesc(long count) {
+        StringBuffer buf = new StringBuffer();
+        for (long i = count; i > 0; i--) {
+            buf.append(MAP_VALUE_DESC);
+        }
+        return buf.toString();
     }
 }

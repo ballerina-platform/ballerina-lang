@@ -22,7 +22,7 @@ import * as _ from 'lodash';
 import { apiEditorRender } from './renderer';
 import { BallerinaExtension } from '../core';
 import { API_DESIGNER_NO_SERVICE } from '../core/messages';
-import { WebViewRPCHandler, WebViewMethod } from '../utils';
+import { WebViewRPCHandler, WebViewMethod, getCommonWebViewOptions } from '../utils';
 import { join } from "path";
 import { readFileSync } from "fs";
 
@@ -163,11 +163,8 @@ function createAPIEditorPanel(selectedService: string, renderHtml: string,
         oasEditorPanel = window.createWebviewPanel(
             'ballerinaOASEditor',
             'Ballerina API Designer - ' + selectedService,
-            { viewColumn: ViewColumn.Two, preserveFocus: true } ,
-            {
-                enableScripts: true,
-                retainContextWhenHidden: true,
-            }
+            { viewColumn: ViewColumn.One, preserveFocus: true } ,
+            getCommonWebViewOptions()
         );
     }
 
@@ -186,7 +183,7 @@ function createAPIEditorPanel(selectedService: string, renderHtml: string,
             }
         }
     ];
-    WebViewRPCHandler.create(oasEditorPanel.webview, langClient, remoteMethods);
+    WebViewRPCHandler.create(oasEditorPanel, langClient, remoteMethods);
 
     oasEditorPanel.iconPath = {
 		light: Uri.file(join(context.extensionPath, 'resources/images/icons/api-design.svg')),

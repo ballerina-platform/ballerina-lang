@@ -1,5 +1,5 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
+# `.bal` file, and execute the `ballerina run` command.
 $ ballerina run foreach.bal
 Iterating a string array :
 fruit: apple
@@ -7,6 +7,9 @@ fruit: banana
 fruit: cherry
 
 Iterating a map :
+apple
+banana
+cherry
 letter: a, word: apple
 letter: b, word: banana
 letter: c, word: cherry

@@ -65,12 +65,11 @@ public class BLangBlockStmt extends BLangStatement implements BlockNode {
     public NodeKind getKind() {
         return NodeKind.BLOCK;
     }
-    
+
     @Override
     public String toString() {
         StringJoiner sj = new StringJoiner("; ");
         this.stmts.forEach(stmt -> sj.add(stmt.toString()));
-        return "{" + sj.toString() + "}";
+        return sj.toString();
     }
-    
 }

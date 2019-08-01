@@ -28,38 +28,35 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.connector.api.Annotation;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ConnectorUtils;
-import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.connector.api.Value;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.JSONGenerator;
+import org.ballerinalang.jvm.observability.ObserveUtils;
+import org.ballerinalang.jvm.observability.ObserverContext;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.StreamingJsonValue;
+import org.ballerinalang.jvm.values.XMLItem;
+import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
+import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.mime.util.MultipartDecoder;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.util.JsonGenerator;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
-import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
-import org.ballerinalang.net.http.session.Session;
+import org.ballerinalang.net.http.caching.RequestCacheControlObj;
+import org.ballerinalang.net.http.caching.ResponseCacheControlObj;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.observability.ObserveUtils;
-import org.ballerinalang.util.observability.ObserverContext;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.util.transactions.TransactionConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +71,11 @@ import org.wso2.transport.http.netty.contract.config.ProxyServerConfiguration;
 import org.wso2.transport.http.netty.contract.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.config.SslConfiguration;
+import org.wso2.transport.http.netty.contract.exceptions.ClientConnectorException;
+import org.wso2.transport.http.netty.contract.exceptions.ConnectionTimedOutException;
+import org.wso2.transport.http.netty.contract.exceptions.EndpointTimeOutException;
+import org.wso2.transport.http.netty.contract.exceptions.PromiseRejectedException;
+import org.wso2.transport.http.netty.contract.exceptions.SslException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.PoolConfiguration;
@@ -85,6 +87,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -94,6 +97,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_HTTP_HOST;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_HTTP_PORT;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_PEER_ADDRESS;
 import static org.ballerinalang.mime.util.EntityBodyHandler.checkEntityBodyAvailability;
 import static org.ballerinalang.mime.util.MimeConstants.BOUNDARY;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
@@ -101,15 +110,12 @@ import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
-import static org.ballerinalang.mime.util.MimeConstants.MIME_ERROR_CODE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.RESPONSE_ENTITY_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.ALWAYS;
-import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_CHUNKING;
-import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLE;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS;
@@ -119,6 +125,7 @@ import static org.ballerinalang.net.http.HttpConstants.CONNECTION_MANAGER;
 import static org.ballerinalang.net.http.HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION;
 import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_CERTIFICATE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_DISABLE_SSL;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_PASSWORD;
@@ -129,20 +136,16 @@ import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_SESSION_T
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_CERTIFICATES;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STORE;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
-import static org.ballerinalang.net.http.HttpConstants.ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_CODE;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_DETAIL_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_MESSAGE;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_RECORD;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_HANDSHAKE_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
 import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
 import static org.ballerinalang.net.http.HttpConstants.PKCS_STORE_TYPE;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTPS;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_FIELD;
@@ -154,20 +157,41 @@ import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_REASON_PHRASE_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.SERVER_ENDPOINT_CONFIG;
+import static org.ballerinalang.net.http.HttpConstants.SERVER_NAME;
 import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION;
 import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_SSL_VERIFY_CLIENT;
 import static org.ballerinalang.net.http.HttpConstants.SSL_ENABLED_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.SSL_PROTOCOL_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.sendPipelinedResponse;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
-import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_HTTP_HOST;
-import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_HTTP_PORT;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
-import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_PEER_ADDRESS;
+import static org.ballerinalang.stdlib.io.utils.IOConstants.DETAIL_RECORD_TYPE_NAME;
+import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE;
 import static org.wso2.transport.http.netty.contract.Constants.ENCODING_GZIP;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_1_1_VERSION;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
+import static org.wso2.transport.http.netty.contract.Constants.PROMISED_STREAM_REJECTED_ERROR;
+import static org.wso2.transport.http.netty.contract.Constants
+        .REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY;
+import static org.wso2.transport.http.netty.contract.Constants
+        .REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_HEADERS;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_100_CONTINUE_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants
+        .REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.contract.Constants
+        .REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_BEFORE_INITIATING_OUTBOUND_REQUEST;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.contract.Constants
+        .REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY;
+import static org.wso2.transport.http.netty.contract.Constants
+        .REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS;
 
 /**
  * Utility class providing utility methods.
@@ -183,51 +207,19 @@ public class HttpUtil {
     private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
     private static final String CHUNKING_CONFIG = "chunking_config";
 
-    public static BValue[] getProperty(Context context, boolean isRequest) {
-        BMap<String, BValue> httpMessageStruct = (BMap<String, BValue>) context.getRefArgument(0);
-        HttpCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-        String propertyName = context.getStringArgument(0);
-
-        Object propertyValue = httpCarbonMessage.getProperty(propertyName);
-
-        if (propertyValue == null) {
-            return new BValue[0];
-        }
-
-        if (propertyValue instanceof String) {
-            return new BValue[] { new BString((String) propertyValue) };
-        } else {
-            throw new BallerinaException("Property value is of unknown type : " + propertyValue.getClass().getName());
-        }
-    }
-
-    public static void setProperty(Context context, boolean isRequest) {
-        BMap<String, BValue> httpMessageStruct = (BMap<String, BValue>) context.getRefArgument(0);
-        String propertyName = context.getStringArgument(0);
-        String propertyValue = context.getStringArgument(1);
-
-        if (propertyName != null && propertyValue != null) {
-            HttpCarbonMessage httpCarbonMessage = HttpUtil
-                    .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
-            httpCarbonMessage.setProperty(propertyName, propertyValue);
-        }
-    }
-
     /**
      * Set new entity to in/out request/response struct.
      *
-     * @param context           ballerina context.
      * @param httpMessageStruct request/response struct.
      * @return created entity.
      */
-    public static BMap<String, BValue> createNewEntity(Context context, BMap<String, BValue> httpMessageStruct) {
-        BMap<String, BValue> entity = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, ENTITY);
+    public static ObjectValue createNewEntity(ObjectValue httpMessageStruct) {
+        ObjectValue entity = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, ENTITY);
         HttpCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(httpMessageStruct,
-                HttpUtil.createHttpCarbonMessage(isRequestStruct(httpMessageStruct)));
+                HttpUtil.createHttpCarbonMessage(isRequest(httpMessageStruct)));
         entity.addNativeData(ENTITY_HEADERS, httpCarbonMessage.getHeaders());
         entity.addNativeData(ENTITY_BYTE_CHANNEL, null);
-        httpMessageStruct.put(isRequestStruct(httpMessageStruct) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD
+        httpMessageStruct.set(isRequest(httpMessageStruct) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD
                 , entity);
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
         return entity;
@@ -236,95 +228,85 @@ public class HttpUtil {
     /**
      * Set the given entity to request or response message.
      *
-     * @param context   Ballerina context
-     * @param isRequest boolean representing whether the message is a request or a response
+     * @param messageObj Represent ballerina request/response
+     * @param entityObj  Represent an entity
+     * @param isRequest  boolean representing whether the message is a request or a response
      */
-    public static void setEntity(Context context, boolean isRequest) {
-        BMap<String, BValue> httpMessageStruct = (BMap<String, BValue>) context.getRefArgument(HTTP_MESSAGE_INDEX);
-
-        HttpCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(httpMessageStruct,
+    public static void setEntity(ObjectValue messageObj, ObjectValue entityObj, boolean isRequest) {
+        HttpCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(messageObj,
                 HttpUtil.createHttpCarbonMessage(isRequest));
-        BMap<String, BValue> entity = (BMap<String, BValue>) context.getRefArgument(ENTITY_INDEX);
-        String contentType = MimeUtil.getContentTypeWithParameters(entity);
-        if (checkEntityBodyAvailability(entity)) {
+        String contentType = MimeUtil.getContentTypeWithParameters(entityObj);
+        if (checkEntityBodyAvailability(entityObj)) {
             httpCarbonMessage.waitAndReleaseAllEntities();
             if (contentType == null) {
                 contentType = OCTET_STREAM;
             }
-            HeaderUtil.setHeaderToEntity(entity, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
+            HeaderUtil.setHeaderToEntity(entityObj, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
         }
-        httpMessageStruct.put(isRequest ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD, entity);
-        httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, checkEntityBodyAvailability(entity));
+        messageObj.set(isRequest ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD, entityObj);
+        messageObj.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, checkEntityBodyAvailability(entityObj));
     }
 
     /**
      * Get the entity from request or response.
      *
-     * @param context            Ballerina context
+     * @param messageObj         Ballerina context
      * @param isRequest          boolean representing whether the message is a request or a response
      * @param entityBodyRequired boolean representing whether the entity body is required
      * @return Entity of the request or response
      */
-    public static BValue[] getEntity(Context context, boolean isRequest, boolean entityBodyRequired) {
-        try {
-            BMap<String, BValue> httpMessageStruct = (BMap<String, BValue>) context.getRefArgument(HTTP_MESSAGE_INDEX);
-            BMap<String, BValue> entity = (BMap<String, BValue>) httpMessageStruct
-                    .get(isRequest ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
-            boolean byteChannelAlreadySet = false;
+    public static ObjectValue getEntity(ObjectValue messageObj, boolean isRequest, boolean entityBodyRequired) {
+        ObjectValue entity = (ObjectValue) messageObj.get(isRequest ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
+        boolean byteChannelAlreadySet = false;
 
-            if (httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET) != null) {
-                byteChannelAlreadySet = (Boolean) httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
-            }
-            if (entityBodyRequired && !byteChannelAlreadySet) {
-                populateEntityBody(context, httpMessageStruct, entity, isRequest, false);
-            }
-            return new BValue[]{entity};
-        } catch (Throwable throwable) {
-            return new BValue[]{MimeUtil.createError(context, MIME_ERROR_CODE,
-                    "Error occurred during entity construction: " + throwable.getMessage())};
+        if (messageObj.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET) != null) {
+            byteChannelAlreadySet = (Boolean) messageObj.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
         }
+        if (entityBodyRequired && !byteChannelAlreadySet) {
+            populateEntityBody(messageObj, entity, isRequest, false);
+        }
+        return entity;
     }
 
     /**
      * Populate entity with the relevant body content.
      *
-     * @param context           Represent ballerina context
-     * @param httpMessageStruct Represent ballerina request/response
-     * @param entity            Represent an entity
-     * @param request           boolean representing whether the message is a request or a response
-     * @param streaming         boolean representing whether the entity requires byte channel or message as native data
+     * @param messageObj Represent ballerina request/response
+     * @param entityObj     Represent an entity
+     * @param request    boolean representing whether the message is a request or a response
+     * @param streaming  boolean representing whether the entity requires byte channel or message as native data
      */
-    public static void populateEntityBody(Context context, BMap<String, BValue> httpMessageStruct,
-                                          BMap<String, BValue> entity, boolean request, boolean streaming) {
+    public static void populateEntityBody(ObjectValue messageObj, ObjectValue entityObj, boolean request,
+                                          boolean streaming) {
         HttpCarbonMessage httpCarbonMessage = HttpUtil
-                    .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(request));
+                .getCarbonMsg(messageObj, HttpUtil.createHttpCarbonMessage(request));
         String contentType = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
+        //TODO check following condition related to streaming
         if (MimeUtil.isNotNullAndEmpty(contentType) && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)
-                && context != null) {
-            MultipartDecoder.parseBody(context, entity, contentType,
+                && !streaming) {
+            MultipartDecoder.parseBody(entityObj, contentType,
                                        new HttpMessageDataStreamer(httpCarbonMessage).getInputStream());
         } else {
             long contentLength = MimeUtil.extractContentLength(httpCarbonMessage);
             if (contentLength > 0) {
                 if (streaming) {
-                    entity.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(
+                    entityObj.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(
                             new EntityBodyChannel(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream())));
                 } else {
-                    entity.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
+                    entityObj.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
                 }
             }
         }
-        httpMessageStruct.put(request ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD, entity);
-        httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
+        messageObj.set(request ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD, entityObj);
+        messageObj.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
     }
 
-    public static BMap<String, BValue> extractEntity(BMap<String, BValue> httpMessageStruct) {
-        Object isEntityBodyAvailable = httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
+    public static ObjectValue extractEntity(ObjectValue request) {
+        Object isEntityBodyAvailable = request.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
         if (isEntityBodyAvailable == null || !((Boolean) isEntityBodyAvailable)) {
             return null;
         }
-        return (BMap<String, BValue>) httpMessageStruct
-                .get(isRequestStruct(httpMessageStruct) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
+        return (ObjectValue) request.get(isRequest(request) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
     }
 
     public static void closeMessageOutputStream(OutputStream messageOutputStream) {
@@ -337,53 +319,18 @@ public class HttpUtil {
         }
     }
 
-    public static void prepareOutboundResponse(Context context, HttpCarbonMessage inboundRequestMsg,
+    public static void prepareOutboundResponse(ObjectValue connectionObj, HttpCarbonMessage inboundRequestMsg,
                                                HttpCarbonMessage outboundResponseMsg,
-                                               BMap<String, BValue> outboundResponseStruct) {
-
-        HttpUtil.checkEntityAvailability(context, outboundResponseStruct);
-
-        HttpUtil.addHTTPSessionAndCorsHeaders(context, inboundRequestMsg, outboundResponseMsg);
-        HttpUtil.enrichOutboundMessage(outboundResponseMsg, outboundResponseStruct);
-        HttpUtil.setCompressionHeaders(context, inboundRequestMsg, outboundResponseMsg);
-        HttpUtil.setChunkingHeader(context, outboundResponseMsg);
+                                               ObjectValue outboundResponseObj) {
+        HttpUtil.checkEntityAvailability(outboundResponseObj);
+        HttpUtil.addCorsHeaders(inboundRequestMsg, outboundResponseMsg);
+        HttpUtil.enrichOutboundMessage(outboundResponseMsg, outboundResponseObj);
+        HttpService httpService = (HttpService) connectionObj.getNativeData(HttpConstants.HTTP_SERVICE);
+        HttpUtil.setCompressionHeaders(httpService.getCompressionConfig(), inboundRequestMsg, outboundResponseMsg);
+        HttpUtil.setChunkingHeader(httpService.getChunkingConfig(), outboundResponseMsg);
     }
 
-    public static BMap<String, BValue> createSessionStruct(Context context, Session session) {
-        BMap<String, BValue> sessionStruct = ConnectorUtils
-                .createAndGetStruct(context, HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.SESSION);
-        //Add session to the struct as a native data
-        sessionStruct.addNativeData(HttpConstants.HTTP_SESSION, session);
-        return sessionStruct;
-    }
-
-    public static String getSessionID(String cookieHeader) {
-        return Arrays.stream(cookieHeader.split(";"))
-                .filter(cookie -> cookie.trim().startsWith(HttpConstants.SESSION_ID))
-                .findFirst().get().trim().substring(HttpConstants.SESSION_ID.length());
-    }
-
-    public static void addHTTPSessionAndCorsHeaders(Context context, HttpCarbonMessage requestMsg,
-                                                    HttpCarbonMessage responseMsg) {
-        //TODO Remove once service session LC is introduced
-//        Session session = (Session) requestMsg.getProperty(HttpConstants.HTTP_SESSION);
-//        if (session != null) {
-//            boolean isSecureRequest = false;
-//            AnnAttachmentInfo configAnn = context.getServiceInfo().getAnnotationAttachmentInfo(
-//                    HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.ANN_NAME_CONFIG);
-//            if (configAnn != null) {
-//                AnnAttributeValue httpsPortAttrVal = configAnn
-//                        .getAttributeValue(HttpConstants.ANN_CONFIG_ATTR_HTTPS_PORT);
-//                if (httpsPortAttrVal != null) {
-//                    Integer listenerPort = (Integer) requestMsg.getProperty(HttpConstants.LISTENER_PORT);
-//                    if (listenerPort != null && httpsPortAttrVal.getIntValue() == listenerPort) {
-//                        isSecureRequest = true;
-//                    }
-//                }
-//            }
-//            session.generateSessionHeader(responseMsg, isSecureRequest);
-//        }
-        //Process CORS if exists.
+    private static void addCorsHeaders(HttpCarbonMessage requestMsg, HttpCarbonMessage responseMsg) {
         if (requestMsg.getHeader(HttpHeaderNames.ORIGIN.toString()) != null) {
             CorsHeaderGenerator.process(requestMsg, responseMsg, true);
         }
@@ -402,7 +349,7 @@ public class HttpUtil {
         HttpResponseFuture responseFuture;
         try {
             responseFuture = requestMsg.respond(responseMsg);
-        } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
+        } catch (org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException e) {
             throw new BallerinaConnectorException("Error occurred during response", e);
         }
         return responseFuture;
@@ -421,7 +368,7 @@ public class HttpUtil {
         HttpResponseFuture responseFuture;
         try {
             responseFuture = requestMsg.pushResponse(pushResponse, pushPromise);
-        } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
+        } catch (org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException e) {
             throw new BallerinaConnectorException("Error occurred while sending a server push message", e);
         }
         return responseFuture;
@@ -438,7 +385,7 @@ public class HttpUtil {
         HttpResponseFuture responseFuture;
         try {
             responseFuture = requestMsg.pushPromise(pushPromise);
-        } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
+        } catch (org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException e) {
             throw new BallerinaConnectorException("Error occurred during response", e);
         }
         return responseFuture;
@@ -450,16 +397,17 @@ public class HttpUtil {
         sendPipelinedResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 
-    static void handleFailure(HttpCarbonMessage requestMessage, BError error) {
+    static void handleFailure(HttpCarbonMessage requestMessage, ErrorValue error) {
         String errorMsg = getErrorMessage(error);
         int statusCode = getStatusCode(requestMessage, errorMsg);
-        ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+        ErrorHandlerUtils.printError("error: " + error.toString());
         sendPipelinedResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 
-    private static String getErrorMessage(BError error) {
+    private static String getErrorMessage(ErrorValue error) {
         String errorMsg = error.getReason();
-        BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
+        //TODO Test whether error.getDetails() can be casted to (MapValue)
+        MapValue errorDetails = (MapValue) error.getDetails();
         if (!errorDetails.isEmpty()) {
             errorMsg = errorMsg.concat(COLON + errorDetails.get(HTTP_ERROR_MESSAGE));
         }
@@ -467,13 +415,13 @@ public class HttpUtil {
     }
 
     private static int getStatusCode(HttpCarbonMessage requestMessage, String errorMsg) {
-        Object carbonStatusCode = requestMessage.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        Integer carbonStatusCode = requestMessage.getHttpStatusCode();
         if (carbonStatusCode == null) {
             //log only the internal server errors
             log.error(errorMsg);
             return HttpResponseStatus.INTERNAL_SERVER_ERROR.code();
         }
-        return Integer.parseInt(carbonStatusCode.toString());
+        return carbonStatusCode;
     }
 
     public static HttpCarbonMessage createErrorMessage(String payload, int statusCode) {
@@ -503,157 +451,244 @@ public class HttpUtil {
         HttpHeaders httpHeaders = response.getHeaders();
         httpHeaders.set(HttpHeaderNames.CONTENT_TYPE, org.wso2.transport.http.netty.contract.Constants.TEXT_PLAIN);
 
-        response.setProperty(org.wso2.transport.http.netty.contract.Constants.HTTP_STATUS_CODE, statusCode);
+        response.setHttpStatusCode(statusCode);
     }
 
     /**
-     * Get error struct.
+     * Get HTTP error value with a given error detail.
      *
-     * @param context Represent ballerina context
      * @param errMsg  Error message
-     * @return Error struct
+     * @return Error value
      */
-    public static BError getError(Context context, String errMsg) {
-        BMap<String, BValue> httpErrorRecord = createHTTPErrorRecord(context);
-        httpErrorRecord.put(HTTP_ERROR_MESSAGE, new BString(errMsg));
-        return BLangVMErrors.createError(context, true, BTypes.typeError, HTTP_ERROR_CODE, httpErrorRecord);
-    }
-
-    private static BMap<String, BValue> createHTTPErrorRecord(Context context) {
-        return BLangConnectorSPIUtil.createBStruct(context, PROTOCOL_PACKAGE_HTTP, HTTP_ERROR_RECORD);
+    public static ErrorValue getError(String errMsg) {
+        MapValue<String, Object> httpErrorRecord = createHttpErrorDetailRecord(errMsg, null);
+        httpErrorRecord.put(HTTP_ERROR_MESSAGE, errMsg);
+        return BallerinaErrors.createError(HTTP_ERROR_CODE, httpErrorRecord);
     }
 
     /**
-     * Get error struct from throwable.
+     * Get error value from throwable.
      *
-     * @param context   Represent ballerina context
      * @param throwable Throwable representing the error.
      * @return Error struct
      */
-    public static BError getError(Context context, Throwable throwable) {
+    public static ErrorValue getError(Throwable throwable) {
+        if (throwable instanceof ClientConnectorException) {
+            return createHttpError(throwable);
+        }
         if (throwable.getMessage() == null) {
-            return getError(context, IO_EXCEPTION_OCCURED);
+            return createHttpError(IO_EXCEPTION_OCCURED);
         } else {
-            return getError(context, throwable.getMessage());
+            return createHttpError(throwable.getMessage());
         }
     }
 
-    public static HttpCarbonMessage getCarbonMsg(BMap<String, BValue> struct, HttpCarbonMessage defaultMsg) {
-        HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) struct.getNativeData(TRANSPORT_MESSAGE);
+    public static ErrorValue createHttpError(String errorMessage) {
+        HttpErrorType errorType = getErrorType(errorMessage);
+        return createHttpError(errorMessage, errorType);
+    }
+
+    public static ErrorValue createHttpError(Throwable throwable) {
+        ErrorValue cause;
+        if (throwable instanceof EndpointTimeOutException) {
+            return createHttpError(throwable.getMessage(), HttpErrorType.IDLE_TIMEOUT_TRIGGERED);
+        } else if (throwable instanceof SslException) {
+            return createHttpError(throwable.getMessage(), HttpErrorType.SSL_ERROR);
+        } else if (throwable instanceof PromiseRejectedException) {
+            return createHttpError(throwable.getMessage(), HttpErrorType.HTTP2_CLIENT_ERROR);
+        } else if (throwable instanceof ConnectionTimedOutException) {
+            cause = createErrorCause(throwable.getMessage(),
+                    IOConstants.ErrorCode.ConnectionTimedOut.errorCode(),
+                    IO_PACKAGE,
+                    DETAIL_RECORD_TYPE_NAME);
+            return createHttpError("Something wrong with the connection", HttpErrorType.GENERIC_CLIENT_ERROR, cause);
+        } else if (throwable instanceof ClientConnectorException) {
+            cause = createErrorCause(throwable.getMessage(),
+                    IOConstants.ErrorCode.GenericError.errorCode(),
+                    IO_PACKAGE,
+                    DETAIL_RECORD_TYPE_NAME);
+            return createHttpError("Something wrong with the connection", HttpErrorType.GENERIC_CLIENT_ERROR, cause);
+        } else {
+            return createHttpError(throwable.getMessage());
+        }
+    }
+
+    public static ErrorValue createHttpError(String message, HttpErrorType errorType) {
+        MapValue<String, Object> detailRecord = createHttpErrorDetailRecord(message, null);
+        return BallerinaErrors.createError(errorType.getReason(), detailRecord);
+    }
+
+    public static ErrorValue createHttpError(String message, HttpErrorType errorType, ErrorValue cause) {
+        MapValue<String, Object> detailRecord = createHttpErrorDetailRecord(message, cause);
+        return BallerinaErrors.createError(errorType.getReason(), detailRecord);
+    }
+
+    private static MapValue<String, Object> createHttpErrorDetailRecord(String message, ErrorValue cause) {
+        MapValue<String, Object> detail = BallerinaValues
+                .createRecordValue(PROTOCOL_PACKAGE_HTTP, HTTP_ERROR_DETAIL_RECORD);
+        return BallerinaValues.createRecord(detail, message, cause);
+    }
+
+    // TODO: Find a better way to get the error type than String matching.
+    private static HttpErrorType getErrorType(String errorMessage) {
+        // Every Idle Timeout triggered error is mapped to IdleTimeoutError
+        if (errorMessage.contains("Idle timeout triggered")) {
+            return HttpErrorType.IDLE_TIMEOUT_TRIGGERED;
+        }
+
+        switch (errorMessage) {
+            case REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE:
+                return HttpErrorType.INIT_INBOUND_RESPONSE_FAILED;
+            case REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS:
+                return HttpErrorType.READING_INBOUND_RESPONSE_HEADERS_FAILED;
+            case REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY:
+                return HttpErrorType.READING_INBOUND_RESPONSE_BODY_FAILED;
+            case REMOTE_SERVER_CLOSED_BEFORE_INITIATING_OUTBOUND_REQUEST:
+                return HttpErrorType.INIT_OUTBOUND_REQUEST_FAILED;
+            case REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS:
+                return HttpErrorType.WRITING_OUTBOUND_REQUEST_HEADER_FAILED;
+            case REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY:
+                return HttpErrorType.WRITING_OUTBOUND_REQUEST_BODY_FAILED;
+            case REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST:
+                return HttpErrorType.INIT_INBOUND_REQUEST_FAILED;
+            case REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_HEADERS:
+                return HttpErrorType.READING_INBOUND_REQUEST_HEADER_FAILED;
+            case REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY:
+                return HttpErrorType.READING_INBOUND_REQUEST_BODY_FAILED;
+            case REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE:
+                return HttpErrorType.INIT_OUTBOUND_RESPONSE_FAILED;
+            case REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS:
+                return HttpErrorType.WRITING_OUTBOUND_RESPONSE_HEADERS_FAILED;
+            case REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY:
+                return HttpErrorType.WRITING_OUTBOUND_RESPONSE_BODY_FAILED;
+            case REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE:
+                return HttpErrorType.INIT_100_CONTINUE_RESPONSE_FAILED;
+            case REMOTE_CLIENT_CLOSED_WHILE_WRITING_100_CONTINUE_RESPONSE:
+                return HttpErrorType.WRITING_100_CONTINUE_RESPONSE_FAILED;
+            case PROMISED_STREAM_REJECTED_ERROR:
+                return HttpErrorType.HTTP2_CLIENT_ERROR;
+            default:
+                return HttpErrorType.GENERIC_CLIENT_ERROR;
+        }
+    }
+
+    private static ErrorValue createErrorCause(String message, String reason, String packageName, String recordName) {
+
+        MapValue<String, Object> detailRecordType = BallerinaValues.createRecordValue(packageName, recordName);
+        MapValue<String, Object> detailRecord = BallerinaValues.createRecord(detailRecordType, message, null);
+        return BallerinaErrors.createError(reason, detailRecord);
+    }
+
+    public static HttpCarbonMessage getCarbonMsg(ObjectValue objectValue, HttpCarbonMessage defaultMsg) {
+        HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) objectValue.getNativeData(TRANSPORT_MESSAGE);
         if (httpCarbonMessage != null) {
             return httpCarbonMessage;
         }
-        addCarbonMsg(struct, defaultMsg);
+        addCarbonMsg(objectValue, defaultMsg);
         return defaultMsg;
     }
 
     /**
-     * Gets the {@code Http2PushPromise} represented by the PushPromise struct.
+     * Gets the {@code Http2PushPromise} represented by the PushPromise object.
      *
-     * @param pushPromiseStruct  the push promise struct
-     * @param defaultPushPromise the Http2PushPromise to use if the struct does not have native data of a push promise
-     * @return the {@code Http2PushPromise} represented by the PushPromise struct
+     * @param pushPromiseObj  the push promise object
+     * @param defaultPushPromise the Http2PushPromise to use if the object does not have native data of a push promise
+     * @return the {@code Http2PushPromise} represented by the PushPromise object
      */
-    public static Http2PushPromise getPushPromise(BMap<String, BValue> pushPromiseStruct,
-                                                  Http2PushPromise defaultPushPromise) {
+    public static Http2PushPromise getPushPromise(ObjectValue pushPromiseObj, Http2PushPromise defaultPushPromise) {
         Http2PushPromise pushPromise =
-                (Http2PushPromise) pushPromiseStruct.getNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE);
+                (Http2PushPromise) pushPromiseObj.getNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE);
         if (pushPromise != null) {
             return pushPromise;
         }
-        pushPromiseStruct.addNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE, defaultPushPromise);
+        pushPromiseObj.addNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE, defaultPushPromise);
         return defaultPushPromise;
     }
 
     /**
-     * Populates the push promise struct from native {@code Http2PushPromise}.
-     *
-     * @param pushPromiseStruct the push promise struct
+     * Populates the push promise object from native {@code Http2PushPromise}.
+     *  @param pushPromiseObj the push promise object
      * @param pushPromise the native Http2PushPromise
      */
-    public static void populatePushPromiseStruct(BMap<String, BValue> pushPromiseStruct,
+    public static void populatePushPromiseStruct(ObjectValue pushPromiseObj,
                                                  Http2PushPromise pushPromise) {
-        pushPromiseStruct.addNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE, pushPromise);
-        pushPromiseStruct.put(HttpConstants.PUSH_PROMISE_PATH_FIELD, new BString(pushPromise.getPath()));
-        pushPromiseStruct.put(HttpConstants.PUSH_PROMISE_METHOD_FIELD, new BString(pushPromise.getMethod()));
+        pushPromiseObj.addNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE, pushPromise);
+        pushPromiseObj.set(HttpConstants.PUSH_PROMISE_PATH_FIELD, pushPromise.getPath());
+        pushPromiseObj.set(HttpConstants.PUSH_PROMISE_METHOD_FIELD, pushPromise.getMethod());
     }
 
     /**
-     * Creates native {@code Http2PushPromise} from PushPromise struct.
+     * Creates native {@code Http2PushPromise} from PushPromise object.
      *
-     * @param struct the PushPromise struct
+     * @param pushPromiseObj the PushPromise object
      * @return the populated the native {@code Http2PushPromise}
      */
-    public static Http2PushPromise createHttpPushPromise(BMap<String, BValue> struct) {
-        String method = struct.get(HttpConstants.PUSH_PROMISE_METHOD_FIELD).stringValue();
+    public static Http2PushPromise createHttpPushPromise(ObjectValue pushPromiseObj) {
+        String method = pushPromiseObj.get(HttpConstants.PUSH_PROMISE_METHOD_FIELD).toString();
         if (method == null || method.isEmpty()) {
             method = HttpConstants.HTTP_METHOD_GET;
         }
 
-        String path = struct.get(HttpConstants.PUSH_PROMISE_PATH_FIELD).stringValue();
+        String path = pushPromiseObj.get(HttpConstants.PUSH_PROMISE_PATH_FIELD).toString();
         if (path == null || path.isEmpty()) {
             path = HttpConstants.DEFAULT_BASE_PATH;
         }
         return new Http2PushPromise(method, path);
     }
 
-    public static void addCarbonMsg(BMap<String, BValue> struct, HttpCarbonMessage httpCarbonMessage) {
+    public static void addCarbonMsg(ObjectValue struct, HttpCarbonMessage httpCarbonMessage) {
         struct.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
     }
 
-    public static void populateInboundRequest(BMap<String, BValue> inboundRequestStruct, BMap<String, BValue> entity,
-                                              BMap<String, BValue> mediaType, HttpCarbonMessage inboundRequestMsg,
-                                              ProgramFile programFile) {
-        inboundRequestStruct.addNativeData(TRANSPORT_MESSAGE, inboundRequestMsg);
-        inboundRequestStruct.addNativeData(REQUEST, true);
+    public static void populateInboundRequest(ObjectValue inboundRequest, ObjectValue entity,
+                                              ObjectValue mediaType, HttpCarbonMessage inboundRequestMsg) {
+        inboundRequest.addNativeData(TRANSPORT_MESSAGE, inboundRequestMsg);
+        inboundRequest.addNativeData(REQUEST, true);
 
         if (inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT) != null) {
-            BMap<String, BValue> mutualSslRecord = BLangConnectorSPIUtil
-                    .createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, MUTUAL_SSL_HANDSHAKE_RECORD);
+            MapValue mutualSslRecord = BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP,
+                                                                         MUTUAL_SSL_HANDSHAKE_RECORD);
             mutualSslRecord.put(REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS,
-                    new BString((String) inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT)));
-            inboundRequestStruct.put(REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD, mutualSslRecord);
+                                inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT));
+            inboundRequest.set(REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD, mutualSslRecord);
         }
 
-        enrichWithInboundRequestInfo(inboundRequestStruct, inboundRequestMsg);
-        enrichWithInboundRequestHeaders(inboundRequestStruct, inboundRequestMsg);
+        enrichWithInboundRequestInfo(inboundRequest, inboundRequestMsg);
+        enrichWithInboundRequestHeaders(inboundRequest, inboundRequestMsg);
 
         populateEntity(entity, mediaType, inboundRequestMsg);
-        inboundRequestStruct.put(REQUEST_ENTITY_FIELD, entity);
-        inboundRequestStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
+        inboundRequest.set(REQUEST_ENTITY_FIELD, entity);
+        inboundRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
 
         String cacheControlHeader = inboundRequestMsg.getHeader(CACHE_CONTROL.toString());
         if (cacheControlHeader != null) {
-            BMap<String, BValue> cacheControlStruct =
-                    BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, REQUEST_CACHE_CONTROL);
-            RequestCacheControlStruct requestCacheControl = new RequestCacheControlStruct(cacheControlStruct);
+            ObjectValue cacheControlObj = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_HTTP,
+                                                                               REQUEST_CACHE_CONTROL);
+            RequestCacheControlObj requestCacheControl = new RequestCacheControlObj(cacheControlObj);
             requestCacheControl.populateStruct(cacheControlHeader);
-            inboundRequestStruct.put(REQUEST_CACHE_CONTROL_FIELD, requestCacheControl.getStruct());
+            inboundRequest.set(REQUEST_CACHE_CONTROL_FIELD, requestCacheControl.getObj());
         }
     }
 
-    private static void enrichWithInboundRequestHeaders(BMap<String, BValue> inboundRequestStruct,
+    private static void enrichWithInboundRequestHeaders(ObjectValue inboundRequestObj,
                                                         HttpCarbonMessage inboundRequestMsg) {
         if (inboundRequestMsg.getHeader(HttpHeaderNames.USER_AGENT.toString()) != null) {
             String agent = inboundRequestMsg.getHeader(HttpHeaderNames.USER_AGENT.toString());
-            inboundRequestStruct.put(HttpConstants.REQUEST_USER_AGENT_FIELD, new BString(agent));
+            inboundRequestObj.set(HttpConstants.REQUEST_USER_AGENT_FIELD, agent);
             inboundRequestMsg.removeHeader(HttpHeaderNames.USER_AGENT.toString());
         }
     }
 
-    private static void enrichWithInboundRequestInfo(BMap<String, BValue> inboundRequestStruct,
+    private static void enrichWithInboundRequestInfo(ObjectValue inboundRequestObj,
                                                      HttpCarbonMessage inboundRequestMsg) {
-        inboundRequestStruct.put(HttpConstants.REQUEST_RAW_PATH_FIELD,
-                new BString((String) inboundRequestMsg.getProperty(HttpConstants.REQUEST_URL)));
-        inboundRequestStruct.put(HttpConstants.REQUEST_METHOD_FIELD,
-                new BString((String) inboundRequestMsg.getProperty(HttpConstants.HTTP_METHOD)));
-        inboundRequestStruct.put(HttpConstants.REQUEST_VERSION_FIELD,
-                new BString((String) inboundRequestMsg.getProperty(HttpConstants.HTTP_VERSION)));
-        Map<String, String> resourceArgValues =
-                (Map<String, String>) inboundRequestMsg.getProperty(HttpConstants.RESOURCE_ARGS);
-        if (resourceArgValues != null && resourceArgValues.get(HttpConstants.EXTRA_PATH_INFO) != null) {
-            inboundRequestStruct.put(HttpConstants.REQUEST_EXTRA_PATH_INFO_FIELD,
-                    new BString(resourceArgValues.get(HttpConstants.EXTRA_PATH_INFO)));
+        inboundRequestObj.set(HttpConstants.REQUEST_RAW_PATH_FIELD, inboundRequestMsg.getRequestUrl());
+        inboundRequestObj.set(HttpConstants.REQUEST_METHOD_FIELD, inboundRequestMsg.getHttpMethod());
+        inboundRequestObj.set(HttpConstants.REQUEST_VERSION_FIELD, inboundRequestMsg.getHttpVersion());
+        HttpResourceArguments resourceArgValues = (HttpResourceArguments) inboundRequestMsg.getProperty(
+                HttpConstants.RESOURCE_ARGS);
+        if (resourceArgValues != null && resourceArgValues.getMap().get(HttpConstants.EXTRA_PATH_INFO) != null) {
+            inboundRequestObj.set(HttpConstants.REQUEST_EXTRA_PATH_INFO_FIELD,
+                                  resourceArgValues.getMap().get(HttpConstants.EXTRA_PATH_INFO));
         }
     }
 
@@ -664,51 +699,47 @@ public class HttpUtil {
      * @param inboundMsg Represents carbon message
      * @param config     Represents service endpoint configuration
      */
-    public static void enrichHttpCallerWithNativeData(BMap<String, BValue> caller, HttpCarbonMessage inboundMsg,
-                                                      Struct config) {
+    public static void enrichHttpCallerWithNativeData(ObjectValue caller, HttpCarbonMessage inboundMsg,
+                                                      MapValue config) {
         caller.addNativeData(HttpConstants.TRANSPORT_MESSAGE, inboundMsg);
-        caller.put(HttpConstants.HTTP_CONNECTOR_CONFIG_FIELD, (BMap<String, BValue>) config.getVMValue());
+        caller.set(HttpConstants.HTTP_CONNECTOR_CONFIG_FIELD, config);
     }
 
     /**
      * Populates the HTTP caller with connection information.
-     *
      * @param httpCaller   Represents the HTTP caller
      * @param inboundMsg   Represents the carbon message
      * @param httpResource Represents the Http Resource
      * @param config       Represents the service endpoint configuration
      */
-    public static void enrichHttpCallerWithConnectionInfo(BMap<String, BValue> httpCaller, HttpCarbonMessage inboundMsg,
-                                                          HttpResource httpResource, Struct config) {
-        BMap<String, BValue> remote = BLangConnectorSPIUtil.createBStruct(
-                httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile(),
-                PROTOCOL_PACKAGE_HTTP, HttpConstants.REMOTE);
-        BMap<String, BValue> local = BLangConnectorSPIUtil.createBStruct(
-                httpResource.getBalResource().getResourceInfo().getPackageInfo().getProgramFile(),
-                PROTOCOL_PACKAGE_HTTP, HttpConstants.LOCAL);
+    public static void enrichHttpCallerWithConnectionInfo(ObjectValue httpCaller, HttpCarbonMessage inboundMsg,
+                                                          HttpResource httpResource, MapValue config) {
+        MapValue<String, Object> remote = BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP,
+                                                                            HttpConstants.REMOTE);
+        MapValue<String, Object> local = BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP, HttpConstants.LOCAL);
 
         Object remoteSocketAddress = inboundMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
         if (remoteSocketAddress instanceof InetSocketAddress) {
             InetSocketAddress inetSocketAddress = (InetSocketAddress) remoteSocketAddress;
             String remoteHost = inetSocketAddress.getHostName();
             long remotePort = inetSocketAddress.getPort();
-            remote.put(HttpConstants.REMOTE_HOST_FIELD, new BString(remoteHost));
-            remote.put(HttpConstants.REMOTE_PORT_FIELD, new BInteger(remotePort));
+            remote.put(HttpConstants.REMOTE_HOST_FIELD, remoteHost);
+            remote.put(HttpConstants.REMOTE_PORT_FIELD, remotePort);
         }
-        httpCaller.put(HttpConstants.REMOTE_STRUCT_FIELD, remote);
+        httpCaller.set(HttpConstants.REMOTE_STRUCT_FIELD, remote);
 
         Object localSocketAddress = inboundMsg.getProperty(HttpConstants.LOCAL_ADDRESS);
         if (localSocketAddress instanceof InetSocketAddress) {
             InetSocketAddress inetSocketAddress = (InetSocketAddress) localSocketAddress;
             String localHost = inetSocketAddress.getHostName();
             long localPort = inetSocketAddress.getPort();
-            local.put(HttpConstants.LOCAL_HOST_FIELD, new BString(localHost));
-            local.put(HttpConstants.LOCAL_PORT_FIELD, new BInteger(localPort));
+            local.put(HttpConstants.LOCAL_HOST_FIELD, localHost);
+            local.put(HttpConstants.LOCAL_PORT_FIELD, localPort);
         }
-        httpCaller.put(HttpConstants.LOCAL_STRUCT_INDEX, local);
-        httpCaller.put(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_FIELD,
-                new BString((String) inboundMsg.getProperty(HttpConstants.PROTOCOL)));
-        httpCaller.put(HttpConstants.SERVICE_ENDPOINT_CONFIG_FIELD, (BMap<String, BValue>) config.getVMValue());
+        httpCaller.set(HttpConstants.LOCAL_STRUCT_INDEX, local);
+        httpCaller.set(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_FIELD, inboundMsg.getProperty(HttpConstants.PROTOCOL));
+        httpCaller.set(HttpConstants.SERVICE_ENDPOINT_CONFIG_FIELD, config);
+        httpCaller.addNativeData(HttpConstants.HTTP_SERVICE, httpResource.getParentService());
     }
 
     /**
@@ -716,41 +747,37 @@ public class HttpUtil {
      * @param inboundResponse  Ballerina struct to represent response
      * @param entity    Entity of the response
      * @param mediaType Content type of the response
-     * @param programFile  Cache control struct which holds the cache control directives related to the
-*                              response
      * @param inboundResponseMsg      Represent carbon message.
      */
-    public static void populateInboundResponse(BMap<String, BValue> inboundResponse, BMap<String, BValue> entity,
-                                               BMap<String, BValue> mediaType, ProgramFile programFile,
-                                               HttpCarbonMessage inboundResponseMsg) {
+    public static void populateInboundResponse(ObjectValue inboundResponse, ObjectValue entity,
+                                               ObjectValue mediaType, HttpCarbonMessage inboundResponseMsg) {
         inboundResponse.addNativeData(TRANSPORT_MESSAGE, inboundResponseMsg);
-        int statusCode = (Integer) inboundResponseMsg.getProperty(HTTP_STATUS_CODE);
-        inboundResponse.put(RESPONSE_STATUS_CODE_FIELD, new BInteger(statusCode));
-        inboundResponse.put(RESPONSE_REASON_PHRASE_FIELD,
-                new BString(HttpResponseStatus.valueOf(statusCode).reasonPhrase()));
+        int statusCode = inboundResponseMsg.getHttpStatusCode();
+        inboundResponse.set(RESPONSE_STATUS_CODE_FIELD, (long) statusCode);
+        inboundResponse.set(RESPONSE_REASON_PHRASE_FIELD,
+                HttpResponseStatus.valueOf(statusCode).reasonPhrase());
 
         if (inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()) != null) {
-            inboundResponse.put(HttpConstants.RESPONSE_SERVER_FIELD,
-                    new BString(inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString())));
+            inboundResponse.set(HttpConstants.RESPONSE_SERVER_FIELD,
+                    inboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()));
             inboundResponseMsg.removeHeader(HttpHeaderNames.SERVER.toString());
         }
 
         if (inboundResponseMsg.getProperty(RESOLVED_REQUESTED_URI) != null) {
-            inboundResponse.put(RESOLVED_REQUESTED_URI_FIELD,
-                    new BString(inboundResponseMsg.getProperty(RESOLVED_REQUESTED_URI).toString()));
+            inboundResponse.set(RESOLVED_REQUESTED_URI_FIELD,
+                    inboundResponseMsg.getProperty(RESOLVED_REQUESTED_URI).toString());
         }
 
         String cacheControlHeader = inboundResponseMsg.getHeader(CACHE_CONTROL.toString());
         if (cacheControlHeader != null) {
-            ResponseCacheControlStruct responseCacheControl
-                    = new ResponseCacheControlStruct(
-                            programFile.getPackageInfo(PROTOCOL_PACKAGE_HTTP).getStructInfo(RESPONSE_CACHE_CONTROL));
+            ResponseCacheControlObj responseCacheControl
+                    = new ResponseCacheControlObj(PROTOCOL_PACKAGE_HTTP, RESPONSE_CACHE_CONTROL);
             responseCacheControl.populateStruct(cacheControlHeader);
-            inboundResponse.put(RESPONSE_CACHE_CONTROL_FIELD, responseCacheControl.getStruct());
+            inboundResponse.set(RESPONSE_CACHE_CONTROL_FIELD, responseCacheControl.getObj());
         }
 
         populateEntity(entity, mediaType, inboundResponseMsg);
-        inboundResponse.put(RESPONSE_ENTITY_FIELD, entity);
+        inboundResponse.set(RESPONSE_ENTITY_FIELD, entity);
         inboundResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
     }
 
@@ -761,8 +788,7 @@ public class HttpUtil {
      * @param mediaType mediaType struct that needs to be set to the entity
      * @param cMsg      Represent a carbon message
      */
-    private static void populateEntity(BMap<String, BValue> entity, BMap<String, BValue> mediaType,
-                                       HttpCarbonMessage cMsg) {
+    private static void populateEntity(ObjectValue entity, ObjectValue mediaType, HttpCarbonMessage cMsg) {
         String contentType = cMsg.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
         MimeUtil.setContentType(mediaType, entity, contentType);
         long contentLength = -1;
@@ -777,30 +803,30 @@ public class HttpUtil {
     }
 
     /**
-     * Set headers and properties of request/response struct to the outbound transport message.
+     * Set headers and properties of request/response object to the outbound transport message.
      *
      * @param outboundMsg    transport Http carbon message.
-     * @param outboundStruct req/resp struct.
+     * @param outboundMsgObj req/resp object.
      */
-    public static void enrichOutboundMessage(HttpCarbonMessage outboundMsg, BMap<String, BValue> outboundStruct) {
-        setHeadersToTransportMessage(outboundMsg, outboundStruct);
-        setPropertiesToTransportMessage(outboundMsg, outboundStruct);
+    public static void enrichOutboundMessage(HttpCarbonMessage outboundMsg, ObjectValue outboundMsgObj) {
+        setHeadersToTransportMessage(outboundMsg, outboundMsgObj);
+        setPropertiesToTransportMessage(outboundMsg, outboundMsgObj);
     }
 
     @SuppressWarnings("unchecked")
-    private static void setHeadersToTransportMessage(HttpCarbonMessage outboundMsg, BMap<String, BValue> struct) {
-        BMap<String, BValue> entityStruct = (BMap<String, BValue>) struct
-                .get(isRequestStruct(struct) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
+    private static void setHeadersToTransportMessage(HttpCarbonMessage outboundMsg, ObjectValue messageObj) {
+        ObjectValue entityObj = (ObjectValue) messageObj
+                .get(isRequest(messageObj) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
         HttpHeaders transportHeaders = outboundMsg.getHeaders();
-        if (isRequestStruct(struct) || isResponseStruct(struct)) {
-            addRemovedPropertiesBackToHeadersMap(struct, transportHeaders);
+        if (isRequest(messageObj) || isResponse(messageObj)) {
+            addRemovedPropertiesBackToHeadersMap(messageObj, transportHeaders);
             // Since now the InRequest & OutRequest are merged to a single Request and InResponse & OutResponse
             // are merged to a single Response, without returning need to populate all headers from the struct
             // to the HttpCarbonMessage.
             // TODO: refactor this logic properly.
             // return;
         }
-        HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        HttpHeaders httpHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS);
         if (httpHeaders != transportHeaders) {
             //This is done only when the entity map and transport message do not refer to the same header map
             if (httpHeaders != null) {
@@ -808,43 +834,42 @@ public class HttpUtil {
             }
             //Once the headers are synced, set the entity headers to transport message headers so that they
             //both refer the same header map for future operations
-            entityStruct.addNativeData(ENTITY_HEADERS, outboundMsg.getHeaders());
+            entityObj.addNativeData(ENTITY_HEADERS, outboundMsg.getHeaders());
         }
     }
 
-    public static boolean isRequestStruct(BMap<String, BValue> struct) {
-        return struct.getType().getName().equals(REQUEST);
+    private static boolean isRequest(ObjectValue value) {
+        return value.getType().getName().equals(REQUEST);
     }
 
-    private static boolean isResponseStruct(BMap<String, BValue> struct) {
-        return struct.getType().getName().equals(HttpConstants.RESPONSE);
+    private static boolean isResponse(ObjectValue value) {
+        return value.getType().getName().equals(HttpConstants.RESPONSE);
     }
 
-    private static void addRemovedPropertiesBackToHeadersMap(BMap<String, BValue> struct,
-                                                             HttpHeaders transportHeaders) {
-        if (isRequestStruct(struct)) {
-            BValue userAgent = struct.get(HttpConstants.REQUEST_USER_AGENT_FIELD);
-            if (userAgent != null && !userAgent.stringValue().isEmpty()) {
-                transportHeaders.set(HttpHeaderNames.USER_AGENT.toString(), userAgent.stringValue());
+    private static void addRemovedPropertiesBackToHeadersMap(ObjectValue messageObj, HttpHeaders transportHeaders) {
+        if (isRequest(messageObj)) {
+            Object userAgent = messageObj.get(HttpConstants.REQUEST_USER_AGENT_FIELD);
+            if (userAgent != null && !userAgent.toString().isEmpty()) {
+                transportHeaders.set(HttpHeaderNames.USER_AGENT.toString(), userAgent.toString());
             }
         } else {
-            BValue server = struct.get(HttpConstants.RESPONSE_SERVER_FIELD);
-            if (server != null && !server.stringValue().isEmpty()) {
-                transportHeaders.set(HttpHeaderNames.SERVER.toString(), server.stringValue());
+            Object server = messageObj.get(HttpConstants.RESPONSE_SERVER_FIELD);
+            if (server != null && !server.toString().isEmpty()) {
+                transportHeaders.set(HttpHeaderNames.SERVER.toString(), server.toString());
             }
         }
     }
 
-    private static void setPropertiesToTransportMessage(HttpCarbonMessage outboundResponseMsg,
-                                                        BMap<String, BValue> struct) {
-        if (isResponseStruct(struct)) {
-            long statusCode = ((BInteger) struct.get(RESPONSE_STATUS_CODE_FIELD)).intValue();
+    private static void setPropertiesToTransportMessage(HttpCarbonMessage outboundResponseMsg, ObjectValue messageObj) {
+        if (isResponse(messageObj)) {
+            //TODO fix following logic
+            long statusCode = (Long) messageObj.get(RESPONSE_STATUS_CODE_FIELD);
             if (statusCode != 0) {
-                outboundResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, getIntValue(statusCode));
+                outboundResponseMsg.setHttpStatusCode(getIntValue(statusCode));
             }
-            BValue respPhrase = struct.get(RESPONSE_REASON_PHRASE_FIELD);
-            if (respPhrase != null && !respPhrase.stringValue().isEmpty()) {
-                outboundResponseMsg.setProperty(HttpConstants.HTTP_REASON_PHRASE, respPhrase.stringValue());
+            Object respPhrase = messageObj.get(RESPONSE_REASON_PHRASE_FIELD);
+            if (respPhrase != null && !respPhrase.toString().isEmpty()) {
+                outboundResponseMsg.setProperty(HttpConstants.HTTP_REASON_PHRASE, respPhrase.toString());
             }
         }
     }
@@ -852,14 +877,12 @@ public class HttpUtil {
     /**
      * Check the existence of entity. Set new entity of not present.
      *
-     * @param context ballerina context.
-     * @param struct  request/response struct.
+     * @param value  request/response struct.
      */
-    public static void checkEntityAvailability(Context context, BMap<String, BValue> struct) {
-        BMap<String, BValue> entity = (BMap<String, BValue>) struct
-                .get(isRequestStruct(struct) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
+    public static void checkEntityAvailability(ObjectValue value) {
+        ObjectValue entity = (ObjectValue) value.get(isRequest(value) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
         if (entity == null) {
-            createNewEntity(context, struct);
+            createNewEntity(value);
         }
     }
 
@@ -878,32 +901,26 @@ public class HttpUtil {
     /**
      * Check the existence of the message entity data source.
      *
-     * @param struct  request/response struct.
+     * @param value  request/response object.
      * @return true if the message entity data source is available else false.
      */
-    public static boolean isEntityDataSourceAvailable(BMap<String, BValue> struct) {
-        BMap<String, BValue> entityStruct = (BMap<String, BValue>) struct
-                .get(isRequestStruct(struct) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
-        return (entityStruct != null && EntityBodyHandler.getMessageDataSource(entityStruct) != null);
+    public static boolean isEntityDataSourceAvailable(ObjectValue value) {
+        ObjectValue entityObj = (ObjectValue) value
+                .get(isRequest(value) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
+        return (entityObj != null && EntityBodyHandler.getMessageDataSource(entityObj) != null);
     }
 
-    private static void setCompressionHeaders(Context context, HttpCarbonMessage requestMsg, HttpCarbonMessage
-            outboundResponseMsg) {
-        Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
-                context.getServiceInfo().serviceValue);
-        Annotation configAnnot = getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
-        if (!checkConfigAnnotationAvailability(configAnnot)) {
+    private static void setCompressionHeaders(MapValue<String, Object> compressionConfig, HttpCarbonMessage requestMsg,
+                                              HttpCarbonMessage outboundResponseMsg) {
+        if (!checkConfigAnnotationAvailability(compressionConfig)) {
             return;
         }
         String contentEncoding = outboundResponseMsg.getHeaders().get(HttpHeaderNames.CONTENT_ENCODING);
         if (contentEncoding != null) {
             return;
         }
-
-        Struct compressionConfig = configAnnot.getValue().getStructField(ANN_CONFIG_ATTR_COMPRESSION);
         CompressionConfigState compressionState = getCompressionState(
-                compressionConfig.getStringField(ANN_CONFIG_ATTR_COMPRESSION_ENABLE));
-
+                compressionConfig.getStringValue(ANN_CONFIG_ATTR_COMPRESSION_ENABLE));
         if (compressionState == CompressionConfigState.NEVER) {
             outboundResponseMsg.getHeaders().set(HttpHeaderNames.CONTENT_ENCODING, HTTP_TRANSFER_ENCODING_IDENTITY);
             return;
@@ -911,7 +928,7 @@ public class HttpUtil {
 
         String acceptEncodingValue = requestMsg.getHeaders().get(HttpHeaderNames.ACCEPT_ENCODING);
         List<String> contentTypesAnnotationValues = getAsStringList(
-                compressionConfig.getArrayField(ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES));
+                compressionConfig.getArrayValue(ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES).getStringArray());
         String contentType = outboundResponseMsg.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
 
         if (contentTypesAnnotationValues.isEmpty() || isContentTypeMatched(contentTypesAnnotationValues, contentType)) {
@@ -941,13 +958,13 @@ public class HttpUtil {
         return contentType != null && contentTypes.stream().anyMatch(contentType.toLowerCase()::contains);
     }
 
-    private static List<String> getAsStringList(Value[] values) {
+    private static List<String> getAsStringList(Object[] values) {
         List<String> valuesList = new ArrayList<>();
         if (values == null) {
             return valuesList;
         }
-        for (Value val : values) {
-            valuesList.add(val.getStringValue().trim().toLowerCase());
+        for (Object val : values) {
+            valuesList.add(val.toString().trim().toLowerCase());
         }
         return valuesList;
     }
@@ -1012,20 +1029,20 @@ public class HttpUtil {
         return httpCarbonMessage;
     }
 
-    public static void checkFunctionValidity(BMap<String, BValue> connectionStruct, HttpCarbonMessage reqMsg,
+    public static void checkFunctionValidity(ObjectValue connectionObj, HttpCarbonMessage reqMsg,
                                              HttpCarbonMessage outboundResponseMsg) {
         serverConnectionStructCheck(reqMsg);
-        int statusCode = (int) outboundResponseMsg.getProperty(HttpConstants.HTTP_STATUS_CODE);
-        methodInvocationCheck(connectionStruct, reqMsg, statusCode);
+        int statusCode = outboundResponseMsg.getHttpStatusCode();
+        methodInvocationCheck(connectionObj, reqMsg, statusCode);
     }
 
-    private static void methodInvocationCheck(BMap<String, BValue> bStruct, HttpCarbonMessage reqMsg, int statusCode) {
-        if (bStruct.getNativeData(METHOD_ACCESSED) != null || reqMsg == null) {
+    private static void methodInvocationCheck(ObjectValue connectionObj, HttpCarbonMessage reqMsg, int statusCode) {
+        if (connectionObj.getNativeData(METHOD_ACCESSED) != null || reqMsg == null) {
             throw new IllegalStateException("illegal function invocation");
         }
 
         if (!is100ContinueRequest(reqMsg, statusCode)) {
-            bStruct.addNativeData(METHOD_ACCESSED, true);
+            connectionObj.addNativeData(METHOD_ACCESSED, true);
         }
     }
 
@@ -1040,82 +1057,13 @@ public class HttpUtil {
                 reqMsg.getHeader(HttpHeaderNames.EXPECT.toString())) || statusCode == 100;
     }
 
-    public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
-        List<Annotation> annotationList = service
-                .getAnnotationList(pkgPath, HttpConstants.ANN_NAME_HTTP_SERVICE_CONFIG);
-
-        if (annotationList == null) {
-            return null;
-        }
-
-        if (annotationList.size() > 1) {
-            throw new BallerinaException(
-                    "multiple service configuration annotations found in service: " + service.getName());
-        }
-
-        return annotationList.isEmpty() ? null : annotationList.get(0);
+    public static MapValue getResourceConfigAnnotation(AttachedFunction resource, String pkgPath) {
+        return (MapValue) resource.getAnnotation(pkgPath, HttpConstants.ANN_NAME_RESOURCE_CONFIG);
     }
 
-    public static Annotation getServiceConfigStruct(Service service, String pkgPath) {
-        List<Annotation> annotationList = service.getAnnotationList(pkgPath, HttpConstants.ANN_NAME_CONFIG);
-
-        if (annotationList == null) {
-            return null;
-        }
-
-        if (annotationList.size() > 1) {
-            throw new BallerinaException(
-                    "multiple service configuration annotations found in service: " + service.getName());
-        }
-
-        return annotationList.isEmpty() ? null : annotationList.get(0);
-    }
-
-//    protected static void populateKeepAliveAndCompressionStatus(HttpService service, Annotation annotation) {
-//        if (annotation == null) {
-//            return;
-//        }
-//        AnnAttrValue keepAliveAttrVal = annotation.getAnnAttrValue(HttpConstants.ANN_CONFIG_ATTR_KEEP_ALIVE);
-//        if (keepAliveAttrVal != null) {
-//            service.setKeepAlive(keepAliveAttrVal.getBooleanValue());
-//        }
-//
-//        AnnAttrValue compressionEnabled = annotation.getAnnAttrValue(
-//                HttpConstants.ANN_CONFIG_ATTR_COMPRESSION_ENABLED);
-//        if (compressionEnabled != null) {
-//            service.setCompressionEnabled(compressionEnabled.getBooleanValue());
-//        }
-//    }
-
-    public static Annotation getResourceConfigAnnotation(Resource resource, String pkgPath) {
-        List<Annotation> annotationList = resource.getAnnotationList(pkgPath, HttpConstants.ANN_NAME_RESOURCE_CONFIG);
-
-        if (annotationList == null) {
-            return null;
-        }
-
-        if (annotationList.size() > 1) {
-            throw new BallerinaException(
-                    "multiple resource configuration annotations found in resource: " +
-                            resource.getServiceName() + "." + resource.getName());
-        }
-
-        return annotationList.isEmpty() ? null : annotationList.get(0);
-    }
-
-    public static Annotation getTransactionConfigAnnotation(Resource resource, String transactionPackagePath) {
-        List<Annotation> annotationList = resource.getAnnotationList(transactionPackagePath,
-                TransactionConstants.ANN_NAME_TRX_PARTICIPANT_CONFIG);
-
-        if (annotationList == null || annotationList.isEmpty()) {
-            return null;
-        }
-        if (annotationList.size() > 1) {
-            throw new BallerinaException(
-                    "multiple transaction configuration annotations found in resource: " +
-                            resource.getServiceName() + "." + resource.getName());
-        }
-        return annotationList.get(0);
+    public static MapValue getTransactionConfigAnnotation(AttachedFunction resource, String transactionPackagePath) {
+        return (MapValue) resource.getAnnotation(transactionPackagePath,
+                                                 TransactionConstants.ANN_NAME_TRX_PARTICIPANT_CONFIG);
     }
 
     private static int getIntValue(long val) {
@@ -1142,9 +1090,9 @@ public class HttpUtil {
      */
     public static String addBoundaryIfNotExist(HttpCarbonMessage transportMessage, String contentType) {
         String boundaryString;
-        BString boundaryValue = HeaderUtil.extractBoundaryParameter(contentType);
-        boundaryString = boundaryValue != null ? boundaryValue.toString() :
-                HttpUtil.addBoundaryParameter(transportMessage, contentType);
+        String boundaryValue = HeaderUtil.extractBoundaryParameter(contentType);
+        boundaryString = boundaryValue != null ? boundaryValue : HttpUtil.addBoundaryParameter(transportMessage,
+                                                                                               contentType);
         return boundaryString;
     }
 
@@ -1169,20 +1117,20 @@ public class HttpUtil {
         return new DefaultHttpWsConnectorFactory();
     }
 
-    public static void checkAndObserveHttpRequest(Context context, HttpCarbonMessage message) {
-        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
+    public static void checkAndObserveHttpRequest(Strand strand, HttpCarbonMessage message) {
+        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(strand);
         observerContext.ifPresent(ctx -> {
-            HttpUtil.injectHeaders(message, ObserveUtils.getContextProperties(ctx));
-            ctx.addTag(TAG_KEY_HTTP_METHOD, String.valueOf(message.getProperty(HttpConstants.HTTP_METHOD)));
-            ctx.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
-            ctx.addTag(TAG_KEY_PEER_ADDRESS,
+            HttpUtil.injectHeaders(message, ObserveUtils.getContextProperties(strand.observerContext));
+            strand.observerContext.addTag(TAG_KEY_HTTP_METHOD, message.getHttpMethod());
+            strand.observerContext.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
+            strand.observerContext.addTag(TAG_KEY_PEER_ADDRESS,
                        message.getProperty(PROPERTY_HTTP_HOST) + ":" + message.getProperty(PROPERTY_HTTP_PORT));
             // Add HTTP Status Code tag. The HTTP status code will be set using the response message.
             // Sometimes the HTTP status code will not be set due to errors etc. Therefore, it's very important to set
             // some value to HTTP Status Code to make sure that tags will not change depending on various
             // circumstances.
             // HTTP Status code must be a number.
-            ctx.addTag(TAG_KEY_HTTP_STATUS_CODE, Integer.toString(0));
+            strand.observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE, Integer.toString(0));
         });
     }
 
@@ -1192,56 +1140,45 @@ public class HttpUtil {
         }
     }
 
-    private static void setChunkingHeader(Context context, HttpCarbonMessage
-            outboundResponseMsg) {
-        Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
-                context.getServiceInfo().serviceValue);
-        Annotation configAnnot = getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
-        if (!checkConfigAnnotationAvailability(configAnnot)) {
+    private static void setChunkingHeader(String transferValue, HttpCarbonMessage outboundResponseMsg) {
+        if (transferValue == null) { //TODO check this logic - chamil
             return;
         }
-        String transferValue = configAnnot.getValue().getRefField(ANN_CONFIG_ATTR_CHUNKING).getStringValue();
-        if (transferValue != null) {
-            outboundResponseMsg.setProperty(CHUNKING_CONFIG, getChunkConfig(transferValue));
-        }
+        outboundResponseMsg.setProperty(CHUNKING_CONFIG, getChunkConfig(transferValue));
     }
 
     /**
      * Creates InResponse using the native {@code HttpCarbonMessage}.
      *
-     * @param context           ballerina context
      * @param httpCarbonMessage the HttpCarbonMessage
      * @return the Response struct
      */
-    public static BMap<String, BValue> createResponseStruct(Context context, HttpCarbonMessage httpCarbonMessage) {
-        BMap<String, BValue> responseStruct = BLangConnectorSPIUtil.createBStruct(context,
-                HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.RESPONSE);
-        BMap<String, BValue> entity =
-                BLangConnectorSPIUtil.createBStruct(context, PROTOCOL_PACKAGE_MIME, HttpConstants.ENTITY);
-        BMap<String, BValue> mediaType =
-                BLangConnectorSPIUtil.createBStruct(context, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
+    public static ObjectValue createResponseStruct(HttpCarbonMessage httpCarbonMessage) {
+        ObjectValue responseObj = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_PACKAGE_HTTP,
+                                                                    HttpConstants.RESPONSE);
+        ObjectValue entity = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, HttpConstants.ENTITY);
+        ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
 
-        HttpUtil.populateInboundResponse(responseStruct, entity, mediaType, context.getProgramFile(),
-                httpCarbonMessage);
-        return responseStruct;
+        HttpUtil.populateInboundResponse(responseObj, entity, mediaType, httpCarbonMessage);
+        return responseObj;
     }
 
-    public static void populateSenderConfigurations(SenderConfiguration senderConfiguration, Struct
+    public static void populateSenderConfigurations(SenderConfiguration senderConfiguration, MapValue<String, Object>
             clientEndpointConfig) {
         ProxyServerConfiguration proxyServerConfiguration;
-        Struct secureSocket = clientEndpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
+        MapValue secureSocket = clientEndpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
 
         if (secureSocket != null) {
             HttpUtil.populateSSLConfiguration(senderConfiguration, secureSocket);
         } else {
             HttpUtil.setDefaultTrustStore(senderConfiguration);
         }
-        Struct proxy = clientEndpointConfig.getStructField(HttpConstants.PROXY_STRUCT_REFERENCE);
+        MapValue proxy = clientEndpointConfig.getMapValue(HttpConstants.PROXY_STRUCT_REFERENCE);
         if (proxy != null) {
-            String proxyHost = proxy.getStringField(HttpConstants.PROXY_HOST);
-            int proxyPort = (int) proxy.getIntField(HttpConstants.PROXY_PORT);
-            String proxyUserName = proxy.getStringField(HttpConstants.PROXY_USERNAME);
-            String proxyPassword = proxy.getStringField(HttpConstants.PROXY_PASSWORD);
+            String proxyHost = proxy.getStringValue(HttpConstants.PROXY_HOST);
+            int proxyPort = proxy.getIntValue(HttpConstants.PROXY_PORT).intValue();
+            String proxyUserName = proxy.getStringValue(HttpConstants.PROXY_USERNAME);
+            String proxyPassword = proxy.getStringValue(HttpConstants.PROXY_PASSWORD);
             try {
                 proxyServerConfiguration = new ProxyServerConfiguration(proxyHost, proxyPort);
             } catch (UnknownHostException e) {
@@ -1256,29 +1193,23 @@ public class HttpUtil {
             senderConfiguration.setProxyServerConfiguration(proxyServerConfiguration);
         }
 
-        String chunking = clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_CHUNKING).getStringValue();
-        senderConfiguration.setChunkingConfig(HttpUtil.getChunkConfig(chunking));
-
-        long timeoutMillis = clientEndpointConfig.getIntField(HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT);
+        long timeoutMillis = clientEndpointConfig.getIntValue(HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT);
         if (timeoutMillis < 0) {
             senderConfiguration.setSocketIdleTimeout(0);
         } else {
             senderConfiguration.setSocketIdleTimeout(
                     validateConfig(timeoutMillis, HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT));
         }
-        String keepAliveConfig = clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_IS_KEEP_ALIVE)
-                .getStringValue();
-        senderConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAliveConfig));
 
-        String httpVersion = clientEndpointConfig.getStringField(HttpConstants.CLIENT_EP_HTTP_VERSION);
+        String httpVersion = clientEndpointConfig.getStringValue(HttpConstants.CLIENT_EP_HTTP_VERSION);
         if (httpVersion != null) {
             senderConfiguration.setHttpVersion(httpVersion);
         }
-        String forwardedExtension = clientEndpointConfig.getStringField(HttpConstants.CLIENT_EP_FORWARDED);
+        String forwardedExtension = clientEndpointConfig.getStringValue(HttpConstants.CLIENT_EP_FORWARDED);
         senderConfiguration.setForwardedExtensionConfig(HttpUtil.getForwardedExtensionConfig(forwardedExtension));
     }
 
-    public static ConnectionManager getConnectionManager(BMap<String, BValue> poolStruct) {
+    public static ConnectionManager getConnectionManager(MapValue<String, Long> poolStruct) {
         ConnectionManager poolManager = (ConnectionManager) poolStruct.getNativeData(CONNECTION_MANAGER);
         if (poolManager == null) {
             synchronized (poolStruct) {
@@ -1293,22 +1224,19 @@ public class HttpUtil {
         return poolManager;
     }
 
-    public static void populatePoolingConfig(BMap<String, BValue> poolRecord, PoolConfiguration poolConfiguration) {
-        long maxActiveConnections = ((BInteger) poolRecord
-                .get(HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS)).intValue();
+    public static void populatePoolingConfig(MapValue<String, Long> poolRecord, PoolConfiguration poolConfiguration) {
+        long maxActiveConnections = poolRecord.get(HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS);
         poolConfiguration.setMaxActivePerPool(
                 validateConfig(maxActiveConnections, HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_CONNECTIONS));
 
-        long maxIdleConnections = ((BInteger) poolRecord
-                .get(HttpConstants.CONNECTION_POOLING_MAX_IDLE_CONNECTIONS)).intValue();
+        long maxIdleConnections = poolRecord.get(HttpConstants.CONNECTION_POOLING_MAX_IDLE_CONNECTIONS);
         poolConfiguration.setMaxIdlePerPool(
                 validateConfig(maxIdleConnections, HttpConstants.CONNECTION_POOLING_MAX_IDLE_CONNECTIONS));
 
-        long waitTime = ((BInteger) poolRecord.get(HttpConstants.CONNECTION_POOLING_WAIT_TIME)).intValue();
+        long waitTime = poolRecord.get(HttpConstants.CONNECTION_POOLING_WAIT_TIME);
         poolConfiguration.setMaxWaitTime(waitTime);
 
-        long maxActiveStreamsPerConnection = ((BInteger) poolRecord.
-                get(CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION)).intValue();
+        long maxActiveStreamsPerConnection = poolRecord.get(CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION);
         poolConfiguration.setHttp2MaxActiveStreamsPerConnection(
                 maxActiveStreamsPerConnection == -1 ? Integer.MAX_VALUE : validateConfig(maxActiveStreamsPerConnection,
                                                                 CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION));
@@ -1330,25 +1258,30 @@ public class HttpUtil {
      * @param sslConfiguration  ssl configuration instance.
      * @param secureSocket    secure socket configuration.
      */
-    public static void populateSSLConfiguration(SslConfiguration sslConfiguration, Struct secureSocket) {
-        Struct trustStore = secureSocket.getStructField(ENDPOINT_CONFIG_TRUST_STORE);
-        Struct keyStore = secureSocket.getStructField(ENDPOINT_CONFIG_KEY_STORE);
-        Struct protocols = secureSocket.getStructField(ENDPOINT_CONFIG_PROTOCOLS);
-        Struct validateCert = secureSocket.getStructField(ENDPOINT_CONFIG_VALIDATE_CERT);
-        String keyFile = secureSocket.getStringField(ENDPOINT_CONFIG_KEY);
-        String certFile = secureSocket.getStringField(ENDPOINT_CONFIG_CERTIFICATE);
-        String trustCerts = secureSocket.getStringField(ENDPOINT_CONFIG_TRUST_CERTIFICATES);
-        String keyPassword = secureSocket.getStringField(ENDPOINT_CONFIG_KEY_PASSWORD);
+    public static void populateSSLConfiguration(SslConfiguration sslConfiguration, MapValue secureSocket) {
+        MapValue trustStore = secureSocket.getMapValue(ENDPOINT_CONFIG_TRUST_STORE);
+        MapValue keyStore = secureSocket.getMapValue(ENDPOINT_CONFIG_KEY_STORE);
+        MapValue protocols = secureSocket.getMapValue(ENDPOINT_CONFIG_PROTOCOLS);
+        MapValue validateCert = secureSocket.getMapValue(ENDPOINT_CONFIG_VALIDATE_CERT);
+        String keyFile = secureSocket.getStringValue(ENDPOINT_CONFIG_KEY);
+        String certFile = secureSocket.getStringValue(ENDPOINT_CONFIG_CERTIFICATE);
+        String trustCerts = secureSocket.getStringValue(ENDPOINT_CONFIG_TRUST_CERTIFICATES);
+        String keyPassword = secureSocket.getStringValue(ENDPOINT_CONFIG_KEY_PASSWORD);
+        boolean disableSslValidation = secureSocket.getBooleanValue(ENDPOINT_CONFIG_DISABLE_SSL);
         List<Parameter> clientParams = new ArrayList<>();
+        if (disableSslValidation) {
+            sslConfiguration.disableSsl();
+            return;
+        }
         if (trustStore != null && StringUtils.isNotBlank(trustCerts)) {
             throw new BallerinaException("Cannot configure both trustStore and trustCerts at the same time.");
         }
         if (trustStore != null) {
-            String trustStoreFile = trustStore.getStringField(FILE_PATH);
+            String trustStoreFile = trustStore.getStringValue(FILE_PATH);
             if (StringUtils.isNotBlank(trustStoreFile)) {
                 sslConfiguration.setTrustStoreFile(trustStoreFile);
             }
-            String trustStorePassword = trustStore.getStringField(PASSWORD);
+            String trustStorePassword = trustStore.getStringValue(PASSWORD);
             if (StringUtils.isNotBlank(trustStorePassword)) {
                 sslConfiguration.setTrustStorePass(trustStorePassword);
             }
@@ -1361,11 +1294,11 @@ public class HttpUtil {
             throw new BallerinaException("Need to configure certFile containing client ssl certificates.");
         }
         if (keyStore != null) {
-            String keyStoreFile = keyStore.getStringField(FILE_PATH);
+            String keyStoreFile = keyStore.getStringValue(FILE_PATH);
             if (StringUtils.isNotBlank(keyStoreFile)) {
                 sslConfiguration.setKeyStoreFile(keyStoreFile);
             }
-            String keyStorePassword = keyStore.getStringField(PASSWORD);
+            String keyStorePassword = keyStore.getStringValue(PASSWORD);
             if (StringUtils.isNotBlank(keyStorePassword)) {
                 sslConfiguration.setKeyStorePass(keyStorePassword);
             }
@@ -1377,25 +1310,27 @@ public class HttpUtil {
             }
         }
         if (protocols != null) {
-            List<Value> sslEnabledProtocolsValueList = Arrays
-                    .asList(protocols.getArrayField(ENABLED_PROTOCOLS));
-            if (sslEnabledProtocolsValueList.size() > 0) {
-                String sslEnabledProtocols = sslEnabledProtocolsValueList.stream().map(Value::getStringValue)
-                        .collect(Collectors.joining(",", "", ""));
-                Parameter clientProtocols = new Parameter(SSL_ENABLED_PROTOCOLS, sslEnabledProtocols);
-                clientParams.add(clientProtocols);
-            }
-            String sslProtocol = protocols.getStringField(PROTOCOL_VERSION);
-            if (StringUtils.isNotBlank(sslProtocol)) {
-                sslConfiguration.setSSLProtocol(sslProtocol);
+            Object[] protocolConfig = protocols.getArrayValue(ENABLED_PROTOCOLS).getValues();
+            if (protocolConfig != null) {
+                List<Object> sslEnabledProtocolsValueList = Arrays.asList(protocolConfig);
+                if (sslEnabledProtocolsValueList.size() > 0) {
+                    String sslEnabledProtocols = sslEnabledProtocolsValueList.stream().map(Object::toString)
+                            .collect(Collectors.joining(",", "", ""));
+                    Parameter clientProtocols = new Parameter(SSL_ENABLED_PROTOCOLS, sslEnabledProtocols);
+                    clientParams.add(clientProtocols);
+                }
+                String sslProtocol = protocols.getStringValue(SSL_PROTOCOL_VERSION);
+                if (StringUtils.isNotBlank(sslProtocol)) {
+                    sslConfiguration.setSSLProtocol(sslProtocol);
+                }
             }
         }
 
         if (validateCert != null) {
-            boolean validateCertEnabled = validateCert.getBooleanField(HttpConstants.ENABLE);
-            int cacheSize = (int) validateCert.getIntField(HttpConstants.SSL_CONFIG_CACHE_SIZE);
-            int cacheValidityPeriod = (int) validateCert
-                    .getIntField(HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);
+            boolean validateCertEnabled = validateCert.getBooleanValue(HttpConstants.ENABLE);
+            int cacheSize = validateCert.getIntValue(HttpConstants.SSL_CONFIG_CACHE_SIZE).intValue();
+            int cacheValidityPeriod = validateCert.getIntValue(HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD)
+                    .intValue();
             sslConfiguration.setValidateCertEnabled(validateCertEnabled);
             if (cacheValidityPeriod != 0) {
                 sslConfiguration.setCacheValidityPeriod(cacheValidityPeriod);
@@ -1405,25 +1340,28 @@ public class HttpUtil {
             }
         }
         boolean hostNameVerificationEnabled = secureSocket
-                .getBooleanField(HttpConstants.SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED);
-        boolean ocspStaplingEnabled = secureSocket.getBooleanField(HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING);
+                .getBooleanValue(HttpConstants.SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED);
+        boolean ocspStaplingEnabled = secureSocket.getBooleanValue(HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING);
         sslConfiguration.setOcspStaplingEnabled(ocspStaplingEnabled);
         sslConfiguration.setHostNameVerificationEnabled(hostNameVerificationEnabled);
 
         sslConfiguration
-                .setSslSessionTimeOut((int) secureSocket.getDefaultableIntField(ENDPOINT_CONFIG_SESSION_TIMEOUT));
+                .setSslSessionTimeOut((int) secureSocket.getDefaultableIntValue(ENDPOINT_CONFIG_SESSION_TIMEOUT));
 
-        sslConfiguration.setSslHandshakeTimeOut(secureSocket.getDefaultableIntField(ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT));
+        sslConfiguration.setSslHandshakeTimeOut(secureSocket.getDefaultableIntValue(ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT));
 
-        List<Value> ciphersValueList = Arrays.asList(secureSocket.getArrayField(HttpConstants.SSL_CONFIG_CIPHERS));
-        if (ciphersValueList.size() > 0) {
-            String ciphers = ciphersValueList.stream().map(Value::getStringValue)
-                    .collect(Collectors.joining(",", "", ""));
-            Parameter clientCiphers = new Parameter(HttpConstants.CIPHERS, ciphers);
-            clientParams.add(clientCiphers);
+        Object[] cipherConfigs = secureSocket.getArrayValue(HttpConstants.SSL_CONFIG_CIPHERS).getStringArray();
+        if (cipherConfigs != null) {
+            List<Object> ciphersValueList = Arrays.asList(cipherConfigs);
+            if (ciphersValueList.size() > 0) {
+                String ciphers = ciphersValueList.stream().map(Object::toString)
+                        .collect(Collectors.joining(",", "", ""));
+                Parameter clientCiphers = new Parameter(HttpConstants.CIPHERS, ciphers);
+                clientParams.add(clientCiphers);
+            }
         }
         String enableSessionCreation = String.valueOf(secureSocket
-                .getBooleanField(HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION));
+                .getBooleanValue(HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION));
         Parameter clientEnableSessionCreation = new Parameter(HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION,
                 enableSessionCreation);
         clientParams.add(clientEnableSessionCreation);
@@ -1464,14 +1402,38 @@ public class HttpUtil {
      * @param messageOutputStream   Represent the output stream
      * @throws IOException In case an error occurs while writing to output stream
      */
-    public static void serializeDataSource(BValue outboundMessageSource, BMap<String, BValue> entity,
+    public static void serializeDataSource(Object outboundMessageSource, ObjectValue entity,
                                            OutputStream messageOutputStream) throws IOException {
         if (MimeUtil.generateAsJSON(outboundMessageSource, entity)) {
-            JsonGenerator gen = new JsonGenerator(messageOutputStream);
+            JSONGenerator gen = new JSONGenerator(messageOutputStream);
             gen.serialize(outboundMessageSource);
             gen.flush();
         } else {
-            outboundMessageSource.serialize(messageOutputStream);
+            serialize(outboundMessageSource, messageOutputStream);
+        }
+    }
+
+    public static void serialize(Object value, OutputStream outputStream) throws IOException {
+        //TODO check the possibility of value being null
+        if (value == null) {
+            throw new BallerinaException("error occurred while serializing null data");
+        } else if (value instanceof ArrayValue) {
+            if (value instanceof StreamingJsonValue) {
+                ((StreamingJsonValue) value).serialize(outputStream);
+            } else {
+                ((ArrayValue) value).serialize(outputStream);
+            }
+        } else if (value instanceof MultipartDataSource) {
+            ((MultipartDataSource) value).serialize(outputStream);
+        } else if (value instanceof XMLItem) {
+            ((XMLItem) value).serialize(outputStream);
+        } else if (value instanceof XMLSequence) {
+            ((XMLSequence) value).serialize(outputStream);
+        } else if (value instanceof Long || value instanceof String ||
+                value instanceof Double || value instanceof Integer || value instanceof Boolean) {
+            outputStream.write(value.toString().getBytes(Charset.defaultCharset()));
+        } else {
+            ((RefValue) value).serialize(outputStream);
         }
     }
 
@@ -1481,8 +1443,8 @@ public class HttpUtil {
      * @param configAnnotation      Represent the annotation
      * @return True if the annotation and the annotation value are available
      */
-    public static boolean checkConfigAnnotationAvailability(Annotation configAnnotation) {
-        return configAnnotation != null && configAnnotation.getValue() != null;
+    public static boolean checkConfigAnnotationAvailability(MapValue configAnnotation) {
+        return configAnnotation != null;
     }
 
     /**
@@ -1492,15 +1454,22 @@ public class HttpUtil {
      * @param endpointConfig    listener endpoint configuration.
      * @return                  transport listener configuration instance.
      */
-    public static ListenerConfiguration getListenerConfig(long port, Struct endpointConfig) {
-        String host = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_HOST);
-        String keepAlive = endpointConfig.getRefField(HttpConstants.ENDPOINT_CONFIG_KEEP_ALIVE).getStringValue();
-        Struct sslConfig = endpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
-        String httpVersion = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_VERSION);
-        Struct requestLimits = endpointConfig.getStructField(HttpConstants.ENDPOINT_REQUEST_LIMITS);
-        long idleTimeout = endpointConfig.getIntField(HttpConstants.ENDPOINT_CONFIG_TIMEOUT);
+    public static ListenerConfiguration getListenerConfig(long port, MapValue endpointConfig) {
+        String host = endpointConfig.getStringValue(HttpConstants.ENDPOINT_CONFIG_HOST);
+        MapValue sslConfig = endpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
+        String httpVersion = endpointConfig.getStringValue(HttpConstants.ENDPOINT_CONFIG_VERSION);
+        MapValue requestLimits = endpointConfig.getMapValue(HttpConstants.ENDPOINT_REQUEST_LIMITS);
+        long idleTimeout = endpointConfig.getIntValue(HttpConstants.ENDPOINT_CONFIG_TIMEOUT);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
+        if (HTTP_1_1_VERSION.equals(httpVersion)) {
+            MapValue<String, Object> http1Settings = (MapValue<String, Object>) endpointConfig.get(
+                    HttpConstants.HTTP1_SETTINGS);
+            listenerConfiguration.setPipeliningLimit(http1Settings.getIntValue(
+                    HttpConstants.PIPELINING_REQUEST_LIMIT));
+            String keepAlive = http1Settings.getStringValue(HttpConstants.ENDPOINT_CONFIG_KEEP_ALIVE);
+            listenerConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAlive));
+        }
 
         if (host == null || host.trim().isEmpty()) {
             listenerConfiguration.setHost(ConfigRegistry.getInstance().getConfigOrDefault("b7a.http.host",
@@ -1513,8 +1482,6 @@ public class HttpUtil {
             throw new BallerinaConnectorException("Listener port is not defined!");
         }
         listenerConfiguration.setPort(Math.toIntExact(port));
-
-        listenerConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAlive));
 
         // Set Request validation limits.
         if (requestLimits != null) {
@@ -1532,42 +1499,40 @@ public class HttpUtil {
             listenerConfiguration.setVersion(httpVersion);
         }
 
-        listenerConfiguration.setServerHeader(getServerName());
+        if (endpointConfig.getType().getName().equalsIgnoreCase(SERVER_ENDPOINT_CONFIG)) {
+            String serverName = endpointConfig.getStringValue(SERVER_NAME);
+            listenerConfiguration.setServerHeader(serverName != null ? serverName : getServerName());
+        } else {
+            listenerConfiguration.setServerHeader(getServerName());
+        }
 
         if (sslConfig != null) {
             return setSslConfig(sslConfig, listenerConfiguration);
         }
 
         listenerConfiguration.setPipeliningEnabled(true); //Pipelining is enabled all the time
-        listenerConfiguration.setPipeliningLimit(endpointConfig.getIntField(
-                HttpConstants.PIPELINING_REQUEST_LIMIT));
 
         return listenerConfiguration;
     }
 
-    private static void setRequestSizeValidationConfig(Struct requestLimits,
+    private static void setRequestSizeValidationConfig(MapValue requestLimits,
                                                      ListenerConfiguration listenerConfiguration) {
-        long maxUriLength = requestLimits.getIntField(HttpConstants.REQUEST_LIMITS_MAXIMUM_URL_LENGTH);
-        long maxHeaderSize = requestLimits.getIntField(HttpConstants.REQUEST_LIMITS_MAXIMUM_HEADER_SIZE);
-        long maxEntityBodySize = requestLimits.getIntField(HttpConstants.REQUEST_LIMITS_MAXIMUM_ENTITY_BODY_SIZE);
+        long maxUriLength = requestLimits.getIntValue(HttpConstants.REQUEST_LIMITS_MAXIMUM_URL_LENGTH);
+        long maxHeaderSize = requestLimits.getIntValue(HttpConstants.REQUEST_LIMITS_MAXIMUM_HEADER_SIZE);
+        long maxEntityBodySize = requestLimits.getIntValue(HttpConstants.REQUEST_LIMITS_MAXIMUM_ENTITY_BODY_SIZE);
         RequestSizeValidationConfig requestSizeValidationConfig = listenerConfiguration
                 .getRequestSizeValidationConfig();
 
-        if (maxUriLength != -1) {
-            if (maxUriLength >= 0) {
-                requestSizeValidationConfig.setMaxUriLength(Math.toIntExact(maxUriLength));
-            } else {
-                throw new BallerinaConnectorException("Invalid configuration found for maxUriLength : " + maxUriLength);
-            }
+        if (maxUriLength >= 0) {
+            requestSizeValidationConfig.setMaxUriLength(Math.toIntExact(maxUriLength));
+        } else {
+            throw new BallerinaConnectorException("Invalid configuration found for maxUriLength : " + maxUriLength);
         }
 
-        if (maxHeaderSize != -1) {
-            if (maxHeaderSize >= 0) {
-                requestSizeValidationConfig.setMaxHeaderSize(Math.toIntExact(maxHeaderSize));
-            } else {
-                throw new BallerinaConnectorException(
-                        "Invalid configuration found for maxHeaderSize : " + maxHeaderSize);
-            }
+        if (maxHeaderSize >= 0) {
+            requestSizeValidationConfig.setMaxHeaderSize(Math.toIntExact(maxHeaderSize));
+        } else {
+            throw new BallerinaConnectorException("Invalid configuration found for maxHeaderSize : " + maxHeaderSize);
         }
 
         if (maxEntityBodySize != -1) {
@@ -1591,17 +1556,17 @@ public class HttpUtil {
         return userAgent;
     }
 
-    private static ListenerConfiguration setSslConfig(Struct sslConfig, ListenerConfiguration listenerConfiguration) {
+    private static ListenerConfiguration setSslConfig(MapValue sslConfig, ListenerConfiguration listenerConfiguration) {
         listenerConfiguration.setScheme(PROTOCOL_HTTPS);
-        Struct trustStore = sslConfig.getStructField(ENDPOINT_CONFIG_TRUST_STORE);
-        Struct keyStore = sslConfig.getStructField(ENDPOINT_CONFIG_KEY_STORE);
-        Struct protocols = sslConfig.getStructField(ENDPOINT_CONFIG_PROTOCOLS);
-        Struct validateCert = sslConfig.getStructField(ENDPOINT_CONFIG_VALIDATE_CERT);
-        Struct ocspStapling = sslConfig.getStructField(ENDPOINT_CONFIG_OCSP_STAPLING);
-        String keyFile = sslConfig.getStringField(ENDPOINT_CONFIG_KEY);
-        String certFile = sslConfig.getStringField(ENDPOINT_CONFIG_CERTIFICATE);
-        String trustCerts = sslConfig.getStringField(ENDPOINT_CONFIG_TRUST_CERTIFICATES);
-        String keyPassword = sslConfig.getStringField(ENDPOINT_CONFIG_KEY_PASSWORD);
+        MapValue trustStore = sslConfig.getMapValue(ENDPOINT_CONFIG_TRUST_STORE);
+        MapValue keyStore = sslConfig.getMapValue(ENDPOINT_CONFIG_KEY_STORE);
+        MapValue protocols = sslConfig.getMapValue(ENDPOINT_CONFIG_PROTOCOLS);
+        MapValue validateCert = sslConfig.getMapValue(ENDPOINT_CONFIG_VALIDATE_CERT);
+        MapValue ocspStapling = sslConfig.getMapValue(ENDPOINT_CONFIG_OCSP_STAPLING);
+        String keyFile = sslConfig.getStringValue(ENDPOINT_CONFIG_KEY);
+        String certFile = sslConfig.getStringValue(ENDPOINT_CONFIG_CERTIFICATE);
+        String trustCerts = sslConfig.getStringValue(ENDPOINT_CONFIG_TRUST_CERTIFICATES);
+        String keyPassword = sslConfig.getStringValue(ENDPOINT_CONFIG_KEY_PASSWORD);
 
         if (keyStore != null && StringUtils.isNotBlank(keyFile)) {
             throw new BallerinaException("Cannot configure both keyStore and keyFile at the same time.");
@@ -1610,11 +1575,11 @@ public class HttpUtil {
                     + "for secure connection");
         }
         if (keyStore != null) {
-            String keyStoreFile = keyStore.getStringField(FILE_PATH);
+            String keyStoreFile = keyStore.getStringValue(FILE_PATH);
             if (StringUtils.isBlank(keyStoreFile)) {
                 throw new BallerinaException("Keystore file location must be provided for secure connection.");
             }
-            String keyStorePassword = keyStore.getStringField(PASSWORD);
+            String keyStorePassword = keyStore.getStringValue(PASSWORD);
             if (StringUtils.isBlank(keyStorePassword)) {
                 throw new BallerinaException("Keystore password must be provided for secure connection");
             }
@@ -1627,19 +1592,19 @@ public class HttpUtil {
                 listenerConfiguration.setServerKeyPassword(keyPassword);
             }
         }
-        String sslVerifyClient = sslConfig.getStringField(SSL_CONFIG_SSL_VERIFY_CLIENT);
+        String sslVerifyClient = sslConfig.getStringValue(SSL_CONFIG_SSL_VERIFY_CLIENT);
         listenerConfiguration.setVerifyClient(sslVerifyClient);
         listenerConfiguration
-                .setSslSessionTimeOut((int) sslConfig.getDefaultableIntField(ENDPOINT_CONFIG_SESSION_TIMEOUT));
+                .setSslSessionTimeOut((int) sslConfig.getDefaultableIntValue(ENDPOINT_CONFIG_SESSION_TIMEOUT));
         listenerConfiguration
-                .setSslHandshakeTimeOut(sslConfig.getDefaultableIntField(ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT));
+                .setSslHandshakeTimeOut(sslConfig.getDefaultableIntValue(ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT));
         if (trustStore == null && StringUtils.isNotBlank(sslVerifyClient) && StringUtils.isBlank(trustCerts)) {
             throw new BallerinaException(
                     "Truststore location or trustCertificates must be provided to enable Mutual SSL");
         }
         if (trustStore != null) {
-            String trustStoreFile = trustStore.getStringField(FILE_PATH);
-            String trustStorePassword = trustStore.getStringField(PASSWORD);
+            String trustStoreFile = trustStore.getStringValue(FILE_PATH);
+            String trustStorePassword = trustStore.getStringValue(PASSWORD);
             if (StringUtils.isBlank(trustStoreFile) && StringUtils.isNotBlank(sslVerifyClient)) {
                 throw new BallerinaException("Truststore location must be provided to enable Mutual SSL");
             }
@@ -1654,31 +1619,32 @@ public class HttpUtil {
         List<Parameter> serverParamList = new ArrayList<>();
         Parameter serverParameters;
         if (protocols != null) {
-            List<Value> sslEnabledProtocolsValueList = Arrays.asList(protocols.getArrayField(ENABLED_PROTOCOLS));
+            List<String> sslEnabledProtocolsValueList = Arrays.asList(
+                    protocols.getArrayValue(ENABLED_PROTOCOLS).getStringArray());
             if (!sslEnabledProtocolsValueList.isEmpty()) {
-                String sslEnabledProtocols = sslEnabledProtocolsValueList.stream().map(Value::getStringValue)
+                String sslEnabledProtocols = sslEnabledProtocolsValueList.stream()
                         .collect(Collectors.joining(",", "", ""));
                 serverParameters = new Parameter(ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS, sslEnabledProtocols);
                 serverParamList.add(serverParameters);
             }
 
-            String sslProtocol = protocols.getStringField(PROTOCOL_VERSION);
+            String sslProtocol = protocols.getStringValue(SSL_PROTOCOL_VERSION);
             if (StringUtils.isNotBlank(sslProtocol)) {
                 listenerConfiguration.setSSLProtocol(sslProtocol);
             }
         }
 
-        List<Value> ciphersValueList = Arrays.asList(sslConfig.getArrayField(HttpConstants.SSL_CONFIG_CIPHERS));
+        List<String> ciphersValueList = Arrays.asList(
+                sslConfig.getArrayValue(HttpConstants.SSL_CONFIG_CIPHERS).getStringArray());
         if (!ciphersValueList.isEmpty()) {
-            String ciphers = ciphersValueList.stream().map(Value::getStringValue)
-                    .collect(Collectors.joining(",", "", ""));
+            String ciphers = ciphersValueList.stream().collect(Collectors.joining(",", "", ""));
             serverParameters = new Parameter(HttpConstants.CIPHERS, ciphers);
             serverParamList.add(serverParameters);
         }
         if (validateCert != null) {
-            boolean validateCertificateEnabled = validateCert.getBooleanField(HttpConstants.ENABLE);
-            long cacheSize = validateCert.getIntField(HttpConstants.SSL_CONFIG_CACHE_SIZE);
-            long cacheValidationPeriod = validateCert.getIntField(HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);
+            boolean validateCertificateEnabled = validateCert.getBooleanValue(HttpConstants.ENABLE);
+            long cacheSize = validateCert.getIntValue(HttpConstants.SSL_CONFIG_CACHE_SIZE);
+            long cacheValidationPeriod = validateCert.getIntValue(HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);
             listenerConfiguration.setValidateCertEnabled(validateCertificateEnabled);
             if (validateCertificateEnabled) {
                 if (cacheSize != 0) {
@@ -1690,10 +1656,10 @@ public class HttpUtil {
             }
         }
         if (ocspStapling != null) {
-            boolean ocspStaplingEnabled = ocspStapling.getBooleanField(HttpConstants.ENABLE);
+            boolean ocspStaplingEnabled = ocspStapling.getBooleanValue(HttpConstants.ENABLE);
             listenerConfiguration.setOcspStaplingEnabled(ocspStaplingEnabled);
-            long cacheSize = ocspStapling.getIntField(HttpConstants.SSL_CONFIG_CACHE_SIZE);
-            long cacheValidationPeriod = ocspStapling.getIntField(HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);
+            long cacheSize = ocspStapling.getIntValue(HttpConstants.SSL_CONFIG_CACHE_SIZE);
+            long cacheValidationPeriod = ocspStapling.getIntValue(HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);
             listenerConfiguration.setValidateCertEnabled(ocspStaplingEnabled);
             if (ocspStaplingEnabled) {
                 if (cacheSize != 0) {
@@ -1706,7 +1672,7 @@ public class HttpUtil {
         }
         listenerConfiguration.setTLSStoreType(PKCS_STORE_TYPE);
         String serverEnableSessionCreation = String
-                .valueOf(sslConfig.getBooleanField(SSL_CONFIG_ENABLE_SESSION_CREATION));
+                .valueOf(sslConfig.getBooleanValue(SSL_CONFIG_ENABLE_SESSION_CREATION));
         Parameter enableSessionCreationParam = new Parameter(SSL_CONFIG_ENABLE_SESSION_CREATION,
                 serverEnableSessionCreation);
         serverParamList.add(enableSessionCreationParam);
@@ -1718,6 +1684,12 @@ public class HttpUtil {
                 .setId(HttpUtil.getListenerInterface(listenerConfiguration.getHost(), listenerConfiguration.getPort()));
 
         return listenerConfiguration;
+    }
+
+    public static String getServiceName(ObjectValue balService) {
+        String serviceTypeName = balService.getType().getName();
+        int serviceIndex = serviceTypeName.lastIndexOf("$$service$");
+        return serviceTypeName.substring(0, serviceIndex);
     }
 
     private HttpUtil() {

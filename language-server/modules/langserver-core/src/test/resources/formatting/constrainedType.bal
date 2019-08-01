@@ -15,5 +15,6 @@ map< string > words = passed;
 }
 
 function name3() {
-    name2({a: "apple", b: "banana", c: "cherry"});
+    name2({a: "apple", b: "banana",c:
+    "cherry"});
 }

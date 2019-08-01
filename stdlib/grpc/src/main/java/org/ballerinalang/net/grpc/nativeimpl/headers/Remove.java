@@ -16,12 +16,9 @@
 package org.ballerinalang.net.grpc.nativeimpl.headers;
 
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
@@ -41,18 +38,14 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
         functionName = "remove",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Headers",
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        args = {@Argument(name = "headerName", type = TypeKind.STRING)},
         isPublic = true
 )
-public class Remove extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-        BMap<String, BValue> headerValues = (BMap<String, BValue>) context.getRefArgument(0);
+public class Remove {
+
+    public static void remove(Strand strand, ObjectValue headerValues, String headerName) {
         HttpHeaders headers = headerValues != null ? (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS) : null;
-        String headerName = context.getStringArgument(0);
         if (headers != null) {
             headers.remove(headerName);
         }
-        context.setReturnValues();
     }
 }

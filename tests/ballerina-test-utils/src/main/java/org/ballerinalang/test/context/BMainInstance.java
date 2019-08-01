@@ -18,6 +18,7 @@
 package org.ballerinalang.test.context;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,8 +45,8 @@ import java.util.stream.Stream;
 public class BMainInstance implements BMain {
     private static final Logger log = LoggerFactory.getLogger(BMainInstance.class);
     private static final String JAVA_OPTS = "JAVA_OPTS";
+    private String agentArgs = "";
     private BalServer balServer;
-    private String agentArgs;
 
     public BMainInstance(BalServer balServer) throws BallerinaTestException {
         this.balServer = balServer;
@@ -100,24 +101,30 @@ public class BMainInstance implements BMain {
     @Override
     public void runMain(String balFile, String[] flags, String[] args, Map<String, String> envProperties,
                         String[] clientArgs, LogLeecher[] leechers) throws BallerinaTestException {
+        runMain(balFile, flags, args, envProperties, clientArgs, leechers, balServer.getServerHome());
+    }
+    
+    @Override
+    public void runMain(String balFile, String[] flags, String[] args, Map<String, String> envProperties,
+                        String[] clientArgs, LogLeecher[] leechers, String sourceRoot) throws BallerinaTestException {
         if (balFile == null || balFile.isEmpty()) {
             throw new IllegalArgumentException("Invalid ballerina program file name provided, name - " + balFile);
         }
-
+        
         if (args == null) {
             args = new String[]{};
         }
-
+        
         if (envProperties == null) {
             envProperties = new HashMap<>();
         }
-
+        
         String[] newArgs = ArrayUtils.addAll(flags, balFile);
         newArgs = ArrayUtils.addAll(newArgs, args);
-
+        
         addJavaAgents(envProperties);
-
-        runMain("run", newArgs, envProperties, clientArgs, leechers, balServer.getServerHome());
+        
+        runMain("run", newArgs, envProperties, clientArgs, leechers, sourceRoot);
     }
 
     @Override
@@ -182,6 +189,9 @@ public class BMainInstance implements BMain {
             return;
         }
         javaOpts = agentArgs + javaOpts;
+        if ("".equals(javaOpts)) {
+            return;
+        }
         envProperties.put(JAVA_OPTS, javaOpts);
     }
 
@@ -198,7 +208,12 @@ public class BMainInstance implements BMain {
      */
     public void runMain(String command, String[] args, Map<String, String> envProperties, String[] clientArgs,
                          LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
-        String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
+        String scriptName;
+        if (BCompileUtil.jBallerinaTestsEnabled()) {
+            scriptName = Constant.JBALLERINA_SERVER_SCRIPT_NAME;
+        } else {
+            scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
+        }
         String[] cmdArray;
         try {
 
@@ -281,7 +296,13 @@ public class BMainInstance implements BMain {
      */
     public String runMainAndReadStdOut(String command, String[] args, Map<String, String> envProperties,
                                        String commandDir, boolean readErrStream) throws BallerinaTestException {
-        String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
+
+        String scriptName;
+        if (BCompileUtil.jBallerinaTestsEnabled()) {
+            scriptName = Constant.JBALLERINA_SERVER_SCRIPT_NAME;
+        } else {
+            scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
+        }
         String[] cmdArray;
         try {
 

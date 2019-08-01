@@ -18,7 +18,7 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.net.http.exception.WebSocketException;
 import org.ballerinalang.net.uri.URITemplate;
 import org.ballerinalang.net.uri.URITemplateException;
 import org.ballerinalang.net.uri.parser.Literal;
@@ -45,7 +45,7 @@ public class WebSocketServicesRegistry {
         try {
             getUriTemplate().parse(basePath, service, new WebSocketDataElementFactory());
         } catch (URITemplateException | UnsupportedEncodingException e) {
-            throw new BallerinaConnectorException(e.getMessage());
+            throw new WebSocketException(e.getMessage());
         }
         logger.info("WebSocketService deployed : {} with context {}", service.getName(), basePath);
 
@@ -62,9 +62,8 @@ public class WebSocketServicesRegistry {
         try {
             basePath = URLDecoder.decode(basePath, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
-            throw new BallerinaConnectorException(e.getMessage());
+            throw new WebSocketException(e.getMessage());
         }
         return basePath;
     }
-
 }

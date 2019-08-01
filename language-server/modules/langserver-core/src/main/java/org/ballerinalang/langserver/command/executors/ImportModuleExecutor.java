@@ -20,7 +20,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorException;
-import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -75,16 +75,15 @@ public class ImportModuleExecutor implements LSCommandExecutor {
             try {
                 bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false, 
                         LSCustomErrorStrategy.class, false);
+                context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
             } catch (LSCompilerException e) {
                 throw new LSCommandExecutorException("Couldn't compile the source", e);
             }
-//            context.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY, bLangPackage.symbol.getName().getValue());
-            String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-            BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
             String pkgName = context.get(ExecuteCommandKeys.PKG_NAME_KEY);
 
             // Filter the imports except the runtime import
-            List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(srcOwnerPkg, context);
+            context.put(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY, CommonUtil.getCurrentFileImports(context));
+            List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(context);
 
             Position start = new Position(0, 0);
             if (!imports.isEmpty()) {
@@ -94,7 +93,7 @@ public class ImportModuleExecutor implements LSCommandExecutor {
             Range range = new Range(start, start);
 
             String importStatement = ItemResolverConstants.IMPORT + " " + pkgName
-                    + UtilSymbolKeys.SEMI_COLON_SYMBOL_KEY + CommonUtil.LINE_SEPARATOR;
+                    + CommonKeys.SEMI_COLON_SYMBOL_KEY + CommonUtil.LINE_SEPARATOR;
 
             return applySingleTextEdit(importStatement, range, textDocumentIdentifier,
                     context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());

@@ -15,18 +15,17 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.ServicesBuilderUtils;
 import org.ballerinalang.net.grpc.ServicesRegistry;
+import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
+import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER;
@@ -48,22 +47,24 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
         isPublic = true
 )
 public class Register extends AbstractGrpcNativeFunction {
-    
-    @Override
-    public void execute(Context context) {
-        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
-        ServicesRegistry.Builder servicesRegistryBuilder = getServiceRegistryBuilder(serviceEndpoint);
+
+    public static Object register(Strand strand, ObjectValue listenerObject, ObjectValue service,
+                                  Object annotationData) {
+        ServicesRegistry.Builder servicesRegistryBuilder = getServiceRegistryBuilder(listenerObject);
         try {
             if (servicesRegistryBuilder == null) {
-                context.setError(MessageUtils.getConnectorError(new BallerinaConnectorException("Error when " +
-                        "initializing service register builder.")));
+                return MessageUtils.getConnectorError(new StatusRuntimeException(Status
+                        .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error when " +
+                                "initializing service register builder.")));
             } else {
-                servicesRegistryBuilder.addService(ServicesBuilderUtils.getServiceDefinition(service, context));
-                context.setReturnValues();
+                servicesRegistryBuilder.addService(ServicesBuilderUtils.getServiceDefinition(strand.scheduler, service,
+                        service.getType().getAnnotation("ballerina/grpc:ServiceDescriptor")));
+                return null;
             }
         } catch (GrpcServerException e) {
-            context.setError(MessageUtils.getConnectorError(e));
+            return MessageUtils.getConnectorError(new StatusRuntimeException(Status
+                    .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error when " +
+                            "initializing service register builder. " + e.getLocalizedMessage())));
         }
     }
 }

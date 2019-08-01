@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
@@ -61,12 +60,12 @@ public class HttpConnectionManager {
         return instance;
     }
 
-    public ServerConnector createHttpServerConnector(ListenerConfiguration listenerConfig) {
+    public ServerConnector createHttpServerConnector(ListenerConfiguration listenerConfig) throws Exception {
         String listenerInterface = listenerConfig.getHost() + ":" + listenerConfig.getPort();
         HttpServerConnectorContext httpServerConnectorContext = serverConnectorPool.get(listenerInterface);
         if (httpServerConnectorContext != null) {
             if (checkForConflicts(listenerConfig, httpServerConnectorContext)) {
-                throw new BallerinaConnectorException("Conflicting configuration detected for listener " +
+                throw new Exception("Conflicting configuration detected for listener " +
                         "configuration id " + listenerConfig.getId());
             }
             httpServerConnectorContext.incrementReferenceCount();

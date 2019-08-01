@@ -18,7 +18,7 @@
 package org.ballerinalang.docgen.docs;
 
 import org.ballerinalang.docgen.docs.utils.BallerinaDocGenTestUtils;
-import org.ballerinalang.docgen.model.PackageDoc;
+import org.ballerinalang.docgen.model.ModuleDoc;
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
@@ -70,7 +70,7 @@ public class BallerinaDocGenTest {
     public void testSingleBalFile() {
         try {
             // Generate API docs
-            Map<String, PackageDoc> docsMap = BallerinaDocGenerator
+            Map<String, ModuleDoc> docsMap = BallerinaDocGenerator
                     .generatePackageDocsFromBallerina(testResourceRoot.toAbsolutePath().toString(), "helloWorld.bal");
 
             Assert.assertNotNull(docsMap);
@@ -99,7 +99,7 @@ public class BallerinaDocGenTest {
             BallerinaDocGenerator.generateApiDocs(folderPath.toAbsolutePath().toString(),
                     outputPath.toAbsolutePath().toString(), null, false, true,
                     sourcePackageNames.toArray(new String[0]));
-            Map<String, PackageDoc> docsMap = BallerinaDocDataHolder.getInstance().getPackageMap();
+            Map<String, ModuleDoc> docsMap = BallerinaDocDataHolder.getInstance().getPackageMap();
             Assert.assertNotNull(docsMap);
             // this folder has 3 bal files. 2 bal files out of those are in same package.
             Assert.assertEquals(docsMap.size(), 2);

@@ -17,12 +17,14 @@
 */
 package org.ballerinalang.langserver.signature;
 
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
@@ -30,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -53,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -63,27 +67,34 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
     private SymbolResolver symbolResolver;
     private boolean terminateVisitor = false;
     private SymbolTable symTable;
+    private Position cursorPosition;
     private LSServiceOperationContext lsContext;
     private Deque<DiagnosticPos> blockPositionStack;
 
     /**
      * Public constructor.
-     * @param textDocumentServiceContext    Document service context for the signature operation
+     * @param context    Document service context for the signature operation
      */
-    public SignatureTreeVisitor(LSServiceOperationContext textDocumentServiceContext) {
+    public SignatureTreeVisitor(LSServiceOperationContext context) {
         blockPositionStack = new ArrayDeque<>();
-        this.lsContext = textDocumentServiceContext;
-        init(lsContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
-    }
+        lsContext = context;
+        cursorPosition = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
 
-    private void init(CompilerContext compilerContext) {
+        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         symTable = SymbolTable.getInstance(compilerContext);
         symbolResolver = SymbolResolver.getInstance(compilerContext);
     }
 
     @Override
     public void visit(BLangPackage pkgNode) {
-        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
+        final SymbolEnv pkgEnv;
+        if (pkgNode.symbol == null) {
+            Optional<SymbolEnv> first = symTable.pkgEnvMap.entrySet().stream().filter(
+                    s -> s.getKey().pkgID.equals(pkgNode.packageID)).map(Map.Entry::getValue).findFirst();
+            pkgEnv = first.orElse(null);
+        } else {
+            pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
+        }
         List<TopLevelNode> topLevelNodes = CommonUtil.getCurrentFileTopLevelNodes(pkgNode, lsContext);
 
         topLevelNodes.stream()
@@ -127,10 +138,28 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         List<BLangSimpleVariable> serviceFields = serviceType.getFields().stream()
                 .map(simpleVar -> (BLangSimpleVariable) simpleVar)
                 .collect(Collectors.toList());
+        List<BLangAnnotationAttachment> annAttachments = serviceNode.annAttachments;
         serviceContent.addAll(serviceFunctions);
         serviceContent.addAll(serviceFields);
+        serviceContent.addAll(annAttachments);
         serviceContent.sort(new CommonUtil.BLangNodeComparator());
         serviceContent.forEach(serviceField -> this.acceptNode(serviceField, serviceEnv));
+    }
+
+    @Override
+    public void visit(BLangAnnotationAttachment attachment) {
+        SymbolEnv annotationAttachmentEnv = new SymbolEnv(attachment, symbolEnv.scope);
+        symbolEnv.copyTo(annotationAttachmentEnv);
+        PackageID packageID = attachment.annotationSymbol.pkgID;
+        if (packageID.getOrgName().getValue().equals("ballerina") && packageID.getName().getValue().equals("grpc")
+                && attachment.annotationName.getValue().equals("ServiceDescriptor")) {
+            return;
+        }
+        blockPositionStack.push(attachment.pos);
+        if (!terminateVisitor && this.isCursorWithinBlock()) {
+            this.populateSymbols(symbolResolver.getAllVisibleInScopeSymbols(annotationAttachmentEnv));
+        }
+        blockPositionStack.pop();
     }
 
     @Override
@@ -138,7 +167,8 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, symbolEnv);
         blockNode.stmts.forEach(stmt -> this.acceptNode(stmt, blockEnv));
         if (!terminateVisitor && this.isCursorWithinBlock()) {
-            Map<Name, Scope.ScopeEntry> visibleSymbolEntries = symbolResolver.getAllVisibleInScopeSymbols(blockEnv);
+            Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries
+                    = symbolResolver.getAllVisibleInScopeSymbols(blockEnv);
             this.populateSymbols(visibleSymbolEntries);
         }
     }
@@ -214,7 +244,9 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
     }
 
     private boolean isCursorWithinBlock() {
-        Position cursorPosition = this.lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        if (blockPositionStack.isEmpty()) {
+            return false;
+        }
         DiagnosticPos blockPosition = CommonUtil.toZeroBasedPosition(blockPositionStack.peek());
         int cursorLine = cursorPosition.getLine();
         int cursorColumn = cursorPosition.getCharacter();
@@ -238,11 +270,18 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
      * Populate the symbols.
      * @param symbolEntries symbol entries
      */
-    private void populateSymbols(Map<Name, Scope.ScopeEntry> symbolEntries) {
+    private void populateSymbols(Map<Name, List<Scope.ScopeEntry>> symbolEntries) {
         this.terminateVisitor = true;
         List<SymbolInfo> visibleSymbols = new ArrayList<>();
 
-        symbolEntries.forEach((k, v) -> visibleSymbols.add(new SymbolInfo(k.getValue(), v)));
-        lsContext.put(SignatureKeys.VISIBLE_SYMBOLS_KEY, visibleSymbols);
+        for (Map.Entry<Name, List<Scope.ScopeEntry>> entry : symbolEntries.entrySet()) {
+            Name name = entry.getKey();
+            List<Scope.ScopeEntry> entryList = entry.getValue();
+            List<SymbolInfo> filteredSymbolInfos = entryList.stream()
+                    .map(scopeEntry -> new SymbolInfo(name.value, scopeEntry))
+                    .collect(Collectors.toList());
+            visibleSymbols.addAll(filteredSymbolInfos);
+        }
+        lsContext.put(CommonKeys.VISIBLE_SYMBOLS_KEY, visibleSymbols);
     }
 }

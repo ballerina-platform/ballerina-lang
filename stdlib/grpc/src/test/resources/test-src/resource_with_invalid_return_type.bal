@@ -37,10 +37,10 @@ service HelloWorld on new grpc:Listener(9090) {
         return p;
     }
 
-    resource function returnTupleType(grpc:Caller caller, string name) returns (Person,grpc:Headers) {
+    resource function returnTupleType(grpc:Caller caller, string name) returns [Person,grpc:Headers] {
         Person p = {};
         grpc:Headers headers = new;
-        return (p,headers);
+        return [p,headers];
     }
 }
 

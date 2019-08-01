@@ -18,11 +18,9 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
@@ -37,24 +35,20 @@ import java.security.PublicKey;
  * @since 0.990.4
  */
 @BallerinaFunction(orgName = "ballerina", packageName = "crypto", functionName = "decryptRsaEcb", isPublic = true)
-public class DecryptRsaEcb extends BlockingNativeCallableUnit {
+public class DecryptRsaEcb {
 
-    @Override
-    public void execute(Context context) {
-        BValue inputBValue = context.getRefArgument(0);
-        BMap<String, BValue> keyMap = (BMap<String, BValue>) context.getRefArgument(1);
-        byte[] input = ((BValueArray) inputBValue).getBytes();
-        String padding = context.getRefArgument(2).stringValue();
+    public static Object decryptRsaEcb(Strand strand, ArrayValue inputValue, Object keys, Object padding) {
+        byte[] input = inputValue.getBytes();
+        MapValue<?, ?> keyMap = (MapValue<?, ?>) keys;
         Key key;
         if (keyMap.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY) != null) {
             key = (PrivateKey) keyMap.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY);
         } else if (keyMap.getNativeData(Constants.NATIVE_DATA_PUBLIC_KEY) != null) {
             key = (PublicKey) keyMap.getNativeData(Constants.NATIVE_DATA_PUBLIC_KEY);
         } else {
-            context.setReturnValues(CryptoUtils.createCryptoError(context, "invalid uninitialized key"));
-            return;
+            return CryptoUtils.createError("Uninitialized private/public key");
         }
-        CryptoUtils.rsaEncryptDecrypt(context, CryptoUtils.CipherMode.DECRYPT, Constants.ECB, padding, key, input, null,
-                -1);
+        return CryptoUtils.rsaEncryptDecrypt(CryptoUtils.CipherMode.DECRYPT, Constants.ECB, padding.toString(), key,
+                                             input, null, -1);
     }
 }

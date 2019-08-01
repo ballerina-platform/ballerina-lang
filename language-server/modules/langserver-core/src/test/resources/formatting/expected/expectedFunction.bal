@@ -31,25 +31,31 @@ function name7() returns int {
     return 0;
 }
 
-function name8() returns (int, string) {
-    return (0, "");
+function name8() returns [int, string] {
+    return [0, ""];
 }
 
 function name9() returns (Person) {
-    return {
-        name: ""
-    };
+    return {name: ""};
 }
 
-private function name10() {
+function name10() {
 
 }
 
-function name11() = external;
+function name14(int i, string name = "john", string... rest) {
 
-public function name12() = external;
+}
 
-private function name13()
-=
-external
-;
+function name15(int i, string name = "john", string... rest) {
+
+}
+
+function name16(int i, string name = "john", int id = 0, string... rest) {
+
+}
+
+function name17(int i, string name = "john",
+int id = 0, string... rest) {
+
+}

@@ -27,6 +27,7 @@ import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -103,7 +104,7 @@ public class TableJSONDataSource implements JSONDataSource {
     private static class DefaultJSONObjectGenerator implements JSONObjectGenerator {
 
         @Override
-        public BRefType<?> transform(BTable df) throws IOException {
+        public BRefType<?> transform(BTable df) {
             BMap<String, BRefType<?>> objNode = new BMap<>(BTypes.typeJSON);
             BStructureType structType = df.getStructType();
             BField[] structFields = null;
@@ -140,6 +141,10 @@ public class TableJSONDataSource implements JSONDataSource {
             case FLOAT:
                 Double floatVal = df.getFloat(index);
                 jsonObject.put(name, floatVal == null ? null : new BFloat(floatVal));
+                break;
+            case DECIMAL:
+                BigDecimal decimalVal = df.getDecimal(index);
+                jsonObject.put(name, decimalVal == null ? null : new BDecimal(decimalVal));
                 break;
             case BOOLEAN:
                 Boolean boolVal = df.getBoolean(index);

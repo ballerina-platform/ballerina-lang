@@ -1,8 +1,40 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+ 
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
+apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
+
+configurations.testCompileClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
+configurations.testRuntimeClasspath {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
 
 dependencies {
+    baloCreat project(':lib-creator')
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
+    implementation project(':ballerina-runtime')
     implementation project(':ballerina-auth')
     implementation project(':ballerina-file')
     implementation project(':ballerina-io')
@@ -14,18 +46,18 @@ dependencies {
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-internal')
     implementation project(':ballerina-logging')
-    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-mime')
-    implementation project(':ballerina-config')
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-encoding')
     implementation project(':ballerina-system')
     implementation project(':ballerina-utils')
     implementation project(':ballerina-task')
-    testCompile project(':ballerina-launcher')
-    testCompile 'org.slf4j:slf4j-simple:1.7.22'
+    implementation project(':ballerina-internal')
+    testCompile project(':ballerina-tool')
+    testCompile 'org.slf4j:slf4j-simple'
 
-    baloImplementation project(path: ':ballerina-builtin', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
@@ -42,34 +74,28 @@ dependencies {
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
 
     // transitive
     baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
 
-    implementation 'io.netty:netty-codec-http:4.1.34.Final'
-    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty:6.0.275'
-    implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging:2.3.7'
-    implementation 'org.apache.commons:commons-lang3:3.5'
-    implementation 'org.jvnet.mimepull:mimepull:1.9.7'
-    testCompile 'org.testng:testng:6.13.1'
+    implementation 'io.netty:netty-codec-http'
+    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
+    implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
+    implementation 'org.apache.commons:commons-lang3'
+    implementation 'org.jvnet.mimepull:mimepull'
+    implementation 'org.bouncycastle:bcprov-jdk15on'
+    implementation 'org.bouncycastle:bcpkix-jdk15on'
     testCompile project(path: ':ballerina-mime', configuration: 'tests')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
-    testCompile 'org.apache.ws.commons.axiom:axiom-api:1.2.20'
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-http')
+    testCompile 'org.apache.ws.commons.axiom:axiom-api'
+    testCompile 'org.testng:testng'
 }
 
-test {
-    doFirst {
-        copy {
-            from "$buildDir/generated-balo/repo/ballerina"
-            into "$buildDir/lib/repo/ballerina"
-        }
-    }
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-    systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
+createBalo {
+    jvmTarget = 'true'
 }
 
 configurations {

@@ -16,10 +16,11 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.builtin.stringlib;
+package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.natives.annotations.Argument;
@@ -32,8 +33,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.995.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "builtin",
-        functionName = "string.hashCode",
+        orgName = "ballerina", packageName = "lang.string",
+        functionName = "hashCode",
         args = {@Argument(name = "mainString", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
@@ -44,5 +45,10 @@ public class HashCode extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         String string = context.getStringArgument(0);
         context.setReturnValues(new BInteger(string.hashCode()));
+    }
+
+    public static long hashCode(Strand strand, String value) {
+        StringUtils.checkForNull(value);
+        return value.hashCode();
     }
 }

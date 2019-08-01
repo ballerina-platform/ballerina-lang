@@ -1,7 +1,7 @@
 // A Ballerina transaction is a series of data manipulation statements 
-// that must either fully complete or fully fail, thereby leaving the
-// system in a consistent state. This sample demonstrates the usage of
-// transaction local participants. If participant panics, even when it
-// is trapped and initiator completes, the transaction is considered failure.
-// Ballerina transactions are at experimental stage,
-// please use  --experimental flag to enable them.
+// that must either fully complete or fully fail, thereby, leaving the
+// system in a consistent state. This example demonstrates the usage of
+// transactions with local participants. If the participant panics even when it
+// is trapped and if the initiator completes, the transaction is considered as a failure.
+// Ballerina transactions are at the experimental stage.
+// Hence, use the --experimental flag to enable them.

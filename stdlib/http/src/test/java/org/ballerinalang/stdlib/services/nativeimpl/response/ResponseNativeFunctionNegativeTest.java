@@ -20,16 +20,16 @@ package org.ballerinalang.stdlib.services.nativeimpl.response;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.stdlib.utils.TestEntityUtils;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -41,6 +41,8 @@ import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALR
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.MimeConstants.RESPONSE_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
+import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createEntityObject;
+import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createResponseObject;
 
 /**
  * Test cases for ballerina/http inbound response negative native functions.
@@ -63,11 +65,9 @@ public class ResponseNativeFunctionNegativeTest {
     @Test
     public void testGetHeader() {
         try {
-            BMap<String, BValue> inResponse =
-                    BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
-            BString key = new BString(HttpHeaderNames.CONTENT_TYPE.toString());
-            BValue[] inputArg = { inResponse, key };
-            BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
+            BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader",
+                                                  new Object[]{ createResponseObject(),
+                                                          HttpHeaderNames.CONTENT_TYPE.toString() });
             Assert.assertNull(returnVals[0]);
         } catch (Exception exception) {
             String errorMessage = exception.getMessage();
@@ -77,117 +77,96 @@ public class ResponseNativeFunctionNegativeTest {
 
     @Test(description = "Test method without json payload")
     public void testGetJsonPayloadWithoutPayload() {
-        BMap<String, BValue> inResponse =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
-        BMap<String, BValue> entity =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
+        ObjectValue inResponse = createResponseObject();
+        ObjectValue entity = createEntityObject();
         TestEntityUtils.enrichTestEntityHeaders(entity, APPLICATION_JSON);
-        inResponse.put(RESPONSE_ENTITY_FIELD, entity);
-        BValue[] inputArg = { inResponse };
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
+        inResponse.set(RESPONSE_ENTITY_FIELD, entity);
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", new Object[]{ inResponse });
         Assert.assertNotNull(returnVals[0]);
-        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(),
-                            "{message:\"Error occurred while extracting json data from entity: Empty content\"}");
+        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(), "{message:\"Error occurred while " +
+                "retrieving the json payload from the request\", cause:{ballerina/mime}ParsingEntityBodyFailed " +
+                "{message:\"Error occurred while extracting json data from entity: Empty content\", cause:()}}");
     }
 
     @Test(description = "Test method with string payload")
     public void testGetJsonPayloadWithStringPayload() {
-        BMap<String, BValue> inResponse =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
-        BMap<String, BValue> entity =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
-
+        ObjectValue inResponse = createResponseObject();
+        ObjectValue entity = createEntityObject();
         String payload = "ballerina";
         TestEntityUtils.enrichTestEntity(entity, TEXT_PLAIN, payload);
-        inResponse.put(RESPONSE_ENTITY_FIELD, entity);
+        inResponse.set(RESPONSE_ENTITY_FIELD, entity);
         inResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
-        BValue[] inputArg = { inResponse };
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", new Object[]{ inResponse });
         Assert.assertNotNull(returnVals[0]);
-        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(),
-                            "{message:\"Error occurred while extracting json data from entity: unrecognized token " +
-                                    "'ballerina' at line: 1 column: 11\"}");
+        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(), "{message:\"Error occurred while " +
+                "retrieving the json payload from the request\", cause:{ballerina/mime}ParsingEntityBodyFailed " +
+                "{message:\"Error occurred while extracting json data from entity: unrecognized token 'ballerina' at " +
+                "line: 1 column: 11\", cause:()}}");
     }
 
     @Test(description = "Test getTextPayload method without a payload")
     public void testGetTextPayloadNegative() {
-        BMap<String, BValue> inResponse =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
-        BMap<String, BValue> entity =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
+        ObjectValue inResponse = createResponseObject();
+        ObjectValue entity = createEntityObject();
         TestEntityUtils.enrichTestEntityHeaders(entity, TEXT_PLAIN);
-        inResponse.put(RESPONSE_ENTITY_FIELD, entity);
-        BValue[] inputArg = { inResponse };
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetTextPayload", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
+        inResponse.set(RESPONSE_ENTITY_FIELD, entity);
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetTextPayload", new Object[]{ inResponse });
+        Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0].stringValue()
                 .contains("Error occurred while extracting text data from entity : Empty content"));
     }
 
     @Test
     public void testGetXmlPayloadNegative() {
-        BMap<String, BValue> inResponse =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
-        BMap<String, BValue> entity =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
+        ObjectValue inResponse = createResponseObject();
+        ObjectValue entity = createEntityObject();
         TestEntityUtils.enrichTestEntityHeaders(entity, APPLICATION_XML);
-        inResponse.put(RESPONSE_ENTITY_FIELD, entity);
-        BValue[] inputArg = { inResponse };
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
-        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(),
-                "{message:\"Error occurred while extracting xml data from entity : Empty content\"}");
+        inResponse.set(RESPONSE_ENTITY_FIELD, entity);
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", new Object[]{ inResponse });
+        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(), "{message:\"Error occurred while " +
+                "retrieving the xml payload from the request\", cause:{ballerina/mime}ParsingEntityBodyFailed " +
+                "{message:\"Error occurred while extracting xml data from entity : Empty content\", cause:()}}");
     }
 
     @Test
     public void testGetXmlPayloadWithStringPayload() {
-        BMap<String, BValue> inResponse =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
-        BMap<String, BValue> entity =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
+        ObjectValue inResponse = createResponseObject();
+        ObjectValue entity = createEntityObject();
 
         String payload = "ballerina";
         TestEntityUtils.enrichTestEntity(entity, TEXT_PLAIN, payload);
-        inResponse.put(RESPONSE_ENTITY_FIELD, entity);
+        inResponse.set(RESPONSE_ENTITY_FIELD, entity);
         inResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
-        BValue[] inputArg = { inResponse };
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", new Object[]{ inResponse });
         Assert.assertNotNull(returnVals[0]);
-        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(),
-                            "{message:\"Error occurred while extracting xml data from entity : Unexpected character " +
-                                    "'b' (code 98) in prolog; expected '<'" + System.lineSeparator() +
-                                    " at [row,col {unknown-source}]: [1,1]\"}");
+        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(), "{message:\"Error occurred while " +
+                "retrieving the xml payload from the request\", cause:{ballerina/mime}ParsingEntityBodyFailed " +
+                "{message:\"Error occurred while extracting xml data from entity : Unexpected character 'b' (code 98)" +
+                " in prolog; expected '<'" + System.lineSeparator() +
+                " at [row,col {unknown-source}]: [1,1]\", cause:()}}");
     }
 
     @Test(description = "Test getEntity method on a response without a entity")
     public void testGetEntityNegative() {
-        BMap<String, BValue> outResponse =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
-        BValue[] inputArg = { outResponse };
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetEntity", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
+        ObjectValue inResponse = createResponseObject();
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetEntity", new Object[]{ inResponse });
+        Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertNotNull(returnVals[0]);
     }
 
     @Test
     @SuppressWarnings("unchecked")
     public void testRemoveHeaderNegative() {
-        BMap<String, BValue> outResponse =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
-        BMap<String, BValue> entity =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
+        ObjectValue outResponse = createResponseObject();
+        ObjectValue entity = createEntityObject();
         String range = "Range";
         HttpHeaders httpHeaders = new DefaultHttpHeaders();
         httpHeaders.add("Expect", "100-continue");
         entity.addNativeData(ENTITY_HEADERS, httpHeaders);
-        outResponse.put(RESPONSE_ENTITY_FIELD, entity);
-        BString key = new BString(range);
-        BValue[] inputArg = { outResponse, key };
-        BValue[] returnVals = BRunUtil.invoke(result, "testRemoveHeader", inputArg);
+        outResponse.set(RESPONSE_ENTITY_FIELD, entity);
+        BValue[] returnVals = BRunUtil.invoke(result, "testRemoveHeader", new Object[]{ outResponse, range });
 
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
+        Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entityStruct =
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(RESPONSE_ENTITY_FIELD);
@@ -198,12 +177,9 @@ public class ResponseNativeFunctionNegativeTest {
     @Test
     @SuppressWarnings("unchecked")
     public void testRemoveAllHeadersNegative() {
-        BMap<String, BValue> outResponse =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
-        BValue[] inputArg = { outResponse };
-        BValue[] returnVals = BRunUtil.invoke(result, "testRemoveAllHeaders", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
+        ObjectValue outResponse = createResponseObject();
+        BValue[] returnVals = BRunUtil.invoke(result, "testRemoveAllHeaders", new Object[]{ outResponse });
+        Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entityStruct =
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(RESPONSE_ENTITY_FIELD);

@@ -6,172 +6,361 @@
   "source": "toplevel/source/importStatement3.bal",
   "items": [
     {
-      "label": "transactions",
+      "label": "lang.object",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "transactions"
+      "insertText": "lang.\u0027object;",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "websub",
+      "label": "streams.balx",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "websub"
+      "insertText": "streams.balx",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "grpc",
+      "label": "jwt",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "grpc"
+      "insertText": "jwt",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "reflect",
+      "label": "lang.xml",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "reflect"
-    },
-    {
-      "label": "log",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "log"
-    },
-    {
-      "label": "time",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "time"
-    },
-    {
-      "label": "test",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "test"
-    },
-    {
-      "label": "runtime",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "runtime"
-    },
-    {
-      "label": "openapi",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "openapi"
-    },
-    {
-      "label": "file",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "file"
-    },
-    {
-      "label": "sql",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "sql"
-    },
-    {
-      "label": "internal",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "internal"
-    },
-    {
-      "label": "http",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "http"
-    },
-    {
-      "label": "mysql",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "mysql"
-    },
-    {
-      "label": "encoding",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "encoding"
-    },
-    {
-      "label": "mime",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "mime"
-    },
-    {
-      "label": "task",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "task"
+      "insertText": "lang.\u0027xml;",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "crypto",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "crypto"
+      "insertText": "crypto",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "io",
+      "label": "lang.array",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "io"
-    },
-    {
-      "label": "artemis",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "artemis"
-    },
-    {
-      "label": "utils",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "utils"
+      "insertText": "lang.\u0027array;",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "cache",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "cache"
+      "insertText": "cache",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "auth",
+      "label": "test",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "auth"
+      "insertText": "test",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "jms",
+      "label": "file",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "jms"
+      "insertText": "file",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "system",
+      "label": "grpc",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "system"
-    },
-    {
-      "label": "h2",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "h2"
-    },
-    {
-      "label": "math",
-      "kind": "Module",
-      "detail": "Package",
-      "insertText": "math"
+      "insertText": "grpc",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "config",
       "kind": "Module",
       "detail": "Package",
-      "insertText": "config"
+      "insertText": "config",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "auth",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "auth",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "filepath",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "filepath",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ldap",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "ldap",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "streams",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "streams",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "artemis",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "artemis",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "reflect",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "reflect",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.string",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027string;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "io",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "io",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "runtime",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "oauth2",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "oauth2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "internal",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "internal",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "jvm",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "jvm",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "encoding",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "encoding",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "utils",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "utils",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "rabbitmq",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "rabbitmq",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.future",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027future;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.value",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027value;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "openapi",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "openapi",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "math",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "math",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "time",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "time",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "observe",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "observe",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "system",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "system",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.float",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027float;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "transactions",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "transactions",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "nats",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "nats",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "transactions.balx",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "transactions.balx",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.decimal",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027decimal;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "http",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "http",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "task",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "task",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "cache.balx",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "cache.balx",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.table",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027table;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.annotations",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027annotations;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "log",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "log",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "mime",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "mime",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.stream",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027stream;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.error",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027error;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.typedesc",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027typedesc;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.map",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027map;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.int",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027int;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "socket",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "socket",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

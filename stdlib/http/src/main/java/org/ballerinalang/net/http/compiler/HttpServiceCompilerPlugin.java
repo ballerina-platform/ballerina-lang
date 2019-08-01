@@ -25,7 +25,7 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
@@ -77,9 +77,9 @@ public class HttpServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
         // .getValue())) {
         List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
         resources.forEach(res -> {
-            ResourceSignatureValidator.validateAnnotation(res, dlog);
             ResourceSignatureValidator.validate(res.getParameters(), dlog, res.pos);
             ResourceSignatureValidator.validateResourceReturnType(isResourceReturnsErrorOrNil(res), dlog, res.pos);
+            ResourceSignatureValidator.validateResourceAnnotation(res, dlog);
         });
         //        }
         // get value from endpoint.
@@ -106,7 +106,7 @@ public class HttpServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
                 for (BLangRecordLiteral.BLangRecordKeyValue compressionConfig
                         : ((BLangRecordLiteral) keyValue.valueExpr).getKeyValuePairs()) {
                     if (checkMatchingConfigKey(compressionConfig, ANN_CONFIG_ATTR_COMPRESSION_CONTENT_TYPES)) {
-                        BLangArrayLiteral valueArray = (BLangArrayLiteral) compressionConfig.valueExpr;
+                        BLangListConstructorExpr valueArray = (BLangListConstructorExpr) compressionConfig.valueExpr;
                         if (valueArray.getExpressions().isEmpty()) {
                             break;
                         }

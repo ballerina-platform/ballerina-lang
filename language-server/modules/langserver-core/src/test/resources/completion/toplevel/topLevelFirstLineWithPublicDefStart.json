@@ -16,7 +16,7 @@
       "label": "annotation",
       "kind": "Snippet",
       "detail": "Snippet",
-      "insertText": "annotation\u003c${1:attachmentPoint}\u003e ${2:name};",
+      "insertText": "annotation ${1:typeName} ${2:name} on ${3:attachmentPoint};",
       "insertTextFormat": "Snippet"
     },
     {
@@ -38,6 +38,34 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "insertText": "listener ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "type",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "type ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "const",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "const ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Annotation",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "annotation ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "function ",
       "insertTextFormat": "Snippet"
     }
   ]

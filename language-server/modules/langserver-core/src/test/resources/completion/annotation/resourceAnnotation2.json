@@ -6,69 +6,194 @@
   "source": "annotation/source/resourceAnnotation2.bal",
   "items": [
     {
-      "label":"openapi:ResourceInfo",
-      "detail":"Annotation",
-      "sortText":"110",
-      "insertText":"openapi:ResourceInfo {\n\t${1}\n}",
-      "insertTextFormat":"Snippet",
-      "additionalTextEdits":[
+      "label": "grpc:ResourceConfig",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "grpc:ResourceConfig {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
         {
-          "range":{
-            "start":{
-              "line":0,
-              "character":22
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
             },
-            "end":{
-              "line":0,
-              "character":22
+            "end": {
+              "line": 1,
+              "character": 0
             }
           },
-          "newText":"import ballerina/openapi;\n"
+          "newText": "import ballerina/grpc;\n"
         }
       ]
     },
     {
-      "label":"grpc:ResourceConfig",
-      "detail":"Annotation",
-      "sortText":"110",
-      "insertText":"grpc:ResourceConfig {\n\t${1}\n}",
-      "insertTextFormat":"Snippet",
-      "additionalTextEdits":[
+      "label": "transactions:Participant",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "transactions:Participant {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
         {
-          "range":{
-            "start":{
-              "line":0,
-              "character":22
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
             },
-            "end":{
-              "line":0,
-              "character":22
+            "end": {
+              "line": 1,
+              "character": 0
             }
           },
-          "newText":"import ballerina/grpc;\n"
+          "newText": "import ballerina/transactions;\n"
         }
       ]
     },
     {
-      "label":"Param",
-      "detail":"Annotation",
-      "sortText":"110",
-      "insertText":"Param {\n\t${1}\n}",
-      "insertTextFormat":"Snippet"
+      "label": "test:Config",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "test:Config {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/test;\n"
+        }
+      ]
     },
     {
-      "label":"interruptible",
-      "detail":"Annotation",
-      "sortText":"110",
-      "insertText":"interruptible",
-      "insertTextFormat":"Snippet"
+      "label": "test:Mock",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "test:Mock {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/test;\n"
+        }
+      ]
     },
     {
-      "label":"http:ResourceConfig",
-      "detail":"Annotation",
-      "sortText":"110",
-      "insertText":"http:ResourceConfig {\n\t${1}\n}",
-      "insertTextFormat":"Snippet"
+      "label": "test:BeforeSuite",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "test:BeforeSuite {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/test;\n"
+        }
+      ]
+    },
+    {
+      "label": "test:AfterSuite",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "test:AfterSuite {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/test;\n"
+        }
+      ]
+    },
+    {
+      "label": "test:BeforeEach",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "test:BeforeEach {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/test;\n"
+        }
+      ]
+    },
+    {
+      "label": "test:AfterEach",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "test:AfterEach {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/test;\n"
+        }
+      ]
+    },
+    {
+      "label": "http:ResourceConfig",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "http:ResourceConfig {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "http:ParamOrderConfig",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "http:ParamOrderConfig {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

@@ -20,11 +20,11 @@ package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -50,18 +50,19 @@ public class ConstructByteArray extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BMap<String, BValue> byteChannel = (BMap<String, BValue>) context.getRefArgument(0);
+    }
+
+    public static ArrayValue constructByteArray(Strand strand, ObjectValue byteChannel) {
         Channel channel = (Channel) byteChannel.getNativeData(BYTE_CHANNEL_NAME);
         if (channel == null) {
-            context.setReturnValues(new BValueArray(new byte[0]));
-        } else {
-            try {
-                byte[] byteData = MimeUtil.getByteArray(channel.getInputStream());
-                channel.close();
-                context.setReturnValues(new BValueArray(byteData));
-            } catch (IOException e) {
-                context.setReturnValues(new BValueArray(new byte[0]));
-            }
+            return new ArrayValue(new byte[0]);
+        }
+        try {
+            byte[] byteData = MimeUtil.getByteArray(channel.getInputStream());
+            channel.close();
+            return new ArrayValue(byteData);
+        } catch (IOException e) {
+            return new ArrayValue(new byte[0]);
         }
     }
 }

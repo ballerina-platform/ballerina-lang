@@ -19,13 +19,14 @@
 package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.websub.BallerinaWebSubException;
+import org.ballerinalang.net.websub.WebSubUtils;
 import org.ballerinalang.net.websub.hub.Hub;
 
 /**
@@ -45,14 +46,14 @@ public class RegisterTopicAtHub extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String topic = context.getStringArgument(0);
-        Boolean loadingOnStartUp = context.getBooleanArgument(0);
-        try {
-            Hub.getInstance().registerTopic(topic, loadingOnStartUp);
-            context.setReturnValues();
-        } catch (BallerinaWebSubException e) {
-            context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
-        }
     }
 
+    public static Object registerTopicAtHub(Strand strand, String topic, boolean loadingOnStartUp) {
+        try {
+            Hub.getInstance().registerTopic(strand, topic, loadingOnStartUp);
+        } catch (BallerinaWebSubException e) {
+            return WebSubUtils.createError(e.getMessage());
+        }
+        return null;
+    }
 }

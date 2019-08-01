@@ -19,7 +19,7 @@ package org.ballerinalang.test.packaging;
 
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.utils.PackagingTestUtils;
+import org.ballerinalang.test.utils.TestUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -42,14 +42,14 @@ public class ModulePushTestCase extends BaseTest {
     @BeforeClass()
     public void setUp() throws IOException {
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-packaging-project-");
-        moduleName = moduleName + PackagingTestUtils.randomModuleName(8);
-        envVariables = addEnvVariables(PackagingTestUtils.getEnvVariables());
+        moduleName = moduleName + TestUtils.randomModuleName(8);
+        envVariables = addEnvVariables(TestUtils.getEnvVariables());
     }
 
     @Test(description = "Test pushing a package to central by specifying the access token as an environment variable")
     public void testPush() throws Exception {
         // Org-name
-        String orgName = "integrationtests";
+        String orgName = "bcintegrationtest";
 
         // Initialize a ballerina project and create a module to be pushed
         Path projectPath = tempProjectDirectory.resolve("initPushProject");
@@ -73,12 +73,12 @@ public class ModulePushTestCase extends BaseTest {
      */
     private Map<String, String> addEnvVariables(Map<String, String> envVariables) {
         envVariables.put("BALLERINA_DEV_STAGE_CENTRAL", "true");
-        envVariables.put("BALLERINA_CENTRAL_ACCESS_TOKEN", "0f647e67-857d-32e8-a679-bd3c1c3a7eb2");
+        envVariables.put("BALLERINA_CENTRAL_ACCESS_TOKEN", TestUtils.getToken());
         return envVariables;
     }
 
     @AfterClass
     private void cleanup() throws Exception {
-        PackagingTestUtils.deleteFiles(tempProjectDirectory);
+        TestUtils.deleteFiles(tempProjectDirectory);
     }
 }

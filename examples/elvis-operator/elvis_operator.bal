@@ -9,7 +9,7 @@ public function main() {
     string output = x is string ? "value is string: " + x : "value is nil";
     io:println("The output from the type-guard: " + output);
 
-    // Following is how you can achieve the same using the elvis operator.
+    // You can achieve the same using the elvis operator as follows.
     string elvisOutput = x ?: "value is nil";
     io:println("The output from the elvis operator: " + elvisOutput);
 }

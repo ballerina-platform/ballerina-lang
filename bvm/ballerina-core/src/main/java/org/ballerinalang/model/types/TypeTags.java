@@ -48,8 +48,7 @@ public class TypeTags {
     public static final int VOID_TAG = NONE_TAG + 1;
     public static final int XMLNS_TAG = VOID_TAG + 1;
     public static final int ANNOTATION_TAG = XMLNS_TAG + 1;
-    public static final int XML_ATTRIBUTES_TAG = ANNOTATION_TAG + 1;
-    public static final int SEMANTIC_ERROR = XML_ATTRIBUTES_TAG + 1;
+    public static final int SEMANTIC_ERROR = ANNOTATION_TAG + 1;
     public static final int ERROR_TAG = SEMANTIC_ERROR + 1;
     public static final int ITERATOR_TAG = ERROR_TAG + 1;
     public static final int TUPLE_TAG = ITERATOR_TAG + 1;
@@ -60,6 +59,7 @@ public class TypeTags {
     public static final int BYTE_ARRAY_TAG = OBJECT_TYPE_TAG + 1;
     public static final int FUNCTION_POINTER_TAG = BYTE_ARRAY_TAG + 1;
     public static final int CHANNEL_TAG = FUNCTION_POINTER_TAG + 1;
+    public static final int HANDLE_TAG = FUNCTION_POINTER_TAG + 1;
 
     public static final int SERVICE_TAG = OBJECT_TYPE_TAG;
 }

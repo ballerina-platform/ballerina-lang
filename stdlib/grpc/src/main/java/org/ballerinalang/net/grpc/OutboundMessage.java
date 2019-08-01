@@ -227,4 +227,28 @@ public class OutboundMessage {
             framer().flush();
         }
     }
+
+    public String getHttpVersion() {
+        return responseMessage.getHttpVersion();
+    }
+
+    public void setHttpVersion(String httpVersion) {
+        responseMessage.setHttpVersion(httpVersion);
+    }
+
+    public String getHttpMethod() {
+        return responseMessage.getHttpMethod();
+    }
+
+    public void setHttpMethod(String httpMethod) {
+        responseMessage.setHttpMethod(httpMethod);
+    }
+
+    public String getRequestUrl() {
+        return responseMessage.getRequestUrl();
+    }
+
+    public void setRequestUrl(String requestUrl) {
+        responseMessage.setRequestUrl(requestUrl);
+    }
 }

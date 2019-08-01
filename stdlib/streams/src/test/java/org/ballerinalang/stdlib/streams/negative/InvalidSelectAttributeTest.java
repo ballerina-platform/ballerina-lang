@@ -18,9 +18,9 @@
 
 package org.ballerinalang.stdlib.streams.negative;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -42,10 +42,12 @@ public class InvalidSelectAttributeTest {
 
     @Test(description = "Test if the proper error is thrown if an attribute is invalid in projection ")
     public void testInvalidAttributeInSelectClause() {
-        Assert.assertEquals(resultInvalidAttr.getErrorCount(), 2);
-        BAssertUtil.validateError(resultInvalidAttr, 0, "undefined stream attribute 'batches' " +
+        Assert.assertEquals(resultInvalidAttr.getErrorCount(), 3);
+        BAssertUtil.validateError(resultInvalidAttr, 0, "invalid operation: type 'Teacher' " +
+                "does not support field access for non-required field 'batches'", 36, 53);
+        BAssertUtil.validateError(resultInvalidAttr, 1, "undefined stream attribute 'batches' " +
                 "found in select clause", 36, 53);
-        BAssertUtil.validateError(resultInvalidAttr, 1, "fields defined in select clause, " +
+        BAssertUtil.validateError(resultInvalidAttr, 2, "fields defined in select clause, " +
                 "incompatible with output fields in type 'Teacher', expected '[name, age, status, batch, school]' " +
                 "but found '[batches, school, name, age, status]'", 37, 9);
     }

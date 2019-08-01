@@ -20,8 +20,8 @@ package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -43,8 +43,9 @@ public class IsTopicRegistered extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String topic = context.getStringArgument(0);
-        context.setReturnValues(new BBoolean(Hub.getInstance().isTopicRegistered(topic)));
     }
 
+    public static boolean isTopicRegistered(Strand strand, String topic) {
+        return Hub.getInstance().isTopicRegistered(topic);
+    }
 }

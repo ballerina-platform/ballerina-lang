@@ -18,14 +18,14 @@
 
 package org.ballerinalang.net.http.nativeimpl.request;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -33,6 +33,8 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.uri.URIUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+
+import static org.ballerinalang.net.http.HttpConstants.QUERY_PARAM_MAP;
 
 /**
  * Get the Query params from HTTP message and return a map.
@@ -47,22 +49,24 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
         returnType = {@ReturnType(type = TypeKind.MAP, elementType = TypeKind.STRING)},
         isPublic = true
 )
-public class GetQueryParams extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
+public class GetQueryParams {
+    @SuppressWarnings("unchecked")
+    public static MapValue<String, Object> getQueryParams(Strand strand, ObjectValue requestObj) {
         try {
-            BMap<String, BValue> requestStruct  = ((BMap<String, BValue>) context.getRefArgument(0));
-            HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) requestStruct
-                    .getNativeData(HttpConstants.TRANSPORT_MESSAGE);
-            BMapType mapType = new BMapType(BTypes.typeString);
-            if (httpCarbonMessage.getProperty(HttpConstants.QUERY_STR) != null) {
-                String queryString = (String) httpCarbonMessage.getProperty(HttpConstants.QUERY_STR);
-                BMap<String, BString> params = new BMap<>(mapType);
-                URIUtil.populateQueryParamMap(queryString, params);
-                context.setReturnValues(params);
-            } else {
-                context.setReturnValues(new BMap<>(mapType));
+            Object queryParams = requestObj.getNativeData(QUERY_PARAM_MAP);
+            if (queryParams != null) {
+                return (MapValue<String, Object>) queryParams;
             }
+            HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) requestObj
+                    .getNativeData(HttpConstants.TRANSPORT_MESSAGE);
+            BMapType mapType = new BMapType(new BArrayType(BTypes.typeString));
+            MapValue<String, Object> params = new MapValueImpl<>(mapType);
+            Object rawQueryString = httpCarbonMessage.getProperty(HttpConstants.RAW_QUERY_STR);
+            if (rawQueryString != null) {
+                URIUtil.populateQueryParamMap((String) rawQueryString, params);
+            }
+            requestObj.addNativeData(QUERY_PARAM_MAP, params);
+            return params;
         } catch (Exception e) {
             throw new BallerinaException("Error while retrieving query param from message: " + e.getMessage());
         }

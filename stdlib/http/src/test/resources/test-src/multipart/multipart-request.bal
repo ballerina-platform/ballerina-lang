@@ -1,10 +1,13 @@
+import ballerina/encoding;
 import ballerina/http;
 import ballerina/io;
 import ballerina/mime;
+import ballerina/internal;
 
 function setErrorResponse(http:Response response,  error err) {
     response.statusCode = 500;
-    response.setPayload(untaint <string>err.detail().message);
+    string? errMsg = err.detail()?.message;
+    response.setPayload(errMsg is string ? <@untainted> errMsg : "Error in parsing payload");
 }
 
 listener http:MockListener mockEP = new(9090);
@@ -24,14 +27,14 @@ service test on mockEP {
             var result = bodyParts[0].getText();
             if (result is string) {
                 mime:Entity entity = new;
-                entity.setText(untaint result);
+                entity.setText(<@untainted string> result);
                 response.setEntity(entity);
             } else {
                 setErrorResponse(response, result);
             }
         }
 
-        checkpanic caller->respond(untaint response);
+        checkpanic caller->respond(<@untainted http:Response> response);
     }
 
     @http:ResourceConfig {
@@ -45,12 +48,12 @@ service test on mockEP {
         if (bodyParts is mime:Entity[]) {
             var result = bodyParts[0].getJson();
             if (result is json) {
-                response.setJsonPayload(untaint result);
+                response.setJsonPayload(<@untainted json> result);
             } else {
                 setErrorResponse(response, result);
             }
         }
-        checkpanic caller->respond(untaint response);
+        checkpanic caller->respond(<@untainted http:Response> response);
     }
 
     @http:ResourceConfig {
@@ -64,12 +67,12 @@ service test on mockEP {
         if (bodyParts is mime:Entity[]) {
             var result = bodyParts[0].getXml();
             if (result is xml) {
-                response.setXmlPayload(untaint result);
+                response.setXmlPayload(<@untainted xml> result);
             } else {
                 setErrorResponse(response, result);
             }
         }
-        checkpanic caller->respond(untaint response);
+        checkpanic caller->respond(<@untainted http:Response> response);
     }
 
     @http:ResourceConfig {
@@ -83,12 +86,12 @@ service test on mockEP {
         if (bodyParts is mime:Entity[]) {
             var result = bodyParts[0].getByteArray();
             if (result is byte[]) {
-                response.setBinaryPayload(untaint result);
+                response.setBinaryPayload(<@untainted byte[]> result);
             } else {
                 setErrorResponse(response, result);
             }
         }
-        checkpanic caller->respond(untaint response);
+        checkpanic caller->respond(<@untainted http:Response> response);
     }
 
     @http:ResourceConfig {
@@ -107,9 +110,9 @@ service test on mockEP {
                 content = content + " -- " + handleContent(part);
                 i = i + 1;
             }
-            response.setTextPayload(untaint content);
+            response.setTextPayload(<@untainted string> content);
         }
-        checkpanic caller->respond(untaint response);
+        checkpanic caller->respond(<@untainted http:Response> response);
     }
 
     @http:ResourceConfig {
@@ -123,7 +126,9 @@ service test on mockEP {
         if (bodyParts is mime:Entity[]) {
             response.setPayload("Body parts detected!");
         } else {
-            response.setPayload(untaint <string>bodyParts.detail().message);
+            error err = bodyParts;
+            string? errMsg = err.detail()?.message;
+            response.setPayload(errMsg is string ? <@untainted> errMsg : "Error in parsing body parts");
         }
         checkpanic caller->respond(response);
     }
@@ -144,16 +149,16 @@ service test on mockEP {
                 payload = handleNestedParts(part);
                 i = i + 1;
             }
-            response.setTextPayload(untaint payload);
+            response.setTextPayload(<@untainted string> payload);
         }
-        checkpanic caller->respond(untaint response);
+        checkpanic caller->respond(<@untainted http:Response> response);
     }
 }
 
-function handleNestedParts(mime:Entity parentPart) returns (string) {
+function handleNestedParts(mime:Entity parentPart) returns @tainted string {
     string content = "";
     string contentTypeOfParent = parentPart.getContentType();
-    if (contentTypeOfParent.hasPrefix("multipart/")) {
+    if (internal:hasPrefix(contentTypeOfParent, "multipart/")) {
         var childParts = parentPart.getBodyParts();
         if (childParts is mime:Entity[]) {
             int i = 0;
@@ -169,7 +174,7 @@ function handleNestedParts(mime:Entity parentPart) returns (string) {
     return content;
 }
 
-function handleContent(mime:Entity bodyPart) returns (string) {
+function handleContent(mime:Entity bodyPart) returns @tainted string {
     var mediaType = mime:getMediaType(bodyPart.getContentType());
     if (mediaType is mime:MediaType) {
         string baseType = mediaType.getBaseType();
@@ -197,7 +202,7 @@ function handleContent(mime:Entity bodyPart) returns (string) {
         } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
             var payload = bodyPart.getByteArray();
             if (payload is byte[]) {
-                return mime:byteArrayToString(payload, mime:DEFAULT_CHARSET);
+                return encoding:byteArrayToString(payload, mime:DEFAULT_CHARSET);
             } else {
                 return "Error in getting byte[] payload";
             }
@@ -209,7 +214,7 @@ function handleContent(mime:Entity bodyPart) returns (string) {
 }
 
 //Keep this until there's a simpler way to get a string value out of a json
-function extractFieldValue(json fieldValue) returns string {
+function extractFieldValue(json|error fieldValue) returns string {
     if (fieldValue is string) {
         return fieldValue;
     } else {

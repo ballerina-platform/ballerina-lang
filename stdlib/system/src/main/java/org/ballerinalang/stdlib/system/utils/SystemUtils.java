@@ -17,27 +17,96 @@
  */
 package org.ballerinalang.stdlib.system.utils;
 
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.FileTime;
+import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.ballerinalang.stdlib.system.utils.SystemConstants.FILE_INFO_TYPE;
+import static org.ballerinalang.stdlib.system.utils.SystemConstants.SYSTEM_PACKAGE_PATH;
+import static org.ballerinalang.stdlib.time.util.TimeUtils.createTimeRecord;
+import static org.ballerinalang.stdlib.time.util.TimeUtils.getTimeRecord;
+import static org.ballerinalang.stdlib.time.util.TimeUtils.getTimeZoneRecord;
 
 /**
  * @since 0.94.1
  */
 public class SystemUtils {
 
+    private static final String UNKNOWN_MESSAGE = "Unknown Error";
+
+    /**
+     * Returns error object for input reason.
+     * Error type is generic ballerina error type. This utility to construct error object from message.
+     *
+     * @param error Reason for creating the error object. If the reason is null, "UNKNOWN" sets by
+     *              default.
+     * @param ex    Java throwable object to capture description of error struct. If throwable object is null,
+     *              "Unknown Error" sets to message by default.
+     * @return Ballerina error object.
+     */
+    public static ErrorValue getBallerinaError(String error, Throwable ex) {
+        String errorMsg = error != null && ex.getMessage() != null ? ex.getMessage() : UNKNOWN_MESSAGE;
+        return getBallerinaError(error, errorMsg);
+    }
+
+    /**
+     * Returns error object for input reason and details.
+     * Error type is generic ballerina error type. This utility to construct error object from message.
+     *
+     * @param error   The specific error type.
+     * @param details Java throwable object to capture description of error struct. If throwable object is null,
+     *                "Unknown Error" is set to message by default.
+     * @return Ballerina error object.
+     */
+    public static ErrorValue getBallerinaError(String error, String details) {
+        return BallerinaErrors.createError(error, populateSystemErrorRecord(details));
+    }
+
+    private static MapValue populateSystemErrorRecord(String message) {
+        Map<String, Object> valueMap = new HashMap<>();
+        if (message != null) {
+            valueMap.put(SystemConstants.ERROR_MESSAGE, message);
+        } else {
+            valueMap.put(SystemConstants.ERROR_MESSAGE, UNKNOWN_MESSAGE);
+        }
+        return BallerinaValues.createRecordValue(SYSTEM_PACKAGE_PATH, SystemConstants.ERROR_DETAILS, valueMap);
+    }
+
+    public static ObjectValue getFileInfo(File inputFile) throws IOException {
+        MapValue<String, Object> lastModifiedInstance;
+        FileTime lastModified = Files.getLastModifiedTime(inputFile.toPath());
+        ZonedDateTime zonedDateTime = ZonedDateTime.parse(lastModified.toString());
+        lastModifiedInstance = createTimeRecord(getTimeZoneRecord(), getTimeRecord(),
+                lastModified.toMillis(), zonedDateTime.getZone().toString());
+        return BallerinaValues.createObjectValue(SYSTEM_PACKAGE_PATH, FILE_INFO_TYPE, inputFile.getName(),
+                inputFile.length(), lastModifiedInstance, inputFile.isDirectory());
+    }
+
     /**
      * Returns the system property which corresponds to the given key.
      *
      * @param key system property key
-     * @return system property as a {@link BValue} or {@code BTypes.typeString.getZeroValue()} if the property does not
+     * @return system property as a {@link String} or {@code BTypes.typeString.getZeroValue()} if the property does not
      * exist.
      */
-    public static BValue getSystemProperty(String key) {
+    public static String getSystemProperty(String key) {
         String value = System.getProperty(key);
         if (value == null) {
-            return BTypes.typeString.getZeroValue();
+            return org.ballerinalang.jvm.types.BTypes.typeString.getZeroValue();
         }
-        return new BString(value);
+        return value;
+    }
+
+    private SystemUtils() {
     }
 }

@@ -18,10 +18,9 @@
 
 package org.ballerinalang.plugin.gradle.doc;
 
-import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
-import org.ballerinalang.launcher.LauncherUtils;
+import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 
@@ -40,10 +39,9 @@ public class DocerinaGen {
     public static void main(String[] args) {
         String sourceRoot = args[0];
         String outputDir = args[1];
+        String moduleFilter = args[2];
 
         System.setProperty(BallerinaDocConstants.ENABLE_DEBUG_LOGS, "true");
-
-        ConfigRegistry.getInstance().addConfiguration(BallerinaDocConstants.GENERATE_TOC, false);
 
         Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
         List<String> sources;
@@ -52,7 +50,8 @@ public class DocerinaGen {
         sources = srcDirectory.getSourcePackageNames();
 
         try {
-            BallerinaDocGenerator.generateApiDocs(sourceRoot, outputDir, null, false, false,
+            BallerinaDocGenerator.generateApiDocs(sourceRoot, outputDir,
+                    moduleFilter, false, false,
                     sources.toArray(new String[sources.size()]));
         } catch (Throwable e) {
             out.println(e.getMessage());
@@ -61,7 +60,6 @@ public class DocerinaGen {
             System.clearProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY);
             System.clearProperty(BallerinaDocConstants.OUTPUT_ZIP_PATH);
             System.clearProperty(BallerinaDocConstants.ORG_NAME);
-            ConfigRegistry.getInstance().removeConfiguration(BallerinaDocConstants.GENERATE_TOC);
         }
     }
 }

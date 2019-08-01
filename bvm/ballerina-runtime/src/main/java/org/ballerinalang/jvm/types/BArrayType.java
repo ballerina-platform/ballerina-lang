@@ -75,7 +75,7 @@ public class BArrayType extends BType {
             case TypeTags.STRING_TAG:
             case TypeTags.BYTE_TAG:
             case TypeTags.DECIMAL_TAG:
-                return (V) new ArrayValue(elementType, size);
+                return (V) new ArrayValue(new BArrayType(elementType), size);
             case TypeTags.ARRAY_TAG: // fall through
             default:
                 return (V) new ArrayValue(this);
@@ -88,14 +88,13 @@ public class BArrayType extends BType {
         switch (tag) {
             case TypeTags.INT_TAG:
             case TypeTags.FLOAT_TAG:
+            case TypeTags.DECIMAL_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.STRING_TAG:
             case TypeTags.BYTE_TAG:
                 return (V) new ArrayValue(elementType);
-            case TypeTags.DECIMAL_TAG:
-                return (V) new ArrayValue();
             default:
-                return (V) new ArrayValue();
+                return (V) new ArrayValue(this);
         }
     }
 
@@ -106,7 +105,7 @@ public class BArrayType extends BType {
 
     @Override
     public int hashCode() {
-        return super.toString().hashCode();
+        return toString().hashCode();
     }
 
     @Override

@@ -18,17 +18,16 @@
  */
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.bre.Context;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.AbstractNativeChannel;
 import org.ballerinalang.stdlib.io.channels.FileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Path;
@@ -43,38 +42,32 @@ import java.nio.file.Paths;
         orgName = "ballerina", packageName = "io",
         functionName = "openReadableFile",
         args = {@Argument(name = "path", type = TypeKind.STRING)},
-        returnType = {
-                @ReturnType(type = TypeKind.OBJECT, structType = "ReadableByteChannel", structPackage = "ballerina/io")
-        },
         isPublic = true
 )
 public class OpenReadableFile extends AbstractNativeChannel {
-    /**
-     * Index which defines the file path.
-     */
-    private static final int PATH_FIELD_INDEX = 0;
+
     /**
      * Read only access mode.
      */
     private static final String READ_ACCESS_MODE = "r";
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Channel inFlow(Context context) throws BallerinaException {
-        String pathUrl = context.getStringArgument(PATH_FIELD_INDEX);
-        Channel channel;
+    public static Object openReadableFile(Strand strand, String pathUrl) {
+        Object channel;
         try {
-            Path path = Paths.get(pathUrl);
-            FileChannel fileChannel = IOUtils.openFileChannel(path, READ_ACCESS_MODE);
-            channel = new FileIOChannel(fileChannel);
-            channel.setReadable(true);
+            channel = createChannel(inFlow(pathUrl));
         } catch (AccessDeniedException e) {
-            throw new BallerinaException("Do not have access to read file: ", e);
+            channel = IOUtils.createError("Do not have access to read file: " + e.getMessage());
         } catch (Throwable e) {
-            throw new BallerinaException("failed to open file: " + e.getMessage(), e);
+            channel = IOUtils.createError("Failed to open file: " + e.getMessage());
         }
+        return channel;
+    }
+
+    private static Channel inFlow(String pathUrl) throws IOException {
+        Path path = Paths.get(pathUrl);
+        FileChannel fileChannel = IOUtils.openFileChannelExtended(path, READ_ACCESS_MODE);
+        Channel channel = new FileIOChannel(fileChannel);
+        channel.setReadable(true);
         return channel;
     }
 }

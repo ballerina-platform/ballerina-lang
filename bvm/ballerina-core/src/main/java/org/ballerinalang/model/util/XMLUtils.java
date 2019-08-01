@@ -60,6 +60,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -91,7 +92,9 @@ public class XMLUtils {
             Canonicalizer.register("http://www.w3.org/2001/10/xml-exc-c14n#WithComments",
                                    "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclWithComments");
             canonicalizer = Canonicalizer.getInstance("http://www.w3.org/2001/10/xml-exc-c14n#WithComments");
-        } catch (InvalidCanonicalizerException | AlgorithmAlreadyRegisteredException e) {
+        } catch (AlgorithmAlreadyRegisteredException e) {
+            // ignore
+        } catch (InvalidCanonicalizerException e) {
             throw new BallerinaException("Error initializing canonicalizer: " + e.getMessage());
         }
     }

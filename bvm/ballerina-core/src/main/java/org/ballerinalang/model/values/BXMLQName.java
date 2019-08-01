@@ -55,7 +55,7 @@ public final class BXMLQName implements BRefType {
 
     @Override
     public BType getType() {
-        return BTypes.typeXMLAttributes;
+        return BTypes.typeString;
     }
 
     @Override

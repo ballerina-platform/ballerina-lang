@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -117,6 +117,7 @@ public class DefinitionTest {
                 {"defService3.json", "service"},
                 {"defService4.json", "service"},
                 {"defService5.json", "service"},
+                {"defService6.json", "service"},
                 {"defArrays1.json", "array"},
                 {"defArrays2.json", "array"},
                 {"defArrays3.json", "array"},
@@ -140,6 +141,8 @@ public class DefinitionTest {
                 {"defAssignment3.json", "assignment"},
                 {"defAssignment4.json", "assignment"},
                 {"defAssignment6.json", "assignment"},
+                {"defAssignment7.json", "assignment"},
+                {"defAssignment8.json", "assignment"},
                 {"defCompoundAssignment1.json", "compoundassignment"},
                 {"defForeach1.json", "foreach"},
                 {"defForeach2.json", "foreach"},
@@ -162,7 +165,7 @@ public class DefinitionTest {
                 {"defForeach19.json", "foreach"},
                 {"defForeach20.json", "foreach"},
                 {"defForeach21.json", "foreach"},
-                {"defForeach22.json", "foreach"},
+//                {"defForeach22.json", "foreach"}, TODO: Source invalid and need verify
                 {"defForeach23.json", "foreach"},
                 {"defForeach24.json", "foreach"},
                 {"defForeach25.json", "foreach"},
@@ -182,10 +185,27 @@ public class DefinitionTest {
                 {"defTransaction1.json", "transaction"},
                 {"defGlobal1.json", "global"},
                 {"defRecord1.json", "record"},
+                {"defRecord2.json", "record"},
                 {"defError1.json", "error"},
                 {"defWaitExpression1.json", "waitexpression"},
                 {"defExpressionConnectorInit.json", "expression"},
-                {"defExpressionNamedArgs.json", "expression"},
+                {"defAnnotation1.json", "annotation"},
+                {"defAnnotation2.json", "annotation"},
+                {"defAnnotation3.json", "annotation"},
+                {"defAnnotation4.json", "annotation"},
+                {"defAnnotation5.json", "annotation"},
+                {"defAnnotation6.json", "annotation"},
+                {"defAnnotation7.json", "annotation"},
+                {"defWorker1.json", "worker"},
+                {"defWorker2.json", "worker"},
+                {"defWorker3.json", "worker"},
+                {"defWorker4.json", "worker"},
+                {"defLambda1.json", "lambda"},
+                {"defLambda2.json", "lambda"},
+                {"defLambda3.json", "lambda"},
+                {"defLambda4.json", "lambda"},
+//                TODO: enable
+//                {"defExpressionNamedArgs.json", "expression"},
         };
     }
     

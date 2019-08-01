@@ -19,11 +19,10 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.observability.ObservabilityConstants;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -44,15 +43,10 @@ import static org.ballerinalang.observe.nativeimpl.OpenTracerBallerinaWrapper.RO
         returnType = @ReturnType(type = TypeKind.INT),
         isPublic = true
 )
-public class StartRootSpan extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        String spanName = context.getStringArgument(0);
-        BMap tags = (BMap) context.getNullableRefArgument(0);
-        int spanId = OpenTracerBallerinaWrapper
-                .getInstance().startSpan(spanName, Utils.toStringMap(tags), ROOT_SPAN_INDICATOR, context);
-
-        context.setReturnValues(new BInteger(spanId));
+public class StartRootSpan {
+    public static long startRootSpan(Strand strand, String spanName, Object tags) {
+        return OpenTracerBallerinaWrapper.getInstance().startSpan(
+                (String) strand.getProperty(ObservabilityConstants.SERVICE_NAME),
+                spanName, Utils.toStringMap((MapValue<?, ?>) tags), ROOT_SPAN_INDICATOR, strand);
     }
 }

@@ -18,13 +18,12 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.connector.api.Annotation;
-import org.ballerinalang.connector.api.ParamDetail;
-import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.net.http.exception.WebSocketException;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,67 +33,69 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class WebSocketService {
 
-    private final Service service;
+    private final ObjectValue service;
     private String[] negotiableSubProtocols = null;
     private int idleTimeoutInSeconds = 0;
-    private final Map<String, Resource> resourceMap = new ConcurrentHashMap<>();
+    private final Map<String, AttachedFunction> resourceMap = new ConcurrentHashMap<>();
     private String basePath;
     private HttpResource upgradeResource;
     private int maxFrameSize = WebSocketConstants.DEFAULT_MAX_FRAME_SIZE;
+    private Scheduler scheduler;
 
-    public WebSocketService() {
+    public WebSocketService(Scheduler scheduler) {
+        this.scheduler = scheduler;
         service = null;
     }
 
-    public WebSocketService(Service service) {
+    @SuppressWarnings("unchecked")
+    public WebSocketService(ObjectValue service, Scheduler scheduler) {
+        this.scheduler = scheduler;
         this.service = service;
-        for (Resource resource : service.getResources()) {
+        for (AttachedFunction resource : service.getType().getAttachedFunctions()) {
             resourceMap.put(resource.getName(), resource);
         }
 
-        ParamDetail param = service.getResources()[0].getParamDetails().get(0);
-        Annotation configAnnotation = WebSocketUtil.getServiceConfigAnnotation(service);
+        BType paramType = service.getType().getAttachedFunctions()[0].getParameterType()[0];
+        MapValue configAnnotation = WebSocketUtil.getServiceConfigAnnotation(service);
 
-        if (param != null && WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(param.getVarType().toString())) {
-            Struct configAnnotationStruct = null;
-            if (configAnnotation != null && (configAnnotationStruct = configAnnotation.getValue()) != null) {
-                negotiableSubProtocols = WebSocketUtil.findNegotiableSubProtocols(configAnnotationStruct);
-                idleTimeoutInSeconds = WebSocketUtil.findIdleTimeoutInSeconds(configAnnotationStruct);
-                maxFrameSize = WebSocketUtil.findMaxFrameSize(configAnnotationStruct);
+        if (paramType != null && WebSocketConstants.WEBSOCKET_CALLER_NAME.equals(paramType.toString())) {
+            MapValue configAnnotationMap;
+            if ((configAnnotationMap = configAnnotation) != null) {
+                negotiableSubProtocols = WebSocketUtil.findNegotiableSubProtocols(configAnnotationMap);
+                idleTimeoutInSeconds = WebSocketUtil.findIdleTimeoutInSeconds(configAnnotationMap);
+                maxFrameSize = WebSocketUtil.findMaxFrameSize(configAnnotationMap);
             }
 
-            basePath = findFullWebSocketUpgradePath(configAnnotationStruct);
+            basePath = findFullWebSocketUpgradePath(configAnnotationMap);
         }
 
     }
 
-    public WebSocketService(String httpBasePath, HttpResource upgradeResource, Service service) {
-        this(service);
-        Annotation resourceConfigAnnotation = HttpResource.getResourceConfigAnnotation(
+    public WebSocketService(String httpBasePath, HttpResource upgradeResource, ObjectValue service,
+                            Scheduler scheduler) {
+        this(service, scheduler);
+        MapValue resourceConfigAnnotation = HttpResource.getResourceConfigAnnotation(
                 upgradeResource.getBalResource());
         if (resourceConfigAnnotation == null) {
-            throw new BallerinaException("Cannot find a resource config for resource " + upgradeResource.getName());
+            throw new WebSocketException("Cannot find a resource config for resource " + upgradeResource.getName());
         }
-        Struct webSocketConfig =
-                resourceConfigAnnotation.getValue().getStructField(HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE);
-        String upgradePath = webSocketConfig.getStringField(HttpConstants.ANN_WEBSOCKET_ATTR_UPGRADE_PATH);
+        MapValue webSocketConfig =
+                resourceConfigAnnotation.getMapValue(HttpConstants.ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE);
+        String upgradePath = webSocketConfig.getStringValue(HttpConstants.ANN_WEBSOCKET_ATTR_UPGRADE_PATH);
         this.basePath = httpBasePath.concat(upgradePath);
         this.upgradeResource = upgradeResource;
     }
 
     public String getName() {
         if (service != null) {
-            String name = service.getName();
+            // With JBallerina this is the way to get the key
+            String name = HttpUtil.getServiceName(service);
             return !name.startsWith(HttpConstants.DOLLAR) ? name : "";
         }
         return null;
     }
 
-    public ServiceInfo getServiceInfo() {
-        return service != null ? service.getServiceInfo() : null;
-    }
-
-    public Resource getResourceByName(String resourceName) {
+    public AttachedFunction getResourceByName(String resourceName) {
         return resourceMap.get(resourceName);
     }
 
@@ -123,10 +124,10 @@ public class WebSocketService {
      *
      * @return the full path of the WebSocket upgrade.
      */
-    private String findFullWebSocketUpgradePath(Struct annStruct) {
+    private String findFullWebSocketUpgradePath(MapValue annotation) {
         String path = null;
-        if (annStruct != null) {
-            String basePathVal = annStruct.getStringField(WebSocketConstants.ANNOTATION_ATTR_PATH);
+        if (annotation != null) {
+            String basePathVal = annotation.getStringValue(WebSocketConstants.ANNOTATION_ATTR_PATH);
             if (!basePathVal.trim().isEmpty()) {
                 path = HttpUtil.sanitizeBasePath(basePathVal);
             }
@@ -135,5 +136,14 @@ public class WebSocketService {
             path = "/".concat(getName());
         }
         return path;
+    }
+
+    public ObjectValue getBalService() {
+        //TODO check service = null scenarios
+        return service;
+    }
+
+    public Scheduler getScheduler() {
+        return scheduler;
     }
 }

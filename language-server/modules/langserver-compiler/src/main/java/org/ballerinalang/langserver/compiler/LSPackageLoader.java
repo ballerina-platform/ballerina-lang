@@ -15,12 +15,14 @@
  */
 package org.ballerinalang.langserver.compiler;
 
+import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -28,6 +30,8 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Loads the Ballerina builtin core and builtin packages.
@@ -69,13 +73,16 @@ public class LSPackageLoader {
      * @param packageID Package ID to resolve
      * @return {@link BLangPackage} Resolved BLang Package
      */
-    public static BPackageSymbol getPackageSymbolById(CompilerContext context, PackageID packageID) {
+    public static Optional<BPackageSymbol> getPackageSymbolById(CompilerContext context, PackageID packageID) {
+        if (isLangLib(packageID)) {
+            return Optional.empty();
+        }
         BPackageSymbol packageSymbol;
         synchronized (LSPackageLoader.class) {
             PackageLoader pkgLoader = PackageLoader.getInstance(context);
             packageSymbol = pkgLoader.loadPackageSymbol(packageID, null, null);
         }
-        return packageSymbol;
+        return Optional.ofNullable(packageSymbol);
     }
 
     /**
@@ -97,7 +104,7 @@ public class LSPackageLoader {
                     String[] packageNames = packageDir.list(((dir, name) -> !name.startsWith(DOT)));
                     if (packageNames != null) {
                         for (String name : packageNames) {
-                            if ("builtin".equals(name)) {
+                            if ("ballerina".equals(repo) && name != null && name.contains("__internal")) {
                                 continue;
                             }
                             BallerinaPackage ballerinaPackage = new BallerinaPackage(repo, name, null);
@@ -156,5 +163,52 @@ public class LSPackageLoader {
 
     public static List<BallerinaPackage> getHomeRepoPackages() {
         return new ArrayList<>(homeRepoPackages);
+    }
+
+    /**
+     * Clear the home repo packages.
+     */
+    public static void clearHomeRepoPackages() {
+        homeRepoPackages.clear();
+    }
+
+    /**
+     * Returns a list of modules available for the current project.
+     *
+     * @param pkg Built {@link BLangPackage}
+     * @param context Built {@link LSContext}
+     * @return List of Ballerina Packages
+     */
+    public static List<BallerinaPackage> getCurrentProjectModules(BLangPackage pkg, LSContext context) {
+        List<BallerinaPackage> packageList = new ArrayList<>();
+        LSDocument lsDocument = context.get(DocumentServiceKeys.LS_DOCUMENT_KEY);
+        
+        /*
+        If the lsDocument instance is null or not within a project, we skip processing
+         */
+        if (lsDocument == null || !lsDocument.isWithinProject()) {
+            return packageList;
+        }
+        String currentModuleName = context.get(DocumentServiceKeys.CURRENT_PKG_NAME_KEY);
+        for (String moduleName : lsDocument.getProjectModules()) {
+            if (currentModuleName.equals(moduleName)) {
+                continue;
+            }
+            packageList.add(new BallerinaPackage(pkg.packageID.orgName.value, moduleName, pkg.packageID.version.value));
+        }
+        return packageList;
+    }
+
+    /**
+     * Whether the given package is a lang lib.
+     *
+     * @param packageID Package ID to evaluate
+     * @return {@link Boolean} whether package is a lang lib
+     */
+    private static boolean isLangLib(PackageID packageID) {
+        String orgName = packageID.orgName.value;
+        List<String> nameComps = packageID.nameComps.stream().map(Name::getValue).collect(Collectors.toList());
+
+        return orgName.equals("ballerina") && nameComps.get(0).equals("lang");
     }
 }

@@ -19,25 +19,31 @@ import ballerina/io;
 io:ReadableByteChannel rch = new;
 io:WritableByteChannel wch = new;
 
-function initReadableChannel(string filePath) {
-    rch = untaint io:openReadableFile(filePath);
+function initReadableChannel(string filePath) returns @tainted io:Error? {
+
+    var result = io:openReadableFile(filePath);
+    if (result is io:ReadableByteChannel) {
+        rch = <@untainted> result;
+    } else {
+        return result;
+    }
 }
 
 function initWritableChannel(string filePath) {
-    wch = untaint io:openWritableFile(filePath);
+    wch = <@untainted io:WritableByteChannel> io:openWritableFile(filePath);
 }
 
-function readBytes(int numberOfBytes) returns byte[]|error {
+function readBytes(int numberOfBytes) returns @tainted byte[]|io:Error {
     var result = rch.read(numberOfBytes);
-    if (result is (byte[], int)) {
-        var (bytes, val) = result;
+    if (result is [byte[], int]) {
+        var [bytes, val] = result;
         return bytes;
     } else {
         return result;
     }
 }
 
-function writeBytes(byte[] content, int startOffset) returns int|error {
+function writeBytes(byte[] content, int startOffset) returns int|io:Error {
     int empty = -1;
     var result = wch.write(content, startOffset);
     if (result is int) {
@@ -55,10 +61,10 @@ function closeWritableChannel() {
     var result = wch.close();
 }
 
-function testBase64EncodeByteChannel(io:ReadableByteChannel contentToBeEncoded) returns io:ReadableByteChannel|error {
+function testBase64EncodeByteChannel(io:ReadableByteChannel contentToBeEncoded) returns io:ReadableByteChannel|io:Error {
     return contentToBeEncoded.base64Encode();
 }
 
-function testBase64DecodeByteChannel(io:ReadableByteChannel contentToBeDecoded) returns io:ReadableByteChannel|error {
+function testBase64DecodeByteChannel(io:ReadableByteChannel contentToBeDecoded) returns io:ReadableByteChannel|io:Error {
     return contentToBeDecoded.base64Decode();
 }

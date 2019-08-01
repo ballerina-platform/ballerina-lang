@@ -25,6 +25,7 @@
     "exclude": [
         "node_modules",
         ".vscode-test",
-        "target"
+        "target",
+        "extractedDistribution"
     ],
 }

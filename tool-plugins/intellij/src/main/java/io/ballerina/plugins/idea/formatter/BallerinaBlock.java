@@ -159,10 +159,9 @@ public class BallerinaBlock extends AbstractBlock {
                 alignment = Alignment.createAlignment(true, Alignment.Anchor.LEFT);
                 myAlignmentMap.put(myNode, alignment);
             }
-        } else if ((childElementType == BallerinaTypes.RETURNS
-                || childElementType == BallerinaTypes.DEFAULTABLE_PARAMETER
-                || childElementType == BallerinaTypes.RETURN_TYPE)
-                && parentElementType == BallerinaTypes.RETURN_PARAMETER) {
+        } else if (
+                (childElementType == BallerinaTypes.RETURNS || childElementType == BallerinaTypes.DEFAULTABLE_PARAMETER)
+                        && parentElementType == BallerinaTypes.RETURN_PARAMETER) {
             if (myAlignmentMap.containsKey(myNode)) {
                 alignment = myAlignmentMap.get(myNode);
             } else {
@@ -221,10 +220,7 @@ public class BallerinaBlock extends AbstractBlock {
                         || parentElementType == BallerinaTypes.FORK_JOIN_STATEMENT
                         || parentElementType == BallerinaTypes.WHILE_STATEMENT_BODY
                         || parentElementType == BallerinaTypes.MATCH_STATEMENT_BODY
-                        || parentElementType == BallerinaTypes.VAR_MATCH_PATTERN
-                        || parentElementType == BallerinaTypes.STATIC_MATCH_PATTERN
                         || parentElementType == BallerinaTypes.RECORD_LITERAL
-                        || parentElementType == BallerinaTypes.RECORD_FIELD_DEFINITION_LIST
                         || parentElementType == BallerinaTypes.FOREACH_STATEMENT
                         || parentElementType == BallerinaTypes.LOCK_STATEMENT
                         || parentElementType == BallerinaTypes.OBJECT_TYPE_NAME
@@ -233,21 +229,16 @@ public class BallerinaBlock extends AbstractBlock {
                         || parentElementType == BallerinaTypes.CATCH_CLAUSE
                         || parentElementType == BallerinaTypes.FINALLY_CLAUSE
                         || parentElementType == BallerinaTypes.SERVICE_BODY
-                        || parentElementType == BallerinaTypes.ARRAY_LITERAL
                         || parentElementType == BallerinaTypes.TRANSACTION_CLAUSE
                         || parentElementType == BallerinaTypes.ABORTED_CLAUSE
-                        || parentElementType == BallerinaTypes.COMMITTED_CLAUSE
-                        || parentElementType == BallerinaTypes.RECORD_TYPE_NAME)) {
+                        || parentElementType == BallerinaTypes.COMMITTED_CLAUSE)) {
             return Indent.getNormalIndent();
         } else if (parentElementType == BallerinaTypes.CALLABLE_UNIT_SIGNATURE) {
             return Indent.getIndent(Indent.Type.NORMAL, true, true);
         } else if (childElementType == BallerinaTypes.RETURN_PARAMETER) {
             return Indent.getNormalIndent();
-        } else if (childElementType == BallerinaTypes.RETURN_TYPE) {
-            return Indent.getIndent(Indent.Type.NORMAL, true, true);
         } else if ((childElementType == BallerinaTypes.TUPLE_TYPE_NAME
-                || childElementType == BallerinaTypes.UNION_TYPE_NAME) && (parentElementType
-                == BallerinaTypes.RETURN_TYPE)) {
+                || childElementType == BallerinaTypes.UNION_TYPE_NAME)) {
             return Indent.getIndent(Indent.Type.NORMAL, true, true);
         } else if (parentElementType == BallerinaTypes.MATCH_PATTERN_CLAUSE) {
             return Indent.getNormalIndent();
@@ -256,9 +247,6 @@ public class BallerinaBlock extends AbstractBlock {
             return Indent.getNormalIndent();
         } else if (childElementType == BallerinaTypes.SERVICE_BODY_MEMBER
                 && parentElementType == BallerinaTypes.SERVICE_BODY) {
-            return Indent.getNormalIndent();
-        } else if (childElementType == BallerinaTypes.TYPE_REFERENCE
-                && parentElementType == BallerinaTypes.RECORD_FIELD_DEFINITION_LIST) {
             return Indent.getNormalIndent();
         } else if (childElementType == BallerinaTypes.WORKER_DEFINITION
                 && parentElementType == BallerinaTypes.FORK_JOIN_STATEMENT) {
@@ -275,9 +263,6 @@ public class BallerinaBlock extends AbstractBlock {
         } else if (childElementType == BallerinaTypes.INVOCATION_ARG_LIST) {
             return Indent.getIndent(Indent.Type.NORMAL, true, true);
         } else if (childElementType == BallerinaTypes.MATCH_STATEMENT_BODY) {
-            return Indent.getNormalIndent();
-        } else if (childElementType == BallerinaTypes.EXPRESSION_LIST
-                && parentElementType == BallerinaTypes.ARRAY_LITERAL) {
             return Indent.getNormalIndent();
         } else if (childElementType == BallerinaTypes.OBJECT_BODY) {
             return Indent.getNormalIndent();
@@ -351,10 +336,6 @@ public class BallerinaBlock extends AbstractBlock {
             childIndent = Indent.getNormalIndent();
         } else if (myNode.getElementType() == BallerinaTypes.MATCH_STATEMENT_BODY) {
             childIndent = Indent.getNormalIndent();
-        } else if (myNode.getElementType() == BallerinaTypes.VAR_MATCH_PATTERN) {
-            childIndent = Indent.getNormalIndent();
-        } else if (myNode.getElementType() == BallerinaTypes.STATIC_MATCH_PATTERN) {
-            childIndent = Indent.getNormalIndent();
         } else if (myNode.getElementType() == BallerinaTypes.FOREACH_STATEMENT) {
             childIndent = Indent.getNormalIndent();
         } else if (myNode.getElementType() == BallerinaTypes.IF_CLAUSE) {
@@ -386,8 +367,6 @@ public class BallerinaBlock extends AbstractBlock {
         } else if (myNode.getElementType() == BallerinaTypes.OBJECT_FIELD_DEFINITION) {
             childIndent = Indent.getNormalIndent();
         } else if (myNode.getElementType() == BallerinaTypes.FOREVER_STATEMENT) {
-            childIndent = Indent.getNormalIndent();
-        } else if (myNode.getElementType() == BallerinaTypes.RECORD_TYPE_NAME) {
             childIndent = Indent.getNormalIndent();
         }
         return new ChildAttributes(childIndent, null);

@@ -20,6 +20,9 @@ package org.ballerinalang.utils;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
@@ -52,5 +55,16 @@ public class Length extends BlockingNativeCallableUnit {
             throw new BLangRuntimeException(NULL_REF_EXCEPTION);
         }
         ctx.setReturnValues(new BInteger(refRegVal.size()));
+    }
+
+    public static long length(Strand strand, Object value) {
+        if (value instanceof String) {
+            return ((String) value).length();
+        }
+        RefValue refValue = (RefValue) value;
+        if (refValue == null) {
+            throw BallerinaErrors.createError(BallerinaErrors.NULL_REF_EXCEPTION);
+        }
+        return refValue.size();
     }
 }

@@ -16,18 +16,17 @@
  */
 package org.ballerinalang.testerina.test.utils;
 
-import org.ballerinalang.bre.bvm.BVMExecutor;
+import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.tool.util.BCompileUtil;
+import org.ballerinalang.tool.util.CompileResult;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
-import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.testng.Assert;
 
@@ -49,7 +48,7 @@ public class BTestUtils {
      * @param sourceFilePath Path to source package/file
      * @return Semantic errors
      */
-    public static org.ballerinalang.launcher.util.CompileResult compile(String sourceRoot, String sourceFilePath) {
+    public static org.ballerinalang.tool.util.CompileResult compile(String sourceRoot, String sourceFilePath) {
         return BCompileUtil.compile(sourceRoot, sourceFilePath, CompilerPhase.CODE_GEN);
     }
 
@@ -183,17 +182,14 @@ public class BTestUtils {
             throw new IllegalStateException("compilation contains errors.. " + msg);
         }
         ProgramFile programFile = compileResult.getProgFile();
-        Debugger debugger = new Debugger(programFile);
-        programFile.setDebugger(debugger);
-
-
         PackageInfo packageInfo = programFile.getPackageInfo(packageName);
         FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
+
         if (functionInfo == null) {
             throw new RuntimeException("Function '" + functionName + "' is not defined");
         }
 
-        return BVMExecutor.executeEntryFunction(programFile, functionInfo, args);
+        return new BValue[]{BLangProgramRunner.runProgram(programFile, args)};
     }
 
     /**
@@ -226,16 +222,14 @@ public class BTestUtils {
             throw new IllegalStateException("compilation contains errors.. " + msg);
         }
         ProgramFile programFile = compileResult.getProgFile();
-        Debugger debugger = new Debugger(programFile);
-        programFile.setDebugger(debugger);
-
         PackageInfo packageInfo = programFile.getPackageInfo(programFile.getEntryPkgName());
         FunctionInfo functionInfo = packageInfo.getFunctionInfo(functionName);
+
         if (functionInfo == null) {
             throw new RuntimeException("Function '" + functionName + "' is not defined");
         }
 
-        return BVMExecutor.executeEntryFunction(programFile, functionInfo, args);
+        return new BValue[]{BLangProgramRunner.runProgram(programFile, functionInfo, args)};
     }
 
     /**

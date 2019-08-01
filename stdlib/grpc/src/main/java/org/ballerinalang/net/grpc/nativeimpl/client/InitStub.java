@@ -17,11 +17,10 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.client;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.MessageUtils;
@@ -38,10 +37,7 @@ import java.util.Map;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.BLOCKING_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_CONNECTOR;
-import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_REF_INDEX;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
-import static org.ballerinalang.net.grpc.GrpcConstants.DESCRIPTOR_KEY_STRING_INDEX;
-import static org.ballerinalang.net.grpc.GrpcConstants.DESCRIPTOR_MAP_REF_INDEX;
 import static org.ballerinalang.net.grpc.GrpcConstants.ENDPOINT_URL;
 import static org.ballerinalang.net.grpc.GrpcConstants.METHOD_DESCRIPTORS;
 import static org.ballerinalang.net.grpc.GrpcConstants.NON_BLOCKING_TYPE;
@@ -49,7 +45,6 @@ import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB;
-import static org.ballerinalang.net.grpc.GrpcConstants.STUB_TYPE_STRING_INDEX;
 
 /**
  * {@code InitStub} is the InitStub function implementation of the gRPC service stub.
@@ -64,41 +59,39 @@ import static org.ballerinalang.net.grpc.GrpcConstants.STUB_TYPE_STRING_INDEX;
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
-public class InitStub extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-        BMap<String, BValue> clientEndpoint = (BMap<String, BValue>) context.getRefArgument(CLIENT_ENDPOINT_REF_INDEX);
-        HttpClientConnector clientConnector = (HttpClientConnector) clientEndpoint.getNativeData(CLIENT_CONNECTOR);
-        String urlString = (String) clientEndpoint.getNativeData(ENDPOINT_URL);
-        String stubType = context.getStringArgument(STUB_TYPE_STRING_INDEX);
-        String rootDescriptor = context.getStringArgument(DESCRIPTOR_KEY_STRING_INDEX);
-        BMap<String, BValue> descriptorMap = (BMap<String, BValue>) context.getRefArgument(DESCRIPTOR_MAP_REF_INDEX);
-        
+public class InitStub {
+
+    public static Object initStub(Strand strand, ObjectValue genericEndpoint, ObjectValue clientEndpoint,
+                                  String stubType, String rootDescriptor, MapValue<String, Object> descriptorMap) {
+        HttpClientConnector clientConnector = (HttpClientConnector) genericEndpoint.getNativeData(CLIENT_CONNECTOR);
+        String urlString = (String) genericEndpoint.getNativeData(ENDPOINT_URL);
+
         if (stubType == null || rootDescriptor == null || descriptorMap == null) {
-            context.setReturnValues(MessageUtils.getConnectorError(new StatusRuntimeException(Status
+            return MessageUtils.getConnectorError(new StatusRuntimeException(Status
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while initializing " +
-                            "connector. message descriptor keys not exist. Please check the generated sub file"))));
-            return;
+                            "connector. message descriptor keys not exist. Please check the generated sub file")));
         }
-        
+
         try {
             ServiceDefinition serviceDefinition = new ServiceDefinition(rootDescriptor, descriptorMap);
-            Map<String, MethodDescriptor> methodDescriptorMap = serviceDefinition.getMethodDescriptors(context);
+            Map<String, MethodDescriptor> methodDescriptorMap =
+                    serviceDefinition.getMethodDescriptors(clientEndpoint.getType().getAttachedFunctions());
 
-            clientEndpoint.addNativeData(METHOD_DESCRIPTORS, methodDescriptorMap);
+            genericEndpoint.addNativeData(METHOD_DESCRIPTORS, methodDescriptorMap);
             if (BLOCKING_TYPE.equalsIgnoreCase(stubType)) {
                 BlockingStub blockingStub = new BlockingStub(clientConnector, urlString);
-                clientEndpoint.addNativeData(SERVICE_STUB, blockingStub);
+                genericEndpoint.addNativeData(SERVICE_STUB, blockingStub);
             } else if (NON_BLOCKING_TYPE.equalsIgnoreCase(stubType)) {
                 NonBlockingStub nonBlockingStub = new NonBlockingStub(clientConnector, urlString);
-                clientEndpoint.addNativeData(SERVICE_STUB, nonBlockingStub);
+                genericEndpoint.addNativeData(SERVICE_STUB, nonBlockingStub);
             } else {
-                context.setReturnValues(MessageUtils.getConnectorError(new StatusRuntimeException(Status
+                return MessageUtils.getConnectorError(new StatusRuntimeException(Status
                         .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while " +
-                                "initializing connector. invalid connector type"))));
+                                "initializing connector. invalid connector type")));
             }
         } catch (RuntimeException | GrpcClientException e) {
-            context.setReturnValues(MessageUtils.getConnectorError(e));
+            return MessageUtils.getConnectorError(e);
         }
+        return null;
     }
 }

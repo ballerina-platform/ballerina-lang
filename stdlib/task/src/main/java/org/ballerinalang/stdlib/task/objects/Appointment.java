@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.stdlib.task.objects;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.utils.TaskJob;
 import org.quartz.CronScheduleBuilder;
@@ -74,7 +73,7 @@ public class Appointment extends AbstractTask {
      *
      * @return cron expression for this appointment to trigger.
      */
-    public String getCronExpression() {
+    private String getCronExpression() {
         return this.cronExpression;
     }
 
@@ -83,7 +82,7 @@ public class Appointment extends AbstractTask {
      *
      * @return the number of times the appointment runs before shutdown.
      */
-    public long getMaxRuns() {
+    private long getMaxRuns() {
         return this.maxRuns;
     }
 
@@ -91,7 +90,7 @@ public class Appointment extends AbstractTask {
      * {@inheritDoc}
      */
     @Override
-    public void start(Context context) throws SchedulingException {
+    public void start() throws SchedulingException {
         JobDataMap jobDataMap = getJobDataMapFromTask();
         try {
             scheduleAppointment(jobDataMap);

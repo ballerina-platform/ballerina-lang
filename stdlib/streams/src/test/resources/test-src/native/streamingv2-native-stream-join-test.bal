@@ -84,7 +84,7 @@ function joinFunc() {
     function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
         foreach map<anydata> m in events {
             // just cast input map into the output type
-            StockWithPrice o = <StockWithPrice>StockWithPrice.stamp(m.clone());
+            StockWithPrice o = <StockWithPrice>StockWithPrice.constructFrom(m);
             stockWithPriceStream.publish(o);
         }
     };
@@ -98,9 +98,9 @@ function joinFunc() {
         [], (),
         function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
             return {
-                "symbol": e.data["stockStream.symbol"],
-                "tweet": e.data["twitterStream.tweet"],
-                "price": e.data["stockStream.price"]
+                "symbol": e.get("stockStream.symbol"),
+                "tweet": e.get("twitterStream.tweet"),
+                "price": e.get("stockStream.price")
             };
         }
     );
@@ -129,8 +129,8 @@ function joinFunc() {
 
     // Subscribe to input streams
     stockStream.subscribe(function (Stock i) {
-            map<anydata> keyVal = <map<anydata>>map<anydata>.stamp
-            (i.clone());
+            map<anydata> keyVal = <map<anydata>>map<anydata>.constructFrom
+            (i);
             streams:StreamEvent?[] eventArr = streams:buildStreamEvent(keyVal, "stockStream");
             lengthWindowA.process(eventArr);
         }

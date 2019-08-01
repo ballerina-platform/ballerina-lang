@@ -14,20 +14,33 @@ const textElement = document.createElementNS("http://www.w3.org/2000/svg", "text
 svg.appendChild(textElement);
 document.body.appendChild(svg);
 
-const ellipsesLength = getEllipsesLength();
-export class DiagramUtils {
+let ellipsesLength: number | undefined;
 
-    public static getComponents(nodeArray: any): React.ReactNode[] {
+interface CalcTextLengthOptions {
+    bold: boolean;
+}
+
+interface GetComponentsOptions {
+    skipHidden?: boolean;
+    commonProps?: any;
+}
+export class DiagramUtils {
+    public static isDrawable(node: any): boolean {
+        return (components as any)[node.kind] !== undefined;
+    }
+
+    public static getComponents(nodeArray: any, options: GetComponentsOptions = {}): React.ReactNode[] {
         // Convert to array
         if (!(nodeArray instanceof Array)) {
             nodeArray = [nodeArray];
         }
+
         const children: any = [];
         nodeArray.forEach((node: any) => {
             const ChildComp = (components as any)[node.kind];
             if (!ChildComp) { return; }
             // Do not return hidden elements
-            if (node.viewState && node.viewState.hidden) {return; }
+            if (node.viewState && node.viewState.hidden) { return; }
             children.push(<ChildComp model={node} />);
         });
         return children;
@@ -46,10 +59,15 @@ export class DiagramUtils {
         minWidth = DefaultConfig.statement.width,
         maxWidth = DefaultConfig.statement.maxWidth,
         paddingLeft = DefaultConfig.statement.padding.left,
-        paddingRight = DefaultConfig.statement.padding.right) {
+        paddingRight = DefaultConfig.statement.padding.right, isBold = false) {
+        if (!ellipsesLength) {
+            ellipsesLength = getEllipsesLength();
+        }
         text = text.trim();
         text = text.replace(/\/\/.*$/gm, "");
         text = text.trim();
+        textElement.style.fontWeight = isBold ? "bold" : "";
+
         textElement.innerHTML = _.escape(text);
 
         let labelWidth = textElement.getComputedTextLength();
@@ -85,6 +103,15 @@ export class DiagramUtils {
         };
     }
 
+    public static calcTextLength(text: string, options: CalcTextLengthOptions) {
+        textElement.style.fontWeight = options.bold ? "bold" : "";
+        const escaped = _.escape(text);
+        textElement.innerHTML = escaped;
+        const length = textElement.getSubStringLength(0, escaped.length);
+        textElement.style.fontWeight = "";
+        return length;
+    }
+
     /**
      * Get diagram config
      */
@@ -93,7 +120,10 @@ export class DiagramUtils {
     }
 }
 
-function getEllipsesLength() {
+/**
+ * Get text length of "..."
+ */
+function getEllipsesLength(): number {
     textElement.textContent = "...";
     return textElement.getComputedTextLength();
 }

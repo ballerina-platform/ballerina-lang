@@ -14,10 +14,9 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
-*/
+ */
 package org.ballerinalang.stdlib.task.impl;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.stdlib.task.api.TaskServerConnector;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.objects.Task;
@@ -35,19 +34,12 @@ public class TaskServerConnectorImpl implements TaskServerConnector {
     private Task task;
 
     /**
-     * Context of the calling service.
-     */
-    private Context context;
-
-    /**
      * Constructor of the server connector.
      *
-     * @param context Context of which the server connector is called.
-     * @param task    Native Task object which is mapped to the Listener.
+     * @param task Native Task object which is mapped to the Listener.
      */
-    public TaskServerConnectorImpl(Context context, Task task) {
+    public TaskServerConnectorImpl(Task task) {
         this.task = task;
-        this.context = context;
     }
 
     /**
@@ -55,7 +47,7 @@ public class TaskServerConnectorImpl implements TaskServerConnector {
      */
     @Override
     public void start() throws SchedulingException {
-        this.task.start(context);
+        this.task.start();
     }
 
     /**

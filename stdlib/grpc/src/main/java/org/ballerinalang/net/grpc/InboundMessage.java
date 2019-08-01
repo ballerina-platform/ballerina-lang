@@ -19,14 +19,13 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.contract.ServerConnectorException;
+import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.InputStream;
 import java.util.Map;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_ENCODING;
-import static org.ballerinalang.net.grpc.GrpcConstants.STATUS_HEADER;
 import static org.ballerinalang.net.grpc.GrpcConstants.TO_HEADER;
 
 /**
@@ -101,15 +100,14 @@ public class InboundMessage {
     }
 
     public int getStatus() {
-        return  (Integer) httpCarbonMessage.getProperty(STATUS_HEADER);
+        return  httpCarbonMessage.getHttpStatusCode();
     }
 
     /**
      * @return HTTP method of the request.
      */
     public String getHttpMethod() {
-        return (String) httpCarbonMessage
-                .getProperty(org.wso2.transport.http.netty.contract.Constants.HTTP_METHOD);
+        return httpCarbonMessage.getHttpMethod();
     }
 
     /**

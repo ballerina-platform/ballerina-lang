@@ -18,12 +18,11 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -60,30 +59,27 @@ import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 )
 public class PushPromisedResponse extends ConnectionAction {
 
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-        BMap<String, BValue> connectionStruct = (BMap<String, BValue>) context.getRefArgument(0);
-        HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
-        DataContext dataContext = new DataContext(context, callback, inboundRequestMsg);
+    public static Object pushPromisedResponse(Strand strand, ObjectValue connectionObj, ObjectValue pushPromiseObj,
+                                     ObjectValue outboundResponseObj) {
+        HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionObj, null);
+        DataContext dataContext = new DataContext(strand, new NonBlockingCallback(strand), inboundRequestMsg);
         HttpUtil.serverConnectionStructCheck(inboundRequestMsg);
 
-        BMap<String, BValue> pushPromiseStruct = (BMap<String, BValue>) context.getRefArgument(1);
-        Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseStruct, null);
+        Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseObj, null);
         if (http2PushPromise == null) {
             throw new BallerinaException("invalid push promise");
         }
 
-        BMap<String, BValue> outboundResponseStruct = (BMap<String, BValue>) context.getRefArgument(2);
         HttpCarbonMessage outboundResponseMsg = HttpUtil
-                .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
-
-        HttpUtil.prepareOutboundResponse(context, inboundRequestMsg, outboundResponseMsg, outboundResponseStruct);
-        pushResponseRobust(dataContext, inboundRequestMsg, outboundResponseStruct, outboundResponseMsg,
+                .getCarbonMsg(outboundResponseObj, HttpUtil.createHttpCarbonMessage(false));
+        HttpUtil.prepareOutboundResponse(connectionObj, inboundRequestMsg, outboundResponseMsg, outboundResponseObj);
+        pushResponseRobust(dataContext, inboundRequestMsg, outboundResponseObj, outboundResponseMsg,
                 http2PushPromise);
+        return null;
     }
 
-    private void pushResponseRobust(DataContext dataContext, HttpCarbonMessage requestMessage,
-                                    BMap<String, BValue> outboundResponseStruct, HttpCarbonMessage responseMessage,
+    private static void pushResponseRobust(DataContext dataContext, HttpCarbonMessage requestMessage,
+                                    ObjectValue outboundResponseObj, HttpCarbonMessage responseMessage,
                                     Http2PushPromise http2PushPromise) {
         HttpResponseFuture outboundRespStatusFuture =
                 HttpUtil.pushResponse(requestMessage, responseMessage, http2PushPromise);
@@ -93,10 +89,10 @@ public class PushPromisedResponse extends ConnectionAction {
         outboundRespStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
         OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
 
-        BMap<String, BValue> entityStruct = extractEntity(outboundResponseStruct);
-        if (entityStruct != null) {
-            BValue outboundMessageSource = EntityBodyHandler.getMessageDataSource(entityStruct);
-            serializeMsgDataSource(outboundMessageSource, entityStruct, messageOutputStream);
+        ObjectValue entityObj = extractEntity(outboundResponseObj);
+        if (entityObj != null) {
+            Object outboundMessageSource = EntityBodyHandler.getMessageDataSource(entityObj);
+            serializeMsgDataSource(outboundMessageSource, entityObj, messageOutputStream);
         }
     }
 }

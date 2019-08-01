@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -110,8 +110,20 @@ public class BallerinaStatementImpl extends ASTWrapperPsiElement implements Ball
 
   @Override
   @Nullable
+  public BallerinaListDestructuringStatement getListDestructuringStatement() {
+    return findChildByClass(BallerinaListDestructuringStatement.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaLockStatement getLockStatement() {
     return findChildByClass(BallerinaLockStatement.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaMatchStatement getMatchStatement() {
+    return findChildByClass(BallerinaMatchStatement.class);
   }
 
   @Override
@@ -184,18 +196,6 @@ public class BallerinaStatementImpl extends ASTWrapperPsiElement implements Ball
   @Nullable
   public BallerinaWorkerSendAsyncStatement getWorkerSendAsyncStatement() {
     return findChildByClass(BallerinaWorkerSendAsyncStatement.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaMatchStatement getMatchStatement() {
-    return findChildByClass(BallerinaMatchStatement.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaTupleDestructuringStatement getTupleDestructuringStatement() {
-    return findChildByClass(BallerinaTupleDestructuringStatement.class);
   }
 
 }

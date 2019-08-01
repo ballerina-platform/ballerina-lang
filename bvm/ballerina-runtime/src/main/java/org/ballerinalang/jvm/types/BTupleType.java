@@ -16,6 +16,8 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.values.ArrayValue;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 public class BTupleType extends BType {
 
     private List<BType> tupleTypes;
+    private BType restType;
 
     /**
      * Create a {@code BTupleType} which represents the tuple type.
@@ -37,20 +40,37 @@ public class BTupleType extends BType {
     public BTupleType(List<BType> typeList) {
         super(null, null, Object.class);
         this.tupleTypes = typeList;
+        this.restType = null;
+    }
+
+    /**
+     * Create a {@code BTupleType} which represents the tuple type.
+     *
+     * @param typeList of the tuple type
+     * @param restType of the tuple type
+     */
+    public BTupleType(List<BType> typeList, BType restType) {
+        super(null, null, Object.class);
+        this.tupleTypes = typeList;
+        this.restType = restType;
     }
 
     public List<BType> getTupleTypes() {
         return tupleTypes;
     }
 
+    public BType getRestType() {
+        return restType;
+    }
+
     @Override
     public <V extends Object> V getZeroValue() {
-        return null;
+        return (V) new ArrayValue(this);
     }
 
     @Override
     public <V extends Object> V getEmptyValue() {
-        return null;
+        return getZeroValue();
     }
 
     @Override
@@ -61,7 +81,12 @@ public class BTupleType extends BType {
     @Override
     public String toString() {
         List<String> list = tupleTypes.stream().map(BType::toString).collect(Collectors.toList());
-        return "(" + String.join(",", list) + ")";
+        return "[" + String.join(",", list) + "]";
+    }
+
+    @Override
+    public String getName() {
+        return toString();
     }
 
     @Override

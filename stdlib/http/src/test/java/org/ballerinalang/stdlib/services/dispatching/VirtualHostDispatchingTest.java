@@ -19,15 +19,15 @@
 package org.ballerinalang.stdlib.services.dispatching;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BServiceUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BServiceUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -43,12 +43,11 @@ import java.nio.file.Paths;
  */
 public class VirtualHostDispatchingTest {
 
-    private CompileResult result;
-    private static final String MOCK_ENDPOINT_NAME = "mockEP";
+    private static final int EP_PORT = 9090;
 
     @BeforeClass
     public void setup() {
-        result = BServiceUtil.setupProgramFile(this, "test-src/services/dispatching/virtual-host-test.bal");
+        BCompileUtil.compile("test-src/services/dispatching/virtual-host-test.bal");
     }
 
     @Test()
@@ -57,7 +56,7 @@ public class VirtualHostDispatchingTest {
         String hostName2 = "xyz.org";
         HTTPTestRequest request = MessageUtils.generateHTTPMessage("/page/index", "GET");
         request.setHeader(HttpHeaderNames.HOST.toString(), hostName1);
-        HttpCarbonMessage response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, request);
+        HttpCarbonMessage response = Services.invoke(EP_PORT, request);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -66,7 +65,7 @@ public class VirtualHostDispatchingTest {
 
         request = MessageUtils.generateHTTPMessage("/page/index", "GET");
         request.setHeader(HttpHeaderNames.HOST.toString(), hostName2);
-        response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, request);
+        response = Services.invoke(EP_PORT, request);
 
         Assert.assertNotNull(response, "Response message not found");
         bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -79,7 +78,7 @@ public class VirtualHostDispatchingTest {
         String hostName1 = "abc.com";
         HTTPTestRequest request = MessageUtils.generateHTTPMessage("/page/index", "GET");
         request.setHeader(HttpHeaderNames.HOST.toString(), hostName1);
-        HttpCarbonMessage response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, request);
+        HttpCarbonMessage response = Services.invoke(EP_PORT, request);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -87,7 +86,7 @@ public class VirtualHostDispatchingTest {
                 "Incorrect resource invoked.");
 
         request = MessageUtils.generateHTTPMessage("/page/index", "GET");
-        response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, request);
+        response = Services.invoke(EP_PORT, request);
 
         Assert.assertNotNull(response, "Response message not found");
         bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());

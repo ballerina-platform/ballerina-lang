@@ -54,10 +54,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.ARRAY_TYPE_NAME;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.AS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ASSIGN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ATTACHMENT_POINT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.BINDING_PATTERN;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.BINDING_REF_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BIT_COMPLEMENT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.BRACED_OR_TUPLE_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BREAK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CALLABLE_UNIT_BODY;
@@ -80,7 +77,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.CONST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CONTINUE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DAY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL_INTEGER_LITERAL;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEPRECATED;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DIV;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ELLIPSIS;
@@ -92,13 +88,10 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.ENTRY_BINDING_PATTERN
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ENTRY_REF_BINDING_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EQUAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EQUAL_GT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ERROR;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ERROR_CONSTRUCTOR_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EVENTS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EVERY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXPRESSION_LIST;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FAIL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FIELD;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FIELD_BINDING_PATTERN;
@@ -188,7 +181,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.PUBLIC;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.QUESTION_MARK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RANGE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RARROW;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_FIELD_DEFINITION_LIST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_KEY_VALUE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_LITERAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_LITERAL_BODY;
@@ -204,7 +196,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETRIES;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURNS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURN_PARAMETER;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURN_TYPE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RIGHT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RIGHT_BRACE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RIGHT_BRACKET;
@@ -232,15 +223,12 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION_PROPERTY_INIT_STATEMENT_LIST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRAP;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRY;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TUPLE_BINDING_PATTERN;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TUPLE_REF_BINDING_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TUPLE_TYPE_NAME;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE_CONVERSION_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.UNARY_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.UNIDIRECTIONAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.UNION_TYPE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.UNTAINT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.VAR;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.VARIABLE_REFERENCE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.VARIABLE_REFERENCE_EXPRESSION;
@@ -258,8 +246,8 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.WITHIN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WORKER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WORKER_BODY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WORKER_RECEIVE_EXPRESSION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.WORKER_SEND_ASYNC_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WORKER_SEND_ASYNC_STATEMENT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.WORKER_SEND_SYNC_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.XMLNS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.YEAR;
 
@@ -279,7 +267,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                     settings, createSpaceBuilder(settings), new HashMap<>());
             return FormattingModelProvider
                     .createFormattingModelForPsiFile(element.getContainingFile(), rootBlock, settings);
-        // If the plugin grammar tree is not generated correctly for the file, code reformat should not work.
+            // If the plugin grammar tree is not generated correctly for the file, code reformat should not work.
         } else {
             AbstractBlock rootBlock = new AbstractBlock(element.getNode(), null, null) {
                 @Nullable
@@ -338,14 +326,12 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(PRIVATE).spaceIf(true)
                 .around(REMOTE).spaceIf(true)
                 .around(CLIENT).spaceIf(true)
-                .around(EXTERN).spaceIf(true)
                 .around(RESOURCE).spaceIf(true)
                 .around(OBJECT).spaceIf(true)
                 .around(WORKER).spaceIf(true)
                 .around(XMLNS).spaceIf(true)
                 .around(RETURNS).spaceIf(true)
                 .around(VERSION).spaceIf(true)
-                .around(DEPRECATED).spaceIf(true)
                 .around(IS).spaceIf(true)
                 .around(TRAP).spaceIf(true)
                 .around(PANIC).spaceIf(true)
@@ -380,7 +366,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(WITH).spaceIf(true)
                 .around(IN).spaceIf(true)
                 .around(LOCK).spaceIf(true)
-                .around(UNTAINT).spaceIf(true) // Todo
                 .around(START).spaceIf(true)
                 .around(CHECK).spaceIf(true)
 
@@ -429,11 +414,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .before(RIGHT_BRACKET).spaceIf(false)
                 .around(EQUAL_GT).spaceIf(true)
 
-                // Binding Patterns
-                .betweenInside(LEFT_PARENTHESIS, BINDING_PATTERN, TUPLE_BINDING_PATTERN).spaceIf(false)
-                .betweenInside(BINDING_PATTERN, RIGHT_PARENTHESIS, TUPLE_BINDING_PATTERN).spaceIf(false)
-                .around(BINDING_PATTERN).spaceIf(true)
-
                 // Record binding pattern
                 .around(ENTRY_BINDING_PATTERN).spaceIf(true)
                 .beforeInside(COMMA, ENTRY_BINDING_PATTERN).spaceIf(false)
@@ -444,11 +424,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(REST_BINDING_PATTERN, RIGHT_BRACE).spaceIf(true)
                 .betweenInside(ELLIPSIS, IDENTIFIER, REST_BINDING_PATTERN).spaceIf(false) // Todo - Verify
 
-                // Tuple binding pattern
-                .betweenInside(BINDING_PATTERN, COMMA, TUPLE_BINDING_PATTERN).spaceIf(false)
-                .betweenInside(COMMA, BINDING_PATTERN, TUPLE_BINDING_PATTERN).spaceIf(true)
-
-                // Record destructuring pattern
                 .around(RECORD_REF_BINDING_PATTERN).spaceIf(true)
                 .around(ENTRY_REF_BINDING_PATTERN).spaceIf(true)
                 .beforeInside(COMMA, ENTRY_REF_BINDING_PATTERN).spaceIf(false)
@@ -458,16 +433,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(LEFT_BRACE, REST_REF_BINDING_PATTERN).spaceIf(true)
                 .between(REST_REF_BINDING_PATTERN, RIGHT_BRACE).spaceIf(true)
                 .betweenInside(ELLIPSIS, VARIABLE_REFERENCE, REST_REF_BINDING_PATTERN).spaceIf(false) // Todo - Verify
-
-                // Tuple destructuring pattern
-                .around(TUPLE_REF_BINDING_PATTERN).spaceIf(true)
-                .between(LEFT_PARENTHESIS, BINDING_REF_PATTERN).spaceIf(false)
-                .between(BINDING_REF_PATTERN, RIGHT_PARENTHESIS).spaceIf(false)
-                .beforeInside(COMMA, TUPLE_REF_BINDING_PATTERN).spaceIf(false)
-                .afterInside(COMMA, TUPLE_REF_BINDING_PATTERN).spaceIf(false)
-
-                // Error
-                .betweenInside(ERROR, LEFT_PARENTHESIS, ERROR_CONSTRUCTOR_EXPRESSION).spaceIf(false)
 
                 // Ternary Expressions
                 .aroundInside(QUESTION_MARK, TERNARY_EXPRESSION).spaceIf(true)
@@ -483,8 +448,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(SIMPLE_TYPE_NAME).spaceIf(false)
                 .between(NAME_REFERENCE, RECORD_LITERAL).spaceIf(true)
                 .around(NAME_REFERENCE).spaceIf(false)
-                .before(RETURN_TYPE).spaceIf(false)
-                .after(RETURN_TYPE).spaceIf(true)
+
                 .between(UNION_TYPE_NAME, IDENTIFIER).spaceIf(true)
                 .between(FUNCTION_NAME_REFERENCE, LEFT_PARENTHESIS).spaceIf(false)
 
@@ -518,7 +482,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(RECORD_KEY_VALUE, RIGHT_BRACE).spaceIf(false)
                 .between(LEFT_BRACE, RIGHT_BRACE).spaceIf(false)
                 .around(RECORD_LITERAL_BODY).spaceIf(true)
-                .around(RECORD_FIELD_DEFINITION_LIST).spaceIf(true)
 
                 // Statements
                 .beforeInside(LEFT_BRACE, FOREACH_STATEMENT).spaceIf(true)
@@ -656,7 +619,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(IDENTIFIER, WORKER_BODY).spaceIf(true)
                 .between(EXPRESSION_LIST, RARROW).spaceIf(true)
                 .aroundInside(RARROW, WORKER_SEND_ASYNC_STATEMENT).spaceIf(true)
-                .aroundInside(SYNCRARROW, WORKER_SEND_ASYNC_EXPRESSION).spaceIf(false)
+                .aroundInside(SYNCRARROW, WORKER_SEND_SYNC_EXPRESSION).spaceIf(false)
                 .afterInside(LARROW, WORKER_RECEIVE_EXPRESSION).spaceIf(false)
                 .between(LEFT_BRACE, WAIT_KEY_VALUE).spaceIf(true)
                 .between(WAIT_KEY_VALUE, RIGHT_BRACE).spaceIf(true)
@@ -677,7 +640,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
 
                 .betweenInside(EXPRESSION, LEFT_BRACE, IF_CLAUSE).spaceIf(true)
                 .betweenInside(SIMPLE_LITERAL_EXPRESSION, LEFT_BRACE, IF_CLAUSE).spaceIf(true)
-                .betweenInside(BRACED_OR_TUPLE_EXPRESSION, LEFT_BRACE, IF_CLAUSE).spaceIf(true)
                 .betweenInside(EXPRESSION, LEFT_BRACE, ELSE_IF_CLAUSE).spaceIf(true)
                 .betweenInside(SIMPLE_LITERAL_EXPRESSION, LEFT_BRACE, ELSE_IF_CLAUSE).spaceIf(true)
 

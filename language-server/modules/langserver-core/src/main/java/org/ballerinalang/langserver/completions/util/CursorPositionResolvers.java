@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.completions.util.positioning.resolvers.Match
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.MatchStatementScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ObjectTypeScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.PackageNodeScopeResolver;
+import org.ballerinalang.langserver.completions.util.positioning.resolvers.RecordLiteralScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.RecordScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ResourceParamScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ServiceScopeResolver;
@@ -58,6 +59,8 @@ public enum CursorPositionResolvers {
     RECORD_NODE_SCOPE(RecordScopeResolver.class, new RecordScopeResolver()),
 
     OBJECT_TYPE_SCOPE(ObjectTypeScopeResolver.class, new ObjectTypeScopeResolver()),
+
+    RECORD_LITERAL_SCOPE(RecordLiteralScopeResolver.class, new RecordLiteralScopeResolver()),
 
     FUNCTION_SCOPE_RESOLVER(FunctionNodeScopeResolver.class, new FunctionNodeScopeResolver());
 

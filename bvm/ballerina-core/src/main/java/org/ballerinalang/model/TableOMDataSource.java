@@ -28,6 +28,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.sql.SQLException;
 import java.sql.Struct;
+
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
@@ -100,6 +101,9 @@ public class TableOMDataSource extends AbstractPushOMDataSource {
             break;
         case FLOAT:
             value = String.valueOf(table.getFloat(index));
+            break;
+        case DECIMAL:
+            value = String.valueOf(table.getDecimal(index));
             break;
         case BLOB:
             value = table.getBlob(index);

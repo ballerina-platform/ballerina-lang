@@ -18,20 +18,18 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
-import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_BODY_FAILED;
 
 /**
  * Get the entity body as a string.
@@ -47,28 +45,26 @@ import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 )
 public class GetText extends AbstractGetPayloadHandler {
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public void execute(Context context, CallableUnitCallback callback) {
+    public static Object getText(Strand strand, ObjectValue entityObj) {
+        NonBlockingCallback callback = null;
+        String result = null;
         try {
-            BString result;
-            BMap<String, BValue> entityObj = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-            BValue dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
+            Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (dataSource != null) {
-                result = MimeUtil.getMessageAsString(dataSource);
-                setReturnValuesAndNotify(context, callback, result);
-                return;
+                return MimeUtil.getMessageAsString(dataSource);
             }
 
             if (isStreamingRequired(entityObj)) {
                 result = EntityBodyHandler.constructStringDataSource(entityObj);
-                updateDataSourceAndNotify(context, callback, entityObj, result);
+                updateDataSource(entityObj, result);
             } else {
-                constructNonBlockingDataSource(context, callback, entityObj, SourceType.TEXT);
+                callback = new NonBlockingCallback(strand);
+                constructNonBlockingDataSource(callback, entityObj, SourceType.TEXT);
             }
         } catch (Exception ex) {
-            createErrorAndNotify(context, callback,
-                                 "Error occurred while extracting text data from entity : " + ex.getMessage());
+            return createErrorAndNotify(PARSING_ENTITY_BODY_FAILED, callback,
+                                        "Error occurred while extracting text data from entity : " + ex.getMessage());
         }
+        return result;
     }
 }

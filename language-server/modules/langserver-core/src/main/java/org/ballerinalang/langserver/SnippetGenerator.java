@@ -18,9 +18,16 @@
 package org.ballerinalang.langserver;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.SnippetBlock.SnippetType;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.StringJoiner;
+import java.util.stream.IntStream;
 
 /**
  * Generates Snippets for language constructs.
@@ -48,8 +55,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getAnnotationDefSnippet() {
-        String snippet = "annotation<${1:attachmentPoint}> ${2:name};";
-
+        String snippet = "annotation ${1:typeName} ${2:name} on ${3:attachmentPoint};";
         return new SnippetBlock(ItemResolverConstants.ANNOTATION, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.SNIPPET);
     }
@@ -71,6 +77,46 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getNewKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.NEW, "new ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get abstract keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getAbstractKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.ABSTRACT, "abstract ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get client keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getClientKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.CLIENT, "client ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get external keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getExternalKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.EXTERNAL, "external;", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get typeof keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getTypeofKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.TYPEOF, "typeof ", ItemResolverConstants.KEYWORD_TYPE,
                                 SnippetType.KEYWORD);
     }
 
@@ -126,6 +172,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Function Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getFunctionKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.FUNCTION, "function ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
      * Get Continue Statement Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -143,6 +199,26 @@ public class SnippetGenerator {
     public static SnippetBlock getListenerKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.LISTENER_KEYWORD, "listener ", ItemResolverConstants.KEYWORD_TYPE,
                                 SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get Returns Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getReturnsKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.RETURNS_KEYWORD, "returns ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get Untaint Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getUntaintKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.UNTAINT_KEYWORD, "untiant ",
+                ItemResolverConstants.KEYWORD_TYPE, SnippetType.KEYWORD);
     }
 
     /**
@@ -281,18 +357,6 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get Object Initializer Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getObjectInitializerSnippet() {
-        String snippet = "public function __init(${1:any arg}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" +
-                CommonUtil.LINE_SEPARATOR + "}";
-        return new SnippetBlock(ItemResolverConstants.NEW_OBJECT_INITIALIZER_TYPE, snippet,
-                                ItemResolverConstants.SNIPPET_TYPE, SnippetType.SNIPPET);
-    }
-
-    /**
      * Get Object Definition Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -326,6 +390,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Annotation Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getAnnotationKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.ANNOTATION_TYPE, "annotation ",
+                ItemResolverConstants.KEYWORD_TYPE, SnippetType.KEYWORD);
+    }
+
+    /**
      * Get Record Definition Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -339,16 +413,119 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get Resource Definition Snippet Block.
+     * Get HTTP Resource Definition Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
-    public static SnippetBlock getResourceDefinitionSnippet() {
+    public static SnippetBlock getHttpResourceDefinitionSnippet() {
         ImmutablePair<String, String> httpImport = new ImmutablePair<>("ballerina", "http");
         String snippet = "resource function ${1:newResource}(http:Caller ${2:caller}, ${3:http:Request request}) {"
                 + CommonUtil.LINE_SEPARATOR + "\t${4}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.RESOURCE, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.SNIPPET, httpImport);
+    }
+
+    /**
+     * Get Common/Generic Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getCommonResourceDefinitionSnippet() {
+        ImmutablePair<String, String> httpImport = new ImmutablePair<>("ballerina", "http");
+        String snippet = "resource function ${1:newResource}(${2}) {"
+                + CommonUtil.LINE_SEPARATOR + "\t${3}" + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.RESOURCE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                                SnippetType.SNIPPET, httpImport);
+    }
+
+    /**
+     * Get gRPC Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getGRPCResourceDefinitionSnippet() {
+        Pair<String, String> httpImport = new ImmutablePair<>("ballerina", "http");
+        String snippet = "resource function ${1:newResource}(grpc:Caller ${2:caller}, ${3:string request}) {"
+                + CommonUtil.LINE_SEPARATOR + "\t${4}" + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.RESOURCE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                                SnippetType.SNIPPET, httpImport);
+    }
+
+    /**
+     * Get WebSocket OnOpen Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWebSocketResourceOnOpenSnippet() {
+        return SnippetGenerator.getHttpResourceDefinitionSnippet("onOpen", Collections.singletonList(
+                "http:WebSocketCaller ${#:caller}"), new ImmutablePair<>("ballerina", "http"));
+    }
+
+    /**
+     * Get WebSocket OnText Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWebSocketResourceOnTextSnippet() {
+        return SnippetGenerator.getHttpResourceDefinitionSnippet("onText", Arrays.asList(
+                "http:WebSocketCaller ${#:caller}", "string ${#:data}", "boolean ${#:finalFrame}"),
+                                                             new ImmutablePair<>("ballerina", "http"));
+    }
+
+    /**
+     * Get WebSocket OnClose Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWebSocketResourceOnCloseSnippet() {
+        return SnippetGenerator.getHttpResourceDefinitionSnippet("onClose", Arrays.asList(
+                "http:WebSocketCaller ${#:caller}", "int ${#:statusCode}", "string ${#:reason}"),
+                                                             new ImmutablePair<>("ballerina", "http"));
+    }
+
+    /**
+     * Get WebSub OnIntentVerification Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWebSubResourceOnIntentVerificationSnippet() {
+        return SnippetGenerator.getHttpResourceDefinitionSnippet("onIntentVerification",
+                                                             Arrays.asList("websub:Caller ${#:caller}",
+                                                                           "websub:IntentVerificationRequest " +
+                                                                                   "${#:request}"),
+                                                             new ImmutablePair<>("ballerina",
+                                                                                 "websub"));
+    }
+
+    /**
+     * Get WebSub OnNotification Resource Definition Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getWebSubResourceOnNotificationSnippet() {
+        return SnippetGenerator.getHttpResourceDefinitionSnippet("onNotification",
+                Collections.singletonList("websub:Notification ${#:notification}"),
+                new ImmutablePair<>("ballerina", "websub"));
+    }
+
+    /**
+     * Get Resource Definition Snippet Block.
+     *
+     * @param name             name of the snippet
+     * @param params           params for the snippet
+     * @param orgToAliasImport import
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getHttpResourceDefinitionSnippet(String name, List<String> params,
+                                                                Pair<String, String> orgToAliasImport) {
+        StringJoiner paramsJoiner = new StringJoiner(",");
+        IntStream.range(0, params.size()).forEach(
+                i -> paramsJoiner.add(params.get(i).replace("#", String.valueOf(i + 2))));
+        String snippet = "resource function ${1:" + name + "}(" + paramsJoiner.toString() + ") {"
+                + CommonUtil.LINE_SEPARATOR + "\t${" + (2 + params.size()) + "}" + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(name + " " + ItemResolverConstants.RESOURCE, snippet,
+                                ItemResolverConstants.SNIPPET_TYPE,
+                                SnippetType.SNIPPET, orgToAliasImport);
     }
 
     /**
@@ -473,7 +650,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getTransactionStatementSnippet() {
-        String snippet = "transaction with retries ${1:0} {" + CommonUtil.LINE_SEPARATOR
+        String snippet = "transaction with retries = ${1:0} {" + CommonUtil.LINE_SEPARATOR
                 + "\t${2}" + CommonUtil.LINE_SEPARATOR + "} onretry {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.TRANSACTION, snippet, ItemResolverConstants.STATEMENT_TYPE,
@@ -532,7 +709,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getErrorDefinitionSnippet() {
-        String snippet = "error ${1:name} = error(\"${2:errorCode}\", { message: \"${3}\" });";
+        String snippet = "error ${1:name} = error(\"${2:errorCode}\", message = \"${3}\");";
         return new SnippetBlock(ItemResolverConstants.ERROR, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.SNIPPET);
     }
@@ -804,5 +981,53 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getIterableOnXmlParamSnippet() {
         return new SnippetBlock("xml v", SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get Object Initializer Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getInitFunctionSnippet() {
+        String snippet = "public function __init(${1:any arg}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" +
+                CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.NEW_OBJECT_INITIALIZER_TYPE, snippet,
+                ItemResolverConstants.SNIPPET_TYPE, SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get Attach Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getAttachFunctionSnippet() {
+        String snippet = "function __attach(service ${1:s}, string? ${2:name} = ()) returns error? {"
+                + CommonUtil.LINE_SEPARATOR + "\t${3}" + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.ATTACH_FUNCTION_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get Start Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getStartFunctionSnippet() {
+        String snippet = "function __start() returns error? {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+                + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.START_FUNCTION_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get Stop Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getStopFunctionSnippet() {
+        String snippet = "function __stop() returns error? {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+                + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.STOP_FUNCTION_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
+                SnippetType.SNIPPET);
     }
 }

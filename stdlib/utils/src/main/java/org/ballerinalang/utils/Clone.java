@@ -22,6 +22,10 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BValue;
@@ -44,8 +48,8 @@ import java.util.HashMap;
         orgName = "ballerina",
         packageName = "utils",
         functionName = "clone",
-        args = {@Argument(name = "value", type = TypeKind.ANYDATA)},
-        returnType = { @ReturnType(type = TypeKind.ANYDATA) }
+        args = {@Argument(name = "value", type = TypeKind.ANY)},
+        returnType = { @ReturnType(type = TypeKind.ANYDATA), @ReturnType(type = TypeKind.ERROR) }
 )
 public class Clone extends BlockingNativeCallableUnit {
 
@@ -70,5 +74,24 @@ public class Clone extends BlockingNativeCallableUnit {
             return;
         }
         ctx.setReturnValues(refRegVal.copy(new HashMap<>()));
+    }
+
+    public static Object clone(Strand strand, Object value) {
+        
+        if (value == null) {
+            return null;
+        }
+        if (!(value instanceof RefValue)) {
+            return value;
+        }
+        RefValue refValue = (RefValue) value;
+        if (refValue.getType().getTag() == TypeTags.ERROR || !TypeChecker.checkIsLikeType(refValue, org
+                .ballerinalang.jvm.types.BTypes.typePureType)) {
+            return BallerinaErrors.createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CLONE_ERROR,
+                                 org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper
+                                         .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
+                                                                  .UNSUPPORTED_CLONE_OPERATION, refValue.getType()));
+        }
+        return refValue.copy(new HashMap<>());
     }
 }

@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.command.docs;
 
-import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.model.elements.Flag;
@@ -101,17 +101,17 @@ public class DocumentationGenerator {
                                                                           LSContext context) {
         DocAttachmentInfo docAttachmentInfo = null;
         switch (topLevelNodeType) {
-            case UtilSymbolKeys.FUNCTION_KEYWORD_KEY:
+            case CommonKeys.FUNCTION_KEYWORD_KEY:
                 docAttachmentInfo = getFunctionDocumentationByPosition(bLangPkg, line, context);
                 break;
-            case UtilSymbolKeys.SERVICE_KEYWORD_KEY:
+            case CommonKeys.SERVICE_KEYWORD_KEY:
                 docAttachmentInfo = getServiceDocumentationByPosition(bLangPkg, line, context);
                 break;
-            case UtilSymbolKeys.RESOURCE_KEYWORD_KEY:
+            case CommonKeys.RESOURCE_KEYWORD_KEY:
                 docAttachmentInfo = getResourceDocumentationByPosition(bLangPkg, line, context);
                 break;
-            case UtilSymbolKeys.RECORD_KEYWORD_KEY:
-            case UtilSymbolKeys.OBJECT_KEYWORD_KEY:
+            case CommonKeys.RECORD_KEYWORD_KEY:
+            case CommonKeys.OBJECT_KEYWORD_KEY:
                 docAttachmentInfo = getTypeNodeDocumentationByPosition(bLangPkg, line, context);
                 break;
             default:
@@ -206,10 +206,6 @@ public class DocumentationGenerator {
         if (bLangFunction.getRestParameters() != null) {
             params.add((BLangVariable) bLangFunction.getRestParameters());
         }
-        params.addAll(bLangFunction.getDefaultableParameters()
-                              .stream()
-                              .map(bLangVariableDef -> bLangVariableDef.var)
-                              .collect(Collectors.toList()));
         params.sort(new FunctionArgsComparator());
 
         params.forEach(param -> attributes.add(getDocAttributeFromBLangVariable((BLangSimpleVariable) param, offset)));

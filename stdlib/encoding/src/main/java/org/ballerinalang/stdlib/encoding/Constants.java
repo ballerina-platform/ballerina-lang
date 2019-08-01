@@ -25,16 +25,10 @@ package org.ballerinalang.stdlib.encoding;
  */
 public class Constants {
 
-    // Name of the Ballerina encoding module, used to create struct instances.
-    public static final String ENCODING_PACKAGE = "ballerina/encoding";
-
-    // Error record for encoding module.
-    public static final String ENCODING_ERROR = "EncodingError";
-
     // Message field within error record.
     public static final String MESSAGE = "message";
 
     // Error code for encoding error
-    public static final String ENCODING_ERROR_CODE = "{ballerina/encoding}EncodingError";
+    public static final String ENCODING_ERROR_CODE = "{ballerina/encoding}Error";
 
 }

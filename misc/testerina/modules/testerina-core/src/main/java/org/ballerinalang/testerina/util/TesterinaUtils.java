@@ -18,18 +18,17 @@
 package org.ballerinalang.testerina.util;
 
 import org.ballerinalang.bre.bvm.BVMExecutor;
-import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.File;
@@ -39,7 +38,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -184,8 +182,8 @@ public class TesterinaUtils {
      */
     public static void setManifestConfigs(Path sourceRoot) {
         Manifest manifest = TomlParserUtils.getManifest(sourceRoot);
-        String orgName = manifest.getName();
-        String version = manifest.getVersion();
+        String orgName = manifest.getProject().getOrgName();
+        String version = manifest.getProject().getVersion();
         TesterinaRegistry.getInstance().setOrgName(orgName);
         TesterinaRegistry.getInstance().setVersion(version);
     }
@@ -196,12 +194,9 @@ public class TesterinaUtils {
      * @param sourceRootPath source root path
      * @param programFileMap map containing bLangPackage nodes along with their compiled program files
      */
-    public static void executeTests(Path sourceRootPath, Map<BLangPackage, CompiledBinaryFile.ProgramFile>
+    public static void executeTests(Path sourceRootPath, Map<BLangPackage, JBallerinaInMemoryClassLoader>
             programFileMap) {
-        // Load configuration file. The default config file is taken "ballerina.conf" in the source root path
-        LauncherUtils.loadConfigurations(sourceRootPath, new HashMap<>(), null, false);
-
-        // Set org-name and version to the TesterinaRegistry
+        // Set org-name and version to the Testerina Registry.
         setManifestConfigs(sourceRootPath);
 
         BTestRunner testRunner = new BTestRunner();

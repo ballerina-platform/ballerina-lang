@@ -43,7 +43,11 @@ public class BalServer {
      * @throws BallerinaTestException if something fails
      */
     public BalServer() throws BallerinaTestException {
-        setUpServerHome();
+        this(System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP));
+    }
+
+    public BalServer(String serverZipFile) throws BallerinaTestException {
+        setUpServerHome(serverZipFile);
         log.info("Server Home " + serverHome);
     }
 
@@ -52,11 +56,10 @@ public class BalServer {
      * in automation.xml.
      * This method will inject jacoco agent to the carbon server startup scripts.
      *
+     * @param serverZipFile server zip file location
      * @throws BallerinaTestException if setting up the server fails
      */
-    private void setUpServerHome()
-            throws BallerinaTestException {
-        String serverZipFile = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
+    private void setUpServerHome(String serverZipFile) throws BallerinaTestException {
 
         int indexOfZip = serverZipFile.lastIndexOf(".zip");
         if (indexOfZip == -1) {
@@ -67,7 +70,7 @@ public class BalServer {
             serverZipFile = serverZipFile.replace("/", "\\");
         }
         String extractedBalDir = serverZipFile.substring(serverZipFile.lastIndexOf(fileSeparator) + 1, indexOfZip);
-        String baseDir = (System.getProperty(Constant.SYSTEM_PROP_BASE_DIR, ".")) + File.separator + "target";
+        String baseDir = (System.getProperty("libdir", "."));
 
         extractDir = new File(baseDir).getAbsolutePath() +
                 File.separator + "ballerinatmp" + System.currentTimeMillis();

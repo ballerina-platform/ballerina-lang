@@ -94,7 +94,9 @@ public type TimeBatch object {
         }
 
         if (streamEvents.length() > 0) {
-            self.nextProcessPointer.call(streamEvents);
+            function (streams:StreamEvent?[]) nextProcessor =
+                    <function (streams:StreamEvent?[])>self.nextProcessPointer;
+            nextProcessor(streamEvents);
         }
     }
 
@@ -107,9 +109,9 @@ public type TimeBatch object {
                         streams:StreamEvent originEvent,
                         (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
-                        returns (streams:StreamEvent?, streams:StreamEvent?)[] {
+                        returns [streams:StreamEvent?, streams:StreamEvent?][] {
         // do nothing;
-        return [((), ())];
+        return [[(), ()]];
     }
 };
 

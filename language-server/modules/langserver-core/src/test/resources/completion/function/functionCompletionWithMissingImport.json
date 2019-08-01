@@ -6,17 +6,16 @@
   "source": "function/source/functionCompletionWithMissingImport.bal",
   "items": [
     {
-      "label": "openReadableFile(string path)(ballerina/io:ReadableByteChannel)",
+      "label": "openReadableFile(string path)((io:ReadableByteChannel|io:GenericError|io:ConnectionTimedOutError))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "markdown**Package:** _ballerina/io_  \n  \nRetrieves a ReadableByteChannel from a given file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Relative/absolute path string to locate the file  \n  \n  \n**Return**  \nballerina/io:ReadableByteChannel"
+          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a ReadableByteChannel from a given file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Relative/absolute path string to locate the file  \n  \n  \n**Return**  \n(ballerina/io:ReadableByteChannel|ballerina/io:GenericError|ballerina/io:ConnectionTimedOutError)"
         }
       },
-      "sortText": "121",
-      "insertText": "openReadableFile(${1:path})",
+      "insertText": "openReadableFile(${1})",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -32,20 +31,23 @@
           },
           "newText": "import ballerina/io;\n"
         }
-      ]
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "openWritableFile(string path, boolean append \u003d false)(ballerina/io:WritableByteChannel)",
+      "label": "openWritableFile(string path, boolean append)((io:WritableByteChannel|io:GenericError|io:ConnectionTimedOutError))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "markdown**Package:** _ballerina/io_  \n  \nRetrieves a WritableByteChannel from a given file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Relative/absolute path string to locate the file  \n  \n- _append_  \n    Append to end of file.  \nDefault Value: false  \n  \n**Return**  \nballerina/io:WritableByteChannel"
+          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a WritableByteChannel from a given file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    Relative/absolute path string to locate the file  \n  \n- _append_  \n    Append to end of file.  \n(Default Parameter)  \n  \n**Return**  \n(ballerina/io:WritableByteChannel|ballerina/io:GenericError|ballerina/io:ConnectionTimedOutError)"
         }
       },
-      "sortText": "121",
-      "insertText": "openWritableFile(${1:path}, append \u003d ${2:false})",
+      "insertText": "openWritableFile(${1})",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -61,20 +63,23 @@
           },
           "newText": "import ballerina/io;\n"
         }
-      ]
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "createReadableChannel(byte[] content)(ballerina/io:ReadableByteChannel)",
+      "label": "createReadableChannel(byte[] content)((io:ReadableByteChannel|io:GenericError|io:ConnectionTimedOutError))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "markdown**Package:** _ballerina/io_  \n  \nCreates an in-memory channel which will reference stream of bytes.\n  \n  \n---    \n**Parameters**  \n- _content_  \n    Content which should be exposed as channel  \n  \n  \n**Return**  \nballerina/io:ReadableByteChannel"
+          "value": "**Package:** _ballerina/io_  \n  \nCreates an in-memory channel which will reference stream of bytes.\n  \n  \n---    \n**Parameters**  \n- _content_  \n    Content which should be exposed as channel  \n  \n  \n**Return**  \n(ballerina/io:ReadableByteChannel|ballerina/io:GenericError|ballerina/io:ConnectionTimedOutError)"
         }
       },
-      "sortText": "121",
-      "insertText": "createReadableChannel(${1:content})",
+      "insertText": "createReadableChannel(${1})",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -90,20 +95,23 @@
           },
           "newText": "import ballerina/io;\n"
         }
-      ]
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "openReadableCsvFile(string path, ,|\t|: fieldSeparator \u003d ,, string charset \u003d UTF-8, int skipHeaders \u003d 0)(ballerina/io:ReadableCSVChannel)",
+      "label": "openReadableCsvFile(string path, (,|\t|:) fieldSeparator, string charset, int skipHeaders)((io:ReadableCSVChannel|io:GenericError|io:ConnectionTimedOutError))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "markdown**Package:** _ballerina/io_  \n  \nRetrieves a readable CSV channel from a give file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    File path which describes the location of the CSV  \n  \n- _fieldSeparator_  \n    CSV record seperator (i.e comma or tab)  \nDefault Value: ,  \n- _charset_  \n    Encoding characters in the file represents  \nDefault Value: UTF-8  \n- _skipHeaders_  \n    Number of headers which should be skipped  \nDefault Value: 0  \n  \n**Return**  \nballerina/io:ReadableCSVChannel"
+          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a readable CSV channel from a give file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    File path which describes the location of the CSV  \n  \n- _fieldSeparator_  \n    CSV record separator (i.e comma or tab)  \n(Default Parameter)  \n- _charset_  \n    Encoding characters in the file represents  \n(Default Parameter)  \n- _skipHeaders_  \n    Number of headers which should be skipped  \n(Default Parameter)  \n  \n**Return**  \n(ballerina/io:ReadableCSVChannel|ballerina/io:GenericError|ballerina/io:ConnectionTimedOutError)"
         }
       },
-      "sortText": "121",
-      "insertText": "openReadableCsvFile(${1:path}, fieldSeparator \u003d ${2:,}, charset \u003d ${3:\"UTF-8\"}, skipHeaders \u003d ${4:0})",
+      "insertText": "openReadableCsvFile(${1})",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -119,20 +127,23 @@
           },
           "newText": "import ballerina/io;\n"
         }
-      ]
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "openWritableCsvFile(string path, ,|\t|: fieldSeparator \u003d ,, string charset \u003d UTF-8, int skipHeaders \u003d 0)(ballerina/io:WritableCSVChannel)",
+      "label": "openWritableCsvFile(string path, (,|\t|:) fieldSeparator, string charset, int skipHeaders)((io:WritableCSVChannel|io:GenericError|io:ConnectionTimedOutError))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "markdown**Package:** _ballerina/io_  \n  \nRetrieves a writable CSV channel from a give file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    File path which describes the location of the CSV  \n  \n- _fieldSeparator_  \n    CSV record seperator (i.e comma or tab)  \nDefault Value: ,  \n- _charset_  \n    Encoding characters in the file represents  \nDefault Value: UTF-8  \n- _skipHeaders_  \n    Number of headers which should be skipped  \nDefault Value: 0  \n  \n**Return**  \nballerina/io:WritableCSVChannel"
+          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a writable CSV channel from a give file path.\n  \n  \n---    \n**Parameters**  \n- _path_  \n    File path which describes the location of the CSV  \n  \n- _fieldSeparator_  \n    CSV record separator (i.e comma or tab)  \n(Default Parameter)  \n- _charset_  \n    Encoding characters in the file represents  \n(Default Parameter)  \n- _skipHeaders_  \n    Number of headers which should be skipped  \n(Default Parameter)  \n  \n**Return**  \n(ballerina/io:WritableCSVChannel|ballerina/io:GenericError|ballerina/io:ConnectionTimedOutError)"
         }
       },
-      "sortText": "121",
-      "insertText": "openWritableCsvFile(${1:path}, fieldSeparator \u003d ${2:,}, charset \u003d ${3:\"UTF-8\"}, skipHeaders \u003d ${4:0})",
+      "insertText": "openWritableCsvFile(${1})",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -148,10 +159,14 @@
           },
           "newText": "import ballerina/io;\n"
         }
-      ]
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "print()",
+      "label": "print(...(any|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -160,8 +175,7 @@
           "value": "**Package:** _ballerina/io_  \n  \nPrints `any` or `error` value(s) to the STDOUT.  \n  \n---    \n**Parameters**  \n- _values_  \n    The value(s) to be printed.  \n"
         }
       },
-      "sortText": "121",
-      "insertText": "print();",
+      "insertText": "print(${1});",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -177,10 +191,14 @@
           },
           "newText": "import ballerina/io;\n"
         }
-      ]
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "println()",
+      "label": "println(...(any|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -189,8 +207,7 @@
           "value": "**Package:** _ballerina/io_  \n  \nPrints `any` or `error` value(s) to the STDOUT followed by a new line.  \n  \n---    \n**Parameters**  \n- _values_  \n    The value(s) to be printed.  \n"
         }
       },
-      "sortText": "121",
-      "insertText": "println();",
+      "insertText": "println(${1});",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -206,20 +223,23 @@
           },
           "newText": "import ballerina/io;\n"
         }
-      ]
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "sprintf(string format)(string)",
+      "label": "sprintf(string format, ...(any|error))(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "markdown**Package:** _ballerina/io_  \n  \nReturns a formatted string using the specified format string and arguments. Following format specifiers are allowed.\n   b              boolean\n   B              boolean (ALL_CAPS)\n   d              int\n   f              float\n   x              hex\n   X              HEX (ALL_CAPS)\n   s              string (This specifier is applicable for any of the supported types in Ballerina.\n                  These values will be converted to their string representation.)\n  \n  \n---    \n**Parameters**  \n- _format_  \n    A format string  \n  \n- _args_  \n    Arguments referenced by the format specifiers in the format string.  \n  \n  \n**Return**  \nstring"
+          "value": "**Package:** _ballerina/io_  \n  \nReturns a formatted string using the specified format string and arguments. Following format specifiers are allowed.\n   b              boolean\n   B              boolean (ALL_CAPS)\n   d              int\n   f              float\n   x              hex\n   X              HEX (ALL_CAPS)\n   s              string (This specifier is applicable for any of the supported types in Ballerina.\n                  These values will be converted to their string representation.)\n  \n  \n---    \n**Parameters**  \n- _format_  \n    A format string  \n  \n- _args_  \n    Arguments referenced by the format specifiers in the format string.  \n  \n  \n**Return**  \nstring"
         }
       },
-      "sortText": "121",
-      "insertText": "sprintf(${1:format})",
+      "insertText": "sprintf(${1})",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -235,7 +255,11 @@
           },
           "newText": "import ballerina/io;\n"
         }
-      ]
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "readln(any a)(string)",
@@ -244,11 +268,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "markdown**Package:** _ballerina/io_  \n  \nReturns the input read from STDIN.\n  \n  \n---    \n**Parameters**  \n- _a_  \n    Any value to be printed  \n  \n  \n**Return**  \nstring"
+          "value": "**Package:** _ballerina/io_  \n  \nReturns the input read from STDIN.\n  \n  \n---    \n**Parameters**  \n- _a_  \n    Any value to be printed  \n  \n  \n**Return**  \nstring"
         }
       },
-      "sortText": "121",
-      "insertText": "readln(${1:a})",
+      "insertText": "readln(${1})",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -264,39 +287,19 @@
           },
           "newText": "import ballerina/io;\n"
         }
-      ]
-    },
-    {
-      "label": "IOError",
-      "kind": "Class",
-      "detail": "BType",
-      "sortText": "171",
-      "insertText": "IOError",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/io;\n"
-        }
-      ]
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "ReadableByteChannel",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "ReadableByteChannel represents an input resource (i.e file, socket). which could be used to source bytes."
       },
-      "sortText": "171",
       "insertText": "ReadableByteChannel",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -318,11 +321,10 @@
     {
       "label": "ReadableCharacterChannel",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents a channel which could be used to read characters through a given ReadableByteChannel."
       },
-      "sortText": "171",
       "insertText": "ReadableCharacterChannel",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -344,11 +346,10 @@
     {
       "label": "ReadableCSVChannel",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents a ReadableCSVChannel which could be used to read records from CSV file."
       },
-      "sortText": "171",
       "insertText": "ReadableCSVChannel",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -370,11 +371,10 @@
     {
       "label": "ReadableDataChannel",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents a data channel for reading data."
       },
-      "sortText": "171",
       "insertText": "ReadableDataChannel",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -396,11 +396,10 @@
     {
       "label": "ReadableTextRecordChannel",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents a channel which will allow to read"
       },
-      "sortText": "171",
       "insertText": "ReadableTextRecordChannel",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -422,11 +421,10 @@
     {
       "label": "StringReader",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents a reader which will wrap string content as a channel."
       },
-      "sortText": "171",
       "insertText": "StringReader",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -448,11 +446,10 @@
     {
       "label": "WritableByteChannel",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "WritableByteChannel represents an output resource (i.e file, socket). which could be used to sink bytes."
       },
-      "sortText": "171",
       "insertText": "WritableByteChannel",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -474,11 +471,10 @@
     {
       "label": "WritableCharacterChannel",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents a channel which could be used to write characters through a given WritableCharacterChannel."
       },
-      "sortText": "171",
       "insertText": "WritableCharacterChannel",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -500,11 +496,10 @@
     {
       "label": "WritableCSVChannel",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents a WritableCSVChannel which could be used to write records from CSV file."
       },
-      "sortText": "171",
       "insertText": "WritableCSVChannel",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -526,11 +521,10 @@
     {
       "label": "WritableDataChannel",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents a WritableDataChannel for writing data."
       },
-      "sortText": "171",
       "insertText": "WritableDataChannel",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -552,11 +546,10 @@
     {
       "label": "WritableTextRecordChannel",
       "kind": "Class",
-      "detail": "BType",
+      "detail": "Object",
       "documentation": {
         "left": "Represents a channel which will allow to write records through a given WritableCharacterChannel."
       },
-      "sortText": "171",
       "insertText": "WritableTextRecordChannel",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -578,11 +571,10 @@
     {
       "label": "Format",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
-        "left": "Format which will be used to represent the CSV.\n\nDEFAULT - Would default to the format specified by CSVChannel. Presidence will be given to field\n          separator and record separator.\n\nCSV - Field separator would be \",\" and the record separator would be new line.\n\nTDF - Field separator will be tab and record separator will be new line."
+        "left": "Format which will be used to represent the CSV.\n\nDEFAULT - Would default to the format specified by CSVChannel. Precedence will be given to field\n          separator and record separator.\n\nCSV - Field separator would be \",\" and the record separator would be new line.\n\nTDF - Field separator will be tab and record separator will be new line."
       },
-      "sortText": "171",
       "insertText": "Format",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -604,12 +596,33 @@
     {
       "label": "Separator",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Union",
       "documentation": {
         "left": "Field separators which are supported by DelimitedTextRecordChannel."
       },
-      "sortText": "171",
       "insertText": "Separator",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/io;\n"
+        }
+      ]
+    },
+    {
+      "label": "Error",
+      "kind": "Enum",
+      "detail": "Union",
+      "insertText": "Error",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -630,8 +643,7 @@
     {
       "label": "Mode",
       "kind": "Enum",
-      "detail": "BType",
-      "sortText": "171",
+      "detail": "Union",
       "insertText": "Mode",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -653,11 +665,10 @@
     {
       "label": "ByteOrder",
       "kind": "Enum",
-      "detail": "BType",
+      "detail": "Finite",
       "documentation": {
         "left": "Represents network byte order.\n\nBIG_ENDIAN - specifies the bytes to be in the order of most significant byte first\n\nLITTLE_ENDIAN - specifies the byte order to be the least significant byte first"
       },
-      "sortText": "171",
       "insertText": "ByteOrder",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [

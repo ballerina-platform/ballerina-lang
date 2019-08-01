@@ -19,9 +19,9 @@ under the License.
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="ballerina-test-suite" parallel="false">
+<suite name="ballerina-task-test-suite" parallel="false">
     <!-- Ballerina task Test Cases. -->
-    <test name="ballerina-task-test-suite">
+    <test name="ballerina-task-tests">
         <classes>
             <class name="org.ballerinalang.stdlib.task.service.AppointmentServiceTest"/>
             <class name="org.ballerinalang.stdlib.task.service.TimerServiceTest"/>

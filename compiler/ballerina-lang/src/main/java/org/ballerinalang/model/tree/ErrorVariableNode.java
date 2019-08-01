@@ -18,6 +18,10 @@
  */
 package org.ballerinalang.model.tree;
 
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+
+import java.util.List;
+
 /**
  * Represents an error variable node.
  * error (reason, detail) = getError();
@@ -28,5 +32,17 @@ public interface ErrorVariableNode extends VariableNode, AnnotatableNode, Docume
 
     VariableNode getReason();
 
-    VariableNode getDetail();
+    List<? extends ErrorDetailEntry> getDetail();
+
+    BLangSimpleVariable getRestDetail();
+
+    /**
+     * Interface for error detail entry.
+     */
+    interface ErrorDetailEntry {
+
+        IdentifierNode getKey();
+
+        VariableNode getValue();
+    }
 }

@@ -19,15 +19,13 @@
 package org.ballerinalang.stdlib.services.dispatching;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.launcher.util.BServiceUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -39,13 +37,11 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
  */
 public class ProducesConsumesAnnotationTest {
 
-    private static final String TEST_EP = "testEP";
-    CompileResult compileResult;
+    private static final int TEST_EP_PORT = 9090;
 
     @BeforeClass()
     public void setup() {
-        compileResult = BServiceUtil
-                .setupProgramFile(this, "test-src/services/dispatching/produces-consumes-test.bal");
+        BCompileUtil.compile("test-src/services/dispatching/produces-consumes-test.bal");
     }
 
     @Test(description = "Test Consumes annotation with URL. /echo66/test1 ")
@@ -53,7 +49,7 @@ public class ProducesConsumesAnnotationTest {
         String path = "/echo66/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
         cMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), "application/xml; charset=ISO-8859-4");
-        HttpCarbonMessage response = Services.invokeNew(compileResult, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -65,10 +61,10 @@ public class ProducesConsumesAnnotationTest {
         String path = "/echo66/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
         cMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), "compileResult/json");
-        HttpCarbonMessage response = Services.invokeNew(compileResult, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        int trueResponse = (int) response.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        int trueResponse = response.getHttpStatusCode();
         Assert.assertEquals(trueResponse, 415, "Unsupported media type");
     }
 
@@ -77,10 +73,10 @@ public class ProducesConsumesAnnotationTest {
         String path = "/echo66/test1";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
         cMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), ",:vhjv");
-        HttpCarbonMessage response = Services.invokeNew(compileResult, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        int trueResponse = (int) response.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        int trueResponse = response.getHttpStatusCode();
         Assert.assertEquals(trueResponse, 415, "Unsupported media type");
     }
 
@@ -89,7 +85,7 @@ public class ProducesConsumesAnnotationTest {
         String path = "/echo66/test2";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         cMsg.setHeader(HttpHeaderNames.ACCEPT.toString(), "text/xml;q=0.3, multipart/*;Level=1;q=0.7");
-        HttpCarbonMessage response = Services.invokeNew(compileResult, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -100,7 +96,7 @@ public class ProducesConsumesAnnotationTest {
     public void testProducesAnnotationWithNoHeaders() {
         String path = "/echo66/test2";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HttpCarbonMessage response = Services.invokeNew(compileResult, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -112,7 +108,7 @@ public class ProducesConsumesAnnotationTest {
         String path = "/echo66/test2";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         cMsg.setHeader(HttpHeaderNames.ACCEPT.toString(), "*/*, text/html;Level=1;q=0.7");
-        HttpCarbonMessage response = Services.invokeNew(compileResult, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -124,7 +120,7 @@ public class ProducesConsumesAnnotationTest {
         String path = "/echo66/test2";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         cMsg.setHeader(HttpHeaderNames.ACCEPT.toString(), "text/*;q=0.3, text/html;Level=1;q=0.7");
-        HttpCarbonMessage response = Services.invokeNew(compileResult, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -136,10 +132,10 @@ public class ProducesConsumesAnnotationTest {
         String path = "/echo66/test2";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         cMsg.setHeader(HttpHeaderNames.ACCEPT.toString(), "multipart/*;q=0.3, text/html;Level=1;q=0.7");
-        HttpCarbonMessage response = Services.invokeNew(compileResult, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        int trueResponse = (int) response.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        int trueResponse = response.getHttpStatusCode();
         Assert.assertEquals(trueResponse, 406, "Not acceptable");
     }
 
@@ -148,10 +144,10 @@ public class ProducesConsumesAnnotationTest {
         String path = "/echo66/test2";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         cMsg.setHeader(HttpHeaderNames.ACCEPT.toString(), ":,;,v567br");
-        HttpCarbonMessage response = Services.invokeNew(compileResult, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        int trueResponse = (int) response.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        int trueResponse = response.getHttpStatusCode();
         Assert.assertEquals(trueResponse, 406, "Not acceptable");
     }
 
@@ -161,7 +157,7 @@ public class ProducesConsumesAnnotationTest {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
         cMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), "text/plain; charset=ISO-8859-4");
         cMsg.setHeader(HttpHeaderNames.ACCEPT.toString(), "text/*;q=0.3, text/html;Level=1;q=0.7");
-        HttpCarbonMessage response = Services.invokeNew(compileResult, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -174,10 +170,10 @@ public class ProducesConsumesAnnotationTest {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "Test");
         cMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), "text/plain ; charset=ISO-8859-4");
         cMsg.setHeader(HttpHeaderNames.ACCEPT.toString(), "compileResult/xml, text/html");
-        HttpCarbonMessage response = Services.invokeNew(compileResult, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        int trueResponse = (int) response.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        int trueResponse = response.getHttpStatusCode();
         Assert.assertEquals(trueResponse, 406, "Not acceptable");
     }
 
@@ -187,7 +183,7 @@ public class ProducesConsumesAnnotationTest {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         cMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), "text/plain; charset=ISO-8859-4");
         cMsg.setHeader(HttpHeaderNames.ACCEPT.toString(), "text/*;q=0.3, text/html;Level=1;q=0.7");
-        HttpCarbonMessage response = Services.invokeNew(compileResult, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -200,7 +196,7 @@ public class ProducesConsumesAnnotationTest {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", "<test>TestVal</test>");
         cMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), "application/xml; charset=ISO-8859-4");
         cMsg.setHeader(HttpHeaderNames.ACCEPT.toString(), "application/json");
-        HttpCarbonMessage response = Services.invokeNew(compileResult, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());

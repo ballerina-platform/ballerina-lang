@@ -21,7 +21,7 @@ import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.utils.PackagingTestUtils;
+import org.ballerinalang.test.utils.TestUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -47,12 +47,12 @@ public class PackagingNegativeTestCase extends BaseTest {
     private Map<String, String> envVariables;
 
     @BeforeClass()
-    public void setUp() throws BallerinaTestException, IOException {
+    public void setUp() throws IOException {
         tempHomeDirectory = Files.createTempDirectory("bal-test-integration-packaging-home-");
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-packaging-negative-project-");
-        moduleName = moduleName + PackagingTestUtils.randomModuleName(10);
-        envVariables = addEnvVariables(PackagingTestUtils.getEnvVariables());
-        createSettingToml();
+        moduleName = moduleName + TestUtils.randomModuleName(10);
+        envVariables = addEnvVariables(TestUtils.getEnvVariables());
+        TestUtils.createSettingToml(tempHomeDirectory);
     }
 
     @Test(description = "Test pushing a package to central without an org-name")
@@ -66,7 +66,7 @@ public class PackagingNegativeTestCase extends BaseTest {
             String content = "[project]\n version = \"0.0.2\"";
             writeToFile(manifestFilePath, content);
         }
-        String msg = "ballerina: an org-name is required when pushing. This is not specified in Ballerina.toml " +
+        String msg = "ballerina: an orgName is required when pushing. This is not specified in Ballerina.toml " +
                 "inside the project";
 
         String[] clientArgs = {moduleName};
@@ -83,7 +83,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         // Remove org-name from manifest
         Path manifestFilePath = projectPath.resolve("Ballerina.toml");
         if (Files.exists(manifestFilePath)) {
-            String content = "[project]\n org-name = \"integrationtests\"";
+            String content = "[project]\n orgName = \"bcintegrationtest\"";
             writeToFile(manifestFilePath, content);
         }
         String msg = "ballerina: a package version is required when pushing. This is not specified in Ballerina.toml " +
@@ -102,7 +102,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         // Remove org-name from manifest
         Path manifestFilePath = projectPath.resolve("Ballerina.toml");
         if (Files.exists(manifestFilePath)) {
-            String content = "[project]\n org-name = \"ballerina\"\n version = \"0.0.2\"";
+            String content = "[project]\n orgName = \"ballerina\"\n version = \"0.0.2\"";
             writeToFile(manifestFilePath, content);
         }
         String msg = "ballerina: invalid organization name: 'ballerina'. 'ballerina' and 'ballerinax' are reserved " +
@@ -122,7 +122,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         if (Files.exists(manifestFilePath)) {
             writeToFile(manifestFilePath, "");
         }
-        String msg = "ballerina: an org-name is required when pushing. This is not specified in Ballerina.toml " +
+        String msg = "ballerina: an orgName is required when pushing. This is not specified in Ballerina.toml " +
                 "inside the project";
         String[] clientArgs = {moduleName};
         balClient.runMain("push", clientArgs, envVariables, new String[0],
@@ -276,7 +276,7 @@ public class PackagingNegativeTestCase extends BaseTest {
     @Test(description = "Test push with too many arguments")
     public void testPushWithTooManyArgs() throws Exception {
         String msg = "ballerina: too many arguments\n Run 'ballerina help' for usage.";
-        balClient.runMain("push", new String[] {"integrationtests", "foo"}, envVariables, new String[0],
+        balClient.runMain("push", new String[] {"bcintegrationtest", "foo"}, envVariables, new String[0],
                 new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
     }
 
@@ -297,13 +297,13 @@ public class PackagingNegativeTestCase extends BaseTest {
     @Test(description = "Test uninstall with too many arguments")
     public void testUninstallWithTooManyArgs() throws Exception {
         String msg = "ballerina: too many arguments\n Run 'ballerina help' for usage.";
-        balClient.runMain("uninstall", new String[] {"integrationtests", "testxyz"}, envVariables, new String[0],
+        balClient.runMain("uninstall", new String[] {"bcintegrationtest", "testxyz"}, envVariables, new String[0],
                           new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
     }
 
     @Test(description = "Test uninstall without an org-name")
     public void testUninstallWithoutOrg() throws Exception {
-        String msg = "error: no org-name is provided";
+        String msg = "error: no orgName is provided";
         balClient.runMain("uninstall", new String[] {"testxyz"}, envVariables, new String[0],
                           new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
     }
@@ -311,14 +311,14 @@ public class PackagingNegativeTestCase extends BaseTest {
     @Test(description = "Test uninstall without a version")
     public void testUninstallWithoutVersion() throws Exception {
         String msg = "error: no package version is provided";
-        balClient.runMain("uninstall", new String[] {"integrationtests/testxyz"}, envVariables, new String[0],
+        balClient.runMain("uninstall", new String[] {"bcintegrationtest/testxyz"}, envVariables, new String[0],
                           new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
     }
 
     @Test(description = "Test uninstall with a non-existing package")
     public void testUninstallWithNonExistingPackage() throws Exception {
-        String msg = "error: incorrect package signature provided integrationtests/testxyz:1.1.0";
-        balClient.runMain("uninstall", new String[] {"integrationtests/testxyz:1.1.0"}, envVariables, new String[0],
+        String msg = "error: incorrect package signature provided bcintegrationtest/testxyz:1.1.0";
+        balClient.runMain("uninstall", new String[] {"bcintegrationtest/testxyz:1.1.0"}, envVariables, new String[0],
                           new LogLeecher[]{new LogLeecher(msg)}, balServer.getServerHome());
     }
 
@@ -367,7 +367,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         // Remove org-name from manifest
         Path manifestFilePath = projectPath.resolve("Ballerina.toml");
         if (Files.exists(manifestFilePath)) {
-            String content = "[project]\n org-name = \"foo-bar\"\n version = \"0.0.2\"";
+            String content = "[project]\n orgName = \"foo-bar\"\n version = \"0.0.2\"";
             writeToFile(manifestFilePath, content);
         }
         String msg = "error: invalid organization name provided 'foo-bar'. Only lowercase alphanumerics and " +
@@ -429,19 +429,9 @@ public class PackagingNegativeTestCase extends BaseTest {
     private void initProject(Path projectPath) throws IOException, BallerinaTestException {
         Files.createDirectories(projectPath);
         String[] clientArgsForInit = {"-i"};
-        String[] options = {"\n", "integrationtests\n", "\n", "m\n", moduleName + "\n", "f\n"};
+        String[] options = {"\n", "bcintegrationtest\n", "\n", "m\n", moduleName + "\n", "f\n"};
         balClient.runMain("init", clientArgsForInit, envVariables, options, new LogLeecher[0],
                                                 projectPath.toString());
-    }
-
-    /**
-     * Create Settings.toml inside the home repository.
-     *
-     * @throws IOException i/o exception when writing to file
-     */
-    private void createSettingToml() throws IOException {
-        String content = "[central]\n accesstoken = \"0f647e67-857d-32e8-a679-bd3c1c3a7eb2\"";
-        writeToFile(tempHomeDirectory.resolve("Settings.toml"), content);
     }
 
     /**
@@ -467,7 +457,7 @@ public class PackagingNegativeTestCase extends BaseTest {
 
     @AfterClass
     private void cleanup() throws Exception {
-        PackagingTestUtils.deleteFiles(tempHomeDirectory);
-        PackagingTestUtils.deleteFiles(tempProjectDirectory);
+        TestUtils.deleteFiles(tempHomeDirectory);
+        TestUtils.deleteFiles(tempProjectDirectory);
     }
 }

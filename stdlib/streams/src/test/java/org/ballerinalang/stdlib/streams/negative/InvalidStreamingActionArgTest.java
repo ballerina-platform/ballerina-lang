@@ -18,9 +18,9 @@
 
 package org.ballerinalang.stdlib.streams.negative;
 
-import org.ballerinalang.launcher.util.BAssertUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -41,8 +41,9 @@ public class InvalidStreamingActionArgTest {
 
     @Test(description = "Test if the proper error is thrown if the streaming action arg is incorrect")
     public void testInvalidStreamingActionArg() {
-        Assert.assertEquals(result.getErrorCount(), 1);
+        Assert.assertEquals(result.getErrorCount(), 2);
         BAssertUtil.validateError(result, 0, "invalid stream action argument type found. it " +
                 "should be an array type argument of a record", 83, 9);
+        BAssertUtil.validateError(result, 1, "incompatible types: expected 'TeacherOutput', found 'int'", 85, 17);
     }
 }

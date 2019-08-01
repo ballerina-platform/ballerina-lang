@@ -18,16 +18,10 @@
 
 package org.ballerinalang.stdlib.config;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.util.Map;
@@ -39,57 +33,40 @@ import java.util.Map;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "config",
-        functionName = "get",
-        args = {@Argument(name = "key", type = TypeKind.STRING), @Argument(name = "vType", type = TypeKind.RECORD)}
+        functionName = "get"
 )
-public class GetConfig extends BlockingNativeCallableUnit {
+public class GetConfig {
 
     private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
 
-    @Override
-    public void execute(Context context) {
-        String configKey = context.getStringArgument(0);
-        BString type = (BString) context.getNullableRefArgument(0);
+    public static Object get(Strand strand, String configKey, Object type) {
 
         // TODO: Add a try-catch
-        switch (type.stringValue()) {
+        switch (type.toString()) {
             case "STRING":
-                String val = configRegistry.getAsString(configKey);
-                context.setReturnValues(val != null ? new BString(val) : null);
-                break;
+                return configRegistry.getAsString(configKey);
             case "INT":
-                context.setReturnValues(new BInteger(configRegistry.getAsInt(configKey)));
-                break;
+                return configRegistry.getAsInt(configKey);
             case "FLOAT":
-                context.setReturnValues(new BFloat(configRegistry.getAsFloat(configKey)));
-                break;
+                return configRegistry.getAsFloat(configKey);
             case "BOOLEAN":
-                context.setReturnValues(new BBoolean(configRegistry.getAsBoolean(configKey)));
-                break;
+                return configRegistry.getAsBoolean(configKey);
             case "MAP":
-                context.setReturnValues(buildBMap(configRegistry.getAsMap(configKey)));
-                break;
+                return buildMapValue(configRegistry.getAsMap(configKey));
             default:
-                throw new IllegalStateException("invalid value type: " + type.stringValue());
+                throw new IllegalStateException("invalid value type: " + type.toString());
         }
     }
 
-    private BMap buildBMap(Map<String, Object> section) {
-        BMap map = new BMap();
+    @SuppressWarnings("unchecked")
+    private static MapValue buildMapValue(Map<String, Object> section) {
+        MapValue map = new MapValueImpl<String, Object>();
 
-        section.entrySet().forEach(entry -> {
-            Object val = entry.getValue();
-            if (val instanceof String) {
-                map.put(entry.getKey(), new BString((String) val));
-            } else if (val instanceof Long) {
-                map.put(entry.getKey(), new BInteger((Long) val));
-            } else if (val instanceof Double) {
-                map.put(entry.getKey(), new BFloat((Double) val));
-            } else if (val instanceof Boolean) {
-                map.put(entry.getKey(), new BBoolean((Boolean) val));
+        section.forEach((key, val) -> {
+            if (val instanceof String || val instanceof Long || val instanceof Double || val instanceof Boolean) {
+                map.put(key, val);
             }
         });
-
         return map;
     }
 }

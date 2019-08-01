@@ -10,12 +10,13 @@ Fixes #<Issue Number>
 > Provide high-level details about the samples related to this feature.
 
 ## Remarks
-> List any other known issues, releated PRs, TODO items or any other notes related to the PR.
+> List any other known issues, related PRs, TODO items, or any other notes related to the PR.
 
 ## Check List 
 - [ ] Read the [Contributing Guide](https://github.com/ballerina-platform/ballerina-lang/blob/master/CONTRIBUTING.md)
 - [ ] Required Balo version update
 - [ ] Updated Change Log
+- [ ] Checked Tooling Support (#<Issue Number>)
 - [ ] Added necessary tests
   - [ ] Unit Tests
   - [ ] Spec Conformance Tests

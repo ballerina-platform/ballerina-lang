@@ -37,10 +37,11 @@ import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
+import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.extensions.OASGenerationException;
-import org.ballerinalang.langserver.formatting.FormattingSourceGen;
+import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.openapi.CodeGenerator;
@@ -141,8 +142,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             //Generate compilation unit for provided Open Api Sep JSON
             File tempOasJsonFile = getOpenApiFile(params.getOASDefinition());
             CodeGenerator generator = new CodeGenerator();
-            List<GenSrcFile> oasSources = generator.generate(GeneratorConstants.GenType.GEN_SERVICE,
-                    tempOasJsonFile.getPath());
+            List<GenSrcFile> oasSources = generator.generateBalSource(GeneratorConstants.GenType.GEN_SERVICE,
+                    tempOasJsonFile.getPath(), null);
 
             Optional<GenSrcFile> oasServiceFile = oasSources.stream()
                     .filter(genSrcFile -> genSrcFile.getType().equals(GenSrcFile.GenFileType.GEN_SRC)).findAny();

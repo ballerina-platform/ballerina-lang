@@ -40,11 +40,13 @@ abstract class AbstractAnnotationReader extends BlockingNativeCallableUnit {
     private static final String STRUCT_ANNOTATION = "annotationData";
     static final String DOT = ".";
 
+    //TODO Remove after migration : implemented using bvm values/types
     BValue getAnnotationValue(Context context, String pkgPath, String key) {
         final BMap bMap = ConnectorSPIModelHelper.getAnnotationVariable(pkgPath, context.getProgramFile());
         return createAnnotationStructArray(context, bMap.get(key));
     }
 
+    //TODO Remove after migration : implemented using bvm values/types
     private BValueArray createAnnotationStructArray(Context context, BValue map) {
         final PackageInfo packageInfo = context.getProgramFile().getPackageInfo(PKG_REFELCT);
         final StructureTypeInfo structInfo = packageInfo.getStructInfo(STRUCT_ANNOTATION);

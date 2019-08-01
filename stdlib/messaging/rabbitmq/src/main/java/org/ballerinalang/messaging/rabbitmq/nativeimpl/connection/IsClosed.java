@@ -19,15 +19,11 @@
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.connection;
 
 import com.rabbitmq.client.Connection;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
-import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.messaging.rabbitmq.util.ConnectionUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
@@ -45,12 +41,14 @@ import org.ballerinalang.natives.annotations.Receiver;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class IsClosed extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-        BMap<String, BValue> connectionBObject = (BMap<String, BValue>) context.getRefArgument(0);
-        Connection connection = RabbitMQUtils.getNativeObject(connectionBObject,
-                RabbitMQConstants.CONNECTION_NATIVE_OBJECT, Connection.class, context);
-        context.setReturnValues(new BBoolean(ConnectionUtils.isClosed(connection)));
+public class IsClosed {
+
+    public static boolean isClosed(Strand strand, ObjectValue connectionObject) {
+        Connection connection = (Connection) connectionObject.getNativeData
+                (RabbitMQConstants.CONNECTION_NATIVE_OBJECT);
+        return ConnectionUtils.isClosed(connection);
+    }
+
+    private IsClosed() {
     }
 }

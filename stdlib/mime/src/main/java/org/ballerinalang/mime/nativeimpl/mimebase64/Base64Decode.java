@@ -16,14 +16,14 @@
 
 package org.ballerinalang.mime.nativeimpl.mimebase64;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.utils.Utils;
+
+import static org.ballerinalang.mime.util.MimeConstants.UTF_8;
 
 /**
  * Extern function 'mime:base64Decode' that can decode a a given mime base64 encoded string, blob or a
@@ -39,12 +39,9 @@ import org.ballerinalang.stdlib.io.utils.Utils;
         returnType = {@ReturnType(type = TypeKind.UNION)},
         isPublic = true
 )
-public class Base64Decode extends BlockingNativeCallableUnit {
+public class Base64Decode {
 
-    @Override
-    public void execute(Context context) {
-        BValue result = context.getRefArgument(0);
-        String charset = context.getStringArgument(0);
-        Utils.decode(context, result, charset, true);
+    public static Object base64Decode(Strand strand, Object contentToBeDecoded, String charset) {
+        return Utils.decode(contentToBeDecoded, charset != null ? charset : UTF_8, true);
     }
 }

@@ -18,16 +18,15 @@
 
 package org.ballerinalang.stdlib.services.dispatching;
 
-import org.ballerinalang.launcher.util.BServiceUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -39,20 +38,19 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
  */
 public class UriMatrixParametersMatchTest {
 
-    private static final String TEST_EP = "testEP";
+    private static final int TEST_EP = 9090;
     private CompileResult application;
 
     @BeforeClass()
     public void setup() {
-        application = BServiceUtil
-                .setupProgramFile(this, "test-src/services/dispatching/uri-matrix-param-matching.bal");
+        application = BCompileUtil.compile("test-src/services/dispatching/uri-matrix-param-matching.bal");
     }
 
     @Test
     public void testMatrixParamsAndQueryParamsMatching() {
         String path = "/hello/t1/john;age=10;color=white/bar/1991;month=may;day=12/foo;a=5;b=10?x=10&y=5";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HttpCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invoke(TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -68,7 +66,7 @@ public class UriMatrixParametersMatchTest {
     public void testEncodedPathDispatching() {
         String path = "/hello/t2/john;age=2;color=white/foo%3Ba%3D5%3Bb%3D10"; // encoded URI
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HttpCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invoke(TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -82,7 +80,7 @@ public class UriMatrixParametersMatchTest {
     public void testEncodedPathParamDispatching() {
         String path = "/hello/t2/john%3Bage%3D2%3Bcolor%3Dwhite/foo%3Ba%3D5%3Bb%3D10"; // encoded URI
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HttpCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invoke(TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -96,11 +94,10 @@ public class UriMatrixParametersMatchTest {
     public void testNonEncodedUrlDispatching() {
         String path = "/hello/t2/john;age=2;color=white/foo;a=5;b=10"; // encoded URI
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HttpCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invoke(TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(
-                response.getProperty(HttpConstants.HTTP_STATUS_CODE), 404, "Response code mismatch");
+        Assert.assertEquals((int) response.getHttpStatusCode(), 404, "Response code mismatch");
         //checking the exception message
         String errorMessage = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
@@ -113,11 +110,10 @@ public class UriMatrixParametersMatchTest {
     public void testErrorReportInURI() {
         String path = "/hello/t2/john;age;color=white/foo;a=5;b=10"; // encoded URI
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HttpCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invoke(TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(
-                response.getProperty(HttpConstants.HTTP_STATUS_CODE), 500, "Response code mismatch");
+        Assert.assertEquals((int) response.getHttpStatusCode(), 500, "Response code mismatch");
         //checking the exception message
         String errorMessage = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());

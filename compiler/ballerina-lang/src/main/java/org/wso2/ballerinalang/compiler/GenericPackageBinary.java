@@ -13,11 +13,13 @@ public class GenericPackageBinary implements PackageBinary {
     private final PackageID pkgId;
     private final CompilerInput binaryContent;
     private final RepoHierarchy repoHierarchy;
+    private final Kind kind;
 
-    public GenericPackageBinary(PackageID pkgId, CompilerInput binaryContent, RepoHierarchy repoHierarchy) {
+    public GenericPackageBinary(PackageID pkgId, CompilerInput binaryContent, RepoHierarchy repoHierarchy, Kind kind) {
         this.pkgId = pkgId;
         this.binaryContent = binaryContent;
         this.repoHierarchy = repoHierarchy;
+        this.kind = kind;
     }
 
     @Override
@@ -27,7 +29,7 @@ public class GenericPackageBinary implements PackageBinary {
 
     @Override
     public Kind getKind() {
-        return Kind.COMPILED;
+        return this.kind;
     }
 
     @Override

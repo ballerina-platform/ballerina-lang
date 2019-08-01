@@ -15,11 +15,9 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.streamingclient;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.GrpcConstants;
@@ -46,24 +44,23 @@ import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
                 structPackage = GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
-public class Complete extends BlockingNativeCallableUnit {
+public class Complete {
     private static final Logger LOG = LoggerFactory.getLogger(Complete.class);
-    
-    @Override
-    public void execute(Context context) {
-        BMap<String, BValue> connectionStruct = (BMap<String, BValue>) context.getRefArgument(0);
-        StreamObserver requestSender = (StreamObserver) connectionStruct.getNativeData(REQUEST_SENDER);
+
+    public static Object complete(Strand strand, ObjectValue streamingConnection) {
+        StreamObserver requestSender = (StreamObserver) streamingConnection.getNativeData(REQUEST_SENDER);
         if (requestSender == null) {
-            context.setError(MessageUtils.getConnectorError(new StatusRuntimeException(Status
+            return MessageUtils.getConnectorError(new StatusRuntimeException(Status
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while completing the " +
-                            "message. endpoint does not exist"))));
+                            "message. endpoint does not exist")));
         } else {
             try {
                 requestSender.onCompleted();
             } catch (Exception e) {
                 LOG.error("Error while sending complete message to server.", e);
-                context.setError(MessageUtils.getConnectorError(e));
+                return MessageUtils.getConnectorError(e);
             }
         }
+        return null;
     }
 }

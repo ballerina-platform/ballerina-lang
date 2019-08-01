@@ -18,11 +18,9 @@
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.stdlib.time.util.TimeUtils;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * Create a time from the given time components.
@@ -35,21 +33,17 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 )
 public class CreateTime extends AbstractTimeFunction {
 
-    @Override public void execute(Context context) {
-        int years = (int) context.getIntArgument(0);
-        int months = (int) context.getIntArgument(1);
-        int dates = (int) context.getIntArgument(2);
-        int hours = (int) context.getIntArgument(3);
-        int minutes = (int) context.getIntArgument(4);
-        int seconds = (int) context.getIntArgument(5);
-        int milliSeconds = (int) context.getIntArgument(6);
-        String zoneId = context.getStringArgument(0);
+    @Override
+    public void execute(Context context) {
+    }
+
+    public static Object createTime(Strand strand, long years, long months, long dates, long hours, long minutes,
+                                    long seconds, long milliSeconds, String zoneId) {
         try {
-            BMap<String, BValue> timeVal = createDateTime(context, years, months, dates, hours, minutes, seconds,
-                    milliSeconds, zoneId);
-            context.setReturnValues(timeVal);
-        } catch (BallerinaException e) {
-            context.setReturnValues(TimeUtils.getTimeError(context, e.getMessage()));
+            return createDateTime((int) years, (int) months, (int) dates, (int) hours, (int) minutes, (int) seconds,
+                                  (int) milliSeconds, zoneId);
+        } catch (ErrorValue e) {
+            return e;
         }
     }
 }

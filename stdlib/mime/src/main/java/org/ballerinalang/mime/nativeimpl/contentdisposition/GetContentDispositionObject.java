@@ -18,20 +18,17 @@
 
 package org.ballerinalang.mime.nativeimpl.contentdisposition;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_STRUCT;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
-import static org.ballerinalang.mime.util.MimeConstants.STRING_INDEX;
 
 /**
  * Construct ContentDisposition object given a content-disposition value.
@@ -44,13 +41,12 @@ import static org.ballerinalang.mime.util.MimeConstants.STRING_INDEX;
                 type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true)
-public class GetContentDispositionObject extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-        String contentDisposition = context.getStringArgument(STRING_INDEX);
-        BMap<String, BValue> contentDispositionObj = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME,
-                                                                                       CONTENT_DISPOSITION_STRUCT);
+public class GetContentDispositionObject {
+
+    public static ObjectValue getContentDispositionObject(Strand strand, String contentDisposition) {
+        ObjectValue contentDispositionObj = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME,
+                                                                     CONTENT_DISPOSITION_STRUCT);
         MimeUtil.populateContentDispositionObject(contentDispositionObj, contentDisposition);
-        context.setReturnValues(contentDispositionObj);
+        return contentDispositionObj;
     }
 }

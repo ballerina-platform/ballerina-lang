@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -62,8 +62,8 @@ public class BallerinaObjectFunctionDefinitionImpl extends ASTWrapperPsiElement 
 
   @Override
   @Nullable
-  public BallerinaDeprecatedAttachment getDeprecatedAttachment() {
-    return findChildByClass(BallerinaDeprecatedAttachment.class);
+  public BallerinaExternalFunctionBody getExternalFunctionBody() {
+    return findChildByClass(BallerinaExternalFunctionBody.class);
   }
 
   @Override
@@ -76,12 +76,6 @@ public class BallerinaObjectFunctionDefinitionImpl extends ASTWrapperPsiElement 
   @Nullable
   public PsiElement getSemicolon() {
     return findChildByType(SEMICOLON);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getExtern() {
-    return findChildByType(EXTERN);
   }
 
   @Override

@@ -18,6 +18,10 @@ package org.ballerinalang.stdlib.internal.compression;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
@@ -45,6 +49,14 @@ public class CompressionUtils {
         compressionErrorRecord.put(COMPRESSION_ERROR_MESSAGE, new BString(msg));
         return BLangVMErrors.createError(context, true, BTypes.typeError,
                                          COMPRESSION_ERROR_CODE, compressionErrorRecord);
+    }
+
+    public static ErrorValue createCompressionError(String msg) {
+        MapValue<String, Object> compressionErrorRecord = BallerinaValues.createRecordValue(
+                PROTOCOL_PACKAGE_COMPRESSION, COMPRESSION_ERROR_RECORD);
+        compressionErrorRecord.put(COMPRESSION_ERROR_MESSAGE, msg);
+        return BallerinaErrors.createError(
+                COMPRESSION_ERROR_CODE, compressionErrorRecord);
     }
 
     private static BMap<String, BValue> createCompressionErrorRecord(Context context) {

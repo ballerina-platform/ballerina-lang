@@ -15,8 +15,10 @@
  */
 package org.ballerinalang.langserver.completions;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ServiceLoader;
 
 /**
@@ -27,8 +29,8 @@ import java.util.ServiceLoader;
 public class LSCompletionProviderFactory {
 
     private static final LSCompletionProviderFactory INSTANCE = new LSCompletionProviderFactory();
-
-    private List<LSCompletionProvider> providersList = new ArrayList<>();
+    
+    private Map<Class, LSCompletionProvider> providers;
 
     private boolean isInitialized = false;
 
@@ -47,22 +49,21 @@ public class LSCompletionProviderFactory {
         if (isInitialized) {
             return;
         }
-        ServiceLoader<LSCompletionProvider> providers = ServiceLoader.load(LSCompletionProvider.class);
-        for (LSCompletionProvider provider : providers) {
+        this.providers = new HashMap<>();
+        ServiceLoader<LSCompletionProvider> providerServices = ServiceLoader.load(LSCompletionProvider.class);
+        for (LSCompletionProvider provider : providerServices) {
             if (provider != null) {
-                providersList.add(provider);
+                for (Class attachmentPoint : provider.getAttachmentPoints()) {
+                    if (!this.providers.containsKey(attachmentPoint)
+                            || (this.providers.get(attachmentPoint).getPrecedence() == 
+                            LSCompletionProvider.Precedence.LOW
+                            && provider.getPrecedence() == LSCompletionProvider.Precedence.HIGH)) {
+                        this.providers.put(attachmentPoint, provider);
+                    }
+                }
             }
         }
         isInitialized = true;
-    }
-
-    /**
-     * Get the list of all providers.
-     *
-     * @return {@link List} Providers List
-     */
-    public List<LSCompletionProvider> getProviders() {
-        return providersList;
     }
 
     /**
@@ -71,7 +72,9 @@ public class LSCompletionProviderFactory {
      * @param provider completion provider to register
      */
     public void register(LSCompletionProvider provider) {
-        this.providersList.add(provider);
+        for (Class attachmentPoint : provider.getAttachmentPoints()) {
+            this.providers.put(attachmentPoint, provider);
+        }
     }
 
     /**
@@ -80,6 +83,22 @@ public class LSCompletionProviderFactory {
      * @param provider completion provider to unregister
      */
     public void unregister(LSCompletionProvider provider) {
-        this.providersList.remove(provider);
+        for (Class attachmentPoint : provider.getAttachmentPoints()) {
+            this.providers.remove(attachmentPoint, provider);
+        }
+    }
+
+    public Map<Class, LSCompletionProvider> getProviders() {
+        return this.providers;
+    }
+
+    /**
+     * Get Provider by Class key.
+     *
+     * @param key   Provider key
+     * @return {@link LSCompletionProvider} Completion provider  
+     */
+    public LSCompletionProvider getProvider(Class key) {
+        return this.providers.get(key);
     }
 }

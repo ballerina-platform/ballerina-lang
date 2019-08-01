@@ -18,19 +18,13 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
-import java.security.InvalidKeyException;
 import java.security.PrivateKey;
 
 /**
@@ -40,30 +34,12 @@ import java.security.PrivateKey;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
-        functionName = "signRsaSha512",
-        args = {
-                @Argument(name = "input", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
-                @Argument(name = "privateKey", type = TypeKind.RECORD, structType = "PrivateKey",
-                        structPackage = "ballerina/crypto")
-        },
-        returnType = {
-                @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
-                @ReturnType(type = TypeKind.RECORD, structType = Constants.CRYPTO_ERROR,
-                        structPackage = Constants.CRYPTO_PACKAGE)
-        },
-        isPublic = true)
-public class SignRsaSha512 extends BlockingNativeCallableUnit {
+        functionName = "signRsaSha512", isPublic = true)
+public class SignRsaSha512 {
 
-    @Override
-    public void execute(Context context) {
-        BValue inputBValue = context.getRefArgument(0);
-        BMap<String, BValue> privateKey = (BMap<String, BValue>) context.getRefArgument(1);
-        byte[] input = ((BValueArray) inputBValue).getBytes();
-        try {
-            context.setReturnValues(new BValueArray(CryptoUtils.sign(context, "SHA512withRSA",
-                    (PrivateKey) privateKey.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY), input)));
-        } catch (InvalidKeyException e) {
-            context.setReturnValues(CryptoUtils.createCryptoError(context, "invalid uninitialized key"));
-        }
+    public static Object signRsaSha512(Strand strand, ArrayValue inputValue, MapValue<?, ?> privateKey) {
+        byte[] input = inputValue.getBytes();
+        PrivateKey key = (PrivateKey) privateKey.getNativeData(Constants.NATIVE_DATA_PRIVATE_KEY);
+        return CryptoUtils.sign("SHA512withRSA", key, input);
     }
 }

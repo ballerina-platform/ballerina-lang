@@ -187,7 +187,6 @@ public class ServiceDesugar {
         final BLangInvocation methodInvocation =
                 ASTBuilderUtil.createInvocationExprForMethod(pos, methodRefSymbol, args, symResolver);
         methodInvocation.expr = varRef;
-        methodInvocation.namedArgs.addAll(namedArgs);
 
         BLangExpression rhsExpr = methodInvocation;
         // Add optional check.
@@ -209,10 +208,11 @@ public class ServiceDesugar {
     void engageCustomServiceDesugar(BLangService service, SymbolEnv env) {
         final BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) service.serviceTypeDefinition.typeNode;
         objectTypeNode.functions.stream().filter(fun -> Symbols.isFlagOn(fun.symbol.flags, Flags.RESOURCE))
-                .forEach(func -> engageCustomResourceDesugar(service, func, env));
+                .forEach(func -> engageCustomResourceDesugar(func, env));
     }
 
-    private void engageCustomResourceDesugar(BLangService service, BLangFunction functionNode, SymbolEnv env) {
+    private void engageCustomResourceDesugar(BLangFunction functionNode, SymbolEnv env) {
         httpFiltersDesugar.addHttpFilterStatementsToResource(functionNode, env);
+        httpFiltersDesugar.addCustomAnnotationToResource(functionNode, env);
     }
 }

@@ -21,7 +21,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
-import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -41,19 +40,19 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -162,10 +161,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         if (funcNode.workers != null) {
             funcNode.workers.forEach(this::acceptNode);
         }
-
-        if (funcNode.defaultableParams != null) {
-            funcNode.defaultableParams.forEach(this::acceptNode);
-        }
     }
 
     @Override
@@ -186,24 +181,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         serviceContent.addAll(serviceFields);
         serviceContent.sort(new CommonUtil.BLangNodeComparator());
         serviceContent.forEach(this::acceptNode);
-    }
-
-    @Override
-    public void visit(BLangResource resourceNode) {
-        if (isReferenced(resourceNode.name.getValue(), resourceNode.symbol.owner, resourceNode.symbol.pkgID,
-                         resourceNode.symbol.owner.pkgID)) {
-            CommonUtil.replacePosition(resourceNode.getPosition(), HoverUtil.getIdentifierPosition(resourceNode));
-            addLocation(resourceNode, resourceNode.symbol.pkgID.name.getValue(),
-                        resourceNode.symbol.pkgID.name.getValue());
-        }
-
-        if (resourceNode.requiredParams != null) {
-            resourceNode.requiredParams.forEach(this::acceptNode);
-        }
-
-        if (resourceNode.body != null) {
-            this.acceptNode(resourceNode.body);
-        }
     }
 
     @Override
@@ -473,9 +450,16 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
-        if (bracedOrTupleExpr.expressions != null) {
-            bracedOrTupleExpr.expressions.forEach(this::acceptNode);
+    public void visit(BLangListConstructorExpr listConstructorExpr) {
+        if (listConstructorExpr.exprs != null) {
+            listConstructorExpr.exprs.forEach(this::acceptNode);
+        }
+    }
+
+    @Override
+    public void visit(BLangGroupExpr groupExpr) {
+        if (groupExpr.expression != null) {
+            this.acceptNode(groupExpr.expression);
         }
     }
 
@@ -667,7 +651,7 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         Location l = new Location();
         Range r = new Range();
         TextDocumentPositionParams position = this.context.get(DocumentServiceKeys.POSITION_KEY);
-        String parentPath = new LSDocument(position.getTextDocument().getUri()).getSourceRoot();
+        String parentPath = new LSDocument(position.getTextDocument().getUri()).getProjectRoot();
         if (parentPath != null) {
             String fileName = bLangNode.getPosition().getSource().getCompilationUnitName();
             Path filePath = Paths.get(CommonUtil.getPackageURI(currentPackageName, parentPath, ownerPackageName),

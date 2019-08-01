@@ -21,7 +21,7 @@ import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.utils.PackagingTestUtils;
+import org.ballerinalang.test.utils.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -42,13 +42,13 @@ public class ExecuteTestsNegativeTestCase extends BaseTest {
     private String moduleName = "test";
 
     @BeforeClass()
-    public void setUp() throws IOException, BallerinaTestException {
+    public void setUp() throws Exception {
         projectPath = Files.createTempDirectory("bal-test-integration-project-");
-        moduleName = moduleName + PackagingTestUtils.randomModuleName(8);
+        moduleName = moduleName + TestUtils.randomModuleName(8);
 
         // Initialize a ballerina project.
         String[] options = {"\n", "\n", "\n", "m\n", moduleName + "\n", "f\n"};
-        balClient.runMain("init", new String[]{"-i"}, PackagingTestUtils.getEnvVariables(), options,
+        balClient.runMain("init", new String[]{"-i"}, TestUtils.getEnvVariables(), options,
                 new LogLeecher[]{}, projectPath.toString());
 
         // Remove the .ballerina folder from the project.
@@ -83,6 +83,6 @@ public class ExecuteTestsNegativeTestCase extends BaseTest {
 
     @AfterClass
     private void cleanup() throws Exception {
-        PackagingTestUtils.deleteFiles(projectPath);
+        TestUtils.deleteFiles(projectPath);
     }
 }

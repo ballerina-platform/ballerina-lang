@@ -17,7 +17,10 @@ service serviceName on ep0 {
         http:Response _userRes = new;
         string _userPayload = "Sample user Response";
         _userRes.setTextPayload(_userPayload);
-        _ = outboundEp->respond(_userRes);
+        var result = outboundEp->respond(_userRes);
+        if (result is error) {
+            log:printError(result.reason(), err = result);
+        }
     }
 
 }

@@ -4,6 +4,8 @@
 [![Version](https://img.shields.io/jetbrains/plugin/v/9520-ballerina.svg)](https://plugins.jetbrains.com/plugin/9520-ballerina)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/9520-ballerina.svg)](https://plugins.jetbrains.com/plugin/9520-ballerina)
 
+![alt text](getting-started/ballerina-intellij-plugin.png)
+
 [Ballerina](https://ballerina.io/) is a simple programming language whose syntax and runtime address the hard 
 problems of integration. As a Turing complete language, Ballerina enables agility with edit, build, and run cycles. 
 Ballerina code is compiled into services that include transactions, embedded brokers, and gateway runtime.
@@ -21,6 +23,7 @@ Ballerina plugin provides Ballerina Language support in IntelliJ IDEA.
 - [**Plugin Features**](getting-started/plugin-features/README.md)
     - [Running Ballerina Programs](getting-started/plugin-features/README.md#running-ballerina-programs)
     - [Debugging Ballerina Programs](getting-started/plugin-features/README.md#debugging-ballerina-programs) 
+    - [Diagram View](getting-started/plugin-features/README.md#diagram-view)
     - [Import Modules On-the-fly](getting-started/plugin-features/README.md#import-modules-on-the-fly)
     - [Auto Import Unambiguous Modules](getting-started/plugin-features/README.md#auto-import-unambiguous-modules)
     - [Find Usage](getting-started/plugin-features/README.md#find-usage)

@@ -1,16 +1,18 @@
 import {
-    Assignment, ASTUtil, Break,
+    Assignment, ASTKindChecker, ASTUtil, Break,
     CompoundAssignment, ExpressionStatement, Panic, VariableDef
 } from "@ballerina/ast-model";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
 import { StmntViewState } from "../../view-model";
+import { WorkerSendViewState } from "../../view-model/worker-send";
 import { ActionInvocation } from "./action-invocation";
 import { ExpandedFunction, FunctionExpander } from "./expanded-function";
 import { HiddenBlock } from "./hidden-block";
 import { ReturnActionInvocation } from "./return-action-invocation";
 import { SourceLinkedLabel } from "./source-linked-label";
+import { WorkerSend } from "./worker-send";
 
 const config: DiagramConfig = DiagramUtils.getConfig();
 
@@ -36,7 +38,7 @@ export const Statement: React.StatelessComponent<{
         let expander;
         let expandedFunction;
 
-        if (viewState.expandContext && !viewState.expandContext.expandedSubTree) {
+        if (viewState.expandContext && viewState.expandContext.collapsed) {
             const expanderProps = {
                 expandContext: viewState.expandContext,
                 position: viewState.expandContext.expandableNode.position!,
@@ -47,13 +49,13 @@ export const Statement: React.StatelessComponent<{
             expander = <FunctionExpander {...expanderProps}/>;
         }
 
-        if (viewState.expandContext && viewState.expandContext.expandedSubTree) {
+        if (viewState.expandContext && !viewState.expandContext.collapsed) {
             if (!viewState.isAction && !viewState.hiddenBlock) {
                 const expandedBBox = {
                     h: viewState.bBox.h,
                     statement: {
-                        text: label,
-                        textWidth: viewState.bBox.labelWidth,
+                        text: viewState.expandContext.labelText,
+                        textWidth: viewState.expandContext.labelWidth,
                         x: viewState.bBox.x + config.statement.padding.left,
                         y: viewState.bBox.y,
                     },
@@ -63,8 +65,9 @@ export const Statement: React.StatelessComponent<{
                 };
 
                 const onClose = () => {
-                    if (viewState.expandContext && viewState.expandContext.expandedSubTree) {
-                        viewState.expandContext.expandedSubTree = undefined;
+                    if (viewState.expandContext) {
+                        viewState.expandContext.collapsed = true;
+                        viewState.expandContext.skipDepthCheck = true;
                     }
                 };
 
@@ -76,14 +79,29 @@ export const Statement: React.StatelessComponent<{
                 />;
             }
         }
+
+        let syncSend;
+        if (ASTKindChecker.isVariableDef(model) && model.variable.initialExpression &&
+            ASTKindChecker.isWorkerSyncSend(model.variable.initialExpression)) {
+            syncSend = model.variable.initialExpression;
+            const sendVS = syncSend.viewState as WorkerSendViewState;
+            sendVS.bBox.x = viewState.bBox.x;
+            sendVS.bBox.y = viewState.bBox.y;
+            sendVS.bBox.h = viewState.bBox.h;
+            sendVS.bBox.w = viewState.bBox.w;
+            sendVS.bBox.label = viewState.bBox.label;
+        }
+
         return (
             <g>
                 {viewState.hiddenBlock &&
                     <HiddenBlock model={model} />
                 }
-                {!viewState.hiddenBlock &&
-                    <g className="statement"
-                    >
+                {(!viewState.hiddenBlock && !viewState.hidden && syncSend) &&
+                    <WorkerSend model={syncSend}/>
+                }
+                {(!viewState.hiddenBlock && !viewState.hidden && !syncSend) &&
+                    <g className="statement">
                         {viewState.isAction && !viewState.isReturn
                             && <ActionInvocation
                                 model={viewState}
@@ -96,7 +114,7 @@ export const Statement: React.StatelessComponent<{
                                 action={viewState.bBox.label}
                                 astModel={model}
                             />}
-                        {!viewState.isAction && !viewState.hiddenBlock && !expandedFunction &&
+                        {!viewState.isAction && !expandedFunction &&
                             <SourceLinkedLabel {...statementProps} />
                         }
                         { expander }

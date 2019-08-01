@@ -19,6 +19,7 @@ package org.ballerinalang.test.agent;
 
 import javassist.ClassPool;
 import javassist.CtClass;
+import javassist.CtField;
 import javassist.CtMethod;
 import org.ballerinalang.test.agent.server.WebServer;
 
@@ -68,6 +69,8 @@ public class BallerinaServerAgent {
 
     private static final int DEFAULT_AGENT_PORT = -1;
 
+    private static final int SCHEDULER_LINE_NUM = 279;
+
     private static long timeout = DEFAULT_EXIT_TIMEOUT;
     private static int exitStatus = DEFAULT_EXIT_STATUS;
     private static int killStatus = DEFAULT_KILL_STATUS;
@@ -103,16 +106,17 @@ public class BallerinaServerAgent {
         //TODO find a way to fail the process if this instrumentation is not successful
         instrumentation.addTransformer((classLoader, s, aClass, protectionDomain, bytes) -> {
 
-            if ("org/ballerinalang/BLangProgramRunner".equals(s)) {
+            if ("org/ballerinalang/jvm/scheduling/Scheduler".equals(s)) {
                 try {
                     ClassPool cp = ClassPool.getDefault();
-                    CtClass cc = cp.get("org.ballerinalang.BLangProgramRunner");
+                    CtClass cc = cp.get("org.ballerinalang.jvm.scheduling.Scheduler");
+                    cc.addField(CtField.make("boolean agentStarted;", cc));
 
-                    CtClass programFileClass = cp.get("org.ballerinalang.util.codegen.ProgramFile");
-                    CtClass[] paramArgs = new CtClass[]{programFileClass};
-
-                    CtMethod m = cc.getDeclaredMethod("runService", paramArgs);
-                    m.insertAfter("org.ballerinalang.test.agent.BallerinaServerAgent.startAgentServer();");
+                    CtMethod m = cc.getDeclaredMethod("run");
+                    m.insertAt(SCHEDULER_LINE_NUM, "if (!agentStarted && immortal) {" +
+                            "org.ballerinalang.test.agent.BallerinaServerAgent.startAgentServer();" +
+                            "agentStarted = true;" +
+                            " }");
                     byte[] byteCode = cc.toBytecode();
                     cc.detach();
                     return byteCode;

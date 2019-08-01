@@ -29,20 +29,21 @@ const string SCENARIO_CB_FORCE_CLOSE = "cb-force-close-scenario";
 const string SCENARIO_REQUEST_VOLUME_THRESHOLD_SUCCESS = "request-volume-threshold-success-scenario";
 const string SCENARIO_REQUEST_VOLUME_THRESHOLD_FAILURE = "request-volume-threshold-failure-scenario";
 
-function testTypicalScenario() returns (http:Response[], error?[]) {
+function testTypicalScenario() returns [http:Response[], error?[]] {
+    actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
-    http:Client backendClientEP = new("http://localhost:8080", config = {
+    http:Client backendClientEP = new("http://localhost:8080", {
         circuitBreaker: {
             rollingWindow: {
-                timeWindowMillis:10000,
-                bucketSizeMillis:2000,
+                timeWindowInMillis:10000,
+                bucketSizeInMillis:2000,
                 requestVolumeThreshold: 0
             },
             failureThreshold:0.3,
-            resetTimeMillis:1000,
+            resetTimeInMillis:1000,
             statusCodes:[400, 404, 500, 502, 503]
         },
-        timeoutMillis:2000
+        timeoutInMillis:2000
     });
 
     http:Response[] responses = [];
@@ -51,8 +52,9 @@ function testTypicalScenario() returns (http:Response[], error?[]) {
         while (counter < 8) {
             http:Request request = new;
             request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_TYPICAL);
-            backendClientEP.httpClient.httpClient = mockClient;
-            var serviceResponse = backendClientEP->get("/hello", message = request);
+            http:CircuitBreakerClient tempClient = <http:CircuitBreakerClient>backendClientEP.httpClient;
+            tempClient.httpClient = mockClient;
+            var serviceResponse = backendClientEP->get("/hello", request);
             if (serviceResponse is http:Response) {
                 responses[counter] = serviceResponse;
             } else {
@@ -64,23 +66,24 @@ function testTypicalScenario() returns (http:Response[], error?[]) {
                 runtime:sleep(5000);
             }
         }
-    return (responses, errs);
+    return [responses, errs];
 }
 
-function testTrialRunFailure() returns (http:Response[], error?[]) {
+function testTrialRunFailure() returns [http:Response[], error?[]] {
+    actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
-    http:Client backendClientEP = new("http://localhost:8080", config = {
+    http:Client backendClientEP = new("http://localhost:8080", {
         circuitBreaker: {
             rollingWindow: {
-                timeWindowMillis:10000,
-                bucketSizeMillis:2000,
+                timeWindowInMillis:10000,
+                bucketSizeInMillis:2000,
                 requestVolumeThreshold: 0
             },
             failureThreshold:0.3,
-            resetTimeMillis:1000,
+            resetTimeInMillis:1000,
             statusCodes:[400, 404, 500, 502, 503]
         },
-        timeoutMillis:2000
+        timeoutInMillis:2000
     });
 
     http:Response[] responses = [];
@@ -90,8 +93,9 @@ function testTrialRunFailure() returns (http:Response[], error?[]) {
         while (counter < 8) {
             http:Request request = new;
             request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_TRIAL_RUN_FAILURE);
-            backendClientEP.httpClient.httpClient = mockClient;
-            var serviceResponse = backendClientEP->get("/hello", message = request);
+            http:CircuitBreakerClient tempClient = <http:CircuitBreakerClient>backendClientEP.httpClient;
+            tempClient.httpClient = mockClient;
+            var serviceResponse = backendClientEP->get("/hello", request);
             if (serviceResponse is http:Response) {
                 responses[counter] = serviceResponse;
             } else {
@@ -103,23 +107,24 @@ function testTrialRunFailure() returns (http:Response[], error?[]) {
                 runtime:sleep(5000);
             }
         }
-    return (responses, errs);
+    return [responses, errs];
 }
 
-function testHttpStatusCodeFailure() returns (http:Response[], error?[]) {
+function testHttpStatusCodeFailure() returns [http:Response[], error?[]] {
+    actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
-    http:Client backendClientEP = new("http://localhost:8080", config = {
+    http:Client backendClientEP = new("http://localhost:8080", {
         circuitBreaker: {
             rollingWindow: {
-                timeWindowMillis:10000,
-                bucketSizeMillis:2000,
+                timeWindowInMillis:10000,
+                bucketSizeInMillis:2000,
                 requestVolumeThreshold: 0
             },
             failureThreshold:0.3,
-            resetTimeMillis:1000,
+            resetTimeInMillis:1000,
             statusCodes:[400, 404, 500, 502, 503]
         },
-        timeoutMillis:2000
+        timeoutInMillis:2000
     });
 
     http:Response[] responses = [];
@@ -128,8 +133,9 @@ function testHttpStatusCodeFailure() returns (http:Response[], error?[]) {
         while (counter < 8) {
             http:Request request = new;
             request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_HTTP_SC_FAILURE);
-            backendClientEP.httpClient.httpClient = mockClient;
-            var serviceResponse = backendClientEP->get("/hello", message = request);
+            http:CircuitBreakerClient tempClient = <http:CircuitBreakerClient>backendClientEP.httpClient;
+            tempClient.httpClient = mockClient;
+            var serviceResponse = backendClientEP->get("/hello", request);
             if (serviceResponse is http:Response) {
                 responses[counter] = serviceResponse;
             } else {
@@ -137,23 +143,24 @@ function testHttpStatusCodeFailure() returns (http:Response[], error?[]) {
             }
             counter = counter + 1;
         }
-    return (responses, errs);
+    return [responses, errs];
 }
 
-function testForceOpenScenario() returns (http:Response[], error?[]) {
+function testForceOpenScenario() returns [http:Response[], error?[]] {
+    actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
-    http:Client backendClientEP = new("http://localhost:8080", config = {
+    http:Client backendClientEP = new("http://localhost:8080", {
         circuitBreaker: {
             rollingWindow: {
-                timeWindowMillis:10000,
-                bucketSizeMillis:2000,
+                timeWindowInMillis:10000,
+                bucketSizeInMillis:2000,
                 requestVolumeThreshold: 0
             },
             failureThreshold:0.3,
-            resetTimeMillis:1000,
+            resetTimeInMillis:1000,
             statusCodes:[500, 502, 503]
         },
-        timeoutMillis:2000
+        timeoutInMillis:2000
     });
 
     http:Response[] responses = [];
@@ -165,8 +172,9 @@ function testForceOpenScenario() returns (http:Response[], error?[]) {
         if (counter > 3) {
             backendClientEP.httpClient = getForcedOpenCircuitBreakerClient(backendClientEP.httpClient);
         }
-        backendClientEP.httpClient.httpClient = mockClient;
-        var serviceResponse = backendClientEP->get("/hello", message = request);
+        http:CircuitBreakerClient tempClient = <http:CircuitBreakerClient>backendClientEP.httpClient;
+        tempClient.httpClient = mockClient;
+        var serviceResponse = backendClientEP->get("/hello", request);
         if (serviceResponse is http:Response) {
             responses[counter] = serviceResponse;
         } else {
@@ -174,23 +182,24 @@ function testForceOpenScenario() returns (http:Response[], error?[]) {
         }
         counter = counter + 1;
     }
-    return (responses, errs);
+    return [responses, errs];
 }
 
-function testForceCloseScenario() returns (http:Response[], error?[]) {
+function testForceCloseScenario() returns [http:Response[], error?[]] {
+    actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
-    http:Client backendClientEP = new("http://localhost:8080", config = {
+    http:Client backendClientEP = new("http://localhost:8080", {
         circuitBreaker: {
             rollingWindow: {
-                timeWindowMillis:10000,
-                bucketSizeMillis:2000,
+                timeWindowInMillis:10000,
+                bucketSizeInMillis:2000,
                 requestVolumeThreshold: 0
             },
             failureThreshold:0.3,
-            resetTimeMillis:1000,
+            resetTimeInMillis:1000,
             statusCodes:[500, 502, 503]
         },
-        timeoutMillis:2000
+        timeoutInMillis:2000
     });
 
     http:Response[] responses = [];
@@ -203,8 +212,9 @@ function testForceCloseScenario() returns (http:Response[], error?[]) {
         if (counter > 2) {
             backendClientEP.httpClient = getForcedCloseCircuitBreakerClient(backendClientEP.httpClient);
         }
-        backendClientEP.httpClient.httpClient = mockClient;
-        var serviceResponse = backendClientEP->get("/hello", message = request);
+        http:CircuitBreakerClient tempClient = <http:CircuitBreakerClient>backendClientEP.httpClient;
+        tempClient.httpClient = mockClient;
+        var serviceResponse = backendClientEP->get("/hello", request);
         if (serviceResponse is http:Response) {
             responses[counter] = serviceResponse;
         } else {
@@ -212,23 +222,24 @@ function testForceCloseScenario() returns (http:Response[], error?[]) {
         }
         counter = counter + 1;
     }
-    return (responses, errs);
+    return [responses, errs];
 }
 
-function testRequestVolumeThresholdSuccessResponseScenario() returns (http:Response[], error?[]) {
+function testRequestVolumeThresholdSuccessResponseScenario() returns [http:Response[], error?[]] {
+    actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
-    http:Client backendClientEP = new("http://localhost:8080", config = {
+    http:Client backendClientEP = new("http://localhost:8080", {
         circuitBreaker: {
             rollingWindow: {
-                timeWindowMillis:10000,
-                bucketSizeMillis:2000,
+                timeWindowInMillis:10000,
+                bucketSizeInMillis:2000,
                 requestVolumeThreshold: 6
             },
             failureThreshold:0.3,
-            resetTimeMillis:1000,
+            resetTimeInMillis:1000,
             statusCodes:[500, 502, 503]
         },
-        timeoutMillis:2000
+        timeoutInMillis:2000
     });
 
     http:Response[] responses = [];
@@ -238,8 +249,9 @@ function testRequestVolumeThresholdSuccessResponseScenario() returns (http:Respo
     while (counter < 6) {
         http:Request request = new;
         request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_REQUEST_VOLUME_THRESHOLD_SUCCESS);
-        backendClientEP.httpClient.httpClient = mockClient;
-        var serviceResponse = backendClientEP->get("/hello", message = request);
+        http:CircuitBreakerClient tempClient = <http:CircuitBreakerClient>backendClientEP.httpClient;
+        tempClient.httpClient = mockClient;
+        var serviceResponse = backendClientEP->get("/hello", request);
         if (serviceResponse is http:Response) {
             responses[counter] = serviceResponse;
         } else {
@@ -247,23 +259,24 @@ function testRequestVolumeThresholdSuccessResponseScenario() returns (http:Respo
         }
         counter = counter + 1;
     }
-    return (responses, errs);
+    return [responses, errs];
 }
 
-function testRequestVolumeThresholdFailureResponseScenario() returns (http:Response[], error?[]) {
+function testRequestVolumeThresholdFailureResponseScenario() returns [http:Response[], error?[]] {
+    actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
-    http:Client backendClientEP = new("http://localhost:8080", config = {
+    http:Client backendClientEP = new("http://localhost:8080", {
         circuitBreaker: {
             rollingWindow: {
-                timeWindowMillis:10000,
-                bucketSizeMillis:2000,
+                timeWindowInMillis:10000,
+                bucketSizeInMillis:2000,
                 requestVolumeThreshold: 6
             },
             failureThreshold:0.3,
-            resetTimeMillis:1000,
+            resetTimeInMillis:1000,
             statusCodes:[500, 502, 503]
         },
-        timeoutMillis:2000
+        timeoutInMillis:2000
     });
 
     http:Response[] responses = [];
@@ -273,8 +286,9 @@ function testRequestVolumeThresholdFailureResponseScenario() returns (http:Respo
     while (counter < 6) {
         http:Request request = new;
         request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_REQUEST_VOLUME_THRESHOLD_FAILURE);
-        backendClientEP.httpClient.httpClient = mockClient;
-        var serviceResponse = backendClientEP->get("/hello", message = request);
+        http:CircuitBreakerClient tempClient = <http:CircuitBreakerClient>backendClientEP.httpClient;
+        tempClient.httpClient = mockClient;
+        var serviceResponse = backendClientEP->get("/hello", request);
         if (serviceResponse is http:Response) {
             responses[counter] = serviceResponse;
         } else {
@@ -282,7 +296,7 @@ function testRequestVolumeThresholdFailureResponseScenario() returns (http:Respo
         }
         counter = counter + 1;
     }
-    return (responses, errs);
+    return [responses, errs];
 }
 
 int actualRequestNumber = 0;
@@ -290,10 +304,10 @@ int actualRequestNumber = 0;
 public type MockClient client object {
     public string url = "";
     public http:ClientEndpointConfig config = {};
-    public http:Client httpClient;
+    public http:HttpClient httpClient;
 
     public function __init(string url, http:ClientEndpointConfig? config = ()) {
-        http:Client simpleClient = new(url);
+        http:HttpClient simpleClient = new(url);
         self.url = url;
         self.config = config ?: {};
         self.httpClient = simpleClient;
@@ -301,49 +315,43 @@ public type MockClient client object {
 
     public remote function post(string path,
                            http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
-                                                                                        returns http:Response|error {
-        error httpConnectorError = error("Unsupported fuction for MockClient");
-        return httpConnectorError;
+                                                                                returns http:Response|http:ClientError {
+        return getUnsupportedError();
     }
 
     public remote function head(string path,
                            http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
-                                                                                        returns http:Response|error {
-        error httpConnectorError = error("Unsupported fuction for MockClient");
-        return httpConnectorError;
+                                                                                returns http:Response|http:ClientError {
+        return getUnsupportedError();
     }
 
     public remote function put(string path,
                                http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
-                                                                                        returns http:Response|error {
-        error httpConnectorError = error("Unsupported fuction for MockClient");
-        return httpConnectorError;
+                                                                                returns http:Response|http:ClientError {
+        return getUnsupportedError();
     }
 
     public remote function execute(string httpVerb, string path,
                                    http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                        message) returns http:Response|error {
-        error httpConnectorError = error("Unsupported fuction for MockClient");
-        return httpConnectorError;
+                                        message) returns http:Response|http:ClientError {
+        return getUnsupportedError();
     }
 
     public remote function patch(string path,
                            http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
-                                                                                        returns http:Response|error {
-        error httpConnectorError = error("Unsupported fuction for MockClient");
-        return httpConnectorError;
+                                                                                returns http:Response|http:ClientError {
+        return getUnsupportedError();
     }
 
     public remote function delete(string path,
-                           http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
-                                                                                        returns http:Response|error {
-        error httpConnectorError = error("Unsupported fuction for MockClient");
-        return httpConnectorError;
+                           http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
+                                                                                returns http:Response|http:ClientError {
+        return getUnsupportedError();
     }
 
     public remote function get(string path,
                            http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
-                                                                                        returns http:Response|error {
+                                                                                returns http:Response|http:ClientError {
         http:Request req = buildRequest(message);
         http:Response response = new;
         actualRequestNumber = actualRequestNumber + 1;
@@ -354,8 +362,9 @@ public type MockClient client object {
             if (result is http:Response) {
                 response = result;
             } else {
-                string errMessage = result.reason();
-                response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+                error err = result;
+                string errMessage = err.reason();
+                response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
                 response.setTextPayload(errMessage);
             }
         } else if (scenario == SCENARIO_TRIAL_RUN_FAILURE) {
@@ -363,8 +372,9 @@ public type MockClient client object {
             if (result is http:Response) {
                 response = result;
             } else {
-                string errMessage = result.reason();
-                response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+                error err = result;
+                string errMessage = err.reason();
+                response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
                 response.setTextPayload(errMessage);
             }
         } else if (scenario == SCENARIO_HTTP_SC_FAILURE) {
@@ -372,8 +382,9 @@ public type MockClient client object {
             if (result is http:Response) {
                 response = result;
             } else {
-                string errMessage = result.reason();
-                response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+                error err = result;
+                string errMessage = err.reason();
+                response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
                 response.setTextPayload(errMessage);
             }
         } else if (scenario == SCENARIO_CB_FORCE_OPEN) {
@@ -383,8 +394,9 @@ public type MockClient client object {
             if (result is http:Response) {
                 response = result;
             } else {
-                string errMessage = result.reason();
-                response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+                error err = result;
+                string errMessage = err.reason();
+                response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
                 response.setTextPayload(errMessage);
             }
         } else if (scenario == SCENARIO_REQUEST_VOLUME_THRESHOLD_SUCCESS) {
@@ -397,72 +409,63 @@ public type MockClient client object {
 
     public remote function options(string path,
            http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
-                                                                                        returns http:Response|error {
-        error httpConnectorError = error("Unsupported fuction for MockClient");
-        return httpConnectorError;
+                                                                                returns http:Response|http:ClientError {
+        return getUnsupportedError();
     }
 
-    public remote function forward(string path, http:Request req) returns http:Response|error {
-        error httpConnectorError = error("Unsupported fuction for MockClient");
-        return httpConnectorError;
+    public remote function forward(string path, http:Request req) returns http:Response|http:ClientError {
+        return getUnsupportedError();
     }
 
     public remote function submit(string httpVerb, string path,
                            http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
-                                                                                        returns http:HttpFuture|error {
-        error httpConnectorError = error("Unsupported fuction for MockClient");
-        return httpConnectorError;
+                                                                            returns http:HttpFuture|http:ClientError {
+        return getUnsupportedError();
     }
 
-    public remote function getResponse(http:HttpFuture httpFuture)  returns http:Response|error {
-        error httpConnectorError = error("Unsupported fuction for MockClient");
-        return httpConnectorError;
+    public remote function getResponse(http:HttpFuture httpFuture)  returns http:Response|http:ClientError {
+        return getUnsupportedError();
     }
 
     public remote function hasPromise(http:HttpFuture httpFuture) returns boolean {
         return false;
     }
 
-    public remote function getNextPromise(http:HttpFuture httpFuture) returns http:PushPromise|error {
-        error httpConnectorError = error("Unsupported fuction for MockClient");
-        return httpConnectorError;
+    public remote function getNextPromise(http:HttpFuture httpFuture) returns http:PushPromise|http:ClientError {
+        return getUnsupportedError();
     }
 
-    public remote function getPromisedResponse(http:PushPromise promise) returns http:Response|error {
-        error httpConnectorError = error("Unsupported fuction for MockClient");
-        return httpConnectorError;
+    public remote function getPromisedResponse(http:PushPromise promise) returns http:Response|http:ClientError {
+        return getUnsupportedError();
     }
 
     public remote function rejectPromise(http:PushPromise promise) {
     }
 };
 
-function handleBackendFailureScenario(int requesetNo) returns http:Response|error {
+function handleBackendFailureScenario(int requesetNo) returns http:Response|http:ClientError {
     // Deliberately fail a request
     if (requesetNo == 3) {
-        error err = getErrorStruct();
-        return err;
+        return getErrorStruct();
     }
     http:Response response = getResponse();
     return response;
 }
 
-function handleTrialRunFailureScenario(int counter) returns http:Response|error {
+function handleTrialRunFailureScenario(int counter) returns http:Response|http:ClientError {
     // Fail a request. Then, fail the trial request sent while in the HALF_OPEN state as well.
     if (counter == 2 || counter == 3) {
-        error err = getErrorStruct();
-        return err;
+        return getErrorStruct();
     }
 
     http:Response response = getResponse();
     return response;
 }
 
-function handleHTTPStatusCodeErrorScenario(int counter) returns http:Response|error {
+function handleHTTPStatusCodeErrorScenario(int counter) returns http:Response|http:ClientError {
     // Fail a request. Then, fail the trial request sent while in the HALF_OPEN state as well.
     if (counter == 2 || counter == 3) {
-        error err = getMockErrorStruct();
-        return err;
+        return getMockErrorStruct();
     }
 
     http:Response response = getResponse();
@@ -473,11 +476,10 @@ function handleCBForceOpenScenario() returns http:Response {
     return getResponse();
 }
 
-function handleCBForceCloseScenario(int requestNo) returns http:Response|error {
+function handleCBForceCloseScenario(int requestNo) returns http:Response|http:ClientError {
     // Deliberately fail a request
     if (requestNo == 3) {
-        error err = getErrorStruct();
-        return err;
+        return getErrorStruct();
     }
     http:Response response = getResponse();
     return response;
@@ -489,24 +491,29 @@ function handleRequestVolumeThresholdSuccessResponseScenario() returns http:Resp
 
 function handleRequestVolumeThresholdFailureResponseScenario() returns http:Response {
     http:Response response = new;
-    response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+    response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
     return response;
 }
 
-function getErrorStruct() returns error {
-    error err = error("Connection refused");
+function getErrorStruct() returns http:ClientError {
+    http:GenericClientError err = error(http:GENERIC_CLIENT_ERROR, message = "Connection refused");
     return err;
 }
 
 function getResponse() returns http:Response {
     // TODO: The way the status code is set may need to be changed once struct fields can be made read-only
     http:Response response = new;
-    response.statusCode = http:OK_200;
+    response.statusCode = http:STATUS_OK;
     return response;
 }
 
-function getMockErrorStruct() returns error {
-    error err = error("Internal Server Error");
+function getMockErrorStruct() returns http:ClientError {
+    http:GenericClientError err = error(http:GENERIC_CLIENT_ERROR, message = "Internal Server Error");
+    return err;
+}
+
+function getUnsupportedError() returns http:ClientError {
+    http:GenericClientError err = error(http:GENERIC_CLIENT_ERROR, message = "Unsupported fucntion for MockClient");
     return err;
 }
 
@@ -535,17 +542,17 @@ http:Request {
 
 listener http:MockListener mockEP = new(9090);
 
-http:Client clientEP = new("http://localhost:8080", config = {
+http:Client clientEP = new("http://localhost:8080", {
     circuitBreaker: {
         rollingWindow: {
-            timeWindowMillis: 10000,
-            bucketSizeMillis: 2000
+            timeWindowInMillis: 10000,
+            bucketSizeInMillis: 2000
         },
         failureThreshold: 0.3,
-        resetTimeMillis: 1000,
+        resetTimeInMillis: 1000,
         statusCodes: [500, 502, 503]
     },
-    timeoutMillis: 2000
+    timeoutInMillis: 2000
 });
 
 @http:ServiceConfig { basePath: "/cb" }
@@ -559,19 +566,19 @@ service circuitBreakerService on mockEP {
         http:CircuitState currentState = cbClient.getCurrentState();
         http:Response res = new;
         if (currentState == http:CB_CLOSED_STATE) {
-            res.setPayload(untaint "Circuit Breaker is in CLOSED state");
+            res.setPayload(<@untainted string> "Circuit Breaker is in CLOSED state");
             checkpanic caller->respond(res);
         }
     }
 }
 
-function getForcedOpenCircuitBreakerClient(http:Client httpClient) returns http:CircuitBreakerClient {
+function getForcedOpenCircuitBreakerClient(http:HttpClient httpClient) returns http:CircuitBreakerClient {
     http:CircuitBreakerClient cbClient = <http:CircuitBreakerClient>httpClient;
     cbClient.forceOpen();
     return cbClient;
 }
 
-function getForcedCloseCircuitBreakerClient(http:Client httpClient) returns http:CircuitBreakerClient {
+function getForcedCloseCircuitBreakerClient(http:HttpClient httpClient) returns http:CircuitBreakerClient {
     http:CircuitBreakerClient cbClient = <http:CircuitBreakerClient>httpClient;
     cbClient.forceClose();
     return cbClient;

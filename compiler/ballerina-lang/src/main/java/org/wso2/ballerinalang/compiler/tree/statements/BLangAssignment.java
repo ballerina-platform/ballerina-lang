@@ -88,8 +88,7 @@ public class BLangAssignment extends BLangStatement implements AssignmentNode {
 
     @Override
     public String toString() {
-        return "BLangAssignment: " + (this.declaredWithVar ? "var " : "") +
-                (this.varRef != null ? this.varRef : "") +
-                (this.expr != null ? " = " + this.expr : "");
+        return (this.declaredWithVar ? "var " : "") + (this.varRef != null ? this.varRef : "") +
+                (this.expr != null ? " = " + this.expr : ";");
     }
 }

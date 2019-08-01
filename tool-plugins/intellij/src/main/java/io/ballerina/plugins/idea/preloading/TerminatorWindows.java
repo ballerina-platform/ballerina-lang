@@ -16,15 +16,14 @@
 
 package io.ballerina.plugins.idea.preloading;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.intellij.openapi.diagnostic.Logger;
 
 /**
  * Launcher Terminator Implementation for Windows. ( Xp professional SP2++).
  */
 public class TerminatorWindows implements Terminator {
     private final String processIdentifier = "org.ballerinalang.langserver.launchers.stdio.Main";
-    private static final Logger LOGGER = LoggerFactory.getLogger(TerminatorWindows.class);
+    private static final Logger LOGGER = Logger.getInstance(TerminatorWindows.class);
 
     /**
      * @return file process command.

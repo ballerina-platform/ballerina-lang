@@ -18,9 +18,8 @@
 package org.ballerinalang.test.packaging;
 
 import org.ballerinalang.test.BaseTest;
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.utils.PackagingTestUtils;
+import org.ballerinalang.test.utils.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -41,15 +40,15 @@ public class DocGenTestCase extends BaseTest {
     private Map<String, String> envVariables;
 
     @BeforeClass()
-    public void setUp() throws BallerinaTestException, IOException {
+    public void setUp() throws IOException {
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-packaging-project-");
-        envVariables = PackagingTestUtils.getEnvVariables();
+        envVariables = TestUtils.getEnvVariables();
     }
 
     @Test(description = "Test init a ballerina project to generate docs")
     public void testInitProject() throws Exception {
         String[] clientArgsForInit = {"-i"};
-        String[] options = {"\n", "integrationtests\n", "\n", "m\n", "foo\n", "s\n", "bar\n", "f\n"};
+        String[] options = {"\n", "bcintegrationtest\n", "\n", "m\n", "foo\n", "s\n", "bar\n", "f\n"};
         balClient.runMain("init", clientArgsForInit, envVariables, options, new LogLeecher[0],
                                                 tempProjectDirectory.toString());
     }
@@ -62,8 +61,8 @@ public class DocGenTestCase extends BaseTest {
 
         Path apiDocsGenerated = tempProjectDirectory.resolve("target").resolve("api-docs");
         Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("index.html")));
-        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("module-list.html")));
-        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("foo.html")));
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("foo").resolve("index.html")));
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("foo").resolve("functions.html")));
     }
 
     @Test(description = "Test doc generation for single bal file", dependsOnMethods = "testInitProject")
@@ -74,8 +73,7 @@ public class DocGenTestCase extends BaseTest {
 
         Path apiDocsGenerated = tempProjectDirectory.resolve("foo").resolve("target").resolve("api-docs");
         Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("index.html")));
-        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("module-list.html")));
-        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("main.bal.html")));
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("functions.html")));
     }
 
     @Test(description = "Test doc generation for a project", dependsOnMethods = "testInitProject")
@@ -85,13 +83,13 @@ public class DocGenTestCase extends BaseTest {
 
         Path apiDocsGenerated = tempProjectDirectory.resolve("target").resolve("api-docs");
         Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("index.html")));
-        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("module-list.html")));
-        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("foo.html")));
-        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("bar.html")));
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("bar").resolve("index.html")));
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("foo").resolve("index.html")));
+        Assert.assertTrue(Files.exists(apiDocsGenerated.resolve("foo").resolve("functions.html")));
     }
 
     @AfterClass
     private void cleanup() throws Exception {
-        PackagingTestUtils.deleteFiles(tempProjectDirectory);
+        TestUtils.deleteFiles(tempProjectDirectory);
     }
 }

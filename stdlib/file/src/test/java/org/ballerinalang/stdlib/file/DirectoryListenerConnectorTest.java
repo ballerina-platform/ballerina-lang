@@ -19,12 +19,11 @@
 package org.ballerinalang.stdlib.file;
 
 import org.awaitility.Awaitility;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.BServiceUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -45,7 +44,7 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 /**
  * Test class for Directory Listener connector.
  */
-@Test(sequential = true)
+@Test()
 public class DirectoryListenerConnectorTest {
 
     private File rootDirectory;
@@ -78,25 +77,23 @@ public class DirectoryListenerConnectorTest {
         }
     }
 
-    @Test(description = "Check the valid successful usecase.")
+    @Test(description = "Check the valid successful use case.")
     public void testValidLocalFileSystemServerConnectorSyntax() {
-        CompileResult compileResult = BCompileUtil
-                .compileAndSetup(testResourceRoot.resolve("file-system.bal").toString());
-        BServiceUtil.runService(compileResult);
+        CompileResult compileResult = BCompileUtil.compile(testResourceRoot.resolve("file-system.bal").toString());
         try {
             final Path file = Files.createFile(Paths.get("src", "test", "resources", "fs", "temp.txt"));
             Awaitility.await().atMost(1, MINUTES).until(() -> {
-                BValue[] result = BRunUtil.invokeStateful(compileResult, "isCreateInvoked");
+                BValue[] result = BRunUtil.invoke(compileResult, "isCreateInvoked");
                 return ((BBoolean) result[0]).booleanValue();
             });
             Files.setLastModifiedTime(file, FileTime.fromMillis(System.currentTimeMillis()));
             Awaitility.await().atMost(1, MINUTES).until(() -> {
-                BValue[] result = BRunUtil.invokeStateful(compileResult, "isModifyInvoked");
+                BValue[] result = BRunUtil.invoke(compileResult, "isModifyInvoked");
                 return ((BBoolean) result[0]).booleanValue();
             });
             Files.deleteIfExists(file);
             Awaitility.await().atMost(1, MINUTES).until(() -> {
-                BValue[] result = BRunUtil.invokeStateful(compileResult, "isDeleteInvoked");
+                BValue[] result = BRunUtil.invoke(compileResult, "isDeleteInvoked");
                 return ((BBoolean) result[0]).booleanValue();
             });
         } catch (Throwable e) {
@@ -104,31 +101,29 @@ public class DirectoryListenerConnectorTest {
         }
     }
 
+
     @Test(description = "Check the negative test for non valid resources.")
     public void testNegativeWithoutResource() {
         try {
-            final CompileResult compileResult = BCompileUtil
-                    .compileAndSetup(testResourceRoot.resolve("file-system-negative-without-resource.bal").toString());
-            BServiceUtil.runService(compileResult);
+            BCompileUtil.compile(testResourceRoot.resolve("file-system-negative-without-resource.bal").toString());
         } catch (BLangRuntimeException e) {
-            String actualMsg = e.getMessage().substring(7, 133);
+            String actualMsg = e.getMessage();
             String expectedErrorMsg = "At least a single resource required from following: "
                     + "onCreate ,onDelete ,onModify. Parameter should be of type - file:FileEvent";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error msg for not having resources");
         }
     }
 
-    @Test(description = "Check the negative test for invalid resource param count.", enabled = false)
+    @Test(description = "Check the negative test for invalid resource param count.")
     public void testNegativeWithoutInvalidParamCount() {
         try {
-            final CompileResult compileResult = BCompileUtil.compileAndSetup(
-                    testResourceRoot.resolve("file-system-negative-invalid-param-count.bal").toString());
-            BServiceUtil.runService(compileResult);
+            BCompileUtil.compile(testResourceRoot.resolve("file-system-negative-invalid-param-count.bal").
+                    toString());
         } catch (Throwable e) {
             String actualMsg = e.getMessage();
             String expectedErrorMsg = "Compilation Failed:\nERROR: .::"
                     + "file-system-negative-invalid-param-count.bal:25:5:: Invalid resource signature for onCreate in "
-                    + "service fileSystem. The parameter should be a file:FileEvent\n";
+                    + "service fileSystem. The parameter should be a file:FileEvent with no returns.\n";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for invalid resource param.");
         }
     }
@@ -136,9 +131,8 @@ public class DirectoryListenerConnectorTest {
     @Test(description = "Check the negative test for invalid resource param type.")
     public void testNegativeWithoutInvalidParamType() {
         try {
-            final CompileResult compileResult = BCompileUtil.compileAndSetup(
-                    testResourceRoot.resolve("file-system-negative-invalid-param-type.bal").toString());
-            BServiceUtil.runService(compileResult);
+            BCompileUtil.compile(testResourceRoot.resolve("file-system-negative-invalid-param-type.bal").
+                    toString());
         } catch (Throwable e) {
             String actualMsg = e.getMessage();
             String expectedErrorMsg = "Compilation Failed:\nERROR: .::"
@@ -151,9 +145,7 @@ public class DirectoryListenerConnectorTest {
     @Test(description = "Check the negative test for invalid resource name.")
     public void testNegativeWithoutInvalidResourceName() {
         try {
-            final CompileResult compileResult = BCompileUtil.compileAndSetup(
-                    testResourceRoot.resolve("file-system-negative-invalid-resource-name.bal").toString());
-            BServiceUtil.runService(compileResult);
+            BCompileUtil.compile(testResourceRoot.resolve("file-system-negative-invalid-resource-name.bal").toString());
         } catch (Throwable e) {
             String actualMsg = e.getMessage();
             String expectedErrorMsg = "Compilation Failed:\nERROR: .::"
@@ -167,11 +159,9 @@ public class DirectoryListenerConnectorTest {
     public void testNegativeNotDirectory() {
         try {
             Files.createFile(Paths.get("src", "test", "resources", "fs", "file.txt"));
-            final CompileResult compileResult = BCompileUtil
-                    .compileAndSetup(testResourceRoot.resolve("file-system-negative-not-folder.bal").toString());
-            BServiceUtil.runService(compileResult);
+            BCompileUtil.compile(testResourceRoot.resolve("file-system-negative-not-folder.bal").toString());
         } catch (Throwable e) {
-            String actualMsg = e.getMessage().substring(43, 43 + 58);
+            String actualMsg = e.getMessage().substring(41, 45 + 54);
             String expectedErrorMsg = "Unable to find a directory: src/test/resources/fs/file.txt";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for invalid folder.");
         }
@@ -180,11 +170,9 @@ public class DirectoryListenerConnectorTest {
     @Test(description = "Check the negative test for folder not exist.")
     public void testNegativeDirectoryNotExist() {
         try {
-            final CompileResult compileResult = BCompileUtil
-                    .compileAndSetup(testResourceRoot.resolve("file-system-negative-folder-exist.bal").toString());
-            BServiceUtil.runService(compileResult);
+            BCompileUtil.compile(testResourceRoot.resolve("file-system-negative-folder-exist.bal").toString());
         } catch (BLangRuntimeException e) {
-            String actualMsg = e.getMessage().substring(43, 43 + 38);
+            String actualMsg = e.getMessage().substring(41, 45 + 34);
             String expectedErrorMsg = "Folder does not exist: hello/ballerina";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for non-exist folder.");
         }
@@ -193,11 +181,9 @@ public class DirectoryListenerConnectorTest {
     @Test(description = "Check the negative test for endpoint config variable")
     public void testNegativeMissingEndpointVariable() {
         try {
-            final CompileResult compileResult = BCompileUtil
-                    .compileAndSetup(testResourceRoot.resolve("file-system-negative-missing-variable.bal").toString());
-            BServiceUtil.runService(compileResult);
+            BCompileUtil.compile(testResourceRoot.resolve("file-system-negative-missing-variable.bal").toString());
         } catch (Throwable e) {
-            String actualMsg = e.getMessage().substring(43, 43 + 21);
+            String actualMsg = e.getMessage().substring(41, 45 + 17);
             String expectedErrorMsg = "'path' field is empty";
             Assert.assertEquals(actualMsg, expectedErrorMsg, "Didn't get expected error for empty path.");
         }
@@ -206,9 +192,7 @@ public class DirectoryListenerConnectorTest {
     @Test(description = "Check the negative test for invalid returns")
     public void testNegativeInvalidReturn() {
         try {
-            final CompileResult compileResult = BCompileUtil
-                    .compileAndSetup(testResourceRoot.resolve("file-system-negative-invalid-returns.bal").toString());
-            BServiceUtil.runService(compileResult);
+            BCompileUtil.compile(testResourceRoot.resolve("file-system-negative-invalid-returns.bal").toString());
         } catch (Throwable e) {
             String actualMsg = e.getMessage();
             String expect = "Compilation Failed:\n" + "ERROR: .::file-system-negative-invalid-returns.bal:25:5:: "

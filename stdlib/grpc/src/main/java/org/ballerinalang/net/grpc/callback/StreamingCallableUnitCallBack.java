@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.net.grpc.callback;
 
-import org.ballerinalang.model.values.BError;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.net.grpc.StreamObserver;
 
 /**
@@ -40,7 +40,7 @@ public class StreamingCallableUnitCallBack extends AbstractCallableUnitCallBack 
     }
     
     @Override
-    public void notifyFailure(BError error) {
+    public void notifyFailure(ErrorValue error) {
         if (responseSender != null) {
             handleFailure(responseSender, error);
         }

@@ -19,7 +19,7 @@
 package org.ballerinalang.net.http.nativeimpl.pipelining;
 
 import io.netty.channel.ChannelHandlerContext;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
@@ -61,7 +61,7 @@ public class PipeliningHandler {
             } else {
                 responseFuture = requestMsg.respond(responseMsg);
             }
-        } catch (org.wso2.transport.http.netty.contract.ServerConnectorException e) {
+        } catch (org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException e) {
             throw new BallerinaConnectorException("Error occurred while sending outbound response", e);
         }
         return responseFuture;
@@ -100,10 +100,10 @@ public class PipeliningHandler {
                 //one response has delayed http contents, there's a good chance that the contents of another
                 //response will be sent out before its turn.
                 if (queuedPipelinedResponse.getDataContext() != null &&
-                        queuedPipelinedResponse.getOutboundResponse() != null) {
+                        queuedPipelinedResponse.getOutboundResponseObj() != null) {
                     sendResponseRobust(queuedPipelinedResponse.getDataContext(),
                             queuedPipelinedResponse.getInboundRequestMsg(),
-                            queuedPipelinedResponse.getOutboundResponse(),
+                            queuedPipelinedResponse.getOutboundResponseObj(),
                             queuedPipelinedResponse.getOutboundResponseMsg());
                 } else {
                     responseFuture = sendOutboundResponse(queuedPipelinedResponse.getInboundRequestMsg(),
@@ -121,7 +121,7 @@ public class PipeliningHandler {
      * @return a boolean indicating whether the pipelining is required
      */
     public static boolean pipeliningRequired(HttpCarbonMessage request) {
-        String httpVersion = (String) request.getProperty(Constants.HTTP_VERSION);
+        String httpVersion = request.getHttpVersion();
         return request.isPipeliningEnabled() && request.isKeepAlive() &&
                 Constants.HTTP_1_1_VERSION.equalsIgnoreCase(httpVersion);
     }

@@ -1,3 +1,13 @@
 [project]
 org-name = "ballerina"
 version = "0.0.0"
+
+[platform]
+target = "java"
+
+    [[platform.libraries]]
+    artafactId = "commons-io"
+    version = "2.6"
+    path = "./lib/commons-io-2.6.jar"
+    groupId = "commons-io"
+    modules = ["internal"]

@@ -16,8 +16,8 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.values.BError;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
@@ -28,7 +28,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 public class HttpCallableUnitCallback implements CallableUnitCallback {
     private HttpCarbonMessage requestMessage;
 
-    public HttpCallableUnitCallback(HttpCarbonMessage requestMessage) {
+    HttpCallableUnitCallback(HttpCarbonMessage requestMessage) {
         this.requestMessage = requestMessage;
     }
 
@@ -38,7 +38,7 @@ public class HttpCallableUnitCallback implements CallableUnitCallback {
     }
 
     @Override
-    public void notifyFailure(BError error) {
+    public void notifyFailure(ErrorValue error) {
         HttpUtil.handleFailure(requestMessage, error);
         requestMessage.waitAndReleaseAllEntities();
     }

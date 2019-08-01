@@ -35,19 +35,17 @@ import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.annotation.CheckForNull;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
@@ -70,10 +68,10 @@ public class LSCompilerUtil {
 
     private static final Pattern untitledFilePattern =
             Pattern.compile(".*[/\\\\]temp[/\\\\](.*)[/\\\\]untitled.bal");
-
+    
     static {
         String experimental = System.getProperty("experimental");
-        EXPERIMENTAL_FEATURES_ENABLED = experimental != null && Boolean.parseBoolean(experimental);
+        EXPERIMENTAL_FEATURES_ENABLED = Boolean.parseBoolean(experimental);
         // Here we will create a tmp directory as the untitled project repo.
         File untitledDir = com.google.common.io.Files.createTempDir();
         untitledProjectPath = untitledDir.toPath();
@@ -93,41 +91,23 @@ public class LSCompilerUtil {
     /**
      * Prepare the compiler context.
      *
-     * @param packageID         Package Name
-     * @param packageRepository Package Repository
-     * @param sourceRoot        LSDocument for Source Root
+     * @param packageID          Package Name
+     * @param packageRepository  Package Repository
+     * @param sourceRoot         The source root of the project
      * @param preserveWhitespace Preserve Whitespace
-     * @param documentManager {@link WorkspaceDocumentManager} Document Manager
+     * @param documentManager    {@link WorkspaceDocumentManager} Document Manager
+     * @param compilerPhase      {@link CompilerPhase} Compiler Phase
      * @return {@link CompilerContext}     Compiler context
      */
     public static CompilerContext prepareCompilerContext(PackageID packageID, PackageRepository packageRepository,
-                                                         LSDocument sourceRoot, boolean preserveWhitespace,
-                                                         WorkspaceDocumentManager documentManager) {
-        return prepareCompilerContext(packageID, packageRepository, sourceRoot, preserveWhitespace, documentManager,
-                                      CompilerPhase.TAINT_ANALYZE);
-    }
-
-    /**
-     * Prepare the compiler context.
-     *
-     * @param packageID         Package ID
-     * @param packageRepository Package Repository
-     * @param document        LSDocument for Source Root
-     * @param preserveWhitespace Preserve Whitespace
-     * @param documentManager {@link WorkspaceDocumentManager} Document Manager
-     * @param compilerPhase {@link CompilerPhase} Compiler Phase
-     * @return {@link CompilerContext}     Compiler context
-     */
-    public static CompilerContext prepareCompilerContext(PackageID packageID, PackageRepository packageRepository,
-                                                         LSDocument document, boolean preserveWhitespace,
+                                                         String sourceRoot, boolean preserveWhitespace,
                                                          WorkspaceDocumentManager documentManager,
                                                          CompilerPhase compilerPhase) {
         LSContextManager lsContextManager = LSContextManager.getInstance();
-        CompilerContext context = lsContextManager.getCompilerContext(packageID, document.getSourceRoot(),
-                                                                      documentManager);
+        CompilerContext context = lsContextManager.getCompilerContext(packageID, sourceRoot, documentManager);
         context.put(PackageRepository.class, packageRepository);
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(PROJECT_DIR, document.getSourceRoot());
+        options.put(PROJECT_DIR, sourceRoot);
         options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(EXPERIMENTAL_FEATURES_ENABLED));
 
         if (null == compilerPhase) {
@@ -148,61 +128,77 @@ public class LSCompilerUtil {
             ((CollectDiagnosticListener) context.get(DiagnosticListener.class)).clearAll();
         }
 
-        Path sourceRootPath = document.getSourceRootPath();
-        if (isBallerinaProject(document.getSourceRoot(), document.getURIString())) {
+        LangServerFSProjectDirectory projectDirectory =
+                LangServerFSProjectDirectory.getInstance(Paths.get(sourceRoot), documentManager);
+        context.put(SourceDirectory.class, projectDirectory);
+
+        return context;
+    }
+
+    /**
+     * Prepare the compiler context.
+     *
+     * @param packageRepository  Package Repository
+     * @param sourceRoot         The source root of the project
+     * @param preserveWhitespace Preserve Whitespace
+     * @param documentManager    {@link WorkspaceDocumentManager} Document Manager
+     * @return {@link CompilerContext}     Compiler context
+     */
+    public static CompilerContext prepareCompilerContext(PackageRepository packageRepository,
+                                                         String sourceRoot, boolean preserveWhitespace,
+                                                         WorkspaceDocumentManager documentManager) {
+        return prepareCompilerContext(null, packageRepository, sourceRoot, preserveWhitespace,
+                documentManager, CompilerPhase.TAINT_ANALYZE);
+    }
+
+
+    /**
+     * Prepare the compiler context. Use this method if you don't have the source root but a LSDocument instance
+     * for a lsDocument in the project.
+     *
+     * @param pkgID         Package ID
+     * @param pkgRepo Package Repository
+     * @param lsDocument          LSDocument for Source Root
+     * @param preserveWhitespace Preserve Whitespace
+     * @param docManager {@link WorkspaceDocumentManager} Document Manager
+     * @param compilerPhase {@link CompilerPhase} Compiler Phase
+     * @return {@link CompilerContext}     Compiler context
+     */
+    public static CompilerContext prepareCompilerContext(PackageID pkgID, PackageRepository pkgRepo,
+                                                         LSDocument lsDocument, boolean preserveWhitespace,
+                                                         WorkspaceDocumentManager docManager,
+                                                         CompilerPhase compilerPhase) {
+        CompilerContext context = prepareCompilerContext(pkgID, pkgRepo, lsDocument.getProjectRoot(),
+                                                         preserveWhitespace, docManager, compilerPhase);
+        Path sourceRootPath = lsDocument.getProjectRootPath();
+        if (lsDocument.isWithinProject()) {
             LangServerFSProjectDirectory projectDirectory =
-                    LangServerFSProjectDirectory.getInstance(sourceRootPath, documentManager);
+                    LangServerFSProjectDirectory.getInstance(sourceRootPath, docManager);
             context.put(SourceDirectory.class, projectDirectory);
         } else {
             LangServerFSProgramDirectory programDirectory =
-                    LangServerFSProgramDirectory.getInstance(sourceRootPath, documentManager);
+                    LangServerFSProgramDirectory.getInstance(sourceRootPath, docManager);
             context.put(SourceDirectory.class, programDirectory);
         }
         return context;
     }
 
     /**
-     * Find project root directory.
+     * Prepare the compiler context. Use this method if you don't have the source root but a LSDocument instance
+     * for a document in the project.
      *
-     * @param parentDir current parent directory
-     * @return {@link String} project root | null
+     * @param packageID         Package Name
+     * @param packageRepository Package Repository
+     * @param sourceRoot        LSDocument for Source Root
+     * @param preserveWhitespace Preserve Whitespace
+     * @param documentManager {@link WorkspaceDocumentManager} Document Manager
+     * @return {@link CompilerContext}     Compiler context
      */
-    public static String findProjectRoot(String parentDir) {
-        return findProjectRoot(parentDir, RepoUtils.createAndGetHomeReposPath());
-    }
-
-    @CheckForNull
-    public static String findProjectRoot(String parentDir, Path balHomePath) {
-        if (parentDir == null) {
-            return null;
-        }
-        Path pathWithDotBal = null;
-        boolean pathWithDotBalExists = false;
-
-        // Go to top till you find a project directory or ballerina home
-        while (!pathWithDotBalExists && parentDir != null) {
-            pathWithDotBal = Paths.get(parentDir, ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
-            pathWithDotBalExists = Files.exists(pathWithDotBal, LinkOption.NOFOLLOW_LINKS);
-            if (!pathWithDotBalExists) {
-                Path parentsParent = Paths.get(parentDir).getParent();
-                parentDir = (parentsParent != null) ? parentsParent.toString() : null;
-            }
-        }
-
-        boolean balHomeExists = Files.exists(balHomePath, LinkOption.NOFOLLOW_LINKS);
-
-        // Check if you find ballerina home if so return null.
-        if (pathWithDotBalExists && balHomeExists && isSameFile(pathWithDotBal, balHomePath)) {
-            return null;
-        }
-
-        // Else return the project directory.
-        if (pathWithDotBalExists) {
-            return parentDir;
-        } else {
-            // If no directory found return null.
-            return null;
-        }
+    public static CompilerContext prepareCompilerContext(PackageID packageID, PackageRepository packageRepository,
+                                                         LSDocument sourceRoot, boolean preserveWhitespace,
+                                                         WorkspaceDocumentManager documentManager) {
+        return prepareCompilerContext(packageID, packageRepository, sourceRoot, preserveWhitespace,
+                documentManager, CompilerPhase.COMPILER_PLUGIN);
     }
 
     private static boolean isSameFile(Path path1, Path path2) {
@@ -235,6 +231,24 @@ public class LSCompilerUtil {
         return Compiler.getInstance(compilerContext);
     }
 
+     /** Get compiler for the given context.
+     *
+             * @param context               Language server context
+     * @param compilerContext       Compiler context
+     * @param customErrorStrategy   custom error strategy class
+     * @return {@link Compiler}     ballerina compiler
+     */
+    public static Compiler getCompiler(LSContext context, CompilerContext compilerContext,
+                                       Class customErrorStrategy) {
+        context.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, compilerContext);
+        context.put(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY, new LSServiceOperationContext());
+        if (customErrorStrategy != null) {
+            compilerContext.put(DefaultErrorStrategy.class,
+                    CustomErrorStrategyFactory.getCustomErrorStrategy(customErrorStrategy, context));
+        }
+        BLangDiagnosticLog.getInstance(compilerContext).errorCount = 0;
+        return Compiler.getInstance(compilerContext);
+    }
 
     /**
      * Get the source root for the given package.
@@ -242,17 +256,13 @@ public class LSCompilerUtil {
      * @param filePath current file's path
      * @return {@link String} program directory path
      */
-    public static String getSourceRoot(Path filePath) {
+    public static String getProjectRoot(Path filePath) {
         if (filePath == null || filePath.getParent() == null) {
             return null;
         }
         Path parentPath = filePath.getParent();
-        if (parentPath == null) {
-            return null;
-        }
-
-        String fileRoot = findProjectRoot(parentPath.toString());
-        return fileRoot != null ? fileRoot : parentPath.toString();
+        Path projectRoot = ProjectDirs.findProjectRoot(Paths.get(parentPath.toString()));
+        return projectRoot != null ? projectRoot.toString() : parentPath.toString();
     }
 
     /**
@@ -266,11 +276,8 @@ public class LSCompilerUtil {
             return null;
         }
         Path parentPath = filePath.getParent();
-        if (parentPath == null) {
-            return null;
-        }
-
-        return findProjectRoot(parentPath.toString());
+        Path projectRoot = ProjectDirs.findProjectRoot(Paths.get(parentPath.toString()));
+        return projectRoot == null ? null : projectRoot.toString();
     }
 
     /**
@@ -283,7 +290,7 @@ public class LSCompilerUtil {
      * @return top-level module path
      */
     public static Path getCurrentModulePath(Path filePath) {
-        Path projectRoot = Paths.get(LSCompilerUtil.getSourceRoot(filePath));
+        Path projectRoot = Paths.get(LSCompilerUtil.getProjectRoot(filePath));
         Path currentModulePath = projectRoot;
         Path prevSourceRoot = filePath.getParent();
         try {
@@ -304,35 +311,6 @@ public class LSCompilerUtil {
             // do nothing
         }
         return currentModulePath;
-    }
-
-    /**
-     * Check whether given directory is a project dir.
-     *
-     * @param root root path
-     * @param fileUri file Uri
-     * @return {@link Boolean} true if project dir, else false
-     */
-    public static boolean isBallerinaProject(String root, String fileUri) {
-        return findProjectRoot(root) != null;
-    }
-
-
-    /**
-     * Get the package name for given file.
-     *
-     * @param sourceRoot source root
-     * @param filePath   full path of the file
-     * @return {@link String} package name
-     */
-    public static String getPackageNameForGivenFile(String sourceRoot, String filePath) {
-        String packageName = "";
-        String packageStructure = filePath.substring(sourceRoot.length() + 1, filePath.length());
-        String[] splittedPackageStructure = packageStructure.split(Pattern.quote(File.separator));
-        if (splittedPackageStructure.length > 0 && !splittedPackageStructure[0].endsWith(".bal")) {
-            packageName = packageStructure.split(Pattern.quote(File.separator))[0];
-        }
-        return packageName;
     }
 
     /**

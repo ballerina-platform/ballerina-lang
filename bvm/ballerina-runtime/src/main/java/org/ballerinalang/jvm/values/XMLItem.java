@@ -18,7 +18,6 @@ package org.ballerinalang.jvm.values;
 
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMComment;
-import org.apache.axiom.om.OMDocument;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMNode;
@@ -27,19 +26,15 @@ import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.OMXMLBuilderFactory;
 import org.apache.axiom.om.impl.common.OMChildrenQNameIterator;
 import org.apache.axiom.om.impl.common.OMNamespaceImpl;
-import org.apache.axiom.om.impl.dom.CommentImpl;
-import org.apache.axiom.om.impl.dom.TextImpl;
-import org.apache.axiom.om.impl.llom.OMAttributeImpl;
-import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.impl.llom.OMElementImpl;
-import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.XMLValidator;
+import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -53,8 +48,6 @@ import java.util.Map;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamWriter;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
 
@@ -73,7 +66,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
 @SuppressWarnings("unchecked")
 public final class XMLItem extends XMLValue<OMNode> {
 
-    private OMNode omNode;
+    OMNode omNode;
     private XMLNodeType nodeType;
 
     /**
@@ -187,9 +180,10 @@ public final class XMLItem extends XMLValue<OMNode> {
                 while (children.hasNext()) {
                     elementTextBuilder.append(getTextValue(children.next()));
                 }
-                return new String(elementTextBuilder.toString());
+                return elementTextBuilder.toString();
             case TEXT:
-                return new String(((OMText) omNode).getText());
+                String text = ((OMText) omNode).getText();
+                return StringEscapeUtils.escapeXml11(text);
             case COMMENT:
                 return BTypes.typeString.getZeroValue();
             case PI:
@@ -236,7 +230,7 @@ public final class XMLItem extends XMLValue<OMNode> {
         }
 
         if (localName == null || localName.isEmpty()) {
-            throw new BallerinaException("localname of the attribute cannot be empty");
+            throw BallerinaErrors.createError("localname of the attribute cannot be empty");
         }
 
         // Validate whether the attribute name is an XML supported qualified name, according to the XML recommendation.
@@ -258,63 +252,7 @@ public final class XMLItem extends XMLValue<OMNode> {
             return;
         }
 
-        // If the namespace is null/empty, only the local part exists. Therefore add a simple attribute.
-        if (namespaceUri == null || namespaceUri.isEmpty()) {
-            attr = new OMAttributeImpl();
-            attr.setAttributeValue(value);
-            attr.setLocalName(localName);
-            node.addAttribute(attr);
-            return;
-        }
-
-        // Attributes cannot cannot be belong to default namespace. Hence, if the current namespace is the default one,
-        // treat this attribute-add operation as a namespace addition.
-        if ((node.getDefaultNamespace() != null && namespaceUri.equals(node.getDefaultNamespace().getNamespaceURI())) ||
-                namespaceUri.equals(XMLConstants.XMLNS_ATTRIBUTE_NS_URI)) {
-
-            node.declareNamespace(value, localName);
-            return;
-        }
-
-        OMNamespace ns = null;
-        if (prefix != null && !prefix.isEmpty()) {
-            OMNamespace existingNs = node.findNamespaceURI(prefix);
-
-            // If a namespace exists with the same prefix but a different uri, then do not add the new attribute.
-            if (existingNs != null && !namespaceUri.equals(existingNs.getNamespaceURI())) {
-                throw new BallerinaException("failed to add attribute '" + prefix + ":" + localName + "'. prefix '" +
-                        prefix + "' is already bound to namespace '" + existingNs.getNamespaceURI() + "'");
-            }
-
-            ns = new OMNamespaceImpl(namespaceUri, prefix);
-            node.addAttribute(localName, value, ns);
-            return;
-        }
-
-        // We reach here if the namespace prefix is null/empty, and a namespace uri exists
-        if (namespaceUri != null && !namespaceUri.isEmpty()) {
-            prefix = null;
-            // Find a prefix that has the same namespaceUri, out of the defined namespaces
-            Iterator<String> prefixes = node.getNamespaceContext(false).getPrefixes(namespaceUri);
-            while (prefixes.hasNext()) {
-                String definedPrefix = prefixes.next();
-                if (definedPrefix.isEmpty()) {
-                    continue;
-                }
-                prefix = definedPrefix;
-                break;
-            }
-
-            if (prefix != null && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
-                // If found, and if its the default namespace, add a namespace decl
-                node.declareNamespace(value, localName);
-                return;
-            }
-
-            // else use the prefix. If the prefix is null, it will generate a random prefix.
-            ns = new OMNamespaceImpl(namespaceUri, prefix);
-        }
-        node.addAttribute(localName, value, ns);
+        createAttribute(localName, namespaceUri, prefix, value, node);
     }
 
     /**
@@ -322,7 +260,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public MapValue<String, ?> getAttributesMap() {
-        MapValue<String, String> attrMap = new MapValue<>(new BMapType(BTypes.typeString));
+        BXmlAttrMap attrMap = new BXmlAttrMap(this);
 
         if (nodeType != XMLNodeType.ELEMENT) {
             return attrMap;
@@ -348,6 +286,7 @@ public final class XMLItem extends XMLValue<OMNode> {
             attrMap.put(attr.getQName().toString(), attr.getAttributeValue());
         }
 
+        attrMap.finishConstruction();
         return attrMap;
     }
 
@@ -402,7 +341,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public XMLValue<?> elements() {
-        ArrayValue elementsSeq = new ArrayValue();
+        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         switch (nodeType) {
             case ELEMENT:
                 elementsSeq.add(0, this);
@@ -418,7 +357,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public XMLValue<?> elements(String qname) {
-        ArrayValue elementsSeq = new ArrayValue();
+        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         switch (nodeType) {
             case ELEMENT:
                 if (getElementName().toString().equals(getQname(qname).toString())) {
@@ -436,7 +375,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public XMLValue<?> children() {
-        ArrayValue elementsSeq = new ArrayValue();
+        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         switch (nodeType) {
             case ELEMENT:
                 Iterator<OMNode> childrenItr = ((OMElement) omNode).getChildren();
@@ -457,7 +396,7 @@ public final class XMLItem extends XMLValue<OMNode> {
      */
     @Override
     public XMLValue<?> children(String qname) {
-        ArrayValue elementsSeq = new ArrayValue();
+        ArrayValue elementsSeq = new ArrayValue(new BArrayType(BTypes.typeXML));
         switch (nodeType) {
             case ELEMENT:
                 /*
@@ -503,7 +442,7 @@ public final class XMLItem extends XMLValue<OMNode> {
                 currentNode = ((OMElement) omNode);
                 break;
             default:
-                throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
+                throw BallerinaErrors.createError("not an " + XMLNodeType.ELEMENT);
         }
 
         currentNode.removeChildren();
@@ -541,7 +480,7 @@ public final class XMLItem extends XMLValue<OMNode> {
                 currentNode = ((OMElement) omNode);
                 break;
             default:
-                throw new BallerinaException("not an " + XMLNodeType.ELEMENT);
+                throw BallerinaErrors.createError("not an " + XMLNodeType.ELEMENT);
         }
 
         if (seq.getNodeType() == XMLNodeType.SEQUENCE) {
@@ -572,9 +511,9 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public XMLValue<?> slice(int startIndex, int endIndex) {
+    public XMLValue<?> slice(long startIndex, long endIndex) {
         if (startIndex > 1 || endIndex > 1 || startIndex < -1 || endIndex < -1) {
-            throw new BallerinaException("index out of range: [" + startIndex + "," + endIndex + "]");
+            throw BallerinaErrors.createError("index out of range: [" + startIndex + "," + endIndex + "]");
         }
 
         if (startIndex == -1) {
@@ -590,7 +529,7 @@ public final class XMLItem extends XMLValue<OMNode> {
         }
 
         if (startIndex > endIndex) {
-            throw new BallerinaException("invalid indices: " + startIndex + " < " + endIndex);
+            throw BallerinaErrors.createError("invalid indices: " + startIndex + " < " + endIndex);
         }
 
         return this;
@@ -610,7 +549,8 @@ public final class XMLItem extends XMLValue<OMNode> {
                 break;
         }
 
-        return new XMLSequence(new ArrayValue(descendants.toArray(new XMLValue[descendants.size()]), BTypes.typeXML));
+        XMLValue<?>[] array = descendants.toArray(new XMLValue[descendants.size()]);
+        return new XMLSequence(new ArrayValue(array, new BArrayType(BTypes.typeXML)));
     }
 
     /**
@@ -619,9 +559,7 @@ public final class XMLItem extends XMLValue<OMNode> {
     @Override
     public void serialize(OutputStream outputStream) {
         try {
-            XMLOutputFactory factory = XMLOutputFactory.newInstance();
-            XMLStreamWriter writer = factory.createXMLStreamWriter(outputStream);
-            this.omNode.serializeAndConsume(writer);
+            this.omNode.serializeAndConsume(outputStream);
         } catch (Throwable t) {
             handleXmlException("error occurred during writing the message to the output stream: ", t);
         }
@@ -662,41 +600,60 @@ public final class XMLItem extends XMLValue<OMNode> {
      * {@inheritDoc}
      */
     @Override
+    public String stringValue() {
+        try {
+            switch (nodeType) {
+                case COMMENT:
+                    return COMMENT_START + ((OMComment) omNode).getValue() + COMMENT_END;
+                case TEXT:
+                    return getTextValue(omNode);
+                case PI:
+                    return PI_START + ((OMProcessingInstruction) omNode).getTarget() + " " +
+                            ((OMProcessingInstruction) omNode).getValue() + PI_END;
+                default:
+                    return this.omNode.toString();
+            }
+        } catch (Throwable t) {
+            handleXmlException("failed to get xml as string: ", t);
+        }
+        return STRING_NULL_VALUE;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Object copy(Map<Object, Object> refs) {
         if (isFrozen()) {
             return this;
         }
 
-        OMNode clonedNode;
         switch (nodeType) {
             case ELEMENT:
-                clonedNode = ((OMElement) omNode).cloneOMElement();
-                break;
+                return new XMLItem(((OMElement) omNode).cloneOMElement());
             case TEXT:
-                TextImpl text = new TextImpl();
-                text.setTextContent(((OMText) omNode).getText());
-                clonedNode = text;
-                break;
+                return XMLFactory.createXMLText(((OMText) omNode).getText());
             case COMMENT:
-                CommentImpl comment = new CommentImpl();
-                comment.setTextContent(((OMComment) omNode).getValue());
-                clonedNode = comment;
-                break;
+                return XMLFactory.createXMLComment(((OMComment) omNode).getValue());
             case PI:
-                OMProcessingInstructionImpl pi = new OMProcessingInstructionImpl();
-                pi.setTarget(((OMProcessingInstruction) omNode).getTarget());
-                pi.setValue(((OMProcessingInstruction) omNode).getValue());
-                clonedNode = pi;
-                break;
+                return XMLFactory.createXMLProcessingInstruction(
+                        ((OMProcessingInstruction) omNode).getTarget(),
+                        ((OMProcessingInstruction) omNode).getValue());
             default:
-                clonedNode = omNode;
-                break;
+                return new XMLItem(omNode);
         }
+    }
 
-        // adding the document element as parent, to get xpPaths work
-        OMDocument doc = new OMDocumentImpl();
-        doc.addChild(clonedNode);
-        return new XMLItem(clonedNode);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+        XMLItem copy = (XMLItem) copy(refs);
+        if (!copy.isFrozen()) {
+            copy.freezeDirect();
+        }
+        return copy;
     }
 
     /**
@@ -705,15 +662,20 @@ public final class XMLItem extends XMLValue<OMNode> {
     @Override
     public XMLValue<?> getItem(int index) {
         if (index != 0) {
-            throw new BallerinaException("index out of range: index: " + index + ", size: 1");
+            throw BallerinaErrors.createError("index out of range: index: " + index + ", size: 1");
         }
 
         return this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    public int size() {
+        if (getNodeType() == XMLNodeType.TEXT) {
+            String textContent = ((OMText) this.omNode).getText();
+            return textContent.codePointCount(0, textContent.length());
+        }
+        return this.omNode == null ? 0 : 1;
+    }
+
     public int length() {
         return this.omNode == null ? 0 : 1;
     }
@@ -784,6 +746,24 @@ public final class XMLItem extends XMLValue<OMNode> {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void attemptFreeze(Status freezeStatus) {
+        if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
+            this.freezeStatus = freezeStatus;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void freezeDirect() {
+        this.freezeStatus.setFrozen();
+    }
+
     // private methods
 
     private void setXMLNodeType() {
@@ -837,19 +817,89 @@ public final class XMLItem extends XMLValue<OMNode> {
         return qname;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public synchronized void attemptFreeze(Status freezeStatus) {
-        if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
-            this.freezeStatus = freezeStatus;
+    private void createAttribute(String localName, String namespaceUri, String prefix, String value, OMElement node) {
+        // If the namespace is null/empty, only the local part exists. Therefore add a simple attribute.
+        if (namespaceUri == null || namespaceUri.isEmpty()) {
+            node.addAttribute(localName, value, null);
+            return;
+        }
+
+        if (!(prefix == null || prefix.isEmpty())) {
+            OMNamespace existingNs = node.findNamespaceURI(prefix);
+
+            // If a namespace exists with the same prefix but a different uri, then do not add the new attribute.
+            if (existingNs != null && !namespaceUri.equals(existingNs.getNamespaceURI())) {
+                throw BallerinaErrors
+                        .createError("failed to add attribute '" + prefix + ":" + localName + "'. prefix '" + prefix +
+                                "' is already bound to namespace '" + existingNs.getNamespaceURI() + "'");
+            }
+
+            node.addAttribute(localName, value, new OMNamespaceImpl(namespaceUri, prefix));
+            return;
+        }
+
+        // We reach here if the namespace prefix is null/empty, and a namespace uri exists.
+        // Find a prefix that has the same namespaceUri, out of the defined namespaces
+        Iterator<String> prefixes = node.getNamespaceContext(false).getPrefixes(namespaceUri);
+        if (prefixes.hasNext()) {
+            prefix = prefixes.next();
+            if (prefix.isEmpty()) {
+                node.addAttribute(localName, value, null);
+                return;
+            }
+            if (prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+                // If found, and if its the default namespace, add a namespace decl
+                node.declareNamespace(value, localName);
+                return;
+            }
+        }
+
+        // Else use the prefix. If the prefix is null, a random prefix will be generated.
+        node.addAttribute(localName, value, new OMNamespaceImpl(namespaceUri, prefix));
+    }
+
+    private static class BXmlAttrMap extends MapValueImpl<String, String> {
+        
+        private final XMLItem bXmlItem;
+        private boolean constructed = false;
+
+        BXmlAttrMap(XMLItem bXmlItem) {
+            super(new BMapType(BTypes.typeString));
+            this.bXmlItem = bXmlItem;
+        }
+
+        void finishConstruction() {
+            constructed = true;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public String put(String key, String value) {
+            super.put(key, value);
+            if (constructed) {
+                setAttribute(key, value);
+            }
+            return null;
+        }
+
+        private void setAttribute(String key, String value) {
+            String url = null;
+            String localName = key;
+
+            int endOfUrl = key.lastIndexOf('}');
+            if (endOfUrl != -1) {
+                int startBrace = key.indexOf('{');
+                if (startBrace == 0) {
+                    url = key.substring(startBrace + 1, endOfUrl);
+                    localName = key.substring(endOfUrl + 1);
+                }
+            }
+            bXmlItem.setAttribute(localName, url, null, value);
         }
     }
 
     @Override
-    public void stamp(BType type) {
-        // TODO Auto-generated method stub
-
+    public IteratorValue getIterator() {
+        return new XMLIterator.ItemIterator(this);
     }
 }

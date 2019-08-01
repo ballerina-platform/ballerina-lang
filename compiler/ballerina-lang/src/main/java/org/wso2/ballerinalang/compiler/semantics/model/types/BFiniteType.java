@@ -71,7 +71,15 @@ public class BFiniteType extends BType implements FiniteType {
     @Override
     public String toString() {
         StringJoiner joiner = new StringJoiner("|");
-        this.valueSpace.forEach(value -> joiner.add(value.toString()));
+        for (BLangExpression value : this.valueSpace) {
+            if (value.type.tag == TypeTags.FLOAT) {
+                joiner.add(value.toString() + "f");
+            } else if (value.type.tag == TypeTags.DECIMAL) {
+                joiner.add(value.toString() + "d");
+            } else {
+                joiner.add(value.toString());
+            }
+        }
         return joiner.toString();
     }
 

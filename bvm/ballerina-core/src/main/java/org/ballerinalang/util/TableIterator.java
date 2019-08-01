@@ -157,6 +157,16 @@ public class TableIterator implements DataIterator {
     }
 
     @Override
+    public BigDecimal getDecimal(int columnIndex) {
+        try {
+            BigDecimal val = rs.getBigDecimal(columnIndex);
+            return rs.wasNull() ? null : val;
+        } catch (SQLException e) {
+            throw new BallerinaException(e.getMessage(), e);
+        }
+    }
+
+    @Override
     public Object[] getStruct(int columnIndex) {
         Object[] objArray = null;
         try {

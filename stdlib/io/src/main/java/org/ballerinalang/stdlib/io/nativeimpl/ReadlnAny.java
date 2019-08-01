@@ -17,11 +17,8 @@
  */
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -39,15 +36,14 @@ import java.util.Scanner;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class ReadlnAny extends BlockingNativeCallableUnit {
+public class ReadlnAny {
 
-    public void execute(Context ctx) {
-        BValue result = ctx.getNullableRefArgument(0);
+    private static Scanner sc = new Scanner(System.in, Charset.defaultCharset().displayName());
+
+    public static String readln(Strand strand, Object result) {
         if (result != null) {
-            System.out.print(result.stringValue());
+            System.out.print(result.toString());
         }
-        Scanner sc = new Scanner(System.in, Charset.defaultCharset().displayName());
-        String input = sc.nextLine();
-        ctx.setReturnValues(new BString(input));
+        return sc.nextLine();
     }
 }

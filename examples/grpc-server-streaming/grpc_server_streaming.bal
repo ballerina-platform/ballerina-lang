@@ -13,21 +13,20 @@ service HelloWorld on new grpc:Listener(9090) {
         // Send multiple messages to the caller.
         foreach string greet in greets {
             string msg = greet + " " + name;
-            error? err = caller->send(msg);
-            if (err is error) {
+            grpc:Error? err = caller->send(msg);
+            if (err is grpc:Error) {
                 log:printError("Error from Connector: " + err.reason() + " - "
-                                                + <string>err.detail().message);
+                                                + <string> err.detail()["message"]);
             } else {
                 log:printInfo("Send reply: " + msg);
             }
         }
 
         // Once all the messages are sent, the server notifies the caller with a `complete` message.
-        error? result = caller->complete();
-        if (result is error) {
+        grpc:Error? result = caller->complete();
+        if (result is grpc:Error) {
             log:printError("Error in sending completed notification to caller",
                 err = result);
         }
     }
-
 }

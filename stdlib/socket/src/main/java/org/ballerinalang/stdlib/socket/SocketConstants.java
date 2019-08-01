@@ -51,4 +51,26 @@ public class SocketConstants {
 
     // If default length pass as the read length then the entire buffer read.
     public static final int DEFAULT_EXPECTED_READ_LENGTH = -100;
+
+    // Default read timeout set as 5 min.
+    public static final String READ_TIMEOUT = "readTimeoutInMillis";
+
+    /**
+     * Specifies the error code for socket module.
+     */
+    public enum ErrorCode {
+
+        GenericError("{ballerina/socket}GenericError"), ReadTimedOutError("{ballerina/socket}ReadTimedOut");
+
+        private String errorCode;
+
+        ErrorCode(String errorCode) {
+            this.errorCode = errorCode;
+        }
+
+        public String errorCode() {
+            return errorCode;
+        }
+    }
+
 }

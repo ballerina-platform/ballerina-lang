@@ -19,16 +19,14 @@
 package org.ballerinalang.stdlib.socket;
 
 import org.awaitility.Awaitility;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.BServiceUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.socket.tcp.SelectorManager;
 import org.ballerinalang.stdlib.socket.tcp.SocketUtils;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -50,7 +48,6 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 @Test(timeOut = 120000)
 public class ServerSocketTest {
 
-    private static final Logger log = LoggerFactory.getLogger(ServerSocketTest.class);
     private static final int SERVER1_PORT = 59152;
     private static final int SERVER2_PORT = 59153;
     private static final int SERVER3_PORT = 59154;
@@ -63,7 +60,7 @@ public class ServerSocketTest {
     public void setup() {
         String resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         testResourceRoot = Paths.get(resourceRoot, "test-src");
-        compileResult = BServiceUtil.setupProgramFile(this, testResourceRoot.resolve("server_socket.bal").toString());
+        compileResult = BCompileUtil.compile(true, testResourceRoot.resolve("server_socket.bal").toString());
         boolean connectionStatus;
         int numberOfRetryAttempts = 20;
         connectionStatus = TestSocketUtils.isConnected(SERVER_HOST, SERVER1_PORT, numberOfRetryAttempts);
@@ -115,7 +112,7 @@ public class ServerSocketTest {
             socketChannel.read(buf);
             Assert.assertEquals(new String(SocketUtils.getByteArrayFromByteBuffer(buf), StandardCharsets.UTF_8),
                     "Hello Client");
-            final BValue[] result = BRunUtil.invokeStateful(compileResult, "getTotalLength");
+            final BValue[] result = BRunUtil.invoke(compileResult, "getTotalLength");
             BInteger totalValue = (BInteger) result[0];
             Assert.assertEquals(totalValue.intValue(), 15, "Server didn't receive the expected bytes");
         } catch (IOException | InterruptedException e) {
@@ -153,10 +150,10 @@ public class ServerSocketTest {
     @Test
     public void testOnDuplicatePortNegative() {
         try {
-            BServiceUtil.setupProgramFile(this,
-                    testResourceRoot.resolve("server_socket_duplicate_port_negative.bal").toString());
+            BCompileUtil
+                    .compile(true, testResourceRoot.resolve("server_socket_duplicate_port_negative.bal").toString());
         } catch (BLangRuntimeException e) {
-            String errorStr = e.getMessage().substring(47, 47 + 58);
+            String errorStr = e.getMessage().substring(48, 48 + 58);
             Assert.assertEquals(errorStr, "Unable to start the socket service: Address already in use");
         }
     }
@@ -173,7 +170,7 @@ public class ServerSocketTest {
             socketChannel.write(buf);
             buf.clear();
             Awaitility.await().atMost(1, MINUTES).until(() -> {
-                BValue[] result = BRunUtil.invokeStateful(compileResult, "getError");
+                BValue[] result = BRunUtil.invoke(compileResult, "getError");
                 return ("Error while on read".equals((result[0]).stringValue()));
             });
         } catch (IOException e) {

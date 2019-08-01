@@ -15,24 +15,22 @@
  */
 package org.ballerinalang.net.grpc.stubs;
 
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.Executor;
-import org.ballerinalang.connector.api.ParamDetail;
-import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.model.types.BErrorType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
+import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.ServiceResource;
+import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.callback.ClientCallableUnitCallBack;
-import org.ballerinalang.net.grpc.exception.ClientRuntimeException;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
+import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +38,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.net.grpc.MessageUtils.getHeaderStruct;
+import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
+import static org.ballerinalang.net.grpc.MessageUtils.getHeaderObject;
 
 /**
  * This is Stream Observer Implementation for gRPC Client Call.
@@ -51,13 +50,13 @@ public class DefaultStreamObserver implements StreamObserver {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultStreamObserver.class);
     private Map<String, ServiceResource> resourceMap = new HashMap<>();
     
-    public DefaultStreamObserver(Service callbackService) throws
+    public DefaultStreamObserver(Scheduler scheduler, ObjectValue callbackService) throws
             GrpcClientException {
         if (callbackService == null) {
             throw new GrpcClientException("Error while building the connection. Listener Service does not exist");
         }
-        for (Resource resource : callbackService.getResources()) {
-            resourceMap.put(resource.getName(), new ServiceResource(resource));
+        for (AttachedFunction function : callbackService.getType().getAttachedFunctions()) {
+            resourceMap.put(function.getName(), new ServiceResource(scheduler, callbackService, function));
         }
     }
     
@@ -67,23 +66,29 @@ public class DefaultStreamObserver implements StreamObserver {
         if (resource == null) {
             String message = "Error in listener service definition. onNext resource does not exists";
             LOG.error(message);
-            throw new ClientRuntimeException(message);
+            throw MessageUtils.getConnectorError(new StatusRuntimeException(Status
+                    .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription(message)));
         }
-        List<ParamDetail> paramDetails = resource.getParamDetailList();
-        BValue[] signatureParams = new BValue[paramDetails.size()];
-        BMap<String, BValue> headerStruct = null;
+        List<BType> signatureParams = resource.getParamTypes();
+        Object[] paramValues = new Object[signatureParams.size() * 2];
+
+        ObjectValue headerObject = null;
         if (resource.isHeaderRequired()) {
-            headerStruct = getHeaderStruct(resource.getProgramFile());
+            headerObject = getHeaderObject();
+            headerObject.addNativeData(MESSAGE_HEADERS, value.getHeaders());
         }
-        BValue requestParam = value.getbMessage();
+        Object requestParam = value.getbMessage();
         if (requestParam != null) {
-            signatureParams[0] = requestParam;
+            paramValues[0] = requestParam;
+            paramValues[1] = true;
         }
-        if (headerStruct != null) {
-            signatureParams[signatureParams.length - 1] = headerStruct;
+        if (headerObject != null && signatureParams.size() == 2) {
+            paramValues[2] = headerObject;
+            paramValues[3] = true;
         }
         CallableUnitCallback callback = new ClientCallableUnitCallBack();
-        Executor.submit(resource.getResource(), callback, null, null, signatureParams);
+        Executor.submit(resource.getScheduler(), resource.getService(), resource.getFunctionName(), callback, null,
+                paramValues);
     }
     
     @Override
@@ -92,22 +97,28 @@ public class DefaultStreamObserver implements StreamObserver {
         if (onError == null) {
             String message = "Error in listener service definition. onError resource does not exists";
             LOG.error(message);
-            throw new ClientRuntimeException(message);
+            throw MessageUtils.getConnectorError(new StatusRuntimeException(Status
+                    .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription(message)));
         }
-        List<ParamDetail> paramDetails = onError.getParamDetailList();
-        BValue[] signatureParams = new BValue[paramDetails.size()];
-        BMap<String, BValue> headerStruct = null;
+        List<BType> signatureParams = onError.getParamTypes();
+        Object[] paramValues = new Object[signatureParams.size() * 2];
+        ObjectValue headerObject = null;
         if (onError.isHeaderRequired()) {
-            headerStruct = getHeaderStruct(onError.getProgramFile());
+            headerObject = getHeaderObject();
+            headerObject.addNativeData(MESSAGE_HEADERS, error.getHeaders());
         }
-        BType errorType = paramDetails.get(0).getVarType();
-        BError errorStruct = MessageUtils.getConnectorError((BErrorType) errorType, error.getError());
-        signatureParams[0] = errorStruct;
-        if (headerStruct != null && signatureParams.length == 2) {
-            signatureParams[1] = headerStruct;
+
+        ErrorValue errorStruct = MessageUtils.getConnectorError(error.getError());
+        paramValues[0] = errorStruct;
+        paramValues[1] = true;
+
+        if (headerObject != null && signatureParams.size() == 2) {
+            paramValues[2] = headerObject;
+            paramValues[3] = true;
         }
         CallableUnitCallback callback = new ClientCallableUnitCallBack();
-        Executor.submit(onError.getResource(), callback, null, null, signatureParams);
+        Executor.submit(onError.getScheduler(), onError.getService(), onError.getFunctionName(), callback, null,
+                paramValues);
     }
     
     @Override
@@ -116,18 +127,13 @@ public class DefaultStreamObserver implements StreamObserver {
         if (onCompleted == null) {
             String message = "Error in listener service definition. onCompleted resource does not exists";
             LOG.error(message);
-            throw new ClientRuntimeException(message);
+            throw MessageUtils.getConnectorError(new StatusRuntimeException(Status
+                    .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription(message)));
         }
-        List<ParamDetail> paramDetails = onCompleted.getParamDetailList();
-        BValue[] signatureParams = new BValue[paramDetails.size()];
-        BMap<String, BValue> headerStruct = null;
-        if (onCompleted.isHeaderRequired()) {
-            headerStruct = getHeaderStruct(onCompleted.getProgramFile());
-        }
-        if (headerStruct != null && signatureParams.length == 1) {
-            signatureParams[0] = headerStruct;
-        }
+        List<BType> signatureParams = onCompleted.getParamTypes();
+        Object[] paramValues = new Object[signatureParams.size() * 2];
         CallableUnitCallback callback = new ClientCallableUnitCallBack();
-        Executor.submit(onCompleted.getResource(), callback, null, null, signatureParams);
+        Executor.submit(onCompleted.getScheduler(), onCompleted.getService(), onCompleted.getFunctionName(), callback,
+                null, paramValues);
     }
 }

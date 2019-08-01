@@ -19,19 +19,16 @@
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel;
 
 import com.rabbitmq.client.Channel;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
-import org.ballerinalang.messaging.rabbitmq.util.ChannelUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * Binds a queue to an exchange.
@@ -47,23 +44,26 @@ import org.slf4j.LoggerFactory;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class QueueBind extends BlockingNativeCallableUnit {
+public class QueueBind {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(QueueBind.class);
-
-    @Override
-    public void execute(Context context) {
-        BMap<String, BValue> channelBObject = (BMap<String, BValue>) context.getRefArgument(0);
-        String queueName = context.getStringArgument(0);
-        String exchangeName = context.getStringArgument(1);
-        String bindingKey = context.getStringArgument(2);
-        Channel channel = RabbitMQUtils.getNativeObject(channelBObject, RabbitMQConstants.CHANNEL_NATIVE_OBJECT,
-                Channel.class, context);
+    public static Object queueBind(Strand strand, ObjectValue channelObjectValue, String queueName,
+                                   String exchangeName, String bindingKey) {
+        boolean isInTransaction = strand.isInTransaction();
+        Channel channel = (Channel) channelObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
+        RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) channelObjectValue.
+                getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         try {
-            ChannelUtils.queueBind(channel, queueName, exchangeName, bindingKey);
-        } catch (BallerinaException exception) {
-            LOGGER.error("I/O exception while binding the queue", exception);
-            RabbitMQUtils.returnError("RabbitMQ Client Error:", context, exception);
+            channel.queueBind(queueName, exchangeName, bindingKey, null);
+            if (isInTransaction) {
+                transactionContext.handleTransactionBlock(strand);
+            }
+        } catch (IOException exception) {
+            return RabbitMQUtils.returnErrorValue(RabbitMQConstants.RABBITMQ_CLIENT_ERROR
+                    + "I/O exception while binding the queue; " + exception.getMessage());
         }
+        return null;
+    }
+
+    private QueueBind() {
     }
 }

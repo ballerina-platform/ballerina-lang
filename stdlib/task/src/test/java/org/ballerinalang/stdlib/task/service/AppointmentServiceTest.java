@@ -18,11 +18,12 @@
 
 package org.ballerinalang.stdlib.task.service;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -38,9 +39,9 @@ import static org.awaitility.Awaitility.await;
 public class AppointmentServiceTest {
     @Test(description = "Tests the functionality of initiating a Task Timer Listener.")
     public void testCreateAppointment() {
-        CompileResult compileResult = BCompileUtil.compileAndSetup("listener/appointment/service_simple.bal");
+        CompileResult compileResult = BCompileUtil.compile("listener/appointment/service_simple.bal");
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-            BValue[] configs = BRunUtil.invokeStateful(compileResult, "getCount");
+            BValue[] configs = BRunUtil.invoke(compileResult, "getCount");
             Assert.assertEquals(configs.length, 1);
             return (((BInteger) configs[0]).intValue() > 3);
         });
@@ -48,10 +49,10 @@ public class AppointmentServiceTest {
 
     @Test(description = "Tests the functionality of initiating a Task Timer Listener with AppointmentData record.")
     public void testAppointmentDataConfigs() {
-        CompileResult compileResult = BCompileUtil.compileAndSetup(
+        CompileResult compileResult = BCompileUtil.compile(
                 "listener/appointment/appointment_data_configs.bal");
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-            BValue[] configs = BRunUtil.invokeStateful(compileResult, "getCount");
+            BValue[] configs = BRunUtil.invoke(compileResult, "getCount");
             Assert.assertEquals(configs.length, 1);
             return (((BInteger) configs[0]).intValue() > 3);
         });
@@ -63,7 +64,7 @@ public class AppointmentServiceTest {
             expectedExceptionsMessageRegExp = ".*Cron Expression \"invalid cron expression\" is invalid.*"
     )
     public void testInvalidCronExpression() {
-        BCompileUtil.compileAndSetup("listener/appointment/invalid_cron_expression.bal");
+        BCompileUtil.compile("listener/appointment/invalid_cron_expression.bal");
     }
 
     @Test(
@@ -72,15 +73,15 @@ public class AppointmentServiceTest {
             expectedExceptionsMessageRegExp = ".*AppointmentData .* is invalid.*"
     )
     public void testInvalidAppointmentData() {
-        BCompileUtil.compileAndSetup("listener/appointment/invalid_appointment_data.bal");
+        BCompileUtil.compile("listener/appointment/invalid_appointment_data.bal");
     }
 
-    @Test(
-            description = "Test invalid appointmentData crecord type",
-            expectedExceptions = java.lang.IllegalStateException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: expected .*, found .*"
-    )
+    @Test(description = "Test invalid appointmentData crecord type")
     public void testInvalidAppointmentDataRecordType() {
-        BCompileUtil.compileAndSetup("listener/appointment/invalid_appointment_data_record.bal");
+        CompileResult compileResult = BCompileUtil.compile("listener/appointment/invalid_appointment_data_record.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 1);
+        BAssertUtil.validateError(compileResult, 0, "incompatible types: expected " +
+                        "'(string|ballerina/task:AppointmentData)', found 'DuplicateAppointmentData'",
+                40, 25);
     }
 }

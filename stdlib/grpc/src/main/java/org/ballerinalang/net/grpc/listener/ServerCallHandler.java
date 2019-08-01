@@ -19,16 +19,12 @@ package org.ballerinalang.net.grpc.listener;
 
 import com.google.protobuf.Descriptors;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Executor;
-import org.ballerinalang.connector.api.ParamDetail;
-import org.ballerinalang.model.types.BErrorType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
+import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.net.grpc.CallStreamObserver;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
@@ -39,14 +35,12 @@ import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.callback.StreamingCallableUnitCallBack;
 import org.ballerinalang.net.grpc.callback.UnaryCallableUnitCallBack;
-import org.ballerinalang.net.grpc.exception.ServerRuntimeException;
-import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.List;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CALLER_ID;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
-import static org.ballerinalang.net.grpc.MessageUtils.getHeaderStruct;
+import static org.ballerinalang.net.grpc.MessageUtils.getHeaderObject;
 
 /**
  * Interface to initiate processing of incoming remote calls.
@@ -143,11 +137,11 @@ public abstract class ServerCallHandler {
      * @param responseObserver client responder instance.
      * @return instance of endpoint type.
      */
-    private BValue getConnectionParameter(ProgramFile programFile, StreamObserver responseObserver) {
+    private ObjectValue getConnectionParameter(StreamObserver responseObserver) {
         // generate client responder struct on request message with response observer and response msg type.
-        BMap<String, BValue> clientEndpoint = BLangConnectorSPIUtil.createBStruct(programFile,
-                GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC, GrpcConstants.CALLER);
-        clientEndpoint.put(CALLER_ID, new BInteger(responseObserver.hashCode()));
+        ObjectValue clientEndpoint = BallerinaValues.createObjectValue(GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC,
+                GrpcConstants.CALLER);
+        clientEndpoint.set(CALLER_ID, responseObserver.hashCode());
         clientEndpoint.addNativeData(GrpcConstants.RESPONSE_OBSERVER, responseObserver);
         clientEndpoint.addNativeData(GrpcConstants.RESPONSE_MESSAGE_DEFINITION, methodDescriptor.getOutputType());
         return clientEndpoint;
@@ -163,54 +157,58 @@ public abstract class ServerCallHandler {
     }
 
     void onErrorInvoke(ServiceResource resource, StreamObserver responseObserver, Message error) {
-        if (resource == null || resource.getParamDetailList() == null) {
-            throw new ServerRuntimeException("Error in listener service definition. onError resource does not exists");
-        }
-        List<ParamDetail> paramDetails = resource.getParamDetailList();
-        BValue[] signatureParams = new BValue[paramDetails.size()];
-        signatureParams[0] = getConnectionParameter(resource.getProgramFile(), responseObserver);
-        BType errorType = paramDetails.get(1).getVarType();
-        BError errorStruct = MessageUtils.getConnectorError((BErrorType) errorType, error.getError());
-        signatureParams[1] = errorStruct;
-        BMap<String, BValue> headerStruct = null;
+        List<BType> signatureParams = resource.getParamTypes();
+        Object[] paramValues = new Object[signatureParams.size() * 2];
+        paramValues[0] = getConnectionParameter(responseObserver);
+        paramValues[1] = true;
+
+        ErrorValue errorStruct = MessageUtils.getConnectorError(error.getError());
+        paramValues[2] = errorStruct;
+        paramValues[3] = true;
+
+        ObjectValue headerStruct = null;
         if (resource.isHeaderRequired()) {
-            headerStruct = getHeaderStruct(resource.getProgramFile());
+            headerStruct = getHeaderObject();
             headerStruct.addNativeData(MESSAGE_HEADERS, error.getHeaders());
         }
 
-        if (headerStruct != null && signatureParams.length == 3) {
-            signatureParams[2] = headerStruct;
+        if (headerStruct != null && signatureParams.size() == 3) {
+            paramValues[4] = headerStruct;
+            paramValues[5] = true;
         }
         CallableUnitCallback callback = new StreamingCallableUnitCallBack(null);
-        Executor.submit(resource.getResource(), callback, null, null, signatureParams);
+        Executor.submit(resource.getScheduler(), resource.getService(), resource.getFunctionName(), callback, null,
+                paramValues);
     }
 
     void onMessageInvoke(ServiceResource resource, Message request, StreamObserver responseObserver) {
         CallableUnitCallback callback = new UnaryCallableUnitCallBack(responseObserver, isEmptyResponse());
-        Executor.submit(resource.getResource(), callback, null, null, computeMessageParams(resource, request,
-                responseObserver));
+        Object[] requestParams = computeMessageParams(resource, request, responseObserver);
+        Executor.submit(resource.getScheduler(), resource.getService(), resource.getFunctionName(), callback, null,
+                requestParams);
     }
 
-    BValue[] computeMessageParams(ServiceResource resource, Message request, StreamObserver responseObserver) {
-        if (resource == null || resource.getParamDetailList() == null) {
-            throw new ServerRuntimeException("Error when dispatching request. Incorrect service resource definition");
-        }
-        List<ParamDetail> paramDetails = resource.getParamDetailList();
-        BValue[] signatureParams = new BValue[paramDetails.size()];
-        signatureParams[0] = getConnectionParameter(resource.getProgramFile(), responseObserver);
-        BMap<String, BValue> headerStruct = null;
+    Object[] computeMessageParams(ServiceResource resource, Message request, StreamObserver responseObserver) {
+        List<BType> signatureParams = resource.getParamTypes();
+        Object[] paramValues = new Object[signatureParams.size() * 2];
+        paramValues[0] = getConnectionParameter(responseObserver);
+        paramValues[1] = true;
+
+        ObjectValue headerStruct = null;
         if (resource.isHeaderRequired()) {
-            headerStruct = getHeaderStruct(resource.getProgramFile());
+            headerStruct = getHeaderObject();
             headerStruct.addNativeData(MESSAGE_HEADERS, request.getHeaders());
         }
-        BValue requestParam = request != null ? request.getbMessage() : null;
+        Object requestParam = request != null ? request.getbMessage() : null;
         if (requestParam != null) {
-            signatureParams[1] = requestParam;
+            paramValues[2] = requestParam;
+            paramValues[3] = true;
         }
-        if (headerStruct != null) {
-            signatureParams[signatureParams.length - 1] = headerStruct;
+        if (headerStruct != null && signatureParams.size() == 3) {
+            paramValues[4] = headerStruct;
+            paramValues[5] = true;
         }
-        return signatureParams;
+        return paramValues;
     }
 
     /**

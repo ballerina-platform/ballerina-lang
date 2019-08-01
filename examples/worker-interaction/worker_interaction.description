@@ -1,6 +1,6 @@
 // Workers interact with each other by sending and receiving messages.
 // Messages are sent and received over a communication channel that is transparent to the user.
-// Worker asynchronous send does not wait until the message is delivered where as worker synchronous send waits until the message is delivered.
-// Flush can be used to check if all asynchronous messages sent to a given worker is successful.
+// Asynchronous sending of the worker does not wait until the message is delivered whereas synchronous sending waits until the message is delivered.
+// Flush can be used to check if all asynchronous messages were sent successfully to a given worker.
 // Both synchronous send and flush may fail if a receiving worker returned an error before receiving the messages.
-// Similarly they may panic if a receiver panicked.
+// Similarly ,they may panic if a receiver panicked.

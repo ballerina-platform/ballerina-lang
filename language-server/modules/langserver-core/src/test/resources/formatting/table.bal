@@ -1,5 +1,4 @@
 import ballerina/io;
-import ballerina/sql;
 
 type Person record {
     int id;
@@ -11,7 +10,7 @@ type Person record {
 
 table <Person> dt1 =table{{ key id, key age, salary, name, married}};
 
-function name1() {
+function name1() returns error?{
     table<Person> dt2 = table {
         { key id, key age, salary, name, married}
     };
@@ -23,8 +22,8 @@ function name1() {
         name: "jane",
         married: true
     };
-      _ = dt2.add(p1);
-       _ = dt1.add(p1);
+      _ =   check     dt2.add(p1);
+       _ =check   dt1.add(p1);
 
         table<Person> dt4 = table{{key id, key age, salary, name, married}};table<Person> dt9 = table {
         {key id, key age, salary, name, married},[ {1, 26, 3000.50, "marcus", false}]
@@ -48,7 +47,8 @@ function name1() {
             ]
     };
 
-    Person p2 = {id:1, age:26, salary:3000.50, name:"marcus", married:false};
+    Person p2 = {id:1, age:26,
+    salary:3000.50, name:"marcus", married:false};
 
         Person p3 = {id:1, age:26, salary:3000.50, name:"jui", married:false};
 

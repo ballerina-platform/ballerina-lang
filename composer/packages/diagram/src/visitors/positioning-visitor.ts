@@ -1,7 +1,7 @@
 import {
     ASTKindChecker, ASTUtil, Block, CompilationUnit, Foreach,
-    Function as BalFunction, If, Lambda, Match, MatchStaticPatternClause, ObjectType, Service,
-    TypeDefinition, Variable, VariableDef, VisibleEndpoint, Visitor, While
+    Function as BalFunction, Function as FunctionNode, If, Lambda, Match, MatchStaticPatternClause, ObjectType,
+    Service, TypeDefinition, Variable, VariableDef, VisibleEndpoint, Visitor, While
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -69,7 +69,6 @@ class PositioningVisitor implements Visitor {
 
     }
 
-    // tslint:disable-next-line:ban-types
     public beginVisitFunction(node: BalFunction) {
         if (node.lambda || !node.body) { return; }
         const viewState: FunctionViewState = node.viewState;
@@ -80,27 +79,23 @@ class PositioningVisitor implements Visitor {
         let workerY: number;
 
         const workers = node.body.statements.filter((element: any) => ASTUtil.isWorker(element));
-        let visibleEndpoints: VisibleEndpoint[] = [];
-        if (node.VisibleEndpoints) {
-            visibleEndpoints = node.VisibleEndpoints.filter((ep) => !ep.caller && ep.viewState.visible);
-        }
 
         // They way we position function components depends on whether this is an expanded function
         // or a regular functions
         if (viewState.isExpandedFunction) {
-            bodyViewState.bBox.x = viewState.bBox.x + bodyViewState.bBox.leftMargin;
-            bodyViewState.bBox.y = viewState.bBox.y + config.statement.expanded.header;
+            defaultWorker.lifeline.bBox.x = viewState.bBox.x + config.statement.expanded.margin
+                + (bodyViewState.bBox.leftMargin - (defaultWorker.lifeline.bBox.w / 2));
+            defaultWorker.lifeline.bBox.y = viewState.bBox.y + config.statement.expanded.header;
+
+            bodyViewState.bBox.x = viewState.bBox.x + config.statement.expanded.margin + bodyViewState.bBox.leftMargin;
+            bodyViewState.bBox.y = defaultWorker.lifeline.bBox.y + config.lifeLine.header.height +
+                + config.statement.height; // leave room for start line.;
 
             viewState.client.bBox.x = viewState.bBox.x;
             viewState.client.bBox.w = 0;
 
             workerX = viewState.bBox.x + bodyViewState.bBox.w + config.lifeLine.gutter.h;
-            workerY = bodyViewState.bBox.y;
-
-            if (workers.length > 0 || visibleEndpoints.length > 0) {
-                bodyViewState.bBox.y += config.lifeLine.header.height +
-                + config.statement.height; // leave room for start line.
-            }
+            workerY = defaultWorker.lifeline.bBox.y;
         } else {
             // Position the header
             viewState.header.x = viewState.bBox.x;
@@ -145,12 +140,6 @@ class PositioningVisitor implements Visitor {
 
         this.epX = workerX + config.lifeLine.gutter.h;
         this.epY = workerY;
-        // Position endpoints
-        visibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
-            endpoint.viewState.bBox.x = this.epX;
-            endpoint.viewState.bBox.y = this.epY;
-            this.epX = this.epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
-        });
 
         // Position drop down menu for adding workers and endpoints
         viewState.menuTrigger.x = this.epX;
@@ -164,14 +153,22 @@ class PositioningVisitor implements Visitor {
     public beginVisitBlock(node: Block) {
         const viewState: BlockViewState = node.viewState;
         let height = 0;
+        let workersPresent = false;
 
         node.statements.forEach((element) => {
+            const elViewState: StmntViewState = element.viewState;
+
             if (ASTUtil.isWorker(element)) {
-                height += config.statement.height;
+                if (!workersPresent) {
+                    workersPresent = true;
+                    height += config.statement.height;
+                }
                 return;
             }
 
-            const elViewState: StmntViewState = element.viewState;
+            if (elViewState.hidden) {
+                return;
+            }
 
             elViewState.bBox.x = viewState.bBox.x;
             elViewState.bBox.y = viewState.bBox.y + elViewState.bBox.paddingTop + height;
@@ -187,6 +184,25 @@ class PositioningVisitor implements Visitor {
                     ASTUtil.traversNode(expandedSubTree, this);
                 }
             }
+            if (elViewState.hiddenBlockContext && elViewState.hiddenBlockContext.expanded) {
+                // position hidden block's nodes
+                let hiddenNodeHeight = 2 * config.statement.expanded.topMargin;
+                elViewState.hiddenBlockContext.otherHiddenNodes.forEach((hiddenNode) => {
+                    const hiddenNodeViewState = (hiddenNode.viewState as StmntViewState);
+                    hiddenNodeViewState.bBox.x = elViewState.bBox.x;
+                    hiddenNodeViewState.bBox.y = elViewState.bBox.y + hiddenNodeHeight;
+                    hiddenNodeHeight += hiddenNodeViewState.bBox.h + hiddenNodeViewState.bBox.paddingTop;
+                    if (hiddenNodeViewState.expandContext && hiddenNodeViewState.expandContext.expandedSubTree) {
+                        const expandedSubTree = hiddenNodeViewState.expandContext.expandedSubTree;
+                        const expandedFunctionVS = expandedSubTree.viewState as FunctionViewState;
+                        expandedFunctionVS.bBox.x = hiddenNodeViewState.bBox.x;
+                        expandedFunctionVS.bBox.y = hiddenNodeViewState.bBox.y;
+                        ASTUtil.traversNode(expandedSubTree, this);
+                    } else {
+                        ASTUtil.traversNode(hiddenNode, this);
+                    }
+                });
+            }
         });
 
         if (node.parent && ASTKindChecker.isFunction(node.parent)) {
@@ -197,9 +213,12 @@ class PositioningVisitor implements Visitor {
                 functionViewState.implicitReturn.bBox.y = node.viewState.bBox.y + (node.viewState.bBox.h / 2);
 
                 if (node.statements.length > 0) {
-                    const lastStatement = node.statements[node.statements.length - 1];
-                    const lsvs: StmntViewState = lastStatement.viewState;
-                    functionViewState.implicitReturn.bBox.y = lsvs.bBox.y + lsvs.bBox.h;
+                    const visibleStatements = node.statements.filter((stmt) => !stmt.viewState.hidden);
+                    const lastStatement = visibleStatements[visibleStatements.length - 1];
+                    if (lastStatement) {
+                        const lsvs: StmntViewState = lastStatement.viewState;
+                        functionViewState.implicitReturn.bBox.y = lsvs.bBox.y + lsvs.bBox.h;
+                    }
                 }
             }
         }
@@ -210,21 +229,28 @@ class PositioningVisitor implements Visitor {
         };
         viewState.hoverRect.x = viewState.bBox.x - viewState.hoverRect.leftMargin;
         viewState.hoverRect.y = viewState.bBox.y;
-    }
 
-    public beginVisitVariableDef(node: VariableDef) {
-        if (ASTUtil.isWorker(node)) {
-            const variable = node.variable;
-            const lambda: Lambda = variable.initialExpression as Lambda;
-            const functionNode = lambda.functionNode;
-            if (functionNode.VisibleEndpoints) {
-                // Position endpoints
-                functionNode.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
+        const paramEndpointFilter = (ep: VisibleEndpoint) => {
+            if (node.parent && ASTKindChecker.isFunction(node.parent)) {
+                const functionNode = (node.parent as FunctionNode);
+                const matchingParam = functionNode.parameters.find(
+                   (param) => ASTKindChecker.isVariable(param) && param.name.value === ep.name
+                );
+                return !functionNode.resource && matchingParam !== undefined;
+            }
+            return false;
+        };
+
+        if (node.VisibleEndpoints) {
+            const visibleEps = [...node.VisibleEndpoints.filter(paramEndpointFilter),
+                ...node.VisibleEndpoints.filter((ep) => !ep.caller && ep.viewState.visible)];
+            // Position endpoints
+            visibleEps
+                .forEach((endpoint: VisibleEndpoint) => {
                     endpoint.viewState.bBox.x = this.epX;
                     endpoint.viewState.bBox.y = this.epY;
                     this.epX = this.epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
                 });
-            }
         }
     }
 
@@ -233,28 +259,12 @@ class PositioningVisitor implements Visitor {
         node.body.viewState.bBox.x = viewState.bBox.x;
         node.body.viewState.bBox.y = viewState.bBox.y + + config.flowCtrl.condition.bottomMargin
             + config.flowCtrl.condition.height;
-        if (node.VisibleEndpoints) {
-            // Position endpoints
-            node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
-                endpoint.viewState.bBox.x = this.epX;
-                endpoint.viewState.bBox.y = this.epY;
-                this.epX = this.epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
-            });
-        }
     }
 
     public beginVisitForeach(node: Foreach) {
         const viewState: ViewState = node.viewState;
         node.body.viewState.bBox.x = viewState.bBox.x;
         node.body.viewState.bBox.y = viewState.bBox.y + config.flowCtrl.foreach.height;
-        if (node.VisibleEndpoints) {
-            // Position endpoints
-            node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
-                endpoint.viewState.bBox.x = this.epX;
-                endpoint.viewState.bBox.y = this.epY;
-                this.epX = this.epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
-            });
-        }
     }
 
     public beginVisitIf(node: If) {
@@ -267,14 +277,6 @@ class PositioningVisitor implements Visitor {
             node.elseStatement.viewState.bBox.x = viewState.bBox.x + node.body.viewState.bBox.w;
             node.elseStatement.viewState.bBox.y = viewState.bBox.y +
                 config.flowCtrl.condition.height + node.body.viewState.bBox.h;
-        }
-        if (node.VisibleEndpoints) {
-            // Position endpoints
-            node.VisibleEndpoints.forEach((endpoint: VisibleEndpoint) => {
-                endpoint.viewState.bBox.x = this.epX;
-                endpoint.viewState.bBox.y = this.epY;
-                this.epX = this.epX + endpoint.viewState.bBox.w + config.lifeLine.gutter.h;
-            });
         }
     }
 

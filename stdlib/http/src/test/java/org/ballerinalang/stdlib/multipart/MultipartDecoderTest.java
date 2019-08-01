@@ -22,10 +22,7 @@ import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.util.internal.StringUtil;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.BServiceUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.model.util.StringUtils;
@@ -41,6 +38,9 @@ import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.MultipartUtils;
 import org.ballerinalang.stdlib.utils.ResponseReader;
 import org.ballerinalang.stdlib.utils.Services;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -57,14 +57,14 @@ import java.util.Base64;
  * @since 0.963.0
  */
 public class MultipartDecoderTest {
-    private CompileResult serviceResult, channelResult;
-    private static final String MOCK_ENDPOINT_NAME = "mockEP";
+    private CompileResult channelResult;
+    private static final int EP_PORT = 9090;
 
     @BeforeClass
     public void setup() {
         String sourceFilePath = "test-src/multipart/multipart-request.bal";
-        serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
-        channelResult = BCompileUtil.compileAndSetup("test-src/multipart/bytechannel-base64.bal");
+        BCompileUtil.compile(sourceFilePath);
+        channelResult = BCompileUtil.compile("test-src/multipart/bytechannel-base64.bal");
     }
 
     @Test(description = "Test sending a multipart request as multipart/mixed with multiple body parts")
@@ -89,7 +89,7 @@ public class MultipartDecoderTest {
 
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
                 multipartBody);
-        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invoke(EP_PORT, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), " -- Part1 -- Part2" + StringUtil.NEWLINE);
     }
@@ -118,7 +118,7 @@ public class MultipartDecoderTest {
 
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
                 multipartBody);
-        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invoke(EP_PORT, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), " -- Part1 -- Part2" + StringUtil.NEWLINE);
     }
@@ -147,7 +147,7 @@ public class MultipartDecoderTest {
 
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
                 multipartBody);
-        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invoke(EP_PORT, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), " -- Part1 -- Part2" + StringUtil.NEWLINE);
     }
@@ -180,7 +180,7 @@ public class MultipartDecoderTest {
     public void testNestedPartsForOneLevel() {
         String path = "/test/nestedparts";
         HTTPTestRequest inRequestMsg = MultipartUtils.createNestedPartRequest(path);
-        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invoke(EP_PORT, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), "Child Part 1" + StringUtil.NEWLINE
                 + "Child Part 2" + StringUtil.NEWLINE);
@@ -209,7 +209,7 @@ public class MultipartDecoderTest {
 
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
                 multipartBody);
-        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invoke(EP_PORT, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response), " -- Part1 -- Part2" + StringUtil.NEWLINE);
     }
@@ -217,15 +217,14 @@ public class MultipartDecoderTest {
     @Test
     public void testBase64DecodeByteChannel() {
         String expectedValue = "Hello Ballerina!";
-        BMap<String, BValue> byteChannelStruct = MultipartUtils.getByteChannelStruct(channelResult);
+        ObjectValue byteChannelStruct = MultipartUtils.getByteChannelStruct();
         byte[] encodedByteArray = Base64.getEncoder().encode(expectedValue.getBytes());
         InputStream encodedStream = new ByteArrayInputStream(encodedByteArray);
         Base64ByteChannel base64ByteChannel = new Base64ByteChannel(encodedStream);
         byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(base64ByteChannel));
-        BValue[] args = new BValue[]{byteChannelStruct};
-        BValue[] returnValues = BRunUtil.invoke(channelResult, "testBase64DecodeByteChannel", args);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
-                "Invalid return value");
+        BValue[] returnValues = BRunUtil.invoke(channelResult, "testBase64DecodeByteChannel",
+                                                new Object[]{ byteChannelStruct });
+        Assert.assertFalse(returnValues.length == 0 || returnValues[0] == null, "Invalid return value");
         BMap<String, BValue> decodedByteChannel = (BMap<String, BValue>) returnValues[0];
         Channel byteChannel = (Channel) decodedByteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
         Assert.assertEquals(StringUtils.getStringFromInputStream(byteChannel.getInputStream()), expectedValue);

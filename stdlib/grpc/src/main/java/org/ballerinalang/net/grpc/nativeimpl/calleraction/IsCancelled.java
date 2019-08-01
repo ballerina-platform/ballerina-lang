@@ -15,12 +15,9 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.calleraction;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.MessageUtils;
@@ -28,7 +25,6 @@ import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.listener.ServerCallHandler;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CALLER;
-import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_RESPONDER_REF_INDEX;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
@@ -46,18 +42,17 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
-public class IsCancelled extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-        BMap<String, BValue> endpointClient = (BMap<String, BValue>) context.getRefArgument(CLIENT_RESPONDER_REF_INDEX);
+public class IsCancelled {
+
+    public static boolean isCancelled(Strand strand, ObjectValue endpointClient) {
         StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
 
         if (responseObserver instanceof ServerCallHandler.ServerCallStreamObserver) {
             ServerCallHandler.ServerCallStreamObserver serverCallStreamObserver = (ServerCallHandler
                     .ServerCallStreamObserver) responseObserver;
-            context.setReturnValues(new BBoolean(serverCallStreamObserver.isCancelled()));
+            return serverCallStreamObserver.isCancelled();
         } else {
-            context.setReturnValues(new BBoolean(Boolean.TRUE));
+            return Boolean.FALSE;
         }
     }
 }

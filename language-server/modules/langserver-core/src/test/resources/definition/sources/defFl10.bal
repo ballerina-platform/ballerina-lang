@@ -15,14 +15,14 @@ function foo(string | int | boolean a) returns string {
 type Foo2 record {
     string s;
     int i;
-    (float, int, boolean) fib;
+    [float, int, boolean] fib;
 };
 
 function testStructuredMatchPatternsBasic1() returns string {
-    Foo2 f = {s: "S", i: 23, fib: (5.6, 3, true)};
+    Foo2 f = {s: "S", i: 23, fib: [5.6, 3, true]};
 
     match f {
-        var {s, i: integer, fib: (a, b, c)} => {
+        var {s, i: integer, fib: [a, b, c]} => {
             integer += 1;
             a += 1;
             b += 1;
@@ -34,10 +34,10 @@ function testStructuredMatchPatternsBasic1() returns string {
 }
 
 function testStructuredMatchPatternsBasic2() returns string {
-    (string, (int, float)) a = ("S", (23, 5.6));
+    [string, [int, float]] a = ["S", [23, 5.6]];
 
     match a {
-        var (s, (i, f)) => return "Matched Values : " + s + ", " + i + ", " + f;
+        var [s, [i, f]] => return "Matched Values : " + s + ", " + i + ", " + f;
     }
 
     return "Default";

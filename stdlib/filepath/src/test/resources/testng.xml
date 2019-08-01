@@ -20,10 +20,15 @@ under the License.
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-path-test-suite">
+    <listeners>
+        <listener class-name="org.ballerinalang.stdlib.filepath.JBallerinaTestInitializer" />
+    </listeners>
+
     <test name="ballerina-path-test" parallel="false">
-        <classes >
-            <class name="org.ballerinalang.stdlib.filepath.UtilsTest"/>
-            <class name="org.ballerinalang.stdlib.filepath.nativeimpl.PathTest"/>
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.stdlib.filepath.UtilsTest" />
+            <class name="org.ballerinalang.stdlib.filepath.nativeimpl.PathTest" />
         </classes>
     </test>
 </suite>

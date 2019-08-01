@@ -16,11 +16,9 @@
 package org.ballerinalang.net.grpc.nativeimpl.headers;
 
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
@@ -42,15 +40,12 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
-public class RemoveAll extends BlockingNativeCallableUnit {
+public class RemoveAll {
 
-    @Override
-    public void execute(Context context) {
-        BMap<String, BValue> headerValues = (BMap<String, BValue>) context.getRefArgument(0);
+    public static void removeAll(Strand strand, ObjectValue headerValues) {
         HttpHeaders headers = headerValues != null ? (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS) : null;
         if (headers != null) {
             headers.clear();
         }
-        context.setReturnValues();
     }
 }

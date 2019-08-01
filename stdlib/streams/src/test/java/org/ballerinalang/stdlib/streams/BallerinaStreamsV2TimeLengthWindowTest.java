@@ -18,12 +18,12 @@
 
 package org.ballerinalang.stdlib.streams;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -43,7 +43,7 @@ public class BallerinaStreamsV2TimeLengthWindowTest {
         result2 = BCompileUtil.compile("test-src/streamingv2-time-length-window-test2.bal");
     }
 
-    @Test(description = "Test timeLength window query", enabled = false)
+    @Test(description = "Test timeLength window query")
     public void testTimeLengthQuery1() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result1, "startTimeLengthwindowTest1");
 
@@ -61,7 +61,7 @@ public class BallerinaStreamsV2TimeLengthWindowTest {
         Assert.assertEquals(((BInteger) employee1.get("count")).intValue(), 3);
     }
 
-    @Test(description = "Test timeLength window query", enabled = false)
+    @Test(description = "Test timeLength window query")
     public void testTimeLengthQuery2() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result2, "startTimeLengthwindowTest2");
         Assert.assertNotNull(outputEmployeeEvents);

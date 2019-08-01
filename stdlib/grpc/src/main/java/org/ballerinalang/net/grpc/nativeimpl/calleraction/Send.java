@@ -17,12 +17,11 @@ package org.ballerinalang.net.grpc.nativeimpl.calleraction;
 
 import com.google.protobuf.Descriptors;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.GrpcConstants;
@@ -35,12 +34,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CALLER;
-import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_RESPONDER_REF_INDEX;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.RESPONSE_MESSAGE_REF_INDEX;
 
 /**
  * Extern function to respond the caller.
@@ -55,23 +52,19 @@ import static org.ballerinalang.net.grpc.GrpcConstants.RESPONSE_MESSAGE_REF_INDE
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
-public class Send extends BlockingNativeCallableUnit {
+public class Send {
     private static final Logger LOG = LoggerFactory.getLogger(Send.class);
-    private static final int MESSAGE_HEADER_REF_INDEX = 2;
-    
-    @Override
-    public void execute(Context context) {
-        BMap<String, BValue> clientEndpoint = (BMap<String, BValue>) context.getRefArgument(CLIENT_RESPONDER_REF_INDEX);
-        BValue responseValue = context.getRefArgument(RESPONSE_MESSAGE_REF_INDEX);
-        BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
-        StreamObserver responseObserver = MessageUtils.getResponseObserver(clientEndpoint);
-        Descriptors.Descriptor outputType = (Descriptors.Descriptor) clientEndpoint.getNativeData(GrpcConstants
+
+    public static Object send(Strand strand, ObjectValue endpointClient, Object responseValue,
+                              Object headerValues) {
+        StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
+        Descriptors.Descriptor outputType = (Descriptors.Descriptor) endpointClient.getNativeData(GrpcConstants
                 .RESPONSE_MESSAGE_DEFINITION);
-        
+
         if (responseObserver == null) {
-            context.setError(MessageUtils.getConnectorError(new StatusRuntimeException(Status
+            return MessageUtils.getConnectorError(new StatusRuntimeException(Status
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while initializing " +
-                            "connector. Response sender does not exist"))));
+                            "connector. Response sender does not exist")));
         } else {
             try {
                 // If there is no response message like conn -> send(), system doesn't send the message.
@@ -80,8 +73,9 @@ public class Send extends BlockingNativeCallableUnit {
                     Message responseMessage = new Message(outputType.getName(), responseValue);
                     // Update response headers when request headers exists in the context.
                     HttpHeaders headers = null;
-                    if (headerValues != null && headerValues.getType().getTag() == TypeTags.OBJECT_TYPE_TAG) {
-                        headers = (HttpHeaders) ((BMap<String, BValue>) headerValues).getNativeData(MESSAGE_HEADERS);
+                    if (headerValues != null &&
+                            (TypeChecker.getType(headerValues).getTag() == TypeTags.OBJECT_TYPE_TAG)) {
+                        headers = (HttpHeaders) ((ObjectValue) headerValues).getNativeData(MESSAGE_HEADERS);
                     }
                     if (headers != null) {
                         responseMessage.setHeaders(headers);
@@ -90,8 +84,9 @@ public class Send extends BlockingNativeCallableUnit {
                 }
             } catch (Exception e) {
                 LOG.error("Error while sending client response.", e);
-                context.setError(MessageUtils.getConnectorError(e));
+                return MessageUtils.getConnectorError(e);
             }
         }
+        return null;
     }
 }

@@ -18,13 +18,10 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -49,29 +46,20 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         returnType = {@ReturnType(type = TypeKind.ERROR)},
         isPublic = true
 )
-public class WriteJson implements NativeCallableUnit {
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
+public class WriteJson {
+
+    public static Object writeJson(Strand strand, ObjectValue characterChannelObj, Object content) {
+        NonBlockingCallback callback = new NonBlockingCallback(strand);
         try {
-            BMap<String, BValue> characterChannelStruct = (BMap<String, BValue>) context.getRefArgument(0);
-            BValue content = context.getRefArgument(1);
-            CharacterChannel characterChannel = (CharacterChannel) characterChannelStruct.getNativeData(IOConstants
-                    .CHARACTER_CHANNEL_NAME);
-            EventContext eventContext = new EventContext(context);
-            IOUtils.writeFull(characterChannel, content.stringValue(), eventContext);
+            CharacterChannel characterChannel = (CharacterChannel) characterChannelObj.getNativeData(
+                    IOConstants.CHARACTER_CHANNEL_NAME);
+            EventContext eventContext = new EventContext(callback);
+            IOUtils.writeFull(characterChannel, content.toString(), eventContext);
         } catch (BallerinaException e) {
-            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, e.getMessage());
-            context.setReturnValues(errorStruct);
+            callback.setReturnValues(IOUtils.createError(e.getMessage()));
         } finally {
             callback.notifySuccess();
         }
-    }
-
-    @Override
-    public boolean isBlocking() {
-        return false;
+        return null;
     }
 }

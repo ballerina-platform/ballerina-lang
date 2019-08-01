@@ -9,12 +9,12 @@ type Employee record {
 
 // This function reads records one by one and prints the records.
 function process(io:ReadableCSVChannel csvChannel) returns error? {
-    // Read all the records from the provided file
+    // Reads all the records from the provided file
     // until there are no more records.
     while (csvChannel.hasNext()) {
-        // Read the records.
+        // Reads the records.
         var records = check csvChannel.getNext();
-        // Print the records.
+        // Prints the records.
         if (records is string[]) {
             io:println(records);
         }
@@ -22,20 +22,20 @@ function process(io:ReadableCSVChannel csvChannel) returns error? {
     return;
 }
 
-//Specify the location of the `.CSV` file.
-public function main() {
+//Specifies the location of the `.CSV` file.
+public function main() returns error? {
     string srcFileName = "./files/sample.csv";
-    // Open a CSV channel in `write` mode and write some data to
-    // ./files/sample.csv for later use.
+    // Opens a CSV channel in the `write` mode and writes some data to
+    // the `./files/sample.csv` file for later use.
     // The record separator of the `.CSV` file is a
-    // new line, and the field separator is a comma (,).
-    io:WritableCSVChannel wCsvChannel = io:openWritableCsvFile(srcFileName);
+    // new line and the field separator is a comma (,).
+    io:WritableCSVChannel wCsvChannel = check io:openWritableCsvFile(srcFileName);
     string[][] data = [["1", "James", "10000"], ["2", "Nathan", "150000"],
     ["3", "Ronald", "120000"], ["4", "Roy", "6000"], ["5", "Oliver", "1100000"]];
     writeDataToCSVChannel(wCsvChannel, ...data);
     closeWritableCSVChannel(wCsvChannel);
-    // Open a CSV channel in `read` mode which is the default mode.
-    io:ReadableCSVChannel rCsvChannel = io:openReadableCsvFile(srcFileName);
+    // Opens a CSV channel in the `read` mode, which is the default mode.
+    io:ReadableCSVChannel rCsvChannel = check io:openReadableCsvFile(srcFileName);
     io:println("Start processing the CSV file from ", srcFileName);
     var processedResult = process(rCsvChannel);
     if (processedResult is error) {
@@ -43,11 +43,11 @@ public function main() {
                         err = processedResult);
     }
     io:println("Processing completed.");
-    // Close the CSV channel.
+    // Closes the CSV channel.
     closeReadableCSVChannel(rCsvChannel);
-    // Open a CSV channel in `read` mode which is the default mode.
-    io:ReadableCSVChannel rCsvChannel2 = io:openReadableCsvFile(srcFileName);
-    // Read the `.CSV` file as a `table`.
+    // Opens a CSV channel in the `read` mode, which is the default mode.
+    io:ReadableCSVChannel rCsvChannel2 = check io:openReadableCsvFile(srcFileName);
+    // Reads the `.CSV` file as a `table`.
     io:println("Reading  " + srcFileName + " as a table");
     var tblResult = rCsvChannel2.getTable(Employee);
     if (tblResult is table<Employee>) {
@@ -59,14 +59,14 @@ public function main() {
                         err = tblResult);
     }
     closeReadableCSVChannel(rCsvChannel2);
-    // Open a CSV channel in "write" mode and write the `table` to a `.CSV` file.
+    // Opens a CSV channel in the "write" mode and writes the `table` to a `.CSV` file.
     string targetFileName = "./files/output.csv";
-    io:WritableCSVChannel wCsvChannel2 = io:openWritableCsvFile(targetFileName);
+    io:WritableCSVChannel wCsvChannel2 = check io:openWritableCsvFile(targetFileName);
     io:println("Creating a table and adding data");
     table<Employee> employeeTable = createTableAndAddData();
     io:println("Writing the table to " + targetFileName);
     foreach var entry in employeeTable {
-        string[] rec = [entry.id, entry.name, string.convert(entry.salary)];
+        string[] rec = [entry.id, entry.name, entry.salary.toString()];
         writeDataToCSVChannel(wCsvChannel2, rec);
     }
     closeWritableCSVChannel(wCsvChannel2);
@@ -89,7 +89,7 @@ function createTableAndAddData() returns table<Employee> {
     return employeeTable;
 }
 
-// Write data to a given CSV Channel.
+// Writes data to a given CSV Channel.
 function writeDataToCSVChannel(io:WritableCSVChannel csvChannel,
                                 string[]... data) {
     foreach var rec in data {
@@ -101,20 +101,20 @@ function writeDataToCSVChannel(io:WritableCSVChannel csvChannel,
     }
 }
 
-// Close Readable CSV channel.
+// Closes the Readable CSV channel.
 function closeReadableCSVChannel(io:ReadableCSVChannel csvChannel) {
     var result = csvChannel.close();
     if (result is error) {
-        log:printError("Error occured while closing the channel: ",
+        log:printError("Error occurred while closing the channel: ",
                         err = result);
     }
 }
 
-// Close Writable CSV channel.
+// Closes the Writable CSV channel.
 function closeWritableCSVChannel(io:WritableCSVChannel csvChannel) {
     var result = csvChannel.close();
     if (result is error) {
-        log:printError("Error occured while closing the channel: ",
+        log:printError("Error occurred while closing the channel: ",
                         err = result);
     }
 }

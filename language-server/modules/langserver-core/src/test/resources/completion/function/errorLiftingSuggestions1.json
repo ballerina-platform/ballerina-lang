@@ -6,102 +6,55 @@
   "source": "function/source/errorLiftingSuggestions1.bal",
   "items": [
     {
-      "label": "statusCode",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "221",
-      "insertText": "statusCode"
-    },
-    {
-      "label": "reasonPhrase",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "221",
-      "insertText": "reasonPhrase"
-    },
-    {
-      "label": "server",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "221",
-      "insertText": "server"
-    },
-    {
-      "label": "resolvedRequestedURI",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "221",
-      "insertText": "resolvedRequestedURI"
-    },
-    {
-      "label": "cacheControl",
-      "kind": "Variable",
-      "detail": "ballerina/http:ResponseCacheControl?",
-      "sortText": "221",
-      "insertText": "cacheControl"
-    },
-    {
-      "label": "receivedTime",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "221",
-      "insertText": "receivedTime"
-    },
-    {
-      "label": "requestTime",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "221",
-      "insertText": "requestTime"
-    },
-    {
-      "label": "entity",
-      "kind": "Variable",
-      "detail": "ballerina/mime:Entity",
-      "sortText": "221",
-      "insertText": "entity"
-    },
-    {
-      "label": "setLastModified()",
+      "label": "createNewEntity()(mime:Entity)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets the current time as the `last-modified` header.  \n  \n---    \n**Parameters**  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nCreate a new `Entity` and link it with the response.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nballerina/mime:Entity"
         }
       },
-      "sortText": "121",
-      "insertText": "setLastModified();",
-      "insertTextFormat": "Snippet"
+      "insertText": "createNewEntity(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "setTextPayload(string payload, string contentType \u003d text/plain)",
+      "label": "getEntity()((mime:Entity|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets a `string` as the payload.\n  \n  \n---    \n**Parameters**  \n- _payload_  \n    The `string` payload  \n  \n- _contentType_  \n    The content type of the payload. Set this to override the default `content-type` header value\n                for `string`  \nDefault Value: text/plain"
+          "value": "**Package:** _ballerina/http_  \n  \nGets the `Entity` associated with the response.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/mime:Entity|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
-      "sortText": "121",
-      "insertText": "setTextPayload(${1:payload}, contentType \u003d ${2:\"text/plain\"});",
-      "insertTextFormat": "Snippet"
+      "insertText": "getEntity(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "getHeaderNames()(string[])",
+      "label": "getEntityWithoutBody()(mime:Entity)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets all the names of the headers of the response.\n  \n  \n---    \n**Parameters**  \n"
+          "value": "**Package:** _ballerina/http_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nballerina/mime:Entity"
         }
       },
-      "sortText": "121",
-      "insertText": "getHeaderNames()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getEntityWithoutBody(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "setEntity(mime:Entity e)",
@@ -113,135 +66,12 @@
           "value": "**Package:** _ballerina/http_  \n  \nSets the provided `Entity` to the response.\n  \n  \n---    \n**Parameters**  \n- _e_  \n    The `Entity` to be set to the response  \n"
         }
       },
-      "sortText": "121",
-      "insertText": "setEntity(${1:e});",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "setXmlPayload(xml payload, string contentType \u003d application/xml)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets an `xml` as the payload\n  \n  \n---    \n**Parameters**  \n- _payload_  \n    The `xml` payload  \n  \n- _contentType_  \n    The content type of the payload. Set this to override the default `content-type` header value\n                for `xml`  \nDefault Value: application/xml"
-        }
-      },
-      "sortText": "121",
-      "insertText": "setXmlPayload(${1:payload}, contentType \u003d ${2:\"application/xml\"});",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "__init()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nnull  \n  \n---    \n**Parameters**  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "__init();",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "setBinaryPayload(byte[] payload, string contentType \u003d application/octet-stream)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets a `byte[]` as the payload.\n  \n  \n---    \n**Parameters**  \n- _payload_  \n    The `byte[]` payload  \n  \n- _contentType_  \n    The content type of the payload. Set this to override the default `content-type` header value\n                for `byte[]`  \nDefault Value: application/octet-stream"
-        }
-      },
-      "sortText": "121",
-      "insertText": "setBinaryPayload(${1:payload}, contentType \u003d ${2:\"application/octet-stream\"});",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getHeaders(string headerName)(string[])",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets all the header values to which the specified header key maps to.\n  \n  \n---    \n**Parameters**  \n- _headerName_  \n    The header name  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "getHeaders(${1:headerName})",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getBinaryPayload()(byte[]|error)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the response payload as a `byte[]`.\n  \n  \n---    \n**Parameters**  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "getBinaryPayload()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "setByteChannel(io:ReadableByteChannel payload, string contentType \u003d application/octet-stream)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets a `ByteChannel` as the payload.\n  \n  \n---    \n**Parameters**  \n- _payload_  \n    A `ByteChannel` through which the message payload can be read  \n  \n- _contentType_  \n    The content type of the payload. Set this to override the default `content-type`\n                header value  \nDefault Value: application/octet-stream"
-        }
-      },
-      "sortText": "121",
-      "insertText": "setByteChannel(${1:payload}, contentType \u003d ${2:\"application/octet-stream\"});",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "createNewEntity()(ballerina/mime:Entity)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nCreate a new `Entity` and link it with the response.\n  \n  \n---    \n**Parameters**  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "createNewEntity()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "setJsonPayload(json payload, string contentType \u003d application/json)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets a `json` as the payload.\n  \n  \n---    \n**Parameters**  \n- _payload_  \n    The `json` payload  \n  \n- _contentType_  \n    The content type of the payload. Set this to override the default `content-type` header value\n                for `json`  \nDefault Value: application/json"
-        }
-      },
-      "sortText": "121",
-      "insertText": "setJsonPayload(${1:payload}, contentType \u003d ${2:\"application/json\"});",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getXmlPayload()(xml|error)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nExtracts `xml` payload from the response. If the the content type is not XML, an `error` is returned.\n  \n  \n---    \n**Parameters**  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "getXmlPayload()",
-      "insertTextFormat": "Snippet"
+      "insertText": "setEntity(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "hasHeader(string headerName)(boolean)",
@@ -250,12 +80,32 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nChecks whether the requested header key exists in the header map.\n  \n  \n---    \n**Parameters**  \n- _headerName_  \n    The header name  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nChecks whether the requested header key exists in the header map.\n  \n  \n---    \n**Parameters**  \n- _headerName_  \n    The header name  \n  \n  \n**Return**  \nboolean"
         }
       },
-      "sortText": "121",
-      "insertText": "hasHeader(${1:headerName})",
-      "insertTextFormat": "Snippet"
+      "insertText": "hasHeader(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "getHeader(string headerName)(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nReturns the value of the specified header. If the specified header key maps to multiple values, the first of\nthese values is returned.\n  \n  \n---    \n**Parameters**  \n- _headerName_  \n    The header name  \n  \n  \n**Return**  \nstring"
+        }
+      },
+      "insertText": "getHeader(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "addHeader(string headerName, string headerValue)",
@@ -267,135 +117,29 @@
           "value": "**Package:** _ballerina/http_  \n  \nAdds the specified header to the response. Existing header values are not replaced.\n  \n  \n---    \n**Parameters**  \n- _headerName_  \n    The header name  \n  \n- _headerValue_  \n    The header value  \n"
         }
       },
-      "sortText": "121",
-      "insertText": "addHeader(${1:headerName}, ${2:headerValue});",
-      "insertTextFormat": "Snippet"
+      "insertText": "addHeader(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "getByteChannel()(ballerina/io:ReadableByteChannel|error)",
+      "label": "getHeaders(string headerName)(string[])",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the response payload as a `ByteChannel`, except in the case of multiparts. To retrieve multiparts, use\n`getBodyParts()`.\n  \n  \n---    \n**Parameters**  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nGets all the header values to which the specified header key maps to.\n  \n  \n---    \n**Parameters**  \n- _headerName_  \n    The header name  \n  \n  \n**Return**  \nstring[]"
         }
       },
-      "sortText": "121",
-      "insertText": "getByteChannel()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getEntity()(ballerina/mime:Entity|error)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the `Entity` associated with the response.\n  \n  \n---    \n**Parameters**  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "getEntity()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "removeAllHeaders()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nRemoves all the headers from the response.  \n  \n---    \n**Parameters**  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "removeAllHeaders();",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "setPayload(string|xml|json|byte[]|ballerina/io:ReadableByteChannel|ballerina/mime:Entity[] payload)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets the response payload.\n  \n  \n---    \n**Parameters**  \n- _payload_  \n    Payload can be of type `string`, `xml`, `json`, `byte[]`, `ByteChannel` or `Entity[]` (i.e: a set\n            of body parts)  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "setPayload(${1:payload});",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "setETag(json|xml|string|byte[] payload)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets the `etag` header for the given payload. The ETag is generated using a CRC32 hash function.\n  \n  \n---    \n**Parameters**  \n- _payload_  \n    The payload for which the ETag should be set  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "setETag(${1:payload});",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getContentType()(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the type of the payload of the response (i.e: the `content-type` header value).\n  \n  \n---    \n**Parameters**  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "getContentType()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getBodyParts()(ballerina/mime:Entity[]|error)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nExtracts body parts from the response. If the content type is not a composite media type, an error is returned.\n  \n  \n---    \n**Parameters**  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "getBodyParts()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "setBodyParts(mime:Entity[] bodyParts, string contentType \u003d multipart/form-data)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSet multiparts as the payload.\n  \n  \n---    \n**Parameters**  \n- _bodyParts_  \n    The entities which make up the message body  \n  \n- _contentType_  \n    The content type of the top level message. Set this to override the default\n                `content-type` header value  \nDefault Value: multipart/form-data"
-        }
-      },
-      "sortText": "121",
-      "insertText": "setBodyParts(${1:bodyParts}, contentType \u003d ${2:\"multipart/form-data\"});",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getJsonPayload()(json|error)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nExtract `json` payload from the response. If the content type is not JSON, an `error` is returned.\n  \n  \n---    \n**Parameters**  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "getJsonPayload()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getHeaders(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "setHeader(string headerName, string headerValue)",
@@ -404,54 +148,15 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets the specified header to the response. If a mapping already exists for the specified header key, the\nexisting header value is replaced with the specfied header value.\n  \n  \n---    \n**Parameters**  \n- _headerName_  \n    The header name  \n  \n- _headerValue_  \n    The header value  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nSets the specified header to the response. If a mapping already exists for the specified header key, the\nexisting header value is replaced with the specified header value.\n  \n  \n---    \n**Parameters**  \n- _headerName_  \n    The header name  \n  \n- _headerValue_  \n    The header value  \n"
         }
       },
-      "sortText": "121",
-      "insertText": "setHeader(${1:headerName}, ${2:headerValue});",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "setContentType(string contentType)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets the `content-type` header to the response.\n  \n  \n---    \n**Parameters**  \n- _contentType_  \n    Content type value to be set as the `content-type` header  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "setContentType(${1:contentType});",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getHeader(string headerName)(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nReturns the value of the specified header. If the specified header key maps to multiple values, the first of\nthese values is returned.\n  \n  \n---    \n**Parameters**  \n- _headerName_  \n    The header name  \n"
-        }
-      },
-      "sortText": "121",
-      "insertText": "getHeader(${1:headerName})",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "setFileAsPayload(string filePath, string contentType \u003d application/octet-stream)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets the content of the specified file as the entity body of the response.\n  \n  \n---    \n**Parameters**  \n- _filePath_  \n    Path to the file to be set as the payload  \n  \n- _contentType_  \n    The content type of the specified file. Set this to override the default `content-type`\n                header value  \nDefault Value: application/octet-stream"
-        }
-      },
-      "sortText": "121",
-      "insertText": "setFileAsPayload(${1:filePath}, contentType \u003d ${2:\"application/octet-stream\"});",
-      "insertTextFormat": "Snippet"
+      "insertText": "setHeader(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "removeHeader(string key)",
@@ -463,36 +168,424 @@
           "value": "**Package:** _ballerina/http_  \n  \nRemoves the specified header from the response.\n  \n  \n---    \n**Parameters**  \n- _key_  \n    The header name  \n"
         }
       },
-      "sortText": "121",
-      "insertText": "removeHeader(${1:key});",
-      "insertTextFormat": "Snippet"
+      "insertText": "removeHeader(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "getTextPayload()(string|error)",
+      "label": "removeAllHeaders()",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nExtracts `text` payload from the response. If the content type is not of type text, an `error` is returned.\n  \n  \n---    \n**Parameters**  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nRemoves all the headers from the response.  \n  \n---    \n**Parameters**  \n"
         }
       },
-      "sortText": "121",
-      "insertText": "getTextPayload()",
-      "insertTextFormat": "Snippet"
+      "insertText": "removeAllHeaders(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
-      "label": "getEntityWithoutBody()(ballerina/mime:Entity)",
+      "label": "getHeaderNames()(string[])",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nnull  \n  \n---    \n**Parameters**  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nGets all the names of the headers of the response.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring[]"
         }
       },
-      "sortText": "121",
-      "insertText": "getEntityWithoutBody()",
+      "insertText": "getHeaderNames(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "setContentType(string contentType)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nSets the `content-type` header to the response.\n  \n  \n---    \n**Parameters**  \n- _contentType_  \n    Content type value to be set as the `content-type` header  \n"
+        }
+      },
+      "insertText": "setContentType(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "getContentType()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nGets the type of the payload of the response (i.e: the `content-type` header value).\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+        }
+      },
+      "insertText": "getContentType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "getJsonPayload()((json|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nExtract `json` payload from the response. If the content type is not JSON, an `http:ClientError` is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(json|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
+        }
+      },
+      "insertText": "getJsonPayload(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "getXmlPayload()((xml|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nExtracts `xml` payload from the response.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(xml|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
+        }
+      },
+      "insertText": "getXmlPayload(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "getTextPayload()((string|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nExtracts `text` payload from the response.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(string|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
+        }
+      },
+      "insertText": "getTextPayload(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "getByteChannel()((io:ReadableByteChannel|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nGets the response payload as a `ByteChannel`, except in the case of multiparts. To retrieve multiparts, use\n`getBodyParts()`.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/io:ReadableByteChannel|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
+        }
+      },
+      "insertText": "getByteChannel(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "getBinaryPayload()((byte[]|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nGets the response payload as a `byte[]`.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(byte[]|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
+        }
+      },
+      "insertText": "getBinaryPayload(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "getBodyParts()((mime:Entity[]|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nExtracts body parts from the response. If the content type is not a composite media type, an error is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/mime:Entity[]|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
+        }
+      },
+      "insertText": "getBodyParts(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "setETag((json|xml|string|byte[]) payload)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nSets the `etag` header for the given payload. The ETag is generated using a CRC32 hash function.\n  \n  \n---    \n**Parameters**  \n- _payload_  \n    The payload for which the ETag should be set  \n"
+        }
+      },
+      "insertText": "setETag(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "setLastModified()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nSets the current time as the `last-modified` header.  \n  \n---    \n**Parameters**  \n"
+        }
+      },
+      "insertText": "setLastModified(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "setJsonPayload(json payload, string contentType)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nSets a `json` as the payload.\n  \n  \n---    \n**Parameters**  \n- _payload_  \n    The `json` payload  \n  \n- _contentType_  \n    The content type of the payload. Set this to override the default `content-type` header value\n                for `json`  \n(Default Parameter)"
+        }
+      },
+      "insertText": "setJsonPayload(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "setXmlPayload(xml payload, string contentType)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nSets an `xml` as the payload\n  \n  \n---    \n**Parameters**  \n- _payload_  \n    The `xml` payload  \n  \n- _contentType_  \n    The content type of the payload. Set this to override the default `content-type` header value\n                for `xml`  \n(Default Parameter)"
+        }
+      },
+      "insertText": "setXmlPayload(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "setTextPayload(string payload, string contentType)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nSets a `string` as the payload.\n  \n  \n---    \n**Parameters**  \n- _payload_  \n    The `string` payload  \n  \n- _contentType_  \n    The content type of the payload. Set this to override the default `content-type` header value\n                for `string`  \n(Default Parameter)"
+        }
+      },
+      "insertText": "setTextPayload(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "setBinaryPayload(byte[] payload, string contentType)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nSets a `byte[]` as the payload.\n  \n  \n---    \n**Parameters**  \n- _payload_  \n    The `byte[]` payload  \n  \n- _contentType_  \n    The content type of the payload. Set this to override the default `content-type` header value\n                for `byte[]`  \n(Default Parameter)"
+        }
+      },
+      "insertText": "setBinaryPayload(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "setBodyParts(mime:Entity[] bodyParts, string contentType)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nSet multiparts as the payload.\n  \n  \n---    \n**Parameters**  \n- _bodyParts_  \n    The entities which make up the message body  \n  \n- _contentType_  \n    The content type of the top level message. Set this to override the default\n                `content-type` header value  \n(Default Parameter)"
+        }
+      },
+      "insertText": "setBodyParts(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "setFileAsPayload(string filePath, string contentType)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nSets the content of the specified file as the entity body of the response.\n  \n  \n---    \n**Parameters**  \n- _filePath_  \n    Path to the file to be set as the payload  \n  \n- _contentType_  \n    The content type of the specified file. Set this to override the default `content-type`\n                header value  \n(Default Parameter)"
+        }
+      },
+      "insertText": "setFileAsPayload(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "setByteChannel(io:ReadableByteChannel payload, string contentType)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nSets a `ByteChannel` as the payload.\n  \n  \n---    \n**Parameters**  \n- _payload_  \n    A `ByteChannel` through which the message payload can be read  \n  \n- _contentType_  \n    The content type of the payload. Set this to override the default `content-type`\n                header value  \n(Default Parameter)"
+        }
+      },
+      "insertText": "setByteChannel(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "setPayload((string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) payload)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nSets the response payload.\n  \n  \n---    \n**Parameters**  \n- _payload_  \n    Payload can be of type `string`, `xml`, `json`, `byte[]`, `ByteChannel` or `Entity[]` (i.e: a set\n            of body parts)  \n"
+        }
+      },
+      "insertText": "setPayload(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "__init()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \n  \n  \n---    \n**Parameters**  \n"
+        }
+      },
+      "insertText": "__init(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "statusCode",
+      "kind": "Variable",
+      "detail": "int",
+      "insertText": "statusCode",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "reasonPhrase",
+      "kind": "Variable",
+      "detail": "string",
+      "insertText": "reasonPhrase",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "server",
+      "kind": "Variable",
+      "detail": "string",
+      "insertText": "server",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "resolvedRequestedURI",
+      "kind": "Variable",
+      "detail": "string",
+      "insertText": "resolvedRequestedURI",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "cacheControl",
+      "kind": "Variable",
+      "detail": "(http:ResponseCacheControl|())",
+      "insertText": "cacheControl",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "receivedTime",
+      "kind": "Variable",
+      "detail": "int",
+      "insertText": "receivedTime",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "requestTime",
+      "kind": "Variable",
+      "detail": "int",
+      "insertText": "requestTime",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "entity",
+      "kind": "Variable",
+      "detail": "mime:Entity",
+      "insertText": "entity",
       "insertTextFormat": "Snippet"
     }
   ]

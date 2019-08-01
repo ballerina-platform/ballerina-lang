@@ -44,7 +44,6 @@ public function startFilterQuery() returns any {
     teachers[0] = t1;
     teachers[1] = t2;
     teachers[2] = t2;
-    Teacher r = Teacher.convert(t1);
     foo();
 
     outputStream.subscribe(function (TeacherOutput e) {printTeachers(e);});
@@ -78,7 +77,7 @@ function foo() {
     function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
         foreach var m in events {
             // just cast input map into the output type
-            TeacherOutput t = <TeacherOutput>TeacherOutput.convert(m);
+            TeacherOutput t = <TeacherOutput>TeacherOutput.constructFrom(m);
             outputStream.publish(t);
         }
     };
@@ -90,8 +89,8 @@ function foo() {
                 function (streams:StreamEvent e, streams:Aggregator[] aggregatorArr1) returns map<anydata> {
                                                 // got rid of type casting
                                                 return {
-                                                    "name": e.data["inputStream.name"],
-                                                    "age": e.data["inputStream.age"]
+                                                    "name": e.get("inputStream.name"),
+                                                    "age": e.get("inputStream.age")
                                                 };
                                             }
     );

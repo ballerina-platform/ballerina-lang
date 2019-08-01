@@ -18,6 +18,7 @@
 
 package org.ballerinalang.stdlib.runtime.nativeimpl;
 
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -30,10 +31,12 @@ import org.ballerinalang.model.values.BValue;
 public class InvocationContext {
 
     public static final String INVOCATION_ID_KEY = "id";
+    private MapValue<String, Object> invocationContextRecord;
     private BMap<String, BValue> invocationContextStruct;
     private UserPrincipal userPrincipal;
     private AuthenticationContext authenticationContext;
 
+    //TODO Remove after migration : implemented using bvm values/types
     public InvocationContext(BMap<String, BValue> invocationContextStruct, UserPrincipal userPrincipal,
             AuthenticationContext authenticationContext) {
         this.invocationContextStruct = invocationContextStruct;
@@ -41,8 +44,20 @@ public class InvocationContext {
         this.userPrincipal = userPrincipal;
     }
 
+    public InvocationContext(MapValue<String, Object> invocationContextRecord, UserPrincipal userPrincipal,
+                             AuthenticationContext authenticationContext) {
+        this.invocationContextRecord = invocationContextRecord;
+        this.authenticationContext = authenticationContext;
+        this.userPrincipal = userPrincipal;
+    }
+
+    //TODO Remove after migration : implemented using bvm values/types
     public BMap<String, BValue> getInvocationContextStruct() {
         return invocationContextStruct;
+    }
+
+    public MapValue<String, Object> getInvocationContextRecord() {
+        return invocationContextRecord;
     }
 
     public String getId() {

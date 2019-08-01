@@ -17,12 +17,9 @@ package org.ballerinalang.net.grpc.nativeimpl.headers;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
@@ -42,22 +39,16 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
         functionName = "setEntry",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Headers",
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        args = {@Argument(name = "headerName", type = TypeKind.STRING),
-                @Argument(name = "headerValue", type = TypeKind.STRING)},
         isPublic = true
 )
-public class SetEntry extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-        BMap<String, BValue> headerValues = (BMap<String, BValue>) context.getRefArgument(0);
-        HttpHeaders headers = (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS);
-        String headerName = context.getStringArgument(0);
-        String headerValue = context.getStringArgument(1);
+public class SetEntry {
 
-        // Only initialize ctx if not yet initialized
+    public static void setEntry(Strand strand, ObjectValue headerValues, String headerName, String headerValue) {
+        HttpHeaders headers = (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS);
+
+        // Only initialize headers if not yet initialized
         headers = headers != null ? headers : new DefaultHttpHeaders();
         headers.set(headerName, headerValue);
         headerValues.addNativeData(MESSAGE_HEADERS, headers);
-        context.setReturnValues();
     }
 }

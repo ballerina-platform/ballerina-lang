@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.991.1-SNAPSHOT</version>
+        <version>0.992.0-m2-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -55,6 +55,10 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-buffer</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.moandjiezana.toml</groupId>
+            <artifactId>toml4j</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -83,8 +87,6 @@
         <maven.checkstyleplugin.excludes>
             **org/wso2/ballerinalang/compiler/parser/antlr4/*,
             **/util/parser/*,
-            **/${native.constructs.provider.class}.java,
-            **/${ballerina.package.repository.provider.class}.java,
             **/generated/**
         </maven.checkstyleplugin.excludes>
     </properties>

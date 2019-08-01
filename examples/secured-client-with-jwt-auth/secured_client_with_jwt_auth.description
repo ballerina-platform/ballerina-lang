@@ -1,5 +1,12 @@
-// A secured client with JWT authentication is used to connect to a
-// secured service with JWT authentication. An additional `auth`
-// field is added to the HTTP client endpoint initialization in order
-// to make the simple HTTP client endpoint into a secure client endpoint.
-// Inside the `auth` field the `scheme` is defined for JWT authentication.
+// A secured client, which is secured  with JWT authentication should be used
+// to connect to a service, which is secured with JWT authentication.
+// The `jwt:OutboundJWTAuthProvider` is initialized with/without passing
+// the JWT issuer configurations as a record. If the JWT issuer configurations
+// are passed, a new JWT will be issued and it will be used for the outbound
+// authentication. The `http:BearerAuthHandler` is initialized by  providing
+// the created `jwt:OutboundBasicAuthProvider`. An additional `auth` field is
+// added to the HTTP client endpoint initialization in order to secure the
+// simple HTTP client endpoint.
+// The `authHandler` field is defined inside the `auth` field with the value
+// of it being the reference of the created `http:BearerAuthHandler`.
+

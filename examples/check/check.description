@@ -1,3 +1,3 @@
 // The check is a unary expression that is used to handle errors.
-// The check expression lifts the `error` from the sub-expression's result and handles error cases separately.
+// The check expression lifts the `error` from the sub-expression's result and handles erroroneous cases separately.
 // Hence, check can be considered as a built-in type-guard for errors.

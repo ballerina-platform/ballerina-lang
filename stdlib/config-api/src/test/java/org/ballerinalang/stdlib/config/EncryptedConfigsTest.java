@@ -1,14 +1,14 @@
 package org.ballerinalang.stdlib.config;
 
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -40,7 +40,7 @@ public class EncryptedConfigsTest {
         confRoot = Paths.get(resourceRoot, "datafiles");
         System.setProperty("ballerina.source.root", sourceRoot.toString());
         compileResult = BCompileUtil.compile(sourceRoot.resolve("encrypted_configs.bal").toString());
-        key = "user.password";
+        key = "\"user.password\"";
     }
 
     @Test(description = "Test reading an encrypted value from a config file, using the secret file in source root")
@@ -104,7 +104,7 @@ public class EncryptedConfigsTest {
         copySecret("secret.txt");
         registry.initRegistry(null, confRoot.resolve("encrypted-configs.conf").toString(), null);
 
-        BValue[] args = {new BString("int.value")};
+        BValue[] args = {new BString("\"int.value\"")};
         BValue[] returns = BRunUtil.invoke(compileResult, "getDecryptedInt", args);
 
         Assert.assertNotNull(returns);
@@ -116,7 +116,7 @@ public class EncryptedConfigsTest {
         copySecret("secret.txt");
         registry.initRegistry(null, confRoot.resolve("encrypted-configs.conf").toString(), null);
 
-        BValue[] args = {new BString("float.value")};
+        BValue[] args = {new BString("\"float.value\"")};
         BValue[] returns = BRunUtil.invoke(compileResult, "getDecryptedFloat", args);
 
         Assert.assertNotNull(returns);
@@ -128,7 +128,7 @@ public class EncryptedConfigsTest {
         copySecret("secret.txt");
         registry.initRegistry(null, confRoot.resolve("encrypted-configs.conf").toString(), null);
 
-        BValue[] args = {new BString("boolean.value")};
+        BValue[] args = {new BString("\"boolean.value\"")};
         BValue[] returns = BRunUtil.invoke(compileResult, "getDecryptedBoolean", args);
 
         Assert.assertNotNull(returns);

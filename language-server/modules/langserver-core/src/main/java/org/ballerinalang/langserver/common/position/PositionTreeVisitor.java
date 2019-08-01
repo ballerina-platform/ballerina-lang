@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -45,14 +44,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -163,10 +162,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         // Process workers
         if (funcNode.workers != null) {
             funcNode.workers.forEach(this::acceptNode);
-        }
-
-        if (funcNode.defaultableParams != null) {
-            funcNode.defaultableParams.forEach(this::acceptNode);
         }
     }
 
@@ -424,27 +419,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         if (forkJoin.workers != null) {
             forkJoin.workers.forEach(this::acceptNode);
         }
-
-        // todo need to remove this block
-//        if (forkJoin.joinedBody != null) {
-//            acceptNode(forkJoin.joinedBody);
-//        }
-//
-//        if (forkJoin.joinResultVar != null) {
-//            acceptNode(forkJoin.joinResultVar);
-//        }
-//
-//        if (forkJoin.timeoutBody != null) {
-//            acceptNode(forkJoin.timeoutBody);
-//        }
-//
-//        if (forkJoin.timeoutExpression != null) {
-//            acceptNode(forkJoin.timeoutExpression);
-//        }
-//
-//        if (forkJoin.timeoutVariable != null) {
-//            acceptNode(forkJoin.timeoutVariable);
-//        }
     }
 
     @Override
@@ -524,10 +498,10 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         }
     }
 
-    public void visit(BLangArrayLiteral arrayLiteral) {
-        setPreviousNode(arrayLiteral);
-        if (arrayLiteral.exprs != null) {
-            arrayLiteral.exprs.forEach(this::acceptNode);
+    public void visit(BLangListConstructorExpr listConstructorExpr) {
+        setPreviousNode(listConstructorExpr);
+        if (listConstructorExpr.exprs != null) {
+            listConstructorExpr.exprs.forEach(this::acceptNode);
         }
     }
 
@@ -566,28 +540,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         setPreviousNode(arrayType);
         if (arrayType.elemtype != null) {
             acceptNode(arrayType.elemtype);
-        }
-    }
-
-    @Override
-    public void visit(BLangEndpoint endpointNode) {
-        setPreviousNode(endpointNode);
-
-        DiagnosticPos identifierPos = HoverUtil.getIdentifierPosition(endpointNode);
-        if (HoverUtil.isMatchingPosition(identifierPos, this.position)) {
-            addPosition(endpointNode, this.previousNode, endpointNode.symbol.name.getValue(), endpointNode.symbol.pkgID,
-                        ContextConstants.ENDPOINT, ContextConstants.ENDPOINT, endpointNode.symbol.name.getValue(),
-                        endpointNode.symbol.owner);
-            setTerminateVisitor(true);
-            return;
-        }
-
-        if (endpointNode.endpointTypeNode != null) {
-            this.acceptNode(endpointNode.endpointTypeNode);
-        }
-
-        if (endpointNode.configurationExpr != null) {
-            this.acceptNode(endpointNode.configurationExpr);
         }
     }
 
@@ -632,10 +584,10 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
-        setPreviousNode(bracedOrTupleExpr);
-        if (bracedOrTupleExpr.expressions != null) {
-            bracedOrTupleExpr.expressions.forEach(this::acceptNode);
+    public void visit(BLangGroupExpr groupExpr) {
+        setPreviousNode(groupExpr);
+        if (groupExpr.expression != null) {
+            this.acceptNode(groupExpr.expression);
         }
     }
 

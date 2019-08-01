@@ -20,9 +20,18 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-test-suite">
+    <listeners>
+        <listener class-name="org.ballerinalang.test.listener.JBallerinaTestInitializer"/>
+    </listeners>
     <test name="ballerina-lang-stdlib-time-test-suite" parallel="false">
-        <classes>
-            <class name="org.ballerinalang.stdlib.time.TimeTest" />
-        </classes>
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="brokenOnBootstrappedJVMCodegen"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="org.ballerinalang.stdlib.time.*"/>
+        </packages>
     </test>
 </suite>

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -44,20 +44,14 @@ public class BallerinaRecordBindingPatternImpl extends ASTWrapperPsiElement impl
 
   @Override
   @Nullable
-  public BallerinaEntryBindingPattern getEntryBindingPattern() {
-    return findChildByClass(BallerinaEntryBindingPattern.class);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getLeftBrace() {
-    return findNotNullChildByType(LEFT_BRACE);
+  public BallerinaClosedRecordBindingPattern getClosedRecordBindingPattern() {
+    return findChildByClass(BallerinaClosedRecordBindingPattern.class);
   }
 
   @Override
   @Nullable
-  public PsiElement getRightBrace() {
-    return findChildByType(RIGHT_BRACE);
+  public BallerinaOpenRecordBindingPattern getOpenRecordBindingPattern() {
+    return findChildByClass(BallerinaOpenRecordBindingPattern.class);
   }
 
 }

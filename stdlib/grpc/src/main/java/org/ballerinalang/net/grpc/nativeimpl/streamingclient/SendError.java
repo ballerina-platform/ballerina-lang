@@ -15,11 +15,9 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.streamingclient;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.GrpcConstants;
@@ -35,7 +33,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
 
 /**
- * Extern function to send server error the caller.
+ * Extern function for sending error to the server.
  *
  * @since 1.0.0
  */
@@ -47,28 +45,24 @@ import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
                 structPackage = GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
-public class SendError extends BlockingNativeCallableUnit {
+public class SendError {
     private static final Logger LOG = LoggerFactory.getLogger(SendError.class);
 
-    @Override
-    public void execute(Context context) {
-        BMap<String, BValue> connectionStruct = (BMap<String, BValue>) context.getRefArgument(0);
-        long statusCode = context.getIntArgument(0);
-        String errorMsg = context.getStringArgument(0);
-
-        StreamObserver requestSender = (StreamObserver) connectionStruct.getNativeData(REQUEST_SENDER);
+    public static Object sendError(Strand strand, ObjectValue streamingConnection, long statusCode, String errorMsg) {
+        StreamObserver requestSender = (StreamObserver) streamingConnection.getNativeData(REQUEST_SENDER);
         if (requestSender == null) {
-            context.setError(MessageUtils.getConnectorError(new StatusRuntimeException(Status
+            return MessageUtils.getConnectorError(new StatusRuntimeException(Status
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while sending the " +
-                            "error. endpoint does not exist"))));
+                            "error. endpoint does not exist")));
         } else {
             try {
                 requestSender.onError(new Message(new StatusRuntimeException(Status.fromCodeValue((int) statusCode)
                         .withDescription(errorMsg))));
             } catch (Exception e) {
                 LOG.error("Error while sending error to server.", e);
-                context.setError(MessageUtils.getConnectorError(e));
+                return MessageUtils.getConnectorError(e);
             }
         }
+        return null;
     }
 }

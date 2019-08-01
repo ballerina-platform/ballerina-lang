@@ -2,12 +2,12 @@ import ballerina/http;
 import ballerina/mime;
 import ballerina/io;
 
-function testContentType(http:Response res, string contentTypeValue) returns string? {
+function testContentType(http:Response res, string contentTypeValue) returns @tainted string? {
     res.setContentType(contentTypeValue);
     return res.getContentType();
 }
 
-function testGetContentLength(http:Response res) returns string {
+function testGetContentLength(http:Response res) returns @tainted string {
     return res.getHeader("content-length");
 }
 
@@ -16,32 +16,33 @@ function testAddHeader(http:Response res, string key, string value) returns http
     return res;
 }
 
-function testGetHeader(http:Response res, string key) returns string {
+function testGetHeader(http:Response res, string key) returns @tainted string {
     string contentType = res.getHeader(key);
     return contentType;
 }
 
-function testGetHeaders(http:Response res, string key) returns string[] {
+function testGetHeaders(http:Response res, string key) returns @tainted string[] {
     return res.getHeaders(key);
 }
 
-function testGetJsonPayload(http:Response res) returns json|error {
+function testGetJsonPayload(http:Response res) returns @tainted json|error {
     return res.getJsonPayload();
 }
 
-function testGetTextPayload (http:Response res) returns (string | error) {
+function testGetTextPayload (http:Response res) returns @tainted string|error {
     return res.getTextPayload();
 }
 
-function testGetBinaryPayload(http:Response res) returns byte[]|error {
+function testGetBinaryPayload(http:Response res) returns  @tainted byte[]|error {
     return res.getBinaryPayload();
 }
 
-function testGetXmlPayload(http:Response res) returns xml|error {
+function testGetXmlPayload(http:Response res) returns @tainted xml|error {
     return res.getXmlPayload();
 }
 
-function testSetPayloadAndGetText((string|xml|json|byte[]|io:ReadableByteChannel) payload) returns string|error {
+function testSetPayloadAndGetText((string|xml|json|byte[]|io:ReadableByteChannel) payload) returns
+                                    @tainted string|error {
     http:Response res = new;
     res.setPayload(payload);
     return res.getTextPayload();
@@ -101,7 +102,7 @@ service hello on mockEP {
     resource function echo2 (http:Caller caller, http:Request req, string phase) {
         http:Response res = new;
         res.reasonPhrase = phase;
-        checkpanic caller->respond(untaint res);
+        checkpanic caller->respond(<@untainted http:Response> res);
     }
 
     @http:ResourceConfig {
@@ -118,8 +119,8 @@ service hello on mockEP {
     }
     resource function addheader (http:Caller caller, http:Request req, string key, string value) {
         http:Response res = new;
-        res.addHeader(untaint key, value);
-        string result = untaint res.getHeader(untaint key);
+        res.addHeader(<@untainted string> key, value);
+        string result = <@untainted string> res.getHeader(<@untainted string> key);
         res.setJsonPayload({lang:result});
         checkpanic caller->respond(res);
     }
@@ -129,8 +130,8 @@ service hello on mockEP {
     }
     resource function getHeader (http:Caller caller, http:Request req, string header, string value) {
         http:Response res = new;
-        res.setHeader(untaint header, value);
-        string result = untaint res.getHeader(untaint header);
+        res.setHeader(<@untainted string> header, value);
+        string result = <@untainted string> res.getHeader(<@untainted string> header);
         res.setJsonPayload({value:result});
         checkpanic caller->respond(res);
     }
@@ -141,13 +142,13 @@ service hello on mockEP {
     resource function getJsonPayload(http:Caller caller, http:Request req, string value) {
         http:Response res = new;
         json jsonStr = {lang:value};
-        res.setJsonPayload(untaint jsonStr);
+        res.setJsonPayload(<@untainted json> jsonStr);
         var returnResult = res.getJsonPayload();
         if (returnResult is error) {
             res.setTextPayload("Error occurred");
             res.statusCode = 500;
         } else {
-            res.setJsonPayload(untaint returnResult.lang);
+            res.setJsonPayload(<@untainted json> returnResult.lang);
         }
         checkpanic caller->respond(res);
     }
@@ -157,13 +158,13 @@ service hello on mockEP {
     }
     resource function getTextPayload(http:Caller caller, http:Request req, string valueStr) {
         http:Response res = new;
-        res.setTextPayload(untaint valueStr);
+        res.setTextPayload(<@untainted string> valueStr);
         var returnResult = res.getTextPayload();
         if (returnResult is error) {
             res.setTextPayload("Error occurred");
             res.statusCode =500;
         } else {
-            res.setTextPayload(untaint returnResult);
+            res.setTextPayload(<@untainted string> returnResult);
         }
         checkpanic caller->respond(res);
     }
@@ -181,7 +182,7 @@ service hello on mockEP {
             res.statusCode =500;
         } else {
             var name = returnResult.getTextValue();
-            res.setTextPayload(untaint name);
+            res.setTextPayload(<@untainted string> name);
         }
         checkpanic caller->respond(res);
     }
@@ -191,8 +192,8 @@ service hello on mockEP {
     }
     resource function removeHeader (http:Caller caller, http:Request req, string key, string value) {
         http:Response res = new;
-        res.setHeader(untaint key, value);
-        res.removeHeader(untaint key);
+        res.setHeader(<@untainted string> key, value);
+        res.removeHeader(<@untainted string> key);
         string header = "";
         if (!res.hasHeader(key)) {
             header = "value is null";

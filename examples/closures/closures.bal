@@ -2,7 +2,7 @@ import ballerina/io;
 
 int globalA = 5;
 
-// Basic example where an anonymous function with an `if` block accesses its outer scope
+// A basic example in which an anonymous function with an `if` block accesses its outer scope
 // variables.
 function basicClosure() returns (function (int) returns int) {
     int a = 3;
@@ -16,31 +16,31 @@ function basicClosure() returns (function (int) returns int) {
     return foo;
 }
 
-// Example function with multiple levels of anonymous functions where the
+// An example function with multiple levels of anonymous functions in which the
 // innermost anonymous function has access to all of its outer scope variables.
 function multilevelClosure() returns (function (int) returns int) {
     int a = 2;
     var func1 = function (int x) returns int {
         int b = 23;
-        // Variable `a` defined in the outer scope is modified.
+        // The variable `a` defined in the outer scope is modified.
         // The original value of `a` will be changed to `10`.
         a = a + 8;
         var func2 = function (int y) returns int {
             int c = 7;
             var func3 = function (int z) returns int {
-                // Variable `b` defined in function `func1` is modified.
+                // The variable `b` defined in the `func1` function is modified.
                 // The original value of `b` will be changed to `24`.
                 b = b + 1;
                 return x + y + z + a + b + c;
             };
-            return func3.call(8) + y + x;
+            return func3(8) + y + x;
         };
-        return func2.call(4) + x;
+        return func2(4) + x;
     };
     return func1;
 }
 
-// Example to represent how function pointers are passed with closures
+// An Example to represent how function pointers are passed with closures
 // so that the inner scope anonymous function can access the outer scope variables.
 function functionPointers(int a) returns
                     (function (int) returns (function (int) returns int)) {
@@ -53,21 +53,21 @@ function functionPointers(int a) returns
 
 
 public function main() {
-    // Invoke the function that shows basic closure support.
+    // Invokes the function that shows basic closure support.
     var foo = basicClosure();
-    int result1 = foo.call(3);
-    io:println("Answer: " + result1);
+    int result1 = foo(3);
+    io:println("Answer: ", result1);
 
-    // Function invocation that represents multiple levels of anonymous functions
+    // The function invocation that represents multiple levels of anonymous functions
     // with closure support.
     var bar = multilevelClosure();
-    int result2 = bar.call(5);
-    io:println("Answer: " + result2);
+    int result2 = bar(5);
+    io:println("Answer: ", result2);
 
     // This function invocation shows how function pointers with closures
     // are passed around.
     var baz1 = functionPointers(7);
-    var baz2 = baz1.call(5);
-    int result3 = baz2.call(3);
-    io:println("Answer: " + result3);
+    var baz2 = baz1(5);
+    int result3 = baz2(3);
+    io:println("Answer: ", result3);
 }

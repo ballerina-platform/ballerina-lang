@@ -1,0 +1,142 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+ 
+apply plugin: "base"
+
+
+description = 'Ballerina - Examples Test'
+
+import org.apache.tools.ant.taskdefs.condition.Os
+import groovy.json.JsonSlurper
+
+
+configurations {
+    ballerinaTools
+}
+
+dependencies {
+    ballerinaTools project(path: ':ballerina-tools', configuration: 'unzipped')
+}
+
+task copyDistribution() {
+    dependsOn ":ballerina-tools:build"
+    doFirst {
+        copy {
+            from file(configurations.ballerinaTools.asPath)
+            into "$buildDir/extractedDistribution"
+        }
+    }
+}
+
+task test {
+    dependsOn copyDistribution
+    def distPath = "$buildDir/extractedDistribution"
+    mustRunAfter ':jballerina-integration-test:test'
+    outputs.dir("${distPath}/examples/target")
+    outputs.dir("${distPath}/examples/.ballerina/repo/")
+    outputs.cacheIf{ true }
+
+    PatternSet patternSet = new PatternSet();
+    patternSet.exclude("**/.ballerina/**");
+    patternSet.exclude("**/Ballerina.toml");
+    patternSet.exclude("**/Ballerina.lock");
+    patternSet.exclude("**/ballerina-internal.log")
+    inputs.files(files("${distPath}/examples").asFileTree.matching(patternSet))
+    
+    doFirst {
+        exec {
+            //Initialize Ballerina project
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                //TODO: Need to verify with windows
+                workingDir "${distPath}/examples"
+                commandLine 'cmd', '/c', "${distPath}/bin/ballerina.bat", 'init'
+            } else {
+                workingDir "${distPath}/examples"
+                commandLine "${distPath}/bin/./ballerina", 'init'
+            }
+        }
+
+    }
+
+    doLast {
+        // TODO: run examples list as dynamic tasks
+        //List of BBEs excluded from building
+        def ignoreList = [ 'proto-to-ballerina',
+                           'swagger-to-ballerina',
+                           'taint-checking',
+                           'websub-hub-client-sample',
+                           'websub-remote-hub-sample',
+                           'config-api',
+                           'testerina-function-mocks',
+                           'jdbc-client-crud-operations',
+                           'jdbc-client-batch-update',
+                           'jdbc-client-call-procedures',
+                           'streaming-big-dataset',
+                           'docker-deployment',
+                           'kubernetes-deployment',
+                           'awslambda-deployment',
+                           'openshift-deployment',
+                           'grpc-server-streaming',
+                           'transactions-distributed',
+                           'local-transactions',
+                           'local-transactions-with-participants',
+                           'xa-transactions',
+                           'secured-client-with-oauth2',
+                           'gauge-metrics',
+                           'counter-metrics',
+                           'xml-functions',
+                           'openapi-to-ballerina',
+                           'rabbitmq-simple-consumer',
+                           'rabbitmq-simple-producer'
+                           ]
+
+        def inputFile = new File( "${distPath}/examples/index.json")
+        def categories = new JsonSlurper().parseText(inputFile.text)
+        def bbeList = []
+        categories.each { category ->
+            def examples = category.samples
+            examples.each { example ->
+                bbeList.push("$example.url")
+
+            }
+        }
+
+        // Remove excludes
+        ignoreList.each { ignoreItem ->
+            bbeList.remove("$ignoreItem")
+        }
+
+        bbeList.each { String bbe ->
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                //TODO: Need to verify with windows
+                exec {
+                    workingDir "${distPath}/examples"
+                    commandLine 'cmd', '/c', "${distPath}/bin/ballerina.bat", 'build', bbe, '--experimental'
+                }
+            } else {
+                exec {
+                    workingDir "${distPath}/examples"
+                    commandLine "${distPath}/bin/./ballerina", 'build', bbe, '--experimental'
+                }
+            }
+        }
+   }
+}
+
+build {
+    dependsOn test
+}

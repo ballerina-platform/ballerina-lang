@@ -18,25 +18,20 @@
 package org.ballerinalang.net.grpc.nativeimpl.client;
 
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MethodDescriptor;
-import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.DefaultStreamObserver;
 import org.ballerinalang.net.grpc.stubs.NonBlockingStub;
 
 import java.util.Map;
 
-import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_REF_INDEX;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.METHOD_DESCRIPTORS;
@@ -44,6 +39,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB;
+import static org.ballerinalang.net.grpc.Status.Code.INTERNAL;
 
 /**
  * {@code NonBlockingExecute} is the NonBlockingExecute action implementation of the gRPC Connector.
@@ -59,100 +55,73 @@ import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB;
         isPublic = true
 )
 public class NonBlockingExecute extends AbstractExecute {
-    private static final int MESSAGE_HEADER_REF_INDEX = 3;
 
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-        BMap<String, BValue> clientEndpoint = (BMap<String, BValue>) context.getRefArgument(CLIENT_ENDPOINT_REF_INDEX);
+    @SuppressWarnings("unchecked")
+    public static Object nonBlockingExecute(Strand strand, ObjectValue clientEndpoint, String methodName,
+                                            Object payload, ObjectValue callbackService, Object headerValues) {
         if (clientEndpoint == null) {
-            notifyErrorReply(context, "Error while getting connector. gRPC Client connector is " +
+            return notifyErrorReply(INTERNAL, "Error while getting connector. gRPC Client connector is " +
                     "not initialized properly");
-            callback.notifySuccess();
-            return;
         }
 
         Object connectionStub = clientEndpoint.getNativeData(SERVICE_STUB);
         if (connectionStub == null) {
-            notifyErrorReply(context, "Error while getting connection stub. gRPC Client connector " +
+            return notifyErrorReply(INTERNAL, "Error while getting connection stub. gRPC Client connector " +
                     "is not initialized properly");
-            callback.notifySuccess();
-            return;
         }
-        String methodName = context.getStringArgument(0);
+
         if (methodName == null) {
-            notifyErrorReply(context, "Error while processing the request. RPC endpoint doesn't " +
+            return notifyErrorReply(INTERNAL, "Error while processing the request. RPC endpoint doesn't " +
                     "set properly");
-            callback.notifySuccess();
-            return;
         }
 
         Map<String, MethodDescriptor> methodDescriptors = (Map<String, MethodDescriptor>) clientEndpoint.getNativeData
                 (METHOD_DESCRIPTORS);
         if (methodDescriptors == null) {
-            notifyErrorReply(context, "Error while processing the request. method descriptors " +
+            return notifyErrorReply(INTERNAL, "Error while processing the request. method descriptors " +
                     "doesn't set properly");
-            callback.notifySuccess();
-            return;
         }
 
         com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = methodDescriptors.get(methodName) != null
                 ? methodDescriptors.get(methodName).getSchemaDescriptor() : null;
         if (methodDescriptor == null) {
-            notifyErrorReply(context, "No registered method descriptor for '" + methodName + "'");
-            callback.notifySuccess();
-            return;
+            return notifyErrorReply(INTERNAL, "No registered method descriptor for '" + methodName + "'");
         }
 
         if (connectionStub instanceof NonBlockingStub) {
-            BValue payloadBValue = context.getRefArgument(1);
-            Message requestMsg = new Message(methodDescriptor.getInputType().getName(), payloadBValue);
+            Message requestMsg = new Message(methodDescriptor.getInputType().getName(), payload);
 
             // Update request headers when request headers exists in the context.
-            BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
             HttpHeaders headers = null;
-            if (headerValues != null && headerValues.getType().getTag() == TypeTags.OBJECT_TYPE_TAG) {
-                headers = (HttpHeaders) ((BMap<String, BValue>) headerValues).getNativeData(MESSAGE_HEADERS);
+            if (headerValues != null && (TypeChecker.getType(headerValues).getTag() == TypeTags.OBJECT_TYPE_TAG)) {
+                headers = (HttpHeaders) ((ObjectValue) headerValues).getNativeData(MESSAGE_HEADERS);
             }
             if (headers != null) {
                 requestMsg.setHeaders(headers);
             }
 
             NonBlockingStub nonBlockingStub = (NonBlockingStub) connectionStub;
-
-            BMap serviceValue = (BMap) context.getRefArgument(2);
-            Service callbackService = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), serviceValue);
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
                 if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
-                    nonBlockingStub.executeUnary(requestMsg, new DefaultStreamObserver(callbackService),
+                    nonBlockingStub.executeUnary(requestMsg, new DefaultStreamObserver(strand.scheduler,
+                                    callbackService),
                             methodDescriptors.get(methodName));
                 } else if (methodType.equals(MethodDescriptor.MethodType.SERVER_STREAMING)) {
-                    nonBlockingStub.executeServerStreaming(requestMsg, new DefaultStreamObserver(callbackService),
+                    nonBlockingStub.executeServerStreaming(requestMsg,
+                            new DefaultStreamObserver(strand.scheduler, callbackService),
                             methodDescriptors.get(methodName));
                 } else {
-                    notifyErrorReply(context, "Error while executing the client call. Method type " +
+                    return notifyErrorReply(INTERNAL, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");
-                    callback.notifySuccess();
-                    return;
                 }
-                context.setReturnValues();
-                callback.notifySuccess();
-                return;
-            } catch (RuntimeException | GrpcClientException e) {
-                notifyErrorReply(context, "gRPC Client Connector Error :" + e.getMessage());
-                callback.notifySuccess();
-                return;
+                return null;
+            } catch (Exception e) {
+                return notifyErrorReply(INTERNAL, "gRPC Client Connector Error :" + e.getMessage());
             }
+        } else {
+            return notifyErrorReply(INTERNAL, "Error while processing the request message. Connection Sub " +
+                    "type not supported");
         }
-        notifyErrorReply(context, "Error while processing the request message. Connection Sub " +
-                "type not supported");
-        callback.notifySuccess();
     }
-
-    @Override
-    public boolean isBlocking() {
-
-        return false;
-    }
-
 }

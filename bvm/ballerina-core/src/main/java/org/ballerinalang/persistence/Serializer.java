@@ -24,7 +24,6 @@ import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
@@ -66,7 +65,6 @@ public class Serializer {
         serializableClasses.add(BFloat.class.getName());
         serializableClasses.add(BByte.class.getName());
         serializableClasses.add(BXMLItem.class.getName());
-        serializableClasses.add(BXMLAttributes.class.getName());
         serializableClasses.add(BXMLQName.class.getName());
         serializableClasses.add(BXMLSequence.class.getName());
 

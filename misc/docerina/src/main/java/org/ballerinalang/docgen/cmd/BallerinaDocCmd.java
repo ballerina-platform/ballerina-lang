@@ -21,8 +21,8 @@ package org.ballerinalang.docgen.cmd;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
-import org.ballerinalang.launcher.BLauncherCmd;
-import org.ballerinalang.launcher.LauncherUtils;
+import org.ballerinalang.tool.BLauncherCmd;
+import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import picocli.CommandLine;
@@ -55,7 +55,7 @@ public class BallerinaDocCmd implements BLauncherCmd {
 
     @CommandLine.Option(names = {"--exclude"}, description = "a comma separated list of module names to be "
             + "filtered from the documentation")
-    private String packageFilter;
+    private String moduleFilter;
 
     @CommandLine.Option(names = {"--native", "-n"}, description = "read the source as native ballerina code")
     private boolean nativeSource;
@@ -108,8 +108,12 @@ public class BallerinaDocCmd implements BLauncherCmd {
         }
 
         String[] sources = argList.toArray(new String[argList.size()]);
-        BallerinaDocGenerator.generateApiDocs(sourceRootPath.toString(), outputDir, packageFilter, nativeSource,
-                offline, sources);
+        try {
+            BallerinaDocGenerator.generateApiDocs(sourceRootPath.toString(), outputDir, moduleFilter, nativeSource,
+                    offline, sources);
+        } catch (Exception e) {
+            throw new RuntimeException("failed to generate api docs: " + sourceRootPath.toString(), e);
+        }
     }
 
     @Override
@@ -136,9 +140,5 @@ public class BallerinaDocCmd implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
-    }
-
-    @Override
-    public void setSelfCmdParser(CommandLine selfCmdParser) {
     }
 }

@@ -19,7 +19,6 @@ package org.ballerinalang.langserver.completions.util.sorters;
 
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 
 import java.util.Collections;
@@ -36,10 +35,6 @@ public enum ItemSorters {
             new CallableUnitBodyItemSorter()),
     DEFAULT_ITEM_SORTER(DefaultItemSorter.class,
             new DefaultItemSorter()),
-    ENDPOINT_DEF_ITEM_SORTER(EndpointDefContextItemSorter.class,
-            new EndpointDefContextItemSorter()),
-    RESOURCE_BODY_ITEM_SORTER(BLangResource.class,
-            new CallableUnitBodyItemSorter()),
     SERVICE_BODY_ITEM_SORTER(BLangService.class,
             new ServiceContextItemSorter()),
     STATEMENT_CONTEXT_ITEM_SORTER(StatementContextItemSorter.class,
@@ -51,9 +46,11 @@ public enum ItemSorters {
     CONDITIONAL_STMT_CONTEXT_ITEM_SORTER(ConditionalStatementItemSorter.class,
             new ConditionalStatementItemSorter()),
     MATCH_STMT_CONTEXT_ITEM_SORTER(MatchContextItemSorter.class,
-                                   new MatchContextItemSorter()),
+            new MatchContextItemSorter()),
+    TOP_LEVEL_MATCH_STMT_CONTEXT_ITEM_SORTER(TopLevelContextSorter.class,
+            new TopLevelContextSorter()),
     ACTION_AND_FIELD_ITEM_SORTER(ActionAndFieldAccessContextItemSorter.class,
-                                 new ActionAndFieldAccessContextItemSorter());
+            new ActionAndFieldAccessContextItemSorter());
     
     private final Class context;
     private final CompletionItemSorter itemSorter;
@@ -79,7 +76,7 @@ public enum ItemSorters {
      * @return {@link CompletionItemSorter} - Item sorter for the given context
      */
     public static CompletionItemSorter get(Class context) {
-        if (!resolverMap.containsKey(context)) {
+        if (context == null || !resolverMap.containsKey(context)) {
             return resolverMap.get(DefaultItemSorter.class);
         }
         return resolverMap.get(context);

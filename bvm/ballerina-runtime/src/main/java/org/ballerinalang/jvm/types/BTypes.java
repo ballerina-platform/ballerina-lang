@@ -17,33 +17,64 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.util.Flags;
+
+import java.util.Arrays;
+import java.util.HashMap;
+
 /**
  * This class contains various methods manipulate {@link BType}s in Ballerina.
  *
  * @since 0.995.0
  */
 public class BTypes {
-    public static BType typeInt = new BIntegerType(TypeConstants.INT_TNAME, null);
-    public static BType typeByte = new BByteType(TypeConstants.BYTE_TNAME, null);
-    public static BType typeFloat = new BFloatType(TypeConstants.FLOAT_TNAME, null);
-    public static BType typeDecimal = new BDecimalType(TypeConstants.DECIMAL_TNAME, null);
-    public static BType typeString = new BStringType(TypeConstants.STRING_TNAME, null);
-    public static BType typeBoolean = new BBooleanType(TypeConstants.BOOLEAN_TNAME, null);
-    public static BType typeXML = new BXMLType(TypeConstants.XML_TNAME, null);
-    public static BType typeJSON = new BJSONType(TypeConstants.JSON_TNAME, null);
-    public static BType typeAny = new BAnyType(TypeConstants.ANY_TNAME, null);
-    public static BType typeAnydata = new BAnydataType(TypeConstants.ANYDATA_TNAME, null);
-    // public static BType typeStream = new BStreamType(TypeConstants.STREAM_TNAME, typeAny, null);
-    public static BType typeDesc = new BTypeDesc(TypeConstants.TYPEDESC_TNAME, null);
-    public static BType typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, null);
-    public static BType typeFuture = new BFutureType(TypeConstants.FUTURE_TNAME, null);
-    public static BType typeNull = new BNullType(TypeConstants.NULL_TNAME, null);
-    public static BType typeXMLAttributes = new BXMLAttributesType(TypeConstants.XML_ATTRIBUTES_TNAME, null);
-    // public static BType typeIterator = new BIteratorType(TypeConstants.ITERATOR_TNAME, null);
+    public static BType typeInt = new BIntegerType(TypeConstants.INT_TNAME, new BPackage(null, null, null));
+    public static BType typeByte = new BByteType(TypeConstants.BYTE_TNAME, new BPackage(null, null, null));
+    public static BType typeFloat = new BFloatType(TypeConstants.FLOAT_TNAME, new BPackage(null, null, null));
+    public static BType typeDecimal = new BDecimalType(TypeConstants.DECIMAL_TNAME, new BPackage(null, null, null));
+    public static BType typeString = new BStringType(TypeConstants.STRING_TNAME, new BPackage(null, null, null));
+    public static BType typeBoolean = new BBooleanType(TypeConstants.BOOLEAN_TNAME, new BPackage(null, null, null));
+    public static BType typeXML = new BXMLType(TypeConstants.XML_TNAME, new BPackage(null, null, null));
+    public static BType typeJSON = new BJSONType(TypeConstants.JSON_TNAME, new BPackage(null, null, null));
+    public static BType typeAny = new BAnyType(TypeConstants.ANY_TNAME, new BPackage(null, null, null));
+    public static BType typeAnydata = new BAnydataType(TypeConstants.ANYDATA_TNAME, new BPackage(null, null, null));
+    public static BType typeStream = new BStreamType(TypeConstants.STREAM_TNAME, typeAny, new BPackage(null,
+            null, null));
+    public static BType typeTypedesc = new BTypedescType(TypeConstants.TYPEDESC_TNAME, new BPackage(null,
+            null, null));
+    public static BType typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, new BPackage(null, null, null));
+    public static BType typeTable = new BTableType(TypeConstants.TABLE_TNAME, typeAnydata,
+            new BPackage(null, null, null));
+    public static BType typeFuture = new BFutureType(TypeConstants.FUTURE_TNAME,
+            new BPackage(null, null, null));
+    public static BType typeNull = new BNullType(TypeConstants.NULL_TNAME, new BPackage(null, null, null));
+    public static BType typeXMLAttributes = new BXMLAttributesType(TypeConstants.XML_ATTRIBUTES_TNAME,
+                                                                   new BPackage(null, null, null));
+    public static BType typeIterator = new BIteratorType(TypeConstants.ITERATOR_TNAME, new BPackage(null,
+            null, null));
     // public static BType typeChannel = new BChannelType(TypeConstants.CHANNEL, null);
-    public static BErrorType typeError = new BErrorType(TypeConstants.ERROR, null, typeString, typeMap);
-    // public static BType typeAnyService = new BServiceType(null, TypeConstants.SERVICE, null, 0);
+    public static BType typeAnyService = new BServiceType(TypeConstants.SERVICE, new BPackage(null, null, null), 0);
+    public static BRecordType typeErrorDetail = new BRecordType(TypeConstants.DETAIL_TYPE, new BPackage(null, null,
+            null), 0, false);
+    public static BErrorType typeError = new BErrorType(TypeConstants.ERROR, new BPackage(null,
+            null, null), typeString, typeErrorDetail);
+    public static BType typePureType = new BUnionType(Arrays.asList(typeAnydata, typeError));
+    public static BType typeAllType = new BUnionType(Arrays.asList(typeAny, typeError));
+    public static BType typeHandle = new BHandleType(TypeConstants.HANDLE_TNAME, new BPackage(null, null, null));
 
+    static {
+        HashMap<String, BField> fields = new HashMap<>();
+        fields.put(TypeConstants.DETAIL_MESSAGE, new BField(typeString, TypeConstants.DETAIL_MESSAGE,
+                Flags.OPTIONAL + Flags.PUBLIC));
+        fields.put(TypeConstants.DETAIL_CAUSE, new BField(typeError, TypeConstants.DETAIL_CAUSE,
+                Flags.OPTIONAL + Flags.PUBLIC));
+        typeErrorDetail.setFields(fields);
+        BType[] restFieldType = new BType[2];
+        restFieldType[0] = BTypes.typeAnydata;
+        restFieldType[1] = BTypes.typeError;
+        typeErrorDetail.restFieldType = new BUnionType(restFieldType);
+    }
+    
     private BTypes() {
     }
 
@@ -75,14 +106,14 @@ public class BTypes {
                 return typeMap;
             case TypeConstants.FUTURE_TNAME:
                 return typeFuture;
-            // case TypeConstants.STREAM_TNAME:
-            // return typeStream;
+             case TypeConstants.STREAM_TNAME:
+                return typeStream;
             // case TypeConstants.CHANNEL:
             // return typeChannel;
             case TypeConstants.ANY_TNAME:
                 return typeAny;
             case TypeConstants.TYPEDESC_TNAME:
-                return typeDesc;
+                return typeTypedesc;
             case TypeConstants.NULL_TNAME:
                 return typeNull;
             case TypeConstants.XML_ATTRIBUTES_TNAME:

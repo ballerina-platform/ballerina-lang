@@ -17,11 +17,9 @@
  */
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -37,22 +35,21 @@ import java.io.PrintStream;
         args = {@Argument(name = "values", type = TypeKind.ARRAY, elementType = TypeKind.UNION)},
         isPublic = true
 )
-public class PrintAny extends BlockingNativeCallableUnit {
+public class PrintAny {
 
-    public void execute(Context ctx) {
-        // Had to write "System . out . println" (ignore spaces) in another way to deceive the Check style plugin.
+    public static void print(Strand strand, ArrayValue values) {
         PrintStream out = System.out;
-        BValueArray result = (BValueArray) ctx.getRefArgument(0);
-        if (result != null) {
-            for (int i = 0; i < result.size(); i++) {
-                final BValue bValue = result.getBValue(i);
-                if (bValue != null) {
-                    out.print(bValue.stringValue());
-                }
-            }
-        } else {
+        if (values == null) {
             out.print((Object) null);
+            return;
         }
-        ctx.setReturnValues();
+
+        Object value;
+        for (int i = 0; i < values.size(); i++) {
+            value = values.get(i);
+            if (value != null) {
+                out.print(value.toString());
+            }
+        }
     }
 }

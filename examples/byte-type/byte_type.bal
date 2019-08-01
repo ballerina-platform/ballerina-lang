@@ -5,11 +5,11 @@ public function main() {
     byte a = 12;
     io:println(a);
 
-    // Define a `byte` array using the ordinary array literal.
+    // Create a `byte` array using the list constructor.
     byte[] arr1 = [5, 24, 56, 243];
-    // Define a `byte` array using the `base16` byte array literal.
+    // Create a `byte` array using the `base16` byte array literal.
     byte[] arr2 = base16 `aeeecdefabcd12345567888822`;
-    // Define a `byte` array using the `base64` byte array literal.
+    // Create a `byte` array using the `base64` byte array literal.
     byte[] arr3 = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;
 
     io:println(arr1.length());

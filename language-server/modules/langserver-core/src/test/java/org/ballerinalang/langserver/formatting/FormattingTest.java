@@ -141,7 +141,22 @@ public class FormattingTest {
                 {"expectedIndexBasedAccess.bal", "indexBasedAccess.bal"},
                 {"expectedIntegerRangeExpression.bal", "integerRangeExpression.bal"},
                 {"expectedLock.bal", "lock.bal"},
-//                {"expectedImportOrder.bal", "importOrder.bal"},
+                {"expectedImportOrder.bal", "importOrder.bal"},
+                {"expectedBlockExpandOnDemand.bal", "blockExpandOnDemand.bal"},
+                {"expectedNamedArgsExpr.bal", "namedArgsExpr.bal"},
+                {"expectedRestArgsExpr.bal", "restArgsExpr.bal"},
+                {"expectedRecordDestructure.bal", "recordDestructure.bal"},
+                {"expectedCheckPanic.bal", "checkPanic.bal"},
+                {"expectedAnonRecord.bal", "anonRecord.bal"},
+                {"expectedInvocation.bal", "invocation.bal"},
+                {"expectedTypeDesc.bal", "typeDesc.bal"},
+                {"expectedAnonObject.bal", "anonObject.bal"},
+                {"expectedUnaryExpr.bal", "unaryExpr.bal"},
+                {"expectedTypeInitExpr.bal", "typeInitExpr.bal"},
+                {"expectedServiceConstruct.bal", "serviceConstruct.bal"},
+                {"expectedForkJoin.bal", "forkJoin.bal"},
+                {"expectedEmpty.bal", "empty.bal"},
+                {"expectedDelimiter.bal", "delimiter.bal"},
         };
     }
 

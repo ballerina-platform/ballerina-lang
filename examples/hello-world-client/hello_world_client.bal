@@ -4,7 +4,7 @@ import ballerina/io;
 public function main() {
     // Create an HTTP client to interact with a remote endpoint.
     http:Client clientEP = new("http://www.mocky.io");
-    // Send a get request to the server.
+    // Send a GET request to the server.
     var resp = clientEP->get("/v2/5ae082123200006b00510c3d/");
 
     if (resp is http:Response) {
@@ -12,15 +12,16 @@ public function main() {
         // response.
         var payload = resp.getTextPayload();
         if (payload is string) {
-            // Log the retrieved text paylod.
+            // Log the retrieved text payload.
             io:println(payload);
         } else {
             // If an error occurs while retrieving the text payload, print
-            // the error.
-            io:println(<string> payload.detail().message);
+            // the detail mapping of the error.
+            io:println(payload.detail());
         }
     } else {
-        // If an error occurs when getting the response, print the error.
-        io:println(<string> resp.detail().message);
+        // If an error occurs when getting the response, print the detail
+        // mapping of the error.
+        io:println(resp.detail());
     }
 }

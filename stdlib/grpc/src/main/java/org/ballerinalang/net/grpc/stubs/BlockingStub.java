@@ -18,14 +18,12 @@
 package org.ballerinalang.net.grpc.stubs;
 
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.model.types.BTupleType;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.types.BTupleType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.grpc.ClientCall;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
@@ -57,9 +55,10 @@ public class BlockingStub extends AbstractStub {
      * @param request          request message.
      * @param methodDescriptor method descriptor
      * @param dataContext data context
+     * @throws Exception if an error occur while processing client call.
      */
     public void executeUnary(Message request, MethodDescriptor methodDescriptor,
-                                           DataContext dataContext) {
+                                           DataContext dataContext) throws Exception {
         ClientCall call = new ClientCall(getConnector(), createOutboundRequest(request
                 .getHeaders()), methodDescriptor);
         call.start(new CallBlockingListener(dataContext));
@@ -67,7 +66,7 @@ public class BlockingStub extends AbstractStub {
             call.sendMessage(request);
             call.halfClose();
         } catch (Exception e) {
-            throw cancelThrow(call, e);
+            cancelThrow(call, e);
         }
     }
 
@@ -100,38 +99,34 @@ public class BlockingStub extends AbstractStub {
 
         @Override
         public void onClose(Status status, HttpHeaders trailers) {
-            BError httpConnectorError = null;
-            BValueArray inboundResponse = null;
+            ErrorValue httpConnectorError = null;
+            ArrayValue inboundResponse = null;
             if (status.isOk()) {
                 if (value == null) {
                     // No value received so mark the future as an error
                     httpConnectorError = MessageUtils.getConnectorError(Status.Code.INTERNAL.toStatus()
                                     .withDescription("No value received for unary call").asRuntimeException());
                 } else {
-                    BValue responseBValue = value.getbMessage();
+                    Object responseBValue = value.getbMessage();
                     // Set response headers, when response headers exists in the message context.
-                    BMap<String, BValue> headerStruct = BLangConnectorSPIUtil.createBStruct(dataContext.context
-                            .getProgramFile(), PROTOCOL_STRUCT_PACKAGE_GRPC, HEADERS);
-                    headerStruct.addNativeData(MESSAGE_HEADERS, value.getHeaders());
-                    BValueArray contentTuple =
-                            new BValueArray(
-                                    new BTupleType(Arrays.asList(BTypes.typeAny,
-                                                                 dataContext.context.getProgramFile()
-                                                                         .getPackageInfo (PROTOCOL_STRUCT_PACKAGE_GRPC)
-                                                                         .getTypeDefInfo(HEADERS).typeInfo.getType())));
-                    contentTuple.add(0, (BRefType) responseBValue);
-                    contentTuple.add(1, headerStruct);
+                    ObjectValue headerObject = BallerinaValues.createObjectValue(PROTOCOL_STRUCT_PACKAGE_GRPC, HEADERS);
+                    headerObject.addNativeData(MESSAGE_HEADERS, value.getHeaders());
+                    ArrayValue contentTuple =
+                            new ArrayValue(
+                                    new BTupleType(Arrays.asList(BTypes.typeAnydata, headerObject.getType())));
+                    contentTuple.add(0, responseBValue);
+                    contentTuple.add(1, headerObject);
                     inboundResponse = contentTuple;
                 }
             } else {
                 httpConnectorError = MessageUtils.getConnectorError(status.asRuntimeException());
             }
             if (inboundResponse != null) {
-                dataContext.context.setReturnValues(inboundResponse);
+                dataContext.getCallback().setReturnValues(inboundResponse);
             } else {
-                dataContext.context.setReturnValues(httpConnectorError);
+                dataContext.getCallback().setReturnValues(httpConnectorError);
             }
-            dataContext.callback.notifySuccess();
+            dataContext.getCallback().notifySuccess();
         }
     }
 }

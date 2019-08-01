@@ -56,8 +56,9 @@ public class ServicePackagingTestCase extends BaseTest {
         String[] options = {"\n", "\n", "\n", "s\n", "foo\n", "f\n"};
         ballerinaBuildServer.runMain("init", args, getEnvVariables(), options, new LogLeecher[]{},
                 projectPath.toString());
-        Files.copy(Paths.get("src", "test", "resources", "grpc", "nested_type_service.bal"), Paths.get
-                (projectPath.resolve("foo").toString(), "nested_type_service.bal"));
+        
+        Files.copy(Paths.get(getClass().getClassLoader().getResource("grpc/nested_type_service.bal").getPath()), 
+            Paths.get(projectPath.resolve("foo").toString(), "nested_type_service.bal"));
         Files.deleteIfExists(projectPath.resolve("foo").resolve("hello_service.bal"));
 
         // perform ballerina build and generate balx file.

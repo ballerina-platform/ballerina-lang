@@ -10,3 +10,11 @@ function name2() returns (int[]) {
     int[] a = [];
     return a;
 }
+
+type Foo record {
+    int a = 0;
+};
+
+function name3() {
+    Foo[] ar = [{a: 10}, {a: 20}];
+}

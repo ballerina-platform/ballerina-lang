@@ -22,7 +22,7 @@ import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.utils.PackagingTestUtils;
+import org.ballerinalang.test.utils.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -33,7 +33,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
@@ -51,7 +50,7 @@ public class ImportModuleTestCase extends BaseTest {
     public void setUp() throws IOException {
         tempHomeDirectory = Files.createTempDirectory("bal-test-integration-repo-hierarchy-home-");
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-import-module-project-");
-        envVariables = addEnvVariables(PackagingTestUtils.getEnvVariables());
+        envVariables = addEnvVariables(TestUtils.getEnvVariables());
     }
 
     /**
@@ -64,8 +63,8 @@ public class ImportModuleTestCase extends BaseTest {
         Path projPath = tempProjectDirectory.resolve("firstProj");
         Files.createDirectories(projPath);
 
-        String projectPath = (new File("src/test/resources/import-module")).getAbsolutePath();
-        FileUtils.copyDirectory(Paths.get(projectPath).toFile(), projPath.toFile());
+        FileUtils.copyDirectory(new File(getClass().getClassLoader().getResource("import-module").getPath()),
+                projPath.toFile());
         Files.createDirectories(projPath.resolve(".ballerina"));
 
         String[] clientArgs = {"foo"};
@@ -90,7 +89,7 @@ public class ImportModuleTestCase extends BaseTest {
                           projPath.toString());
 
         // Delete module 'abc' from the project
-        PackagingTestUtils.deleteFiles(projPath.resolve("abc"));
+        TestUtils.deleteFiles(projPath.resolve("abc"));
 
         String[] clientArgs = {"foo"};
         LogLeecher logLeecher = new LogLeecher("Hello Natasha !!!! Have a good day!!!");
@@ -108,8 +107,9 @@ public class ImportModuleTestCase extends BaseTest {
     public void testResolveModulesFromProjectInTestSources() throws BallerinaTestException, IOException {
         Path projPath = tempProjectDirectory.resolve("secProj");
         Files.createDirectories(projPath);
-        FileUtils.copyDirectory(Paths.get((new File("src/test/resources/import-test-in-project"))
-                                                  .getAbsolutePath()).toFile(), projPath.toFile());
+
+        FileUtils.copyDirectory(new File(getClass().getClassLoader().getResource("import-test-in-project").getPath()),
+                projPath.toFile());
         Files.createDirectories(projPath.resolve(".ballerina"));
 
         balClient.runMain("build", new String[]{}, envVariables, new String[]{}, new LogLeecher[]{},
@@ -136,9 +136,9 @@ public class ImportModuleTestCase extends BaseTest {
     public void testResolveImportsFromInstalledModulesInTests() throws BallerinaTestException, IOException {
         Path projPath = tempProjectDirectory.resolve("thirdProj");
         Files.createDirectories(projPath);
-
-        FileUtils.copyDirectory(Paths.get((new File("src/test/resources/import-test-in-cache"))
-                                                  .getAbsolutePath()).toFile(), projPath.toFile());
+        
+        FileUtils.copyDirectory(new File(getClass().getClassLoader().getResource("import-test-in-cache").getPath()),
+            projPath.toFile());
         Files.createDirectories(projPath.resolve(".ballerina"));
 
         // ballerina install abc
@@ -146,12 +146,12 @@ public class ImportModuleTestCase extends BaseTest {
                           projPath.toString());
 
         // Delete module 'abc' from the project
-        PackagingTestUtils.deleteFiles(projPath.resolve("mod2"));
-        PackagingTestUtils.deleteFiles(projPath.resolve(".ballerina").resolve("repo"));
+        TestUtils.deleteFiles(projPath.resolve("mod2"));
+        TestUtils.deleteFiles(projPath.resolve(".ballerina").resolve("repo"));
 
         // Rename org-name to "natasha" in Ballerina.toml
         Path tomlFilePath = projPath.resolve("Ballerina.toml");
-        String content = "[project]\norg-name = \"natasha\"\nversion = \"1.0.0\"\n";
+        String content = "[project]\norgName = \"natasha\"\nversion = \"1.0.0\"\n";
         Files.write(tomlFilePath, content.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
 
         // Module fanny/mod2 will be picked from home repository since it was installed before
@@ -178,8 +178,8 @@ public class ImportModuleTestCase extends BaseTest {
         Path projPath = tempProjectDirectory.resolve("fourthProj");
         Files.createDirectories(projPath);
 
-        FileUtils.copyDirectory(Paths.get((new File("src/test/resources/import-in-both")).getAbsolutePath())
-                                     .toFile(), projPath.toFile());
+        FileUtils.copyDirectory(new File(getClass().getClassLoader().getResource("import-in-both").getPath()),
+                projPath.toFile());
         Files.createDirectories(projPath.resolve(".ballerina"));
 
         // ballerina install abc
@@ -187,12 +187,12 @@ public class ImportModuleTestCase extends BaseTest {
                           projPath.toString());
 
         // Delete module 'abc' from the project
-        PackagingTestUtils.deleteFiles(projPath.resolve("mod2"));
-        PackagingTestUtils.deleteFiles(projPath.resolve(".ballerina").resolve("repo"));
+        TestUtils.deleteFiles(projPath.resolve("mod2"));
+        TestUtils.deleteFiles(projPath.resolve(".ballerina").resolve("repo"));
 
         // Rename org-name to "natasha" in Ballerina.toml
         Path tomlFilePath = projPath.resolve("Ballerina.toml");
-        String content = "[project]\norg-name = \"natasha\"\nversion = \"1.0.0\"\n";
+        String content = "[project]\norgName = \"natasha\"\nversion = \"1.0.0\"\n";
         Files.write(tomlFilePath, content.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
 
         // Module manny/mod2 will be picked from home repository since it was installed before
@@ -226,7 +226,7 @@ public class ImportModuleTestCase extends BaseTest {
 
     @AfterClass
     private void cleanup() throws Exception {
-        PackagingTestUtils.deleteFiles(tempHomeDirectory);
-        PackagingTestUtils.deleteFiles(tempProjectDirectory);
+        TestUtils.deleteFiles(tempHomeDirectory);
+        TestUtils.deleteFiles(tempProjectDirectory);
     }
 }

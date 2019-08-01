@@ -18,15 +18,10 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.util.XMLUtils;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
@@ -49,27 +44,16 @@ import org.ballerinalang.util.exceptions.BallerinaException;
                 structPackage = "ballerina/io"),
         isPublic = true
 )
-public class ReadXml implements NativeCallableUnit {
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-        BMap<String, BValue> channel = (BMap<String, BValue>) context.getRefArgument(0);
+public class ReadXml {
+
+    public static Object readXml(Strand strand, ObjectValue channel) {
+
         CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(IOConstants.CHARACTER_CHANNEL_NAME);
         CharacterChannelReader reader = new CharacterChannelReader(charChannel, new EventContext());
-        final BXML xml;
         try {
-            xml = XMLUtils.parse(reader);
+            return XMLFactory.parse(reader);
         } catch (BallerinaException e) {
-            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, e.getMessage());
-            context.setReturnValues(errorStruct);
-            callback.notifySuccess();
-            return;
+            return IOUtils.createError(e.getMessage());
         }
-        context.setReturnValues(xml);
-        callback.notifySuccess();
-    }
-
-    @Override
-    public boolean isBlocking() {
-        return false;
     }
 }

@@ -20,6 +20,7 @@ package org.ballerinalang.model;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BMap;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -46,6 +47,8 @@ public interface DataIterator {
     Boolean getBoolean(int columnIndex);
 
     String getBlob(int columnIndex);
+
+    BigDecimal getDecimal(int columnIndex);
 
     Object[] getStruct(int columnIndex);
 

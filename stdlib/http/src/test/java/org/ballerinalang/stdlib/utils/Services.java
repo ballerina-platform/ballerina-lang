@@ -20,27 +20,25 @@ package org.ballerinalang.stdlib.utils;
 
 
 import io.netty.handler.codec.http.HttpContent;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.Executor;
-import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.http.HTTPServicesRegistry;
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.net.http.mock.nonlistening.MockHTTPConnectorListener;
+import org.ballerinalang.net.http.mock.nonlistening.MockHTTPConnectorListener.RegistryHolder;
+import org.ballerinalang.test.util.CompileResult;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
-
-import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONFIG;
+import java.util.concurrent.Executors;
 
 /**
  * This contains test utils related to Ballerina service invocations.
@@ -49,30 +47,35 @@ import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONFIG;
  */
 public class Services {
 
-
+    @Deprecated
     public static HttpCarbonMessage invokeNew(CompileResult compileResult, String endpointName,
                                               HTTPTestRequest request) {
         return invokeNew(compileResult, ".", Names.EMPTY.value, endpointName, request);
     }
 
+    @Deprecated
     public static HttpCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String endpointName,
                                               HTTPTestRequest request) {
         return invokeNew(compileResult, pkgName, Names.DEFAULT_VERSION.value, endpointName, request);
     }
 
+    @Deprecated
     public static HttpCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String version,
                                               String endpointName, HTTPTestRequest request) {
-        ProgramFile programFile = compileResult.getProgFile();
-        BMap<String, BValue> connectorEndpoint =
-                BLangConnectorSPIUtil.getPackageEndpoint(programFile, pkgName, version, endpointName);
+        return invoke(0, request);
+    }
 
-        HTTPServicesRegistry httpServicesRegistry =
-                (HTTPServicesRegistry) connectorEndpoint.getNativeData("HTTP_SERVICE_REGISTRY");
+    public static HttpCarbonMessage invoke(int listenerPort, HTTPTestRequest request) {
+        RegistryHolder registryHolder = MockHTTPConnectorListener.getInstance()
+                                                            .getHttpServicesRegistry(listenerPort);
+        if (registryHolder == null) {
+            return null;
+        }
         TestCallableUnitCallback callback = new TestCallableUnitCallback(request);
         request.setCallback(callback);
         HttpResource resource = null;
         try {
-            resource = HttpDispatcher.findResource(httpServicesRegistry, request);
+            resource = HttpDispatcher.findResource(registryHolder.getRegistry(), request);
         } catch (BallerinaException ex) {
             HttpUtil.handleFailure(request, new BallerinaConnectorException(ex.getMessage()));
         }
@@ -86,10 +89,15 @@ public class Services {
             Object srcHandler = request.getProperty(HttpConstants.SRC_HANDLER);
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
-        BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request, BLangConnectorSPIUtil
-                .toStruct((BMap<String, BValue>) connectorEndpoint.get(SERVICE_ENDPOINT_CONFIG)));
+
+        Object[] signatureParams = HttpDispatcher.getSignatureParameters(resource,
+                request, registryHolder.getEndpointConfig());
         callback.setRequestStruct(signatureParams[0]);
-        Executor.submit(resource.getBalResource(), callback, properties, null, signatureParams);
+
+        ObjectValue service = resource.getParentService().getBalService();
+        Scheduler scheduler = registryHolder.getRegistry().getScheduler();
+        Executor.submit(scheduler, service, resource.getName(), callback, properties, signatureParams);
+        Executors.newSingleThreadExecutor().submit(scheduler::start);
         callback.sync();
 
         HttpCarbonMessage originalMsg = callback.getResponseMsg();

@@ -20,9 +20,9 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
+import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
-import org.ballerinalang.langserver.formatting.FormattingSourceGen;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.slf4j.Logger;
@@ -53,7 +53,7 @@ import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
  */
 public class SourceGenTest {
     private Path examples = Paths.get("../../../examples").toAbsolutePath();
-    private Path unitTestResources = Paths.get("../../../tests/ballerina-unit-test/src/test/resources/test-src")
+    private Path unitTestResources = Paths.get("../../../tests/jballerina-unit-test/src/test/resources/test-src")
             .toAbsolutePath();
     private List<File> ballerinaTestResources;
     private Endpoint serviceEndpoint;

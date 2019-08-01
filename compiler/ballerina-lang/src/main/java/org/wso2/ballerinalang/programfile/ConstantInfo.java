@@ -24,24 +24,31 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * {@code ConstantInfo} represents a constant in a compiled package.
+ * Represents constant information.
  *
  * @since 0.985.0
  */
 public class ConstantInfo implements AttributeInfoPool {
 
-    public int nameCPIndex;
-    public int finiteTypeCPIndex;
-    public int valueTypeCPIndex;
-    public int flags;
+    // Contains the details of the constant name.
+    public KeyInfo key;
+
+    // Contains the flags of the constant.
+    public int flags = -1;
+
+    // Contains the value type signature CP index of the constant.
+    public int valueTypeSigCPIndex = -1;
+
+    // Flag to indicate that the constant info contains a simple literal.
+    public boolean isSimpleLiteral;
+
+    // Contains the details of the constants.
+    public ConstantValue constantValue;
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    public ConstantInfo(int nameCPIndex, int finiteTypeCPIndex, int valueTypeCPIndex, int flags) {
-        this.nameCPIndex = nameCPIndex;
-        this.finiteTypeCPIndex = finiteTypeCPIndex;
-        this.valueTypeCPIndex = valueTypeCPIndex;
-        this.flags = flags;
+    public ConstantInfo(String name, int nameCPIndex) {
+        this.key = new KeyInfo(name, nameCPIndex);
     }
 
     public AttributeInfo getAttributeInfo(AttributeInfo.Kind attributeKind) {

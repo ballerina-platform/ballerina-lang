@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -56,18 +56,6 @@ public class BallerinaAnnotationDefinitionImpl extends ASTWrapperPsiElement impl
 
   @Override
   @Nullable
-  public PsiElement getGt() {
-    return findChildByType(GT);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getLt() {
-    return findChildByType(LT);
-  }
-
-  @Override
-  @Nullable
   public PsiElement getSemicolon() {
     return findChildByType(SEMICOLON);
   }
@@ -80,8 +68,20 @@ public class BallerinaAnnotationDefinitionImpl extends ASTWrapperPsiElement impl
 
   @Override
   @Nullable
+  public PsiElement getConst() {
+    return findChildByType(CONST);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getIdentifier() {
     return findChildByType(IDENTIFIER);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getOn() {
+    return findChildByType(ON);
   }
 
   @Override

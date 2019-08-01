@@ -17,8 +17,11 @@
  */
 package org.ballerinalang.model.tree.expressions;
 
+import org.wso2.ballerinalang.compiler.tree.BLangService;
+
 /**
  * @since 0.985.0
  */
 public interface ServiceConstructorNode extends ExpressionNode {
+    BLangService getServiceNode();
 }

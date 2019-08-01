@@ -1,0 +1,5 @@
+// Ballerina defines certain types as lax types, for which static typing rules are less strict.
+// For example field access (`.`) and optional field access (`?.`), which are generally allowed on
+// records and objects for fields that are defined in the type descriptors, are also additionally
+// allowed on lax types, moving some of the type checking to runtime from compile time.
+// `json` is defined to be a lax type along with any `map<T>` where `T` is a lax type.

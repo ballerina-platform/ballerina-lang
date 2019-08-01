@@ -29,8 +29,8 @@ class BBooleanType extends BType {
      *
      * @param typeName string name of the type
      */
-    BBooleanType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, Boolean.class);
+    BBooleanType(String typeName, BPackage pkg) {
+        super(typeName, pkg, Boolean.class);
     }
 
     @SuppressWarnings("unchecked")

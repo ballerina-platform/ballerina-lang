@@ -18,11 +18,10 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -50,18 +49,15 @@ import static org.ballerinalang.net.http.HttpConstants.CALLER;
         isPublic = true
 )
 public class Promise extends ConnectionAction {
-
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-        BMap<String, BValue> connectionStruct = (BMap<String, BValue>) context.getRefArgument(0);
-        HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
-        DataContext dataContext = new DataContext(context, callback, inboundRequestMsg);
+    public static Object promise(Strand strand, ObjectValue connectionObj, ObjectValue pushPromiseObj) {
+        HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionObj, null);
+        DataContext dataContext = new DataContext(strand, new NonBlockingCallback(strand), inboundRequestMsg);
         HttpUtil.serverConnectionStructCheck(inboundRequestMsg);
 
-        BMap<String, BValue> pushPromiseStruct = (BMap<String, BValue>) context.getRefArgument(1);
-        Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseStruct,
-                HttpUtil.createHttpPushPromise(pushPromiseStruct));
+        Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseObj,
+                HttpUtil.createHttpPushPromise(pushPromiseObj));
         HttpResponseFuture outboundRespStatusFuture = HttpUtil.pushPromise(inboundRequestMsg, http2PushPromise);
         setResponseConnectorListener(dataContext, outboundRespStatusFuture);
+        return null;
     }
 }

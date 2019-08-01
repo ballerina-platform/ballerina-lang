@@ -19,8 +19,8 @@
 package org.ballerinalang.net.grpc.listener;
 
 import com.google.protobuf.Descriptors;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.Executor;
+import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
+import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.ServerCall;
@@ -29,7 +29,7 @@ import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.callback.StreamingCallableUnitCallBack;
 import org.ballerinalang.net.grpc.callback.UnaryCallableUnitCallBack;
-import org.ballerinalang.net.grpc.exception.ServerRuntimeException;
+import org.ballerinalang.net.grpc.exception.GrpcServerException;
 
 import java.util.Map;
 
@@ -43,8 +43,9 @@ public class StreamingServerCallHandler extends ServerCallHandler {
     private final Map<String, ServiceResource> resourceMap;
 
     public StreamingServerCallHandler(Descriptors.MethodDescriptor methodDescriptor, Map<String, ServiceResource>
-            resourceMap) {
+            resourceMap) throws GrpcServerException {
         super(methodDescriptor);
+        validateStreamingResources(resourceMap);
         this.resourceMap = resourceMap;
     }
 
@@ -55,19 +56,19 @@ public class StreamingServerCallHandler extends ServerCallHandler {
         return new StreamingServerCallListener(requestObserver, responseObserver);
     }
 
-    public StreamObserver invoke(StreamObserver responseObserver) {
+    private StreamObserver invoke(StreamObserver responseObserver) {
         ServiceResource onOpen = resourceMap.get(GrpcConstants.ON_OPEN_RESOURCE);
         StreamingCallableUnitCallBack callback = new StreamingCallableUnitCallBack(responseObserver);
-        Executor.submit(onOpen.getResource(), callback, null, null, computeMessageParams
-                (onOpen, null, responseObserver));
+        Executor.submit(onOpen.getScheduler(), onOpen.getService(), onOpen.getFunctionName(), callback, null,
+                computeMessageParams(onOpen, null, responseObserver));
         callback.available.acquireUninterruptibly();
         return new StreamObserver() {
             @Override
             public void onNext(Message value) {
                 ServiceResource onMessage = resourceMap.get(GrpcConstants.ON_MESSAGE_RESOURCE);
                 CallableUnitCallback callback = new StreamingCallableUnitCallBack(responseObserver);
-                Executor.submit(onMessage.getResource(), callback, null, null, computeMessageParams(onMessage, value,
-                        responseObserver));
+                Executor.submit(onMessage.getScheduler(), onMessage.getService(), onMessage.getFunctionName(),
+                        callback, null, computeMessageParams(onMessage, value, responseObserver));
             }
 
             @Override
@@ -79,13 +80,9 @@ public class StreamingServerCallHandler extends ServerCallHandler {
             @Override
             public void onCompleted() {
                 ServiceResource onCompleted = resourceMap.get(GrpcConstants.ON_COMPLETE_RESOURCE);
-                if (onCompleted == null) {
-                    String message = "Error in listener service definition. onError resource does not exists";
-                    throw new ServerRuntimeException(message);
-                }
                 CallableUnitCallback callback = new UnaryCallableUnitCallBack(responseObserver, Boolean.FALSE);
-                Executor.submit(onCompleted.getResource(), callback, null, null, computeMessageParams
-                        (onCompleted, null, responseObserver));
+                Executor.submit(onCompleted.getScheduler(), onCompleted.getService(), onCompleted.getFunctionName(),
+                        callback, null, computeMessageParams(onCompleted, null, responseObserver));
             }
         };
     }
@@ -129,6 +126,24 @@ public class StreamingServerCallHandler extends ServerCallHandler {
         @Override
         public void onComplete() {
             // Additional logic when closing the stream at server side.
+        }
+    }
+
+    private void validateStreamingResources(Map<String, ServiceResource> resourceMap) throws GrpcServerException {
+        if (resourceMap.isEmpty()) {
+            throw new GrpcServerException("Streaming service resources don't exist.");
+        }
+        if (!resourceMap.containsKey(GrpcConstants.ON_OPEN_RESOURCE)) {
+            throw new GrpcServerException("Streaming service onOpen resource doesn't exist.");
+        }
+        if (!resourceMap.containsKey(GrpcConstants.ON_MESSAGE_RESOURCE)) {
+            throw new GrpcServerException("Streaming service onMessage resource doesn't exist.");
+        }
+        if (!resourceMap.containsKey(GrpcConstants.ON_ERROR_RESOURCE)) {
+            throw new GrpcServerException("Streaming service onError resource doesn't exist.");
+        }
+        if (!resourceMap.containsKey(GrpcConstants.ON_COMPLETE_RESOURCE)) {
+            throw new GrpcServerException("Streaming service onComplete resource doesn't exist.");
         }
     }
 }

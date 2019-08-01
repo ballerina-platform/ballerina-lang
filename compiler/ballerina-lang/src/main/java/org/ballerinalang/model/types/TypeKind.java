@@ -80,13 +80,14 @@ public enum TypeKind {
     NONE(""),
     OTHER("other"),
     ERROR("error"),
-    XML_ATTRIBUTES("xml-attributes"),
     INTERMEDIATE_COLLECTION("intermediate_collection"),
     TUPLE("tuple"),
     OBJECT("object"),
     RECORD("record"),
     FINITE("finite"),
-    CHANNEL("channel")
+    CHANNEL("channel"),
+    HANDLE("handle"),
+    TYPEPARAM("typeparam"),
     ;
 
     private String name;

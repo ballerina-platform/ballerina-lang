@@ -19,14 +19,13 @@ package org.ballerinalang.nativeimpl.jvm.classwriter;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.objectweb.asm.ClassWriter;
 
 import static org.ballerinalang.nativeimpl.jvm.ASMUtil.CLASS_WRITER;
 import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
@@ -45,12 +44,14 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
 public class Init extends BlockingNativeCallableUnit {
 
     @Override
+    @Deprecated
     public void execute(Context context) {
+        throw new UnsupportedOperationException("BVM Unsupported");
+    }
 
-        int flags = (int) context.getIntArgument(0);
-
-        BMap<String, BValue> classWriterStruct = (BMap<String, BValue>) context.getRefArgument(0);
-        ASMUtil.addNativeDataToObject(new ClassWriter(flags), classWriterStruct);
+    public static void init(Strand strand, ObjectValue classWriterStruct, long lFlags) {
+        int flags = (int) lFlags;
+        ASMUtil.addNativeDataToObject(new BallerinaClassWriter(flags), classWriterStruct);
     }
 }
 

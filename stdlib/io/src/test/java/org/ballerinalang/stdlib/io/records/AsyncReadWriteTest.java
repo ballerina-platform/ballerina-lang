@@ -57,7 +57,7 @@ public class AsyncReadWriteTest {
 
     @BeforeSuite
     public void setup() {
-        currentDirectoryPath = System.getProperty("user.dir") + "/target/";
+        currentDirectoryPath = System.getProperty("user.dir") + "/build/";
     }
 
     @Test(description = "Test which will read text records from a given channel using async io framework")

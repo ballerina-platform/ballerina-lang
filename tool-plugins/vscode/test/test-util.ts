@@ -25,8 +25,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const TEST_RESOURCES = __dirname + '/../../target/test/';
-const PLATFORM_PREFIX = /ballerina-tools-/;
+const TEST_RESOURCES = __dirname + '/../../extractedDistribution/';
+const PLATFORM_PREFIX = /jballerina-tools-/;
 
 
 function findBallerinaDistribution(){

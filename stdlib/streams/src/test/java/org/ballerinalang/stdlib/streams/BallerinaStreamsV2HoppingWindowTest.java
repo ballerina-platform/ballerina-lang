@@ -18,12 +18,12 @@
 
 package org.ballerinalang.stdlib.streams;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -43,7 +43,7 @@ public class BallerinaStreamsV2HoppingWindowTest {
         result3 = BCompileUtil.compile("test-src/streamingv2-hopping-window-test3.bal");
     }
 
-    @Test(description = "Test hopping window query when windowSize > hopeSize", enabled = false)
+    @Test(description = "Test hopping window query when windowSize > hopeSize")
     public void testHoppingWindowQuery1() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result1, "startHoppingWindowTest");
         Assert.assertNotNull(outputEmployeeEvents);
@@ -61,7 +61,7 @@ public class BallerinaStreamsV2HoppingWindowTest {
 
     }
 
-    @Test(description = "Test hopping window query when windowSize << hopeSize", enabled = false)
+    @Test(description = "Test hopping window query when windowSize << hopeSize")
     public void testHoppingWindowQuery2() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result2, "startHoppingWindowTest2");
         Assert.assertNotNull(outputEmployeeEvents);
@@ -69,7 +69,7 @@ public class BallerinaStreamsV2HoppingWindowTest {
         Assert.assertEquals(outputEmployeeEvents.length, 0, "Expected events are not received");
     }
 
-    @Test(description = "Test hopping window query when windowSize < hopeSize", enabled = false)
+    @Test(description = "Test hopping window query when windowSize < hopeSize")
     public void testHoppingWindowQuery3() {
         BValue[] outputEmployeeEvents = BRunUtil.invoke(result3, "startHoppingWindowTest3");
         Assert.assertNotNull(outputEmployeeEvents);

@@ -21,7 +21,7 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import io.ballerina.plugins.idea.BallerinaConstants;
-import io.ballerina.plugins.idea.sdk.BallerinaSdkUtil;
+import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -49,7 +49,7 @@ public class BallerinaApplicationLibrariesService
     public void setUseBallerinaPathFromSystemEnvironment(boolean useBallerinaPathFromSystemEnvironment) {
         if (myState.isUseBallerinaPathFromSystemEnvironment() != useBallerinaPathFromSystemEnvironment) {
             myState.setUseBallerinaPathFromSystemEnvironment(useBallerinaPathFromSystemEnvironment);
-            if (!BallerinaSdkUtil.getBallerinaPathsRootsFromEnvironment().isEmpty()) {
+            if (!BallerinaSdkUtils.getBallerinaPathsRootsFromEnvironment().isEmpty()) {
                 incModificationCount();
                 ApplicationManager.getApplication().getMessageBus().syncPublisher(LIBRARIES_TOPIC)
                         .librariesChanged(getLibraryRootUrls());

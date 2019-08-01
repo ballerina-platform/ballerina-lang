@@ -47,12 +47,10 @@ public class BLangRecordVariable extends BLangVariable implements RecordVariable
 
     public List<BLangRecordVariableKeyValue> variableList;
     public VariableNode restParam;
-    public boolean isClosed;
 
     public BLangRecordVariable() {
         this.annAttachments = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
-        this.deprecatedAttachments = new ArrayList<>();
         this.variableList = new ArrayList<>();
     }
 
@@ -67,8 +65,8 @@ public class BLangRecordVariable extends BLangVariable implements RecordVariable
     }
 
     @Override
-    public boolean isClosed() {
-        return isClosed;
+    public boolean hasRestParam() {
+        return this.restParam != null;
     }
 
     @Override

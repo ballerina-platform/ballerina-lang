@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.BallerinaValues;
+
 import java.util.Map.Entry;
 import java.util.StringJoiner;
 
@@ -27,24 +29,29 @@ import java.util.StringJoiner;
  */
 public class BObjectType extends BStructureType {
 
-    private BAttachedFunction[] attachedFunctions;
-    public BAttachedFunction initializer;
-    public BAttachedFunction defaultsValuesInitFunc;
+    private AttachedFunction[] attachedFunctions;
+    public AttachedFunction initializer;
+    public AttachedFunction defaultsValuesInitFunc;
 
     /**
      * Create a {@code BObjectType} which represents the user defined struct type.
      *
      * @param typeName string name of the type
-     * @param pkgPath package of the struct
+     * @param pkg package of the struct
      * @param flags flags of the object type
      */
-    public BObjectType(String typeName, String pkgPath, int flags) {
-        super(typeName, pkgPath, flags, Object.class);
+    public BObjectType(String typeName, BPackage pkg, int flags) {
+        super(typeName, pkg, flags, Object.class);
     }
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return null;
+        return (V) BallerinaValues.createObjectValue(this.pkg.toString(), this.typeName);
+    }
+
+    @Override
+    public String getAnnotationKey() {
+        return this.typeName;
     }
 
     @Override
@@ -57,23 +64,33 @@ public class BObjectType extends BStructureType {
         return TypeTags.OBJECT_TYPE_TAG;
     }
 
-    public BAttachedFunction[] getAttachedFunctions() {
+    public AttachedFunction[] getAttachedFunctions() {
         return attachedFunctions;
     }
 
-    public void setAttachedFunctions(BAttachedFunction[] attachedFunctions) {
+    public void setAttachedFunctions(AttachedFunction[] attachedFunctions) {
         this.attachedFunctions = attachedFunctions;
     }
 
+    public void setInitializer(AttachedFunction initializer) {
+        this.initializer = initializer;
+    }
+
     public String toString() {
-        String name = (pkgPath == null || pkgPath.equals(".")) ? typeName : pkgPath + ":" + typeName;
+        String name = (pkg == null || pkg.getName() == null || pkg.getName().equals(".")) ?
+                typeName : pkg.getName() + ":" + typeName;
+        
+        if (!typeName.contains("$anon")) {
+            return name;
+        }
+
         StringJoiner sj = new StringJoiner(",\n\t", name + " {\n\t", "\n}");
 
         for (Entry<String, BField> field : getFields().entrySet()) {
             sj.add(field.getKey() + " : " + field.getValue().type);
         }
 
-        for (BAttachedFunction func : attachedFunctions) {
+        for (AttachedFunction func : attachedFunctions) {
             sj.add(func.toString());
         }
 

@@ -17,14 +17,11 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -52,53 +49,38 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
                       @ReturnType(type = TypeKind.ERROR)},
         isPublic = true
 )
-public class NextTextRecord implements NativeCallableUnit {
-    /**
-     * Specifies the index which contains the byte channel in ballerina/io#nextTextRecord.
-     */
-    private static final int TXT_RECORD_CHANNEL_INDEX = 0;
+public class NextTextRecord {
 
-    /*
+    public static Object getNext(Strand strand, ObjectValue channel) {
+        DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel.getNativeData(
+                IOConstants.TXT_RECORD_CHANNEL_NAME);
+        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
+        DelimitedRecordReadEvent event = new DelimitedRecordReadEvent(delimitedRecordChannel, eventContext);
+        Register register = EventRegister.getFactory().register(event, NextTextRecord::getResponse);
+        eventContext.setRegister(register);
+        register.submit();
+        return null;
+    }
+
+
+    /**
      * Response obtained after reading record.
      *
      * @param result the result obtained after processing the record.
      * @return the response obtained after reading record.
      */
-    private static EventResult response(EventResult<String[], EventContext> result) {
+    private static EventResult getResponse(EventResult<String[], EventContext> result) {
         EventContext eventContext = result.getContext();
-        Context context = eventContext.getContext();
-        CallableUnitCallback callback = eventContext.getCallback();
+        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
         Throwable error = eventContext.getError();
         if (null != error) {
-            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, error.getMessage());
-            context.setReturnValues(errorStruct);
+            callback.setReturnValues(IOUtils.createError(error.getMessage()));
         } else {
             String[] fields = result.getResponse();
-            context.setReturnValues(new BValueArray(fields));
+            callback.setReturnValues(new ArrayValue(fields));
         }
         IOUtils.validateChannelState(eventContext);
         callback.notifySuccess();
         return result;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-        BMap<String, BValue> channel = (BMap<String, BValue>) context.getRefArgument(TXT_RECORD_CHANNEL_INDEX);
-
-        DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel.getNativeData(IOConstants
-                .TXT_RECORD_CHANNEL_NAME);
-        EventContext eventContext = new EventContext(context, callback);
-        DelimitedRecordReadEvent event = new DelimitedRecordReadEvent(delimitedRecordChannel, eventContext);
-        Register register = EventRegister.getFactory().register(event, NextTextRecord::response);
-        eventContext.setRegister(register);
-        register.submit();
-    }
-
-    @Override
-    public boolean isBlocking() {
-        return false;
     }
 }

@@ -19,9 +19,8 @@
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.time.util.TimeUtils;
 
@@ -41,21 +40,18 @@ public class Format extends AbstractTimeFunction {
 
     @Override
     public void execute(Context context) {
-        BMap<String, BValue> timeStruct = ((BMap<String, BValue>) context.getRefArgument(0));
-        BString pattern = (BString) context.getNullableRefArgument(1);
+    }
 
+    public static Object format(Strand strand, MapValue<String, Object> timeRecord, Object pattern) {
         try {
-            if ("RFC_1123".equals(pattern.stringValue())) {
-                ZonedDateTime zonedDateTime = getZonedDateTime(timeStruct);
-                String formattedDateTime = zonedDateTime.format(DateTimeFormatter.RFC_1123_DATE_TIME);
-                context.setReturnValues(new BString(formattedDateTime));
+            if ("RFC_1123".equals(pattern.toString())) {
+                ZonedDateTime zonedDateTime = getZonedDateTime(timeRecord);
+                return zonedDateTime.format(DateTimeFormatter.RFC_1123_DATE_TIME);
             } else {
-                context.setReturnValues(new BString(getFormattedtString(timeStruct, pattern.stringValue())));
+                return getFormattedString(timeRecord, pattern.toString());
             }
         } catch (IllegalArgumentException e) {
-            String msg = "Invalid Pattern: " + pattern.stringValue();
-            context.setReturnValues(TimeUtils.getTimeError(context, msg));
+            return TimeUtils.getTimeError("Invalid Pattern: " + pattern.toString());
         }
-
     }
 }

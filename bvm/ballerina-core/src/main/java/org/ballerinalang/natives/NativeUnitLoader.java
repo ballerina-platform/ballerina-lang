@@ -73,7 +73,7 @@ public class NativeUnitLoader {
         String result = null;
         NativeFunctionDef functionDef = this.nativeElementRepo.lookupNativeFunction(pkgName, functionName);
         if (functionDef != null) {
-            result = functionDef.getClassName();
+            result = functionDef.getClassName().replaceAll("\\.", "\\/");
         }
         return result;
     }

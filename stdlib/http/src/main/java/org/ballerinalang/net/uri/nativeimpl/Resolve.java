@@ -18,10 +18,8 @@
 
 package org.ballerinalang.net.uri.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -42,11 +40,8 @@ import java.net.URISyntaxException;
         returnType = {@ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.RECORD, structType = "Error")},
         isPublic = true
 )
-public class Resolve extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-        String url = context.getStringArgument(0);
-        String path = context.getStringArgument(1);
+public class Resolve {
+    public static Object resolve(Strand strand, String url, String path) {
         URI uri;
         try {
             uri = new URI(path);
@@ -56,10 +51,9 @@ public class Resolve extends BlockingNativeCallableUnit {
                 uri = baseUri.resolve(uri.normalize());
 
             }
-            context.setReturnValues(new BString(uri.toString()));
+            return uri.toString();
         } catch (URISyntaxException e) {
-            context.setReturnValues(HttpUtil.getError(context, "Error occurred while resolving uri. " + e
-                    .getMessage()));
+            return HttpUtil.createHttpError("Error occurred while resolving uri. " + e.getMessage());
         }
     }
 }

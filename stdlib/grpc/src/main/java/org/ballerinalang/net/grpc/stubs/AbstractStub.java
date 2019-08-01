@@ -24,7 +24,6 @@ import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.OutboundMessage;
 import org.ballerinalang.net.grpc.Status;
-import org.ballerinalang.net.grpc.exception.ClientRuntimeException;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.Constants;
@@ -159,20 +158,15 @@ public abstract class AbstractStub {
      * Cancel the call, and throws the exception.
      *
      * @param call client call.
-     * @param t RuntimeException/Error.
+     * @param ex Exception occurred while sending the message.
      */
-    static RuntimeException cancelThrow(ClientCall call, Throwable t) {
+    static void cancelThrow(ClientCall call, Exception ex) throws Exception {
         try {
-            call.cancel(null, t);
+            call.cancel(null, ex);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "RuntimeException encountered while closing call", e);
+            logger.log(Level.SEVERE, "Error encountered while closing the client call." , e);
         }
-        if (t instanceof RuntimeException) {
-            throw (RuntimeException) t;
-        } else if (t instanceof Error) {
-            throw (Error) t;
-        }
-        throw new ClientRuntimeException(t);
+        throw ex;
     }
 
     /**

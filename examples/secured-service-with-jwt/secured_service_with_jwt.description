@@ -9,7 +9,8 @@
 // In the authorization phase, the scopes of the resource are compared against
 // the scopes mapped to the user for at least one match between the two sets.
 // The scope can be included in the JWT using the `scope` attribute,
-// or the scopes for a user can be set in a Ballerina configuration file (e.g., sample-users.toml).
+// or the scopes for a user can be set in a Ballerina configuration file
+// (e.g., sample-users.toml).
 //
 //      ["b7a.users"]
 //

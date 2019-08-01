@@ -18,8 +18,8 @@
 
 package org.ballerinalang.net.http.nativeimpl.response;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -39,11 +39,8 @@ import org.ballerinalang.net.http.HttpUtil;
         args = {@Argument(name = "entity", type = TypeKind.OBJECT)},
         isPublic = false
 )
-public class SetEntity extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        HttpUtil.setEntity(context, false);
-        context.setReturnValues();
+public class SetEntity {
+    public static void setEntity(Strand strand, ObjectValue requestObj, ObjectValue entityObj) {
+        HttpUtil.setEntity(requestObj, entityObj, false);
     }
 }

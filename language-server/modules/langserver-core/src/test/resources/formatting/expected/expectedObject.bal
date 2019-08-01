@@ -1,8 +1,6 @@
 import ballerina/io;
 
-type ObjectName1 object {
-
-};
+type ObjectName1 object {};
 
 type ObjectName2 object {
     private int bd = 0;
@@ -61,11 +59,11 @@ public type Client client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public remote function post(@sensitive string path, RequestMessage message) returns Response | error {
+    public remote function post(@untainted string path, RequestMessage message) returns Response | error {
 
     }
 
-    public remote function get(@sensitive string path, RequestMessage message) returns Response | error = external;
+    public remote function get(@untainted string path, RequestMessage message) returns Response | error = external;
 
     private function getConfig()
     =

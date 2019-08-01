@@ -17,10 +17,8 @@
  */
 package org.ballerinalang.stdlib.math.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -38,11 +36,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.FLOAT)},
         isPublic = true
 )
-public class Hypot extends BlockingNativeCallableUnit {
+public class Hypot {
 
-    public void execute(Context ctx) {
-        double a = ctx.getFloatArgument(0);
-        double b = ctx.getFloatArgument(1);
-        ctx.setReturnValues(new BFloat(Math.hypot(a, b)));
+    public static double hypot(Strand strand, double a, double b) {
+        return Math.hypot(a, b);
     }
 }

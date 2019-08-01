@@ -34,6 +34,7 @@ public class InMemoryCompiledPackage implements CompiledPackage {
     public List<CompilerOutputEntry> srcEntries;
     public CompilerOutputEntry pkgMDEntry;
     public CompilerOutputEntry pkgBinaryEntry;
+    public CompilerOutputEntry pkgBirEntry;
 
     public InMemoryCompiledPackage(PackageID pkgID) {
         this.pkgID = pkgID;
@@ -61,6 +62,16 @@ public class InMemoryCompiledPackage implements CompiledPackage {
     }
 
     @Override
+    public CompilerOutputEntry getPackageBirEntry() {
+        return pkgBirEntry;
+    }
+
+    @Override
+    public void setPackageBirEntry(CompilerOutputEntry entry) {
+        this.pkgBirEntry = entry;
+    }
+
+    @Override
     public CompilerOutputEntry getPackageBinaryEntry() {
         return pkgBinaryEntry;
     }
@@ -73,7 +84,12 @@ public class InMemoryCompiledPackage implements CompiledPackage {
     @Override
     public List<CompilerOutputEntry> getAllEntries() {
         List<CompilerOutputEntry> allEntries = new ArrayList<>(srcEntries);
-        allEntries.add(pkgBinaryEntry);
+        if (pkgBinaryEntry != null) {
+            allEntries.add(pkgBinaryEntry);
+        }
+        if (pkgBirEntry != null) { //TODO remove this check(ideally pkgBinaryEntry shouldn't be there, only the bir)
+            allEntries.add(pkgBirEntry);
+        }
         if (pkgMDEntry != null) {
             allEntries.add(pkgMDEntry);
         }

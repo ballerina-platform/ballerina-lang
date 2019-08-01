@@ -1,5 +1,5 @@
-// The `anydata` type consists of pure values whose basic type is not `error`. Thus the `anydata` type is
+// The `anydata` type consists of pure values whose basic type is not `error`. Thus, the `anydata` type is
 // equivalent to `()|boolean|int|float|decimal|string|(anydata|error)[]|map<anydata|error>|xml|table`.
 // Although `json` and `byte` are not explicitly mentioned, they are subsets of the aforementioned union.
-// The same is true of records where all the fields' types are subsets of `anydata`(including the rest field in open records).
+// The same is true for a record of which the type of each individual field is a subtype of `anydata`(including the rest field in open records).
 // `anydata` variables can be used in places where you expect pure values (sans `error`).

@@ -23,7 +23,7 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
-import org.ballerinalang.test.utils.PackagingTestUtils;
+import org.ballerinalang.test.utils.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -32,7 +32,6 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
 /**
@@ -44,16 +43,16 @@ public class ModuleInitTestCase extends BaseTest {
     private Path tempHomeDirectory;
     private Path tempProjectDirectory;
     private String moduleName = "test";
-    private String orgName = "integrationtests";
+    private String orgName = "bcintegrationtest";
     private Map<String, String> envVariables;
 
     @BeforeClass()
-    public void setUp() throws BallerinaTestException, IOException {
+    public void setUp() throws IOException {
         tempHomeDirectory = Files.createTempDirectory("bal-test-integration-packaging-home-");
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-packaging-project-");
-        createSettingToml();
-        moduleName = moduleName + PackagingTestUtils.randomModuleName(10);
-        envVariables = PackagingTestUtils.getEnvVariables();
+        TestUtils.createSettingToml(tempHomeDirectory);
+        moduleName = moduleName + TestUtils.randomModuleName(10);
+        envVariables = TestUtils.getEnvVariables();
     }
 
     @Test(description = "Test creating a project with a main in a module")
@@ -383,7 +382,7 @@ public class ModuleInitTestCase extends BaseTest {
                 new LogLeecher[]{}, projectPath.toString());
 
         Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("foo.balx")));
-        Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve("integrationtests")
+        Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve("bcintegrationtest")
                 .resolve("foo").resolve("0.0.1").resolve("foo.zip")));
     }
 
@@ -457,20 +456,9 @@ public class ModuleInitTestCase extends BaseTest {
         ballerinaServerForService.shutdownServer();
     }
 
-    /**
-     * Create Settings.toml inside the home repository.
-     *
-     * @throws IOException i/o exception when writing to file
-     */
-    private void createSettingToml() throws IOException {
-        Path tomlFilePath = tempHomeDirectory.resolve("Settings.toml");
-        String content = "[central]\n accesstoken = \"0f647e67-857d-32e8-a679-bd3c1c3a7eb2\"";
-        Files.write(tomlFilePath, content.getBytes(), StandardOpenOption.CREATE);
-    }
-
     @AfterClass
     private void cleanup() throws Exception {
-        PackagingTestUtils.deleteFiles(tempHomeDirectory);
-        PackagingTestUtils.deleteFiles(tempProjectDirectory);
+        TestUtils.deleteFiles(tempHomeDirectory);
+        TestUtils.deleteFiles(tempProjectDirectory);
     }
 }

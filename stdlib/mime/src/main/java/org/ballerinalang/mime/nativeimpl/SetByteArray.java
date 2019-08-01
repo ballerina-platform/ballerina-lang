@@ -18,20 +18,17 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
-import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
-import static org.ballerinalang.mime.util.MimeConstants.SECOND_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
 
 /**
  * Set the entity body with blob data.
@@ -45,14 +42,10 @@ import static org.ballerinalang.mime.util.MimeConstants.SECOND_PARAMETER_INDEX;
                 @Argument(name = "contentType", type = TypeKind.STRING)},
         isPublic = true
 )
-public class SetByteArray extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-        BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-        byte[] payload = ((BValueArray) context.getRefArgument(SECOND_PARAMETER_INDEX)).getBytes();
-        String contentType = context.getStringArgument(FIRST_PARAMETER_INDEX);
-        EntityBodyHandler.addMessageDataSource(entityStruct, new BValueArray(payload));
-        MimeUtil.setMediaTypeToEntity(context, entityStruct, contentType);
-        context.setReturnValues();
+public class SetByteArray {
+
+    public static void setByteArray(Strand strand, ObjectValue entityObj, ArrayValue payload, String contentType) {
+        EntityBodyHandler.addMessageDataSource(entityObj, payload);
+        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType : OCTET_STREAM);
     }
 }

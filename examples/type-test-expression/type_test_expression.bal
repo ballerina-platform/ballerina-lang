@@ -3,7 +3,7 @@ import ballerina/io;
 public function main() {
     any a = "Hello, world!";
 
-    // Check whether the actual value inside the `any` type variable is a `string`.
+    // Checks whether the actual value of the `any` type variable is a `string`.
     boolean b = a is string;
     io:println("Is 'a' a string? ", b);
 
@@ -44,9 +44,9 @@ public function main() {
 
     // The type test expression can be used with any expression.
     boolean isStudent = foo("student") is Student;
-    io:println("Is foo returns a student?", isStudent);
+    io:println("Does foo return a student? ", isStudent);
     isStudent = foo("vehicle") is Student;
-    io:println("Is foo returns a student?", isStudent);
+    io:println("Does foo return a student? ", isStudent);
 }
 
 type Person record {

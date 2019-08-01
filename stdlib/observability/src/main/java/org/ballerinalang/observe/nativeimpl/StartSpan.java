@@ -19,11 +19,11 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.observability.ObservabilityConstants;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -43,23 +43,20 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = @ReturnType(type = TypeKind.INT),
         isPublic = true
 )
-public class StartSpan extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-        String spanName = context.getStringArgument(0);
-        BMap tags = (BMap) context.getNullableRefArgument(0);
-        int parentSpanId = (int) context.getIntArgument(0);
+public class StartSpan {
+    public static Object startSpan(Strand strand, String spanName, Object tags, long parentSpanId) {
         if (parentSpanId < -1) {
-            context.setReturnValues(Utils
-                    .createError(context, "The given parent span ID " + parentSpanId + " is invalid."));
+            return BallerinaErrors.createError("The given parent span ID " + parentSpanId + " is invalid.");
         } else {
-            int spanId = OpenTracerBallerinaWrapper.getInstance()
-                    .startSpan(spanName, Utils.toStringMap(tags), parentSpanId, context);
+            long spanId = OpenTracerBallerinaWrapper.getInstance().startSpan(
+                    (String) strand.getProperty(ObservabilityConstants.SERVICE_NAME), spanName,
+                    Utils.toStringMap((MapValue<?, ?>) tags), parentSpanId, strand);
             if (spanId == -1) {
-                context.setReturnValues(Utils.createError(context,
-                        "No parent span for ID " + parentSpanId + " found. Please recheck the parent span Id"));
+                return BallerinaErrors.createError(
+                        "No parent span for ID " + parentSpanId + " found. Please recheck the parent span Id");
             }
-            context.setReturnValues(new BInteger(spanId));
+
+            return spanId;
         }
     }
 }

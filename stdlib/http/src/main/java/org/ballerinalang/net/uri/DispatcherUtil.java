@@ -18,8 +18,6 @@
 
 package org.ballerinalang.net.uri;
 
-
-import org.ballerinalang.connector.api.AnnAttrValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
@@ -74,22 +72,8 @@ public class DispatcherUtil {
         return Arrays.stream(allMethods).collect(Collectors.toList());
     }
 
-    public static List<String> getValueList(AnnAttrValue annAttrValue, List<String> defaultVals) {
-        if (annAttrValue.getAnnAttrValueArray() == null) {
-            return defaultVals;
-        }
-        List<String> list = new ArrayList<>();
-        for (AnnAttrValue attr : annAttrValue.getAnnAttrValueArray()) {
-            list.add(attr.getStringValue().trim());
-        }
-        if (list.isEmpty()) {
-            return defaultVals;
-        }
-        return list;
-    }
-
     public static List<String> getAllResourceMethods(HttpService service) {
-        List<String> cachedMethods = new ArrayList();
+        List<String> cachedMethods = new ArrayList<>();
         for (HttpResource resource : service.getResources()) {
             if (resource.getMethods() == null) {
                 cachedMethods.addAll(DispatcherUtil.addAllMethods());

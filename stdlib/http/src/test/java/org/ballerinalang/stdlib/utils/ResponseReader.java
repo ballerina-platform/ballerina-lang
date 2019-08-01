@@ -56,7 +56,7 @@ public class ResponseReader {
                 out.append(buffer, 0, size);
             }
         } catch (IOException e) {
-            LOG.error("Error occured while reading the response value in getReturnValue", e.getMessage());
+            LOG.error("Error occurred while reading the response value in getReturnValue", e.getMessage());
         }
         return out.toString();
     }

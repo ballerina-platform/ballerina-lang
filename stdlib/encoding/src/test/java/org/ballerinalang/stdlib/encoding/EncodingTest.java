@@ -16,14 +16,14 @@
 
 package org.ballerinalang.stdlib.encoding;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -42,7 +42,7 @@ public class EncodingTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/encoding/encoding-test.bal");
+        compileResult = BCompileUtil.compile("test-src/encoding-test.bal");
     }
 
     @Test(description = "Check byte array to hex encoding.")
@@ -99,7 +99,7 @@ public class EncodingTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "decodeFromHex", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
-                "input is not a valid Hex value");
+                "Input is not a valid Hex value");
     }
 
     @Test(description = "Check decoding an non-base64 string using base64 decoding function.")
@@ -110,7 +110,7 @@ public class EncodingTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "decodeFromBase64", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get(Constants.MESSAGE).stringValue(),
-                "input is not a valid Base64 value");
+                "Input is not a valid Base64 value");
     }
 
     @Test(description = "Check encoding a complex strings using base64.")

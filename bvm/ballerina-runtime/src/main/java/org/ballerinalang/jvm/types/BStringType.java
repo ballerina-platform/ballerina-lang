@@ -32,8 +32,8 @@ public class BStringType extends BType {
      *
      * @param typeName string name of the type
      */
-    BStringType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, String.class);
+    BStringType(String typeName, BPackage pkg) {
+        super(typeName, pkg, String.class);
     }
 
     public <V extends Object> V getZeroValue() {

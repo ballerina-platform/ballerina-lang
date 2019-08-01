@@ -2,7 +2,7 @@ import ballerina/test;
 import ballerina/io;
 
 // This test should pass
-@test:Config
+@test:Config {}
 public function test1() {
     io:println("test1");
 }
@@ -37,7 +37,7 @@ public function test5() {
 }
 
 // Failing the test to test the summary
-@test:Config
+@test:Config {}
 public function test6() {
     io:println("test6");
     test:assertFail(msg = "Failing the Test");

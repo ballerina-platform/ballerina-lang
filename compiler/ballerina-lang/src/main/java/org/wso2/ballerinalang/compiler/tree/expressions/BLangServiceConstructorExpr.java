@@ -38,4 +38,9 @@ public class BLangServiceConstructorExpr extends BLangExpression implements Serv
     public NodeKind getKind() {
         return NodeKind.SERVICE_CONSTRUCTOR;
     }
+
+    @Override
+    public BLangService getServiceNode() {
+        return this.serviceNode;
+    }
 }

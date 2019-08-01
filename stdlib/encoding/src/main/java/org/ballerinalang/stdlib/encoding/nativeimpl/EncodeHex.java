@@ -18,14 +18,9 @@
 
 package org.ballerinalang.stdlib.encoding.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.encoding.EncodingUtil;
 
 /**
@@ -34,19 +29,12 @@ import org.ballerinalang.stdlib.encoding.EncodingUtil;
  * @since 0.990.3
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "encoding", functionName = "encodeHex",
-        args = {
-                @Argument(name = "input", type = TypeKind.ARRAY, elementType = TypeKind.BYTE)
-        },
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
+        orgName = "ballerina", packageName = "encoding",
+        functionName = "encodeHex", isPublic = true
 )
-public class EncodeHex extends BlockingNativeCallableUnit {
+public class EncodeHex {
 
-    @Override
-    public void execute(Context context) {
-        BValueArray input = (BValueArray) context.getRefArgument(0);
-        String output = EncodingUtil.encodeHex(input.getBytes());
-        context.setReturnValues(new BString(output));
+    public static String encodeHex(Strand strand, ArrayValue input) {
+        return EncodingUtil.encodeHex(input.getBytes());
     }
 }

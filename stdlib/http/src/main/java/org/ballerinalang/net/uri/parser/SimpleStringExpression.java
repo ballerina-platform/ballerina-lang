@@ -18,7 +18,9 @@
 
 package org.ballerinalang.net.uri.parser;
 
+import org.ballerinalang.net.http.HttpResourceArguments;
 import org.ballerinalang.net.uri.URITemplateException;
+
 import java.util.Map;
 
 /**
@@ -65,7 +67,7 @@ public class SimpleStringExpression<DataType, InboundMsgType> extends Expression
     }
 
     @Override
-    int match(String uriFragment, Map<String, String> variables) {
+    int match(String uriFragment, HttpResourceArguments variables) {
         int length = uriFragment.length();
         for (int i = 0; i < length; i++) {
             char ch = uriFragment.charAt(i);
@@ -101,15 +103,15 @@ public class SimpleStringExpression<DataType, InboundMsgType> extends Expression
         return ',';
     }
 
-    protected boolean setVariables(String expressionValue, Map<String, String> variables) {
+    protected boolean setVariables(String expressionValue, HttpResourceArguments variables) {
         String finalValue = decodeValue(expressionValue);
         for (Variable var : variableList) {
             String name = var.getName();
-            if (variables.containsKey(name) && !finalValue.equals(variables.get(name))) {
+            if (variables.getMap().containsKey(name) && !finalValue.equals(variables.getMap().get(name))) {
                 return false;
             }
             if (var.checkModifier(finalValue)) {
-                variables.put(name, finalValue);
+                variables.getMap().put(name, finalValue);
             } else {
                 return false;
             }

@@ -1,5 +1,6 @@
 import ballerina/config;
 import ballerina/http;
+import ballerina/jwt;
 import ballerina/test;
 import ballerina/runtime;
 
@@ -17,11 +18,16 @@ function testFunc() {
 }
 
 function testAuthSuccess() {
-    // create client
+    // Creates a client.
+    jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new;
+    http:BearerAuthHandler outboundJwtAuthHandler =
+                                            new(outboundJwtAuthProvider);
     http:Client httpEndpoint = new("https://localhost:9090", config = {
-        auth: { scheme: http:JWT_AUTH }
+        auth: {
+            authHandler: outboundJwtAuthHandler
+        }
     });
-    // Send a GET request to the specified endpoint
+    // Sends a GET request to the specified endpoint.
     var response = httpEndpoint->get("/hello/sayHello");
     if (response is http:Response) {
         test:assertEquals(response.statusCode, 200,
@@ -32,11 +38,16 @@ function testAuthSuccess() {
 }
 
 function testAuthnFailure() {
-    // Create a client.
+    // Creates a client.
+    jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new;
+    http:BearerAuthHandler outboundJwtAuthHandler =
+                                            new(outboundJwtAuthProvider);
     http:Client httpEndpoint = new("https://localhost:9090", config = {
-        auth: { scheme: http:JWT_AUTH }
+        auth: {
+            authHandler: outboundJwtAuthHandler
+        }
     });
-    // Send a `GET` request to the specified endpoint
+    // Sends a `GET` request to the specified endpoint.
     var response = httpEndpoint->get("/hello/sayHello");
     if (response is http:Response) {
         test:assertEquals(response.statusCode, 401,
@@ -47,11 +58,16 @@ function testAuthnFailure() {
 }
 
 function testAuthzFailure() {
-    // Create a client.
+    // Creates a client.
+    jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new;
+    http:BearerAuthHandler outboundJwtAuthHandler =
+                                            new(outboundJwtAuthProvider);
     http:Client httpEndpoint = new("https://localhost:9090", config = {
-        auth: { scheme: http:JWT_AUTH }
+        auth: {
+            authHandler: outboundJwtAuthHandler
+        }
     });
-    // Send a `GET` request to the specified endpoint
+    // Sends a `GET` request to the specified endpoint.
     var response = httpEndpoint->get("/hello/sayHello");
     if (response is http:Response) {
         test:assertEquals(response.statusCode, 403,

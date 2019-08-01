@@ -16,15 +16,14 @@
 
 package io.ballerina.plugins.idea.preloading;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.intellij.openapi.diagnostic.Logger;
 
 /**
  * Launcher Terminator factory.
  */
 public class TerminatorFactory {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TerminatorFactory.class);
+    private static final Logger LOGGER = Logger.getInstance(TerminatorFactory.class);
 
     /**
      * Get Terminator.

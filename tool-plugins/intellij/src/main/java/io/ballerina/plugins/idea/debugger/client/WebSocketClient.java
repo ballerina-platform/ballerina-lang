@@ -16,6 +16,7 @@
 
 package io.ballerina.plugins.idea.debugger.client;
 
+import com.intellij.openapi.diagnostic.Logger;
 import io.ballerina.plugins.idea.debugger.Callback;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -35,8 +36,6 @@ import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketCl
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -50,7 +49,7 @@ import javax.net.ssl.SSLException;
  */
 public class WebSocketClient {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketClient.class);
+    private static final Logger LOGGER = Logger.getInstance(WebSocketClient.class);
 
     private Channel channel = null;
     private WebSocketClientHandler handler;
@@ -68,6 +67,7 @@ public class WebSocketClient {
      * @return true if the handshake is done properly.
      * @throws URISyntaxException   throws if there is an error in the URI syntax.
      * @throws InterruptedException throws if the connecting the server is interrupted.
+     * @throws SSLException         throws if any SSL error is occurred.
      */
     public boolean handshake(Callback callback) throws InterruptedException, URISyntaxException, SSLException {
         boolean isDone;
@@ -110,23 +110,17 @@ public class WebSocketClient {
                     WebSocketVersion.V13, null, true, httpHeaders), callback);
 
             Bootstrap b = new Bootstrap();
-            b.group(group)
-                    .channel(NioSocketChannel.class)
-                    .handler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        protected void initChannel(SocketChannel ch) {
-                            ChannelPipeline p = ch.pipeline();
-                            if (sslCtx != null) {
-                                p.addLast(sslCtx.newHandler(ch.alloc(), host, port));
-                            }
-                            p.addLast(
-                                    new HttpClientCodec(),
-                                    new HttpObjectAggregator(8192),
-                                    WebSocketClientCompressionHandler.INSTANCE,
-                                    handler
-                            );
-                        }
-                    });
+            b.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer<SocketChannel>() {
+                @Override
+                protected void initChannel(SocketChannel ch) {
+                    ChannelPipeline p = ch.pipeline();
+                    if (sslCtx != null) {
+                        p.addLast(sslCtx.newHandler(ch.alloc(), host, port));
+                    }
+                    p.addLast(new HttpClientCodec(), new HttpObjectAggregator(8192),
+                            WebSocketClientCompressionHandler.INSTANCE, handler);
+                }
+            });
 
             channel = b.connect(uri.getHost(), port).sync().channel();
             isDone = handler.handshakeFuture().sync().isSuccess();
@@ -159,7 +153,7 @@ public class WebSocketClient {
     /**
      * Shutdown the WebSocket Client.
      */
-    public void shutDown() throws InterruptedException {
+    public void shutDown() {
         group.shutdownGracefully();
     }
 }

@@ -12,7 +12,7 @@ type Person record {
 final Employee globalEmployee = { name: "John", id: 2102 };
 
 public function main() {
-    // `==` and `!=` are used with values of compatible `anydata|error` types and serve as deep value equality checks.
+    // The `==` and `!=` are used with the values of compatible `anydata|error` types and serves as deep value equality checks.
     int i1 = 1;
     int i2 = 1;
     boolean isEqual = i1 == i2;
@@ -22,12 +22,12 @@ public function main() {
     boolean isNotEqual = i1 != i3;
     io:println(i1, " != ", i3, " is ", isNotEqual);
 
-    (string|int, float, boolean) t1 = (1, 1.0, false);
-    (int, float|string, boolean) t2 = (1, 1.0, false);
+    [string|int, float, boolean] t1 = [1, 1.0, false];
+    [int, float|string, boolean] t2 = [1, 1.0, false];
     isEqual = t1 == t2;
     io:println(t1, " == ", t2, " is ", isEqual);
 
-    (int, float|string, boolean) t3 = (11, 1.0, true);
+    [int, float|string, boolean] t3 = [11, 1.0, true];
     isNotEqual = t1 != t3;
     io:println(t1, " != ", t3, " is ", isNotEqual);
 
@@ -40,7 +40,7 @@ public function main() {
     isEqual = e1 == e3;
     io:println(e1, " == ", e3, " is ", isEqual);
 
-    // `===` and `!==` are used with values of compatible types and serve as reference equality checks.
+    // The `===` and `!==` are used with values of compatible types and serves as reference equality checks.
     Employee e4 = getGlobalEmployee();
     Person e5 = getGlobalEmployee();
     boolean isRefEqual = e4 === e5;

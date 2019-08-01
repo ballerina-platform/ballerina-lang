@@ -1,3 +1,3 @@
-// Arrays are mutable lists of values of dynamic length, where each member in the list is
+// Arrays are mutable lists of values of dynamic length in which each member in the list is
 // of the same type.
 // A fixed length array can be created by specifying the length of the array at the time of declaration.

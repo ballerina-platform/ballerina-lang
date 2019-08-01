@@ -22,6 +22,13 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.JSONUtils;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeKind;
@@ -51,8 +58,8 @@ import java.util.function.Predicate;
         packageName = "utils",
         functionName = "convert",
         args = {@Argument(name = "convertType", type = TypeKind.TYPEDESC),
-                @Argument(name = "value", type = TypeKind.ANYDATA)},
-        returnType = { @ReturnType(type = TypeKind.ANYDATA) }
+                @Argument(name = "value", type = TypeKind.ANY)},
+        returnType = { @ReturnType(type = TypeKind.ANYDATA), @ReturnType(type = TypeKind.ERROR) }
 )
 public class Convert extends BlockingNativeCallableUnit {
 
@@ -102,5 +109,67 @@ public class Convert extends BlockingNativeCallableUnit {
             return;
         }
         ctx.setReturnValues(convertedValue);
+    }
+
+    public static Object convert(Strand strand, TypedescValue typeDescValue, Object inputValue) {
+        org.ballerinalang.jvm.types.BType convertType = typeDescValue.getDescribingType();
+        RefValue convertedValue;
+        org.ballerinalang.jvm.types.BType targetType;
+        if (convertType.getTag() == org.ballerinalang.jvm.types.TypeTags.UNION_TAG) {
+            List<org.ballerinalang.jvm.types.BType> memberTypes
+                    = new ArrayList<>(((org.ballerinalang.jvm.types.BUnionType) convertType).getMemberTypes());
+            targetType = new org.ballerinalang.jvm.types.BUnionType(memberTypes);
+
+            Predicate<org.ballerinalang.jvm.types.BType> errorPredicate = e -> e.getTag() == TypeTags.ERROR_TAG;
+            ((org.ballerinalang.jvm.types.BUnionType) targetType).getMemberTypes().removeIf(errorPredicate);
+
+            if (((org.ballerinalang.jvm.types.BUnionType) targetType).getMemberTypes().size() == 1) {
+                targetType = ((org.ballerinalang.jvm.types.BUnionType) convertType).getMemberTypes().get(0);
+            }
+        } else {
+            targetType = convertType;
+        }
+
+        if (inputValue == null) {
+            if (targetType.getTag() == TypeTags.JSON_TAG) {
+                return null;
+            }
+            return BallerinaErrors
+                    .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR,
+                                 org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper
+                                         .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
+                                                                  .CANNOT_CONVERT_NULL, convertType));
+        }
+
+        org.ballerinalang.jvm.types.BType inputValType = TypeChecker.getType(inputValue);
+        if (TypeChecker.checkIsLikeType(inputValue, targetType)) {
+
+            // if input value is a value-type, return as is.
+            if (inputValType.getTag() <= TypeTags.BOOLEAN_TAG) {
+                return inputValue;
+            }
+
+            try {
+                RefValue refValue = (RefValue) inputValue;
+                convertedValue = (RefValue) refValue.copy(new HashMap<>());
+                convertedValue.stamp(targetType, new ArrayList<>());
+                return convertedValue;
+            } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
+                throw BallerinaErrors.createError(
+                        org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR, e.getDetail());
+            }
+        }
+
+        if (inputValType.getTag() == TypeTags.TABLE_TAG) {
+            switch (targetType.getTag()) {
+                case TypeTags.JSON_TAG:
+                    return JSONUtils.toJSON((TableValue) inputValue);
+                case TypeTags.XML_TAG:
+                    // TODO:
+                default:
+                    break;
+            }
+        }
+        return BallerinaErrors.createConversionError(inputValue, targetType);
     }
 }

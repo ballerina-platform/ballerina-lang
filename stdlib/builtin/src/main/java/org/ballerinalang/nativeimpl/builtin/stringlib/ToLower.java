@@ -16,10 +16,11 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.builtin.stringlib;
+package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
@@ -34,8 +35,8 @@ import java.util.Locale;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "builtin",
-        functionName = "string.toLower",
+        orgName = "ballerina", packageName = "lang.string",
+        functionName = "toLower",
         args = {@Argument(name = "s", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
@@ -47,5 +48,10 @@ public class ToLower extends BlockingNativeCallableUnit {
         String param1 = context.getStringArgument(0);
         BString lowerCaseString = new BString(param1.toLowerCase(Locale.getDefault()));
         context.setReturnValues(lowerCaseString);
+    }
+
+    public static String toLower(Strand strand, String value) {
+        StringUtils.checkForNull(value);
+        return value.toLowerCase(Locale.getDefault());
     }
 }

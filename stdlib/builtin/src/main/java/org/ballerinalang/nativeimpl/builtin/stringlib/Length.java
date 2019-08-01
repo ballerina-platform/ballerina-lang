@@ -16,10 +16,11 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.builtin.stringlib;
+package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.natives.annotations.Argument;
@@ -32,8 +33,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "builtin",
-        functionName = "string.length",
+        orgName = "ballerina", packageName = "lang.string",
+        functionName = "length",
         args = {@Argument(name = "s", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
@@ -45,5 +46,10 @@ public class Length extends BlockingNativeCallableUnit {
         String param1 = context.getStringArgument(0);
         BInteger intValue = new BInteger(param1.length());
         context.setReturnValues(intValue);
+    }
+
+    public static long length(Strand strand, String value) {
+        StringUtils.checkForNull(value);
+        return value.length();
     }
 }

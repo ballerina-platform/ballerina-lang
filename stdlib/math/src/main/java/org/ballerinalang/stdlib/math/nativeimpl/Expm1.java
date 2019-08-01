@@ -17,10 +17,8 @@
  */
 package org.ballerinalang.stdlib.math.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -37,10 +35,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.FLOAT)},
         isPublic = true
 )
-public class Expm1 extends BlockingNativeCallableUnit {
+public class Expm1 {
 
-    public void execute(Context ctx) {
-        double value = ctx.getFloatArgument(0);
-        ctx.setReturnValues(new BFloat(Math.expm1(value)));
+    public static double expm1(Strand strand, double value) {
+        return Math.expm1(value);
     }
 }

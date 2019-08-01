@@ -1,4 +1,4 @@
-// A `public` function named `main` is considered an entry point to a Ballerina program.
-// The `main` function is data-binding, and can have zero or more parameters whose types are subtypes of `anydata`,
+// A `public` function named `main` is considered as an entry point to a Ballerina program.
+// The `main` function is data-binding and can have zero or more parameters whose types are subtypes of `anydata`,
 // including any number of required/defaultable parameters and/or a single rest parameter.
 // The `main` function could also return a value whose type is a subtype of `error?`.

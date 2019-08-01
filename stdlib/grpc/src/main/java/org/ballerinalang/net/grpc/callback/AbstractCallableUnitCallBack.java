@@ -18,13 +18,11 @@
 
 package org.ballerinalang.net.grpc.callback;
 
-import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.values.BError;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
-import org.ballerinalang.services.ErrorHandlerUtils;
 
 import java.util.concurrent.Semaphore;
 
@@ -43,7 +41,7 @@ public class AbstractCallableUnitCallBack implements CallableUnitCallback {
     }
 
     @Override
-    public void notifyFailure(BError error) {
+    public void notifyFailure(ErrorValue error) {
         available.release();
     }
 
@@ -53,9 +51,8 @@ public class AbstractCallableUnitCallBack implements CallableUnitCallback {
      * @param streamObserver observer used the send the error back
      * @param error          error message struct
      */
-    static void handleFailure(StreamObserver streamObserver, BError error) {
+    static void handleFailure(StreamObserver streamObserver, ErrorValue error) {
         String errorMsg = error.stringValue();
-        ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
         if (streamObserver != null) {
             streamObserver.onError(new Message(
                     new StatusRuntimeException(org.ballerinalang.net.grpc.Status.fromCodeValue(

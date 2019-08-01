@@ -1,0 +1,20 @@
+{
+    "line": 5,
+    "character": 14,
+    "expected": {
+        "title": "Change Return Type to '(int|string)[]'",
+        "edit": {
+            "range": {
+                "start": {
+                    "line": 4,
+                    "character": 47
+                },
+                "end": {
+                    "line": 4,
+                    "character": 49
+                }
+            },
+            "newText": "(int|string)[]"
+        }
+    }
+}

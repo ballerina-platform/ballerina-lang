@@ -9,27 +9,27 @@ websub:Client websubHubClientEP =
 
 public function main() {
 
-    // Register a topic at the hub.
+    // Registers a topic at the hub.
     var registrationResponse =
                 websubHubClientEP->registerTopic("http://websubpubtopic.com");
     if (registrationResponse is error) {
         io:println("Error occurred registering topic: " +
-                                <string>registrationResponse.detail().message);
+                                <string>registrationResponse.detail()?.message);
     } else {
         io:println("Topic registration successful!");
     }
 
-    // Make the publisher wait until the subscriber subscribes at the hub.
+    // Makes the publisher wait until the subscriber subscribes at the hub.
     runtime:sleep(5000);
 
-    // Publish updates to the remote hub.
+    // Publishes updates to the remote hub.
     io:println("Publishing update to remote Hub");
     var publishResponse =
         websubHubClientEP->publishUpdate("http://websubpubtopic.com",
                                 { "action": "publish", "mode": "remote-hub" });
     if (publishResponse is error) {
         io:println("Error notifying hub: " +
-                                    <string>publishResponse.detail().message);
+                                    <string>publishResponse.detail()?.message);
     } else {
         io:println("Update notification successful!");
     }

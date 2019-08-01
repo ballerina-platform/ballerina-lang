@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.jvm.types;
 
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 
 /**
  * {@code BMapType} represents a type of a map in Ballerina.
@@ -39,15 +39,15 @@ public class BMapType extends BType {
      *
      * @param typeName string name of the type.
      * @param constraint constraint type which particular map is bound to.
-     * @param pkgPath package for the type.
+     * @param pkg package for the type.
      */
-    public BMapType(String typeName, BType constraint, String pkgPath) {
-        super(typeName, pkgPath, MapValue.class);
+    public BMapType(String typeName, BType constraint, BPackage pkg) {
+        super(typeName, pkg, MapValueImpl.class);
         this.constraint = constraint;
     }
 
     public BMapType(BType constraint) {
-        super(TypeConstants.MAP_TNAME, null, MapValue.class);
+        super(TypeConstants.MAP_TNAME, null, MapValueImpl.class);
         this.constraint = constraint;
     }
 
@@ -73,12 +73,12 @@ public class BMapType extends BType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return null;
+        return (V) new MapValueImpl<String, V>(new BMapType(constraint));
     }
 
     @Override
     public <V extends Object> V getEmptyValue() {
-        return (V) new MapValue<String, V>();
+        return getZeroValue();
     }
 
     @Override

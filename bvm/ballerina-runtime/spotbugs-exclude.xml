@@ -31,4 +31,24 @@
     <Match>
         <Package name="org.ballerinalang.jvm.commons"/>
     </Match>
+    <Match>
+        <Package name="org.ballerinalang.jvm.values.connector"/>
+    </Match>
+    <Match>
+        <Package name="org.ballerinalang.jvm.observability.metrics"/>
+    </Match>
+    <Match>
+        <Package name="org.ballerinalang.jvm.observability"/>
+    </Match>
+    <Match>
+        <Package name="org.ballerinalang.jvm.observability.tracer"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.jvm.util.ArgumentParser"/>
+    </Match>
+    <Match>
+        <OR>
+            <Bug pattern="EI_EXPOSE_REP"/>
+        </OR>
+    </Match>
 </FindBugsFilter>

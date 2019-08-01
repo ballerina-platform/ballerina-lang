@@ -33,7 +33,7 @@ public class MimeEntityWrapper extends EntityWrapper {
 
     private MIMEPart mimePart;
 
-    MimeEntityWrapper(EntityBodyChannel channel, MIMEPart mimePart) throws BallerinaIOException {
+    public MimeEntityWrapper(EntityBodyChannel channel, MIMEPart mimePart) throws BallerinaIOException {
         super(channel);
         this.mimePart = mimePart;
     }

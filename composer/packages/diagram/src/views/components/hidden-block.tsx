@@ -1,9 +1,14 @@
 
 import { ASTNode } from "@ballerina/ast-model";
 import * as React from "react";
+import { DiagramConfig } from "../../config/default";
+import { DiagramUtils } from "../../diagram/diagram-utils";
+import { DiagramContext } from "../../diagram/index";
+import { getCodePoint } from "../../utils";
 import { StmntViewState } from "../../view-model";
 
 const boxWidth = 25;
+const config: DiagramConfig = DiagramUtils.getConfig();
 
 export const HiddenBlock: React.StatelessComponent<{
     model: ASTNode
@@ -11,6 +16,7 @@ export const HiddenBlock: React.StatelessComponent<{
     model
 }) => {
         const viewState: StmntViewState = model.viewState;
+        const { bBox } = viewState;
 
         const blockProps = {
             className: "hidden-block",
@@ -30,8 +36,44 @@ export const HiddenBlock: React.StatelessComponent<{
         };
 
         return (
-            <g className="hidden-block">
-                <rect {...blockProps} />
-                <line {...labelProps} />
-            </g>);
+            <DiagramContext.Consumer>{
+                ({update}) => {
+                    if (viewState.hiddenBlockContext && viewState.hiddenBlockContext.expanded) {
+                        return (<g className="expanded-hidden-block">
+                            <rect className="frame"
+                                x={bBox.x - viewState.bBox.leftMargin}
+                                y={bBox.y + config.statement.expanded.topMargin}
+                                width={bBox.w + viewState.bBox.leftMargin - config.statement.expanded.rightMargin}
+                                height={bBox.h - (2 * config.statement.expanded.bottomMargin)}/>
+                            <text className="collapser"
+                                x={bBox.x + bBox.w - config.statement.expanded.collapserWidth
+                                    - config.statement.expanded.rightMargin}
+                                y={bBox.y + config.statement.expanded.topMargin
+                                    + config.statement.expanded.collapserHeight}
+                                onClick={(e) => {
+                                    if (viewState.hiddenBlockContext) {
+                                        e.stopPropagation();
+                                        viewState.hiddenBlockContext.expanded = false;
+                                        update();
+                                    }}}>
+                                {getCodePoint("up")}
+                            </text>
+                            {DiagramUtils.getComponents(
+                                viewState.hiddenBlockContext.otherHiddenNodes)}
+                        </g>);
+                    }
+
+                    return (<g className="hidden-block" onClick={(e) => {
+                        if (viewState.hiddenBlockContext) {
+                            e.stopPropagation();
+                            viewState.hiddenBlockContext.expanded = true;
+                            update();
+                        }}}>
+                        <rect {...blockProps} />
+                        <line {...labelProps} />
+                    </g>);
+                }
+            }
+            </DiagramContext.Consumer>
+        );
     };

@@ -28,7 +28,10 @@ service OpenApiPetstore on ep0, ep1 {
         http:Response _actionRes = new;
         string _actionPayload = "Sample action Response";
         _actionRes.setTextPayload(_actionPayload);
-        _ = outboundEp->respond(_actionRes);
+        var result = outboundEp->respond(_actionRes);
+        if (result is error) {
+            log:printError(result.reason(), err = result);
+        }
     }
 
     @openapi:ResourceInfo {
@@ -51,7 +54,10 @@ service OpenApiPetstore on ep0, ep1 {
     }
     resource function listPets (http:Caller outboundEp, http:Request _listPetsReq) returns error? {
         http:Response _listPetsRes = listPets(_listPetsReq);
-        _ = outboundEp->respond(_listPetsRes);
+        var result = outboundEp->respond(_listPetsRes);
+        if (result is error) {
+            log:printError(result.reason(), err = result);
+        }
     }
 
     @openapi:ResourceInfo {
@@ -64,7 +70,10 @@ service OpenApiPetstore on ep0, ep1 {
     }
     resource function resource1 (http:Caller outboundEp, http:Request _resource1Req) returns error? {
         http:Response _resource1Res = resource1(_resource1Req);
-        _ = outboundEp->respond(_resource1Res);
+        var result = outboundEp->respond(_resource1Res);
+        if (result is error) {
+            log:printError(result.reason(), err = result);
+        }
     }
 
     @openapi:ResourceInfo {
@@ -87,7 +96,10 @@ service OpenApiPetstore on ep0, ep1 {
     }
     resource function showPetById (http:Caller outboundEp, http:Request _showPetByIdReq, string petId) returns error? {
         http:Response _showPetByIdRes = showPetById(_showPetByIdReq, petId);
-        _ = outboundEp->respond(_showPetByIdRes);
+        var result = outboundEp->respond(_showPetByIdRes);
+        if (result is error) {
+            log:printError(result.reason(), err = result);
+        }
     }
 
 }

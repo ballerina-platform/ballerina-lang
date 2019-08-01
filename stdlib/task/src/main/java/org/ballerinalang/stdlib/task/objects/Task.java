@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.stdlib.task.objects;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 
 import java.util.HashMap;
@@ -39,10 +38,9 @@ public interface Task {
     /**
      * Run all the services attached to the task.
      *
-     * @param context Ballerina context which runs the services.
      * @throws SchedulingException When there is a failure to stop the task after maximum number of runs specified.
      */
-    void start(Context context) throws SchedulingException;
+    void start() throws SchedulingException;
 
     /**
      * Stop the task.
@@ -70,7 +68,7 @@ public interface Task {
      *
      * @return Services Map
      */
-    HashMap<String, ServiceWithParameters> getServicesMap();
+    HashMap<String, ServiceInformation> getServicesMap();
 
     /**
      * Get map of attached services of the task.
@@ -78,14 +76,14 @@ public interface Task {
      * @param serviceName Service name of which the service should be retrieved.
      * @return Service object with the provided name.
      */
-    ServiceWithParameters getService(String serviceName);
+    ServiceInformation getService(String serviceName);
 
     /**
      * Add particular service to the registry of the Task.
      *
      * @param service Service which needs to be attached to the task.
      */
-    void addService(ServiceWithParameters service);
+    void addService(ServiceInformation service);
 
     /**
      * Remove particular service from the registry of the Task.

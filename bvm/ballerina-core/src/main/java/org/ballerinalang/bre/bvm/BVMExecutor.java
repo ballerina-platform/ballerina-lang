@@ -53,17 +53,7 @@ import java.util.Map;
 public class BVMExecutor {
 
     /**
-     * Execution API to execute package init and package start functions for the whole program file.
-     *
-     * @param programFile to be initialized
-     */
-    public static void initProgramFile(ProgramFile programFile) {
-        invokePackageInitFunctions(programFile);
-        invokePackageStartFunctions(programFile);
-    }
-
-    /**
-     * This will invoke package start functions.
+     * This will invoke package stop functions.
      *
      * @param programFile to be invoked.
      */
@@ -72,34 +62,11 @@ public class BVMExecutor {
     }
 
     /**
-     * Execution API to execute program file starting from the given callable unit.
-     * this will call package init and start functions as well.
+     * Execution API to execute just a function.
      *
      * @param programFile  to be executed
      * @param functionInfo to be executed
-     * @param args         to be passed to the invokable unit
-     * @return results
-     */
-    public static BValue[] executeEntryFunction(ProgramFile programFile, FunctionInfo functionInfo, BValue... args) {
-        int requiredArgNo = functionInfo.getParamTypes().length;
-        int providedArgNo = args.length;
-        if (requiredArgNo != providedArgNo) {
-            throw new RuntimeException("Wrong number of arguments. Required: " + requiredArgNo + " , found: " +
-                    providedArgNo + ".");
-        }
-        initProgramFile(programFile);
-//        new BalxEmitter().emit(programFile);
-        BValue[] result = new BValue[]{execute(programFile, functionInfo, args, null, true)};
-        BVMScheduler.waitForStrandCompletion();
-        return result;
-    }
-
-    /**
-     * Execution API to execute just a function.
-     *
-     * @param programFile   to be executed
-     * @param functionInfo  to be executed
-     * @param args          to be passed to invokable unit
+     * @param args         to be passed to invokable unit
      * @return results
      */
     public static BValue[] executeFunction(ProgramFile programFile, FunctionInfo functionInfo, BValue... args) {
@@ -107,33 +74,60 @@ public class BVMExecutor {
         int providedArgNo = args.length;
         if (requiredArgNo != providedArgNo) {
             throw new RuntimeException("Wrong number of arguments. Required: " + requiredArgNo + " , found: " +
-                    providedArgNo + ".");
+                                               providedArgNo + ".");
         }
-        BValue[] result = new BValue[]{execute(programFile, functionInfo, args, null, true)};
-        return result;
+        return new BValue[]{execute(programFile, functionInfo, args, null, true)};
     }
 
     /**
      * Execution API to execute a resource.
      *
-     * @param programFile       to be executed
-     * @param resourceInfo      to be executed
-     * @param responseCallback  to be used for notifications
-     * @param properties        to be passed in the context
-     * @param observerContext   to be used
-     * @param serviceInfo       to be used
-     * @param args              to be passed to the resource
+     * @param programFile      to be executed
+     * @param resourceInfo     to be executed
+     * @param responseCallback to be used for notifications
+     * @param properties       to be passed in the context
+     * @param observerContext  to be used
+     * @param serviceInfo      to be used
+     * @param args             to be passed to the resource
      */
     public static void executeResource(ProgramFile programFile, FunctionInfo resourceInfo,
                                        CallableUnitCallback responseCallback, Map<String, Object> properties,
                                        ObserverContext observerContext, ServiceInfo serviceInfo, BValue... args) {
+        Strand strand = populateAndGetStrand(programFile, resourceInfo, responseCallback, properties, observerContext,
+                                             serviceInfo, args);
+        BVMScheduler.schedule(strand);
+    }
+
+    /**
+     * Execution API to execute a resource in the current thread.
+     *
+     * @param programFile      to be executed
+     * @param resourceInfo     to be executed
+     * @param responseCallback to be used for notifications
+     * @param properties       to be passed in the context
+     * @param observerContext  to be used
+     * @param serviceInfo      to be used
+     * @param args             to be passed to the resource
+     */
+    public static void execute(ProgramFile programFile, FunctionInfo resourceInfo,
+                               CallableUnitCallback responseCallback, Map<String, Object> properties,
+                               ObserverContext observerContext, ServiceInfo serviceInfo, BValue... args) {
+        Strand strand = populateAndGetStrand(programFile, resourceInfo, responseCallback, properties, observerContext,
+                                             serviceInfo, args);
+        BVMScheduler.execute(strand);
+    }
+
+    private static Strand populateAndGetStrand(ProgramFile programFile, FunctionInfo resourceInfo,
+                                               CallableUnitCallback responseCallback, Map<String, Object> properties,
+                                               ObserverContext observerContext, ServiceInfo serviceInfo,
+                                               BValue[] args) {
         Map<String, Object> globalProps = new HashMap<>();
         if (properties != null) {
             globalProps.putAll(properties);
         }
 
         StrandResourceCallback strandCallback = new StrandResourceCallback(null, responseCallback,
-                resourceInfo.workerSendInChannels);
+                                                                           resourceInfo.workerSendInChannels);
         Strand strand = new Strand(programFile, resourceInfo.getName(), globalProps, strandCallback);
 
         infectResourceFunction(strandCallback, strand);
@@ -148,7 +142,7 @@ public class BVMExecutor {
         ObserveUtils.startResourceObservation(strand, observerContext);
 
         BVMScheduler.stateChange(strand, State.NEW, State.RUNNABLE);
-        BVMScheduler.schedule(strand);
+        return strand;
     }
 
     private static void infectResourceFunction(StrandResourceCallback strandResourceCallback, Strand strand) {
@@ -157,7 +151,7 @@ public class BVMExecutor {
             String globalTransactionId = strand.globalProps.get(Constants.GLOBAL_TRANSACTION_ID).toString();
             String url = strand.globalProps.get(Constants.TRANSACTION_URL).toString();
             TransactionLocalContext transactionLocalContext = TransactionLocalContext.create(globalTransactionId,
-                    url, "2pc");
+                                                                                             url, "2pc");
             strand.setLocalTransactionContext(transactionLocalContext);
             strandResourceCallback.setTransactionLocalContext(transactionLocalContext);
         }
@@ -171,12 +165,13 @@ public class BVMExecutor {
         }
 
         StrandWaitCallback strandCallback = new StrandWaitCallback(callableInfo.getRetParamTypes()[0],
-                callableInfo.workerSendInChannels);
+                                                                   callableInfo.workerSendInChannels);
         Strand strand = new Strand(programFile, callableInfo.getName(), globalProps, strandCallback);
 
         StackFrame idf = new StackFrame(callableInfo.getPackageInfo(), callableInfo,
-                callableInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1, FunctionFlags.NOTHING,
-                callableInfo.workerSendInChannels);
+                                        callableInfo.getDefaultWorkerInfo().getCodeAttributeInfo(), -1,
+                                        FunctionFlags.NOTHING,
+                                        callableInfo.workerSendInChannels);
         copyArgValues(args, idf, callableInfo.getParamTypes());
         strand.pushFrame(idf);
 
@@ -190,8 +185,7 @@ public class BVMExecutor {
             }
         }
 
-        BValue result = populateReturnData(strandCallback, callableInfo);
-        return result;
+        return populateReturnData(strandCallback, callableInfo);
     }
 
     private static void copyArgValues(BValue[] args, StackFrame callee, BType[] paramTypes) {
@@ -218,7 +212,7 @@ public class BVMExecutor {
                 case TypeTags.BOOLEAN_TAG:
                     if (args[i] instanceof BString) {
                         callee.intRegs[++booleanRegIndex] =
-                                ((BString) args[i]).value().toLowerCase().equals("true") ? 1 : 0;
+                                ((BString) args[i]).value().equalsIgnoreCase("true") ? 1 : 0;
                     } else {
                         callee.intRegs[++booleanRegIndex] = ((BValueType) args[i]).booleanValue() ? 1 : 0;
                     }
@@ -262,7 +256,7 @@ public class BVMExecutor {
      *
      * @param programFile to be invoked.
      */
-    private static void invokePackageInitFunctions(ProgramFile programFile) {
+    public static void invokePackageInitFunctions(ProgramFile programFile) {
         for (PackageInfo info : programFile.getPackageInfoEntries()) {
             BValue result = execute(programFile, info.getInitFunctionInfo(), new BValue[0], null, true);
             validateInvocationError(result);
@@ -270,12 +264,11 @@ public class BVMExecutor {
     }
 
     /**
-     * This will invoke package start functions, this should be invoked after
-     * invoking "invokePackageInitFunctions".
+     * This will invoke package start functions, this should be invoked after invoking "invokePackageInitFunctions".
      *
      * @param programFile to be invoked.
      */
-    private static void invokePackageStartFunctions(ProgramFile programFile) {
+    public static void invokePackageStartFunctions(ProgramFile programFile) {
         for (PackageInfo info : programFile.getPackageInfoEntries()) {
             BValue result = execute(programFile, info.getStartFunctionInfo(), new BValue[0], null, true);
             validateInvocationError(result);
@@ -283,8 +276,7 @@ public class BVMExecutor {
     }
 
     /**
-     * This will invoke package start functions, this should be invoked after
-     * invoking "invokePackageInitFunctions".
+     * This will invoke package start functions, this should be invoked after invoking "invokePackageInitFunctions".
      *
      * @param programFile to be invoked.
      */
@@ -296,8 +288,8 @@ public class BVMExecutor {
     }
 
     /**
-     * This will validate given BValue is an BError and then convert it into
-     * Ballerina exception. This method will be used to validate module life cycle methods.
+     * This will validate given BValue is an BError and then convert it into Ballerina exception. This method will be
+     * used to validate module life cycle methods.
      *
      * @value BValue to be validated.
      */
@@ -305,5 +297,8 @@ public class BVMExecutor {
         if (value != null && value.getType().getTag() == TypeTags.ERROR_TAG) {
             throw new BLangRuntimeException("error: " + BLangVMErrors.getPrintableStackTrace((BError) value));
         }
+    }
+
+    private BVMExecutor() {
     }
 }

@@ -20,6 +20,9 @@ package org.ballerinalang.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -45,6 +48,10 @@ public class Deserialize extends BlockingNativeCallableUnit {
         String serializedStr = ctx.getStringArgument(0);
         BMap<String, BValue> bStruct = Serializer.getJsonSerializer().deserialize(serializedStr, BMap.class);
         ctx.setReturnValues(bStruct);
+    }
+
+    public static MapValue deserialize(Strand strand, Object object, String str) {
+        return new MapValueImpl();
     }
 }
 

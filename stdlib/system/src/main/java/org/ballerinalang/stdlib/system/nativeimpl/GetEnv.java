@@ -19,12 +19,9 @@ package org.ballerinalang.stdlib.system.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Extern function ballerina.system:getEnv.
@@ -33,21 +30,19 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "system",
-        functionName = "getEnv",
-        args = {@Argument(name = "name", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
-        isPublic = true
+        functionName = "getEnv", isPublic = true
 )
 public class GetEnv extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String str = context.getStringArgument(0);
-        String value = System.getenv(str);
+    }
+
+    public static String getEnv(Strand strand, String name) {
+        String value = System.getenv(name);
         if (value == null) {
-            context.setReturnValues(BTypes.typeString.getZeroValue());
-            return;
+            return BTypes.typeString.getZeroValue();
         }
-        context.setReturnValues(new BString(value));
+        return value;
     }
 }

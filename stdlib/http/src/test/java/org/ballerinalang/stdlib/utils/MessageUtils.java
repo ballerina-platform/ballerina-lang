@@ -22,9 +22,9 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpResourceArguments;
 
 import java.net.InetSocketAddress;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -58,6 +58,7 @@ public class MessageUtils {
             carbonMessage.addHttpContent(new DefaultLastHttpContent());
         }
         carbonMessage.setLastHttpContentArrived();
+        carbonMessage.setHttpVersion(HttpConstants.HTTP_VERSION_1_1);
         return carbonMessage;
     }
 
@@ -73,12 +74,13 @@ public class MessageUtils {
                 HttpConstants.DEFAULT_INTERFACE);
         // Set url
         carbonMessage.setProperty(HttpConstants.TO, path);
-        carbonMessage.setProperty(HttpConstants.REQUEST_URL, path);
-        carbonMessage.setProperty(HttpConstants.HTTP_METHOD, method.trim().toUpperCase(Locale.getDefault()));
+        carbonMessage.setRequestUrl(path);
+        carbonMessage.setHttpMethod(method.trim().toUpperCase(Locale.getDefault()));
         carbonMessage.setProperty(HttpConstants.LOCAL_ADDRESS,
                 new InetSocketAddress(HttpConstants.HTTP_DEFAULT_HOST, 9090));
         carbonMessage.setProperty(HttpConstants.LISTENER_PORT, 9090);
-        carbonMessage.setProperty(HttpConstants.RESOURCE_ARGS, new HashMap<String, String>());
+        carbonMessage.setProperty(HttpConstants.RESOURCE_ARGS, new HttpResourceArguments());
+        carbonMessage.setHttpVersion(HttpConstants.HTTP_VERSION_1_1);
         return carbonMessage;
     }
 }

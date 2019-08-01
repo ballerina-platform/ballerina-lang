@@ -16,11 +16,9 @@
 package org.ballerinalang.net.grpc.nativeimpl.calleraction;
 
 import com.google.protobuf.Descriptors;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.GrpcConstants;
@@ -32,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CALLER;
-import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_RESPONDER_REF_INDEX;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
@@ -50,20 +47,18 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
-public class Complete extends BlockingNativeCallableUnit {
+public class Complete {
     private static final Logger LOG = LoggerFactory.getLogger(Complete.class);
 
-    @Override
-    public void execute(Context context) {
-        BMap<String, BValue> endpointClient = (BMap<String, BValue>) context.getRefArgument(CLIENT_RESPONDER_REF_INDEX);
+    public static Object complete(Strand strand, ObjectValue endpointClient) {
         StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
         Descriptors.Descriptor outputType = (Descriptors.Descriptor) endpointClient.getNativeData(GrpcConstants
                 .RESPONSE_MESSAGE_DEFINITION);
 
         if (responseObserver == null) {
-            context.setError(MessageUtils.getConnectorError(new StatusRuntimeException(Status
+            return MessageUtils.getConnectorError(new StatusRuntimeException(Status
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while initializing " +
-                            "connector. response sender does not exist"))));
+                            "connector. response sender does not exist")));
         } else {
             try {
                 if (!MessageUtils.isEmptyResponse(outputType)) {
@@ -71,8 +66,9 @@ public class Complete extends BlockingNativeCallableUnit {
                 }
             } catch (Exception e) {
                 LOG.error("Error while sending complete message to caller.", e);
-                context.setError(MessageUtils.getConnectorError(e));
+                return MessageUtils.getConnectorError(e);
             }
         }
+        return null;
     }
 }

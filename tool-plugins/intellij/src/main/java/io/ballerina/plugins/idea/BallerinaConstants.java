@@ -20,6 +20,9 @@ import com.intellij.notification.NotificationGroup;
 import com.intellij.openapi.wm.ToolWindowId;
 import org.jetbrains.annotations.NonNls;
 
+import java.io.File;
+import java.util.regex.Pattern;
+
 /**
  * Contains constants related to Ballerina plugin.
  */
@@ -43,6 +46,8 @@ public class BallerinaConstants {
     @NonNls
     public static final String BALLERINA_NEW_VERSION_FILE_PATH = "lib/version.txt";
 
+    public static final Pattern BALLERINA_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+(\\.\\d+)?(-.+)?)");
+
     public static final NotificationGroup BALLERINA_NOTIFICATION_GROUP =
             NotificationGroup.balloonGroup("Ballerina plugin notifications");
 
@@ -64,5 +69,22 @@ public class BallerinaConstants {
     public static final String BALLERINA_TEST_FUNCTION_PREFIX = "test";
     public static final String BALLERINA_TEST_FILE_SUFFIX = "_test.bal";
 
+    public static final String BALLERINA_PROJECT_CACHE_FOLDER_NAME = ".ballerina";
     public static final String BALLERINA_CONFIG_FILE_NAME = "Ballerina.toml";
+    public static final String BALLERINA_SRC_DIR_NAME = "src";
+
+    public static final String BALLERINAX_SOURCE_PATH = "lib/repo";
+    public static final String LAUNCHER_SCRIPT_PATH = "lib/tools/lang-server/launcher";
+    public static final String BALLERINA_EXEC_PATH = "bin" + File.separator + BALLERINA_EXECUTABLE_NAME;
+
+    // Language server launcher constants.
+    public static final String BALLERINA_LS_LAUNCHER_PATH = "lib/tools/lang-server/launcher";
+    public static final String BALLERINA_LS_LAUNCHER_NAME = "language-server-launcher";
+    public static final String BALLERINA_COMPOSER_LIB_PATH = "lib/tools/composer-library";
+
+    // Debug server launcher constants.
+    public static final String BALLERINA_DEBUG_LAUNCHER_PATH = "lib/tools/debug-adapter/launcher";
+    public static final String BALLERINA_DEBUG_LAUNCHER_NAME = "debug-adapter-launcher";
+
+
 }

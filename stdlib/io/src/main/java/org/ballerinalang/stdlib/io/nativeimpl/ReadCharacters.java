@@ -17,14 +17,10 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -53,63 +49,37 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
                       @ReturnType(type = TypeKind.ERROR)},
         isPublic = true
 )
-public class ReadCharacters implements NativeCallableUnit {
+public class ReadCharacters {
+
+
+    public static Object read(Strand strand, ObjectValue channel, long numberOfCharacters) {
+        CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(
+                IOConstants.CHARACTER_CHANNEL_NAME);
+        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
+        ReadCharactersEvent event = new ReadCharactersEvent(characterChannel, (int) numberOfCharacters, eventContext);
+        Register register = EventRegister.getFactory().register(event, ReadCharacters::readCharacterResponse);
+        eventContext.setRegister(register);
+        register.submit();
+        return null;
+    }
 
     /**
-     * Specifies the index which contains the character channel in ballerina.lo#readCharacters.
-     */
-    private static final int CHAR_CHANNEL_INDEX = 0;
-
-    /**
-     * Specifies the index which holds number of characters in ballerina.lo#readCharacters.
-     */
-    private static final int NUMBER_OF_CHARS_INDEX = 0;
-
-    /*
      * Callback method of the read characters response.
      *
      * @param result the result returned as the response.
      * @return the processed event result.
      */
-    private static EventResult readCharactersResponse(EventResult<String, EventContext> result) {
+    private static EventResult readCharacterResponse(EventResult<String, EventContext> result) {
         EventContext eventContext = result.getContext();
-        Context context = eventContext.getContext();
-        CallableUnitCallback callback = eventContext.getCallback();
+        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
         Throwable error = eventContext.getError();
         if (null != error) {
-            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, error.getMessage());
-            context.setReturnValues(errorStruct);
+            callback.setReturnValues(IOUtils.createError(error.getMessage()));
         } else {
-            String readChars = result.getResponse();
-            context.setReturnValues(new BString(readChars));
+            callback.setReturnValues(result.getResponse());
         }
         IOUtils.validateChannelState(eventContext);
         callback.notifySuccess();
         return result;
-    }
-
-    /**
-     * <p>
-     * Reads characters from the channel.
-     * </p>
-     * <p>
-     * {@inheritDoc}
-     */
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-        BMap<String, BValue> channel = (BMap<String, BValue>) context.getRefArgument(CHAR_CHANNEL_INDEX);
-        long numberOfCharacters = context.getIntArgument(NUMBER_OF_CHARS_INDEX);
-        CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
-                .CHARACTER_CHANNEL_NAME);
-        EventContext eventContext = new EventContext(context, callback);
-        ReadCharactersEvent event = new ReadCharactersEvent(characterChannel, (int) numberOfCharacters, eventContext);
-        Register register = EventRegister.getFactory().register(event, ReadCharacters::readCharactersResponse);
-        eventContext.setRegister(register);
-        register.submit();
-    }
-
-    @Override
-    public boolean isBlocking() {
-        return false;
     }
 }

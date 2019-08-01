@@ -10,18 +10,17 @@ service sample on new http:Listener(9090) {
     // The `PathParam` and `QueryParam` parameters extract values from the request URI.
     resource function params(http:Caller caller, http:Request req,
                                 string foo) {
-        // Get `QueryParams`.
-        var params = req.getQueryParams();
-        var bar = <string>params.bar;
+        // Get the `QueryParam` value for a given parameter key.
+        var bar = req.getQueryParamValue("bar");
 
-        // Get `MatrixParams`. 
+        // Get the `MatrixParams`.
         map<any> pathMParams = req.getMatrixParams("/sample/path");
-        var a = <string>pathMParams.a;
-        var b = <string>pathMParams.b;
+        var a = <string>pathMParams["a"];
+        var b = <string>pathMParams["b"];
         string pathMatrixStr = string `a=${a}, b=${b}`;
         map<any> fooMParams = req.getMatrixParams("/sample/path/" + foo);
-        var x = <string>fooMParams.x;
-        var y = <string>fooMParams.y;
+        var x = <string>fooMParams["x"];
+        var y = <string>fooMParams["y"];
         string fooMatrixStr = string `x=${x}, y=${y}`;
         json matrixJson = { "path": pathMatrixStr, "foo": fooMatrixStr };
 
@@ -30,7 +29,7 @@ service sample on new http:Listener(9090) {
                                 "matrix": matrixJson };
         http:Response res = new;
         // A util method to set the JSON payload to the response message.
-        res.setJsonPayload(untaint responseJson);
+        res.setJsonPayload(<@untainted> responseJson);
         // Send a response to the client.
         var result = caller->respond(res);
 

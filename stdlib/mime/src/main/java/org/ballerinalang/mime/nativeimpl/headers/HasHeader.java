@@ -20,12 +20,9 @@
 package org.ballerinalang.mime.nativeimpl.headers;
 
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -34,7 +31,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.List;
 
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
-import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 
 /**
  * Check the http header existence.
@@ -49,22 +45,17 @@ import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class HasHeader extends BlockingNativeCallableUnit {
+public class HasHeader {
 
-    @Override
-    public void execute(Context context) {
-        BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-        String headerName = context.getStringArgument(FIRST_PARAMETER_INDEX);
-        if (entityStruct.getNativeData(ENTITY_HEADERS) == null) {
-            context.setReturnValues(new BBoolean(false));
-            return;
+    public static boolean hasHeader(Strand strand, ObjectValue entityObj, String headerName) {
+        if (entityObj.getNativeData(ENTITY_HEADERS) == null) {
+            return false;
         }
-        HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        HttpHeaders httpHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS);
         List<String> headerValueList = httpHeaders.getAll(headerName);
         if (headerValueList == null || headerValueList.isEmpty()) {
-            context.setReturnValues(new BBoolean(false));
-        } else {
-            context.setReturnValues(new BBoolean(true));
+            return false;
         }
+        return true;
     }
 }

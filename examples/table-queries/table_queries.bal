@@ -17,13 +17,13 @@ type Order record {
     float amount;
 };
 
-// This `record` type represents the summed up order details.
+// This `record` type represents the summed-up order details.
 type SummedOrder record {
     int personId;
     float amount;
 };
 
-// This `record` type represents order details (this is derived by joining the person details
+// This `record` type represents the order details (this is derived by joining the person details
 //and the order details).
 type OrderDetails record {
     int orderId;
@@ -54,7 +54,7 @@ public function main() {
         [p1, p2, p3, p4]
     };
 
-    // This prints the `Person` table content.
+    // This prints the content of the `Person` table.
     printTable(queryStmt, "The personTable:  ", personTable);
 
     // These are a few sample values that represent orders made by the people who were
@@ -73,10 +73,10 @@ public function main() {
         [o1, o2, o3, o4]
     };
 
-    // This prints the `Order` table content.
+    // This prints the content of the `Order` table.
     printTable(queryStmt, "The orderTable: ", orderTable);
 
-    // Querying for a `table` always returns a new in-memory `table`.
+    // Querying a `table` always returns a new in-memory `table`.
 
     //Queries all the records in a `table` and returns them as another in-memory `table`.
     table<Person> personTableCopy = from personTable select *;
@@ -96,7 +96,7 @@ public function main() {
             "from personTable where name == 'jane' select *;";
     printTable(queryStmt, "personTableCopyWithFilter: ", personTableCopyWithFilter);
 
-    //Queries only few fields in a `table` and returns the results as a new in-memory
+    //Queries only a few fields in a `table` and returns the results as a new in-memory
     //`table` constrained by a different type.
     table<PersonPublicProfile> childTable = from personTable
                   select name as knownName, age;
@@ -131,7 +131,7 @@ public function main() {
                     "tempOrderTable.amount as amount;";
     printTable(queryStmt, "orderDetailsTable: ", orderDetailsTable);
 
-    //Joins a `table` with another `table` using the `where` clause and return the selected fields in a
+    //Joins a `table` with another `table` using the `where` clause and returns the selected fields in a
     // `table` constrained by a different type.
     table<OrderDetails> orderDetailsWithFilter =
                     from personTable
@@ -154,12 +154,9 @@ public function main() {
 }
 
 function printTable(string stmt, string tableName, table<anydata> returnedTable) {
-    var retData = json.convert(returnedTable);
     io:println(stmt);
-    io:print(tableName);
-    if (retData is json) {
-        io:println(io:sprintf("%s", retData));
-    } else {
-        io:println("Error in table to json conversion");
+    io:println(tableName);
+    foreach var row in returnedTable {
+       io:println(io:sprintf("%s", row));
     }
 }

@@ -18,14 +18,22 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -34,15 +42,20 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -56,27 +69,32 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.IntStream;
 
+import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 
 /**
- * This class injects the code that invokes the http filters to the first lines of an http resource.
- * The code injected is as follows:
+ * This class injects the code that invokes the http filters to the first lines of an http resource. The code injected
+ * is as follows:
  * <blockquote><pre>
  *          http:FilterContext _$$_filterContext = new (serviceTypeDef, "serviceName", "resourceName");
  *          caller.conn.filterContext = _$$_filterContext;
  *          foreach _$$_filter in caller.config.filters {
- *              if(!_$$_filter.filterRequest(caller, req, _$$_filterContext)){
- *                  Done;
+ *              if(_$$_filter is http:FilterRequest  &amp;&amp; !_$$_filter.filterRequest(caller, req,
+ *              _$$_filterContext)){
+ *                  return;
  *              }
  *          }
  * </pre></blockquote>
- * The second line in this code stores the _$$_filterContext reference to the http connector to be used when calling
- * the filterResponse method of the filters
+ * The second line in this code stores the _$$_filterContext reference to the http connector to be used when calling the
+ * filterResponse method of the filters
  *
  * @since 0.974.1
  */
@@ -85,24 +103,32 @@ public class HttpFiltersDesugar {
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private final Names names;
+    private final Types types;
 
     private static final String HTTP_ENDPOINT_CONFIG = "config";
     private static final String HTTP_FILTERS_VAR = "filters";
     private static final String HTTP_FILTER_VAR = "filter";
     private static final String HTTP_FILTERCONTEXT_VAR = "filterContext";
     private static final String FILTER_REQUEST_FUNCTION = "filterRequest";
+    private static final String ANN_RESOURCE_CONFIG = "ResourceConfig";
+    private static final String ANN_RESOURCE_ATTR_PATH = "path";
+    private static final String ANN_RESOURCE_ATTR_WS_UPGRADE = "webSocketUpgrade";
+    private static final String ANN_RESOURCE_ATTR_WS_UPGRADE_PATH = "upgradePath";
+    private static final String ANN_RESOURCE_PARAM_ORDER_CONFIG = "ParamOrderConfig";
+    private static final String ANN_RECORD_PARAM_ORDER_CONFIG = "HttpParamOrderConfig";
+    private static final String ANN_FIELD_PATH_PARAM_ORDER = "pathParamOrder";
 
     private static final String ORG_NAME = "ballerina";
     private static final String PACKAGE_NAME = "http";
     private static final String CALLER_TYPE_NAME = "Caller";
-    private static final String ORG_SEPARATOR = "/";
 
+    private static final String ORG_SEPARATOR = "/";
     private static final int ENDPOINT_PARAM_NUM = 0;
     private static final int REQUEST_PARAM_NUM = 1;
     private static final int FILTER_CONTEXT_FIELD_INDEX = 1;
     private static final int ENDPOINT_CONFIG_INDEX = 0;
+
     private static final int FILTERS_CONFIG_INDEX = 5;
-    
     private static final CompilerContext.Key<HttpFiltersDesugar> HTTP_FILTERS_DESUGAR_KEY =
             new CompilerContext.Key<>();
 
@@ -120,6 +146,7 @@ public class HttpFiltersDesugar {
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
+        this.types = Types.getInstance(context);
     }
 
     /**
@@ -129,20 +156,23 @@ public class HttpFiltersDesugar {
      * @param env          the symbol environment
      */
     void addHttpFilterStatementsToResource(BLangFunction resourceNode, SymbolEnv env) {
-        BLangSimpleVariable endpoint;
-        if (resourceNode.requiredParams.size() >= 2) {
-            endpoint = resourceNode.requiredParams.get(0);
-            if (ORG_NAME.equals(endpoint.type.tsymbol.pkgID.orgName.value) && PACKAGE_NAME.equals(
-                    endpoint.type.tsymbol.pkgID.name.value) && CALLER_TYPE_NAME.equals(
-                    endpoint.type.tsymbol.name.value)) {
-                addFilterStatements(resourceNode, env);
-            }
+        if (isHttpResource(resourceNode)) {
+            addFilterStatements(resourceNode, env);
         }
+    }
+
+    private boolean isHttpResource(BLangFunction resourceNode) {
+        if (resourceNode.requiredParams.size() < 2) {
+            return false;
+        }
+        BTypeSymbol tsymbol = resourceNode.requiredParams.get(0).type.tsymbol;
+        return ORG_NAME.equals(tsymbol.pkgID.orgName.value) && PACKAGE_NAME.equals(tsymbol.pkgID.name.value) &&
+                CALLER_TYPE_NAME.equals(tsymbol.name.value);
     }
 
     private void addFilterStatements(BLangFunction resourceNode, SymbolEnv env) {
         BLangSimpleVariable filterContextVar = addFilterContextCreation(resourceNode, env);
-        addAssignmentAndForEach(resourceNode, filterContextVar);
+        addAssignmentAndForEach(resourceNode, filterContextVar, env);
     }
 
     /**
@@ -163,7 +193,7 @@ public class HttpFiltersDesugar {
         serviceRef.pos = resourceNode.pos;
 
         BLangLiteral serviceName = new BLangLiteral();
-        serviceName.value = serviceSelf.type.tsymbol.name.value;
+        serviceName.value = getServiceName(serviceSelf.type.tsymbol.name.value);
         serviceName.type = symTable.stringType;
         serviceName.pos = resourceNode.pos;
 
@@ -202,6 +232,11 @@ public class HttpFiltersDesugar {
         return filterContextVar;
     }
 
+    private String getServiceName(String serviceTypeName) {
+        int serviceIndex = serviceTypeName.lastIndexOf("$$service$");
+        return serviceTypeName.substring(0, serviceIndex);
+    }
+
     /**
      * Get the alias name of the http import.
      *
@@ -225,7 +260,8 @@ public class HttpFiltersDesugar {
      *  }
      * </pre></blockquote>
      */
-    private void addAssignmentAndForEach(BLangFunction resourceNode, BLangSimpleVariable filterContextVar) {
+    private void addAssignmentAndForEach(BLangFunction resourceNode, BLangSimpleVariable filterContextVar,
+                                         SymbolEnv env) {
         //Assignment statement START
         BLangSimpleVariable endpointVar = resourceNode.requiredParams.get(ENDPOINT_PARAM_NUM);
         BLangSimpleVarRef.BLangLocalVarRef callerRef = new BLangSimpleVarRef.BLangLocalVarRef(endpointVar.symbol);
@@ -259,7 +295,11 @@ public class HttpFiltersDesugar {
         BField configVal = ((BObjectType) endpointVar.type).fields.get(ENDPOINT_CONFIG_INDEX);
         BField filtersVal = ((BRecordType) configVal.type).fields.get(FILTERS_CONFIG_INDEX);
         BType filtersType = filtersVal.type;
-        BType filterType = ((BArrayType) filtersType).eType;
+        BUnionType filterUnionType = (BUnionType) ((BArrayType) filtersType).eType;
+        BLangIdentifier pkgAlias = ASTBuilderUtil.createIdentifier(resourceNode.pos, getPackageAlias(env));
+        BLangUserDefinedType filterUserDefinedType = new BLangUserDefinedType(
+                pkgAlias, ASTBuilderUtil.createIdentifier(resourceNode.pos, "RequestFilter"));
+        BObjectType filterType = (BObjectType) symResolver.resolveTypeNode(filterUserDefinedType, env);
 
         BLangLiteral configName = new BLangLiteral();
         configName.value = HTTP_ENDPOINT_CONFIG;
@@ -283,15 +323,16 @@ public class HttpFiltersDesugar {
 
         String filterVarName = GEN_VAR_PREFIX + HTTP_FILTER_VAR;
 
-        BLangSimpleVarRef.BLangLocalVarRef filterRef = new BLangSimpleVarRef.BLangLocalVarRef(
-                new BVarSymbol(0, new Name(filterVarName), resourceNode.symbol.pkgID, filterType, resourceNode.symbol));
-        filterRef.variableName = ASTBuilderUtil.createIdentifier(resourceNode.pos, filterVarName);
-        filterRef.type = filterType;
-        filterRef.pos = resourceNode.pos;
+        BLangSimpleVarRef unionFilterRef = ASTBuilderUtil.createVariableRef(
+                resourceNode.pos, new BVarSymbol(0, new Name(filterVarName), resourceNode.symbol.pkgID, filterUnionType,
+                                                 resourceNode.symbol));
+        unionFilterRef.variableName = ASTBuilderUtil.createIdentifier(resourceNode.pos, filterVarName);
+        unionFilterRef.type = filterType;
+        unionFilterRef.pos = resourceNode.pos;
 
         // Create a new variable definition. This is needed for the foreach node.
         BLangSimpleVariable variable = ASTBuilderUtil.createVariable(resourceNode.pos, filterVarName, filterType,
-                null, (BVarSymbol) filterRef.symbol);
+                                                                     null, (BVarSymbol) unionFilterRef.symbol);
         BLangSimpleVariableDef variableDefinition = ASTBuilderUtil.createVariableDef(resourceNode.pos, variable);
 
         BLangLiteral returnName = new BLangLiteral();
@@ -307,7 +348,11 @@ public class HttpFiltersDesugar {
 
         BLangBlockStmt doneStatement = ASTBuilderUtil.createBlockStmt(resourceNode.pos,
                                                                       createSingletonArrayList(returnNode));
+        // lhsExpr
+        BLangTypeTestExpr filterTypeCheckExpr = ASTBuilderUtil.createTypeTestExpr(resourceNode.pos, unionFilterRef,
+                                                                                  filterUserDefinedType);
 
+        // rhsExpr
         BLangSimpleVariable requestVar = resourceNode.requiredParams.get(REQUEST_PARAM_NUM);
         BLangSimpleVarRef.BLangLocalVarRef requestRef = new BLangSimpleVarRef.BLangLocalVarRef(requestVar.symbol);
         requestRef.variableName = requestVar.name;
@@ -315,28 +360,37 @@ public class HttpFiltersDesugar {
         requestRef.pos = requestVar.pos;
 
         List<BLangExpression> requiredArgs = new ArrayList<>();
-        requiredArgs.add(filterRef);
         requiredArgs.add(callerRef);
         requiredArgs.add(requestRef);
         requiredArgs.add(filterContextRef);
 
-        BLangInvocation.BLangAttachedFunctionInvocation filterRequestInvocation =
-                new BLangInvocation.BLangAttachedFunctionInvocation(
-                        resourceNode.pos, requiredArgs, new ArrayList<>(), new ArrayList<>(),
-                        getFilterRequestFuncSymbol(filterType), symTable.booleanType, filterRef, false);
-        filterRequestInvocation.desugared = true;
+        BLangInvocation filterRequestInvocation = ASTBuilderUtil.createInvocationExprForMethod(
+                resourceNode.pos, getFilterRequestFuncSymbol(filterType), requiredArgs, symResolver);
+        filterRequestInvocation.expr = unionFilterRef;
+        filterRequestInvocation.type = symTable.booleanType;
+        filterRequestInvocation.async = false;
 
         BInvokableType type = new BInvokableType(createSingletonArrayList(symTable.booleanType), symTable.booleanType,
-                null);
-        BOperatorSymbol operatorSymbol = new BOperatorSymbol(names.fromString(OperatorKind.NOT.value()),
-                symTable.rootPkgSymbol.pkgID, type, symTable.rootPkgSymbol, InstructionCodes.BNOT);
-        BLangUnaryExpr unaryExpr = ASTBuilderUtil.createUnaryExpr(resourceNode.pos, filterRequestInvocation,
-                symTable.booleanType, OperatorKind.NOT, operatorSymbol);
+                                                 null);
+        BOperatorSymbol notOperatorSymbol = new BOperatorSymbol(
+                names.fromString(OperatorKind.NOT.value()), symTable.rootPkgSymbol.pkgID, type, symTable.rootPkgSymbol,
+                InstructionCodes.BNOT);
+        BLangUnaryExpr unaryExpr = ASTBuilderUtil.createUnaryExpr(
+                resourceNode.pos, filterRequestInvocation, symTable.booleanType, OperatorKind.NOT, notOperatorSymbol);
+        BOperatorSymbol andOperatorSymbol = new BOperatorSymbol(
+                names.fromString(OperatorKind.AND.value()), symTable.rootPkgSymbol.pkgID, type, symTable.rootPkgSymbol,
+                -1);
+        BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(
+                resourceNode.pos, filterTypeCheckExpr, unaryExpr, symTable.booleanType, OperatorKind.AND,
+                andOperatorSymbol);
+        BLangGroupExpr groupExpr = new BLangGroupExpr();
+        groupExpr.expression = binaryExpr;
+        groupExpr.typedescType = symTable.booleanType;
 
         BLangIf ifNode = (BLangIf) TreeBuilder.createIfElseStatementNode();
         ifNode.pos = resourceNode.pos;
         ifNode.body = doneStatement;
-        ifNode.expr = unaryExpr;
+        ifNode.expr = groupExpr;
         ifNode.statementLink = new BLangStatement.BLangStatementLink();
         ifNode.statementLink.statement = ifNode;
 
@@ -348,11 +402,7 @@ public class HttpFiltersDesugar {
         foreach.body = ifStatement;
         foreach.collection = filtersField;
         foreach.isDeclaredWithVar = false;
-        foreach.varType = filterType;
-        BMapType mapType = new BMapType(TypeTags.RECORD, filterType, symTable.mapType.tsymbol);
-        foreach.resultType = mapType;
-        foreach.nillableResultType = BUnionType.create(null, mapType, symTable.nilType);
-
+        this.types.setForeachTypedBindingPatternType(foreach);
         foreach.variableDefinitionNode = variableDefinition;
 
         resourceNode.body.stmts.add(2, foreach);
@@ -365,9 +415,186 @@ public class HttpFiltersDesugar {
         return list;
     }
 
-    private BSymbol getFilterRequestFuncSymbol(BType filterType) {
+    private BInvokableSymbol getFilterRequestFuncSymbol(BType filterType) {
         return ((BObjectTypeSymbol) filterType.tsymbol).attachedFuncs.stream().filter(func -> {
             return FILTER_REQUEST_FUNCTION.equals(func.funcName.value);
         }).findFirst().get().symbol;
+    }
+
+    /**
+     * Check if the resource is an http resource and inject ParamOrderConfig annotation.
+     *
+     * @param resourceNode The resource to inject annotation
+     * @param env          the symbol environment
+     */
+    void addCustomAnnotationToResource(BLangFunction resourceNode, SymbolEnv env) {
+        if (isHttpResource(resourceNode)) {
+            addOrderParamConfig(resourceNode, env);
+        }
+    }
+
+    private void addOrderParamConfig(BLangFunction resourceNode, SymbolEnv env) {
+        List<BLangRecordLiteral.BLangRecordKeyValue> annotationValues = null;
+        for (BLangAnnotationAttachment annotationAttachment : resourceNode.getAnnotationAttachments()) {
+            if (ANN_RESOURCE_CONFIG.equals(annotationAttachment.getAnnotationName().getValue()) &&
+                    annotationAttachment.getExpression() != null) {
+                annotationValues = ((BLangRecordLiteral) annotationAttachment.getExpression()).keyValuePairs;
+                break;
+            }
+        }
+        if (annotationValues == null) {
+            return;
+        }
+        for (BLangRecordLiteral.BLangRecordKeyValue keyValue : annotationValues) {
+            switch (getAnnotationFieldKey(keyValue)) {
+                case ANN_RESOURCE_ATTR_WS_UPGRADE:
+                    for (BLangRecordLiteral.BLangRecordKeyValue upgradeField :
+                            ((BLangRecordLiteral) keyValue.getValue()).getKeyValuePairs()) {
+                        if (getAnnotationFieldKey(upgradeField).equals(ANN_RESOURCE_ATTR_WS_UPGRADE_PATH)) {
+                            addParamOrderConfigAnnotation(resourceNode, upgradeField.getValue(), env);
+                            break;
+                        }
+                    }
+                    break;
+                case ANN_RESOURCE_ATTR_PATH:
+                    addParamOrderConfigAnnotation(resourceNode, keyValue.getValue(), env);
+                    break;
+            }
+        }
+    }
+
+    private static String getAnnotationFieldKey(BLangRecordLiteral.BLangRecordKeyValue keyValue) {
+        return ((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue();
+    }
+
+    private static boolean checkForPathParam(List<BLangSimpleVariable> parameters, BLangExpression value) {
+        return parameters.size() > 2 && value.toString().contains("{") && value.toString().contains("}");
+    }
+
+    private void addParamOrderConfigAnnotation(BLangFunction resourceNode, BLangExpression value, SymbolEnv env) {
+        if (!checkForPathParam(resourceNode.getParameters(), value)) {
+            return;
+        }
+        DiagnosticPos pos = resourceNode.pos;
+        BLangAnnotationAttachment annoAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
+        resourceNode.addAnnotationAttachment(annoAttachment);
+        BSymbol annSymbol = lookupSymbolInPackage(symResolver, resourceNode.pos, env, names.fromString
+                (PACKAGE_NAME), names.fromString(ANN_RESOURCE_PARAM_ORDER_CONFIG), SymTag.ANNOTATION);
+
+        if (annSymbol == symTable.notFoundSymbol) {
+            return;
+        }
+        if (annSymbol instanceof BAnnotationSymbol) {
+            annoAttachment.annotationSymbol = (BAnnotationSymbol) annSymbol;
+        }
+        annoAttachment.annotationName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        annoAttachment.annotationName.value = ANN_RESOURCE_PARAM_ORDER_CONFIG;
+        annoAttachment.pos = pos;
+        BLangRecordLiteral literalNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
+        annoAttachment.expr = literalNode;
+        BLangIdentifier pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        pkgAlias.setValue(PACKAGE_NAME);
+        annoAttachment.pkgAlias = pkgAlias;
+        annoAttachment.attachPoints.add(AttachPoint.Point.RESOURCE);
+        literalNode.pos = pos;
+        BStructureTypeSymbol bStructSymbol;
+        BSymbol annTypeSymbol = lookupSymbolInPackage(symResolver, resourceNode.pos, env, names.fromString
+                (PACKAGE_NAME), names.fromString(ANN_RECORD_PARAM_ORDER_CONFIG), SymTag.STRUCT);
+        if (annTypeSymbol == symTable.notFoundSymbol) {
+            return;
+        }
+        if (annTypeSymbol instanceof BStructureTypeSymbol) {
+            bStructSymbol = (BStructureTypeSymbol) annTypeSymbol;
+            literalNode.type = bStructSymbol.type;
+        }
+
+        // Create pathParamOrder record literal
+        BLangRecordLiteral.BLangRecordKeyValue pathParamOrderKeyValue = (BLangRecordLiteral.BLangRecordKeyValue)
+                TreeBuilder.createRecordKeyValue();
+        literalNode.keyValuePairs.add(pathParamOrderKeyValue);
+
+        BLangLiteral keyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        keyLiteral.value = ANN_FIELD_PATH_PARAM_ORDER;
+        keyLiteral.type = symTable.stringType;
+
+        BLangRecordLiteral paramOrderLiteralNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
+        paramOrderLiteralNode.type = new BMapType(TypeTags.MAP, symTable.intType, symTable.mapType.tsymbol);
+
+        pathParamOrderKeyValue.key = new BLangRecordLiteral.BLangRecordKey(keyLiteral);
+        pathParamOrderKeyValue.valueExpr = paramOrderLiteralNode;
+
+        getParamMapper(resourceNode.getParameters(), value.toString()).forEach((paramName, paramIndex) -> {
+            // Create a new literal for the key.
+            BLangLiteral paramKeyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+            paramKeyLiteral.value = paramName;
+            paramKeyLiteral.type = symTable.stringType;
+
+            // Create a new literal for the value.
+            BLangLiteral paramValueLiteral = new BLangLiteral();
+            paramValueLiteral.value = Long.valueOf(paramIndex);
+            paramValueLiteral.type = symTable.intType;
+
+            // Create a new key-value.
+            BLangRecordLiteral.BLangRecordKeyValue pathParamOrderEntry = new BLangRecordLiteral.BLangRecordKeyValue();
+            pathParamOrderEntry.key = new BLangRecordLiteral.BLangRecordKey(paramKeyLiteral);
+            pathParamOrderEntry.valueExpr = paramValueLiteral;
+            paramOrderLiteralNode.keyValuePairs.add(pathParamOrderEntry);
+        });
+    }
+
+    private HashMap<String, Integer> getParamMapper(List<BLangSimpleVariable> parameters, String path) {
+        HashMap<String, Integer> mapper = new HashMap<>();
+        int startIndex = 0;
+        int pointerIndex = 0;
+        while (pointerIndex < path.length()) {
+            char ch = path.charAt(pointerIndex);
+            switch (ch) {
+                case '{':
+                    startIndex = pointerIndex + 1;
+                    break;
+                case '}':
+                    String token = path.substring(startIndex, pointerIndex);
+                    IntStream.range(2, parameters.size()).filter(i -> parameters.get(i).getName().getValue()
+                            .equals(token)).findFirst().ifPresent(i -> mapper.put(token, i));
+                    break;
+            }
+            pointerIndex++;
+        }
+        return mapper;
+    }
+
+    /**
+     * Return the symbol associated with the given name in the give package regardless of its package visibility.
+     *
+     * @param symResolver symbol resolver
+     * @param pos         symbol position
+     * @param env         current symbol environment
+     * @param pkgAlias    package alias
+     * @param name        symbol name
+     * @param expSymTag   expected symbol type/tag
+     * @return resolved symbol
+     */
+    private BSymbol lookupSymbolInPackage(SymbolResolver symResolver, DiagnosticPos pos, SymbolEnv env,
+                                          Name pkgAlias, Name name, int expSymTag) {
+        // 1) Look up the current package if the package alias is empty.
+        if (pkgAlias == Names.EMPTY) {
+            return symResolver.lookupSymbol(env, name, expSymTag);
+        }
+
+        // 2) Retrieve the package symbol first
+        BSymbol pkgSymbol = symResolver.resolvePkgSymbol(pos, env, pkgAlias);
+        if (pkgSymbol == symTable.notFoundSymbol) {
+            return pkgSymbol;
+        }
+
+        // 3) Look up the package scope without considering the access modifier.
+        Scope.ScopeEntry entry = pkgSymbol.scope.lookup(name);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & expSymTag) == expSymTag) {
+                return entry.symbol;
+            }
+            entry = entry.next;
+        }
+        return symTable.notFoundSymbol;
     }
 }

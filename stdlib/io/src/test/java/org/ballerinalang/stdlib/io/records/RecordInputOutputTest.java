@@ -43,7 +43,7 @@ public class RecordInputOutputTest {
 
     @BeforeSuite
     public void setup() {
-        currentDirectoryPath = System.getProperty("user.dir") + "/target/";
+        currentDirectoryPath = System.getProperty("user.dir") + "/build/";
     }
 
     @Test(description = "Reads records from file")

@@ -10,10 +10,10 @@ public type Employee record {
     int empNo = 0;
 };
 
-public Person person = {};
+final Person person = {};
 
-public Employee employee = {
+final Employee employee = {
     empNo: 100
 };
 
-(Employee, Person) pp = (employee, person);
+[Employee, Person] pp = [employee, person];

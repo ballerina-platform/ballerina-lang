@@ -23,24 +23,14 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.ParamDetail;
-import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.types.BErrorType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.IOException;
@@ -49,11 +39,10 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
 import java.util.Locale;
-import java.util.Optional;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CONTENT_TYPE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.Status.Code.INTERNAL;
 import static org.ballerinalang.net.grpc.Status.Code.UNKNOWN;
 
 /**
@@ -63,26 +52,24 @@ import static org.ballerinalang.net.grpc.Status.Code.UNKNOWN;
  */
 public class MessageUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MessageUtils.class);
-    private static final String UNKNOWN_ERROR = "Unknown Error";
+    private static final String UNKNOWN_ERROR_DETAIL = "Unknown error occurred";
 
     /** maximum buffer to be read is 16 KB. */
     private static final int MAX_BUFFER_LENGTH = 16384;
     private static final String GOOGLE_PROTOBUF_EMPTY = "google.protobuf.Empty";
 
-    public static BMap<String, BValue> getHeaderStruct(ProgramFile programFile) {
-        return BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_STRUCT_PACKAGE_GRPC, "Headers");
+    public static ObjectValue getHeaderObject() {
+        return BallerinaValues.createObjectValue(PROTOCOL_STRUCT_PACKAGE_GRPC, "Headers");
     }
 
-    static boolean headersRequired(Resource resource) {
-        if (resource == null || resource.getParamDetails() == null) {
+    static boolean headersRequired(AttachedFunction function) {
+        if (function == null || function.getParameterType() == null) {
             throw new RuntimeException("Invalid resource input arguments");
         }
         boolean headersRequired = false;
-        for (ParamDetail detail : resource.getParamDetails()) {
-            BType paramType = detail.getVarType();
-            if (paramType != null && PROTOCOL_STRUCT_PACKAGE_GRPC.equals(paramType.getPackagePath()) &&
-                    "Headers".equals(paramType.getName())) {
+        for (BType paramType : function.getParameterType()) {
+            if (paramType != null && "Headers".equals(paramType.getName()) &&
+                    paramType.getPackage() != null && PROTOCOL_PACKAGE_GRPC.equals(paramType.getPackage().getName())) {
                 headersRequired = true;
                 break;
             }
@@ -104,19 +91,12 @@ public class MessageUtils {
         return total;
     }
 
-    public static StreamObserver getResponseObserver(BRefType refType) {
-        Object observerObject = null;
-        if (refType instanceof BMap) {
-            observerObject = ((BMap<String, BValue>) refType).getNativeData(GrpcConstants.RESPONSE_OBSERVER);
-        }
+    public static StreamObserver getResponseObserver(ObjectValue refType) {
+        Object observerObject = refType.getNativeData(GrpcConstants.RESPONSE_OBSERVER);
         if (observerObject instanceof StreamObserver) {
             return ((StreamObserver) observerObject);
         }
         return null;
-    }
-
-    public static BError getConnectorError(Throwable throwable) {
-        return getConnectorError(BTypes.typeError, throwable);
     }
     
     /**
@@ -124,35 +104,33 @@ public class MessageUtils {
      * Error type is generic ballerina error type. This utility method is used inside Observer onError
      * method to construct error struct from message.
      *
-     * @param errorType this is ballerina generic error type.
      * @param error     this is StatusRuntimeException send by opposite party.
      * @return error value.
      */
-    public static BError getConnectorError(BErrorType errorType, Throwable error) {
-        BErrorType errType = Optional.ofNullable(errorType).orElse(BTypes.typeError);
-        BMap<String, BValue> refData = new BMap<>(errType.detailType);
-        String reason = "{ballerina/grpc}";
+    public static ErrorValue getConnectorError(Throwable error) {
+        String reason;
+        String message;
         if (error instanceof StatusRuntimeException) {
             StatusRuntimeException statusException = (StatusRuntimeException) error;
-            reason = reason + statusException.getStatus().getCode().name();
+            reason = statusException.getStatus().getReason();
             String errorDescription = statusException.getStatus().getDescription();
             if (errorDescription != null) {
-                refData.put("message", new BString(statusException.getStatus().getDescription()));
+                message =  statusException.getStatus().getDescription();
             } else if (statusException.getStatus().getCause() != null) {
-                refData.put("message", new BString(statusException.getStatus().getCause().getMessage()));
+                message = statusException.getStatus().getCause().getMessage();
             } else {
-                refData.put("message", new BString(UNKNOWN_ERROR));
+                message = UNKNOWN_ERROR_DETAIL;
             }
         } else {
             if (error.getMessage() == null) {
-                reason = reason + UNKNOWN.name();
-                refData.put("message", new BString(UNKNOWN_ERROR));
+                reason = GrpcConstants.UNKNOWN_ERROR;
+                message = UNKNOWN_ERROR_DETAIL;
             } else {
-                reason = reason + INTERNAL.name();
-                refData.put("message", new BString(error.getMessage()));
+                reason = GrpcConstants.INTERNAL_ERROR;
+                message = error.getMessage();
             }
         }
-        return new BError(errorType, reason, refData);
+        return BallerinaErrors.createError(reason, message);
     }
     
     /**
@@ -263,10 +241,6 @@ public class MessageUtils {
         return nextChar == '+' || nextChar == ';';
     }
 
-    public static HttpWsConnectorFactory createHttpWsConnectionFactory() {
-        return new DefaultHttpWsConnectorFactory();
-    }
-
     public static HttpCarbonMessage createHttpCarbonMessage(boolean isRequest) {
         HttpCarbonMessage httpCarbonMessage;
         if (isRequest) {
@@ -306,6 +280,34 @@ public class MessageUtils {
                 return Status.Code.UNAVAILABLE;
             default:
                 return UNKNOWN;
+        }
+    }
+
+    static int statusCodeToHttpCode(Status.Code code) {
+        switch (code) {
+            case CANCELLED:
+                return 499; // Client Closed Request
+            case INVALID_ARGUMENT:
+            case FAILED_PRECONDITION:
+            case OUT_OF_RANGE:
+                return 400; // Bad Request
+            case DEADLINE_EXCEEDED:
+                return 504; // Gateway timeout
+            case NOT_FOUND:
+                return 404; // Not Found
+            case ALREADY_EXISTS:
+            case ABORTED:
+                return 409; // Conflicts
+            case PERMISSION_DENIED:
+                return 403; // Forbidden
+            case UNAUTHENTICATED:
+                return 401; // Unauthorized
+            case UNIMPLEMENTED:
+                return 501; // Not Implemented
+            case UNAVAILABLE:
+                return 503; // Service Unavailable
+            default:
+                return 500; // Internal Server Error
         }
     }
 

@@ -16,10 +16,11 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.builtin.stringlib;
+package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
@@ -32,8 +33,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "builtin",
-        functionName = "string.trim",
+        orgName = "ballerina", packageName = "lang.string",
+        functionName = "trim",
         args = {@Argument(name = "s", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
@@ -45,5 +46,10 @@ public class Trim extends BlockingNativeCallableUnit {
         String param1 = context.getStringArgument(0);
         BString trimmedString = new BString(param1.trim());
         context.setReturnValues(trimmedString);
+    }
+
+    public static String trim(Strand strand, String value) {
+        StringUtils.checkForNull(value);
+        return value.trim();
     }
 }

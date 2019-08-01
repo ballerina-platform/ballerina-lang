@@ -47,7 +47,7 @@ public class BytesInputOutputBufferTest {
 
     @BeforeSuite
     public void setup() {
-        currentDirectoryPath = System.getProperty("user.dir") + "/target/";
+        currentDirectoryPath = System.getProperty("user.dir") + "/build/";
     }
 
     /**

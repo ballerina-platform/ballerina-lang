@@ -24,29 +24,44 @@ under the License.
     <!--This listener is only meant to be used for debugging purposes. 
     Hence it's disabled by default to avoid causing problems in Travis due to the volume of logs this may generate.-->
     <!--<listeners>-->
-        <!--<listener class-name="org.ballerinalang.stdlib.utils.HTTPTestSuiteListener"/>-->
+    <!--<listener class-name="org.ballerinalang.stdlib.utils.HTTPTestSuiteListener"/>-->
     <!--</listeners>-->
+
+    <listeners>
+        <listener class-name="org.ballerinalang.stdlib.utils.JBallerinaTestInitializer"/>
+    </listeners>
 
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
         <groups>
             <run>
                 <exclude name="broken"/>
+                <exclude name="brokenOnJBallerina"/>
             </run>
         </groups>
         <packages>
             <package name="org.ballerinalang.stdlib.entity.*"/>
+            <!--<package name="org.ballerinalang.stdlib.services.basics.*"/>-->
             <package name="org.ballerinalang.stdlib.multipart.*"/>
-            <package name="org.ballerinalang.stdlib.services.basics.*"/>
             <package name="org.ballerinalang.stdlib.services.configuration.*"/>
             <package name="org.ballerinalang.stdlib.services.cors.*"/>
             <package name="org.ballerinalang.stdlib.services.dispatching.*"/>
             <package name="org.ballerinalang.stdlib.services.nativeimpl.*"/>
-            <package name="org.ballerinalang.stdlib.resiliency.*"/>
             <package name="org.ballerinalang.stdlib.websocket.*"/>
             <package name="org.ballerinalang.stdlib.cachingclient.*"/>
-            <package name="org.ballerinalang.stdlib.auth.*"/>
             <package name="org.ballerinalang.stdlib.connectionpool.*"/>
+            <package name="org.ballerinalang.stdlib.auth.*"/>
+            <package name="org.ballerinalang.stdlib.resiliency.*"/>
         </packages>
+        <classes>
+            <class name="org.ballerinalang.stdlib.services.basics.SignatureTest"/>
+            <class name="org.ballerinalang.stdlib.services.basics.ServiceTest">
+                <methods>
+                    <exclude name="testErrorReturn"></exclude>
+                    <exclude name="testGetString"></exclude>
+                </methods>
+            </class>
+        </classes>
     </test>
 </suite>

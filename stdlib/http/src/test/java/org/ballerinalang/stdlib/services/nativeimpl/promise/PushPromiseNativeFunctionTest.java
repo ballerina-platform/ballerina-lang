@@ -17,20 +17,22 @@
  */
 package org.ballerinalang.stdlib.services.nativeimpl.promise;
 
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
+
+import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createPushPromiseObject;
 
 /**
  * Test cases for ballerina/http inbound inResponse success native functions.
@@ -49,18 +51,13 @@ public class PushPromiseNativeFunctionTest {
 
     @Test(description = "Test addHeader function of PushPromise")
     public void testAddHeader() {
-        BMap<String, BValue> promise =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, promiseStruct);
+        ObjectValue promise = createPushPromiseObject();
         String headerName = "header1";
         String headerValue = "value1";
+        BValue[] returnVal = BRunUtil.invoke(result, "testAddHeader",
+                                             new Object[]{ promise, headerName, headerValue });
 
-        BString key = new BString(headerName);
-        BString value = new BString(headerValue);
-        BValue[] inputArg = {promise, key, value};
-        BValue[] returnVal = BRunUtil.invoke(result, "testAddHeader", inputArg);
-
-        Assert.assertFalse(returnVal == null || returnVal.length == 0 || returnVal[0] == null,
-                           "Invalid Return Values.");
+        Assert.assertFalse(returnVal.length == 0 || returnVal[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnVal[0] instanceof BMap);
         Http2PushPromise http2PushPromise = (Http2PushPromise) ((BMap<String, BValue>) returnVal[0])
                 .getNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE);
@@ -69,8 +66,7 @@ public class PushPromiseNativeFunctionTest {
 
     @Test(description = "Test getHeader function of PushPromise")
     public void testGetHeader() {
-        BMap<String, BValue> promise =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, promiseStruct);
+        ObjectValue promise = createPushPromiseObject();
         Http2PushPromise http2PushPromise =
                 new Http2PushPromise(HttpConstants.HTTP_METHOD_GET, HttpConstants.DEFAULT_BASE_PATH);
         String headerName = "header1";
@@ -78,19 +74,15 @@ public class PushPromiseNativeFunctionTest {
         http2PushPromise.addHeader(headerName, headerValue);
         HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
 
-        BString key = new BString(headerName);
-        BValue[] inputArg = {promise, key};
-        BValue[] returnVal = BRunUtil.invoke(result, "testGetHeader", inputArg);
+        BValue[] returnVal = BRunUtil.invoke(result, "testGetHeader", new Object[]{ promise, headerName });
 
-        Assert.assertFalse(returnVal == null || returnVal.length == 0 || returnVal[0] == null,
-                           "Invalid Return Values.");
+        Assert.assertFalse(returnVal.length == 0 || returnVal[0] == null, "Invalid Return Values.");
         Assert.assertEquals(returnVal[0].stringValue(), headerValue);
     }
 
     @Test(description = "Test getHeaders function of PushPromise")
     public void testGetHeaders() {
-        BMap<String, BValue> promise =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, promiseStruct);
+        ObjectValue promise = createPushPromiseObject();
         Http2PushPromise http2PushPromise =
                 new Http2PushPromise(HttpConstants.HTTP_METHOD_GET, HttpConstants.DEFAULT_BASE_PATH);
         String headerName = "header";
@@ -100,20 +92,16 @@ public class PushPromiseNativeFunctionTest {
         http2PushPromise.addHeader(headerName, headerValue2);
         HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
 
-        BString key = new BString(headerName);
-        BValue[] inputArg = {promise, key};
-        BValue[] returnVal = BRunUtil.invoke(result, "testGetHeaders", inputArg);
+        BValue[] returnVal = BRunUtil.invoke(result, "testGetHeaders", new Object[]{ promise, headerName });
 
-        Assert.assertFalse(returnVal == null || returnVal.length == 0 || returnVal[0] == null,
-                           "Invalid Return Values.");
+        Assert.assertFalse(returnVal.length == 0 || returnVal[0] == null, "Invalid Return Values.");
         Assert.assertEquals(((BValueArray) returnVal[0]).getString(0), headerValue1);
         Assert.assertEquals(((BValueArray) returnVal[0]).getString(1), headerValue2);
     }
 
     @Test(description = "Test removeHeader function of PushPromise")
     public void testRemoveHeader() {
-        BMap<String, BValue> promise =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, promiseStruct);
+        ObjectValue promise = createPushPromiseObject();
         Http2PushPromise http2PushPromise =
                 new Http2PushPromise(HttpConstants.HTTP_METHOD_GET, HttpConstants.DEFAULT_BASE_PATH);
         String headerName = "header1";
@@ -121,11 +109,8 @@ public class PushPromiseNativeFunctionTest {
         http2PushPromise.addHeader(headerName, headerValue);
         HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
 
-        BString key = new BString(headerName);
-        BValue[] inputArg = {promise, key};
-        BValue[] returnVal = BRunUtil.invoke(result, "testRemoveHeader", inputArg);
-        Assert.assertFalse(returnVal == null || returnVal.length == 0 || returnVal[0] == null,
-                           "Invalid Return Values.");
+        BValue[] returnVal = BRunUtil.invoke(result, "testRemoveHeader", new Object[]{ promise, headerName });
+        Assert.assertFalse(returnVal.length == 0 || returnVal[0] == null, "Invalid Return Values.");
 
         Assert.assertTrue(returnVal[0] instanceof BMap);
         Http2PushPromise retrievedHttp2PushPromise = (Http2PushPromise) ((BMap<String, BValue>) returnVal[0])
@@ -135,8 +120,7 @@ public class PushPromiseNativeFunctionTest {
 
     @Test(description = "Test removeAllHeaders function of PushPromise")
     public void testRemoveAllHeaders() {
-        BMap<String, BValue> promise =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, promiseStruct);
+        ObjectValue promise = createPushPromiseObject();
         Http2PushPromise http2PushPromise =
                 new Http2PushPromise(HttpConstants.HTTP_METHOD_GET, HttpConstants.DEFAULT_BASE_PATH);
         String header1Name = "header1";
@@ -147,10 +131,8 @@ public class PushPromiseNativeFunctionTest {
         http2PushPromise.addHeader(header2Name, header2Value);
         HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
 
-        BValue[] inputArg = {promise};
-        BValue[] returnVal = BRunUtil.invoke(result, "testRemoveAllHeaders", inputArg);
-        Assert.assertFalse(returnVal == null || returnVal.length == 0 || returnVal[0] == null,
-                           "Invalid Return Values.");
+        BValue[] returnVal = BRunUtil.invoke(result, "testRemoveAllHeaders", new Object[]{ promise });
+        Assert.assertFalse(returnVal.length == 0 || returnVal[0] == null, "Invalid Return Values.");
 
         Assert.assertTrue(returnVal[0] instanceof BMap);
         Http2PushPromise retrievedHttp2PushPromise = (Http2PushPromise) ((BMap<String, BValue>) returnVal[0])
@@ -161,8 +143,7 @@ public class PushPromiseNativeFunctionTest {
 
     @Test(description = "Test setHeader function of PushPromise")
     public void testSetHeader() {
-        BMap<String, BValue> promise =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, promiseStruct);
+        ObjectValue promise = createPushPromiseObject();
         Http2PushPromise http2PushPromise =
                 new Http2PushPromise(HttpConstants.HTTP_METHOD_GET, HttpConstants.DEFAULT_BASE_PATH);
         String headerName = "header1";
@@ -171,13 +152,10 @@ public class PushPromiseNativeFunctionTest {
         HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
 
         String targetHeaderValue = "value2";
-        BString key = new BString(headerName);
-        BString value = new BString(targetHeaderValue);
-        BValue[] inputArg = {promise, key, value};
-        BValue[] returnVal = BRunUtil.invoke(result, "testSetHeader", inputArg);
+        BValue[] returnVal = BRunUtil.invoke(result, "testSetHeader",
+                                             new Object[]{ promise, headerName, targetHeaderValue });
 
-        Assert.assertFalse(returnVal == null || returnVal.length == 0 || returnVal[0] == null,
-                           "Invalid Return Values.");
+        Assert.assertFalse(returnVal.length == 0 || returnVal[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnVal[0] instanceof BMap);
         Http2PushPromise retrievedHttp2PushPromise =
                 (Http2PushPromise) ((BMap) returnVal[0]).getNativeData(HttpConstants.TRANSPORT_PUSH_PROMISE);
@@ -186,8 +164,7 @@ public class PushPromiseNativeFunctionTest {
 
     @Test(description = "Test hasHeader function of PushPromise")
     public void testHasHeader() {
-        BMap<String, BValue> promise =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, promiseStruct);
+        ObjectValue promise = createPushPromiseObject();
         Http2PushPromise http2PushPromise =
                 new Http2PushPromise(HttpConstants.HTTP_METHOD_GET, HttpConstants.DEFAULT_BASE_PATH);
         String headerName = "header1";
@@ -195,19 +172,15 @@ public class PushPromiseNativeFunctionTest {
         http2PushPromise.addHeader(headerName, headerValue);
         HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
 
-        BString key = new BString(headerName);
-        BValue[] inputArg = {promise, key};
-        BValue[] returnVal = BRunUtil.invoke(result, "testHasHeader", inputArg);
+        BValue[] returnVal = BRunUtil.invoke(result, "testHasHeader", new Object[]{ promise, headerName });
 
-        Assert.assertFalse(returnVal == null || returnVal.length == 0 || returnVal[0] == null,
-                           "Invalid Return Values.");
+        Assert.assertFalse(returnVal.length == 0 || returnVal[0] == null, "Invalid Return Values.");
         Assert.assertTrue(((BBoolean) returnVal[0]).booleanValue(), "hasHeader function failed");
     }
 
     @Test(description = "Test getHeaderNames function of PushPromise")
     public void testGetHeaderNames() {
-        BMap<String, BValue> promise =
-                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, promiseStruct);
+        ObjectValue promise = createPushPromiseObject();
         Http2PushPromise http2PushPromise =
                 new Http2PushPromise(HttpConstants.HTTP_METHOD_GET, HttpConstants.DEFAULT_BASE_PATH);
         String headerName1 = "header1";
@@ -216,15 +189,13 @@ public class PushPromiseNativeFunctionTest {
         http2PushPromise.addHeader(headerName2, "value2");
         HttpUtil.populatePushPromiseStruct(promise, http2PushPromise);
 
-        BValue[] inputArg = {promise};
-        BValue[] returnVal = BRunUtil.invoke(result, "testGetHeaderNames", inputArg);
+        BValue[] returnVal = BRunUtil.invoke(result, "testGetHeaderNames", new Object[]{ promise });
 
-        Assert.assertFalse(returnVal == null || returnVal.length == 0 || returnVal[0] == null,
-                           "Invalid Return Values.");
+        Assert.assertFalse(returnVal.length == 0 || returnVal[0] == null, "Invalid Return Values.");
         String result1 = ((BValueArray) returnVal[0]).getString(0);
         String result2 = ((BValueArray) returnVal[0]).getString(1);
         Assert.assertTrue((result1.equals(headerName1) && result2.equals(headerName2) ||
-                           result1.equals(headerName2) && result2.equals(headerName1)),
+                                  result1.equals(headerName2) && result2.equals(headerName1)),
                           "Expected header names not found");
         Assert.assertEquals(((BValueArray) returnVal[0]).getString(1), headerName2);
     }

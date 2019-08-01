@@ -41,7 +41,6 @@ public class BLangSimpleVariable extends BLangVariable implements SimpleVariable
     public BLangSimpleVariable() {
         this.annAttachments = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
-        this.deprecatedAttachments = new ArrayList<>();
     }
 
     @Override

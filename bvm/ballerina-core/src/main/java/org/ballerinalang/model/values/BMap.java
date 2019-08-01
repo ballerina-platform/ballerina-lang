@@ -567,12 +567,16 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection, Seriali
     }
 
     private String getStringValue(V value) {
-        if (value == null) {
-            return "()";
-        } else if (value instanceof BString) {
-            return "\"" + value.stringValue() + "\"";
-        } else {
-            return value.stringValue();
+        try {
+            if (value == null) {
+                return "()";
+            } else if (value instanceof BString) {
+                return "\"" + value.stringValue() + "\"";
+            } else {
+                return value.stringValue();
+            }
+        } catch (StackOverflowError e) {
+            return "{StackOverFlowError}";
         }
     }
 

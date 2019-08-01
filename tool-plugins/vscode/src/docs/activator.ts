@@ -24,6 +24,7 @@ import * as _ from 'lodash';
 import { render } from './renderer';
 import { BallerinaAST, ExtendedLangClient } from '../core/extended-language-client';
 import { BallerinaExtension } from '../core';
+import { getCommonWebViewOptions } from '../utils';
 
 const DEBOUNCE_WAIT = 500;
 
@@ -81,10 +82,7 @@ function showDocs(context: ExtensionContext, langClient: ExtendedLangClient, nod
 		'ballerinaDocs',
 		"Ballerina Docs",
 		{ viewColumn: ViewColumn.Two, preserveFocus: true },
-		{
-			enableScripts: true,
-			retainContextWhenHidden: true,
-		}
+		getCommonWebViewOptions()
 	);
 	const editor = window.activeTextEditor;
 	if (!editor) {

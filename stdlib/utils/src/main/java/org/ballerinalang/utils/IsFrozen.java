@@ -20,6 +20,8 @@ package org.ballerinalang.utils;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
@@ -44,5 +46,9 @@ public class IsFrozen extends BlockingNativeCallableUnit {
         BValue value = ctx.getNullableRefArgument(0);
         boolean frozen = value == null || value.isFrozen();
         ctx.setReturnValues(new BBoolean(frozen));
+    }
+
+    public static boolean isFrozen(Strand strand, Object value) {
+        return !(value instanceof RefValue) || ((RefValue) value).isFrozen();
     }
 }

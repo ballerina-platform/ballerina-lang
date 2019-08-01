@@ -22,13 +22,13 @@ public function test2() {
 }
 
 // Independent function
-@test:Config
+@test:Config {}
 public function test3() {
     io:println("test3 - independent");
 }
 
 // Independent function - Failing
-@test:Config
+@test:Config {}
 public function test4() {
     io:println("test4 - independent");
     test:assertFail();

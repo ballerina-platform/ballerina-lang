@@ -16,12 +16,10 @@
 
 package org.ballerinalang.net.http.actions.httpclient;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
@@ -36,40 +34,33 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "hasPromise",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CALLER,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.HTTP_CLIENT,
                 structPackage = "ballerina/http")
 )
 public class HasPromise extends AbstractHTTPAction {
 
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-
-        BMap<String, BValue> handleStruct = ((BMap<String, BValue>) context.getRefArgument(1));
-
-        ResponseHandle responseHandle = (ResponseHandle) handleStruct.getNativeData(HttpConstants.TRANSPORT_HANDLE);
+    public static boolean hasPromise(Strand strand, ObjectValue clientObj, ObjectValue handleObj) {
+        ResponseHandle responseHandle = (ResponseHandle) handleObj.getNativeData(HttpConstants.TRANSPORT_HANDLE);
         if (responseHandle == null) {
             throw new BallerinaException("invalid http handle");
         }
-        BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
-        HttpClientConnector clientConnector = (HttpClientConnector) ((BMap<String, BValue>) bConnector.values()[0])
-                .getNativeData(HttpConstants.HTTP_CLIENT);
+        HttpClientConnector clientConnector = (HttpClientConnector) clientObj.getNativeData(HttpConstants.CLIENT);
         clientConnector.hasPushPromise(responseHandle).
-                setPromiseAvailabilityListener(new PromiseAvailabilityCheckListener(context, callback));
+                setPromiseAvailabilityListener(new PromiseAvailabilityCheckListener(new NonBlockingCallback(strand)));
+        return false;
     }
 
     private static class PromiseAvailabilityCheckListener implements HttpClientConnectorListener {
 
-        private Context context;
-        private CallableUnitCallback callback;
+        private NonBlockingCallback callback;
 
-        PromiseAvailabilityCheckListener(Context context, CallableUnitCallback callback) {
-            this.context = context;
+        PromiseAvailabilityCheckListener(NonBlockingCallback callback) {
             this.callback = callback;
         }
 
         @Override
         public void onPushPromiseAvailability(boolean isPromiseAvailable) {
-            context.setReturnValues(new BBoolean(isPromiseAvailable));
+            callback.setReturnValues(isPromiseAvailable);
             callback.notifySuccess();
         }
     }

@@ -18,6 +18,7 @@
 package org.ballerinalang.test.context;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.slf4j.Logger;
@@ -49,7 +50,7 @@ public class BServerInstance implements BServer {
     private BalServer balServer;
     private int agentPort;
     private String agentArgs;
-    private boolean agentsAadded = false;
+    private boolean agentsAdded = false;
     private Process process;
     private ServerLogReader serverInfoLogReader;
     private ServerLogReader serverErrorLogReader;
@@ -238,7 +239,7 @@ public class BServerInstance implements BServer {
     }
 
     private synchronized void addJavaAgents(Map<String, String> envProperties) throws BallerinaTestException {
-        if (agentsAadded) {
+        if (agentsAdded) {
             return;
         }
         String javaOpts = "";
@@ -247,7 +248,7 @@ public class BServerInstance implements BServer {
         }
         javaOpts = agentArgs + javaOpts;
         envProperties.put(JAVA_OPTS, javaOpts);
-        this.agentsAadded = true;
+        this.agentsAdded = true;
     }
 
     /**
@@ -348,14 +349,17 @@ public class BServerInstance implements BServer {
 
         log.info("Starting Ballerina server..");
 
-        String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
+        String scriptName;
+        if (BCompileUtil.jBallerinaTestsEnabled()) {
+            scriptName = Constant.JBALLERINA_SERVER_SCRIPT_NAME;
+        } else {
+            scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
+        }
         String[] cmdArray;
         File commandDir = new File(balServer.getServerHome());
         try {
             if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
-                commandDir = new File(balServer.getServerHome() + File.separator + "bin");
-                cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat", "run"};
-
+                cmdArray = new String[]{"cmd.exe", "/c", "bin\\" + scriptName + ".bat", "run"};
             } else {
                 cmdArray = new String[]{"bash", "bin/" + scriptName, "run"};
             }
@@ -376,7 +380,8 @@ public class BServerInstance implements BServer {
             tmpErrorLeechers.forEach(leecher -> serverErrorLogReader.addLeecher(leecher));
             serverErrorLogReader.start();
             log.info("Waiting for port " + agentPort + " to open");
-            Utils.waitForPortsToOpen(new int[]{agentPort}, 1000 * 60 * 2, false, agentHost);
+            //TODO: Need to reduce the timeout after build time improvements
+            Utils.waitForPortsToOpen(new int[]{agentPort}, 1000 * 60 * 10, false, agentHost);
             log.info("Server Started Successfully.");
         } catch (IOException e) {
             throw new BallerinaTestException("Error starting services", e);

@@ -19,14 +19,10 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -53,19 +49,17 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
                 @Argument(name = "encoding", type = TypeKind.STRING)},
         isPublic = true
 )
-public class ReadString implements NativeCallableUnit {
-    /**
-     * Represents data channel.
-     */
-    private static final int DATA_CHANNEL_INDEX = 0;
-    /**
-     * Represents the number of bytes.
-     */
-    private static final int NUMBER_OF_BYTES_INDEX = 0;
-    /**
-     * Represents the encoding index.
-     */
-    private static final int ENCODING_INDEX = 0;
+public class ReadString {
+
+    public static Object readString(Strand strand, ObjectValue dataChannelObj, long nBytes, String encoding) {
+        DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);
+        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
+        ReadStringEvent event = new ReadStringEvent(channel, eventContext, (int) nBytes, encoding);
+        Register register = EventRegister.getFactory().register(event, ReadString::readChannelResponse);
+        eventContext.setRegister(register);
+        register.submit();
+        return null;
+    }
 
     /**
      * Triggers upon receiving the response.
@@ -73,38 +67,17 @@ public class ReadString implements NativeCallableUnit {
      * @param result the response received after reading int.
      * @return read int value.
      */
-    private static EventResult readResponse(EventResult<String, EventContext> result) {
+    private static EventResult readChannelResponse(EventResult<String, EventContext> result) {
         EventContext eventContext = result.getContext();
-        Context context = eventContext.getContext();
         Throwable error = eventContext.getError();
-        CallableUnitCallback callback = eventContext.getCallback();
+        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
         if (null != error) {
-            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, error.getMessage());
-            context.setReturnValues(errorStruct);
+            callback.setReturnValues(IOUtils.createError(error.getMessage()));
         } else {
-            String readStr = result.getResponse();
-            context.setReturnValues(new BString(readStr));
+            callback.setReturnValues(result.getResponse());
         }
         IOUtils.validateChannelState(eventContext);
         callback.notifySuccess();
         return result;
-    }
-
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-        BMap<String, BValue> dataChannelStruct = (BMap<String, BValue>) context.getRefArgument(DATA_CHANNEL_INDEX);
-        long nBytes = context.getIntArgument(NUMBER_OF_BYTES_INDEX);
-        String encoding = context.getStringArgument(ENCODING_INDEX);
-        DataChannel channel = (DataChannel) dataChannelStruct.getNativeData(IOConstants.DATA_CHANNEL_NAME);
-        EventContext eventContext = new EventContext(context, callback);
-        ReadStringEvent event = new ReadStringEvent(channel, eventContext, (int) nBytes, encoding);
-        Register register = EventRegister.getFactory().register(event, ReadString::readResponse);
-        eventContext.setRegister(register);
-        register.submit();
-    }
-
-    @Override
-    public boolean isBlocking() {
-        return false;
     }
 }

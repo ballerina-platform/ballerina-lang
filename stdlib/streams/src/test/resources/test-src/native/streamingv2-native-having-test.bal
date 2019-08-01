@@ -67,7 +67,7 @@ function streamFunc() {
     function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
         foreach var m in events {
             // just cast input map into the output type
-            OutputRecord o = <OutputRecord>OutputRecord.stamp(m.clone());
+            OutputRecord o = <OutputRecord>OutputRecord.constructFrom(m);
             outputStream.publish(o);
         }
     };
@@ -92,15 +92,15 @@ function streamFunc() {
     streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) { outFilter.process(e);},
         aggregators,
         [function (streams:StreamEvent e) returns anydata {
-            return e.data["inputStream.category"];
+            return e.get("inputStream.category");
         }],
         function (streams:StreamEvent e, streams:Aggregator[] aggregatorArray) returns map<anydata> {
             streams:Sum iSumAggregator1 = <streams:Sum>aggregatorArray[0];
             // got rid of type casting
             return {
-                "id": e.data["inputStream.id"],
-                "category": e.data["inputStream.category"],
-                "sum": iSumAggregator1.process(e.data["inputStream.intVal"], e.eventType)
+                "id": e.get("inputStream.id"),
+                "category": e.get("inputStream.category"),
+                "sum": iSumAggregator1.process(e.get("inputStream.intVal"), e.eventType)
             };
         }
     );

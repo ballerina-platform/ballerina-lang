@@ -22,9 +22,12 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -34,16 +37,17 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -54,7 +58,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -71,10 +78,12 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -91,8 +100,10 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Node Visitor to find the symbol references in different compilation units in multiple packages.
@@ -110,6 +121,10 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     private int cursorCol;
     private boolean currentCUnitMode;
     private String pkgName;
+    private List<TopLevelNode> topLevelNodes = new ArrayList<>();
+    private List<BLangFunction> workerLambdas = new ArrayList<>();
+    private HashMap<DiagnosticPos, BSymbol> workerVarDefPositionMap = new HashMap<>();
+    private HashMap<String, BSymbol> workerNamesMap = new HashMap<>();
 
     public SymbolReferenceFindingVisitor(LSContext lsContext, String pkgName, Position pos, boolean currentCUnitMode) {
         this.lsContext = lsContext;
@@ -135,7 +150,18 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         if (currentPkgName.equals(this.pkgName) && currentCUnitName.equals(this.cUnitName) && !this.currentCUnitMode) {
             return;
         }
-        compUnit.getTopLevelNodes().forEach(topLevelNode -> this.acceptNode((BLangNode) topLevelNode));
+        this.topLevelNodes = compUnit.getTopLevelNodes();
+        List<TopLevelNode> filteredNodes = topLevelNodes.stream().filter(topLevelNode -> {
+            if (topLevelNode instanceof BLangFunction) {
+                if (((BLangFunction) topLevelNode).flagSet.contains(Flag.WORKER)) {
+                    workerLambdas.add((BLangFunction) topLevelNode);
+                    return false;
+                }
+                return !((BLangFunction) topLevelNode).flagSet.contains(Flag.LAMBDA);
+            }
+            return true;
+        }).collect(Collectors.toList());
+        filteredNodes.forEach(topLevelNode -> this.acceptNode((BLangNode) topLevelNode));
     }
 
     @Override
@@ -148,7 +174,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
                     + napespaceUriWsList.get(0).getPrevious().length() + napespaceUriWsList.get(0).getWs().length();
             int eCol = sCol + this.tokenName.length();
             DiagnosticPos pos = new DiagnosticPos(xmlNsPos.src, xmlNsPos.sLine, xmlNsPos.sLine, sCol, eCol);
-            this.addSymbol(xmlnsNode.symbol, true, pos);
+            this.addSymbol(xmlnsNode, xmlnsNode.symbol, true, pos);
         }
     }
 
@@ -161,7 +187,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
                     + this.getTypeLengthWithWS(constant.typeNode, true);
             int eCol = sSol + this.tokenName.length();
             DiagnosticPos pos = new DiagnosticPos(varPos.src, varPos.sLine, varPos.eLine, sSol, eCol);
-            this.addSymbol(constant.symbol, true, pos);
+            this.addSymbol(constant, constant.symbol, true, pos);
         }
     }
 
@@ -169,12 +195,17 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangService serviceNode) {
         List<Whitespace> wsList = new ArrayList<>(serviceNode.getWS());
         if (serviceNode.name.value.equals(this.tokenName)) {
+            Optional<BVarSymbol> serviceVarSymbol = this.getServiceVarSymbol();
+            if (!serviceVarSymbol.isPresent()) {
+                return;
+            }
             DiagnosticPos servicePos = serviceNode.pos;
-            int sCol = servicePos.sCol + wsList.get(1).toString().length();
+            int sCol = servicePos.sCol + getCharLengthBeforeToken(this.tokenName, wsList);
             int eCol = sCol + this.tokenName.length();
-            DiagnosticPos pos = new DiagnosticPos(servicePos.src, servicePos.sLine, servicePos.eLine, sCol, eCol);
-            this.addSymbol(serviceNode.symbol, true, pos);
+            DiagnosticPos pos = new DiagnosticPos(servicePos.src, servicePos.sLine, servicePos.sLine, sCol, eCol);
+            this.addSymbol(serviceNode, serviceVarSymbol.get(), true, pos);
         }
+        serviceNode.annAttachments.forEach(this::acceptNode);
         if (serviceNode.attachedExprs != null) {
             serviceNode.attachedExprs.forEach(this::acceptNode);
         }
@@ -183,20 +214,26 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
-        List<Whitespace> wsList = new ArrayList<>(funcNode.getWS());
-        if (funcNode.getName().value.equals(this.tokenName)) {
-            boolean isDefinition = !funcNode.flagSet.contains(Flag.INTERFACE);
-            DiagnosticPos funcPos = funcNode.pos;
-            int sCol = funcPos.sCol + this.getCharLengthBeforeToken(this.tokenName, wsList);
-            int eCol = sCol + this.tokenName.length();
-            DiagnosticPos pos = new DiagnosticPos(funcPos.src, funcPos.sLine, funcPos.sLine, sCol, eCol);
-            this.addSymbol(funcNode.symbol, isDefinition, pos);
+        boolean isWorker = funcNode.flagSet.contains(Flag.WORKER);
+        String funcName = isWorker ? funcNode.defaultWorkerName.value : funcNode.name.value;
+        if (funcName.equals(this.tokenName)) {
+            this.addBLangFunctionSymbol(funcNode);
         }
-
-        funcNode.defaultableParams.forEach(this::acceptNode);
+        funcNode.annAttachments.forEach(this::acceptNode);
         funcNode.requiredParams.forEach(this::acceptNode);
+        funcNode.externalAnnAttachments.forEach(this::acceptNode);
+        funcNode.returnTypeAnnAttachments.forEach(this::acceptNode);
         this.acceptNode(funcNode.returnTypeNode);
+        if (!isWorker) {
+            // Fill the worker varDefs in the current function scope
+            this.fillVisibleWorkerVarDefMaps(funcNode.body.stmts);
+        }
         this.acceptNode(funcNode.body);
+        if (!isWorker) {
+            // Clear the worker varDefs in the current function scope
+            this.workerVarDefPositionMap.clear();
+            this.workerNamesMap.clear();
+        }
     }
 
     @Override
@@ -211,8 +248,9 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             int sCol = typeDefPos.sCol + this.getCharLengthBeforeToken(this.tokenName, wsList);
             int eCol = sCol + this.tokenName.length();
             DiagnosticPos pos = new DiagnosticPos(typeDefPos.src, typeDefPos.sLine, typeDefPos.sLine, sCol, eCol);
-            this.addSymbol(typeDefinition.symbol, true, pos);
+            this.addSymbol(typeDefinition, typeDefinition.symbol, true, pos);
         }
+        typeDefinition.annAttachments.forEach(this::acceptNode);
 
         // Visit the type node
         this.acceptNode(typeDefinition.typeNode);
@@ -295,13 +333,23 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangSimpleVariable varNode) {
         BLangType typeNode = varNode.typeNode;
+        if (varNode.flagSet.contains(Flag.SERVICE)) {
+            // Skip the anon service symbol generated for the BLangService,
+            // which will be visited from BLangService visitor
+            return;
+        }
         if (varNode.name.value.equals(this.tokenName)) {
             List<Whitespace> wsList = new ArrayList<>(varNode.getWS());
             DiagnosticPos varPos = varNode.getPosition();
             DiagnosticPos pos;
             // Type node is null when the variable is for type binding patterns
             if (typeNode != null) {
-                boolean isNested = varNode.flagSet.contains(Flag.PUBLIC) || varNode.flagSet.contains(Flag.LISTENER)
+                /*
+                for the public keyword check, we combine it with the record type instance check for the parent.
+                this is because even though the record field contains the public tag, it does not allow public keyword
+                 */
+                boolean isNested = (varNode.flagSet.contains(Flag.PUBLIC)
+                        && !(varNode.parent instanceof BLangRecordTypeNode)) || varNode.flagSet.contains(Flag.LISTENER)
                         || varNode.flagSet.contains(Flag.FINAL);
                 int sSol = varPos.sCol + (isNested ? this.getCharLengthBeforeToken(this.tokenName, wsList)
                         : wsList.get(0).getWs().length());
@@ -311,10 +359,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             } else {
                 pos = varPos;
             }
-            this.addSymbol(varNode.symbol, true, pos);
+            this.addSymbol(varNode, varNode.symbol, true, pos);
         } else {
             this.acceptNode(typeNode);
         }
+        varNode.annAttachments.forEach(this::acceptNode);
         this.acceptNode(varNode.expr);
     }
 
@@ -322,13 +371,26 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangTupleVariable bLangTupleVariable) {
         bLangTupleVariable.memberVariables.forEach(this::acceptNode);
         this.acceptNode(bLangTupleVariable.typeNode);
+        this.acceptNode(bLangTupleVariable.expr);
     }
 
     @Override
     public void visit(BLangSimpleVariableDef varDefNode) {
         BLangSimpleVariable variable = varDefNode.var;
         BLangType typeNode = variable.typeNode;
-        if (variable.name.value.equals(this.tokenName)) {
+        if (varDefNode.getWS() == null) {
+            if (varDefNode.var.expr instanceof BLangLambdaFunction
+                    && ((BLangLambdaFunction) varDefNode.var.expr).function.flagSet.contains(Flag.WORKER)) {
+                return;
+            }
+            /*
+             * TODO: Use alternative way to check for the variable future representation instead of null ws
+             * This is a worker representation.
+             */
+            Optional<BLangFunction> workerFunction = this.getWorkerFunctionFromPosition(variable.pos);
+            workerFunction.ifPresent(this::acceptNode);
+            return;
+        } else if (variable.name.value.equals(this.tokenName)) {
             List<Whitespace> wsList = new ArrayList<>(varDefNode.getWS());
             DiagnosticPos varPos = varDefNode.getPosition();
             int sCol;
@@ -346,8 +408,8 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
                         + this.getTypeLengthWithWS(variable.typeNode, false);
             }
             int eCol = sCol + this.tokenName.length();
-            DiagnosticPos pos = new DiagnosticPos(varPos.src, varPos.sLine, varPos.eLine, sCol, eCol);
-            this.addSymbol(variable.symbol, true, pos);
+            DiagnosticPos pos = new DiagnosticPos(varPos.src, varPos.sLine, varPos.sLine, sCol, eCol);
+            this.addSymbol(variable, variable.symbol, true, pos);
         } else {
             // In the foreach's variable definition node, type becomes null and will be handled by the acceptNode
             this.acceptNode(typeNode);
@@ -412,12 +474,12 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             int sCol = varRefPos.getStartColumn() + this.getCharLengthBeforeToken(this.tokenName, wsList);
             int eCol = sCol + this.tokenName.length();
             DiagnosticPos pos = new DiagnosticPos(varRefPos.src, varRefPos.sLine, varRefPos.sLine, sCol, eCol);
-            this.addSymbol(varRefExpr.symbol, false, pos);
+            this.addSymbol(varRefExpr, varRefExpr.symbol, false, pos);
         } else if (varRefExpr.pkgAlias.value.equals(this.tokenName)) {
             int sCol = varRefPos.getStartColumn();
             int eCol = sCol + this.tokenName.length();
             DiagnosticPos pos = new DiagnosticPos(varRefPos.src, varRefPos.sLine, varRefPos.sLine, sCol, eCol);
-            this.addSymbol(varRefExpr.pkgSymbol, false, pos);
+            this.addSymbol(varRefExpr, varRefExpr.pkgSymbol, false, pos);
         }
     }
 
@@ -441,10 +503,9 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             DiagnosticPos pos = fieldAccessExpr.pos;
             // Calculate field name position
             int sCol = pos.getStartColumn() + this.getCharLengthBeforeToken(".", wsList) + 1;
-            wsList.remove(0);
-            int eCol = sCol + this.getCharLengthBeforeToken(this.tokenName, wsList);
+            int eCol = sCol + this.getWSLengthOfToken(wsList, this.tokenName) + this.tokenName.length();
             DiagnosticPos symbolPos = new DiagnosticPos(pos.src, pos.sLine, pos.sLine, sCol, eCol);
-            this.addSymbol(fieldAccessExpr.symbol, false, symbolPos);
+            this.addSymbol(fieldAccessExpr, fieldAccessExpr.symbol, false, symbolPos);
         }
     }
 
@@ -494,7 +555,8 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         if (!this.isMatchingUserDefinedType(userDefinedType)) {
             return;
         }
-        this.addSymbol(userDefinedType.type.tsymbol, false, this.getTypeNamePosition(userDefinedType, this.tokenName));
+        this.addSymbol(userDefinedType, userDefinedType.type.tsymbol, false,
+                       this.getTypeNamePosition(userDefinedType, this.tokenName));
     }
 
     @Override
@@ -555,7 +617,13 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        this.acceptNode(bLangLambdaFunction.function.body);
+        BLangFunction funcNode = bLangLambdaFunction.function;
+        funcNode.annAttachments.forEach(this::acceptNode);
+        funcNode.requiredParams.forEach(this::acceptNode);
+        funcNode.externalAnnAttachments.forEach(this::acceptNode);
+        funcNode.returnTypeAnnAttachments.forEach(this::acceptNode);
+        this.acceptNode(funcNode.returnTypeNode);
+        this.acceptNode(funcNode.body);
     }
 
     @Override
@@ -581,14 +649,14 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
             sCol += this.getCharLengthBeforeToken(this.tokenName, wsList);
             int eCol = sCol + this.tokenName.length();
             DiagnosticPos symbolPos = new DiagnosticPos(pos.src, pos.sLine, pos.eLine, sCol, eCol);
-            this.addSymbol(invocationExpr.symbol, false, symbolPos);
+            this.addSymbol(invocationExpr, invocationExpr.symbol, false, symbolPos);
         }
         invocationExpr.argExprs.forEach(this::acceptNode);
     }
 
     @Override
-    public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
-        bracedOrTupleExpr.getExpressions().forEach(this::acceptNode);
+    public void visit(BLangGroupExpr groupExpr) {
+        this.acceptNode(groupExpr.expression);
     }
 
     @Override
@@ -618,8 +686,8 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangArrayLiteral arrayLiteral) {
-        arrayLiteral.exprs.forEach(this::acceptNode);
+    public void visit(BLangListConstructorExpr listConstructorExpr) {
+        listConstructorExpr.exprs.forEach(this::acceptNode);
     }
 
     @Override
@@ -647,6 +715,82 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         this.acceptNode(bLangNamedArgsExpression.expr);
     }
 
+    @Override
+    public void visit(BLangAnnotation annotationNode) {
+        annotationNode.annAttachments.forEach(this::acceptNode);
+        if (annotationNode.name.value.equals(this.tokenName)) {
+            DiagnosticPos nodePos = annotationNode.pos;
+            List<Whitespace> wsList = new ArrayList<>(annotationNode.getWS());
+            int sCol = nodePos.sCol + getCharLengthBeforeToken(this.tokenName, wsList)
+                    + this.getTypeLengthWithWS(annotationNode.typeNode, true);
+            int eCol = sCol + this.tokenName.length();
+            DiagnosticPos pos = new DiagnosticPos(nodePos.src, nodePos.sLine, nodePos.sLine, sCol, eCol);
+            this.addSymbol(annotationNode, annotationNode.symbol, true, pos);
+        }
+        this.acceptNode(annotationNode.typeNode);
+    }
+
+    @Override
+    public void visit(BLangAnnotationAttachment annAttachmentNode) {
+        if (annAttachmentNode.annotationName.value.equals(this.tokenName)) {
+            DiagnosticPos nodePos = annAttachmentNode.getPosition();
+            List<Whitespace> wsList = new ArrayList<>(annAttachmentNode.getWS());
+            int sCol = nodePos.sCol + this.getCharLengthBeforeToken(this.tokenName, wsList);
+            int eCol = sCol + this.tokenName.length();
+            DiagnosticPos pos = new DiagnosticPos(nodePos.src, nodePos.sLine, nodePos.sLine, sCol, eCol);
+            this.addSymbol(annAttachmentNode, annAttachmentNode.annotationSymbol, false, pos);
+        }
+        this.acceptNode(annAttachmentNode.expr);
+    }
+
+    @Override
+    public void visit(BLangUnaryExpr unaryExpr) {
+        this.acceptNode(unaryExpr.expr);
+    }
+
+    @Override
+    public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+        this.acceptNode(annotAccessExpr.expr);
+    }
+
+    @Override
+    public void visit(BLangWorkerSend workerSendNode) {
+        this.acceptNode(workerSendNode.expr);
+        List<Whitespace> wsList = new ArrayList<>(workerSendNode.getWS());
+        if (workerSendNode.workerIdentifier.value.equals(this.tokenName)) {
+            DiagnosticPos nodePos = workerSendNode.pos;
+            int sCol = workerSendNode.expr.pos.getEndColumn() + this.getCharLengthBeforeToken(this.tokenName, wsList);
+            int eCol = sCol + this.tokenName.length();
+            DiagnosticPos pos = new DiagnosticPos(nodePos.src, nodePos.eLine, nodePos.eLine, sCol, eCol);
+            this.addSymbol(workerSendNode, workerNamesMap.get(this.tokenName), false, pos);
+        }
+    }
+
+    @Override
+    public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
+        this.acceptNode(syncSendExpr.expr);
+        List<Whitespace> wsList = new ArrayList<>(syncSendExpr.getWS());
+        if (syncSendExpr.workerIdentifier.value.equals(this.tokenName)) {
+            DiagnosticPos nodePos = syncSendExpr.pos;
+            int sCol = syncSendExpr.expr.pos.getEndColumn() + this.getCharLengthBeforeToken(this.tokenName, wsList);
+            int eCol = sCol + this.tokenName.length();
+            DiagnosticPos pos = new DiagnosticPos(nodePos.src, nodePos.eLine, nodePos.eLine, sCol, eCol);
+            this.addSymbol(syncSendExpr, workerNamesMap.get(this.tokenName), false, pos);
+        }
+    }
+
+    @Override
+    public void visit(BLangWorkerReceive workerReceiveNode) {
+        List<Whitespace> wsList = new ArrayList<>(workerReceiveNode.getWS());
+        if (workerReceiveNode.workerIdentifier.value.equals(this.tokenName)) {
+            DiagnosticPos nodePos = workerReceiveNode.pos;
+            int sCol = nodePos.getStartColumn() + this.getCharLengthBeforeToken(this.tokenName, wsList);
+            int eCol = sCol + this.tokenName.length();
+            DiagnosticPos pos = new DiagnosticPos(nodePos.src, nodePos.sLine, nodePos.eLine, sCol, eCol);
+            this.addSymbol(workerReceiveNode, workerNamesMap.get(this.tokenName), false, pos);
+        }
+    }
+
     private void acceptNode(BLangNode node) {
         if (this.terminateVisitor || node == null) {
             return;
@@ -658,12 +802,14 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         return bType.typeName.value.equals(this.tokenName);
     }
 
-    private SymbolReferencesModel.Reference getSymbolReference(BSymbol symbol, DiagnosticPos position) {
-        return new SymbolReferencesModel.Reference(position, symbol);
+    private SymbolReferencesModel.Reference getSymbolReference(DiagnosticPos position, BSymbol symbol,
+                                                               BLangNode bLangNode) {
+        return new SymbolReferencesModel.Reference(position, symbol, bLangNode);
     }
-
-    private void addSymbol(BSymbol bSymbol, boolean isDefinition, DiagnosticPos position) {
-        Optional<SymbolReferencesModel.Reference> symbolAtCursor = this.symbolReferences.getSymbolAtCursor();
+    
+    private void addSymbol(BLangNode bLangNode, BSymbol bSymbol,
+                           boolean isDefinition, DiagnosticPos position) {
+        Optional<SymbolReferencesModel.Reference> symbolAtCursor = this.symbolReferences.getReferenceAtCursor();
         // Here, tsymbol check has been added in order to support the finite types
         // TODO: Handle finite type. After the fix check if it falsely capture symbols in other files with same name
         if (!this.currentCUnitMode && symbolAtCursor.isPresent() && (symbolAtCursor.get().getSymbol() != bSymbol
@@ -675,11 +821,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         BSymbol originalSymbol = (bSymbol instanceof BVarSymbol && ((BVarSymbol) bSymbol).originalSymbol != null)
                 ? ((BVarSymbol) bSymbol).originalSymbol
                 : bSymbol;
-        SymbolReferencesModel.Reference ref = this.getSymbolReference(originalSymbol, zeroBasedPos);
+        SymbolReferencesModel.Reference ref = this.getSymbolReference(zeroBasedPos, originalSymbol, bLangNode);
         if (this.currentCUnitMode && this.cursorLine == zeroBasedPos.sLine && this.cursorCol >= zeroBasedPos.sCol
                 && this.cursorCol <= zeroBasedPos.eCol) {
             // This is the symbol at current cursor position
-            this.symbolReferences.setSymbolAtCursor(ref);
+            this.symbolReferences.setReferenceAtCursor(ref);
             return;
         }
 
@@ -709,8 +855,15 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     }
 
     private int getTypeLengthWithWS(BLangType typeNode, boolean nested) {
-        List<Whitespace> whitespaces = new ArrayList<>(typeNode.getWS());
         int length = 0;
+
+        // Check whether whitespaces are null for the type node.
+        // If null return length as 0.
+        if (typeNode == null || typeNode.getWS() == null) {
+            return length;
+        }
+
+        List<Whitespace> whitespaces = new ArrayList<>(typeNode.getWS());
 
         if (typeNode instanceof BLangUnionTypeNode) {
             length = getUnionTypeLength((BLangUnionTypeNode) typeNode, nested);
@@ -818,6 +971,18 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
         return new DiagnosticPos(typePos.src, typePos.sLine, typePos.eLine, sCol, eCol);
     }
+    
+    private int getWSLengthOfToken(List<Whitespace> wsList, String tokenName) {
+        int length = 0;
+        for (Whitespace whitespace : wsList) {
+            if (whitespace.getPrevious().equals(tokenName)) {
+                length = whitespace.getWs().length();
+                break;
+            }
+        }
+        
+        return length;
+    }
 
     private boolean forEachVariableDef(List<Whitespace> wsList) {
         return wsList.get(0).getPrevious().equals("foreach");
@@ -837,5 +1002,39 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
          */
         return varPos.sCol + this.getCharLengthBeforeToken(this.tokenName, wsList)
                 + this.getTypeLengthWithWS(typeNode, true);
+    }
+    
+    private Optional<BVarSymbol> getServiceVarSymbol() {
+        return this.topLevelNodes.stream().filter(node -> node instanceof BLangSimpleVariable
+                && this.tokenName.equals(((BLangSimpleVariable) node).name.value))
+                .map(topLevelNode -> ((BLangSimpleVariable) topLevelNode).symbol)
+                .findAny();
+    }
+    
+    private void addBLangFunctionSymbol(BLangFunction funcNode) {
+        List<Whitespace> wsList = new ArrayList<>(funcNode.getWS());
+        boolean isDefinition = !funcNode.flagSet.contains(Flag.INTERFACE);
+        DiagnosticPos funcPos = funcNode.pos;
+        int sCol = funcPos.sCol + this.getCharLengthBeforeToken(this.tokenName, wsList);
+        int eCol = sCol + this.tokenName.length();
+        DiagnosticPos pos = new DiagnosticPos(funcPos.src, funcPos.sLine, funcPos.sLine, sCol, eCol);
+
+        BSymbol symbol = funcNode.flagSet.contains(Flag.WORKER)
+                ? this.workerVarDefPositionMap.get(funcNode.pos) : funcNode.symbol;
+        this.addSymbol(funcNode, symbol, isDefinition, pos);
+    }
+    
+    private Optional<BLangFunction> getWorkerFunctionFromPosition(DiagnosticPos position) {
+        return this.workerLambdas.stream().filter(function -> function.getPosition() == position).findAny();
+    }
+    
+    private void fillVisibleWorkerVarDefMaps(List<BLangStatement> statements) {
+        statements.forEach(bLangStatement -> {
+            if (bLangStatement instanceof BLangSimpleVariableDef && bLangStatement.getWS() == null) {
+                BLangSimpleVariable variable = ((BLangSimpleVariableDef) bLangStatement).var;
+                this.workerVarDefPositionMap.put(bLangStatement.pos, variable.symbol);
+                this.workerNamesMap.put(variable.name.value, variable.symbol);
+            }
+        });
     }
 }

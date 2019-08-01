@@ -52,7 +52,7 @@ import com.intellij.util.messages.MessageBusConnection;
 import io.ballerina.plugins.idea.BallerinaConstants;
 import io.ballerina.plugins.idea.configuration.BallerinaLibrariesConfigurableProvider;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
-import io.ballerina.plugins.idea.sdk.BallerinaSdkUtil;
+import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 
@@ -280,7 +280,7 @@ public class BallerinaModuleLibrariesInitializer implements ModuleComponent {
             Project project = myModule.getProject();
             if (BallerinaSdkService.getInstance(project).isBallerinaModule(myModule)) {
                 synchronized (myLastHandledBallerinaPathSourcesRoots) {
-                    Collection<VirtualFile> ballerinaPathSourcesRoots = BallerinaSdkUtil.getBallerinaPathRoots(project,
+                    Collection<VirtualFile> ballerinaPathSourcesRoots = BallerinaSdkUtils.getBallerinaPathRoots(project,
                             myModule);
                     Set<VirtualFile> excludeRoots =
                             ContainerUtil.newHashSet(ProjectRootManager.getInstance(project).getContentRoots());

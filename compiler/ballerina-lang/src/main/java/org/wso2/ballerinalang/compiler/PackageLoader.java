@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -26,6 +27,7 @@ import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.CompilerOutputEntry;
 import org.ballerinalang.repository.PackageBinary;
 import org.ballerinalang.repository.PackageEntity;
+import org.ballerinalang.repository.PackageEntity.Kind;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.spi.SystemPackageRepositoryProvider;
 import org.ballerinalang.toml.model.Dependency;
@@ -40,7 +42,9 @@ import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder.RepoNode;
 import org.wso2.ballerinalang.compiler.packaging.Resolution;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
+import org.wso2.ballerinalang.compiler.packaging.repo.BaloRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.BinaryRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.BirRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProgramingSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
@@ -109,10 +113,12 @@ public class PackageLoader {
     private final PackageCache packageCache;
     private final SymbolEnter symbolEnter;
     private final CompiledPackageSymbolEnter compiledPkgSymbolEnter;
+    private final BIRPackageSymbolEnter birPackageSymbolEnter;
     private final Names names;
     private final BLangDiagnosticLog dlog;
     private static final boolean shouldReadBalo = true;
     private static PrintStream outStream = System.out;
+    private final CompilerPhase compilerPhase;
 
     public static PackageLoader getInstance(CompilerContext context) {
         PackageLoader loader = context.get(PACKAGE_LOADER_KEY);
@@ -132,10 +138,12 @@ public class PackageLoader {
         }
 
         this.options = CompilerOptions.getInstance(context);
+        this.compilerPhase = this.options.getCompilerPhase();
         this.parser = Parser.getInstance(context);
         this.packageCache = PackageCache.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.compiledPkgSymbolEnter = CompiledPackageSymbolEnter.getInstance(context);
+        this.birPackageSymbolEnter = BIRPackageSymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.offline = Boolean.parseBoolean(options.get(OFFLINE));
@@ -163,21 +171,36 @@ public class PackageLoader {
         Path balHomeDir = RepoUtils.createAndGetHomeReposPath();
         Path projectHiddenDir = sourceRoot.resolve(".ballerina");
         Converter<Path> converter = sourceDirectory.getConverter();
-
-        Repo systemRepo = new BinaryRepo(RepoUtils.getLibDir());
+    
+        String ballerinaHome = System.getProperty(ProjectDirConstants.BALLERINA_HOME);
+        Repo systemBirRepo = new BirRepo(Paths.get(ballerinaHome));
+        Repo systemZipRepo = new BinaryRepo(RepoUtils.getLibDir(), compilerPhase);
         Repo remoteRepo = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()));
-        Repo homeCacheRepo = new CacheRepo(balHomeDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME);
-        Repo homeRepo = shouldReadBalo ? new BinaryRepo(balHomeDir) : new ZipRepo(balHomeDir);
-        Repo projectCacheRepo = new CacheRepo(projectHiddenDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME);
-        Repo projectRepo = shouldReadBalo ? new BinaryRepo(projectHiddenDir) : new ZipRepo(projectHiddenDir);
-        Repo secondarySystemRepo = new BinaryRepo(RepoUtils.getLibDir());
+        Repo homeBaloCache = new BaloRepo(balHomeDir);
+        Repo homeCacheRepo = new CacheRepo(balHomeDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, compilerPhase);
+        Repo homeRepo = shouldReadBalo ? new BinaryRepo(balHomeDir, compilerPhase) : new ZipRepo(balHomeDir);
+        Repo projectCacheRepo = new CacheRepo(projectHiddenDir,
+                ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, compilerPhase);
+        Repo projectRepo = shouldReadBalo ? new BinaryRepo(projectHiddenDir, compilerPhase)
+                : new ZipRepo(projectHiddenDir);
+        Repo secondarySystemRepo = new BinaryRepo(RepoUtils.getLibDir(), compilerPhase);
 
         RepoNode homeCacheNode;
 
         if (offline) {
-            homeCacheNode = node(homeCacheRepo, node(systemRepo));
+            homeCacheNode = node(homeBaloCache,
+                                node(homeCacheRepo,
+                                    node(systemBirRepo,
+                                        node(systemZipRepo))));
         } else {
-            homeCacheNode = node(homeCacheRepo, node(systemRepo, node(remoteRepo, node(secondarySystemRepo))));
+            homeCacheNode = node(homeBaloCache,
+                                node(homeCacheRepo,
+                                    node (systemBirRepo,
+                                        node(systemZipRepo,
+                                            node(remoteRepo,
+                                                node(homeBaloCache,
+                                                    node(systemBirRepo,
+                                                        node(secondarySystemRepo))))))));
         }
         RepoNode nonLocalRepos = node(projectRepo,
                                       node(projectCacheRepo, homeCacheNode),
@@ -227,9 +250,11 @@ public class PackageLoader {
         }
         
         CompilerInput firstEntry = resolution.inputs.get(0);
-        if (firstEntry.getEntryName().endsWith(PackageEntity.Kind.COMPILED.getExtension())) {
+        if (firstEntry.getEntryName().endsWith(Kind.COMPILED.getExtension())) {
             // Binary package has only one file, so using first entry
-            return new GenericPackageBinary(pkgId, firstEntry, resolution.resolvedBy);
+            return new GenericPackageBinary(pkgId, firstEntry, resolution.resolvedBy, Kind.COMPILED);
+        } else if (firstEntry.getEntryName().endsWith(Kind.COMPILED_BIR.getExtension())) {
+            return new GenericPackageBinary(pkgId, firstEntry, resolution.resolvedBy, Kind.COMPILED_BIR);
         } else {
             return new GenericPackageSource(pkgId, resolution.inputs, resolution.resolvedBy);
         }
@@ -241,13 +266,13 @@ public class PackageLoader {
         String pkgAlias = orgName + "/" + pkgName;
         if (!lockEnabled) {
             // TODO: make getDependencies return a map
-            Optional<Dependency> dependency = manifest.getDependencies()
+             Optional<Dependency> dependency = manifest.getDependencies()
                                                       .stream()
-                                                      .filter(d -> d.getPackageName().equals(pkgAlias))
+                                                      .filter(d -> d.getModuleName().equals(pkgAlias))
                                                       .findFirst();
             if (dependency.isPresent()) {
                 if (pkgId.version.value.isEmpty()) {
-                    pkgId.version = new Name(dependency.get().getVersion());
+                    pkgId.version = new Name(dependency.get().getMetadata().getVersion());
                 } else {
                     throw new BLangCompilerException("dependency version in Ballerina.toml mismatches" +
                                                              " with the version in the source for module " + pkgAlias);
@@ -263,7 +288,7 @@ public class PackageLoader {
                                                                     .filter(pkg -> {
                                                                         String org = pkg.getOrg();
                                                                         if (org.isEmpty()) {
-                                                                            org = manifest.getName();
+                                                                            org = manifest.getProject().getOrgName();
                                                                         }
                                                                         String alias = org + "/" + pkg.getName();
                                                                         return alias.equals(enclPkgAlias);
@@ -356,7 +381,7 @@ public class PackageLoader {
 
         if (pkgEntity.getKind() == PackageEntity.Kind.SOURCE) {
             return parseAndDefine(packageId, (PackageSource) pkgEntity);
-        } else if (pkgEntity.getKind() == PackageEntity.Kind.COMPILED) {
+        } else if (pkgEntity.getKind() == Kind.COMPILED || pkgEntity.getKind() == Kind.COMPILED_BIR) {
             return loadCompiledPackageAndDefine(packageId, (PackageBinary) pkgEntity);
         }
 
@@ -441,8 +466,8 @@ public class PackageLoader {
 
     private BPackageSymbol loadCompiledPackageAndDefine(PackageID pkgId, PackageBinary pkgBinary) {
         byte[] pkgBinaryContent = pkgBinary.getCompilerInput().getCode();
-        BPackageSymbol pkgSymbol = this.compiledPkgSymbolEnter.definePackage(
-                pkgId, pkgBinary.getRepoHierarchy(), pkgBinaryContent);
+        BPackageSymbol pkgSymbol;
+        pkgSymbol = this.birPackageSymbolEnter.definePackage(pkgId, pkgBinary.getRepoHierarchy(), pkgBinaryContent);
         this.packageCache.putSymbol(pkgId, pkgSymbol);
 
         // TODO create CompiledPackage

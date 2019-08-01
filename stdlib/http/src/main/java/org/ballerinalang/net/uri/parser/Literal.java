@@ -19,6 +19,7 @@
 package org.ballerinalang.net.uri.parser;
 
 
+import org.ballerinalang.net.http.HttpResourceArguments;
 import org.ballerinalang.net.uri.URITemplateException;
 
 import java.util.Map;
@@ -47,7 +48,7 @@ public class Literal<DataType, InboundMsgType> extends Node<DataType, InboundMsg
     }
 
     @Override
-    int match(String uriFragment, Map<String, String> variables) {
+    int match(String uriFragment, HttpResourceArguments variables) {
         if (!token.endsWith("*")) {
             if (uriFragment.length() < tokenLength) {
                 return -1;

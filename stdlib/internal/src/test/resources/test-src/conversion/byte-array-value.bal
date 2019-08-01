@@ -80,20 +80,20 @@ function testGlobalVariable3() returns (byte[]) {
     return a;
 }
 
-function testBlobParameterArray(byte[] b1, byte[] b2) returns (byte[], byte[]) {
+function testBlobParameterArray(byte[] b1, byte[] b2) returns [byte[], byte[]] {
     byte[] [] a = [];
     a[0] = b1;
     a[1] = b2;
-    return (a[0], a[1]);
+    return [a[0], a[1]];
 }
 
-function testBlobReturnTuple1() returns (byte[], byte[]) {
+function testBlobReturnTuple1() returns [byte[], byte[]] {
     return testBlobParameterArray(base16 `aaabafac23345678`, base64 `a4f5njn/jnfvr+d=`);
 }
 
-function testBlobReturnTuple2() returns (byte[], byte[], byte[], byte[]) {
-    var (a, b) = testBlobParameterArray(base16 `aaab`, base64 `a4f5`);
-    return (a, b, gA, gB);
+function testBlobReturnTuple2() returns [byte[], byte[], byte[], byte[]] {
+    var [a, b] = testBlobParameterArray(base16 `aaab`, base64 `a4f5`);
+    return [a, b, gA, gB];
 }
 
 function testBlobReturnArray() returns (byte[][]) {
@@ -114,36 +114,36 @@ function testBlobField2() returns (byte[]) {
     return bytes.blobField;
 }
 
-function testBlobHexFormat() returns (string, string, string) {
+function testBlobHexFormat() returns [string, string, string] {
     byte[] a = base16 `aaabcfccadafcd341a4bdfabcd8912df`;
     byte[] b = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;
     string blobStr1 = io:sprintf("%x", a);
     string blobStr2 = io:sprintf("%X", a);
     string blobStr3 = io:sprintf("%x", b);
 
-    return(blobStr1, blobStr2, blobStr3);
+    return[blobStr1, blobStr2, blobStr3];
 }
 
-function testBlobAssign() returns (byte[], byte[]) {
+function testBlobAssign() returns [byte[], byte[]] {
     byte[] a = base16 `aaabcfccadafcd341a4bdfabcd8912df`;
     byte[] b = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;
     byte[] c = a;
     a = b;
     b = c;
-    return (a, b);
+    return [a, b];
 }
 
-function testBlobDefaultValue() returns (byte[], byte[], byte[], byte[], byte[], byte[], byte[], byte[]) {
+function testBlobDefaultValue() returns [byte[], byte[], byte[], byte[], byte[], byte[], byte[], byte[]] {
     byte[] a = [];
     byte[] b = a;
     TestRec testRec = {};
     TestObj testObj = new;
-    return (a, b, testRec.a, testRec.b, testRec.c, testObj.a, testObj.b, testObj.c);
+    return [a, b, testRec.a, testRec.b, testRec.c, testObj.a, testObj.b, testObj.c];
 }
 
-function testByteArrayReturn() returns (byte[], byte[], byte[]) {
+function testByteArrayReturn() returns [byte[], byte[], byte[]] {
     byte[] a = base16 `aaabcfccadafcd341a4bdfabcd8912df`;
     byte[] b = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;
     byte[] c = [3,4,5,6,7,8,9];
-    return (a, b, c);
+    return [a, b, c];
 }

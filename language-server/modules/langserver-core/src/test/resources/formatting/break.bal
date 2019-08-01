@@ -12,9 +12,9 @@ map<string> words = {
    break;
         }break;}
 
-    foreach var (k, v) in words {
+    foreach var [k, v] in words {
         io:println("letter: ", k, ", word: ", v);
-        foreach var(j, l) in words {
+        foreach var[j, l] in words {
             io:println("letter: ", j, ", word: ", l);
    break;
         }break;

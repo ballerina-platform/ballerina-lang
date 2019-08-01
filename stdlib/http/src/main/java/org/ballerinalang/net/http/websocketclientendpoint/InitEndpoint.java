@@ -20,14 +20,11 @@ package org.ballerinalang.net.http.websocketclientendpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.ParamDetail;
-import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.connector.api.Value;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -38,6 +35,7 @@ import org.ballerinalang.net.http.WebSocketClientHandshakeListener;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketUtil;
+import org.ballerinalang.net.http.exception.WebSocketException;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
@@ -55,10 +53,14 @@ import java.util.concurrent.TimeUnit;
  */
 
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "http",
+        orgName = WebSocketConstants.BALLERINA_ORG,
+        packageName = WebSocketConstants.PACKAGE_HTTP,
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "WebSocketClient",
-                             structPackage = "ballerina/http"),
+        receiver = @Receiver(
+                type = TypeKind.OBJECT,
+                structType = WebSocketConstants.WEBSOCKET_CLIENT,
+                structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
+        ),
         args = {@Argument(name = "epName", type = TypeKind.STRING),
                 @Argument(name = "config", type = TypeKind.RECORD, structType = "WebSocketClientEndpointConfig")},
         isPublic = true
@@ -67,22 +69,25 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        Struct clientEndpointConfig = clientEndpoint.getStructField(HttpConstants.CLIENT_ENDPOINT_CONFIG);
+    }
 
-        String remoteUrl = clientEndpoint.getStringField(WebSocketConstants.CLIENT_URL_CONFIG);
-        BMap clientService = (BMap) clientEndpointConfig.getServiceField(WebSocketConstants.CLIENT_SERVICE_CONFIG);
+    public static void initEndpoint(Strand strand, ObjectValue webSocketClient) {
+        @SuppressWarnings(WebSocketConstants.UNCHECKED)
+        MapValue<String, Object> clientEndpointConfig = (MapValue<String, Object>) webSocketClient.getMapValue(
+                HttpConstants.CLIENT_ENDPOINT_CONFIG);
+
+        String remoteUrl = webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG);
+        Object clientService = clientEndpointConfig.get(WebSocketConstants.CLIENT_SERVICE_CONFIG);
         WebSocketService wsService;
         if (clientService != null) {
-            Service service = BLangConnectorSPIUtil.getService(context.getProgramFile(), clientService);
-            ParamDetail param = service.getResources()[0].getParamDetails().get(0);
-            if (param == null || !WebSocketConstants.WEBSOCKET_CLIENT_ENDPOINT_NAME.equals(
-                    param.getVarType().toString())) {
-                throw new BallerinaConnectorException("The callback service should be a WebSocket Client Service");
+            BType param = ((ObjectValue) clientService).getType().getAttachedFunctions()[0].getParameterType()[0];
+            if (param == null || !WebSocketConstants.WEBSOCKET_CLIENT_NAME.equals(
+                    param.toString())) {
+                throw new WebSocketException("The callback service should be a WebSocket Client Service");
             }
-            wsService = new WebSocketService(service);
+            wsService = new WebSocketService((ObjectValue) clientService, strand.scheduler);
         } else {
-            wsService = new WebSocketService();
+            wsService = new WebSocketService(strand.scheduler);
         }
         WebSocketClientConnectorConfig clientConnectorConfig = new WebSocketClientConnectorConfig(remoteUrl);
         populateClientConnectorConfig(clientEndpointConfig, clientConnectorConfig);
@@ -91,30 +96,30 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(
                 clientConnectorConfig);
         WebSocketClientConnectorListener clientConnectorListener = new WebSocketClientConnectorListener();
-        boolean readyOnConnect = clientEndpointConfig.getBooleanField(WebSocketConstants.CLIENT_READY_ON_CONNECT);
+        boolean readyOnConnect = clientEndpointConfig.getBooleanValue(WebSocketConstants.CLIENT_READY_ON_CONNECT);
         ClientHandshakeFuture handshakeFuture = clientConnector.connect();
         handshakeFuture.setWebSocketConnectorListener(clientConnectorListener);
         CountDownLatch countDownLatch = new CountDownLatch(1);
         handshakeFuture.setClientHandshakeListener(
-                new WebSocketClientHandshakeListener(context, wsService, clientConnectorListener,
-                                                     readyOnConnect, countDownLatch));
+                new WebSocketClientHandshakeListener(webSocketClient, wsService, clientConnectorListener,
+                        readyOnConnect, countDownLatch));
         try {
             if (!countDownLatch.await(60, TimeUnit.SECONDS)) {
-                throw new BallerinaConnectorException("Waiting for WebSocket handshake has not been successful");
+                throw new WebSocketException("Waiting for WebSocket handshake has not been successful");
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new BallerinaConnectorException("Error occurred: " + e.getMessage());
+            throw new WebSocketException("Error occurred: " + e.getMessage());
 
         }
-        context.setReturnValues();
     }
 
-    private void populateClientConnectorConfig(Struct clientEndpointConfig,
-                                               WebSocketClientConnectorConfig clientConnectorConfig) {
+    private static void populateClientConnectorConfig(MapValue<String, Object> clientEndpointConfig,
+                                                      WebSocketClientConnectorConfig clientConnectorConfig) {
         clientConnectorConfig.setAutoRead(false); // Frames are read sequentially in ballerina.
         clientConnectorConfig.setSubProtocols(WebSocketUtil.findNegotiableSubProtocols(clientEndpointConfig));
-        Map<String, Value> headerValues = clientEndpointConfig.getMapField(
+        @SuppressWarnings(WebSocketConstants.UNCHECKED)
+        MapValue<String, Object> headerValues = (MapValue<String, Object>) clientEndpointConfig.getMapValue(
                 WebSocketConstants.CLIENT_CUSTOM_HEADERS_CONFIG);
         if (headerValues != null) {
             clientConnectorConfig.addHeaders(getCustomHeaders(headerValues));
@@ -127,7 +132,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
 
         clientConnectorConfig.setMaxFrameSize(WebSocketUtil.findMaxFrameSize(clientEndpointConfig));
 
-        Struct secureSocket = clientEndpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
+        MapValue secureSocket = clientEndpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         if (secureSocket != null) {
             HttpUtil.populateSSLConfiguration(clientConnectorConfig, secureSocket);
         } else {
@@ -135,10 +140,10 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         }
     }
 
-    private Map<String, String> getCustomHeaders(Map<String, Value> headers) {
+    private static Map<String, String> getCustomHeaders(MapValue<String, Object> headers) {
         Map<String, String> customHeaders = new HashMap<>();
         headers.keySet().forEach(
-                key -> customHeaders.put(key, headers.get(key).getStringValue())
+                key -> customHeaders.put(key, headers.get(key).toString())
         );
         return customHeaders;
     }

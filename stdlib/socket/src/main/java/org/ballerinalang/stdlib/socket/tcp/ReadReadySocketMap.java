@@ -18,8 +18,7 @@
 
 package org.ballerinalang.stdlib.socket.tcp;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This map will hold all the read ready sockets until it is read through the
@@ -28,7 +27,7 @@ import java.util.Map;
  * @since 0.995.0
  */
 public class ReadReadySocketMap {
-    private Map<Integer, SocketReader> socketReaderMap = new HashMap<>();
+    private ConcurrentHashMap<Integer, SocketReader> socketReaderMap = new ConcurrentHashMap<>();
 
     private ReadReadySocketMap() {
     }

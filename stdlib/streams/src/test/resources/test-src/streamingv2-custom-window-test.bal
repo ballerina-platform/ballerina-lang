@@ -35,28 +35,30 @@ public type CustomWindow object {
     public function process(streams:StreamEvent?[] streamEvents) {
         streams:StreamEvent?[] outputEvents = [];
         foreach var event in streamEvents {
-            event.addAttribute("status", "single");
-            event.addAttribute("phoneNo", "123456");
-            outputEvents[outputEvents.length()] = event;
+            if (event is streams:StreamEvent) {
+                event.addAttribute("status", "single");
+                event.addAttribute("phoneNo", "123456");
+                outputEvents[outputEvents.length()] = event;
+            }
         }
         any nextProcessFuncPointer = self.nextProcessPointer;
         if (nextProcessFuncPointer is function (streams:StreamEvent?[])) {
-            nextProcessFuncPointer.call(outputEvents);
+            nextProcessFuncPointer(outputEvents);
         }
     }
 
     public function getCandidateEvents(streams:StreamEvent originEvent,
                         (function (map<anydata> e1Data, map<anydata> e2Data) returns boolean)? conditionFunc,
                         boolean isLHSTrigger = true)
-                        returns (streams:StreamEvent?, streams:StreamEvent?)[] {
-        (streams:StreamEvent?, streams:StreamEvent?)[] events = [];
+                        returns [streams:StreamEvent?, streams:StreamEvent?][] {
+        [streams:StreamEvent?, streams:StreamEvent?][] events = [];
         return events;
     }
 
 };
 
 public function customWindow(any[] windowParameters,
-                            function (streams:StreamEvent[])? nextProcessPointer = ()) returns streams:Window {
+                            function (streams:StreamEvent?[])? nextProcessPointer = ()) returns streams:Window {
     CustomWindow customWindow1 = new(nextProcessPointer, windowParameters);
     return customWindow1;
 }
@@ -114,8 +116,8 @@ function startSelectQuery() returns (Person[]) {
 function initFilterQuery() {
     forever {
         from childrenStream window customWindow()
-        select childrenStream.name, childrenStream.age, childrenStream.status as status,
-        childrenStream.city as address, childrenStream.phoneNo as phoneNo
+        select childrenStream.name, childrenStream.age, <string>childrenStream?.status as status,
+        childrenStream.city as address, <string>childrenStream?.phoneNo as phoneNo
         => (Person[] persons) {
             foreach var p in persons {
                 personStream.publish(p);

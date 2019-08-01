@@ -1,7 +1,7 @@
 import ballerina/io;
 
 public function main() {
-    // The XML element. There can only be one root element.
+    // The XML element. There can be only one root element.
     xml x1 = xml `<book>The Lost World</book>`;
     io:println(x1);
 
@@ -13,7 +13,7 @@ public function main() {
     xml x3 = xml `<!--I am a comment-->`;
     io:println(x3);
 
-    // The XML processing instruction.
+    // The XML processing instructions.
     xml x4 = xml `<?target data?>`;
     io:println(x4);
 

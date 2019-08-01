@@ -18,10 +18,13 @@
 
 package org.ballerinalang.net.grpc;
 
-import org.ballerinalang.connector.api.ParamDetail;
-import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.ObjectValue;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.ballerinalang.net.grpc.MessageUtils.headersRequired;
@@ -33,29 +36,37 @@ import static org.ballerinalang.net.grpc.MessageUtils.headersRequired;
  */
 public class ServiceResource {
 
-    private final Resource resource;
-    private final List<ParamDetail> paramDetailList;
+    private final ObjectValue service;
+    private final String functionName;
+    private final BType[] paramTypes;
     private final boolean headerRequired;
+    private final Scheduler scheduler;
 
-    public ServiceResource(Resource resource) {
-        this.resource = resource;
-        this.paramDetailList = resource.getParamDetails();
-        this.headerRequired = headersRequired(resource);
+    public ServiceResource(Scheduler scheduler, ObjectValue service, AttachedFunction function) {
+        this.service = service;
+        this.functionName = function.funcName;
+        paramTypes = function.getParameterType();
+        this.headerRequired = headersRequired(function);
+        this.scheduler = scheduler;
     }
 
-    public Resource getResource() {
-        return resource;
+    public ObjectValue getService() {
+        return service;
     }
 
-    public List<ParamDetail> getParamDetailList() {
-        return paramDetailList;
+    public List<BType> getParamTypes() {
+        return Collections.unmodifiableList(Arrays.asList(paramTypes));
     }
 
     public boolean isHeaderRequired() {
         return headerRequired;
     }
 
-    public ProgramFile getProgramFile() {
-        return resource.getResourceInfo().getPackageInfo().getProgramFile();
+    public String getFunctionName() {
+        return functionName;
+    }
+
+    public Scheduler getScheduler() {
+        return scheduler;
     }
 }

@@ -18,13 +18,10 @@
 
 package org.ballerinalang.stdlib.socket.endpoint.tcp.server;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.socket.tcp.SocketUtils;
@@ -37,6 +34,7 @@ import java.nio.channels.ServerSocketChannel;
 
 import static org.ballerinalang.stdlib.socket.SocketConstants.CONFIG_FIELD_PORT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.LISTENER_CONFIG;
+import static org.ballerinalang.stdlib.socket.SocketConstants.READ_TIMEOUT;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SERVER_SOCKET_KEY;
 import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
 
@@ -52,30 +50,25 @@ import static org.ballerinalang.stdlib.socket.SocketConstants.SOCKET_PACKAGE;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = SOCKET_PACKAGE),
         isPublic = true
 )
-public class InitServer extends BlockingNativeCallableUnit {
+public class InitServer {
     private static final Logger log = LoggerFactory.getLogger(InitServer.class);
 
-    @Override
-    public void execute(Context context) {
+    public static Object initServer(Strand strand, ObjectValue listener, long port, MapValue<String, Object> config) {
         try {
-            Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
             ServerSocketChannel serverSocket = ServerSocketChannel.open();
             serverSocket.configureBlocking(false);
             serverSocket.socket().setReuseAddress(true);
-            serviceEndpoint.addNativeData(SERVER_SOCKET_KEY, serverSocket);
-            BMap<String, BValue> endpointConfig = (BMap<String, BValue>) context.getRefArgument(1);
-            serviceEndpoint.addNativeData(LISTENER_CONFIG, endpointConfig);
-            int port = (int) context.getIntArgument(0);
-            serviceEndpoint.addNativeData(CONFIG_FIELD_PORT, port);
+            listener.addNativeData(SERVER_SOCKET_KEY, serverSocket);
+            listener.addNativeData(LISTENER_CONFIG, config);
+            listener.addNativeData(CONFIG_FIELD_PORT, (int) port);
+            final long timeout = config.getIntValue(READ_TIMEOUT);
+            listener.addNativeData(READ_TIMEOUT, timeout);
         } catch (SocketException e) {
-            context.setReturnValues(SocketUtils.createSocketError(context, "Unable to bind the socket port"));
-            return;
+            return SocketUtils.createSocketError("Unable to bind the socket port");
         } catch (IOException e) {
-            log.error("Unable to initiate the server socket", e);
-            context.setReturnValues(
-                    SocketUtils.createSocketError(context, "Unable to initiate the socket service"));
-            return;
+            log.error("Unable to initiate the socket listener", e);
+            return SocketUtils.createSocketError("Unable to initiate the socket listener");
         }
-        context.setReturnValues();
+        return null;
     }
 }

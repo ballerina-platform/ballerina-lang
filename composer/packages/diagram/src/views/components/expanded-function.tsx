@@ -1,6 +1,5 @@
-import { ASTKindChecker, ASTNode, ASTUtil,
-    Function as BallerinaFunction, NodePosition, VariableDef, VisibleEndpoint } from "@ballerina/ast-model";
-import { BallerinaAST, IBallerinaLangClient } from "@ballerina/lang-service";
+import { ASTUtil, Function as BallerinaFunction,
+    NodePosition, VariableDef, VisibleEndpoint } from "@ballerina/ast-model";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
@@ -9,6 +8,7 @@ import { getCodePoint } from "../../utils";
 import { BlockViewState } from "../../view-model/block";
 import { ExpandContext } from "../../view-model/expand-context";
 import { FunctionViewState, StmntViewState, ViewState } from "../../view-model/index";
+import { ArrowHead } from "./arrow-head";
 import { Block } from "./block";
 import { LifeLine } from "./life-line";
 import { Worker } from "./worker";
@@ -65,12 +65,12 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
                         <rect className="frame"
                             x={bBox.x - config.statement.expanded.margin}
                             y={bBox.y + config.statement.height / 2}
-                            width={bBox.w + config.statement.expanded.margin}
+                            width={bBox.w}
                             height={bBox.h - config.statement.expanded.footer - (config.statement.height / 2)}/>
                         <rect className="name-background"
-                            x={bBox.statement.x - 2}
+                            x={bBox.statement.x - config.statement.expanded.labelGutter}
                             y={bBox.y}
-                            width={bBox.statement.textWidth + 10}
+                            width={bBox.statement.textWidth + (2 * config.statement.expanded.labelGutter)}
                             height={config.statement.height}/>
                         <text className="func-name"
                             x={bBox.statement.x}
@@ -78,16 +78,18 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
                             {bBox.statement.text}
                         </text>
                         <text className="collapser"
-                            x={bBox.statement.x + bBox.w - 30}
+                            x={bBox.statement.x + bBox.w - 30 - config.statement.expanded.margin}
                             y={bBox.statement.y + config.statement.height + 5}
                             onClick={onClickClose}>
                             {getCodePoint("up")}
                         </text>
-                        <line className="life-line" x1={bBox.x}
-                            x2={expandedFnBbox.x}
-                            y1={expandedFnBbox.y}
-                            y2={expandedFnBbox.y} />
-                        <line className="life-line" { ...lifeLine } />
+                        <g className="start-invocation">
+                            <line x1={bBox.x}
+                                x2={expandedFnBbox.x}
+                                y1={expandedFnBbox.y}
+                                y2={expandedFnBbox.y} />
+                            <ArrowHead direction="right" x={expandedFnBbox.x} y={expandedFnBbox.y} />
+                        </g>
                         { /* Override the docUri context value and always disable editing */ }
                         <DiagramContext.Provider value={{ ...context, docUri, editingEnabled: false }}>
                             {workers.map((worker) => {
@@ -101,8 +103,10 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
                                         2 * config.statement.height }
                                     client={client} />;
                             })}
+                            <LifeLine model={model.viewState.defaultWorker.lifeline.bBox}
+                                title="Default" icon={"worker"}></LifeLine>
                             <Block model={model.body} />
-                            {model.VisibleEndpoints && model.VisibleEndpoints
+                            {model.body.VisibleEndpoints && model.body.VisibleEndpoints
                                 .filter((element) => element.viewState.visible)
                                 .map((element: VisibleEndpoint) => {
                                     return <LifeLine title={element.name} icon="endpoint"
@@ -125,18 +129,21 @@ interface FunctionExpanderProps {
 }
 
 export const FunctionExpander: React.SFC<FunctionExpanderProps> = (
-    { statementViewState, position, expandContext }) => {
+    { statementViewState, expandContext }) => {
 
     const x = statementViewState.bBox.x + statementViewState.bBox.labelWidth + 10;
     const y = statementViewState.bBox.y + (statementViewState.bBox.h / 2) + 2;
     return (
         <DiagramContext.Consumer>
-            {({ langClient, docUri, update }) => (
+            {({ update }) => (
                 <g className="expander">
                     <circle className="circle" cx={x + 7} cy={y - 2} r={10}/>
                     <text x={x} y={y}
-                        onClick={getExpandFunctionHandler(
-                            langClient, docUri, position, expandContext, update)}>
+                        onClick={() => {
+                            expandContext.collapsed = false;
+                            expandContext.skipDepthCheck = true;
+                            update();
+                        }}>
                         {getCodePoint("down")}
                     </text>
                 </g>
@@ -144,66 +151,3 @@ export const FunctionExpander: React.SFC<FunctionExpanderProps> = (
         </DiagramContext.Consumer>
     );
 };
-
-function getExpandFunctionHandler(
-    langClient: IBallerinaLangClient | undefined, docUri: string | undefined,
-    position: NodePosition, expandContext: ExpandContext, update: () => void) {
-
-    return async () => {
-        if (!langClient || !docUri) {
-            return;
-        }
-        const res = await langClient.getDefinitionPosition({
-            position: {
-                character: position.startColumn - 1,
-                line: position.startLine - 1,
-            },
-            textDocument: {
-                uri: docUri,
-            },
-        });
-
-        const astRes = await langClient.getAST({
-            documentIdentifier: {
-                uri: res.uri
-            }
-        });
-
-        const subTree = findDefinitionSubTree({
-            endColumn: res.range.end.character + 1,
-            endLine: res.range.end.line + 1,
-            startColumn: res.range.start.character + 1,
-            startLine: res.range.start.line + 1,
-        }, astRes.ast);
-        const defTree = subTree as BallerinaFunction;
-
-        expandContext.expandedSubTree = defTree;
-        expandContext.expandedSubTreeDocUri = res.uri;
-        update();
-    };
-}
-
-function findDefinitionSubTree(position: NodePosition, ast: BallerinaAST) {
-    return ast.topLevelNodes.find((balNode) => {
-        const tlnode = balNode as ASTNode;
-        if (!ASTKindChecker.isFunction(tlnode)) {
-            return false;
-        }
-
-        const node = tlnode.name;
-
-        if (!node.position) {
-            return false;
-        }
-
-        if (node.position.startColumn === position.startColumn &&
-            node.position.endColumn === position.endColumn &&
-            node.position.startLine === position.startLine &&
-            node.position.endLine === position.endLine) {
-
-            return true;
-        }
-
-        return false;
-    });
-}

@@ -35,6 +35,21 @@ public abstract class CursorPositionResolver {
      * @param bSymbol               Node's Symbol
      * @return {@link Boolean}      Whether the cursor is before the node start or not
      */
-    public abstract boolean isCursorBeforeNode(DiagnosticPos nodePosition, TreeVisitor treeVisitor,
-                                               LSContext completionContext, BLangNode node, BSymbol bSymbol);
+    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, TreeVisitor treeVisitor,
+                                               LSContext completionContext, BLangNode node, BSymbol bSymbol) {
+        return false;
+    }
+
+    /**
+     * Check whether the cursor is positioned before the given node start.
+     * @param nodePosition          Position of the node
+     * @param treeVisitor           {@link TreeVisitor} current tree visitor instance
+     * @param completionContext     Completion operation context
+     * @param node                  Node
+     * @return {@link Boolean}      Whether the cursor is before the node start or not
+     */
+    public boolean isCursorBeforeNode(DiagnosticPos nodePosition, TreeVisitor treeVisitor, LSContext completionContext,
+                                      BLangNode node) {
+        return false;
+    }
 }

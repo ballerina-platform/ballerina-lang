@@ -18,8 +18,7 @@
 
 package org.ballerinalang.net.http.nativeimpl.pipelining;
 
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.DataContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -37,15 +36,15 @@ public class PipelinedResponse implements Comparable<PipelinedResponse> {
     private final HttpCarbonMessage inboundRequestMsg;
     private final HttpCarbonMessage outboundResponseMsg;
     private DataContext dataContext;
-    private BMap<String, BValue> outboundResponse; //Ballerina outbound response object
+    private ObjectValue outboundResponseObj; //Ballerina outbound response object
     private final long sequenceId; //Identifies the response order
 
     public PipelinedResponse(HttpCarbonMessage inboundRequestMsg, HttpCarbonMessage
-            outboundResponseMsg, DataContext dataContext, BMap<String, BValue> outboundResponse) {
+            outboundResponseMsg, DataContext dataContext, ObjectValue outboundResponseObj) {
         this.inboundRequestMsg = inboundRequestMsg;
         this.outboundResponseMsg = outboundResponseMsg;
         this.dataContext = dataContext;
-        this.outboundResponse = outboundResponse;
+        this.outboundResponseObj = outboundResponseObj;
         this.sequenceId = inboundRequestMsg.getSequenceId();
     }
 
@@ -71,8 +70,8 @@ public class PipelinedResponse implements Comparable<PipelinedResponse> {
         return dataContext;
     }
 
-    BMap<String, BValue> getOutboundResponse() {
-        return outboundResponse;
+    ObjectValue getOutboundResponseObj() {
+        return outboundResponseObj;
     }
 
     @Override

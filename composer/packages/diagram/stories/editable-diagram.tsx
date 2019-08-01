@@ -25,6 +25,8 @@ bbeASTsArray.forEach((bbeASTPath) => {
   const bbeAST = require(`../resources/bbe-asts/${bbeASTPath}`);
   staticDiagramStories.add(bbeAST.title, () => (
       <Diagram
+        docUri=""
+        langClient={new MockLangClient(bbeAST.ast)}
         ast={bbeAST.ast}
         {...commonProps}
       />

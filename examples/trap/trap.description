@@ -1,1 +1,1 @@
-// The `trap` unary opearator captures a panic, making it possible to treat the panic as a normal error.
+// The `trap` unary opearator captures a panic making it possible to treat the panic as a normal error.

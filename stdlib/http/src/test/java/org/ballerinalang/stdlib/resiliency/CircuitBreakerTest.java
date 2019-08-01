@@ -19,10 +19,6 @@
 package org.ballerinalang.stdlib.resiliency;
 
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.launcher.util.BRunUtil;
-import org.ballerinalang.launcher.util.BServiceUtil;
-import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
@@ -33,6 +29,9 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.Services;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -45,7 +44,7 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 public class CircuitBreakerTest {
 
     private static final String CB_ERROR_MSG = "Upstream service unavailable.";
-    private static final String MOCK_ENDPOINT_NAME = "mockEP";
+    private static final int TEST_PORT = 9090;
 
     // Following constants are defined to filter out Http Client errors from union responses.
     private static final int CB_CLIENT_FIRST_ERROR_INDEX = 3;
@@ -55,13 +54,12 @@ public class CircuitBreakerTest {
     private static final int CB_CLIENT_FORCE_OPEN_INDEX = 4;
     private static final String STATUS_CODE_FIELD = "statusCode";
 
-    private CompileResult compileResult, serviceResult;
+    private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
         String sourceFilePath = "test-src/resiliency/circuit-breaker-test.bal";
         compileResult = BCompileUtil.compile(sourceFilePath);
-        serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
     }
 
     /**
@@ -246,7 +244,7 @@ public class CircuitBreakerTest {
         String value = "Circuit Breaker is in CLOSED state";
         String path = "/cb/getState";
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HttpCarbonMessage responseMsg = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_PORT, inRequestMsg);
 
         Assert.assertNotNull(responseMsg, "Response message not found");
         Assert.assertEquals(

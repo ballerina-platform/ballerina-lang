@@ -15,23 +15,30 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
+import org.antlr.v4.runtime.CommonToken;
+import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.LSCompletionProvider;
 import org.ballerinalang.langserver.completions.LSCompletionProviderFactory;
 import org.ballerinalang.langserver.completions.TreeVisitor;
-import org.ballerinalang.langserver.completions.resolvers.CompletionItemsContext;
+import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
+import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Common utility methods for the completion operation.
@@ -59,24 +66,24 @@ public class CompletionUtil {
      * @return {@link List}         List of resolved completion Items
      */
     public static List<CompletionItem>  getCompletionItems(LSContext ctx) {
+        List<CompletionItem> items = new ArrayList<>();
         if (ctx == null) {
             return null;
         }
-        Class scopeContext = ctx.get(CompletionKeys.SYMBOL_ENV_NODE_KEY).getClass();
-        CompletionItemsContext completionItemsContext = CompletionItemResolver.get(scopeContext, ctx);
-
-        List<LSCompletionProvider> providers = LSCompletionProviderFactory.getInstance().getProviders();
-        List<CompletionItem> items = new ArrayList<>();
-        for (LSCompletionProvider provider : providers) {
-            try {
-                items.addAll(provider.getCompletions(ctx, completionItemsContext));
-            } catch (Exception e) {
-                LOGGER.error("Error while retrieving completions from: " + provider.getName());
-            }
+        // Set the invocation or field access token type
+        setInvocationOrInteractionOrFieldAccessToken(ctx);
+        BLangNode scope = ctx.get(CompletionKeys.SCOPE_NODE_KEY);
+        Map<Class, LSCompletionProvider> scopeProviders = LSCompletionProviderFactory.getInstance().getProviders();
+        LSCompletionProvider completionProvider = scopeProviders.get(scope.getClass());
+        try {
+            items.addAll(completionProvider.getCompletions(ctx));
+        } catch (Exception e) {
+            LOGGER.error("Error while retrieving completions from: " + completionProvider.getClass());
         }
 
         boolean isSnippetSupported = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
                 .getSnippetSupport();
+        ItemSorters.get(ctx.get(CompletionKeys.ITEM_SORTER_KEY)).sortItems(ctx, items);
         for (CompletionItem item : items) {
             if (!isSnippetSupported) {
                 item.setInsertText(CommonUtil.getPlainTextSnippet(item.getInsertText()));
@@ -86,5 +93,38 @@ public class CompletionUtil {
             }
         }
         return items;
+    }
+
+    /**
+     * Check whether the token stream corresponds to a action invocation or a function invocation.
+     *
+     * @param context Completion operation context
+     */
+    private static void setInvocationOrInteractionOrFieldAccessToken(LSContext context) {
+        List<CommonToken> lhsTokens = context.get(CompletionKeys.LHS_TOKENS_KEY);
+        List<Integer> invocationTokens = Arrays.asList(
+                BallerinaParser.COLON, BallerinaParser.DOT, BallerinaParser.RARROW, BallerinaParser.NOT,
+                BallerinaParser.OPTIONAL_FIELD_ACCESS
+        );
+        context.put(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY, -1);
+        if (lhsTokens == null) {
+            return;
+        }
+        List<CommonToken> lhsDefaultTokens = lhsTokens.stream()
+                .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
+                .collect(Collectors.toList());
+        if (lhsDefaultTokens.isEmpty()) {
+            return;
+        }
+        int lastToken = CommonUtil.getLastItem(lhsDefaultTokens).getType();
+        int tokenBeforeLast = lhsDefaultTokens.size() >= 2 ?
+                lhsDefaultTokens.get(lhsDefaultTokens.size() - 2).getType() : -1;
+        int resultToken = -1;
+        if (invocationTokens.contains(lastToken)) {
+            resultToken = lastToken;
+        } else if (lhsDefaultTokens.size() >= 2 && invocationTokens.contains(tokenBeforeLast)) {
+            resultToken = tokenBeforeLast;
+        }
+        context.put(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY, resultToken);
     }
 }

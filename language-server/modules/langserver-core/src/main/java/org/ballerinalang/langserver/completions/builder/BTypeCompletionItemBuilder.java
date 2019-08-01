@@ -17,14 +17,15 @@
  */
 package org.ballerinalang.langserver.completions.builder;
 
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Names;
+
+import java.util.Locale;
 
 /**
  * This class is being used to build BType completion item.
@@ -42,17 +43,16 @@ public class BTypeCompletionItemBuilder {
      * @param label   label
      * @return {@link CompletionItem}
      */
-    public static CompletionItem build(BTypeSymbol bSymbol, String label) {
+    public static CompletionItem build(BSymbol bSymbol, String label) {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
         String[] delimiterSeparatedTokens = (label).split("\\.");
         item.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
-        item.setDetail(ItemResolverConstants.B_TYPE);
         setMeta(item, bSymbol);
         return item;
     }
 
-    private static void setMeta(CompletionItem item, BTypeSymbol bSymbol) {
+    private static void setMeta(CompletionItem item, BSymbol bSymbol) {
         if (bSymbol == null) {
             item.setKind(CompletionItemKind.Class);
             return;
@@ -67,8 +67,7 @@ public class BTypeCompletionItemBuilder {
         } else if (bSymbol.type instanceof BFiniteType || bSymbol.type instanceof BUnionType) {
             // enums
             item.setKind(CompletionItemKind.Enum);
-        } else if (bSymbol.pkgID.orgName.equals(Names.BUILTIN_ORG) &&
-                bSymbol.pkgID.name.equals(Names.BUILTIN_PACKAGE)) {
+        } else if (bSymbol.pkgID.orgName.equals(Names.BUILTIN_ORG)) {
             // keyword
             item.setKind(CompletionItemKind.Keyword);
         } else {
@@ -78,5 +77,10 @@ public class BTypeCompletionItemBuilder {
         if (bSymbol.markdownDocumentation != null) {
             item.setDocumentation(bSymbol.markdownDocumentation.description);
         }
+        // set sub bType
+        String name = bSymbol.type.getKind().name();
+        String detail = name.substring(0, 1).toUpperCase(Locale.ENGLISH)
+                + name.substring(1).toLowerCase(Locale.ENGLISH);
+        item.setDetail(detail);
     }
 }

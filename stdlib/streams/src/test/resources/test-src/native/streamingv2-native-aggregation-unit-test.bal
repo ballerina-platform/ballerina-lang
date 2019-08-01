@@ -82,7 +82,7 @@ function streamFunc() {
     function (map<anydata>[]) outputFunc = function (map<anydata>[] events) {
         foreach var m in events {
             // just cast input map into the output type
-            var o = <OutputRecord>OutputRecord.stamp(m.clone());
+            var o = <OutputRecord>OutputRecord.constructFrom(m);
             outputStream.publish(o);
         }
     };
@@ -129,7 +129,7 @@ function streamFunc() {
     streams:Select select = streams:createSelect(function (streams:StreamEvent?[] e) {outputProcess.process(e);},
         aggregators,
         [function (streams:StreamEvent e) returns anydata {
-            return e.data["inputStream.category"];
+            return e.get("inputStream.category");
         }],
         function (streams:StreamEvent e, streams:Aggregator[] aggregatorArray) returns map<anydata> {
             streams:Sum iSumAggregator1 = <streams:Sum>aggregatorArray[0];
@@ -150,23 +150,23 @@ function streamFunc() {
 
             // got rid of type casting
             return {
-                "id": e.data["inputStream.id"],
-                "category": e.data["inputStream.category"],
-                "iSum": iSumAggregator1.process(e.data["inputStream.intVal"], e.eventType),
-                "fSum": fSumAggregator1.process(e.data["inputStream.floatVal"], e.eventType),
+                "id": e.get("inputStream.id"),
+                "category": e.get("inputStream.category"),
+                "iSum": iSumAggregator1.process(e.get("inputStream.intVal"), e.eventType),
+                "fSum": fSumAggregator1.process(e.get("inputStream.floatVal"), e.eventType),
                 "count": countAggregator1.process((), e.eventType),
-                "iAvg": iAvgAggregator1.process(e.data["inputStream.intVal"], e.eventType),
-                "fAvg": fAvgAggregator1.process(e.data["inputStream.floatVal"], e.eventType),
-                "distCount": dCountAggregator1.process(e.data["inputStream.id"], e.eventType),
-                "stdDev": stdDevAggregator1.process(e.data["inputStream.floatVal"], e.eventType),
-                "iMaxForever": iMaxForeverAggregator1.process(e.data["inputStream.intVal"], e.eventType),
-                "fMaxForever": fMaxForeverAggregator1.process(e.data["inputStream.floatVal"], e.eventType),
-                "iMinForever": iMinForeverAggregator1.process(e.data["inputStream.intVal"], e.eventType),
-                "fMinForever": fMinForeverAggregator1.process(e.data["inputStream.floatVal"], e.eventType),
-                "iMax": iMaxAggregator1.process(e.data["inputStream.intVal"], e.eventType),
-                "fMax": fMaxAggregator1.process(e.data["inputStream.floatVal"], e.eventType),
-                "iMin": iMinAggregator1.process(e.data["inputStream.intVal"], e.eventType),
-                "fMin": fMinAggregator1.process(e.data["inputStream.floatVal"], e.eventType)
+                "iAvg": iAvgAggregator1.process(e.get("inputStream.intVal"), e.eventType),
+                "fAvg": fAvgAggregator1.process(e.get("inputStream.floatVal"), e.eventType),
+                "distCount": dCountAggregator1.process(e.get("inputStream.id"), e.eventType),
+                "stdDev": stdDevAggregator1.process(e.get("inputStream.floatVal"), e.eventType),
+                "iMaxForever": iMaxForeverAggregator1.process(e.get("inputStream.intVal"), e.eventType),
+                "fMaxForever": fMaxForeverAggregator1.process(e.get("inputStream.floatVal"), e.eventType),
+                "iMinForever": iMinForeverAggregator1.process(e.get("inputStream.intVal"), e.eventType),
+                "fMinForever": fMinForeverAggregator1.process(e.get("inputStream.floatVal"), e.eventType),
+                "iMax": iMaxAggregator1.process(e.get("inputStream.intVal"), e.eventType),
+                "fMax": fMaxAggregator1.process(e.get("inputStream.floatVal"), e.eventType),
+                "iMin": iMinAggregator1.process(e.get("inputStream.intVal"), e.eventType),
+                "fMin": fMinAggregator1.process(e.get("inputStream.floatVal"), e.eventType)
             };
         }
     );

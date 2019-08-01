@@ -70,7 +70,7 @@ public class CharacterChannel implements IOChannel {
     /**
      * Defines character which will be included when malformed input is detected from the decoder.
      */
-    private static final char UN_MAPPABLE_CHARACTER = '�';
+    private static final char UN_MAPPABLE_CHARACTER = '\uFFFD';
 
     /**
      * <p>

@@ -49,4 +49,8 @@ public class BCastOperatorSymbol extends BOperatorSymbol {
         this.implicit = implicit;
         this.safe = safe;
     }
+
+    public boolean isSafeOperation() {
+        return this.safe;
+    }
 }

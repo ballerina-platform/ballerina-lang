@@ -17,10 +17,9 @@
 */
 package org.ballerinalang.stdlib.task.utils;
 
-import org.ballerinalang.bre.bvm.BVMExecutor;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.stdlib.task.objects.ServiceWithParameters;
-import org.ballerinalang.util.codegen.FunctionInfo;
+import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.values.connector.Executor;
+import org.ballerinalang.stdlib.task.objects.ServiceInformation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,23 +31,19 @@ import java.util.Objects;
  */
 public class TaskExecutor {
 
-    public static void execute(ServiceWithParameters serviceWithParameters) {
-        // Get resource functions from service
-        ResourceFunctionHolder resourceFunctionHolder = new ResourceFunctionHolder(serviceWithParameters.getService());
-        FunctionInfo onTriggerFunction = resourceFunctionHolder.getOnTriggerFunction();
+    public static void executeFunction(ServiceInformation serviceInformation) {
+        AttachedFunction onTriggerFunction = serviceInformation.getOnTriggerFunction();
+        List<Object> onTriggerFunctionArgs = getParameterList(onTriggerFunction, serviceInformation);
 
-        List<BValue> onTriggerFunctionArgs = getParameterList(onTriggerFunction, serviceWithParameters);
-        BVMExecutor.executeFunction(
-                onTriggerFunction.getPackageInfo().getProgramFile(),
-                onTriggerFunction,
-                onTriggerFunctionArgs.toArray(new BValue[0]));
+        Executor.executeFunction(serviceInformation.getStrand(), serviceInformation.getService(), onTriggerFunction,
+                onTriggerFunctionArgs.toArray());
     }
 
-    private static List<BValue> getParameterList(FunctionInfo function, ServiceWithParameters serviceWithParameters) {
-        List<BValue> functionParameters = new ArrayList<>();
-        functionParameters.add(serviceWithParameters.getService().getBValue());
-        if (function.getParamTypes().length > 1 && Objects.nonNull(serviceWithParameters.getAttachment())) {
-            functionParameters.add(serviceWithParameters.getAttachment());
+    private static List<Object> getParameterList(AttachedFunction function, ServiceInformation serviceInformation) {
+        List<Object> functionParameters = new ArrayList<>();
+        if (function.type.paramTypes.length > 0 && Objects.nonNull(serviceInformation.getAttachment())) {
+            functionParameters.add(serviceInformation.getAttachment());
+            functionParameters.add(Boolean.TRUE);
         }
         return functionParameters;
     }

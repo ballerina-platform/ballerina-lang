@@ -37,6 +37,10 @@ public class ObjectTypeCompletionTest extends CompletionTest {
         log.info("Test textDocument/completion for Object Type Scope");
         return new Object[][] {
                 {"objectTest1.json", "object"},
+                {"objectTest2.json", "object"},
+                {"objectTest3.json", "object"},
+                {"objectTest4.json", "object"},
+                {"objectTest5.json", "object"},
         };
     }
 }

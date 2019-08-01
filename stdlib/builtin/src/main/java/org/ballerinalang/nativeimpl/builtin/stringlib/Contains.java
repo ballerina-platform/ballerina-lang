@@ -16,10 +16,11 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.builtin.stringlib;
+package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.natives.annotations.Argument;
@@ -32,8 +33,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "builtin",
-        functionName = "string.contains",
+        orgName = "ballerina", packageName = "lang.string",
+        functionName = "contains",
         args = {@Argument(name = "s", type = TypeKind.STRING),
                 @Argument(name = "substring", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
@@ -48,6 +49,10 @@ public class Contains extends BlockingNativeCallableUnit {
 
         BBoolean isContains = new BBoolean(param1.contains(subString));
         context.setReturnValues(isContains);
+    }
 
+    public static boolean contains(Strand strand, String value, String subString) {
+        StringUtils.checkForNull(value, subString);
+        return value.contains(subString);
     }
 }

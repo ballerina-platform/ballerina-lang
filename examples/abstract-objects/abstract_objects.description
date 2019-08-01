@@ -1,2 +1,2 @@
 // In Ballerina, objects can be abstract. Abstract objects only describe the fields and the signatures of the methods.
-// An abstract object cannot be initialized, and does not have a default value.
+// An abstract object cannot be initialized and does not have a default value.

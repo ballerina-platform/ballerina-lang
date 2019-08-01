@@ -30,7 +30,10 @@ service serviceName on ep0 {
     }
     resource function resource1 (http:Caller outboundEp, http:Request _resource1Req) returns error? {
         http:Response _resource1Res = resource1(_resource1Req);
-        _ = outboundEp->respond(_resource1Res);
+        var result = outboundEp->respond(_resource1Res);
+        if (result is error) {
+            log:printError(result.reason(), err = result);
+        }
     }
 
     @openapi:ResourceInfo {
@@ -42,7 +45,10 @@ service serviceName on ep0 {
     }
     resource function resource2 (http:Caller outboundEp, http:Request _resource2Req) returns error? {
         http:Response _resource2Res = resource2(_resource2Req);
-        _ = outboundEp->respond(_resource2Res);
+        var result = outboundEp->respond(_resource2Res);
+        if (result is error) {
+            log:printError(result.reason(), err = result);
+        }
     }
 
 }

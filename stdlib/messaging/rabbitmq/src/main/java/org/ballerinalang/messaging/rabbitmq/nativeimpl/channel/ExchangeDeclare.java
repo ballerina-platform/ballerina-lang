@@ -19,19 +19,17 @@
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel;
 
 import com.rabbitmq.client.Channel;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.messaging.rabbitmq.util.ChannelUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Actively declare a non-autodelete exchange with no extra arguments.
@@ -47,21 +45,25 @@ import org.slf4j.LoggerFactory;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class ExchangeDeclare extends BlockingNativeCallableUnit {
+public class ExchangeDeclare {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExchangeDeclare.class);
-
-    @Override
-    public void execute(Context context) {
-        BMap<String, BValue> channelObject = (BMap<String, BValue>) context.getRefArgument(0);
-        BMap<String, BValue> exchangeConfig = (BMap<String, BValue>) context.getRefArgument(1);
-        Channel channel = RabbitMQUtils.getNativeObject(channelObject, RabbitMQConstants.CHANNEL_NATIVE_OBJECT,
-                Channel.class, context);
+    public static Object exchangeDeclare(Strand strand, ObjectValue channelObjectValue,
+                                         MapValue<String, Object> exchangeConfig) {
+        boolean isInTransaction = strand.isInTransaction();
+        Channel channel = (Channel) channelObjectValue.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
+        RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) channelObjectValue.
+                getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
         try {
             ChannelUtils.exchangeDeclare(channel, exchangeConfig);
-        } catch (BallerinaException exception) {
-            LOGGER.error("I/O exception while declaring the exchange", exception);
-            RabbitMQUtils.returnError("RabbitMQ Client Error:", context, exception);
+            if (isInTransaction) {
+                transactionContext.handleTransactionBlock(strand);
+            }
+        } catch (RabbitMQConnectorException exception) {
+            return RabbitMQUtils.returnErrorValue(RabbitMQConstants.RABBITMQ_CLIENT_ERROR + exception.getDetail());
         }
+        return null;
+    }
+
+    private ExchangeDeclare() {
     }
 }

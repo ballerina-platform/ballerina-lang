@@ -16,16 +16,11 @@
 package org.ballerinalang.net.grpc.nativeimpl.headers;
 
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
@@ -43,21 +38,12 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
         functionName = "get",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Headers",
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        args = {@Argument(name = "headerName", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Get extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-        String headerName = context.getStringArgument(0);
-        BMap<String, BValue> headerValues = (BMap<String, BValue>) context.getRefArgument(0);
+public class Get {
+
+    public static Object get(Strand strand, ObjectValue headerValues, String headerName) {
         HttpHeaders headers = headerValues != null ? (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS) : null;
-        String headerValue = headers != null ? headers.get(headerName) : null;
-        if (headerValue != null) {
-            context.setReturnValues(new BString(headerValue));
-        } else {
-            context.setReturnValues();
-        }
+        return headers != null ? headers.get(headerName) : null;
     }
 }

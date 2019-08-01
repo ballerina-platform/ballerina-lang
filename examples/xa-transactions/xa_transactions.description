@@ -1,6 +1,6 @@
 // Ballerina XA transactions are used when the transaction is happening over
-// two or more databases. This sample uses two H2 DBs (these
-// are created when running the sample). Before running the sample, 
+// two or more databases. This example uses two H2 DBs (these
+// are created when executing the example). Before running the example, 
 // change the DB connection properties as required.
-// Ballerina transactions are at experimental stage,
-// please use  --experimental flag to enable them.
+// Ballerina transactions are at the experimental stage.
+// Therefore, use  the --experimental flag to enable them.

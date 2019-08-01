@@ -18,10 +18,8 @@
 
 package org.ballerinalang.net.uri.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -43,21 +41,17 @@ import java.net.URLEncoder;
                       @ReturnType(type = TypeKind.RECORD, structType = "Error")},
         isPublic = true
 )
-public class Encode extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        String url = context.getStringArgument(0);
-        String charset = context.getStringArgument(1);
+public class Encode {
+    public static Object encode(Strand strand, String url, String charset) {
         try {
-            context.setReturnValues(new BString(encode(url, charset)));
+            return encode(url, charset);
         } catch (Throwable e) {
-            context.setReturnValues(HttpUtil.getError(context, "Error occurred while encoding the url. " + e
-                    .getMessage()));
+            return HttpUtil.createHttpError("Error occurred while encoding the url. " + e
+                    .getMessage());
         }
     }
 
-    private String encode(String url, String charset) throws UnsupportedEncodingException {
+    private static String encode(String url, String charset) throws UnsupportedEncodingException {
         String encoded;
 
         encoded = URLEncoder.encode(url, charset);

@@ -17,6 +17,7 @@
 
 package org.ballerinalang.stdlib.io.channels.base;
 
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.stdlib.io.csv.Format;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
@@ -304,7 +305,7 @@ public class DelimitedRecordChannel implements IOChannel {
             String field = splitRecords[0];
             record = numberOfFields == recursiveIndex ? splitRecords[1] : empty;
             if (field.trim().isEmpty()) {
-                continue;
+                field = null;
             }
             records.add(field);
         } while (splitRecords.length == recursiveIndex);
@@ -385,7 +386,38 @@ public class DelimitedRecordChannel implements IOChannel {
      * @param fields the list of fields in the record.
      * @return the record constructed through the fields.
      */
+    //TODO Remove after migration : implemented using bvm values/types
     private String composeRecord(BValueArray fields) {
+        StringBuilder recordConsolidator = new StringBuilder();
+        String finalizedRecord;
+        long numberOfFields = fields.size();
+        final int fieldStartIndex = 0;
+        final long secondLastFieldIndex = numberOfFields - 1;
+        if (log.isDebugEnabled()) {
+            log.debug("Number of fields to be composed " + numberOfFields);
+        }
+        for (int fieldCount = fieldStartIndex; fieldCount < numberOfFields; fieldCount++) {
+            String currentFieldString = fields.getString(fieldCount);
+            if (currentFieldString.contains(getFieldSeparatorForWriting())) {
+                currentFieldString = encloseField(currentFieldString);
+            }
+            recordConsolidator.append(currentFieldString);
+            if (fieldCount < secondLastFieldIndex) {
+                //The idea here is to omit appending the field separator after the final field
+                recordConsolidator.append(getFieldSeparatorForWriting());
+            }
+        }
+        finalizedRecord = recordConsolidator.toString();
+        return finalizedRecord;
+    }
+
+    /**
+     * Will place the relevant fields together to/form a record.
+     *
+     * @param fields the list of fields in the record.
+     * @return the record constructed through the fields.
+     */
+    private String composeRecord(ArrayValue fields) {
         StringBuilder recordConsolidator = new StringBuilder();
         String finalizedRecord;
         long numberOfFields = fields.size();
@@ -415,7 +447,28 @@ public class DelimitedRecordChannel implements IOChannel {
      * @param fields the list of fields composing the record.
      * @throws IOException during I/O error.
      */
+    //TODO Remove after migration : implemented using bvm values/types
     public void write(BValueArray fields) throws IOException {
+        final int writeOffset = 0;
+        String record = composeRecord(fields);
+        record = record + getRecordSeparatorForWriting();
+        if (log.isTraceEnabled()) {
+            log.trace("The record " + numberOfRecordsWrittenToChannel + " composed for writing, " + record);
+        }
+        channel.write(record, writeOffset);
+        if (log.isDebugEnabled()) {
+            log.debug("Record " + numberOfRecordsReadThroughChannel + " written to the channel " + channel.hashCode());
+        }
+        numberOfRecordsWrittenToChannel++;
+    }
+
+    /**
+     * Writes a given record to a file.
+     *
+     * @param fields the list of fields composing the record.
+     * @throws IOException during I/O error.
+     */
+    public void write(ArrayValue fields) throws IOException {
         final int writeOffset = 0;
         String record = composeRecord(fields);
         record = record + getRecordSeparatorForWriting();

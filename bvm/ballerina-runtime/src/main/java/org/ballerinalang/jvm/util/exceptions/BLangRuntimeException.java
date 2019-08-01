@@ -27,7 +27,7 @@ public class BLangRuntimeException extends BallerinaException {
     public BLangRuntimeException(String message) {
         super(message);
     }
-    
+
     public BLangRuntimeException(String message, String detail) {
         super(message, detail);
     }

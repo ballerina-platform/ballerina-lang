@@ -19,27 +19,29 @@ service chatAppUpgrader on new http:Listener(9090) {
     resource function upgrader(http:Caller caller, http:Request req,
                                 string name) {
         http:WebSocketCaller wsEp;
-        // Retrieves query parameters from the `http:Request`.
-        map<string> queryParams = req.getQueryParams();
-        // Cancel handshake by sending a 400 status code if the age parameter is missing in the request.
+        // Retrieve query parameters from the `http:Request`.
+        map<string[]> queryParams = req.getQueryParams();
+        // Cancel the handshake by sending a 400 status code if the age parameter is missing in the request.
         if (!queryParams.hasKey("age")) {
             var err = caller->cancelWebSocketUpgrade(400, "Age is required");
-            if (err is error) {
-                log:printError("Error cancelling handshake", err = err);
+            if (err is http:WebSocketError) {
+                log:printError("Error cancelling handshake",<error> err);
             }
             return;
         }
         map<string> headers = {};
         wsEp = caller->acceptWebSocketUpgrade(headers);
-        // The attributes map of the caller is useful for storing connection specific data.
-        // In this case `NAME`and `AGE` are unique to each connection.
-        wsEp.attributes[NAME] = name;
-        wsEp.attributes[AGE] = queryParams["age"];
+        // The attributes of the caller is useful for storing connection-specific data.
+        // In this case, the `NAME`and `AGE` are unique to each connection.
+        wsEp.setAttribute(NAME, name);
+        string? ageValue = req.getQueryParamValue("age");
+        string age = ageValue is string ? ageValue : "";
+        wsEp.setAttribute(AGE, age);
         string msg =
             "Hi " + name + "! You have successfully connected to the chat";
         var err = wsEp->pushText(msg);
-        if (err is error) {
-            log:printError("Error sending message", err = err);
+        if (err is http:WebSocketError) {
+            log:printError("Error sending message", <error> err);
         }
     }
 }
@@ -56,7 +58,7 @@ service chatApp = @http:WebSocketServiceConfig {} service {
         msg = getAttributeStr(caller, NAME) + " with age "
                     + getAttributeStr(caller, AGE) + " connected to chat";
         broadcast(msg);
-        connectionsMap[caller.id] = caller;
+        connectionsMap[caller.getConnectionId()] = caller;
     }
 
     // Broadcast the messages sent by a user.
@@ -69,7 +71,7 @@ service chatApp = @http:WebSocketServiceConfig {} service {
     // Broadcast that a user has left the chat once a user leaves the chat.
     resource function onClose(http:WebSocketCaller caller, int statusCode,
                                 string reason) {
-        _ = connectionsMap.remove(caller.id);
+        _ = connectionsMap.remove(caller.getConnectionId());
         string msg = getAttributeStr(caller, NAME) + " left the chat";
         broadcast(msg);
     }
@@ -77,18 +79,16 @@ service chatApp = @http:WebSocketServiceConfig {} service {
 
 // Function to perform the broadcasting of text messages.
 function broadcast(string text) {
-    http:WebSocketCaller ep;
-    foreach var (id, con) in connectionsMap {
-        ep = con;
-        var err = ep->pushText(text);
-        if (err is error) {
-            log:printError("Error sending message", err = err);
+    foreach var con in connectionsMap {
+        var err = con->pushText(text);
+        if (err is http:WebSocketError) {
+            log:printError("Error sending message", <error> err);
         }
     }
 }
 
 function getAttributeStr(http:WebSocketCaller ep, string key)
              returns (string) {
-    var name = <string>ep.attributes[key];
-    return name;
+    var name = ep.getAttribute(key);
+    return name.toString();
 }

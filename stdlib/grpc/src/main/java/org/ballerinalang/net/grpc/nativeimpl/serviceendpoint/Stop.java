@@ -15,13 +15,13 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
+import org.ballerinalang.net.http.HttpConstants;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
@@ -42,11 +42,10 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
         isPublic = true
 )
 public class Stop extends AbstractGrpcNativeFunction {
-    
-    @Override
-    public void execute(Context context) {
-        Struct serverEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+
+    public static Object stop(Strand strand, ObjectValue serverEndpoint) {
         getServerConnector(serverEndpoint).stop();
-        context.setReturnValues();
+        serverEndpoint.addNativeData(HttpConstants.CONNECTOR_STARTED, false);
+        return null;
     }
 }

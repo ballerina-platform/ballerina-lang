@@ -18,23 +18,20 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.DeprecatedNode;
-import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.model.tree.expressions.ConstantNode;
+import org.ballerinalang.model.tree.TypeDefinition;
+import org.ballerinalang.model.tree.statements.ConstantNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
@@ -45,29 +42,17 @@ import java.util.Set;
 /**
  * @since 0.985.0
  */
-public class BLangConstant extends BLangExpression implements ConstantNode, AnnotatableNode, DocumentableNode,
-        TopLevelNode {
+public class BLangConstant extends BLangVariable implements ConstantNode, TypeDefinition {
 
     public BLangIdentifier name;
-    public Set<Flag> flagSet;
-    public List<BLangAnnotationAttachment> annAttachments;
-    public BLangMarkdownDocumentation markdownDocumentationAttachment;
-    public List<BLangDeprecatedNode> deprecatedAttachments;
     public BConstantSymbol symbol;
 
-    // Type node defined in the constant definition.
-    public BLangType typeNode;
     // Type definition associated with this constant.
     public BLangTypeDefinition associatedTypeDefinition;
-
-    public int typeTag;
-    public Object value;
-    public String originalValue;
 
     public BLangConstant() {
         this.annAttachments = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
-        this.deprecatedAttachments = new ArrayList<>();
     }
 
     public void setTypeNode(TypeNode typeNode) {
@@ -113,36 +98,6 @@ public class BLangConstant extends BLangExpression implements ConstantNode, Anno
     }
 
     @Override
-    public List<BLangDeprecatedNode> getDeprecatedAttachments() {
-        return deprecatedAttachments;
-    }
-
-    @Override
-    public void addDeprecatedAttachment(DeprecatedNode deprecatedAttachment) {
-        this.deprecatedAttachments.add((BLangDeprecatedNode) deprecatedAttachment);
-    }
-
-    @Override
-    public Object getValue() {
-        return value;
-    }
-
-    @Override
-    public void setValue(Object value) {
-        this.value = value;
-    }
-
-    @Override
-    public String getOriginalValue() {
-        return originalValue;
-    }
-
-    @Override
-    public void setOriginalValue(String originalValue) {
-        this.originalValue = originalValue;
-    }
-
-    @Override
     public NodeKind getKind() {
         return NodeKind.CONSTANT;
     }
@@ -155,7 +110,7 @@ public class BLangConstant extends BLangExpression implements ConstantNode, Anno
     @Override
     public String toString() {
         return (typeNode == null ? String.valueOf(type) : String.valueOf(typeNode)) + " " + symbol.name.value +
-                " = " + String.valueOf(value);
+                " = " + String.valueOf(expr);
     }
 
     @Override

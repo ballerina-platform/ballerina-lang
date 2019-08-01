@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.observe.metrics.extension.defaultimpl;
 
-import org.ballerinalang.util.metrics.Counter;
-import org.ballerinalang.util.metrics.MetricRegistry;
+import org.ballerinalang.jvm.observability.metrics.Counter;
+import org.ballerinalang.jvm.observability.metrics.MetricRegistry;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

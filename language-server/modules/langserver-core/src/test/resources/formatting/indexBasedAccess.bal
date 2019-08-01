@@ -20,7 +20,8 @@ testMap[ "forth" ]=x - y;
 }
 
 function testArrayAccessAsIndexOfMapt() returns (string) {
-    map<any> namesMap = {fname:"Supun",lname:"Setunga"};
+    map<any> namesMap = {fname:"Supun",
+        lname:"Setunga"};
     string [] keys = ["fname","lname"];
     string key = "";
     var a=namesMap    [    keys    [ 0  ] ] ;

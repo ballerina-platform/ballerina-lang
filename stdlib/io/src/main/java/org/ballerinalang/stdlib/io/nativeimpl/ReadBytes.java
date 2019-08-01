@@ -18,18 +18,14 @@
 
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.NativeCallableUnit;
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BTupleType;
-import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BTupleType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -61,70 +57,45 @@ import java.util.Arrays;
                 @ReturnType(type = TypeKind.ERROR)},
         isPublic = true
 )
-public class ReadBytes implements NativeCallableUnit {
+public class ReadBytes {
 
-    private static final BTupleType readTupleType =
-            new BTupleType(Arrays.asList(new BArrayType(BTypes.typeByte), BTypes.typeInt));
+    private static final BTupleType readTupleType = new BTupleType(
+            Arrays.asList(new BArrayType(BTypes.typeByte), BTypes.typeInt));
+
+    public static Object read(Strand strand, ObjectValue channel, long nBytes) {
+        int arraySize = nBytes <= 0 ? IOConstants.CHANNEL_BUFFER_SIZE : (int) nBytes;
+        Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+        byte[] content = new byte[arraySize];
+        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
+        ReadBytesEvent event = new ReadBytesEvent(byteChannel, content, eventContext);
+        Register register = EventRegister.getFactory().register(event, ReadBytes::readChannelResponse);
+        eventContext.setRegister(register);
+        register.submit();
+        return null;
+    }
 
     /**
-     * Specifies the index which holds the number of bytes in ballerina.lo#readBytes.
-     */
-    private static final int NUMBER_OF_BYTES_INDEX = 0;
-    /**
-     * Specifies the index which contains the byte channel in ballerina.lo#readBytes.
-     */
-    private static final int BYTE_CHANNEL_INDEX = 0;
-
-    /*
      * Function which will be notified on the response obtained after the async operation.
      *
      * @param result context of the callback.
      * @return Once the callback is processed we further return back the result.
      */
-    private static EventResult readResponse(EventResult<Integer, EventContext> result) {
-        BValueArray contentTuple = new BValueArray(readTupleType);
+    private static EventResult readChannelResponse(EventResult<Integer, EventContext> result) {
+        ArrayValue contentTuple = new ArrayValue(readTupleType);
         EventContext eventContext = result.getContext();
-        Context context = eventContext.getContext();
         Throwable error = eventContext.getError();
-        CallableUnitCallback callback = eventContext.getCallback();
+        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
         byte[] content = (byte[]) eventContext.getProperties().get(ReadBytesEvent.CONTENT_PROPERTY);
         if (null != error) {
-            BError errorStruct = IOUtils.createError(context, IOConstants.IO_ERROR_CODE, error.getMessage());
-            context.setReturnValues(errorStruct);
+            callback.setReturnValues(IOUtils.createError(error.getMessage()));
         } else {
             Integer numberOfBytes = result.getResponse();
-            contentTuple.add(0, new BValueArray(content));
-            contentTuple.add(1, new BInteger(numberOfBytes));
-            context.setReturnValues(contentTuple);
+            contentTuple.add(0, new ArrayValue(content));
+            contentTuple.add(1, numberOfBytes);
+            callback.setReturnValues(contentTuple);
         }
         IOUtils.validateChannelState(eventContext);
         callback.notifySuccess();
         return result;
-    }
-
-    /**
-     * <p>
-     * Reads bytes from a given channel.
-     * </p>
-     * <p>
-     * {@inheritDoc}
-     */
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-        BMap<String, BValue> channel = (BMap<String, BValue>) context.getRefArgument(BYTE_CHANNEL_INDEX);
-        int nBytes = (int) context.getIntArgument(NUMBER_OF_BYTES_INDEX);
-        int arraySize = nBytes <= 0 ? IOConstants.CHANNEL_BUFFER_SIZE : nBytes;
-        Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-        byte[] content = new byte[arraySize];
-        EventContext eventContext = new EventContext(context, callback);
-        ReadBytesEvent event = new ReadBytesEvent(byteChannel, content, eventContext);
-        Register register = EventRegister.getFactory().register(event, ReadBytes::readResponse);
-        eventContext.setRegister(register);
-        register.submit();
-    }
-
-    @Override
-    public boolean isBlocking() {
-        return false;
     }
 }

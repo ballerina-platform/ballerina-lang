@@ -1,26 +1,41 @@
 import ballerina/io;
+import ballerina/lang.'float as floats;
+import ballerina/lang.'int as ints;
 
-// The types `int`, `float`, `decimal`, `string`, `boolean`, `byte` and `nil` are called simple basic types
+// The types `int`, `float`, `decimal`, `string`, `boolean`, `byte`, and `nil` are called simple basic types
 // because they are basic types with only simple values. Simple values are always immutable.
 public function main() {
     // The `int` type represents the set of 64-bit signed integers.
     int i = 10;
     io:println(i);
 
+    // The `ballerina/lang.int` module contains common functions that can be used
+    // with `int` values.
+    int|error i2 = ints:fromString("100");
+    if (i2 is int) {
+        io:println(i2);
+    }
+
     // The `float` type represents the set of double precision IEEE 754 floating point numbers.
     float f = 20.0;
     io:println(f);
 
-    // `isNaN()`, `isInfinite()` and `isFinite()` builtin functions are supported for the `float` type.
-    // `isNaN()` will return true if the `float` value is neither finite nor infinite.
+    // The `ballerina/lang.float` module contains common functions that can be used with `float` values.
+    float f1 = floats:fromBitsInt(i);
+    float f2 = 22.0;
+    float max = floats:max(f1, f2);
+    io:println("Max float: ", max);
+
+    // The `.isNaN()`, `.isInfinite()`, and `.isFinite()` langlib functions are supported by the `float` type.
+    // The `.isNaN()` function will return true if the `float` value is neither finite nor infinite.
     float nanVal = 0.0/0.0;
     io:println(nanVal.isNaN());
 
-    // `isInfinite()` will return true if the `float` value is neither NaN nor finite.
+    // The `.isInfinite()` function will return true if the `float` value is neither NaN nor finite.
     float infiniteVal = 12.0/0.0;
     io:println(infiniteVal.isInfinite());
 
-    // `isFinite()` will return true if the `float` value is neither NaN nor infinite.
+    // The `.isFinite()` function will return true if the `float` value is neither NaN nor infinite.
     float finiteVal = 6.0/3.0;
     io:println(finiteVal.isFinite());
 
@@ -36,12 +51,12 @@ public function main() {
     string s = "Ballerina";
     io:println(s);
 
-    // The `boolean` type has only two values, `true` and `false`.
+    // The `boolean` type has only two values: `true` and `false`.
     boolean b = true;
     io:println(b);
 
     // The nil type has a single value and is used to represent the absence of any other value.
-    // Both, the nil type and the nil value are written as `()`.
+    // Both the nil type and the nil value are written as `()`.
     () n = ();
     io:println(n);
     // Another representation for the nil value is the `null` literal.

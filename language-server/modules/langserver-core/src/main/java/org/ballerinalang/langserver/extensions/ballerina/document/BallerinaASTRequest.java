@@ -26,6 +26,13 @@ public class BallerinaASTRequest {
 
     private TextDocumentIdentifier documentIdentifier;
 
+    public BallerinaASTRequest() {
+    }
+
+    public BallerinaASTRequest(TextDocumentIdentifier documentIdentifier) {
+        this.documentIdentifier = documentIdentifier;
+    }
+
     public TextDocumentIdentifier getDocumentIdentifier() {
         return documentIdentifier;
     }

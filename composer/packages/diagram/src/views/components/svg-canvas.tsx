@@ -1,39 +1,29 @@
 import * as React from "react";
 import { DiagramContext } from "../../diagram/index";
-import { CompilationUnitViewState } from "../../view-model/index";
 
 const overlayGroupRef = React.createRef<SVGGElement>();
 
 export const SvgCanvas: React.StatelessComponent<{
-        model: CompilationUnitViewState,
-        zoom: number
+        panZoomRootRef: React.Ref<SVGAElement>,
     }>
-    = ({ model, children, zoom }) => {
-    const bBox = model.bBox;
+    = ({ children, panZoomRootRef }) => {
 
     return (
         <DiagramContext.Consumer>
             {(diagContext) => {
-                const svgSize = {
-                    h: diagContext.diagramHeight,
-                    w: diagContext.diagramWidth
-                };
-                const disabledOpacity = (diagContext.hasSyntaxErrors) ? 0.3 : 1;
-                const viewBox =  `0 0 ${bBox.w} ${bBox.h}`;
+                const viewBox =  `-20 -20 1000 1000`;
                 return (
                     <DiagramContext.Provider value={{ ...diagContext, overlayGroupRef }} >
-                        <div style={{ width: svgSize.w * zoom, height: svgSize.h * zoom, opacity: disabledOpacity }}>
-                            <svg
-                                className="diagram-canvas"
-                                preserveAspectRatio="xMinYMin"
-                                width={svgSize.w * zoom}
-                                height={svgSize.h * zoom}
-                                viewBox={viewBox}
-                            >
+                        <svg
+                            className="diagram-canvas"
+                            viewBox={viewBox}
+                            preserveAspectRatio = {"xMinYMin"}
+                        >
+                            <g ref={panZoomRootRef}>
                                 {children}
-                                <g ref={overlayGroupRef} className="diagram-overlay" />
-                            </svg >
-                        </div>
+                            </g>
+                            <g ref={overlayGroupRef} className="diagram-overlay" />
+                        </svg >
                     </DiagramContext.Provider>
                 );
             }}

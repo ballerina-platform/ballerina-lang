@@ -1,30 +1,49 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+ 
 apply from: "$rootDir/gradle/javaProject.gradle"
 
+configurations.all {
+    resolutionStrategy {
+        preferProjectModules()
+    }
+}
+
 dependencies {
-    implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.6.0'
-    implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.3.0'
-    implementation 'com.google.code.findbugs:jsr305:3.0.2'
+    implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j'
+    implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc'
+    implementation 'com.google.code.findbugs:jsr305'
+    implementation 'commons-io:commons-io'
+    implementation 'org.apache.commons:commons-lang3'
+    implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-builtin')
+    implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-http')
-    implementation 'commons-io:commons-io:2.6'
-    implementation 'org.apache.commons:commons-lang3:3.5'
-    implementation 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
     implementation project(':ballerina-http')
     implementation project(':ballerina-openapi')
-    implementation project(':ballerina-h2')
-    implementation project(':ballerina-mysql')
-    implementation project(':ballerina-sql')
+    implementation project(':ballerina-jdbc')
     implementation project(':ballerina-transactions')
-    implementation project(':ballerina-websub')
-    implementation project(':ballerina-jms')
-    implementation project(':ballerina-grpc')
+    // implementation project(':ballerina-websub')
+    // implementation project(':ballerina-grpc')
     implementation project(':ballerina-filepath')
-    implementation project(':ballerina-activemq-artemis')
     implementation project(':ballerina-rabbitmq')
     implementation project(':ballerina-nats')
-    testCompile 'org.testng:testng:6.13.1'
+    testCompile 'org.testng:testng'
 }
 
 description = 'Ballerina - Language server - Compiler'

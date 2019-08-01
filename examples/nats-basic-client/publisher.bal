@@ -1,31 +1,37 @@
-import ballerina/nats;
 import ballerina/io;
 import ballerina/log;
+import ballerina/nats;
 
-// Represent escape character
+// Represents the escape character.
 const string ESCAPE = "!q";
 
-// Produce a message to a subject in NATS sever.
+// Produces a message to a subject in the NATS sever.
 public function main() {
     string message = "";
     string subject = io:readln("Subject : ");
     // Initializes a producer.
-    nats:Producer producer = new({ host: "localhost", port: 4222, clientId: "p0" });
+    nats:Connection connection = new("nats://localhost:4222");
+    nats:Producer producer = new(connection);
     while (message != ESCAPE) {
         message = io:readln("Message : ");
         if (message != ESCAPE) {
-            // Produce a message to specified subject.
-            var result = producer->send(subject, message);
-            if (result is error) {
+            // Produces a message to the specified subject.
+            nats:Error? result = producer->publish(subject, <@untainted>message);
+            if (result is nats:Error) {
                 io:println("Error occurred while producing the message.");
             } else {
-                io:println("GUID "+result+" received for the produced message.");
+                io:println("Message published successfully.");
             }
         }
     }
-    // Close the publisher connection.
-    var result = producer.close();
-    if (result is error) {
-        log:printError("Error occurred while closing the connection", err = result);
+    // Closes the publisher connection.
+    nats:Error? result = producer.close();
+    if (result is nats:Error) {
+        log:printError("Error occurred while closing the logical connection", result);
+    }
+
+    result = connection.close();
+    if (result is nats:Error) {
+        log:printError("Error occurred while closing the connection", result);
     }
 }

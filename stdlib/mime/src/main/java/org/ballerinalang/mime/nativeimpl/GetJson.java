@@ -18,23 +18,23 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.jvm.JSONParser;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.util.JsonParser;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
-import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_BODY_FAILED;
 
 /**
  * Get the entity body in JSON form.
@@ -50,41 +50,41 @@ import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 )
 public class GetJson extends AbstractGetPayloadHandler {
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public void execute(Context context, CallableUnitCallback callback) {
+    public static Object getJson(Strand strand, ObjectValue entityObj) {
+        NonBlockingCallback callback = null;
+        RefValue result = null;
         try {
-            BRefType<?> result;
-            BMap<String, BValue> entity = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-            BValue dataSource = EntityBodyHandler.getMessageDataSource(entity);
+            Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (dataSource != null) {
                 // If the value is already a JSON, then return as it is.
                 if (isJSON(dataSource)) {
-                    result = (BRefType<?>) dataSource;
+                    result = (RefValue) dataSource;
                 } else {
                     // Else, build the JSON from the string representation of the payload.
-                    BString payload = MimeUtil.getMessageAsString(dataSource);
-                    result = JsonParser.parse(payload.stringValue());
+                    String payload = MimeUtil.getMessageAsString(dataSource);
+                    result = (RefValue) JSONParser.parse(payload);
                 }
-                setReturnValuesAndNotify(context, callback, result);
-                return;
+                return result;
             }
 
-            if (isStreamingRequired(entity)) {
-                result = EntityBodyHandler.constructJsonDataSource(entity);
-                updateDataSourceAndNotify(context, callback, entity, result);
+            if (isStreamingRequired(entityObj)) {
+                result = (RefValue) EntityBodyHandler.constructJsonDataSource(entityObj);
+                updateDataSource(entityObj, result);
             } else {
-                constructNonBlockingDataSource(context, callback, entity, SourceType.JSON);
+                callback = new NonBlockingCallback(strand);
+                constructNonBlockingDataSource(callback, entityObj, SourceType.JSON);
             }
         } catch (Exception ex) {
-            createErrorAndNotify(context, callback,
+            return createErrorAndNotify(PARSING_ENTITY_BODY_FAILED, callback,
                                  "Error occurred while extracting json data from entity: " + ex.getMessage());
         }
+        return result;
     }
 
-    private boolean isJSON(BValue value) {
+    private static boolean isJSON(Object value) {
         // If the value is string, it could represent any type of payload.
         // Therefore it needs to be parsed as JSON.
-        return value.getType().getTag() != TypeTags.STRING && MimeUtil.isJSONCompatible(value.getType());
+        BType objectType = TypeChecker.getType(value);
+        return objectType.getTag() != TypeTags.STRING && MimeUtil.isJSONCompatible(objectType);
     }
 }

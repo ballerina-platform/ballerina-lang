@@ -18,13 +18,10 @@
 
 package org.ballerinalang.net.http.serviceendpoint;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConnectionManager;
@@ -51,17 +48,11 @@ import static org.ballerinalang.net.http.HttpUtil.getListenerConfig;
         isPublic = true
 )
 public class InitEndpoint extends AbstractHttpNativeFunction {
-
-    private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-
-    @Override
-    public void execute(Context context) {
+    public static Object initEndpoint(Strand strand, ObjectValue serviceEndpoint) {
         try {
-            Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-
             // Creating server connector
-            Struct serviceEndpointConfig = serviceEndpoint.getStructField(HttpConstants.SERVICE_ENDPOINT_CONFIG);
-            long port = serviceEndpoint.getIntField(ENDPOINT_CONFIG_PORT);
+            MapValue serviceEndpointConfig = serviceEndpoint.getMapValue(HttpConstants.SERVICE_ENDPOINT_CONFIG);
+            long port = serviceEndpoint.getIntValue(ENDPOINT_CONFIG_PORT);
             ListenerConfiguration listenerConfiguration = getListenerConfig(port, serviceEndpointConfig);
             ServerConnector httpServerConnector =
                     HttpConnectionManager.getInstance().createHttpServerConnector(listenerConfiguration);
@@ -69,11 +60,9 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
 
             //Adding service registries to native data
             resetRegistry(serviceEndpoint);
-
-            context.setReturnValues((BValue) null);
+            return null;
         } catch (Exception e) {
-            BError errorStruct = HttpUtil.getError(context, e);
-            context.setReturnValues(errorStruct);
+            return HttpUtil.createHttpError(e.getMessage());
         }
     }
 }

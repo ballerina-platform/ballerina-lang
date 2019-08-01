@@ -26,14 +26,14 @@ import { getBallerinaHome, getBBEPath } from "../test-util";
 import { Uri } from "vscode";
 
 suite("Language Server Tests", function () {
-    this.timeout(10000);
+    this.timeout(50000);
     let langClient: ExtendedLangClient;
 
     suiteSetup((done: MochaDone): any => {
         langClient = new ExtendedLangClient(
             'ballerina-vscode',
             'Ballerina LS Client',
-            getServerOptions(getBallerinaHome(), true),
+            getServerOptions(getBallerinaHome(), true, true),
             { documentSelector: [{ scheme: 'file', language: 'ballerina' }] },
             false
         );

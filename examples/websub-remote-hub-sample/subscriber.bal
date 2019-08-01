@@ -10,19 +10,18 @@ listener websub:Listener websubEP = new(8181);
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
-    topic: "http://websubpubtopic.com",
-    hub: "http://localhost:9191/websub/hub",
+    target:["http://localhost:9191/websub/hub","http://websubpubtopic.com"],
     leaseSeconds: 36000,
     secret: "Kslk30SNF2AChs2"
 }
 service websubSubscriber on websubEP {
 
-    // Define the resource that accepts the intent verification requests.
+    // Defines the resource that accepts the intent verification requests.
     // If the resource is not specified, intent verification happens automatically. It verifies if the topic
     // specified in the intent verification request matches the topic specified as the annotation.
     resource function onIntentVerification(websub:Caller caller,
                                    websub:IntentVerificationRequest request) {
-        // Build the response for the subscription intent verification request that was received.
+        // Builds the response for the subscription intent verification request that was received.
         http:Response response = request.
             buildSubscriptionVerificationResponse("http://websubpubtopic.com");
 
@@ -31,7 +30,7 @@ service websubSubscriber on websubEP {
         } else {
             log:printWarn("Intent verification denied for subscription request");
         }
-        var result = caller->respond(untaint response);
+        var result = caller->respond(<@untainted> response);
 
         if (result is error) {
             log:printError("Error responding to intent verification request",
@@ -39,7 +38,7 @@ service websubSubscriber on websubEP {
         }
     }
 
-    // Define the resource that accepts the content delivery requests.
+    // Defines the resource that accepts the content delivery requests.
     resource function onNotification(websub:Notification notification) {
         var payload = notification.getTextPayload();
         if (payload is string) {

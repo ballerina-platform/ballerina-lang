@@ -62,10 +62,6 @@ public enum Flag {
      */
     LISTENER,
     /**
-     * Indicates Flagged node is deprecated.
-     */
-    DEPRECATED,
-    /**
      * Indicates Flagged node is a read only node.
      */
     READONLY,
@@ -117,4 +113,12 @@ public enum Flag {
      * Indicates flagged node is a constant node.
      */
     CONSTANT,
+    /**
+     * Indicates flagged node is a paramType.
+     */
+    TYPE_PARAM,
+    /**
+     * Indicates flagged node is a lang library function.
+     */
+    LANG_LIB
 }

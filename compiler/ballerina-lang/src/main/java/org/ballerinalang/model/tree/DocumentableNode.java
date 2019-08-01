@@ -20,8 +20,6 @@ package org.ballerinalang.model.tree;
 
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 
-import java.util.List;
-
 
 /**
  * Interface to extend to make a node Documentable.
@@ -33,9 +31,4 @@ public interface DocumentableNode  extends Node {
     BLangMarkdownDocumentation getMarkdownDocumentationAttachment();
 
     void setMarkdownDocumentationAttachment(MarkdownDocumentationNode documentationNode);
-
-    List<? extends DeprecatedNode> getDeprecatedAttachments();
-
-    void addDeprecatedAttachment(DeprecatedNode deprecatedAttachment);
-
 }

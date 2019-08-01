@@ -1,14 +1,30 @@
 import ballerina/io;
 
 public function main() {
-    // Create an `int` array of length 0.
+    // Creates an `int` array of length 0.
     int[] a = [];
     io:println(a.length());
 
-    // Create an array specifying an array literal.
+    // Creates an array specifying an array literal.
     int[] b = [1, 2, 3, 4, 5, 6, 7, 8];
     io:println(b[0]);
     io:println(b.length());
+
+    // Arrays support several inbuilt functions such as `.reverse()`, `.pop()`, `.push()`, and `.removeAll()`.
+    int[] bReveresed = b.reverse();
+    io:println("Reversed: ", bReveresed);
+
+    io:println("Before pop: ", b);
+    int poppedValue = b.pop();
+    io:println("Popped value: ", poppedValue);
+    io:println("After pop: ", b);
+
+    // Arrays are an iterable type and arrays support functional iteration operations such as `.map()`, `.filter()`, and
+    // `.reduce()`.
+    int[] doubled = b.map(function (int value) returns int {
+            return value * 2;
+        });
+    io:println("Doubled: ", doubled);
 
     // Unless the length is explicitly specified or is expected to be inferred, arrays are unbounded in length.
     // They can grow up to any length based on the given index.
@@ -17,21 +33,21 @@ public function main() {
     io:println(b[999]);
     io:println(b.length());
 
-    // Initialize a two dimensional `int` array.
+    // Initializes a two dimensional `int` array.
     int[][] iarray = [[1, 2, 3], [10, 20, 30], [5, 6, 7]];
     io:println(iarray.length());
     io:println(iarray[0].length());
 
-    // Initialize the outermost array to an empty array.
+    // Initializes the outermost array to an empty array.
     iarray = [];
-    // Add a new array as the first element.
+    // Adds a new array as the first element.
     int[] d = [9];
     iarray[0] = d;
 
-    // Print the first value of the two-dimensional array.
+    // Prints the first value of the two-dimensional array.
     io:println(iarray[0][0]);
 
-    // Create an `int` array with the fixed length of five.
+    // Creates an `int` array with the fixed length of five.
     int[5] e = [1, 2, 3, 4, 5];
     io:println(e.length());
 

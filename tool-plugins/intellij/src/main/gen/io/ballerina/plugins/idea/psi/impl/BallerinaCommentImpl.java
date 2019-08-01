@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -49,15 +49,15 @@ public class BallerinaCommentImpl extends ASTWrapperPsiElement implements Baller
   }
 
   @Override
-  @NotNull
-  public PsiElement getXmlCommentStart() {
-    return findNotNullChildByType(XML_COMMENT_START);
+  @Nullable
+  public PsiElement getXmlCommentEnd() {
+    return findChildByType(XML_COMMENT_END);
   }
 
   @Override
-  @Nullable
-  public PsiElement getXmlCommentText() {
-    return findChildByType(XML_COMMENT_TEXT);
+  @NotNull
+  public PsiElement getXmlCommentStart() {
+    return findNotNullChildByType(XML_COMMENT_START);
   }
 
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    # Copyright 2015 WSO2 Inc. (http://wso2.org)
+    # Copyright 2019 WSO2 Inc. (http://wso2.org)
     #
     # Licensed under the Apache License, Version 2.0 (the "License");
     # you may not use this file except in compliance with the License.
@@ -25,9 +25,7 @@ page at http://checkstyle.sourceforge.net/config.html -->
 
 <module name="Checker">
 
-    <module name="SuppressionFilter">
-        <property name="file" value="${config_loc}/suppressions.xml"/>
-    </module>
+    <property name="charset" value="UTF-8"/>
 
     <module name="FileTabCharacter">
         <property name="severity" value="error" />
@@ -74,9 +72,6 @@ page at http://checkstyle.sourceforge.net/config.html -->
     <!-- All Java AST specific tests live under TreeWalker module. -->
     <module name="TreeWalker">
 
-        <!-- required for SupressionCommentFilter and SuppressWithNearbyCommentFilter -->
-        <module name="FileContentsHolder" />
-
         <!--
 
         IMPORT CHECKS
@@ -94,13 +89,11 @@ page at http://checkstyle.sourceforge.net/config.html -->
         </module>
 
         <module name="ImportOrder">
-            <!-- Checks for out of order import statements. -->
-            <property name="severity" value="error" />
-            <property name="ordered" value="true" />
-            <property name="groups" value="/([^j]|.[^a]|..[^v]|...[^a])/,/^javax?\./" />
-            <!-- This ensures that static imports go to the end. -->
-            <property name="option" value="bottom" />
-            <property name="tokens" value="STATIC_IMPORT, IMPORT" />
+            <property name="groups" value="*,java,javax"/>
+            <property name="ordered" value="true"/>
+            <property name="separated" value="true"/>
+            <property name="option" value="bottom"/>
+            <property name="sortStaticImportsAlphabetically" value="true"/>
         </module>
 
         <module name="IllegalImport">
@@ -401,17 +394,14 @@ page at http://checkstyle.sourceforge.net/config.html -->
             <property name="format" value="e\.printStackTrace\(\)" />
             <property name="illegalPattern" value="true" />
         </module>
-    </module>
 
-    <!--module name="SuppressionFilter">
-        <property name="file" value="suppressions.xml"/>
-    </module-->
+        <module name="SuppressionCommentFilter">
+            <property name="offCommentFormat" value="CHECKSTYLE OFF: (.+)"/>
+            <property name="onCommentFormat" value="CHECKSTYLE ON"/>
+            <property name="checkFormat" value="Javadoc.*"/>
+            <property name="messageFormat" value="$1"/>
+        </module>
 
-    <module name="SuppressionCommentFilter">
-        <property name="offCommentFormat" value="CHECKSTYLE OFF: (.+)" />
-        <property name="onCommentFormat" value="CHECKSTYLE ON" />
-        <property name="checkFormat" value="Javadoc.*" />
-        <property name="messageFormat" value="$1" />
     </module>
 
 </module>

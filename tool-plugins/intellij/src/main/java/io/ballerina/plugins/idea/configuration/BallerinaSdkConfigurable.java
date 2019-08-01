@@ -52,7 +52,7 @@ import com.intellij.util.ObjectUtils;
 import com.intellij.util.ui.AsyncProcessIcon;
 import com.intellij.util.ui.UIUtil;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
-import io.ballerina.plugins.idea.sdk.BallerinaSdkUtil;
+import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import io.ballerina.plugins.idea.sdk.BallerinaSmallIDEsSdkService;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -118,12 +118,12 @@ public class BallerinaSdkConfigurable implements SearchableConfigurable, Configu
                 libraryModel.removeRoot(libUrl, OrderRootType.CLASSES);
             }
 
-            String sdkPath = BallerinaSdkUtil.adjustSdkPath(mySdkPathField.getText());
-            String versionString = BallerinaSdkUtil.retrieveBallerinaVersion(sdkPath);
+            String sdkPath = BallerinaSdkUtils.adjustSdkPath(mySdkPathField.getText());
+            String versionString = BallerinaSdkUtils.retrieveBallerinaVersion(sdkPath);
             boolean toRemove = StringUtil.isEmpty(sdkPath) || versionString == null;
 
             if (!toRemove) {
-                for (VirtualFile file : BallerinaSdkUtil.getSdkDirectoriesToAttach(sdkPath, versionString)) {
+                for (VirtualFile file : BallerinaSdkUtils.getSdkDirectoriesToAttach(sdkPath, versionString)) {
                     libraryModel.addRoot(file, OrderRootType.CLASSES);
                 }
             }
@@ -151,7 +151,7 @@ public class BallerinaSdkConfigurable implements SearchableConfigurable, Configu
     @Override
     public boolean isModified() {
         String currentPath = StringUtil.notNullize(BallerinaSdkService.getInstance(myProject).getSdkHomePath(null));
-        return !BallerinaSdkUtil.adjustSdkPath(mySdkPathField.getText()).equals(currentPath);
+        return !BallerinaSdkUtils.adjustSdkPath(mySdkPathField.getText()).equals(currentPath);
     }
 
     @NotNull
@@ -210,7 +210,7 @@ public class BallerinaSdkConfigurable implements SearchableConfigurable, Configu
         if (!myAlarm.isDisposed()) {
             myAlarm.cancelAllRequests();
             myAlarm.addRequest(() -> {
-                String version = BallerinaSdkUtil.retrieveBallerinaVersion(BallerinaSdkUtil.adjustSdkPath(sdkPath));
+                String version = BallerinaSdkUtils.retrieveBallerinaVersion(BallerinaSdkUtils.adjustSdkPath(sdkPath));
                 ApplicationManager.getApplication().invokeLater(() -> {
                     if (!Disposer.isDisposed(myDisposable)) {
                         setVersion(version);
@@ -266,7 +266,7 @@ public class BallerinaSdkConfigurable implements SearchableConfigurable, Configu
         @Nullable
         @Override
         protected VirtualFile getInitialFile() {
-            return ObjectUtils.chooseNotNull(super.getInitialFile(), BallerinaSdkUtil.suggestSdkDirectory());
+            return ObjectUtils.chooseNotNull(super.getInitialFile(), BallerinaSdkUtils.suggestSdkDirectory());
         }
     }
 

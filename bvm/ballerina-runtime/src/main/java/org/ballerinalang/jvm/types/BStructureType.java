@@ -25,21 +25,21 @@ import java.util.Map;
  *
  * @since 0.995.0
  */
-public abstract class BStructureType extends BType {
+public abstract class BStructureType extends AnnotatableType {
 
-    private Map<String, BField> fields;
+    protected Map<String, BField> fields;
     public int flags;
 
     /**
      * Create a {@code BStructType} which represents the user defined struct type.
      *
      * @param typeName string name of the type
-     * @param pkgPath package of the struct
+     * @param pkg package of the struct
      * @param flags of the structure type
      * @param valueClass of the structure type
      */
-    public BStructureType(String typeName, String pkgPath, int flags, Class<? extends Object> valueClass) {
-        super(typeName, pkgPath, valueClass);
+    public BStructureType(String typeName, BPackage pkg, int flags, Class<? extends Object> valueClass) {
+        super(typeName, pkg, valueClass);
         this.flags = flags;
         fields = new HashMap<>();
     }
@@ -48,14 +48,14 @@ public abstract class BStructureType extends BType {
      * Create a {@code BStructType} which represents the user defined struct type.
      *
      * @param typeName string name of the type
-     * @param pkgPath package of the type
+     * @param pkg package of the type
      * @param flags of the structure type
      * @param valueClass of the structure type
      * @param fields structure fields
      */
-    public BStructureType(String typeName, String pkgPath, int flags, Class<? extends Object> valueClass,
+    public BStructureType(String typeName, BPackage pkg, int flags, Class<? extends Object> valueClass,
             Map<String, BField> fields) {
-        super(typeName, pkgPath, valueClass);
+        super(typeName, pkg, valueClass);
         this.flags = flags;
         this.fields = fields;
     }

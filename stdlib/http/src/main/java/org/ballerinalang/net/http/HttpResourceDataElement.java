@@ -19,10 +19,11 @@
 package org.ballerinalang.net.http;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.parser.DataElement;
 import org.ballerinalang.net.uri.parser.DataReturnAgent;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.ArrayList;
@@ -58,7 +59,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
             for (HttpResource previousResource : this.resource) {
                 if (previousResource.getMethods() == null) {
                     //if both resources do not have methods but same URI, then throw following error.
-                    throw new BallerinaException("Two resources have the same addressable URI, "
+                    throw BallerinaErrors.createError("Two resources have the same addressable URI, "
                                                      + previousResource.getName() + " and " + newResource.getName());
                 }
             }
@@ -69,7 +70,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
         this.resource.forEach(r -> {
             for (String newMethod : newMethods) {
                 if (DispatcherUtil.isMatchingMethodExist(r, newMethod)) {
-                    throw new BallerinaException("Two resources have the same addressable URI, "
+                    throw BallerinaErrors.createError("Two resources have the same addressable URI, "
                                                          + r.getName() + " and " + newResource.getName());
                 }
             }
@@ -107,7 +108,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
     private HttpResource validateHTTPMethod(List<HttpResource> resources, HttpCarbonMessage carbonMessage) {
         HttpResource httpResource = null;
         boolean isOptionsRequest = false;
-        String httpMethod = (String) carbonMessage.getProperty(HttpConstants.HTTP_METHOD);
+        String httpMethod = carbonMessage.getHttpMethod();
         for (HttpResource resourceInfo : resources) {
             if (DispatcherUtil.isMatchingMethodExist(resourceInfo, httpMethod)) {
                 httpResource = resourceInfo;
@@ -124,7 +125,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
             return httpResource;
         }
         if (!isOptionsRequest) {
-            carbonMessage.setProperty(HttpConstants.HTTP_STATUS_CODE, 405);
+            carbonMessage.setHttpStatusCode(405);
             throw new BallerinaException("Method not allowed");
         }
         return null;
@@ -162,21 +163,21 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
         return DispatcherUtil.concatValues(methods, false);
     }
 
-    public HttpResource validateConsumes(HttpResource resource, HttpCarbonMessage cMsg) {
+    private void validateConsumes(HttpResource resource, HttpCarbonMessage cMsg) {
         String contentMediaType = extractContentMediaType(cMsg.getHeader(HttpHeaderNames.CONTENT_TYPE.toString()));
         List<String> consumesList = resource.getConsumes();
 
         if (consumesList == null) {
-            return resource;
+            return;
         }
         //when Content-Type header is not set, treat it as "application/octet-stream"
         contentMediaType = (contentMediaType != null ? contentMediaType : HttpConstants.VALUE_ATTRIBUTE);
         for (String consumeType : consumesList) {
             if (contentMediaType.equalsIgnoreCase(consumeType.trim())) {
-                return resource;
+                return;
             }
         }
-        cMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 415);
+        cMsg.setHttpStatusCode(415);
         throw new BallerinaException();
     }
 
@@ -190,16 +191,16 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
         return header;
     }
 
-    public HttpResource validateProduces(HttpResource resource, HttpCarbonMessage cMsg) {
+    private void validateProduces(HttpResource resource, HttpCarbonMessage cMsg) {
         List<String> acceptMediaTypes = extractAcceptMediaTypes(cMsg.getHeader(HttpHeaderNames.ACCEPT.toString()));
         List<String> producesList = resource.getProduces();
 
         if (producesList == null || acceptMediaTypes == null) {
-            return resource;
+            return;
         }
         //If Accept header field is not present, then it is assumed that the client accepts all media types.
         if (acceptMediaTypes.contains("*/*")) {
-            return resource;
+            return;
         }
         if (acceptMediaTypes.stream().anyMatch(mediaType -> mediaType.contains("/*"))) {
             List<String> subTypeWildCardMediaTypes = acceptMediaTypes.stream()
@@ -208,7 +209,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
                     .collect(Collectors.toList());
             for (String token : resource.getProducesSubTypes()) {
                 if (subTypeWildCardMediaTypes.contains(token)) {
-                    return resource;
+                    return;
                 }
             }
         }
@@ -216,10 +217,10 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
                 .filter(mediaType -> !mediaType.contains("/*")).collect(Collectors.toList());
         for (String produceType : producesList) {
             if (noWildCardMediaTypes.stream().anyMatch(produceType::equalsIgnoreCase)) {
-                return resource;
+                return;
             }
         }
-        cMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 406);
+        cMsg.setHttpStatusCode(406);
         throw new BallerinaException();
     }
 

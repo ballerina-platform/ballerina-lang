@@ -29,7 +29,7 @@ import { DebugClientEx } from './debugClient';
 import { getBallerinaHome } from '../test-util';
 const ballerinaHome = getBallerinaHome();
 
-suite('Ballerina Debug Adapter', () => {
+suite.skip('Ballerina Debug Adapter', () => {
 
     const PROJECT_ROOT = Path.join(__dirname, '../../../');
 
@@ -80,7 +80,7 @@ suite('Ballerina Debug Adapter', () => {
             return dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_world.bal', line: 4 });
         }).timeout(10000);
 
-        test('should stop on a breakpoint, hello world service', () => {
+        test('should stop on a breakpoint, hello world service', function() {
             const PROGRAM = Path.join(DATA_ROOT, 'hello_world_service.bal');
 
             const launchArgs = {
@@ -99,7 +99,7 @@ suite('Ballerina Debug Adapter', () => {
             return dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_world_service.bal', line: 12 });
         }).timeout(15000);
 
-        test('should stop on a breakpoint, hello world service - package', () => {
+        test('should stop on a breakpoint, hello world service - package', function() {
             const PROGRAM = Path.join(DATA_ROOT, 'helloPackage', 'hello', 'hello_service.bal');
 
             const launchArgs = {

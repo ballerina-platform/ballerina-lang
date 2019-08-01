@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.observe.metrics.extension.defaultimpl;
 
-import org.ballerinalang.util.metrics.AbstractMetric;
-import org.ballerinalang.util.metrics.Gauge;
-import org.ballerinalang.util.metrics.MetricId;
-import org.ballerinalang.util.metrics.Snapshot;
-import org.ballerinalang.util.metrics.StatisticConfig;
+import org.ballerinalang.jvm.observability.metrics.AbstractMetric;
+import org.ballerinalang.jvm.observability.metrics.Gauge;
+import org.ballerinalang.jvm.observability.metrics.MetricId;
+import org.ballerinalang.jvm.observability.metrics.Snapshot;
+import org.ballerinalang.jvm.observability.metrics.StatisticConfig;
 
 import java.util.concurrent.atomic.DoubleAdder;
 import java.util.concurrent.atomic.LongAdder;

@@ -18,10 +18,10 @@ import ballerina/task;
 
 public function main() {
     task:Scheduler timer = new({
-            interval: 2000,
-            initialDelay: 1000
+            intervalInMillis: 2000,
+            initialDelayInMillis: 1000
         });
-    var result = timer.attach(timerService, attachment = getCount);
+    var result = timer.attach(timerService, getCount);
     result = timer.start();
 }
 

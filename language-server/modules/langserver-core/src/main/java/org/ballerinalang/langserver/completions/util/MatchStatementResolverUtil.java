@@ -17,15 +17,13 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
-import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,38 +44,7 @@ public class MatchStatementResolverUtil {
         String bodyPlaceHolder;
         valueHolder = "${1:value}";
         bodyPlaceHolder = "${2}";
-        return valueHolder + " => " + UtilSymbolKeys.OPEN_BRACE_KEY + bodyPlaceHolder + UtilSymbolKeys.CLOSE_BRACE_KEY;
-    }
-
-    /**
-     * Get the tuple destructured pattern.
-     * 
-     * @param bTupleType        Tuple type
-     * @param varNames          Variable names list currently added
-     * @param context           LS Operation context
-     * @return {@link String}   Generated pattern clause
-     */
-    public static String getTupleDestructured(BTupleType bTupleType, List<String> varNames, LSContext context) {
-        List<BType> typeList = bTupleType.getTupleTypes();
-        List<String> destructedVars = new ArrayList<>();
-        for (BType bType : typeList) {
-            String varName;
-            if (bType instanceof BTupleType) {
-                varName = getTupleDestructured((BTupleType) bType, varNames, context);
-            } else {
-                String typeName = CommonUtil.getBTypeName(bType, context);
-                varName = String.valueOf(typeName.charAt(0));
-                if (varNames.contains(varName)) {
-                    varName = varName + (int) (Math.random() * 20 + 1);
-                }
-            }
-            varNames.add(varName);
-            destructedVars.add(varName);
-        }
-
-        return UtilSymbolKeys.OPEN_PARENTHESES_KEY
-                + String.join(", ", destructedVars)
-                + UtilSymbolKeys.CLOSE_PARENTHESES_KEY;
+        return valueHolder + " => " + CommonKeys.OPEN_BRACE_KEY + bodyPlaceHolder + CommonKeys.CLOSE_BRACE_KEY;
     }
 
     /**
@@ -94,18 +61,18 @@ public class MatchStatementResolverUtil {
                     .map(MatchStatementResolverUtil::getStructuredFixedValueMatch)
                     .collect(Collectors.toList());
             fixedValPattern
-                    .append(UtilSymbolKeys.OPEN_PARENTHESES_KEY)
+                    .append(CommonKeys.OPEN_BRACKET_KEY)
                     .append(String.join(", ", defaultValues))
-                    .append(UtilSymbolKeys.CLOSE_PARENTHESES_KEY);
+                    .append(CommonKeys.CLOSE_BRACKET_KEY);
         } else if (bType instanceof BRecordType) {
             List<BField> fields = ((BRecordType) bType).fields;
             List<String> defaultValues = fields.stream()
                     .map(field -> field.getName().getValue() + ":" + getStructuredFixedValueMatch(field.getType()))
                     .collect(Collectors.toList());
             fixedValPattern
-                    .append(UtilSymbolKeys.OPEN_BRACE_KEY)
+                    .append(CommonKeys.OPEN_BRACE_KEY)
                     .append(String.join(", ", defaultValues))
-                    .append(UtilSymbolKeys.CLOSE_BRACE_KEY);
+                    .append(CommonKeys.CLOSE_BRACE_KEY);
         } else {
             fixedValPattern.append(CommonUtil.getDefaultValueForType(bType));
         }
@@ -124,6 +91,6 @@ public class MatchStatementResolverUtil {
         String bodyPlaceHolder;
         valueHolder = "${1:" + matchValue + "}";
         bodyPlaceHolder = "${2}";
-        return valueHolder + " => " + UtilSymbolKeys.OPEN_BRACE_KEY + bodyPlaceHolder + UtilSymbolKeys.CLOSE_BRACE_KEY;
+        return valueHolder + " => " + CommonKeys.OPEN_BRACE_KEY + bodyPlaceHolder + CommonKeys.CLOSE_BRACE_KEY;
     }
 }

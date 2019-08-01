@@ -15,18 +15,19 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.ServerConnectorListener;
 import org.ballerinalang.net.grpc.ServerConnectorPortBindingListener;
 import org.ballerinalang.net.grpc.ServicesRegistry;
+import org.ballerinalang.net.grpc.Status;
+import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
@@ -50,18 +51,8 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
 )
 public class Start extends AbstractGrpcNativeFunction {
 
-    @Override
-    public void execute(Context context) {
-        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        ServicesRegistry.Builder servicesRegistryBuilder = getServiceRegistryBuilder(serviceEndpoint);
-        if (!isConnectorStarted(serviceEndpoint)) {
-            startServerConnector(serviceEndpoint, servicesRegistryBuilder.build());
-        }
-        context.setReturnValues();
-    }
-
-    private void startServerConnector(Struct serviceEndpoint, ServicesRegistry servicesRegistry) {
-        ServerConnector serverConnector = getServerConnector(serviceEndpoint);
+    private static Object startServerConnector(ObjectValue listener, ServicesRegistry servicesRegistry) {
+        ServerConnector serverConnector = getServerConnector(listener);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         serverConnectorFuture.setHttpConnectorListener(new ServerConnectorListener(servicesRegistry));
 
@@ -69,9 +60,21 @@ public class Start extends AbstractGrpcNativeFunction {
         try {
             serverConnectorFuture.sync();
         } catch (Exception ex) {
-            throw new BallerinaException("failed to start server connector '" + serverConnector.getConnectorID()
-                    + "': " + ex.getMessage(), ex);
+            return MessageUtils.getConnectorError(new StatusRuntimeException(Status
+                    .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription(
+                            "Failed to start server connector '" + serverConnector.getConnectorID()
+                            + "'. " + ex.getMessage())));
         }
-        serviceEndpoint.addNativeData(HttpConstants.CONNECTOR_STARTED, true);
+        listener.addNativeData(HttpConstants.CONNECTOR_STARTED, true);
+        return null;
+    }
+
+    public static Object start(Strand strand, ObjectValue listener) {
+        ServicesRegistry.Builder servicesRegistryBuilder = getServiceRegistryBuilder(listener);
+
+        if (!isConnectorStarted(listener)) {
+            return startServerConnector(listener, servicesRegistryBuilder.build());
+        }
+        return null;
     }
 }

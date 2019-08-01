@@ -18,10 +18,8 @@
 
 package org.ballerinalang.net.uri.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -43,17 +41,12 @@ import java.net.URLDecoder;
                       @ReturnType(type = TypeKind.RECORD, structType = "Error")},
         isPublic = true
 )
-public class Decode extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        String url = context.getStringArgument(0);
-        String charset = context.getStringArgument(1);
+public class Decode {
+    public static Object decode(Strand strand, String url, String charset) {
         try {
-            context.setReturnValues(new BString(URLDecoder.decode(url, charset)));
+            return URLDecoder.decode(url, charset);
         } catch (UnsupportedEncodingException e) {
-            context.setReturnValues(HttpUtil.getError(context, "Error occurred while decoding the url. " + e
-                    .getMessage()));
+            return HttpUtil.createHttpError("Error occurred while decoding the url. " + e.getMessage());
         }
     }
 }

@@ -17,9 +17,11 @@
 */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,8 +48,24 @@ public final class XMLQName implements RefValue {
         this.prefix = prefix;
     }
 
+    public XMLQName(String qNameStr) {
+        int parenEndIndex = qNameStr.indexOf('}');
+        if (qNameStr.startsWith("{") && parenEndIndex > 0) {
+            localName = qNameStr.substring(parenEndIndex + 1, qNameStr.length());
+            uri = qNameStr.substring(1, parenEndIndex);
+        } else {
+            localName = qNameStr;
+            uri = null;
+        }
+    }
+
     @Override
     public String toString() {
+        return (uri == null || uri.isEmpty()) ? localName : '{' + uri + '}' + localName;
+    }
+
+    @Override
+    public String stringValue() {
         return (uri == null || uri.isEmpty()) ? localName : '{' + uri + '}' + localName;
     }
 
@@ -57,7 +75,7 @@ public final class XMLQName implements RefValue {
     }
 
     @Override
-    public void stamp(BType type) {
+    public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
     }
 
     @Override
@@ -65,6 +83,7 @@ public final class XMLQName implements RefValue {
         if (obj == null || !(obj instanceof XMLQName)) {
             return false;
         }
+
         return ((XMLQName) obj).toString().equals(localName);
     }
 
@@ -75,6 +94,18 @@ public final class XMLQName implements RefValue {
         }
 
         return new XMLQName(localName, uri, prefix);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+        XMLQName copy = (XMLQName) copy(refs);
+        if (!copy.isFrozen()) {
+            copy.freezeDirect();
+        }
+        return copy;
     }
 
     public String getLocalName() {

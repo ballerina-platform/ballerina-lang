@@ -3,7 +3,7 @@
     "file": "defFl17.bal"
   },
   "position": {
-    "line": 17,
+    "line": 15,
     "character": 43
   },
   "result": [
@@ -11,11 +11,11 @@
       "uri": "defFl17.bal",
       "range": {
         "start": {
-          "line": 2,
+          "line": 3,
           "character": 4
         },
         "end": {
-          "line": 2,
+          "line": 3,
           "character": 8
         }
       }

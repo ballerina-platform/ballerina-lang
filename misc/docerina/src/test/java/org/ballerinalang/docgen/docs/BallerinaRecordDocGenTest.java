@@ -18,7 +18,7 @@
 package org.ballerinalang.docgen.docs;
 
 import org.ballerinalang.docgen.docs.utils.BallerinaDocGenTestUtils;
-import org.ballerinalang.docgen.model.PackageDoc;
+import org.ballerinalang.docgen.model.ModuleDoc;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -43,7 +43,7 @@ public class BallerinaRecordDocGenTest {
     @Test(description = "Test a Bal file with structs", enabled = false)
     public void testStruct() {
         try {
-            Map<String, PackageDoc> docsMap =
+            Map<String, ModuleDoc> docsMap =
                     BallerinaDocGenerator.generatePackageDocsFromBallerina(sourceRoot, "balWithStruct.bal");
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);

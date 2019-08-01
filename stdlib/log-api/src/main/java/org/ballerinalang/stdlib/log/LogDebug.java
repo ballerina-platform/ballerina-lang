@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.log;
 
-import org.ballerinalang.bre.Context;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -37,8 +37,9 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 )
 public class LogDebug extends AbstractLogFunction {
 
-    public void execute(Context ctx) {
-        logMessage(ctx, BLogLevel.DEBUG, (pkg, message) -> {
+    public static void printDebug(Strand strand, Object msg) {
+        String packagePath = getPackagePath();
+        logMessage(strand, msg, BLogLevel.DEBUG, packagePath, (pkg, message) -> {
             getLogger(pkg).debug(message);
         });
     }

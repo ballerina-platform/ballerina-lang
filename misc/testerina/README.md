@@ -47,57 +47,19 @@ Testerina allows you to create mocks or doubles at different layers for testing 
 With Function mocks we can replace a function interface from the same module or from a different module with a mock function. Function mock will look like something below,
 
 ````ballerina
-@Description {value:"This is a mock function"}
+# This is a mock function
+#
+# + evnt - evnt Parameter Description 
+# + return - Return Value Description
 @test:Mock {
     moduleName:"src.persistence",
     functionName:"addNewEvent"
 }
 function mockAddNewEvent (mod:Event evnt) returns json {
-
-    err = {message:"Error"};
+    error err = error("Error");
     json jsonResponse = { "Success":"Created", "id":"2" };
     return jsonResponse;
 }
-````
-
-#### Service Mocks
-
-Service mocks allow you to create your own service to mock the actual bach ends.  
-
-Service mock will look something like below,
-
-````ballerina
-import ballerina/net.http;
-
-endpoint http:Listener paymentGWEP {
-port:9094
-};
-
-@http:ServiceConfig {
-      endpoints:[paymentGWEP], basePath:"/boc"
-}
-service<http:Service> PaymentService bind paymentGWEP {
-    @http:ResourceConfig {
-        methods:["POST"],
-        path:"/payment"
-    }
-
-     creditOperations (endpoint conn, http:Request req, string eventID) {
-        // Expects an API Token
-        http:Response res = {};
-
-        json jsonRes = {"Payment":"Sucess!"};
-        res.statusCode = 200;
-        res.setJsonPayload(jsonRes);
-        _ = conn -> respond(res);
-    }
-}
-````
-
-The above mock service can be started as shown below,
-
-````
-test:startServices(<module_name>);
 ````
 
 ### Helper Functions
@@ -106,6 +68,26 @@ Helper functions allow you to control ballerina tests, services etc. Currently T
 
 #### Data providers
 Testerina natively support data driven testing. You can execute the same test function repetitively on distinct data sets by using data-providers. 
+
+e.g:
+
+You can add a data provider based test functions as shown below,
+```ballerina
+import ballerina/test;
+import ballerina/log;
+
+@test:Config {
+    dataProvider: "testCalculateDataProvider"
+}
+function testCalculate(int n1, int n2, int expected) {
+    int actual = calculate(n1, n2);
+    test:assertEquals(actual, expected, msg = string `Calculation is wrong for n1:${n1} and n2:${n2}!`);
+}
+
+function testCalculateDataProvider() returns ((int, int, int)[]) {
+    return [(5, 5, 10), (10, 10, 20), (500, 500, 1000), (1000, -2000, -100)];
+}
+```
 
 #### Test Groups
 You can group your test functions and control the execution of tests by specifying the groups of tests you wish to execute.
@@ -135,8 +117,8 @@ e.g : ballerina test --list-groups
  
 ## Writing ballerina tests
 
-- Test can reside in any valid ballerina module. As a Best practice we put them into a subdirectory called tests within a module  
-- Test file names and functions can have any name.  
+- Test should reside in a subdirectory called tests within a valid ballerina module.
+- Test file names and functions can have any name. As a Best practice we name test file as \<source_name>_tests.  
 - We can execute all the tests or tests belonging to a specific module..
 
 - If at least one assert fails, whole test function will be marked as failed.
@@ -148,7 +130,3 @@ e.g : ballerina test --list-groups
 Tests can be execute as shown below
 
 ```./ballerina test <module_name> [FLAGS]``` Execute tests within a given module
-
-or
-
-```./ballerina test [FLAGS]``` Executes all the tests within modules

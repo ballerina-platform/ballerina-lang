@@ -18,12 +18,12 @@
 package org.ballerinalang.observe;
 
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.jvm.observability.metrics.DefaultMetricRegistry;
+import org.ballerinalang.jvm.observability.metrics.MetricRegistry;
 import org.ballerinalang.observe.metrics.extension.defaultimpl.DefaultMetricProvider;
-import org.ballerinalang.util.metrics.DefaultMetricRegistry;
-import org.ballerinalang.util.metrics.MetricRegistry;
 import org.testng.annotations.BeforeSuite;
 
-import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 
 /**
  * This is the bases test class which enables the metrics reporting.

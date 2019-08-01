@@ -17,10 +17,14 @@
 */
 package org.ballerinalang.langserver.completion.definitions;
 
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completion.CompletionTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+import java.io.IOException;
 
 /**
  * Completion item tests for function definition.
@@ -29,20 +33,18 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
 
     private static final Logger log = LoggerFactory.getLogger(FunctionDefinitionCompletionTest.class);
 
+    @Test(dataProvider = "completion-data-provider")
+    public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
+        super.test(config, configPath);
+    }
+
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
         log.info("Test textDocument/completion for Function Definition Scope");
         return new Object[][] {
-                {"emptyLinePrimitiveDataTypes.json", "function"},
-                {"nonEmptyLinePrimitiveDataTypes.json", "function"},
-                {"userDefinedRecordEmptyLine.json", "function"},
-                {"userDefinedRecordNonEmptyLine.json", "function"},
-                {"userDefinedFunctionsEmptyLine.json", "function"},
-                {"userDefinedFunctionsNonEmptyLine.json", "function"},
-                {"importPackagesEmptyLine.json", "function"},
-                {"importPackagesNonEmptyLine.json", "function"},
-                {"allVisibleSymbolsEmptyLine.json", "function"},
+                {"emptyLineCompletion.json", "function"},
+                {"nonEmptyLineCompletion.json", "function"},
                 {"actionInvocationSuggestion1.json", "function"},
                 {"actionInvocationSuggestion2.json", "function"},
                 {"variableBoundItemSuggestions1.json", "function"},
@@ -51,8 +53,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"variableBoundItemSuggestions4.json", "function"},
                 {"panicStatementErrorSuggestions.json", "function"},
                 {"recordVarDef1.json", "function"},
-                // Regression issue of Grammar changes
-//                {"recordVarDef2.json", "function"},
+                {"recordVarDef2.json", "function"},
                 {"functionPointerAsParameter.json", "function"},
                 {"matchStatementSuggestions1.json", "function"},
                 {"matchStatementSuggestions3.json", "function"},
@@ -69,7 +70,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"iterableOperation2.json", "function"},
                 {"iterableOperation3.json", "function"},
                 {"iterableOperation4.json", "function"},
-                {"iterableOperation5.json", "function"},
+//                {"iterableOperation5.json", "function"},
                 {"iterableOperation6.json", "function"},
                 {"completionWithinWorkersInResource.json", "function"},
                 {"suggestionsInWorkersWithinFunction.json", "function"},
@@ -79,7 +80,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"completionWithinElseIf.json", "function"},
                 {"completionBeforeWhile.json", "function"},
                 {"completionWithinWhile.json", "function"},
-//                {"completionWithinTransaction.json", "function"},
+                {"completionWithinTransaction.json", "function"},
                 {"completionWithinTransactionOnRetry.json", "function"},
                 {"objectAttachFunctionImpl1.json", "function"},
                 {"objectAttachFunctionImpl2.json", "function"},
@@ -99,6 +100,46 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"typeguardDestruct1.json", "function"},
                 {"completionAfterIf1.json", "function"},
                 {"completionAfterIf2.json", "function"},
+                {"workerDeclarationContext1.json", "function"},
+                {"workerDeclarationContext2.json", "function"},
+                {"workerDeclarationContext3.json", "function"},
+                {"workerDeclarationContext4.json", "function"},
+                {"completionWithinInvocationArgs1.json", "function"},
+                {"completionWithinInvocationArgs2.json", "function"},
+                {"completionWithinInvocationArgs3.json", "function"},
+                {"completionWithinInvocationArgs4.json", "function"},
+                {"completionWithinInvocationArgs5.json", "function"},
+                {"completionWithinInvocationArgs6.json", "function"},
+                {"completionWithinInvocationArgs7.json", "function"},
+                {"completionWithinInvocationArgs8.json", "function"},
+                {"completionWithinInvocationArgs9.json", "function"},
+                {"completionWithinInvocationArgs10.json", "function"},
+                {"completionWithinInvocationArgs11.json", "function"},
+                {"chainCompletion1.json", "function"},
+                {"chainCompletion2.json", "function"},
+                {"chainCompletion3.json", "function"},
+                {"chainCompletion4.json", "function"},
+                {"chainCompletion5.json", "function"},
+                {"externalKeywordSuggestion1.json", "function"},
+                {"externalKeywordSuggestion2.json", "function"},
+//                {"ifWhileConditionContextCompletion1.json", "function"}, //TODO: Fix this
+                {"ifWhileConditionContextCompletion2.json", "function"},
+                {"ifWhileConditionContextCompletion3.json", "function"},
+                {"ifWhileConditionContextCompletion4.json", "function"},
+                {"ifWhileConditionContextCompletion5.json", "function"},
+                {"newObjectCompletion1.json", "function"},
+                {"newObjectCompletion2.json", "function"},
+                {"newObjectCompletion3.json", "function"},
+                {"delimiterBasedCompletionForCompleteSource1.json", "function"},
+                {"delimiterBasedCompletionForCompleteSource2.json", "function"},
+                {"functionParamAnnotationBodyCompletion1.json", "function"},
+                {"functionParamAnnotationBodyCompletion2.json", "function"},
+                {"functionParamAnnotationBodyCompletion3.json", "function"},
+                {"functionParamAnnotationBodyCompletion4.json", "function"},
+                {"completionWithTupleVariableDef.json", "function"},
+                {"completionWithinComments.json", "function"},
+                {"completionWithinLiterals.json", "function"},
+                {"typeofKWSuggestion.json", "function"},
         };
     }
 }

@@ -17,11 +17,9 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
-import org.ballerinalang.bre.Context;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.MessageUtils;
@@ -33,7 +31,6 @@ import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER_CONNECTION_FIELD
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_INDEX;
 
 /**
  * Get the client responder instance binds to the service endpoint.
@@ -50,19 +47,16 @@ import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_INDEX;
         isPublic = true
 )
 public class GetCallerActions extends AbstractGrpcNativeFunction {
-    
-    @Override
-    public void execute(Context context) {
-        BMap<String, BValue> serviceEndpoint = (BMap<String, BValue>) context.getRefArgument(SERVICE_ENDPOINT_INDEX);
+
+    public static Object getCallerActions(Strand strand, ObjectValue listenerObject) {
         // Service client responder is populated in method listener. There we create new service endpoint instance
         // and bind client responder instance.
-        BValue clientType = serviceEndpoint.get(LISTENER_CONNECTION_FIELD);
-        if (clientType != null && clientType.getType().getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            BMap<String, BValue> endpointClient = (BMap<String, BValue>) clientType;
-            context.setReturnValues(endpointClient);
+        Object clientType = listenerObject.get(LISTENER_CONNECTION_FIELD);
+        if (clientType instanceof ObjectValue) {
+            return clientType;
         } else {
-            context.setError(MessageUtils.getConnectorError(new GrpcServerException("Error while " +
-                    "retrieving endpoint client.")));
+            return MessageUtils.getConnectorError(new GrpcServerException("Error while " +
+                    "retrieving endpoint client."));
         }
     }
 }

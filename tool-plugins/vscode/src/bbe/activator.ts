@@ -21,7 +21,7 @@ import * as path from 'path';
 import { render } from './renderer';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { ballerinaExtInstance, BallerinaExtension } from '../core';
-import { WebViewRPCHandler, WebViewMethod } from '../utils';
+import { WebViewRPCHandler, WebViewMethod, getCommonWebViewOptions } from '../utils';
 
 let examplesPanel: WebviewPanel | undefined;
 
@@ -35,10 +35,7 @@ function showExamples(context: ExtensionContext, langClient: ExtendedLangClient)
         'ballerinaExamples',
         "Ballerina Examples",
         { viewColumn: ViewColumn.One, preserveFocus: false } ,
-        {
-            enableScripts: true,
-            retainContextWhenHidden: true,
-        }
+        getCommonWebViewOptions()
     );
     const remoteMethods: WebViewMethod[] = [
         {
@@ -59,7 +56,7 @@ function showExamples(context: ExtensionContext, langClient: ExtendedLangClient)
             }
         }
     ];
-    WebViewRPCHandler.create(examplesPanel.webview, langClient, remoteMethods);
+    WebViewRPCHandler.create(examplesPanel, langClient, remoteMethods);
     const html = render(context, langClient);
     if (examplesPanel && html) {
         examplesPanel.webview.html = html;

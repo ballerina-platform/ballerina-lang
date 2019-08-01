@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.model.tree;
 
-import org.ballerinalang.model.tree.expressions.LiteralNode;
+import org.ballerinalang.model.tree.statements.ConstantNode;
 
 import java.util.List;
 
@@ -40,7 +40,7 @@ public interface PackageNode extends Node {
 
     List<? extends EndpointNode> getGlobalEndpoints();
 
-    List<? extends LiteralNode> getConstants();
+    List<? extends ConstantNode> getConstants();
 
     List<? extends SimpleVariableNode> getGlobalVariables();
 

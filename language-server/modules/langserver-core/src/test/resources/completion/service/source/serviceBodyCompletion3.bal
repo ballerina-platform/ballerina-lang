@@ -7,7 +7,7 @@ listener http:Listener ep1 = new(9090);
 }
 service myService1 on ep1 {
     string testString = "Hello";
-    string testString2 =
+    string testString2 = 
     resource function foo(http:Caller caller, http:Request req) {
         checkpanic caller->respond("Hello");
     }

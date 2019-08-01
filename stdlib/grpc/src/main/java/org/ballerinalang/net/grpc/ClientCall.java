@@ -19,7 +19,6 @@ package org.ballerinalang.net.grpc;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
-
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.stubs.AbstractStub;
 import org.wso2.transport.http.netty.contract.Constants;
@@ -76,8 +75,8 @@ public final class ClientCall {
         String advertisedEncodings = String.join(",", decompressorRegistry.getAdvertisedMessageEncodings());
         outboundMessage.setHeader(MESSAGE_ACCEPT_ENCODING, advertisedEncodings);
         outboundMessage.setProperty(Constants.TO, "/" + method.getFullMethodName());
-        outboundMessage.setProperty(Constants.HTTP_METHOD, GrpcConstants.HTTP_METHOD);
-        outboundMessage.setProperty(Constants.HTTP_VERSION, "2.0");
+        outboundMessage.setHttpMethod(GrpcConstants.HTTP_METHOD);
+        outboundMessage.setHttpVersion("2.0");
         outboundMessage.setHeader(CONTENT_TYPE_KEY, GrpcConstants.CONTENT_TYPE_GRPC);
         outboundMessage.setHeader(TE_KEY, GrpcConstants.TE_TRAILERS);
     }
@@ -172,13 +171,16 @@ public final class ClientCall {
      */
     public void sendMessage(Message message) {
         if (connectorListener == null) {
-            throw new IllegalStateException("Connector listener didn't initialize properly.");
+            throw Status.Code.INTERNAL.toStatus().withDescription("Connector listener didn't initialize properly.")
+                    .asRuntimeException();
         }
         if (cancelCalled) {
-            throw new IllegalStateException("Client call was already called.");
+            throw Status.Code.INTERNAL.toStatus().withDescription("Client call was already cancelled.")
+                    .asRuntimeException();
         }
         if (halfCloseCalled) {
-            throw new IllegalStateException("Client call was already closed.");
+            throw Status.Code.INTERNAL.toStatus().withDescription("Client call was already closed.")
+                    .asRuntimeException();
         }
         try {
             InputStream resp = method.streamRequest(message);
@@ -186,7 +188,7 @@ public final class ClientCall {
         } catch (StatusRuntimeException ex) {
             throw ex;
         } catch (Exception ex) {
-            throw Status.Code.CANCELLED.toStatus().withCause(ex).withDescription("Failed to stream message")
+            throw Status.Code.CANCELLED.toStatus().withCause(ex).withDescription("Failed to send the message")
                     .asRuntimeException();
         }
         // For unary requests, halfClose call should be coming soon.
@@ -202,7 +204,8 @@ public final class ClientCall {
      */
     public void setMessageCompression(boolean enabled) {
         if (outboundMessage == null) {
-            throw new IllegalStateException("Client call did not start properly.");
+            throw Status.Code.INTERNAL.toStatus().withDescription("Client call did not initiate properly.")
+                    .asRuntimeException();
         }
         outboundMessage.setMessageCompression(enabled);
     }

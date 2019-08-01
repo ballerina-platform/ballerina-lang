@@ -17,8 +17,7 @@ package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.Descriptors;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.jvm.types.BType;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -32,13 +31,11 @@ import java.util.Map;
 public class MessageParser {
 
     private final String messageName;
-    private final ProgramFile programFile;
     private final BType bType;
     private final Map<Integer, Descriptors.FieldDescriptor> fieldDescriptors;
 
-    public MessageParser(String messageName, ProgramFile programFile, BType bType) {
+    public MessageParser(String messageName, BType bType) {
         this.messageName = messageName;
-        this.programFile = programFile;
         this.bType = bType;
         this.fieldDescriptors = computeFieldTagValues();
     }
@@ -47,18 +44,16 @@ public class MessageParser {
      * Returns message object parse from {@code input}.
      * @param input CodedInputStream of incoming message.
      * @return Message object with bValue
-     * @throws IOException when error occurred.
      */
-    public Message parseFrom(CodedInputStream input) throws
-            IOException {
-        return new Message(messageName, programFile, bType, input, fieldDescriptors);
+    Message parseFrom(CodedInputStream input) throws IOException {
+        return new Message(messageName, bType, input, fieldDescriptors);
     }
 
     /**
      * Returns message instance without bValue.
      * @return message instance without bValue.
      */
-    public Message getDefaultInstance() {
+    Message getDefaultInstance() {
         return new Message(messageName, null);
     }
 

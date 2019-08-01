@@ -17,12 +17,14 @@
 */
 package org.ballerinalang.langserver.completions.util.sorters;
 
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,7 +40,7 @@ class AssignmentStmtContextSorter extends VariableDefContextItemSorter {
     @Override
     String getVariableType(LSContext ctx) {
         String variableName = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getStart().getText();
-        List<SymbolInfo> visibleSymbols = ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         SymbolInfo filteredSymbol = visibleSymbols.stream().filter(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
             String symbolName = symbolInfo.getSymbolName();

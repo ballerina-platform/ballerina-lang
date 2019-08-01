@@ -22,6 +22,14 @@ under the License.
 <suite name="ballerina-test-suite">
 
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="broken"/>
+                <exclude name="brokenOnJBallerina"/>
+            </run>
+        </groups>
+
         <packages>
             <package name="org.ballerinalang.stdlib.auth.*"/>
         </packages>

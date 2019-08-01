@@ -19,7 +19,6 @@ package io.ballerina.plugins.idea.project;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.components.StorageScheme;
 import com.intellij.openapi.project.Project;
 import io.ballerina.plugins.idea.BallerinaConstants;
 import org.jetbrains.annotations.NotNull;
@@ -29,8 +28,7 @@ import org.jetbrains.annotations.NotNull;
  */
 @State(name = BallerinaConstants.BALLERINA_LIBRARIES_SERVICE_NAME,
        storages = {
-               @Storage(value = BallerinaConstants.BALLERINA_LIBRARIES_CONFIG_FILE,
-                        scheme = StorageScheme.DIRECTORY_BASED)
+               @Storage(value = BallerinaConstants.BALLERINA_LIBRARIES_CONFIG_FILE)
        })
 public class BallerinaProjectLibrariesService extends BallerinaLibrariesService<BallerinaLibraryState> {
     public static BallerinaProjectLibrariesService getInstance(@NotNull Project project) {

@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.991.1-SNAPSHOT</version>
+        <version>0.992.0-m2-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -54,12 +54,6 @@
         </repository>
     </repositories>
     <dependencies>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>composer-library</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-tools</artifactId>
@@ -203,25 +197,6 @@
                             </target>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>copy-resources</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target name="copy resources">
-                                <mkdir dir="${project.basedir}/resources/composer" />
-                                <copy todir="${project.basedir}/resources/composer" overwrite="true">
-                                    <fileset dir="${project.build.directory}/composer/composer-library-${project.version}">
-                                        <include name="**/*.*" />
-                                        <exclude name="**/*.map" />
-                                        <exclude name="**/*.d.ts" />
-                                    </fileset>
-                                </copy>
-                            </target>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -237,7 +212,7 @@
                         <configuration>
                             <includeGroupIds>org.ballerinalang</includeGroupIds>
                             <includeArtifactIds>ballerina-tools</includeArtifactIds>
-                            <outputDirectory>${project.build.directory}/test/</outputDirectory>
+                            <outputDirectory>extractedDistribution</outputDirectory>
                             <overWriteReleases>true</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
                             <useSubDirectoryPerArtifact>false</useSubDirectoryPerArtifact>

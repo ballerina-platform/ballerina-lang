@@ -10,9 +10,9 @@ public function main() {
     // Execute the unary non-blocking call that registers a server message listener.
     var res = helloWorldEp->lotsOfGreetings(HelloWorldMessageListener);
 
-    if (res is error) {
+    if (res is grpc:Error) {
         io:println("Error from Connector: " + res.reason() + " - "
-                                            + <string>res.detail().message);
+                                            + <string> res.detail()["message"]);
         return;
     } else {
         io:println("Initialized connection sucessfully.");
@@ -23,18 +23,18 @@ public function main() {
     string[] greets = ["Hi", "Hey", "GM"];
     var name = "John";
     foreach string greet in greets {
-        error? connErr = ep->send(greet + " " + name);
-        if (connErr is error) {
+        grpc:Error? connErr = ep->send(greet + " " + name);
+        if (connErr is grpc:Error) {
             io:println("Error from Connector: " + connErr.reason() + " - "
-                                            + <string>connErr.detail().message);
+                                            + <string> connErr.detail()["message"]);
         } else {
             io:println("send greeting: " + greet + " " + name);
         }
     }
 
     // Once all the messages are sent, the server notifies the caller with a `complete` message.
-    error? result = ep->complete();
-    if (result is error) {
+    grpc:Error? result = ep->complete();
+    if (result is grpc:Error) {
         io:println("Error in sending complete message", result);
     }
 
@@ -54,7 +54,7 @@ service HelloWorldMessageListener = service {
     // Resource registered to receive server error messages.
     resource function onError(error err) {
         io:println("Error reported from server: " + err.reason() + " - "
-                                                + <string>err.detail().message);
+                                                + <string> err.detail()["message"]);
     }
 
     // Resource registered to receive server completed messages.

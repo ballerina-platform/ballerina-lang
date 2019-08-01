@@ -24,7 +24,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 
 /**
- * (int, string) (i, s) = (5, "foo");.
+ * [int, string] [i, s] = [5, "foo"];.
  *
  * @since 0.985.0
  */
@@ -45,6 +45,11 @@ public class BLangTupleVariableDef extends BLangStatement implements VariableDef
     @Override
     public void setVariable(VariableNode var) {
         this.var = (BLangTupleVariable) var;
+    }
+
+    @Override
+    public boolean getIsInFork() {
+        return false;
     }
 
     @Override

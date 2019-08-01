@@ -18,10 +18,8 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
@@ -32,21 +30,17 @@ import org.ballerinalang.stdlib.crypto.CryptoUtils;
  * @since 0.990.4
  */
 @BallerinaFunction(orgName = "ballerina", packageName = "crypto", functionName = "decryptAesCbc", isPublic = true)
-public class DecryptAesCbc extends BlockingNativeCallableUnit {
+public class DecryptAesCbc {
 
-    @Override
-    public void execute(Context context) {
-        BValue inputBValue = context.getRefArgument(0);
-        byte[] input = ((BValueArray) inputBValue).getBytes();
-        BValue keyBValue = context.getRefArgument(1);
-        byte[] key = ((BValueArray) keyBValue).getBytes();
-        BValue ivBValue = context.getRefArgument(2);
+    public static Object decryptAesCbc(Strand strand, ArrayValue inputValue, ArrayValue keyValue,
+                                       ArrayValue ivValue, Object padding) {
+        byte[] input = inputValue.getBytes();
+        byte[] key = keyValue.getBytes();
         byte[] iv = null;
-        if (ivBValue != null) {
-            iv = ((BValueArray) ivBValue).getBytes();
+        if (ivValue != null) {
+            iv = ivValue.getBytes();
         }
-        String padding = context.getRefArgument(3).stringValue();
-        CryptoUtils.aesEncryptDecrypt(context, CryptoUtils.CipherMode.DECRYPT, Constants.CBC, padding, key, input, iv,
-                -1);
+        return CryptoUtils.aesEncryptDecrypt(CryptoUtils.CipherMode.DECRYPT, Constants.CBC, padding.toString(), key,
+                                             input, iv, -1);
     }
 }

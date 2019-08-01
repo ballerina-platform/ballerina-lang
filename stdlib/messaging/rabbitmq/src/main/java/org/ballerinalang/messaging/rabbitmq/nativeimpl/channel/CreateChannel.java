@@ -20,19 +20,17 @@ package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
-import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
-import org.ballerinalang.messaging.rabbitmq.util.ChannelUtils;
+import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.UUID;
 
 /**
  * Creates a RabbitMQ AMQ Channel.
@@ -48,23 +46,32 @@ import org.slf4j.LoggerFactory;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class CreateChannel extends BlockingNativeCallableUnit {
+public class CreateChannel {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CreateChannel.class);
-
-    @Override
-    public void execute(Context context) {
-        BMap<String, BValue> channelBObject = (BMap<String, BValue>) context.getRefArgument(0);
-        BMap<String, BValue> connectionBObject = (BMap<String, BValue>) context.getRefArgument(1);
-        Connection connection = RabbitMQUtils.getNativeObject(connectionBObject,
-                RabbitMQConstants.CONNECTION_NATIVE_OBJECT,
-                Connection.class, context);
-        try {
-            Channel channel = ChannelUtils.createChannel(connection);
-            channelBObject.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, channel);
-        } catch (BallerinaException exception) {
-            LOGGER.error("I/O exception while creating the channel", exception);
-            RabbitMQUtils.returnError("RabbitMQ Client Error:", context, exception);
+    public static void createChannel(Strand strand, ObjectValue channelObjectValue, Object connectionObject) {
+        boolean isInTransaction = strand.isInTransaction();
+        ObjectValue connectionObjectValue;
+        if (connectionObject != null) {
+            connectionObjectValue = (ObjectValue) connectionObject;
+            Connection connection =
+                    (Connection) connectionObjectValue.getNativeData(RabbitMQConstants.CONNECTION_NATIVE_OBJECT);
+            try {
+                Channel channel = connection.createChannel();
+                channelObjectValue.addNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT, channel);
+                RabbitMQTransactionContext rabbitMQTransactionContext =
+                        new RabbitMQTransactionContext(channelObjectValue, UUID.randomUUID().toString());
+                channelObjectValue.addNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT,
+                        rabbitMQTransactionContext);
+                if (isInTransaction) {
+                    rabbitMQTransactionContext.handleTransactionBlock(strand);
+                }
+            } catch (IOException exception) {
+                throw new BallerinaException(RabbitMQConstants.RABBITMQ_CLIENT_ERROR
+                        + exception.getMessage());
+            }
         }
+    }
+
+    private CreateChannel() {
     }
 }

@@ -25,8 +25,8 @@ function getCount() returns int {
 
 function triggerTimer() {
     task:TimerConfiguration configuration = {
-        interval: 1000,
-        initialDelay: 0
+        intervalInMillis: 1000,
+        initialDelayInMillis: 0
     };
 
     task:Scheduler timer = new(configuration);

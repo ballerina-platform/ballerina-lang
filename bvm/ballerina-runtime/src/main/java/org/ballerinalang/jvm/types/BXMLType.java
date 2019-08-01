@@ -33,8 +33,8 @@ public class BXMLType extends BType {
      *
      * @param typeName string name of the type
      */
-    BXMLType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, XMLValue.class);
+    BXMLType(String typeName, BPackage pkg) {
+        super(typeName, pkg, XMLValue.class);
     }
 
     @Override

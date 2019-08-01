@@ -17,14 +17,9 @@
 */
 package org.ballerinalang.stdlib.time.nativeimpl;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.stdlib.time.util.TimeUtils;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.time.DateTimeException;
 import java.time.Instant;
@@ -46,18 +41,18 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
     private static final String TIME_FIELD = "time";
     private static final String ZONE_FIELD = "zone";
     private static final String ZONE_ID_FIELD = "id";
-    
-    private StructureTypeInfo timeStructInfo;
-    private StructureTypeInfo zoneStructInfo;
 
-    BMap<String, BValue> createCurrentTime(Context context) {
+    private static MapValue<String, Object> zoneRecord;
+    private static MapValue<String, Object> timeRecord;
+
+    static MapValue<String, Object> createCurrentTime() {
         long currentTime = Instant.now().toEpochMilli();
-        return TimeUtils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), currentTime,
-                ZoneId.systemDefault().toString());
+        return TimeUtils.createTimeRecord(getTimeZoneRecord(), getTimeRecord(), currentTime,
+                                          ZoneId.systemDefault().toString());
     }
 
-    BMap<String, BValue> createDateTime(Context context, int year, int month, int day, int hour, int minute,
-                                        int second, int milliSecond, String zoneIDStr) {
+    static MapValue<String, Object> createDateTime(int year, int month, int day, int hour, int minute, int second,
+                                                   int milliSecond, String zoneIDStr) {
         int nanoSecond = milliSecond * 1000000;
         ZoneId zoneId;
         if (zoneIDStr.isEmpty()) {
@@ -68,11 +63,10 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
         }
         ZonedDateTime zonedDateTime = ZonedDateTime.of(year, month, day, hour, minute, second, nanoSecond, zoneId);
         long timeValue = zonedDateTime.toInstant().toEpochMilli();
-        return TimeUtils.createTimeStruct(getTimeZoneStructInfo(context), 
-                getTimeStructInfo(context), timeValue, zoneIDStr);
+        return TimeUtils.createTimeRecord(getTimeZoneRecord(), getTimeRecord(), timeValue, zoneIDStr);
     }
 
-    BMap<String, BValue> parseTime(Context context, String dateValue, String pattern) {
+    static MapValue<String, Object> parseTime(String dateValue, String pattern) {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
             TemporalAccessor temporalAccessor = formatter.parse(dateValue);
@@ -115,109 +109,109 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
 
             ZonedDateTime zonedDateTime = ZonedDateTime.of(year, month, day, hour, minute, second, nanoSecond, zoneId);
             long timeValue = zonedDateTime.toInstant().toEpochMilli();
-            return TimeUtils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), timeValue,
-                    zoneId.toString());
+            return TimeUtils.createTimeRecord(getTimeZoneRecord(), getTimeRecord(), timeValue, zoneId.toString());
         } catch (DateTimeParseException e) {
-            throw new BallerinaException(
-                    "parse date \"" + dateValue + "\" for the format \"" + pattern + "\" failed:" + e.getMessage());
+            throw TimeUtils.getTimeError("parse date \"" + dateValue + "\" for the format \"" + pattern + "\" "
+                                                 + "failed:" + e.getMessage());
         } catch (IllegalArgumentException e) {
-            throw new BallerinaException("invalid pattern: " + pattern);
+            throw TimeUtils.getTimeError("invalid pattern: " + pattern);
         }
     }
 
-    String getFormattedtString(BMap<String, BValue> timeStruct, String pattern) throws IllegalArgumentException {
-        ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+    static String getFormattedString(MapValue<String, Object> timeRecord, String pattern)
+            throws IllegalArgumentException {
+        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
         return dateTime.format(dateTimeFormatter);
     }
 
-    String getDefaultString(BMap<String, BValue> timeStruct) {
-        ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+    static String getDefaultString(MapValue<String, Object> timeRecord) {
+        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
         return dateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
     }
 
-    BMap<String, BValue> addDuration(Context context, BMap<String, BValue> timeStruct, long years, long months,
-                                     long days, long hours, long minutes, long seconds, long milliSeconds) {
-        ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+    static MapValue<String, Object> addDuration(MapValue<String, Object> timeRecord, long years, long months,
+                                                long days, long hours, long minutes, long seconds, long milliSeconds) {
+        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
         long nanoSeconds = milliSeconds * 1000000;
         dateTime = dateTime.plusYears(years).plusMonths(months).plusDays(days).plusHours(hours).plusMinutes(minutes)
                 .plusSeconds(seconds).plusNanos(nanoSeconds);
-        BMap<String, BValue> zoneData = (BMap<String, BValue>) timeStruct.get(ZONE_FIELD);
-        String zoneIdName = zoneData.get(ZONE_ID_FIELD).stringValue();
+        MapValue<String, Object> zoneData = (MapValue<String, Object>) timeRecord.get(ZONE_FIELD);
+        String zoneIdName = zoneData.get(ZONE_ID_FIELD).toString();
         long mSec = dateTime.toInstant().toEpochMilli();
-        return TimeUtils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), mSec, zoneIdName);
+        return TimeUtils.createTimeRecord(getTimeZoneRecord(), getTimeRecord(), mSec, zoneIdName);
     }
 
-    BMap<String, BValue> subtractDuration(Context context, BMap<String, BValue> timeStruct, long years, long months,
-                                          long days, long hours, long minutes, long seconds, long milliSeconds) {
-        ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+    static MapValue<String, Object> subtractDuration(MapValue<String, Object> timeRecord, long years, long months,
+                                                     long days, long hours, long minutes, long seconds,
+                                                     long milliSeconds) {
+        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
         long nanoSeconds = milliSeconds * 1000000;
         dateTime = dateTime.minusYears(years).minusMonths(months).minusDays(days).minusHours(hours)
                 .minusMinutes(minutes).minusSeconds(seconds).minusNanos(nanoSeconds);
-        BMap<String, BValue> zoneData = (BMap<String, BValue>) timeStruct.get(ZONE_FIELD);
-        String zoneIdName = zoneData.get(ZONE_ID_FIELD).stringValue();
+        MapValue<String, Object> zoneData = (MapValue<String, Object>) timeRecord.get(ZONE_FIELD);
+        String zoneIdName = zoneData.get(ZONE_ID_FIELD).toString();
         long mSec = dateTime.toInstant().toEpochMilli();
-        return TimeUtils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), mSec, zoneIdName);
+        return TimeUtils.createTimeRecord(getTimeZoneRecord(), getTimeRecord(), mSec, zoneIdName);
     }
 
-    BMap<String, BValue> changeTimezone(Context context, BMap<String, BValue> timeStruct, String zoneId) {
-        BMap<String, BValue> timezone = TimeUtils.createTimeZone(TimeUtils.getTimeZoneStructInfo(context), zoneId);
-        timeStruct.put(ZONE_FIELD, timezone);
-        clearStructCache(timeStruct);
-        return timeStruct;
+    static MapValue<String, Object> changeTimezone(MapValue<String, Object> timeRecord, String zoneId) {
+        MapValue<String, Object> timezone = TimeUtils.createTimeZone(TimeUtils.getTimeZoneRecord(), zoneId);
+        timeRecord.put(ZONE_FIELD, timezone);
+        clearRecordCache(timeRecord);
+        return timeRecord;
     }
 
-
-    int getYear(BMap<String, BValue> timeStruct) {
-        ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+    static int getYear(MapValue<String, Object> timeRecord) {
+        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
         return dateTime.getYear();
     }
 
-    int getMonth(BMap<String, BValue> timeStruct) {
-        ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+    static int getMonth(MapValue<String, Object> timeRecord) {
+        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
         return dateTime.getMonthValue();
     }
 
-    int getDay(BMap<String, BValue> timeStruct) {
-        ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+    static int getDay(MapValue<String, Object> timeRecord) {
+        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
         return dateTime.getDayOfMonth();
     }
 
-    int getHour(BMap<String, BValue> timeStruct) {
-        ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+    static int getHour(MapValue<String, Object> timeRecord) {
+        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
         return dateTime.getHour();
     }
 
-    int getMinute(BMap<String, BValue> timeStruct) {
-        ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+    static int getMinute(MapValue<String, Object> timeRecord) {
+        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
         return dateTime.getMinute();
     }
 
-    int getSecond(BMap<String, BValue> timeStruct) {
-        ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+    static int getSecond(MapValue<String, Object> timeRecord) {
+        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
         return dateTime.getSecond();
     }
 
-    int getMilliSecond(BMap<String, BValue> timeStruct) {
-        ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+    static int getMilliSecond(MapValue<String, Object> timeRecord) {
+        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
         return dateTime.getNano() / 1000000;
     }
 
-    String getWeekDay(BMap<String, BValue> timeStruct) {
-        ZonedDateTime dateTime = getZonedDateTime(timeStruct);
+    static String getWeekDay(MapValue<String, Object> timeRecord) {
+        ZonedDateTime dateTime = getZonedDateTime(timeRecord);
         return dateTime.getDayOfWeek().toString();
     }
 
-    ZonedDateTime getZonedDateTime(BMap<String, BValue> timeStruct) {
-        ZonedDateTime dateTime = (ZonedDateTime) timeStruct.getNativeData(KEY_ZONED_DATETIME);
+    static ZonedDateTime getZonedDateTime(MapValue<String, Object> timeRecord) {
+        ZonedDateTime dateTime = (ZonedDateTime) timeRecord.getNativeData(KEY_ZONED_DATETIME);
         if (dateTime != null) {
             return dateTime;
         }
-        long timeData = ((BInteger) timeStruct.get(TIME_FIELD)).intValue();
-        BMap<String, BValue> zoneData = (BMap<String, BValue>) timeStruct.get(ZONE_FIELD);
+        long timeData = (Long) timeRecord.get(TIME_FIELD);
+        MapValue<String, Object> zoneData = (MapValue<String, Object>) timeRecord.get(ZONE_FIELD);
         ZoneId zoneId;
         if (zoneData != null) {
-            String zoneIdName = zoneData.get(ZONE_ID_FIELD).stringValue();
+            String zoneIdName = zoneData.get(ZONE_ID_FIELD).toString();
             if (zoneIdName.isEmpty()) {
                 zoneId = ZoneId.systemDefault();
             } else {
@@ -227,25 +221,25 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
             zoneId = ZoneId.systemDefault();
         }
         dateTime = Instant.ofEpochMilli(timeData).atZone(zoneId);
-        timeStruct.addNativeData(KEY_ZONED_DATETIME, dateTime);
+        timeRecord.addNativeData(KEY_ZONED_DATETIME, dateTime);
         return dateTime;
     }
 
-    private void clearStructCache(BMap<String, BValue> timeStruct) {
-        timeStruct.addNativeData(KEY_ZONED_DATETIME, null);
+    private static void clearRecordCache(MapValue<String, Object> timeRecord) {
+        timeRecord.addNativeData(KEY_ZONED_DATETIME, null);
     }
 
-    private StructureTypeInfo getTimeZoneStructInfo(Context context) {
-        if (zoneStructInfo == null) {
-            zoneStructInfo = TimeUtils.getTimeZoneStructInfo(context);
+    private static MapValue<String, Object> getTimeZoneRecord() {
+        if (zoneRecord == null) {
+            zoneRecord = TimeUtils.getTimeZoneRecord();
         }
-        return zoneStructInfo;
+        return zoneRecord;
     }
 
-    private StructureTypeInfo getTimeStructInfo(Context context) {
-        if (timeStructInfo == null) {
-            timeStructInfo = TimeUtils.getTimeStructInfo(context);
+    private static MapValue<String, Object> getTimeRecord() {
+        if (timeRecord == null) {
+            timeRecord = TimeUtils.getTimeRecord();
         }
-        return timeStructInfo;
+        return timeRecord;
     }
 }

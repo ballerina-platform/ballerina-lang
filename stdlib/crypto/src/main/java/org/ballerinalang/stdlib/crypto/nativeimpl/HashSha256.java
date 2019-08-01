@@ -18,14 +18,9 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
 /**
@@ -35,16 +30,10 @@ import org.ballerinalang.stdlib.crypto.CryptoUtils;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
-        functionName = "hashSha256",
-        args = {@Argument(name = "input", type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
-        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
-        isPublic = true)
-public class HashSha256 extends BlockingNativeCallableUnit {
+        functionName = "hashSha256", isPublic = true)
+public class HashSha256 {
 
-    @Override
-    public void execute(Context context) {
-        BValue inputBValue = context.getRefArgument(0);
-        byte[] input = ((BValueArray) inputBValue).getBytes();
-        context.setReturnValues(new BValueArray(CryptoUtils.hash(context, "SHA-256", input)));
+    public static ArrayValue hashSha256(Strand strand, ArrayValue inputValue) {
+        return new ArrayValue(CryptoUtils.hash("SHA-256", inputValue.getBytes()));
     }
 }

@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.bre.Context;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -49,14 +49,7 @@ import java.nio.file.Paths;
         isPublic = true
 )
 public class OpenWritableFile extends AbstractNativeChannel {
-    /**
-     * Index which defines the file path.
-     */
-    private static final int PATH_FIELD_INDEX = 0;
-    /**
-     * Index which will specify the file access mode.
-     */
-    private static final int APPEND_STATE_INDEX = 0;
+
     /**
      * Read only access mode.
      */
@@ -66,21 +59,20 @@ public class OpenWritableFile extends AbstractNativeChannel {
      */
     private static final String APPEND_ACCESS_MODE = "a";
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Channel inFlow(Context context) throws BallerinaException {
-        String pathUrl = context.getStringArgument(PATH_FIELD_INDEX);
-        boolean accessMode = context.getBooleanArgument(APPEND_STATE_INDEX);
+
+    public static Object openWritableFile(Strand strand, String pathUrl, boolean accessMode) {
+        return createChannel(inFlow(pathUrl, accessMode));
+    }
+
+    private static Channel inFlow(String pathUrl, boolean accessMode) throws BallerinaException {
         Channel channel;
         try {
             Path path = Paths.get(pathUrl);
             FileChannel fileChannel;
             if (accessMode) {
-                fileChannel = IOUtils.openFileChannel(path, APPEND_ACCESS_MODE);
+                fileChannel = IOUtils.openFileChannelExtended(path, APPEND_ACCESS_MODE);
             } else {
-                fileChannel = IOUtils.openFileChannel(path, WRITE_ACCESS_MODE);
+                fileChannel = IOUtils.openFileChannelExtended(path, WRITE_ACCESS_MODE);
             }
             channel = new FileIOChannel(fileChannel);
         } catch (AccessDeniedException e) {
