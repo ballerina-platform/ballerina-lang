@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.jvm.interop;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -28,6 +29,7 @@ import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.XMLValue;
 
 import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -115,16 +117,21 @@ class JMethodResolver {
     }
 
     private void validateExceptionTypes(JMethodRequest jMethodRequest, JMethod jMethod) {
+        Executable method = jMethod.getMethod();
         boolean hasCheckedExceptionInSignature = false;
-        for (Class<?> exceptionType : jMethod.getMethod().getExceptionTypes()) {
+        for (Class<?> exceptionType : method.getExceptionTypes()) {
             if (!RuntimeException.class.isAssignableFrom(exceptionType)) {
                 hasCheckedExceptionInSignature = true;
                 break;
             }
         }
 
-        if ((hasCheckedExceptionInSignature && !jMethodRequest.throwsException) ||
-                (jMethodRequest.throwsException && !hasCheckedExceptionInSignature)) {
+        boolean hasErrorAsReturn = method instanceof Method &&
+                ErrorValue.class.isAssignableFrom(((Method) method).getReturnType());
+
+        if (((hasCheckedExceptionInSignature && !jMethodRequest.throwsException) ||
+                (jMethodRequest.throwsException && !hasCheckedExceptionInSignature)) &&
+                (jMethodRequest.throwsException && !hasErrorAsReturn)) {
             throw new JInteropException(JInteropException.METHOD_SIGNATURE_NOT_MATCH_REASON,
                     "No such Java method '" + jMethodRequest.methodName + "' which throws checked exception " +
                             "found in class '" + jMethodRequest.declaringClass + "'");
@@ -170,6 +177,8 @@ class JMethodResolver {
         String jParamTypeName = jParamType.getTypeName();
         switch (bParamType.getTag()) {
             case TypeTags.HANDLE_TAG:
+            case TypeTags.ANY_TAG:
+            case TypeTags.ANYDATA_TAG:
                 return !jParamType.isPrimitive();
             case TypeTags.NULL_TAG:
                 return jParamTypeName.equals("void");
@@ -201,6 +210,9 @@ class JMethodResolver {
                 return TableValue.class.isAssignableFrom(jParamType);
             case TypeTags.XML_TAG:
                 return XMLValue.class.isAssignableFrom(jParamType);
+            case TypeTags.TUPLE_TAG:
+            case TypeTags.ARRAY_TAG:
+                return ArrayValue.class.isAssignableFrom(jParamType);
             case TypeTags.UNION_TAG:
                 List<BType> members = ((BUnionType)bParamType).getMemberTypes();
                 for (BType member : members) {
@@ -208,6 +220,7 @@ class JMethodResolver {
                         return true;
                     }
                 }
+                return !jParamType.isPrimitive();
         }
         return false;
     }
