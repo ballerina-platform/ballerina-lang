@@ -4,7 +4,7 @@ NAME
 
 SYNOPSIS
     ballerina [-v|--version|version] [?|-h|--help]
-        <command> [<args>]
+              <command> [<args>]
 
 DESCRIPTION
     In the cloud, applications interact with their environment over the network.
