@@ -217,6 +217,13 @@ public class CompileCommandTest extends CommandTest {
         // Check if the imported libs are in the tmp folder
         Path importJar = tmpDir.resolve("myimport.jar");
         Assert.assertTrue(Files.exists(importJar));
+
+        // Check if imported bir is in the project target
+        Path importBir = projectDirectory.resolve(ProjectDirConstants.TARGET_DIR_NAME)
+                .resolve(ProjectDirConstants.CACHES_DIR_NAME).resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME)
+                .resolve("testOrg").resolve("myimport").resolve("0.1.0").resolve("myimport.bir");
+        Assert.assertTrue(Files.exists(importBir));
+
     }
 
     @Test(dependsOnMethods = {"testCompileCommand"})
