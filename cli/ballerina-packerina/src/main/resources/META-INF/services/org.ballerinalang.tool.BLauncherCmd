@@ -9,4 +9,5 @@ org.ballerinalang.packerina.cmd.CompileCommand
 org.ballerinalang.packerina.cmd.SearchCommand
 org.ballerinalang.packerina.cmd.ListCommand
 org.ballerinalang.packerina.cmd.CleanCommand
+org.ballerinalang.packerina.cmd.TestCommand
 

@@ -83,9 +83,9 @@ public class BTestRunner {
     /**
      * Executes a given set of ballerina program files.
      *
-     * @param sourceRoot source root
-     * @param sourceFilePaths List of @{@link Path} of ballerina files
-     * @param groups List of groups to be included
+     * @param sourceRoot        source root
+     * @param sourceFilePaths   List of @{@link Path} of ballerina files
+     * @param groups            List of groups to be included
      * @param enableExpFeatures Flag indicating to enable the experimental features
      */
     public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups, boolean enableExpFeatures) {
@@ -95,11 +95,11 @@ public class BTestRunner {
     /**
      * Executes a given set of ballerina program files when running tests using the test command.
      *
-     * @param sourceRoot      source root
-     * @param sourceFilePaths List of @{@link Path} of ballerina files
-     * @param groups          List of groups to be included/excluded
-     * @param shouldIncludeGroups    flag to specify whether to include or exclude provided groups
-     * @param enableExpFeatures Flag indicating to enable the experimental features
+     * @param sourceRoot          source root
+     * @param sourceFilePaths     List of @{@link Path} of ballerina files
+     * @param groups              List of groups to be included/excluded
+     * @param shouldIncludeGroups flag to specify whether to include or exclude provided groups
+     * @param enableExpFeatures   Flag indicating to enable the experimental features
      */
     public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups, boolean shouldIncludeGroups,
                         boolean enableExpFeatures) {
@@ -134,17 +134,17 @@ public class BTestRunner {
      */
     private void filterTestSuites() {
         registry.setTestSuites(registry.getTestSuites().entrySet()
-                                       .stream()
-                                       .filter(map -> sourcePackages.contains(map.getKey()))
-                                       .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+                .stream()
+                .filter(map -> sourcePackages.contains(map.getKey()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
 
     }
 
     /**
      * lists the groups available in tests.
      *
-     * @param sourceRoot source root of the project
-     * @param sourceFilePaths module or program file paths
+     * @param sourceRoot        source root of the project
+     * @param sourceFilePaths   module or program file paths
      * @param enableExpFeatures Flag indicating to enable the experimental feature
      */
     public void listGroups(String sourceRoot, Path[] sourceFilePaths, boolean enableExpFeatures) {
@@ -184,9 +184,10 @@ public class BTestRunner {
     /**
      * todo remove
      * Compiles the source and populate the registry with suites when executing tests using the test command.
-     * @param sourceRoot source root
+     *
+     * @param sourceRoot        source root
      * @param enableExpFeatures Flag indicating to enable the experimental features
-     * @param sourceFilePaths List of @{@link Path} of ballerina files
+     * @param sourceFilePaths   List of @{@link Path} of ballerina files
      */
     private void compileAndBuildSuites(String sourceRoot, Path[] sourceFilePaths, boolean enableExpFeatures) {
         outStream.println("Compiling tests");
@@ -203,12 +204,12 @@ public class BTestRunner {
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
             // compile
             CompileResult compileResult = BCompileUtil.compileWithTests(compilerContext, listener,
-                                                                        sourcePackage.toString(),
-                                                                        CompilerPhase.CODE_GEN);
+                    sourcePackage.toString(),
+                    CompilerPhase.CODE_GEN);
             // print errors
             for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
                 errStream.println(diagnostic.getKind().toString().toLowerCase(Locale.ENGLISH) + ":"
-                                          + diagnostic.getPosition() + " " + diagnostic.getMessage());
+                        + diagnostic.getPosition() + " " + diagnostic.getMessage());
             }
             if (compileResult.getErrorCount() > 0) {
                 throw new BLangCompilerException("compilation contains errors");
@@ -253,6 +254,7 @@ public class BTestRunner {
 
     /**
      * Add test suite to registry if not added.
+     *
      * @param packageName module name
      */
     private void addTestSuite(String packageName) {
@@ -286,7 +288,7 @@ public class BTestRunner {
      * This method will process BLangPackage and assign functions to test suite.
      *
      * @param bLangPackage compiled package.
-     * @param classLoader class loader to load and run package tests.
+     * @param classLoader  class loader to load and run package tests.
      */
     public void packageProcessed(BLangPackage bLangPackage, JBallerinaInMemoryClassLoader classLoader) {
         //packageInit = false;
@@ -314,11 +316,16 @@ public class BTestRunner {
                 bLangPackage.startFunction, TesterinaFunction.Type.TEST_INIT));
         // add all functions of the package as utility functions
         bLangPackage.functions.stream().forEach(function -> {
-            String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
-                    bLangPackage.packageID.name.value,
-                    getClassName(function));
-            Class<?> functionClass = classLoader.loadClass(functionClassName);
-            suite.addTestUtilityFunction(new TesterinaFunction(functionClass, function, TesterinaFunction.Type.UTIL));
+            try {
+                String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
+                        bLangPackage.packageID.name.value,
+                        getClassName(function));
+                Class<?> functionClass = classLoader.loadClass(functionClassName);
+                suite.addTestUtilityFunction(new TesterinaFunction(functionClass,
+                        function, TesterinaFunction.Type.UTIL));
+            } catch (RuntimeException e) {
+                // we do nothing here
+            }
         });
         resolveFunctions(suite);
         int[] testExecutionOrder = checkCyclicDependencies(suite.getTests());
@@ -534,6 +541,7 @@ public class BTestRunner {
 
     /**
      * Run all tests.
+     *
      * @param buildWithTests build with tests or just execute tests
      */
     private void execute(boolean buildWithTests) {
@@ -574,7 +582,7 @@ public class BTestRunner {
             tReport.addPackageReport(packageName);
             if (suite.getInitFunction() != null && TesterinaUtils.isPackageInitialized(packageName)) {
                 suite.getInitFunction().invoke();
-                suite.getStartFunction().invoke();
+                //suite.getStartFunction().invoke();
             }
 
             suite.getBeforeSuiteFunctions().forEach(test -> {
@@ -600,9 +608,9 @@ public class BTestRunner {
                         } catch (Throwable e) {
                             shouldSkipTest.set(true);
                             errorMsg = String.format("\t[fail] " + beforeEachTest.getName() +
-                                                     " [before each test function for the test %s] :\n\t    %s",
-                                                     test.getTestFunction().getName(),
-                                                     TesterinaUtils.formatError(e.getMessage()));
+                                            " [before each test function for the test %s] :\n\t    %s",
+                                    test.getTestFunction().getName(),
+                                    TesterinaUtils.formatError(e.getMessage()));
                             errStream.println(errorMsg);
                         }
                     });
@@ -617,9 +625,9 @@ public class BTestRunner {
                     } catch (Throwable e) {
                         shouldSkipTest.set(true);
                         errorMsg = String.format("\t[fail] " + test.getBeforeTestFunctionObj().getName() +
-                                                 " [before test function for the test %s] :\n\t    %s",
-                                                 test.getTestFunction().getName(),
-                                                 TesterinaUtils.formatError(e.getMessage()));
+                                        " [before test function for the test %s] :\n\t    %s",
+                                test.getTestFunction().getName(),
+                                TesterinaUtils.formatError(e.getMessage()));
                         errStream.println(errorMsg);
                     }
                 }
@@ -627,7 +635,7 @@ public class BTestRunner {
                 TesterinaResult functionResult = null;
                 try {
                     if (isTestDependsOnFailedFunctions(test.getDependsOnTestFunctions(), failedOrSkippedTests)) {
-                      shouldSkipTest.set(true);
+                        shouldSkipTest.set(true);
                     }
 
                     // Check whether the this test depends on any failed or skipped functions
@@ -640,12 +648,12 @@ public class BTestRunner {
                             test.getTestFunction().invoke();
                             // report the test result
                             functionResult = new TesterinaResult(test.getTestFunction().getName(), true, shouldSkip
-                                .get(), null);
+                                    .get(), null);
                             tReport.addFunctionResult(packageName, functionResult);
                         } else {
                             List<BValue[]> argList = extractArguments(valueSets);
                             argList.forEach(arg -> {
-                                test.getTestFunction().invoke(arg);
+                                //test.getTestFunction().invoke(arg);
                                 TesterinaResult result = new TesterinaResult(test.getTestFunction().getName(), true,
                                         shouldSkip.get(), null);
                                 tReport.addFunctionResult(packageName, result);
@@ -663,7 +671,7 @@ public class BTestRunner {
                     failedOrSkippedTests.add(test.getTestFunction().getName());
                     // report the test result
                     functionResult = new TesterinaResult(test.getTestFunction().getName(), false, shouldSkip.get(),
-                                                         formatErrorMessage(e));
+                            formatErrorMessage(e));
                     tReport.addFunctionResult(packageName, functionResult);
                 }
 
@@ -675,9 +683,9 @@ public class BTestRunner {
                     }
                 } catch (Throwable e) {
                     error = String.format("\t[fail] " + test.getAfterTestFunctionObj().getName() +
-                                          " [after test function for the test %s] :\n\t    %s",
-                                          test.getTestFunction().getName(),
-                                          TesterinaUtils.formatError(e.getMessage()));
+                                    " [after test function for the test %s] :\n\t    %s",
+                            test.getTestFunction().getName(),
+                            TesterinaUtils.formatError(e.getMessage()));
                     errStream.println(error);
                 }
 
@@ -688,9 +696,9 @@ public class BTestRunner {
                         afterEachTest.invoke();
                     } catch (Throwable e) {
                         errorMsg2 = String.format("\t[fail] " + afterEachTest.getName() +
-                                                  " [after each test function for the test %s] :\n\t    %s",
-                                                  test.getTestFunction().getName(),
-                                                  TesterinaUtils.formatError(e.getMessage()));
+                                        " [after each test function for the test %s] :\n\t    %s",
+                                test.getTestFunction().getName(),
+                                TesterinaUtils.formatError(e.getMessage()));
                         errStream.println(errorMsg2);
                     }
                 });
@@ -704,7 +712,7 @@ public class BTestRunner {
                     func.invoke();
                 } catch (Throwable e) {
                     errorMsg = String.format("\t[fail] " + func.getName() + " [after test suite function] :\n\t    " +
-                                                     "%s", TesterinaUtils.formatError(e.getMessage()));
+                            "%s", TesterinaUtils.formatError(e.getMessage()));
                     errStream.println(errorMsg);
                 }
             });
@@ -718,9 +726,12 @@ public class BTestRunner {
 
     private String formatErrorMessage(Throwable e) {
         String message = e.getMessage();
-        Throwable cause = e.getCause();
-        if (cause instanceof ErrorValue) {
-            message = ((ErrorValue) cause).getPrintableStackTrace();
+        if (e.getCause() instanceof ErrorValue) {
+            try {
+                message = ((ErrorValue) e.getCause()).getPrintableStackTrace();
+            } catch (ClassCastException castException) {
+                //do nothing this is to avoid spot bug
+            }
         }
         return message;
     }
@@ -731,6 +742,7 @@ public class BTestRunner {
 
     /**
      * Extract function arguments from the values sets.
+     *
      * @param valueSets user provided value sets
      * @return a list of function arguments
      */

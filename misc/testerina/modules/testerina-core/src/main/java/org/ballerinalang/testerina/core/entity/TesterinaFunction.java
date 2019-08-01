@@ -72,7 +72,8 @@ public class TesterinaFunction {
             this.prefix = prefix;
         }
 
-        @Override public String toString() {
+        @Override
+        public String toString() {
             return prefix;
         }
     }
@@ -107,15 +108,10 @@ public class TesterinaFunction {
         }*/
     }
 
-    /**
-     * Invokes a ballerina test function, in blocking mode.
-     *
-     * @param args function arguments
-     */
-    public void invoke(BValue[] args) {
+    /*public BValue[] invoke(BValue[] args) {
         // return BVMExecutor.executeFunction(programFile, bFunction, args);
-//        return new BValue[0];
-    }
+        return new BValue[0];
+    }*/
 
     public String getName() {
         return name;
@@ -148,7 +144,6 @@ public class TesterinaFunction {
     public void setRunTest() {
         this.runTest = false;
     }
-
 
 
     private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler1) {
