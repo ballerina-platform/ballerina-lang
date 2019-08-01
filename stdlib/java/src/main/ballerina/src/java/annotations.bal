@@ -24,7 +24,7 @@ public type Identifier string;
 # types in `Constructor` and `Method` annotations.
 #
 # + class - Element class of the array type
-# + dimensions - dimensions of the array type
+# + dimensions - Dimensions of the array type
 public type ArrayType record {|
     Class class;
     byte dimensions;
