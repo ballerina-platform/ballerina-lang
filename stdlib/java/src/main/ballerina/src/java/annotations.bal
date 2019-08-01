@@ -40,7 +40,7 @@ public type ConstructorData record {|
     (Class | ArrayType)[] paramTypes?;
 |};
 
-# MethodData describes a Java method. If the `paramTypes` field is not specified,
+# `MethodData` describes a Java method. If the `paramTypes` field is not specified,
 # then parameter types are inferred from the corresponding Ballerina function.
 #
 # + name - An optional field that describes name of the Java method. If this field is not provided,
