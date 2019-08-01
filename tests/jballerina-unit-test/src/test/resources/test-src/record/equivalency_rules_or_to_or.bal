@@ -41,19 +41,6 @@ function testOpenToOpenAssignment2() returns AnotherPerson2 {
     return ap;
 }
 
-type AnotherPerson3 record {
-    string name;
-    int age;
-    float weight?;
-};
-
-function testOpenToOpenAssignment3() returns AnotherPerson3 {
-    Person1 p = {name:"John Doe", age:25};
-    AnotherPerson3 ap = p;
-    return ap;
-}
-
-
 //////////////////////////////////////////////////////////////////
 // Test for when the LHS type has optional fields which correspond to required fields of the RHS type.
 // This is allowed.

@@ -74,15 +74,15 @@ public class LdapConnectionContext {
 
         // Set connect timeout if provided in configuration. Otherwise set default value
         String connectTimeout = String.valueOf(ldapConfiguration.getLdapConnectionTimeout());
-        String readTimeout = String.valueOf(ldapConfiguration.getReadTimeout());
+        String readTimeoutInMillis = String.valueOf(ldapConfiguration.getReadTimeoutInMillis());
         if (!connectTimeout.trim().isEmpty()) {
             environment.put("com.sun.jndi.ldap.connect.timeout", connectTimeout);
         } else {
             environment.put("com.sun.jndi.ldap.connect.timeout", LdapConstants.DEFAULT_CONNECTION_TIME_OUT);
         }
 
-        if (!LdapUtils.isNullOrEmptyAfterTrim(readTimeout)) {
-            environment.put("com.sun.jndi.ldap.read.timeout", readTimeout);
+        if (!LdapUtils.isNullOrEmptyAfterTrim(readTimeoutInMillis)) {
+            environment.put("com.sun.jndi.ldap.read.timeout", readTimeoutInMillis);
         }
     }
 
