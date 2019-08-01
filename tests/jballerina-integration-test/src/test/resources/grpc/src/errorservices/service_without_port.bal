@@ -27,8 +27,8 @@ service HelloWorld85 on server6 {
         io:println("name: " + name);
         string message = "Hello " + name;
         io:println("Server send response : " + message);
-        error? err = caller->send(message);
-        if (err is error) {
+        grpc:Error? err = caller->send(message);
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         }
         checkpanic caller->complete();

@@ -19,7 +19,7 @@ package org.ballerinalang.test.service.grpc.tool;
 
 import com.google.protobuf.DescriptorProtos;
 import org.ballerinalang.protobuf.cmd.OSDetector;
-import org.ballerinalang.protobuf.exception.BalGenToolException;
+import org.ballerinalang.protobuf.exception.CodeGeneratorException;
 import org.ballerinalang.protobuf.utils.ProtocCommandBuilder;
 
 import java.io.File;
@@ -49,7 +49,7 @@ public class ProtoDescriptorUtils {
      *
      * @return protoc compiler file.
      */
-    public static File getProtocCompiler() throws IOException  {
+    static File getProtocCompiler() throws IOException, CodeGeneratorException {
         File protocExeFile = new File(System.getProperty("java.io.tmpdir"), "protoc-" + OSDetector
                 .getDetectedClassifier() + ".exe");
         String protocExePath = protocExeFile.getAbsolutePath(); // if file already exists will do nothing
@@ -61,7 +61,7 @@ public class ProtoDescriptorUtils {
                 downloadFile(new URL(protocDownloadurl), protocExeFile);
                 //set application user permissions to 455
                 grantPermission(protocExeFile);
-            } catch (BalGenToolException e) {
+            } catch (CodeGeneratorException e) {
                 Files.deleteIfExists(Paths.get(protocExePath));
                 throw e;
             }
@@ -78,8 +78,8 @@ public class ProtoDescriptorUtils {
      * @param protoPath      .proto file path
      * @return file descriptor of proto file.
      */
-    public static DescriptorProtos.FileDescriptorSet getProtoFileDescriptor(File exePath, String protoPath) throws
-            IOException {
+    static DescriptorProtos.FileDescriptorSet getProtoFileDescriptor(File exePath, String protoPath) throws
+            IOException, CodeGeneratorException {
 
         File descriptorFile = File.createTempFile("file-desc-", ".desc");
         String command = new ProtocCommandBuilder
@@ -89,7 +89,7 @@ public class ProtoDescriptorUtils {
         try (InputStream targetStream = new FileInputStream(descriptorFile)) {
             return DescriptorProtos.FileDescriptorSet.parseFrom(targetStream);
         } catch (IOException e) {
-            throw new BalGenToolException("Error reading generated descriptor file.", e);
+            throw new CodeGeneratorException("Error reading generated descriptor file.", e);
         } finally {
             Files.deleteIfExists(descriptorFile.toPath());
         }
