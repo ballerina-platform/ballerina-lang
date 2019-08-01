@@ -72,7 +72,7 @@ public function main(string... args) {
     string proxyUsername = args[3];
     string proxyPassword = args[4];
     string accessToken = args[5];
-    string organization = args[6]
+    string organization = args[6];
     string pathToBalo = args[7];
     string outputLog = args[8];
     if (proxyHost != "" && proxyPortAsString != "") {
