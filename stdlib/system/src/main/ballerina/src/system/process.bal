@@ -41,26 +41,23 @@ public type Process object {
         return nativeDestroy(self);
     }
     
-    # Provides a channel (to write into) in which this data is made available as
-    # the standard input for the process.
+    # Provides a channel (to write into), which is made available as the 'standard input' for the process.
     #
-    # + return - The `io:WritableByteChannel` representing the channel to write into for process's standard input
+    # + return - The `io:WritableByteChannel` which represents the process's 'standard input'
     public function stdin() returns io:WritableByteChannel {
         return nativeStdin(self);
     }
     
-    # Provides a channel to read from, where this data as made available from
-    # the standard output of the process.
+    # Provides a channel (to read from), which is made available as the 'standard output' of the process.
     #
-    # + return - The `io:ReadableByteChannel` representing the channel to read representing process's standard output
+    # + return - The `io:ReadableByteChannel` which represents the process's 'standard output'
     public function stdout() returns io:ReadableByteChannel {
         return nativeStdout(self);
     }
     
-    # Provides a channel to read from, where this data as made available from
-    # the standard error of the process.
+    # Provides a channel (to read from), which is made available as the 'standard error' of the process.
     #
-    # + return - The `io:ReadableByteChannel` representing the channel to read representing process's standard error
+    # + return - The `io:ReadableByteChannel` which represents the process's 'standard error'
     public function stderr() returns io:ReadableByteChannel {
         return nativeStderr(self);
     }
@@ -68,7 +65,7 @@ public type Process object {
     # Pipes the standard output of the current process to the standard input of the given process.
     #
     # + process - The process to pipe the data to
-    # + return - The process that is passed in, where this is used to help chain pipe operations
+    # + return - The process that is passed in, which is used to help chain pipe operations
     public function pipe(Process process) returns Process {
         _ = start self.doPipe(self.stdout(), process.stdin());
         return process;
