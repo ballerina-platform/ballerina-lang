@@ -399,13 +399,10 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
     bir:BType retType = <bir:BType>birFunc.typeValue["retType"];
     if retType is bir:BTypeNil {
     } else {
-        bir:BType? realType = retType;
-        if (retType is bir:BUnionType) {
-            realType = getActualType(retType);
-        }
+        boolean isVoidReturnThrows = false;
         bir:VariableDcl retVarDcl = { typeValue: <bir:BType>retType, name: { value: "$_ret_var_$" }, kind: "LOCAL" };
         returnVarRefIndex = indexMap.getIndex(retVarDcl);
-        if realType is bir:BTypeHandle {
+        if retType is bir:BTypeHandle {
             // Here the corresponding Java method parameter type is 'jvm:RefType'. This has been verified before
             bir:VariableDcl retJObjectVarDcl = { typeValue: "any", name: { value: "$_ret_jobject_var_$" }, kind: "LOCAL" };
             int returnJObjectVarRefIndex = indexMap.getIndex(retJObjectVarDcl);
@@ -414,16 +411,41 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
             mv.visitInsn(DUP);
             mv.visitVarInsn(ALOAD, returnJObjectVarRefIndex);
             mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, "<init>", "(Ljava/lang/Object;)V", false);
-        } else if (realType is bir:BTypeNil) {
-        } else {
+        } else if (retType is BValueType) {
             // retType is a value-type
             if(jMethodRetType is jvm:PrimitiveType) {
-                performWideningPrimitiveConversion(mv, <BValueType>retType, jMethodRetType);
+                performWideningPrimitiveConversion(mv, retType, jMethodRetType);
             } else {
                 addUnboxInsn(mv, retType);
             }
+        } else if (retType is bir:BUnionType) {
+            if (jMethodRetType is jvm:PrimitiveType) {
+                bir:BType bType = getBTypeFromJType(jMethodRetType);
+                performWideningPrimitiveConversion(mv, <BValueType> bType, jMethodRetType);
+                addBoxInsn(mv, bType);
+                if bType is bir:BTypeNil {
+                    isVoidReturnThrows = true;
+                }
+            } else if (jMethodRetType is jvm:RefType) {
+                jvm:Label afterHandle = labelGen.getLabel("after_handle");
+                if (jMethodRetType.typeName == "java/lang/Object") {
+                    mv.visitInsn(DUP);
+                    mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
+                    mv.visitJumpInsn(IFNE, afterHandle);
+                }
+                bir:VariableDcl retJObjectVarDcl = { typeValue: "any", name: { value: "$_ret_jobject_var_$" }, kind: "LOCAL" };
+                int returnJObjectVarRefIndex = indexMap.getIndex(retJObjectVarDcl);
+                mv.visitVarInsn(ASTORE, returnJObjectVarRefIndex);
+                mv.visitTypeInsn(NEW, HANDLE_VALUE);
+                mv.visitInsn(DUP);
+                mv.visitVarInsn(ALOAD, returnJObjectVarRefIndex);
+                mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, "<init>", "(Ljava/lang/Object;)V", false);
+                mv.visitLabel(afterHandle);
+            }
         }
-        
+        if (!isVoidReturnThrows) {
+            generateVarStore(mv, retVarDcl, currentPackageName, returnVarRefIndex);
+        }  
     }
 
     jvm:Label retLabel = labelGen.getLabel("return_lable");
@@ -459,7 +481,7 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
     mv.visitEnd();
 }
 
-type BValueType bir:BTypeInt | bir:BTypeFloat | bir:BTypeBoolean | bir:BTypeByte | bir:BUnionType;
+type BValueType bir:BTypeInt | bir:BTypeFloat | bir:BTypeBoolean | bir:BTypeByte | bir:BTypeNil;
 
 // These conversions are already validate beforehand, therefore I am just emitting type conversion instructions here.
 // We can improve following logic with a type lattice.
@@ -478,19 +500,6 @@ function performWideningPrimitiveConversion(jvm:MethodVisitor mv, BValueType bTy
         } else {
             mv.visitInsn(I2D);
         }
-    } else if bType is bir:BUnionType {
-        // this is always a error|sometype.
-        bir:BType? retType = ();
-        foreach var member in bType.members {
-            if (!(member is bir:BErrorType)) {
-                retType = member;
-                break;
-            }
-        }
-        if (retType is BValueType) {
-            performWideningPrimitiveConversion(mv, retType, jType);
-        }
-        addBoxInsn(mv, retType);
     }
 }
 // Get real type by removing error when error added due to a throw
@@ -731,6 +740,25 @@ function genArrayStore(jvm:MethodVisitor mv, jvm:JType jType) {
     }
 
     mv.visitInsn(code);
+}
+
+function getBTypeFromJType(jvm:JType jType) returns bir:BType {
+    int code;
+    if jType is jvm:Int | jvm:Long | jvm:Short{
+        return bir:TYPE_INT;
+    } else if jType is jvm:Double | jvm:Float {
+        return bir:TYPE_FLOAT;
+    } else if jType is jvm:Byte {
+        return bir:TYPE_BYTE;
+    } else if jType is jvm:Boolean {
+        return bir:TYPE_BOOLEAN;
+    } else if jType is jvm:Char {
+        return bir:TYPE_STRING;
+    } else if jType is jvm:Void {
+        return bir:TYPE_NIL;
+    } else {
+        panic error("Unknown primitive type in interop");
+    }
 }
 
 function genArrayNew(jvm:MethodVisitor mv, jvm:JType elementType) {
