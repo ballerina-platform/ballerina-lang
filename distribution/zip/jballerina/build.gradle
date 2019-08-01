@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
- 
+
 plugins {
     id 'base'
 }
@@ -68,6 +68,8 @@ dependencies {
 
     dist 'info.picocli:picocli:3.3.0'
     dist 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
+    dist 'org.apache.kafka:kafka-clients:2.0.0'
+    dist 'org.apache.kafka:kafka_2.11:2.0.0'
     dist 'org.apache.james:apache-mime4j-core:0.7.2'
     dist 'org.apache.ws.commons.axiom:axiom-api:1.2.20'
     dist 'org.apache.ws.commons.axiom:axiom-c14n:1.2.22'
@@ -144,6 +146,7 @@ dependencies {
     distBal project(path: ':ballerina-java', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-websub', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-xslt', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-kafka', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-rabbitmq', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-nats', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-utils', configuration: 'baloImplementation')
@@ -197,6 +200,7 @@ dependencies {
     balSource project(path: ':ballerina-java', configuration: 'balSource')
     balSource project(path: ':ballerina-websub', configuration: 'balSource')
     balSource project(path: ':ballerina-xslt', configuration: 'balSource')
+    balSource project(path: ':ballerina-kafka', configuration: 'balSource')
     balSource project(path: ':ballerina-rabbitmq', configuration: 'balSource')
     balSource project(path: ':ballerina-nats', configuration: 'balSource')
     balSource project(path: ':ballerina-utils', configuration: 'balSource')
@@ -264,6 +268,7 @@ dependencies {
     dist project(':metrics-extensions:ballerina-prometheus-extension')
     dist project(':toml-parser')
     dist project(':tracing-extensions:ballerina-jaeger-extension')
+    dist project(':ballerina-kafka')
     dist project(':ballerina-rabbitmq')
     dist project(':ballerina-nats')
     dist project(':ballerina-jwt')
