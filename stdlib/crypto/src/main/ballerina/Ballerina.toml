@@ -1,3 +1,13 @@
 [project]
 org-name = "ballerina"
 version = "0.0.0"
+
+[platform]
+target = "java"
+
+    [[platform.libraries]]
+    artafactId = "commons-codec"
+    version = "1.9"
+    path = "./lib/commons-codec-1.9.jar"
+    groupId = "commons-codec"
+    modules = ["crypto"]

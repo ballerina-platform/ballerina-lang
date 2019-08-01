@@ -1,3 +1,13 @@
 [project]
 org-name = "ballerina"
 version = "0.0.0"
+
+[platform]
+target = "java"
+
+    [[platform.libraries]]
+    artafactId = "asm"
+    version = "6.2.1"
+    path = "./lib/asm-6.2.1.jar"
+    groupId = "org.ow2.asm"
+    modules = ["jvm"]

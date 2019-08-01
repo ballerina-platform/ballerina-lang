@@ -36,7 +36,8 @@ public class CipherStrengthSSLTestCase extends HttpBaseTest {
     private final String weakCipherServiceUrl = "https://localhost:9227";
     private String strongCipherClient;
     private String weakCipherClient;
-
+    private String sourceRoot;
+    
     @BeforeClass
     public void init() {
         strongCipherClient = new File(
@@ -45,6 +46,9 @@ public class CipherStrengthSSLTestCase extends HttpBaseTest {
         weakCipherClient = new File(
                 "src" + File.separator + "test" + File.separator + "resources" + File.separator + "mutualSSL"
                         + File.separator + "ssl_client_with_weak_cipher.bal").getAbsolutePath();
+        sourceRoot = new File(
+                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "mutualSSL")
+                .getAbsolutePath();
     }
 
     @Test(description = "Test ssl with strong cipher service with strong cipher client")
@@ -85,7 +89,8 @@ public class CipherStrengthSSLTestCase extends HttpBaseTest {
             throws BallerinaTestException {
         BMainInstance ballerinaClient = new BMainInstance(balServer);
         LogLeecher clientLeecher = new LogLeecher(serverResponse);
-        ballerinaClient.runMain(clientProgram, null, new String[] { serverUrl }, new LogLeecher[] { clientLeecher });
+        ballerinaClient.runMain(clientProgram, null, new String[] { serverUrl }, null, new String[]{},
+                new LogLeecher[] { clientLeecher }, sourceRoot);
         clientLeecher.waitForText(20000);
     }
 }

@@ -17,17 +17,11 @@
  */
 package org.ballerinalang.packerina;
 
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
-import org.wso2.ballerinalang.compiler.packaging.Patten;
-import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
-import org.wso2.ballerinalang.compiler.packaging.repo.RemoteRepo;
-import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -46,6 +40,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_DEV_STAGE_CENTRAL;
 
 /**
  * This class provides util methods when pushing Ballerina modules to central and home repository.
@@ -54,7 +49,9 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
  */
 public class PushUtils {
 
-    private static final String BALLERINA_CENTRAL_CLI_TOKEN = RepoUtils.getRemoteRepoURL() + "/cli-token";
+    private static final String BALLERINA_CENTRAL_CLI_TOKEN = BALLERINA_DEV_STAGE_CENTRAL ?
+                                                              "https://staging-central.ballerina.io/cli-token" :
+                                                              "https://central.ballerina.io/cli-token";
     private static final Path BALLERINA_HOME_PATH = RepoUtils.createAndGetHomeReposPath();
     private static final Path SETTINGS_TOML_FILE_PATH = BALLERINA_HOME_PATH.resolve(
             ProjectDirConstants.SETTINGS_FILE_NAME);
@@ -108,7 +105,6 @@ public class PushUtils {
                                           "the maximum length is 256 characters");
         }
         String version = manifest.getProject().getVersion();
-        PackageID packageID = new PackageID(new Name(orgName), new Name(moduleName), new Name(version));
 
         // Get balo output path
         Path baloOutputDir = Paths.get(prjDirPath.toString(), ProjectDirConstants.TARGET_DIR_NAME,
@@ -130,12 +126,12 @@ public class PushUtils {
                     Proxy proxy = settings.getProxy();
                     
                     // Push module to central
-                    String urlWithModulePath = resolvePkgPathInRemoteRepo(packageID);
+                    String urlWithModulePath = URI.create(RepoUtils.getRemoteRepoURL()).resolve("/modules/").toString();
                     String outputLogMessage = orgName + "/" + moduleName + ":" + version + " [project repo -> central]";
         
                     Optional<RuntimeException> execute = executor.executeMainFunction("module_push", urlWithModulePath,
                             proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword(), accessToken,
-                            moduleBaloFile.get().toAbsolutePath().toString(), outputLogMessage);
+                            orgName, moduleBaloFile.get().toAbsolutePath().toString(), outputLogMessage);
                     if (execute.isPresent()) {
                         String errorMessage = execute.get().getMessage();
                         if (!errorMessage.trim().equals("")) {
@@ -253,25 +249,25 @@ public class PushUtils {
 //        }
 //    }
 
-    /**
-     * Get URI of the module from the remote repo.
-     *
-     * @param packageID packageID object
-     * @return full URI path of the module relative to the remote repo
-     */
-    private static String resolvePkgPathInRemoteRepo(PackageID packageID) {
-        Repo<URI> remoteRepo = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()));
-        Patten patten = remoteRepo.calculate(packageID);
-        if (patten == Patten.NULL) {
-            throw createLauncherException("Couldn't find module " + packageID.toString());
-        }
-        Converter<URI> converter = remoteRepo.getConverterInstance();
-        List<URI> uris = patten.convert(converter, packageID).collect(Collectors.toList());
-        if (uris.isEmpty()) {
-            throw createLauncherException("Couldn't find module " + packageID.toString());
-        }
-        return uris.get(0).toString();
-    }
+//    /**
+//     * Get URI of the module from the remote repo.
+//     *
+//     * @param packageID packageID object
+//     * @return full URI path of the module relative to the remote repo
+//     */
+//    private static String resolvePkgPathInRemoteRepo(PackageID packageID) {
+//        Repo<URI> remoteRepo = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()));
+//        Patten patten = remoteRepo.calculate(packageID);
+//        if (patten == Patten.NULL) {
+//            throw createLauncherException("Couldn't find module " + packageID.toString());
+//        }
+//        Converter<URI> converter = remoteRepo.getConverterInstance();
+//        List<URI> uris = patten.convert(converter, packageID).collect(Collectors.toList());
+//        if (uris.isEmpty()) {
+//            throw createLauncherException("Couldn't find module " + packageID.toString());
+//        }
+//        return uris.get(0).toString();
+//    }
 
     /**
      * Read the access token generated for the CLI.

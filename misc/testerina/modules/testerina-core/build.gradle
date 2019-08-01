@@ -23,6 +23,7 @@ dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-auth')
+    implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-crypto')
