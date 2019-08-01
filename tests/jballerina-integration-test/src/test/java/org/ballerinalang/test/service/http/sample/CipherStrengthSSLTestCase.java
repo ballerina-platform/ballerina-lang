@@ -89,7 +89,8 @@ public class CipherStrengthSSLTestCase extends HttpBaseTest {
             throws BallerinaTestException {
         BMainInstance ballerinaClient = new BMainInstance(balServer);
         LogLeecher clientLeecher = new LogLeecher(serverResponse);
-        ballerinaClient.runMain(clientProgram, null, new String[] { serverUrl }, new LogLeecher[] { clientLeecher });
+        ballerinaClient.runMain(clientProgram, null, new String[] { serverUrl }, null, new String[]{},
+                new LogLeecher[] { clientLeecher }, sourceRoot);
         clientLeecher.waitForText(20000);
     }
 }
