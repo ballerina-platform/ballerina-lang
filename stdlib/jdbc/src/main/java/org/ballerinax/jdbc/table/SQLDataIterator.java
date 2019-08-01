@@ -246,7 +246,7 @@ public class SQLDataIterator extends TableIterator {
         if (expectedTypeTag == actualTypeTag) {
             typeMatches = true;
         } else {
-            if ((actualTypeTag == TypeTags.INT_TAG && expectedTypeTag == TypeTags.BOOLEAN_TAG)) {
+            if (actualTypeTag == TypeTags.INT_TAG && expectedTypeTag == TypeTags.BOOLEAN_TAG) {
                 typeMatches = true;
             }
         }
