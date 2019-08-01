@@ -17,7 +17,7 @@
 # Class is an alias for a `string` which represents a Java class name.
 public type Class string;
 
-# Identifier is an alias for a `string` that represents a Java identifier.
+# Identifier is an alias for a `string`, which represents a Java identifier.
 public type Identifier string;
 
 # ArrayType represents a Java array type. It is used to specify parameter
