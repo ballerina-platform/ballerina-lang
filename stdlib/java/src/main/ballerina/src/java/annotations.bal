@@ -43,7 +43,7 @@ public type ConstructorData record {|
 # MethodData describes a Java method. If the `paramTypes` field is not specified,
 # then parameter types are inferred from the corresponding Ballerina function.
 #
-# + name - an optional field that describes name of the Java method. If this field is not provided,
+# + name - An optional field that describes name of the Java method. If this field is not provided,
 #          then the name is inferred from the Ballerina function name
 # + class - The class in which the method exists
 # + paramTypes - An optional field that describes parameter types of the method
