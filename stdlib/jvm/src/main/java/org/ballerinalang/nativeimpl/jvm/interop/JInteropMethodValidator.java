@@ -25,6 +25,7 @@ import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.CLASS_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.IS_INTERFACE_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.IS_STATIC_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.KIND_FIELD;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.METHOD_THROWS_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.METHOD_TYPE_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.METHOD_TYPE_NAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.NAME_FIELD;
@@ -72,6 +73,7 @@ public class JInteropMethodValidator {
         jMethodRecord.put(IS_STATIC_FIELD, jMethod.isStatic());
         jMethodRecord.put(SIG_FIELD, jMethod.getSignature());
         jMethodRecord.put(METHOD_TYPE_FIELD, JInterop.createJMethodTypeBValue(jMethod));
+        jMethodRecord.put(METHOD_THROWS_FIELD, jMethod.getExceptionTypes());
         return jMethodRecord;
     }
 }

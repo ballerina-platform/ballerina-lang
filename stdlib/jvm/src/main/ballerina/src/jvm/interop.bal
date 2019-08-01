@@ -60,6 +60,7 @@ public type Method record {|
     boolean isStatic = false;
     string sig;
     MethodType mType;
+    string[] throws;
 |};
 
 public type MethodType record {|

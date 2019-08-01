@@ -50,7 +50,7 @@ public function interopWithUnionReturn() returns boolean {
         return false;
     }
     var b = acceptIntUnionReturn(2);
-    if (!(b is string)) {
+    if (!(b is handle)) {
         return false;
     }
     var c = acceptIntUnionReturn(3);
@@ -64,7 +64,7 @@ public function interopWithUnionReturn() returns boolean {
     return true;
 }
 
-public function acceptIntUnionReturn(int s) returns int|string|float|boolean = @java:Method {
+public function acceptIntUnionReturn(int s) returns int|string|float|boolean|handle = @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 

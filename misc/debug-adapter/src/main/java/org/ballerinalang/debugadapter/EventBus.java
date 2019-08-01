@@ -92,7 +92,7 @@ public class EventBus {
     }
 
     public Map<Long, ThreadReference> getThreadsMap() {
-         List<ThreadReference> threadReferences = context.getDebuggee().allThreads();
+        List<ThreadReference> threadReferences = context.getDebuggee().allThreads();
         threadReferences.stream().forEach(threadReference -> {
             threadsMap.put(threadReference.uniqueID(), threadReference);
         });
