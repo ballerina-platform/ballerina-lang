@@ -19,7 +19,10 @@ package org.ballerinalang.nativeimpl.jvm.tests;
 
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.ObjectValue;
 
 import java.util.Date;
 import java.util.UUID;
@@ -59,6 +62,45 @@ public class StaticMethods {
         long fromMap = mapValue.getIntValue(key);
         arrayValue.add(1, fromMap);
         return arrayValue;
+    }
+
+    public static MapValue acceptRefTypesAndReturnMap(ObjectValue a, ArrayValue b, Object c, ErrorValue d, Object e, Object f, MapValue g) {
+        MapValue<String, Object> mapValue = new MapValueImpl();
+        mapValue.put("a", a);
+        mapValue.put("b", b);
+        mapValue.put("c", c);
+//        mapValue.put("d", d);
+        mapValue.put("e", e);
+        mapValue.put("f", f);
+        mapValue.put("g", g);
+        return mapValue;
+    }
+
+    public static ErrorValue acceptStringErrorReturn(String msg) {
+        return new ErrorValue(msg, null);
+    }
+
+    public static Object acceptIntUnionReturn(int flag) {
+        switch (flag) {
+            case 1:
+                return 25;
+            case 2:
+                return "sample value return";
+            case 3:
+                return 54.88;
+            default:
+                return true;
+        }
+    }
+
+    public static ObjectValue acceptObjectAndObjectReturn(ObjectValue p, int newVal) {
+        p.set("age", newVal);
+        return p;
+    }
+
+    public static MapValue acceptRecordAndRecordReturn(MapValue e, String newVal) {
+        e.put("name", newVal);
+        return e;
     }
 
     public static String getString(UUID uuid) {
