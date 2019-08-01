@@ -31,15 +31,17 @@ public type Process object {
     
     # Returns the exit code of the process when it finished execution.
     #
-    # + return - Returns the exit code of the process, or else an `Error` if the process hasn't exited yet 
-    public function exitCode() returns int|Error = external;
+    # + return - Returns the exit code of the process, or an `Error` if the process hasn't exited yet.
+    public function exitCode() returns int|Error {
+        return nativeExitCode(self);
+    }
     
     # Destroys the process.
     public function destroy() {
         return nativeDestroy(self);
     }
     
-    # Provides a channel to write into, where this data is made available as
+    # Provides a channel (to write into) in which this data is made available as
     # the standard input for the process.
     #
     # + return - The `io:WritableByteChannel` representing the channel to write into for process's standard input
