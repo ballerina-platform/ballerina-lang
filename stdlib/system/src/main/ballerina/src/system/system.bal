@@ -45,7 +45,7 @@ public function uuid() returns string = external;
 #
 # + path - String value of file path.
 # + return - True if path is absolute, else false
-public function exists(string path) returns boolean = external;
+public function exists(@untainted string path) returns boolean = external;
 
 # Creates a new directory with the specified file name.
 # If parentDirs flag is true, Creates a directory in specified path with any necessary parents.

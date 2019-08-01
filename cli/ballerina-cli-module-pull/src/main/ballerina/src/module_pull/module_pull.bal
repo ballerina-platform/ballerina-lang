@@ -166,7 +166,7 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
                 string baloCacheWithModulePath = checkpanic filepath:build(baloCache, moduleVersion); // <user.home>.ballerina/balo_cache/<org-name>/<module-name>/<module-version>
 
                 string baloPath = checkpanic filepath:build(baloCacheWithModulePath, baloFile);
-                if (system:exists(baloPath)) {
+                if (system:exists(<@untainted> baloPath)) {
                     panic createError("module already exists in the home repository");
                 }
 
