@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -44,12 +42,9 @@ import org.slf4j.LoggerFactory;
         structPackage = "ballerina/system"),
         returnType = { @ReturnType(type = TypeKind.INT), @ReturnType(type = TypeKind.ERROR) }
 )
-public class ExitCode extends BlockingNativeCallableUnit {
+public class ExitCode {
     
     private static final Logger log = LoggerFactory.getLogger(WaitForExit.class);
-
-    @Override
-    public void execute(Context context) { }
 
     public static Object exitCode(Strand strand, ObjectValue objVal) {
         Process process = SystemUtils.processFromObject(objVal);

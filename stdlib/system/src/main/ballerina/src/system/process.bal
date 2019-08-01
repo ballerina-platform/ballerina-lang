@@ -25,9 +25,7 @@ public type Process object {
     # Waits for the process to finish its work and exit.
     #
     # + return - Returns the exit code for the process, or an `Error` if a failure occurs
-    public function waitForExit() returns int|Error {
-        return nativeWaitForExit(self);
-    }
+    public function waitForExit() returns int|Error = external;
     
     # Returns the exit code of the process when it finished execution.
     #
@@ -35,30 +33,22 @@ public type Process object {
     public function exitCode() returns int|Error = external;
     
     # Destroys the process.
-    public function destroy() {
-        return nativeDestroy(self);
-    }
+    public function destroy() = external;
     
     # Provides a channel (to write into), which is made available as the 'standard input' for the process.
     #
     # + return - The `io:WritableByteChannel` which represents the process's 'standard input'
-    public function stdin() returns io:WritableByteChannel {
-        return nativeStdin(self);
-    }
+    public function stdin() returns io:WritableByteChannel = external;
     
     # Provides a channel (to read from), which is made available as the 'standard output' of the process.
     #
     # + return - The `io:ReadableByteChannel` which represents the process's 'standard output'
-    public function stdout() returns io:ReadableByteChannel {
-        return nativeStdout(self);
-    }
+    public function stdout() returns io:ReadableByteChannel = external;
     
     # Provides a channel (to read from), which is made available as the 'standard error' of the process.
     #
     # + return - The `io:ReadableByteChannel` which represents the process's 'standard error'
-    public function stderr() returns io:ReadableByteChannel {
-        return nativeStderr(self);
-    }
+    public function stderr() returns io:ReadableByteChannel = external;
     
     # Pipes the standard output of the current process to the standard input of the given process.
     #
@@ -105,13 +95,3 @@ public type Process object {
     }
 
 };
-
-function nativeWaitForExit(Process process) returns int|Error = external;
-
-function nativeDestroy(Process process) = external;
-
-function nativeStdin(Process process) returns io:WritableByteChannel = external;
-
-function nativeStdout(Process process) returns io:ReadableByteChannel = external;
-
-function nativeStderr(Process process) returns io:ReadableByteChannel = external;
