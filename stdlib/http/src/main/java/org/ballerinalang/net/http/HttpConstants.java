@@ -28,10 +28,10 @@ import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
  */
 public class HttpConstants {
 
-    public static final String HTTPS_ENDPOINT_STARTED = "[ballerina/http] started HTTPS/WSS Listener ";
-    public static final String HTTP_ENDPOINT_STARTED = "[ballerina/http] started HTTP/WS Listener ";
-    public static final String HTTPS_ENDPOINT_STOPPED = "[ballerina/http] stopped HTTPS/WSS Listener ";
-    public static final String HTTP_ENDPOINT_STOPPED = "[ballerina/http] stopped HTTP/WS Listener ";
+    public static final String HTTPS_ENDPOINT_STARTED = "[ballerina/http] started HTTPS/WSS listener ";
+    public static final String HTTP_ENDPOINT_STARTED = "[ballerina/http] started HTTP/WS listener ";
+    public static final String HTTPS_ENDPOINT_STOPPED = "[ballerina/http] stopped HTTPS/WSS listener ";
+    public static final String HTTP_ENDPOINT_STOPPED = "[ballerina/http] stopped HTTP/WS listener ";
 
     public static final String BASE_PATH = "BASE_PATH";
     public static final String SUB_PATH = "SUB_PATH";
