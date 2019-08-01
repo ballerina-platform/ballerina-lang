@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Class is an alias for a `string` which represents a Java class name.
+# The `Class` type represents a Java class name.
 public type Class string;
 
-# Identifier is an alias for a `string`, which represents a Java identifier.
+# The `Identifier` type represents a Java identifier.
 public type Identifier string;
 
 # ArrayType represents a Java array type. It is used to specify parameter
@@ -30,7 +30,7 @@ public type ArrayType record {|
     byte dimensions;
 |};
 
-# `ConstructorData` describes a Java constructor. If the `paramTypes` field is not specified,
+# The `ConstructorData` type describes a Java constructor. If the `paramTypes` field is not specified,
 # then parameter types are inferred from the corresponding Ballerina function.
 #
 # + class - The class in which the constructor exists
@@ -40,7 +40,7 @@ public type ConstructorData record {|
     (Class | ArrayType)[] paramTypes?;
 |};
 
-# `MethodData` describes a Java method. If the `paramTypes` field is not specified,
+# The `MethodData` type describes a Java method. If the `paramTypes` field is not specified,
 # then parameter types are inferred from the corresponding Ballerina function.
 #
 # + name - An optional field that describes name of the Java method. If this field is not provided,
@@ -53,7 +53,7 @@ public type MethodData record {|
     (Class | ArrayType)[] paramTypes?;
 |};
 
-# `FieldData` describes a Java field.
+# The `FieldData` type describes a Java field.
 #
 # + name - An optional field that describes the name of the Java field. If this field is not provided,
 #          then the name is inferred from the Ballerina function name
@@ -63,8 +63,8 @@ public type FieldData record {|
     Class class;
 |};
 
-# The `constructor` annotation describes a Java constructor, which provides an implementation of a Ballerina function,
-# which has an external function body. If the Ballerina function body is marked as `external`, it means that the
+# The `Constructor` annotation describes a Java constructor that provides an implementation of a Ballerina function
+# whose body is marked as `external`. If the Ballerina function body is marked as `external`, it means that the
 # implementation of the function is not provided in the Ballerina source module.
 #
 # The following code snippet shows an example usage of this annotation. Here, the `newJavaLinkedList` Ballerina function's
@@ -78,8 +78,8 @@ public type FieldData record {|
 #
 public const annotation ConstructorData Constructor on source external;
 
-# Method annotation describes a Java method that provides an implementation to a Ballerina function
-# which has an external function body. If the Ballerina function body is marked as `external`, it means that the
+# The `Method` annotation describes a Java method that provides an implementation of a Ballerina function
+# whose body is marked as `external`. If the Ballerina function body is marked as `external`, it means that the
 # implementation of the function is not provided in the Ballerina source module.
 #
 # The following code snippet shows an example usage of this annotation. Here, the `getUUID` Ballerina function's
@@ -96,11 +96,11 @@ public const annotation ConstructorData Constructor on source external;
 # from the Ballerina function.
 public const annotation MethodData Method on source external;
 
-# The `FieldGet` annotation describes a Java Field access, which provides an implementation of a Ballerina function,
-# which has an external function body.
+# The `FieldGet` annotation describes a Java Field access that provides an implementation of a Ballerina function
+# whose body is marked as `external`.
 public const annotation FieldData FieldGet on source external;
 
-# The `FieldSet` annotation describes a Java Field mutate, which provides an implementation of a Ballerina function,
-# which has an external function body.
+# The `FieldSet` annotation describes a Java Field mutate that provides an implementation of a Ballerina function
+# whose body is marked as `external`.
 public const annotation FieldData FieldSet on source external;
 
