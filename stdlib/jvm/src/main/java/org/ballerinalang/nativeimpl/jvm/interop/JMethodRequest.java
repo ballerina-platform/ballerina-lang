@@ -93,8 +93,8 @@ class JMethodRequest {
 
     private static BType[] getBParamTypes(ArrayValue paramTypes) {
         BType[] bParamTypes = new BType[paramTypes.size()];
-        for (int i = 0 ; i < paramTypes.size() ; i ++) {
-            bParamTypes[i] =  getBType(paramTypes.get(i));
+        for (int i = 0; i < paramTypes.size(); i++) {
+            bParamTypes[i] = getBType(paramTypes.get(i));
         }
         return bParamTypes;
     }
@@ -128,7 +128,7 @@ class JMethodRequest {
                 case TypeConstants.XML_TNAME:
                     return BTypes.typeXML;
                 default:
-                    throw new UnsupportedOperationException("JMethodRequest does not support type '" + bType + "'");
+                    throw new UnsupportedOperationException("JInterop does not support type '" + bType + "'");
             }
         }
 
@@ -175,10 +175,10 @@ class JMethodRequest {
                 case ARRAY_TNAME:
                     return new BArrayType(getBType(arrayTypeValue.get(ARRAY_ELEMENT_TYPE_FIELD)));
                 default:
-                    throw new UnsupportedOperationException("JMethodRequest does not support type '" + bType + "'");
+                    throw new UnsupportedOperationException("JInterop does not support type '" + bType + "'");
             }
         }
 
-        throw new UnsupportedOperationException("JMethodRequest does not support type '" + bType + "'");
+        throw new UnsupportedOperationException("JInterop does not support type '" + bType + "'");
     }
 }
