@@ -65,10 +65,18 @@ class JInterop {
     static final String TYPE_NAME_FIELD = "typeName";
     static final String NO_TYPE_NAME = "NoType";
     static final String B_FUNC_TYPE_FIELD = "bFuncType";
-    static final String B_ERROR_TYPE_NAME = "error";
     static final String J_ARRAY_TYPE_NAME = "ArrayType";
     static final String ELEMENT_TYPE_FIELD = "elementType";
     static final String DIMENSIONS_FIELD = "dimensions";
+    static final String UNION_TYPE_MEMBERS_FIELD = "members";
+    static final String TUPLE_TYPE_MEMBERS_FIELD = "tupleTypes";
+    static final String ARRAY_ELEMENT_TYPE_FIELD = "eType";
+
+    static final String RECORD_TNAME = "record";
+    static final String OBJECT_TNAME = "object";
+    static final String UNION_TNAME = "union";
+    static final String TUPLE_TNAME = "tuple";
+    static final String ARRAY_TNAME = "array";
 
     static MapValue<String, Object> createRecordBValue(String typeName) {
         return BallerinaValues.createRecordValue(JVM_PACKAGE_PATH, typeName);

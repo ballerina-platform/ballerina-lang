@@ -18,9 +18,14 @@
 package org.ballerinalang.nativeimpl.jvm.interop;
 
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BObjectType;
+import org.ballerinalang.jvm.types.BRecordType;
+import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
+import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -28,15 +33,22 @@ import org.ballerinalang.jvm.values.MapValue;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.B_ERROR_TYPE_NAME;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.ARRAY_ELEMENT_TYPE_FIELD;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.ARRAY_TNAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.B_FUNC_TYPE_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.CLASS_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.KIND_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.NAME_FIELD;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.OBJECT_TNAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.PARAM_TYPES_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.PARAM_TYPE_CONSTRAINTS_FIELD;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.RECORD_TNAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.RETURN_TYPE_FIELD;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.TUPLE_TNAME;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.TUPLE_TYPE_MEMBERS_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.TYPE_NAME_FIELD;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.UNION_TNAME;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.UNION_TYPE_MEMBERS_FIELD;
 
 /**
  * {@code JMethodRequest} represents Java method request bean issued by the Java interop logic written in Ballerina.
@@ -72,7 +84,7 @@ class JMethodRequest {
         jMethodReq.bParamTypes = getBParamTypes(paramTypes);
         BType returnType = getBType(bFuncType.get(RETURN_TYPE_FIELD));
         jMethodReq.bReturnType = returnType;
-        jMethodReq.throwsException = returnType.toString().contains(B_ERROR_TYPE_NAME);
+        jMethodReq.throwsException = returnType.toString().contains(TypeConstants.ERROR);
 
         return jMethodReq;
     }
@@ -91,27 +103,27 @@ class JMethodRequest {
         if (bType.getTag() == TypeTags.STRING_TAG) {
             String typeName = (String) bTypeValue;
             switch (typeName) {
-                case "int":
+                case TypeConstants.INT_TNAME:
                     return BTypes.typeInt;
-                case "string":
+                case TypeConstants.STRING_TNAME:
                     return BTypes.typeString;
-                case "byte":
+                case TypeConstants.BYTE_TNAME:
                     return BTypes.typeByte;
-                case "boolean":
+                case TypeConstants.BOOLEAN_TNAME:
                     return BTypes.typeBoolean;
-                case "float":
+                case TypeConstants.FLOAT_TNAME:
                     return BTypes.typeFloat;
-                case "decimal":
+                case TypeConstants.DECIMAL_TNAME:
                     return BTypes.typeDecimal;
-                case "any":
+                case TypeConstants.ANY_TNAME:
                     return BTypes.typeAny;
-                case "anydata":
+                case TypeConstants.ANYDATA_TNAME:
                     return BTypes.typeAnydata;
-                case "()":
+                case TypeConstants.NULL_TNAME:
                     return BTypes.typeNull;
-                case "json":
+                case TypeConstants.JSON_TNAME:
                     return BTypes.typeJSON;
-                case "xml":
+                case TypeConstants.XML_TNAME:
                     return BTypes.typeXML;
                 default:
                     throw new UnsupportedOperationException("JMethodRequest does not support type '" + bType + "'");
@@ -119,36 +131,47 @@ class JMethodRequest {
         }
 
         if (bType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            String typeName = ((MapValue) bTypeValue).getStringValue(TYPE_NAME_FIELD);
+            BRecordType bRecordType = ((BRecordType) bType);
+            MapValue arrayTypeValue = ((MapValue) bTypeValue);
+            String typeName = arrayTypeValue.getStringValue(TYPE_NAME_FIELD);
             switch (typeName) {
-                case "handle":
+                case TypeConstants.HANDLE_TNAME:
                     return BTypes.typeHandle;
-                case "service":
+                case TypeConstants.SERVICE:
                     return BTypes.typeAnyService;
-                case "typedesc":
+                case TypeConstants.TYPEDESC_TNAME:
                     return BTypes.typeTypedesc;
-                case "map":
+                case TypeConstants.MAP_TNAME:
                     return BTypes.typeMap;
-                case "table":
+                case TypeConstants.TABLE_TNAME:
                     return BTypes.typeTable;
-                case "stream":
+                case TypeConstants.STREAM_TNAME:
                     return BTypes.typeStream;
-                case "error":
+                case TypeConstants.ERROR:
                     return BTypes.typeError;
-                case "future":
+                case TypeConstants.FUTURE_TNAME:
                     return BTypes.typeFuture;
-                case "union":
-                    ArrayValue members = ((MapValue) bTypeValue).getArrayValue("members");
+                case UNION_TNAME:
+                    ArrayValue members = ((MapValue) bTypeValue).getArrayValue(UNION_TYPE_MEMBERS_FIELD);
                     List<BType> memberTypes = new ArrayList<>();
                     for (int i = 0; i < members.size(); i++) {
                         memberTypes.add(getBType(members.get(i)));
                     }
                     return new BUnionType(memberTypes);
-                case "array":
-                case "record":
-                case "object":
-                case "tuple":
-                case "finite":
+                case OBJECT_TNAME:
+                    return new BObjectType(bRecordType.getName(), bRecordType.getPackage(), bRecordType.flags);
+                case TUPLE_TNAME:
+                    members = ((MapValue) bTypeValue).getArrayValue(TUPLE_TYPE_MEMBERS_FIELD);
+                    memberTypes = new ArrayList<>();
+                    for (int i = 0; i < members.size(); i++) {
+                        memberTypes.add(getBType(members.get(i)));
+                    }
+                    return new BTupleType(memberTypes);
+                case RECORD_TNAME:
+                    return new BRecordType(bRecordType.getName(), bRecordType.getPackage(), bRecordType.flags,
+                            bRecordType.sealed);
+                case ARRAY_TNAME:
+                    return new BArrayType(getBType(arrayTypeValue.get(ARRAY_ELEMENT_TYPE_FIELD)));
                 default:
                     throw new UnsupportedOperationException("JMethodRequest does not support type '" + bType + "'");
             }
