@@ -32,9 +32,7 @@ public type Process object {
     # Returns the exit code of the process when it finished execution.
     #
     # + return - Returns the exit code of the process, or an `Error` if the process hasn't exited yet.
-    public function exitCode() returns int|Error {
-        return nativeExitCode(self);
-    }
+    public function exitCode() returns int|Error = external;
     
     # Destroys the process.
     public function destroy() {
