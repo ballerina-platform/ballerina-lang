@@ -14,29 +14,93 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type ConstructorData record {|
-    string class;
-    ParamType[] paramTypes?;
-|};
+# Class is an alias for a `string` which represents a Java class name.
+public type Class string;
 
-public type MethodData record {|
-    string name?;
-    string class;
-    ParamType[] paramTypes?;
-|};
+# Identifier is an alias for a `string` that represents a Java identifier.
+public type Identifier string;
 
-public type ParamType string | record {|
-    string elementClass;
+# ArrayType represents a Java array type. It is used to specify parameter
+# types in `Constructor` and `Method` annotations.
+#
+# + class - element class of the array type
+# + dimensions - dimensions of the array type
+public type ArrayType record {|
+    Class class;
     byte dimensions;
 |};
 
-public type FieldData record {|
-    string name;
-    string class;
+# ConstructorData describes a Java constructor. If the `paramTypes` field is not specified,
+# then parameter types are inferred from the corresponding Ballerina function.
+#
+# + class - the class in which the constructor exists
+# + paramTypes - an optional field that describes parameter types of the constructor
+public type ConstructorData record {|
+    Class class;
+    (Class | ArrayType)[] paramTypes?;
 |};
 
+# MethodData describes a Java method. If the `paramTypes` field is not specified,
+# then parameter types are inferred from the corresponding Ballerina function.
+#
+# + name - an optional field that describes name of the Java method. If this field is not provided,
+#          then the name is inferred from the Ballerina function name
+# + class - the class in which the method exists
+# + paramTypes - an optional field that describes parameter types of the method
+public type MethodData record {|
+    Identifier name?;
+    Class class;
+    (Class | ArrayType)[] paramTypes?;
+|};
+
+# FieldData describes a Java field.
+#
+# + name - an optional field that describes the name of the Java field. If this field is not provided,
+#          then the name is inferred from the Ballerina function name
+# + class - the class in which the field exists
+public type FieldData record {|
+    Identifier name;
+    Class class;
+|};
+
+# Constructor annotation describes a Java constructor that provides an implementation to a Ballerina function
+# which has an external function body. The Ballerina function body is marked as `external` means that the
+# implementation of the function is not provided in the Ballerina source module.
+#
+# Following code snippet shows an example usage of this annotation. Here the `newJavaLinkedList` Ballerina function's
+# implementation is provided by the default constructor of `java.util.UUID.LinkedList` class.
+#
+#       import ballerina/java;
+#
+#       function newJavaLinkedList() returns handle = @java:Constructor {
+#           class: "java.util.LinkedList"
+#       } external;
+#
 public const annotation ConstructorData Constructor on source external;
+
+# Method annotation describes a Java method that provides an implementation to a Ballerina function
+# which has an external function body. The Ballerina function body is marked as `external` means that the
+# implementation of the function is not provided in the Ballerina source module.
+#
+# Following code snippet shows an example usage of this annotation. Here the `getUUID` Ballerina function's
+# implementation is provided by the `java.util.UUID.randomUUID` static method.
+#
+#       import ballerina/java;
+#
+#       function getUUID() returns handle = @java:Method {
+#           name: "randomUUID",
+#           class: "java.util.UUID"
+#       } external;
+#
+# The `name` field is optional. If it is not provided, the name of the Java method is inferred
+# from the Ballerina function.
 public const annotation MethodData Method on source external;
+
+# FieldGet annotation describes a Java Field acccess that provides an implementation to a Ballerina function
+# which has an external function body.
 public const annotation FieldData FieldGet on source external;
+
+# FieldSet annotation describes a Java Field mutate that provides an implementation to a Ballerina function
+# which has an external function body.
 public const annotation FieldData FieldSet on source external;
 
