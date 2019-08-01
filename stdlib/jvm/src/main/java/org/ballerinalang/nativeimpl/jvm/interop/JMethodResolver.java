@@ -143,7 +143,7 @@ class JMethodResolver {
         BType[] bParamTypes = jMethodRequest.bParamTypes;
         int i = 0;
         if (jMethod.isInstanceMethod() && bParamTypes.length > 0) {
-            if (!isValidExpectedBType(jMethodRequest.declaringClass, bParamTypes[i])) {
+            if (!isValidExpectedBType(jMethodRequest.declaringClass, bParamTypes[i], jMethodRequest)) {
                 throw new JInteropException(JInteropException.METHOD_SIGNATURE_NOT_MATCH_REASON,
                         "No such Java method '" + jMethodRequest.methodName +
                                 "' with method argument type '" + jParamTypes[i] + "' found in class '" +
@@ -153,7 +153,7 @@ class JMethodResolver {
         }
 
         for (int j = 0; j < jParamTypes.length; i++, j++) {
-            if (!isValidExpectedBType(jParamTypes[j], bParamTypes[i])) {
+            if (!isValidExpectedBType(jParamTypes[j], bParamTypes[i], jMethodRequest)) {
                 throw new JInteropException(JInteropException.METHOD_SIGNATURE_NOT_MATCH_REASON,
                         "No such Java method '" + jMethodRequest.methodName +
                                 "' with method argument type '" + jParamTypes[j] + "' found in class '" +
@@ -165,7 +165,7 @@ class JMethodResolver {
     private void validateReturnTypes(JMethodRequest jMethodRequest, JMethod jMethod) {
         Class<?> jReturnType = jMethod.getReturnType();
         BType bReturnType = jMethodRequest.bReturnType;
-        if (!isValidExpectedBType(jReturnType, bReturnType)) {
+        if (!isValidExpectedBType(jReturnType, bReturnType, jMethodRequest)) {
             throw new JInteropException(JInteropException.METHOD_SIGNATURE_NOT_MATCH_REASON,
                     "No such Java method '" + jMethodRequest.methodName +
                             "' with method return type '" + jReturnType + "' found in class '" +
@@ -173,7 +173,7 @@ class JMethodResolver {
         }
     }
 
-    private boolean isValidExpectedBType(Class<?> jParamType, BType bParamType) {
+    private boolean isValidExpectedBType(Class<?> jParamType, BType bParamType, JMethodRequest jMethodRequest) {
         String jParamTypeName = jParamType.getTypeName();
         switch (bParamType.getTag()) {
             case TypeTags.HANDLE_TAG:
@@ -183,8 +183,20 @@ class JMethodResolver {
             case TypeTags.NULL_TAG:
                 return jParamTypeName.equals("void");
             case TypeTags.INT_TAG:
+                if (jParamTypeName.equals(Object.class.getTypeName()) ||
+                        jParamTypeName.equals(Integer.class.getTypeName())) {
+                    return true;
+                }
             case TypeTags.BYTE_TAG:
+                if (jParamTypeName.equals(Object.class.getTypeName()) ||
+                        jParamTypeName.equals(Byte.class.getTypeName())) {
+                    return true;
+                }
             case TypeTags.FLOAT_TAG:
+                if (jParamTypeName.equals(Object.class.getTypeName()) ||
+                        jParamTypeName.equals(Float.class.getTypeName())) {
+                    return true;
+                }
                 return jParamType.isPrimitive() &&
                         (jParamTypeName.equals("int") || jParamTypeName.equals("byte") ||
                                 jParamTypeName.equals("short") || jParamTypeName.equals("long") ||
@@ -212,11 +224,14 @@ class JMethodResolver {
                 return XMLValue.class.isAssignableFrom(jParamType);
             case TypeTags.TUPLE_TAG:
             case TypeTags.ARRAY_TAG:
+                if (jMethodRequest.restParamExist) {
+                    return jParamType.isArray();
+                }
                 return ArrayValue.class.isAssignableFrom(jParamType);
             case TypeTags.UNION_TAG:
                 List<BType> members = ((BUnionType)bParamType).getMemberTypes();
                 for (BType member : members) {
-                    if (isValidExpectedBType(jParamType, member)){
+                    if (isValidExpectedBType(jParamType, member, jMethodRequest)){
                         return true;
                     }
                 }

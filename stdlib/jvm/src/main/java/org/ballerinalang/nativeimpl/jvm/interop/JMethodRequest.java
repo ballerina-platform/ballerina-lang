@@ -43,6 +43,7 @@ import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.OBJECT_TNAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.PARAM_TYPES_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.PARAM_TYPE_CONSTRAINTS_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.RECORD_TNAME;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.REST_PARAM_EXIST_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.RETURN_TYPE_FIELD;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.TUPLE_TNAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.TUPLE_TYPE_MEMBERS_FIELD;
@@ -66,6 +67,7 @@ class JMethodRequest {
     BType[] bParamTypes;
     BType bReturnType;
     boolean throwsException = false;
+    boolean restParamExist = false;
 
     private JMethodRequest() {
     }
@@ -85,7 +87,7 @@ class JMethodRequest {
         BType returnType = getBType(bFuncType.get(RETURN_TYPE_FIELD));
         jMethodReq.bReturnType = returnType;
         jMethodReq.throwsException = returnType.toString().contains(TypeConstants.ERROR);
-
+        jMethodReq.restParamExist = jMethodReqBValue.getBooleanValue(REST_PARAM_EXIST_FIELD);
         return jMethodReq;
     }
 

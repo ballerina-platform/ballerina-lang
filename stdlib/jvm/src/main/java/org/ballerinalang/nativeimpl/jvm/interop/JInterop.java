@@ -50,6 +50,7 @@ class JInterop {
     static final String IS_INTERFACE_FIELD = "isInterface";
     static final String IS_ARRAY_FIELD = "isArray";
     static final String IS_STATIC_FIELD = "isStatic";
+    static final String REST_PARAM_EXIST_FIELD = "restParamExist";
     static final String SIG_FIELD = "sig";
     static final String METHOD_TYPE_FIELD = "mType";
     static final String FIELD_TYPE_FIELD = "fType";
