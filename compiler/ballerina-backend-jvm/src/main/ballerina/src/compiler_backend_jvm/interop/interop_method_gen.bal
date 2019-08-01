@@ -231,7 +231,12 @@ function genJFieldForInteropField(JFieldFunctionWrapper jFieldFuncWrapper,
             mv.visitVarInsn(ALOAD, returnJObjectVarRefIndex);
             mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, "<init>", "(Ljava/lang/Object;)V", false);
         } else {
-            performWideningPrimitiveConversion(mv, <BValueType>retType, <jvm:PrimitiveType>jFieldType);
+            // bType is a value-type
+            if(jFieldType is jvm:PrimitiveType) {
+                performWideningPrimitiveConversion(mv, <BValueType>retType, jFieldType);
+            } else {
+                addUnboxInsn(mv, retType);
+            }
         }
         generateVarStore(mv, retVarDcl, currentPackageName, returnVarRefIndex);
     }
@@ -391,8 +396,13 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
             mv.visitInsn(DUP);
             mv.visitVarInsn(ALOAD, returnJObjectVarRefIndex);
             mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, "<init>", "(Ljava/lang/Object;)V", false);
-        } else if(!(jMethodRetType is jvm:RefType)) {
-            performWideningPrimitiveConversion(mv, <BValueType>retType, <jvm:PrimitiveType>jMethodRetType);
+        } else {
+            // retType is a value-type
+            if(jMethodRetType is jvm:PrimitiveType) {
+                performWideningPrimitiveConversion(mv, <BValueType>retType, jMethodRetType);
+            } else {
+                addUnboxInsn(mv, retType);
+            }
         }
         generateVarStore(mv, retVarDcl, currentPackageName, returnVarRefIndex);
     }

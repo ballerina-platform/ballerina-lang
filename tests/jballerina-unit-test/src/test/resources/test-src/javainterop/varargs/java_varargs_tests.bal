@@ -51,6 +51,10 @@ public function testPasingValueTypeToJavaObject() returns int {
     return toShort(4);
 }
 
+public function testJavaGenericReturnType() returns [int, float, handle] {
+    return [getIntFromGeneric(8), getFloatFromGeneric(3.25), getStringFromGeneric(java:fromString("apples"))];
+}
+
 // ------------ External functions -------------
 
 public function calculateSum(int... values) returns int = @java:Method {
@@ -102,5 +106,20 @@ public function asList(int... values) returns handle = @java:Method {
 
 public function toShort(int value) returns int = @java:Method {
     name:"toShort",
+    class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
+} external;
+
+public function getIntFromGeneric(int value) returns int = @java:Method {
+    name:"getGenericValue",
+    class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
+} external;
+
+public function getFloatFromGeneric(float value) returns float = @java:Method {
+    name:"getGenericValue",
+    class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
+} external;
+
+public function getStringFromGeneric(handle value) returns handle = @java:Method {
+    name:"getGenericValue",
     class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
 } external;
