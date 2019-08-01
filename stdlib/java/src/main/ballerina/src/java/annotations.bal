@@ -23,7 +23,7 @@ public type Identifier string;
 # ArrayType represents a Java array type. It is used to specify parameter
 # types in `Constructor` and `Method` annotations.
 #
-# + class - element class of the array type
+# + class - Element class of the array type
 # + dimensions - dimensions of the array type
 public type ArrayType record {|
     Class class;
