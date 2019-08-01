@@ -42,7 +42,7 @@ public class BlobChannel implements ByteChannel {
 
     @Override
     public int read(ByteBuffer dst) throws IOException {
-        if (this.readableChannel == null) {
+        if (readableChannel == null) {
             throw new UnsupportedOperationException();
         }
         return readableChannel.read(dst);
@@ -50,7 +50,7 @@ public class BlobChannel implements ByteChannel {
 
     @Override
     public int write(ByteBuffer src) throws IOException {
-        if (this.writableChannel == null) {
+        if (writableChannel == null) {
             throw new UnsupportedOperationException();
         }
         return this.writableChannel.write(src);
@@ -73,4 +73,9 @@ public class BlobChannel implements ByteChannel {
             writableChannel.close();
         }
     }
+    
+    public boolean isReadable() {
+        return readableChannel != null;
+    }
+    
 }
