@@ -15,32 +15,28 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.nativeimpl.jvm.tests;
+package org.ballerinalang.nativeimpl.java;
 
-import java.util.Date;
-import java.util.UUID;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.HandleValue;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * This class is used for Java interoperability tests.
+ * This class contains the implementation of the "getArrayLength" ballerina function in ballerina/java module.
  *
  * @since 1.0.0
  */
-public class JavaFieldAccessMutate {
-    // Static fields
-    public static String contractId = "Ballerina";
-    public static int age = 10;
-    public static short aShort = 11;
+@BallerinaFunction(
+        orgName = "ballerina", packageName = "java",
+        functionName = "getArrayLength"
+)
+public class GetArrayLength {
 
-    // Instance fields
-    public Date createdAt;
-    public boolean isEmpty = false;
-    public float lkr = 0.0f;
-    public UUID uuid = UUID.fromString("951e8356-d08f-429a-b49d-77df6cee37e2");
-
-    public JavaFieldAccessMutate(Date createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public JavaFieldAccessMutate() {
+    public static long getArrayLength(Strand strand, HandleValue arrayValue) {
+        Object[] arr = (Object[]) arrayValue.getValue();
+        if (arr == null) {
+            throw JValues.getJavaNullReferenceError();
+        }
+        return arr.length;
     }
 }

@@ -180,10 +180,12 @@ function genJFieldForInteropField(JFieldFunctionWrapper jFieldFuncWrapper,
         mv.visitJumpInsn(IFNONNULL, elseBlockLabel);
         jvm:Label thenBlockLabel = labelGen.getLabel("receiver_null_check_then");
         mv.visitLabel(thenBlockLabel);
-        mv.visitTypeInsn(NEW, "java/lang/RuntimeException");
-        mv.visitInsn(DUP);
-        mv.visitLdcInsn("instance is null");
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/RuntimeException", "<init>", "(Ljava/lang/String;)V", false);
+        mv.visitFieldInsn(GETSTATIC, BAL_ERROR_REASONS, "JAVA_NULL_REFERENCE_ERROR", "L" + STRING_VALUE + ";");
+        mv.visitFieldInsn(GETSTATIC, RUNTIME_ERRORS, "JAVA_NULL_REFERENCE", "L" + RUNTIME_ERRORS + ";");
+        mv.visitInsn(ICONST_0);
+        mv.visitTypeInsn(ANEWARRAY, OBJECT);
+        mv.visitMethodInsn(INVOKESTATIC, BLANG_EXCEPTION_HELPER, "getRuntimeException",
+            "(L" + STRING_VALUE + ";L" + RUNTIME_ERRORS + ";[L" + OBJECT + ";)L" + ERROR_VALUE + ";", false);
         mv.visitInsn(ATHROW);
         mv.visitLabel(elseBlockLabel);
     }
@@ -333,10 +335,12 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
         mv.visitJumpInsn(IFNONNULL, elseBlockLabel);
         jvm:Label thenBlockLabel = labelGen.getLabel("receiver_null_check_then");
         mv.visitLabel(thenBlockLabel);
-        mv.visitTypeInsn(NEW, "java/lang/RuntimeException");
-        mv.visitInsn(DUP);
-        mv.visitLdcInsn("instance is null");
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/RuntimeException", "<init>", "(Ljava/lang/String;)V", false);
+        mv.visitFieldInsn(GETSTATIC, BAL_ERROR_REASONS, "JAVA_NULL_REFERENCE_ERROR", "L" + STRING_VALUE + ";");
+        mv.visitFieldInsn(GETSTATIC, RUNTIME_ERRORS, "JAVA_NULL_REFERENCE", "L" + RUNTIME_ERRORS + ";");
+        mv.visitInsn(ICONST_0);
+        mv.visitTypeInsn(ANEWARRAY, OBJECT);
+        mv.visitMethodInsn(INVOKESTATIC, BLANG_EXCEPTION_HELPER, "getRuntimeException",
+            "(L" + STRING_VALUE + ";L" + RUNTIME_ERRORS + ";[L" + OBJECT + ";)L" + ERROR_VALUE + ";", false);
         mv.visitInsn(ATHROW);
         mv.visitLabel(elseBlockLabel);
     } else if jMethod.kind is jvm:CONSTRUCTOR {
