@@ -24,16 +24,12 @@ import org.ballerinalang.repository.CompiledPackage;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BIR_EXT;
 
 /**
  * Write a bir to cache.
@@ -43,7 +39,6 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COM
 public class BirFileWriter {
     private static final CompilerContext.Key<BirFileWriter> BIR_FILE_WRITER_KEY =
             new CompilerContext.Key<>();
-
 
     public static BirFileWriter getInstance(CompilerContext context) {
         BirFileWriter binaryFileWriter = context.get(BIR_FILE_WRITER_KEY);
@@ -92,38 +87,23 @@ public class BirFileWriter {
         try {
             byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(module.symbol.birPackageFile);
             Files.write(birFilePath, pkgBirBinaryContent);
-            writeImportsToHomeCache(module.symbol.imports);
         } catch (IOException e) {
             String msg = "error writing the compiled module(bir) of '" +
                     module.packageID + "' to '" + birFilePath + "': " + e.getMessage();
             throw new BLangCompilerException(msg, e);
         }
     }
-    
-    /**
-     * Write the birs of the imported modules to home repo.
-     *
-     * @param imports imported modules.
-     */
-    private void writeImportsToHomeCache(List<BPackageSymbol> imports) {
-        for (BPackageSymbol bimport : imports) {
-            PackageID id = bimport.pkgID;
-            Path cacheDir = RepoUtils.createAndGetHomeReposPath()
-                    .resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME)
-                    .resolve(id.orgName.value)
-                    .resolve(id.name.value)
-                    .resolve(id.version.value);
-            try {
-                Files.createDirectories(cacheDir);
-                Path birFile = cacheDir.resolve(id.name.value + BLANG_COMPILED_PKG_BIR_EXT);
-                byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(bimport.birPackageFile);
-                Files.write(birFile, pkgBirBinaryContent);
-                writeImportsToHomeCache(bimport.imports);
-            } catch (IOException e) {
-                String msg = "error writing the compiled module(bir) of '" +
-                             id.name.value + "' to '" + cacheDir + "': " + e.getMessage();
-                throw new BLangCompilerException(msg, e);
-            }
+
+    public void writeBIRToPath(CompiledBinaryFile.BIRPackageFile birPackageFile, PackageID id, Path birFilePath) {
+
+        try {
+            byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(birPackageFile);
+            Files.write(birFilePath, pkgBirBinaryContent);
+        } catch (IOException e) {
+            String msg = "error writing the compiled module(bir) of '" +
+                    id + "' to '" + birFilePath + "': " + e.getMessage();
+            throw new BLangCompilerException(msg, e);
         }
     }
+
 }

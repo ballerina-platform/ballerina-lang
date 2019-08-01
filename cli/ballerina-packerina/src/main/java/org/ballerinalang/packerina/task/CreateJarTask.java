@@ -47,7 +47,7 @@ public class CreateJarTask implements Task {
         
         List<BLangPackage> moduleBirMap = buildContext.getModules();
         for (BLangPackage module : moduleBirMap) {
-            writeImportJar(module.symbol.imports, sourceRoot, buildContext,
+            writeImportJar(tmpDir, module.symbol.imports, sourceRoot, buildContext,
                     projectBIRCache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
             
             // get the bir path of the module
@@ -61,7 +61,7 @@ public class CreateJarTask implements Task {
         }
     }
     
-    private void writeImportJar(List<BPackageSymbol> imports, Path sourceRoot, BuildContext buildContext,
+    private void writeImportJar(Path tmpDir, List<BPackageSymbol> imports, Path sourceRoot, BuildContext buildContext,
                                 String... reps) {
         for (BPackageSymbol bimport : imports) {
             PackageID id = bimport.pkgID;
@@ -77,13 +77,14 @@ public class CreateJarTask implements Task {
                 jarFilePath = buildContext.getJarPathFromTargetCache(id);
                 birFilePath = buildContext.getBirPathFromTargetCache(id);
             } else {
-                jarFilePath = buildContext.getBirPathFromHomeCache(id);
-                birFilePath = buildContext.getJarPathFromHomeCache(id);
+                jarFilePath = buildContext.getJarPathFromHomeCache(id);
+                birFilePath = buildContext.getBirPathFromHomeCache(id);
             }
             if (!Files.exists(jarFilePath)) {
-                BootstrapRunner.generateJarBinary(birFilePath.toString(), jarFilePath.toString(), false, reps);
+                BootstrapRunner.generateJarBinaryViaCompiledBackend(tmpDir, birFilePath.toString(),
+                        jarFilePath.toString(), false, reps);
             }
-            writeImportJar(bimport.imports, sourceRoot, buildContext);
+            writeImportJar(tmpDir, bimport.imports, sourceRoot, buildContext);
         }
     }
 }
