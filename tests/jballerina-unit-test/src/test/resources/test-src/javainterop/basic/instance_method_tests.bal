@@ -4,6 +4,10 @@ function testAcceptNothingAndReturnNothing(handle receiver) {
     increaseCounterByOne(receiver);
 }
 
+function testAcceptNothingAndReturnVoidThrows(handle receiver) returns int|error {
+    return testThrowsWithVoid(receiver);
+}
+
 function testInteropFunctionWithDifferentName(handle receiver) {
     interopFunctionWithDifferentName(receiver);
 }
@@ -66,6 +70,10 @@ public function setGetCounterValueWhichThrowsCheckedException(handle receiver, f
 } external;
 
 public function setGetCounterValueWhichThrowsUncheckedException(handle receiver, float f) returns int = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
+public function testThrowsWithVoid(handle receiver) returns error|int = @java:Method{
     class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
 } external;
 

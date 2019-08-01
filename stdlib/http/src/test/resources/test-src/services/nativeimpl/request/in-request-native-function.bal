@@ -1,13 +1,14 @@
-import ballerina/http;
+import ballerina/encoding;
 import ballerina/io;
+import ballerina/http;
 import ballerina/mime;
 
-function testContentType(http:Request req, string contentTypeValue) returns string {
+function testContentType(http:Request req, string contentTypeValue) returns @tainted string {
     checkpanic req.setContentType(contentTypeValue);
     return req.getContentType();
 }
 
-function testGetContentLength(http:Request req) returns string {
+function testGetContentLength(http:Request req) returns @tainted string {
     return req.getHeader("content-length");
 }
 
@@ -55,21 +56,22 @@ function testSetEntityBody(string filePath, string contentType) returns http:Req
     return req;
 }
 
-function testSetPayloadAndGetText((string|xml|json|byte[]|io:ReadableByteChannel) payload) returns string|error {
+function testSetPayloadAndGetText((string|xml|json|byte[]|io:ReadableByteChannel) payload) returns
+                                    @tainted string|error {
     http:Request req = new;
     req.setPayload(payload);
     return req.getTextPayload();
 }
 
-function testGetHeader(http:Request req, string key) returns string {
+function testGetHeader(http:Request req, string key) returns @tainted string {
     return req.getHeader(key);
 }
 
-function testGetHeaders(http:Request req, string key) returns string[] {
+function testGetHeaders(http:Request req, string key) returns @tainted string[] {
     return req.getHeaders(key);
 }
 
-function testGetJsonPayload(http:Request req) returns json|error {
+function testGetJsonPayload(http:Request req) returns @tainted json|error {
     return req.getJsonPayload();
 }
 
@@ -78,15 +80,15 @@ function testGetMethod(http:Request req) returns string {
     return method;
 }
 
-function testGetTextPayload(http:Request req) returns string|error {
+function testGetTextPayload(http:Request req) returns @tainted string|error {
     return req.getTextPayload();
 }
 
-function testGetBinaryPayload(http:Request req) returns byte[]|error {
+function testGetBinaryPayload(http:Request req) returns @tainted byte[]|error {
     return req.getBinaryPayload();
 }
 
-function testGetXmlPayload(http:Request req) returns xml|error {
+function testGetXmlPayload(http:Request req) returns @tainted xml|error {
     return req.getXmlPayload();
 }
 
@@ -343,7 +345,7 @@ service hello on mockEP {
     resource function setBinaryPayload(http:Caller caller, http:Request inReq) {
         http:Request req = new;
         string text = "Ballerina";
-        byte[] payload = text.toByteArray("UTF-8");
+        byte[] payload = text.toBytes();
         req.setBinaryPayload(payload);
         http:Response res = new;
         var returnResult = req.getBinaryPayload();
