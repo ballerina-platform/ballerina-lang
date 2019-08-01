@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -131,15 +132,25 @@ public class RunCommand implements BLauncherCmd {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, debugPort);
         }
 
-        Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
-        VMOptions.getInstance().addOptions(vmOptions);
-
         String programArg = argList.get(0);
+
         // remove the hyphen of the module folder if it exists
         if (programArg.endsWith("/")) {
             programArg = programArg.substring(0, programArg.length() - 1);
         }
+        // Check if programArg is a path not a file if so we calculate the source root from that
+        if (programArg.contains(File.separator)) {
+            Path programArgPath = Paths.get(programArg);
+            programArg = programArgPath.getFileName().toString();
+            sourceRoot = programArgPath.getParent().toString();
+        }
+
         Path sourcePath = Paths.get(programArg).normalize();
+
+
+
+        Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
+        VMOptions.getInstance().addOptions(vmOptions);
 
         // Filter out the list of arguments given to the ballerina program.
         // TODO: 7/26/18 improve logic with positioned param

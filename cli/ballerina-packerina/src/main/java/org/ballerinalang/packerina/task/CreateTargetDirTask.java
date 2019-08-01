@@ -21,6 +21,7 @@ package org.ballerinalang.packerina.task;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -38,6 +39,9 @@ public class CreateTargetDirTask implements Task {
             if (Files.notExists(targetDir)) {
                 Files.createDirectories(targetDir);
             }
+            // We create a home repo if home repo path not exists
+            Path homeRepo = RepoUtils.createAndGetHomeReposPath();
+            Files.createDirectories(homeRepo);
         } catch (IOException e) {
             throw new BLangCompilerException("error occurred in creating target directory: " + targetDir);
         }
