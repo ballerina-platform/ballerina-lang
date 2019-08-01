@@ -53,14 +53,15 @@ listener http:Listener ep = new (9090);
 // information, the `clientRequest` object is created and published to the `requestStream`.
 service requestService on ep {
 
-    future<()> ftr = start initRealtimeRequestCounter();
+    // TODO: issue #17267
+    () ftr = initRealtimeRequestCounter();
 
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/requests"
     }
     resource function requests(http:Caller conn, http:Request req) {
-        string hostName = untaint conn.remoteAddress.host;
+        string hostName = <@untainted> conn.remoteAddress.host;
         ClientRequest clientRequest = { host: hostName };
         requestStream.publish(clientRequest);
 
