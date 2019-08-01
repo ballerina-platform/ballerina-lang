@@ -265,6 +265,7 @@ public class BuildCommand implements BLauncherCmd {
                             .addTask(new CreateBirTask())
                             .addTask(new CreateJarTask())
                             .addTask(new CopyModuleJarTask())
+                            .addTask(new RunTestsTask(), this.skipTests)
                             .addTask(new CreateExecutableTask())
                             .addTask(new CopyExecutableTask(executableFilePath))
                             .addTask(new PrintExecutablePathTask())

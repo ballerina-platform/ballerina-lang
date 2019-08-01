@@ -240,7 +240,12 @@ public class BTestRunner {
      */
     private void buildSuites(Map<BLangPackage, JBallerinaInMemoryClassLoader> packageList) {
         packageList.forEach((sourcePackage, classLoader) -> {
-            String packageName = TesterinaUtils.getFullModuleName(sourcePackage.packageID.getName().getValue());
+            String packageName;
+            if (sourcePackage.packageID.getName().getValue().equals(".")) {
+                packageName = sourcePackage.packageID.getName().getValue();
+            } else {
+                packageName = TesterinaUtils.getFullModuleName(sourcePackage.packageID.getName().getValue());
+            }
             // Add a test suite to registry if not added. In this module there are no tests to be executed. But we need
             // to say that there are no tests found in the module to be executed
             addTestSuite(packageName);
