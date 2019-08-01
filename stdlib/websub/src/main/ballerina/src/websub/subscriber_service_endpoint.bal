@@ -40,7 +40,7 @@ public type Listener object {
 
     public function __attach(service s, string? name = ()) returns error? {
         // TODO: handle data and return error on error
-        self.registerWebSubSubscriberServiceEndpoint(s);
+        self.registerWebSubSubscriberService(s);
     }
 
     public function __start() returns error? {
@@ -78,7 +78,7 @@ public type Listener object {
 
     function initWebSubSubscriberServiceEndpoint() = external;
 
-    function registerWebSubSubscriberServiceEndpoint(service serviceType) = external;
+    function registerWebSubSubscriberService(service serviceType) = external;
 
     # Sends subscription requests to the specified/discovered hubs if specified to subscribe on startup.
     function sendSubscriptionRequests() {

@@ -289,21 +289,12 @@ public class RecordVariableDefinitionTest {
 
     @Test
     public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 19);
         String redeclaredSymbol = "redeclared symbol ";
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fName'", 37, 26);
         BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fiName'", 40, 36);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid closed record binding pattern on opened record type 'Person'", 54, 12);
-        BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'Person', found 'PersonWithAge'", 62, 37);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "invalid closed record binding pattern on opened record type 'Person'", 78, 12);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "not enough fields to match to closed record type 'ClosedFoo'", 81, 15);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "not enough fields to match to closed record type 'ClosedBar'", 82, 28);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'int'", 95, 13);
         BAssertUtil.validateError(resultNegative, ++i,
@@ -328,5 +319,6 @@ public class RecordVariableDefinitionTest {
                 "underscore is not allowed here", 157, 19);
         BAssertUtil.validateError(resultNegative, ++i,
                 "no new variables on left side", 158, 19);
+        Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 }

@@ -24,18 +24,15 @@ public type Process object {
 
     # Waits for the process to finish its work and exit.
     #
-    # + return - Returns the exist code for the process, or else an `Error` in a failure
+    # + return - Returns the exit code for the process, or an `Error` if a failure occurs
     public function waitForExit() returns int|Error {
         return nativeWaitForExit(self);
     }
     
     # Returns the exit code of the process when it finished execution.
-    # Error if the process has not exited yet.
     #
     # + return - Returns the exit code of the process, or else an `Error` if the process hasn't exited yet 
-    public function exitCode() returns int|Error {
-        return nativeExitCode(self);
-    }
+    public function exitCode() returns int|Error = external;
     
     # Destroys the process.
     public function destroy() {
@@ -113,8 +110,6 @@ public type Process object {
 };
 
 function nativeWaitForExit(Process process) returns int|Error = external;
-
-function nativeExitCode(Process process) returns int|Error = external;
 
 function nativeDestroy(Process process) = external;
 

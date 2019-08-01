@@ -997,7 +997,15 @@ function loadTupleType(jvm:MethodVisitor mv, bir:BTupleType bType) {
         mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", io:sprintf("(L%s;)Z", OBJECT), true);
         mv.visitInsn(POP);
     }
-    mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>", io:sprintf("(L%s;)V",LIST), false);
+
+    bir:BType? restType = bType.restType;
+    if (restType is bir:BType) {
+        loadType(mv, restType);
+    } else {
+        mv.visitInsn(ACONST_NULL);
+    }
+
+    mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>", io:sprintf("(L%s;L%s;)V", LIST, BTYPE), false);
     return;
 }
 

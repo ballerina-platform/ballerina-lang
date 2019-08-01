@@ -16,7 +16,18 @@
 
 package org.ballerinalang.ballerina.openapi.convertor.service;
 
+import io.swagger.models.Model;
+import io.swagger.models.ModelImpl;
 import io.swagger.models.Swagger;
+import io.swagger.models.properties.ArrayProperty;
+import io.swagger.models.properties.BooleanProperty;
+import io.swagger.models.properties.ByteArrayProperty;
+import io.swagger.models.properties.DecimalProperty;
+import io.swagger.models.properties.FloatProperty;
+import io.swagger.models.properties.IntegerProperty;
+import io.swagger.models.properties.ObjectProperty;
+import io.swagger.models.properties.Property;
+import io.swagger.models.properties.StringProperty;
 import io.swagger.parser.SwaggerParser;
 import io.swagger.parser.util.SwaggerDeserializationResult;
 import io.swagger.v3.core.util.Yaml;
@@ -33,9 +44,13 @@ import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -43,10 +58,24 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
@@ -57,8 +86,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -202,13 +233,15 @@ public class OpenApiConverterUtils {
     private static Swagger getOpenApiDefinition(Swagger openapi, OpenApiServiceMapper openApiServiceMapper,
                                                 String serviceName, BLangCompilationUnit topCompilationUnit,
                                                 List<BLangSimpleVariable> endpoints) {
+        Map<String, Model> definitions = new HashMap<>();
+
         for (TopLevelNode topLevelNode : topCompilationUnit.getTopLevelNodes()) {
             if (topLevelNode instanceof BLangSimpleVariable
                     && ((BLangSimpleVariable) topLevelNode).getFlags().contains(Flag.LISTENER)) {
                 endpoints.add((BLangSimpleVariable) topLevelNode);
             }
 
-            if (topLevelNode instanceof BLangService) {
+            if (topLevelNode instanceof BLangService && openapi.getBasePath() == null) {
                 BLangService serviceDefinition = (BLangService) topLevelNode;
                 openapi = new OpenApiEndpointMapper()
                         .convertBoundEndpointsToOpenApi(endpoints, serviceDefinition, openapi);
@@ -217,16 +250,113 @@ public class OpenApiConverterUtils {
                 if (StringUtils.isNotBlank(serviceName)) {
                     if (serviceDefinition.getName().getValue().equals(serviceName)) {
                         openapi = openApiServiceMapper.convertServiceToOpenApi(serviceDefinition, openapi);
-                        break;
                     }
                 } else {
                     // If no service name mentioned, then generate openApi definition for the first service.
                     openapi = openApiServiceMapper.convertServiceToOpenApi(serviceDefinition, openapi);
-                    break;
+                }
+            }
+
+            //Map records into swagger definitions
+            if (topLevelNode instanceof BLangTypeDefinition) {
+                BLangTypeDefinition typeNode = (BLangTypeDefinition) topLevelNode;
+
+                if (typeNode.typeNode instanceof BLangRecordTypeNode) {
+                    Model model = new ModelImpl();
+
+                    List<? extends SimpleVariableNode> fields = ((BLangRecordTypeNode) typeNode.typeNode).getFields();
+
+                    Map<String, Property> propertyMap = new HashMap<>();
+                    for (SimpleVariableNode field :fields) {
+
+                        final Property openApiPropertyForBallerinaField =
+                                createOpenApiPropertyForBallerinaField(field.getTypeNode());
+
+                        if (openApiPropertyForBallerinaField != null) {
+                            propertyMap.put(field.getName().getValue(), openApiPropertyForBallerinaField);
+                        }
+
+                    }
+
+                    model.setProperties(propertyMap);
+                    definitions.put(typeNode.getName().getValue(), model);
+                    openapi.setDefinitions(definitions);
                 }
             }
         }
+
         return openapi;
+    }
+
+    public static Property createOpenApiPropertyForBallerinaField(TypeNode node) {
+        Property property = null;
+        if (node instanceof BLangArrayType) {
+            final BLangArrayType fieldTypeNode = (BLangArrayType) node;
+            ArrayProperty arr = new ArrayProperty();
+            arr.setItems(mapBallerinaTypes(fieldTypeNode.getElementType()
+                    .type.getKind().typeName(), true));
+            property = arr;
+        } else if (node instanceof BLangBuiltInRefTypeNode) {
+            final BLangBuiltInRefTypeNode fieldTypeNode = (BLangBuiltInRefTypeNode) node;
+            property = mapBallerinaTypes(fieldTypeNode.typeKind.typeName(), false);
+        } else if (node instanceof BLangConstrainedType) {
+            //TODO handle constrained types
+        } else if (node instanceof BLangErrorType) {
+            //TODO Error type is handled as string variables. Need to discuss
+            final BLangErrorType fieldTypeNode = (BLangErrorType) node;
+            final BType bErrorType = fieldTypeNode.type;
+            if (bErrorType instanceof BErrorType) {
+                property = mapBallerinaTypes(((BErrorType) bErrorType)
+                        .getReasonType().getKind().typeName(), false);
+            }
+        } else if (node instanceof BLangFiniteTypeNode) {
+            //TODO handle finite types
+        } else if (node instanceof BLangFunctionTypeNode) {
+            //TODO handle function types
+        } else if (node instanceof BLangObjectTypeNode) {
+            //TODO handle object types
+        } else if (node instanceof BLangRecordTypeNode) {
+            //TODO handle record types
+        } else if (node instanceof BLangStructureTypeNode) {
+            //TODO handle structure types
+        } else if (node instanceof BLangTupleTypeNode) {
+            //TODO handle tuple types
+        } else if (node instanceof BLangUnionTypeNode) {
+            //TODO handle union types
+        } else if (node instanceof BLangUserDefinedType) {
+            final BLangUserDefinedType fieldTypeNode = (BLangUserDefinedType) node;
+            property = mapBallerinaTypes(fieldTypeNode.getTypeName().value, false);
+        } else if (node instanceof BLangValueType) {
+            final BLangValueType fieldTypeNode = (BLangValueType) node;
+            property = mapBallerinaTypes(fieldTypeNode.getTypeKind().typeName(), false);
+        }
+        return property;
+    }
+
+    public static Property mapBallerinaTypes(String type, boolean isArray) {
+        switch (type) {
+            case "any":
+                //TODO handle any type to OpenApi
+                return null;
+            case "int":
+                return new IntegerProperty();
+            case "string":
+                return new StringProperty();
+            case "boolean":
+                return new BooleanProperty();
+            case "decimal":
+                return new DecimalProperty();
+            case "byte":
+                return new ByteArrayProperty();
+            case "float":
+                return new FloatProperty();
+            case "json":
+                //TODO json is mapped to Object property. Will need to handle it properly.
+                return new ObjectProperty();
+            default:
+                //TODO handle unmatched type
+                return null;
+        }
     }
 
     /**

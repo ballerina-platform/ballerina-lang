@@ -3,18 +3,18 @@
 
 # Use the ballerina `run` command to invoke the `main` function specifying `add`
 # as the string argument for `operation` and `10` and `20` as the integer arguments
-# with which the operation is to be performed.
+# with which the operation is to be performed. `10` would be set as the value for
+# `initialValue` and `20` would be passed as an argument for the rest parameter.
 $ ballerina run the_main_function.bal add 10 20
 Result: 30
 
-# Use the ballerina `run` command to invoke the `main` function specifying `subtract`
-# as the string argument for `operation`, `40` as the integer argument for the defaultable
-# parameter `initialValue`, and `10` and `20` as the integer arguments with which the
-# operation is to be performed.
-$ ballerina run the_main_function.bal subtract -initialValue=40 10 20
-Result: 10
+# Use the ballerina `run` command to invoke the `main` function specifying `add`
+# as the string argument for `operation` and `40` as the integer value for
+# `initialValue`. Both arguments are specified as named arguments.
+$ ballerina run the_main_function.bal -operation=add -initialValue=40
+Result: 40
 
 # Use the ballerina `run` command to invoke the `main` function specifying `unknown op`
-# as the string argument for `operation`.
+# as the string argument for `operation`. The `error` returned would be printed.
 $ ballerina run the_main_function.bal "unknown op"
-Error: Unknown Operation
+error unknown operation

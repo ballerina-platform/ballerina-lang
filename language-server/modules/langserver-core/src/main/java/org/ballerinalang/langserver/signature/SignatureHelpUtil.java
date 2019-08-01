@@ -34,7 +34,6 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
-import org.ballerinalang.langserver.sourceprune.SourcePruner;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -85,6 +84,7 @@ import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.getLastItem;
 import static org.ballerinalang.langserver.common.utils.FilterUtils.getLangLibScopeEntries;
+import static org.ballerinalang.langserver.util.TokensUtil.searchTokenAtCursor;
 
 /**
  * Utility functions for the signature help.
@@ -525,8 +525,8 @@ public class SignatureHelpUtil {
         // Process tokens
         TokenStream tokenStream = parser.getTokenStream();
         List<Token> tokenList = new ArrayList<>(((CommonTokenStream) tokenStream).getTokens());
-        Optional<Token> tokenAtCursor = SourcePruner.searchTokenAtCursor(tokenList, cursorPosition.getLine(),
-                                                                         cursorPosition.getCharacter());
+        Optional<Token> tokenAtCursor = searchTokenAtCursor(tokenList, cursorPosition.getLine(),
+                                                                         cursorPosition.getCharacter(), false);
 
         if (!tokenAtCursor.isPresent()) {
             return;

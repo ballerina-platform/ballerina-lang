@@ -1180,6 +1180,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterErrorFieldMatchPatterns(BallerinaParser.ErrorFieldMatchPatternsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitErrorFieldMatchPatterns(BallerinaParser.ErrorFieldMatchPatternsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterErrorRestBindingPattern(BallerinaParser.ErrorRestBindingPatternContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1247,30 +1259,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitRecordBindingPattern(BallerinaParser.RecordBindingPatternContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterOpenRecordBindingPattern(BallerinaParser.OpenRecordBindingPatternContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitOpenRecordBindingPattern(BallerinaParser.OpenRecordBindingPatternContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterClosedRecordBindingPattern(BallerinaParser.ClosedRecordBindingPatternContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitClosedRecordBindingPattern(BallerinaParser.ClosedRecordBindingPatternContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1348,6 +1336,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterListRefRestPattern(BallerinaParser.ListRefRestPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitListRefRestPattern(BallerinaParser.ListRefRestPatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterRecordRefBindingPattern(BallerinaParser.RecordRefBindingPatternContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1355,30 +1355,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitRecordRefBindingPattern(BallerinaParser.RecordRefBindingPatternContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterOpenRecordRefBindingPattern(BallerinaParser.OpenRecordRefBindingPatternContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitOpenRecordRefBindingPattern(BallerinaParser.OpenRecordRefBindingPatternContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterClosedRecordRefBindingPattern(BallerinaParser.ClosedRecordRefBindingPatternContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitClosedRecordRefBindingPattern(BallerinaParser.ClosedRecordRefBindingPatternContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

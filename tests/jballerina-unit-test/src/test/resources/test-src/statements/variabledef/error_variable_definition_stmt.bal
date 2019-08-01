@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type SMS error <string, record {| string...; |}>;
-type SMA error <string, record {| anydata...; |}>;
-type CMS error <string, record {| string...; |}>;
-type CMA error <string, record {| anydata...; |}>;
+type SMS error <string, record {| string message?; error cause?; string...; |}>;
+type SMA error <string, record {| string message?; error cause?; anydata...; |}>;
+type CMS error <string, record {| string message?; error cause?; string...; |}>;
+type CMA error <string, record {| string message?; error cause?; anydata...; |}>;
 const ERROR1 = "Some Error One";
 const ERROR2 = "Some Error Two";
 
@@ -76,6 +76,7 @@ function testVarBasicErrorVariableWithConstAndMap() returns [string, string, str
 type Foo record {
     string message;
     boolean fatal;
+    error cause?;
 };
 
 type FooError error <string, Foo>;
@@ -128,16 +129,16 @@ function testErrorInRecordWithDestructure() returns [int, string, anydata|error]
 }
 
 function testErrorWithAnonErrorType() returns [string, string?] {
-    error <string, record {| string...; |}> err = error("Error Code", message = "Fatal");
-    error <string, record {| string...; |}> error(reason, message = message) = err;
+    error <string, record {| string message?; error cause?; string...; |}> err = error("Error Code", message = "Fatal");
+    error <string, record {| string message?; error cause?; string...; |}> error(reason, message = message) = err;
     return [reason, message];
 }
 
 function testErrorWithUnderscore() returns [string, string, string, string, string, string, string, string,
                                                string?, anydata|error?, anydata|error?] {
-    error <string, record {| string...; |}> err = error("Error Code", message = "Fatal");
-    error <string, record {| string...; |}> error (reason, ... _) = err;
-    error <string, record {| string...; |}> error (reason2) = err;
+    error <string, record {| string message?; error cause?; string...; |}> err = error("Error Code", message = "Fatal");
+    error <string, record {| string message?; error cause?; string...; |}> error (reason, ... _) = err;
+    error <string, record {| string message?; error cause?; string...; |}> error (reason2) = err;
 
     SMS err1 = error("Error One", message = "Msg One", detail = "Detail Msg");
     SMS error (reason3, ... _) = err1;

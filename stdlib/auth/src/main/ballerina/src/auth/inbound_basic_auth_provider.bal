@@ -32,7 +32,7 @@ public type InboundBasicAuthProvider object {
     # Provides authentication based on the provided configuration.
     #
     # + basicAuthConfig - The Basic Auth provider configurations.
-    public function __init(BasicAuthConfig? basicAuthConfig) {
+    public function __init(BasicAuthConfig? basicAuthConfig = ()) {
         if (basicAuthConfig is BasicAuthConfig) {
             self.basicAuthConfig = basicAuthConfig;
         } else {
@@ -74,12 +74,8 @@ public type InboundBasicAuthProvider object {
             authenticated = password == passwordFromConfig;
         }
         if (authenticated) {
-            runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-            if (principal is runtime:Principal) {
-                principal.userId = username;
-                principal.username = username;
-                principal.scopes = getScopes(username, self.basicAuthConfig.tableName);
-            }
+            setAuthenticationContext("basic", credential);
+            setPrincipal(username, self.basicAuthConfig.tableName);
         }
         return authenticated;
     }
@@ -135,4 +131,13 @@ function getArray(string groupString) returns string[] {
         return groupsArr;
     }
     return internal:split(groupString, ",");
+}
+
+function setPrincipal(string username, string tableName) {
+    runtime:Principal? principal = runtime:getInvocationContext()?.principal;
+    if (principal is runtime:Principal) {
+        principal.userId = username;
+        principal.username = username;
+        principal.scopes = getScopes(username, tableName);
+    }
 }

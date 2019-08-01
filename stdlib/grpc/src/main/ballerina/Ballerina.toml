@@ -1,3 +1,167 @@
 [project]
 org-name = "ballerina"
 version = "0.0.0"
+
+[platform]
+target = "java"
+
+    [[platform.libraries]]
+    artafactId = "org.wso2.transport.http.netty"
+    version = "6.0.294"
+    path = "./lib/org.wso2.transport.http.netty-6.0.294.jar"
+    groupId = "org.wso2.transport.http"
+    modules = ["grpc"]
+
+    [[platform.libraries]]
+    artafactId = "netty-common"
+    version = "4.1.34.Final"
+    path = "./lib/netty-common-4.1.34.Final.jar"
+    groupId = "io.netty"
+    modules = ["grpc"]
+
+    [[platform.libraries]]
+    artafactId = "netty-buffer"
+    version = "4.1.34.Final"
+    path = "./lib/netty-buffer-4.1.34.Final.jar"
+    groupId = "io.netty"
+    modules = ["grpc"]
+
+    [[platform.libraries]]
+    artafactId = "netty-transport"
+    version = "4.1.34.Final"
+    path = "./lib/netty-transport-4.1.34.Final.jar"
+    groupId = "io.netty"
+    modules = ["grpc"]
+
+    [[platform.libraries]]
+    artafactId = "netty-resolver"
+    version = "4.1.34.Final"
+    path = "./lib/netty-resolver-4.1.34.Final.jar"
+    groupId = "io.netty"
+    modules = ["grpc"]
+
+    [[platform.libraries]]
+    artafactId = "netty-handler"
+    version = "4.1.34.Final"
+    path = "./lib/netty-handler-4.1.34.Final.jar"
+    groupId = "io.netty"
+    modules = ["grpc"]
+
+    [[platform.libraries]]
+    artafactId = "netty-codec-http"
+    version = "4.1.34.Final"
+    path = "./lib/netty-codec-http-4.1.34.Final.jar"
+    groupId = "io.netty"
+    modules = ["grpc"]
+
+    [[platform.libraries]]
+    artafactId = "netty-codec"
+    version = "4.1.34.Final"
+    path = "./lib/netty-codec-4.1.34.Final.jar"
+    groupId = "io.netty"
+    modules = ["grpc"]
+
+    [[platform.libraries]]
+    artafactId = "netty-handler-proxy"
+    version = "4.1.34.Final"
+    path = "./lib/io.netty-4.1.34.Final.jar"
+    groupId = "io.netty"
+    modules = ["grpc"]
+
+    [[platform.libraries]]
+    artafactId = "netty-codec-http2"
+    version = "4.1.34.Final"
+    path = "./lib/netty-codec-http2-4.1.34.Final.jar"
+    groupId = "io.netty"
+    modules = ["grpc"]
+
+    [[platform.libraries]]
+    artafactId = "commons-pool"
+    version = "1.5.6.wso2v1"
+    path = "./lib/commons-pool-1.5.6.wso2v1.jar"
+    groupId = "commons-pool.wso2"
+    modules = ["grpc"]
+
+    [[platform.libraries]]
+    artafactId = "snakeyaml"
+    version = "1.16.0.wso2v1"
+    path = "./lib/snakeyaml-1.16.0.wso2v1.jar"
+    groupId = "org.wso2.orbit.org.yaml"
+    modules = ["grpc"]
+
+    [[platform.libraries]]
+    artafactId = "bcprov-jdk15on"
+    version = "1.61"
+    path = "./lib/bcprov-jdk15on-1.61.jar"
+    groupId = "org.bouncycastle"
+    modules = ["grpc"]
+
+    [[platform.libraries]]
+    artafactId = "bcpkix-jdk15on"
+    version = "1.61"
+    path = "./lib/bcpkix-jdk15on-1.61.jar"
+    groupId = "org.bouncycastle"
+    modules = ["grpc"]
+
+    [[platform.libraries]]
+    artafactId = "netty-tcnative-boringssl-static"
+    version = "2.0.22.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.22.Final.jar"
+    groupId = "io.netty"
+    modules = ["grpc"]
+
+    [[platform.libraries]]
+    artafactId = "commons-lang3"
+    version = "3.5"
+    path = "./lib/commons-lang3-3.5.jar"
+    groupId = "org.apache.commons"
+    modules = ["grpc"]
+
+    [[platform.libraries]]
+    artafactId = "mimepull"
+    version = "1.9.7"
+    path = "./lib/mimepull-1.9.7.jar"
+    groupId = "org.jvnet.mimepull"
+    modules = ["grpc"]
+
+    [[platform.libraries]]
+    artafactId = "slf4j-api"
+    version = "1.7.22"
+    path = "./lib/slf4j-api-1.7.22.jar"
+    groupId = "org.slf4j"
+    modules = ["grpc"]
+
+    [[platform.libraries]]
+    artafactId = "org.wso2.carbon.messaging"
+    version = "2.3.7"
+    path = "./lib/org.wso2.carbon.messaging-2.2.3.jar"
+    groupId = "org.wso2.carbon.messaging"
+    modules = ["grpc"]
+
+    [[platform.libraries]]
+    artafactId = "org.wso2.carbon.core"
+    version = "5.1.0"
+    path = "./lib/org.wso2.carbon.core-5.1.0.jar"
+    groupId = "org.wso2.carbon"
+    modules = ["grpc"]
+
+    [[platform.libraries]]
+    artafactId = "org.wso2.carbon.secvault"
+    version = "1.0.0"
+    path = "./lib/org.wso2.securevault-1.0.0-wso2v2.jar"
+    groupId = "org.wso2.carbon.secvault"
+    modules = ["grpc"]
+
+    [[platform.libraries]]
+    artafactId = "protobuf-java"
+    version = "3.7.0"
+    path = "./lib/protobuf-java-3.7.0.jar"
+    groupId = "com.google.protobuf"
+    modules = ["grpc"]
+
+    [[platform.libraries]]
+    artafactId = "handlebars"
+    version = "4.1.2"
+    path = "./lib/handlebars-4.1.2.jar"
+    groupId = "com.github.jknack"
+    modules = ["grpc"]

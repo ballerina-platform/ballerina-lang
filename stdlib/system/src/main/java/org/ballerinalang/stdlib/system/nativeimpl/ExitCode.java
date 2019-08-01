@@ -22,7 +22,10 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
 import org.slf4j.Logger;
@@ -36,7 +39,10 @@ import org.slf4j.LoggerFactory;
 @BallerinaFunction(
         orgName = SystemConstants.ORG_NAME,
         packageName = SystemConstants.PACKAGE_NAME,
-        functionName = "nativeExitCode"
+        functionName = "exitCode",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Process",
+        structPackage = "ballerina/system"),
+        returnType = { @ReturnType(type = TypeKind.INT), @ReturnType(type = TypeKind.ERROR) }
 )
 public class ExitCode extends BlockingNativeCallableUnit {
     
@@ -45,7 +51,7 @@ public class ExitCode extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) { }
 
-    public static Object nativeExitCode(Strand strand, ObjectValue objVal) {
+    public static Object exitCode(Strand strand, ObjectValue objVal) {
         Process process = SystemUtils.processFromObject(objVal);
         try {
             return process.exitValue();

@@ -28,9 +28,9 @@ listener http:Listener backendEP04 = new(8084);
 
 // Define the failover client end point to call the backend services.
 http:FailoverClient foBackendEP04 = new({
-    timeoutMillis: 5000,
+    timeoutInMillis: 5000,
     failoverCodes: [501, 502, 503],
-    intervalMillis: 5000,
+    intervalInMillis: 5000,
     // Define set of HTTP Clients that needs to be Failover.
     targets: [
         { url: "http://localhost:3467/inavalidEP" },
@@ -41,9 +41,9 @@ http:FailoverClient foBackendEP04 = new({
 });
 
 http:FailoverClient foBackendFailureEP04 = new({
-    timeoutMillis: 5000,
+    timeoutInMillis: 5000,
     failoverCodes: [501, 502, 503],
-    intervalMillis: 5000,
+    intervalInMillis: 5000,
     // Define set of HTTP Clients that needs to be Failover.
     targets: [
         { url: "http://localhost:3467/inavalidEP" },
@@ -53,9 +53,9 @@ http:FailoverClient foBackendFailureEP04 = new({
 });
 
 http:FailoverClient foStatusCodesEP04 = new({
-    timeoutMillis: 5000,
+    timeoutInMillis: 5000,
     failoverCodes: [501, 502, 503],
-    intervalMillis: 5000,
+    intervalInMillis: 5000,
     // Define set of HTTP Clients that needs to be Failover.
     targets: [
         { url: "http://localhost:8080/statuscodes" },

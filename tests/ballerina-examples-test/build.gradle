@@ -82,7 +82,6 @@ task test {
                            'websub-remote-hub-sample',
                            'config-api',
                            'testerina-function-mocks',
-                           'jms-queue-message-receiver-with-client-acknowledgment',
                            'jdbc-client-crud-operations',
                            'jdbc-client-batch-update',
                            'jdbc-client-call-procedures',

@@ -27,7 +27,7 @@ function testEnum() returns (string) {
 
     orderInfo orderReq = { id:"100500", mode:r };
     var addResponse = blockingEp->testEnum(orderReq);
-    if (addResponse is error) {
+    if (addResponse is grpc:Error) {
         return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string> addResponse.detail()["message"]);
     } else {
         string result = "";
@@ -37,43 +37,51 @@ function testEnum() returns (string) {
 }
 
 public type testEnumServiceBlockingClient client object {
+
+    *grpc:AbstractClientEndpoint;
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
-        error? result = c.initStub("blocking", ROOT_DESCRIPTOR, getDescriptorMap());
-        if (result is error) {
-            panic result;
+        grpc:Error? result = c.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        if (result is grpc:Error) {
+            error err = result;
+            panic err;
         } else {
             self.grpcClient = c;
         }
     }
 
-    remote function testEnum (orderInfo req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|error) {
+    remote function testEnum (orderInfo req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
         var unionResp = check self.grpcClient->blockingExecute("grpcservices.testEnumService/testEnum", req, headers);
         grpc:Headers resHeaders = new;
-        any result = ();
+        anydata result = ();
         [result, resHeaders] = unionResp;
         return [result.toString(), resHeaders];
     }
 };
 
 public type testEnumServiceClient client object {
+
+    *grpc:AbstractClientEndpoint;
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
-        error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
-        if (result is error) {
-            panic result;
+        grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        if (result is grpc:Error) {
+            error err = result;
+            panic err;
         } else {
             self.grpcClient = c;
         }
     }
 
-    remote function testEnum (orderInfo req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testEnum (orderInfo req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.testEnumService/testEnum", req, msgListener, headers);
     }
 };

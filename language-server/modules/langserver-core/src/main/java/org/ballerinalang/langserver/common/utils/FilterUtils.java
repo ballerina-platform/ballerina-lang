@@ -51,6 +51,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
@@ -233,7 +235,7 @@ public class FilterUtils {
     }
     
     private static BType getModifiedBType(BType bType) {
-        return bType instanceof BUnionType ? getBTypeForUnionType((BUnionType) bType) : bType.tsymbol.type;
+        return bType instanceof BUnionType ? getBTypeForUnionType((BUnionType) bType) : bType;
     }
 
     private static List<ChainedFieldModel> getInvocationFieldList(List<CommonToken> defaultTokens, int startIndex) {
@@ -241,10 +243,12 @@ public class FilterUtils {
         int rightParenthesisCount = 0;
         boolean invocation = false;
         List<ChainedFieldModel> fieldList = new ArrayList<>();
+        Pattern pattern = Pattern.compile("^\\w+$");
+        boolean captureNextValidField = false;
         while (traverser >= 0) {
             CommonToken token = defaultTokens.get(traverser);
             int type = token.getType();
-
+            Matcher matcher = pattern.matcher(token.getText());
             if (type == BallerinaParser.RIGHT_PARENTHESIS) {
                 if (!invocation) {
                     invocation = true;
@@ -256,8 +260,9 @@ public class FilterUtils {
                 traverser--;
             } else if (type == BallerinaParser.DOT || type == BallerinaParser.NOT
                     || type == BallerinaParser.OPTIONAL_FIELD_ACCESS || rightParenthesisCount > 0) {
+                captureNextValidField = true;
                 traverser--;
-            } else if (type == BallerinaParser.Identifier && rightParenthesisCount == 0) {
+            } else if (matcher.find() && rightParenthesisCount == 0 && captureNextValidField) {
                 InvocationFieldType fieldType;
                 CommonToken packageAlias = null;
                 traverser--;
@@ -274,6 +279,7 @@ public class FilterUtils {
                 }
                 ChainedFieldModel model = new ChainedFieldModel(fieldType, token, packageAlias);
                 fieldList.add(model);
+                captureNextValidField = false;
             } else {
                 break;
             }
@@ -295,6 +301,7 @@ public class FilterUtils {
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
         Types types = Types.getInstance(compilerContext);
+        Map<Name, Scope.ScopeEntry> entries = new HashMap<>();
 
         /*
         LangLib checks also contains a check for the object type tag. But we skip and instead extract the entries
@@ -302,27 +309,31 @@ public class FilterUtils {
          */
         if (symbolType.tsymbol instanceof BObjectTypeSymbol) {
             BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) symbolType.tsymbol;
-            Map<Name, Scope.ScopeEntry> entries = objectTypeSymbol.methodScope.entries;
+            entries.putAll(objectTypeSymbol.methodScope.entries);
             entries.putAll(objectTypeSymbol.scope.entries);
-            return entries;
+            return entries.entrySet().stream().filter(entry -> (!(entry.getValue().symbol instanceof BInvokableSymbol))
+                    || ((entry.getValue().symbol.flags & Flags.REMOTE) != Flags.REMOTE))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        } else {
+            entries.putAll(getLangLibScopeEntries(symbolType, symbolTable, types));
+            if (symbolType instanceof BUnionType) {
+                entries.putAll(getInvocationsAndFieldsForUnionType((BUnionType) symbolType));
+            } else if (symbolType.tsymbol != null && symbolType.tsymbol.scope != null) {
+                Map<Name, Scope.ScopeEntry> filteredEntries = symbolType.tsymbol.scope.entries.entrySet().stream()
+                        .filter(entry -> {
+                            if (symbolType.tag == TypeTags.RECORD && (invocationToken == BallerinaParser.DOT
+                                    || invocationToken == BallerinaParser.NOT)) {
+                                return !org.ballerinalang.model.util.Flags.isFlagOn(entry.getValue().symbol.flags,
+                                        Flags.OPTIONAL);
+                            }
+                            return true;
+                        }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                entries.putAll(filteredEntries);
+            }
         }
-
-        Map<Name, Scope.ScopeEntry> entries = getLangLibScopeEntries(symbolType, symbolTable, types);
-        if (symbolType instanceof BUnionType) {
-            entries.putAll(getInvocationsAndFieldsForUnionType((BUnionType) symbolType));
-        } else if (symbolType.tsymbol != null && symbolType.tsymbol.scope != null) {
-            Map<Name, Scope.ScopeEntry> filteredEntries = symbolType.tsymbol.scope.entries.entrySet().stream()
-                    .filter(entry -> { 
-                        if (symbolType.tag == TypeTags.RECORD && (invocationToken == BallerinaParser.DOT
-                                || invocationToken == BallerinaParser.NOT)) { 
-                            return !org.ballerinalang.model.util.Flags.isFlagOn(entry.getValue().symbol.flags,
-                                    Flags.OPTIONAL); 
-                        }
-                        return true;
-            }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            entries.putAll(filteredEntries);
-        }
-        return entries;
+        return entries.entrySet().stream().filter(entry -> (!(entry.getValue().symbol instanceof BInvokableSymbol))
+                || ((entry.getValue().symbol.flags & Flags.REMOTE) != Flags.REMOTE))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     /**

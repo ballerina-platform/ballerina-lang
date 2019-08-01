@@ -118,8 +118,8 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
         Module module = configurationModule.getModule();
         if (module != null) {
             if (BallerinaSdkService.getInstance(module.getProject()).getSdkHomePath(module) == null) {
-                if (BallerinaAutoDetectionSettings.getInstance().autoDetectBalHome()) {
-                    String autoDetectedPath = BallerinaSdkUtils.autoDetectSdk();
+                if (BallerinaAutoDetectionSettings.getInstance(getProject()).getIsAutoDetectionEnabled()) {
+                    String autoDetectedPath = BallerinaSdkUtils.autoDetectSdk(getProject());
                     if (autoDetectedPath.isEmpty()) {
                         throw new RuntimeConfigurationError(String.format("Ballerina SDK is not specified and auto " +
                                 "detection is failed for module '%s'", module.getName()));

@@ -44,6 +44,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
@@ -399,7 +400,8 @@ public class FormatUtil {
     }
 
     private static String getModuleName(String moduleName) {
-        String[] splitedTokens = moduleName.split("" + File.separator);
+        String pattern = Pattern.quote(File.separator);
+        String[] splitedTokens = moduleName.split(pattern);
         return splitedTokens[splitedTokens.length - 1];
     }
 }

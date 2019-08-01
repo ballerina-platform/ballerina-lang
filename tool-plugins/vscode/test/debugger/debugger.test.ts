@@ -29,7 +29,7 @@ import { DebugClientEx } from './debugClient';
 import { getBallerinaHome } from '../test-util';
 const ballerinaHome = getBallerinaHome();
 
-suite('Ballerina Debug Adapter', () => {
+suite.skip('Ballerina Debug Adapter', () => {
 
     const PROJECT_ROOT = Path.join(__dirname, '../../../');
 

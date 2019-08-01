@@ -321,7 +321,7 @@
 //                                                    returns error {
 //    int nErrs = loadBalanceActionErrorData.httpActionErr.length();
 //    string lastErrorMessage = <string> loadBalanceActionErrorData.httpActionErr[nErrs - 1].detail().message;
-//    loadBalanceActionErrorData.statusCode = INTERNAL_SERVER_ERROR_500;
+//    loadBalanceActionErrorData.statusCode = STATUS_INTERNAL_SERVER_ERROR;
 //    loadBalanceActionErrorData.message = "All the load balance endpoints failed. Last error was: " + lastErrorMessage;
 //    LoadBalanceActionError err = error(HTTP_ERROR_CODE, loadBalanceActionErrorData);
 //    return err;

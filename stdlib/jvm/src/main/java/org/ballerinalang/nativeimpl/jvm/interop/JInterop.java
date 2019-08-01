@@ -39,10 +39,11 @@ import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
 class JInterop {
 
     static final String ORG_NAME = "ballerina";
+    static final String BALLERINA_X_ORG_NAME = "ballerinax";
     static final String MODULE_NAME = "jvm";
     static final String JAVA_MODULE_NAME = "java";
     static final String JVM_PACKAGE_PATH = ORG_NAME + ORG_NAME_SEPARATOR + MODULE_NAME;
-    static final String ERROR_REASON_PREFIX = "{" + ORG_NAME + "/" + JAVA_MODULE_NAME + "}";
+    static final String ERROR_REASON_PREFIX = "{" + BALLERINA_X_ORG_NAME + "/" + JAVA_MODULE_NAME + "}";
     static final String PARAM_TYPE_CONSTRAINTS_FIELD = "paramTypeConstraints";
     static final String CLASS_FIELD = "class";
     static final String NAME_FIELD = "name";
@@ -65,6 +66,11 @@ class JInterop {
     static final String J_REF_TYPE_NAME = "RefType";
     static final String TYPE_NAME_FIELD = "typeName";
     static final String NO_TYPE_NAME = "NoType";
+    static final String METHOD_THROWS_FIELD = "throws";
+    static final String B_FUNC_TYPE_FIELD = "bFuncType";
+    static final String J_ARRAY_TYPE_NAME = "ArrayType";
+    static final String ELEMENT_TYPE_FIELD = "elementType";
+    static final String DIMENSIONS_FIELD = "dimensions";
 
     static MapValue<String, Object> createRecordBValue(String typeName) {
         return BallerinaValues.createRecordValue(JVM_PACKAGE_PATH, typeName);
@@ -92,6 +98,10 @@ class JInterop {
             return jTypeClass.getName();
         } else if (jTypeClass == Void.class) {
             throw new IllegalArgumentException("The Java Void type is not yet supported.");
+        } else if (jTypeClass.isArray()) {
+            MapValue<String, Object> jArrayTypeBRecord = createRecordBValue(J_ARRAY_TYPE_NAME);
+            jArrayTypeBRecord.put(ELEMENT_TYPE_FIELD, createJTypeBValue(jTypeClass.getComponentType()));
+            return jArrayTypeBRecord;
         }
 
         MapValue<String, Object> jRefTypeBRecord = createRecordBValue(J_REF_TYPE_NAME);
@@ -155,11 +165,13 @@ class JInterop {
         return false;
     }
 
-    static ParamTypeConstraint[] buildParamTypeConstraints(ArrayValue javaTypeConstraints, JMethodKind kind) {
+    static ParamTypeConstraint[] buildParamTypeConstraints(ArrayValue javaTypeConstraints) {
+        if (javaTypeConstraints == null) {
+            return new ParamTypeConstraint[0];
+        }
+
         List<ParamTypeConstraint> constraintList = new ArrayList<>();
-        // Here the assumption is that all param types are handle types. This will be improved soon.
-        int startParamOffset = (kind == JMethodKind.INSTANCE) ? 1 : 0;
-        for (int paramIndex = startParamOffset; paramIndex < javaTypeConstraints.size(); paramIndex++) {
+        for (int paramIndex = 0; paramIndex < javaTypeConstraints.size(); paramIndex++) {
             Object javaTypeConstraint = javaTypeConstraints.get(paramIndex);
             constraintList.add(buildParamTypeConstraint(javaTypeConstraint));
         }
@@ -169,6 +181,8 @@ class JInterop {
     private static ParamTypeConstraint buildParamTypeConstraint(Object javaTypeConstraint) {
         if (isJavaRefType(javaTypeConstraint)) {
             return buildConstraintFromJavaRefType((MapValue<String, Object>) javaTypeConstraint);
+        } else if (isJavaArrayType(javaTypeConstraint)) {
+            return buildConstraintFromJavaArrayType((MapValue<String, Object>) javaTypeConstraint);
         } else if (isJavaNoType(javaTypeConstraint)) {
             return ParamTypeConstraint.NO_CONSTRAINT;
         } else {
@@ -179,6 +193,29 @@ class JInterop {
     private static ParamTypeConstraint buildConstraintFromJavaRefType(MapValue<String, Object> javaRefType) {
         String constraintBValue = (String) javaRefType.get(TYPE_NAME_FIELD);
         return new ParamTypeConstraint(loadClass(constraintBValue));
+    }
+
+    private static ParamTypeConstraint buildConstraintFromJavaArrayType(MapValue<String, Object> javaRefType) {
+        String typeSig = getJavaArrayTypeSig(javaRefType);
+        return new ParamTypeConstraint(loadClass(typeSig));
+    }
+
+    private static String getJavaArrayTypeSig(MapValue<String, Object> javaRefType) {
+        Object elementType = javaRefType.get(ELEMENT_TYPE_FIELD);
+        String elementTypeSig = "[";
+        if (elementType instanceof MapValue) {
+            MapValue<String, Object> jRefTypeBValue = (MapValue) elementType;
+            String tagValue = (String) jRefTypeBValue.get(TAG_FIELD);
+            if (tagValue.equals(J_REF_TYPE_NAME)) {
+                elementTypeSig += "L" + (String) jRefTypeBValue.get(TYPE_NAME_FIELD) + ";";
+            } else {
+                elementTypeSig += getJavaArrayTypeSig(jRefTypeBValue);
+            }
+        } else {
+            elementTypeSig += getSignatureFromJavaPrimitiveType((String) elementType);
+        }
+
+        return elementTypeSig;
     }
 
     private static ParamTypeConstraint buildConstraintFromJavaPrimitiveType(String primitiveTypeName) {
@@ -216,11 +253,46 @@ class JInterop {
         return new ParamTypeConstraint(constraintClass);
     }
 
+    private static String getSignatureFromJavaPrimitiveType(String primitiveTypeName) {
+        // Java primitive types: byte, short, char, int, long, float, double, boolean
+        switch (primitiveTypeName) {
+            case "byte":
+                return "B";
+            case "short":
+                return "S";
+            case "char":
+                return "C";
+            case "int":
+                return "I";
+            case "long":
+                return "J";
+            case "float":
+                return "F";
+            case "double":
+                return "D";
+            case "boolean":
+                return "Z";
+            default:
+                throw new JInteropException(UNSUPPORTED_PRIMITIVE_TYPE_READON,
+                        "Unsupported Java primitive type '" + primitiveTypeName + "'");
+        }
+    }
+
     private static boolean isJavaRefType(Object javaTypeConstraint) {
         if (javaTypeConstraint instanceof MapValue) {
             MapValue jRefTypeBValue = (MapValue) javaTypeConstraint;
             String tagValue = (String) jRefTypeBValue.get(TAG_FIELD);
             return tagValue != null && tagValue.equals(J_REF_TYPE_NAME);
+        } else {
+            return false;
+        }
+    }
+
+    private static boolean isJavaArrayType(Object javaTypeConstraint) {
+        if (javaTypeConstraint instanceof MapValue) {
+            MapValue jRefTypeBValue = (MapValue) javaTypeConstraint;
+            String tagValue = (String) jRefTypeBValue.get(TAG_FIELD);
+            return tagValue != null && tagValue.equals(J_ARRAY_TYPE_NAME);
         } else {
             return false;
         }

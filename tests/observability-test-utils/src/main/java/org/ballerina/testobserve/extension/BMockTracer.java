@@ -20,9 +20,8 @@ package org.ballerina.testobserve.extension;
 
 import io.opentracing.Tracer;
 import io.opentracing.mock.MockTracer;
-import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.util.tracer.OpenTracer;
-import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
+import org.ballerinalang.jvm.observability.tracer.InvalidConfigurationException;
+import org.ballerinalang.jvm.observability.tracer.OpenTracer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +29,6 @@ import java.util.List;
 /**
  * Tracer extension that returns an instance of Mock tracer.
  */
-@JavaSPIService("org.ballerinalang.util.tracer.OpenTracer")
 public class BMockTracer implements OpenTracer {
 
     private static List<MockTracer> tracerMap = new ArrayList<>();

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.ballerinalang.langserver.util.references;
 
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
@@ -35,8 +34,6 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -57,8 +54,6 @@ import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFi
  * Utility class for go to definition functionality of language server.
  */
 public class ReferencesUtil {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReferencesUtil.class);
-
     private ReferencesUtil() {
     }
 
@@ -157,11 +152,15 @@ public class ReferencesUtil {
         return getWorkspaceEdit(referencesModel, context, newName);
     }
 
-    public static List<Location> getReferences(List<BLangPackage> modules, LSContext context, Position position) {
+    public static List<Location> getReferences(List<BLangPackage> modules, LSContext context, Position position,
+                                               boolean includeDeclaration) {
         SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
         prepareReferences(modules, context, position);
         fillAllReferences(modules, context, position);
-        List<SymbolReferencesModel.Reference> references = new ArrayList<>(referencesModel.getDefinitions());
+        List<SymbolReferencesModel.Reference> references = new ArrayList<>();
+        if (includeDeclaration) {
+            references.addAll(referencesModel.getDefinitions());
+        }
         references.addAll(referencesModel.getReferences());
         references.add(referencesModel.getReferenceAtCursor().get());
 
@@ -267,15 +266,20 @@ public class ReferencesUtil {
         List<SymbolReferencesModel.Reference> references = new ArrayList<>(referencesModel.getDefinitions());
         references.addAll(referencesModel.getReferences());
         references.add(referencesModel.getReferenceAtCursor().get());
-        String sourceRoot = context.get(DocumentServiceKeys.SOURCE_ROOT_KEY);
+        LSDocument sourceDoc = context.get(DocumentServiceKeys.LS_DOCUMENT_KEY);
 
         references.forEach(reference -> {
             DiagnosticPos referencePos = reference.getPosition();
             String pkgName = reference.getSourcePkgName();
             String cUnitName = reference.getCompilationUnit();
-            // If evaluating a single file which is not in a project/module, we skip adding the package name to root
-            Path baseRoot = pkgName.equals(".") ? Paths.get(sourceRoot) : Paths.get(sourceRoot).resolve(pkgName);
-            String uri = baseRoot.resolve(cUnitName).toUri().toString();
+            String uri;
+            Path basePath = sourceDoc.getProjectRootPath();
+            if (sourceDoc.isWithinProject()) {
+                basePath = basePath.resolve("src").resolve(pkgName);
+            }
+            basePath = basePath.resolve(cUnitName);
+            
+            uri = basePath.toUri().toString();
             TextEdit textEdit = new TextEdit(getRange(referencePos), newName);
             if (workspaceEdit.getChanges().containsKey(uri)) {
                 workspaceEdit.getChanges().get(uri).add(textEdit);

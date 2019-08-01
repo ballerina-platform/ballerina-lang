@@ -26,15 +26,15 @@ listener http:Listener circuitBreakerEP01 = new(9307);
 http:ClientEndpointConfig conf01 = {
     circuitBreaker: {
         rollingWindow: {
-            timeWindowMillis: 60000,
-            bucketSizeMillis: 20000,
+            timeWindowInMillis: 60000,
+            bucketSizeInMillis: 20000,
             requestVolumeThreshold: 0
         },
         failureThreshold: 0.2,
-        resetTimeMillis: 1000,
+        resetTimeInMillis: 1000,
         statusCodes: [501, 502, 503]
     },
-    timeoutMillis: 2000
+    timeoutInMillis: 2000
 };
 
 http:Client healthyClientEP = new("http://localhost:8087", conf01);
@@ -63,7 +63,7 @@ service circuitbreaker01 on circuitBreakerEP01 {
         } else {
             error err = backendRes;
             http:Response response = new;
-            response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+            response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
             string errCause = <string> err.detail()?.message;
             response.setPayload(errCause);
             var responseToCaller = caller->respond(response);

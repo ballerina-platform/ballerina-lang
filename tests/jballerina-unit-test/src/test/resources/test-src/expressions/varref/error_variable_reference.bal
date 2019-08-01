@@ -18,10 +18,10 @@ type StringRestRec record {|
     string...;
 |};
 
-type SMS error <string, record {| string...; |}>;
-type SMA error <string, record {| string|boolean...; |}>;
-type CMS error <string, record {| string...; |}>;
-type CMA error <string, record {| anydata...; |}>;
+type SMS error <string, record {| string message?; error cause?; string...; |}>;
+type SMA error <string, record {| string message?; error cause?; string|boolean...; |}>;
+type CMS error <string, record {| string message?; error cause?; string...; |}>;
+type CMA error <string, record {| string message?; error cause?; anydata...; |}>;
 
 const ERROR1 = "Some Error One";
 const ERROR2 = "Some Error Two";
@@ -87,6 +87,7 @@ function testBasicErrorVariableWithConstAndMap() returns [string, string, string
 type Foo record {
     string message;
     boolean fatal;
+    error cause?;
 };
 
 type FooError error <string, Foo>;
@@ -181,7 +182,8 @@ function testErrorInRecordWithDestructure2() returns [int, string, anydata|error
 }
 
 function testErrorWithRestParam() returns map<string> {
-    error<string, record {| string...; |}> errWithMap = error("Error", message = "Fatal", fatal = "true");
+    error<string, record {| string message?; error cause?; string...; |}> errWithMap
+                                                    = error("Error", message = "Fatal", fatal = "true");
 
     string reason;
     string? message;
@@ -193,7 +195,8 @@ function testErrorWithRestParam() returns map<string> {
 }
 
 function testErrorWithUnderscore() returns [string, map<string>] {
-    error<string, record {| string...; |}> errWithMap = error("Error", message = "Fatal", fatal = "true");
+    error<string, record {| string message?; error cause?; string...; |}> errWithMap
+                                                        = error("Error", message = "Fatal", fatal = "true");
 
     string reason;
     map<string> detail;
@@ -202,4 +205,13 @@ function testErrorWithUnderscore() returns [string, map<string>] {
     error(_, ... detail) = errWithMap;
 
     return [reason, detail];
+}
+
+type SampleError error;
+
+function testDefaultErrorRefBindingPattern() returns string {
+    SampleError e = error("the reason");
+    string reason;
+    error(reason, ... _) = e;
+    return reason;
 }

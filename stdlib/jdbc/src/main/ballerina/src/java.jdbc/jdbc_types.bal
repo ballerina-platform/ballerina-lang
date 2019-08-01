@@ -36,50 +36,50 @@ public type ClientEndpointConfig record {|
 # Default values of the fields can be set through the configuration API.
 #
 # + connectionInitSql - SQL statement that will be executed after every new connection creation before adding it
-#                       to the pool. Default value of this field can be set through the configuration API with the key
-#                       "b7a.jdbc.connection.init.sql"
+#                       to the pool. Default value is none and it can be changed through the
+#                       configuration API with the key `b7a.jdbc.pool.connectionInitSql`.
 # + dataSourceClassName - Name of the DataSource class provided by the JDBC driver. This is used on following scenarios.
 #                         1. In JDBC client when DB specific properties are required (which are given with dbOptions)
 #                         2. In any data client in which XA transactions enabled by isXA property and need to provide a
-#                         custom XA implementation.
-#                         Default value of this field can be set through the configuration API with the key
-#                         "b7a.jdbc.datasource.class.name"
+#                         custom XA implementation.Default value is none and it can be changed through
+#                         the configuration API with the key `b7a.jdbc.pool.dataSourceClassName`.
 # + autoCommit - Auto-commit behavior of connections returned from the pool.
-#                Default value of this field can be set through the configuration API with the key
-#                "b7a.jdbc.connection.auto.commit"
-# + isXA - Whether Connections are used for a distributed transaction.
-#          Default value of this field can be set through the configuration API with the key "b7a.jdbc.xa.enabled"
-# + maximumPoolSize - Maximum size that the pool is allowed to reach, including both idle and in-use connections.
-#                     Default value of this field can be set through the configuration API with the key
-#                     "b7a.jdbc.max.pool.size"
-# + connectionTimeout - Maximum number of milliseconds that a client will wait for a connection from the pool.
-#                       Default is 30 seconds.
-#                       Default value of this field can be set through the configuration API with the key
-#                       "b7a.jdbc.connection.time.out"
-# + idleTimeout - Maximum amount of time that a connection is allowed to sit idle in the pool. Default is 10 minutes.
-#                 Default value of this field can be set through the configuration API with the key
-#                 "b7a.jdbc.connection.idle.time.out"
-# + minimumIdle - Minimum number of idle connections that pool tries to maintain in the pool. Default is same as
-#                 maximumPoolSize.
-#                 Default value of this field can be set through the configuration API with the key
-#                 "b7a.jdbc.connection.min.idle.count"
-# + maxLifetime - Maximum lifetime of a connection in the pool. Default is 30 minutes.
-#                 Default value of this field can be set through the configuration API with the key
-#                 "b7a.jdbc.connection.max.life.time"
-# + validationTimeout - Maximum amount of time that a connection will be tested for aliveness. Default 5 seconds
-#                       Default value of this field can be set through the configuration API with the key
-#                       "b7a.jdbc.validation.time.out"
+#                Default value is `true` and it can be changed through the configuration API with the key
+#                `b7a.jdbc.pool.autoCommit`.
+# + isXA - Whether connections are used for a distributed transaction. Default value is `false` and it
+#          can be set through the configuration API with the key `b7a.jdbc.pool.isXA`.
+# + maximumPoolSize - The maximum size that the pool is allowed to reach, including both idle and in-use connections.
+#                     Default value is 15 and it can be changed through the configuration API with the key
+#                     `b7a.jdbc.pool.maximumPoolSize`.
+# + connectionTimeoutInMillis - The maximum number of milliseconds that a client will wait for a connection from the
+#                       pool. Default value is 30000 (30 seconds) and it can be changed through the configuration API
+#                       with the key `b7a.jdbc.pool.connectionTimeoutInMillis`. Lowest acceptable connection timeout
+#                       value is 250 ms.
+# + idleTimeoutInMillis - The maximum amount of time that a connection is allowed to sit idle in the pool. Default value
+#                 is 600000 (10 minutes) and it can be changed through the configuration API with the key
+#                 `b7a.jdbc.pool.idleTimeoutInMillis`. The minimum allowed value is 10000ms (10 seconds).
+#                 This setting only applies when minimumIdle is defined to be less than maximumPoolSize.
+# + minimumIdle - The minimum number of idle connections that pool tries to maintain in the pool. Default is same as
+#                 maximumPoolSize and it can be changed through the configuration API with the key
+#                 `b7a.jdbc.pool.minimumIdle`.
+# + maxLifetimeInMillis - The maximum lifetime of a connection in the pool. Default value is 1800000 (30 minutes)
+#                  and it can be changed through the configuration API with the key `b7a.jdbc.pool.maxLifetimeInMillis`.
+#                  A value of 0 indicates unlimited maximum lifetime (infinite lifetime), subject to
+#                  the `idleTimeoutInMillis`.
+# + validationTimeoutInMillis - The maximum duration of time that a connection will be tested for aliveness. Default
+#                       value is 5000 (5 seconds) and it can be changed through the configuration API with the key
+#                       `b7a.jdbc.pool.validationTimeoutInMillis`.  Lowest acceptable validation timeout is 250 ms.
 public type PoolOptions record {|
-    string connectionInitSql = config:getAsString("b7a.jdbc.connection.init.sql", "");
-    string dataSourceClassName = config:getAsString("b7a.jdbc.datasource.class.name", "");
-    boolean autoCommit = config:getAsBoolean("b7a.jdbc.connection.auto.commit", true);
-    boolean isXA = config:getAsBoolean("b7a.jdbc.xa.enabled", false);
-    int maximumPoolSize = config:getAsInt("b7a.jdbc.max.pool.size", 15);
-    int connectionTimeout = config:getAsInt("b7a.jdbc.connection.time.out", 30000);
-    int idleTimeout =  config:getAsInt("b7a.jdbc.connection.idle.time.out", 600000);
-    int minimumIdle = config:getAsInt("b7a.jdbc.connection.min.idle.count", 15);
-    int maxLifetime = config:getAsInt("b7a.jdbc.connection.max.life.time", 1800000);
-    int validationTimeout = config:getAsInt("b7a.jdbc.validation.time.out", 5000);
+    string connectionInitSql = config:getAsString("b7a.jdbc.pool.connectionInitSql", "");
+    string dataSourceClassName = config:getAsString("b7a.jdbc.pool.dataSourceClassName", "");
+    boolean autoCommit = config:getAsBoolean("b7a.jdbc.pool.autoCommit", true);
+    boolean isXA = config:getAsBoolean("b7a.jdbc.pool.isXA", false);
+    int maximumPoolSize = config:getAsInt("\"b7a.jdbc.pool.maximumPoolSize\"", 15);
+    int connectionTimeoutInMillis = config:getAsInt("\"b7a.jdbc.pool.connectionTimeoutInMillis\"", 30000);
+    int idleTimeoutInMillis =  config:getAsInt("b7a.jdbc.pool.idleTimeoutInMillis", 600000);
+    int minimumIdle = config:getAsInt("b7a.jdbc.pool.minimumIdle", 15);
+    int maxLifetimeInMillis = config:getAsInt("b7a.jdbc.pool.maxLifetimeInMillis", 1800000);
+    int validationTimeoutInMillis = config:getAsInt("\"b7a.jdbc.pool.validationTimeoutInMillis\"", 5000);
 |};
 
 // This is a container object that holds the global pool config and initilizes the internal map of connection pools
@@ -113,41 +113,41 @@ public function getGlobalPoolConfigContainer() returns GlobalPoolConfigContainer
 
 # The SQL Datatype of the parameter.
 #
-# VARCHAR - Small, variable length character string
-# CHAR - Small, fixed length character string
-# LONGVARCHAR - Large, variable length character string
-# NCHAR - Small, fixed length character string with unicode support
-# LONGNVARCHAR - Large, variable length character string with unicode support
+# `VARCHAR` - Small, variable length character string
+# `CHAR` - Small, fixed length character string
+# `LONGVARCHAR` - Large, variable length character string
+# `NCHAR` - Small, fixed length character string with unicode support
+# `LONGNVARCHAR` - Large, variable length character string with unicode support
 #
-# BIT - Single bit value that can be zero or one, or nil
-# BOOLEAN - Boolean value either True or false
-# TINYINT - 8-bit integer value which may be unsigned or signed
-# SMALLINT - 16-bit signed integer value which may be unsigned or signed
-# INTEGER - 32-bit signed integer value which may be unsigned or signed
-# BIGINT - 64-bit signed integer value which may be unsigned or signed
+# `BIT` - Single bit value that can be zero or one, or nil
+# `BOOLEAN` - Boolean value either True or false
+# `TINYINT` - 8-bit integer value which may be unsigned or signed
+# `SMALLINT` - 16-bit signed integer value which may be unsigned or signed
+# `INTEGER` - 32-bit signed integer value which may be unsigned or signed
+# `BIGINT` - 64-bit signed integer value which may be unsigned or signed
 #
-# NUMERIC - Fixed-precision and scaled decimal values
-# DECIMAL - Fixed-precision and scaled decimal values
-# REAL - Single precision floating point number
-# FLOAT - Double precision floating point number
-# DOUBLE - Double precision floating point number
+# `NUMERIC` - Fixed-precision and scaled decimal values
+# `DECIMAL` - Fixed-precision and scaled decimal values
+# `REAL` - Single precision floating point number
+# `FLOAT` - Double precision floating point number
+# `DOUBLE` - Double precision floating point number
 #
-# BINARY - Small, fixed-length binary value
-# BLOB - Binary Large Object
-# LONGVARBINARY - Large, variable length binary value
-# VARBINARY - Small, variable length binary value
+# `BINARY` - Small, fixed-length binary value
+# `BLOB` - Binary Large Object
+# `LONGVARBINARY` - Large, variable length binary value
+# `VARBINARY` - Small, variable length binary value
 #
-# CLOB - Character Large Object.
-# NCLOB - Character large objects in multibyte national character set
+# `CLOB` - Character Large Object.
+# `NCLOB` - Character large objects in multibyte national character set
 #
-# DATE - Date consisting of day, month, and year
-# TIME - Time consisting of hours, minutes, and seconds
-# DATETIME - Both DATE and TIME with additional a nanosecond field
-# TIMESTAMP - Both DATE and TIME with additional a nanosecond field
+# `DATE` - Date consisting of day, month, and year
+# `TIME` - Time consisting of hours, minutes, and seconds
+# `DATETIME` - Both DATE and TIME with additional a nanosecond field
+# `TIMESTAMP` - Both DATE and TIME with additional a nanosecond field
 #
-# ARRAY - Composite data value that consists of zero or more elements of a specified data type
-# STRUCT - User defined structured type, consists of one or more attributes
-# REFCURSOR - Cursor value
+# `ARRAY` - Composite data value that consists of zero or more elements of a specified data type
+# `STRUCT` - User defined structured type, consists of one or more attributes
+# `REFCURSOR` - Cursor value
 public type SQLType TYPE_VARCHAR|TYPE_CHAR|TYPE_LONGVARCHAR|TYPE_NCHAR|TYPE_LONGNVARCHAR|TYPE_NVARCHAR|TYPE_BIT|
 TYPE_BOOLEAN|TYPE_TINYINT|TYPE_SMALLINT|TYPE_INTEGER|TYPE_BIGINT|TYPE_NUMERIC|TYPE_DECIMAL|TYPE_REAL|TYPE_FLOAT|
 TYPE_DOUBLE|TYPE_BINARY|TYPE_BLOB|TYPE_LONGVARBINARY|TYPE_VARBINARY|TYPE_CLOB|TYPE_NCLOB|TYPE_DATE|TYPE_TIME|
@@ -186,9 +186,9 @@ public const TYPE_REFCURSOR = "REFCURSOR";
 
 # The direction of the parameter.
 #
-# IN - IN parameters are used to send values to stored procedures
-# OUT - OUT parameters are used to get values from stored procedures
-# INOUT - INOUT parameters are used to send values and get values from stored procedures
+# `IN` - IN parameters are used to send values to stored procedures
+# `OUT` - OUT parameters are used to get values from stored procedures
+# `INOUT` - INOUT parameters are used to send values and get values from stored procedures
 public type Direction DIRECTION_IN|DIRECTION_OUT|DIRECTION_INOUT;
 
 public const DIRECTION_IN = "IN";

@@ -77,7 +77,7 @@ public type Address record {|
 
 # Configuration for UDP client.
 #
-# + readTimeoutInMilliseconds - Socket read timeout value to be used in milliseconds. Default is 300000 milliseconds (5 minutes)
+# + readTimeoutInMillis - Socket read timeout value to be used in milliseconds. Default is 300000 milliseconds (5 minutes)
 public type UdpClientConfig record {|
-    int readTimeoutInMilliseconds = 300000;
+    int readTimeoutInMillis = 300000;
 |};

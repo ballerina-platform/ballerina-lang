@@ -46,7 +46,8 @@ public class ClientStreamingTestCase extends GrpcBaseTest {
     @Test
     public void testNonBlockingBallerinaClient() {
 
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "04_client_streaming_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients",
+                "04_client_streaming_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BValueArray stringArray = new BValueArray(BTypes.typeString);
         stringArray.add(0, "Hi Sam");

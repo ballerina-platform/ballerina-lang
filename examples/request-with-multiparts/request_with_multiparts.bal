@@ -23,9 +23,9 @@ service multipartDemoService on new http:Listener(9090) {
             foreach var part in bodyParts {
                 handleContent(part);
             }
-            response.setPayload(untaint bodyParts);
+            response.setPayload(<@untainted> bodyParts);
         } else {
-            log:printError(<string> bodyParts.detail().message);
+            log:printError(<string> bodyParts.reason());
             response.setPayload("Error in decoding multiparts!");
             response.statusCode = 500;
         }
@@ -91,7 +91,7 @@ function handleContent(mime:Entity bodyPart) {
             //Extracts `xml` data from the body part.
             var payload = bodyPart.getXml();
             if (payload is xml) {
-                log:printInfo(string.convert(payload));
+                log:printInfo(payload.toString());
             } else {
                 log:printError(<string> payload.detail().message);
             }

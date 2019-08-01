@@ -3,13 +3,11 @@
 $ ballerina run record_type_binding_pattern.bal
 Name: Peter
 Age: 28
-Other Details: {"country":"Sri Lanka", "occupation":"Software Engineer"}
+Other Details: country=Sri Lanka occupation=Software Engineer
 Name: Peter
 Age: 28
 Name: Peter
 Age: 28
-Other Details: {"country":"Sri Lanka", "occupation":"Software Engineer"}
-Name: John
-Age: 26
+Other Details: country=Sri Lanka occupation=Software Engineer
 Country Name: Sri Lanka
 Capital Name: Colombo
