@@ -105,7 +105,7 @@ public type Process object {
         }
         var cr1 = output.close();
         if (cr1 is error) {
-            io:println("Error flushing pipe output: ", cr1);
+            io:println("Error closing pipe output: ", cr1);
         }
         
     }
