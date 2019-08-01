@@ -49,7 +49,6 @@ dependencies {
     implementation project(':ballerina-reflect')
     implementation project(':ballerina-math')
     implementation project(':ballerina-crypto')
-    implementation project(':ballerina-config')
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-internal')
     implementation project(':ballerina-log-api')

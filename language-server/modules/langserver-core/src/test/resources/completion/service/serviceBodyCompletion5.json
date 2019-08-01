@@ -10,7 +10,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Authorization header name."
+        }
       },
       "sortText": "221",
       "insertText": "AUTH_HEADER",
@@ -21,7 +24,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Indicates that the authentication credentials should be sent via the Authentication Header"
+        }
       },
       "sortText": "221",
       "insertText": "AUTH_HEADER_BEARER",
@@ -32,7 +38,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Indicates that the Authentication credentials should be sent via the body of the POST request."
+        }
       },
       "sortText": "221",
       "insertText": "POST_BODY_BEARER",
@@ -43,7 +52,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Indicates that the authentication credentials should not be sent"
+        }
       },
       "sortText": "221",
       "insertText": "NO_BEARER",
@@ -54,7 +66,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Indicates the status code."
+        }
       },
       "sortText": "221",
       "insertText": "STATUS_CODE",
@@ -65,7 +80,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Forces the cache to validate a cached response with the origin server before serving."
+        }
       },
       "sortText": "221",
       "insertText": "NO_CACHE",
@@ -76,7 +94,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Instructs the cache to not store a response in non-volatile storage."
+        }
       },
       "sortText": "221",
       "insertText": "NO_STORE",
@@ -87,7 +108,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Instructs intermediaries not to transform the payload."
+        }
       },
       "sortText": "221",
       "insertText": "NO_TRANSFORM",
@@ -98,7 +122,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "When used in requests, `max-age` implies that clients are not willing to accept responses whose age is greater\nthan `max-age`. When used in responses, the response is to be considered stale after the specified\nnumber of seconds."
+        }
       },
       "sortText": "221",
       "insertText": "MAX_AGE",
@@ -109,7 +136,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Indicates that the client is willing to accept responses which have exceeded their freshness lifetime by no more\nthan the specified number of seconds."
+        }
       },
       "sortText": "221",
       "insertText": "MAX_STALE",
@@ -120,7 +150,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Indicates that the client is only accepting responses whose freshness lifetime \u003e\u003d current age + min-fresh."
+        }
       },
       "sortText": "221",
       "insertText": "MIN_FRESH",
@@ -131,7 +164,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Indicates that the client is only willing to accept a cached response. A cached response is served subject to\nother constraints posed by the request."
+        }
       },
       "sortText": "221",
       "insertText": "ONLY_IF_CACHED",
@@ -142,7 +178,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Indicates that once the response has become stale, it should not be reused for subsequent requests without\nvalidating with the origin server."
+        }
       },
       "sortText": "221",
       "insertText": "MUST_REVALIDATE",
@@ -153,7 +192,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Indicates that any cache may store the response."
+        }
       },
       "sortText": "221",
       "insertText": "PUBLIC",
@@ -164,7 +206,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Indicates that the response is intended for a single user and should not be stored by shared caches."
+        }
       },
       "sortText": "221",
       "insertText": "PRIVATE",
@@ -175,7 +220,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Has the same semantics as `must-revalidate`, except that this does not apply to private caches."
+        }
       },
       "sortText": "221",
       "insertText": "PROXY_REVALIDATE",
@@ -186,7 +234,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "In shared caches, `s-maxage` overrides the `max-age` or `expires` header field."
+        }
       },
       "sortText": "221",
       "insertText": "S_MAX_AGE",
@@ -197,7 +248,10 @@
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Setting this as the `max-stale` directives indicates that the `max-stale` directive does not specify a limit."
+        }
       },
       "sortText": "221",
       "insertText": "MAX_STALE_ANY_AGE",
@@ -208,7 +262,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "This is a more restricted mode of RFC 7234. Setting this as the caching policy restricts caching to instances\nwhere the `cache-control` header and either the `etag` or `last-modified` header are present."
+        }
       },
       "sortText": "221",
       "insertText": "CACHE_CONTROL_AND_VALIDATORS",
@@ -219,7 +276,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Caching behaviour is as specified by the RFC 7234 specification."
+        }
       },
       "sortText": "221",
       "insertText": "RFC_7234",
@@ -230,7 +290,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Constant for the http error code"
+        }
       },
       "sortText": "221",
       "insertText": "HTTP_ERROR_CODE",
@@ -241,7 +304,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Represents multipart primary type"
+        }
       },
       "sortText": "221",
       "insertText": "MULTIPART_AS_PRIMARY_TYPE",
@@ -252,7 +318,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Constant for the HTTP FORWARD method"
+        }
       },
       "sortText": "221",
       "insertText": "HTTP_FORWARD",
@@ -263,7 +332,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Constant for the HTTP GET method"
+        }
       },
       "sortText": "221",
       "insertText": "HTTP_GET",
@@ -274,7 +346,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Constant for the HTTP POST method"
+        }
       },
       "sortText": "221",
       "insertText": "HTTP_POST",
@@ -285,7 +360,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Constant for the HTTP DELETE method"
+        }
       },
       "sortText": "221",
       "insertText": "HTTP_DELETE",
@@ -296,7 +374,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Constant for the HTTP OPTIONS method"
+        }
       },
       "sortText": "221",
       "insertText": "HTTP_OPTIONS",
@@ -307,7 +388,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Constant for the HTTP PUT method"
+        }
       },
       "sortText": "221",
       "insertText": "HTTP_PUT",
@@ -318,7 +402,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Constant for the HTTP PATCH method"
+        }
       },
       "sortText": "221",
       "insertText": "HTTP_PATCH",
@@ -329,7 +416,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Constant for the HTTP HEAD method"
+        }
       },
       "sortText": "221",
       "insertText": "HTTP_HEAD",
@@ -340,7 +430,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "constant for the HTTP SUBMIT method"
+        }
       },
       "sortText": "221",
       "insertText": "HTTP_SUBMIT",
@@ -351,7 +444,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Constant for the identify not an HTTP Operation"
+        }
       },
       "sortText": "221",
       "insertText": "HTTP_NONE",
@@ -362,7 +458,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "If the payload is less than 8KB, content-length header is set in the outbound request/response,\notherwise chunking header is set in the outbound request/response.}"
+        }
       },
       "sortText": "221",
       "insertText": "CHUNKING_AUTO",
@@ -373,7 +472,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Always set chunking header in the response."
+        }
       },
       "sortText": "221",
       "insertText": "CHUNKING_ALWAYS",
@@ -384,7 +486,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Never set the chunking header even if the payload is larger than 8KB in the outbound request/response."
+        }
       },
       "sortText": "221",
       "insertText": "CHUNKING_NEVER",
@@ -395,7 +500,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the\noutbound request/response accept-encoding/content-encoding option."
+        }
       },
       "sortText": "221",
       "insertText": "COMPRESSION_AUTO",
@@ -406,7 +514,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Always set accept-encoding/content-encoding in outbound request/response."
+        }
       },
       "sortText": "221",
       "insertText": "COMPRESSION_ALWAYS",
@@ -417,7 +528,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Never set accept-encoding/content-encoding header in outbound request/response."
+        }
       },
       "sortText": "221",
       "insertText": "COMPRESSION_NEVER",
@@ -428,7 +542,10 @@
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Represents the HTTP redirect status code `300 - Multiple Choices`."
+        }
       },
       "sortText": "221",
       "insertText": "REDIRECT_MULTIPLE_CHOICES_300",
@@ -439,7 +556,10 @@
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Represents the HTTP redirect status code `301 - Moved Permanently`."
+        }
       },
       "sortText": "221",
       "insertText": "REDIRECT_MOVED_PERMANENTLY_301",
@@ -450,7 +570,10 @@
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Represents the HTTP redirect status code `302 - Found`."
+        }
       },
       "sortText": "221",
       "insertText": "REDIRECT_FOUND_302",
@@ -461,7 +584,10 @@
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Represents the HTTP redirect status code `303 - See Other`."
+        }
       },
       "sortText": "221",
       "insertText": "REDIRECT_SEE_OTHER_303",
@@ -472,7 +598,10 @@
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Represents the HTTP redirect status code `304 - Not Modified`."
+        }
       },
       "sortText": "221",
       "insertText": "REDIRECT_NOT_MODIFIED_304",
@@ -483,7 +612,10 @@
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Represents the HTTP redirect status code `305 - Use Proxy`."
+        }
       },
       "sortText": "221",
       "insertText": "REDIRECT_USE_PROXY_305",
@@ -494,7 +626,10 @@
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Represents the HTTP redirect status code `307 - Temporary Redirect`."
+        }
       },
       "sortText": "221",
       "insertText": "REDIRECT_TEMPORARY_REDIRECT_307",
@@ -505,7 +640,10 @@
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Represents the HTTP redirect status code `308 - Permanent Redirect`."
+        }
       },
       "sortText": "221",
       "insertText": "REDIRECT_PERMANENT_REDIRECT_308",
@@ -516,7 +654,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Resiliency errors"
+        }
       },
       "sortText": "221",
       "insertText": "FAILOVER_ALL_ENDPOINTS_FAILED",
@@ -527,7 +668,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "FAILOVER_ENDPOINT_ACTION_FAILED",
@@ -538,7 +682,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "UPSTREAM_SERVICE_UNAVAILABLE",
@@ -549,7 +696,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "ALL_LOAD_BALANCE_ENDPOINTS_FAILED",
@@ -560,7 +710,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "ALL_RETRY_ATTEMPTS_FAILED",
@@ -571,7 +724,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "IDLE_TIMEOUT_TRIGGERED",
@@ -582,7 +738,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Security errors"
+        }
       },
       "sortText": "221",
       "insertText": "AUTHN_FAILED",
@@ -593,7 +752,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "AUTHZ_FAILED",
@@ -604,7 +766,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Outbound request errors in client"
+        }
       },
       "sortText": "221",
       "insertText": "INIT_OUTBOUND_REQUEST_FAILED",
@@ -615,7 +780,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "WRITING_OUTBOUND_REQUEST_HEADERS_FAILED",
@@ -626,7 +794,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "WRITING_OUTBOUND_REQUEST_BODY_FAILED",
@@ -637,7 +808,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Inbound response errors in client"
+        }
       },
       "sortText": "221",
       "insertText": "INIT_INBOUND_RESPONSE_FAILED",
@@ -648,7 +822,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "READING_INBOUND_RESPONSE_HEADERS_FAILED",
@@ -659,7 +836,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "READING_INBOUND_RESPONSE_BODY_FAILED",
@@ -670,7 +850,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Inbound request errors in listener"
+        }
       },
       "sortText": "221",
       "insertText": "INIT_INBOUND_REQUEST_FAILED",
@@ -681,7 +864,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "READING_INBOUND_REQUEST_HEADERS_FAILED",
@@ -692,7 +878,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "READING_INBOUND_REQUEST_BODY_FAILED",
@@ -703,7 +892,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Outbound response errors in listener"
+        }
       },
       "sortText": "221",
       "insertText": "INIT_OUTBOUND_RESPONSE_FAILED",
@@ -714,7 +906,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "WRITING_OUTBOUND_RESPONSE_HEADERS_FAILED",
@@ -725,7 +920,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "WRITING_OUTBOUND_RESPONSE_BODY_FAILED",
@@ -736,7 +934,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "INITIATING_100_CONTINUE_RESPONSE_FAILED",
@@ -747,7 +948,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "WRITING_100_CONTINUE_RESPONSE_FAILED",
@@ -758,7 +962,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Generic errors (mostly to wrap errors from other modules)"
+        }
       },
       "sortText": "221",
       "insertText": "GENERIC_CLIENT_ERROR",
@@ -769,7 +976,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "GENERIC_LISTENER_ERROR",
@@ -780,7 +990,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Other client-related errors"
+        }
       },
       "sortText": "221",
       "insertText": "UNSUPPORTED_ACTION",
@@ -791,7 +1004,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "HTTP2_CLIENT_ERROR",
@@ -802,7 +1018,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "MAXIMUM_WAIT_TIME_EXCEEDED",
@@ -813,7 +1032,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "SSL_ERROR",
@@ -824,7 +1046,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "HTTP header key `age`. Gives the current age of a cached HTTP response. "
+        }
       },
       "sortText": "221",
       "insertText": "AGE",
@@ -835,7 +1060,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "HTTP header key `authorization` "
+        }
       },
       "sortText": "221",
       "insertText": "AUTHORIZATION",
@@ -846,7 +1074,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "HTTP header key `cache-control`. Specifies the cache control directives required for the function of HTTP caches."
+        }
       },
       "sortText": "221",
       "insertText": "CACHE_CONTROL",
@@ -857,7 +1088,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "HTTP header key `content-length`. Specifies the size of the response body in bytes. "
+        }
       },
       "sortText": "221",
       "insertText": "CONTENT_LENGTH",
@@ -868,7 +1102,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "HTTP header key `content-type`. Specifies the type of the message payload. "
+        }
       },
       "sortText": "221",
       "insertText": "CONTENT_TYPE",
@@ -879,7 +1116,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "HTTP header key `date`. The timestamp at the time the response was generated/received. "
+        }
       },
       "sortText": "221",
       "insertText": "DATE",
@@ -890,7 +1130,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "HTTP header key `etag`. A finger print for a resource which is used by HTTP caches to identify whether a\nresource representation has changed."
+        }
       },
       "sortText": "221",
       "insertText": "ETAG",
@@ -901,7 +1144,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "HTTP header key `expect`. Specifies expectations to be fulfilled by the server. "
+        }
       },
       "sortText": "221",
       "insertText": "EXPECT",
@@ -912,7 +1158,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "HTTP header key `expires`. Specifies the time at which the response becomes stale. "
+        }
       },
       "sortText": "221",
       "insertText": "EXPIRES",
@@ -923,7 +1172,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "HTTP header key `if-match` "
+        }
       },
       "sortText": "221",
       "insertText": "IF_MATCH",
@@ -934,7 +1186,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "HTTP header key `if-modified-since`. Used when validating (with the origin server) whether a cached response\nis still valid. If the representation of the resource has modified since the timestamp in this field, a\n304 response is returned."
+        }
       },
       "sortText": "221",
       "insertText": "IF_MODIFIED_SINCE",
@@ -945,7 +1200,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "HTTP header key `if-none-match`. Used when validating (with the origin server) whether a cached response is\nstill valid. If the ETag provided in this field matches the representation of the requested resource, a\n304 response is returned."
+        }
       },
       "sortText": "221",
       "insertText": "IF_NONE_MATCH",
@@ -956,7 +1214,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "HTTP header key `if-range` "
+        }
       },
       "sortText": "221",
       "insertText": "IF_RANGE",
@@ -967,7 +1228,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "HTTP header key `if-unmodified-since` "
+        }
       },
       "sortText": "221",
       "insertText": "IF_UNMODIFIED_SINCE",
@@ -978,7 +1242,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "HTTP header key `last-modified`. The time at which the resource was last modified. "
+        }
       },
       "sortText": "221",
       "insertText": "LAST_MODIFIED",
@@ -989,7 +1256,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "HTTP header key `location`. Indicates the URL to redirect a request to. "
+        }
       },
       "sortText": "221",
       "insertText": "LOCATION",
@@ -1000,7 +1270,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "HTTP header key `pragma`. Used in dealing with HTTP 1.0 caches which do not understand the `cache-control` header."
+        }
       },
       "sortText": "221",
       "insertText": "PRAGMA",
@@ -1011,7 +1284,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "HTTP header key `server`. Specifies the details of the origin server."
+        }
       },
       "sortText": "221",
       "insertText": "SERVER",
@@ -1022,7 +1298,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "HTTP header key `warning`. Specifies warnings generated when serving stale responses from HTTP caches. "
+        }
       },
       "sortText": "221",
       "insertText": "WARNING",
@@ -1033,7 +1312,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "HTTP header key `transfer-encoding`. Specifies what type of transformation has been applied to entity body. "
+        }
       },
       "sortText": "221",
       "insertText": "TRANSFER_ENCODING",
@@ -1044,7 +1326,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "HTTP header key `connection`. Allows the sender to specify options that are desired for that particular connection."
+        }
       },
       "sortText": "221",
       "insertText": "CONNECTION",
@@ -1055,7 +1340,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "HTTP header key `upgrade`. Allows the client to specify what additional communication protocols it supports and\nwould like to use, if the server finds it appropriate to switch protocols."
+        }
       },
       "sortText": "221",
       "insertText": "UPGRADE",
@@ -1066,7 +1354,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Mutual SSL handshake is successful."
+        }
       },
       "sortText": "221",
       "insertText": "PASSED",
@@ -1077,7 +1368,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Mutual SSL handshake has failed."
+        }
       },
       "sortText": "221",
       "insertText": "FAILED",
@@ -1088,7 +1382,10 @@
       "kind": "Variable",
       "detail": "()",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Not a mutual ssl connection."
+        }
       },
       "sortText": "221",
       "insertText": "NONE",
@@ -1099,7 +1396,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Represents the open state of the circuit. When the Circuit Breaker is in `OPEN` state, requests will fail\nimmediately."
+        }
       },
       "sortText": "221",
       "insertText": "CB_OPEN_STATE",
@@ -1110,7 +1410,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Represents the half-open state of the circuit. When the Circuit Breaker is in `HALF_OPEN` state, a trial request\nwill be sent to the upstream service. If it fails, the circuit will trip again and move to the `OPEN` state. If not,\nit will move to the `CLOSED` state."
+        }
       },
       "sortText": "221",
       "insertText": "CB_HALF_OPEN_STATE",
@@ -1121,472 +1424,601 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Represents the closed state of the circuit. When the Circuit Breaker is in `CLOSED` state, all requests will be\nallowed to go through to the upstream service. If the failures exceed the configured threhold values, the circuit\nwill trip and move to the `OPEN` state."
+        }
       },
       "sortText": "221",
       "insertText": "CB_CLOSED_STATE",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "CONTINUE_100",
+      "label": "STATUS_CONTINUE",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 100 Continue"
+        }
       },
       "sortText": "221",
-      "insertText": "CONTINUE_100",
+      "insertText": "STATUS_CONTINUE",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "SWITCHING_PROTOCOLS_101",
+      "label": "STATUS_SWITCHING_PROTOCOLS",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 101 Switching Protocols"
+        }
       },
       "sortText": "221",
-      "insertText": "SWITCHING_PROTOCOLS_101",
+      "insertText": "STATUS_SWITCHING_PROTOCOLS",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "OK_200",
+      "label": "STATUS_OK",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 200 OK"
+        }
       },
       "sortText": "221",
-      "insertText": "OK_200",
+      "insertText": "STATUS_OK",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "CREATED_201",
+      "label": "STATUS_CREATED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 201 Created"
+        }
       },
       "sortText": "221",
-      "insertText": "CREATED_201",
+      "insertText": "STATUS_CREATED",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ACCEPTED_202",
+      "label": "STATUS_ACCEPTED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 202 Accepted"
+        }
       },
       "sortText": "221",
-      "insertText": "ACCEPTED_202",
+      "insertText": "STATUS_ACCEPTED",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "NON_AUTHORITATIVE_INFORMATION_203",
+      "label": "STATUS_NON_AUTHORITATIVE_INFORMATION",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 203 Non Authoritative Information"
+        }
       },
       "sortText": "221",
-      "insertText": "NON_AUTHORITATIVE_INFORMATION_203",
+      "insertText": "STATUS_NON_AUTHORITATIVE_INFORMATION",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "NO_CONTENT_204",
+      "label": "STATUS_NO_CONTENT",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 204 No Content"
+        }
       },
       "sortText": "221",
-      "insertText": "NO_CONTENT_204",
+      "insertText": "STATUS_NO_CONTENT",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "RESET_CONTENT_205",
+      "label": "STATUS_RESET_CONTENT",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 205 Reset Content"
+        }
       },
       "sortText": "221",
-      "insertText": "RESET_CONTENT_205",
+      "insertText": "STATUS_RESET_CONTENT",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "PARTIAL_CONTENT_206",
+      "label": "STATUS_PARTIAL_CONTENT",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 206 Partial Content"
+        }
       },
       "sortText": "221",
-      "insertText": "PARTIAL_CONTENT_206",
+      "insertText": "STATUS_PARTIAL_CONTENT",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "MULTIPLE_CHOICES_300",
+      "label": "STATUS_MULTIPLE_CHOICES",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 300 Multiple Choices"
+        }
       },
       "sortText": "221",
-      "insertText": "MULTIPLE_CHOICES_300",
+      "insertText": "STATUS_MULTIPLE_CHOICES",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "MOVED_PERMANENTLY_301",
+      "label": "STATUS_MOVED_PERMANENTLY",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 301 Moved Permanently"
+        }
       },
       "sortText": "221",
-      "insertText": "MOVED_PERMANENTLY_301",
+      "insertText": "STATUS_MOVED_PERMANENTLY",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "FOUND_302",
+      "label": "STATUS_FOUND",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 302 Found"
+        }
       },
       "sortText": "221",
-      "insertText": "FOUND_302",
+      "insertText": "STATUS_FOUND",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "SEE_OTHER_303",
+      "label": "STATUS_SEE_OTHER",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 303 See Other"
+        }
       },
       "sortText": "221",
-      "insertText": "SEE_OTHER_303",
+      "insertText": "STATUS_SEE_OTHER",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "NOT_MODIFIED_304",
+      "label": "STATUS_NOT_MODIFIED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 304 Not Modified"
+        }
       },
       "sortText": "221",
-      "insertText": "NOT_MODIFIED_304",
+      "insertText": "STATUS_NOT_MODIFIED",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "USE_PROXY_305",
+      "label": "STATUS_USE_PROXY",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 305 Use Proxy"
+        }
       },
       "sortText": "221",
-      "insertText": "USE_PROXY_305",
+      "insertText": "STATUS_USE_PROXY",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TEMPORARY_REDIRECT_307",
+      "label": "STATUS_TEMPORARY_REDIRECT",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 307 Temporary Redirect"
+        }
       },
       "sortText": "221",
-      "insertText": "TEMPORARY_REDIRECT_307",
+      "insertText": "STATUS_TEMPORARY_REDIRECT",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "PERMANENT_REDIRECT_308",
+      "label": "STATUS_PERMANENT_REDIRECT",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 308 Permanent Redirect"
+        }
       },
       "sortText": "221",
-      "insertText": "PERMANENT_REDIRECT_308",
+      "insertText": "STATUS_PERMANENT_REDIRECT",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "BAD_REQUEST_400",
+      "label": "STATUS_BAD_REQUEST",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 400 Bad Request"
+        }
       },
       "sortText": "221",
-      "insertText": "BAD_REQUEST_400",
+      "insertText": "STATUS_BAD_REQUEST",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "UNAUTHORIZED_401",
+      "label": "STATUS_UNAUTHORIZED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 401 Unauthorized"
+        }
       },
       "sortText": "221",
-      "insertText": "UNAUTHORIZED_401",
+      "insertText": "STATUS_UNAUTHORIZED",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "PAYMENT_REQUIRED_402",
+      "label": "STATUS_PAYMENT_REQUIRED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 402 Payment Required"
+        }
       },
       "sortText": "221",
-      "insertText": "PAYMENT_REQUIRED_402",
+      "insertText": "STATUS_PAYMENT_REQUIRED",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "FORBIDDEN_403",
+      "label": "STATUS_FORBIDDEN",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 403 Forbidden"
+        }
       },
       "sortText": "221",
-      "insertText": "FORBIDDEN_403",
+      "insertText": "STATUS_FORBIDDEN",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "NOT_FOUND_404",
+      "label": "STATUS_NOT_FOUND",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 404 Not Found"
+        }
       },
       "sortText": "221",
-      "insertText": "NOT_FOUND_404",
+      "insertText": "STATUS_NOT_FOUND",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "METHOD_NOT_ALLOWED_405",
+      "label": "STATUS_METHOD_NOT_ALLOWED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 405 Method Not Allowed"
+        }
       },
       "sortText": "221",
-      "insertText": "METHOD_NOT_ALLOWED_405",
+      "insertText": "STATUS_METHOD_NOT_ALLOWED",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "NOT_ACCEPTABLE_406",
+      "label": "STATUS_NOT_ACCEPTABLE",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 406 Not Acceptable"
+        }
       },
       "sortText": "221",
-      "insertText": "NOT_ACCEPTABLE_406",
+      "insertText": "STATUS_NOT_ACCEPTABLE",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "PROXY_AUTHENTICATION_REQUIRED_407",
+      "label": "STATUS_PROXY_AUTHENTICATION_REQUIRED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 407 Proxy Authentication Required"
+        }
       },
       "sortText": "221",
-      "insertText": "PROXY_AUTHENTICATION_REQUIRED_407",
+      "insertText": "STATUS_PROXY_AUTHENTICATION_REQUIRED",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "REQUEST_TIMEOUT_408",
+      "label": "STATUS_REQUEST_TIMEOUT",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 408 Request Timeout"
+        }
       },
       "sortText": "221",
-      "insertText": "REQUEST_TIMEOUT_408",
+      "insertText": "STATUS_REQUEST_TIMEOUT",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "CONFLICT_409",
+      "label": "STATUS_CONFLICT",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 409 Conflict"
+        }
       },
       "sortText": "221",
-      "insertText": "CONFLICT_409",
+      "insertText": "STATUS_CONFLICT",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "GONE_410",
+      "label": "STATUS_GONE",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 410 Gone"
+        }
       },
       "sortText": "221",
-      "insertText": "GONE_410",
+      "insertText": "STATUS_GONE",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "LENGTH_REQUIRED_411",
+      "label": "STATUS_LENGTH_REQUIRED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 411 Length Required"
+        }
       },
       "sortText": "221",
-      "insertText": "LENGTH_REQUIRED_411",
+      "insertText": "STATUS_LENGTH_REQUIRED",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "PRECONDITION_FAILED_412",
+      "label": "STATUS_PRECONDITION_FAILED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 412 Precondition Failed"
+        }
       },
       "sortText": "221",
-      "insertText": "PRECONDITION_FAILED_412",
+      "insertText": "STATUS_PRECONDITION_FAILED",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "PAYLOAD_TOO_LARGE_413",
+      "label": "STATUS_PAYLOAD_TOO_LARGE",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 413 Payload Too Large"
+        }
       },
       "sortText": "221",
-      "insertText": "PAYLOAD_TOO_LARGE_413",
+      "insertText": "STATUS_PAYLOAD_TOO_LARGE",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "URI_TOO_LONG_414",
+      "label": "STATUS_URI_TOO_LONG",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 414 URI Too Long"
+        }
       },
       "sortText": "221",
-      "insertText": "URI_TOO_LONG_414",
+      "insertText": "STATUS_URI_TOO_LONG",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "UNSUPPORTED_MEDIA_TYPE",
+      "label": "STATUS_UNSUPPORTED_MEDIA_TYPE",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 415 Unsupported Media Type"
+        }
       },
       "sortText": "221",
-      "insertText": "UNSUPPORTED_MEDIA_TYPE",
+      "insertText": "STATUS_UNSUPPORTED_MEDIA_TYPE",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "RANGE_NOT_SATISFIABLE_416",
+      "label": "STATUS_RANGE_NOT_SATISFIABLE",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 416 Range Not Satisfiable"
+        }
       },
       "sortText": "221",
-      "insertText": "RANGE_NOT_SATISFIABLE_416",
+      "insertText": "STATUS_RANGE_NOT_SATISFIABLE",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "EXPECTATION_FAILED_417",
+      "label": "STATUS_EXPECTATION_FAILED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 417 Expectation Failed"
+        }
       },
       "sortText": "221",
-      "insertText": "EXPECTATION_FAILED_417",
+      "insertText": "STATUS_EXPECTATION_FAILED",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "UPGRADE_REQUIRED_426",
+      "label": "STATUS_UPGRADE_REQUIRED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 426 Upgrade Required"
+        }
       },
       "sortText": "221",
-      "insertText": "UPGRADE_REQUIRED_426",
+      "insertText": "STATUS_UPGRADE_REQUIRED",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "INTERNAL_SERVER_ERROR_500",
+      "label": "STATUS_INTERNAL_SERVER_ERROR",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 500 Internal Server Error"
+        }
       },
       "sortText": "221",
-      "insertText": "INTERNAL_SERVER_ERROR_500",
+      "insertText": "STATUS_INTERNAL_SERVER_ERROR",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "NOT_IMPLEMENTED_501",
+      "label": "STATUS_NOT_IMPLEMENTED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 501 Not Implemented"
+        }
       },
       "sortText": "221",
-      "insertText": "NOT_IMPLEMENTED_501",
+      "insertText": "STATUS_NOT_IMPLEMENTED",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "BAD_GATEWAY_502",
+      "label": "STATUS_BAD_GATEWAY",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 502 Bad Gateway"
+        }
       },
       "sortText": "221",
-      "insertText": "BAD_GATEWAY_502",
+      "insertText": "STATUS_BAD_GATEWAY",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "SERVICE_UNAVAILABLE_503",
+      "label": "STATUS_SERVICE_UNAVAILABLE",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 503 Service Unavailable"
+        }
       },
       "sortText": "221",
-      "insertText": "SERVICE_UNAVAILABLE_503",
+      "insertText": "STATUS_SERVICE_UNAVAILABLE",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "GATEWAY_TIMEOUT_504",
+      "label": "STATUS_GATEWAY_TIMEOUT",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 504 Gateway Timeout"
+        }
       },
       "sortText": "221",
-      "insertText": "GATEWAY_TIMEOUT_504",
+      "insertText": "STATUS_GATEWAY_TIMEOUT",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "HTTP_VERSION_NOT_SUPPORTED_505",
+      "label": "STATUS_HTTP_VERSION_NOT_SUPPORTED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "The HTTP response status code: 505 HTTP Version Not Supported"
+        }
       },
       "sortText": "221",
-      "insertText": "HTTP_VERSION_NOT_SUPPORTED_505",
+      "insertText": "STATUS_HTTP_VERSION_NOT_SUPPORTED",
       "insertTextFormat": "Snippet"
     },
     {
@@ -1594,7 +2026,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Decides to keep the connection alive or not based on the `connection` header of the client request }"
+        }
       },
       "sortText": "221",
       "insertText": "KEEPALIVE_AUTO",
@@ -1605,7 +2040,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Keeps the connection alive irrespective of the `connection` header value }"
+        }
       },
       "sortText": "221",
       "insertText": "KEEPALIVE_ALWAYS",
@@ -1616,7 +2054,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": "Closes the connection irrespective of the `connection` header value }"
+        }
       },
       "sortText": "221",
       "insertText": "KEEPALIVE_NEVER",
@@ -1627,7 +2068,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "CONNECTION_CLOSURE_ERROR",
@@ -1638,7 +2082,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "INVALID_HANDSHAKE_ERROR",
@@ -1649,7 +2096,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "PAYLOAD_TOO_BIG_ERROR",
@@ -1660,7 +2110,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "PROTOCOL_ERROR",
@@ -1671,7 +2124,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "CONNECTION_ERROR",
@@ -1682,7 +2138,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "INVALID_CONTINUATION_FRAME_ERROR",
@@ -1693,7 +2152,10 @@
       "kind": "Variable",
       "detail": "string",
       "documentation": {
-        "left": "Constant"
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
       },
       "sortText": "221",
       "insertText": "GENERIC_ERROR",
@@ -1803,7 +2265,7 @@
       "kind": "Class",
       "detail": "Object",
       "documentation": {
-        "left": "Representation of Authorization Handler for HTTP\n"
+        "left": "Representation of Authorization Handler for HTTP.\n"
       },
       "sortText": "221",
       "insertText": "AuthzHandler",
@@ -2486,14 +2948,25 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Filter",
+      "label": "RequestFilter",
       "kind": "Class",
       "detail": "Object",
       "documentation": {
-        "left": "Representation of a HTTP Request Filter. This filter will be applied before the request is dispatched to the relevant resource. Any Filter implementation should be structurally similar to the Filter object."
+        "left": "Abstract Representation of a HTTP Request Filter.\nThis filter will be applied before the request is dispatched to the relevant resource.\nAny RequestFilter implementation should be structurally similar to or implement the RequestFilter object."
       },
       "sortText": "221",
-      "insertText": "Filter",
+      "insertText": "RequestFilter",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ResponseFilter",
+      "kind": "Class",
+      "detail": "Object",
+      "documentation": {
+        "left": "Abstract Representation of a HTTP Response Filter.\nThis filter will be applied in the response path.\nAny ResponseFilter implementation should be structurally similar to or implement the ResponseFilter object."
+      },
+      "sortText": "221",
+      "insertText": "ResponseFilter",
       "insertTextFormat": "Snippet"
     },
     {
@@ -2846,6 +3319,17 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ServiceHttp1Settings",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Provides settings related to HTTP/1.x protocol.\n"
+      },
+      "sortText": "221",
+      "insertText": "ServiceHttp1Settings",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ListenerAuth",
       "kind": "Class",
       "detail": "Record",
@@ -2969,7 +3453,7 @@
       "kind": "Class",
       "detail": "Object",
       "documentation": {
-        "left": "Represents a WebSocket caller.\n"
+        "left": "Represents a WebSocket caller."
       },
       "sortText": "221",
       "insertText": "WebSocketCaller",
@@ -2980,7 +3464,7 @@
       "kind": "Class",
       "detail": "Object",
       "documentation": {
-        "left": "Represents a WebSocket client endpoint.\n"
+        "left": "Represents a WebSocket client endpoint."
       },
       "sortText": "221",
       "insertText": "WebSocketClient",

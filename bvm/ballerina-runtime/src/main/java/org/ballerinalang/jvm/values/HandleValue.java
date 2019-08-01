@@ -43,7 +43,7 @@ public class HandleValue implements RefValue {
 
     @Override
     public String stringValue() {
-        return value.toString();
+        return String.valueOf(value);
     }
 
     @Override

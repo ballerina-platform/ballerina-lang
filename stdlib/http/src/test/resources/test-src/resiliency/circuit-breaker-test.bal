@@ -364,7 +364,7 @@ public type MockClient client object {
             } else {
                 error err = result;
                 string errMessage = err.reason();
-                response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+                response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
                 response.setTextPayload(errMessage);
             }
         } else if (scenario == SCENARIO_TRIAL_RUN_FAILURE) {
@@ -374,7 +374,7 @@ public type MockClient client object {
             } else {
                 error err = result;
                 string errMessage = err.reason();
-                response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+                response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
                 response.setTextPayload(errMessage);
             }
         } else if (scenario == SCENARIO_HTTP_SC_FAILURE) {
@@ -384,7 +384,7 @@ public type MockClient client object {
             } else {
                 error err = result;
                 string errMessage = err.reason();
-                response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+                response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
                 response.setTextPayload(errMessage);
             }
         } else if (scenario == SCENARIO_CB_FORCE_OPEN) {
@@ -396,7 +396,7 @@ public type MockClient client object {
             } else {
                 error err = result;
                 string errMessage = err.reason();
-                response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+                response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
                 response.setTextPayload(errMessage);
             }
         } else if (scenario == SCENARIO_REQUEST_VOLUME_THRESHOLD_SUCCESS) {
@@ -491,7 +491,7 @@ function handleRequestVolumeThresholdSuccessResponseScenario() returns http:Resp
 
 function handleRequestVolumeThresholdFailureResponseScenario() returns http:Response {
     http:Response response = new;
-    response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+    response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
     return response;
 }
 
@@ -503,7 +503,7 @@ function getErrorStruct() returns http:ClientError {
 function getResponse() returns http:Response {
     // TODO: The way the status code is set may need to be changed once struct fields can be made read-only
     http:Response response = new;
-    response.statusCode = http:OK_200;
+    response.statusCode = http:STATUS_OK;
     return response;
 }
 

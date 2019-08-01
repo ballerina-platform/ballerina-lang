@@ -2,6 +2,7 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/log;
 import ballerina/mime;
+import ballerina/internal;
 
 // Creates an endpoint for the client.
 http:Client clientEP = new("http://localhost:9092");
@@ -88,7 +89,7 @@ service multipartResponseDecoder on multipartEP {
 // Gets the child parts that are nested within the parent.
 function handleNestedParts(mime:Entity parentPart) {
     string contentTypeOfParent = parentPart.getContentType();
-    if (contentTypeOfParent.hasPrefix("multipart/")) {
+    if (internal:hasPrefix(contentTypeOfParent, "multipart/")) {
         var childParts = parentPart.getBodyParts();
         if (childParts is mime:Entity[]) {
             log:printInfo("Nested Parts Detected!");
@@ -136,7 +137,7 @@ function handleContent(mime:Entity bodyPart) {
         var payload = bodyPart.getByteChannel();
         if (payload is io:ReadableByteChannel) {
             io:WritableByteChannel destinationChannel =
-                                    io:openWritableFile("ReceivedFile.pdf");
+            <@untainted io:WritableByteChannel>io:openWritableFile("ReceivedFile.pdf");
             var result = copy(payload, destinationChannel);
             if (result is error) {
                 log:printError("error occurred while performing copy ",
@@ -167,8 +168,8 @@ function copy(io:ReadableByteChannel src, io:WritableByteChannel dst)
     byte[] readContent;
     while (readCount > 0) {
     //Operation attempts to read a maximum of 1000 bytes.
-    (byte[], int) result = check src.read(1000);
-    (readContent, readCount) = result;
+    [byte[], int] result = check src.read(1000);
+    [readContent, readCount] = result;
     //Writes the given content into the channel.
     var writeResult = check dst.write(readContent, 0);
     }

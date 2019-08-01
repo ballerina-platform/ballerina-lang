@@ -79,15 +79,15 @@ public type WebSocketClient client object {
     #
     # + statusCode - Status code for closing the connection
     # + reason - Reason for closing the connection
-    # + timeoutInSecs - Time to wait for the close frame to be received from the remote endpoint before closing the
+    # + timeoutInSeconds - Time to wait for the close frame to be received from the remote endpoint before closing the
     #                   connection. If the timeout exceeds, then the connection is terminated even though a close frame
     #                   is not received from the remote endpoint. If the value < 0 (e.g., -1), then the connection waits
     #                   until a close frame is received. If WebSocket frame is received from the remote endpoint,
     #                   within waiting period the connection is terminated immediately.
     # + return - `error` if an error occurs when sending
     public remote function close(public int? statusCode = 1000, public string? reason = (),
-        public int timeoutInSecs = 60) returns WebSocketError? {
-        return self.conn.close(statusCode = statusCode, reason = reason, timeoutInSecs = timeoutInSecs);
+        public int timeoutInSeconds = 60) returns WebSocketError? {
+        return self.conn.close(statusCode, reason, timeoutInSeconds);
     }
 
     # Called when the endpoint is ready to receive messages. Can be called only once per endpoint. For the

@@ -190,13 +190,13 @@ public class MatchStructuredErrorPatternsTest {
         int i = -1;
         String unreachablePattern = "unreachable pattern: " +
                 "preceding patterns are too general or the pattern ordering is not correct";
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 27, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 32, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 42, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 48, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 58, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 63, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 77, 13);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 82, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 29, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 34, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 44, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 50, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 60, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 65, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 80, 13);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 85, 13);
     }
 }

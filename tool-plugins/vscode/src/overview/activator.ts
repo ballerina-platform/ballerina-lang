@@ -21,7 +21,7 @@ import * as os from 'os';
 import * as path from 'path';
 import * as _ from 'lodash';
 
-import { BallerinaExtension, ExtendedLangClient, ConstructIdentifier } from 'src/core';
+import { BallerinaExtension, ExtendedLangClient, ConstructIdentifier, ballerinaExtInstance } from '../core';
 import { ExtensionContext, commands, window, Uri, ViewColumn, TextDocumentChangeEvent, 
 	workspace, WebviewPanel } from 'vscode';
 
@@ -135,6 +135,8 @@ function openWebView(context: ExtensionContext, langClient: ExtendedLangClient, 
 			{ viewColumn: ViewColumn.One, preserveFocus: true },
 			getCommonWebViewOptions()
 		);
+
+		ballerinaExtInstance.addWebviewPanel("overview", overviewPanel);
 	}
 
 	const editor = window.activeTextEditor;
@@ -156,7 +158,7 @@ function openWebView(context: ExtensionContext, langClient: ExtendedLangClient, 
 }
 
 function getSourceRoot(currentPath: string, root: string): string|undefined {
-	if (fs.existsSync(path.join(currentPath, 'Ballerina.Toml'))) {
+	if (fs.existsSync(path.join(currentPath, 'Ballerina.toml'))) {
 		if (currentPath !== os.homedir()) {
 			return currentPath;
 		}

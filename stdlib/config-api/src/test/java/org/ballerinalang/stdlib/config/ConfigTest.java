@@ -76,7 +76,7 @@ public class ConfigTest {
 
     @Test(description = "test global method with default config file properties")
     public void testGetAsStringWithDefaultConfigFile() throws IOException {
-        BString key = new BString("ballerina.http.host");
+        BString key = new BString("\"ballerina.http.host\"");
         BValue[] inputArg = {key};
 
         registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
@@ -207,7 +207,7 @@ public class ConfigTest {
 
     @Test(description = "Test contains() method")
     public void testContains() throws IOException {
-        BString key = new BString("ballerina.http.host");
+        BString key = new BString("\"ballerina.http.host\"");
 
         registry.initRegistry(null, null, ballerinaConfPath);
 
@@ -311,7 +311,7 @@ public class ConfigTest {
     @Test(description = "Test \\ in the config value string")
     public void testBackwardSlashInString() throws IOException {
         registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
-        BValue[] inputArg = {new BString("path.test")};
+        BValue[] inputArg = {new BString("\"path.test\"")};
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
         Assert.assertEquals(returnVals[0].stringValue(), "C:\\Users\\John");
     }
@@ -335,7 +335,7 @@ public class ConfigTest {
         registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
         BValue[] inputArg = {new BString("multiline.strings.txt2")};
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
-        Assert.assertEquals(returnVals[0].stringValue(), "    Hello     World!!!");
+        Assert.assertEquals(returnVals[0].stringValue(), "Hello\nWorld!!!\n");
     }
 
     private Map<String, String> getRuntimeProperties() {

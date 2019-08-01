@@ -42,17 +42,16 @@ public class ErrorReturnServiceTestCase extends GrpcBaseTest {
     @BeforeClass
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients",
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients",
                 "13_unary_client_with_error_return.bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
     }
 
     @Test
     public void testBlockingErrorResponse() {
-        final String serverMsg = "Error from Connector: {ballerina/grpc}INTERNAL - Testing {\"message\":\"Details\"}";
-        BString request = new BString("WSO2");
+        final String serverMsg = "Error from Connector: {ballerina/grpc}InternalError - error Testing message=Details";
 
-        BValue[] responses = BRunUtil.invoke(result, "testErrorResponse", new BValue[]{request});
+        BValue[] responses = BRunUtil.invoke(result, "testErrorResponse", new Object[]{"WSO2"});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         Assert.assertEquals(responses[0].stringValue(), serverMsg);

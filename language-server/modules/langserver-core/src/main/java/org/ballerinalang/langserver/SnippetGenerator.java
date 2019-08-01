@@ -709,7 +709,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getErrorDefinitionSnippet() {
-        String snippet = "error ${1:name} = error(\"${2:errorCode}\", detail = { message: \"${3}\" });";
+        String snippet = "error ${1:name} = error(\"${2:errorCode}\", message = \"${3}\");";
         return new SnippetBlock(ItemResolverConstants.ERROR, snippet, ItemResolverConstants.SNIPPET_TYPE,
                                 SnippetType.SNIPPET);
     }
