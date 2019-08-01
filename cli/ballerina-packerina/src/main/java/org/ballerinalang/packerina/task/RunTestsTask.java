@@ -23,7 +23,6 @@ import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -43,7 +42,7 @@ public class RunTestsTask implements Task {
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "ballerina test" command which only executes tests
         // in packages.
-        moduleBirMap.stream().filter(bLangPackage -> !bLangPackage.packageID.getName().equals(Names.DEFAULT_PACKAGE))
+        moduleBirMap.stream()
             .forEach(bLangPackage -> {
                 // todo following is some legacy logic check if we need to do this.
                 // if (bLangPackage.containsTestablePkg()) {
