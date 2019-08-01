@@ -53,7 +53,7 @@ public type MethodData record {|
     (Class | ArrayType)[] paramTypes?;
 |};
 
-# FieldData describes a Java field.
+# `FieldData` describes a Java field.
 #
 # + name - An optional field that describes the name of the Java field. If this field is not provided,
 #          then the name is inferred from the Ballerina function name
@@ -63,12 +63,12 @@ public type FieldData record {|
     Class class;
 |};
 
-# Constructor annotation describes a Java constructor that provides an implementation to a Ballerina function
-# which has an external function body. The Ballerina function body is marked as `external` means that the
+# The `constructor` annotation describes a Java constructor, which provides an implementation of a Ballerina function,
+# which has an external function body. If the Ballerina function body is marked as `external`, it means that the
 # implementation of the function is not provided in the Ballerina source module.
 #
-# Following code snippet shows an example usage of this annotation. Here the `newJavaLinkedList` Ballerina function's
-# implementation is provided by the default constructor of `java.util.UUID.LinkedList` class.
+# The following code snippet shows an example usage of this annotation. Here, the `newJavaLinkedList` Ballerina function's
+# implementation is provided by the default constructor of the `java.util.UUID.LinkedList` class.
 #
 #       import ballerina/java;
 #
