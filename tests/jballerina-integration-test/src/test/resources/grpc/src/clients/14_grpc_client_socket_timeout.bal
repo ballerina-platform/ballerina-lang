@@ -26,13 +26,13 @@ import ballerina/io;
 public function testClientSocketTimeout() returns string {
     // Client endpoint configuration
     HelloWorld14BlockingClient helloWorldBlockingEp = new("http://localhost:9104", {
-                                        timeoutMillis : 1000});
+                                        timeoutInMillis : 1000});
 
     // Executes unary blocking call.
     var unionResp = helloWorldBlockingEp->hello("WSO2");
 
     // Reads message from response.
-    if (unionResp is error) {
+    if (unionResp is grpc:Error) {
         return "Error from Connector: " + unionResp.reason() + " - " + <string> unionResp.detail()["message"];
     } else {
         string result;
@@ -42,20 +42,24 @@ public function testClientSocketTimeout() returns string {
 }
 
 public type HelloWorld14BlockingClient client object {
+
+    *grpc:AbstractClientEndpoint;
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
-        error? result = c.initStub("blocking", ROOT_DESCRIPTOR, getDescriptorMap());
-        if (result is error) {
-            panic result;
+        grpc:Error? result = c.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        if (result is grpc:Error) {
+            error err = result;
+            panic err;
         } else {
             self.grpcClient = c;
         }
     }
 
-    remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|error) {
+    remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
 
         var payload = check self.grpcClient->blockingExecute("HelloWorld14/hello", req, headers);
         grpc:Headers resHeaders = new;
@@ -67,20 +71,24 @@ public type HelloWorld14BlockingClient client object {
 };
 
 public type HelloWorld14Client client object {
+
+    *grpc:AbstractClientEndpoint;
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
-        error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
-        if (result is error) {
-            panic result;
+        grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        if (result is grpc:Error) {
+            error err = result;
+            panic err;
         } else {
             self.grpcClient = c;
         }
     }
 
-    remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
 
         return self.grpcClient->nonBlockingExecute("HelloWorld14/hello", req, msgListener, headers);
     }

@@ -22,7 +22,6 @@ import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -328,14 +327,6 @@ public class LengthOperationTest {
     public void testArrayLengthOfNull() {
         BValue[] args = new BValue[0];
         BRunUtil.invoke(result, "accessLengthOfNullArray", args);
-    }
-
-    @Test(description = "Test length of json when reference point to json that is null.",
-            expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: NullReferenceException \\{\\}.*")
-    public void testJsonLengthOfNull() {
-        BValue[] args = new BValue[0];
-        BRunUtil.invoke(result, "accessLengthOfNullJson", args);
     }
 
     @Test(description = "Test length of map when reference point to null map.")

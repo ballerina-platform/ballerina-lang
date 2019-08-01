@@ -77,7 +77,7 @@ public class VersionMismatchNotificationProvider extends EditorNotifications.Pro
             }
         } else if (Strings.isNullOrEmpty(sdkVersion)) {
             // Compares auto-detected ballerina version with the plugin version.
-            String autoDetectedBalHome = BallerinaSdkUtils.autoDetectSdk();
+            String autoDetectedBalHome = BallerinaSdkUtils.autoDetectSdk(myProject);
             sdkVersion = BallerinaSdkUtils.retrieveBallerinaVersion(autoDetectedBalHome);
             if (!Strings.isNullOrEmpty(sdkVersion) && !Strings.isNullOrEmpty(pluginVersion)) {
                 // Compares the major and minor version numbers between the auto detected ballerina version and

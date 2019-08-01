@@ -21,6 +21,7 @@ import java.lang.reflect.Executable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.nativeimpl.jvm.interop.JInteropException.OVERLOADED_METHODS_REASON;
@@ -34,20 +35,42 @@ class JMethodResolver {
 
     JMethod resolve(JMethodRequest jMethodRequest) {
         // 1) Get java methods (that matches with the method name) or constructor list
+        List<JMethod> jMethods = resolveByMethodName(jMethodRequest.declaringClass,
+                jMethodRequest.methodName, jMethodRequest.kind);
+
         // 2) If the above list is zero then throw an error
+        if (jMethods.isEmpty()) {
+            throw getMethodNotFoundError(jMethodRequest.kind, jMethodRequest.declaringClass, jMethodRequest.methodName);
+        }
+
         // 3) Filter out the constructors or methods that have the same number of
         //      parameters as the number of constraints
+        int paramCount = getBFuncParamCount(jMethodRequest, jMethods);
+        jMethods = resolveByParamCount(jMethods, paramCount);
+
         // 4) If the above list is zero then throw an error
-        ParamTypeConstraint[] paramTypeConstraints = jMethodRequest.paramTypeConstraints;
-        List<JMethod> jMethods = findMethodsWithSameParamCount(paramTypeConstraints.length,
-                jMethodRequest.declaringClass, jMethodRequest.methodName, jMethodRequest.kind);
         if (jMethods.isEmpty()) {
-            throw new JInteropException(JInteropException.METHOD_NOT_FOUND_REASON,
-                    "No such Java method '" + jMethodRequest.methodName +
-                            "' found in class '" + jMethodRequest.declaringClass + "'");
+            throw getMethodNotFoundError(jMethodRequest.kind, jMethodRequest.declaringClass,
+                    jMethodRequest.methodName, paramCount);
         }
+
         // 5) Now resolve the most specific method using the constraints.
         return resolve(jMethodRequest, jMethods);
+    }
+
+    private List<JMethod> resolveByMethodName(Class<?> declaringClass,
+                                              String methodName,
+                                              JMethodKind kind) {
+        return getExecutables(declaringClass, methodName, kind)
+                .stream()
+                .map(executable -> JMethod.build(kind, executable))
+                .collect(Collectors.toList());
+    }
+
+    private List<JMethod> resolveByParamCount(List<JMethod> jMethods, int paramCount) {
+        return jMethods.stream()
+                .filter(jMethod -> jMethod.getParamTypes().length == paramCount)
+                .collect(Collectors.toList());
     }
 
     private JMethod resolve(JMethodRequest jMethodRequest, List<JMethod> jMethods) {
@@ -55,17 +78,15 @@ class JMethodResolver {
         if (jMethods.size() == 1 && noConstraints) {
             return jMethods.get(0);
         } else if (noConstraints) {
-            throw new JInteropException(OVERLOADED_METHODS_REASON,
-                    "Overloaded methods with the name '" + jMethodRequest.methodName +
-                            "', please specify Java class types for each parameter " +
-                            "with 'paramTypes' field in the annotation");
+            int paramCount = jMethods.get(0).getParamTypes().length;
+            throw getOverloadedMethodExistError(jMethodRequest.kind, jMethodRequest.declaringClass,
+                    jMethodRequest.methodName, paramCount);
         }
 
         JMethod jMethod = resolveExactMethod(jMethodRequest.declaringClass, jMethodRequest.methodName,
                 jMethodRequest.kind, jMethodRequest.paramTypeConstraints);
-
         if (jMethod == JMethod.NO_SUCH_METHOD) {
-            return resolveMatchingMethod(jMethods, jMethodRequest.paramTypeConstraints);
+            return resolveMatchingMethod(jMethodRequest, jMethods);
         }
         return jMethod;
     }
@@ -86,7 +107,8 @@ class JMethodResolver {
         }
     }
 
-    private JMethod resolveMatchingMethod(List<JMethod> jMethods, ParamTypeConstraint[] constraints) {
+    private JMethod resolveMatchingMethod(JMethodRequest jMethodRequest, List<JMethod> jMethods) {
+        ParamTypeConstraint[] constraints = jMethodRequest.paramTypeConstraints;
         List<JMethod> resolvedJMethods = new ArrayList<>();
         for (JMethod jMethod : jMethods) {
             boolean resolved = true;
@@ -105,35 +127,14 @@ class JMethodResolver {
         }
 
         if (resolvedJMethods.isEmpty()) {
-            throw new JInteropException(JInteropException.METHOD_NOT_FOUND_REASON,
-                    "no such Java method '" + jMethods.get(0).getName() +
-                            "' that matches with the given parameter types" +
-                            " found in class '" + jMethods.get(0).getClassName() + "'");
+            throw getMethodNotFoundError(jMethodRequest.kind, jMethodRequest.declaringClass,
+                    jMethodRequest.methodName, constraints);
         } else if (resolvedJMethods.size() > 1) {
-            throw new JInteropException(OVERLOADED_METHODS_REASON,
-                    "Overloaded methods with the name '" + jMethods.get(0).getName() +
-                            ", that matches with the specified parameter types constraints");
+            throw getAmbiguousOverloadedMethodExistsError(jMethodRequest.kind, jMethodRequest.declaringClass,
+                    jMethodRequest.methodName, constraints);
         } else {
             return resolvedJMethods.get(0);
         }
-    }
-
-    private List<JMethod> findMethodsWithSameParamCount(int paramCount,
-                                                        Class<?> declaringClass,
-                                                        String methodName,
-                                                        JMethodKind kind) {
-        return getExecutables(declaringClass, methodName, kind)
-                .stream()
-                .filter(executable -> executable.getParameterCount() == paramCount)
-                .map(executable -> JMethod.build(kind, executable))
-                .collect(Collectors.toList());
-    }
-
-    private List<Executable> getExecutables(Class clazz, String methodName, JMethodKind kind) {
-        return kind == JMethodKind.CONSTRUCTOR ? Arrays.asList(clazz.getConstructors()) :
-                Arrays.stream(clazz.getMethods())
-                        .filter(method -> method.getName().equals(methodName))
-                        .collect(Collectors.toList());
     }
 
     private Executable resolveConstructor(Class<?> clazz, Class<?>... paramTypes) {
@@ -152,6 +153,13 @@ class JMethodResolver {
         }
     }
 
+    private List<Executable> getExecutables(Class clazz, String methodName, JMethodKind kind) {
+        return kind == JMethodKind.CONSTRUCTOR ? Arrays.asList(clazz.getConstructors()) :
+                Arrays.stream(clazz.getMethods())
+                        .filter(method -> method.getName().equals(methodName))
+                        .collect(Collectors.toList());
+    }
+
     private boolean noConstraintsSpecified(ParamTypeConstraint[] constraints) {
         for (ParamTypeConstraint constraint : constraints) {
             if (constraint != ParamTypeConstraint.NO_CONSTRAINT) {
@@ -159,5 +167,99 @@ class JMethodResolver {
             }
         }
         return true;
+    }
+
+    private int getBFuncParamCount(JMethodRequest jMethodRequest, List<JMethod> jMethods) {
+        int bFuncParamCount = jMethodRequest.bFuncParamCount;
+        if (jMethodRequest.kind == JMethodKind.METHOD) {
+            boolean isStaticMethod = jMethods.get(0).isStatic();
+            // Remove the receiver parameter in instance methods.
+            bFuncParamCount = isStaticMethod ? bFuncParamCount : bFuncParamCount - 1;
+        }
+        return bFuncParamCount;
+    }
+
+    private JInteropException getMethodNotFoundError(JMethodKind kind,
+                                                     Class<?> declaringClass,
+                                                     String methodName) {
+        if (kind == JMethodKind.CONSTRUCTOR) {
+            return new JInteropException(JInteropException.CONSTRUCTOR_NOT_FOUND_REASON,
+                    "No such public constructor found in class '" + declaringClass + "'");
+        } else {
+            return new JInteropException(JInteropException.METHOD_NOT_FOUND_REASON,
+                    "No such public method '" + methodName + "' found in class '" + declaringClass + "'");
+        }
+    }
+
+    private JInteropException getMethodNotFoundError(JMethodKind kind,
+                                                     Class<?> declaringClass,
+                                                     String methodName,
+                                                     int paramCount) {
+        if (kind == JMethodKind.CONSTRUCTOR) {
+            return new JInteropException(JInteropException.CONSTRUCTOR_NOT_FOUND_REASON,
+                    "No such public constructor with '" + paramCount +
+                            "' parameter(s) found in class '" + declaringClass + "'");
+        } else {
+            return new JInteropException(JInteropException.METHOD_NOT_FOUND_REASON,
+                    "No such public method '" + methodName + "' with '" + paramCount +
+                            "' parameter(s) found in class '" + declaringClass + "'");
+        }
+    }
+
+    private JInteropException getMethodNotFoundError(JMethodKind kind,
+                                                     Class<?> declaringClass,
+                                                     String methodName,
+                                                     ParamTypeConstraint[] constraints) {
+        String paramTypesSig = getParamTypesAsString(constraints);
+        if (kind == JMethodKind.CONSTRUCTOR) {
+            return new JInteropException(JInteropException.CONSTRUCTOR_NOT_FOUND_REASON,
+                    "No such public constructor that matches with parameter types '" + paramTypesSig +
+                            "' found in class '" + declaringClass + "'");
+        } else {
+            return new JInteropException(JInteropException.METHOD_NOT_FOUND_REASON,
+                    "No such public method '" + methodName + "' that matches with parameter types '" +
+                            paramTypesSig + "' found in class '" + declaringClass + "'");
+        }
+    }
+
+    private JInteropException getOverloadedMethodExistError(JMethodKind kind,
+                                                            Class<?> declaringClass,
+                                                            String methodName,
+                                                            int paramCount) {
+        if (kind == JMethodKind.CONSTRUCTOR) {
+            return new JInteropException(OVERLOADED_METHODS_REASON,
+                    "Overloaded constructors with '" + paramCount + "' parameter(s) in class '" +
+                            declaringClass + "', please specify class names for each parameter " +
+                            "in 'paramTypes' field in the annotation");
+        } else {
+            return new JInteropException(OVERLOADED_METHODS_REASON,
+                    "Overloaded methods '" + methodName + "' with '" + paramCount + "' parameter(s) in class '" +
+                            declaringClass + "', please specify class names for each parameter " +
+                            "with 'paramTypes' field in the annotation");
+        }
+    }
+
+    private JInteropException getAmbiguousOverloadedMethodExistsError(JMethodKind kind,
+                                                                      Class<?> declaringClass,
+                                                                      String methodName,
+                                                                      ParamTypeConstraint[] constraints) {
+        String paramTypesSig = getParamTypesAsString(constraints);
+        if (kind == JMethodKind.CONSTRUCTOR) {
+            return new JInteropException(OVERLOADED_METHODS_REASON,
+                    "More than one public constructors that match with the parameter types '" + paramTypesSig +
+                            "' found in class '" + declaringClass + "'");
+        } else {
+            return new JInteropException(OVERLOADED_METHODS_REASON,
+                    "More than one public methods '" + methodName + "' that match with the parameter types '" +
+                            paramTypesSig + "' found in class '" + declaringClass + "'");
+        }
+    }
+
+    private String getParamTypesAsString(ParamTypeConstraint[] constraints) {
+        StringJoiner stringJoiner = new StringJoiner(",", "(", ")");
+        for (ParamTypeConstraint paramTypeConstraint : constraints) {
+            stringJoiner.add(paramTypeConstraint.get().getName());
+        }
+        return stringJoiner.toString();
     }
 }

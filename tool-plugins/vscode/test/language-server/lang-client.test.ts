@@ -33,7 +33,7 @@ suite("Language Server Tests", function () {
         langClient = new ExtendedLangClient(
             'ballerina-vscode',
             'Ballerina LS Client',
-            getServerOptions(getBallerinaHome(), true),
+            getServerOptions(getBallerinaHome(), true, true),
             { documentSelector: [{ scheme: 'file', language: 'ballerina' }] },
             false
         );
@@ -43,7 +43,6 @@ suite("Language Server Tests", function () {
 
 
     test("Test Language Server Start", function (done): void {
-        this.skip();
         langClient.onReady().then(() => {
             done();
         }, () => {
@@ -54,7 +53,6 @@ suite("Language Server Tests", function () {
     });
 
     test("Test getAST", function (done): void {
-        this.skip();
         langClient.onReady().then(() => {
             const filePath = path.join(getBBEPath(), 'hello-world', 'hello_world.bal');
             let uri = Uri.file(filePath.toString());
@@ -68,7 +66,6 @@ suite("Language Server Tests", function () {
     });
 
     test("Fragment Pass", function (done): void {
-        this.skip();
         langClient.onReady().then(() => {
             langClient.parseFragment({
                 expectedNodeType: "top-level-node",
@@ -82,7 +79,6 @@ suite("Language Server Tests", function () {
     });
 
     test("Test Language Server Stop", function (done): void {
-        this.skip();
         langClient.stop().then(() => {
             done();
         }, () => {

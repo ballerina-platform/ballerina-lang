@@ -50,8 +50,8 @@ public class TaskConstants {
     public static final String FIELD_NO_OF_RUNS = "noOfRecurrences";
 
     // Fields used in TimerConfiguration
-    public static final String FIELD_INTERVAL = "interval";
-    public static final String FIELD_DELAY = "initialDelay";
+    public static final String FIELD_INTERVAL = "intervalInMillis";
+    public static final String FIELD_DELAY = "initialDelayInMillis";
 
     // Fields used in AppointmentData
     static final String FIELD_SECONDS = "seconds";

@@ -78,7 +78,7 @@ function testForeachWithOpenRecords() returns [string[], any[]] {
 }
 
 function testForeachWithOpenRecords2() returns [string[], any[]] {
-    Person p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }, height: 5.9 };
+    Person p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }, "height": 5.9 };
     string[] fields = [];
     any[] values = [];
 
@@ -117,7 +117,7 @@ function testForeachWithOpenRecords3() returns any[] {
 //}
 
 function testMapOpWithOpenRecords() returns map<anydata> {
-    Person p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }, profession: "Software Engineer" };
+    Person p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }, "profession": "Software Engineer" };
 
     map<anydata> newp =  p.'map(function (anydata value) returns anydata {
            if value is string {
@@ -130,7 +130,7 @@ function testMapOpWithOpenRecords() returns map<anydata> {
 }
 
 function testFilterOpWithOpenRecords() returns map<anydata> {
-    Foo f = {a: "A", b: "B", c: "C", d: "D", e: "E", f: "F"};
+    Foo f = {a: "A", b: "B", c: "C", d: "D", e: "E", "f": "F"};
 
     map<anydata> newf = f.filter(function (anydata value) returns boolean {
         if (value !== "A" && value !== "E") {
@@ -143,12 +143,12 @@ function testFilterOpWithOpenRecords() returns map<anydata> {
 }
 
 function testCountOpWithOpenRecords() returns int {
-    Foo f = {a: "A", b: "B", c: "C", d: "D", e: "E", f: "F"};
+    Foo f = {a: "A", b: "B", c: "C", d: "D", e: "E", "f": "F"};
     return f.reduce(function (int count, anydata v) returns int { return count + 1; }, 0);
 }
 
 function testChainedOpsWithOpenRecords() returns map<anydata> {
-    Foo f = {a: "AA", b: "BB", c: "CC", d: "DD", e: "EE", f: "FF"};
+    Foo f = {a: "AA", b: "BB", c: "CC", d: "DD", e: "EE", "f": "FF"};
 
     map<anydata> newf = f.'map(function (anydata value) returns anydata {
                     if value is string {
@@ -167,7 +167,7 @@ function testChainedOpsWithOpenRecords() returns map<anydata> {
 }
 
 function testMapWithAllStringOpenRecord() returns map<string> {
-    RestrictedFoo f = {a: "AA", b: "BB", c: "CC", d: "DD", e: "EE", f: "FF"};
+    RestrictedFoo f = {a: "AA", b: "BB", c: "CC", d: "DD", e: "EE", "f": "FF"};
 
     map<string> modFooMap = f.'map(function (string val) returns string {
         return val.toLowerAscii();
@@ -177,7 +177,7 @@ function testMapWithAllStringOpenRecord() returns map<string> {
 }
 
 function testMapWithAllIntOpenRecord(int m, int p, int c, int e) returns map<int> {
-    RestrictedGrades grades = {maths: m, physics: p, chemistry: c, english: e};
+    RestrictedGrades grades = {maths: m, physics: p, chemistry: c, "english": e};
 
     map<int> adjGrades = grades.'map(function (int grade) returns int {
         return grade + 10;
@@ -187,7 +187,7 @@ function testMapWithAllIntOpenRecord(int m, int p, int c, int e) returns map<int
 }
 
 function testMapWithAllFloatOpenRecord(float a, float b, float c) returns map<float> {
-    RestrictedBar bar = {x: a, y: b, z: c, p: 9.9};
+    RestrictedBar bar = {x: a, y: b, z: c, "p": 9.9};
 
     map<float> modBar = bar.'map(function (float val) returns float {
         return val + 10;
@@ -197,7 +197,7 @@ function testMapWithAllFloatOpenRecord(float a, float b, float c) returns map<fl
 }
 
 function testFilterWithAllStringOpenRecord() returns map<string> {
-    RestrictedFoo f = {a: "AA", b: "BB", c: "CC", d: "DD", e: "EE", f: "FF"};
+    RestrictedFoo f = {a: "AA", b: "BB", c: "CC", d: "DD", e: "EE", "f": "FF"};
 
     map<string> modFooMap = f.filter(function (string v) returns boolean {
         if (v == "AA" || v == "EE" || v == "FF") {
@@ -210,7 +210,7 @@ function testFilterWithAllStringOpenRecord() returns map<string> {
 }
 
 function testFilterWithAllIntOpenRecord() returns map<int> {
-    RestrictedGrades grades = {maths: 80, physics: 75, chemistry: 65, english: 78};
+    RestrictedGrades grades = {maths: 80, physics: 75, chemistry: 65, "english": 78};
 
     map<int> adjGrades = grades.filter(function (int grade) returns boolean {
         if (grade > 70) {
@@ -223,7 +223,7 @@ function testFilterWithAllIntOpenRecord() returns map<int> {
 }
 
 function testFilterWithAllFloatOpenRecord(float a, float b, float c) returns map<float> {
-    RestrictedBar bar = {x: a, y: b, z: c, p: 9.9};
+    RestrictedBar bar = {x: a, y: b, z: c, "p": 9.9};
 
     map<float> modBar = bar.filter(function (float val) returns boolean {
         if (val > 6) {
@@ -236,7 +236,7 @@ function testFilterWithAllFloatOpenRecord(float a, float b, float c) returns map
 }
 
 function testTerminalOpsOnAllIntOpenRecord(int m, int p, int c, int e) returns [int, int, int, int, float] {
-    RestrictedGrades grades = {maths: m, physics: p, chemistry: c, english: e};
+    RestrictedGrades grades = {maths: m, physics: p, chemistry: c, "english": e};
 
     int count = grades.reduce(function (int count, int v) returns int { return count + 1; }, 0);
     int max = grades.reduce(function (int max, int v) returns int { return v > max ? v : max; }, 0);
@@ -248,7 +248,7 @@ function testTerminalOpsOnAllIntOpenRecord(int m, int p, int c, int e) returns [
 }
 
 function testTerminalOpsOnAllIntOpenRecord2(int m, int p, int e) returns [int, int, int, int, float] {
-    RestrictedGrades grades = {maths: m, physics: p, english: e};
+    RestrictedGrades grades = {maths: m, physics: p, "english": e};
 
     int count = grades.reduce(function (int count, int v) returns int { return count + 1; }, 0);
     int max = grades.reduce(function (int max, int v) returns int { return v > max ? v : max; }, 0);
@@ -260,7 +260,7 @@ function testTerminalOpsOnAllIntOpenRecord2(int m, int p, int e) returns [int, i
 }
 
 function testChainedOpsWithOpenRecords2() returns map<float> {
-    RestrictedGrades grades = {maths: 80, physics: 75, chemistry: 65, english: 78};
+    RestrictedGrades grades = {maths: 80, physics: 75, chemistry: 65, "english": 78};
 
     map<float> m = grades.'map(function (int grade) returns int {
         return grade + 10;
@@ -288,7 +288,7 @@ function testChainedOpsWithOpenRecords2() returns map<float> {
 }
 
 function testChainedOpsWithOpenRecords3() returns map<float> {
-    Grades grades = {maths: 80, physics: 75, chemistry: 65, english: 78};
+    Grades grades = {maths: 80, physics: 75, chemistry: 65, "english": 78};
 
     map<float> m = grades.'map(function (anydata grade) returns int {
         if grade is int {
@@ -319,7 +319,7 @@ function testChainedOpsWithOpenRecords3() returns map<float> {
 }
 
 function testOpChainsWithTerminalOps(int m, int p, int c) returns [int, int, int, int, float] {
-    RestrictedGrades f = {maths: m, physics: p, chemistry: c, english: 78};
+    RestrictedGrades f = {maths: m, physics: p, chemistry: c, "english": 78};
 
     int count = f.'map(mapTo).filter(filter).reduce(function (int count, int v) returns int { return count + 1; }, 0);
     int sum = f.'map(mapTo).filter(filter).reduce(function (int sum, int v) returns int { return sum + v; }, 0);
@@ -343,7 +343,7 @@ function filter(int grade) returns boolean {
 }
 
 function testMutability() returns RestrictedGrades {
-    RestrictedGrades grades = {maths: 80, physics: 75, chemistry: 65, english: 78};
+    RestrictedGrades grades = {maths: 80, physics: 75, chemistry: 65, "english": 78};
 
     map<float> m = grades.'map(function (int grade) returns int {
         return grade + 10;

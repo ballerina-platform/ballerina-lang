@@ -75,16 +75,22 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
 
     public updateAST() {
         const { langClient, sourceRootUri, docUri } = this.props;
-
         if (sourceRootUri) {
             langClient.getProjectAST({ sourceRoot: sourceRootUri }).then((result) => {
+                if (!result || !(Object.keys(result.modules).length > 0)) {
+                    return;
+                }
                 this.setState({
                     modules: result.modules
                 });
-            });
+            }, () => {/** no op */});
         } else {
             langClient.getAST({documentIdentifier: {uri: docUri}}).then((result) => {
                 const ast = result.ast as any;
+                if (!ast) {
+                    return;
+                }
+
                 this.setState({
                     modules: {
                         [ast.name]: {
@@ -304,7 +310,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         const fitToWidthZoomScale = containerWidth / diagramWidth;
 
         this.panZoomComp.zoomAbs(0, 0, fitToWidthZoomScale);
-        this.panZoomComp.moveTo(0, 0);
+        this.panZoomComp.moveTo(20, 20);
     }
 
     private handleZoomIn() {

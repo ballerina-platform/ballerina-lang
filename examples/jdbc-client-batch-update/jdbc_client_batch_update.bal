@@ -74,6 +74,13 @@ public function main() {
     } else {
         io:println("Batch 1 update counts: ", retBatch.updatedRowCount[0]);
         io:println("Batch 2 update counts: ", retBatch.updatedRowCount[1]);
+        anydata[]? generatedKeys = retBatch.generatedKeys["GENERATED_KEY"];
+        if (generatedKeys is int[]) {
+            int key1 = generatedKeys[0];
+            int key2 = generatedKeys[1];
+            int key3 = generatedKeys[2];
+            io:println("Generated keys are: " , key1, ", ", key2, " and ", key3);
+        }
     }
 
     // Check the data in the database.

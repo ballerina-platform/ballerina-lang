@@ -9,21 +9,13 @@ final string filter_name_header_value = "RequestFilter-1";
 // The filter implementation. The filter intercepts the request and adds a new
 // header to request before it is dispatched to the HTTP resource.
 public type RequestFilter object {
+    *http:RequestFilter;
     // Intercepts the request.
     public function filterRequest(http:Caller caller, http:Request request,
-                        http:FilterContext context)
-                        returns boolean {
+                        http:FilterContext context) returns boolean {
         // Set a header to the request inside the filter.
         request.setHeader(filter_name_header, filter_name_header_value);
         // Return true on success.
-        return true;
-    }
-
-    // Intercepts the response.
-    public function filterResponse(http:Response response,
-                                   http:FilterContext context)
-                                    returns boolean {
-        // Return true as response need not be intercepted.
         return true;
     }
 };

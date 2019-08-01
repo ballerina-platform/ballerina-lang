@@ -13,7 +13,7 @@ public function main() {
     // Executes unary non-blocking call registering server message listener.
     var res = chatEp->chat(ChatMessageListener);
 
-    if (res is error) {
+    if (res is grpc:Error) {
         io:println("Error from Connector: " + res.reason() + " - "
                                   + <string> res.detail()["message"]);
         return;
@@ -24,17 +24,17 @@ public function main() {
 
     // Sends multiple messages to the server.
     ChatMessage mes = { name: "Sam", message: "Hi " };
-    error? connErr = ep->send(mes);
+    grpc:Error? connErr = ep->send(mes);
 
-    if (connErr is error) {
+    if (connErr is grpc:Error) {
         io:println("Error from Connector: " + connErr.reason() + " - "
                                + <string> connErr.detail()["message"]);
     }
     runtime:sleep(6000);
 
     // Once all messages are sent, client send complete message to notify the server, I’m done.
-    error? result = ep->complete();
-    if (result is error) {
+    grpc:Error? result = ep->complete();
+    if (result is grpc:Error) {
         io:println("Error in sending complete message", result);
     }
 }

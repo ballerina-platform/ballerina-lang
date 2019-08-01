@@ -63,7 +63,7 @@ public class MatchStatementScopeResolver extends CursorPositionResolver {
                 && matchNodePos.getEndLine() >= line
                 && patternClauseList.indexOf(node) == patternClauseList.size() - 1)
                 && nodeEndLine < line) {
-            Map<Name, Scope.ScopeEntry> visibleSymbolEntries =
+            Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries =
                     treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());
             SymbolEnv matchEnv = createMatchEnv(matchNode, treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(visibleSymbolEntries, matchEnv);

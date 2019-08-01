@@ -26,6 +26,7 @@ class JInteropException extends RuntimeException {
 
     static final String CLASS_NOT_FOUND_REASON = "CLASS_NOT_FOUND";
     static final String METHOD_NOT_FOUND_REASON = "METHOD_NOT_FOUND";
+    static final String CONSTRUCTOR_NOT_FOUND_REASON = "CONSTRUCTOR_NOT_FOUND";
     static final String FIELD_NOT_FOUND_REASON = "FIELD_NOT_FOUND";
     static final String OVERLOADED_METHODS_REASON = "OVERLOADED_METHODS";
     static final String UNSUPPORTED_PRIMITIVE_TYPE_READON = "UNSUPPORTED_PRIMITIVE_TYPE";

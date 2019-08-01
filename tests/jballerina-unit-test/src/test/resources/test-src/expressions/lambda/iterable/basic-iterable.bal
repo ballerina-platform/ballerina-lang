@@ -91,39 +91,37 @@ function testBasicArray2(string[] values) returns string {
              });
     return output.trim();
 }
-// Commenting out due to lack of map to string langlib function
-//function testBasicMap1() returns [int, string[]] {
-//    map<string> m = {a:"A", b:"B", c:"C", d:"D", e:"E"};
-//    int count = m.length();
-//    string[] values = m.entries().'map(function ([string, string] value) returns string {
-//                                var [k, v] = value;
-//                                return k.toLowerAscii();
-//                            })
-//                      .filter(function (string v) returns boolean {
-//                                  if (v == "a" || v == "e") {
-//                                      return true;
-//                                  }
-//                                  return false; });
-//    return [count, values];
-//}
-//
-//function testBasicMap2() returns string[] {
-//    map<string> m = {a:"A", b:"B", c:"C", d:"D", e:"E"};
-//    string[] values = m.entries()
-//                      .'map(mapToTuple)
-//                      .filter(function ([string, string] v) returns boolean {
-//                                  var [k, t] = v;
-//                                  if (k == "a" || k == "e") {
-//                                      return true;
-//                                  }
-//                                  return false; })
-//                      .'map(concatString);
-//    return values;
-//}
 
-function mapToTuple([string, string] tuple) returns [string, string] {
-    var [key, value] = tuple;
-    return [key, value];
+function testBasicMap1() returns [int, map<string>] {
+    map<string> m = {a:"A", b:"B", c:"C", d:"D", e:"E"};
+    int count = m.length();
+    map<string> values = m.'map(function (string value) returns string {
+                                return value.toLowerAscii();
+                            })
+                          .filter(function (string v) returns boolean {
+                                  if (v == "a" || v == "e") {
+                                      return true;
+                                  }
+                                  return false; });
+    return [count, values];
+}
+
+function testBasicMap2() returns string[] {
+    string[] array = [];
+    map<string> m = {a:"A", b:"B", c:"C", d:"D", e:"E"};
+    string[] values = m.entries()
+                      .filter(function ([string, string] v) returns boolean {
+                                  var [k, t] = v;
+                                  if (k == "a" || k == "e") {
+                                      return true;
+                                  }
+                                  return false; })
+                      .'map(concatString)
+                      .reduce(function (string[] acc, string v) returns string[] {
+                            acc.push(v);
+                            return acc;
+                      }, array);
+    return values;
 }
 
 function concatString([string, string] v) returns string {
@@ -131,29 +129,29 @@ function concatString([string, string] v) returns string {
     return v1 + v2;
 }
 
-//function xmlTest() returns [int, int, map<any>] {
-//    xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
-//        <p:name>bob</p:name>
-//        <p:address>
-//            <p:city>NY</p:city>
-//            <q:country>US</q:country>
-//        </p:address>
-//        <q:ID>1131313</q:ID>
-//    </p:person>`;
-//    int nodeCount = xdata.*.length();
-//    int elementCount = xdata.*.elements().length();
-//
-//    index = -1;
-//    map<xml> m = xdata.*.elements()[1].*.elements()
-//                 .'map(function (xml|string x) returns [string, xml] {
-//                            index += 1;
-//                            if x is xml {
-//                                return [string.convert(index), x];
-//                            }
-//                            return ["", xml ` `];
-//                      });
-//    return [nodeCount, elementCount, m];
-//}
+function xmlTest() returns [int, int, xml] {
+    xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
+        <p:name>bob</p:name>
+        <p:address>
+            <p:city>NY</p:city>
+            <q:country>US</q:country>
+        </p:address>
+        <q:ID>1131313</q:ID>
+    </p:person>`;
+    int nodeCount = xdata.*.length();
+    int elementCount = xdata.*.elements().length();
+
+    index = -1;
+    xml m = xdata.getChildren().elements()[1].getChildren().elements()
+                 .'map(function (xml|string x) returns xml|string {
+                            index += 1;
+                            if x is xml {
+                                return x;
+                            }
+                            return "*ws*";
+                      });
+    return [nodeCount, elementCount, m];
+}
 
 type person record {
     string name;
@@ -254,17 +252,20 @@ function foo(any a) {
     //do nothing
 }
 
-// Commenting out due to missing map to list support
-//function testIterableReturnLambda() returns (function (int) returns boolean)?[] {
-//
-//    map<string> words = { a: "ant", b: "bear", c: "tiger"};
-//
-//    (function (int) returns boolean)?[] lambdas = words.entries().'map(function ([string, string] input) returns
-//        (function (int) returns boolean) {
-//        return function (int param) returns boolean {
-//            return true;
-//        };
-//    });
-//
-//    return lambdas;
-//}
+function testIterableReturnLambda() returns (function (int) returns boolean)?[] {
+
+    map<string> words = { a: "ant", b: "bear", c: "tiger"};
+
+    (function (int) returns boolean)[] lambdaArray = [];
+    words.entries().'map(function ([string, string] input) returns
+        (function (int) returns boolean) {
+        return function (int param) returns boolean {
+            return true;
+        };
+    })
+    .forEach(function ((function (int) returns boolean) fun) {
+        lambdaArray.push(fun);
+    });
+
+    return lambdaArray;
+}

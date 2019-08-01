@@ -64,12 +64,12 @@ service receiveFromLastReceived on lis {
     }
 }
 
-
+[nats:SEQUENCE_NUMBER, int] sequenceNo = [nats:SEQUENCE_NUMBER, 3];
 // Binds the consumer to listen to the messages published to the 'demo' subject.
 // Receives messages starting from the provided sequence number.
 @nats:StreamingSubscriptionConfig {
     subject: "demo",
-    startPosition : [nats:SEQUENCE_NUMBER, 3]
+    startPosition : sequenceNo
 }
 service receiveFromGivenIndex on lis {
     resource function onMessage(nats:StreamingMessage message) {
@@ -84,12 +84,12 @@ service receiveFromGivenIndex on lis {
     }
 }
 
-
+[nats:TIME_DELTA_START, int] timeDelta = [nats:TIME_DELTA_START, 5];
 // Binds the consumer to listen to the messages published to the 'demo' subject.
 // Recieves messages since the provided historical time delta.
 @nats:StreamingSubscriptionConfig {
     subject: "demo",
-    startPosition : [nats:TIME_DELTA_START, 5]
+    startPosition : timeDelta
 }
 service receiveSinceTimeDelta on lis {
     resource function onMessage(nats:StreamingMessage message) {

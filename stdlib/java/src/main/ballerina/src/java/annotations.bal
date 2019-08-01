@@ -16,25 +16,27 @@
 
 public type ConstructorData record {|
     string class;
-    string[] paramTypes?;
+    ParamType[] paramTypes?;
 |};
 
 public type MethodData record {|
     string name?;
     string class;
-    boolean isStatic = false;
-    string[] paramTypes?;
+    ParamType[] paramTypes?;
+|};
+
+public type ParamType string | record {|
+    string elementClass;
+    byte dimensions;
 |};
 
 public type FieldData record {|
     string name;
     string class;
-    boolean isStatic = false;
 |};
 
-#
-public annotation ConstructorData Constructor on function;
-public annotation MethodData Method on function;
-public annotation FieldData FieldGet on function;
-public annotation FieldData FieldSet on function;
+public const annotation ConstructorData Constructor on source external;
+public const annotation MethodData Method on source external;
+public const annotation FieldData FieldGet on source external;
+public const annotation FieldData FieldSet on source external;
 

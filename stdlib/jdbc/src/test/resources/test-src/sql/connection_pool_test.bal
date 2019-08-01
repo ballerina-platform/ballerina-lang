@@ -181,7 +181,7 @@ function testLocalSharedConnectionPoolConfigSingleDestination() returns @tainted
     jdbc:Client testDB3;
     jdbc:Client testDB4;
     jdbc:Client testDB5;
-    jdbc:PoolOptions poolOptions1 = { maximumPoolSize: 5, connectionTimeout: 1000, validationTimeout: 1000 };
+    jdbc:PoolOptions poolOptions1 = { maximumPoolSize: 5, connectionTimeoutInMillis: 1000, validationTimeoutInMillis: 1000 };
 
     testDB1 = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
@@ -247,7 +247,7 @@ function testLocalSharedConnectionPoolConfigSingleDestinationWithEqualDbOptions(
     jdbc:Client testDB3;
     jdbc:Client testDB4;
     jdbc:Client testDB5;
-    jdbc:PoolOptions poolOptions1 = { maximumPoolSize: 5, connectionTimeout: 1000, validationTimeout: 1000 };
+    jdbc:PoolOptions poolOptions1 = { maximumPoolSize: 5, connectionTimeoutInMillis: 1000, validationTimeoutInMillis: 1000 };
 
     testDB1 = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
@@ -319,7 +319,7 @@ function testLocalSharedConnectionPoolConfigMultipleDestinations() returns @tain
     jdbc:Client testDB4;
     jdbc:Client testDB5;
     jdbc:Client testDB6;
-    jdbc:PoolOptions poolOptions2 = { maximumPoolSize: 3, connectionTimeout: 1000, validationTimeout: 1000 };
+    jdbc:PoolOptions poolOptions2 = { maximumPoolSize: 3, connectionTimeoutInMillis: 1000, validationTimeoutInMillis: 1000 };
 
     // One pool will be created to these clients.
     testDB1 = new({
@@ -397,7 +397,7 @@ function testLocalSharedConnectionPoolConfigDifferentDbOptions() returns @tainte
     jdbc:Client testDB4;
     jdbc:Client testDB5;
     jdbc:Client testDB6;
-    jdbc:PoolOptions poolOptions2 = { maximumPoolSize: 3, connectionTimeout: 1000, validationTimeout: 1000 };
+    jdbc:PoolOptions poolOptions2 = { maximumPoolSize: 3, connectionTimeoutInMillis: 1000, validationTimeoutInMillis: 1000 };
 
     // One pool will be created to these clients.
     testDB1 = new({
@@ -479,7 +479,7 @@ function testLocalSharedConnectionPoolCreateClientAfterShutdown() returns @taint
     jdbc:Client testDB2;
     jdbc:Client testDB3;
     jdbc:Client testDB4;
-    jdbc:PoolOptions poolOptions5 = { maximumPoolSize: 2, connectionTimeout: 1000, validationTimeout: 1000 };
+    jdbc:PoolOptions poolOptions5 = { maximumPoolSize: 2, connectionTimeoutInMillis: 1000, validationTimeoutInMillis: 1000 };
 
     testDB1 = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_4",
@@ -525,7 +525,7 @@ function testLocalSharedConnectionPoolCreateClientAfterShutdown() returns @taint
 }
 
 function testLocalSharedConnectionPoolStopInitInterleave() returns int|string {
-    jdbc:PoolOptions poolOptions = { maximumPoolSize: 2, connectionTimeout: 1000, validationTimeout: 1000 };
+    jdbc:PoolOptions poolOptions = { maximumPoolSize: 2, connectionTimeoutInMillis: 1000, validationTimeoutInMillis: 1000 };
 
     worker w1 {
         testLocalSharedConnectionPoolStopInitInterleaveHelper1(poolOptions);
@@ -573,7 +573,7 @@ function testShutDownUnsharedLocalConnectionPool() returns @tainted [int|string,
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_6",
             username: "SA",
             password: "",
-            poolOptions: { maximumPoolSize: 2, connectionTimeout: 1000, validationTimeout: 1000 }
+            poolOptions: { maximumPoolSize: 2, connectionTimeoutInMillis: 1000, validationTimeoutInMillis: 1000 }
         });
 
     var result = testDB->select("select count(*) from Customers where registrationID = 1", Result);
@@ -590,7 +590,7 @@ function testShutDownSharedConnectionPool() returns @tainted [int|string, int|st
     jdbc:Client testDB1;
     jdbc:Client testDB2;
     jdbc:Client testDB3;
-    jdbc:PoolOptions poolOptions3 = { maximumPoolSize: 1, connectionTimeout: 1000, validationTimeout: 1000 };
+    jdbc:PoolOptions poolOptions3 = { maximumPoolSize: 1, connectionTimeoutInMillis: 1000, validationTimeoutInMillis: 1000 };
 
     testDB1 = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_7",
@@ -636,7 +636,7 @@ function testShutDownSharedConnectionPool() returns @tainted [int|string, int|st
 function testShutDownPoolCorrespondingToASharedPoolConfig() returns @tainted [int|string, int|string, int|string, int|string] {
     jdbc:Client testDB1;
     jdbc:Client testDB2;
-    jdbc:PoolOptions poolOptions4 = { maximumPoolSize: 1, connectionTimeout: 1000, validationTimeout: 1000 };
+    jdbc:PoolOptions poolOptions4 = { maximumPoolSize: 1, connectionTimeoutInMillis: 1000, validationTimeoutInMillis: 1000 };
 
     // One pool is created for this client.
     testDB1 = new({
@@ -709,7 +709,7 @@ function getOpenConnectionCount(string dbName) returns @tainted (int|string) {
             url: jdbcUrl,
             username: "SA",
             password: "",
-            poolOptions: { maximumPoolSize: 1, connectionTimeout: 1000, validationTimeout: 1000 }
+            poolOptions: { maximumPoolSize: 1, connectionTimeoutInMillis: 1000, validationTimeoutInMillis: 1000 }
         });
     var dt = testDB->select("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS", Result);
     int|string count = getTableCountValColumn(dt);

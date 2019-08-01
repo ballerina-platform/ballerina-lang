@@ -24,10 +24,10 @@ public type Caller client object {
 
     # Sends the response to the caller.
     #
-    # + message - The response or any payload of type `string`, `xml`, `json`, `byte[]`,`io:ReadableByteChannel` or `mime:Entity[]`
+    # + message - The response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
+    #             or `mime:Entity[]`
     # + return - Returns an `error` on failure
-    public remote function respond(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
-                               returns error? {
+    public remote function respond(http:ResponseMessage message = ()) returns error? {
         return self.httpCaller->respond(message);
     }
 
@@ -36,18 +36,15 @@ public type Caller client object {
     # + message - The response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - Returns an `error` on failure
-    public remote function ok(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
-                               returns error? {
+    public remote function ok(http:ResponseMessage message = ()) returns error? {
         return self.httpCaller->ok(message);
     }
 
     # Sends the response to the caller with the status 202 Accepted.
     #
-    # + message - The response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
-    #             or `mime:Entity[]`. This message is optional.
+    # + message - The response or any payload of type `http:ResponseMessage`
     # + return - Returns an `error` on failure
-    public remote function accepted(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
-                               returns error? {
+    public remote function accepted(http:ResponseMessage message = ()) returns error? {
         return self.httpCaller->accepted(message);
     }
 };

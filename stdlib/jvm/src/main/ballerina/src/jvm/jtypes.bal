@@ -28,8 +28,14 @@ public const Void = "void";
 
 public const NoType = "NoType";
 const REF_TYPE_TAG = "RefType";
+const ARRAY_TYPE_TAG = "ArrayType";
 
 public type PrimitiveType Byte | Char | Short | Int | Long | Float | Double | Boolean | Void;
+
+public type ArrayType record {|
+    ARRAY_TYPE_TAG tag = ARRAY_TYPE_TAG;
+    JType elementType;
+|};
 
 public type RefType record {
     REF_TYPE_TAG tag = REF_TYPE_TAG;
@@ -38,9 +44,9 @@ public type RefType record {
     boolean isArray = false;
 };
 
-public type JType PrimitiveType | RefType | NoType;
+public type JType PrimitiveType | RefType | NoType | ArrayType;
 
-public function getJTypeFromTypeName(string typeName) returns JType {
+public function getJTypeFromTypeName(string typeName) returns PrimitiveType|RefType {
     if typeName is PrimitiveType {
         return typeName;
     } else {
@@ -48,4 +54,16 @@ public function getJTypeFromTypeName(string typeName) returns JType {
             typeName: typeName
         };
     }
+}
+
+public function getJArrayTypeFromTypeName(string typeName, byte dimensions) returns ArrayType {
+    ArrayType arrayType = { elementType : getJTypeFromTypeName(typeName)};
+    int i = 1;
+    while(i < (<int>dimensions)) {
+        ArrayType temp = { elementType : arrayType};
+        arrayType = temp;
+        i += 1;
+    }
+
+    return arrayType;
 }

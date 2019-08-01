@@ -20,12 +20,15 @@ package org.ballerinalang.langlib.test;
 
 
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -113,6 +116,57 @@ public class LangLibStringTest {
         }
     }
 
+    @Test(dataProvider = "codePointCompareProvider")
+    public void testCodePointCompare(String st1, String st2, int expected) {
+        BValue[] args = {new BString(st1), new BString(st2)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCodePointCompare", args);
+        assertEquals(((BInteger) returns[0]).intValue(), expected);
+    }
+
+    @Test(dataProvider = "codePointAtProvider")
+    public void testGetCodepoint(String st1, int at, int expected) {
+        BValue[] args = {new BString(st1), new BInteger(at)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetCodepoint", args);
+        assertEquals(((BInteger) returns[0]).intValue(), expected);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+        expectedExceptionsMessageRegExp = ".*IndexOutOfRange message=String codepoint index out of range: 1.*")
+    public void testGetCodepointNegative() {
+        testGetCodepoint("", 1, 0);
+    }
+
+    @Test(dataProvider = "stringToCodepointsProvider")
+    public void testToCodepointInts(String st1, int[] expected) {
+        BValue[] args = {new BString(st1)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testToCodepointInts", args);
+        assertEquals(((BValueArray) returns[0]).size(), expected.length);
+        int[] codePoints = toIntArray((BValueArray) returns[0]);
+        assertEquals(codePoints, expected);
+    }
+
+    @Test(dataProvider = "codePointsToString")
+    public void testFromCodePointInts(long[] array, String expected) {
+        BValue[] args = {new BValueArray(array)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFromCodePointInts", args);
+        assertEquals(((BString) returns[0]).stringValue(), expected);
+    }
+
+    @Test
+    public void testFromCodePointIntsNegative() {
+        BValue[] args = {new BValueArray(new long[]{0x10FFFF, 0x10FFFF + 1})};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFromCodePointInts", args);
+        assertEquals(((BError) returns[0]).stringValue(), "Invalid codepoint: 1114112 {}");
+    }
+
+    private int[] toIntArray(BValueArray array) {
+        int[] ar = new int[(int) array.size()];
+        for (int i = 0; i < ar.length; i++) {
+            ar[i] = (int) array.getInt(i);
+        }
+        return ar;
+    }
+
     @DataProvider(name = "SubStringsForIndexOf")
     public Object[][] getSubStrings() {
         return new Object[][]{
@@ -126,6 +180,44 @@ public class LangLibStringTest {
         return new Object[][]{
                 {new BString("Ballerina!"), true},
                 {new BString("Invalid"), false},
+        };
+    }
+
+    @DataProvider(name = "codePointCompareProvider")
+    public Object[][] codePointCompareProvider() {
+        return new Object[][]{
+                {"a",    "a",     0},
+                {"abc",  "abcd", -1},
+                {"abcd", "abc",   1},
+                {"",     "a",    -1},
+                {"a",    "",      1},
+                {"",     "",      0},
+        };
+    }
+
+    @DataProvider(name = "codePointAtProvider")
+    public Object[][] codePointAtProvider() {
+        return new Object[][]{
+                {"a", 0, "a".codePointAt(0)},
+                {"a👻cd", 1, "👻".codePointAt(0)},
+        };
+    }
+
+    @DataProvider(name = "stringToCodepointsProvider")
+    public Object[][] stringToCodepointsProvider() {
+        return new Object[][]{
+                {"",      "".codePoints().toArray()},
+                {"a",     "a".codePoints().toArray()},
+                {"a👻cd", "a👻cd".codePoints().toArray()},
+        };
+    }
+
+    @DataProvider(name = "codePointsToString")
+    public Object[][] codePointsToString() {
+        return new Object[][]{
+                {"".codePoints().asLongStream().toArray(),      ""},
+                {"a".codePoints().asLongStream().toArray(),     "a"},
+                {"a👻cd".codePoints().asLongStream().toArray(), "a👻cd"},
         };
     }
 }

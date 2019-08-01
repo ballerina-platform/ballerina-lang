@@ -23,6 +23,23 @@
       }
     },
     {
+      "label":"length()(int)",
+      "kind":"Function",
+      "detail":"Function",
+      "documentation":{
+        "right":{
+          "kind":"markdown",
+          "value":"**Package:** _ballerina/lang.table_  \n  \nReturns the number of members in `tbl`.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
+        }
+      },
+      "insertText":"length(${1})",
+      "insertTextFormat":"Snippet",
+      "command":{
+        "title":"editor.action.triggerParameterHints",
+        "command":"editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "hasNext()(boolean)",
       "kind": "Function",
       "detail": "Function",

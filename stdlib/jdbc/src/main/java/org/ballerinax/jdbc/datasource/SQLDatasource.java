@@ -180,25 +180,27 @@ public class SQLDatasource {
                     config.setMaximumPoolSize(maximumPoolSize);
                 }
                 long connectionTimeout = (sqlDatasourceParams.poolOptionsWrapper
-                        .getInt(Constants.Options.CONNECTION_TIMEOUT));
+                        .getInt(Constants.Options.CONNECTION_TIMEOUT_IN_MILLIS));
                 if (connectionTimeout != -1) {
                     config.setConnectionTimeout(connectionTimeout);
                 }
-                long idleTimeout = sqlDatasourceParams.poolOptionsWrapper.getInt(Constants.Options.IDLE_TIMEOUT);
+                long idleTimeout = sqlDatasourceParams.poolOptionsWrapper
+                        .getInt(Constants.Options.IDLE_TIMEOUT_IN_MILLIS);
                 if (idleTimeout != -1) {
                     config.setIdleTimeout(idleTimeout);
                 }
-                int minimumIdle = sqlDatasourceParams.poolOptionsWrapper
-                        .getInt(Constants.Options.MINIMUM_IDLE).intValue();
+                int minimumIdle = sqlDatasourceParams.poolOptionsWrapper.getInt(Constants.Options.MINIMUM_IDLE)
+                        .intValue();
                 if (minimumIdle != -1) {
                     config.setMinimumIdle(minimumIdle);
                 }
-                long maxLifetime = (sqlDatasourceParams.poolOptionsWrapper.getInt(Constants.Options.MAX_LIFE_TIME));
+                long maxLifetime = (sqlDatasourceParams.poolOptionsWrapper
+                        .getInt(Constants.Options.MAX_LIFETIME_IN_MILLIS));
                 if (maxLifetime != -1) {
                     config.setMaxLifetime(maxLifetime);
                 }
                 long validationTimeout = sqlDatasourceParams.poolOptionsWrapper
-                        .getInt(Constants.Options.VALIDATION_TIMEOUT);
+                        .getInt(Constants.Options.VALIDATION_TIMEOUT_IN_MILLIS);
                 if (validationTimeout != -1) {
                     config.setValidationTimeout(validationTimeout);
                 }

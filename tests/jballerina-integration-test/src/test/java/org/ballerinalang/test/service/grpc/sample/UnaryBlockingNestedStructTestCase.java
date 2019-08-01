@@ -18,9 +18,6 @@
 
 package org.ballerinalang.test.service.grpc.sample;
 
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -30,8 +27,6 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.util.TestUtils;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -50,23 +45,14 @@ public class UnaryBlockingNestedStructTestCase extends GrpcBaseTest {
     @BeforeClass
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "01_advanced_type_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients", "01_advanced_type_client" +
+                ".bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
     }
 
     @Test
     public void testInputNestedStructClient() {
-        //Person p = {name:"Danesh", address:{postalCode:10300, state:"Western", country:"Sri Lanka"}};
-        MapValue<String, Object> addressStruct = BallerinaValues.createRecordValue(".", "Address");
-        addressStruct.put("postalCode", 10300);
-        addressStruct.put("state", "Western");
-        addressStruct.put("country", "Sri Lanka");
-        // Person struct
-        MapValue<String, Object> personStruct = BallerinaValues.createRecordValue(".", "Person");
-        personStruct.put("name", new BString("Sam"));
-        personStruct.put("address", addressStruct);
-
-        BValue[] responses = BRunUtil.invoke(result, "testInputNestedStruct", new Object[]{personStruct});
+        BValue[] responses = BRunUtil.invoke(result, "testInputNestedStruct", new Object[]{});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         Assert.assertEquals(responses[0].stringValue(), "Client got response: Submitted name: Sam");
@@ -74,9 +60,7 @@ public class UnaryBlockingNestedStructTestCase extends GrpcBaseTest {
 
     @Test
     public void testOutputNestedStructClient() {
-        BString request = new BString("WSO2");
-
-        BValue[] responses = BRunUtil.invoke(result, "testOutputNestedStruct", new BValue[]{request});
+        BValue[] responses = BRunUtil.invoke(result, "testOutputNestedStruct", new Object[]{"WSO2"});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BMap);
         final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];
@@ -91,15 +75,7 @@ public class UnaryBlockingNestedStructTestCase extends GrpcBaseTest {
 
     @Test
     public void testInputStructOutputStruct() {
-        //StockRequest request = {name: "WSO2"};
-        PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
-        // Address struct
-        StructureTypeInfo requestInfo = packageInfo.getStructInfo("StockRequest");
-        BStructureType requestType = requestInfo.getType();
-        BMap<String, BValue> requestStruct = new BMap<String, BValue>(requestType);
-        requestStruct.put("name", new BString("WSO2"));
-
-        BValue[] responses = BRunUtil.invoke(result, "testInputStructOutputStruct", new BValue[]{requestStruct});
+        BValue[] responses = BRunUtil.invoke(result, "testInputStructOutputStruct", new BValue[]{});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BMap);
         final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];

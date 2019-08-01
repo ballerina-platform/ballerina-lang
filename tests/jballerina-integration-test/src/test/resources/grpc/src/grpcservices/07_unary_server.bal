@@ -26,50 +26,50 @@ service HelloWorld100 on ep7 {
     resource function hello(grpc:Caller caller, string name) {
         io:println("name: " + name);
         string message = "Hello " + name;
-        error? err = ();
+        grpc:Error? err = ();
         if (name == "invalid") {
             err = caller->sendError(grpc:ABORTED, "Operation aborted");
         } else {
             err = caller->send(message);
         }
-        if (err is error) {
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         }
         checkpanic caller->complete();
     }
 
     resource function testInt(grpc:Caller caller, int age) {
-        io:println("age: " + age);
+        io:println("age: " + age.toString());
         int displayAge = age - 2;
-        error? err = caller->send(displayAge);
-        if (err is error) {
+        grpc:Error? err = caller->send(displayAge);
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         } else {
-            io:println("display age : " + displayAge);
+            io:println("display age : " + displayAge.toString());
         }
         checkpanic caller->complete();
     }
 
     resource function testFloat(grpc:Caller caller, float salary) {
-        io:println("gross salary: " + salary);
+        io:println("gross salary: " + salary.toString());
         float netSalary = salary * 0.88;
-        error? err = caller->send(netSalary);
-        if (err is error) {
+        grpc:Error? err = caller->send(netSalary);
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         } else {
-            io:println("net salary : " + netSalary);
+            io:println("net salary : " + netSalary.toString());
         }
         checkpanic caller->complete();
     }
 
     resource function testBoolean(grpc:Caller caller, boolean available) {
-        io:println("is available: " + available);
+        io:println("is available: " + available.toString());
         boolean aval = available || true;
-        error? err = caller->send(aval);
-        if (err is error) {
+        grpc:Error? err = caller->send(aval);
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         } else {
-            io:println("avaliability : " + aval);
+            io:println("avaliability : " + aval.toString());
         }
         checkpanic caller->complete();
     }
@@ -77,8 +77,8 @@ service HelloWorld100 on ep7 {
     resource function testStruct(grpc:Caller caller, Request msg) {
         io:println(msg.name + " : " + msg.message);
         Response response = {resp:"Acknowledge " + msg.name};
-        error? err = caller->send(response);
-        if (err is error) {
+        grpc:Error? err = caller->send(response);
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         } else {
             io:println("msg : " + response.resp);
@@ -88,8 +88,8 @@ service HelloWorld100 on ep7 {
 
     resource function testNoRequest(grpc:Caller caller) {
         string resp = "service invoked with no request";
-        error? err = caller->send(resp);
-        if (err is error) {
+        grpc:Error? err = caller->send(resp);
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         } else {
             io:println("response : " + resp);

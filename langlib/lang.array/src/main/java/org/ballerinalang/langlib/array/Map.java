@@ -63,7 +63,7 @@ public class Map {
                 break;
             case TypeTags.TUPLE_TAG:
                 getFn = ArrayValue::getRefValue;
-                elemTypeTag = -1; // Setting to -1 to ensure that the default case of the switch gets triggered
+                elemTypeTag = elemType.getTag();
                 break;
             default:
                 throw createOpNotSupportedError(arrType, "map()");

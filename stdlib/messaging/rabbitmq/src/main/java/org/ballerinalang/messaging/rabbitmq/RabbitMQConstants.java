@@ -60,10 +60,10 @@ public class RabbitMQConstants {
     public static final String RABBITMQ_CONNECTION_PORT = "port";
     public static final String RABBITMQ_CONNECTION_USER = "username";
     public static final String RABBITMQ_CONNECTION_PASS = "password";
-    public static final String RABBITMQ_CONNECTION_TIMEOUT = "connectionTimeout";
-    public static final String RABBITMQ_CONNECTION_HANDSHAKE_TIMEOUT = "handshakeTimeout";
-    public static final String RABBITMQ_CONNECTION_SHUTDOWN_TIMEOUT = "shutdownTimeout";
-    public static final String RABBITMQ_CONNECTION_HEARTBEAT = "heartbeat";
+    public static final String RABBITMQ_CONNECTION_TIMEOUT = "connectionTimeoutInMillis";
+    public static final String RABBITMQ_CONNECTION_HANDSHAKE_TIMEOUT = "handshakeTimeoutMillis";
+    public static final String RABBITMQ_CONNECTION_SHUTDOWN_TIMEOUT = "shutdownTimeoutInMillis";
+    public static final String RABBITMQ_CONNECTION_HEARTBEAT = "heartbeatInSeconds";
     public static final String RABBITMQ_CONNECTION_SECURE_SOCKET = "secureSocket";
     public static final String RABBITMQ_CONNECTION_KEYSTORE = "keyStore";
     public static final String RABBITMQ_CONNECTION_TRUSTORE = "trustStore";
