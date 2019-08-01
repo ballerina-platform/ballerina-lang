@@ -23,7 +23,10 @@ service hello on new http:Listener(9090) {
         var details = orderDetails.Details;
         http:Response res = new;
         if (details is json) {
-        res.setPayload(<@untainted> details);
+            res.setPayload(<@untainted> details);
+        } else {
+            res.statusCode = 400;
+            res.setPayload("Order Details unavailable");
         }
         var result = caller->respond(res);
         if (result is error) {
@@ -62,8 +65,7 @@ service hello on new http:Listener(9090) {
         string name = student.Name;
         int grade = student.Grade;
         http:Response res = new;
-
-            res.setPayload({ Name: <@untainted> name, Grade: <@untainted> grade });
+        res.setPayload({ Name: <@untainted> name, Grade: <@untainted> grade });
 
         var result = caller->respond(res);
         if (result is error) {
