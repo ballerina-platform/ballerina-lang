@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 /**
  * External function for ballerina.system:Process.exitCode.
  *
- * @since 0.995.0
+ * @since 1.0.0
  */
 @BallerinaFunction(
         orgName = SystemConstants.ORG_NAME,
