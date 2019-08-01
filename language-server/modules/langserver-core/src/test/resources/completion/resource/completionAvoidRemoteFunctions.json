@@ -1,0 +1,61 @@
+{
+  "position": {
+    "line": 5,
+    "character": 15
+  },
+  "source": "resource/source/completionAvoidRemoteFunctions.bal",
+  "items": [
+    {
+      "label": "protocol",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "120",
+      "insertText": "protocol",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "localAddress",
+      "kind": "Variable",
+      "detail": "http:Local",
+      "sortText": "120",
+      "insertText": "localAddress",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "config",
+      "kind": "Variable",
+      "detail": "http:ServiceEndpointConfiguration",
+      "sortText": "120",
+      "insertText": "config",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "__init()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "130",
+      "insertText": "__init(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "remoteAddress",
+      "kind": "Variable",
+      "detail": "http:Remote",
+      "sortText": "120",
+      "insertText": "remoteAddress",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "filterContext",
+      "kind": "Variable",
+      "detail": "(http:FilterContext|())",
+      "sortText": "120",
+      "insertText": "filterContext",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}
