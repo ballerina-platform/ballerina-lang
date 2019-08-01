@@ -38,7 +38,7 @@ public type WebSocketFailoverClientEndpointConfig client object {
     }
 
     # Initializes the endpoint.
-    public function initEndpoint() = external;
+    public function init() = external;
 
     # Push text to the connection.
     #
