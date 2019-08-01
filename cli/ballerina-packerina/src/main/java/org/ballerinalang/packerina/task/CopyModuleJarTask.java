@@ -46,11 +46,18 @@ public class CopyModuleJarTask implements Task {
         Path tmpDir = targetDir.resolve(ProjectDirConstants.TARGET_TMP_DIRECTORY);
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
 
+        try {
+            Files.createDirectories(tmpDir);
+        } catch (IOException e) {
+            throw new BallerinaException("unable to create tmp directory in target :" +
+                    e.getMessage());
+        }
+
         List<BLangPackage> moduleBirMap = buildContext.getModules();
         for (BLangPackage module : moduleBirMap) {
             // get the jar path of the module.
             Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
-            Path jarTarget = tmpDir.resolve(module.packageID.name.value + BLANG_COMPILED_JAR_EXT);
+            Path jarTarget = tmpDir.resolve(jarOutput.getFileName());
             try {
                 Files.copy(jarOutput, jarTarget, StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
