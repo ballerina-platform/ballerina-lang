@@ -65,6 +65,7 @@ class JInterop {
     static final String J_REF_TYPE_NAME = "RefType";
     static final String TYPE_NAME_FIELD = "typeName";
     static final String NO_TYPE_NAME = "NoType";
+    static final String METHOD_THROWS_FIELD = "throws";
     static final String B_FUNC_TYPE_FIELD = "bFuncType";
     static final String J_ARRAY_TYPE_NAME = "ArrayType";
     static final String ELEMENT_TYPE_FIELD = "elementType";

@@ -17,6 +17,10 @@
  */
 package org.ballerinalang.nativeimpl.jvm.interop;
 
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.ArrayValue;
+
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -83,5 +87,14 @@ class JMethod {
         } else {
             return ((Method) method).getReturnType();
         }
+    }
+
+    ArrayValue getExceptionTypes() {
+        ArrayValue arrayValue = new ArrayValue(new BArrayType(BTypes.typeString), method.getExceptionTypes().length);
+        int i = 0;
+        for (Class<?> exceptionType : method.getExceptionTypes()) {
+            arrayValue.add(i++, exceptionType.getName().replace(".", "/"));
+        }
+        return arrayValue;
     }
 }
