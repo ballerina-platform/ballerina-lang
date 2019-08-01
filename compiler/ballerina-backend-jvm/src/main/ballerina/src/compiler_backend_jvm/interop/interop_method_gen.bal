@@ -487,16 +487,27 @@ function performWideningPrimitiveConversion(jvm:MethodVisitor mv, BValueType bTy
         addBoxInsn(mv, retType);
     }
 }
-// Get real type by removing error if there is a throw
+// Get real type by removing error when error added due to a throw
 function getActualType(bir:BUnionType unionType) returns bir:BType? {
+    if (unionType.members.length() > 2) {
+        // Java side also returns a union, 
+        // we don't need to do anything specific for error
+        return unionType;
+    }
     bir:BType? retType = ();
+    boolean hasError = false;
     foreach var member in unionType.members {
-        if (!(member is bir:BErrorType)) {
+        if (member is bir:BErrorType) {
+            hasError = true;
+        } else {
             retType = member;
-            break;
         }
     }
-    return retType;
+    if (hasError) {
+        // union has no error type included
+        return retType;
+    }
+    return unionType;
 }
 
 // We can improve following logic with a type lattice.
