@@ -45,6 +45,6 @@ service echo03 on listener03 {
         }
     }
     resource function test(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 }

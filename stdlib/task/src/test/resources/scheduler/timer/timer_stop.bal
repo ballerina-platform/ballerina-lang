@@ -19,8 +19,8 @@ import ballerina/runtime;
 
 function triggerTimer() {
     task:TimerConfiguration configuration = {
-        interval: 500,
-        initialDelay: 1000
+        intervalInMillis: 500,
+        initialDelayInMillis: 1000
     };
 
     task:Scheduler timer = new(configuration);

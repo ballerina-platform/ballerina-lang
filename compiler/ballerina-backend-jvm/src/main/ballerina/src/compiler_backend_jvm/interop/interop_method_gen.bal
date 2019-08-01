@@ -180,10 +180,12 @@ function genJFieldForInteropField(JFieldFunctionWrapper jFieldFuncWrapper,
         mv.visitJumpInsn(IFNONNULL, elseBlockLabel);
         jvm:Label thenBlockLabel = labelGen.getLabel("receiver_null_check_then");
         mv.visitLabel(thenBlockLabel);
-        mv.visitTypeInsn(NEW, "java/lang/RuntimeException");
-        mv.visitInsn(DUP);
-        mv.visitLdcInsn("instance is null");
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/RuntimeException", "<init>", "(Ljava/lang/String;)V", false);
+        mv.visitFieldInsn(GETSTATIC, BAL_ERROR_REASONS, "JAVA_NULL_REFERENCE_ERROR", "L" + STRING_VALUE + ";");
+        mv.visitFieldInsn(GETSTATIC, RUNTIME_ERRORS, "JAVA_NULL_REFERENCE", "L" + RUNTIME_ERRORS + ";");
+        mv.visitInsn(ICONST_0);
+        mv.visitTypeInsn(ANEWARRAY, OBJECT);
+        mv.visitMethodInsn(INVOKESTATIC, BLANG_EXCEPTION_HELPER, "getRuntimeException",
+            "(L" + STRING_VALUE + ";L" + RUNTIME_ERRORS + ";[L" + OBJECT + ";)L" + ERROR_VALUE + ";", false);
         mv.visitInsn(ATHROW);
         mv.visitLabel(elseBlockLabel);
     }
@@ -229,7 +231,12 @@ function genJFieldForInteropField(JFieldFunctionWrapper jFieldFuncWrapper,
             mv.visitVarInsn(ALOAD, returnJObjectVarRefIndex);
             mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, "<init>", "(Ljava/lang/Object;)V", false);
         } else {
-            performWideningPrimitiveConversion(mv, <BValueType>retType, <jvm:PrimitiveType>jFieldType);
+            // bType is a value-type
+            if(jFieldType is jvm:PrimitiveType) {
+                performWideningPrimitiveConversion(mv, <BValueType>retType, jFieldType);
+            } else {
+                addUnboxInsn(mv, retType);
+            }
         }
         generateVarStore(mv, retVarDcl, currentPackageName, returnVarRefIndex);
     }
@@ -333,10 +340,12 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
         mv.visitJumpInsn(IFNONNULL, elseBlockLabel);
         jvm:Label thenBlockLabel = labelGen.getLabel("receiver_null_check_then");
         mv.visitLabel(thenBlockLabel);
-        mv.visitTypeInsn(NEW, "java/lang/RuntimeException");
-        mv.visitInsn(DUP);
-        mv.visitLdcInsn("instance is null");
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/RuntimeException", "<init>", "(Ljava/lang/String;)V", false);
+        mv.visitFieldInsn(GETSTATIC, BAL_ERROR_REASONS, "JAVA_NULL_REFERENCE_ERROR", "L" + STRING_VALUE + ";");
+        mv.visitFieldInsn(GETSTATIC, RUNTIME_ERRORS, "JAVA_NULL_REFERENCE", "L" + RUNTIME_ERRORS + ";");
+        mv.visitInsn(ICONST_0);
+        mv.visitTypeInsn(ANEWARRAY, OBJECT);
+        mv.visitMethodInsn(INVOKESTATIC, BLANG_EXCEPTION_HELPER, "getRuntimeException",
+            "(L" + STRING_VALUE + ";L" + RUNTIME_ERRORS + ";[L" + OBJECT + ";)L" + ERROR_VALUE + ";", false);
         mv.visitInsn(ATHROW);
         mv.visitLabel(elseBlockLabel);
     } else if jMethod.kind is jvm:CONSTRUCTOR {
@@ -388,7 +397,12 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
             mv.visitVarInsn(ALOAD, returnJObjectVarRefIndex);
             mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, "<init>", "(Ljava/lang/Object;)V", false);
         } else {
-            performWideningPrimitiveConversion(mv, <BValueType>retType, <jvm:PrimitiveType>jMethodRetType);
+            // retType is a value-type
+            if(jMethodRetType is jvm:PrimitiveType) {
+                performWideningPrimitiveConversion(mv, <BValueType>retType, jMethodRetType);
+            } else {
+                addUnboxInsn(mv, retType);
+            }
         }
         generateVarStore(mv, retVarDcl, currentPackageName, returnVarRefIndex);
     }
@@ -478,12 +492,23 @@ function loadMethodParamToStackInInteropFunction(jvm:MethodVisitor mv,
 }
 
 function convertToJVMValue(jvm:MethodVisitor mv, bir:BType bType, jvm:JType jvmType) {
-    if bType is bir:BTypeHandle && (jvmType is jvm:RefType|jvm:ArrayType) {
-        mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
-        string classSig = getSignatureForJType(jvmType);
-        mv.visitTypeInsn(CHECKCAST, classSig);
+    if bType is bir:BTypeHandle {
+        if (jvmType is jvm:RefType|jvm:ArrayType) {
+            mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
+            string classSig = getSignatureForJType(jvmType);
+            mv.visitTypeInsn(CHECKCAST, classSig);
+        } else {
+            // should never reach here
+            error e = error(io:sprintf("invalid java method type: %s", jvmType));
+            panic e;
+        }
     } else {
-        performNarrowingPrimitiveConversion(mv, <BValueType>bType, <jvm:PrimitiveType>jvmType);
+        // bType is a value-type
+        if (jvmType is jvm:PrimitiveType) {
+            performNarrowingPrimitiveConversion(mv, <BValueType>bType, jvmType);
+        } else {
+            addBoxInsn(mv, bType);
+        }
     }
 }
 

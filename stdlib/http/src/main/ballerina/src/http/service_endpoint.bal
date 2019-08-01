@@ -162,7 +162,7 @@ public type ServiceEndpointConfiguration record {|
     string httpVersion = "1.1";
     RequestLimits requestLimits = {};
     //TODO: update as a optional field
-    Filter[] filters = [];
+    (RequestFilter | ResponseFilter)[] filters = [];
     int timeoutInMillis = DEFAULT_LISTENER_TIMEOUT;
     ListenerAuth auth?;
     string? server = ();
