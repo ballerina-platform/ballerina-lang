@@ -10,7 +10,7 @@
 In the cloud, applications interact with their environment over the network. Ballerina is a general-purpose programming language with features optimized for these network distributed applications. It is easy to write and modify and is suitable for application programmers.
 
 #### Services
-It has first-class language constructs for providing and consuming services,
+It has first-class language constructs for providing and consuming services.
 
 #### Sequence diagrams
 The structure of functions and programs allows them to be viewed as sequence diagrams showing the interactions between concurrently executing parts.
