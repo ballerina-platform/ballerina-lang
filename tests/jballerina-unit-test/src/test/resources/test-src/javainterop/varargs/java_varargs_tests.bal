@@ -37,9 +37,9 @@ public function testGetSumOfIntArraysWithAnnot() returns int {
 }
 
 public function testJavaListVarargs() returns handle {
-    handle arrayList1 = getArrayList(java:toJString("apples"), java:toJString("arranges"), java:toJString("grapes"));
-    handle arrayList2 = getArrayList(java:toJString("pineapple"));
-    handle arrayList3 = getArrayList(java:toJString("mangoes"));
+    handle arrayList1 = getArrayList(java:fromString("apples"), java:fromString("arranges"), java:fromString("grapes"));
+    handle arrayList2 = getArrayList(java:fromString("pineapple"));
+    handle arrayList3 = getArrayList(java:fromString("mangoes"));
     return mergeLists(arrayList1, arrayList2, arrayList3);
 }
 

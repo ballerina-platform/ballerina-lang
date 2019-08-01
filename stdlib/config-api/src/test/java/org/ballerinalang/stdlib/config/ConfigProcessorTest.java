@@ -26,7 +26,9 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,6 +39,7 @@ import java.util.Map;
 public class ConfigProcessorTest {
 
     private Map<String, String> runtimeParams;
+    private ArrayList<String> keyStorePaths;
     private String resourceRoot;
     private String confFile;
 
@@ -48,6 +51,13 @@ public class ConfigProcessorTest {
         runtimeParams = new HashMap<>();
         runtimeParams.put("echo.http.host", "10.100.1.201");
         runtimeParams.put("echo.http.port", "8082");
+        runtimeParams.put("echo\"database.server\"", "10.100.1.108");
+        runtimeParams.put("echo\"database.port\"", "1521");
+
+        keyStorePaths = new ArrayList<>();
+        keyStorePaths.add("/etc");
+        keyStorePaths.add("/tmp");
+        keyStorePaths.add("/usr/lib/");
     }
 
     @Test
@@ -74,6 +84,19 @@ public class ConfigProcessorTest {
         obj = configs.get("hello.eviction.fac");
         Assert.assertTrue(obj instanceof Double);
         Assert.assertEquals(obj, 0.2333333D);
+
+        // Verify config file params with double quotes marks
+        obj = configs.get("database.\"server.host\"");
+        Assert.assertTrue(obj instanceof String);
+        Assert.assertEquals(obj, "192.168.1.1");
+
+        obj = configs.get("database.\"server.port\"");
+        Assert.assertTrue(obj instanceof Long);
+        Assert.assertEquals(obj, 3306L);
+
+        obj = configs.get("hello.keyStore.paths");
+        Assert.assertTrue(obj instanceof List);
+        Assert.assertEquals(obj, keyStorePaths);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class,

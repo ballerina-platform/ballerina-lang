@@ -369,13 +369,13 @@ function createNewEndpointConfig(ClientEndpointConfig config) returns ClientEndp
 //Get the HTTP method that should be used for redirection based on the status code.
 function getRedirectMethod(HttpOperation httpVerb, Response response) returns HttpOperation|() {
     int statusCode = response.statusCode;
-    if ((statusCode == MULTIPLE_CHOICES_300 || statusCode == USE_PROXY_305 || statusCode == TEMPORARY_REDIRECT_307
-            || statusCode == PERMANENT_REDIRECT_308) && (httpVerb == HTTP_GET || httpVerb == HTTP_HEAD)) {
+    if ((statusCode == STATUS_MULTIPLE_CHOICES || statusCode == STATUS_USE_PROXY || statusCode == STATUS_TEMPORARY_REDIRECT
+            || statusCode == STATUS_PERMANENT_REDIRECT) && (httpVerb == HTTP_GET || httpVerb == HTTP_HEAD)) {
         return httpVerb;
-    } else if ((statusCode == MOVED_PERMANENTLY_301 || statusCode == FOUND_302) &&
+    } else if ((statusCode == STATUS_MOVED_PERMANENTLY || statusCode == STATUS_FOUND) &&
         (httpVerb == HTTP_GET || httpVerb == HTTP_HEAD)) {
         return HTTP_GET;
-    } else if (statusCode == SEE_OTHER_303) {
+    } else if (statusCode == STATUS_SEE_OTHER) {
         return HTTP_GET;
     } else {
         return ();
@@ -391,7 +391,7 @@ function createRedirectRequest(int statusCode, Request request) returns Request 
             redirectRequest.addHeader(headerName, headerValue);
         }
     }
-    if (statusCode == SEE_OTHER_303) {
+    if (statusCode == STATUS_SEE_OTHER) {
         redirectRequest.removeHeader(TRANSFER_ENCODING);
         redirectRequest.removeHeader(CONTENT_LENGTH);
     }

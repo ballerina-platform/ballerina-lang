@@ -56,6 +56,6 @@ service echo21 on listener21 {
         methods: ["GET"]
     }
     resource function test(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 }

@@ -36,7 +36,7 @@ service basic on new http:WebSocketListener(9090) {
         } else if (text == "closeMe") {
             error? result = caller->close(statusCode = 1001,
                             reason = "You asked me to close the connection",
-                            timeoutInSecs = 0);
+                            timeoutInSeconds = 0);
             if (result is http:WebSocketError) {
                 log:printError("Error occurred when closing connection", <error> result);
             }

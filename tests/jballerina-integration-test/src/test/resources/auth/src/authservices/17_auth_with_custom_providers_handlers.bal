@@ -208,7 +208,7 @@ public type OutboundCustomAuthProvider object {
     }
 
     public function inspect(map<anydata> data) returns string|auth:Error? {
-        if (data[http:STATUS_CODE] == http:FORBIDDEN_403) {
+        if (data[http:STATUS_CODE] == http:STATUS_FORBIDDEN) {
             string token = "buckeroo";
             return token;
         }

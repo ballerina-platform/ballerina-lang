@@ -1,7 +1,0 @@
-# Before running the example, start the Artemis message broker.
-# Next, copy the artemis-jms-client-<version>.jar and artemis-selector-<version>.jar 
-# files to the <BALLERINA_HOME>/bre/lib directory.
-
-# Navigate to the directory that contains the
-# 'jms_topic_message_producer.bal' file, and execute the 'ballerina run' command.
-$ ballerina run jms_topic_message_producer.bal

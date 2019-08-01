@@ -163,7 +163,7 @@ function getScopes(FilterContext context) returns string[]|string[][]|boolean {
 # + return - Returns the resource-level and service-level authentication annotations.
 function getServiceResourceAuthConfig(FilterContext context) returns [ServiceResourceAuth?, ServiceResourceAuth?] {
     // get authn details from the resource level
-    any annData = reflect:getResourceAnnotations(context.serviceRef, context.resourceName, RESOURCE_ANN_NAME,
+    any annData = reflect:getResourceAnnotations(context.getService(), context.getResourceName(), RESOURCE_ANN_NAME,
                                                  ANN_MODULE);
     ServiceResourceAuth? resourceLevelAuthAnn = ();
     if !(annData is ()) {
@@ -171,7 +171,7 @@ function getServiceResourceAuthConfig(FilterContext context) returns [ServiceRes
         resourceLevelAuthAnn = resourceConfig?.auth;
     }
 
-    annData = reflect:getServiceAnnotations(context.serviceRef, SERVICE_ANN_NAME, ANN_MODULE);
+    annData = reflect:getServiceAnnotations(context.getService(), SERVICE_ANN_NAME, ANN_MODULE);
     ServiceResourceAuth? serviceLevelAuthAnn = ();
     if !(annData is ()) {
         HttpServiceConfig serviceConfig = <HttpServiceConfig> annData;
