@@ -231,7 +231,12 @@ function genJFieldForInteropField(JFieldFunctionWrapper jFieldFuncWrapper,
             mv.visitVarInsn(ALOAD, returnJObjectVarRefIndex);
             mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, "<init>", "(Ljava/lang/Object;)V", false);
         } else {
-            performWideningPrimitiveConversion(mv, <BValueType>retType, <jvm:PrimitiveType>jFieldType);
+            // bType is a value-type
+            if(jFieldType is jvm:PrimitiveType) {
+                performWideningPrimitiveConversion(mv, <BValueType>retType, jFieldType);
+            } else {
+                addUnboxInsn(mv, retType);
+            }
         }
         generateVarStore(mv, retVarDcl, currentPackageName, returnVarRefIndex);
     }
@@ -391,8 +396,13 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
             mv.visitInsn(DUP);
             mv.visitVarInsn(ALOAD, returnJObjectVarRefIndex);
             mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, "<init>", "(Ljava/lang/Object;)V", false);
-        } else if(!(jMethodRetType is jvm:RefType)) {
-            performWideningPrimitiveConversion(mv, <BValueType>retType, <jvm:PrimitiveType>jMethodRetType);
+        } else {
+            // retType is a value-type
+            if(jMethodRetType is jvm:PrimitiveType) {
+                performWideningPrimitiveConversion(mv, <BValueType>retType, jMethodRetType);
+            } else {
+                addUnboxInsn(mv, retType);
+            }
         }
         generateVarStore(mv, retVarDcl, currentPackageName, returnVarRefIndex);
     }
@@ -482,12 +492,23 @@ function loadMethodParamToStackInInteropFunction(jvm:MethodVisitor mv,
 }
 
 function convertToJVMValue(jvm:MethodVisitor mv, bir:BType bType, jvm:JType jvmType) {
-    if bType is bir:BTypeHandle && (jvmType is jvm:RefType|jvm:ArrayType) {
-        mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
-        string classSig = getSignatureForJType(jvmType);
-        mv.visitTypeInsn(CHECKCAST, classSig);
-    } else if (!(jvmType is jvm:RefType)) {
-        performNarrowingPrimitiveConversion(mv, <BValueType>bType, <jvm:PrimitiveType>jvmType);
+    if bType is bir:BTypeHandle {
+        if (jvmType is jvm:RefType|jvm:ArrayType) {
+            mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
+            string classSig = getSignatureForJType(jvmType);
+            mv.visitTypeInsn(CHECKCAST, classSig);
+        } else {
+            // should never reach here
+            error e = error(io:sprintf("invalid java method type: %s", jvmType));
+            panic e;
+        }
+    } else {
+        // bType is a value-type
+        if (jvmType is jvm:PrimitiveType) {
+            performNarrowingPrimitiveConversion(mv, <BValueType>bType, jvmType);
+        } else {
+            addBoxInsn(mv, bType);
+        }
     }
 }
 
