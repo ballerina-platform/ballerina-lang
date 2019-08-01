@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
  * This Class tests failover support of WebSocket client.
  */
 @Test(groups = {"websocket-test"})
-public class FailoverClientTest {
+public class FailoverClientTest extends WebSocketTestCommons {
 
     private WebSocketRemoteServer remoteServer;
     private WebSocketRemoteServer remoteServer1;
@@ -42,6 +42,7 @@ public class FailoverClientTest {
     private int port;
     private ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
     private boolean sslEnabled;
+    private int time = 50;
 
     public FailoverClientTest(int port, boolean sslEnabled, String url) {
         this.port = port;
@@ -50,85 +51,89 @@ public class FailoverClientTest {
     }
 
     @Test(description = "Tests sending and receiving of text frames in WebSockets")
-    public void testSendText() throws URISyntaxException, InterruptedException, BallerinaTestException {
+    public void testFailover() throws URISyntaxException, InterruptedException, BallerinaTestException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         remoteServer = new WebSocketRemoteServer(port, sslEnabled);
         remoteServer.run();
-        countDownLatch.await(50, TimeUnit.SECONDS);
+        countDownLatch.await(time, TimeUnit.SECONDS);
         WebSocketTestClient client = new WebSocketTestClient(url);
         client.handshake();
         client.setCountDownLatch(countDownLatch);
-        countDownLatch.await(50, TimeUnit.SECONDS);
+        countDownLatch.await(time, TimeUnit.SECONDS);
         String textSent = "hi all";
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        client.sendText(textSent);
         countDownLatch.await(10, TimeUnit.SECONDS);
+        Assert.assertEquals(client.getTextReceived(), textSent);
+        countDownLatch.await(15, TimeUnit.SECONDS);
+        remoteServer.stop();
+        countDownLatch.await(time, TimeUnit.SECONDS);
+        client.shutDown();
+    }
+
+    @Test(description = "Tests sending and receiving of binary frames in WebSocket")
+    public void testFailover1() throws URISyntaxException, InterruptedException, BallerinaTestException {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        remoteServer = new WebSocketRemoteServer(port, sslEnabled);
+        remoteServer.run();
+        countDownLatch.await(time, TimeUnit.SECONDS);
+        WebSocketTestClient client = new WebSocketTestClient(url);
+        client.handshake();
+        client.setCountDownLatch(countDownLatch);
+        countDownLatch.await(time, TimeUnit.SECONDS);
+        ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        client.sendBinary(bufferSent);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        Assert.assertEquals(client.getBufferReceived(), bufferSent);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        client.shutDown();
+        remoteServer.stop();
+        countDownLatch.await(time, TimeUnit.SECONDS);
+    }
+
+    @Test(description = "Tests the client initialization failing")
+    public void testFailover2() throws URISyntaxException, InterruptedException {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        WebSocketTestClient client = new WebSocketTestClient(url);
+        client.handshake();
+        client.setCountDownLatch(countDownLatch);
+        countDownLatch.await(time, TimeUnit.SECONDS);
+        CloseWebSocketFrame closeWebSocketFrame = client.getReceivedCloseFrame();
+
+        Assert.assertNotNull(closeWebSocketFrame);
+        Assert.assertEquals(closeWebSocketFrame.statusCode(), 1011);
+        Assert.assertTrue(closeWebSocketFrame.reasonText().contains("Connection refused: localhost/127.0.0.1:15200"));
+
+        closeWebSocketFrame.release();
+    }
+
+    @Test(description = "Tests sending and receiving of binary frames in WebSocket")
+    public void testFailover3() throws URISyntaxException, InterruptedException, BallerinaTestException {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        remoteServer = new WebSocketRemoteServer(port);
+        remoteServer1 = new WebSocketRemoteServer(15200);
+        remoteServer.run();
+        remoteServer1.run();
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        WebSocketTestClient client = new WebSocketTestClient(url);
+        client.handshake();
+        client.setCountDownLatch(countDownLatch);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        String textSent = "hi all";
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         client.sendText(textSent);
         countDownLatch.await(10, TimeUnit.SECONDS);
         Assert.assertEquals(client.getTextReceived(), textSent);
         countDownLatch.await(15, TimeUnit.SECONDS);
         remoteServer.stop();
         countDownLatch.await(50, TimeUnit.SECONDS);
-        client.shutDown();
-    }
-
-    @Test(description = "Tests sending and receiving of binary frames in WebSocket")
-    public void testSendBinary() throws URISyntaxException, InterruptedException, BallerinaTestException {
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        remoteServer = new WebSocketRemoteServer(port, sslEnabled);
-        remoteServer.run();
-        countDownLatch.await(50, TimeUnit.SECONDS);
-        WebSocketTestClient client = new WebSocketTestClient(url);
-        client.handshake();
-        client.setCountDownLatch(countDownLatch);
-        countDownLatch.await(50, TimeUnit.SECONDS);
         ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
-        countDownLatch.await(10, TimeUnit.SECONDS);
         client.sendBinary(bufferSent);
-        countDownLatch.await(10, TimeUnit.SECONDS);
+        countDownLatch.await(30, TimeUnit.SECONDS);
         Assert.assertEquals(client.getBufferReceived(), bufferSent);
-        countDownLatch.await(15, TimeUnit.SECONDS);
         client.shutDown();
-        remoteServer.stop();
-        countDownLatch.await(50, TimeUnit.SECONDS);
-    }
-
-    @Test(description = "Tests sending and receiving of binary frames in WebSocket")
-    public void testSendBinary1() throws URISyntaxException, InterruptedException, BallerinaTestException {
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        remoteServer = new WebSocketRemoteServer(port, sslEnabled);
-        remoteServer1 = new WebSocketRemoteServer(15200, sslEnabled);
-        remoteServer.run();
-        remoteServer1.run();
-        countDownLatch.await(50, TimeUnit.SECONDS);
-        WebSocketTestClient client = new WebSocketTestClient(url);
-        client.handshake();
-        client.setCountDownLatch(countDownLatch);
-        countDownLatch.await(50, TimeUnit.SECONDS);
         remoteServer1.stop();
-        countDownLatch.await(100, TimeUnit.SECONDS);
-        ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
-        countDownLatch.await(10, TimeUnit.SECONDS);
-        client.sendBinary(bufferSent);
-        countDownLatch.await(100, TimeUnit.SECONDS);
-        Assert.assertEquals(client.getBufferReceived(), bufferSent);
-        countDownLatch.await(15, TimeUnit.SECONDS);
-        client.shutDown();
-        remoteServer.stop();
-        countDownLatch.await(50, TimeUnit.SECONDS);
-    }
-
-    @Test(description = "Tests the client initialization failing in a resource")
-    public void testClientEndpointFailureInResource() throws URISyntaxException, InterruptedException {
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        WebSocketTestClient client = new WebSocketTestClient(url);
-        client.handshake();
-        client.setCountDownLatch(countDownLatch);
-        countDownLatch.await(50, TimeUnit.SECONDS);
-        CloseWebSocketFrame closeWebSocketFrame = client.getReceivedCloseFrame();
-
-        Assert.assertNotNull(closeWebSocketFrame);
-        Assert.assertEquals(closeWebSocketFrame.statusCode(), 1011);
-        Assert.assertTrue(closeWebSocketFrame.reasonText().contains("Connection refused: localhost/127.0.0.1:15300"));
-
-        closeWebSocketFrame.release();
+        countDownLatch.await(time, TimeUnit.SECONDS);
     }
 }

@@ -18,7 +18,6 @@
 
 package org.ballerinalang.test.service.websocket;
 
-import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.ballerinalang.test.util.websocket.server.WebSocketRemoteServer;
@@ -48,7 +47,7 @@ public class RetryClientTest extends WebSocketTestCommons {
     }
 
     @Test(description = "Tests sending and receiving of text frames in WebSockets")
-    public void testSendText() throws URISyntaxException, InterruptedException, BallerinaTestException {
+    public void testRetry() throws URISyntaxException, InterruptedException, BallerinaTestException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         remoteServer = new WebSocketRemoteServer(port, sslEnabled);
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
@@ -70,7 +69,7 @@ public class RetryClientTest extends WebSocketTestCommons {
     }
 
     @Test(description = "Tests sending and receiving of binary frames in WebSocket")
-    public void testSendBinary() throws URISyntaxException, InterruptedException, BallerinaTestException {
+    public void testRetry1() throws URISyntaxException, InterruptedException, BallerinaTestException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         remoteServer = new WebSocketRemoteServer(port, sslEnabled);
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
@@ -79,9 +78,9 @@ public class RetryClientTest extends WebSocketTestCommons {
         client.handshake();
         client.setCountDownLatch(countDownLatch);
         remoteServer.stop();
-        countDownLatch.await(50, TimeUnit.SECONDS);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         remoteServer.run();
-        countDownLatch.await(50, TimeUnit.SECONDS);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
         client.sendBinary(bufferSent);
         countDownLatch.await(20, TimeUnit.SECONDS);
@@ -90,24 +89,8 @@ public class RetryClientTest extends WebSocketTestCommons {
         remoteServer.stop();
     }
 
-    @Test(description = "Tests the client initialization failing in a resource")
-    public void testClientEndpointFailureInResource() throws URISyntaxException, InterruptedException {
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        WebSocketTestClient client = new WebSocketTestClient(url);
-        client.handshake();
-        client.setCountDownLatch(countDownLatch);
-        countDownLatch.await(50, TimeUnit.SECONDS);
-        CloseWebSocketFrame closeWebSocketFrame = client.getReceivedCloseFrame();
-
-        Assert.assertNotNull(closeWebSocketFrame);
-        Assert.assertEquals(closeWebSocketFrame.statusCode(), 1011);
-        Assert.assertTrue(closeWebSocketFrame.reasonText().contains("Connection refused: localhost/127.0.0.1:15300"));
-
-        closeWebSocketFrame.release();
-    }
-
     @Test(description = "Tests sending and receiving of binary frames in WebSocket")
-    public void testSendBinary1() throws URISyntaxException, InterruptedException, BallerinaTestException {
+    public void testRetry2() throws URISyntaxException, InterruptedException, BallerinaTestException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         remoteServer = new WebSocketRemoteServer(port, sslEnabled);
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
@@ -116,9 +99,9 @@ public class RetryClientTest extends WebSocketTestCommons {
         client.handshake();
         client.setCountDownLatch(countDownLatch);
         remoteServer.stop();
-        countDownLatch.await(50, TimeUnit.SECONDS);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         remoteServer.run();
-        countDownLatch.await(100, TimeUnit.SECONDS);
+        countDownLatch.await(30, TimeUnit.SECONDS);
         ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
         client.sendBinary(bufferSent);
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
@@ -126,9 +109,9 @@ public class RetryClientTest extends WebSocketTestCommons {
         remoteServer.stop();
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         remoteServer.run();
-        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        countDownLatch.await(30, TimeUnit.SECONDS);
         client.sendBinary(bufferSent);
-        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        countDownLatch.await(30, TimeUnit.SECONDS);
         Assert.assertEquals(client.getBufferReceived(), bufferSent);
         client.shutDown();
         remoteServer.stop();

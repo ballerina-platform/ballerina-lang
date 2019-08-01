@@ -32,20 +32,26 @@ import java.util.concurrent.CountDownLatch;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.WebSocketConstants.CLIENT_ENDPOINT_CONFIG;
+import static org.ballerinalang.net.http.WebSocketConstants.CONNECTED_SERVER_URLS_INDEX;
+import static org.ballerinalang.net.http.WebSocketConstants.CONNECTED_TO;
 import static org.ballerinalang.net.http.WebSocketConstants.FAILOVER_INTEVAL;
 import static org.ballerinalang.net.http.WebSocketConstants.FAILOVER_WEBSOCKET_CLIENT;
 import static org.ballerinalang.net.http.WebSocketConstants.IS_CONNECTION_MADE;
+import static org.ballerinalang.net.http.WebSocketConstants.NO_OF_RECONNECT_ATTEMPTS;
 import static org.ballerinalang.net.http.WebSocketConstants.RETRY_CONFIG;
+import static org.ballerinalang.net.http.WebSocketConstants.STATEMENT_FOR_FAILOVDER_RECONNECT;
+import static org.ballerinalang.net.http.WebSocketConstants.STATEMENT_FOR_FAILOVER;
+import static org.ballerinalang.net.http.WebSocketConstants.STATEMENT_FOR_RECONNECT;
 import static org.ballerinalang.net.http.WebSocketConstants.SUB_TARGET_URLS;
 import static org.ballerinalang.net.http.WebSocketConstants.SUB_TARGET_URLS_INDEX;
-import static org.ballerinalang.net.http.WebSocketConstants.TARGETS_URLS;
+import static org.ballerinalang.net.http.WebSocketConstants.TARGET_URLS;
 import static org.ballerinalang.net.http.WebSocketConstants.TARGET_URL_INDEX;
-import static org.ballerinalang.net.http.WebSocketUtil.doFailoverClientReconnect;
 import static org.ballerinalang.net.http.WebSocketUtil.getIntegerValue;
 import static org.ballerinalang.net.http.WebSocketUtil.initialiseWebSocketConnection;
 import static org.ballerinalang.net.http.WebSocketUtil.reconnect;
-import static org.ballerinalang.net.http.WebSocketUtil.setFailoverTargets;
-import static org.ballerinalang.net.http.WebSocketUtil.waitForIntervalTime;
+import static org.ballerinalang.net.http.WebSocketUtil.reconnectForFailoverClient;
+import static org.ballerinalang.net.http.WebSocketUtil.setSubTargetUrlList;
+import static org.ballerinalang.net.http.WebSocketUtil.setcountDownLatch;
 
 /**
  * The handshake listener for the client.
@@ -74,13 +80,14 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
 
     @Override
     public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse carbonResponse) {
-        webSocketClient.addNativeData(IS_CONNECTION_MADE, true);
         int targetUrlsIndex = 0;
         ArrayValue targetUrls = null;
         if (webSocketClient.getType().getName().equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT)) {
-            targetUrlsIndex = (int) webSocketClient.getNativeData(TARGET_URL_INDEX) - 1;
-            targetUrls = webSocketClient.getMapValue(CLIENT_ENDPOINT_CONFIG).
-                    getArrayValue(WebSocketConstants.TARGETS_URLS);
+            int index = (int) webSocketClient.getNativeData(TARGET_URL_INDEX);
+            if (index > 0) {
+                targetUrlsIndex = (int) webSocketClient.getNativeData(TARGET_URL_INDEX) - 1;
+            }
+            targetUrls = (ArrayValue) webSocketClient.getNativeData(TARGET_URLS);
             if (webSocketClient.getNativeData(SUB_TARGET_URLS) != null) {
                 List subTargetUrls = (List) webSocketClient.getNativeData(SUB_TARGET_URLS);
                 int subtargetUrlsIndex = (int) webSocketClient.getNativeData(SUB_TARGET_URLS_INDEX);
@@ -91,7 +98,8 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
                     }
                 }
             }
-            setFailoverTargets(webSocketClient, targetUrlsIndex);
+            webSocketClient.addNativeData(CONNECTED_SERVER_URLS_INDEX, targetUrlsIndex);
+            setSubTargetUrlList(webSocketClient, targetUrlsIndex);
         }
         //using only one service endpoint in the client as there can be only one connection.
         webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD,
@@ -104,23 +112,34 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
         WebSocketUtil.populateEndpoint(webSocketConnection, webSocketClient);
         clientConnectorListener.setConnectionInfo(connectionInfo);
         webSocketClient.set(WebSocketConstants.CLIENT_CONNECTOR_FIELD, webSocketConnector);
-        if (readyOnConnect) {
+        if (webSocketClient.getNativeData(IS_CONNECTION_MADE) == null) {
+            if (readyOnConnect) {
+                webSocketConnection.readNextFrame();
+            }
+        } else {
             webSocketConnection.readNextFrame();
         }
+        webSocketClient.addNativeData(IS_CONNECTION_MADE, true);
         countDownLatch.countDown();
         if (!webSocketClient.getType().getName().equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT) &&
                 webSocketClient.getMapValue(CLIENT_ENDPOINT_CONFIG).getMapValue(RETRY_CONFIG) != null) {
-            console.println("Connected to " +  webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
+            webSocketClient.addNativeData(NO_OF_RECONNECT_ATTEMPTS, 0);
+            console.println(CONNECTED_TO + webSocketClient.
+                    getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
         }
         if (webSocketClient.getType().getName().equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT)) {
             if (targetUrls != null) {
-                console.println("Connected to " + targetUrls.get(targetUrlsIndex).toString());
+                console.println(CONNECTED_TO + targetUrls.get(targetUrlsIndex).toString());
+            }
+            if (webSocketClient.getMapValue(CLIENT_ENDPOINT_CONFIG).getMapValue(RETRY_CONFIG) != null) {
+                webSocketClient.addNativeData(NO_OF_RECONNECT_ATTEMPTS, 0);
             }
         }
     }
 
     @Override
     public void onError(Throwable throwable, HttpCarbonResponse response) {
+        console.println("HAnshake" + throwable.getMessage());
         if (response != null) {
             webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD, HttpUtil.createResponseStruct(response));
         }
@@ -137,54 +156,48 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
             isConnectionMade = (boolean) webSocketClient.getNativeData(IS_CONNECTION_MADE);
         }
         MapValueImpl clientConfig = webSocketClient.getMapValue(CLIENT_ENDPOINT_CONFIG);
+        ArrayValue targets = (ArrayValue) webSocketClient.getNativeData(TARGET_URLS);
         if (webSocketClient.getType().getName().equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT) &&
                 !isConnectionMade) {
-            ArrayValue targets = clientConfig.getArrayValue(TARGETS_URLS);
-            int failoverInterval =  getIntegerValue(Long.valueOf(clientConfig.get(FAILOVER_INTEVAL).
+            int failoverInterval = getIntegerValue(Long.valueOf(clientConfig.get(FAILOVER_INTEVAL).
                     toString()));
             int targetsUrlIndex = getIntegerValue(Long.valueOf(webSocketClient.getNativeData(TARGET_URL_INDEX).
                     toString()));
             int size = targets.size();
             if (targetsUrlIndex < size) {
                 webSocketClient.addNativeData(TARGET_URL_INDEX, targetsUrlIndex + 1);
-                CountDownLatch countDownLatch1 = new CountDownLatch(1);
-                waitForIntervalTime(countDownLatch1, failoverInterval);
-                countDownLatch1.countDown();
+                setcountDownLatch(failoverInterval);
                 initialiseWebSocketConnection(targets.get(targetsUrlIndex).toString(), webSocketClient, wsService);
             } else {
-                console.println("Couldn't connect to the one of the server in the targets: " + targets);
+                console.println(STATEMENT_FOR_FAILOVER + targets);
                 WebSocketDispatcher.dispatchError(connectionInfo, throwable);
             }
         } else if (webSocketClient.getType().getName().equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT) &&
                 clientConfig.getMapValue(RETRY_CONFIG) != null && isConnectionMade) {
-            if (!doFailoverClientReconnect(connectionInfo)) {
-                console.println("Attempt maximum retry but couldn't connect to one of the server " +
-                        "in the targets: " + webSocketClient.getNativeData(SUB_TARGET_URLS));
+            if (!reconnectForFailoverClient(connectionInfo)) {
+                console.println(STATEMENT_FOR_FAILOVDER_RECONNECT + webSocketClient.getNativeData(SUB_TARGET_URLS));
                 WebSocketDispatcher.dispatchError(connectionInfo, throwable);
             }
         } else if (webSocketClient.getType().getName().equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT) &&
                 clientConfig.getMapValue(RETRY_CONFIG) == null && isConnectionMade) {
-            int failoverInterval =  getIntegerValue(Long.valueOf(clientConfig.get(FAILOVER_INTEVAL).
+            int failoverInterval = getIntegerValue(Long.valueOf(clientConfig.get(FAILOVER_INTEVAL).
                     toString()));
             int subTargetsUrlIndex = (int) webSocketClient.getNativeData(SUB_TARGET_URLS_INDEX);
             List subTargetUrls = (List) webSocketClient.getNativeData(SUB_TARGET_URLS);
-            int size = subTargetUrls.size();
-            if (subTargetsUrlIndex < size) {
+            if (subTargetsUrlIndex < subTargetUrls.size()) {
                 webSocketClient.addNativeData(SUB_TARGET_URLS_INDEX, subTargetsUrlIndex + 1);
-                CountDownLatch countDownLatch1 = new CountDownLatch(1);
-                waitForIntervalTime(countDownLatch1, failoverInterval);
-                countDownLatch1.countDown();
+                setcountDownLatch(failoverInterval);
                 initialiseWebSocketConnection(subTargetUrls.get(subTargetsUrlIndex).toString(), webSocketClient,
                         wsService);
             } else {
                 WebSocketDispatcher.dispatchError(connectionInfo, throwable);
-                console.println("Couldn't connect to one of the server in the targets: " + subTargetUrls);
+                console.println(STATEMENT_FOR_FAILOVER + targets);
             }
         } else if (!webSocketClient.getType().getName().equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT) &&
                 clientConfig.getMapValue(RETRY_CONFIG) != null) {
             if (!reconnect(connectionInfo)) {
                 WebSocketDispatcher.dispatchError(connectionInfo, throwable);
-                console.println("Attempt maximum retry but couldn't connect to the server: " +
+                console.println(STATEMENT_FOR_RECONNECT +
                         webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
             }
         } else {

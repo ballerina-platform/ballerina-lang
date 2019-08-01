@@ -29,17 +29,20 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.exception.WebSocketException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.ballerinalang.net.http.WebSocketConstants.CONNECTOR_FACTORY;
 import static org.ballerinalang.net.http.WebSocketConstants.FAILOVER_INTEVAL;
 import static org.ballerinalang.net.http.WebSocketConstants.IS_CONNECTION_LOST;
 import static org.ballerinalang.net.http.WebSocketConstants.IS_CONNECTION_MADE;
-import static org.ballerinalang.net.http.WebSocketConstants.RECONNECT_ATTEMPTS;
+import static org.ballerinalang.net.http.WebSocketConstants.NO_OF_RECONNECT_ATTEMPTS;
 import static org.ballerinalang.net.http.WebSocketConstants.RETRY_CONFIG;
 import static org.ballerinalang.net.http.WebSocketConstants.SUB_TARGET_URLS_INDEX;
+import static org.ballerinalang.net.http.WebSocketConstants.TARGET_URLS;
 import static org.ballerinalang.net.http.WebSocketConstants.TARGET_URL_INDEX;
 import static org.ballerinalang.net.http.WebSocketUtil.checkParameter;
 import static org.ballerinalang.net.http.WebSocketUtil.getIntegerValue;
@@ -61,7 +64,7 @@ import static org.ballerinalang.net.http.WebSocketUtil.initialiseWebSocketConnec
                 structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
         ),
         args = {@Argument(name = "config", type = TypeKind.RECORD,
-                structType = "FailoverWebSocketClientEndpointConfig")},
+                structType = "WebSocketFailoverClientEndpointConfig")},
         isPublic = true
 )
 public class Init extends BlockingNativeCallableUnit {
@@ -76,7 +79,7 @@ public class Init extends BlockingNativeCallableUnit {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
         MapValue<String, Object> clientEndpointConfig = (MapValue<String, Object>) webSocketClient.getMapValue(
                 HttpConstants.CLIENT_ENDPOINT_CONFIG);
-        ArrayValue targets = clientEndpointConfig.getArrayValue(WebSocketConstants.TARGETS_URLS);
+        ArrayValue targets = clientEndpointConfig.getArrayValue(TARGET_URLS);
         int failoverInterval =  getIntegerValue(Long.valueOf(clientEndpointConfig.get(FAILOVER_INTEVAL).
                 toString()));
         if (targets.size() == 0) {
@@ -88,13 +91,15 @@ public class Init extends BlockingNativeCallableUnit {
             webSocketClient.getMapValue(HttpConstants.CLIENT_ENDPOINT_CONFIG).put(FAILOVER_INTEVAL, 1000);
         }
         if (clientEndpointConfig.get(RETRY_CONFIG) != null) {
-            webSocketClient.addNativeData(RECONNECT_ATTEMPTS, 0);
+            webSocketClient.addNativeData(NO_OF_RECONNECT_ATTEMPTS, 0);
             checkParameter(webSocketClient);
         }
+        webSocketClient.addNativeData(CONNECTOR_FACTORY, HttpUtil.createHttpWsConnectionFactory());
         webSocketClient.addNativeData(TARGET_URL_INDEX, 0);
         webSocketClient.addNativeData(IS_CONNECTION_LOST, false);
         webSocketClient.addNativeData(SUB_TARGET_URLS_INDEX, 0);
         webSocketClient.addNativeData(IS_CONNECTION_MADE, false);
+        webSocketClient.addNativeData(TARGET_URLS, targets);
         initialiseWebSocketConnection(targets.getString(0), webSocketClient,
                 getWebSocketService(clientEndpointConfig, strand));
     }

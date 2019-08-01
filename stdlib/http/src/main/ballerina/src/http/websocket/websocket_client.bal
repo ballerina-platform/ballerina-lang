@@ -136,13 +136,13 @@ public type WebSocketClientEndpointConfig record {|
 #
 # + maxCount - The maximum number of reconnection attempts that will make before giving up. If 0,
 #                   reconnection attempts will continue to be made forever.
-# + interval - The number of milliseconds to delay before attempting to reconnect.
-# + decay - The rate of increase of the reconnect delay. Allows reconnect attempts to back off when problems
+# + intervalInMillis - The number of milliseconds to delay before attempting to reconnect.
+# + backOffFactor - The rate of increase of the reconnect delay. Allows reconnect attempts to back off when problems
 #                persist.
-# + maxInterval - The maximum number of milliseconds to delay a reconnection attempt.
+# + maxIntervalInMillis - The maximum number of milliseconds to delay a reconnection attempt.
 public type WebSocketRetryConfig record {|
     int maxCount = 0;
-    int interval = 1000;
-    float decay = 1.0;
-    int maxInterval = 30000;
+    int intervalInMillis = 1000;
+    float backOffFactor = 1.0;
+    int maxIntervalInMillis = 30000;
 |};

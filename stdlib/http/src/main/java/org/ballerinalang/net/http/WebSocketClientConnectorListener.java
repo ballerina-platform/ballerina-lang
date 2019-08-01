@@ -29,15 +29,22 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.util.List;
 
 import static org.ballerinalang.net.http.WebSocketConstants.CLIENT_ENDPOINT_CONFIG;
 import static org.ballerinalang.net.http.WebSocketConstants.FAILOVER_WEBSOCKET_CLIENT;
 import static org.ballerinalang.net.http.WebSocketConstants.RETRY_CONFIG;
+import static org.ballerinalang.net.http.WebSocketConstants.STATEMENT_FOR_FAILOVDER_RECONNECT;
+import static org.ballerinalang.net.http.WebSocketConstants.STATEMENT_FOR_FAILOVER;
+import static org.ballerinalang.net.http.WebSocketConstants.STATEMENT_FOR_RECONNECT;
 import static org.ballerinalang.net.http.WebSocketConstants.SUB_TARGET_URLS;
+import static org.ballerinalang.net.http.WebSocketConstants.TARGET_URLS;
 import static org.ballerinalang.net.http.WebSocketUtil.doFailover;
-import static org.ballerinalang.net.http.WebSocketUtil.doFailoverClientReconnect;
 import static org.ballerinalang.net.http.WebSocketUtil.reconnect;
+import static org.ballerinalang.net.http.WebSocketUtil.reconnectForFailoverClient;
+import static org.ballerinalang.net.http.WebSocketUtil.removeUrlInTarget;
 
 /**
  * Ballerina Connector listener for WebSocket.
@@ -86,23 +93,47 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
+        console.println("code" + webSocketCloseMessage.getCloseCode());
         ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
         MapValueImpl clientConfig = webSocketClient.getMapValue(CLIENT_ENDPOINT_CONFIG);
-        if (!webSocketClient.getType().getName().equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT) &&
-                clientConfig.getMapValue(RETRY_CONFIG) != null) {
+        int statusCode = webSocketCloseMessage.getCloseCode();
+        if (!(statusCode == 1006 || statusCode == 1000)  && webSocketClient.getType().getName().
+                equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT)) {
+            removeUrlInTarget(webSocketClient);
+        }
+        if (statusCode == 1006 && !webSocketClient.getType().getName().
+                equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT) && clientConfig.getMapValue(RETRY_CONFIG) != null) {
             if (!reconnect(connectionInfo)) {
-                console.println("Attempt maximum retry but couldn't connect to the server: " +
+                console.println(STATEMENT_FOR_RECONNECT +
                         webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
                 setError(webSocketCloseMessage);
             }
+        }  else if (statusCode != 1006 && !webSocketClient.getType().getName().
+                equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT) && clientConfig.getMapValue(RETRY_CONFIG) != null) {
+            console.println("The given server: " + webSocketClient.
+                    getStringValue(WebSocketConstants.CLIENT_URL_CONFIG) + " is not in the connection state");
+            setError(webSocketCloseMessage);
         } else if (webSocketClient.getType().getName().equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT) &&
                 clientConfig.getMapValue(RETRY_CONFIG) == null) {
-            doFailover(connectionInfo);
+            if (((List) webSocketClient.getNativeData(SUB_TARGET_URLS)).size() == 0) {
+                console.println("All given servers: " +  webSocketClient.getMapValue(CLIENT_ENDPOINT_CONFIG).
+                        getArrayValue(WebSocketConstants.TARGET_URLS) + " are not in the connection state");
+            } else {
+                if (!doFailover(connectionInfo)) {
+                    console.println(STATEMENT_FOR_FAILOVER + clientConfig.getArrayValue(TARGET_URLS));
+                    setError(webSocketCloseMessage);
+                }
+            }
         } else if (webSocketClient.getType().getName().equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT) &&
                 clientConfig.getMapValue(RETRY_CONFIG) != null) {
-            if (!doFailoverClientReconnect(connectionInfo)) {
-                console.println("Attempt maximum retry but couldn't connect to the one of the server " +
-                        "in the targets: " + webSocketClient.getNativeData(SUB_TARGET_URLS));
+            if (!reconnectForFailoverClient(connectionInfo)) {
+                if (((List) webSocketClient.getNativeData(SUB_TARGET_URLS)).size() == 0) {
+                    console.println("All given servers: " +  webSocketClient.getMapValue(CLIENT_ENDPOINT_CONFIG).
+                            getArrayValue(WebSocketConstants.TARGET_URLS) + " are not in the connection state");
+                } else {
+                    console.println(STATEMENT_FOR_FAILOVDER_RECONNECT +
+                            webSocketClient.getNativeData(SUB_TARGET_URLS));
+                }
                 setError(webSocketCloseMessage);
             }
         } else {
@@ -112,23 +143,40 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
 
     @Override
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
-        ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
-        MapValueImpl clientConfig = webSocketClient.getMapValue(CLIENT_ENDPOINT_CONFIG);
-        if (!webSocketClient.getType().getName().equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT) &&
-                clientConfig.getMapValue(RETRY_CONFIG) != null) {
-            if (!reconnect(connectionInfo)) {
-                console.println("Attempt maximum retry but couldn't connect to the server: " +
-                        webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
-                WebSocketDispatcher.dispatchError(connectionInfo, throwable);
-            }
-        } else if (webSocketClient.getType().getName().equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT) &&
-                clientConfig.getMapValue(RETRY_CONFIG) == null) {
-            doFailover(connectionInfo);
-        } else if (webSocketClient.getType().getName().equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT) &&
-                clientConfig.getMapValue(RETRY_CONFIG) != null) {
-            if (!doFailoverClientReconnect(connectionInfo)) {
-                console.println("Attempt maximum retry but couldn't connect to the one of the server " +
-                        "in the targets: " + webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
+        console.println("jdsdsafdsf" + throwable.getMessage());
+        if (throwable instanceof IOException || throwable.getMessage().contains("Unexpected error")) {
+            ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
+            MapValueImpl clientConfig = webSocketClient.getMapValue(CLIENT_ENDPOINT_CONFIG);
+            if (!webSocketClient.getType().getName().equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT) &&
+                    clientConfig.getMapValue(RETRY_CONFIG) != null) {
+                if (!reconnect(connectionInfo)) {
+                    console.println(STATEMENT_FOR_RECONNECT +
+                            webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
+                    WebSocketDispatcher.dispatchError(connectionInfo, throwable);
+                }
+            } else if (webSocketClient.getType().getName().equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT) &&
+                    clientConfig.getMapValue(RETRY_CONFIG) == null) {
+                if (!doFailover(connectionInfo)) {
+                    if (((List) webSocketClient.getNativeData(SUB_TARGET_URLS)).size() == 0) {
+                        console.println("All given servers: " + clientConfig.getArrayValue(TARGET_URLS) +
+                                " are not in the connection state");
+                    }
+                    console.println(STATEMENT_FOR_FAILOVER + clientConfig.getArrayValue(TARGET_URLS));
+                    WebSocketDispatcher.dispatchError(connectionInfo, throwable);
+                }
+            } else if (webSocketClient.getType().getName().equalsIgnoreCase(FAILOVER_WEBSOCKET_CLIENT) &&
+                    clientConfig.getMapValue(RETRY_CONFIG) != null) {
+                if (!reconnectForFailoverClient(connectionInfo)) {
+                    if (((List) webSocketClient.getNativeData(SUB_TARGET_URLS)).size() == 0) {
+                        console.println("All given servers: " + clientConfig.getArrayValue(TARGET_URLS) +
+                                " are not in the connection state");
+                    } else {
+                        console.println(STATEMENT_FOR_FAILOVDER_RECONNECT +
+                                webSocketClient.getNativeData(SUB_TARGET_URLS));
+                    }
+                    WebSocketDispatcher.dispatchError(connectionInfo, throwable);
+                }
+            } else {
                 WebSocketDispatcher.dispatchError(connectionInfo, throwable);
             }
         } else {

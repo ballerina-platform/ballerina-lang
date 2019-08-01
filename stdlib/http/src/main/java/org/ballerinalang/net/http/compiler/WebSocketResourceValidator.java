@@ -29,6 +29,8 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.List;
 
+import static org.ballerinalang.net.http.WebSocketConstants.FULL_FAILOVER_WEBSOCKET_CLIENT_NAME;
+
 /**
  * Service validator for WebSocket.
  */
@@ -189,8 +191,9 @@ public class WebSocketResourceValidator {
         if (paramDetails == null || paramDetails.isEmpty() ||
                 (!isClient && !WebSocketConstants.FULL_WEBSOCKET_CALLER_NAME.equals(
                         paramDetails.get(0).type.toString())) ||
-                (isClient && !WebSocketConstants.FULL_WEBSOCKET_CLIENT_NAME.equals(
-                        paramDetails.get(0).type.toString()))) {
+                (isClient && !(WebSocketConstants.FULL_WEBSOCKET_CLIENT_NAME.equals(
+                        paramDetails.get(0).type.toString())) || (FULL_FAILOVER_WEBSOCKET_CLIENT_NAME.equals(
+                        paramDetails.get(0).type.toString())))) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
                     + resource.getName().getValue() + RESOURCE_IN_SERVICE +
                     ": The first parameter should be an endpoint");

@@ -178,6 +178,13 @@ public class WebSocketCompilationTest {
         BAssertUtil.validateError(compileResult, 0, "Invalid return type: expected error?", 21, 5);
     }
 
+    @Test(description = "Successfully compiling failover WebSocketClientService")
+    public void testSuccessfailoverClient() {
+        CompileResult compileResult = BCompileUtil.compile(TEST_PATH + "success_failover_client.bal");
+
+        Assert.assertEquals(compileResult.toString(), "Compilation Successful");
+    }
+
     private void assertExpectedDiagnosticsLength(CompileResult compileResult, int expectedLength) {
         Assert.assertEquals(compileResult.getDiagnostics().length, expectedLength);
     }

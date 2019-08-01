@@ -49,10 +49,11 @@ public class PushText {
         //TODO : NonBlockingCallback is temporary fix to handle non blocking call
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         try {
+
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             ChannelFuture future = connectionInfo.getWebSocketConnection().pushText(text, finalFrame);
-            WebSocketUtil.handleWebSocketCallback(callback, future, connectionInfo);
+            WebSocketUtil.handleWebSocketCallback(callback, future);
         } catch (Exception e) {
             //TODO remove this call back
             callback.setReturnValues(createWebSocketError(WsConnectionError, e.getMessage()));

@@ -18,16 +18,16 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/io;
 
-final string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
+//final string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
 
 @http:WebSocketServiceConfig {
 }
 service on new http:WebSocketListener(2102) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
-        http:FailoverWebSocketClient wsClientEp = new({ callbackService:
-            failoverClientCallbackService, readyOnConnect: false, targetUrls: ["ws://localhost:8080/websocket",
-            "ws://localhost:15200/websocket", "ws://localhost:15300/websocket"] });
+        http:WebSocketFailoverClient wsClientEp = new({ callbackService:
+            failoverClientCallbackService, readyOnConnect: false, targetUrls: ["ws://localhost:15100/websocket",
+            "ws://localhost:8080/websocket", "ws://localhost:15200/websocket"] });
         wsEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
         wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsEp;
         var returnVal = wsClientEp->ready();
@@ -37,7 +37,7 @@ service on new http:WebSocketListener(2102) {
     }
 
     resource function onText(http:WebSocketCaller wsEp, string text) {
-        http:FailoverWebSocketClient clientEp = getAssociatedClientEndpoint1(wsEp);
+        http:WebSocketFailoverClient clientEp = getAssociatedClientEndpoint1(wsEp);
         io:println(clientEp.isOpen);
         var returnVal = clientEp->pushText(text);
         if (returnVal is http:WebSocketError) {
@@ -46,7 +46,7 @@ service on new http:WebSocketListener(2102) {
     }
 
     resource function onBinary(http:WebSocketCaller wsEp, byte[] data) {
-        http:FailoverWebSocketClient clientEp = getAssociatedClientEndpoint1(wsEp);
+        http:WebSocketFailoverClient clientEp = getAssociatedClientEndpoint1(wsEp);
         var returnVal = clientEp->pushBinary(data);
         if (returnVal is http:WebSocketError) {
             panic <error> returnVal;
@@ -54,7 +54,7 @@ service on new http:WebSocketListener(2102) {
     }
 
     resource function onClose(http:WebSocketCaller wsEp, int statusCode, string reason) {
-        http:FailoverWebSocketClient clientEp = getAssociatedClientEndpoint1(wsEp);
+        http:WebSocketFailoverClient clientEp = getAssociatedClientEndpoint1(wsEp);
         var returnVal = clientEp->close(statusCode, reason);
         if (returnVal is http:WebSocketError) {
             panic <error> returnVal;
@@ -64,7 +64,7 @@ service on new http:WebSocketListener(2102) {
     //This resource gets invoked when an error occurs in the connection.
     resource function onError(http:WebSocketCaller caller, error err) {
 
-        http:FailoverWebSocketClient clientEp =
+        http:WebSocketFailoverClient clientEp =
                         getAssociatedClientEndpoint1(caller);
         var e = clientEp->close(1011, <string>err.detail()["message"]);
         if (e is http:WebSocketError) {
@@ -78,7 +78,7 @@ service on new http:WebSocketListener(2102) {
 }
 
 service failoverClientCallbackService = @http:WebSocketServiceConfig {} service {
-    resource function onText(http:FailoverWebSocketClient wsEp, string text) {
+    resource function onText(http:WebSocketFailoverClient wsEp, string text) {
         http:WebSocketCaller serviceEp = getAssociatedListener1(wsEp);
         var returnVal = serviceEp->pushText(text);
         if (returnVal is http:WebSocketError) {
@@ -86,7 +86,7 @@ service failoverClientCallbackService = @http:WebSocketServiceConfig {} service 
         }
     }
 
-    resource function onBinary(http:FailoverWebSocketClient wsEp, byte[] data) {
+    resource function onBinary(http:WebSocketFailoverClient wsEp, byte[] data) {
         http:WebSocketCaller serviceEp = getAssociatedListener1(wsEp);
         var returnVal = serviceEp->pushBinary(data);
         if (returnVal is http:WebSocketError) {
@@ -94,7 +94,7 @@ service failoverClientCallbackService = @http:WebSocketServiceConfig {} service 
         }
     }
 
-    resource function onClose(http:FailoverWebSocketClient wsEp, int statusCode, string reason) {
+    resource function onClose(http:WebSocketFailoverClient wsEp, int statusCode, string reason) {
         http:WebSocketCaller serviceEp = getAssociatedListener1(wsEp);
         var returnVal = serviceEp->close(statusCode = statusCode, reason = reason);
         if (returnVal is http:WebSocketError) {
@@ -103,7 +103,7 @@ service failoverClientCallbackService = @http:WebSocketServiceConfig {} service 
     }
 
     //This resource gets invoked when an error occurs in the connection.
-    resource function onError(http:FailoverWebSocketClient caller, error err) {
+    resource function onError(http:WebSocketFailoverClient caller, error err) {
 
         http:WebSocketCaller serverEp =
                         getAssociatedListener1(caller);
@@ -119,12 +119,12 @@ service failoverClientCallbackService = @http:WebSocketServiceConfig {} service 
     }
 };
 
-public function getAssociatedClientEndpoint1(http:WebSocketCaller wsServiceEp) returns (http:FailoverWebSocketClient) {
-    var returnVal = <http:FailoverWebSocketClient>wsServiceEp.attributes[ASSOCIATED_CONNECTION];
+public function getAssociatedClientEndpoint1(http:WebSocketCaller wsServiceEp) returns (http:WebSocketFailoverClient) {
+    var returnVal = <http:WebSocketFailoverClient>wsServiceEp.attributes[ASSOCIATED_CONNECTION];
     return returnVal;
 }
 
-public function getAssociatedListener1(http:FailoverWebSocketClient wsClientEp) returns (http:WebSocketCaller) {
+public function getAssociatedListener1(http:WebSocketFailoverClient wsClientEp) returns (http:WebSocketCaller) {
     var returnVal = <http:WebSocketCaller>wsClientEp.attributes[ASSOCIATED_CONNECTION];
     return returnVal;
 }

@@ -23,7 +23,7 @@ service on new http:WebSocketListener(21028) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new("ws://localhost:15300/websocket", { callbackService:
-            retryClientCallbackService, readyOnConnect: false, retryConfig: {interval : 2000}});
+            retryClientCallbackService, readyOnConnect: false, retryConfig: {intervalInMillis : 3000}});
         wsEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
         wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsEp;
         var returnVal = wsClientEp->ready();
@@ -113,12 +113,12 @@ service retryClientCallbackService = @http:WebSocketServiceConfig {} service {
     }
 };
 
-public function getAssociatedClientEndpoint(http:WebSocketCaller wsServiceEp) returns (http:WebSocketClient) {
-    var returnVal = <http:WebSocketClient>wsServiceEp.attributes[ASSOCIATED_CONNECTION];
-    return returnVal;
-}
-
-public function getAssociatedListener(http:WebSocketClient wsClientEp) returns (http:WebSocketCaller) {
-    var returnVal = <http:WebSocketCaller>wsClientEp.attributes[ASSOCIATED_CONNECTION];
-    return returnVal;
-}
+//public function getAssociatedClientEndpoint(http:WebSocketCaller wsServiceEp) returns (http:WebSocketClient) {
+//    var returnVal = <http:WebSocketClient>wsServiceEp.attributes[ASSOCIATED_CONNECTION];
+//    return returnVal;
+//}
+//
+//public function getAssociatedListener(http:WebSocketClient wsClientEp) returns (http:WebSocketCaller) {
+//    var returnVal = <http:WebSocketCaller>wsClientEp.attributes[ASSOCIATED_CONNECTION];
+//    return returnVal;
+//}

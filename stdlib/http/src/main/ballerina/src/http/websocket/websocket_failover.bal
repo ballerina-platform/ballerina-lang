@@ -22,7 +22,7 @@
 # + isOpen - `true` if the connection is open
 # + response - Represents the HTTP response
 # + attributes - A map to store connection related attributes
-public type FailoverWebSocketClient client object {
+public type WebSocketFailoverClient client object {
 
     public string id = "";
     public string negotiatedSubProtocol = "";
@@ -32,12 +32,12 @@ public type FailoverWebSocketClient client object {
     public map<any> attributes = {};
 
     private WebSocketConnector conn = new;
-    private FailoverWebSocketClientEndpointConfig config = {};
+    private WebSocketFailoverClientEndpointConfig config = {};
 
     # Failover caller actions which provides failover capabilities to an webSocket client endpoint.
     #
     # + config - The configurations of the client endpoint associated with this `failover` instance
-    public function __init(FailoverWebSocketClientEndpointConfig? config = ()) {
+    public function __init(WebSocketFailoverClientEndpointConfig? config = ()) {
         self.config = config ?: {};
         self.init();
     }
@@ -121,7 +121,7 @@ public type FailoverWebSocketClient client object {
 # + targetUrls - The set of urls which are used to connect the server.
 # + failoverInterval - The maximum number of milliseconds to delay a failover attempt.
 # + retryConfig - Configurations related to retry
-public type FailoverWebSocketClientEndpointConfig record {|
+public type WebSocketFailoverClientEndpointConfig record {|
     service? callbackService = ();
     string[] subProtocols = [];
     map<string> customHeaders = {};
