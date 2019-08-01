@@ -3504,9 +3504,6 @@ public class BLangPackageBuilder {
     }
 
     void startPatternStreamingInputNode(DiagnosticPos pos) {
-        //TODO: Patterns will be supported after 1.0.0
-        dlog.error(pos, DiagnosticCode.PATTERNS_NOT_SUPPORTED);
-
         PatternStreamingInputNode patternStreamingInputNode = TreeBuilder.createPatternStreamingInputNode();
         ((BLangPatternStreamingInput) patternStreamingInputNode).pos = pos;
         this.patternStreamingInputStack.push(patternStreamingInputNode);
@@ -3696,6 +3693,9 @@ public class BLangPackageBuilder {
 
     void endPatternClause(boolean isForEvents, boolean isWithinClauseAvailable, DiagnosticPos pos,
                           Set<Whitespace> ws) {
+        //TODO: Patterns will be supported after 1.0.0
+        dlog.error(pos, DiagnosticCode.PATTERNS_NOT_SUPPORTED);
+
         PatternClause patternClause = this.patternClauseStack.peek();
         ((BLangPatternClause) patternClause).pos = pos;
         patternClause.addWS(ws);

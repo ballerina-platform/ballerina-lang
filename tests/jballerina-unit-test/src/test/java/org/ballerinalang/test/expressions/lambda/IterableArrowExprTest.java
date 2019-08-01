@@ -21,8 +21,8 @@ package org.ballerinalang.test.expressions.lambda;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -36,7 +36,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.982.0
  */
-@Test(groups = { "brokenOnLangLibChange" })
+@Test
 public class IterableArrowExprTest {
 
     private CompileResult basic, resultNegative;
@@ -52,8 +52,8 @@ public class IterableArrowExprTest {
     public void testMapIterable() {
         BValue[] returns = BRunUtil.invoke(basic, "testMapIterable");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "ANT");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(1), "BEAR");
+        Assert.assertEquals(((BMap) returns[0]).get("a").stringValue(), "ANT");
+        Assert.assertEquals(((BMap) returns[0]).get("b").stringValue(), "BEAR");
     }
 
     @Test(description = "Test arrow expression inside filter() and then inside map() followed by average()")
@@ -67,22 +67,22 @@ public class IterableArrowExprTest {
     public void testTwoLevelMapIterable() {
         BValue[] returns = BRunUtil.invoke(basic, "testTwoLevelMapIterable");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "ANT");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(1), "BEAR");
+        Assert.assertEquals(((BMap) returns[0]).get("a").stringValue(), "ANT");
+        Assert.assertEquals(((BMap) returns[0]).get("b").stringValue(), "BEAR");
     }
 
     @Test(description = "Test arrow expression inside map() then filter() then map()")
     public void testTwoLevelMapIterableWithFilter() {
         BValue[] returns = BRunUtil.invoke(basic, "testTwoLevelMapIterableWithFilter");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "BEAR");
+        Assert.assertEquals(((BMap) returns[0]).get("b").stringValue(), "BEAR");
     }
 
     @Test(description = "Test arrow expression with filter() first and then map")
     public void testFilterThenMap() {
         BValue[] returns = BRunUtil.invoke(basic, "testFilterThenMap");
         Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "ANT MAN");
+        Assert.assertEquals(((BMap) returns[0]).stringValue(), "{\"a\":\"N MAN\"}");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
     }
 
@@ -90,20 +90,21 @@ public class IterableArrowExprTest {
     public void testFilterWithArityOne() {
         BValue[] returns = BRunUtil.invoke(basic, "testFilterWithArityOne");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BValueArray) returns[0]).getString(0), "ANT");
-        Assert.assertEquals(((BValueArray) returns[0]).getString(1), "TIGER");
+        Assert.assertEquals(((BMap) returns[0]).get("a").stringValue(), "ANT");
+        Assert.assertEquals(((BMap) returns[0]).get("c").stringValue(), "TIGER");
     }
 
     @Test(description = "Test arrow expression inside map() which returns a lambda collection")
     public void testIterableReturnLambda() {
         BValue[] returns = BRunUtil.invoke(basic, "testIterableReturnLambda");
         Assert.assertNotNull(returns);
-        Assert.assertTrue(returns[0] instanceof BFunctionPointer);
-        Assert.assertTrue(returns[1] instanceof BFunctionPointer);
-        Assert.assertTrue(returns[2] instanceof BFunctionPointer);
-        Assert.assertEquals(returns[0].getType().toString(), "function (int) returns (boolean)");
-        Assert.assertEquals(returns[1].getType().toString(), "function (int) returns (boolean)");
-        Assert.assertEquals(returns[2].getType().toString(), "function (int) returns (boolean)");
+        BMap res = (BMap) returns[0];
+        Assert.assertTrue(res.get("a") instanceof BFunctionPointer);
+        Assert.assertTrue(res.get("b") instanceof BFunctionPointer);
+        Assert.assertTrue(res.get("c") instanceof BFunctionPointer);
+        Assert.assertEquals(res.get("a").getType().toString(), "function (int) returns (boolean)");
+        Assert.assertEquals(res.get("b").getType().toString(), "function (int) returns (boolean)");
+        Assert.assertEquals(res.get("c").getType().toString(), "function (int) returns (boolean)");
     }
 
     @Test(description = "Test arrow expression inside map() with return string collection and then count()")
@@ -116,25 +117,26 @@ public class IterableArrowExprTest {
     public void testNegativeArrowExpr() {
         int i = 0;
         Assert.assertEquals(resultNegative.getErrorCount(), 10);
+
         BAssertUtil.validateError(resultNegative, i++,
-                "function invocation on type '[string,string]' is not supported", 22, 42);
+                "incompatible types: expected 'int[]', found 'map<string>'", 22, 21);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'int[]', found 'string[]'", 23, 31);
+                "invalid number of parameters used in arrow expression. expected: '1' but found '2'", 23, 34);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid number of parameters used in arrow expression. expected: '1' but found '2'", 24, 34);
+                "incompatible types: expected 'string[]', found 'map<other>'", 23, 24);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid number of parameters used in arrow expression. expected: '1' but found '2'", 26, 30);
+                "invalid number of parameters used in arrow expression. expected: '1' but found '2'", 25, 28);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'string', found 'float'", 27, 19);
+                "incompatible types: expected 'string', found 'int'", 26, 19);
         BAssertUtil.validateError(resultNegative, i++,
-                "undefined function 'float.toUpper'", 28, 40);
+                "undefined function 'toUpperAscii'", 27, 40);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'string', found '(string) collection'", 29, 31);
+                "incompatible types: expected 'string', found 'int'", 27, 19);
         BAssertUtil.validateError(resultNegative, i++,
-                "function invocation on type '[string,string]' is not supported", 37, 75);
+                "incompatible types: expected 'string', found 'string[]'", 28, 19);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'string[]', found 'int'", 39, 20);
+                "incompatible types: expected 'string[]', found 'map<string>'", 34, 24);
         BAssertUtil.validateError(resultNegative, i++,
-                "arrow expression can not be used with 'foreach' iterable", 47, 16);
+                "incompatible types: expected 'string[]', found 'int'", 35, 20);
     }
 }

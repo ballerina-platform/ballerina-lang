@@ -17,15 +17,15 @@ service HelloWorld on new grpc:Listener(9090) {
         resHeader.setEntry("server_header_key", "Response Header value");
 
         // Sends response message with headers.
-        error? err = caller->send(message, resHeader);
-        if (err is error) {
+        grpc:Error? err = caller->send(message, resHeader);
+        if (err is grpc:Error) {
             log:printError("Error from Connector: " + err.reason() + " - "
                                              + <string> err.detail()["message"]);
         }
 
         // Sends `completed` notification to caller.
-        error? result = caller->complete();
-        if (result is error) {
+        grpc:Error? result = caller->complete();
+        if (result is grpc:Error) {
             log:printError("Error in sending completed notification to caller",
                 err = result);
         }

@@ -28,7 +28,7 @@ function testByteArray() returns (string) {
     string statement = "Lion in Town.";
     byte[] bytes = statement.toBytes();
     var addResponse = blockingEp->checkBytes(bytes);
-    if (addResponse is error) {
+    if (addResponse is grpc:Error) {
         return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string> addResponse.detail()["message"]);
     } else {
         byte[] result = [];
@@ -53,7 +53,7 @@ function testLargeByteArray(string filePath) returns (string) {
             return io:sprintf("File read error: %s - %s", err.reason(), <string> err.detail()["message"]);
         }
         var addResponse = blockingEp->checkBytes(bytes);
-        if (addResponse is error) {
+        if (addResponse is grpc:Error) {
             return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string> addResponse.detail()["message"]);
         } else {
             byte[] result = [];
@@ -68,20 +68,24 @@ function testLargeByteArray(string filePath) returns (string) {
 }
 
 public type byteServiceBlockingClient client object {
+
+    *grpc:AbstractClientEndpoint;
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
-        error? result = c.initStub("blocking", ROOT_DESCRIPTOR, getDescriptorMap());
-        if (result is error) {
-            panic result;
+        grpc:Error? result = c.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        if (result is grpc:Error) {
+            error err = result;
+            panic err;
         } else {
             self.grpcClient = c;
         }
     }
 
-    remote function checkBytes (byte[] req, grpc:Headers? headers = ()) returns ([byte[], grpc:Headers]|error) {
+    remote function checkBytes (byte[] req, grpc:Headers? headers = ()) returns ([byte[], grpc:Headers]|grpc:Error) {
         var unionResp = check self.grpcClient->blockingExecute("grpcservices.byteService/checkBytes", req, headers);
         grpc:Headers resHeaders = new;
         anydata result = ();
@@ -90,26 +94,30 @@ public type byteServiceBlockingClient client object {
         if (value is byte[]) {
             return [value, resHeaders];
         } else {
-            return value;
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
         }
     }
 };
 
 public type byteServiceClient client object {
+
+    *grpc:AbstractClientEndpoint;
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
-        error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
-        if (result is error) {
-            panic result;
+        grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        if (result is grpc:Error) {
+            error err = result;
+            panic err;
         } else {
             self.grpcClient = c;
         }
     }
 
-    remote function checkBytes (byte[] req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function checkBytes (byte[] req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.byteService/checkBytes", req, msgListener, headers);
     }
 };

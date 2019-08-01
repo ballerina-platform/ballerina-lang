@@ -32,7 +32,7 @@ function testClientStreaming(string[] args) returns (string) {
     grpc:StreamingClient ep = new;
     // Executing unary non-blocking call registering server message listener.
     var res = helloWorldEp->lotsOfGreetings(HelloWorldMessageListener);
-    if (res is error) {
+    if (res is grpc:Error) {
         io:println("Error from Connector: " + res.reason() + " - " + <string> res.detail()["message"]);
     } else {
         ep = res;
@@ -40,8 +40,8 @@ function testClientStreaming(string[] args) returns (string) {
     io:println("Initialized connection sucessfully.");
 
     foreach var greet in args {
-        error? err = ep->send(greet);
-        if (err is error) {
+        grpc:Error? err = ep->send(greet);
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason() + " - " + <string> err.detail()["message"]);
         }
     }
@@ -85,20 +85,23 @@ service HelloWorldMessageListener = service {
 // Non-blocking client endpoint
 public type HelloWorldClient client object {
 
+    *grpc:AbstractClientEndpoint;
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
-        error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
-        if (result is error) {
-            panic result;
+        grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        if (result is grpc:Error) {
+            error err = result;
+            panic err;
         } else {
             self.grpcClient = c;
         }
     }
 
-    remote function lotsOfGreetings(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|error) {
+    remote function lotsOfGreetings(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|grpc:Error) {
         return self.grpcClient->streamingExecute("grpcservices.HelloWorld7/lotsOfGreetings", msgListener, headers);
     }
 };

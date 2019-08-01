@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
 
-http:Client backendClientEP = new("http://localhost:8080", config = {
+http:Client backendClientEP = new("http://localhost:8080", {
     // Timeout configuration.
     timeoutInMillis: 10000
 
@@ -38,7 +38,7 @@ service timeoutService on new http:Listener(9090) {
         } else {
             http:Response response = new;
             response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
-            string errorMessage = <string> backendResponse.detail().message;
+            string errorMessage = <string> backendResponse.detail()?.message;
             if (errorMessage ==
                   "Idle timeout triggered before initiating inbound response") {
                 response.setPayload(
