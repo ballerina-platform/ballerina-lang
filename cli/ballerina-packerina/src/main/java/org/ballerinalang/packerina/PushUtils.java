@@ -131,7 +131,7 @@ public class PushUtils {
         
                     Optional<RuntimeException> execute = executor.executeMainFunction("module_push", urlWithModulePath,
                             proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword(), accessToken,
-                            moduleBaloFile.get().toAbsolutePath().toString(), outputLogMessage);
+                            orgName, moduleBaloFile.get().toAbsolutePath().toString(), outputLogMessage);
                     if (execute.isPresent()) {
                         String errorMessage = execute.get().getMessage();
                         if (!errorMessage.trim().equals("")) {

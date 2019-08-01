@@ -101,24 +101,30 @@ public class BMainInstance implements BMain {
     @Override
     public void runMain(String balFile, String[] flags, String[] args, Map<String, String> envProperties,
                         String[] clientArgs, LogLeecher[] leechers) throws BallerinaTestException {
+        runMain(balFile, flags, args, envProperties, clientArgs, leechers, balServer.getServerHome());
+    }
+    
+    @Override
+    public void runMain(String balFile, String[] flags, String[] args, Map<String, String> envProperties,
+                        String[] clientArgs, LogLeecher[] leechers, String sourceRoot) throws BallerinaTestException {
         if (balFile == null || balFile.isEmpty()) {
             throw new IllegalArgumentException("Invalid ballerina program file name provided, name - " + balFile);
         }
-
+        
         if (args == null) {
             args = new String[]{};
         }
-
+        
         if (envProperties == null) {
             envProperties = new HashMap<>();
         }
-
+        
         String[] newArgs = ArrayUtils.addAll(flags, balFile);
         newArgs = ArrayUtils.addAll(newArgs, args);
-
+        
         addJavaAgents(envProperties);
-
-        runMain("run", newArgs, envProperties, clientArgs, leechers, balServer.getServerHome());
+        
+        runMain("run", newArgs, envProperties, clientArgs, leechers, sourceRoot);
     }
 
     @Override
