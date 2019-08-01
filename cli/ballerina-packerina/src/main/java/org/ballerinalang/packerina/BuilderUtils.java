@@ -19,6 +19,8 @@ package org.ballerinalang.packerina;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.compiler.plugins.CompilerPlugin;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.testerina.util.TesterinaUtils;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.util.BootstrapRunner;
@@ -34,6 +36,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -53,6 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.BUILD_COMPILED_MODULE;
@@ -64,6 +68,8 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SIDDHI_RUNTIME_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BIR_EXT;
+import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_INSTALL_DIR_PROP;
 
 /**
  * This class provides util methods for building Ballerina programs and packages.
@@ -129,31 +135,44 @@ public class BuilderUtils {
             String balHome = Objects.requireNonNull(System.getProperty("ballerina.home"),
                     "ballerina.home is not set");
 
+            String targetDir = Files.isDirectory(Paths.get(targetPath)) ? targetPath : ".";
+
             BootstrapRunner.createClassLoaders(bLangPackage, Paths.get(balHome).resolve("bir-cache"),
-                    targetDirectory, Optional.of(Paths.get(".")), dumpBIR);
+                    targetDirectory, Optional.of(Paths.get(targetDir)), dumpBIR);
 
             // If package is a ballerina file do not write executables.
-            if (isSingleFile) {
-                return;
-            }
             // Create executable jar files.
-            if (bLangPackage.symbol.entryPointExists) {
+            if (bLangPackage.symbol.entryPointExists && !isSingleFile) {
                 outStream.println();
                 outStream.println("Generating Executables");
                 assembleExecutable(bLangPackage, sourceRootPath);
             } else {
-                throw new BLangCompilerException("package `" + packageName + "` do not have an entry point");
+                if (!isSingleFile) {
+                    throw new BLangCompilerException("package `" + packageName + "` do not have an entry point");
+                }
             }
+    
+            ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
+            processorServiceLoader.forEach(plugin -> {
+                String execJarName;
+                Path execFilePath;
+                if (!isSingleFile) {
+                    execJarName = bLangPackage.packageID.name.value + ProjectDirConstants.EXEC_SUFFIX +
+                                  ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
+                    execFilePath = sourceRootPath
+                            .resolve(ProjectDirConstants.TARGET_DIR_NAME)
+                            .resolve(ProjectDirConstants.BIN_DIR_NAME)
+                            .resolve(execJarName);
+                } else {
+                    execFilePath = sourceRootPath.resolve(packageName.replaceAll(".bal", "") +
+                                                          ProjectDirConstants.BLANG_COMPILED_JAR_EXT);
+                }
+
+                plugin.codeGenerated(bLangPackage.packageID, execFilePath);
+            });
+    
         } catch (IOException e) {
             throw new BLangCompilerException("error invoking jballerina backend", e);
-        }
-
-        if (skiptests) {
-            outStream.println();
-            compiler.write(bLangPackage, targetPath);
-        } else {
-            runTests(compiler, sourceRootPath, Collections.singletonList(bLangPackage));
-            compiler.write(bLangPackage, targetPath);
         }
     }
 
@@ -177,9 +196,9 @@ public class BuilderUtils {
         Compiler compiler = Compiler.getInstance(context);
         List<BLangPackage> packages = compiler.build();
 
-        Path target = prepareTargetDirectory(sourceRootPath);
-        Path jarCache = target.resolve(ProjectDirConstants.CACHES_DIR_NAME)
-                .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
+        prepareTargetDirectory(sourceRootPath);
+        // Path jarCache = target.resolve(ProjectDirConstants.CACHES_DIR_NAME)
+        //        .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
         // TODO fix below properly (add testing as well)
         if (jvmTarget) {
             outStream.println();
@@ -187,16 +206,10 @@ public class BuilderUtils {
             // compiler.write(packages);
             generateModuleArtafacts(packages, context);
 
-            for (BLangPackage bLangPackage : packages) {
-                try {
-                    String balHome = Objects.requireNonNull(System.getProperty("ballerina.home"),
-                            "ballerina.home is not set");
-
-                    BootstrapRunner.createClassLoaders(bLangPackage, Paths.get(balHome).resolve("bir-cache"),
-                            jarCache, Optional.of(jarCache), dumpBir);
-                } catch (IOException e) {
-                    throw new BLangCompilerException("error invoking jballerina backend", e);
-                }
+            try {
+                generateJars(packages, sourceRootPath, dumpBir);
+            } catch (IOException e) {
+                throw new BLangCompilerException("error invoking jballerina backend", e);
             }
 
             // Create executable jar files.
@@ -206,6 +219,20 @@ public class BuilderUtils {
                 outStream.println();
                 outStream.println("Generating executables");
                 entryPackages.forEach(p -> assembleExecutable(p, sourceRootPath));
+            }
+
+            // Run annotation processor codeGenerated phase.
+            ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
+            for (BLangPackage p: packages) {
+                processorServiceLoader.forEach(plugin -> {
+                    String execJarName = p.packageID.name.value + ProjectDirConstants.EXEC_SUFFIX
+                            + ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
+                    Path execFilePath = sourceRootPath
+                            .resolve(ProjectDirConstants.TARGET_DIR_NAME)
+                            .resolve(ProjectDirConstants.BIN_DIR_NAME)
+                            .resolve(execJarName);
+                    plugin.codeGenerated(p.packageID, execFilePath);
+                });
             }
             return;
         }
@@ -238,6 +265,98 @@ public class BuilderUtils {
         packages.forEach(moduleFileWriter::write);
         packages.forEach(birFileWriter::write);
         packages.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));
+    }
+
+    /**
+     * Generate jars for given package.
+     *
+     * @param packages package
+     * @param sourceRoot source root
+     * @param dumpBir Flag indicating to dump the bir
+     * @throws IOException for IO errors
+     */
+    public static void generateJars(List<BLangPackage> packages, Path sourceRoot, boolean dumpBir) throws IOException {
+        // Path target = sourceRoot.resolve(ProjectDirConstants.TARGET_DIR_NAME);
+        // construct BIR cache directories
+        // - Project BIR cache
+        Path projectBIRcache = sourceRoot.resolve(ProjectDirConstants.TARGET_DIR_NAME)
+                .resolve(ProjectDirConstants.CACHES_DIR_NAME)
+                .resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME);
+        // - Home BIR cache
+        Path homeBIRCache = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME);
+        // - System BIR cache
+        Path systemBIRCache = Paths.get(System.getProperty(BALLERINA_INSTALL_DIR_PROP)).resolve("bir-cache");
+
+        // construct JAR cache directories
+        // - Project JAR cache
+        Path projectJARcache = sourceRoot.resolve(ProjectDirConstants.TARGET_DIR_NAME)
+                .resolve(ProjectDirConstants.CACHES_DIR_NAME)
+                .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
+        // - Home JAR cache
+        // Path homeJARCache = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
+
+        for (BLangPackage bpackage : packages) {
+            Path moduleFragment = Paths.get(bpackage.packageID.orgName.value,
+                    bpackage.packageID.name.value, bpackage.packageID.version.value);
+
+            // Iterate the imports and decide where to save.
+            // - If it is a current project we save to Project
+            // - If is is an import we save to Home
+            writeImportJar(bpackage.symbol.imports, sourceRoot, dumpBir,
+                    projectBIRcache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
+            // Generate the jar of the package.
+            Files.createDirectories(projectJARcache.resolve(moduleFragment));
+            Path entryBir = projectBIRcache.resolve(moduleFragment)
+                    .resolve(bpackage.packageID.name.value + ProjectDirConstants.BLANG_COMPILED_PKG_BIR_EXT);
+            Path jarOutput = projectJARcache.resolve(moduleFragment)
+                    .resolve(bpackage.packageID.name.value + ProjectDirConstants.BLANG_COMPILED_JAR_EXT);
+            BootstrapRunner.generateJarBinary(entryBir.toString(), jarOutput.toString(), dumpBir,
+                    projectBIRcache.toString(), homeBIRCache.toString(), systemBIRCache.toString());
+        }
+    }
+
+    private static void writeImportJar(List<BPackageSymbol> imports, Path sourceRoot, boolean dumpBir, String... reps) {
+        for (BPackageSymbol bimport : imports) {
+            PackageID id = bimport.pkgID;
+            Path projectJarCache = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME)
+                    .resolve(id.orgName.value).resolve(id.name.value).resolve(id.version.value);
+            Path homeJarCache = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME)
+                    .resolve(id.orgName.value).resolve(id.name.value).resolve(id.version.value);
+            Path projectBirCache = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME)
+                    .resolve(id.orgName.value).resolve(id.name.value).resolve(id.version.value);
+            Path homeBirCache = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME)
+                    .resolve(id.orgName.value).resolve(id.name.value).resolve(id.version.value);
+
+            try {
+                if (id.orgName.value.equals("ballerina") || id.orgName.value.equals("ballerinax")) {
+                    continue;
+                }
+                Path jarCache;
+                Path birCache;
+                // If the module is part of the project write it to project jar cache check if file exist
+                // If not write it to home jar cache
+                // skip ballerina and ballerinax
+                if (ProjectDirs.isModuleExist(sourceRoot, id.name.value)) {
+                    jarCache = projectJarCache;
+                    birCache = projectBirCache;
+                } else {
+                    jarCache = homeJarCache;
+                    birCache = homeBirCache;
+                }
+                Path jarFile = jarCache.resolve(id.name.value + ProjectDirConstants.BLANG_COMPILED_JAR_EXT);
+                Path birFile = birCache.resolve(id.name.value + BLANG_COMPILED_PKG_BIR_EXT);
+                if (!Files.exists(jarFile)) {
+                    Files.createDirectories(jarCache);
+                    BootstrapRunner.generateJarBinary(birFile.toString(), jarFile.toString(), false,
+                            reps);
+                }
+                writeImportJar(bimport.imports, sourceRoot, dumpBir);
+            } catch (IOException e) {
+                String msg = "error writing the compiled module(jar) of '" +
+                        id.name.value + "' to '" + homeJarCache + "': " + e.getMessage();
+                throw new BLangCompilerException(msg, e);
+            }
+        }
     }
 
     /**
@@ -363,9 +482,15 @@ public class BuilderUtils {
                     .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
             String moduleJarName = bLangPackage.packageID.name.value
                     + ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
+            String execJarName = bLangPackage.packageID.name.value + ProjectDirConstants.EXEC_SUFFIX
+                    + ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
             // Copy the jar from cache to bin directory
-            Path uberJar = bin.resolve(moduleJarName);
-            Path moduleJar = jarCache.resolve(moduleJarName);
+            Path uberJar = bin.resolve(execJarName);
+            Path moduleJar = jarCache
+                    .resolve(bLangPackage.packageID.orgName.value)
+                    .resolve(bLangPackage.packageID.name.value)
+                    .resolve(bLangPackage.packageID.version.value)
+                    .resolve(moduleJarName);
 
             // Check if the package has an entry point.
             if (bLangPackage.symbol.entryPointExists) {
@@ -377,9 +502,9 @@ public class BuilderUtils {
 
                 // Iterate through the imports and copy dependencies.
                 for (BPackageSymbol importz : bLangPackage.symbol.imports) {
-                    Path importJar = jarCache.resolve(importz.pkgID.name.value +
-                            ProjectDirConstants.BLANG_COMPILED_JAR_EXT);
-                    if (Files.exists(importJar)) {
+                    Path importJar = findImportJarPath(importz, project);
+
+                    if (importJar != null && Files.exists(importJar)) {
                         copyFromJarToJar(importJar, uberJar);
                     }
                 }
@@ -392,6 +517,28 @@ public class BuilderUtils {
         } catch (IOException e) {
             throw new BLangCompilerException("Unable to create the executable :" + e.getMessage());
         }
+    }
+
+    private static Path findImportJarPath(BPackageSymbol importz, Path project) {
+        // Get the jar paths
+        PackageID id = importz.pkgID;
+        Path projectJarCache = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME)
+                .resolve(id.orgName.value).resolve(id.name.value).resolve(id.version.value);
+        Path homeJarCache = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME)
+                .resolve(id.orgName.value).resolve(id.name.value).resolve(id.version.value);
+        // Skip ballerina and ballerinax
+        if (id.orgName.value.equals("ballerina") || id.orgName.value.equals("ballerinax")) {
+            return null;
+        }
+        // Look if it is a project module.
+        if (ProjectDirs.isModuleExist(project, id.name.value)) {
+            // If so fetch from project jar cache
+            return projectJarCache.resolve(id.name.value + ProjectDirConstants.BLANG_COMPILED_JAR_EXT);
+        } else {
+            // If not fetch from home jar cache.
+            return homeJarCache.resolve(id.name.value + ProjectDirConstants.BLANG_COMPILED_JAR_EXT);
+        }
+        // return the path
     }
 
 

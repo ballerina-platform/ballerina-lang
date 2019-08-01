@@ -31,9 +31,9 @@ import java.util.Map;
 @Test(groups = "auth-test")
 public class ServiceLevelAuthnTest extends AuthBaseTest {
 
-    private final int servicePort = 9095;
-    private final int servicePortForExpiredCertificateTest = 9099;
-    private final int servicePortForExpiredCertificateTestWithNoExpiryValidation = 9100;
+    private final int servicePort = 20005;
+    private final int servicePortForExpiredCertificateTest = 20009;
+    private final int servicePortForExpiredCertificateTestWithNoExpiryValidation = 20010;
 
     @Test(description = "Authn and authz success test case")
     public void testAuthSuccessWithServiceLevelConfigs() throws Exception {

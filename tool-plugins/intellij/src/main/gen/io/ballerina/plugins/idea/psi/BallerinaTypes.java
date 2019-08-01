@@ -395,8 +395,6 @@ public interface BallerinaTypes {
   IElementType DECREMENT = new BallerinaTokenType("--");
   IElementType DEFAULT = new BallerinaTokenType("default");
   IElementType DEFINITION_REFERENCE = new BallerinaTokenType("DEFINITION_REFERENCE");
-  IElementType DEPRECATED = new BallerinaTokenType("deprecated");
-  IElementType DEPRECATED_TEMPLATE_START = new BallerinaTokenType("DEPRECATED_TEMPLATE_START");
   IElementType DESCENDING = new BallerinaTokenType("descending");
   IElementType DESCRIPTION_SEPARATOR = new BallerinaTokenType("DESCRIPTION_SEPARATOR");
   IElementType DIV = new BallerinaTokenType("/");

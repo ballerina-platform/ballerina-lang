@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.AnnotatableType;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BObjectType;

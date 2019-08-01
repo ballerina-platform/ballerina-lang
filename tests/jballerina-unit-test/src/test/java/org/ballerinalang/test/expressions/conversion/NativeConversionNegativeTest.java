@@ -103,7 +103,7 @@ public class NativeConversionNegativeTest {
         Assert.assertEquals(errorMsg, "'TX[]' value cannot be converted to 'json'");
     }
 
-    @Test(description = "Test passing tainted value with convert", groups = "brokenOnLangLibChange")
+    @Test(description = "Test passing tainted value with convert")
     public void testTaintedValue() {
         Assert.assertEquals(taintCheckResult.getErrorCount(), 1);
         BAssertUtil.validateError(taintCheckResult, 0, "tainted value passed to untainted " +

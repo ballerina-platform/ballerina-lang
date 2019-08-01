@@ -18,9 +18,7 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.crypto.Constants;
@@ -32,11 +30,7 @@ import org.ballerinalang.stdlib.crypto.CryptoUtils;
  * @since 0.990.4
  */
 @BallerinaFunction(orgName = "ballerina", packageName = "crypto", functionName = "decryptAesGcm", isPublic = true)
-public class DecryptAesGcm extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class DecryptAesGcm {
 
     public static Object decryptAesGcm(Strand strand, ArrayValue inputValue, ArrayValue keyValue,
                                        ArrayValue ivValue,  Object padding, long tagSize) {

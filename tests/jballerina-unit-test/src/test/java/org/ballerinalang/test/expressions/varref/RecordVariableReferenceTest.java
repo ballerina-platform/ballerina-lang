@@ -32,8 +32,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.text.MessageFormat;
-
 /**
  * TestCases for Record Variable References.
  *
@@ -70,7 +68,7 @@ public class RecordVariableReferenceTest {
         Assert.assertNull(returns[3]);
     }
 
-    @Test(description = "Test simple record variable definition", groups = { "brokenOnLangLibChange" })
+    @Test(description = "Test simple record variable definition")
     public void testRestParam() {
         BValue[] returns = BRunUtil.invoke(result, "testRestParam");
         Assert.assertEquals(returns.length, 1);
@@ -104,8 +102,7 @@ public class RecordVariableReferenceTest {
         Assert.assertEquals(((BInteger) returns[6]).intValue(), 1990);
     }
 
-    @Test(description = "Test record var ref inside tuple var ref inside record var ref",
-            groups = { "brokenOnLangLibChange" })
+    @Test(description = "Test record var ref inside tuple var ref inside record var ref")
     public void testRecordInsideTupleInsideRecord() {
         BValue[] returns = BRunUtil.invoke(result, "testRecordInsideTupleInsideRecord");
         Assert.assertEquals(returns.length, 3);
@@ -140,9 +137,8 @@ public class RecordVariableReferenceTest {
     @Test(description = "Test record var ref rest parameter types")
     public void testRestParameterType() {
         BValue[] returns = BRunUtil.invoke(result, "testRestParameterType");
-        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
     }
 
     // TODO: Uncomment below tests once record literal is supported with var ref
@@ -189,22 +185,14 @@ public class RecordVariableReferenceTest {
 
     @Test
     public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 21);
         final String undefinedSymbol = "undefined symbol ";
-        final String expectingClosedRecord = "invalid closed record binding pattern on opened record type {0}";
 
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'fName'", 43, 12);
         BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'married'", 43, 19);
-        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'theAge'", 43, 41);
-        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'format'", 43, 49);
-        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'theMap'", 43, 63);
-        BAssertUtil.validateError(resultNegative, ++i,
-                MessageFormat.format(expectingClosedRecord, "'Age'"), 43, 33);
-        BAssertUtil.validateError(resultNegative, ++i,
-                MessageFormat.format(expectingClosedRecord, "'Age'"), 62, 33);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "not enough fields to match to closed record type 'Person'", 69, 5);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'theAge'", 43, 40);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'format'", 43, 48);
+        BAssertUtil.validateError(resultNegative, ++i, undefinedSymbol + "'theMap'", 43, 61);
         BAssertUtil.validateError(resultNegative, ++i, "variable assignment is required", 94, 5);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'Bar', found 'string'", 95, 12);
         BAssertUtil.validateError(resultNegative, ++i,
@@ -229,5 +217,7 @@ public class RecordVariableReferenceTest {
                                   "incompatible types: expected 'map<int>', found 'map<anydata>'", 161, 16);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'map<error>', found 'map'",
                                   164, 16);
+
+        Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 }

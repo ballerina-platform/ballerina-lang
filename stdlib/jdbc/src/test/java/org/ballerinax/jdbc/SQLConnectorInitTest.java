@@ -59,16 +59,14 @@ public class SQLConnectorInitTest {
          Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    //TODO: #16033
-    @Test(groups = "broken")
+    @Test
     public void testConnectorWithDataSourceClass() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testConnectorWithDataSourceClass");
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    //TODO: #16033
-    @Test(groups = "broken")
+    @Test
     public void testConnectorWithDataSourceClassAndProps() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testConnectorWithDataSourceClassAndProps");
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
@@ -82,8 +80,7 @@ public class SQLConnectorInitTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    //TODO: #16033
-    @Test(groups = "broken")
+    @Test
     public void testConnectorWithDataSourceClassURLPriority() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testConnectorWithDataSourceClassURLPriority");
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
@@ -111,11 +108,10 @@ public class SQLConnectorInitTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    //TODO: #16033
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
-                  ".*error in sql connector configuration:Failed to initialize pool: Database "
-                  + "\".*/target/tempdb/NON_EXISTING_DB\" not found.*", groups = "broken")
+                  ".*Error in sql connector configuration: Failed to initialize pool: Database "
+                  + "\".*/target/tempdb/NON_EXISTING_DB\" not found.*")
     public void testConnectionFailure() {
         BRunUtil.invokeFunction(result, "testConnectionFailure");
     }

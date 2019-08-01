@@ -16,9 +16,7 @@
 
 package org.ballerinalang.net.http.actions.httpclient;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
@@ -39,21 +37,6 @@ import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_U
         functionName = "nativeDelete"
 )
 public class Delete extends AbstractHTTPAction {
-
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-        DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
-        // Execute the operation
-        executeNonBlockingAction(dataContext, false);
-    }
-
-    @Override
-    protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
-        HttpCarbonMessage outboundRequestMsg = super.createOutboundRequestMsg(context);
-        outboundRequestMsg.setHttpMethod(HttpConstants.HTTP_METHOD_DELETE);
-        return outboundRequestMsg;
-    }
-
     @SuppressWarnings("unchecked")
     public static Object nativeDelete(Strand strand, ObjectValue httpClient, String path, ObjectValue requestObj) {
         String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);

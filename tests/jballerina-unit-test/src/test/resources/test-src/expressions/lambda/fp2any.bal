@@ -1,7 +1,7 @@
 function test1 () returns (string|error) {
 
     function (string,int) returns (string) fp = function (string a, int b) returns (string){
-                                                     return a + b;
+                                                     return a + b.toString();
                                                  };
     any aValue = fp;
     return test2(aValue);

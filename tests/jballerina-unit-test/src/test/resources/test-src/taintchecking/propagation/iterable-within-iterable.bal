@@ -1,15 +1,12 @@
 record{} globalVar = {};
 
 public function main (string... args) {
-    data.address_components
-    .filter(function (any comp) returns boolean {
-            if comp is record{} {
-                secureFunction("untainted", "untainted");
-                return true;
-            }
-            return false;
+    data.get("address_components")
+    .filter(function (record {| anydata...; |} comp) returns boolean {
+            secureFunction("untainted", "untainted");
+            return true;
         })
-    .foreach(function (record{} k) { globalVar = k;});
+    .forEach(function (record{} k) { globalVar = k;});
 }
 
 function secureFunction (@untainted string secureIn, string insecureIn) {
@@ -22,14 +19,14 @@ string[] types1 = [ "postal_code_suffix" ];
 map<record{}[]> data = {
     "address_components": [
         {
-            long_name: "1823",
-            short_name: "1823",
-            types: types0
+            "long_name": "1823",
+            "short_name": "1823",
+            "types": types0
         },
         {
-            long_name: "CMW",
-            short_name: "CMW",
-            types: types1
+            "long_name": "CMW",
+            "short_name": "CMW",
+            "types": types1
         }
     ]
 };

@@ -117,7 +117,7 @@ public class MatchStructuredRecordPatternsTest {
         Assert.assertEquals(results.getString(++i), msg + "single var : bar2");
     }
 
-    @Test(description = "Test structured pattern runtime matching", groups = "brokenOnJBallerina")
+    @Test(description = "Test structured pattern runtime matching")
     public void testRuntimeCheck() {
         BValue[] returns = BRunUtil.invoke(result, "testRuntimeCheck", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
@@ -181,7 +181,7 @@ public class MatchStructuredRecordPatternsTest {
         Assert.assertEquals(results.getString(++i), msg + "default : true");
     }
 
-    @Test(description = "Test structured pattern match with type guard 3", groups = "brokenOnLangLibChange")
+    @Test(description = "Test structured pattern match with type guard 4")
     public void testStructuredMatchPatternWithTypeGuard4() {
         BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithTypeGuard4", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
@@ -196,7 +196,8 @@ public class MatchStructuredRecordPatternsTest {
         Assert.assertEquals(results.getString(++i), msg + "restparam : var2=true var3=true");
     }
 
-    @Test(description = "Test structured pattern with closed record", groups = "brokenOnJBallerina")
+    // TODO : Syntax used in test case should be invalid per spec. Please refer git issue #16961.
+    @Test(description = "Test structured pattern with closed record")
     public void testClosedRecord() {
         BValue[] returns = BRunUtil.invoke(result, "testClosedRecord", new BValue[]{});
         Assert.assertEquals(returns.length, 1);

@@ -21,6 +21,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinax.jdbc.Constants;
+import org.ballerinax.jdbc.exceptions.ErrorGenerator;
 import org.ballerinax.jdbc.exceptions.PanickingApplicationException;
 import org.ballerinax.jdbc.exceptions.PanickingDatabaseException;
 
@@ -28,8 +29,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Locale;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.sql.XADataSource;
 
@@ -46,7 +48,7 @@ public class SQLDatasource {
     private boolean xaConn;
     private boolean globalDatasource;
     private AtomicInteger clientCounter = new AtomicInteger(0);
-    private Semaphore mutex = new Semaphore(1);
+    private Lock mutex = new ReentrantLock();
     private boolean poolShutdown = false;
 
     public SQLDatasource init(SQLDatasourceParams sqlDatasourceParams) {
@@ -56,13 +58,13 @@ public class SQLDatasource {
         try {
             xaConn = isXADataSource();
         } catch (PanickingDatabaseException e) {
-            throw SQLDatasourceUtils.getSQLDatabaseError(e);
+            throw ErrorGenerator.getSQLDatabaseError(e);
         }
         try (Connection con = getSQLConnection()) {
             databaseProductName = con.getMetaData().getDatabaseProductName().toLowerCase(Locale.ENGLISH);
         } catch (SQLException e) {
-            throw SQLDatasourceUtils
-                    .getSQLDatabaseError(e, "error in get connection: " + Constants.CONNECTOR_NAME + ": ");
+            throw ErrorGenerator
+                    .getSQLDatabaseError(e, "Error while obtaining connection for " + Constants.CONNECTOR_NAME + ", ");
         }
         return this;
     }
@@ -99,7 +101,7 @@ public class SQLDatasource {
         try {
             xaDataSource = hikariDataSource.unwrap(XADataSource.class);
         } catch (SQLException e) {
-            throw new PanickingDatabaseException("error in get distributed data source", e);
+            throw new PanickingDatabaseException("Error while obtaining distributed data source", e);
         }
         return xaDataSource;
     }
@@ -121,7 +123,7 @@ public class SQLDatasource {
         clientCounter.incrementAndGet();
     }
 
-    public void decrementClientCounterAndAttemptPoolShutdown() throws InterruptedException {
+    public void decrementClientCounterAndAttemptPoolShutdown() {
         acquireMutex();
         if (!poolShutdown) {
             if (clientCounter.decrementAndGet() == 0) {
@@ -131,12 +133,12 @@ public class SQLDatasource {
         releaseMutex();
     }
 
-    public void acquireMutex() throws InterruptedException {
-        mutex.acquire();
+    public void releaseMutex() {
+        mutex.unlock();
     }
 
-    public void releaseMutex() {
-        mutex.release();
+    public void acquireMutex() {
+        mutex.lock();
     }
 
     private void buildDataSource(SQLDatasourceParams sqlDatasourceParams) {
@@ -178,25 +180,27 @@ public class SQLDatasource {
                     config.setMaximumPoolSize(maximumPoolSize);
                 }
                 long connectionTimeout = (sqlDatasourceParams.poolOptionsWrapper
-                        .getInt(Constants.Options.CONNECTION_TIMEOUT));
+                        .getInt(Constants.Options.CONNECTION_TIMEOUT_IN_MILLIS));
                 if (connectionTimeout != -1) {
                     config.setConnectionTimeout(connectionTimeout);
                 }
-                long idleTimeout = sqlDatasourceParams.poolOptionsWrapper.getInt(Constants.Options.IDLE_TIMEOUT);
+                long idleTimeout = sqlDatasourceParams.poolOptionsWrapper
+                        .getInt(Constants.Options.IDLE_TIMEOUT_IN_MILLIS);
                 if (idleTimeout != -1) {
                     config.setIdleTimeout(idleTimeout);
                 }
-                int minimumIdle = sqlDatasourceParams.poolOptionsWrapper
-                        .getInt(Constants.Options.MINIMUM_IDLE).intValue();
+                int minimumIdle = sqlDatasourceParams.poolOptionsWrapper.getInt(Constants.Options.MINIMUM_IDLE)
+                        .intValue();
                 if (minimumIdle != -1) {
                     config.setMinimumIdle(minimumIdle);
                 }
-                long maxLifetime = (sqlDatasourceParams.poolOptionsWrapper.getInt(Constants.Options.MAX_LIFE_TIME));
+                long maxLifetime = (sqlDatasourceParams.poolOptionsWrapper
+                        .getInt(Constants.Options.MAX_LIFETIME_IN_MILLIS));
                 if (maxLifetime != -1) {
                     config.setMaxLifetime(maxLifetime);
                 }
                 long validationTimeout = sqlDatasourceParams.poolOptionsWrapper
-                        .getInt(Constants.Options.VALIDATION_TIMEOUT);
+                        .getInt(Constants.Options.VALIDATION_TIMEOUT_IN_MILLIS);
                 if (validationTimeout != -1) {
                     config.setValidationTimeout(validationTimeout);
                 }
@@ -210,18 +214,45 @@ public class SQLDatasource {
                     if (SQLDatasourceUtils.isSupportedDbOptionType(value)) {
                         config.addDataSourceProperty(key, value);
                     } else {
-                        throw SQLDatasourceUtils.getSQLApplicationError("Unsupported type for the db option: " + key);
+                        throw ErrorGenerator.getSQLApplicationError("Unsupported type " + key
+                                + " for the db option");
                     }
                 });
             }
+            // Clarification on behavior with parameters.
+            // 1. Adding an invalid param in the JDBC URL. This will result in an error getting returned
+            //    eg: jdbc:Client testDB = new({
+            //        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT;INVALID_PARAM=-1",
+            //        username: "SA",
+            //        password: ""
+            //    });
+            // 2. Providing an invalid param with dataSourceClassName provided. This will result in an error
+            // returned because when hikaricp tries to call setINVALID_PARAM method on the given datasource
+            // class name, it will fail since there is no such method
+            // eg: jdbc:Client testDB = new({
+            //        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+            //        username: "SA",
+            //        password: "",
+            //        poolOptions: { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" },
+            //        dbOptions: { "INVALID_PARAM": -1 }
+            //    });
+            // 3. Providing an invalid param WITHOUT dataSourceClassName provided. This may not return any error.
+            // Because this will result in the INVALID_PARAM being passed to Driver.Connect which may not recognize
+            // it as an invalid parameter.
+            // eg: jdbc:Client testDB = new({
+            //        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
+            //        username: "SA",
+            //        password: "",
+            //        dbOptions: { "INVALID_PARAM": -1 }
+            //    });
             hikariDataSource = new HikariDataSource(config);
             Runtime.getRuntime().addShutdownHook(new Thread(this::closeConnectionPool));
         } catch (Throwable t) {
-            String message = "error in sql connector configuration:" + t.getMessage();
+            String message = "Error in sql connector configuration: " + t.getMessage();
             if (t.getCause() != null) {
                 message += ":" + t.getCause().getMessage();
             }
-            throw SQLDatasourceUtils.getSQLApplicationError(message);
+            throw ErrorGenerator.getSQLApplicationError(message);
         }
     }
 
@@ -239,7 +270,8 @@ public class SQLDatasource {
                     xaDataSource = Constants.XADataSources.MYSQL_6_XA_DATASOURCE;
                 }
             } catch (SQLException e) {
-                throw new PanickingDatabaseException("error in get connection: " + Constants.CONNECTOR_NAME + ": ", e);
+                throw new PanickingDatabaseException("Error while obtaining the connection for "
+                        + Constants.CONNECTOR_NAME + ": ", e);
             }
             break;
         case Constants.DBTypes.SQLSERVER:
@@ -275,7 +307,7 @@ public class SQLDatasource {
             xaDataSource = Constants.XADataSources.DERBY_FILE_XA_DATASOURCE;
             break;
         default:
-            throw new PanickingApplicationException("unknown database type used for xa connection : " + dbType);
+            throw new PanickingApplicationException("Unknown database type " + dbType + " used for xa connection");
         }
         return xaDataSource;
     }
@@ -284,14 +316,14 @@ public class SQLDatasource {
         try {
             return hikariDataSource.isWrapperFor(XADataSource.class);
         } catch (SQLException e) {
-            throw new PanickingDatabaseException("error in check distributed data source: ", e);
+            throw new PanickingDatabaseException("Error while checking distributed data source: ", e);
         }
     }
 
     /**
      * This class encapsulates the parameters required for the initialization of {@code SQLDatasource} class.
      */
-    static class SQLDatasourceParams {
+    public static class SQLDatasourceParams {
         private PoolOptionsWrapper poolOptionsWrapper;
         private String jdbcUrl;
         private String dbType;

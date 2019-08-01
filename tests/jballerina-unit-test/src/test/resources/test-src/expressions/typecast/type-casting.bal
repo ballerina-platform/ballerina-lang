@@ -64,7 +64,7 @@ function booleantostring(boolean value) returns (string) {
 
 function booleanappendtostring(boolean value) returns (string) {
     string result;
-    result = value + "-append-" + value;
+    result = value.toString() + "-append-" + value.toString();
     return result;
 }
 
@@ -225,13 +225,6 @@ function testIncompatibleJsonToFloat() returns float|error {
     return value;
 }
 
-//function testIncompatibleJsonToBoolean() returns boolean|error {
-//    json j = "hello";
-//    boolean value;
-//    value = check boolean.convert(j);
-//    return value;
-//}
-
 type Address record {
     string city;
     string country = "";
@@ -250,9 +243,6 @@ function testNullJsonToInt() returns int {
     value = <int>j;
     return value;
 }
-
-
-
 
 function testNullJsonToFloat() returns float {
     json j = {};

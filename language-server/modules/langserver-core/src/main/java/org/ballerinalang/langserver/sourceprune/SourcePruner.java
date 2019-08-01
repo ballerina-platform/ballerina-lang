@@ -38,6 +38,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.langserver.util.TokensUtil.searchTokenAtCursor;
+
 /**
  * Source Pruner utility class which used to prune the invalid sources.
  *
@@ -71,32 +73,6 @@ public class SourcePruner {
                 BallerinaParser.FOREACH, BallerinaParser.WORKER
         );
     }
-    /**
-     * Search the token at a given cursor position.
-     *
-     * @param tokenList List of tokens in the current compilation unit's source
-     * @param cLine     Cursor line
-     * @param cCol      cursor column
-     * @return {@link Optional}
-     */
-    public static Optional<Token> searchTokenAtCursor(List<Token> tokenList, int cLine, int cCol) {
-        if (tokenList.isEmpty()) {
-            return Optional.empty();
-        }
-        int tokenIndex = tokenList.size() / 2;
-
-        TokenPosition position = locateCursorAtToken(tokenList.get(tokenIndex), cLine, cCol);
-
-        switch (position) {
-            case ON:
-                // found the token and return it
-                return Optional.ofNullable(tokenList.get(tokenIndex));
-            case LEFT:
-                return searchTokenAtCursor(tokenList.subList(0, tokenIndex), cLine, cCol);
-            default:
-                return searchTokenAtCursor(tokenList.subList(tokenIndex + 1, tokenList.size()), cLine, cCol);
-        }
-    }
 
     /**
      * Prune source.
@@ -119,16 +95,18 @@ public class SourcePruner {
         String documentContent = documentManager.getFileContent(path);
 
         // Execute Ballerina Parser
-        BallerinaParser parser = CommonUtil.prepareParser(documentContent, true);
-        parser.removeErrorListeners();
+        BallerinaParser parser = CommonUtil.prepareParser(documentContent);
         parser.compilationUnit();
 
         // Process tokens
         TokenStream tokenStream = parser.getTokenStream();
         List<Token> tokenList = new ArrayList<>(((CommonTokenStream) tokenStream).getTokens());
         Optional<Token> tokenAtCursor = searchTokenAtCursor(tokenList, cursorPosition.getLine(),
-                                                            cursorPosition.getCharacter());
-
+                                                            cursorPosition.getCharacter(), false);
+        if (tokenAtCursor.isPresent() && tokenAtCursor.get().getText().startsWith("//")) {
+            lsContext.put(DocumentServiceKeys.TERMINATE_OPERATION_KEY, true);
+            return;
+        }
         tokenAtCursor.ifPresent(token -> 
                 lsContext.put(SourcePruneKeys.CURSOR_TOKEN_INDEX_KEY, tokenList.indexOf(token)));
         lsContext.put(SourcePruneKeys.TOKEN_LIST_KEY, tokenList);
@@ -162,26 +140,6 @@ public class SourcePruner {
         // Update document manager
         documentManager.setPrunedContent(path, tokenStream.getText());
     }
-
-    private static TokenPosition locateCursorAtToken(Token token, int cLine, int cCol) {
-        int tokenLine = token.getLine() - 1;
-        int tokenStartCol = token.getCharPositionInLine();
-        int tokenEndCol = tokenStartCol +
-                ((token.getText().equals("\r\n") || token.getText().equals("\n")) ? 0 : token.getText().length());
-        
-        /*
-        Token which is considered as the token at cursor is the token immediate before the cursor,
-         where its end column is cursor column 
-         */
-        if (tokenLine == cLine && tokenStartCol < cCol && tokenEndCol >= cCol
-                && token.getType() != BallerinaParser.NEW_LINE) {
-            return TokenPosition.ON;
-        } else if (cLine > tokenLine || (tokenLine == cLine && cCol > tokenEndCol)) {
-            return TokenPosition.RIGHT;
-        } else {
-            return TokenPosition.LEFT;
-        }
-    }
     
     private static SourcePruneContext getContext() {
         SourcePruneContext context = new SourcePruneContext();
@@ -198,11 +156,5 @@ public class SourcePruner {
         context.put(SourcePruneKeys.BLOCK_REMOVE_KW_TERMINALS_KEY, BLOCK_REMOVE_KW_TERMINALS);
         
         return context;
-    }
-
-    private enum TokenPosition {
-        LEFT,
-        ON,
-        RIGHT
     }
 }

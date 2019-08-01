@@ -51,8 +51,8 @@ public type Client client object {
     # + payload - Request message. Message type varies with remote service method parameter.
     # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - Returns response message and headers if executes successfully, error otherwise.
-    public remote function blockingExecute(string methodID, any payload, Headers? headers = ())
-                               returns ([any, Headers]|error) = external;
+    public remote function blockingExecute(string methodID, anydata payload, Headers? headers = ())
+                               returns ([anydata, Headers]|error) = external;
 
     # Calls when executing non-blocking call with gRPC service.
     #
@@ -61,7 +61,7 @@ public type Client client object {
     # + listenerService - Call back listener service. This service listens the response message from service.
     # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - Returns an error if encounters an error while sending the request, returns nil otherwise.
-    public remote function nonBlockingExecute(string methodID, any payload, service listenerService,
+    public remote function nonBlockingExecute(string methodID, anydata payload, service listenerService,
                                               Headers? headers = ()) returns error? = external;
 
 
@@ -77,7 +77,7 @@ public type Client client object {
 
 # Represents client endpoint configuration.
 #
-# + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
+# + timeoutInMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
 # + httpVersion - The HTTP version understood by the client
 # + forwarded - The choice of setting `forwarded`/`x-forwarded` header
 # + proxy - Proxy server related options
@@ -85,7 +85,7 @@ public type Client client object {
 # + secureSocket - SSL/TLS related options
 # + compression - Specifies the way of handling compression (`accept-encoding`) header
 public type ClientEndpointConfig record {|
-    int timeoutMillis = 60000;
+    int timeoutInMillis = 60000;
     string httpVersion = "2.0";
     string forwarded = "disable";
     ProxyConfig? proxy = ();

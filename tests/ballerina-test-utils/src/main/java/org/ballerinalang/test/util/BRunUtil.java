@@ -22,14 +22,15 @@ import org.ballerinalang.bre.bvm.BVMExecutor;
 import org.ballerinalang.bre.old.WorkerExecutionContext;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.DecimalValueKind;
-import org.ballerinalang.jvm.Scheduler;
-import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.commons.ArrayState;
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -54,6 +55,7 @@ import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
+import org.ballerinalang.model.types.BServiceType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTableType;
@@ -288,8 +290,18 @@ public class BRunUtil {
                 paramTypes[i] = String.class;
             } else if (arg instanceof ArrayValue) {
                 paramTypes[i] = ArrayValue.class;
+            } else if (arg instanceof Integer) {
+                paramTypes[i] = Long.class;
+            } else if (arg instanceof Float) {
+                paramTypes[i] = Double.class;
+            } else if (arg instanceof Double) {
+                paramTypes[i] = Double.class;
             } else if (arg instanceof Long) {
                 paramTypes[i] = Long.class;
+            } else if (arg instanceof Boolean) {
+                paramTypes[i] = Boolean.class;
+            } else if (arg instanceof MapValue) {
+                paramTypes[i] = MapValue.class;
             } else {
                 // This is done temporarily, until blocks are added here for all possible cases.
                 throw new RuntimeException("unknown param type: " + arg.getClass());
@@ -1082,6 +1094,10 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.HANDLE_TAG:
                 bvmValue = new BHandleValue(((HandleValue) value).getValue());
                 break;
+            case org.ballerinalang.jvm.types.TypeTags.SERVICE_TAG:
+                org.ballerinalang.jvm.types.BObjectType bObjectType = ((AbstractObjectValue) value).getType();
+                bvmValue = new BMap(getBVMType(bObjectType, new Stack<>()));
+                break;
             default:
                 throw new RuntimeException("Function invocation result for type '" + type + "' is not supported");
         }
@@ -1206,6 +1222,8 @@ public class BRunUtil {
                 return new BFunctionType(bParamTypes, new BType[]{bRetType});
             case org.ballerinalang.jvm.types.TypeTags.HANDLE_TAG:
                 return BTypes.typeHandle;
+            case org.ballerinalang.jvm.types.TypeTags.SERVICE_TAG:
+                return new BServiceType(null, jvmType.getName(), null, 0);
             default:
                 throw new RuntimeException("Unsupported jvm type: '" + jvmType + "' ");
         }

@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
+import org.wso2.ballerinalang.util.RepoUtils;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.IOException;
@@ -64,13 +65,15 @@ public class PathConverter implements Converter<Path> {
     public Stream<Path> getLatestVersion(Path path, PackageID packageID) {
         if (Files.isDirectory(path)) {
             try {
-                List<Path> pathList = Files.list(path)
-                                           .map(SortablePath::new)
-                                           .filter(SortablePath::valid)
-                                           .sorted(Comparator.reverseOrder())
-                                           .limit(1)
-                                           .map(SortablePath::getPath)
-                                           .collect(Collectors.toList());
+                List<Path> pathList;
+                try (Stream<Path> stream = Files.list(path)) {
+                    pathList = stream.map(SortablePath::new)
+                            .filter(SortablePath::valid)
+                            .sorted(Comparator.reverseOrder())
+                            .limit(1)
+                            .map(SortablePath::getPath)
+                            .collect(Collectors.toList());
+                }
                 if (packageID != null) {
                     if (packageID.version.value.isEmpty() && !packageID.orgName.equals(Names.BUILTIN_ORG)
                             && !packageID.orgName.equals(Names.ANON_ORG) && pathList.size() > 0) {
@@ -123,12 +126,13 @@ public class PathConverter implements Converter<Path> {
             pkgId.version = new Name(manifest.getProject().getVersion());
         }
     
-        if (!ProjectDirs.isProject(root) && Files.isRegularFile(path)) {
-            return Stream.of(new FileSystemSourceInput(path, root.resolve(Paths.get(pkgId.name.value))));
+        if ((!ProjectDirs.isProject(root) || RepoUtils.isBallerinaStandaloneFile(path))
+                && Files.isRegularFile(path)) {
+            return Stream.of(new FileSystemSourceInput(path, root.resolve(pkgId.name.value)));
         } else if (Files.isRegularFile(path)) {
             return Stream.of(new FileSystemSourceInput(path,
                              root.resolve(ProjectDirConstants.SOURCE_DIR_NAME)
-                                 .resolve(Paths.get(pkgId.name.value))));
+                                 .resolve(pkgId.name.value)));
         } else {
             return Stream.of();
         }

@@ -272,40 +272,29 @@ public class RecordVariableDefinitionTest {
     public void testRecordVariableWithOnlyRestParam() {
         BValue[] returns = BRunUtil.invoke(result, "testRecordVariableWithOnlyRestParam");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John\", \"age\":{age:30, format:\"YY\", " +
-                "year:1990}, \"married\":true, \"work\":\"SE\"}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John\", \"age\":{\"age\":30, \"format\":\"YY\", " +
+                "\"year\":1990}, \"married\":true, \"work\":\"SE\"}");
     }
 
-    @Test(description = "Test record variables rest param types", groups = "brokenOnJBallerina")
+    @Test(description = "Test record variables rest param types")
     public void testRestParameterType() {
         BValue[] returns = BRunUtil.invoke(result, "testRestParameterType");
-        Assert.assertEquals(returns.length, 7);
+        Assert.assertEquals(returns.length, 5);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[5]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[6]).booleanValue());
     }
 
     @Test
     public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 19);
         String redeclaredSymbol = "redeclared symbol ";
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fName'", 37, 26);
         BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fiName'", 40, 36);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid closed record binding pattern on opened record type 'Person'", 54, 12);
-        BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'Person', found 'PersonWithAge'", 62, 37);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "invalid closed record binding pattern on opened record type 'Person'", 78, 12);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "not enough fields to match to closed record type 'ClosedFoo'", 81, 15);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "not enough fields to match to closed record type 'ClosedBar'", 82, 28);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'int'", 95, 13);
         BAssertUtil.validateError(resultNegative, ++i,
@@ -330,5 +319,6 @@ public class RecordVariableDefinitionTest {
                 "underscore is not allowed here", 157, 19);
         BAssertUtil.validateError(resultNegative, ++i,
                 "no new variables on left side", 158, 19);
+        Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 }

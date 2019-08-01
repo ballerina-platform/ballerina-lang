@@ -16,9 +16,9 @@
 
 import ballerina/auth;
 import ballerina/http;
+import ballerina/internal;
 import ballerina/mime;
 import ballerina/runtime;
-import ballerina/internal;
 
 # Represents inbound OAuth2 provider, which calls the introspection server and validate the received credentials.
 #
@@ -32,7 +32,7 @@ public type InboundOAuth2Provider object {
     public string? tokenTypeHint;
 
     public function __init(IntrospectionServerConfig config) {
-        self.tokenTypeHint = config["tokenTypeHint"];
+        self.tokenTypeHint = config?.tokenTypeHint;
         self.introspectionClient = new(config.url, config.clientConfig);
     }
 
@@ -75,12 +75,8 @@ public type InboundOAuth2Provider object {
         }
 
         if (authenticated) {
-            runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-            if (principal is runtime:Principal) {
-                principal.userId = username;
-                principal.username = username;
-                principal.scopes = getScopes(scopes);
-            }
+            auth:setAuthenticationContext("oauth2", credential);
+            setPrincipal(username, scopes);
         }
         return authenticated;
     }
@@ -105,3 +101,12 @@ public type IntrospectionServerConfig record {|
     string tokenTypeHint?;
     http:ClientEndpointConfig clientConfig = {};
 |};
+
+function setPrincipal(string username, string scopes) {
+    runtime:Principal? principal = runtime:getInvocationContext()?.principal;
+    if (principal is runtime:Principal) {
+        principal.userId = username;
+        principal.username = username;
+        principal.scopes = getScopes(scopes);
+    }
+}

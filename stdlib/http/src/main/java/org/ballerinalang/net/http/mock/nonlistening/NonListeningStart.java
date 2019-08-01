@@ -18,8 +18,7 @@
 
 package org.ballerinalang.net.http.mock.nonlistening;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -44,16 +43,11 @@ import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONFIG;
         isPublic = true
 )
 public class NonListeningStart extends org.ballerinalang.net.http.serviceendpoint.Start {
-
-    @Override
-    public void execute(Context context) {
-        // don't want to open a port to listen, hence nothing to do
-    }
-
-    public static void start(Strand strand, ObjectValue listener) {
+    public static Object start(Strand strand, ObjectValue listener) {
         HTTPServicesRegistry httpServicesRegistry = getHttpServicesRegistry(listener);
         MockHTTPConnectorListener httpListener = MockHTTPConnectorListener.getInstance();
         httpListener.setHttpServicesRegistry(((Long) listener.get(HttpConstants.ENDPOINT_CONFIG_PORT)).intValue(),
                                              httpServicesRegistry, listener.getMapValue(SERVICE_ENDPOINT_CONFIG));
+        return null;
     }
 }

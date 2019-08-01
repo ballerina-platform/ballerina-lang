@@ -18,9 +18,7 @@
 
 package org.ballerinalang.stdlib.encoding.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.encoding.EncodingUtil;
@@ -34,18 +32,14 @@ import org.ballerinalang.stdlib.encoding.EncodingUtil;
         orgName = "ballerina", packageName = "encoding",
         functionName = "decodeHex", isPublic = true
 )
-public class DecodeHex extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class DecodeHex {
 
     public static Object decodeHex(Strand strand, String input) {
         try {
             byte[] output = EncodingUtil.decodeHex(input);
             return new ArrayValue(output);
         } catch (IllegalArgumentException e) {
-            return EncodingUtil.createEncodingError("Input is not a valid Hex value");
+            return EncodingUtil.createError("Input is not a valid Hex value");
         }
     }
 }

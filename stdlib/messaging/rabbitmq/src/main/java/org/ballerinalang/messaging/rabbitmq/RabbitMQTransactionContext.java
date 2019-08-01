@@ -19,10 +19,14 @@
 package org.ballerinalang.messaging.rabbitmq;
 
 import com.rabbitmq.client.Channel;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.transactions.BallerinaTransactionContext;
+import org.ballerinalang.jvm.transactions.TransactionLocalContext;
+import org.ballerinalang.jvm.transactions.TransactionResourceManager;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.util.transactions.BallerinaTransactionContext;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import javax.transaction.xa.XAResource;
 
@@ -33,15 +37,17 @@ import javax.transaction.xa.XAResource;
  */
 public class RabbitMQTransactionContext implements BallerinaTransactionContext {
     private Channel channel;
+    private String connectorId;
 
     /**
      * Initializes the rabbitmq transaction context.
      *
      * @param channelObject RabbitMQ Channel object.
-     * @param connectorId Connector ID.
+     * @param connectorId   Connector ID.
      */
     public RabbitMQTransactionContext(ObjectValue channelObject, String connectorId) {
         this.channel = (Channel) channelObject.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
+        this.connectorId = connectorId;
     }
 
     @Override
@@ -78,8 +84,23 @@ public class RabbitMQTransactionContext implements BallerinaTransactionContext {
 
     /**
      * Handles the transaction block if the context is in transaction.
+     *
+     * @param strand Strand.
      */
-    public void handleTransactionBlock() {
-     // TODO: Transaction handling logic
+    public void handleTransactionBlock(Strand strand) {
+        TransactionLocalContext transactionLocalContext = strand.getLocalTransactionContext();
+        BallerinaTransactionContext txContext = transactionLocalContext.getTransactionContext(connectorId);
+        if (Objects.isNull(txContext)) {
+            try {
+                channel.txSelect();
+            } catch (IOException exception) {
+                throw new RabbitMQConnectorException("I/O Error occurred while initiating the transaction."
+                        + exception.getMessage(), exception);
+            }
+            transactionLocalContext.registerTransactionContext(connectorId, this);
+            String globalTxId = transactionLocalContext.getGlobalTransactionId();
+            String currentTxBlockId = transactionLocalContext.getCurrentTransactionBlockId();
+            TransactionResourceManager.getInstance().register(globalTxId, currentTxBlockId, this);
+        }
     }
 }

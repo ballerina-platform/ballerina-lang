@@ -19,9 +19,7 @@
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.connection;
 
 import com.rabbitmq.client.Connection;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.util.ConnectionUtils;
@@ -43,18 +41,17 @@ import org.ballerinalang.natives.annotations.Receiver;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class AbortConnection extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class AbortConnection {
 
     public static Object abortConnection(Strand strand, ObjectValue connectionObjectValue, Object closeCode,
-                                         Object closeMessage, Object timeout) {
+                                         Object closeMessage, Object timeoutInMillis) {
         Connection connection = (Connection) connectionObjectValue.
                 getNativeData(RabbitMQConstants.CONNECTION_NATIVE_OBJECT);
-        ConnectionUtils.handleAbortConnection(connection, closeCode, closeMessage, timeout);
+        ConnectionUtils.handleAbortConnection(connection, closeCode, closeMessage, timeoutInMillis);
         connectionObjectValue.addNativeData(RabbitMQConstants.CONNECTION_NATIVE_OBJECT, null);
         return null;
+    }
+
+    private AbortConnection() {
     }
 }

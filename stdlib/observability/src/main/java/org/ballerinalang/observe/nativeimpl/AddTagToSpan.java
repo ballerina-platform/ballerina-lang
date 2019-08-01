@@ -22,7 +22,7 @@ package org.ballerinalang.observe.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -58,7 +58,7 @@ public class AddTagToSpan extends BlockingNativeCallableUnit {
 //        }
     }
 
-    public static Object addTagToSpan(Strand strand, String tagKey, String tagValue, int spanId) {
+    public static Object addTagToSpan(Strand strand, String tagKey, String tagValue, long spanId) {
         boolean tagAdded = OpenTracerBallerinaWrapper.getInstance().addTag(tagKey, tagValue, spanId, strand);
 
         if (tagAdded) {

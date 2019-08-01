@@ -65,6 +65,13 @@ public class BallerinaErrors {
         return new ErrorValue(reason, detailMap);
     }
 
+    public static ErrorValue createError(Throwable error) {
+        if (error instanceof ErrorValue) {
+            return (ErrorValue) error;
+        }
+        return createError(error.getMessage());
+    }
+
     public static ErrorValue createConversionError(Object inputValue, BType targetType) {
         return createError(BallerinaErrorReasons.CONVERSION_ERROR,
                            BLangExceptionHelper
@@ -106,6 +113,13 @@ public class BallerinaErrors {
 
     public static ErrorValue createUsageError(String errorMsg) {
         return createError("ballerina: " + errorMsg);
+    }
+
+    public static Object handleResourceError(Object returnValue) {
+        if (returnValue instanceof ErrorValue) {
+            throw (ErrorValue) returnValue;
+        }
+        return returnValue;
     }
 
     public static ArrayValue generateCallStack() {

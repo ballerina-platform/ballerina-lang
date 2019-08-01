@@ -52,7 +52,9 @@ public type MockListener object {
 
     public function register(service s, string? name) returns error? = external;
 
-    public function start() = external;
+    public function start() returns error? = external;
 
     public function stop() = external;
+
+    public function detach(service s) returns error? = external;
 };

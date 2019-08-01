@@ -18,10 +18,10 @@
 package org.ballerinalang.net.grpc.nativeimpl.client;
 
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -61,13 +61,9 @@ import static org.ballerinalang.net.grpc.Status.Code.INTERNAL;
 )
 public class StreamingExecute extends AbstractExecute {
 
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-    }
-
     @SuppressWarnings("unchecked")
     public static Object streamingExecute(Strand strand, ObjectValue clientEndpoint, String methodName,
-                                           ObjectValue callbackService, ObjectValue headerValues) {
+                                           ObjectValue callbackService, Object headerValues) {
         if (clientEndpoint == null) {
             return notifyErrorReply(INTERNAL.name(), "Error while getting connector. gRPC Client connector " +
                     "is not initialized properly");
@@ -100,13 +96,13 @@ public class StreamingExecute extends AbstractExecute {
         if (connectionStub instanceof NonBlockingStub) {
             NonBlockingStub nonBlockingStub = (NonBlockingStub) connectionStub;
             HttpHeaders headers = null;
-            if (headerValues != null) {
-                headers = (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS);
+            if (headerValues != null && (TypeChecker.getType(headerValues).getTag() == TypeTags.OBJECT_TYPE_TAG)) {
+                headers = (HttpHeaders) ((ObjectValue) headerValues).getNativeData(MESSAGE_HEADERS);
             }
 
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
-                DefaultStreamObserver responseObserver = new DefaultStreamObserver(callbackService);
+                DefaultStreamObserver responseObserver = new DefaultStreamObserver(strand.scheduler, callbackService);
                 StreamObserver requestSender;
                 if (methodType.equals(MethodDescriptor.MethodType.CLIENT_STREAMING)) {
                     requestSender = nonBlockingStub.executeClientStreaming(headers, responseObserver,
@@ -133,10 +129,4 @@ public class StreamingExecute extends AbstractExecute {
                     "type not supported");
         }
     }
-
-    @Override
-    public boolean isBlocking() {
-        return false;
-    }
-
 }

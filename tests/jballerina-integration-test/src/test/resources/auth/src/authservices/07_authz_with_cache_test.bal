@@ -29,7 +29,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider07 = new({
 
 http:BearerAuthHandler jwtAuthHandler07 = new(jwtAuthProvider07);
 
-listener http:Listener listener07 = new(9098, {
+listener http:Listener listener07 = new(20008, {
     auth: {
         authHandlers: [jwtAuthHandler07]
     },
@@ -50,6 +50,6 @@ listener http:Listener listener07 = new(9098, {
 service echo07 on listener07 {
 
     resource function test(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 }

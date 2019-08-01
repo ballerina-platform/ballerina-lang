@@ -17,8 +17,8 @@
 import ballerina/config;
 import ballerina/crypto;
 import ballerina/encoding;
-import ballerina/runtime;
 import ballerina/internal;
+import ballerina/runtime;
 
 # Represents an inbound basic Auth provider, which is a configuration-file-based Auth store provider.
 #
@@ -32,7 +32,7 @@ public type InboundBasicAuthProvider object {
     # Provides authentication based on the provided configuration.
     #
     # + basicAuthConfig - The Basic Auth provider configurations.
-    public function __init(BasicAuthConfig? basicAuthConfig) {
+    public function __init(BasicAuthConfig? basicAuthConfig = ()) {
         if (basicAuthConfig is BasicAuthConfig) {
             self.basicAuthConfig = basicAuthConfig;
         } else {
@@ -74,12 +74,8 @@ public type InboundBasicAuthProvider object {
             authenticated = password == passwordFromConfig;
         }
         if (authenticated) {
-            runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-            if (principal is runtime:Principal) {
-                principal.userId = username;
-                principal.username = username;
-                principal.scopes = getScopes(username, self.basicAuthConfig.tableName);
-            }
+            setAuthenticationContext("basic", credential);
+            setPrincipal(username, self.basicAuthConfig.tableName);
         }
         return authenticated;
     }
@@ -117,7 +113,7 @@ function extractHash(string configValue) returns string {
 # + return - Password hash read from userstore, or nil if not found
 function readPassword(string username) returns string {
     // first read the user id from user->id mapping
-    // read the hashed password from the userstore file, using the user id
+    // read the hashed password from the user-store file, using the user id
     return getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "password");
 }
 
@@ -135,4 +131,13 @@ function getArray(string groupString) returns string[] {
         return groupsArr;
     }
     return internal:split(groupString, ",");
+}
+
+function setPrincipal(string username, string tableName) {
+    runtime:Principal? principal = runtime:getInvocationContext()?.principal;
+    if (principal is runtime:Principal) {
+        principal.userId = username;
+        principal.username = username;
+        principal.scopes = getScopes(username, tableName);
+    }
 }

@@ -18,7 +18,6 @@ package org.ballerinalang.jvm.values;
 
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMComment;
-import org.apache.axiom.om.OMDocument;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMNode;
@@ -27,11 +26,7 @@ import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.OMXMLBuilderFactory;
 import org.apache.axiom.om.impl.common.OMChildrenQNameIterator;
 import org.apache.axiom.om.impl.common.OMNamespaceImpl;
-import org.apache.axiom.om.impl.dom.CommentImpl;
-import org.apache.axiom.om.impl.dom.TextImpl;
-import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.impl.llom.OMElementImpl;
-import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.XMLFactory;
@@ -53,8 +48,6 @@ import java.util.Map;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamWriter;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
 
@@ -566,9 +559,7 @@ public final class XMLItem extends XMLValue<OMNode> {
     @Override
     public void serialize(OutputStream outputStream) {
         try {
-            XMLOutputFactory factory = XMLOutputFactory.newInstance();
-            XMLStreamWriter writer = factory.createXMLStreamWriter(outputStream);
-            this.omNode.serializeAndConsume(writer);
+            this.omNode.serializeAndConsume(outputStream);
         } catch (Throwable t) {
             handleXmlException("error occurred during writing the message to the output stream: ", t);
         }
@@ -637,36 +628,20 @@ public final class XMLItem extends XMLValue<OMNode> {
             return this;
         }
 
-        OMNode clonedNode;
         switch (nodeType) {
             case ELEMENT:
-                clonedNode = ((OMElement) omNode).cloneOMElement();
-                break;
+                return new XMLItem(((OMElement) omNode).cloneOMElement());
             case TEXT:
-                TextImpl text = new TextImpl();
-                text.setTextContent(((OMText) omNode).getText());
-                clonedNode = text;
-                break;
+                return XMLFactory.createXMLText(((OMText) omNode).getText());
             case COMMENT:
-                CommentImpl comment = new CommentImpl();
-                comment.setTextContent(((OMComment) omNode).getValue());
-                clonedNode = comment;
-                break;
+                return XMLFactory.createXMLComment(((OMComment) omNode).getValue());
             case PI:
-                OMProcessingInstructionImpl pi = new OMProcessingInstructionImpl();
-                pi.setTarget(((OMProcessingInstruction) omNode).getTarget());
-                pi.setValue(((OMProcessingInstruction) omNode).getValue());
-                clonedNode = pi;
-                break;
+                return XMLFactory.createXMLProcessingInstruction(
+                        ((OMProcessingInstruction) omNode).getTarget(),
+                        ((OMProcessingInstruction) omNode).getValue());
             default:
-                clonedNode = omNode;
-                break;
+                return new XMLItem(omNode);
         }
-
-        // adding the document element as parent, to get xpPaths work
-        OMDocument doc = new OMDocumentImpl();
-        doc.addChild(clonedNode);
-        return new XMLItem(clonedNode);
     }
 
     /**

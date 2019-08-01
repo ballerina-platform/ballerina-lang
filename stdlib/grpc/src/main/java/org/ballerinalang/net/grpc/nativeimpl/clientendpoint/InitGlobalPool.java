@@ -18,9 +18,7 @@
 
 package org.ballerinalang.net.grpc.nativeimpl.clientendpoint;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -45,11 +43,7 @@ import static org.ballerinalang.net.http.HttpUtil.populatePoolingConfig;
                 PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
-public class InitGlobalPool extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class InitGlobalPool {
 
     public static void initGlobalPool(Strand strand, ObjectValue endpointObject, MapValue<String,
                                       Long> globalPoolConfig) {

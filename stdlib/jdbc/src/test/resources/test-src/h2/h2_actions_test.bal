@@ -212,9 +212,8 @@ function testInitWithInvalidDbOptions() returns int[] {
             url: "jdbc:h2:file:./target/H2Client/TestDBH2",
             username: "SA",
             password: "",
-            poolOptions: { maximumPoolSize: 1 },
-            dbOptions: { "IFEXISTS": true, "DB_CLOSE_ON_EXIT": false, "AUTO_RECONNECT": true, "ACCESS_MODE_DATA": "rw",
-                "PAGE_SIZE": 512, "INVALID_PARAM": -1 }
+            poolOptions: { maximumPoolSize: 1, dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" },
+            dbOptions: { "INVALID_PARAM": -1 }
         });
     return selectFunction(testDB);
 }

@@ -32,7 +32,6 @@ dependencies {
     implementation project(':ballerina-http')
     implementation project(':ballerina-internal')
     implementation project(':ballerina-io')
-    implementation project(':ballerina-jms')
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-math')
     implementation project(':ballerina-mime')
@@ -45,7 +44,7 @@ dependencies {
     implementation project(':ballerina-transactions')
     // implementation project(':ballerina-websub')
     implementation project(':openapi-ballerina:openapi-to-ballerina-generator')
-    implementation project(':ballerina-launcher')
+    implementation project(':ballerina-tool')
     implementation project(':ballerina-cache')
     implementation project(':ballerina-utils')
     implementation 'info.picocli:picocli'

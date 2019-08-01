@@ -24,7 +24,7 @@ import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtilCore;
 import io.ballerina.plugins.idea.BallerinaLanguage;
-import io.ballerina.plugins.idea.highlighting.BallerinaSyntaxHighlighter;
+import io.ballerina.plugins.idea.highlighting.syntax.BallerinaSyntaxHighlighter;
 import io.ballerina.plugins.idea.psi.BallerinaGlobalVariableDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaServiceBody;
 import io.ballerina.plugins.idea.psi.BallerinaSimpleTypeName;

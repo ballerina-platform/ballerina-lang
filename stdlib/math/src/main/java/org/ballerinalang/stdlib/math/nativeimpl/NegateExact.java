@@ -17,14 +17,15 @@
  */
 package org.ballerinalang.stdlib.math.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import static org.ballerinalang.stdlib.math.nativeimpl.Constant.MATH_ERROR_CODE;
+import static org.ballerinalang.stdlib.math.nativeimpl.Constant.OVERFLOW_ERROR_MSG;
 
 /**
  * Extern function ballerina.math:negateExact.
@@ -38,14 +39,13 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
-public class NegateExact extends BlockingNativeCallableUnit {
+public class NegateExact {
 
-    public void execute(Context ctx) {
-        long value = ctx.getIntArgument(0);
-        ctx.setReturnValues(new BInteger(Math.negateExact(value)));
-    }
-
-    public static long negateExact(Strand strand, long value) {
-        return Math.negateExact(value);
+    public static Object negateExact(Strand strand, long value) {
+        try {
+            return Math.negateExact(value);
+        } catch (ArithmeticException ex) {
+            return BallerinaErrors.createError(MATH_ERROR_CODE, OVERFLOW_ERROR_MSG);
+        }
     }
 }

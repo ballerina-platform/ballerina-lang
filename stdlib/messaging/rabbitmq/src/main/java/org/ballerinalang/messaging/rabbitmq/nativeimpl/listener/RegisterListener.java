@@ -19,9 +19,7 @@
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.listener;
 
 import com.rabbitmq.client.Channel;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
@@ -46,12 +44,8 @@ import java.util.ArrayList;
                 structType = RabbitMQConstants.LISTENER_OBJECT,
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ)
 )
-public class RegisterListener extends BlockingNativeCallableUnit {
+public class RegisterListener {
     private static final ArrayList<ObjectValue> services = new ArrayList<>();
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static Object registerListener(Strand strand, ObjectValue listenerObjectValue, ObjectValue service) {
         ObjectValue channelObject = (ObjectValue) listenerObjectValue.get(RabbitMQConstants.CHANNEL_REFERENCE);
@@ -73,5 +67,8 @@ public class RegisterListener extends BlockingNativeCallableUnit {
         services.add(service);
         listenerObjectValue.addNativeData(RabbitMQConstants.CONSUMER_SERVICES, services);
         return null;
+    }
+
+    private RegisterListener() {
     }
 }

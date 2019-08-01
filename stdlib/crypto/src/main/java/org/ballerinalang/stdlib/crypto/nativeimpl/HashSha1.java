@@ -18,9 +18,7 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
@@ -33,11 +31,7 @@ import org.ballerinalang.stdlib.crypto.CryptoUtils;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
         functionName = "hashSha1", isPublic = true)
-public class HashSha1 extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class HashSha1 {
 
     public static ArrayValue hashSha1(Strand strand, ArrayValue inputValue) {
         return new ArrayValue(CryptoUtils.hash("SHA-1", inputValue.getBytes()));

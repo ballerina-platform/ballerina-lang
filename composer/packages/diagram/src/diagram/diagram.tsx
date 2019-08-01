@@ -21,7 +21,6 @@ export interface CommonDiagramProps {
     height?: number;
     width?: number;
     zoom: number;
-    fitToWidthOrHeight: boolean;
     mode: DiagramMode;
     langClient: IBallerinaLangClient;
     maxInvocationDepth?: number;
@@ -32,7 +31,7 @@ export interface CommonDiagramProps {
 export interface DiagramProps extends CommonDiagramProps {
     ast?: ASTNode;
     projectAst?: ProjectAST;
-    setPanZoomComp?: (comp: PanZoom | undefined) => void;
+    setPanZoomComp?: (comp: PanZoom | undefined, element: SVGGElement | undefined) => void;
 }
 
 export interface DiagramState {
@@ -60,28 +59,11 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
     }
 
     public componentDidMount() {
-        if (this.panZoomRootRef.current) {
-            this.panZoomRootRefCurrent = this.panZoomRootRef.current;
-            this.panZoomComp = panzoom(this.panZoomRootRef.current, {
-                beforeWheel: (e) => {
-                    // allow wheel-zoom only if ctrl is down.
-                    return !e.ctrlKey;
-                },
-                smoothScroll: false,
-            });
-            if (this.props.setPanZoomComp) {
-                this.props.setPanZoomComp(this.panZoomComp);
-            }
-        }
+        this.createPanZoom();
     }
 
     public componentWillUnmount() {
-        if (this.panZoomComp) {
-            this.panZoomComp.dispose();
-            if (this.props.setPanZoomComp) {
-                this.props.setPanZoomComp(undefined);
-            }
-        }
+        this.disposePanZoom();
     }
 
     public componentDidUpdate() {
@@ -92,29 +74,10 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
 
         if (!this.panZoomRootRef.current) {
             // pan-zoom root component is unmounted
-            if (this.panZoomComp) {
-                this.panZoomComp.dispose();
-                if (this.props.setPanZoomComp) {
-                    this.props.setPanZoomComp(undefined);
-                }
-            }
-            return;
+            this.disposePanZoom();
         }
 
-        this.panZoomRootRefCurrent = this.panZoomRootRef.current;
-        if (this.panZoomComp) {
-            this.panZoomComp.dispose();
-        }
-        this.panZoomComp = panzoom(this.panZoomRootRef.current,  {
-            beforeWheel: (e) => {
-                // allow wheel-zoom only if ctrl is down.
-                return !e.ctrlKey;
-            },
-            smoothScroll: false,
-        });
-        if (this.props.setPanZoomComp) {
-            this.props.setPanZoomComp(this.panZoomComp);
-        }
+        this.createPanZoom();
     }
 
     public render() {
@@ -137,7 +100,7 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         // Initialize AST node view state
         ASTUtil.traversNode(ast, initVisitor);
         setProjectAST(projectAst);
-        setMaxInvocationDepth(this.props.maxInvocationDepth === undefined ? 0 : this.props.maxInvocationDepth);
+        setMaxInvocationDepth(this.props.maxInvocationDepth === undefined ? -1 : this.props.maxInvocationDepth);
         ASTUtil.traversNode(ast, invocationVisitor);
         if (this.props.mode === DiagramMode.INTERACTION) {
             ASTUtil.traversNode(ast, interactionModeVisitor);
@@ -184,5 +147,33 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
 
         // merge with parent (if any) or with default context
         return { ...this.context, ...contextContributions };
+    }
+
+    private createPanZoom() {
+        if (!this.panZoomRootRef.current) {
+            return;
+        }
+
+        this.panZoomRootRefCurrent = this.panZoomRootRef.current;
+        this.panZoomComp = panzoom(this.panZoomRootRef.current, {
+            beforeWheel: (e) => {
+                // allow wheel-zoom only if ctrl is down.
+                return !e.ctrlKey;
+            },
+            smoothScroll: false,
+        });
+        if (this.props.setPanZoomComp) {
+            this.props.setPanZoomComp(this.panZoomComp, this.panZoomRootRef.current);
+        }
+    }
+
+    private disposePanZoom() {
+        if (this.panZoomComp) {
+            this.panZoomComp.dispose();
+            if (this.props.setPanZoomComp) {
+                this.props.setPanZoomComp(undefined, undefined);
+            }
+        }
+        return;
     }
 }

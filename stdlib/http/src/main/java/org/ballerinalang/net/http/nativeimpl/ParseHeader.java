@@ -17,16 +17,12 @@
  */
 package org.ballerinalang.net.http.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.types.BTupleType;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -54,18 +50,11 @@ import static org.ballerinalang.mime.util.MimeConstants.SEMICOLON;
                 @ReturnType(type = TypeKind.RECORD, structType = "Error")},
         isPublic = true
 )
-public class ParseHeader extends BlockingNativeCallableUnit {
-
-    private static final BTupleType parseHeaderTupleBType = new BTupleType(
-            Arrays.asList(BTypes.typeString, BTypes.typeMap));
+public class ParseHeader {
 
     private static final org.ballerinalang.jvm.types.BTupleType parseHeaderTupleType = new org.ballerinalang.jvm
             .types.BTupleType(
             Arrays.asList(org.ballerinalang.jvm.types.BTypes.typeString, org.ballerinalang.jvm.types.BTypes.typeMap));
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static Object parseHeader(Strand strand, String headerValue) {
         String errMsg;

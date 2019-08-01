@@ -7,9 +7,9 @@ listener http:Listener failoverEP06 = new(9314, { httpVersion: "2.0" });
 listener http:Listener backendEP06 = new(8094, { httpVersion: "2.0" });
 
 http:FailoverClient foBackendEP06 = new({
-    timeoutMillis: 5000,
+    timeoutInMillis: 5000,
     failoverCodes: [500, 501, 502, 503],
-    intervalMillis: 5000,
+    intervalInMillis: 5000,
     httpVersion: "2.0",
     // Define set of HTTP Clients that needs to be Failover.
     targets: [
@@ -56,7 +56,7 @@ service delay06 on backendEP06 {
     }
     resource function delayResource(http:Caller caller, http:Request req) {
         // Delay the response for 5000 milliseconds to mimic network level delays.
-        runtime:sleep(5000);
+        runtime:sleep(10000);
         var responseToCaller = caller->respond("Delayed resource is invoked");
         if (responseToCaller is error) {
             log:printError("Error sending response from delay service", responseToCaller);

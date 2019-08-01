@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.system.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
@@ -60,12 +60,12 @@ public class Remove extends BlockingNativeCallableUnit {
 
         try {
             if (wd.getCanonicalPath().equals(removeFile.getCanonicalPath())) {
-                return SystemUtils.getBallerinaError("INVALID_OPERATION", "Cannot delete the current" +
-                        " working directory " + wd.getCanonicalPath());
+                return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR,
+                        "Cannot delete the current working directory " + wd.getCanonicalPath());
             }
 
             if (!removeFile.exists()) {
-                return SystemUtils.getBallerinaError("INVALID_OPERATION",
+                return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR,
                         "File doesn't exist in path " + removeFile.getCanonicalPath());
             }
 
@@ -74,15 +74,15 @@ public class Remove extends BlockingNativeCallableUnit {
                 Files.walkFileTree(directory, new RecursiveFileVisitor());
             } else {
                 if (!removeFile.delete()) {
-                    return SystemUtils.getBallerinaError("OPERATION_FAILED",
+                    return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR,
                             "Error while deleting " + removeFile.getCanonicalPath());
                 }
             }
             return null;
         } catch (IOException ex) {
-            return SystemUtils.getBallerinaError("OPERATION_FAILED", ex);
+            return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, ex);
         } catch (SecurityException ex) {
-            return SystemUtils.getBallerinaError("PERMISSION_ERROR", ex);
+            return SystemUtils.getBallerinaError(SystemConstants.PERMISSION_ERROR, ex);
         }
     }
 

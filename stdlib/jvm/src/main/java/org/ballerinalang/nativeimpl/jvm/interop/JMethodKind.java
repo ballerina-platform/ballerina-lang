@@ -23,8 +23,7 @@ package org.ballerinalang.nativeimpl.jvm.interop;
  * @since 1.0.0
  */
 enum JMethodKind {
-    STATIC("static"),
-    INSTANCE("instance"),
+    METHOD("method"),
     CONSTRUCTOR("constructor");
 
     private String strValue;
@@ -35,10 +34,8 @@ enum JMethodKind {
 
     static JMethodKind getKind(String value) {
         switch (value) {
-            case "static":
-                return STATIC;
-            case "instance":
-                return INSTANCE;
+            case "method":
+                return METHOD;
             case "constructor":
                 return CONSTRUCTOR;
             default:

@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 @Test(groups = "auth-test")
 public class OAuth2ConfigTest extends AuthBaseTest {
 
-    private final int servicePort = 9190;
+    private final int servicePort = 20028;
 
     @Test(description = "Test client credentials grant type with valid credentials")
     public void testClientCredentialsGrantType1() throws Exception {
@@ -133,7 +133,7 @@ public class OAuth2ConfigTest extends AuthBaseTest {
     @Test(description = "Test direct token mode with invalid access token and no refresh config " +
             "but retry request is set as false")
     public void testDirectToken4() throws Exception {
-        final String serverResponse = "access_denied";
+        final String serverResponse = "Failed to get the access token since retry request is set as false.";
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
                 "echo/oauth2/DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_NO_REFRESH_CONFIG_BUT_RETRY_REQUEST_FALSE"),
                 serverInstance.getServerHome());
@@ -143,7 +143,7 @@ public class OAuth2ConfigTest extends AuthBaseTest {
     @Test(description = "Test direct token mode with invalid access token and valid refresh config " +
             "but retry request is set as false")
     public void testDirectToken5() throws Exception {
-        final String serverResponse = "access_denied";
+        final String serverResponse = "Failed to get the access token since retry request is set as false.";
         HttpResponse response = HttpsClientRequest.doGet(serverInstance.getServiceURLHttps(servicePort,
                 "echo/oauth2/DIRECT_TOKEN_WITH_INVALID_CREDENTIALS_AND_VALID_REFRESH_CONFIG_BUT_RETRY_REQUEST_FALSE"),
                 serverInstance.getServerHome());

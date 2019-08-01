@@ -23,9 +23,9 @@ import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
+import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.providers.contextproviders.AnnotationAttachmentContextProvider;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
-import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.ballerinalang.langserver.completions.util.sorters.TopLevelContextSorter;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
@@ -50,15 +50,21 @@ public class TopLevelScopeProvider extends LSCompletionProvider {
     public List<CompletionItem> getCompletions(LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         Optional<LSCompletionProvider> contextProvider = this.getContextProvider(ctx);
-        
+        List<CommonToken> lhsDefaultTokens = ctx.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
+
         if (contextProvider.isPresent()) {
             return contextProvider.get().getCompletions(ctx);
         }
 
-        completionItems.addAll(addTopLevelItems(ctx));
-        completionItems.addAll(getBasicTypes(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY)));
+        if (!(lhsDefaultTokens != null && lhsDefaultTokens.size() >= 2
+                && BallerinaParser.LT == lhsDefaultTokens.get(lhsDefaultTokens.size() - 1).getType())) {
+            completionItems.addAll(addTopLevelItems(ctx));
+        }
+        List<SymbolInfo> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        completionItems.addAll(getBasicTypes(visibleSymbols));
+        completionItems.addAll(this.getPackagesCompletionItems(ctx));
 
-        ItemSorters.get(TopLevelContextSorter.class).sortItems(ctx, completionItems);
+        ctx.put(CompletionKeys.ITEM_SORTER_KEY, TopLevelContextSorter.class);
         return completionItems;
     }
 

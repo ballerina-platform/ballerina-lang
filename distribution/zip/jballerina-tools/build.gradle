@@ -38,6 +38,12 @@ configurations {
     ballerinaZip {
         transitive false
     }
+    debugAdapterLauncher {
+        transitive false
+    }
+    debugAdapterDistribution {
+        transitive false
+    }
     composerDistribution {
         transitive false
     }
@@ -94,13 +100,15 @@ dependencies {
     dist project(':openapi-ballerina:openapi-validator')
     dist project(':openapi-ballerina:ballerina-client-generator')
     dist project(':docerina')
+    dist project(':protobuf-ballerina')
     docerina project(':docerina-gradle-plugin')
 
     langserverLib project(path: ':language-server:language-server-core', configuration: 'libs')
     langserverLib project(':language-server:language-server-stdio-launcher')
     langserverLib project(':language-server:language-server-core')
     langserverResources project(path: ':language-server:language-server-core', configuration: 'langserverResources')
-
+    debugAdapterDistribution project(':debug-adapter')
+    
     balSource project(path: ':jballerina', configuration: 'source')
     distBal project(path: ':jballerina', configuration: 'balo')
     dist project(path: ':jballerina', configuration: 'jar')
@@ -125,7 +133,7 @@ dependencies {
     birJar project(path: ':ballerina-cli-module-search', configuration: 'cliModuleSearchJar')
     birJar project(path: ':ballerina-cli-module-token-update', configuration: 'cliModuleTokenUpdateJar')
 
-//    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
+    birJar project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'prometheusJar')
 }
 
 
@@ -212,7 +220,8 @@ def copyKraalLib = {
 
 def copyLangServerBinSpec = {
     path -> copySpec {
-        from('resources')
+        from('resources/language-server-launcher.sh')
+        from('resources/language-server-launcher.bat')
         into(path + 'lib/tools/lang-server/launcher')
     }
 }
@@ -221,6 +230,20 @@ def copyLangSeverIndexSpec = {
     path -> copySpec {
         from configurations.langserverResources
         into(path + 'lib/tools/lang-server/resources')
+     }
+}
+def copyDebugAdapterLauncher = {
+    path -> copySpec {
+        from('resources/debug-adapter-launcher.sh')
+        from('resources/debug-adapter-launcher.bat')
+        into(path + 'lib/tools/debug-adapter/launcher')
+    }
+}
+
+def copydebugAdapterDistributionSpec = {
+    path -> copySpec {
+        from configurations.debugAdapterDistribution
+        into(path + 'lib/tools/debug-adapter/lib')
      }
 }
 
@@ -302,13 +325,13 @@ task generateDocs(type: JavaExec) {
     outputs.cacheIf { true }
 
     systemProperty("BALLERINA_DEV_COMPILE_BALLERINA_ORG", true)
-    systemProperty("BALLERINA_DEV_LOAD_BUILTIN_FROM_SOURCE", true)
+    def basePath = '/' + project.name + '-' + project.version + '/'
+    systemProperty("ballerina.home", basePath)
     
     classpath = files(pathingJar.archivePath)
     main = 'org.ballerinalang.plugin.gradle.doc.DocerinaGen'
-
     def libs = "$buildDir/ballerina/"
-    args("$libs", "$buildDir/api-docs")
+    args("$libs", "$buildDir/api-docs", "lang.__internal,lang.annotations,llvm")
 }
 
 task createApiDocsZip(type: Zip) {
@@ -330,6 +353,8 @@ task createZip(type: Zip) {
     with copyComposerDistributionSpec(basePath)
     with copyComposerFontsSpec(basePath)
     with copyBallerinaZipSpec(basePath)
+    with copydebugAdapterDistributionSpec(basePath)
+    with copyDebugAdapterLauncher(basePath)
     with examplesSpec(basePath)
     with apiDocsSpec(basePath)
     with copyStaticSpec(basePath)
@@ -352,6 +377,8 @@ task updateBalHome(type: Copy) {
     with copyComposerDistributionSpec(installDir)
     with copyComposerFontsSpec(installDir)
     with copyBallerinaZipSpec(installDir)
+    with copydebugAdapterDistributionSpec(installDir)
+    with copyDebugAdapterLauncher(installDir)
     with apiDocsSpec(installDir)
     with examplesSpec(installDir)
     with copyStaticSpec(installDir)
@@ -377,6 +404,8 @@ task createDistribution(type: Copy) {
     with copyComposerDistributionSpec("")
     with copyComposerFontsSpec("")
     with copyBallerinaZipSpec("")
+    with copydebugAdapterDistributionSpec("")
+    with copyDebugAdapterLauncher("")
     with apiDocsSpec("")
     with examplesSpec("")
     with copyStaticSpec("")
@@ -413,7 +442,6 @@ project.afterEvaluate {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifactId 'jballerina-ext-build'
             artifact source: createZip, extension: 'zip'
         }
     }

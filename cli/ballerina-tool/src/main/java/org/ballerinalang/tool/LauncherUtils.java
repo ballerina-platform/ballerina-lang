@@ -36,7 +36,6 @@ import org.ballerinalang.util.BootstrapRunner;
 import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BLangUsageException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -44,6 +43,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.ProgramFileWriter;
@@ -88,6 +88,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SIDDHI_RUNTIME_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
+import static org.ballerinalang.compiler.CompilerOptionName.STANDALONE_FILE;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_TARGET;
 import static org.ballerinalang.util.BLangConstants.BLANG_EXEC_FILE_SUFFIX;
@@ -360,10 +361,10 @@ public class LauncherUtils {
             }
 
         } catch (IOException e) {
-            throw new BLangRuntimeException(
-                    "failed to read the specified configuration file: " + ballerinaConfPath.toString(), e);
+            throw createLauncherException("failed to read the specified configuration file: " +
+                    ballerinaConfPath.toString());
         } catch (RuntimeException e) {
-            throw new BLangRuntimeException(e.getMessage(), e);
+            throw createLauncherException(e.getMessage());
         }
     }
 
@@ -419,15 +420,18 @@ public class LauncherUtils {
 
         String source = validateAndGetSrcPath(sourceRootPath, sourcePath, fullPath, srcPathStr);
 
-        if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
-                !RepoUtils.isBallerinaProject(sourceRootPath)) {
+        if (RepoUtils.isBallerinaStandaloneFile(fullPath)) {
             options.put(PROJECT_DIR, fullPath.getParent().toString());
+            options.put(STANDALONE_FILE, fullPath.getFileName().toString());
         } else {
             options.put(PROJECT_DIR, sourceRootPath.toString());
         }
 
         Compiler compiler = Compiler.getInstance(context);
         BLangPackage entryPkgNode = compiler.compile(source);
+        if (entryPkgNode.diagCollector.hasErrors()) {
+            throw new BLangCompilerException("compilation contains errors");
+        }
 
         String balHome = Objects.requireNonNull(System.getProperty("ballerina.home"),
                 "ballerina.home is not set");
@@ -502,37 +506,17 @@ public class LauncherUtils {
 
     private static String validateAndGetSrcPath(Path sourceRootPath, Path sourcePath, Path fullPath,
                                                 String srcPathStr) {
-        if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
-                !RepoUtils.isBallerinaProject(sourceRootPath)) {
+        if (RepoUtils.isBallerinaStandaloneFile(fullPath)) {
             // running a bal file, no other packages
             return fullPath.getFileName().toString();
-        } else if (Files.isDirectory(sourceRootPath)) {
-            if (Files.isDirectory(fullPath) && !RepoUtils.isBallerinaProject(sourceRootPath)) {
-                throw createLauncherException("you are trying to run a module that is not inside " +
-                        "a project. Run `ballerina init` from " + sourceRootPath + " to initialize it as a " +
-                        "project and then run the module.");
-            }
-
-            if (Files.exists(fullPath)) {
-                if (Files.isRegularFile(fullPath) && !srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX)) {
-                    throw createLauncherException("only modules, " + BLANG_SRC_FILE_SUFFIX + " and " +
-                            BLANG_EXEC_FILE_SUFFIX + " files can be used with the " +
-                            "'ballerina run' command.");
-                }
-            } else {
-                throw createLauncherException("ballerina source does not exist '" + srcPathStr + "'");
-            }
-            // If we are trying to run a bal file inside a module from inside a project directory an error is thrown.
-            // To differentiate between top level bals and bals inside modules we need to check if the parent of the
-            // sourcePath given is null. If it is null then its a top level bal else its a bal inside a module
-            if (Files.isRegularFile(fullPath) && srcPathStr.endsWith(BLANG_SRC_FILE_SUFFIX) &&
-                    sourcePath.getParent() != null) {
-                throw createLauncherException("you are trying to run a ballerina file inside a module within a " +
-                        "project. Try running 'ballerina run <module-name>'");
-            }
+        } else if (!ProjectDirs.isProject(sourceRootPath)) {
+            throw createLauncherException("you are trying to run a module that is not inside " +
+                    "a project. Run `ballerina init` from " + sourceRootPath + " to initialize it as a " +
+                    "project and then run the module.");
+        } else if (ProjectDirs.isModuleExist(sourceRootPath, srcPathStr)) {
             return sourcePath.toString();
         } else {
-            throw createLauncherException("unexpected error while getting init class name from source in " +
+            throw createLauncherException("Module not found :" +
                     sourcePath);
         }
     }

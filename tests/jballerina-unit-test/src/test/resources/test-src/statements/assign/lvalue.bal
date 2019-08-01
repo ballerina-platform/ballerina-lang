@@ -171,3 +171,230 @@ function testValueStoreForObjectUnion() returns boolean {
 }
 
 // TODO: Maryam add tests for records via objects and vice versa
+
+type ARec record {
+    string|int i;
+};
+
+type BRec record {
+    int i;
+};
+
+function testInherentTypeViolatingUpdate1() {
+    BRec b = { i: 120 };
+    ARec a = b;
+    a.i = "hello";
+}
+
+type AObj object {
+    boolean|int i;
+
+    function __init(boolean|int i) {
+        self.i = i;
+    }
+};
+
+type BObj object {
+    boolean i;
+
+    function __init(boolean i) {
+        self.i = i;
+    }
+};
+
+function testInherentTypeViolatingUpdate2() {
+    BObj b = new(true);
+    AObj a = b;
+    a.i = 10;
+}
+
+function testInherentTypeViolatingUpdate3() {
+    int[2] a = [1, 2];
+    any[] b = a;
+    b[0] = "hello";
+}
+
+type CRec record {
+    float f;
+};
+
+type DRec record {|
+    float f;
+|};
+
+function testInvalidUpdateOnClosedRecord() {
+    DRec d = { f: 2.0 };
+    CRec c = d;
+    c["g"] = 10;
+}
+
+function testInvalidUpdateOnClosedArray() {
+    int[2] a = [1, 2];
+    any[] b = a;
+    b[2] = 1;
+}
+
+function testFrozenValueUpdate() {
+    BRec b = { i: 120 };
+    BRec b2 = b.cloneReadOnly();
+    b2.i = 1;
+}
+
+function testArrayFillSuccess1() returns boolean {
+    int[] i = [0, 1];
+    i[4] = 4;
+    return i.length() == 5 && i[0] == 0 && i[1] == 1 && i[4] == 4 && i[2] == i[3] && i[2] == 0;
+}
+
+type E record {
+    int i = 10;
+    string s?;
+    F f = {};
+
+};
+
+type F record {
+    float f = 1.0;
+};
+
+function testArrayFillSuccess2() returns boolean {
+    E e1 = { i: 120, s: "hello", f: { f: 1.4 } };
+    E e2 = { i: 345, f: { f: 1.4 } };
+    E[] e = [e1];
+    e[3] = e2;
+
+    return e.length() == 4 && e[0] == e1 && e[3] == e2 && e[1] == e[2] && e[1].i == 10 && e[1]?.s is () &&
+            e[1].f.f == 1.0;
+}
+
+type G object {
+
+    string s;
+
+    function __init(string s) {
+        self.s = s;
+    }
+};
+
+function testArrayFillFailure() {
+    G[] a = [new("hello"), new("world")];
+    a[3] = new("test");
+}
+
+function testArrayFillOnFilledContainer() returns boolean {
+    map<map<string[]>> m = {};
+    m["one"]["two"][3] = "test";
+
+    if !(m["one"]["two"] is string[]) {
+        return false;
+    }
+
+    string[] s = <string[]> m["one"]["two"];
+    return m.length() == 1 && s.length() == 4 && s[0] == "" && s[1] == "" && s[2] == "" && s[3] == "test";
+}
+
+type H record {
+    map<int> m?;
+};
+
+type I object {
+    H h = {};
+};
+
+function testFillingReadOnInitializedObjectField() returns boolean {
+    I i = new;
+    i.h.m["one"] = 1;
+    i.h.m["two"] = 2;
+
+    map<int>? rm = i.h?.m;
+
+    if (rm is () || rm.length() != 2) {
+        return false;
+    }
+
+    return i.h?.m["one"] == 1 && i.h?.m["two"] == 2;
+}
+
+type J record {
+    string s = "default value";
+};
+
+function testFillingReadOnMapPositive() returns boolean {
+    map<map<int>> m1 = {};
+    m1["one"]["id"] = 10;
+
+    map<J> m2 = {};
+    m2["one"]["s"] = "value";
+
+    map<int>? m3 = m1["one"];
+    if (m3 is () || m3.length() != 1) {
+        return false;
+    }
+
+    J? j = m2["one"];
+    if (j is () || j.length() != 1) {
+        return false;
+    }
+
+    return m1["one"]["id"] == 10 && m2["one"]["s"] == "value";
+}
+
+type K record {
+    J j?;
+};
+
+function testFillingReadOnRecordPositive() returns boolean {
+    K k1 = {};
+    K k2 = {};
+
+    k1.j.s = "new value 1";
+    k2.j.s = "new value 2";
+
+    J? j1 = k1?.j;
+    J? j2 = k2?.j;
+
+    if (j1 is () || j2 is ()) {
+        return false;
+    }
+
+    return k1?.j?.s == "new value 1" && k2["j"]["s"] == "new value 2";
+}
+
+type L record {
+    int i;
+};
+
+function testFieldUpdateOfElementForMapWithNoFillerValue() returns boolean {
+    map<L> m = { one: { i: 10 } };
+    m["one"]["i"] = 1;
+    return m["one"]["i"] == 1;
+}
+
+function testFillingReadOnMappingNegative() {
+    map<L> m = {};
+    m["one"]["i"] = 1;
+}
+
+type M record {
+    L l?;
+};
+
+function testFieldUpdateOfElementForRecordWithNoFillerValue() returns boolean {
+    M m1 = { l: { i: 10 } };
+    m1["l"]["i"] = 150;
+
+    M m2 = { l: { i: 10 } };
+    m2.l.i = 250;
+
+    return m1["l"]["i"] == 150 && m2?.l?.i == 250;
+}
+
+function testFillingReadOnRecordNegativeFieldAccessLvExpr() {
+    M m = {};
+    m.l.i = 1;
+}
+
+function testFillingReadOnRecordNegativeMemberAccessLvExpr() {
+    M m = {};
+    m["l"]["i"] = 1;
+}

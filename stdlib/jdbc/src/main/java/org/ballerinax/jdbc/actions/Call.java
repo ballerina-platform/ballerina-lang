@@ -17,9 +17,7 @@
  */
 package org.ballerinax.jdbc.actions;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -37,12 +35,7 @@ import org.ballerinax.jdbc.statement.SQLStatement;
         orgName = "ballerinax", packageName = "java.jdbc",
         functionName = "nativeCall"
 )
-public class Call extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        //TODO: #16033
-    }
+public class Call {
 
     public static Object nativeCall(Strand strand, ObjectValue client, String sqlQuery, Object recordType,
             ArrayValue parameters) {
@@ -50,5 +43,9 @@ public class Call extends BlockingNativeCallableUnit {
         SQLStatement callStatement = new CallStatement(client, datasource, sqlQuery, (ArrayValue) recordType,
                 parameters, strand);
         return callStatement.execute();
+    }
+
+    private Call() {
+
     }
 }

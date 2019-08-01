@@ -8,6 +8,7 @@ import { getCodePoint } from "../../utils";
 import { BlockViewState } from "../../view-model/block";
 import { ExpandContext } from "../../view-model/expand-context";
 import { FunctionViewState, StmntViewState, ViewState } from "../../view-model/index";
+import { ArrowHead } from "./arrow-head";
 import { Block } from "./block";
 import { LifeLine } from "./life-line";
 import { Worker } from "./worker";
@@ -82,11 +83,13 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
                             onClick={onClickClose}>
                             {getCodePoint("up")}
                         </text>
-                        <line className="life-line" x1={bBox.x}
-                            x2={expandedFnBbox.x}
-                            y1={expandedFnBbox.y}
-                            y2={expandedFnBbox.y} />
-                        <line className="life-line" { ...lifeLine } />
+                        <g className="start-invocation">
+                            <line x1={bBox.x}
+                                x2={expandedFnBbox.x}
+                                y1={expandedFnBbox.y}
+                                y2={expandedFnBbox.y} />
+                            <ArrowHead direction="right" x={expandedFnBbox.x} y={expandedFnBbox.y} />
+                        </g>
                         { /* Override the docUri context value and always disable editing */ }
                         <DiagramContext.Provider value={{ ...context, docUri, editingEnabled: false }}>
                             {workers.map((worker) => {
@@ -100,8 +103,10 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
                                         2 * config.statement.height }
                                     client={client} />;
                             })}
+                            <LifeLine model={model.viewState.defaultWorker.lifeline.bBox}
+                                title="Default" icon={"worker"}></LifeLine>
                             <Block model={model.body} />
-                            {model.VisibleEndpoints && model.VisibleEndpoints
+                            {model.body.VisibleEndpoints && model.body.VisibleEndpoints
                                 .filter((element) => element.viewState.visible)
                                 .map((element: VisibleEndpoint) => {
                                     return <LifeLine title={element.name} icon="endpoint"

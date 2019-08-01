@@ -2,10 +2,9 @@
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run type_conversion.bal
 Employee to Person, name: Jack Sparrow
-map<any> to Person, name: Jack Sparrow
-Error occurred on conversion
+map<anydata> to Person, name: Hector Barbossa
+Error occurred on conversion: message='map<anydata>' value cannot be converted to 'Person'
 int value: 45
-error: incompatible convert operation: 'string' value 'abc' cannot be converted as 'int'
-int value: 10
-boolean value: true
-float value: 3.14
+error: message='string' value 'abc' cannot be converted to 'int'
+float value: 12.3
+decimal value: 8

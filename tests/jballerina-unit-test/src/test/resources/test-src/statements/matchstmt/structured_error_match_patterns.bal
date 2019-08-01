@@ -25,22 +25,26 @@ type ReasonRec record {
     error err?;
 };
 
-type ReasonRecTup record {
+type ReasonRecTup record {|
     [string, int] x?;
     string reason?;
     error err?;
-};
+|};
 
 type ErrorData record {
     string a?;
     error err?;
     map<string> m?;
+    string message?;
+    error cause?;
 };
 
 type ErrorData2 record {
     string a?;
     error err?;
     map<string|boolean> m?;
+    string message?;
+    error cause?;
 };
 
 function testBasicErrorMatch() returns string {
@@ -55,9 +59,9 @@ function testErrorRestParamMatch(int errorNo) returns string {
     error err1 = selectError(errorNo);
     match err1 {
         var error(reason, message = m) => return <string>m;
-        var error(reason, message = m, x = x) => return io:sprintf("%s", x);
-        var error(reason, message = m, blah = x) => return <string>x;
-        var error(reason, message = m, blah = x, ...rest) => return reason + io:sprintf("%s", rest);
+        var error(reason, x = x) => return io:sprintf("%s", x);
+        var error(reason, message = m, x = x) => return <string>x;
+        var error(reason, message = m, blah = x, ...rest) => return reason + io:sprintf(" %s", rest);
     }
     return "Default";
 }
@@ -68,9 +72,9 @@ function selectError(int errorNo) returns error {
     error <string, ErrorData> err0 = error("Error Code", message = "Msg of error-0");
     Message mes = { a: "Hello" };
     [string, int] x = ["x", 1];
-    error<string, ReasonRecTup> err1 = error("Error Code", message = mes, x = x);
-    error<string, ReasonRec> err2 = error("Error Code", message = mes, x = "x");
-    error <string, ErrorData> err3 = error("Error Code", message = "message", blah = "bb", foo = "foo");
+    error err1 = error("Error Code", x = x);
+    error err2 = error("Error Code", message = "Hello", x = "x");
+    error err3 = error("Error Code", message = "message", blah = "bb", foo = "foo");
 
     match (errorNo) {
         0 => return err0;
@@ -101,25 +105,26 @@ function testBasicErrorMatch3() returns string {
     return "Default";
 }
 
-type Foo record {
+type Foo record {|
     boolean fatal;
-};
+    string message?;
+    error cause?;
+|};
 
 type ER1 error <string, Foo>;
-type ER2 error <string, ErrorData>;
 
 function testBasicErrorMatch4() returns string[] {
-    ER1 er1 = error("Error 1", fatal = true, message = 1);
-    ER2 er2 = error("Error 2", message = "It's fatal", fatal = "fatal string");
+    ER1 er1 = error("Error 1", fatal = true, message = "message");
+    error er2 = error("Error 2", message = "It's fatal", fatal = "fatal string");
     string[] results = [foo(er1), foo(er2)];
     return results;
 }
 
-function foo(ER1|ER2 t1) returns string {
+function foo(ER1|error t1) returns string {
     match t1 {
         var error ( _, fatal = fatal, message = message) => {
             if fatal is boolean {
-                return "Matched with boolean : " + fatal;
+                return "Matched with boolean : " + fatal.toString();
             } else if message is string {
                 return "Matched with string : " + message;
             } else {
@@ -142,7 +147,7 @@ function testBasicErrorMatch5() returns string[] {
 
 function foo2(any|error f) returns string {
     match f {
-        var { fatal } => return "Matched with a record : " + <boolean>fatal;
+        var { fatal } => return "Matched with a record : " + fatal.toString();
         var error (reason) => return "Matched with an error : " + reason;
         var error (reason, ..._) => return "Matched with an error : " + reason + " {}";
     }
@@ -151,7 +156,7 @@ function foo2(any|error f) returns string {
 
 function foo3(any|error f) returns string {
     match f {
-        var { fatal } => return "Matched with a record : " + <boolean>fatal;
+        var { fatal } => return "Matched with a record : " + fatal.toString();
         var error (reason) => return "Matched with an error 1: " + reason;
         var error (reason, message = message) => return "Matched with an error : " + reason + ", message = " + <string>message;
     }
@@ -213,7 +218,7 @@ function testBasicErrorMatch7() returns string[] {
 
 function foo6(any|error f) returns string {
     match f {
-        var { fatal } => return "Matched with a record : " + <boolean>fatal;
+        var { fatal } => return "Matched with a record : " + fatal.toString();
         var error (reason, message = message) => return "Matched with an error : " + reason + <string>message;
     }
     return "Default";
@@ -254,6 +259,17 @@ function testErrorConstReasonMatchPattern() returns string {
     match err1 {
         var error(reason) => return reason;
         error("Error Code", message = m, ... var rest) => return "Const reason" + ":" + <string>m;
+    }
+    return "Default";
+}
+
+
+type ER error<string, ErrorData>;
+
+function testIndirectErrorMatchPattern() returns string {
+    ER err1 = error("Error Code", message = "Msg");
+    match err1 {
+        ER(message = m, ... var rest) => return <string>m;
     }
     return "Default";
 }

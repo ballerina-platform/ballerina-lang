@@ -19,9 +19,7 @@
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel;
 
 import com.rabbitmq.client.Channel;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConnectorException;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
@@ -45,11 +43,7 @@ import org.ballerinalang.natives.annotations.Receiver;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class AbortChannel extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class AbortChannel {
 
     public static Object abortChannel(Strand strand, ObjectValue channelObjectValue, Object closeCode,
                                       Object closeMessage) {
@@ -62,5 +56,8 @@ public class AbortChannel extends BlockingNativeCallableUnit {
             return RabbitMQUtils.
                     returnErrorValue(RabbitMQConstants.RABBITMQ_CLIENT_ERROR + exception.getDetail());
         }
+    }
+
+    private AbortChannel() {
     }
 }

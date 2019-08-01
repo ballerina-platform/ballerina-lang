@@ -19,9 +19,7 @@
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.connection;
 
 import com.rabbitmq.client.Connection;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.util.ConnectionUtils;
@@ -43,14 +41,14 @@ import org.ballerinalang.natives.annotations.Receiver;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class IsClosed extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-    }
+public class IsClosed {
 
     public static boolean isClosed(Strand strand, ObjectValue connectionObject) {
         Connection connection = (Connection) connectionObject.getNativeData
                 (RabbitMQConstants.CONNECTION_NATIVE_OBJECT);
         return ConnectionUtils.isClosed(connection);
+    }
+
+    private IsClosed() {
     }
 }

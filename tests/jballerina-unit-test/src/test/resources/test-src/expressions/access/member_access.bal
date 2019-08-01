@@ -22,6 +22,13 @@ function testOpenArrayMemberAccessByLiteralPositive() returns boolean {
     return ia[0] == 1;
 }
 
+const I2 = 2;
+
+function testOpenArrayMemberAccessByConstPositive() returns boolean {
+    int[] ia = [1, 2, 3];
+    return ia[I2] == 3;
+}
+
 function testOpenArrayMemberAccessByVariablePositive() returns boolean {
     int[] ia = [1, 2, 3];
     int index = 1;
@@ -39,6 +46,13 @@ function testOpenArrayMemberAccessByLiteralIndexOutOfRange() returns boolean {
     return ia[4] == 1;
 }
 
+const I6 = 6;
+
+function testOpenArrayMemberAccessByConstIndexOutOfRange() returns boolean {
+    int[] ia = [1, 2];
+    return ia[I6] == 1;
+}
+
 function testOpenArrayMemberAccessByVariableIndexOutOfRange() returns boolean {
     int[] ia = [1, 2];
     int index = 5;
@@ -54,6 +68,13 @@ function testOpenArrayMemberAccessByFiniteTypeVariableIndexOutOfRange() returns 
 function testClosedArrayMemberAccessByLiteralPositive() returns boolean {
     string[2] ia = ["one", "two"];
     return ia[0] == "one";
+}
+
+const I1 = 1;
+
+function testClosedArrayMemberAccessByConstPositive() returns boolean {
+    boolean[3] ia = [true, true, false];
+    return ia[I1];
 }
 
 function testClosedArrayMemberAccessByVariablePositive() returns boolean {
@@ -83,6 +104,11 @@ function testClosedArrayMemberAccessByFiniteTypeVariableIndexOutOfRange() return
 function testTupleMemberAccessByLiteralPositive() returns boolean {
     [int, int, int] ia = [1, 2, 3];
     return ia[0] == 1;
+}
+
+function testTupleMemberAccessByConstPositive() returns boolean {
+    [float, float] ia = [1.2, 32.2];
+    return ia[I1] == 32.2;
 }
 
 function testTupleMemberAccessByVariablePositive() returns boolean {
@@ -120,7 +146,7 @@ function testRecordMemberAccessByLiteral() returns boolean {
     boolean b = true;
     int i = 100;
 
-    Employee e = { name: s, id: i, registered: b, other: 1.0 };
+    Employee e = { name: s, id: i, registered: b, "other": 1.0 };
 
     string s2 = e["name"];
     boolean? b2 = e["registered"];
@@ -130,12 +156,33 @@ function testRecordMemberAccessByLiteral() returns boolean {
     return s == s2 && b == b2 && i == i2 && v1 == 1.0;
 }
 
+const NAMEC = "name";
+const REGISTEREDC = "registered";
+const IDC = "id";
+const OTHERC = "other";
+
+function testRecordMemberAccessByConstant() returns boolean {
+    string s = "Anne";
+    boolean b = true;
+    int i = 100;
+
+    Employee e = { name: s, id: i, registered: b, "other": 1.0 };
+
+    string s2 = e[NAMEC];
+    boolean? b2 = e[REGISTEREDC];
+    int? i2 = e[IDC];
+    anydata v1 = e[OTHERC];
+
+    return s == s2 && b == b2 && i == i2 && v1 == 1.0;
+}
+
+
 function testRecordMemberAccessByVariable() returns boolean {
     string s = "Anne";
     boolean b = true;
     int i = 100;
 
-    Employee e = { name: s, id: i, registered: b, other: 1.0 };
+    Employee e = { name: s, id: i, registered: b, "other": 1.0 };
 
     string index = "name";
     anydata s2 = e[index];
@@ -171,6 +218,20 @@ function testMapMemberAccessByLiteral() returns boolean {
     string|int|boolean? s2 = e["name"];
     string|int|boolean? b2 = e["registered"];
     string|int|boolean? i2 = e["id"];
+
+    return s == s2 && b == b2 && i == i2;
+}
+
+function testMapMemberAccessByConstant() returns boolean {
+    string s = "Anne";
+    boolean b = true;
+    int i = 100;
+
+    map<string|int|boolean> e = { name: s, id: i, registered: b };
+
+    string|int|boolean? s2 = e[NAMEC];
+    string|int|boolean? b2 = e[REGISTEREDC];
+    string|int|boolean? i2 = e[IDC];
 
     return s == s2 && b == b2 && i == i2;
 }
@@ -324,4 +385,79 @@ function testMemberAccessOnMappingUnion() returns boolean {
     anydata z = bq["z"];
 
     return x == "hello" && x2 == "hello" && y == 11 && z is ();
+}
+
+function testVariableStringMemberAccess() returns boolean {
+    string s = "hello world";
+    string[] sa = [];
+
+    foreach int i in 0 ..< s.length() {
+        sa[i] = s[i];
+    }
+
+    int index = 0;
+    string newSt = "";
+    foreach string st in sa {
+        newSt += st;
+    }
+    return newSt == s;
+}
+
+const CONST_STRING_1 = "string value";
+
+function testConstStringMemberAccess1() returns boolean {
+    string[] sa = [];
+
+    foreach int i in 0 ..< CONST_STRING_1.length() {
+        sa[i] = CONST_STRING_1[i];
+    }
+
+    int index = 0;
+    string newSt = "";
+    foreach string st in sa {
+        newSt += st;
+    }
+    return newSt == CONST_STRING_1;
+}
+
+const CONST_STRING_2 = "abcdef value";
+
+const IIC1 = 1;
+const IIC3 = 3;
+
+function testConstStringMemberAccess2() returns boolean {
+    return CONST_STRING_2[0] == "a" && CONST_STRING_2[IIC1] == "b" && CONST_STRING_2[2] == "c" &&
+            CONST_STRING_2[IIC3] == "d";
+}
+
+function testOutOfRangeStringMemberAccess1() {
+    string s = "hello";
+    string s2 = s[-1];
+}
+
+function testOutOfRangeStringMemberAccess2() {
+    string s = "hello world";
+    string s2 = s[s.length()];
+}
+
+function testOutOfRangeStringMemberAccess3() {
+    int i = 25;
+    string s2 = CONST_STRING_2[i];
+}
+
+type StFooBar "foo"|"bar";
+type IntValues -1|0|4;
+
+function testFiniteTypeStringMemberAccess() returns boolean {
+    StFooBar s1 = "bar";
+    string s2 = "bar";
+    IntValues i1 = 0;
+    int i2 = 1;
+    return s1[i1] == "b" && s1[i2] == "a" && s2[i1] == "b" && s2[i2] == "a";
+}
+
+function testOutOfRangeFiniteTypeStringMemberAccess() {
+    StFooBar s = "foo";
+    IntValues i = 4;
+    _ = s[i];
 }

@@ -26,13 +26,9 @@ export interface OverviewProps extends CommonDiagramProps {
 }
 export interface OverviewState {
     modules: ProjectAST;
-    selectedConstruct?: {
-        moduleName: string;
-        constructName: string;
-    } | undefined;
+    selectedConstruct?: ConstructIdentifier | undefined;
     mode: DiagramMode;
     modeText: string;
-    fitToWidthOrHeight: boolean;
     zoomFactor: number;
     openedState: boolean;
     maxInvocationDepth: number;
@@ -41,10 +37,12 @@ export interface OverviewState {
 export interface ConstructIdentifier {
     constructName: string;
     moduleName: string;
+    subConstructName?: string;
 }
 
 export class Overview extends React.Component<OverviewProps, OverviewState> {
     private panZoomComp: PanZoom | undefined;
+    private panZoomElement: SVGGElement | undefined;
     private innitialPanZoomTransform: {
         x: number;
         y: number;
@@ -66,8 +64,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         this.setPanZoomComp = this.setPanZoomComp.bind(this);
         this.setMaxInvocationDepth = this.setMaxInvocationDepth.bind(this);
         this.state = {
-            fitToWidthOrHeight: true,
-            maxInvocationDepth: 0,
+            maxInvocationDepth: -1,
             mode: DiagramMode.INTERACTION,
             modeText: "Interaction",
             modules: {},
@@ -78,18 +75,22 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
 
     public updateAST() {
         const { langClient, sourceRootUri, docUri } = this.props;
-        const selectedConstruct = this.props.initialSelectedConstruct;
-
         if (sourceRootUri) {
-            langClient.getProjectAST({ sourceRoot: sourceRootUri}).then((result) => {
+            langClient.getProjectAST({ sourceRoot: sourceRootUri }).then((result) => {
+                if (!result || !(Object.keys(result.modules).length > 0)) {
+                    return;
+                }
                 this.setState({
-                    modules: result.modules,
-                    selectedConstruct,
+                    modules: result.modules
                 });
-            });
+            }, () => {/** no op */});
         } else {
             langClient.getAST({documentIdentifier: {uri: docUri}}).then((result) => {
                 const ast = result.ast as any;
+                if (!ast) {
+                    return;
+                }
+
                 this.setState({
                     modules: {
                         [ast.name]: {
@@ -102,24 +103,27 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                             },
                             name: ast.name,
                         }
-                    },
-                    selectedConstruct,
+                    }
                 });
             });
         }
     }
 
-    public selectConstruct({moduleName, constructName}: ConstructIdentifier) {
+    public selectConstruct({moduleName, constructName, subConstructName}: ConstructIdentifier) {
         this.setState({
             selectedConstruct: {
-                constructName, moduleName,
+                constructName, moduleName, subConstructName
             }
         });
     }
 
     public componentDidMount() {
-
         this.updateAST();
+        if (this.props.initialSelectedConstruct) {
+            this.setState({
+                selectedConstruct: this.props.initialSelectedConstruct,
+            });
+        }
     }
 
     public render() {
@@ -131,6 +135,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
 
         const selectedModule = this.state.selectedConstruct.moduleName;
         const selectedConstruct = this.state.selectedConstruct.constructName;
+        const selectedSubConstruct = this.state.selectedConstruct.subConstructName;
         const moduleList = this.getModuleList();
 
         const moduleNames: string[] = [];
@@ -149,6 +154,14 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                     if (selectedConstruct && (nodeName === selectedConstruct)) {
                         selectedAST = nodeI.node;
                         selectedUri = nodeI.uri;
+
+                        if (selectedSubConstruct) {
+                            if (ASTKindChecker.isService(selectedAST)) {
+                                selectedAST = selectedAST.resources.find((resorce) => {
+                                    return resorce.name.value === selectedSubConstruct;
+                                });
+                            }
+                        }
                     }
                 });
             }
@@ -167,7 +180,6 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                     handleZoomOut={this.handleZoomOut}
                     handleOpened={this.handleOpened}
                     handleClosed={this.handleClosed}
-                    fitActive={this.state.fitToWidthOrHeight}
                     zoomFactor={this.state.zoomFactor}
                     handleReset={this.handleReset}
                     handleDepthSelect={this.setMaxInvocationDepth}
@@ -178,7 +190,6 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                     projectAst={modules}
                     docUri={selectedUri}
                     zoom={0} height={0} width={1000}
-                    fitToWidthOrHeight={this.state.fitToWidthOrHeight}
                     mode={this.state.mode}
                     setPanZoomComp={this.setPanZoomComp}
                     maxInvocationDepth={this.state.maxInvocationDepth}>
@@ -290,10 +301,16 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
     }
 
     private handleFitClick() {
-        this.setState((state) => ({
-            fitToWidthOrHeight: !state.fitToWidthOrHeight,
-            zoomFactor: 1,
-        }));
+        if (!(this.panZoomElement && this.panZoomElement.parentElement && this.panZoomComp)) {
+            return;
+        }
+
+        const diagramWidth = this.panZoomElement.getBBox().width;
+        const containerWidth = (this.panZoomElement.parentElement as unknown as SVGSVGElement).width.baseVal.value;
+        const fitToWidthZoomScale = containerWidth / diagramWidth;
+
+        this.panZoomComp.zoomAbs(0, 0, fitToWidthZoomScale);
+        this.panZoomComp.moveTo(20, 20);
     }
 
     private handleZoomIn() {
@@ -305,7 +322,6 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         this.panZoomComp.zoomAbs(x, y, scale + 0.1);
         const { scale : newScale } = this.panZoomComp.getTransform();
         this.setState((state) => ({
-            fitToWidthOrHeight: false,
             zoomFactor: newScale,
         }));
     }
@@ -319,7 +335,6 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         this.panZoomComp.zoomAbs(x, y, scale - 0.1);
         const { scale : newScale } = this.panZoomComp.getTransform();
         this.setState((state) => ({
-            fitToWidthOrHeight: false,
             zoomFactor: newScale,
         }));
     }
@@ -377,8 +392,9 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         }));
     }
 
-    private setPanZoomComp(comp: PanZoom | undefined) {
+    private setPanZoomComp(comp: PanZoom | undefined, element: SVGGElement | undefined) {
         this.panZoomComp = comp;
+        this.panZoomElement = element;
         if (comp) {
             const {x, y, scale} = comp.getTransform();
             this.innitialPanZoomTransform = {x, y, scale};

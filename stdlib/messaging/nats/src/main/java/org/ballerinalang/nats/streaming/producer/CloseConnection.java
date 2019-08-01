@@ -18,7 +18,7 @@
 package org.ballerinalang.nats.streaming.producer;
 
 import io.nats.streaming.StreamingConnection;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.nats.Constants;

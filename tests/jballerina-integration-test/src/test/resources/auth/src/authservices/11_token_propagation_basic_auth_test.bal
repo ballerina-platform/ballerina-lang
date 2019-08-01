@@ -18,10 +18,10 @@ import ballerina/auth;
 import ballerina/http;
 import ballerina/jwt;
 
-auth:InboundBasicAuthProvider basicAuthProvider11_1 = new(());
+auth:InboundBasicAuthProvider basicAuthProvider11_1 = new;
 http:BasicAuthHandler basicAuthHandler11_1 = new(basicAuthProvider11_1);
 
-listener http:Listener listener11_1 = new(9103, {
+listener http:Listener listener11_1 = new(20013, {
     auth: {
         authHandlers: [basicAuthHandler11_1]
     },
@@ -36,7 +36,7 @@ listener http:Listener listener11_1 = new(9103, {
 jwt:OutboundJwtAuthProvider jwtAuthProvider11_2 = new({
     issuer: "ballerina",
     audience: ["ballerina"],
-    issuerConfig: {
+    keyStoreConfig: {
         keyAlias: "ballerina",
         keyPassword: "ballerina",
         keyStore: {
@@ -47,7 +47,7 @@ jwt:OutboundJwtAuthProvider jwtAuthProvider11_2 = new({
 });
 http:BearerAuthHandler jwtAuthHandler11_2 = new(jwtAuthProvider11_2);
 
-http:Client nyseEP03 = new("https://localhost:9104", {
+http:Client nyseEP03 = new("https://localhost:20014", {
     auth: {
         authHandler: jwtAuthHandler11_2
     }
@@ -61,7 +61,7 @@ service passthroughService11 on listener11_1 {
         path: "/"
     }
     resource function passthrough(http:Caller caller, http:Request clientRequest) {
-        var response = nyseEP03->get("/nyseStock/stocks", message = <@untainted> clientRequest);
+        var response = nyseEP03->get("/nyseStock/stocks", <@untainted> clientRequest);
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {
@@ -85,7 +85,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider11_3 = new({
 });
 http:BearerAuthHandler jwtAuthHandler11_3 = new(jwtAuthProvider11_3);
 
-listener http:Listener listener11_2 = new(9104, {
+listener http:Listener listener11_2 = new(20014, {
     auth: {
         authHandlers: [jwtAuthHandler11_3]
     },

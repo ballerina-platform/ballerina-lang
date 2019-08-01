@@ -16,15 +16,14 @@
 
 import ballerina/auth;
 import ballerina/cache;
+import ballerina/internal;
 import ballerina/log;
 import ballerina/runtime;
 import ballerina/time;
-import ballerina/internal;
 
 const string SCOPES = "scope";
 const string GROUPS = "groups";
 const string USERNAME = "name";
-const string AUTH_TYPE_JWT = "jwt";
 
 # Represents inbound JWT auth provider.
 #
@@ -55,7 +54,8 @@ public type InboundJwtAuthProvider object {
         if (self.jwtValidatorConfig.jwtCache.hasKey(credential)) {
             var payload = authenticateFromCache(self.jwtValidatorConfig, credential);
             if (payload is JwtPayload) {
-                setAuthenticationContext(payload, credential);
+                auth:setAuthenticationContext("jwt", credential);
+                setPrincipal(payload);
                 return true;
             } else {
                 return false;
@@ -64,13 +64,12 @@ public type InboundJwtAuthProvider object {
 
         var validationResult = validateJwt(credential, self.jwtValidatorConfig);
         if (validationResult is JwtPayload) {
-            setAuthenticationContext(validationResult, credential);
+            auth:setAuthenticationContext("jwt", credential);
+            setPrincipal(validationResult);
             addToAuthenticationCache(self.jwtValidatorConfig, credential, validationResult?.exp, validationResult);
             return true;
         } else {
-            // TODO: Remove the below casting when new lang syntax are merged.
-            error e = validationResult;
-            return auth:prepareError("JWT validation failed.", e);
+            return auth:prepareError("JWT validation failed.", validationResult);
         }
     }
 };
@@ -100,14 +99,14 @@ function addToAuthenticationCache(JwtValidatorConfig jwtValidatorConfig, string 
     jwtValidatorConfig.jwtCache.put(jwtToken, cachedJwt);
     string? sub = payload?.sub;
     if (sub is string) {
-    string printMsg = sub;
-     log:printDebug(function() returns string {
+        string printMsg = sub;
+        log:printDebug(function() returns string {
             return "Add authenticated user :" + printMsg + " to the cache";
         });
     }
 }
 
-function setAuthenticationContext(JwtPayload jwtPayload, string jwtToken) {
+function setPrincipal(JwtPayload jwtPayload) {
     runtime:Principal? principal = runtime:getInvocationContext()?.principal;
     if (principal is runtime:Principal) {
         string? iss = jwtPayload?.iss;
@@ -131,11 +130,5 @@ function setAuthenticationContext(JwtPayload jwtPayload, string jwtToken) {
                 }
             }
         }
-    }
-
-    runtime:AuthenticationContext? authenticationContext = runtime:getInvocationContext()?.authenticationContext;
-    if (authenticationContext is runtime:AuthenticationContext) {
-        authenticationContext.scheme = AUTH_TYPE_JWT;
-        authenticationContext.authToken = jwtToken;
     }
 }

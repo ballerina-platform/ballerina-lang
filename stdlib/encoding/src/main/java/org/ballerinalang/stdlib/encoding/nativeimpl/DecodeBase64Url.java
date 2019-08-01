@@ -18,9 +18,7 @@
 
 package org.ballerinalang.stdlib.encoding.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.encoding.EncodingUtil;
@@ -36,18 +34,14 @@ import java.util.Base64;
         orgName = "ballerina", packageName = "encoding",
         functionName = "decodeBase64Url", isPublic = true
 )
-public class DecodeBase64Url extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class DecodeBase64Url {
 
     public static Object decodeBase64Url(Strand strand, String input) {
         try {
             byte[] output = Base64.getUrlDecoder().decode(input);
             return new ArrayValue(output);
         } catch (IllegalArgumentException e) {
-            return EncodingUtil.createEncodingError("Input is not a valid Base64 URL encoded value");
+            return EncodingUtil.createError("Input is not a valid Base64 URL encoded value");
         }
     }
 }

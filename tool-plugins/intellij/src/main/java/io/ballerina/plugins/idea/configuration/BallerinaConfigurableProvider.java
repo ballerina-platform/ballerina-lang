@@ -22,8 +22,8 @@ import com.intellij.openapi.options.ConfigurableProvider;
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.options.UnnamedConfigurable;
 import com.intellij.openapi.project.Project;
-import io.ballerina.plugins.idea.codeinsight.semanticanalyzer.BallerinaSemanticAnalyzerConfigurable;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
+import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionConfigurable;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,6 +35,7 @@ public class BallerinaConfigurableProvider extends ConfigurableProvider {
 
     @NotNull
     private final Project myProject;
+    private BallerinaCompositeConfigurable myProjectConfigurable;
 
     public BallerinaConfigurableProvider(@NotNull Project project) {
         myProject = project;
@@ -46,13 +47,14 @@ public class BallerinaConfigurableProvider extends ConfigurableProvider {
         //        Configurable projectSettingsConfigurable = new BallerinaProjectSettingsConfigurable(myProject);
         Configurable librariesConfigurable = new BallerinaLibrariesConfigurableProvider(myProject).createConfigurable();
         Configurable sdkConfigurable = BallerinaSdkService.getInstance(myProject).createSdkConfigurable();
-        Configurable semanticAnalyzerConfigurable = new BallerinaSemanticAnalyzerConfigurable(myProject, false);
+        Configurable langServerAutoDetectionConfigurable = new BallerinaAutoDetectionConfigurable(myProject, false);
         BallerinaCompositeConfigurable configurableWithSDK = new BallerinaCompositeConfigurable(sdkConfigurable,
-                librariesConfigurable, semanticAnalyzerConfigurable);
+                librariesConfigurable);
         BallerinaCompositeConfigurable configurableWithoutSDK = new BallerinaCompositeConfigurable(
-                librariesConfigurable, semanticAnalyzerConfigurable);
+                librariesConfigurable, langServerAutoDetectionConfigurable);
 
-        return sdkConfigurable != null ? configurableWithSDK : configurableWithoutSDK;
+        myProjectConfigurable = sdkConfigurable != null ? configurableWithSDK : configurableWithoutSDK;
+        return myProjectConfigurable;
     }
 
     private static class BallerinaCompositeConfigurable extends SearchableConfigurable.Parent.Abstract {

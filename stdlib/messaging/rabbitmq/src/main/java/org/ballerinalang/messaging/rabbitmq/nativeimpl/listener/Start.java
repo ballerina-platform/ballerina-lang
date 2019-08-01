@@ -22,9 +22,7 @@ import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -54,14 +52,10 @@ import java.util.ArrayList;
                 structType = RabbitMQConstants.LISTENER_OBJECT,
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ)
 )
-public class Start extends BlockingNativeCallableUnit {
+public class Start {
     private static MessageDispatcher messageDispatcher;
     private static final PrintStream console;
     private static String queueName;
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static Object start(Strand strand, ObjectValue listenerObjectValue) {
         boolean autoAck;
@@ -160,5 +154,8 @@ public class Start extends BlockingNativeCallableUnit {
 
     static {
         console = System.out;
+    }
+
+    private Start() {
     }
 }

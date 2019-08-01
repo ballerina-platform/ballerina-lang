@@ -126,7 +126,7 @@ function testWhileWithContinue() returns string {
         if (a == 3) {
             continue;
         }
-        result = result + "inner" + a;
+        result = result + "inner" + a.toString();
     }
     return result;
 }

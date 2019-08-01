@@ -15,9 +15,8 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -46,10 +45,6 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
         isPublic = true
 )
 public class Register extends AbstractGrpcNativeFunction {
-    
-    @Override
-    public void execute(Context context) {
-    }
 
     public static Object register(Strand strand, ObjectValue listenerObject, ObjectValue service,
                                   Object annotationData) {
@@ -60,7 +55,7 @@ public class Register extends AbstractGrpcNativeFunction {
                 return BallerinaErrors.createError("{ballerina/grpc}INTERNAL_ERROR", "Error when " +
                         "initializing service register builder.");
             } else {
-                servicesRegistryBuilder.addService(ServicesBuilderUtils.getServiceDefinition(service,
+                servicesRegistryBuilder.addService(ServicesBuilderUtils.getServiceDefinition(strand.scheduler, service,
                         service.getType().getAnnotation("ballerina/grpc:ServiceDescriptor")));
                 return null;
             }

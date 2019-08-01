@@ -22,20 +22,20 @@ import ballerina/encoding;
 # + keyStore - Keystore to be used in JWT signing
 # + keyAlias - Signing key alias
 # + keyPassword - Signing key password
-public type JwtIssuerConfig record {|
+public type JwtKeyStoreConfig record {|
     crypto:KeyStore keyStore;
     string keyAlias;
     string keyPassword;
 |};
 
 # Issue a JWT token based on provided header and payload. JWT will be signed (JWS) if `keyStore` information is provided
-# in the `JwtIssuerConfig` and the `alg` field of `JwtHeader` is not `NONE`.
+# in the `JwtKeyStoreConfig` and the `alg` field of `JwtHeader` is not `NONE`.
 #
 # + header - JwtHeader object
 # + payload - JwtPayload object
-# + config - JWT issuer config record
+# + config - JWT key store config record
 # + return - JWT token string or an `Error` if token validation fails
-public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? config) returns string|Error {
+public function issueJwt(JwtHeader header, JwtPayload payload, JwtKeyStoreConfig? config) returns string|Error {
     string jwtHeader = check buildHeaderString(header);
     string jwtPayload = check buildPayloadString(payload);
     string jwtAssertion = jwtHeader + "." + jwtPayload;
@@ -44,47 +44,45 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JwtIssuerConfig? 
         if (alg == NONE) {
             return jwtAssertion;
         } else {
-            if (config is JwtIssuerConfig) {
+            if (config is JwtKeyStoreConfig) {
                 crypto:KeyStore keyStore = config.keyStore;
                 string keyAlias = config.keyAlias;
                 string keyPassword = config.keyPassword;
-                var privateKey = crypto:decodePrivateKey(keyStore, keyAlias,
-                                                         keyPassword);
+                var privateKey = crypto:decodePrivateKey(keyStore, keyAlias, keyPassword);
                 if (privateKey is crypto:PrivateKey) {
                     if (alg == RS256) {
                         var signature = crypto:signRsaSha256(jwtAssertion.toBytes(), privateKey);
                         if (signature is byte[]) {
                             return (jwtAssertion + "." + encoding:encodeBase64Url(signature));
                         } else {
-                            return prepareError("Private key signing failed for SHA256 algorithm.", err = signature);
+                            return prepareError("Private key signing failed for SHA256 algorithm.", signature);
                         }
                     } else if (alg == RS384) {
                         var signature = crypto:signRsaSha384(jwtAssertion.toBytes(), privateKey);
                         if (signature is byte[]) {
                             return (jwtAssertion + "." + encoding:encodeBase64Url(signature));
                         } else {
-                            return prepareError("Private key signing failed for SHA384 algorithm.", err = signature);
+                            return prepareError("Private key signing failed for SHA384 algorithm.", signature);
                         }
                     } else if (alg == RS512) {
                         var signature = crypto:signRsaSha512(jwtAssertion.toBytes(), privateKey);
                         if (signature is byte[]) {
                             return (jwtAssertion + "." + encoding:encodeBase64Url(signature));
                         } else {
-                            return prepareError("Private key signing failed for SHA512 algorithm.", err = signature);
+                            return prepareError("Private key signing failed for SHA512 algorithm.", signature);
                         }
                     } else {
                         return prepareError("Unsupported JWS algorithm.");
                     }
                 } else {
-                    return prepareError("Private key decoding failed.", err = privateKey);
+                    return prepareError("Private key decoding failed.", privateKey);
                 }
             } else {
-                return prepareError("Signing JWT requires JwtIssuerConfig with keystore information.");
+                return prepareError("Signing JWT requires JwtKeyStoreConfig with keystore information.");
             }
         }
     }
-    //TODO: Define a proper error
-    return prepareError("JwtSigningAlgorithm is not found.");
+    return prepareError("Failed to issue JWT since signing algorithm is not specified.");
 }
 
 function buildHeaderString(JwtHeader header) returns string|Error {
@@ -105,23 +103,17 @@ function buildHeaderString(JwtHeader header) returns string|Error {
         } else {
             return prepareError("Unsupported JWS algorithm.");
         }
-        if (header["typ"] is string) {
-            string? typ = header?.typ;
-            if (typ is string) {
-                headerJson[TYP] = typ;
-            }
+        string? typ = header?.typ;
+        if (typ is string) {
+            headerJson[TYP] = typ;
         }
-        if (header["cty"] is string) {
-            string? cty = header?.cty;
-            if (cty is string) {
-                headerJson[CTY] = cty;
-            }
+        string? cty = header?.cty;
+        if (cty is string) {
+            headerJson[CTY] = cty;
         }
-        if (header["kid"] is string) {
-            string? kid = header?.kid;
-            if (kid is string) {
-                headerJson[KID] = kid;
-            }
+        string? kid = header?.kid;
+        if (kid is string) {
+            headerJson[KID] = kid;
         }
     }
     string headerValInString = headerJson.toString();
@@ -131,33 +123,33 @@ function buildHeaderString(JwtHeader header) returns string|Error {
 
 function buildPayloadString(JwtPayload payload) returns string|Error {
     map<json> payloadJson = {};
-    var sub = payload["sub"];
+    string? sub = payload?.sub;
     if (sub is string) {
         payloadJson[SUB] = sub;
     }
-    var iss = payload["iss"];
+    string? iss = payload?.iss;
     if (iss is string) {
         payloadJson[ISS] = iss;
     }
-    var exp = payload["exp"];
+    int? exp = payload?.exp;
     if (exp is int) {
         payloadJson[EXP] = exp;
     }
-    var iat = payload["iat"];
+    int? iat = payload?.iat;
     if (iat is int) {
         payloadJson[IAT] = iat;
     }
-    var jti = payload["jti"];
+    string? jti = payload?.jti;
     if (jti is string) {
         payloadJson[JTI] = jti;
     }
-    var aud = payload["aud"];
+    var aud = payload?.aud;
     if (aud is string) {
         payloadJson[AUD] = aud;
     } else if (aud is string[]) {
         payloadJson[AUD] = aud;
     }
-    var customClaims = payload["customClaims"];
+    var customClaims = payload?.customClaims;
     if (customClaims is map<json>) {
         payloadJson = addMapToJson(payloadJson, customClaims);
     }

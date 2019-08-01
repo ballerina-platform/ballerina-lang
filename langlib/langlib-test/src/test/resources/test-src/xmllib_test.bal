@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/'lang\.xml as xmllib;
+
 xml catalog = xml `<CATALOG>
                        <CD>
                            <TITLE>Empire Burlesque</TITLE>
@@ -42,4 +44,142 @@ function getXML() returns xml[] {
     data[data.length()] = xml `Hello World!`;
 
     return data;
+}
+
+function testFromString() returns xml|error {
+    string s = catalog.toString();
+    xml x = <xml> xmllib:fromString(s);
+    return x["CD"]["TITLE"];
+}
+
+function emptyConcatCall() returns xml {
+    return xmllib:concat();
+}
+
+function testConcat() returns xml {
+    xml x = xml `<hello>xml content</hello>`;
+    return xmllib:concat(x, <xml> testFromString(), "hello from String");
+}
+
+function testIsElement() returns [boolean, boolean, boolean] {
+    return [xmllib:concat().isElement(), catalog.isElement(), testConcat().isElement()];
+}
+
+function testXmlPI() returns [boolean, boolean, boolean] {
+    xml pi = xml `<?xml-stylesheet type="text/xsl" href="style.xsl"?>`;
+    return [pi.isProcessingInstruction(),
+        xmllib:isProcessingInstruction(pi),
+        emptyConcatCall().isProcessingInstruction()];
+}
+
+function testXmlIsComment() returns [boolean, boolean, boolean] {
+    xml cmnt = xml `<!-- hello from comment -->`;
+    return [cmnt.isComment(),
+        xmllib:isComment(cmnt),
+        emptyConcatCall().isComment()];
+}
+
+function testXmlIsText() returns [boolean, boolean, boolean] {
+    xml text = xml `hello text`;
+    return [text.isText(),
+        xmllib:isText(text),
+        emptyConcatCall().isComment()];
+}
+
+function getNameOfElement() returns string {
+    xml elem = xml `<elem>elem</elem>`;
+    return elem.getName();
+}
+
+function getNameOfElementNegative() returns string {
+    xml seq = xmllib:concat(xml `<elem>a</elem>`, xml `<elem>a</elem>`);
+    return seq.getName();
+}
+
+function testSetElementName() returns xml {
+    xml elem = xml `<elem attr="attr1">content</elem>`;
+    elem.setName("el2");
+    return elem;
+}
+
+function testSetElementNameNegative() returns xml {
+    xml elem = xml `<elem attr="attr1">content</elem>`;
+    xml elemN = xml `<elemN></elemN>`;
+    xml seq = xmllib:concat(elem, elemN);
+    seq.setName("el2");
+    return seq;
+}
+
+function testGetChildren() returns xml {
+    return catalog.getChildren().strip()[0].getChildren().strip();
+}
+
+function testGetChildrenNegative() returns xml {
+    return catalog.getChildren().strip().getChildren();
+}
+
+function testSetChildren() returns xml {
+    xml child = xml `<e>child</e>`;
+    catalog.getChildren().strip()[0].setChildren(child);
+    return catalog.getChildren().strip()[0];
+}
+
+function testSetChildrenNegative() {
+    xml child = xml `<e>child</e>`;
+    catalog.getChildren().strip().setChildren(child);
+}
+
+function testGetAttributes() returns map<string> {
+    xml elem = xml `<elem attr="attr1" attr2="attr2">content</elem>`;
+    return elem.getAttributes();
+}
+
+function testGetAttributesNegative() returns map<string> {
+    xml elem = xml `<elem attr="attr1">content</elem>`;
+    xml elemN = xml `<elemN></elemN>`;
+    xml seq = xmllib:concat(elem, elemN);
+    return seq.getAttributes();
+}
+
+function testGetTarget() returns string {
+    xml pi = xml `<?xml-stylesheet type="text/xsl" href="style.xsl"?>`;
+    return pi.getTarget();
+}
+
+function testGetTargetNegative() {
+   xml elm = xml `<elm>e</elm>`;
+   _ = elm.getTarget();
+}
+
+function testGetContent() returns [string, string, string] {
+    xml t = xml `hello world`;
+    xml pi = xml `<?pi-node type="cont"?>`;
+    xml comment = xml `<!-- this is a comment text -->`;
+    return [t.getContent(), pi.getContent(), comment.getContent()];
+}
+
+function testGetContentNegative() returns string {
+    xml t = xml `<elm>cont</elm>`;
+    return t.getContent();
+}
+
+function testCreateElement() returns xml {
+    xml t = xml `hello world`;
+    return xmllib:createElement("elem", t);
+}
+
+function testCreateProcessingInstruction() returns xml {
+    return xmllib:createProcessingInstruction("xml-stylesheet", "type=\"text/xsl\" href=\"style.xsl\"");
+}
+
+function testCreateComment() returns xml {
+    return xmllib:createComment("This text should be wraped in xml comment");
+}
+
+function testCopingComment() returns xml {
+    xml bookComment = xml `<!--some comment-->`;
+
+    // Makes a copy of an XML element.
+    xml x = bookComment.copy();
+    return x;
 }

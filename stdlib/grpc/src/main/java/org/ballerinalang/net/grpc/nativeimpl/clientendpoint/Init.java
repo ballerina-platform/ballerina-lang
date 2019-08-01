@@ -17,10 +17,8 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.clientendpoint;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -61,11 +59,7 @@ import static org.ballerinalang.net.http.HttpUtil.populateSenderConfigurations;
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
-public class Init extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class Init {
 
     @SuppressWarnings("unchecked")
     public static void init(Strand strand, ObjectValue clientEndpoint, String urlString,

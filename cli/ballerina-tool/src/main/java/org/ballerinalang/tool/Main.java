@@ -170,13 +170,13 @@ public class Main {
     }
 
     private static void printVersionInfo() {
-        try (InputStream inputStream = Main.class.getResourceAsStream("/META-INF/launcher.properties")) {
+        try (InputStream inputStream = Main.class.getResourceAsStream("/META-INF/tool.properties")) {
             Properties properties = new Properties();
             properties.load(inputStream);
 
             String output = "Ballerina " + properties.getProperty("ballerina.version") + "\n";
-            output += "Language specification " + properties.getProperty("ballerina.spec.version") + "\n";
-            output += "Ballerina tool " + properties.getProperty("ballerina.update.tool.version") + "\n";
+            output += "Language specification " + properties.getProperty("spec.version") + "\n";
+            output += "Ballerina tool " + properties.getProperty("tool.version") + "\n";
             outStream.print(output);
         } catch (Throwable ignore) {
             // Exception is ignored
@@ -529,7 +529,7 @@ public class Main {
 
         public void execute() {
             if (helpFlag) {
-                printUsageInfo(BallerinaCliCommands.VERSION);
+                printUsageInfo(BallerinaCliCommands.SDK);
                 return;
             }
 
@@ -585,7 +585,7 @@ public class Main {
 
         public void execute() {
             if (helpFlag) {
-                printUsageInfo(BallerinaCliCommands.VERSION);
+                printUsageInfo(BallerinaCliCommands.INSTALL);
                 return;
             }
 
@@ -642,7 +642,7 @@ public class Main {
 
         public void execute() {
             if (helpFlag) {
-                printUsageInfo(BallerinaCliCommands.VERSION);
+                printUsageInfo(BallerinaCliCommands.UPDATE);
                 return;
             }
 
@@ -698,7 +698,7 @@ public class Main {
 
         public void execute() {
             if (helpFlag) {
-                printUsageInfo(BallerinaCliCommands.VERSION);
+                printUsageInfo(BallerinaCliCommands.REMOVE);
                 return;
             }
 

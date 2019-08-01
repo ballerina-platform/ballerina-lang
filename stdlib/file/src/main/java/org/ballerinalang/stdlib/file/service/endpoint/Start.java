@@ -18,9 +18,7 @@
 
 package org.ballerinalang.stdlib.file.service.endpoint;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -41,11 +39,7 @@ import org.wso2.transport.localfilesystem.server.exception.LocalFileSystemServer
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = "ballerina/file"),
         isPublic = true
 )
-public class Start extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class Start {
 
     public static Object start(Strand strand, ObjectValue listener) {
         LocalFileSystemServerConnector serverConnector = (LocalFileSystemServerConnector) listener

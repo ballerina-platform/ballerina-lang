@@ -59,18 +59,19 @@ function testKeys() returns string[] {
 }
 
 function testMap() returns map<int> {
-    return person.'map(function (string|int v) returns int {
+    return person.'map(function (anydata v) returns int {
         if (v is string) {
             return v.length();
-        } else {
+        } else if (v is int) {
             return v;
         }
+        return 0;
     });
 }
 
 function testForEach() returns string {
     string result = "";
-    person.forEach(function (string|int val) {
+    person.forEach(function (anydata val) {
         if (val is string) {
             result += val;
         } else {

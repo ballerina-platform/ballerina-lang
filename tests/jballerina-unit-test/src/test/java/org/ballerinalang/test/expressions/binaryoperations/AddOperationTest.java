@@ -165,6 +165,6 @@ BValue[] returns = BRunUtil.invoke(result, "stringXmlAdd");
     public void testSubtractStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 2);
         BAssertUtil.validateError(resultNegative, 0, "operator '+' not defined for 'json' and 'json'", 8, 10);
-        BAssertUtil.validateError(resultNegative, 1, "incompatible types: expected 'int', found 'string'", 14, 9);
+        BAssertUtil.validateError(resultNegative, 1, "operator '+' not defined for 'int' and 'string'", 14, 9);
     }
 }

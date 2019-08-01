@@ -56,6 +56,10 @@ public type Select object {
                     self.aggregatorsCloneMap.removeAll();
                 }
 
+                if (event.eventType == TIMER) {
+                    continue;
+                }
+
                 string groupbyKey = self.getGroupByKey(self.groupbyFuncArray, event);
                 Aggregator[] aggregatorsClone = [];
                 var aggregators = self.aggregatorsCloneMap[groupbyKey];
@@ -64,7 +68,7 @@ public type Select object {
                 } else {
                     int i = 0;
                     foreach var aggregator in self.aggregatorArr {
-                        string snapshotableKey = self.scopeName + groupbyKey + "$" + i;
+                        string snapshotableKey = self.scopeName + groupbyKey + "$" + i.toString();
                         Aggregator clone = aggregator.copy();
                         restoreState(snapshotableKey, clone);
                         registerSnapshotable(snapshotableKey, clone);

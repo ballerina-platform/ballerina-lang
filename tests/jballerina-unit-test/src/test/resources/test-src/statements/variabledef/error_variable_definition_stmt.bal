@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type SMS error <string, map<string>>;
-type SMA error <string, map<anydata>>;
-type CMS error <string, map<string>>;
-type CMA error <string, map<anydata>>;
+type SMS error <string, record {| string message?; error cause?; string...; |}>;
+type SMA error <string, record {| string message?; error cause?; anydata...; |}>;
+type CMS error <string, record {| string message?; error cause?; string...; |}>;
+type CMA error <string, record {| string message?; error cause?; anydata...; |}>;
 const ERROR1 = "Some Error One";
 const ERROR2 = "Some Error Two";
 
@@ -76,6 +76,7 @@ function testVarBasicErrorVariableWithConstAndMap() returns [string, string, str
 type Foo record {
     string message;
     boolean fatal;
+    error cause?;
 };
 
 type FooError error <string, Foo>;
@@ -92,7 +93,7 @@ function testErrorInTuple() returns [int, string, string, anydata|error, boolean
     [int, string, error, [error, Foo]] t1 = [12, "Bal", error("Err", message = "Something Wrong"),
                                                                 [error("Err2", message = "Something Wrong2"), f]];
     [int, string, error, [error, Foo]] [intVar, stringVar, erroVar, [errorVar2, fooVar]] = t1;
-    return [intVar, stringVar, erroVar.reason(), errorVar2.detail().message, fooVar.fatal];
+    return [intVar, stringVar, erroVar.reason(), errorVar2.detail()["message"], fooVar.fatal];
 }
 
 function testErrorInTupleWithVar() returns [int, string, string, anydata|error, boolean] {
@@ -100,7 +101,7 @@ function testErrorInTupleWithVar() returns [int, string, string, anydata|error, 
     [int, string, error, [error, Foo]] t1 = [12, "Bal", error("Err", message = "Something Wrong"),
                                                                 [error("Err2", message = "Something Wrong2"), f]];
     var [intVar, stringVar, erroVar, [errorVar2, fooVar]] = t1;
-    return [intVar, stringVar, erroVar.reason(), errorVar2.detail().message, fooVar.fatal];
+    return [intVar, stringVar, erroVar.reason(), errorVar2.detail()["message"], fooVar.fatal];
 }
 
 function testErrorInTupleWithDestructure() returns [int, string, string, map<anydata|error>, boolean] {
@@ -123,21 +124,21 @@ type Bar record {
 
 function testErrorInRecordWithDestructure() returns [int, string, anydata|error] {
     Bar b = { x: 1000, e: error("Err3", message = "Something Wrong3") };
-    Bar { x, e: error(reason, ... detail) } = b;
-    return [x, reason, detail.message];
+    Bar { x, e: error(reason, ...detail) } = b;
+    return [x, reason, detail["message"]];
 }
 
 function testErrorWithAnonErrorType() returns [string, string?] {
-    error <string, map<string>> err = error("Error Code", message = "Fatal");
-    error <string, map<string>> error(reason, message = message) = err;
+    error <string, record {| string message?; error cause?; string...; |}> err = error("Error Code", message = "Fatal");
+    error <string, record {| string message?; error cause?; string...; |}> error(reason, message = message) = err;
     return [reason, message];
 }
 
 function testErrorWithUnderscore() returns [string, string, string, string, string, string, string, string,
                                                string?, anydata|error?, anydata|error?] {
-    error <string, map<string>> err = error("Error Code", message = "Fatal");
-    error <string, map<string>> error (reason, ... _) = err;
-    error <string, map<string>> error (reason2) = err;
+    error <string, record {| string message?; error cause?; string...; |}> err = error("Error Code", message = "Fatal");
+    error <string, record {| string message?; error cause?; string...; |}> error (reason, ... _) = err;
+    error <string, record {| string message?; error cause?; string...; |}> error (reason2) = err;
 
     SMS err1 = error("Error One", message = "Msg One", detail = "Detail Msg");
     SMS error (reason3, ... _) = err1;

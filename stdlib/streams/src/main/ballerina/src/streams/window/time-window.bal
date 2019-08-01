@@ -65,7 +65,7 @@ public type TimeWindow object {
             }
         } else {
             error err = error("Time window should only have one parameter (<int> " +
-                "windowTime), but found " + parameters.length() + " input attributes");
+                "windowTime), but found " + parameters.length().toString() + " input attributes");
             panic err;
         }
     }

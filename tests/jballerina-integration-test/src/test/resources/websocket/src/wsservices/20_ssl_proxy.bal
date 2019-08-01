@@ -19,7 +19,7 @@ import ballerina/log;
 
 @http:WebSocketServiceConfig {
 }
-service on new http:WebSocketListener(9077) {
+service on new http:WebSocketListener(21021) {
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new("wss://localhost:15400/websocket", { callbackService:
             sslClientService, secureSocket: { trustStore: {
@@ -27,8 +27,8 @@ service on new http:WebSocketListener(9077) {
                 password: "ballerina"
             }
             }, readyOnConnect: false });
-        wsEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
-        wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsEp;
+        wsEp.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
+        wsClientEp.setAttribute(ASSOCIATED_CONNECTION, wsEp);
         var returnVal = wsClientEp->ready();
         if (returnVal is http:WebSocketError) {
             panic <error> returnVal;
@@ -64,16 +64,16 @@ service sslClientService = @http:WebSocketServiceConfig {} service {
     resource function onText(http:WebSocketClient wsEp, string text) {
         http:WebSocketCaller serviceEp = getAssociatedListener(wsEp);
         var returnVal = serviceEp->pushText(text);
-        if (returnVal is error) {
-            panic returnVal;
+        if (returnVal is http:WebSocketError) {
+            panic <error> returnVal;
         }
     }
 
     resource function onBinary(http:WebSocketClient wsEp, byte[] data) {
         http:WebSocketCaller serviceEp = getAssociatedListener(wsEp);
         var returnVal = serviceEp->pushBinary(data);
-        if (returnVal is error) {
-            panic returnVal;
+        if (returnVal is http:WebSocketError) {
+            panic <error> returnVal;
         }
     }
 
@@ -81,8 +81,7 @@ service sslClientService = @http:WebSocketServiceConfig {} service {
         http:WebSocketCaller serviceEp = getAssociatedListener(wsEp);
         var returnVal = serviceEp->close(statusCode, reason);
         if (returnVal is http:WebSocketError) {
-            error returnValError = returnVal;
-            panic returnValError;
+            panic <error> returnVal;
         }
     }
 };

@@ -18,9 +18,7 @@
 
 package org.ballerinalang.net.http.nativeimpl.request;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -28,9 +26,6 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -54,28 +49,7 @@ import static org.ballerinalang.net.http.HttpConstants.QUERY_PARAM_MAP;
         returnType = {@ReturnType(type = TypeKind.MAP, elementType = TypeKind.STRING)},
         isPublic = true
 )
-public class GetQueryParams extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-        try {
-            BMap<String, BValue> requestStruct  = ((BMap<String, BValue>) context.getRefArgument(0));
-            HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) requestStruct
-                    .getNativeData(HttpConstants.TRANSPORT_MESSAGE);
-            org.ballerinalang.model.types.BMapType mapType = new org.ballerinalang.model.types.BMapType(
-                    org.ballerinalang.model.types.BTypes.typeString);
-            if (httpCarbonMessage.getProperty(HttpConstants.QUERY_STR) != null) {
-                String queryString = (String) httpCarbonMessage.getProperty(HttpConstants.QUERY_STR);
-                BMap<String, BString> params = new BMap<>(mapType);
-                URIUtil.populateQueryParamMap(queryString, params);
-                context.setReturnValues(params);
-            } else {
-                context.setReturnValues(new BMap<>(mapType));
-            }
-        } catch (Exception e) {
-            throw new BallerinaException("Error while retrieving query param from message: " + e.getMessage());
-        }
-    }
-
+public class GetQueryParams {
     @SuppressWarnings("unchecked")
     public static MapValue<String, Object> getQueryParams(Strand strand, ObjectValue requestObj) {
         try {

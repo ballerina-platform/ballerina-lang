@@ -419,7 +419,7 @@ function forkWithStruct() returns string|error {
     var f = <foo>results["w1"];
     result = "[block] sW1: " + f.y;
     var fW2 = <float>results["w2"];
-    result = result + "[block] fW2: " + fW2;
+    result = result + "[block] fW2: " + fW2.toString();
     return result;
 }
 

@@ -31,9 +31,11 @@ import java.util.concurrent.ConcurrentMap;
 public class PoolOptionsWrapper {
 
     private final MapValue<String, Object> poolOptions;
+    private final PoolKey poolKey;
 
-    PoolOptionsWrapper(MapValue<String, Object> poolOptions) {
+    public PoolOptionsWrapper(MapValue<String, Object> poolOptions, PoolKey poolKey) {
         this.poolOptions = poolOptions;
+        this.poolKey = poolKey;
     }
 
     /**
@@ -46,35 +48,27 @@ public class PoolOptionsWrapper {
      * @return The existing or newly created {@link SQLDatasource} object
      */
     public SQLDatasource retrieveDatasource(SQLDatasource.SQLDatasourceParams sqlDatasourceParams) {
-        ConcurrentMap<String, SQLDatasource> hikariDatasourceMap = createPoolMapIfNotExists();
-        SQLDatasource existingSqlDatasource = hikariDatasourceMap.get(sqlDatasourceParams.getJdbcUrl());
+        ConcurrentMap<PoolKey, SQLDatasource> hikariDatasourceMap = createPoolMapIfNotExists();
+        SQLDatasource existingSqlDatasource = hikariDatasourceMap.get(poolKey);
         SQLDatasource sqlDatasourceToBeReturned = existingSqlDatasource;
         if (existingSqlDatasource != null) {
-            acquireDatasourceMutex(existingSqlDatasource);
+            existingSqlDatasource.acquireMutex();
             try {
                 if (!existingSqlDatasource.isPoolShutdown()) {
                     existingSqlDatasource.incrementClientCounter();
                 } else {
-                    sqlDatasourceToBeReturned = hikariDatasourceMap.compute(sqlDatasourceParams.getJdbcUrl(),
+                    sqlDatasourceToBeReturned = hikariDatasourceMap.compute(poolKey,
                             (key, value) -> createAndInitDatasource(sqlDatasourceParams));
                 }
             } finally {
                 existingSqlDatasource.releaseMutex();
             }
         } else {
-            sqlDatasourceToBeReturned = hikariDatasourceMap.computeIfAbsent(sqlDatasourceParams.getJdbcUrl(),
+            sqlDatasourceToBeReturned = hikariDatasourceMap.computeIfAbsent(poolKey,
                     key -> createAndInitDatasource(sqlDatasourceParams));
 
         }
         return sqlDatasourceToBeReturned;
-    }
-
-    private void acquireDatasourceMutex(SQLDatasource sqlDatasource) {
-        try {
-            sqlDatasource.acquireMutex();
-        } catch (InterruptedException e) {
-            throw SQLDatasourceUtils.getSQLApplicationError("error in obtaining a connection pool");
-        }
     }
 
     private SQLDatasource createAndInitDatasource(SQLDatasource.SQLDatasourceParams sqlDatasourceParams) {
@@ -123,8 +117,8 @@ public class PoolOptionsWrapper {
         return poolOptions.getBooleanValue(fieldName);
     }
 
-    private ConcurrentMap<String, SQLDatasource> createPoolMapIfNotExists() {
-        ConcurrentHashMap<String, SQLDatasource> hikariDatasourceMap = SQLDatasourceUtils
+    private ConcurrentMap<PoolKey, SQLDatasource> createPoolMapIfNotExists() {
+        ConcurrentHashMap<PoolKey, SQLDatasource> hikariDatasourceMap = SQLDatasourceUtils
                 .retrieveDatasourceContainer(poolOptions);
         // map could be null only in a local pool creation scenario
         if (hikariDatasourceMap == null) {

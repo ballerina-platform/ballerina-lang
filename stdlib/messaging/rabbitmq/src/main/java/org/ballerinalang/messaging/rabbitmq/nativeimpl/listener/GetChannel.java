@@ -18,9 +18,7 @@
 
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.listener;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
@@ -41,11 +39,7 @@ import org.ballerinalang.natives.annotations.Receiver;
                 structType = RabbitMQConstants.LISTENER_OBJECT,
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ)
 )
-public class GetChannel extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class GetChannel {
 
     public static Object getChannel(Strand strand, ObjectValue listenerObjectValue) {
         ObjectValue channel = (ObjectValue) listenerObjectValue.get(RabbitMQConstants.CHANNEL_REFERENCE);
@@ -55,5 +49,8 @@ public class GetChannel extends BlockingNativeCallableUnit {
             return RabbitMQUtils.returnErrorValue("Error occurred while retrieving the Channel," +
                     " Channel is not properly initialized");
         }
+    }
+
+    private GetChannel() {
     }
 }

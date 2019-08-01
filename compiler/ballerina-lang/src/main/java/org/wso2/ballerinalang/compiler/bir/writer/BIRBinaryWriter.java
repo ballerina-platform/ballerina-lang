@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.ConstValue;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.TaintTable;
+import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
@@ -140,7 +141,15 @@ public class BIRBinaryWriter {
                                     List<BIRTypeDefinition> birTypeDefList) {
         List<BIRTypeDefinition> filtered = birTypeDefList.stream().filter(t -> t.type.tag == TypeTags.OBJECT
                 || t.type.tag == TypeTags.RECORD).collect(Collectors.toList());
-        filtered.forEach(typeDef -> writeFunctions(buf, typeWriter, insWriter, typeDef.attachedFuncs));
+        filtered.forEach(typeDef -> {
+            writeFunctions(buf, typeWriter, insWriter, typeDef.attachedFuncs);
+            writeReferencedTypes(buf, typeDef.referencedTypes);
+        });
+    }
+
+    private void writeReferencedTypes(ByteBuf buf, List<BType> referencedTypes) {
+        buf.writeInt(referencedTypes.size());
+        referencedTypes.forEach(type -> writeType(buf, type));
     }
 
     private void writeGlobalVars(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRGlobalVariableDcl> birGlobalVars) {
@@ -151,6 +160,8 @@ public class BIRBinaryWriter {
             buf.writeInt(addStringCPEntry(birGlobalVar.name.value));
             // Flags
             buf.writeInt(birGlobalVar.flags);
+
+            typeWriter.writeMarkdownDocAttachment(buf, birGlobalVar.markdownDocAttachment);
 
             // Function type as a CP Index
             writeType(buf, birGlobalVar.type);
@@ -165,6 +176,8 @@ public class BIRBinaryWriter {
         // Flags
         buf.writeInt(typeDef.flags);
         buf.writeByte(typeDef.isLabel ? 1 : 0);
+        // write documentation
+        typeWriter.writeMarkdownDocAttachment(buf, typeDef.markdownDocAttachment);
         writeType(buf, typeDef.type);
     }
 
@@ -203,13 +216,17 @@ public class BIRBinaryWriter {
             buf.writeInt(addStringCPEntry(birFunction.restParam.name.value));
         }
 
-        boolean hasReceiverType = birFunction.receiverType != null;
+        boolean hasReceiverType = birFunction.receiver != null;
         buf.writeBoolean(hasReceiverType);
         if (hasReceiverType) {
-            writeType(buf, birFunction.receiverType);
+            buf.writeByte(birFunction.receiver.kind.getValue());
+            writeType(buf, birFunction.receiver.type);
+            buf.writeInt(addStringCPEntry(birFunction.receiver.name.value));
         }
 
         writeTaintTable(buf, birFunction.taintTable);
+
+        typeWriter.writeMarkdownDocAttachment(buf, birFunction.markdownDocAttachment);
 
         ByteBuf birbuf = Unpooled.buffer();
         BIRTypeWriter funcTypeWriter = new BIRTypeWriter(birbuf, cp);
@@ -231,6 +248,9 @@ public class BIRBinaryWriter {
             birbuf.writeByte(param.kind.getValue());
             writeType(birbuf, param.type);
             birbuf.writeInt(addStringCPEntry(param.name.value));
+            if (param.kind.equals(VarKind.ARG)) {
+                birbuf.writeInt(addStringCPEntry(param.metaVarName != null ? param.metaVarName : ""));
+            }
             birbuf.writeBoolean(param.hasDefaultExpr);
         }
 
@@ -239,6 +259,16 @@ public class BIRBinaryWriter {
             birbuf.writeByte(localVar.kind.getValue());
             writeType(birbuf, localVar.type);
             birbuf.writeInt(addStringCPEntry(localVar.name.value));
+            // skip compiler added vars and only write metaVarName for user added vars
+            if (localVar.kind.equals(VarKind.LOCAL) || localVar.kind.equals(VarKind.ARG)) {
+                birbuf.writeInt(addStringCPEntry(localVar.metaVarName != null ? localVar.metaVarName : ""));
+            }
+            // add enclosing basic block id
+            if (localVar.kind.equals(VarKind.LOCAL)) {
+                birbuf.writeInt(addStringCPEntry(localVar.endBB != null ? localVar.endBB.id.value : ""));
+                birbuf.writeInt(addStringCPEntry(localVar.startBB != null ? localVar.startBB.id.value : ""));
+                birbuf.writeInt(localVar.insOffset);
+            }
         }
 
         // Write basic blocks related to parameter default values
@@ -313,6 +343,9 @@ public class BIRBinaryWriter {
         // Annotation name CP Index
         buf.writeInt(addStringCPEntry(birConstant.name.value));
         buf.writeInt(birConstant.flags);
+
+        typeWriter.writeMarkdownDocAttachment(buf, birConstant.markdownDocAttachment);
+
         writeType(buf, birConstant.type);
 
         // write the length of the conctant value, so that it can be skipped.

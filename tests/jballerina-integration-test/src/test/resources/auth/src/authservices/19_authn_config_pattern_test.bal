@@ -18,7 +18,7 @@ import ballerina/auth;
 import ballerina/http;
 import ballerina/jwt;
 
-auth:InboundBasicAuthProvider basicAuthProvider19 = new(());
+auth:InboundBasicAuthProvider basicAuthProvider19 = new;
 http:BasicAuthHandler basicAuthHandler19 = new(basicAuthProvider19);
 
 jwt:InboundJwtAuthProvider jwtAuthProvider19_1 = new({
@@ -65,7 +65,7 @@ jwt:InboundJwtAuthProvider jwtAuthProvider19_4 = new({
 });
 http:BearerAuthHandler jwtAuthHandler19_4 = new(jwtAuthProvider19_4);
 
-listener http:Listener listener19 = new(9115, {
+listener http:Listener listener19 = new(20025, {
     auth: {
         authHandlers: [basicAuthHandler19]
     },
@@ -90,7 +90,7 @@ service echo19 on listener19 {
         }
     }
     resource function test1(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 
     @http:ResourceConfig {
@@ -101,7 +101,7 @@ service echo19 on listener19 {
         }
     }
     resource function test2(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 
     @http:ResourceConfig {
@@ -112,7 +112,7 @@ service echo19 on listener19 {
         }
     }
     resource function test3(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 
     @http:ResourceConfig {
@@ -123,7 +123,7 @@ service echo19 on listener19 {
         }
     }
     resource function test4(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 
     @http:ResourceConfig {
@@ -134,6 +134,6 @@ service echo19 on listener19 {
         }
     }
     resource function test5(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 }

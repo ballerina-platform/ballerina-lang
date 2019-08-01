@@ -18,11 +18,8 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -50,11 +47,7 @@ import java.security.cert.X509Certificate;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
         functionName = "decodePublicKey", isPublic = true)
-public class DecodePublicKey extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class DecodePublicKey {
 
     @SuppressWarnings("unchecked")
     public static Object decodePublicKey(Strand strand, Object keyStoreValue, Object keyAliasValue) {
@@ -63,7 +56,7 @@ public class DecodePublicKey extends BlockingNativeCallableUnit {
 
         // TODO: Add support for reading key from a provided string or directly using PEM encoded file.
         if (keyStore == null) {
-            throw new BallerinaException("Key store information is required");
+            return CryptoUtils.createError("Key store information is required");
         }
 
         File keyStoreFile = new File(
@@ -74,8 +67,7 @@ public class DecodePublicKey extends BlockingNativeCallableUnit {
                 keystore.load(fileInputStream, keyStore.get(Constants.KEY_STORE_RECORD_PASSWORD_FIELD).toString()
                         .toCharArray());
             } catch (NoSuchAlgorithmException e) {
-                return CryptoUtils.createCryptoError(
-                        "Keystore integrity check algorithm is not found: " + e.getMessage());
+                throw CryptoUtils.createError("Keystore integrity check algorithm is not found: " + e.getMessage());
             }
 
             Certificate certificate = keystore.getCertificate(keyAlias);
@@ -115,13 +107,12 @@ public class DecodePublicKey extends BlockingNativeCallableUnit {
                 }
                 return publicKeyMap;
             } else {
-                return CryptoUtils.createCryptoError("not a valid RSA key");
+                return CryptoUtils.createError("Not a valid RSA key");
             }
         } catch (FileNotFoundException e) {
-            throw new BallerinaException(
-                    "PKCS12 key store not found at: " + keyStoreFile.getAbsoluteFile());
+            throw CryptoUtils.createError("PKCS12 key store not found at: " + keyStoreFile.getAbsoluteFile());
         } catch (KeyStoreException | CertificateException | IOException e) {
-            throw new BallerinaException("Unable to open keystore: " + e.getMessage());
+            throw CryptoUtils.createError("Unable to open keystore: " + e.getMessage());
         }
     }
 }

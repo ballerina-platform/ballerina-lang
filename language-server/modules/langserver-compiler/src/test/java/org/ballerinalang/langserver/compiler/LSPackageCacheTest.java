@@ -38,8 +38,9 @@ public class LSPackageCacheTest {
         // Read test bal file
         String content = new String(Files.readAllBytes(filePath));
         // Prepare compiler resources
-        String sourceRoot = LSCompilerUtil.getSourceRoot(filePath);
-        String pkgName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot, filePath.toString());
+        String sourceRoot = LSCompilerUtil.getProjectRoot(filePath);
+        LSDocument lsDocument = new LSDocument(sourceRoot);
+        String pkgName = lsDocument.getOwnerModule();
         LSDocument sourceDocument = new LSDocument(filePath, sourceRoot);
         WorkspaceDocumentManagerImpl documentManager = ExtendedWorkspaceDocumentManagerImpl.getInstance();
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);

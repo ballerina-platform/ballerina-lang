@@ -38,11 +38,13 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.ballerinalang.repository.CompilerOutputEntry.Kind;
 import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
@@ -78,7 +80,7 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
 
     @Override
     public List<String> getSourceFileNames() {
-        return super.getSourceFileNames();
+        return new ArrayList<>(0);
     }
 
     @Override
@@ -88,13 +90,14 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
         }
 
         try {
-            this.packageNames = Files.list(sourceDirPath)
-                    .filter(path -> Files.isDirectory(path))
-                    .filter(ProjectDirs::containsSourceFiles)
-                    .map(ProjectDirs::getLastComp)
-                    .filter(dirName -> !isSpecialDirectory(dirName))
-                    .map(Path::toString)
-                    .collect(Collectors.toList());
+            try (Stream<Path> stream = Files.list(sourceDirPath)) {
+                this.packageNames = stream.filter(path -> Files.isDirectory(path))
+                        .filter(ProjectDirs::containsSourceFiles)
+                        .map(ProjectDirs::getLastComp)
+                        .filter(dirName -> !isSpecialDirectory(dirName))
+                        .map(Path::toString)
+                        .collect(Collectors.toList());
+            }
         } catch (SecurityException | AccessDeniedException e) {
             throw new BLangCompilerException("permission denied: " + projectDirPath.toString());
         } catch (IOException e) {

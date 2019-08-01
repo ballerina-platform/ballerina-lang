@@ -56,8 +56,8 @@ public type NotOperatorProcessor object {
                 }
                 // init scheduler & start
                 self.eventScheduler = new task:Scheduler({
-                        interval: 1000, // interval will be ignored, since the noOfRecurrences is 1
-                        initialDelay: initDelay,
+                        intervalInMillis: 1000, // interval will be ignored, since the noOfRecurrences is 1
+                        initialDelayInMillis: initDelay,
                         noOfRecurrences: 1
                     }
                 );
@@ -244,7 +244,7 @@ public type NotOperatorProcessor object {
         AbstractPatternProcessor? pProcessor = self.processor;
         if (pProcessor is AbstractPatternProcessor) {
             alias = alias + pProcessor.getAlias() + ((self.forTimeMillis > 0)
-            ? " for " + self.forTimeMillis + "millis " : "");
+            ? " for " + self.forTimeMillis.toString() + "millis " : "");
         }
         return alias;
     }

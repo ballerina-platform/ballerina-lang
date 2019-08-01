@@ -19,10 +19,8 @@
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.listener;
 
 import com.rabbitmq.client.Channel;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
@@ -46,11 +44,7 @@ import java.io.IOException;
                 structType = RabbitMQConstants.LISTENER_OBJECT,
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ)
 )
-public class SetQosSettings extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class SetQosSettings {
 
     public static Object setQosSettings(Strand strand, ObjectValue listenerObjectValue, Object prefetchCount,
                                         Object prefetchSize) {
@@ -78,5 +72,8 @@ public class SetQosSettings extends BlockingNativeCallableUnit {
                     "quality of service settings for the listener");
         }
         return null;
+    }
+
+    private SetQosSettings() {
     }
 }

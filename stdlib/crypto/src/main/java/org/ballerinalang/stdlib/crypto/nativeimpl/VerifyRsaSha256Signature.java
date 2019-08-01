@@ -18,16 +18,13 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.crypto.Constants;
 import org.ballerinalang.stdlib.crypto.CryptoUtils;
 
-import java.security.InvalidKeyException;
 import java.security.PublicKey;
 
 /**
@@ -36,21 +33,13 @@ import java.security.PublicKey;
  * @since 0.990.4
  */
 @BallerinaFunction(orgName = "ballerina", packageName = "crypto", functionName = "verifyRsaSha256Signature")
-public class VerifyRsaSha256Signature extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class VerifyRsaSha256Signature {
 
     public static Object verifyRsaSha256Signature(Strand strand, ArrayValue dataValue, ArrayValue signatureValue,
                                                   MapValue<?, ?> publicKey) {
         byte[] data = dataValue.getBytes();
         byte[] signature = signatureValue.getBytes();
-        try {
-            PublicKey key = (PublicKey) publicKey.getNativeData(Constants.NATIVE_DATA_PUBLIC_KEY);
-            return CryptoUtils.verify("SHA256withRSA", key, data, signature);
-        } catch (InvalidKeyException e) {
-            return CryptoUtils.createCryptoError("Uninitialized public key");
-        }
+        PublicKey key = (PublicKey) publicKey.getNativeData(Constants.NATIVE_DATA_PUBLIC_KEY);
+        return CryptoUtils.verify("SHA256withRSA", key, data, signature);
     }
 }

@@ -18,9 +18,9 @@
 package org.ballerinalang.net.grpc.nativeimpl.client;
 
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -57,13 +57,9 @@ import static org.ballerinalang.net.grpc.Status.Code.INTERNAL;
 )
 public class NonBlockingExecute extends AbstractExecute {
 
-    @Override
-    public void execute(Context context, CallableUnitCallback callback) {
-    }
-
     @SuppressWarnings("unchecked")
     public static Object nonBlockingExecute(Strand strand, ObjectValue clientEndpoint, String methodName,
-                                          ObjectValue callbackService, Object payload, ObjectValue headerValues) {
+                                            Object payload, ObjectValue callbackService, Object headerValues) {
         if (clientEndpoint == null) {
             return notifyErrorReply(INTERNAL.name(), "Error while getting connector. gRPC Client connector is " +
                     "not initialized properly");
@@ -98,8 +94,8 @@ public class NonBlockingExecute extends AbstractExecute {
 
             // Update request headers when request headers exists in the context.
             HttpHeaders headers = null;
-            if (headerValues != null) {
-                headers = (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS);
+            if (headerValues != null && (TypeChecker.getType(headerValues).getTag() == TypeTags.OBJECT_TYPE_TAG)) {
+                headers = (HttpHeaders) ((ObjectValue) headerValues).getNativeData(MESSAGE_HEADERS);
             }
             if (headers != null) {
                 requestMsg.setHeaders(headers);
@@ -109,10 +105,12 @@ public class NonBlockingExecute extends AbstractExecute {
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
                 if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
-                    nonBlockingStub.executeUnary(requestMsg, new DefaultStreamObserver(callbackService),
+                    nonBlockingStub.executeUnary(requestMsg, new DefaultStreamObserver(strand.scheduler,
+                                    callbackService),
                             methodDescriptors.get(methodName));
                 } else if (methodType.equals(MethodDescriptor.MethodType.SERVER_STREAMING)) {
-                    nonBlockingStub.executeServerStreaming(requestMsg, new DefaultStreamObserver(callbackService),
+                    nonBlockingStub.executeServerStreaming(requestMsg,
+                            new DefaultStreamObserver(strand.scheduler, callbackService),
                             methodDescriptors.get(methodName));
                 } else {
                     return notifyErrorReply(INTERNAL.name(), "Error while executing the client call. Method type " +
@@ -127,11 +125,4 @@ public class NonBlockingExecute extends AbstractExecute {
                     "type not supported");
         }
     }
-
-    @Override
-    public boolean isBlocking() {
-
-        return false;
-    }
-
 }

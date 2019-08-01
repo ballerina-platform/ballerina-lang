@@ -77,7 +77,7 @@ public class CompletionVisitorUtil {
         int nodeELine = zeroBasedPosition.eLine;
 
         if ((nodeSLine <= line && nodeELine >= line)) {
-            Map<Name, Scope.ScopeEntry> visibleSymbolEntries = new HashMap<>();
+            Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries = new HashMap<>();
             if (symbolEnv.scope != null) {
                 visibleSymbolEntries.putAll(treeVisitor.resolveAllVisibleSymbols(symbolEnv));
             }
@@ -120,7 +120,7 @@ public class CompletionVisitorUtil {
         int lECol = lastExprPos.eCol;
 
         if (fSLine <= line && lSLine >= line && (fSCol <= col && lECol >= col)) {
-            Map<Name, Scope.ScopeEntry> visibleSymbolEntries = new HashMap<>();
+            Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries = new HashMap<>();
             if (symbolEnv.scope != null) {
                 visibleSymbolEntries.putAll(treeVisitor.resolveAllVisibleSymbols(symbolEnv));
             }
@@ -229,6 +229,9 @@ public class CompletionVisitorUtil {
      */
     public static List<BLangNode> getObjectItemsOrdered(BLangObjectTypeNode objectTypeNode) {
         List<BLangNode> nodes = new ArrayList<>();
+        if (objectTypeNode == null) {
+            return nodes;
+        }
 
         nodes.addAll(objectTypeNode.getFields().stream()
                 .map(field -> (BLangNode) field)
@@ -270,6 +273,7 @@ public class CompletionVisitorUtil {
      *
      * @param node BLang node to evaluate
      * @param lsContext Language server operation context
+     * @return {@link Boolean} within the argument
      */
     public static boolean withinInvocationArguments(BLangNode node, LSContext lsContext) {
         Position position = lsContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();

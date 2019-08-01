@@ -6,6 +6,20 @@
   "source": "toplevel/source/importStatement3.bal",
   "items": [
     {
+      "label": "lang.object",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027object;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "streams.balx",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "streams.balx",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "jwt",
       "kind": "Module",
       "detail": "Package",
@@ -13,10 +27,24 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "lang.xml",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027xml;",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "crypto",
       "kind": "Module",
       "detail": "Package",
       "insertText": "crypto",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.array",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027array;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -97,6 +125,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "lang.string",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027string;",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "io",
       "kind": "Module",
       "detail": "Package",
@@ -125,6 +160,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "jvm",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "jvm",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "encoding",
       "kind": "Module",
       "detail": "Package",
@@ -143,6 +185,20 @@
       "kind": "Module",
       "detail": "Package",
       "insertText": "rabbitmq",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.future",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027future;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.value",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027value;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -181,6 +237,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "lang.float",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027float;",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "transactions",
       "kind": "Module",
       "detail": "Package",
@@ -199,6 +262,13 @@
       "kind": "Module",
       "detail": "Package",
       "insertText": "transactions.balx",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.decimal",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027decimal;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -223,6 +293,20 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "lang.table",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027table;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.annotations",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027annotations;",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "log",
       "kind": "Module",
       "detail": "Package",
@@ -234,6 +318,41 @@
       "kind": "Module",
       "detail": "Package",
       "insertText": "mime",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.stream",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027stream;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.error",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027error;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.typedesc",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027typedesc;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.map",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027map;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.int",
+      "kind": "Module",
+      "detail": "Package",
+      "insertText": "lang.\u0027int;",
       "insertTextFormat": "Snippet"
     },
     {

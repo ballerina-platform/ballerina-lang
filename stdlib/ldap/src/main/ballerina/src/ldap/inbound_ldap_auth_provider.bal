@@ -51,18 +51,25 @@ public type InboundLdapAuthProvider object {
         }
         string username;
         string password;
+        string[] scopes;
         [username, password] = check auth:extractUsernameAndPassword(credential);
-        boolean authenticated = doAuthenticate(self.ldapConnection, username, password);
-        if (authenticated) {
-            runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-            if (principal is runtime:Principal) {
-                principal.userId = self.ldapConnectionConfig.domainName + ":" + username;
-                // By default set userId as username.
-                principal.username = username;
-                principal.scopes = getGroups(self.ldapConnection, username);
-            }
+        var authenticated = doAuthenticate(self.ldapConnection, username, password);
+        var groups = getGroups(self.ldapConnection, username);
+        if (groups is string[]) {
+            scopes = groups;
+        } else {
+            return auth:prepareError("Failed to get groups from LDAP with the username: " + username, groups);
         }
-        return authenticated;
+        if (authenticated is boolean) {
+            if (authenticated) {
+                auth:setAuthenticationContext("ldap", credential);
+                setPrincipal(username, self.ldapConnectionConfig.domainName, scopes);
+            }
+            return authenticated;
+        } else {
+            return auth:prepareError("Failed to authenticate LDAP with username: " + username + " and password: "
+                                     + password, authenticated);
+        }
     }
 };
 
@@ -86,7 +93,7 @@ public type InboundLdapAuthProvider object {
 # + userRolesCacheEnabled -  To indicate whether to cache the role list of a user
 # + connectionPoolingEnabled - Define whether LDAP connection pooling is enabled
 # + ldapConnectionTimeout - Timeout in making the initial LDAP connection
-# + readTimeout - The value of this property is the read timeout in milliseconds for LDAP operations
+# + readTimeoutInMillis - The value of this property is the read timeout in milliseconds for LDAP operations
 # + retryAttempts - Retry the authentication request if a timeout happened
 # + secureClientSocket - The SSL configurations for the ldap client socket. This needs to be configured in order to
 #                  communicate through ldaps.
@@ -109,7 +116,7 @@ public type LdapConnectionConfig record {|
     boolean userRolesCacheEnabled = false;
     boolean connectionPoolingEnabled = true;
     int ldapConnectionTimeout = 5000;
-    int readTimeout = 60000;
+    int readTimeoutInMillis = 60000;
     int retryAttempts = 0;
     SecureClientSocket? secureClientSocket = ();
 |};
@@ -130,16 +137,17 @@ public type LdapConnection record {|
 #
 # + ldapConnection - `LdapConnection` instance
 # + username - Username
-# + return - Array of groups for the user denoted by the username
-public function getGroups(LdapConnection ldapConnection, string username) returns string[] = external;
+# + return - Array of groups for the user denoted by the username or `Error` if error occurred
+public function getGroups(LdapConnection ldapConnection, string username) returns string[]|Error = external;
 
 # Authenticate with username and password.
 #
 # + ldapConnection - `LdapConnection` instance
 # + username - Username
 # + password - Password
-# + return - true if authentication is a success, else false
-public function doAuthenticate(LdapConnection ldapConnection, string username, string password) returns boolean = external;
+# + return - true if authentication is a success, else false or `Error` if error occurred
+public function doAuthenticate(LdapConnection ldapConnection, string username, string password)
+                               returns boolean|Error = external;
 
 # Initailizes LDAP connection context.
 #
@@ -148,3 +156,12 @@ public function doAuthenticate(LdapConnection ldapConnection, string username, s
 # + return - `LdapConnection` instance
 public function initLdapConnectionContext(LdapConnectionConfig ldapConnectionConfig, string instanceId)
                                           returns LdapConnection = external;
+
+function setPrincipal(string username, string domainName, string[] scopes) {
+    runtime:Principal? principal = runtime:getInvocationContext()?.principal;
+    if (principal is runtime:Principal) {
+        principal.userId = domainName + ":" + username;
+        principal.username = username;
+        principal.scopes = scopes;
+    }
+}

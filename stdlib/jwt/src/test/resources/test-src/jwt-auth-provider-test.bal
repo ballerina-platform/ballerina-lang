@@ -55,12 +55,12 @@ function generateJwt(string keyStorePath) returns string|jwt:Error {
         exp: 32475251189000
     };
     crypto:KeyStore keyStore = { path: keyStorePath, password: "ballerina" };
-    jwt:JwtIssuerConfig issuerConfig = {
+    jwt:JwtKeyStoreConfig keyStoreConfig = {
         keyStore: keyStore,
         keyAlias: "ballerina",
         keyPassword: "ballerina"
     };
-    return jwt:issueJwt(header, payload, issuerConfig);
+    return jwt:issueJwt(header, payload, keyStoreConfig);
 }
 
 function verifyJwt(string jwt, string trustStorePath) returns @tainted (jwt:JwtPayload|jwt:Error) {
@@ -69,7 +69,7 @@ function verifyJwt(string jwt, string trustStorePath) returns @tainted (jwt:JwtP
         issuer: "wso2",
         certificateAlias: "ballerina",
         audience: "ballerina",
-        clockSkew: 0,
+        clockSkewInSeconds: 0,
         trustStore: trustStore
     };
     return jwt:validateJwt(jwt, validatorConfig);

@@ -12,7 +12,7 @@ http:LoadBalanceClient lbBackendEP = new({
             { url: "http://localhost:8080/mock2" },
             { url: "http://localhost:8080/mock3" }
         ],
-        timeoutMillis: 5000
+        timeoutInMillis: 5000
 });
 
 
@@ -42,7 +42,7 @@ service loadBalancerDemoService on new http:Listener (9090) {
         } else {
             http:Response outResponse = new;
             outResponse.statusCode = 500;
-            outResponse.setPayload(<string>response.detail().message);
+            outResponse.setPayload(<string>response.detail()?.message);
             var responseToCaller = caller->respond(outResponse);
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);

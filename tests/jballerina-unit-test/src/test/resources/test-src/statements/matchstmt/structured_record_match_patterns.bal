@@ -26,7 +26,7 @@ function testStructuredMatchPatternsBasic1() returns string {
     Foo foo = {s: "S", i: 23, f: 5.6};
 
     match foo {
-        var {s, i: integer, f} => return "Matched Values : " + s + ", " + integer + ", " + f;
+        var {s, i: integer, f} => return "Matched Values : " + s + ", " + integer.toString() + ", " + f.toString();
     }
 
     return "Default";
@@ -42,7 +42,8 @@ function testStructuredMatchPatternsBasic2() returns string {
     Bar bar = {b: 12, f: foo};
 
     match bar {
-        var {b: byteValue, f: {s, i, f}} => return "Matched Values : " + s + ", " + i + ", " + f + ", " + <int> byteValue;
+        var {b: byteValue, f: {s, i, f}} => return "Matched Values : " + s + ", " + i.toString() + ", " +
+                f.toString() + ", " + byteValue.toString();
     }
 
     return "Default";
@@ -152,9 +153,9 @@ function complexMatch(ClosedBar1|ClosedBar2|string a) returns string {
 
 function testRuntimeCheck() returns string[] {
     [int, boolean] tuple = [50, true];
-    Foo foo1 = {s: "S", i: 23, f: 5.6, t: tuple};
+    Foo foo1 = {s: "S", i: 23, f: 5.6, "t": tuple};
     Foo foo2 = {s: "S", i: 23, f: 5.6};
-    Foo foo3 = {s: "S", i: 23, f: 5.6, t: 12};
+    Foo foo3 = {s: "S", i: 23, f: 5.6, "t": 12};
 
     string[] values = [matchRuntimeCheck(foo1), matchRuntimeCheck(foo2), matchRuntimeCheck(foo3),
                             matchRuntimeCheckWithAny(foo1), matchRuntimeCheckWithAny(foo2), matchRuntimeCheckWithAny(foo3)];
@@ -272,8 +273,8 @@ type ClosedRec record {|
 
 function testStructuredMatchPatternWithTypeGuard4() returns string[] {
     RestParam foo1 = {var1: 500};
-    RestParam foo2 = {var1: 500, var2: true};
-    RestParam foo3 = {var1: 500, var2: true, var3: true};
+    RestParam foo2 = {var1: 500, "var2": true};
+    RestParam foo3 = {var1: 500, "var2": true, "var3": true};
     ClosedRec bar1 = {var1: "Bal"};
 
     string[] result = [typeGuard4(foo1), typeGuard4(foo2), typeGuard4(foo3), typeGuard4(bar1)];
@@ -290,8 +291,8 @@ function typeGuard4(RestParam|ClosedRec matchExpr) returns string {
 }
 
 function testClosedRecord() returns string[] {
-    RestParam rec = {var1: 500};
-    RestParam rec2 = {var1: 500, var2: true};
+    RestParam rec = { var1: 500 };
+    RestParam rec2 = { var1: 500, "var2": true };
 
     string[] results = [matchClosedRecordPattern(rec), matchClosedRecordPattern(rec2)];
 
@@ -300,8 +301,8 @@ function testClosedRecord() returns string[] {
 
 function matchClosedRecordPattern(any matchExpr) returns string {
     match matchExpr {
-        var {| var1 |} => return "Matched with closed pattern";
-        var {var1} => return "Matched with opened pattern";
+        var {var1, var2, ...rest} => return "Matched with opened pattern";
+        var {var1} => return "Matched with closed pattern";
     }
 
     return "Default";

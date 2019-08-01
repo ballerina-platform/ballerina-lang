@@ -103,6 +103,7 @@ function checkEqualityToNilNegative(any a) returns boolean {
 
 type ErrorDetail record {
     string message?;
+    error cause?;
 };
 
 type MyError error<string, ErrorDetail>;
@@ -129,10 +130,10 @@ function checkOpenRecordEqualityPositive() returns boolean {
     OpenEmployee e2 = e1;
 
     OpenEmployee e3 = { name: "Em" };
-    OpenPerson e4 = { name: "Em", id: 0 };
+    OpenPerson e4 = { name: "Em", "id": 0 };
 
-    OpenEmployee e5 = { name: "Em", id: 4000, dept: "finance" };
-    OpenEmployee e6 = { name: "Em", id: 4000, dept: "finance" };
+    OpenEmployee e5 = { name: "Em", id: 4000, "dept": "finance" };
+    OpenEmployee e6 = { name: "Em", id: 4000, "dept": "finance" };
 
     OpenEmployee e7 = {};
     OpenEmployee e8 = {};
@@ -145,26 +146,26 @@ function checkOpenRecordEqualityNegative() returns boolean {
     OpenEmployee e2 = {};
 
     OpenEmployee e3 = { name: "Em", id: 4000 };
-    OpenEmployee e4 = { name: "Em", area: 51 };
+    OpenEmployee e4 = { name: "Em", "area": 51 };
 
     OpenEmployee e5 = { name: "Em" };
     OpenPerson e6 = { name: "Em" };
 
-    OpenEmployee e7 = { name: "Em", id: 4000, dept: "finance" };
-    OpenEmployee e8 = { name: "Em", id: 4000, dept: "hr" };
+    OpenEmployee e7 = { name: "Em", id: 4000, "dept": "finance" };
+    OpenEmployee e8 = { name: "Em", id: 4000, "dept": "hr" };
 
     return (e1 == e2) || !(e1 != e2) || (e3 == e4) || !(e3 != e4) || isEqual(e5, e6) || (e7 == e8) || !(e7 != e8);
 }
 
 function testOpenRecordWithOptionalFieldsEqualityPositive() returns boolean {
-    OpenRecordWithOptionalFieldOne e1 = { name: "Em", one: 4000, two: 3000 };
+    OpenRecordWithOptionalFieldOne e1 = { name: "Em", one: 4000, "two": 3000 };
     OpenRecordWithOptionalFieldOne e2 = e1;
 
     OpenRecordWithOptionalFieldOne e3 = { name: "Em" };
     OpenRecordWithOptionalFieldTwo e4 = { name: "Em" };
 
-    OpenRecordWithOptionalFieldOne e5 = { name: "Em", one: 4000, two: 3000 };
-    OpenRecordWithOptionalFieldTwo e6 = { name: "Em", two: 3000, one: 4000 };
+    OpenRecordWithOptionalFieldOne e5 = { name: "Em", one: 4000, "two": 3000 };
+    OpenRecordWithOptionalFieldTwo e6 = { name: "Em", two: 3000, "one": 4000 };
 
     return (e1 == e2) && !(e1 != e2) && isEqual(e3, e4) && (e5 == e6) && !(e5 != e6);
 }
@@ -983,7 +984,7 @@ public function testXmlSequenceAndXmlItemEqualityNegative() returns boolean {
 }
 
 public function testJsonRecordMapEqualityPositive() returns boolean {
-    OpenEmployeeTwo e = { name: "Maryam", id: 1000 };
+    OpenEmployeeTwo e = { name: "Maryam", "id": 1000 };
 
     json j = { name: "Maryam", id: 1000 };
     json j2 = j;
@@ -995,7 +996,7 @@ public function testJsonRecordMapEqualityPositive() returns boolean {
 }
 
 public function testJsonRecordMapEqualityNegative() returns boolean {
-    OpenEmployeeTwo e = { name: "Zee", id: 1000 };
+    OpenEmployeeTwo e = { name: "Zee", "id": 1000 };
 
     json j = { name: "Maryam", id: 122 };
     json j2 = j;
@@ -1015,7 +1016,7 @@ public function testArrayTupleEqualityPositive() returns boolean {
     int[3] c = [1, 2, 3];
     equals = equals && isEqual(b, c);
 
-    OpenEmployeeTwo e = { name: "Maryam", id: 1000 };
+    OpenEmployeeTwo e = { name: "Maryam", "id": 1000 };
     (OpenEmployeeTwo|json)?[] f = [1, e, true, 3.2];
     [int, OpenEmployeeTwo, boolean, float] g = [1, e, true, 3.2];
 
@@ -1031,8 +1032,8 @@ public function testArrayTupleEqualityNegative() returns boolean {
     (string|boolean|float|int)?[3] c = [false, 2, 1.23];
     equals = equals && c == b && !(b != c);
 
-    OpenEmployeeTwo e = { name: "Maryam", id: 1000 };
-    OpenEmployeeTwo e2 = { name: "Ziyad", id: 1000 };
+    OpenEmployeeTwo e = { name: "Maryam", "id": 1000 };
+    OpenEmployeeTwo e2 = { name: "Ziyad", "id": 1000 };
     (OpenEmployeeTwo|json)?[] f = [1, e, true, 3.2];
     [int|OpenEmployee, OpenEmployeeTwo, boolean|string, float] g = [1, e2, true, 3.2];
 

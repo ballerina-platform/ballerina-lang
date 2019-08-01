@@ -20,9 +20,7 @@ package org.ballerinalang.messaging.rabbitmq.nativeimpl.channel;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
@@ -48,12 +46,10 @@ import java.util.UUID;
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ),
         isPublic = true
 )
-public class CreateChannel extends BlockingNativeCallableUnit {
+public class CreateChannel {
 
-    @Override
-    public void execute(Context context) {
-    }
     public static void createChannel(Strand strand, ObjectValue channelObjectValue, Object connectionObject) {
+        boolean isInTransaction = strand.isInTransaction();
         ObjectValue connectionObjectValue;
         if (connectionObject != null) {
             connectionObjectValue = (ObjectValue) connectionObject;
@@ -66,11 +62,16 @@ public class CreateChannel extends BlockingNativeCallableUnit {
                         new RabbitMQTransactionContext(channelObjectValue, UUID.randomUUID().toString());
                 channelObjectValue.addNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT,
                         rabbitMQTransactionContext);
-                rabbitMQTransactionContext.handleTransactionBlock();
+                if (isInTransaction) {
+                    rabbitMQTransactionContext.handleTransactionBlock(strand);
+                }
             } catch (IOException exception) {
                 throw new BallerinaException(RabbitMQConstants.RABBITMQ_CLIENT_ERROR
                         + exception.getMessage());
             }
         }
+    }
+
+    private CreateChannel() {
     }
 }

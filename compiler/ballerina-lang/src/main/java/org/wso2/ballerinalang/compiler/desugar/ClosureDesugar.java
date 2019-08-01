@@ -115,6 +115,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock.BLangLockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock.BLangUnLockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -222,6 +224,16 @@ public class ClosureDesugar extends BLangNodeVisitor {
                 addToFunctionMap(funcNode, funcEnv, position, paramSymbol, paramSymbol.type);
                 position++;
             }
+        }
+
+        // Check if the rest param is a closure var
+        if (funcNode.symbol.restParam != null && funcNode.symbol.restParam.closure) {
+            if (funcNode.mapSymbol == null) {
+                createFunctionMap(funcNode, funcEnv);
+            }
+            addToFunctionMap(funcNode, funcEnv, position, funcNode.symbol.restParam,
+                             funcNode.symbol.restParam.type);
+            position++;
         }
 
         // For attached functions add the receiver to the function map if it has been exposed as a closure.
@@ -566,6 +578,16 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangLockStmt lockNode) {
+        result = lockNode;
+    }
+
+    @Override
+    public void visit(BLangUnLockStmt unLockNode) {
+        result = unLockNode;
+    }
+
+    @Override
     public void visit(BLangTransaction transactionNode) {
         transactionNode.transactionBody = rewrite(transactionNode.transactionBody, env);
         transactionNode.onRetryBody = rewrite(transactionNode.onRetryBody, env);
@@ -778,32 +800,33 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLTextLiteral xmlTextLiteral) {
+        xmlTextLiteral.textFragments.forEach(this::rewriteExpr);
         xmlTextLiteral.concatExpr = rewriteExpr(xmlTextLiteral.concatExpr);
         result = xmlTextLiteral;
     }
 
     @Override
     public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
-        xmlCommentLiteral.concatExpr = rewriteExpr(xmlCommentLiteral.concatExpr);
+        xmlCommentLiteral.textFragments.forEach(this::rewriteExpr);
         result = xmlCommentLiteral;
     }
 
     @Override
     public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
         xmlProcInsLiteral.target = rewriteExpr(xmlProcInsLiteral.target);
-        xmlProcInsLiteral.dataConcatExpr = rewriteExpr(xmlProcInsLiteral.dataConcatExpr);
+        xmlProcInsLiteral.dataFragments.forEach(this::rewriteExpr);
         result = xmlProcInsLiteral;
     }
 
     @Override
     public void visit(BLangXMLQuotedString xmlQuotedString) {
-        xmlQuotedString.concatExpr = rewriteExpr(xmlQuotedString.concatExpr);
+        xmlQuotedString.textFragments.forEach(this::rewriteExpr);
         result = xmlQuotedString;
     }
 
     @Override
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
-        stringTemplateLiteral.concatExpr = rewriteExpr(stringTemplateLiteral.concatExpr);
+        stringTemplateLiteral.exprs.forEach(this::rewriteExpr);
         result = stringTemplateLiteral;
     }
 
@@ -1088,6 +1111,13 @@ public class ClosureDesugar extends BLangNodeVisitor {
         jsonAccessExpr.indexExpr = rewriteExpr(jsonAccessExpr.indexExpr);
         jsonAccessExpr.expr = rewriteExpr(jsonAccessExpr.expr);
         result = jsonAccessExpr;
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess.BLangStringAccessExpr stringAccessExpr) {
+        stringAccessExpr.indexExpr = rewriteExpr(stringAccessExpr.indexExpr);
+        stringAccessExpr.expr = rewriteExpr(stringAccessExpr.expr);
+        result = stringAccessExpr;
     }
 
     @Override

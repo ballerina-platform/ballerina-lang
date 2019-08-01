@@ -18,11 +18,8 @@
 
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.crypto.Constants;
@@ -47,11 +44,7 @@ import java.security.cert.CertificateException;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "crypto",
         functionName = "decodePrivateKey", isPublic = true)
-public class DecodePrivateKey extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class DecodePrivateKey {
 
     @SuppressWarnings("unchecked")
     public static Object decodePrivateKey(Strand strand, Object keyStoreValue, Object keyAliasValue, Object password) {
@@ -62,7 +55,7 @@ public class DecodePrivateKey extends BlockingNativeCallableUnit {
         PrivateKey privateKey;
         // TODO: Add support for reading key from a provided string or directly using PEM encoded file.
         if (keyStore == null) {
-            throw new BallerinaException("Key store information is required");
+            throw CryptoUtils.createError("Key store information is required");
         }
 
         File keyStoreFile = new File(CryptoUtils.substituteVariables(
@@ -73,16 +66,15 @@ public class DecodePrivateKey extends BlockingNativeCallableUnit {
                 keystore.load(fileInputStream, keyStore.get(Constants.KEY_STORE_RECORD_PASSWORD_FIELD).toString()
                         .toCharArray());
             } catch (NoSuchAlgorithmException e) {
-                return CryptoUtils.createCryptoError(
-                        "Keystore integrity check algorithm is not found: " + e.getMessage());
+                return CryptoUtils.createError("Keystore integrity check algorithm is not found: " + e.getMessage());
             }
 
             try {
                 privateKey = (PrivateKey) keystore.getKey(keyAlias, keyPassword.toCharArray());
             } catch (NoSuchAlgorithmException e) {
-                return CryptoUtils.createCryptoError("algorithm for key recovery is not found: " + e.getMessage());
+                return CryptoUtils.createError("algorithm for key recovery is not found: " + e.getMessage());
             } catch (UnrecoverableKeyException e) {
-                return CryptoUtils.createCryptoError("key cannot be recovered: " + e.getMessage());
+                return CryptoUtils.createError("key cannot be recovered: " + e.getMessage());
             }
 
             //TODO: Add support for DSA/ECDSA keys and associated crypto operations
@@ -93,12 +85,12 @@ public class DecodePrivateKey extends BlockingNativeCallableUnit {
                 privateKeyRecord.put(Constants.PRIVATE_KEY_RECORD_ALGORITHM_FIELD, privateKey.getAlgorithm());
                 return privateKeyRecord;
             } else {
-                return CryptoUtils.createCryptoError("not a valid RSA key");
+                return CryptoUtils.createError("Not a valid RSA key");
             }
         } catch (FileNotFoundException e) {
-            throw new BallerinaException("PKCS12 key store not found at: " + keyStoreFile.getAbsoluteFile());
+            throw CryptoUtils.createError("PKCS12 key store not found at: " + keyStoreFile.getAbsoluteFile());
         } catch (KeyStoreException | CertificateException | IOException e) {
-            throw new BallerinaException("Unable to open keystore: " + e.getMessage());
+            throw CryptoUtils.createError("Unable to open keystore: " + e.getMessage());
         }
     }
 }

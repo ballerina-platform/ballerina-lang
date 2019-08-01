@@ -17,9 +17,7 @@ package org.ballerinalang.net.grpc.nativeimpl.headers;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -43,10 +41,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
-public class AddEntry extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-    }
+public class AddEntry {
 
     public static void addEntry(Strand strand, ObjectValue headerValues, String headerName, String headerValue) {
         HttpHeaders headers = (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS);

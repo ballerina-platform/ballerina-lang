@@ -3,5 +3,5 @@ function testOverloading(float a) {
 }
 
 function testOverloading(string a, int b) returns (string) {
-    return a + b;
+    return a + b.toString();
 }

@@ -20,7 +20,7 @@
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="ballerina-test-suite" time-out="600000">
+<suite name="ballerina-test-suite" time-out="120000">
 
     <listeners>
         <listener class-name="org.ballerinalang.test.utils.BLogInitializer"/>
@@ -32,7 +32,6 @@
         <groups>
             <run>
                 <exclude name="brokenOnJBallerina"/>
-                <exclude name="brokenOnBootstrappedJVMCodegen"/>
                 <exclude name="brokenOnLangLibChange"/>
             </run>
         </groups>
@@ -48,7 +47,7 @@
             <package name="org.ballerinalang.test.net.*"/>
             <package name="org.ballerinalang.test.typedefs.*"/>
             <package name="org.ballerinalang.test.access.*"/>
-            <!--<package name="org.ballerinalang.test.structs.*"/>-->
+            <package name="org.ballerinalang.test.structs.*"/>
             <package name="org.ballerinalang.test.jvm.*"/>
             <package name="org.ballerinalang.test.types.integer"/>
             <package name="org.ballerinalang.test.types.floattype"/>
@@ -58,7 +57,7 @@
             <package name="org.ballerinalang.test.error.*"/>
             <package name="org.ballerinalang.test.types.finaltypes.*"/>
             <package name="org.ballerinalang.test.types.finite.*"/>
-            <!--<package name="org.ballerinalang.test.types.map.*"/>-->
+            <package name="org.ballerinalang.test.types.map.*"/>
             <package name="org.ballerinalang.test.types.string.*"/>
             <package name="org.ballerinalang.test.types.errors.*"/>
             <package name="org.ballerinalang.test.types.var.*"/>
@@ -80,13 +79,14 @@
             <package name="org.ballerinalang.test.statements.vardeclr.*"/>
             <package name="org.ballerinalang.test.statements.whilestatement.*"/>
             <!--<package name="org.ballerinalang.test.statements.foreach.*"/>-->
-            <!--<package name="org.ballerinalang.test.statements.variabledef.*"/>-->
+            <package name="org.ballerinalang.test.statements.variabledef.*"/>
             <package name="org.ballerinalang.test.statements.matchstmt.*"/>
             <package name="org.ballerinalang.test.types.json.*"/>
             <package name="org.ballerinalang.test.types.nullable.*"/>
             <package name="org.ballerinalang.test.types.nullvalue.*"/>
+            <package name="org.ballerinalang.test.types.service.*"/>
             <package name="org.ballerinalang.test.types.globalvar.*"/>
-            <!--<package name="org.ballerinalang.test.expressions.builtinoperations.*"/>-->
+            <package name="org.ballerinalang.test.expressions.builtinoperations.*"/>
             <package name="org.ballerinalang.test.expressions.builtinfunctions.*"/>
             <package name="org.ballerinalang.test.expressions.conversion.*"/>
             <package name="org.ballerinalang.test.expressions.unaryoperations.*"/>
@@ -97,7 +97,7 @@
             <package name="org.ballerinalang.test.expressions.elvis.*"/>
             <package name="org.ballerinalang.test.expressions.ternary.*"/>
             <package name="org.ballerinalang.test.expressions.typeof.*"/>
-            <!--<package name="org.ballerinalang.test.expressions.stamp.*"/>-->
+            <package name="org.ballerinalang.test.expressions.stamp.*"/>
             <package name="org.ballerinalang.test.expressions.lambda.*"/>
             <package name="org.ballerinalang.test.expressions.invocations.*"/>
             <package name="org.ballerinalang.test.object.*" />
@@ -107,7 +107,7 @@
             <!--&lt;!&ndash; <package name="org.ballerinalang.test.loc.*" /> &ndash;&gt;-->
             <package name="org.ballerinalang.test.packaging.*" />
             <package name="org.ballerinalang.test.types.xml.*" />
-            <!--<package name="org.ballerinalang.test.record.*"/>-->
+            <package name="org.ballerinalang.test.record.*"/>
             <package name="org.ballerinalang.test.types.constant.*" />
             <package name="org.ballerinalang.test.types.bytetype.*"/>
             <!--<package name="org.ballerinalang.test.types.handle.*"/>-->
@@ -118,8 +118,9 @@
             <!--<package name="org.ballerinalang.test.annotations"/>-->
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.taintchecking.*"/>
-            <!--<package name="org.ballerinalang.test.statements.transaction.*"/> -->
+            <package name="org.ballerinalang.test.statements.transaction.*"/>
             <package name="org.ballerinalang.test.functions.*"/>
+            <package name="org.ballerinalang.test.javainterop.*"/>
         </packages>
 
         <classes>
@@ -129,7 +130,17 @@
                     <!--<include name="simpleLock"/>-->
                 <!--</methods>-->
             <!--</class>-->
-            <!--<class name="org.ballerinalang.test.types.table.TableSqlQueryTest"/>-->
+            <class name="org.ballerinalang.test.lock.LocksInServicesTest"/>
+            <class name="org.ballerinalang.test.lock.LocksInMainTest"/>
+            <class name="org.ballerinalang.test.lock.FieldLockTest">
+                <methods>
+                    <exclude name="testObjectLock"/>
+                    <exclude name="testLockInRecords"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.types.table.TableSqlQueryTest"/>
+            <class name="org.ballerinalang.test.types.table.TableLiteralSyntaxTest"/>
+            <!--<class name="org.ballerinalang.test.types.table.TableLiteralIterableTest"/>-->
             <class name="org.ballerinalang.test.types.stream.BStreamValueTest"/>
             <!--<class name="org.ballerinalang.test.types.TypeUnificationTest"/>-->
             <!--<class name="org.ballerinalang.test.error.ErrorTest" />-->
@@ -143,6 +154,8 @@
                     <exclude name="testAsyncNonNativeBasic11" />
                 </methods>
             </class>
+            <class name="org.ballerinalang.test.balo.record.OpenRecordTypeReferenceTest" />
+            <class name="org.ballerinalang.test.balo.record.ClosedRecordTypeReferenceTest" />
         </classes>
     </test>
 </suite>

@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.LSCompletionProviderFactory;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
+import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.slf4j.Logger;
@@ -82,6 +83,7 @@ public class CompletionUtil {
 
         boolean isSnippetSupported = ctx.get(CompletionKeys.CLIENT_CAPABILITIES_KEY).getCompletionItem()
                 .getSnippetSupport();
+        ItemSorters.get(ctx.get(CompletionKeys.ITEM_SORTER_KEY)).sortItems(ctx, items);
         for (CompletionItem item : items) {
             if (!isSnippetSupported) {
                 item.setInsertText(CommonUtil.getPlainTextSnippet(item.getInsertText()));
@@ -101,7 +103,8 @@ public class CompletionUtil {
     private static void setInvocationOrInteractionOrFieldAccessToken(LSContext context) {
         List<CommonToken> lhsTokens = context.get(CompletionKeys.LHS_TOKENS_KEY);
         List<Integer> invocationTokens = Arrays.asList(
-                BallerinaParser.COLON, BallerinaParser.DOT, BallerinaParser.RARROW, BallerinaParser.NOT
+                BallerinaParser.COLON, BallerinaParser.DOT, BallerinaParser.RARROW, BallerinaParser.NOT,
+                BallerinaParser.OPTIONAL_FIELD_ACCESS
         );
         context.put(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY, -1);
         if (lhsTokens == null) {

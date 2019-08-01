@@ -38,7 +38,7 @@ public class LdapConstants {
     public static final String CONNECTION_PASSWORD = "connectionPassword";
     public static final String CONNECTION_POOLING_ENABLED = "connectionPoolingEnabled";
     public static final String CONNECTION_TIME_OUT = "ldapConnectionTimeout";
-    public static final String READ_TIME_OUT = "readTimeout";
+    public static final String READ_TIME_OUT_IN_MILLIS = "readTimeoutInMillis";
     public static final String RETRY_ATTEMPTS = "retryAttempts";
 
     // Filter attribute in LDAP auth store configs that filters users by user name
@@ -62,7 +62,6 @@ public class LdapConstants {
     public static final String LDAP_CONFIGURATION = "ldapConfiguration";
     public static final String LDAP_CONNECTION_SOURCE = "connectionSource";
     public static final String LDAP_CONNECTION_CONTEXT = "connectionContext";
-    public static final String LDAP_AUTH_PROVIDER_CONFIG = "ldapConnectionConfig";
     public static final String ENDPOINT_INSTANCE_ID = "instanceId";
     public static final String SECURE_AUTH_STORE_CONFIG = "secureClientSocket";
 
@@ -77,4 +76,7 @@ public class LdapConstants {
     public static final String DEFAULT_CONNECTION_TIME_OUT = "5000";
     public static final String UTF_8_CHARSET = "UTF-8";
     public static final String CERTIFICATE_ALIAS = "ca";
+
+    public static final String LDAP_ERROR_CODE = "{ballerina/ldap}Error";
+
 }

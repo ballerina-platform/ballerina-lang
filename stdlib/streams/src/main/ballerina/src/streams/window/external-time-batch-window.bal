@@ -150,7 +150,7 @@ public type ExternalTimeBatchWindow object {
         } else {
             error err = error("ExternalTimeBatch window should only have two to five " +
                 "parameters (<string> timestamp, <int> windowTime, <int> startTime, <int> " +
-                "timeout, <boolean> replaceTimestampWithBatchEndTime), but found " + parameters.length()
+                "timeout, <boolean> replaceTimestampWithBatchEndTime), but found " + parameters.length().toString()
                 + " input attributes");
             panic err;
         }

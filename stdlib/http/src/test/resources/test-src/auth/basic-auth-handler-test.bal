@@ -17,25 +17,25 @@
 import ballerina/auth;
 import ballerina/http;
 
-function testCanHandleHttpBasicAuthWithoutHeader() returns boolean {
+function testCanProcessHttpBasicAuthWithoutHeader() returns boolean {
     CustomAuthProvider customAuthProvider = new;
     http:BasicAuthHandler handler = new(customAuthProvider);
     http:Request inRequest = createRequest();
     string basicAuthHeaderValue = "123Basic xxxxxx";
     inRequest.setHeader("123Authorization", basicAuthHeaderValue);
-    return <@untainted> handler.canHandle(inRequest);
+    return <@untainted> handler.canProcess(inRequest);
 }
 
-function testCanHandleHttpBasicAuth() returns boolean {
+function testCanProcessHttpBasicAuth() returns boolean {
     CustomAuthProvider customAuthProvider = new;
     http:BasicAuthHandler handler = new(customAuthProvider);
     http:Request inRequest = createRequest();
     string basicAuthHeaderValue = "Basic xxxxxx";
     inRequest.setHeader("Authorization", basicAuthHeaderValue);
-    return <@untainted> handler.canHandle(inRequest);
+    return <@untainted> handler.canProcess(inRequest);
 }
 
-function testHandleHttpBasicAuthFailure() returns @tainted boolean|error {
+function testHandleHttpBasicAuthFailure() returns @tainted boolean|http:AuthenticationError {
     CustomAuthProvider customAuthProvider = new;
     http:BasicAuthHandler handler = new(customAuthProvider);
     http:Request inRequest = createRequest();
@@ -44,7 +44,7 @@ function testHandleHttpBasicAuthFailure() returns @tainted boolean|error {
     return handler.process(inRequest);
 }
 
-function testHandleHttpBasicAuth() returns boolean|error {
+function testHandleHttpBasicAuth() returns boolean|http:AuthenticationError {
     CustomAuthProvider customAuthProvider = new;
     http:BasicAuthHandler handler = new(customAuthProvider);
     http:Request inRequest = createRequest();

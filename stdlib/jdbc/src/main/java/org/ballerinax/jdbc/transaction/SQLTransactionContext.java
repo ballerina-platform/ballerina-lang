@@ -52,7 +52,7 @@ public class SQLTransactionContext implements BallerinaTransactionContext {
         try {
             conn.commit();
         } catch (SQLException e) {
-            throw BallerinaErrors.createError("transaction commit failed:" + e.getMessage());
+            throw BallerinaErrors.createError("Transaction commit failed:" + e.getMessage());
         }
     }
 
@@ -63,7 +63,7 @@ public class SQLTransactionContext implements BallerinaTransactionContext {
                 conn.rollback();
             }
         } catch (SQLException e) {
-            throw BallerinaErrors.createError("transaction rollback failed:" + e.getMessage());
+            throw BallerinaErrors.createError("Transaction rollback failed:" + e.getMessage());
         }
     }
 
@@ -74,7 +74,7 @@ public class SQLTransactionContext implements BallerinaTransactionContext {
                 conn.close();
             }
         } catch (SQLException e) {
-            throw BallerinaErrors.createError("connection close failed:" + e.getMessage());
+            throw BallerinaErrors.createError("Connection close failed:" + e.getMessage());
         }
     }
 

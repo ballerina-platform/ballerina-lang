@@ -34,6 +34,7 @@ function testInvalidErrorReasonWithConstantAsReason() returns error {
 
 type Foo record {|
     string message;
+    error cause?;
     int...;
 |};
 
@@ -67,3 +68,9 @@ type MyErrorErrorData record {|
     MyError cause?;
     map<string> data = {};
 |};
+
+type ER UserDefErrorOne|UserDefErrorTwo;
+
+function contextuallyExpTypeIsAUnion() {
+    ER e = error("OtherReason");
+}

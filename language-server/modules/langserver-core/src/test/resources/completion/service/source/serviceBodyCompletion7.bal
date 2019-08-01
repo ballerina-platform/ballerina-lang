@@ -1,3 +1,7 @@
+import ballerina/'lang\.object as lang;
+
+public listener Listener lis = new();
+
 service ser on lis {
     resource function res(int intVal) returns string {
         return "";
@@ -7,7 +11,7 @@ service ser on lis {
 }
 
 type Listener object {
-    *AbstractListener;
+    *lang:AbstractListener;
 
     public function __init() {
     }

@@ -16,9 +16,7 @@
 package org.ballerinalang.net.grpc.nativeimpl.streamingclient;
 
 import com.google.protobuf.Descriptors;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.bre.bvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -48,12 +46,8 @@ import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
                 structPackage = GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
-public class Send extends BlockingNativeCallableUnit {
+public class Send {
     private static final Logger LOG = LoggerFactory.getLogger(Send.class);
-    
-    @Override
-    public void execute(Context context) {
-    }
 
     public static Object send(Strand strand, ObjectValue streamConnection, Object responseValue) {
         StreamObserver requestSender = (StreamObserver) streamConnection.getNativeData(REQUEST_SENDER);

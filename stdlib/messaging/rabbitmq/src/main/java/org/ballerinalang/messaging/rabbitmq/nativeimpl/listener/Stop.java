@@ -20,9 +20,7 @@ package org.ballerinalang.messaging.rabbitmq.nativeimpl.listener;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
@@ -46,10 +44,7 @@ import java.util.concurrent.TimeoutException;
                 structType = RabbitMQConstants.LISTENER_OBJECT,
                 structPackage = RabbitMQConstants.PACKAGE_RABBITMQ)
 )
-public class Stop extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-    }
+public class Stop {
 
     public static Object stop(Strand strand, ObjectValue listenerObjectValue) {
         ObjectValue channelObject = (ObjectValue) listenerObjectValue.get(RabbitMQConstants.CHANNEL_REFERENCE);
@@ -67,5 +62,8 @@ public class Stop extends BlockingNativeCallableUnit {
             }
         }
         return null;
+    }
+
+    private Stop() {
     }
 }

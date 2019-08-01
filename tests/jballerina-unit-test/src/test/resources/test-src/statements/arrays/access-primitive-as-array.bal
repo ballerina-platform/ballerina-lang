@@ -1,5 +1,5 @@
-function AccessPrimitiveAsArray() returns (string) {
-    string animal;
-    animal[0] = "Dog";
+function AccessPrimitiveAsArray() returns int {
+    int animal;
+    animal[0] = 1;
     return animal[0];
 }

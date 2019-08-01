@@ -27,45 +27,32 @@ type Person record {|
     string school;
 |};
 
-type EmployeeObj object {
-    public string name = "Mohan";
-    public int age = 30;
-
-};
-
 //-----------------------Tuple Type Stamp Negative Test cases----------------------------------------------------------
 
-function stampTupleToRecord() returns Employee {
+function stampTupleToRecord() returns Employee|error {
     [string, string, string] tupleValue = ["Mohan", "single", "LK2014"];
 
-    Employee returnValue = Employee.stamp(tupleValue);
+    Employee|error returnValue = Employee.constructFrom(tupleValue);
     return returnValue;
 }
 
-function stampTupleToJSON() returns json {
+function stampTupleToJSON() returns json|error {
     [string, string, string] tupleValue = ["Mohan", "single", "LK2014"];
 
-    json jsonValue = json.stamp(tupleValue);
+    json|error jsonValue = json.constructFrom(tupleValue);
     return jsonValue;
 }
 
-function stampTupleToXML() returns xml {
+function stampTupleToXML() returns xml|error {
     [string, string, string] tupleValue = ["Mohan", "single", "LK2014"];
 
-    xml xmlValue = xml.stamp(tupleValue);
+    xml|error xmlValue = xml.constructFrom(tupleValue);
     return xmlValue;
 }
 
-function stampTupleToObject() returns EmployeeObj {
-    [string, int] tupleValue = ["Mohan", 30];
-
-    EmployeeObj objectValue = EmployeeObj.stamp(tupleValue);
-    return objectValue;
-}
-
-function stampTupleToMap() returns map<any> {
+function stampTupleToMap() returns map<anydata>|error {
     [string, string, string] tupleValue = ["Mohan", "single", "LK2014"];
 
-    map<any> mapValue = map<any>.stamp(tupleValue);
+    map<anydata>|error mapValue = map<anydata>.constructFrom(tupleValue);
     return mapValue;
 }

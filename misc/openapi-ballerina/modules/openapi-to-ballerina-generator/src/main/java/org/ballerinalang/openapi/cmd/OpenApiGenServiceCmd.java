@@ -1,11 +1,11 @@
 package org.ballerinalang.openapi.cmd;
 
-import org.ballerinalang.langserver.compiler.LSCompilerUtil;
-import org.ballerinalang.launcher.BLauncherCmd;
-import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.openapi.CodeGenerator;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.openapi.utils.GeneratorConstants;
+import org.ballerinalang.tool.BLauncherCmd;
+import org.ballerinalang.tool.LauncherUtils;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -74,8 +74,13 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
                     + moduleArgs.get(1) + " <OpenApiContract>");
         }
 
-        final String projectRoot = LSCompilerUtil.findProjectRoot(System.getProperty("user.dir"));
-        final Path moduleDirectory = Paths.get(projectRoot + "/" + moduleArgs.get(0));
+        final Path projectRoot = ProjectDirs.findProjectRoot(Paths.get(System.getProperty("user.dir")));
+        if (projectRoot == null) {
+            // TODO: Better throw a meaningful exception
+            return;
+        }
+        final Path sourceDirectory = projectRoot.resolve("src");
+        final Path moduleDirectory = sourceDirectory.resolve(moduleArgs.get(0));
         final Path resourcesDirectory = Paths.get(moduleDirectory + "/resources");
         final File openApiFile = new File(argList.get(0));
         final String openApiFilePath = openApiFile.getPath();
@@ -87,6 +92,14 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
             if (Files.notExists(Paths.get(openApiFilePath))) {
                 throw LauncherUtils.createLauncherException("Could not resolve a valid OpenApi" +
                         " contract in " + openApiFilePath);
+            }
+
+            if (Files.notExists(sourceDirectory)) {
+                try {
+                    Files.createDirectory(sourceDirectory);
+                } catch (IOException e) {
+                    throw LauncherUtils.createLauncherException(e.getLocalizedMessage());
+                }
             }
 
             if (Files.notExists(moduleDirectory)) {

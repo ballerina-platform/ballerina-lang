@@ -17,9 +17,7 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.client;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -61,10 +59,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB;
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         isPublic = true
 )
-public class InitStub extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-    }
+public class InitStub {
 
     public static Object initStub(Strand strand, ObjectValue clientEndpoint, String stubType, String rootDescriptor,
                                   MapValue<String, Object> descriptorMap) {
