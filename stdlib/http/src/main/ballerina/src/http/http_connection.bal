@@ -31,10 +31,10 @@ public type Caller client object {
 
     # Sends the outbound response to the caller.
     #
-    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
-    #             or `mime:Entity[]`
+    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`,
+    #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - Returns an `http:ListenerError` if failed to respond
-    public remote function respond(ResponseMessage message) returns ListenerError? {
+    public remote function respond(ResponseMessage message = ()) returns ListenerError? {
         Response response = buildResponse(message);
         FilterContext? filterContext = self.filterContext;
         (RequestFilter | ResponseFilter)[] filters = self.config.filters;
@@ -130,7 +130,7 @@ public type Caller client object {
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - Returns an `http:ListenerError` if failed to respond
-    public remote function ok(ResponseMessage message) returns ListenerError? {
+    public remote function ok(ResponseMessage message = ()) returns ListenerError? {
         Response response = buildResponse(message);
         response.statusCode = STATUS_OK;
         return self->respond(response);

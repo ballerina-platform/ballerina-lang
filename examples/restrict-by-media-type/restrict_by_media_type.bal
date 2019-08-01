@@ -19,32 +19,18 @@ service infoService on new http:Listener(9092) {
         var msg = req.getJsonPayload();
         if (msg is json) {
             // Get the `string` value that is relevant to the key "name".
-            string nameString = <string>msg["name"];
-            if (validateString(nameString)) {
-                // Create XML payload and send back a response.
-                xml name = xml `<name>{{untaint nameString}}</name>`;
-                res.setXmlPayload(name);
-            } else {
-                res.statusCode = 400;
-                res.setPayload("Name contains invalid data");
-            }
+            string nameString = <string>msg.name;
+            // Create XML payload and send back a response.
+            xml name = xml `<name>{{untaint nameString}}</name>`;
+            res.setXmlPayload(name);
         } else {
             res.statusCode = 500;
-            res.setPayload(untaint <string>msg.detail().message);
+            res.setPayload(<@untainted> <string>msg.detail()?.message);
         }
 
         var result = caller->respond(res);
         if (result is error) {
            log:printError("Error in responding", err = result);
         }
-    }
-}
-
-function validateString(string nameString) returns boolean {
-    var result = nameString.matches("[a-zA-Z]+");
-    if (result is error) {
-        return false;
-    } else {
-        return result;
     }
 }

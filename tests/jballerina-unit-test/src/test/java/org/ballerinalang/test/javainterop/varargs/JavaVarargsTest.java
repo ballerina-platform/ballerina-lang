@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.javainterop.varargs;
 
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BHandleValue;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
@@ -107,6 +108,29 @@ public class JavaVarargsTest {
                 "[apples, arranges, grapes, pineapple, mangoes]");
     }
 
+    @Test
+    public void testPrimitiveVarargsWithGenerics() {
+        BValue[] returns = BRunUtil.invoke(result, "testPrimitiveVarargsWithGenerics");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BHandleValue) returns[0]).getValue().toString(), "[3, 6, 9]");
+    }
+
+    @Test
+    public void testPasingValueTypeToJavaObject() {
+        BValue[] returns = BRunUtil.invoke(result, "testPasingValueTypeToJavaObject");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
+    }
+
+    @Test
+    public void testJavaGenericReturnType() {
+        BValue[] returns = BRunUtil.invoke(result, "testJavaGenericReturnType");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 8);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 3.25);
+        Assert.assertEquals(((BHandleValue) returns[2]).getValue(), "apples");
+    }
+
     // Java methods for interop
 
     public static int getSum(int... vals) {
@@ -147,5 +171,13 @@ public class JavaVarargsTest {
             mergedList.addAll(list);
         }
         return mergedList;
+    }
+
+    public static int toShort(Object vals) {
+        return ((Number) vals).shortValue();
+    }
+
+    public static <T> T getGenericValue(T value) {
+        return value;
     }
 }
