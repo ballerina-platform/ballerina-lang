@@ -32,6 +32,7 @@ import org.ballerinalang.packerina.task.CreateTargetDirTask;
 import org.ballerinalang.packerina.task.RunTestsTask;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
+import org.ballerinalang.util.BLangConstants;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -39,6 +40,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -53,7 +55,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SIDDHI_RUNTIME_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
-import static org.ballerinalang.packerina.cmd.Constants.COMPILE_COMMAND;
+import static org.ballerinalang.packerina.cmd.Constants.BUILD_COMMAND;
 import static org.ballerinalang.packerina.cmd.Constants.TEST_COMMAND;
 
 /**
@@ -109,9 +111,8 @@ public class TestCommand implements BLauncherCmd {
     private boolean siddhiRuntimeFlag;
 
     public void execute() {
-
         if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(COMPILE_COMMAND);
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
             errStream.println(commandUsageInfo);
             return;
         }
@@ -119,25 +120,12 @@ public class TestCommand implements BLauncherCmd {
         if (argList != null && argList.size() > 1) {
             CommandUtil.printError(errStream,
                     "too many arguments.",
-                    "ballerina test [<module-name>]",
+                    "ballerina compile [<module-name>]",
                     true);
         }
 
         // Get source root path.
         Path sourceRootPath = userDir;
-
-        // Compile command only works inside a project
-        if (!ProjectDirs.isProject(sourceRootPath)) {
-            Path findRoot = ProjectDirs.findProjectRoot(sourceRootPath);
-            if (null == findRoot) {
-                CommandUtil.printError(errStream,
-                        "test command can be only run inside a Ballerina project",
-                        null,
-                        false);
-                return;
-            }
-            sourceRootPath = findRoot;
-        }
 
         if (argList == null || argList.size() == 0) {
             // to build all modules of a project
@@ -146,8 +134,8 @@ public class TestCommand implements BLauncherCmd {
                 if (null == findRoot) {
                     CommandUtil.printError(errStream,
                             "Please provide a Ballerina file as a " +
-                                    "input or run test command inside a project",
-                            "ballerina test [<filename.bal>]",
+                                    "input or run build command inside a project",
+                            "ballerina build [<filename.bal>]",
                             false);
                     return;
                 }
@@ -216,34 +204,67 @@ public class TestCommand implements BLauncherCmd {
                 throw LauncherUtils.createLauncherException("the given module or source file does not exist.");
             }
 
-            // Checks if the source is a module and if its inside a project (with a Ballerina.toml folder)
-            if (!RepoUtils.isBallerinaProject(sourceRootPath)) {
-                throw LauncherUtils.createLauncherException("you are trying to build a module that is not inside " +
-                        "a project. Run `ballerina new` from " +
-                        sourceRootPath + " to initialize it as a " +
-                        "project and then build the module.");
+            if (Files.isRegularFile(sourceFullPath) &&
+                    pkgOrSourceFileName.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX) &&
+                    !RepoUtils.isBallerinaProject(sourceRootPath)) {
+
+                // if its a single bal file
+                try {
+                    // TODO: use a files system
+                    Path tempTarget = Files.createTempDirectory(pkgOrSourceFileNameAsString);
+                    BuildContext buildContext = new BuildContext(sourceRootPath, tempTarget, sourceFullPath);
+                    buildContext.setOut(outStream);
+                    buildContext.setOut(errStream);
+                    buildContext.put(BuildContextField.COMPILER_CONTEXT, context);
+
+                    TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
+                            .addTask(new CreateTargetDirTask())
+                            .addTask(new CompileTask())
+                            .addTask(new CreateBirTask())
+                            .addTask(new CreateJarTask())
+                            .addTask(new CopyModuleJarTask())
+                            .addTask(new RunTestsTask(), this.skipTests)
+                            .build();
+
+                    taskExecutor.executeTasks(buildContext);
+                } catch (IOException e) {
+                    throw LauncherUtils.createLauncherException("error occurred when creating test artifacts.");
+                }
+            } else if (Files.isDirectory(sourceFullPath)) {
+                // if its a module
+                // Checks if the source is a module and if its inside a project (with a Ballerina.toml folder)
+                if (!RepoUtils.isBallerinaProject(sourceRootPath)) {
+                    throw LauncherUtils.createLauncherException("you are trying to test a module that is not inside " +
+                            "a project. Run `ballerina new` from " +
+                            sourceRootPath + " to initialize it as a " +
+                            "project and then build the module.");
+                }
+
+                BuildContext buildContext = new BuildContext(sourceRootPath, pkgOrSourceFileName);
+                buildContext.setOut(outStream);
+                buildContext.setOut(errStream);
+                buildContext.put(BuildContextField.COMPILER_CONTEXT, context);
+
+                TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
+                        .addTask(new CleanTargetDirTask())
+                        .addTask(new CreateTargetDirTask())
+                        .addTask(new CompileTask())
+                        .addTask(new CreateBaloTask())
+                        .addTask(new CreateBirTask())
+                        .addTask(new CopyNativeLibTask())
+                        .addTask(new CreateJarTask())
+                        .addTask(new CopyModuleJarTask())
+                        .addTask(new RunTestsTask(), this.skipTests)
+                        .build();
+
+                taskExecutor.executeTasks(buildContext);
+            } else {
+                // Invalid source file provided
+                throw LauncherUtils.createLauncherException("invalid ballerina source path, it should either be a " +
+                        "directory or a file  with a \'"
+                        + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension");
             }
-
-            BuildContext buildContext = new BuildContext(sourceRootPath, pkgOrSourceFileName);
-            buildContext.setOut(outStream);
-            buildContext.setOut(errStream);
-            buildContext.put(BuildContextField.COMPILER_CONTEXT, context);
-
-            TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                    .addTask(new CleanTargetDirTask())
-                    .addTask(new CreateTargetDirTask())
-                    .addTask(new CompileTask())
-                    .addTask(new CreateBaloTask())
-                    .addTask(new CreateBirTask())
-                    .addTask(new CopyNativeLibTask())
-                    .addTask(new CreateJarTask())
-                    .addTask(new CopyModuleJarTask())
-                    .addTask(new RunTestsTask(), this.skipTests)
-                    .build();
-
-            taskExecutor.executeTasks(buildContext);
         }
-
         if (exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }
