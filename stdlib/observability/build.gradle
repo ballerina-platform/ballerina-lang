@@ -33,6 +33,7 @@ dependencies {
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-runtime')
     implementation project(':metrics-extensions:ballerina-metrics-extension')
+    implementation 'io.opentracing:opentracing-api'
 
     testRuntime 'org.slf4j:slf4j-jdk14'
 

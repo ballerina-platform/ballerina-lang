@@ -41,6 +41,7 @@ dependencies {
     implementation project(':ballerina-runtime-api')
     implementation 'org.quartz-scheduler:quartz'
 
+    testCompile 'org.awaitility:awaitility'
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'org.testng:testng'
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
