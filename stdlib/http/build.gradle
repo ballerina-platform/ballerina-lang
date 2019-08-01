@@ -48,7 +48,6 @@ dependencies {
     implementation project(':ballerina-logging')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-mime')
-    implementation project(':ballerina-config')
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-encoding')
     implementation project(':ballerina-system')

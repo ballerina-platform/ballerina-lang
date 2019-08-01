@@ -10,7 +10,7 @@ public function main() {
     // updates of the topics.
     io:println("Starting up the Ballerina Hub Service");
 
-    var result = websub:startHub(new http:Listener(9191), hubConfiguration = {
+    var result = websub:startHub(new http:Listener(9191), {
                 remotePublish : {
                     enabled : true
                 }});

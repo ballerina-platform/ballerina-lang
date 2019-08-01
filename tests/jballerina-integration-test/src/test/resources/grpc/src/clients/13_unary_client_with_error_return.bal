@@ -27,7 +27,7 @@ public function testErrorResponse(string name) returns string {
     HelloWorldBlockingClient helloWorldBlockingEp = new("http://localhost:9103");
     var unionResp = helloWorldBlockingEp->hello(name);
 
-    if (unionResp is error) {
+    if (unionResp is grpc:Error) {
         string message = "Error from Connector: " + unionResp.reason() + " - "
             + <string> unionResp.detail()["message"];
         io:println(message);
@@ -40,20 +40,24 @@ public function testErrorResponse(string name) returns string {
 }
 
 public type HelloWorldBlockingClient client object {
+
+    *grpc:AbstractClientEndpoint;
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
-        error? result = c.initStub("blocking", ROOT_DESCRIPTOR, getDescriptorMap());
-        if (result is error) {
-            panic result;
+        grpc:Error? result = c.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        if (result is grpc:Error) {
+            error err = result;
+            panic err;
         } else {
             self.grpcClient = c;
         }
     }
 
-    remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|error) {
+    remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
         var payload = check self.grpcClient->blockingExecute("HelloWorld13/hello", req, headers);
         grpc:Headers resHeaders = new;
         any result = ();
@@ -64,20 +68,24 @@ public type HelloWorldBlockingClient client object {
 };
 
 public type HelloWorldClient client object {
+
+    *grpc:AbstractClientEndpoint;
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
-        error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
-        if (result is error) {
-            panic result;
+        grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        if (result is grpc:Error) {
+            error err = result;
+            panic err;
         } else {
             self.grpcClient = c;
         }
     }
 
-    remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
         return self.grpcClient->nonBlockingExecute("HelloWorld13/hello", req, msgListener, headers);
     }
 

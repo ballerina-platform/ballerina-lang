@@ -3,15 +3,19 @@ import ballerina/io;
 
 // Generated non-blocking client endpoint based on the service definition.
 public type HelloWorldClient client object {
+
+    *grpc:AbstractClientEndpoint;
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // Initialize client endpoint.
         grpc:Client c = new(url, config);
-        error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR,
+        grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR,
                                                             getDescriptorMap());
-        if (result is error) {
-            panic result;
+        if (result is grpc:Error) {
+            error err = result;
+            panic err;
         } else {
             self.grpcClient = c;
         }
@@ -19,7 +23,7 @@ public type HelloWorldClient client object {
 
     remote function lotsOfGreetings(service msgListener,
                                     grpc:Headers? headers = ())
-                        returns (grpc:StreamingClient|error)  {
+                        returns (grpc:StreamingClient|grpc:Error) {
         return self.grpcClient->streamingExecute("HelloWorld/lotsOfGreetings",
                                                 msgListener, headers);
     }

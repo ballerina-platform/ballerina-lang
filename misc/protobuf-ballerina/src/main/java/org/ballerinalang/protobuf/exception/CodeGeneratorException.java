@@ -15,24 +15,30 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.net.grpc.exception;
+package org.ballerinalang.protobuf.exception;
 
 /**
- * Exception thrown when runtime failure occurred at client side.
+ * Thrown to indicate that the requested field type is not supported.
  *
- * @since 0.980.0
  */
-public class ClientRuntimeException extends RuntimeException {
+public class CodeGeneratorException extends Exception {
 
-    public ClientRuntimeException(String message, Throwable throwable) {
-        super(message, throwable);
-    }
-
-    public ClientRuntimeException(String message) {
+    /**
+     * Constructs an UnsupportedFieldTypeException with the specified detail message.
+     *
+     * @param message the detail message
+     */
+    public CodeGeneratorException(String message) {
         super(message);
     }
 
-    public ClientRuntimeException(Throwable throwable) {
-        super(throwable);
+    /**
+     * Constructs a new exception with the specified detail message and cause.
+     *
+     * @param  message the detail message
+     * @param  cause the cause
+     */
+    public CodeGeneratorException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

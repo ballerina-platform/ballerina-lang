@@ -2,7 +2,7 @@
 # `.bal` file and use the `ballerina run` command with `--observe` param.
 $ ballerina run --observe gauge_metrics.bal
 [ballerina/http] started HTTP/WS Listener 0.0.0.0:9797
-ballerina: started Prometheus HTTP endpoint 0.0.0.0:9797
+ballerina: started Prometheus HTTP Listener 0.0.0.0:9797
 ballerina: started publishing tracers to Jaeger on localhost:5775
 [ballerina/http] started HTTP/WS Listener 0.0.0.0:9090
 

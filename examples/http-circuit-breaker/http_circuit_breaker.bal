@@ -6,7 +6,7 @@ import ballerina/runtime;
 // The circuit breaker looks for errors across a rolling time window.
 // After the circuit is broken, it does not send requests to
 // the backend until the `resetTime`.
-http:Client backendClientEP = new("http://localhost:8080", config = {
+http:Client backendClientEP = new("http://localhost:8080", {
         // Circuit breaker configuration options that control the
         // behavior of the Ballerina circuit breaker.
         circuitBreaker: {
@@ -90,7 +90,7 @@ service circuitbreaker on new http:Listener(9090) {
         } else {
             http:Response response = new;
             response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
-            response.setPayload(<string> backendResponse.detail().message);
+            response.setPayload(<string> backendResponse.detail()?.message);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
                 log:printError("Error sending response",
