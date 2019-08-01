@@ -894,7 +894,7 @@
             },
             {
                 "name": "Durable Subscriptions",
-                "url": "nats-streaming-consumer-with-data-binding"
+                "url": "nats-streaming-durable-subscriptions"
             },
             {
                 "name": "Queue Groups",
