@@ -45,7 +45,7 @@ public abstract class LauncherImpl {
         String ballerinaHome = args.get("ballerina.home").toString();
         String debuggeePort = args.get("debuggeePort").toString();
         String ballerinaExec = ballerinaHome + File.separator + "bin" + File.separator + "ballerina";
-        if (OSUtils.getOperatingSystem() == "windows") {
+        if (OSUtils.WINDOWS.equals(OSUtils.getOperatingSystem())) {
             ballerinaExec = ballerinaExec + ".bat";
         }
 
