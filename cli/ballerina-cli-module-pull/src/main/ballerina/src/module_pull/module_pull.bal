@@ -170,7 +170,7 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
                     panic createError("module already exists in the home repository");
                 }
 
-                string|error createBaloFile = system:createDir(baloCacheWithModulePath, true);
+                string|error createBaloFile = system:createDir(<@untainted> baloCacheWithModulePath, true);
                 if (createBaloFile is error) {
                     panic createError("error creating directory for balo file");
                 }
@@ -195,7 +195,7 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
                         if (nightlyBuild) {
                             // If its a nightly build tag the file as a module from nightly
                             string nightlyBuildMetafile = checkpanic filepath:build(baloCache, "nightly.build");
-                            string|error createdNightlyBuildFile = system:createFile(nightlyBuildMetafile);
+                            string|error createdNightlyBuildFile = system:createFile(<@untainted> nightlyBuildMetafile);
                             if (createdNightlyBuildFile is error) {
                                 panic createError("Error occurred while creating nightly.build file.");
                             }
