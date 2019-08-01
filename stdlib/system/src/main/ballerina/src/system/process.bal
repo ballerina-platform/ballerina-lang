@@ -20,6 +20,8 @@ import ballerina/io;
 # This is returned from the `exec` function in the `system` module.
 public type Process object {
 
+    private int BUF_SIZE = 10240;
+
     # Waits for the process to finish its work and exit.
     #
     # + return - Returns the exist code for the process, or else an `Error` in a failure
@@ -62,6 +64,50 @@ public type Process object {
     # + return - The `io:ReadableByteChannel` representing the channel to read representing process's standard error
     public function stderr() returns io:ReadableByteChannel {
         return nativeStderr(self);
+    }
+    
+    # Pipes the standard output of the current process to the standard input of the given process.
+    #
+    # + process - The process to pipe the data to
+    # + return - The process that is passed in, where this is used to help chain pipe operations
+    public function pipe(Process process) returns Process {
+        _ = start self.doPipe(self.stdout(), process.stdin());
+        return process;
+    }
+    
+    private function doPipe(io:ReadableByteChannel input, io:WritableByteChannel output) {
+        while (true) {
+            [byte[], int]|error result = input.read(self.BUF_SIZE);
+            if (result is error) {
+                io:println("Error in pipe read: ", result);
+                break;
+            } else {
+                if (result[1] <= 0) {
+                    break;
+                } else {
+                    int i = 0;
+                    while (i < result[1]) {
+                        var result2 = output.write(result[0], i);
+                        if (result2 is error) {
+                            io:println("Error in pipe write: ", result2);
+                            break;
+                        } else {
+                            i = i + result2;
+                        }
+                    }
+                }
+            }
+        }
+        
+        var cr2 = input.close();
+        if (cr2 is error) {
+            io:println("Error closing pipe input: ", cr2);
+        }
+        var cr1 = output.close();
+        if (cr1 is error) {
+            io:println("Error flushing pipe output: ", cr1);
+        }
+        
     }
 
 };
