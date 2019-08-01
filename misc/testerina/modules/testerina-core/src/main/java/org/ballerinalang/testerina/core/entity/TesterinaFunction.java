@@ -111,7 +111,6 @@ public class TesterinaFunction {
      * Invokes a ballerina test function, in blocking mode.
      *
      * @param args function arguments
-     * @return a BValue array
      */
     public void invoke(BValue[] args) {
         // return BVMExecutor.executeFunction(programFile, bFunction, args);
