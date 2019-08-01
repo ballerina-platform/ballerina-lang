@@ -19,35 +19,23 @@
 package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
-import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
-import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
-import java.util.List;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Task for creating the executable jar file.
@@ -67,116 +55,32 @@ public class CreateExecutableTask implements Task {
     }
     
     private void assembleExecutable(BuildContext buildContext, BLangPackage bLangPackage) {
-        Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         try {
             // Copy the jar from cache to bin directory
             Path executablePath = buildContext.getExecutablePathFromTarget(bLangPackage.packageID);
+
+            Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
+            Path tmpDir = targetDir.resolve(ProjectDirConstants.TARGET_TMP_DIRECTORY);
             Path jarFromCachePath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID);
-            
+
             // Check if the package has an entry point.
             if (bLangPackage.symbol.entryPointExists) {
                 Files.copy(jarFromCachePath, executablePath, StandardCopyOption.REPLACE_EXISTING);
-                // Get the fs handle to the jar file
-                
-                // Iterate through the imports and copy dependencies.
-                for (BPackageSymbol importz : bLangPackage.symbol.imports) {
-                    Path importJar = findImportJarPath(buildContext, importz, sourceRootPath);
-                    
-                    if (importJar != null && Files.exists(importJar)) {
-                        copyFromJarToJar(importJar, executablePath);
+                for (File file : tmpDir.toFile().listFiles()) {
+                    if (!file.isDirectory()) {
+                        copyFromJarToJar(file.toPath(), executablePath);
                     }
                 }
-    
-                // Iterate through .balo and copy the platform libs
-                if (buildContext.getSourceType() != SourceType.SINGLE_BAL_FILE) {
-                    Path baloAbsolutePath = buildContext.getBaloFromTarget(bLangPackage.packageID);
-                    String destination = extractJar(baloAbsolutePath.toString());
-        
-                    if (Files.exists(Paths.get(destination).resolve(ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME))) {
-                        try (Stream<Path> walk = Files.walk(Paths.get(destination)
-                                .resolve(ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME))) {
-                
-                            List<String> result = walk.filter(Files::isRegularFile)
-                                    .map(Path::toString)
-                                    .collect(Collectors.toList());
-                
-                            result.forEach(lib -> {
-                                try {
-                                    copyFromJarToJar(Paths.get(lib), executablePath);
-                                } catch (Exception e) {
-                                    throw new BLangCompilerException("unable to create the executable :" +
-                                                                     e.getMessage());
-                                }
-                            });
-                        } catch (IOException e) {
-                            throw new BLangCompilerException("unable to create the executable :" + e.getMessage());
-                        }
-                    }
-                }
-    
             }
             // Copy dependency jar
             // Copy dependency libraries
             // Executable is created at give location.
             // If no entry point is found we do nothing.
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             throw new BLangCompilerException("Unable to create the executable :" + e.getMessage());
         }
     }
-    
-    private static Path findImportJarPath(BuildContext buildContext, BPackageSymbol importz, Path project) {
-        // Get the jar paths
-        PackageID id = importz.pkgID;
-        
-        // Skip ballerina and ballerinax
-        if (id.orgName.value.equals("ballerina") || id.orgName.value.equals("ballerinax")) {
-            return null;
-        }
-        // Look if it is a project module.
-        if (ProjectDirs.isModuleExist(project, id.name.value)) {
-            // If so fetch from project jar cache
-            return buildContext.getJarPathFromTargetCache(id);
-        } else {
-            // If not fetch from home jar cache.
-            return buildContext.getJarPathFromHomeCache(id);
-        }
-        // return the path
-    }
-    
-    private static String extractJar(String jarFileName) throws NullPointerException {
-        try (JarFile jar = new JarFile(jarFileName)) {
-        
-            java.util.Enumeration enumEntries = jar.entries();
-            File destFile = File.createTempFile("temp-" + jarFileName, Long.toString(System.nanoTime()));
-            if (!(destFile.delete())) {
-                throw new BLangCompilerException("Could not delete temp file: " + destFile.getAbsolutePath());
-            }
-            if (!(destFile.mkdir())) {
-                throw new BLangCompilerException("Could not create temp directory: " + destFile.getAbsolutePath());
-            }
-            while (enumEntries.hasMoreElements()) {
-                JarEntry file = (JarEntry) enumEntries.nextElement();
-                if (file.getName().contains(ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME)) {
-                    File f = new File(destFile.getPath() + File.separator + file.getName());
-                    if (file.isDirectory()) { // if its a directory, create it
-                        if (f.mkdir()) {
-                            continue;
-                        }
-                    }
-                    // get the input stream
-                    try (InputStream is = jar.getInputStream(file); FileOutputStream fos = new FileOutputStream(f)) {
-                        while (is.available() > 0) {  // write contents of 'is' to 'fos'
-                            fos.write(is.read());
-                        }
-                    }
-                }
-            }
-            return destFile.getPath();
-        } catch (IOException e) {
-            throw new BLangCompilerException("Unable to create the executable :" + e.getMessage());
-        }
-    }
-    
+
     private static void copyFromJarToJar(Path fromJar, Path toJar) throws IOException {
         URI uberJarUri = URI.create("jar:" + toJar.toUri().toString());
         // Load the to jar to a file system
