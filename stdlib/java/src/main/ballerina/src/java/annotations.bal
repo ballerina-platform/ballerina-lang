@@ -33,7 +33,7 @@ public type ArrayType record {|
 # ConstructorData describes a Java constructor. If the `paramTypes` field is not specified,
 # then parameter types are inferred from the corresponding Ballerina function.
 #
-# + class - the class in which the constructor exists
+# + class - The class in which the constructor exists
 # + paramTypes - an optional field that describes parameter types of the constructor
 public type ConstructorData record {|
     Class class;
