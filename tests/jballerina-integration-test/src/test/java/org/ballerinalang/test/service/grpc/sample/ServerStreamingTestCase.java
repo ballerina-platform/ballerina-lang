@@ -19,7 +19,6 @@
 package org.ballerinalang.test.service.grpc.sample;
 
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -45,14 +44,14 @@ public class ServerStreamingTestCase extends GrpcBaseTest {
 
     @Test
     public void testNonBlockingBallerinaClient() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "06_server_streaming_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients",
+                "06_server_streaming_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-        BString request = new BString("WSO2");
 
-        BValue[] responses = BRunUtil.invoke(result, "testServerStreaming", new BValue[]{request});
+        BValue[] responses = BRunUtil.invoke(result, "testServerStreaming", new Object[]{"WSO2"});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BInteger);
         BInteger responseCount = (BInteger) responses[0];
-        Assert.assertEquals(responseCount.intValue(), 4);
+        Assert.assertEquals(responseCount.intValue(), 3);
     }
 }

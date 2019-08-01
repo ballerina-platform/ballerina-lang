@@ -25,13 +25,14 @@ import ballerina/runtime;
 //}
 
 int total = 0;
+boolean eof = false;
 function testServerStreaming(string name) returns int {
     // Client endpoint configuration
     HelloWorldClient helloWorldEp = new("http://localhost:9096");
 
     // Executing unary non-blocking call registering server message listener.
-    error? result = helloWorldEp->lotsOfReplies(name, HelloWorldMessageListener);
-    if (result is error) {
+    grpc:Error? result = helloWorldEp->lotsOfReplies(name, HelloWorldMessageListener);
+    if (result is grpc:Error) {
         io:println("Error from Connector: " + result.reason() + " - " + <string> result.detail()["message"]);
         return total;
     } else {
@@ -39,16 +40,16 @@ function testServerStreaming(string name) returns int {
     }
 
     int waitCount = 0;
-    while(total < 4) {
+    while(total < 3 || !eof) {
         runtime:sleep(1000);
-        io:println("msg count: " + total);
+        io:println("msg count: " + total.toString());
         if (waitCount > 10) {
             break;
         }
         waitCount += 1;
     }
     io:println("Client got response successfully.");
-    io:println("responses count: " + total);
+    io:println("responses count: " + total.toString());
     return total;
 }
 
@@ -57,8 +58,10 @@ service HelloWorldMessageListener = service {
 
     // Resource registered to receive server messages
     resource function onMessage(string message) {
-        io:println("Response received from server: " + message);
-        total = total + 1;
+        lock {
+            io:println("Response received from server: " + message);
+            total = total + 1;
+        }
     }
 
     // Resource registered to receive server error messages
@@ -69,27 +72,30 @@ service HelloWorldMessageListener = service {
     // Resource registered to receive server completed message.
     resource function onComplete() {
         io:println("Server Complete Sending Response.");
-        total = total + 1;
+        eof = true;
     }
 };
 
 // Non-blocking client endpoint
 public type HelloWorldClient client object {
 
+    *grpc:AbstractClientEndpoint;
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
-        error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
-        if (result is error) {
-            panic result;
+        grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        if (result is grpc:Error) {
+            error err = result;
+            panic err;
         } else {
             self.grpcClient = c;
         }
     }
 
-    remote function lotsOfReplies(string req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function lotsOfReplies(string req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld45/lotsOfReplies", req, msgListener, headers);
     }
 };
@@ -106,4 +112,3 @@ function getDescriptorMap() returns map<string> {
 
     };
 }
-

@@ -27,6 +27,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -48,43 +49,31 @@ public class StubGeneratorTestCase {
     @BeforeClass
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
-        resourceDir = Paths.get("src", "test", "resources", "grpc", "tool").toAbsolutePath();
+        resourceDir = Paths.get("src", "test", "resources", "grpc", "src", "tool").toAbsolutePath();
         outputDirPath = Paths.get(TMP_DIRECTORY_PATH, "grpc");
     }
 
     @Test
     public void testUnaryHelloWorld() throws IllegalAccessException, ClassNotFoundException, InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorld.proto", "helloWorld_pb.bal");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getStructInfo("helloWorldClient"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getStructInfo("helloWorldBlockingClient"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldBlockingClient.hello"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldClient.hello"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldBlockingClient.bye"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldClient.bye"), "Connector not found.");
+        Assert.assertEquals(compileResult.getDiagnostics().length, 0);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
     }
 
     @Test(description = "Test service stub generation tool for package service")
     public void testUnaryHelloWorldWithPackage() throws IllegalAccessException,
             ClassNotFoundException, InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithPackage.proto", "helloWorld_pb.bal");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getStructInfo("helloWorldClient"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getStructInfo("helloWorldBlockingClient"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldBlockingClient.hello"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldClient.hello"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldBlockingClient.bye"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldClient.bye"), "Connector not found.");
+        Assert.assertEquals(compileResult.getDiagnostics().length, 0);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
     }
 
     @Test(description = "Test service stub generation tool command without specifying output directory path")
@@ -98,18 +87,12 @@ public class StubGeneratorTestCase {
             grpcCmd1.execute();
             Path sourceFileRoot = Paths.get("temp", "helloWorld_pb.bal");
             CompileResult compileResult = BCompileUtil.compile(sourceFileRoot.toAbsolutePath().toString());
-            Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                    .getStructInfo("helloWorldClient"), "Connector not found.");
-            Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                    .getStructInfo("helloWorldBlockingClient"), "Connector not found.");
-            Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                    .getFunctionInfo("helloWorldBlockingClient.hello"), "Connector not found.");
-            Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                    .getFunctionInfo("helloWorldClient.hello"), "Connector not found.");
-            Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                    .getFunctionInfo("helloWorldBlockingClient.bye"), "Connector not found.");
-            Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                    .getFunctionInfo("helloWorldClient.bye"), "Connector not found.");
+            Assert.assertEquals(compileResult.getDiagnostics().length, 0);
+            Assert.assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7);
+            Assert.assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11);
+            Assert.assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
+            Assert.assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
+            Assert.assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
         } finally {
             if (Paths.get("temp", "helloWorld_pb.bal").toFile().exists()) {
                 BalFileGenerationUtils.delete(Paths.get("temp").toFile());
@@ -122,11 +105,12 @@ public class StubGeneratorTestCase {
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldClientStreaming.proto",
                 "helloWorldClientStreaming_pb.bal");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getStructInfo("helloWorldClientStreamingClient"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getFunctionInfo("helloWorldClientStreamingClient.LotsOfGreetings"),
-                "Connector not found.");
+        Assert.assertEquals(compileResult.getDiagnostics().length, 0);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 4);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 5);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
     }
 
     @Test
@@ -134,31 +118,24 @@ public class StubGeneratorTestCase {
             ClassNotFoundException, InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldServerStreaming.proto",
                 "helloWorldServerStreaming_pb.bal");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getStructInfo("helloWorldServerStreamingClient"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getFunctionInfo("helloWorldServerStreamingClient.lotsOfReplies"),
-                "Connector not found.");
+        Assert.assertEquals(compileResult.getDiagnostics().length, 0);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 4);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 5);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
     }
 
     @Test
     public void testStandardDataTypes() throws IllegalAccessException, ClassNotFoundException, InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldString.proto",
                 "helloWorldString_pb.bal");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getStructInfo("helloWorldClient"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getStructInfo("helloWorldBlockingClient"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldBlockingClient.hello"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldClient.hello"), "Connector not found.");
-        Assert.assertNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getFunctionInfo("helloWorldBlockingClient.bye"),
-                "function should not exist in pb.bal file.");
-        Assert.assertNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                        .getFunctionInfo("helloWorldClient.bye"),
-                "function should not exist in pb.bal file.");
+        Assert.assertEquals(compileResult.getDiagnostics().length, 0);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 3);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 5);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
     }
 
     @Test
@@ -167,25 +144,19 @@ public class StubGeneratorTestCase {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
         Path tempDirPath = outputDirPath.resolve("client");
-        Path protoPath = Paths.get("grpc", "tool", "helloWorld.proto");
+        Path protoPath = Paths.get("helloWorld.proto");
         Path protoRoot = resourceDir.resolve(protoPath);
         grpcCmd1.setBalOutPath(tempDirPath.toAbsolutePath().toString());
         grpcCmd1.setProtoPath(protoRoot.toAbsolutePath().toString());
         grpcCmd1.execute();
         Path sourceFileRoot = Paths.get(TMP_DIRECTORY_PATH, "grpc", "client", "helloWorld_pb.bal");
         CompileResult compileResult = BCompileUtil.compile(sourceFileRoot.toString());
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getStructInfo("helloWorldClient"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getStructInfo("helloWorldBlockingClient"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldBlockingClient.hello"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldClient.hello"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldBlockingClient.bye"), "Connector not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getFunctionInfo("helloWorldClient.bye"), "Connector not found.");
+        Assert.assertEquals(compileResult.getDiagnostics().length, 0);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
     }
 
     @Test
@@ -194,7 +165,7 @@ public class StubGeneratorTestCase {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCommand = (GrpcCmd) grpcCmd.newInstance();
         Path tempDirPath = outputDirPath.resolve("service");
-        Path protoPath = Paths.get("grpc", "tool", "helloWorld.proto");
+        Path protoPath = Paths.get("helloWorld.proto");
         Path protoRoot = resourceDir.resolve(protoPath);
         grpcCommand.setBalOutPath(tempDirPath.toAbsolutePath().toString());
         grpcCommand.setProtoPath(protoRoot.toAbsolutePath().toString());
@@ -210,7 +181,7 @@ public class StubGeneratorTestCase {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCommand = (GrpcCmd) grpcCmd.newInstance();
         Path tempDirPath = outputDirPath.resolve("client");
-        Path protoPath = Paths.get("grpc", "tool", "helloWorld.proto");
+        Path protoPath = Paths.get("helloWorld.proto");
         Path protoRoot = resourceDir.resolve(protoPath);
         grpcCommand.setBalOutPath(tempDirPath.toAbsolutePath().toString());
         grpcCommand.setProtoPath(protoRoot.toAbsolutePath().toString());
@@ -225,27 +196,12 @@ public class StubGeneratorTestCase {
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("oneof_field_service.proto",
                 "oneof_field_service_pb.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 0);
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
-                .getStructInfo("OneofFieldServiceClient"), "Client stub not found.");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME).getTypeDefInfo("Request1"),
-                "Expected record type not found");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME).getTypeDefInfo("Request1_Age"),
-                "Expected record type not found");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME).getTypeDefInfo(
-                "Request1_Address"), "Expected record type not found");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME).getTypeDefInfo(
-                "Request1_Married"), "Expected record type not found");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME).getTypeDefInfo(
-                "Request1_FirstName"), "Expected record type not found");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME).getTypeDefInfo(
-                "Request1_LastName"), "Expected record type not found");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME).getTypeDefInfo("Address1"),
-                "Expected record type not found");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME).getTypeDefInfo(
-                "Address1_HouseNumber"), "Expected record type not found");
-        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME).getTypeDefInfo(
-                "Address1_StreetNumber"), "Expected record type not found");
+        Assert.assertEquals(compileResult.getDiagnostics().length, 0);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 30);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 30);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
+        Assert.assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
     }
 
     private CompileResult getStubCompileResult(String protoFilename, String outputFilename)
