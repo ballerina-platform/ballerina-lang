@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerinax/java;
 
 function testAcceptNothingAndReturnNothing(handle receiver) {
     increaseCounterByOne(receiver);

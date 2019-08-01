@@ -82,6 +82,10 @@ public class WebSubSecureHubTestCase extends WebSubAdvancedBaseTest {
                                                 File.separator + "websub" + File.separator + "subscriber" +
                                                 File.separator + "test_subscribers_at_basic_auth_secured_hub.bal")
                 .getAbsolutePath();
+    
+        String sourceRoot = new File("src" + File.separator + "test" + File.separator + "resources" +
+                                        File.separator + "websub" + File.separator + "subscriber").getAbsolutePath();
+        
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherOne);
         webSubSubscriber.addErrorLogLeecher(intentVerificationLogLeecherTwo);
         webSubSubscriber.addErrorLogLeecher(intentVerificationLogLeecherThree);
@@ -89,7 +93,7 @@ public class WebSubSecureHubTestCase extends WebSubAdvancedBaseTest {
         webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecherOne);
         webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecherTwo);
 
-        webSubSubscriber.startServer(subscriberBal, new String[0], new int[]{WEBSUB_PORT});
+        webSubSubscriber.startServer(sourceRoot, subscriberBal, new String[0], new int[]{WEBSUB_PORT});
     }
 
     @Test

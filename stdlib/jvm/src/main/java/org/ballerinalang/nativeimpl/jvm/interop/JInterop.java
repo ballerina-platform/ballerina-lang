@@ -39,10 +39,11 @@ import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
 class JInterop {
 
     static final String ORG_NAME = "ballerina";
+    static final String BALLERINA_X_ORG_NAME = "ballerinax";
     static final String MODULE_NAME = "jvm";
     static final String JAVA_MODULE_NAME = "java";
     static final String JVM_PACKAGE_PATH = ORG_NAME + ORG_NAME_SEPARATOR + MODULE_NAME;
-    static final String ERROR_REASON_PREFIX = "{" + ORG_NAME + "/" + JAVA_MODULE_NAME + "}";
+    static final String ERROR_REASON_PREFIX = "{" + BALLERINA_X_ORG_NAME + "/" + JAVA_MODULE_NAME + "}";
     static final String PARAM_TYPE_CONSTRAINTS_FIELD = "paramTypeConstraints";
     static final String CLASS_FIELD = "class";
     static final String NAME_FIELD = "name";

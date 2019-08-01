@@ -1,3 +1,13 @@
 [project]
 org-name = "ballerinax"
 version = "0.0.0"
+
+[platform]
+target = "java"
+
+    [[platform.libraries]]
+    artafactId = "javax.jms-api"
+    version = "2.0.1"
+    path = "./lib/javax.jms-api-2.0.1.jar"
+    groupId = "javax.jms"
+    modules = ["jms"]

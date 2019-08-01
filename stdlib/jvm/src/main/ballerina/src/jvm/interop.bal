@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public const INTEROP_ANNOT_ORG = "ballerina";
+public const INTEROP_ANNOT_ORG = "ballerinax";
 public const INTEROP_ANNOT_MODULE = "java";
 
 public const METHOD = "method";

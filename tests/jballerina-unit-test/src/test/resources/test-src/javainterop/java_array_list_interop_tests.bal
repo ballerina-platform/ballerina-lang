@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerinax/java;
 
 public function interopWithJavaArrayList() returns [handle, int, string] {
         handle aList = newArrayListWithInitialSize(10);

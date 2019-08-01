@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerinax/java;
 
 function testDefaultConstructor() returns handle {
     return newClassWithDefaultConstructor();
