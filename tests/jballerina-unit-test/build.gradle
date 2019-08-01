@@ -51,7 +51,6 @@ dependencies {
     testCompile 'io.netty:netty-transport'
     testCompile 'io.netty:netty-codec'
     testCompile 'org.wso2.transport.http:org.wso2.transport.http.netty'
-    testCompile 'org.apache.ws.commons.axiom:axiom-dom'
     testCompile 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
     testCompile 'org.testng:testng'
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
