@@ -432,6 +432,22 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
                     mv.visitInsn(DUP);
                     mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
                     mv.visitJumpInsn(IFNE, afterHandle);
+
+                    mv.visitInsn(DUP);
+                    mv.visitTypeInsn(INSTANCEOF, "java/lang/Number");
+                    mv.visitJumpInsn(IFNE, afterHandle);
+
+                    mv.visitInsn(DUP);
+                    mv.visitTypeInsn(INSTANCEOF, "java/lang/Boolean");
+                    mv.visitJumpInsn(IFNE, afterHandle);
+
+                    mv.visitInsn(DUP);
+                    mv.visitTypeInsn(INSTANCEOF, REF_VALUE);
+                    mv.visitJumpInsn(IFNE, afterHandle);
+
+                    mv.visitInsn(DUP);
+                    mv.visitTypeInsn(INSTANCEOF, "java/lang/Byte");
+                    mv.visitJumpInsn(IFNE, afterHandle);
                 }
                 bir:VariableDcl retJObjectVarDcl = { typeValue: "any", name: { value: "$_ret_jobject_var_$" }, kind: "LOCAL" };
                 int returnJObjectVarRefIndex = indexMap.getIndex(retJObjectVarDcl);
