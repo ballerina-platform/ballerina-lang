@@ -446,7 +446,7 @@ function getValidationResponse(HttpClient httpClient, Request req, Response cach
 
     log:printDebug("Response for validation request received");
     // Based on https://tools.ietf.org/html/rfc7234#section-4.3.3
-    if (validationResponse.statusCode == NOT_MODIFIED_304) {
+    if (validationResponse.statusCode == STATUS_NOT_MODIFIED) {
         return handle304Response(validationResponse, cachedResponse, cache, path, httpMethod);
     } else if (validationResponse.statusCode >= 500 && validationResponse.statusCode < 600) {
         // May forward the response or act as if the origin server failed to respond and serve a

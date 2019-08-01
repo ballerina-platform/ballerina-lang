@@ -55,7 +55,7 @@ service retryDemoService on serviceEndpoint1 {
         } else {
             error err = backendResponse;
             http:Response response = new;
-            response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+            response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
             string? errCause = err.detail()?.message;
             response.setPayload(errCause is string ? errCause : "Internal server error");
             var responseToCaller = caller->respond(response);

@@ -64,4 +64,6 @@ public class BallerinaErrorReasons {
     public static final String FUTURE_CANCELLED = BALLERINA_PREFIX.concat("FutureAlreadyCancelled");
 
     public static final String OPERATION_NOT_SUPPORTED = BALLERINA_PREFIX.concat("OperationNotSupported");
+
+    public static final String JAVA_NULL_REFERENCE_ERROR = BALLERINA_PREFIX.concat("JavaNullReferenceError");
 }
