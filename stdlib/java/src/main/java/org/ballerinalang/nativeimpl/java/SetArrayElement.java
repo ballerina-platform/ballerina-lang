@@ -22,12 +22,12 @@ import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * This class contains the implementation of the "setArrayElement" ballerina function in ballerina/java module.
+ * This class contains the implementation of the "setArrayElement" ballerina function in ballerinax/java module.
  *
  * @since 1.0.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "java",
+        orgName = "ballerinax", packageName = "java",
         functionName = "setArrayElement"
 )
 public class SetArrayElement {
