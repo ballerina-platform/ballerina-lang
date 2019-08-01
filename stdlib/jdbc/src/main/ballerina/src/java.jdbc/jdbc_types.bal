@@ -74,12 +74,12 @@ public type PoolOptions record {|
     string dataSourceClassName = config:getAsString("b7a.jdbc.pool.dataSourceClassName", "");
     boolean autoCommit = config:getAsBoolean("b7a.jdbc.pool.autoCommit", true);
     boolean isXA = config:getAsBoolean("b7a.jdbc.pool.isXA", false);
-    int maximumPoolSize = config:getAsInt("b7a.jdbc.pool.maximumPoolSize", 15);
-    int connectionTimeoutInMillis = config:getAsInt("b7a.jdbc.pool.connectionTimeoutInMillis", 30000);
+    int maximumPoolSize = config:getAsInt("\"b7a.jdbc.pool.maximumPoolSize\"", 15);
+    int connectionTimeoutInMillis = config:getAsInt("\"b7a.jdbc.pool.connectionTimeoutInMillis\"", 30000);
     int idleTimeoutInMillis =  config:getAsInt("b7a.jdbc.pool.idleTimeoutInMillis", 600000);
     int minimumIdle = config:getAsInt("b7a.jdbc.pool.minimumIdle", 15);
     int maxLifetimeInMillis = config:getAsInt("b7a.jdbc.pool.maxLifetimeInMillis", 1800000);
-    int validationTimeoutInMillis = config:getAsInt("b7a.jdbc.pool.validationTimeoutInMillis", 5000);
+    int validationTimeoutInMillis = config:getAsInt("\"b7a.jdbc.pool.validationTimeoutInMillis\"", 5000);
 |};
 
 // This is a container object that holds the global pool config and initilizes the internal map of connection pools

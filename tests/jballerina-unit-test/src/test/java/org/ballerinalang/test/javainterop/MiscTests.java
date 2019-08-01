@@ -40,6 +40,6 @@ public class MiscTests {
         Assert.assertEquals(returns.length, 3);
         Assert.assertEquals(((BHandleValue) returns[0]).getValue(), "[Ballerina, Language, Specification]");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
-        Assert.assertEquals(((BHandleValue) returns[2]).getValue(), "Specification");
+        Assert.assertEquals(returns[2].stringValue(), "Specification");
     }
 }

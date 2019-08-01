@@ -17,8 +17,8 @@
 public type StreamingProducer client object {
     Connection? connection;
 
-    public function __init(Connection conn, string? clientId = (), string clusterId = "test-cluster",
-    StreamingConfig? streamingConfig = ()) {
+    public function __init(Connection conn, public string? clientId = (), public string clusterId = "test-cluster",
+    public StreamingConfig? streamingConfig = ()) {
         self.connection = conn;
         createStreamingConnection(self, conn, clusterId, clientId, streamingConfig);
     }

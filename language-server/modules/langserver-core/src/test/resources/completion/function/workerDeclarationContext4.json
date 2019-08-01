@@ -1026,423 +1026,423 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "CONTINUE_100",
+      "label": "STATUS_CONTINUE",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "CONTINUE_100",
+      "insertText": "STATUS_CONTINUE",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "SWITCHING_PROTOCOLS_101",
+      "label": "STATUS_SWITCHING_PROTOCOLS",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "SWITCHING_PROTOCOLS_101",
+      "insertText": "STATUS_SWITCHING_PROTOCOLS",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "OK_200",
+      "label": "STATUS_OK",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "OK_200",
+      "insertText": "STATUS_OK",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "CREATED_201",
+      "label": "STATUS_CREATED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "CREATED_201",
+      "insertText": "STATUS_CREATED",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ACCEPTED_202",
+      "label": "STATUS_ACCEPTED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "ACCEPTED_202",
+      "insertText": "STATUS_ACCEPTED",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "NON_AUTHORITATIVE_INFORMATION_203",
+      "label": "STATUS_NON_AUTHORITATIVE_INFORMATION",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "NON_AUTHORITATIVE_INFORMATION_203",
+      "insertText": "STATUS_NON_AUTHORITATIVE_INFORMATION",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "NO_CONTENT_204",
+      "label": "STATUS_NO_CONTENT",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "NO_CONTENT_204",
+      "insertText": "STATUS_NO_CONTENT",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "RESET_CONTENT_205",
+      "label": "STATUS_RESET_CONTENT",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "RESET_CONTENT_205",
+      "insertText": "STATUS_RESET_CONTENT",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "PARTIAL_CONTENT_206",
+      "label": "STATUS_PARTIAL_CONTENT",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "PARTIAL_CONTENT_206",
+      "insertText": "STATUS_PARTIAL_CONTENT",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "MULTIPLE_CHOICES_300",
+      "label": "STATUS_MULTIPLE_CHOICES",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "MULTIPLE_CHOICES_300",
+      "insertText": "STATUS_MULTIPLE_CHOICES",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "MOVED_PERMANENTLY_301",
+      "label": "STATUS_MOVED_PERMANENTLY",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "MOVED_PERMANENTLY_301",
+      "insertText": "STATUS_MOVED_PERMANENTLY",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "FOUND_302",
+      "label": "STATUS_FOUND",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "FOUND_302",
+      "insertText": "STATUS_FOUND",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "SEE_OTHER_303",
+      "label": "STATUS_SEE_OTHER",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "SEE_OTHER_303",
+      "insertText": "STATUS_SEE_OTHER",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "NOT_MODIFIED_304",
+      "label": "STATUS_NOT_MODIFIED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "NOT_MODIFIED_304",
+      "insertText": "STATUS_NOT_MODIFIED",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "USE_PROXY_305",
+      "label": "STATUS_USE_PROXY",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "USE_PROXY_305",
+      "insertText": "STATUS_USE_PROXY",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TEMPORARY_REDIRECT_307",
+      "label": "STATUS_TEMPORARY_REDIRECT",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "TEMPORARY_REDIRECT_307",
+      "insertText": "STATUS_TEMPORARY_REDIRECT",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "PERMANENT_REDIRECT_308",
+      "label": "STATUS_PERMANENT_REDIRECT",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "PERMANENT_REDIRECT_308",
+      "insertText": "STATUS_PERMANENT_REDIRECT",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "BAD_REQUEST_400",
+      "label": "STATUS_BAD_REQUEST",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "BAD_REQUEST_400",
+      "insertText": "STATUS_BAD_REQUEST",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "UNAUTHORIZED_401",
+      "label": "STATUS_UNAUTHORIZED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "UNAUTHORIZED_401",
+      "insertText": "STATUS_UNAUTHORIZED",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "PAYMENT_REQUIRED_402",
+      "label": "STATUS_PAYMENT_REQUIRED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "PAYMENT_REQUIRED_402",
+      "insertText": "STATUS_PAYMENT_REQUIRED",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "FORBIDDEN_403",
+      "label": "STATUS_FORBIDDEN",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "FORBIDDEN_403",
+      "insertText": "STATUS_FORBIDDEN",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "NOT_FOUND_404",
+      "label": "STATUS_NOT_FOUND",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "NOT_FOUND_404",
+      "insertText": "STATUS_NOT_FOUND",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "METHOD_NOT_ALLOWED_405",
+      "label": "STATUS_METHOD_NOT_ALLOWED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "METHOD_NOT_ALLOWED_405",
+      "insertText": "STATUS_METHOD_NOT_ALLOWED",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "NOT_ACCEPTABLE_406",
+      "label": "STATUS_NOT_ACCEPTABLE",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "NOT_ACCEPTABLE_406",
+      "insertText": "STATUS_NOT_ACCEPTABLE",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "PROXY_AUTHENTICATION_REQUIRED_407",
+      "label": "STATUS_PROXY_AUTHENTICATION_REQUIRED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "PROXY_AUTHENTICATION_REQUIRED_407",
+      "insertText": "STATUS_PROXY_AUTHENTICATION_REQUIRED",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "REQUEST_TIMEOUT_408",
+      "label": "STATUS_REQUEST_TIMEOUT",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "REQUEST_TIMEOUT_408",
+      "insertText": "STATUS_REQUEST_TIMEOUT",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "CONFLICT_409",
+      "label": "STATUS_CONFLICT",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "CONFLICT_409",
+      "insertText": "STATUS_CONFLICT",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "GONE_410",
+      "label": "STATUS_GONE",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "GONE_410",
+      "insertText": "STATUS_GONE",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "LENGTH_REQUIRED_411",
+      "label": "STATUS_LENGTH_REQUIRED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "LENGTH_REQUIRED_411",
+      "insertText": "STATUS_LENGTH_REQUIRED",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "PRECONDITION_FAILED_412",
+      "label": "STATUS_PRECONDITION_FAILED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "PRECONDITION_FAILED_412",
+      "insertText": "STATUS_PRECONDITION_FAILED",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "PAYLOAD_TOO_LARGE_413",
+      "label": "STATUS_PAYLOAD_TOO_LARGE",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "PAYLOAD_TOO_LARGE_413",
+      "insertText": "STATUS_PAYLOAD_TOO_LARGE",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "URI_TOO_LONG_414",
+      "label": "STATUS_URI_TOO_LONG",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "URI_TOO_LONG_414",
+      "insertText": "STATUS_URI_TOO_LONG",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "UNSUPPORTED_MEDIA_TYPE",
+      "label": "STATUS_UNSUPPORTED_MEDIA_TYPE",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "UNSUPPORTED_MEDIA_TYPE",
+      "insertText": "STATUS_UNSUPPORTED_MEDIA_TYPE",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "RANGE_NOT_SATISFIABLE_416",
+      "label": "STATUS_RANGE_NOT_SATISFIABLE",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "RANGE_NOT_SATISFIABLE_416",
+      "insertText": "STATUS_RANGE_NOT_SATISFIABLE",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "EXPECTATION_FAILED_417",
+      "label": "STATUS_EXPECTATION_FAILED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "EXPECTATION_FAILED_417",
+      "insertText": "STATUS_EXPECTATION_FAILED",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "UPGRADE_REQUIRED_426",
+      "label": "STATUS_UPGRADE_REQUIRED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "UPGRADE_REQUIRED_426",
+      "insertText": "STATUS_UPGRADE_REQUIRED",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "INTERNAL_SERVER_ERROR_500",
+      "label": "STATUS_INTERNAL_SERVER_ERROR",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "INTERNAL_SERVER_ERROR_500",
+      "insertText": "STATUS_INTERNAL_SERVER_ERROR",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "NOT_IMPLEMENTED_501",
+      "label": "STATUS_NOT_IMPLEMENTED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "NOT_IMPLEMENTED_501",
+      "insertText": "STATUS_NOT_IMPLEMENTED",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "BAD_GATEWAY_502",
+      "label": "STATUS_BAD_GATEWAY",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "BAD_GATEWAY_502",
+      "insertText": "STATUS_BAD_GATEWAY",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "SERVICE_UNAVAILABLE_503",
+      "label": "STATUS_SERVICE_UNAVAILABLE",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "SERVICE_UNAVAILABLE_503",
+      "insertText": "STATUS_SERVICE_UNAVAILABLE",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "GATEWAY_TIMEOUT_504",
+      "label": "STATUS_GATEWAY_TIMEOUT",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "GATEWAY_TIMEOUT_504",
+      "insertText": "STATUS_GATEWAY_TIMEOUT",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "HTTP_VERSION_NOT_SUPPORTED_505",
+      "label": "STATUS_HTTP_VERSION_NOT_SUPPORTED",
       "kind": "Variable",
       "detail": "int",
       "documentation": {
         "left": "Constant"
       },
-      "insertText": "HTTP_VERSION_NOT_SUPPORTED_505",
+      "insertText": "STATUS_HTTP_VERSION_NOT_SUPPORTED",
       "insertTextFormat": "Snippet"
     },
     {
