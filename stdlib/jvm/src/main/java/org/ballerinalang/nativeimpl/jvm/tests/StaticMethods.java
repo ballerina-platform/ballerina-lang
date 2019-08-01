@@ -128,8 +128,8 @@ public class StaticMethods {
     }
 
 
-    public static void acceptNothingReturnSomethingAndThrowsCheckedException() throws JavaInteropTestCheckedException {
-
+    public static Date acceptNothingReturnSomethingAndThrowsCheckedException() throws JavaInteropTestCheckedException {
+        return new Date();
     }
 
     public static Date acceptNothingReturnSomethingAndThrowsMultipleCheckedException()
@@ -138,6 +138,11 @@ public class StaticMethods {
     }
 
     public static Date acceptNothingReturnSomethingAndThrowsUncheckedException() throws UnsupportedOperationException {
+        return new Date();
+    }
+
+    public static Date acceptNothingReturnSomethingAndThrowsCheckedAndUncheckedException()
+            throws JavaInteropTestCheckedException, UnsupportedOperationException, ClassNotFoundException {
         return new Date();
     }
 
@@ -161,8 +166,60 @@ public class StaticMethods {
         return date;
     }
 
-    public static Date acceptNothingReturnSomethingAndThrowsCheckedAndUncheckedException(Date date)
-            throws JavaInteropTestCheckedException, UnsupportedOperationException, ClassNotFoundException {
-        return date;
+    public static int acceptIntReturnIntThrowsCheckedException(long a) throws JavaInteropTestCheckedException {
+        return (int) (a + 5);
+    }
+
+    public static ArrayValue getArrayValueFromMapWhichThrowsCheckedException(String key, MapValue mapValue)
+            throws JavaInteropTestCheckedException {
+        ArrayValue arrayValue = new ArrayValue(BTypes.typeInt);
+        arrayValue.add(0, 1);
+        long fromMap = mapValue.getIntValue(key);
+        arrayValue.add(1, fromMap);
+        return arrayValue;
+    }
+
+    public static MapValue acceptRefTypesAndReturnMapWhichThrowsCheckedException(ObjectValue a, ArrayValue b, Object c,
+                                                      ErrorValue d, Object e, Object f, MapValue g)
+            throws JavaInteropTestCheckedException {
+        MapValue<String, Object> mapValue = new MapValueImpl<>();
+        mapValue.put("a", a);
+        mapValue.put("b", b);
+        mapValue.put("c", c);
+        mapValue.put("e", e);
+        mapValue.put("f", f);
+        mapValue.put("g", g);
+        return mapValue;
+    }
+
+    public static ErrorValue acceptStringErrorReturnWhichThrowsCheckedException(String msg)
+            throws JavaInteropTestCheckedException {
+        return new ErrorValue(msg, null);
+    }
+
+    public static Object acceptIntUnionReturnWhichThrowsCheckedException(int flag)
+            throws JavaInteropTestCheckedException {
+        switch (flag) {
+            case 1:
+                return 25;
+            case 2:
+                return "sample value return";
+            case 3:
+                return 54.88;
+            default:
+                return true;
+        }
+    }
+
+    public static ObjectValue acceptObjectAndObjectReturnWhichThrowsCheckedException(ObjectValue p, int newVal)
+            throws JavaInteropTestCheckedException {
+        p.set("age", newVal);
+        return p;
+    }
+
+    public static MapValue acceptRecordAndRecordReturnWhichThrowsCheckedException(MapValue e, String newVal)
+            throws JavaInteropTestCheckedException {
+        e.put("name", newVal);
+        return e;
     }
 }
