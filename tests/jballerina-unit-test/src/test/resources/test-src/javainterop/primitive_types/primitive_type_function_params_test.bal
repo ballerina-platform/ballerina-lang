@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerinax/java;
 
 public function createBoxedBooleanFromBBoolean(boolean value) returns handle = @java:Constructor {
     class:"java.lang.Boolean",
