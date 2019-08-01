@@ -57,7 +57,7 @@ public type MethodData record {|
 #
 # + name - an optional field that describes the name of the Java field. If this field is not provided,
 #          then the name is inferred from the Ballerina function name
-# + class - the class in which the field exists
+# + class - The class in which the field exists
 public type FieldData record {|
     Identifier name;
     Class class;
