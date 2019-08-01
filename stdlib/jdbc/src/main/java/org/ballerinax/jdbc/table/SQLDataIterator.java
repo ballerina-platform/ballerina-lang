@@ -242,7 +242,15 @@ public class SQLDataIterator extends TableIterator {
 
     private void validateAndSetRefRecordField(MapValue<String, Object> bStruct, String fieldName, int expectedTypeTag,
             int actualTypeTag, Object value, String exceptionMessage) throws PanickingApplicationException {
-        setMatchingRefRecordField(bStruct, fieldName, value, expectedTypeTag == actualTypeTag, exceptionMessage);
+        boolean typeMatches = false;
+        if (expectedTypeTag == actualTypeTag) {
+            typeMatches = true;
+        } else {
+            if ((actualTypeTag == TypeTags.INT_TAG && expectedTypeTag == TypeTags.BOOLEAN_TAG)) {
+                typeMatches = true;
+            }
+        }
+        setMatchingRefRecordField(bStruct, fieldName, value, typeMatches, exceptionMessage);
     }
 
     private void validateAndSetRefRecordField(MapValue<String, Object> bStruct, String fieldName,

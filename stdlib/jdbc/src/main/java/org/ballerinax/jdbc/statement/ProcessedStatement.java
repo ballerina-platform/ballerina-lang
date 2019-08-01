@@ -478,6 +478,14 @@ class ProcessedStatement {
             case TypeTags.STRING_TAG:
                 val = Boolean.valueOf((String) value);
                 break;
+            case TypeTags.INT_TAG:
+                Long lVal = (Long) value;
+                if(lVal == 0 || lVal == 1) {
+                    val = lVal == 1;
+                } else {
+                    throw new ApplicationException("Invalid integer value \"" + lVal + "\" specified for boolean");
+                }
+                break;
             default:
                 throw new ApplicationException("Invalid input value \"" + value.toString()
                         + "\" specified for boolean");
