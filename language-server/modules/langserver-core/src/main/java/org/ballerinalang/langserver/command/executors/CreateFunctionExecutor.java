@@ -30,6 +30,7 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
@@ -114,12 +115,13 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Invalid parameters received for the create function command!");
         }
 
+        LSDocument document = new LSDocument(documentUri);
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
 
         BLangInvocation functionNode = null;
         try {
-            functionNode = getFunctionInvocationNode(line, column, documentUri, documentManager, lsCompiler, context);
+            functionNode = getFunctionInvocationNode(line, column, document, documentManager, lsCompiler, context);
         } catch (LSCompilerException e) {
             throw new LSCommandExecutorException("Error while compiling the source!");
         }
@@ -153,7 +155,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
                 );
                 if (notFound) {
                     String pkgName = orgName + "/" + alias;
-                    edits.add(addPackage(pkgName, packageNode, context));
+                    edits.add(addPackage(pkgName, context));
                 }
             };
             returnType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, parent);
@@ -183,7 +185,8 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             String cUnitName = nodeLocation.getLeft().src.cUnitName;
             String sourceRoot = context.get(DocumentServiceKeys.SOURCE_ROOT_KEY);
             String pkgName = nodeLocation.getLeft().src.pkgID.name.toString();
-            String uri = new File(sourceRoot).toPath().resolve(pkgName).resolve(cUnitName).toUri().toString();
+            String uri = new File(sourceRoot).toPath().resolve("src").resolve(pkgName)
+                    .resolve(cUnitName).toUri().toString();
             textDocumentIdentifier.setUri(uri);
             if (!nodeLocation.getLeft().src.pkgID.equals(functionNode.pos.src.pkgID)) {
                 modifiers += "public ";
@@ -232,12 +235,10 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         return new ImmutablePair<>(null, hasFunctions);
     }
 
-    private TextEdit addPackage(String pkgName, BLangPackage srcOwnerPkg, LSContext context) {
+    private TextEdit addPackage(String pkgName, LSContext context) {
         DiagnosticPos pos = null;
-
         // Filter the imports except the runtime import
-        List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(srcOwnerPkg, context);
-
+        List<BLangImportPackage> imports = CommonUtil.getCurrentModuleImports(context);
         if (!imports.isEmpty()) {
             BLangImportPackage lastImport = CommonUtil.getLastItem(imports);
             pos = lastImport.getPosition();

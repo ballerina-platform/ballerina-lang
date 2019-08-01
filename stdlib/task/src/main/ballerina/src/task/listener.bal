@@ -23,8 +23,8 @@ public type Listener object {
 
     public function __init(TimerConfiguration|AppointmentConfiguration configs) {
         if (configs is TimerConfiguration) {
-            if (configs["initialDelay"] == ()) {
-                configs.initialDelay = configs.interval;
+            if (configs["initialDelayInMillis"] == ()) {
+                configs.initialDelayInMillis = configs.intervalInMillis;
             }
         }
         self.listenerConfiguration = configs;

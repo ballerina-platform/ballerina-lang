@@ -71,14 +71,20 @@ public class BallerinaConstants {
 
     public static final String BALLERINA_PROJECT_CACHE_FOLDER_NAME = ".ballerina";
     public static final String BALLERINA_CONFIG_FILE_NAME = "Ballerina.toml";
+    public static final String BALLERINA_SRC_DIR_NAME = "src";
 
     public static final String BALLERINAX_SOURCE_PATH = "lib/repo";
     public static final String LAUNCHER_SCRIPT_PATH = "lib/tools/lang-server/launcher";
     public static final String BALLERINA_EXEC_PATH = "bin" + File.separator + BALLERINA_EXECUTABLE_NAME;
 
+    // Language server launcher constants.
     public static final String BALLERINA_LS_LAUNCHER_PATH = "lib/tools/lang-server/launcher";
     public static final String BALLERINA_LS_LAUNCHER_NAME = "language-server-launcher";
     public static final String BALLERINA_COMPOSER_LIB_PATH = "lib/tools/composer-library";
+
+    // Debug server launcher constants.
+    public static final String BALLERINA_DEBUG_LAUNCHER_PATH = "lib/tools/debug-adapter/launcher";
+    public static final String BALLERINA_DEBUG_LAUNCHER_NAME = "debug-adapter-launcher";
 
 
 }

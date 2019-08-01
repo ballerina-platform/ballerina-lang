@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.jvm.transactions;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 
 import java.util.HashMap;
 import java.util.Map;

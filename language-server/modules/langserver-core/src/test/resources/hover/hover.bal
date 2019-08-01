@@ -1,5 +1,5 @@
 
-
+import ballerina/http;
 import ballerina/io;
 
 # Struct for represent person's details
@@ -42,7 +42,7 @@ function test1 (string s, int sd) returns int{
 public function main (string... args) {
     string s = "mars";
     io:println(s);
-    var df = s.contains("mar");
+    var df = s.indexOf("m");
     var x = test1("s",0);
     Person testPerson = {
                    id:1,
@@ -53,4 +53,10 @@ public function main (string... args) {
     if(testPerson.name == "mike"){
 
     }
+}
+
+service testService on new http:Listener(8080) {
+       resource function testResource(http:Caller caller, http:Request request) {
+              boolean hasHeader = request.hasHeader(http:EXPECT);
+       }
 }

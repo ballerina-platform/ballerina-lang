@@ -17,7 +17,7 @@
  */
 package org.ballerinax.jdbc.actions;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -43,5 +43,9 @@ public class Call {
         SQLStatement callStatement = new CallStatement(client, datasource, sqlQuery, (ArrayValue) recordType,
                 parameters, strand);
         return callStatement.execute();
+    }
+
+    private Call() {
+
     }
 }

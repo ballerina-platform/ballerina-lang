@@ -6,11 +6,6 @@ type Person record {
     string country;
 };
 
-type Employee record {|
-    string name;
-    int age;
-|};
-
 type Country record {
     string name;
     Capital capital;
@@ -33,45 +28,33 @@ public function main() {
     // not been matched in the record binding pattern will be assigned as a `map<anydata|error>` to the variable
     // `otherDetails`.
     { name: firstName, age: personAge, ...otherDetails } = getPerson();
-    io:println("Name: " + firstName);
-    io:println("Age: " + personAge);
-    io:println("Other Details: " + io:sprintf("%s", otherDetails));
+    io:println("Name: ", firstName);
+    io:println("Age: ", personAge);
+    io:println("Other Details: ", otherDetails);
 
     string name;
     int age;
-    // If no variable name is given for a field, the value of the field will be assigned to a variable reference of the same name as the field
+    // If no variable name is given for a field, the value of the field will be assigned to a variable reference of the
+    // same name as the field.
     // i.e., {name, age} is same as {name: name, age: age}.
     // Since a rest parameter is not given, all remaining fields are ignored.
     { name, age } = getPerson();
-    io:println("Name: " + name);
-    io:println("Age: " + age);
-
-    string empName;
-    int empAge;
-    // The `{|` and `|}` delimiters specify that there should not be any other fields other than `name` and `age`. Hence,
-    // `Employee` should be a closed record.
-    {| name: empName, age: empAge |} = getEmployee();
-    io:println("Name: " + empName);
-    io:println("Age: " + empAge);
+    io:println("Name: ", name);
+    io:println("Age: ", age);
 
     string countryName;
     string capitalName;
     // Binding patterns are recursive in nature. `capital`, which is a field of type `Capital` in `Country` can also be
     // destructured as follows:
-    { name: countryName, capital: {| name: capitalName |}} = getCountry();
-    io:println("Country Name: " + countryName);
-    io:println("Capital Name: " + capitalName);
+    { name: countryName, capital: { name: capitalName }} = getCountry();
+    io:println("Country Name: ", countryName);
+    io:println("Capital Name: ", capitalName);
 }
 
 function getPerson() returns Person {
     Person person = { name: "Peter", age: 28, country: "Sri Lanka",
-                      occupation: "Software Engineer" };
+                      "occupation": "Software Engineer" };
     return person;
-}
-
-function getEmployee() returns Employee {
-    Employee employee = { name: "John", age: 26 };
-    return employee;
 }
 
 function getCountry() returns Country {

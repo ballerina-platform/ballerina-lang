@@ -29,7 +29,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the `Entity` associated with the response.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/mime:Entity|error)"
+          "value": "**Package:** _ballerina/http_  \n  \nGets the `Entity` associated with the response.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/mime:Entity|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
       "insertText": "getEntity(${1})",
@@ -250,7 +250,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nExtract `json` payload from the response. If the content type is not JSON, an `error` is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(json|error)"
+          "value": "**Package:** _ballerina/http_  \n  \nExtract `json` payload from the response. If the content type is not JSON, an `http:ClientError` is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(json|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
       "insertText": "getJsonPayload(${1})",
@@ -267,7 +267,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nExtracts `xml` payload from the response. If the the content type is not XML, an `error` is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(xml|error)"
+          "value": "**Package:** _ballerina/http_  \n  \nExtracts `xml` payload from the response.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(xml|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
       "insertText": "getXmlPayload(${1})",
@@ -284,7 +284,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nExtracts `text` payload from the response. If the content type is not of type text, an `error` is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(string|error)"
+          "value": "**Package:** _ballerina/http_  \n  \nExtracts `text` payload from the response.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(string|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
       "insertText": "getTextPayload(${1})",
@@ -301,7 +301,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the response payload as a `ByteChannel`, except in the case of multiparts. To retrieve multiparts, use\n`getBodyParts()`.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/io:ReadableByteChannel|error)"
+          "value": "**Package:** _ballerina/http_  \n  \nGets the response payload as a `ByteChannel`, except in the case of multiparts. To retrieve multiparts, use\n`getBodyParts()`.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/io:ReadableByteChannel|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
       "insertText": "getByteChannel(${1})",
@@ -318,7 +318,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the response payload as a `byte[]`.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(byte[]|error)"
+          "value": "**Package:** _ballerina/http_  \n  \nGets the response payload as a `byte[]`.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(byte[]|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
       "insertText": "getBinaryPayload(${1})",
@@ -335,7 +335,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nExtracts body parts from the response. If the content type is not a composite media type, an error is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/mime:Entity[]|error)"
+          "value": "**Package:** _ballerina/http_  \n  \nExtracts body parts from the response. If the content type is not a composite media type, an error is returned.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(ballerina/mime:Entity[]|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
         }
       },
       "insertText": "getBodyParts(${1})",
@@ -380,13 +380,13 @@
       }
     },
     {
-      "label": "setJsonPayload(json payload)",
+      "label": "setJsonPayload(json payload, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets a `json` as the payload.\n  \n  \n---    \n**Parameters**  \n- _payload_  \n    The `json` payload  \n  \n- _contentType_  \n    The content type of the payload. Set this to override the default `content-type` header value\n                for `json`  \nDefault Value: application/json"
+          "value": "**Package:** _ballerina/http_  \n  \nSets a `json` as the payload.\n  \n  \n---    \n**Parameters**  \n- _payload_  \n    The `json` payload  \n  \n- _contentType_  \n    The content type of the payload. Set this to override the default `content-type` header value\n                for `json`  \n(Default Parameter)"
         }
       },
       "insertText": "setJsonPayload(${1});",
@@ -397,13 +397,13 @@
       }
     },
     {
-      "label": "setXmlPayload(xml payload)",
+      "label": "setXmlPayload(xml payload, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets an `xml` as the payload\n  \n  \n---    \n**Parameters**  \n- _payload_  \n    The `xml` payload  \n  \n- _contentType_  \n    The content type of the payload. Set this to override the default `content-type` header value\n                for `xml`  \nDefault Value: application/xml"
+          "value": "**Package:** _ballerina/http_  \n  \nSets an `xml` as the payload\n  \n  \n---    \n**Parameters**  \n- _payload_  \n    The `xml` payload  \n  \n- _contentType_  \n    The content type of the payload. Set this to override the default `content-type` header value\n                for `xml`  \n(Default Parameter)"
         }
       },
       "insertText": "setXmlPayload(${1});",
@@ -414,13 +414,13 @@
       }
     },
     {
-      "label": "setTextPayload(string payload)",
+      "label": "setTextPayload(string payload, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets a `string` as the payload.\n  \n  \n---    \n**Parameters**  \n- _payload_  \n    The `string` payload  \n  \n- _contentType_  \n    The content type of the payload. Set this to override the default `content-type` header value\n                for `string`  \nDefault Value: text/plain"
+          "value": "**Package:** _ballerina/http_  \n  \nSets a `string` as the payload.\n  \n  \n---    \n**Parameters**  \n- _payload_  \n    The `string` payload  \n  \n- _contentType_  \n    The content type of the payload. Set this to override the default `content-type` header value\n                for `string`  \n(Default Parameter)"
         }
       },
       "insertText": "setTextPayload(${1});",
@@ -431,13 +431,13 @@
       }
     },
     {
-      "label": "setBinaryPayload(byte[] payload)",
+      "label": "setBinaryPayload(byte[] payload, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets a `byte[]` as the payload.\n  \n  \n---    \n**Parameters**  \n- _payload_  \n    The `byte[]` payload  \n  \n- _contentType_  \n    The content type of the payload. Set this to override the default `content-type` header value\n                for `byte[]`  \nDefault Value: application/octet-stream"
+          "value": "**Package:** _ballerina/http_  \n  \nSets a `byte[]` as the payload.\n  \n  \n---    \n**Parameters**  \n- _payload_  \n    The `byte[]` payload  \n  \n- _contentType_  \n    The content type of the payload. Set this to override the default `content-type` header value\n                for `byte[]`  \n(Default Parameter)"
         }
       },
       "insertText": "setBinaryPayload(${1});",
@@ -448,13 +448,13 @@
       }
     },
     {
-      "label": "setBodyParts(mime:Entity[] bodyParts)",
+      "label": "setBodyParts(mime:Entity[] bodyParts, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSet multiparts as the payload.\n  \n  \n---    \n**Parameters**  \n- _bodyParts_  \n    The entities which make up the message body  \n  \n- _contentType_  \n    The content type of the top level message. Set this to override the default\n                `content-type` header value  \nDefault Value: multipart/form-data"
+          "value": "**Package:** _ballerina/http_  \n  \nSet multiparts as the payload.\n  \n  \n---    \n**Parameters**  \n- _bodyParts_  \n    The entities which make up the message body  \n  \n- _contentType_  \n    The content type of the top level message. Set this to override the default\n                `content-type` header value  \n(Default Parameter)"
         }
       },
       "insertText": "setBodyParts(${1});",
@@ -465,13 +465,13 @@
       }
     },
     {
-      "label": "setFileAsPayload(string filePath)",
+      "label": "setFileAsPayload(string filePath, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets the content of the specified file as the entity body of the response.\n  \n  \n---    \n**Parameters**  \n- _filePath_  \n    Path to the file to be set as the payload  \n  \n- _contentType_  \n    The content type of the specified file. Set this to override the default `content-type`\n                header value  \nDefault Value: application/octet-stream"
+          "value": "**Package:** _ballerina/http_  \n  \nSets the content of the specified file as the entity body of the response.\n  \n  \n---    \n**Parameters**  \n- _filePath_  \n    Path to the file to be set as the payload  \n  \n- _contentType_  \n    The content type of the specified file. Set this to override the default `content-type`\n                header value  \n(Default Parameter)"
         }
       },
       "insertText": "setFileAsPayload(${1});",
@@ -482,13 +482,13 @@
       }
     },
     {
-      "label": "setByteChannel(io:ReadableByteChannel payload)",
+      "label": "setByteChannel(io:ReadableByteChannel payload, string contentType)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets a `ByteChannel` as the payload.\n  \n  \n---    \n**Parameters**  \n- _payload_  \n    A `ByteChannel` through which the message payload can be read  \n  \n- _contentType_  \n    The content type of the payload. Set this to override the default `content-type`\n                header value  \nDefault Value: application/octet-stream"
+          "value": "**Package:** _ballerina/http_  \n  \nSets a `ByteChannel` as the payload.\n  \n  \n---    \n**Parameters**  \n- _payload_  \n    A `ByteChannel` through which the message payload can be read  \n  \n- _contentType_  \n    The content type of the payload. Set this to override the default `content-type`\n                header value  \n(Default Parameter)"
         }
       },
       "insertText": "setByteChannel(${1});",

@@ -7,9 +7,9 @@ public function main() {
     HelloWorldClient helloWorldEp = new("http://localhost:9090");
 
     // Execute the unary non-blocking call that registers the server message listener.
-    error? result = helloWorldEp->lotsOfReplies("Sam",
+    grpc:Error? result = helloWorldEp->lotsOfReplies("Sam",
                                                     HelloWorldMessageListener);
-    if (result is error) {
+    if (result is grpc:Error) {
         io:println("Error from Connector: " + result.reason() + " - "
                                             + <string> result.detail()["message"]);
     } else {

@@ -24,15 +24,15 @@ listener http:Listener circuitBreakerEP04 = new(9310);
 http:ClientEndpointConfig conf04 = {
     circuitBreaker: {
         rollingWindow: {
-            timeWindowMillis: 60000,
-            bucketSizeMillis: 20000,
+            timeWindowInMillis: 60000,
+            bucketSizeInMillis: 20000,
             requestVolumeThreshold: 6
         },
         failureThreshold: 0.3,
-        resetTimeMillis: 10000,
+        resetTimeInMillis: 10000,
         statusCodes: [500, 502, 503]
     },
-    timeoutMillis: 2000
+    timeoutInMillis: 2000
 };
 
 http:Client errornousClientEP = new("http://localhost:8090", conf04);
@@ -55,7 +55,7 @@ service circuitbreaker04 on circuitBreakerEP04 {
         } else {
             error err = backendRes;
             http:Response response = new;
-            response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+            response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
             string errCause = <string> err.detail()?.message;
             response.setPayload(errCause);
             var responseToCaller = caller->respond(response);
@@ -74,7 +74,7 @@ service errornousservice on new http:Listener(8090) {
     }
     resource function sayHello(http:Caller caller, http:Request req) {
         http:Response res = new;
-        res.statusCode = http:INTERNAL_SERVER_ERROR_500;
+        res.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
         res.setPayload("Internal error occurred while processing the request.");
         var responseToCaller = caller->respond(res);
         if (responseToCaller is error) {

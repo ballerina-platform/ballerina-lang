@@ -18,12 +18,10 @@
 package org.ballerinalang.langserver.completions.util.filters;
 
 import org.antlr.v4.runtime.CommonToken;
-import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FilterUtils;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -41,14 +39,10 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Filter the actions, functions and types in a package.
@@ -57,25 +51,24 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(DelimiterBasedContentFilter.class);
 
+    DelimiterBasedContentFilter() {
+    }
+
     @Override
     public Either<List<CompletionItem>, List<SymbolInfo>> filterItems(LSContext ctx) {
-        List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY);
-        List<CommonToken> defaultTokens = lhsTokens.stream()
-                .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
-                .collect(Collectors.toList());
-        List<Integer> defaultTokenTypes = defaultTokens.stream()
-                .map(CommonToken::getType)
-                .collect(Collectors.toList());
+        List<CommonToken> defaultTokens = ctx.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
+        List<Integer> defaultTokenTypes = ctx.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
         int delimiter = ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
-        String symbolToken = defaultTokens.get(defaultTokenTypes.lastIndexOf(delimiter) - 1).getText();
+        String symbolToken = defaultTokens.get(defaultTokenTypes.lastIndexOf(delimiter) - 1).getText().replace("'", "");
         ArrayList<SymbolInfo> returnSymbolsInfoList = new ArrayList<>();
-        List<SymbolInfo> visibleSymbols = ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         SymbolInfo symbol = FilterUtils.getVariableByName(symbolToken, visibleSymbols);
         boolean isActionInvocation = BallerinaParser.RARROW == delimiter
                 && CommonUtil.isClientObject(symbol.getScopeEntry().symbol);
         boolean isWorkerSend = !isActionInvocation && BallerinaParser.RARROW == delimiter;
 
-        if (BallerinaParser.DOT == delimiter || BallerinaParser.NOT == delimiter || isActionInvocation) {
+        if (BallerinaParser.DOT == delimiter || BallerinaParser.NOT == delimiter
+                || BallerinaParser.OPTIONAL_FIELD_ACCESS == delimiter || isActionInvocation) {
             returnSymbolsInfoList.addAll(FilterUtils.filterVariableEntriesOnDelimiter(ctx, symbolToken, delimiter,
                     defaultTokens, defaultTokenTypes.lastIndexOf(delimiter)));
         } else if (isWorkerSend) {
@@ -102,39 +95,26 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
      */
     private Either<List<CompletionItem>, List<SymbolInfo>> getActionsFunctionsAndTypes(
             LSContext context, String pkgName, int delimiter, List<CommonToken> defaultTokens, int delimIndex) {
-
-        LSIndexImpl lsIndex = context.get(LSGlobalContextKeys.LS_INDEX_KEY);
-        // Extract the package symbol
-        String relativePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        BLangPackage currentBLangPkg = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
-        BLangPackage sourceOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, currentBLangPkg);
-        Optional bLangImport = CommonUtil.getCurrentFileImports(sourceOwnerPkg, context)
-                .stream()
-                .filter(importPkg -> importPkg.getAlias().getValue().equals(pkgName))
-                .findFirst();
+        // Priority is given to the on demand filtering and otherwise search in the index
+        List<SymbolInfo> filteredSymbols = FilterUtils.filterVariableEntriesOnDelimiter(context, pkgName, delimiter,
+                defaultTokens, delimIndex);
+        if (!filteredSymbols.isEmpty()) {
+            return Either.forRight(filteredSymbols);
+        }
         
+        return findFromIndex(context, pkgName);
+    }
+    
+    private Either<List<CompletionItem>, List<SymbolInfo>> findFromIndex(LSContext context, String pkgName) {
+        LSIndexImpl lsIndex = context.get(LSGlobalContextKeys.LS_INDEX_KEY);
         try {
-            String realPackageName;
-            String realOrgName;
-            if (bLangImport.isPresent()) {
-                // There is an added import statement.
-                realPackageName = CommonUtil.getPackageNameComponentsCombined(((BLangImportPackage) bLangImport.get()));
-                realOrgName = ((BLangImportPackage) bLangImport.get()).getOrgName().getValue();
-            } else {
-                realPackageName = pkgName;
-                realOrgName = "";
-            }
-            
-            BPackageSymbolDTO dto = new BPackageSymbolDTO.BPackageSymbolDTOBuilder()
-                    .setName(realPackageName)
-                    .setOrgName(realOrgName)
-                    .build();
+            BPackageSymbolDTO dto = CommonUtil.getPackageSymbolDTO(context, pkgName);
             List<BPackageSymbolDTO> result = ((BPackageSymbolDAO) lsIndex.getDaoFactory().get(DAOType.PACKAGE_SYMBOL))
                     .get(dto);
-            
+
             if (result.isEmpty()) {
                 // There is no package entry found in the index.
-                return this.filterSymbolsOnFallback(context, pkgName, delimiter, defaultTokens, delimIndex);
+                return Either.forLeft(new ArrayList<>());
             } else {
                 // Package entry found in the index. content is searched LSIndex.
                 HashMap<Integer, ArrayList<CompletionItem>> completionMap = new HashMap<>();
@@ -148,26 +128,6 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
                 ArrayList<BObjectTypeSymbolDTO> objDTOs = new ArrayList<>(pkgSymbolDAO.getObjects(dto, false));
                 ArrayList<BObjectTypeSymbolDTO> clientEpDTOs = new ArrayList<>(pkgSymbolDAO.getClientEndpoints(dto));
 
-                if (bLangImport.isPresent()) {
-                    List<CompletionItem> completionItems = funcDTOs.stream()
-                            .map(BFunctionSymbolDTO::getCompletionItem)
-                            .collect(Collectors.toList());
-                    completionItems.addAll(recordDTOs.stream()
-                            .map(BRecordTypeSymbolDTO::getCompletionItem)
-                            .collect(Collectors.toList()));
-                    completionItems.addAll(objDTOs.stream()
-                            .map(BObjectTypeSymbolDTO::getCompletionItem)
-                            .collect(Collectors.toList()));
-                    completionItems.addAll(clientEpDTOs.stream()
-                            .map(BObjectTypeSymbolDTO::getCompletionItem)
-                            .collect(Collectors.toList()));
-                    completionItems.addAll(otherTypeDTOs.stream()
-                            .map(OtherTypeSymbolDTO::getCompletionItem)
-                            .collect(Collectors.toList()));
-                    
-                    return Either.forLeft(completionItems);
-                }
-                
                 funcDTOs.forEach(fDto ->
                         CommonUtil.populateIdCompletionMap(completionMap, fDto.getPackageId(),
                                 fDto.getCompletionItem()));
@@ -180,21 +140,15 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
                 otherTypeDTOs.forEach(otherDto ->
                         CommonUtil.populateIdCompletionMap(completionMap, otherDto.getPackageId(),
                                 otherDto.getCompletionItem()));
-                
+                clientEpDTOs.forEach(clientEpDto ->
+                        CommonUtil.populateIdCompletionMap(completionMap, clientEpDto.getPackageId(),
+                                clientEpDto.getCompletionItem()));
+
                 return Either.forLeft(CommonUtil.fillCompletionWithPkgImport(completionMap, context));
             }
         } catch (LSIndexException e) {
             logger.warn("Error retrieving Completion Items from Index DB.");
-            return this.filterSymbolsOnFallback(context, pkgName, delimiter, defaultTokens, delimIndex);
+            return Either.forLeft(new ArrayList<>());
         }
-    }
-    
-    private Either<List<CompletionItem>, List<SymbolInfo>> filterSymbolsOnFallback(LSContext context,
-                                                                                   String pkgName, int delimiter,
-                                                                                   List<CommonToken> defaultTokens,
-                                                                                   int delimIndex) {
-        List<SymbolInfo> filteredSymbols = FilterUtils.filterVariableEntriesOnDelimiter(context, pkgName, delimiter,
-                defaultTokens, delimIndex);
-        return Either.forRight(filteredSymbols);
     }
 }

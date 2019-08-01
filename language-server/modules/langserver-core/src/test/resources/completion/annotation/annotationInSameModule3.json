@@ -28,50 +28,6 @@
       ]
     },
     {
-      "label": "test:BeforeEach",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "test:BeforeEach",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/test;\n"
-        }
-      ]
-    },
-    {
-      "label": "test:AfterSuite",
-      "kind": "Property",
-      "detail": "Annotation",
-      "insertText": "test:AfterSuite",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/test;\n"
-        }
-      ]
-    },
-    {
       "label": "test:Config",
       "kind": "Property",
       "detail": "Annotation",
@@ -94,10 +50,10 @@
       ]
     },
     {
-      "label": "test:AfterEach",
+      "label": "test:Mock",
       "kind": "Property",
       "detail": "Annotation",
-      "insertText": "test:AfterEach",
+      "insertText": "test:Mock {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -119,7 +75,7 @@
       "label": "test:BeforeSuite",
       "kind": "Property",
       "detail": "Annotation",
-      "insertText": "test:BeforeSuite",
+      "insertText": "test:BeforeSuite {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -138,10 +94,54 @@
       ]
     },
     {
-      "label": "test:Mock",
+      "label": "test:AfterSuite",
       "kind": "Property",
       "detail": "Annotation",
-      "insertText": "test:Mock {\n\t${1}\n}",
+      "insertText": "test:AfterSuite {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/test;\n"
+        }
+      ]
+    },
+    {
+      "label": "test:BeforeEach",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "test:BeforeEach {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/test;\n"
+        }
+      ]
+    },
+    {
+      "label": "test:AfterEach",
+      "kind": "Property",
+      "detail": "Annotation",
+      "insertText": "test:AfterEach {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {

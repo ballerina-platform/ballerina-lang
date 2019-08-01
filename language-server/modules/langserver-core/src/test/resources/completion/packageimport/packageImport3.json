@@ -1,0 +1,298 @@
+{
+  "position": {
+    "line": 3,
+    "character": 12
+  },
+  "source": "packageimport/source/module2/packageImport3.bal",
+  "items": [
+    {
+      "label": "length(string str)(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
+        }
+      },
+      "insertText": "length(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "iterator(string str)()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns an iterator over the string\nThe iterator will return the substrings of length 1 in order.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nobject { public function next () returns (record {| string value; |}?); }"
+        }
+      },
+      "insertText": "iterator(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "concat(...string)(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nConcatenate all the `strs`. Empty string if empty.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+        }
+      },
+      "insertText": "concat(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "getCodePoint(string str, int i)(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
+        }
+      },
+      "insertText": "getCodePoint(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "substring(string str, int startIndex, int endIndex)(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+        }
+      },
+      "insertText": "substring(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "codePointCompare(string str1, string str2)(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nLexicographically compare strings using their Unicode code points\nThis will allow strings to be ordered in a consistent and well-defined way,\nbut the ordering will not typically be consistent with cultural expectations\nfor sorted order.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
+        }
+      },
+      "insertText": "codePointCompare(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "join(string separator, ...string)(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+        }
+      },
+      "insertText": "join(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "indexOf(string str, string substr, int startIndx)((int|()))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns the index of the first occurrence of `substr` in the part of the `str` starting at `startIndex`\nor nil if it does not occur  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint?"
+        }
+      },
+      "insertText": "indexOf(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "startsWith(string str, string substr)(boolean)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nboolean"
+        }
+      },
+      "insertText": "startsWith(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "endsWith(string str, string substr)(boolean)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nboolean"
+        }
+      },
+      "insertText": "endsWith(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toLowerAscii(string str)(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nStandard lib (not lang lib) should have a Unicode module (or set of modules)\nto deal with Unicode properly. These will need to be updated as each\nnew Unicode version is released.\nReturn A-Z into a-z and leave other characters unchanged  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+        }
+      },
+      "insertText": "toLowerAscii(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toUpperAscii(string str)(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nReturn a-z into A-Z and leave other characters unchanged  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+        }
+      },
+      "insertText": "toUpperAscii(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "trim(string str)(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nRemove ASCII white space characters (0x9...0xD, 0x20) from start and end of `str`  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+        }
+      },
+      "insertText": "trim(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toBytes(string str)(byte[])",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nRepresents `str` as an array of bytes using UTF-8  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nbyte[]"
+        }
+      },
+      "insertText": "toBytes(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "fromBytes(byte[] bytes)((string|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nConvert back to a string from its UTF-8 representation in `bytes`.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(string|error)"
+        }
+      },
+      "insertText": "fromBytes(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toCodePointInts(string str)(int[])",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns an array with an int for each code point in `str`.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint[]"
+        }
+      },
+      "insertText": "toCodePointInts(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "fromCodePointInts(int[] codePoints)((string|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string_  \n  \nCreates a string from an array of ints representing its code points.\nReturns an error if any member of `codePoints` is negative or greater than 0x10FFFF\nor is a surrogate (i.e. in the range 0xD800 or 0xDFFF inclusive).  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(string|error)"
+        }
+      },
+      "insertText": "fromCodePointInts(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    }
+  ]
+}

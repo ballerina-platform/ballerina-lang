@@ -31,7 +31,7 @@ function testUndeclaredAttributeAccess () {
 
 function testUndeclaredAttributeinit () {
     string name;
-    Department dpt = {dptName:"HR", age:20};
+    Department dpt = {dptName:"HR", "age":20};
 }
 
 function testInvalidTypeAttributeinit () {

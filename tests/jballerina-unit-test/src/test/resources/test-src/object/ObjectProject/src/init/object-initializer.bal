@@ -142,6 +142,8 @@ type Person3 object {
 
 type ErrorDetails record {
     int id;
+    string message?;
+    error cause?;
 };
 
 type Err error<string, ErrorDetails>;
@@ -169,12 +171,16 @@ type Person4 object {
 
 type FooErrData record {
     string f;
+    string message?;
+    error cause?;
 };
 
 type FooErr error<string, FooErrData>;
 
 type BarErrData record {
     string b;
+    string message?;
+    error cause?;
 };
 
 type BarErr error<string, BarErrData>;

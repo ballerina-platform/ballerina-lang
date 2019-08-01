@@ -52,10 +52,8 @@ service passthrough on listener17_1 {
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {
-            // TODO: Remove the below casting when new lang syntax are merged.
-            error e = response;
             http:Response resp = new;
-            json errMsg = { "error": "error occurred while invoking the service: " + <string>e.detail()?.message };
+            json errMsg = { "error": "error occurred while invoking the service: " + <string>response.detail()?.message };
             resp.statusCode = 500;
             resp.setPayload(errMsg);
             checkpanic caller->respond(resp);
@@ -151,7 +149,7 @@ public type InboundCustomAuthProvider object {
 
     public function authenticate(string credential) returns boolean|auth:Error {
         string token = "4ddb0c25";
-        boolean authenticated = crypto:crc32b(credential) == token;
+        boolean authenticated = crypto:crc32b(credential.toBytes()) == token;
         if (authenticated) {
             runtime:Principal? principal = runtime:getInvocationContext()?.principal;
             if (principal is runtime:Principal) {
@@ -210,7 +208,7 @@ public type OutboundCustomAuthProvider object {
     }
 
     public function inspect(map<anydata> data) returns string|auth:Error? {
-        if (data[http:STATUS_CODE] == http:FORBIDDEN_403) {
+        if (data[http:STATUS_CODE] == http:STATUS_FORBIDDEN) {
             string token = "buckeroo";
             return token;
         }

@@ -54,7 +54,6 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"panicStatementErrorSuggestions.json", "function"},
                 {"recordVarDef1.json", "function"},
                 {"recordVarDef2.json", "function"},
-                // Enable the following later
                 {"functionPointerAsParameter.json", "function"},
                 {"matchStatementSuggestions1.json", "function"},
                 {"matchStatementSuggestions3.json", "function"},
@@ -71,7 +70,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"iterableOperation2.json", "function"},
                 {"iterableOperation3.json", "function"},
                 {"iterableOperation4.json", "function"},
-                {"iterableOperation5.json", "function"},
+//                {"iterableOperation5.json", "function"},
                 {"iterableOperation6.json", "function"},
                 {"completionWithinWorkersInResource.json", "function"},
                 {"suggestionsInWorkersWithinFunction.json", "function"},
@@ -119,6 +118,8 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"chainCompletion1.json", "function"},
                 {"chainCompletion2.json", "function"},
                 {"chainCompletion3.json", "function"},
+                {"chainCompletion4.json", "function"},
+                {"chainCompletion5.json", "function"},
                 {"externalKeywordSuggestion1.json", "function"},
                 {"externalKeywordSuggestion2.json", "function"},
 //                {"ifWhileConditionContextCompletion1.json", "function"}, //TODO: Fix this
@@ -136,6 +137,9 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"functionParamAnnotationBodyCompletion3.json", "function"},
                 {"functionParamAnnotationBodyCompletion4.json", "function"},
                 {"completionWithTupleVariableDef.json", "function"},
+                {"completionWithinComments.json", "function"},
+                {"completionWithinLiterals.json", "function"},
+                {"typeofKWSuggestion.json", "function"},
         };
     }
 }

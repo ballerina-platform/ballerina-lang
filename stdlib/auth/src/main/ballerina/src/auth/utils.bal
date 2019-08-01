@@ -15,8 +15,8 @@
 // under the License.
 
 import ballerina/encoding;
-import ballerina/log;
 import ballerina/internal;
+import ballerina/log;
 
 # Constant for empty string.
 const string EMPTY_STRING = "";
@@ -73,4 +73,16 @@ public function prepareError(string message, error? err = ()) returns Error {
         authError = error(AUTH_ERROR, message = message);
     }
     return authError;
+}
+
+# Set the authentication context token and scheme.
+#
+# + scheme - Auth scheme (JWT, LDAP, OAuth2, Basic etc.)
+# + authToken - Auth token (credential)
+public function setAuthenticationContext(string scheme, string authToken) {
+    runtime:AuthenticationContext? authenticationContext = runtime:getInvocationContext()?.authenticationContext;
+    if (authenticationContext is runtime:AuthenticationContext) {
+        authenticationContext.scheme = scheme;
+        authenticationContext.authToken = authToken;
+    }
 }

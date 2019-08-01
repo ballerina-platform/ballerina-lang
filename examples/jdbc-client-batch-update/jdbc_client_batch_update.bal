@@ -69,11 +69,18 @@ public function main() {
                     (age,name) VALUES (?,?)", false, ...dataBatch);
     error? e = retBatch.returnedError;
     if (e is error) {
-        io:println("Batch update operation failed:"
-                   + <string> e.detail()["message"]);
+        io:println("Batch update operation failed:",
+                    <string> e.detail()["message"]);
     } else {
-        io:println("Batch 1 update counts: " + retBatch.updatedRowCount[0]);
-        io:println("Batch 2 update counts: " + retBatch.updatedRowCount[1]);
+        io:println("Batch 1 update counts: ", retBatch.updatedRowCount[0]);
+        io:println("Batch 2 update counts: ", retBatch.updatedRowCount[1]);
+        anydata[]? generatedKeys = retBatch.generatedKeys["GENERATED_KEY"];
+        if (generatedKeys is int[]) {
+            int key1 = generatedKeys[0];
+            int key2 = generatedKeys[1];
+            int key3 = generatedKeys[2];
+            io:println("Generated keys are: " , key1, ", ", key2, " and ", key3);
+        }
     }
 
     // Check the data in the database.
@@ -87,10 +94,10 @@ public function main() {
 // Function to handle the return value of the `update` remote function.
 function handleUpdate(jdbc:UpdateResult|jdbc:Error returned, string message) {
     if (returned is jdbc:UpdateResult) {
-        io:println(message + " status: " + returned.updatedRowCount);
+        io:println(message, " status: ", returned.updatedRowCount);
     } else {
         error err = returned;
-        io:println(message + " failed: " + <string> err.detail()["message"]);
+        io:println(message, " failed: ", <string> err.detail()["message"]);
     }
 }
 
@@ -102,11 +109,11 @@ function checkData() {
         // Iterating data.
         io:println("Data in students table:");
         foreach var row in dtReturned {
-            io:println("Student:" + row.id + "|" + row.name + "|" + row.age);
+            io:println("Student:", row.id, "|", row.name, "|", row.age);
         }
     } else {
         error err = dtReturned;
-        io:println("Select data from student table failed: "
-                + <string> err.detail()["message"]);
+        io:println("Select data from student table failed: ",
+                 <string> err.detail()["message"]);
     }
 }

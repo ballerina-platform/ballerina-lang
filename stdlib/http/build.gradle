@@ -48,14 +48,13 @@ dependencies {
     implementation project(':ballerina-logging')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-mime')
-    implementation project(':ballerina-config')
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-encoding')
     implementation project(':ballerina-system')
     implementation project(':ballerina-utils')
     implementation project(':ballerina-task')
     implementation project(':ballerina-internal')
-    testCompile project(':ballerina-launcher')
+    testCompile project(':ballerina-tool')
     testCompile 'org.slf4j:slf4j-simple'
 
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')

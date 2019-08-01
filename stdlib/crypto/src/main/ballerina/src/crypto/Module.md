@@ -16,7 +16,7 @@ import ballerina/io;
 public function main() {
      // Input value for crypto operations.
      string input = "Hello Ballerina";
-     byte[] inputArr = input.toByteArray("UTF-8");
+     byte[] inputArr = input.toBytes();
 
      // Hashing input value using different hashing algorithms, and printing hash value using Hex encoding.
      byte[] output = crypto:hashMd5(inputArr);
@@ -47,15 +47,13 @@ import ballerina/encoding;
 import ballerina/io;
 
 public function main() {
-     string charEncoding = "UTF-8";
-
      // Input value for crypto operations.
      string input = "Hello Ballerina";
-     byte[] inputArr = input.toByteArray(charEncoding);
+     byte[] inputArr = input.toBytes();
 
      // The key used for HMAC generation.
-     string key = "somesecret";
-     byte[] keyArr = key.toByteArray(charEncoding);
+     string key = "some-secret";
+     byte[] keyArr = key.toBytes();
 
      // HMAC generation for input value using different HMAC algorithms, and printing HMAC value using Hex encoding.
      byte[] output = crypto:hmacMd5(inputArr, keyArr);
@@ -84,7 +82,7 @@ import ballerina/crypto;
 import ballerina/io;
 
 public function main() {
-     // Input value for cryto operations.
+     // Input value for crypto operations.
      string input = "Hello Ballerina";
 
      // Hex encoded CRC32B checksum generation for input value.
@@ -107,14 +105,13 @@ import ballerina/encoding;
 import ballerina/io;
 
 public function main() returns error? {
-     // Input value for cryto operations.
+     // Input value for crypto operations.
      string input = "Hello Ballerina";
-     byte[] inputArr = input.toByteArray("UTF-8");
+     byte[] inputArr = input.toBytes();
 
      // PrivateKey used for signing operations.
      crypto:KeyStore keyStore = { path: "/home/ballerina/keystore.p12", password: "ballerina" };
-     crypto:PrivateKey privateKey = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = "ballerina",
-                                                            keyPassword = "ballerina");
+     crypto:PrivateKey privateKey = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = "ballerina", keyPassword = "ballerina");
 
      // Signing input value using different signature algorithms, and printing the signature value
      // using Hex encoding.
@@ -146,9 +143,9 @@ import ballerina/encoding;
 import ballerina/io;
 
 public function main() returns error? {
-     // Input value for cryto operations.
+     // Input value for crypto operations.
      string input = "Hello Ballerina";
-     byte[] inputArr = input.toByteArray("UTF-8");
+     byte[] inputArr = input.toBytes();
 
      crypto:KeyStore keyStore = { path: "/home/ballerina/keystore.p12", password: "ballerina" };
 
@@ -156,8 +153,7 @@ public function main() returns error? {
      crypto:PublicKey publicKey = check crypto:decodePublicKey(keyStore = keyStore, keyAlias = "ballerina");
 
      // Private key used for decryption.
-     crypto:PrivateKey privateKey = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = "ballerina",
-                                                            keyPassword = "ballerina");
+     crypto:PrivateKey privateKey = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = "ballerina", keyPassword = "ballerina");
 
      // Encrypt and decrypt input value using RSA ECB PKCS1 padding.
      byte[] output = check crypto:encryptRsaEcb(inputArr, publicKey);
@@ -183,7 +179,7 @@ import ballerina/io;
 import ballerina/math;
 
 public function main() returns error? {
-     // Input value for cryto operations.
+     // Input value for crypto operations.
      string input = "Hello Ballerina!";
      byte[] inputArr = input.toByteArray("UTF-8");
 

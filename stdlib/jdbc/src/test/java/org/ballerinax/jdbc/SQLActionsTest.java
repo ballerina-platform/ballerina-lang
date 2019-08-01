@@ -172,7 +172,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = {CONNECTOR_TEST, "brokenOnBootstrappedJVMCodegen"})
+    @Test(groups = CONNECTOR_TEST)
     public void testINParametersWithDirectValues() {
         BValue[] returns = BRunUtil.invoke(result, "testINParametersWithDirectValues");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
@@ -183,9 +183,10 @@ public class SQLActionsTest {
         Assert.assertEquals(((BDecimal) returns[6]).decimalValue(), new BigDecimal("1234.567"));
         Assert.assertEquals(((BDecimal) returns[7]).decimalValue(), new BigDecimal("1234.567"));
         Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D, DELTA);
+        Assert.assertEquals(((BInteger) returns[9]).intValue(), 127);
     }
 
-    @Test(groups = {CONNECTOR_TEST, "brokenOnBootstrappedJVMCodegen"})
+    @Test(groups = CONNECTOR_TEST)
     public void testINParametersWithDirectVariables() {
         BValue[] returns = BRunUtil.invoke(result, "testINParametersWithDirectVariables");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
@@ -196,6 +197,7 @@ public class SQLActionsTest {
         Assert.assertEquals(((BDecimal) returns[6]).decimalValue(), new BigDecimal("1234.567"));
         Assert.assertEquals(((BDecimal) returns[7]).decimalValue(), new BigDecimal("1234.567"));
         Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D, DELTA);
+        Assert.assertEquals(((BInteger) returns[9]).intValue(), -128);
     }
 
     @Test(groups = CONNECTOR_TEST)
@@ -264,6 +266,18 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.getInt(0), 1);
         Assert.assertEquals(retValue.getInt(1), 1);
         Assert.assertNull(returns[1]);
+        Assert.assertTrue(((BInteger) returns[2]).intValue() > 0);
+        Assert.assertTrue(((BInteger) returns[3]).intValue() > 0);
+    }
+
+    @Test(groups = CONNECTOR_TEST)
+    public void testBatchUpdateWithoutGeneratedKeys() {
+        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithoutGeneratedKeys");
+        BValueArray retValue = (BValueArray) returns[0];
+        Assert.assertEquals(retValue.getInt(0), 1);
+        Assert.assertEquals(retValue.getInt(1), 1);
+        Assert.assertNull(returns[1]);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 0);
     }
 
     @Test(groups = CONNECTOR_TEST)
@@ -320,7 +334,7 @@ public class SQLActionsTest {
         Assert.assertEquals((int) retValue.getInt(2), 1);
     }
 
-    @Test(groups = { CONNECTOR_TEST, "broken" }, description = "Check date time null in values")
+    @Test(groups = CONNECTOR_TEST, description = "Check date time null in values")
     public void testDateTimeNullInValues() {
         BValue[] returns = BRunUtil.invoke(result, "testDateTimeNullInValues");
         Assert.assertEquals(returns.length, 1);
@@ -338,7 +352,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = { CONNECTOR_TEST, "broken" }, description = "Check blob binary and clob types types.")
+    @Test(groups = CONNECTOR_TEST, description = "Check blob binary and clob types types.")
     public void testComplexTypeRetrieval() {
         BValue[] returns = BRunUtil.invoke(result, "testComplexTypeRetrieval");
         String expected0, expected1, expected2, expected3;
@@ -360,7 +374,7 @@ public class SQLActionsTest {
     @Test(groups = CONNECTOR_TEST, description = "Test failed select query")
     public void testFailedSelect() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testSelectData");
-        Assert.assertTrue(returns[0].stringValue().contains("execute query failed:"));
+        Assert.assertTrue(returns[0].stringValue().contains("Failed to execute select query:"));
     }
 
     @Test(groups = CONNECTOR_TEST, description = "Test failed select query error")
@@ -376,7 +390,7 @@ public class SQLActionsTest {
     @Test(groups = CONNECTOR_TEST, description = "Test failed update with generated id action")
     public void testFailedGeneratedKeyOnInsert() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testGeneratedKeyOnInsert");
-        Assert.assertTrue(returns[0].stringValue().contains("execute update failed:"));
+        Assert.assertTrue(returns[0].stringValue().contains("Failed to execute update query:"));
     }
 
     @Test(groups = CONNECTOR_TEST, description = "Test error for failed update with generated id action")
@@ -392,7 +406,7 @@ public class SQLActionsTest {
     @Test(groups = { CONNECTOR_TEST }, description = "Test failed batch update")
     public void testFailedBatchUpdate() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testBatchUpdate");
-        Assert.assertTrue(returns[0].stringValue().contains("execute batch update failed:"));
+        Assert.assertTrue(returns[0].stringValue().contains("Failed to execute batch update:"));
         Assert.assertEquals(((BInteger) returns[1]).intValue(), -3);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), -3);
     }
@@ -410,7 +424,7 @@ public class SQLActionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    ".*Invalid update of record field: modification not allowed on frozen value.*")
+                    ".*Invalid update of record field: modification not allowed on readonly value.*")
     public void testUpdateResult() {
         BRunUtil.invoke(resultNegative, "testUpdateResult");
     }
@@ -418,8 +432,8 @@ public class SQLActionsTest {
     @Test(groups = { CONNECTOR_TEST }, description = "Test failed parameter array update")
     public void testInvalidArrayofQueryParameters() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testInvalidArrayofQueryParameters");
-        Assert.assertTrue(returns[0].stringValue()
-                .contains("execute query failed: unsupported array type for parameter index 0"));
+        Assert.assertTrue(returns[0].stringValue().contains("Failed to execute select query: Unsupported array type " +
+                "specified as a parameter at index 0"));
     }
 
     @Test(groups = { CONNECTOR_TEST }, description = "Test error for failed parameter array update")
@@ -428,8 +442,8 @@ public class SQLActionsTest {
         Assert.assertEquals(returns.length, 3);
         Assert.assertTrue(returns[0].stringValue().contains("{ballerinax/java.jdbc}ApplicationError"));
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
-        Assert.assertTrue(returns[2].stringValue()
-                            .contains("execute query failed: unsupported array type for parameter index 0"));
+        Assert.assertTrue(returns[2].stringValue().contains("Failed to execute select query: Unsupported array type " +
+                "specified as a parameter at index 0"));
     }
 
     @Test(groups = { CONNECTOR_TEST }, description = "Test error type for application level errors")

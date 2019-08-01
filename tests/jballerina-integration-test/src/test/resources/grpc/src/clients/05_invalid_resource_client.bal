@@ -26,13 +26,11 @@ HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9095");
 //    io:println(resp2);
 //    var resp3 = testInvalidOutputResponse(1.0);
 //    io:println(resp3);
-//    var resp4 = testNonExistenceRemoteMethod(true);
-//    io:println(resp4);
 //}
 
 function testInvalidRemoteMethod(string name) returns (string) {
-    [string, grpc:Headers]|error unionResp = helloWorldBlockingEp->hello(name);
-    if (unionResp is error) {
+    [string, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->hello(name);
+    if (unionResp is grpc:Error) {
         return io:sprintf("Error from Connector: %s - %s", unionResp.reason(), <string> unionResp.detail()["message"]);
     } else {
         io:println("Client Got Response : ");
@@ -44,8 +42,8 @@ function testInvalidRemoteMethod(string name) returns (string) {
 }
 
 function testInvalidInputParameter(int age) returns (int) {
-    [int, grpc:Headers]|error unionResp = helloWorldBlockingEp->testInt(age);
-    if (unionResp is error) {
+    [int, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->testInt(age);
+    if (unionResp is grpc:Error) {
         string message = io:sprintf("Error from Connector: %s - %s", unionResp.reason(), <string> unionResp.detail()["message"]);
         io:println(message);
         return -1;
@@ -59,8 +57,8 @@ function testInvalidInputParameter(int age) returns (int) {
 }
 
 function testInvalidOutputResponse(float salary) returns (float|string) {
-    [float, grpc:Headers]|error unionResp = helloWorldBlockingEp->testFloat(salary);
-    if (unionResp is error) {
+    [float, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->testFloat(salary);
+    if (unionResp is grpc:Error) {
         string message = io:sprintf("Error from Connector: %s - %s", unionResp.reason(), <string> unionResp.detail()["message"]);
         io:println(message);
         return message;
@@ -73,36 +71,25 @@ function testInvalidOutputResponse(float salary) returns (float|string) {
     }
 }
 
-function testNonExistenceRemoteMethod(boolean isAvailable) returns (boolean|string) {
-    [boolean, grpc:Headers]|error unionResp = helloWorldBlockingEp->testBoolean(isAvailable);
-    if (unionResp is error) {
-        string message = io:sprintf("Error from Connector: %s - %s", unionResp.reason(), <string> unionResp.detail()["message"]);
-        io:println(message);
-        return message;
-    } else {
-        io:println("Client got response : ");
-        boolean result = false;
-        [result, _] = unionResp;
-        io:println(result);
-        return result;
-    }
-}
-
 public type HelloWorldBlockingClient client object {
+
+    *grpc:AbstractClientEndpoint;
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
-        error? result = c.initStub("blocking", ROOT_DESCRIPTOR, getDescriptorMap());
-        if (result is error) {
-            panic result;
+        grpc:Error? result = c.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        if (result is grpc:Error) {
+            error err = result;
+            panic err;
         } else {
             self.grpcClient = c;
         }
     }
 
-    remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|error) {
+    remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
         var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld98/hello1", req, headers);
         anydata result = ();
         grpc:Headers resHeaders = new;
@@ -110,7 +97,7 @@ public type HelloWorldBlockingClient client object {
         return [result.toString(), resHeaders];
     }
 
-    remote function testInt(int req, grpc:Headers? headers = ()) returns ([int, grpc:Headers]|error) {
+    remote function testInt(int req, grpc:Headers? headers = ()) returns ([int, grpc:Headers]|grpc:Error) {
         var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld98/testInt", req, headers);
         anydata result = ();
         grpc:Headers resHeaders = new;
@@ -119,11 +106,11 @@ public type HelloWorldBlockingClient client object {
         if (value is int) {
             return [value, resHeaders];
         } else {
-            return value;
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
         }
     }
 
-    remote function testFloat(float req, grpc:Headers? headers = ()) returns ([float, grpc:Headers]|error) {
+    remote function testFloat(float req, grpc:Headers? headers = ()) returns ([float, grpc:Headers]|grpc:Error) {
         var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld98/testFloat", req, headers);
         anydata result = ();
         grpc:Headers resHeaders = new;
@@ -132,21 +119,7 @@ public type HelloWorldBlockingClient client object {
         if (value is float) {
             return [value, resHeaders];
         } else {
-            error err = error("{ballerina/grpc}INTERNAL", message = value.reason());
-            return err;
-        }
-    }
-
-    remote function testBoolean(boolean req, grpc:Headers? headers = ()) returns ([boolean, grpc:Headers]|error) {
-        var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld98/testBoolean", req, headers);
-        anydata result = ();
-        grpc:Headers resHeaders = new;
-        [result, resHeaders] = unionResp;
-        var value = typedesc<boolean>.constructFrom(result);
-        if (value is boolean) {
-            return [value, resHeaders];
-        } else {
-            return value;
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
         }
     }
 };

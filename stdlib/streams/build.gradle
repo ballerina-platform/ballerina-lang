@@ -49,13 +49,12 @@ dependencies {
     implementation project(':ballerina-reflect')
     implementation project(':ballerina-math')
     implementation project(':ballerina-crypto')
-    implementation project(':ballerina-config')
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-internal')
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-system')
     implementation project(':ballerina-logging')
-    implementation project(':ballerina-launcher')
+    implementation project(':ballerina-tool')
 
     testImplementation 'org.slf4j:slf4j-jdk14'
     testImplementation 'com.h2database:h2'

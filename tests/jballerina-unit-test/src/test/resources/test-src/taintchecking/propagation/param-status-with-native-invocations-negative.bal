@@ -14,20 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java.jdbc;
 import ballerina/io;
-
-jdbc:Client mysqlDB = new ({
-    url: "jdbc:mysql://localhost:3306/ballerinademo",
-    username: "demouser",
-    password: "password@123",
-    poolOptions: { maximumPoolSize: 5 },
-    dbOptions: { }
-});
+import ballerina/config;
 
 public function main(string... args) returns error? {
-    string s1 = args[0];
-    io:println(s1);
-    table<any> t1 = check mysqlDB->select("SELECT id, age, name from employee where name = " + s1, ());
+    string key = args[0];
+    io:println(key);
+    boolean b = config:contains(key);
     return;
 }

@@ -165,7 +165,7 @@ public class DefinitionTest {
                 {"defForeach19.json", "foreach"},
                 {"defForeach20.json", "foreach"},
                 {"defForeach21.json", "foreach"},
-                {"defForeach22.json", "foreach"},
+//                {"defForeach22.json", "foreach"}, TODO: Source invalid and need verify
                 {"defForeach23.json", "foreach"},
                 {"defForeach24.json", "foreach"},
                 {"defForeach25.json", "foreach"},
@@ -185,6 +185,7 @@ public class DefinitionTest {
                 {"defTransaction1.json", "transaction"},
                 {"defGlobal1.json", "global"},
                 {"defRecord1.json", "record"},
+                {"defRecord2.json", "record"},
                 {"defError1.json", "error"},
                 {"defWaitExpression1.json", "waitexpression"},
                 {"defExpressionConnectorInit.json", "expression"},

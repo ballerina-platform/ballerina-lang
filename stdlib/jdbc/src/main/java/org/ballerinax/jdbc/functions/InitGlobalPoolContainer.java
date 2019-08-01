@@ -18,7 +18,7 @@
 
 package org.ballerinax.jdbc.functions;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -44,5 +44,9 @@ public class InitGlobalPoolContainer {
     public static void initGlobalPoolContainer(Strand strand, ObjectValue globalPoolConfigContainer,
                                                MapValue<String, Object> poolConfig) {
         SQLDatasourceUtils.addDatasourceContainer(poolConfig, new ConcurrentHashMap<>());
+    }
+
+    private InitGlobalPoolContainer() {
+
     }
 }

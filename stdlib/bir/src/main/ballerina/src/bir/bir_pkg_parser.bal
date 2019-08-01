@@ -16,7 +16,7 @@ import ballerina/io;
 // under the License.
 public type PackageParser object {
     BirChannelReader reader;
-    map<VariableDcl> globalVarMap;
+    map<GlobalVariableDcl> globalVarMap;
     boolean addInterimBB = true;
     boolean symbolsOnly;
 
@@ -93,12 +93,17 @@ public type PackageParser object {
         VarKind kind = parseVarKind(self.reader);
         var typeValue = self.reader.readTypeCpRef();
         var name = self.reader.readStringCpRef();
+        VariableDclMeta meta = {};
+        if (kind is ArgVarKind) {
+            meta.name = self.reader.readStringCpRef();
+        }
         var hasDefaultExpr = self.reader.readBoolean();
         FunctionParam dcl = {
             typeValue: typeValue,
             name: { value: name },
             kind: kind,
-            hasDefaultExpr: hasDefaultExpr
+            hasDefaultExpr: hasDefaultExpr,
+            meta: meta
         };
         return dcl;
     }
@@ -114,6 +119,7 @@ public type PackageParser object {
         // TODO: dhananjaya please remove
         return <@untainted> funcs;
     }
+
     private function parseInvokableType() returns BInvokableType {
         var functionType = self.reader.readTypeCpRef();
         if (functionType is BInvokableType) {
@@ -125,7 +131,6 @@ public type PackageParser object {
 
     public function parseFunction(TypeDef?[] typeDefs) returns @untainted Function {
         map<VariableDcl> localVarMap = {};
-        FuncBodyParser bodyParser = new(self.reader, self.globalVarMap, localVarMap, typeDefs);
         DiagnosticPos pos = parseDiagnosticPos(self.reader);
         var name = self.reader.readStringCpRef();
         int flags = self.reader.readInt32();
@@ -143,10 +148,10 @@ public type PackageParser object {
             _ = self.reader.readInt32();
         }
 
-        BType? receiverType = ();
-        boolean hasReceiverType = self.reader.readBoolean();
-        if (hasReceiverType) {
-            receiverType = self.reader.readTypeCpRef();
+        VariableDcl? receiver = ();
+        boolean hasReceiver = self.reader.readBoolean();
+        if (hasReceiver) {
+            receiver = self.parseVariableDcl();
         }
 
         int taintLength = self.reader.readInt64();
@@ -169,7 +174,7 @@ public type PackageParser object {
                 argsCount: 0,
                 typeValue: sig,
                 workerChannels: [],
-                receiverType : receiverType,
+                receiver : receiver,
                 restParamExist : restParamExist,
                 annotAttachments: annotAttachments
             };
@@ -204,11 +209,22 @@ public type PackageParser object {
         var numLocalVars = self.reader.readInt32();
         while (count < numLocalVars) {
             var dcl = self.parseVariableDcl();
+            if (dcl.kind is LocalVarKind || dcl.kind is ArgVarKind) {
+                dcl.meta.name = self.reader.readStringCpRef();
+                // local variables have visible range information as well
+                if (dcl.kind is LocalVarKind) {
+                    var meta = dcl.meta;
+                    meta.endBBID = self.reader.readStringCpRef();
+                    meta.startBBID = self.reader.readStringCpRef();
+                    meta.insOffset = self.reader.readInt32();
+                }
+            }
             dcls[dcls.length()] = dcl;
             localVarMap[dcl.name.value] = dcl;
             count += 1;
         }
 
+        FuncBodyParser bodyParser = new(self.reader, self.globalVarMap, localVarMap, typeDefs, receiver);
         count = 0;
         BasicBlock?[][] paramDefaultBBs = [];
         while (count < numDefaultParams) {
@@ -232,7 +248,7 @@ public type PackageParser object {
             argsCount: argsCount,
             typeValue: sig,
             workerChannels:workerChannels,
-            receiverType : receiverType,
+            receiver : receiver,
             restParamExist : restParamExist,
             annotAttachments: annotAttachments
         };
@@ -348,8 +364,21 @@ public type PackageParser object {
             BType typeValue = tDef.typeValue;
             if (typeValue is BObjectType || typeValue is BRecordType || typeValue is BServiceType) {
                 tDef.attachedFuncs = self.parseFunctions(typeDefs);
+                tDef.typeRefs = self.parseReferencedTypes();
             }
         }
+    }
+
+    function parseReferencedTypes() returns BType?[] {
+        var numTypes = self.reader.readInt32();
+        BType?[] typeRefs = [];
+        int i = 0;
+        while (i < numTypes) {
+            typeRefs[i] = self.reader.readTypeCpRef();
+            i += 1;
+        }
+
+        return <@untainted> typeRefs;
     }
 
     function parseTypeDef() returns TypeDef {
@@ -357,11 +386,11 @@ public type PackageParser object {
         string name = self.reader.readStringCpRef();
         int flags = self.reader.readInt32();
         int isLabel = self.reader.readInt8();
-        
+
         skipMarkDownDocAttachement(self.reader); 
-        
+
         var bType = self.reader.readTypeCpRef();
-        return { pos:pos, name: { value: name }, flags: flags, typeValue: bType, attachedFuncs: () };
+        return { pos:pos, name: { value: name }, flags: flags, typeValue: bType, attachedFuncs: (), typeRefs : [] };
     }
 
     function parseGlobalVars(GlobalVariableDcl?[] globalVars) {       
@@ -497,7 +526,7 @@ function parseLiteralValue(BirChannelReader reader, BType bType) returns anydata
     } else if (bType is BTypeFloat) {
         value = reader.readFloatCpRef();
     } else {
-        record{| anydata|error...; |} detailMap = { 'type : bType };
+        record{| anydata|error...; |} detailMap = { "type" : bType };
         error err = error("unsupported literal value type in annotation attachment value", err = detailMap);
         panic err;
     }

@@ -551,12 +551,17 @@ public class TypeChecker {
         for (BField targetField : targetType.getFields().values()) {
             BField sourceField = sourceFields.get(targetField.getFieldName());
 
-            // If the LHS field is a required one, there has to be a corresponding required field in the RHS record.
-            if (sourceField == null && !Flags.isFlagOn(targetField.flags, Flags.OPTIONAL)) {
+            if (sourceField == null) {
                 return false;
             }
 
-            if (sourceField != null && !checkIsType(sourceField.type, targetField.type, unresolvedTypes)) {
+            // If the target field is required, the source field should be required as well.
+            if (!Flags.isFlagOn(targetField.flags, Flags.OPTIONAL)
+                    && Flags.isFlagOn(sourceField.flags, Flags.OPTIONAL)) {
+                return false;
+            }
+
+            if (!checkIsType(sourceField.type, targetField.type, unresolvedTypes)) {
                 return false;
             }
         }
@@ -590,11 +595,21 @@ public class TypeChecker {
             return true;
         }
 
-        if (sourceType.getTag() != TypeTags.ARRAY_TAG) {
+        if (sourceType.getTag() != TypeTags.ARRAY_TAG && sourceType.getTag() != TypeTags.TUPLE_TAG) {
             return false;
         }
 
-        BArrayType sourceArrayType = (BArrayType) sourceType;
+        BArrayType sourceArrayType;
+        if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
+            sourceArrayType = (BArrayType) sourceType;
+        } else {
+            BTupleType sourceTupleType = (BTupleType) sourceType;
+            Set<BType> tupleTypes = new HashSet<>(sourceTupleType.getTupleTypes());
+            if (sourceTupleType.getRestType() != null) {
+                tupleTypes.add(sourceTupleType.getRestType());
+            }
+            sourceArrayType = new BArrayType(new BUnionType(new ArrayList<>(tupleTypes)));
+        }
 
         switch (sourceArrayType.getState()) {
             case UNSEALED:
@@ -622,8 +637,18 @@ public class TypeChecker {
             return false;
         }
 
-        List<BType> sourceTypes = ((BTupleType) sourceType).getTupleTypes();
-        List<BType> targetTypes = targetType.getTupleTypes();
+        List<BType> sourceTypes = new ArrayList<>(((BTupleType) sourceType).getTupleTypes());
+        BType sourceRestType = ((BTupleType) sourceType).getRestType();
+        if (sourceRestType != null) {
+            sourceTypes.add(sourceRestType);
+        }
+
+        List<BType> targetTypes = new ArrayList<>(targetType.getTupleTypes());
+        BType targetRestType = targetType.getRestType();
+        if (targetRestType != null) {
+            targetTypes.add(targetRestType);
+        }
+
         if (sourceTypes.size() != targetTypes.size()) {
             return false;
         }
@@ -1125,14 +1150,7 @@ public class TypeChecker {
         unresolvedTypes.add(pair);
         BErrorType bErrorType = (BErrorType) sourceType;
         boolean reasonTypeMatched = checkIsType(bErrorType.reasonType, targetType.reasonType, unresolvedTypes);
-        if (reasonTypeMatched
-                && ((BErrorType) sourceType).detailType.getTag() == TypeTags.RECORD_TYPE_TAG
-                && targetType.detailType.getTag() == TypeTags.MAP_TAG
-                && checkIsType(targetType, BTypes.typeError, unresolvedTypes)) {
-            // User defined error type with Record detail type (record fields are pure constrained at error constructor)
-            // is equal to Ballerina error type with pure constrained map as detail.
-            return true;
-        }
+
         return reasonTypeMatched && checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes);
     }
 

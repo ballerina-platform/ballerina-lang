@@ -76,25 +76,24 @@ string...; |} sdd;
 type RecordName11 record {
     int a = 0;
     string s;
-    record {|int hd = 0;string
-
-    ...;|} sdd;
+    record {|int hd = 0;
+    string...;|} sdd;
 };
 
-function testRecordTypes3() returns [typedesc, typedesc] {
-    typedesc a = RecordA;
-    typedesc b =   record {
+function testRecordTypes3() returns [typedesc<RecordA>, typedesc<record{}>] {
+    typedesc<RecordA> a = RecordA;
+    typedesc<record{}> b =   record {
   string c; int d;
     };
-    typedesc b1 =
+    typedesc<record{}> b1 =
              record    {  string c ;int d;  } ;
     return [a, b];
 }
 
-function testRecordTypes4() returns [typedesc, typedesc] {
-    typedesc a = RecordA;
-    typedesc b =record {   string c;int d   ;  } ;
-    typedesc b1=
+function testRecordTypes4() returns [typedesc<RecordA>, typedesc<record{}>] {
+    typedesc<RecordA> a = RecordA;
+    typedesc<record{}> b =record {   string c;int d   ;  } ;
+    typedesc<record{}> b1=
 record      {
               string c;int d;};
     return [a, b];

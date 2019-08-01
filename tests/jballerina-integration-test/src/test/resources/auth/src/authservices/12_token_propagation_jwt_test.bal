@@ -40,7 +40,7 @@ listener http:Listener listener12_1 = new(20015, {
     }
 });
 
-jwt:OutboundJwtAuthProvider jwtAuthProvider12_2 = new(());
+jwt:OutboundJwtAuthProvider jwtAuthProvider12_2 = new;
 http:BearerAuthHandler jwtAuthHandler12_2 = new(jwtAuthProvider12_2);
 
 http:Client nyseEP12 = new("https://localhost:20016", {
@@ -61,10 +61,8 @@ service passthroughService12 on listener12_1 {
         if (response is http:Response) {
             checkpanic caller->respond(response);
         } else {
-            // TODO: Remove the below casting when new lang syntax are merged.
-            error e = response;
             http:Response resp = new;
-            json errMsg = { "error": "error occurred while invoking the service: " + e.reason() };
+            json errMsg = { "error": "error occurred while invoking the service: " + response.reason() };
             resp.statusCode = 500;
             resp.setPayload(errMsg);
             checkpanic caller->respond(resp);

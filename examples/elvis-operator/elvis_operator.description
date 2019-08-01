@@ -1,5 +1,5 @@
-// The elvis operator is a conditional operator that handles `nil`. It evaluates an expression
-// and if the value is `nil`, it executes the second expression.
+// The Elvis operator is a conditional operator that handles nil. It evaluates an expression
+// and if the value is nil (`()`), it executes the second expression.
 //
 // The elvis operator takes two operands and uses the '?:' symbol to form it as shown in the syntax below.
 //      `expression ?: expressionIfNil`

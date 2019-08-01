@@ -75,7 +75,7 @@ public type Versioning record {|
 # + path - Path of the WebSocket service
 # + subProtocols - Negotiable sub protocol by the service
 # + idleTimeoutInSeconds - Idle timeout for the client connection. Upon timeout, `onIdleTimeout` resource (if defined)
-#                          in the server service will be triggered. Note that this overrides the `timeoutMillis` config
+#                          in the server service will be triggered. Note that this overrides the `timeoutInMillis` config
 #                          in the `http:Listener`.
 # + maxFrameSize - The maximum payload size of a WebSocket frame in bytes.
 #                  If this is not set or is negative or zero, the default frame size will be used.

@@ -291,7 +291,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         env = pkgEnv;
 
         Map<Boolean, List<TopLevelNode>> topLevelNodeGroups = pkgNode.topLevelNodes.stream()
-                .collect(Collectors.partitioningBy(node -> node.getKind() == NodeKind.VARIABLE));
+                .collect(Collectors.partitioningBy(node -> node.getKind() == NodeKind.VARIABLE
+                    || node.getKind() == NodeKind.CONSTANT));
 
         // Analyze top level variable nodes.
         analyzeNode(topLevelNodeGroups.get(true));
@@ -302,12 +303,27 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         resolveBlockedInvokable(blockedNodeList);
         resolveBlockedInvokable(blockedEntryPointNodeList);
 
+        // Go through module level variable after all functions are resolved.
+        analyzeModuleLevelVariableDefinitions(topLevelNodeGroups.get(true));
+
         if (dlogSet.size() > 0) {
             dlogSet.forEach(dlogEntry -> dlog.error(dlogEntry.pos, dlogEntry.diagnosticCode,
                     dlogEntry.paramName.toArray()));
         }
         currPkgEnv = prevPkgEnv;
         pkgNode.completedPhases.add(CompilerPhase.TAINT_ANALYZE);
+    }
+
+    private void analyzeModuleLevelVariableDefinitions(List<TopLevelNode> topLevelNodes) {
+        // Only analyze variable definitions
+        topLevelNodes.stream()
+                .filter(node -> node.getKind() == NodeKind.VARIABLE || node.getKind() == NodeKind.VARIABLE_DEF)
+                .forEach(topLevelNode -> {
+                    AnalysisState analysisState = new AnalysisState();
+                    analysisStateStack.push(analysisState);
+                    ((BLangNode) topLevelNode).accept(this);
+                    analysisStateStack.pop();
+                });
     }
 
     private void analyzeNode(List<TopLevelNode> topLevelNodes) {
@@ -463,6 +479,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     ((BInvokableSymbol) varNode.symbol).taintTable = taintTable;
                 }
             }
+            // blocker found while analyzing module level variable, reset stopAnalysis flag
+            if (stopAnalysis && isModuleVariable(varNode.symbol)) {
+                stopAnalysis = false;
+            }
+
+            if (isModuleVariable(varNode.symbol)
+                    && getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+                dlogSet.add(new TaintRecord.TaintError(varNode.pos, varNode.name.value,
+                        DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE));
+            }
             setTaintedStatus(varNode, getCurrentAnalysisState().taintedStatus);
         }
 
@@ -476,7 +502,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        if (varNode.symbol.owner.getKind() == SymbolKind.PACKAGE
+        if (isModuleVariable(varNode.symbol)
                 || (varNode.symbol.owner.type != null && varNode.symbol.owner.type.tag == TypeTags.SERVICE)) {
             if (hasAnnotation(varNode, ANNOTATION_TAINTED)) {
                 ((BVarSymbol) varNode.symbol).taintabilityAllowance = BVarSymbol.TaintabilityAllowance.TAINTED;
@@ -485,6 +511,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 ((BVarSymbol) varNode.symbol).taintabilityAllowance = BVarSymbol.TaintabilityAllowance.UNTAINTED;
             }
         }
+    }
+
+    private boolean isModuleVariable(BSymbol symbol) {
+        return symbol.owner.getKind() == SymbolKind.PACKAGE;
     }
 
     @Override
@@ -554,7 +584,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             // Generate error if a global variable has been assigned with a tainted value.
             if (varTaintedStatus == TaintedStatus.TAINTED && varRefExpr instanceof BLangVariableReference) {
                 BLangVariableReference varRef = (BLangVariableReference) varRefExpr;
-                if (isGlobalVarOrServiceVar(varRef) && !isMarkedTainted(varRef)) {
+                if (isMutableVariable(varRef) && isGlobalVarOrServiceVar(varRef) && !isMarkedTainted(varRef)) {
                     if (varRef.symbol.type.tag == TypeTags.OBJECT) {
                         addTaintError(pos, varRef.symbol.name.value,
                                 DiagnosticCode.TAINTED_VALUE_PASSED_TO_MODULE_OBJECT);
@@ -606,7 +636,24 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
         }
     }
-    
+
+    private boolean isMutableVariable(BLangVariableReference varRef) {
+        if (varRef.symbol == null) {
+            if (varRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR
+                    || varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+                BLangExpression expr = ((BLangAccessExpression) varRef).expr;
+                if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF || varRef.getKind() == NodeKind.CONSTANT_REF) {
+                    return isMutableVariable((BLangVariableReference) expr);
+                }
+            }
+            return false;
+        }
+        if (varRef.symbol.getKind() == SymbolKind.CONSTANT || (varRef.symbol.flags & Flags.FINAL) == Flags.FINAL) {
+            return false;
+        }
+        return true;
+    }
+
     private boolean notInSameScope(BLangVariableReference varRefExpr, SymbolEnv env) {
         return !varRefExpr.symbol.owner.equals(env.scope.owner);
     }
@@ -621,7 +668,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private boolean isGlobalVarOrServiceVar(BLangVariableReference varRef) {
         return varRef.symbol != null && varRef.symbol.owner != null
-                && (varRef.symbol.owner.getKind() == SymbolKind.PACKAGE
+                && (isModuleVariable(varRef.symbol)
                 || (varRef.symbol.owner.flags & Flags.SERVICE) == Flags.SERVICE);
     }
 
@@ -953,6 +1000,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public void visit(BLangRecordLiteral recordLiteral) {
         TaintedStatus isTainted = TaintedStatus.UNTAINTED;
         for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
+            if (keyValuePair.key.computedKey) {
+                keyValuePair.key.expr.accept(this);
+                if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+                    isTainted = TaintedStatus.TAINTED;
+                }
+            }
+
             keyValuePair.valueExpr.accept(this);
             // Used to update the variable this literal is getting assigned to.
             if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
@@ -1618,6 +1672,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public void visit(BLangIndexBasedAccess.BLangJSONAccessExpr jsonAccessExpr) {
         /* ignore */
     }
+
+    @Override
+    public void visit(BLangIndexBasedAccess.BLangStringAccessExpr stringAccessExpr) {
+        /* ignore */
+    }
+
 
     @Override
     public void visit(BLangXMLNS.BLangLocalXMLNS xmlnsNode) {

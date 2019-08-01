@@ -76,6 +76,19 @@ public function testErrorWithErrorConstructor() returns string {
     return errorData.data;
 }
 
+function testTrapWithSuccessScenario() returns int {
+    var a = trap retIntSuccess();
+    if(a is int) {
+        return a;
+    } else {
+        panic a;
+    }
+}
+
+function retIntSuccess() returns int {
+    return 1;
+}
+
 function getCallStackTest() returns runtime:CallStackElement[] {
     return runtime:getCallStack();
 }
@@ -239,6 +252,8 @@ function testIndirectErrorConstructor() returns [UserDefErrorTwoA, UserDefErrorT
 
 type Detail record {
     int code;
+    string message?;
+    error cause?;
 };
 
 const FOO = "foo";
@@ -248,4 +263,16 @@ type FooError error<FOO, Detail>;
 public function indirectErrorCtor() returns [string, boolean, error] {
     error e = FooError(code = 3456);
     return [e.reason(), e is FooError, e];
+}
+
+const F = "Foo";
+const G = "Foo";
+
+type E1 error<F, record { string message?; error cause?;}>;
+type E2 error<G, record { string message?; error cause?;}>;
+type E E1|E2;
+
+public function testUnionLhsWithIndirectErrorRhs() returns error {
+    E x = E1(); // Ok, since it say E1.
+    return x;
 }

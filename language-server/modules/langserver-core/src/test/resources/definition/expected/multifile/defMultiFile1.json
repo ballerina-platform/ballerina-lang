@@ -1,6 +1,6 @@
 {
   "source": {
-    "dir": "module1/dir2",
+    "dir": "src/module1/dir2",
     "file": "dir2Fl2.bal"
   },
   "position": {
@@ -19,7 +19,7 @@
           "character": 32
         }
       },
-      "uri": "module1/dir2/dir4/dir4fl1.bal"
+      "uri": "src/module1/dir2/dir4/dir4fl1.bal"
     }
   ]
 }

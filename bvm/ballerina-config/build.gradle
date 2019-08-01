@@ -17,11 +17,30 @@
  
 apply from: "$rootDir/gradle/javaProject.gradle"
 
+configurations {
+    // configuration that holds jars to copy into runtime jar
+    includedJarLibs
+    excludedJarLibs
+    compile.extendsFrom includedJarLibs
+    compile.extendsFrom excludedJarLibs
+}
+
 dependencies {
     implementation project(':toml-parser')
+    implementation 'com.moandjiezana.toml:toml4j'
     implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     implementation 'org.slf4j:slf4j-api'
     implementation 'org.apache.commons:commons-lang3'
+
+    includedJarLibs project(':toml-parser')
+    includedJarLibs 'com.moandjiezana.toml:toml4j'
+    includedJarLibs 'org.wso2.orbit.org.antlr:antlr4-runtime'
+    includedJarLibs 'org.slf4j:slf4j-api'
+    includedJarLibs 'org.apache.commons:commons-lang3'
+}
+
+jar {
+    from { (configurations.includedJarLibs - configurations.excludedJarLibs).collect { it.isDirectory() ? it : zipTree(it) } }
 }
 
 description = 'Ballerina - Config API'

@@ -18,7 +18,7 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
@@ -51,7 +51,6 @@ public class CancelWebSocketUpgrade {
 
     public static Object cancelWebSocketUpgrade(Strand strand, ObjectValue connectionObj, long statusCode,
                                                 String reason) {
-        //TODO : NonBlockingCallback is used to handle non blocking call
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         WebSocketHandshaker webSocketHandshaker =
                 (WebSocketHandshaker) connectionObj.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);

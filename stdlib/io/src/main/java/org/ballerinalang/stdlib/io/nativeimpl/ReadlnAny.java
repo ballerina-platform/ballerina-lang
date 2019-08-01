@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.stdlib.io.nativeimpl;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -38,11 +38,12 @@ import java.util.Scanner;
 )
 public class ReadlnAny {
 
+    private static Scanner sc = new Scanner(System.in, Charset.defaultCharset().displayName());
+
     public static String readln(Strand strand, Object result) {
         if (result != null) {
             System.out.print(result.toString());
         }
-        Scanner sc = new Scanner(System.in, Charset.defaultCharset().displayName());
         return sc.nextLine();
     }
 }

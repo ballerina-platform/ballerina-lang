@@ -40,29 +40,29 @@ service wssService on securedListener2 {
 //    }
 //}
 
-listener http:Listener securedListener = new (9092, config = {
-        secureSocket: {
-            keyStore: {
-                path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-                password: "ballerina"
-            },
-            trustStore: {
-                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                password: "ballerina"
-            }
+listener http:Listener securedListener = new (9092, {
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        },
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
         }
-    });
+    }
+});
 
-listener http:WebSocketListener securedListener2 = new http:WebSocketListener(9092, config = {
-        host: "0.0.0.0",
-        secureSocket: {
-            keyStore: {
-                path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-                password: "ballerina"
-            },
-            trustStore: {
-                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                password: "ballerina"
-            }
+listener http:WebSocketListener securedListener2 = new http:WebSocketListener(9092, {
+    host: "0.0.0.0",
+    secureSocket: {
+        keyStore: {
+            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password: "ballerina"
+        },
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
         }
-    });
+    }
+});

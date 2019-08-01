@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -55,12 +54,8 @@ public class ImportDeclarationContextProvider extends LSCompletionProvider {
         Stream.of(LSPackageLoader.getSdkPackages(), LSPackageLoader.getHomeRepoPackages())
                 .forEach(packagesList::addAll);
         List<CommonToken> lhsTokens = ctx.get(CompletionKeys.LHS_TOKENS_KEY);
-        List<CommonToken> lhsDefaultTokens = lhsTokens.stream()
-                .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
-                .collect(Collectors.toList());
-        List<Integer> lhsDefaultTokenTypes = lhsDefaultTokens.stream()
-                .map(CommonToken::getType)
-                .collect(Collectors.toList());
+        List<CommonToken> lhsDefaultTokens = ctx.get(CompletionKeys.LHS_DEFAULT_TOKENS_KEY);
+        List<Integer> lhsDefaultTokenTypes = ctx.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
         int divIndex = lhsDefaultTokenTypes.indexOf(BallerinaParser.DIV);
         int importTokenIndex = lhsDefaultTokenTypes.indexOf(BallerinaParser.IMPORT);
         CommonToken lastToken = CommonUtil.getLastItem(lhsTokens);
@@ -88,7 +83,6 @@ public class ImportDeclarationContextProvider extends LSCompletionProvider {
         packagesList.forEach(pkg -> {
             String fullPkgNameLabel = pkg.getOrgName() + "/" + pkg.getPackageName();
             String insertText = pkg.getOrgName() + "/";
-            // TODO : add test cases
             if (pkg.getOrgName().equals(Names.BALLERINA_ORG.value)
                     && pkg.getPackageName().startsWith(Names.LANG.value + ".")) {
                 insertText += getLangLibModuleNameInsertText(pkg.getPackageName());
@@ -111,7 +105,7 @@ public class ImportDeclarationContextProvider extends LSCompletionProvider {
     }
     
     private String getLangLibModuleNameInsertText(String pkgName) {
-        return "'" + pkgName.replace(".", "\\.") + " as ${1}";
+        return pkgName.replace(".", ".'") + ";";
     }
 
     private ArrayList<CompletionItem> getPackageNameCompletions(String orgName, List<BallerinaPackage> packagesList) {
@@ -119,11 +113,18 @@ public class ImportDeclarationContextProvider extends LSCompletionProvider {
         List<String> pkgNameLabels = new ArrayList<>();
 
         packagesList.forEach(ballerinaPackage -> {
-            String label = ballerinaPackage.getPackageName();
-            if (orgName.equals(ballerinaPackage.getOrgName()) && !pkgNameLabels.contains(label)) {
-                pkgNameLabels.add(label);
+            String packageName = ballerinaPackage.getPackageName();
+            String insertText;
+            if (orgName.equals(ballerinaPackage.getOrgName()) && !pkgNameLabels.contains(packageName)) {
+                if (orgName.equals(Names.BALLERINA_ORG.value)
+                        && packageName.startsWith(Names.LANG.value + ".")) {
+                    insertText = getLangLibModuleNameInsertText(packageName);
+                } else {
+                    insertText = packageName;
+                }
+                pkgNameLabels.add(packageName);
                 // Do not add the semi colon at the end of the insert text since the user might type the as keyword
-                completionItems.add(getImportCompletion(label, label));
+                completionItems.add(getImportCompletion(packageName, insertText));
             }
         });
         

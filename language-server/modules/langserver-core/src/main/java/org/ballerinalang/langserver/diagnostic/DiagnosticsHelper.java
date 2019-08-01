@@ -15,20 +15,13 @@
  */
 package org.ballerinalang.langserver.diagnostic;
 
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
-import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
-import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.ImportPackageNode;
-import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -36,8 +29,6 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.services.LanguageClient;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Path;
@@ -45,8 +36,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Utilities for the diagnostics related operations.
@@ -77,80 +66,53 @@ public class DiagnosticsHelper {
                                                        WorkspaceDocumentManager docManager) throws LSCompilerException {
         // Compile diagnostics
         List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics = new ArrayList<>();
-        Path projectPath = new LSDocument(context.get(DocumentServiceKeys.FILE_URI_KEY)).getProjectRootPath();
+        LSDocument lsDocument = new LSDocument(context.get(DocumentServiceKeys.FILE_URI_KEY));
         lsCompiler.getBLangPackages(context, docManager, true, null, true, true);
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         if (compilerContext.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
              diagnostics = ((CollectDiagnosticListener) compilerContext.get(DiagnosticListener.class)).getDiagnostics();
         }
 
-        Map<String, List<Diagnostic>> diagnosticMap = getDiagnostics(diagnostics, projectPath);
+        Map<String, List<Diagnostic>> diagnosticMap = getDiagnostics(diagnostics, lsDocument);
         // If the client is null, returns
         if (client == null) {
             return;
         }
-        // Or else, publish diagnostics
-        clearDiagnostics(client, lastDiagnosticMap, diagnosticMap);
+
+        // Replace old entries with an empty list
+        lastDiagnosticMap.keySet().forEach((key) -> diagnosticMap.computeIfAbsent(key, value -> EMPTY_DIAGNOSTIC_LIST));
+
         // Publish diagnostics
         diagnosticMap.forEach((key, value) -> client.publishDiagnostics(new PublishDiagnosticsParams(key, value)));
-        // Update home-repo packages
-//        balFile.getBLangPackage().ifPresent(this::updateHomeRepoPackages);
+
+        // Replace old map
         lastDiagnosticMap = diagnosticMap;
-    }
-
-    /**
-     * Clears already existing diagnostics.
-     *
-     * @param client            Language server client
-     * @param lastDiagnosticMap last diagnostic map
-     */
-    public void clearDiagnostics(LanguageClient client, Map<String, List<Diagnostic>> lastDiagnosticMap) {
-        clearDiagnostics(client, lastDiagnosticMap, new HashMap<>());
-    }
-
-    /**
-     * Clears already existing diagnostics with the new diagnostics.
-     *
-     * @param client            Language server client
-     * @param lastDiagnosticMap last diagnostic map
-     * @param diagnosticMap     new diagnostic map
-     */
-    private void clearDiagnostics(LanguageClient client, Map<String, List<Diagnostic>> lastDiagnosticMap,
-                                         Map<String, List<Diagnostic>> diagnosticMap) {
-        lastDiagnosticMap.entrySet().stream()
-                .filter(entry -> !diagnosticMap.containsKey(entry.getKey()))
-                .forEach(entry -> client.publishDiagnostics(
-                        new PublishDiagnosticsParams(entry.getKey(), EMPTY_DIAGNOSTIC_LIST))
-                );
     }
 
     /**
      * Returns diagnostics for this file.
      *
      * @param diagnostics  List of ballerina diagnostics
-     * @param projectPath project path
+     * @param lsDocument project path
      * @return diagnostics map
      */
-    public Map<String, List<Diagnostic>> getDiagnostics(List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics,
-                                                        Path projectPath) {
+    private Map<String, List<Diagnostic>> getDiagnostics(List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics,
+                                                         LSDocument lsDocument) {
         Map<String, List<Diagnostic>> diagnosticsMap = new HashMap<>();
-        boolean ballerinaProject = LSCompilerUtil.isBallerinaProject(projectPath.toString());
-        Path diagnosticRoot = projectPath;
         for (org.ballerinalang.util.diagnostic.Diagnostic diag : diagnostics) {
+            Path diagnosticRoot = lsDocument.getProjectRootPath();
             final org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition position = diag.getPosition();
             String moduleName = position.getSource().getPackageName();
             String fileName = position.getSource().getCompilationUnitName();
-            if (ballerinaProject) {
+            if (lsDocument.isWithinProject()) {
                 diagnosticRoot = diagnosticRoot.resolve("src");
             }
             if (!".".equals(moduleName)) {
                 diagnosticRoot = diagnosticRoot.resolve(moduleName);
             }
             String fileURI = diagnosticRoot.resolve(fileName).toUri().toString() + "";
+            diagnosticsMap.putIfAbsent(fileURI, new ArrayList<>());
 
-            if (!diagnosticsMap.containsKey(fileURI)) {
-                diagnosticsMap.put(fileURI, new ArrayList<>());
-            }
             List<Diagnostic> clientDiagnostics = diagnosticsMap.get(fileURI);
             int startLine = position.getStartLine() - 1; // LSP diagnostics range is 0 based
             int startChar = position.getStartColumn() - 1;
@@ -166,38 +128,5 @@ public class DiagnosticsHelper {
             clientDiagnostics.add(diagnostic);
         }
         return diagnosticsMap;
-    }
-
-    /**
-     * Updates home repository packages list.
-     *
-     * @param bLangPackage {@link BLangPackage}
-     */
-    public void updateHomeRepoPackages(BLangPackage bLangPackage) {
-        if (bLangPackage == null) {
-            return;
-        }
-        List<TopLevelNode> importPkgs = new ArrayList<>();
-        bLangPackage.getCompilationUnits().forEach(bLangCompilationUnit -> {
-            importPkgs.addAll(bLangCompilationUnit.getTopLevelNodes().stream()
-                                      .filter(topLevelNode -> topLevelNode instanceof ImportPackageNode)
-                                      .collect(Collectors.toList()));
-        });
-        List<BallerinaPackage> ballerinaPackages = new ArrayList<>();
-        Stream.of(LSPackageLoader.getSdkPackages(), LSPackageLoader.getHomeRepoPackages())
-                .forEach(ballerinaPackages::addAll);
-        importPkgs.forEach(bLangImportPackage -> {
-            if (bLangImportPackage instanceof BLangImportPackage) {
-                BLangImportPackage pkgNode = ((BLangImportPackage) bLangImportPackage);
-                if (pkgNode.symbol != null
-                        && !CommonUtil.listContainsPackage(pkgNode.symbol.pkgID.toString(), ballerinaPackages)) {
-                    PackageID pkgID = pkgNode.symbol.pkgID;
-                    LSPackageLoader.getHomeRepoPackages()
-                            .add(new BallerinaPackage(pkgID.getOrgName().getValue(),
-                                                      pkgID.getName().getValue(),
-                                                      pkgID.getPackageVersion().getValue()));
-                }
-            }
-        });
     }
 }

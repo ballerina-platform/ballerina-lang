@@ -33,9 +33,9 @@ function multilevelClosure() returns (function (int) returns int) {
                 b = b + 1;
                 return x + y + z + a + b + c;
             };
-            return func3.call(8) + y + x;
+            return func3(8) + y + x;
         };
-        return func2.call(4) + x;
+        return func2(4) + x;
     };
     return func1;
 }
@@ -55,19 +55,19 @@ function functionPointers(int a) returns
 public function main() {
     // Invokes the function that shows basic closure support.
     var foo = basicClosure();
-    int result1 = foo.call(3);
-    io:println("Answer: " + result1);
+    int result1 = foo(3);
+    io:println("Answer: ", result1);
 
     // The function invocation that represents multiple levels of anonymous functions
     // with closure support.
     var bar = multilevelClosure();
-    int result2 = bar.call(5);
-    io:println("Answer: " + result2);
+    int result2 = bar(5);
+    io:println("Answer: ", result2);
 
     // This function invocation shows how function pointers with closures
     // are passed around.
     var baz1 = functionPointers(7);
-    var baz2 = baz1.call(5);
-    int result3 = baz2.call(3);
-    io:println("Answer: " + result3);
+    var baz2 = baz1(5);
+    int result3 = baz2(3);
+    io:println("Answer: ", result3);
 }

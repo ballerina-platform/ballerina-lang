@@ -39,6 +39,7 @@ public type TypeDef record {
     int flags = PRIVATE;
     BType typeValue = "()";
     Function?[]? attachedFuncs = ();
+    BType?[] typeRefs;
 };
 
 public type TypeRef record {|
@@ -58,7 +59,7 @@ public type Function record {|
     BInvokableType typeValue = {};
     int flags = PRIVATE;
     ChannelDetail[] workerChannels;
-    BType? receiverType;
+    VariableDcl? receiver;
     boolean restParamExist;
     AnnotationAttachment?[] annotAttachments = [];
 |};
@@ -72,6 +73,7 @@ public type BasicBlock record {|
 public type ErrorEntry record {|
     BasicBlock trapBB;
     VarRef errorOp;
+    BasicBlock targetBB;
 |};
 
 public type ChannelDetail record {|
@@ -195,12 +197,13 @@ public const TERMINATOR_WK_RECEIVE = "WK_RECEIVE";
 public const TERMINATOR_WK_SEND = "WK_SEND";
 public const TERMINATOR_FLUSH = "FLUSH";
 public const TERMINATOR_LOCK = "LOCK";
+public const TERMINATOR_FIELD_LOCK = "FIELD_LOCK";
 public const TERMINATOR_UNLOCK = "UNLOCK";
 
 public type TerminatorKind TERMINATOR_GOTO|TERMINATOR_CALL|TERMINATOR_BRANCH|TERMINATOR_RETURN|TERMINATOR_ASYNC_CALL
                                 |TERMINATOR_PANIC|TERMINATOR_WAIT|TERMINATOR_FP_CALL|TERMINATOR_WK_RECEIVE
-                                |TERMINATOR_WK_SEND|TERMINATOR_FLUSH|TERMINATOR_LOCK|TERMINATOR_UNLOCK
-                                |TERMINATOR_WAIT_ALL;
+                                |TERMINATOR_WK_SEND|TERMINATOR_FLUSH|TERMINATOR_LOCK|TERMINATOR_FIELD_LOCK
+                                |TERMINATOR_UNLOCK|TERMINATOR_WAIT_ALL;
                                 
                                 
 // Flags
@@ -211,6 +214,7 @@ public const int INTERFACE = 128;
 public const int REQUIRED = 256;
 public const int PRIVATE = 1024;
 public const int OPTIONAL = 8192;
+public const int REMOTE = 65536;
 public const SERVICE = 524288;
 
 
@@ -251,10 +255,18 @@ public const ARRAY_STATE_UNSEALED = "UNSEALED";
 
 public type ArrayState ARRAY_STATE_CLOSED_SEALED | ARRAY_STATE_OPEN_SEALED | ARRAY_STATE_UNSEALED;
 
+public type VariableDclMeta record {
+    string name?;
+    string endBBID?;
+    string startBBID?;
+    int insOffset?;
+};
+
 public type VariableDcl record {|
     VarKind kind = "LOCAL";
     VarScope varScope = VAR_SCOPE_FUNCTION;
     Name name = {};
+    VariableDclMeta meta = {};
     BType typeValue = "()";
     ModuleID moduleId?;
 
@@ -270,6 +282,7 @@ public type GlobalVariableDcl record {|
     VarKind kind = VAR_KIND_GLOBAL;
     VarScope varScope = VAR_SCOPE_GLOBAL;
     Name name = {};
+    VariableDclMeta meta = {};
     BType typeValue = "()";
     ModuleID moduleId?;
     int flags = PRIVATE;
@@ -400,6 +413,7 @@ public type BUnionType record {|
 
 public type BTupleType record {|
    BType?[]  tupleTypes;
+   BType?  restType = ();
 |};
 
 public type BFutureType record {|
@@ -543,7 +557,7 @@ public type IsLike record {|
     InstructionKind kind;
     VarRef lhsOp;
     VarRef rhsOp;
-    BType typeValue;
+    BType typeVal;
 |};
 
 public type TypeTest record {|
@@ -650,15 +664,29 @@ public type GOTO record {|
 public type Lock record {|
     DiagnosticPos pos;
     TerminatorKind kind;
-    string[] globleVars;
+    VariableDcl globleVar;
+    BasicBlock lockBB;
+|};
+
+public type FieldLock record {|
+    DiagnosticPos pos;
+    TerminatorKind kind;
+    VariableDcl localVar;
+    string field;
     BasicBlock lockBB;
 |};
 
 public type Unlock record {|
     DiagnosticPos pos;
     TerminatorKind kind;
-    string[] globleVars;
+    VariableDcl?[] globleVars;
+    LocalLocks?[] localLocks;
     BasicBlock unlockBB;
+|};
+
+public type LocalLocks record {|
+    VariableDcl localVar;
+    string[] fields;
 |};
 
 public type Return record {|

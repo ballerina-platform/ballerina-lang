@@ -18,8 +18,7 @@
 
 package org.ballerinalang.net.websub.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -54,10 +53,6 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERV
         isPublic = true
 )
 public class SetTopic extends AbstractHttpNativeFunction {
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static void setTopic(Strand strand, ObjectValue subscriberServiceEndpoint, String webSubServiceName,
                                 String topic) {

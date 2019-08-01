@@ -1,6 +1,6 @@
 import {
     Assignment, ASTNode, ASTUtil, Block, ExpressionStatement, Function as BalFunction,
-    If, Return, VariableDef, VisibleEndpoint, Visitor, WorkerSend
+    Return, VariableDef, VisibleEndpoint, Visitor, WorkerSend
 } from "@ballerina/ast-model";
 import { EndpointViewState, FunctionViewState, StmntViewState, ViewState } from "../view-model";
 import { BlockViewState } from "../view-model/block";
@@ -8,7 +8,7 @@ import { ReturnViewState } from "../view-model/return";
 import { WorkerViewState } from "../view-model/worker";
 import { WorkerSendViewState } from "../view-model/worker-send";
 
-let visibleEndpoints: VisibleEndpoint[] = [];
+let visibleEPsInCurrentFunc: VisibleEndpoint[] = [];
 let envEndpoints: VisibleEndpoint[] = [];
 
 function initStatement(node: ASTNode) {
@@ -36,9 +36,8 @@ export const visitor: Visitor = {
         if (!node.parent) {
             return;
         }
-        const parentNode = (parent as (If | BalFunction));
-        if (parentNode.VisibleEndpoints) {
-            envEndpoints = [...envEndpoints, ...parentNode.VisibleEndpoints];
+        if (node.VisibleEndpoints) {
+            envEndpoints = [...envEndpoints, ...node.VisibleEndpoints];
         }
     },
 
@@ -46,22 +45,21 @@ export const visitor: Visitor = {
         if (!node.parent) {
             return;
         }
-        const parentNode = (parent as (If | BalFunction));
-        if (parentNode.VisibleEndpoints) {
-            const parentsVisibleEndpoints = parentNode.VisibleEndpoints;
+        if (node.VisibleEndpoints) {
+            const parentsVisibleEndpoints = node.VisibleEndpoints;
             envEndpoints = envEndpoints.filter((ep) => (!parentsVisibleEndpoints.includes(ep)));
         }
     },
 
     beginVisitFunction(node: BalFunction) {
-        if (node.VisibleEndpoints) {
-            visibleEndpoints = [...node.VisibleEndpoints, ...visibleEndpoints];
-        }
         if (!node.viewState) {
             const viewState = new FunctionViewState();
             node.viewState = viewState;
         }
         if (node.body) {
+            if (node.body.VisibleEndpoints) {
+                visibleEPsInCurrentFunc = [...node.body.VisibleEndpoints, ...visibleEPsInCurrentFunc];
+            }
             node.body.statements.forEach((statement, index) => {
                 // Hide All worker nodes.
                 if (ASTUtil.isWorker(statement)) {
@@ -78,6 +76,14 @@ export const visitor: Visitor = {
                     }
                 }
             });
+            // fix go to source position of caller EP
+            if (node.resource && node.body.VisibleEndpoints) {
+                const callerEP = node.body.VisibleEndpoints.find((vEP) => vEP.caller);
+                if (callerEP) {
+                    // update position to match caller definition (which is the first param)
+                    callerEP.position = node.parameters[0].position;
+                }
+            }
         }
     },
 
@@ -87,7 +93,7 @@ export const visitor: Visitor = {
         if (viewState.isExpandedFunction) {
             const toAdd: VisibleEndpoint[] = [];
             const added: any = {};
-            visibleEndpoints.forEach((ep) => {
+            visibleEPsInCurrentFunc.forEach((ep) => {
                 if (!added[ep.name]) {
                     toAdd.push(ep);
                     added[ep.name] = true;
@@ -95,7 +101,7 @@ export const visitor: Visitor = {
             });
             viewState.containingVisibleEndpoints = toAdd;
         } else {
-            visibleEndpoints = [];
+            visibleEPsInCurrentFunc = [];
         }
     },
 

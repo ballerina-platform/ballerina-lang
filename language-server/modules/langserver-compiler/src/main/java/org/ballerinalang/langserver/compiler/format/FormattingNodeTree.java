@@ -995,8 +995,12 @@ public class FormattingNodeTree {
                 JsonObject wsItem = item.getAsJsonObject();
                 if (this.noHeightAvailable(wsItem.get(FormattingConstants.WS).getAsString())) {
                     String text = wsItem.get(FormattingConstants.TEXT).getAsString();
-                    if (text.equals(Tokens.LESS_THAN) || text.equals(Tokens.GREATER_THAN)) {
+                    if (text.equals(Tokens.LESS_THAN) || text.equals(Tokens.GREATER_THAN)
+                            || text.equals(Tokens.CLOSING_BRACE) || text.equals(Tokens.OBJECT)) {
                         wsItem.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                    } else if (text.equals(Tokens.TYPEDESC)) {
+                        wsItem.addProperty(FormattingConstants.WS,
+                                this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()));
                     }
                 }
             }
@@ -1564,35 +1568,17 @@ public class FormattingNodeTree {
                         wsItem.addProperty(FormattingConstants.WS,
                                 this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
                                         + indentWithParentIndentation);
-                    }
-
-                    // Update whitespace for the opening parentheses.
-                    if (text.equals(Tokens.OPENING_PARENTHESES)) {
+                    } else if (text.equals(Tokens.OPENING_PARENTHESES)) {
                         wsItem.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    }
-
-                    // Update whitespace for the param separator.
-                    if (text.equals(Tokens.COMMA)) {
+                    } else if (text.equals(Tokens.COMMA)) {
                         wsItem.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                    }
-
-                    // Update the whitespace for in keyword.
-                    if (text.equals(Tokens.IN)) {
+                    } else if (text.equals(Tokens.IN)) {
                         wsItem.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    }
-
-                    // Update whitespace for the closing parentheses.
-                    if (text.equals(Tokens.CLOSING_PARENTHESES)) {
+                    } else if (text.equals(Tokens.CLOSING_PARENTHESES)) {
                         wsItem.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
-                    }
-
-                    // Update the whitespace for opening bracket.
-                    if (text.equals(Tokens.OPENING_BRACE)) {
+                    } else if (text.equals(Tokens.OPENING_BRACE)) {
                         wsItem.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
-                    }
-
-                    // Update the whitespace for closing bracket.
-                    if (text.equals(Tokens.CLOSING_BRACE)) {
+                    } else if (text.equals(Tokens.CLOSING_BRACE)) {
                         if (node.has(FormattingConstants.BODY) &&
                                 node.getAsJsonObject(FormattingConstants.BODY).has(FormattingConstants.STATEMENTS) &&
                                 node.getAsJsonObject(FormattingConstants.BODY)
@@ -1604,6 +1590,8 @@ public class FormattingNodeTree {
                             wsItem.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE +
                                     indentWithParentIndentation);
                         }
+                    } else {
+                        wsItem.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
                     }
                 }
             }
@@ -1633,6 +1621,12 @@ public class FormattingNodeTree {
                 JsonObject collectionFormatConfig = this.getFormattingConfig(0, 1, 0, false,
                         this.getWhiteSpaceCount(indentWithParentIndentation), false);
                 collection.add(FormattingConstants.FORMATTING_CONFIG, collectionFormatConfig);
+            }
+
+            if (node.has("variableDefinitionNode")) {
+                node.getAsJsonObject("variableDefinitionNode").add(FormattingConstants.FORMATTING_CONFIG,
+                        this.getFormattingConfig(0, 1, 0, false,
+                                this.getWhiteSpaceCount(indentWithParentIndentation), true));
             }
         }
     }
@@ -2269,21 +2263,61 @@ public class FormattingNodeTree {
             JsonArray ws = node.get(FormattingConstants.WS).getAsJsonArray();
             JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
             String indentation = this.getIndentation(formatConfig, false);
+            String orgName = "";
+            String packageVersion = "";
+            List<String> packageNames = new ArrayList<>();
+
+            if (node.has("orgName")) {
+                orgName = node.getAsJsonObject("orgName").get(FormattingConstants.VALUE).getAsString();
+            }
+
+            if (node.has("packageVersion")) {
+                packageVersion = node.getAsJsonObject("packageVersion").get(FormattingConstants.VALUE).getAsString();
+            }
+
+            if (node.has("packageName")) {
+                for (JsonElement packageNameItem : node.getAsJsonArray("packageName")) {
+                    JsonObject packageName = packageNameItem.getAsJsonObject();
+                    packageNames.add(packageName.get(FormattingConstants.VALUE).getAsString());
+                }
+            }
 
             this.preserveHeight(ws, indentation);
 
-            // Update whitespaces for import keyword
-            if (this.noHeightAvailable(ws.get(0).getAsJsonObject().get(FormattingConstants.WS).getAsString())) {
-                ws.get(0).getAsJsonObject().addProperty(FormattingConstants.WS,
-                        this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) +
-                                this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()) +
-                                indentation);
-            }
-
-            // Update whitespace for semicolon
-            JsonObject semicolonWhitespace = ws.get(ws.size() - 1).getAsJsonObject();
-            if (this.noHeightAvailable(semicolonWhitespace.get(FormattingConstants.WS).getAsString())) {
-                semicolonWhitespace.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+            boolean forwardSlashAvailable = false;
+            boolean dotAvailable = false;
+            for (JsonElement wsItem : ws) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                    if (text.equals(Tokens.IMPORT)) {
+                        currentWS.addProperty(FormattingConstants.WS,
+                                this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) +
+                                        this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT)
+                                                .getAsInt()) + indentation);
+                    } else if (text.equals(Tokens.DIV)) {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                        forwardSlashAvailable = true;
+                    } else if (packageNames.contains(text)) {
+                        if (forwardSlashAvailable || dotAvailable) {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                            forwardSlashAvailable = false;
+                            dotAvailable = false;
+                        } else {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                        }
+                    } else if (text.equals(orgName)
+                            || text.equals(Tokens.AS)
+                            || text.equals(Tokens.VERSION)
+                            || text.equals(packageVersion)) {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                    } else if (text.equals(Tokens.SEMICOLON) || text.equals(Tokens.DOT)) {
+                        dotAvailable = true;
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                    } else {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                    }
+                }
             }
         }
     }
@@ -3527,7 +3561,7 @@ public class FormattingNodeTree {
                                         this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT)
                                                 .getAsInt()));
                             } else {
-                                currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                                currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
                             }
                         } else if (text.equals(Tokens.OPENING_BRACE) || text.equals(Tokens.SEAL_OPENING)) {
                             currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);

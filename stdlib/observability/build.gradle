@@ -30,7 +30,6 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-utils')
-    implementation project(':ballerina-config')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-runtime')
     implementation project(':metrics-extensions:ballerina-metrics-extension')
@@ -44,7 +43,7 @@ dependencies {
 
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils')
-    testCompile project(':ballerina-launcher')
+    testCompile project(':ballerina-tool')
     testCompile project(':ballerina-runtime')
     testCompile project(':ballerina-test-common')
     testCompile 'org.testng:testng'

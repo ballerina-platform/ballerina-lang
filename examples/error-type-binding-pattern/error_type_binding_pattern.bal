@@ -1,46 +1,49 @@
 import ballerina/io;
 
-type SampleError error<string, map<anydata|error>>;
+type SampleErrorData record {
+    string message?;
+    error cause?;
+    string info;
+    boolean fatal;
+};
+
+type SampleError error<string, SampleErrorData>;
 
 public function main() {
     // This error-type binding pattern will destructure an `error` of the type `SampleError`, and create two variables as follows:
     // The value of the reason string in the`SampleError` will be set to a new `string` variable `reason`.
-    // The value of the detail mapping will be set to a new `map<anydata|error>` variable `detail`.
-    SampleError error(reason, detail) = getSampleError();
+    // The values in the detail mapping will be set to new variables `info` and `fatal`.
+    var error(reason, info = info, fatal = fatal) = getSampleError();
     io:println("Reason String: " + reason);
-    io:println(io:sprintf("Detail Mapping: %s", detail));
+    io:println("Info: ", info);
+    io:println("Fatal: ", fatal);
 
-    // The detail-mapping value can further be destructured using a record-binding pattern.
-    SampleError error(reasonTwo, { detail: detailTwo, fatal }) = getSampleError();
-    io:println("Reason String: " + reasonTwo);
-    io:println(io:sprintf("Detail Mapping Field One: %s", detailTwo));
-    io:println(io:sprintf("Detail Mapping Field Two: %s", fatal));
+    // The detail mapping can also be destructured using a rest parameter.
+    // `params` will be of the type `map<anydata|error>`, and will have the
+    // `info` and `fatal` fields.
+    var error(reasonTwo, ...params) = getSampleError();
+    io:println("Reason String: ", reasonTwo);
+    io:println("Detail Mapping: ", params);
 
-    // Error-type binding patterns can be used with `var` to infer the type from the right hand side.
-    // Since the types of the new variables are based on the type of the type-binding pattern, using `var` will
-    // infer the types from the right hand side.
-    var error(vReason, vDetail) = getSampleError();
-    // Type of `vReason` is inferred as `string`.
-    io:println("Reason String: " + vReason);
-    // Type of `vDetail` is inferred as `map<anydata|error>`.
-    io:println(io:sprintf("Detail Mapping: %s", vDetail));
-
+    
     // The underscore '_' sign can be used to ignore either the reason string or the detail mapping.
-    error<string, Foo> error(_, fooRec) = getRecordConstrainedError();
-    io:println(io:sprintf("Detail Mapping: %s", <Foo> fooRec));
+    var error(_, detailMsg = detailMsg, isFatal = isFatal) = getRecordConstrainedError();
+    io:println("Detail Message: ", detailMsg);
 }
 
 function getSampleError() returns SampleError {
-    SampleError e = error("Sample Error", { detail: "Detail Msg", fatal: true });
+    SampleError e = error("Sample Error", info = "Detail Msg", fatal = true);
     return e;
 }
 
 type Foo record {|
+    string message?;
+    error cause?;
     string detailMsg;
     boolean isFatal;
 |};
 
 function getRecordConstrainedError() returns error<string, Foo> {
-    error<string, Foo> e = error("Some Error", { detailMsg: "Failed Message", isFatal: true });
+    error<string, Foo> e = error("Some Error", detailMsg = "Failed Message", isFatal = true);
     return e;
 }

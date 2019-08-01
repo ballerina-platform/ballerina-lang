@@ -16,7 +16,6 @@
 
 import ballerina/encoding;
 import ballerina/log;
-import ballerina/internal;
 
 # Represents the outbound Basic Auth authenticator.
 #
@@ -25,12 +24,12 @@ public type OutboundBasicAuthProvider object {
 
     *OutboundAuthProvider;
 
-    public Credential credential;
+    public Credential? credential;
 
     # Provides authentication based on the provided Basic Auth configuration.
     #
     # + credential - The credential configurations.
-    public function __init(Credential credential) {
+    public function __init(Credential? credential) {
         self.credential = credential;
     }
 
@@ -38,7 +37,18 @@ public type OutboundBasicAuthProvider object {
     #
     # + return - The generated token or the `Error` if an error occurred during validation.
     public function generateToken() returns string|Error {
-        return getAuthTokenForBasicAuth(self.credential);
+        var credential = self.credential;
+        if (credential is ()) {
+            runtime:AuthenticationContext? authContext = runtime:getInvocationContext()?.authenticationContext;
+            if (authContext is runtime:AuthenticationContext) {
+                return authContext.authToken;
+            } else {
+                return prepareError("Failed to generate basic auth token since credential config is not defined
+                and auth token is not defined in the authentication context at invocation context.");
+            }
+        } else {
+            return getAuthTokenForBasicAuth(credential);
+        }
     }
 
     # Inspects the incoming data and generates the token for Basic authentication.
@@ -70,7 +80,7 @@ function getAuthTokenForBasicAuth(Credential credential) returns string|Error {
         return prepareError("Username or password cannot be empty.");
     }
     string str = username + ":" + password;
-    string token = encoding:encodeBase64(internal:toByteArray(str, "UTF-8"));
+    string token = encoding:encodeBase64(str.toBytes());
     log:printDebug(function () returns string {
         return "Authorization header is generated for basic auth scheme.";
     });

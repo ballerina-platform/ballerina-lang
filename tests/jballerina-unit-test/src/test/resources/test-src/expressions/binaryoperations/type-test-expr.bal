@@ -726,10 +726,10 @@ function testIntersectingUnionTrue() returns [boolean, boolean] {
     return [x is int|boolean, x is json];
 }
 
-//function testIntersectingUnionFalse() returns [boolean, boolean] {
-//    string|int|typedesc<any> x = int;
-//    return [x is int|boolean, x is anydata];
-//}
+function testIntersectingUnionFalse() returns [boolean, boolean] {
+    string|int|typedesc<any> x = int;
+    return [x is int|boolean, x is anydata];
+}
 
 function testValueTypeAsFiniteTypeTrue() returns [boolean, boolean] {
     string s = "orange";
@@ -748,6 +748,7 @@ const ERR_REASON_TWO = "error reason two";
 
 type Details record {
     string message;
+    error cause?;
 };
 
 type MyError error<ERR_REASON, Details>;

@@ -36,6 +36,7 @@ import org.ballerinalang.jvm.values.TableIterator;
 import org.ballerinalang.stdlib.time.util.TimeUtils;
 import org.ballerinax.jdbc.Constants;
 import org.ballerinax.jdbc.datasource.SQLDatasourceUtils;
+import org.ballerinax.jdbc.exceptions.ErrorGenerator;
 import org.ballerinax.jdbc.exceptions.PanickingApplicationException;
 
 import java.io.IOException;
@@ -85,7 +86,7 @@ public class SQLDataIterator extends TableIterator {
             resourceManager.gracefullyReleaseResources();
             rs = null;
         } catch (SQLException e) {
-            throw SQLDatasourceUtils.getSQLDatabaseError(e);
+            throw ErrorGenerator.getSQLDatabaseError(e);
         }
     }
 
@@ -99,15 +100,15 @@ public class SQLDataIterator extends TableIterator {
             Blob bValue = rs.getBlob(columnIndex);
             return rs.wasNull() ? null : SQLDatasourceUtils.getString(bValue);
         } catch (SQLException e) {
-            throw SQLDatasourceUtils.getSQLDatabaseError(e);
+            throw ErrorGenerator.getSQLDatabaseError(e);
         }
     }
 
     @Override
     public MapValue<String, Object> generateNext() {
         if (this.type == null) {
-            throw SQLDatasourceUtils
-                    .getSQLApplicationError("the expected record type is not specified in the remote function");
+            throw ErrorGenerator
+                    .getSQLApplicationError("The expected record type is not specified in the remote function");
         }
         MapValue<String, Object> bStruct = new MapValueImpl<>(this.type);
         int index = 0;
@@ -116,7 +117,7 @@ public class SQLDataIterator extends TableIterator {
         try {
             BField[] structFields = this.type.getFields().values().toArray(new BField[0]);
             if (columnDefs.size() != structFields.length) {
-                throw SQLDatasourceUtils.getSQLApplicationError("Number of fields in the constraint type is " + (
+                throw ErrorGenerator.getSQLApplicationError("Number of fields in the constraint type is " + (
                         structFields.length > columnDefs.size() ?
                                 "greater" : "lower") + " than column count of the result set");
             }
@@ -225,18 +226,16 @@ public class SQLDataIterator extends TableIterator {
                             handleStructValue(bStruct, fieldName, structData, fieldType);
                             break;
                         default:
-                            throw SQLDatasourceUtils.getSQLApplicationError(
-                                    "unsupported sql type " + sqlType + " found for the column " + columnName
-                                            + " index:" + index);
+                            throw ErrorGenerator.getSQLApplicationError("Unsupported sql type " + sqlType
+                                    + " found for the column " + columnName + " at index " + index);
                     }
                 }
             }
         } catch (IOException | SQLException e) {
-            throw SQLDatasourceUtils.getSQLApplicationError(
-                    "error in retrieving next value for column: " + columnName + ": of SQL Type: " + sqlType + ": "
-                            + "at " + "index:" + index + ":" + e.getMessage());
+            throw ErrorGenerator.getSQLApplicationError("Error while retrieving next value for column "
+                    + columnName + " of SQL Type " + sqlType + " at index " + index + ", " + e.getMessage());
         } catch (PanickingApplicationException e) {
-            throw SQLDatasourceUtils.getSQLApplicationError(e);
+            throw ErrorGenerator.getSQLApplicationError(e);
         }
         return bStruct;
     }
@@ -260,6 +259,21 @@ public class SQLDataIterator extends TableIterator {
         } else {
             throw new PanickingApplicationException(exceptionMessage);
         }
+    }
+    private void validateAndSetDecimalValue(MapValue<String, Object> bStruct, String fieldName, int actualTypeTag,
+            DecimalValue value, String exceptionMessage)
+            throws PanickingApplicationException {
+        boolean typeMatches = isValidType(actualTypeTag, value);
+        setMatchingRefRecordField(bStruct, fieldName, value, typeMatches, exceptionMessage);
+    }
+
+    private boolean isValidType(int actualTypeTag, DecimalValue value) {
+        if (actualTypeTag == TypeTags.DECIMAL_TAG) {
+            return true;
+        } else if (actualTypeTag == TypeTags.INT_TAG) {
+            return value == null || value.value().scale() == 0;
+        }
+        return false;
     }
 
     private void handleNilToNonNillableFieldAssignment() throws PanickingApplicationException {
@@ -295,7 +309,8 @@ public class SQLDataIterator extends TableIterator {
             Object[] dataArray = structValue.getAttributes();
             if (dataArray != null) {
                 if (dataArray.length != internalStructFields.length) {
-                    throw new PanickingApplicationException("specified struct and returned struct are not compatible");
+                    throw new PanickingApplicationException("Specified record and the returned record types are " +
+                            "not compatible");
                 }
                 int index = 0;
                 for (BField internalField : internalStructFields) {
@@ -337,13 +352,13 @@ public class SQLDataIterator extends TableIterator {
                         break;
                     default:
                         throw new PanickingApplicationException(
-                                "error in retrieving UDT data for unsupported type:" + type);
+                                "Error while retrieving UDT data for unsupported type " + type);
                     }
                     ++index;
                 }
             }
         } catch (SQLException e) {
-            throw new PanickingApplicationException("error in retrieving UDT data:" + e.getMessage());
+            throw new PanickingApplicationException("Error while retrieving UDT data: " + e.getMessage());
         }
         return struct;
     }
@@ -631,14 +646,14 @@ public class SQLDataIterator extends TableIterator {
         int fieldTypeTag = fieldType.getTag();
         if (fieldTypeTag == TypeTags.UNION_TAG) {
             DecimalValue refValue = isOriginalValueNull ? null : new DecimalValue(fValue);
-            validateAndSetRefRecordField(bStruct, fieldName, TypeTags.DECIMAL_TAG, retrieveNonNilTypeTag(fieldType),
-                    refValue, UNASSIGNABLE_UNIONTYPE_EXCEPTION);
+            validateAndSetDecimalValue(bStruct, fieldName, retrieveNonNilTypeTag(fieldType), refValue,
+                    UNASSIGNABLE_UNIONTYPE_EXCEPTION);
         } else {
             if (isOriginalValueNull) {
                 handleNilToNonNillableFieldAssignment();
             } else {
-                validateAndSetRefRecordField(bStruct, fieldName, TypeTags.DECIMAL_TAG, fieldTypeTag,
-                        new DecimalValue(fValue), MISMATCHING_FIELD_ASSIGNMENT);
+                validateAndSetDecimalValue(bStruct, fieldName, fieldTypeTag, new DecimalValue(fValue),
+                        MISMATCHING_FIELD_ASSIGNMENT);
             }
         }
     }

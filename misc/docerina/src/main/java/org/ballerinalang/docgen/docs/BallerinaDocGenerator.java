@@ -456,7 +456,8 @@ public class BallerinaDocGenerator {
 
         // find the Module.md file
         Path packageMd;
-        Path absolutePkgPath = Paths.get(sourceRoot).resolve(packagePath);
+        Path absolutePkgPath = Paths.get(sourceRoot).resolve(ProjectDirConstants.SOURCE_DIR_NAME)
+                               .resolve(packagePath);
         Optional<Path> o = Files.find(absolutePkgPath, 1, (path, attr) -> {
             Path fileName = path.getFileName();
             if (fileName != null) {
@@ -525,28 +526,9 @@ public class BallerinaDocGenerator {
 
     private static boolean isFilteredPackage(String packageName, String packageFilter) {
         if ((packageFilter != null) && (packageFilter.trim().length() > 0)) {
-            return Arrays.asList(packageFilter.split(",")).stream()
-                    .filter(e -> packageName.startsWith(e.replace(".*", ""))).findAny().isPresent();
+            return Arrays.stream(packageFilter.split(","))
+                    .anyMatch(e -> packageName.startsWith(e.replace(".*", "")));
         }
         return false;
     }
-
-    //
-    //    private static BLangPackage loadBuiltInPackage(CompilerContext context) {
-    //        SymbolTable symbolTable = SymbolTable.getInstance(context);
-    //        // Load built-in packages.
-    //        BLangPackage builtInPkg = getBuiltInPackage(context);
-    //        symbolTable.builtInPackageSymbol = builtInPkg.symbol;
-    //        return builtInPkg;
-    //    }
-
-    //    private static BLangPackage getBuiltInPackage(CompilerContext context) {
-    //        PackageLoader pkgLoader = PackageLoader.getInstance(context);
-    //        SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
-    //        CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
-    //        return codeAnalyzer.analyze(semAnalyzer
-    //        .analyze(pkgLoader.loadAndDefinePackage(Names.BUILTIN_ORG.getValue(),
-    //                Names.BUILTIN_PACKAGE.getValue(), Names.EMPTY.getValue())));
-    //    }
-
 }

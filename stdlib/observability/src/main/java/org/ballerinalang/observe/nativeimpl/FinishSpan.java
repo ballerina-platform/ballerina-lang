@@ -22,7 +22,7 @@ package org.ballerinalang.observe.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -54,7 +54,7 @@ public class FinishSpan extends BlockingNativeCallableUnit {
     }
 
     public static Object finishSpan(Strand strand, long spanId) {
-        boolean isFinished = OpenTracerBallerinaWrapper.getInstance().finishSpan(strand, (int) spanId);
+        boolean isFinished = OpenTracerBallerinaWrapper.getInstance().finishSpan(strand, spanId);
 
         if (isFinished) {
             return null;

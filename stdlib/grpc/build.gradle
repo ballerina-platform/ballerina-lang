@@ -40,7 +40,6 @@ dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-logging')
-    implementation project(':ballerina-config')
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-http')
@@ -52,7 +51,7 @@ dependencies {
     implementation 'io.netty:netty-codec-http'
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
 
-    //testCompile project(':ballerina-launcher')
+    //testCompile project(':ballerina-tool')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-runtime-api')

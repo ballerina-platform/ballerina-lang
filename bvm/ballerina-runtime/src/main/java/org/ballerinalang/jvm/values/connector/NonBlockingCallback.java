@@ -17,8 +17,9 @@
  */
 package org.ballerinalang.jvm.values.connector;
 
-import org.ballerinalang.jvm.Scheduler;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.State;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,9 +36,8 @@ public class NonBlockingCallback {
     private final Scheduler scheduler;
 
     public NonBlockingCallback(Strand strand) {
-        strand.yield = true;
-        strand.blocked = true;
         strand.blockedOnExtern = true;
+        strand.setState(State.BLOCK_AND_YIELD);
         this.strand = strand;
         this.scheduler = strand.scheduler;
     }

@@ -1,5 +1,5 @@
 import React from "react";
-import { Dropdown, DropdownItemProps, Grid, Icon, Label } from "semantic-ui-react";
+import { Dropdown, DropdownItemProps, Grid, Icon, Label, Popup} from "semantic-ui-react";
 import { DiagramMode } from "./diagram-context";
 
 export interface TopMenuProps {
@@ -13,7 +13,6 @@ export interface TopMenuProps {
     handleZoomIn: () => void;
     handleZoomOut: () => void;
     selectedModeText: string;
-    fitActive: boolean;
     openedState: boolean;
     handleOpened: () => void;
     handleClosed: () => void;
@@ -36,7 +35,6 @@ export const TopMenu = (props: TopMenuProps) => {
         handleReset,
         handleDepthSelect,
         openedState,
-        fitActive,
         zoomFactor = 1,
         maxInvocationDepth,
     } = props;
@@ -48,6 +46,11 @@ export const TopMenu = (props: TopMenuProps) => {
                 <div onClick={handleOpened} className="menu-icon">
                     <Icon className="fw fw-search" />
                 </div>
+                <div onClick={handleOpened} className="status-wrapper">
+                    Zoom : <Label> {`${Math.floor(zoomFactor * 100)}%`} </Label>
+                    Depth : <Label>{maxInvocationDepth === -1 ? "All" : maxInvocationDepth.toString()}</Label>
+                    Design : <Label>{selectedModeText}</Label>
+                </div>
             </div> :
             <Grid className="menu-container">
                 <Grid.Row className="menu-row" columns={3}>
@@ -55,14 +58,44 @@ export const TopMenu = (props: TopMenuProps) => {
                         Zoom
                         </Grid.Column>
                     <Grid.Column className="selection-row" width={9}>
-                        <Icon onClick={handleZoomOut} className="fw fw-minus" />
+                        <Popup
+                            trigger={<Icon onClick={handleZoomOut} className="fw fw-minus"/>}
+                            content="Zoom out"
+                            position="top center"
+                            size="small"
+                            inverted
+                            />
                         <Label className="menu-dropdown-small"> {`${Math.floor(zoomFactor * 100)}%`} </Label>
-                        <Icon onClick={handleZoomIn} className="fw fw-add" />
-                        <Icon onClick={handleFitClick} active={fitActive} className="fw fw-fit-to-screen" />
+                        <Popup
+                            trigger={<Icon onClick={handleZoomIn} className="fw fw-add"/>}
+                            content="Zoom in"
+                            position="top center"
+                            size="small"
+                            inverted
+                            />
+                        <Popup
+                            trigger={<Icon onClick={handleFitClick} className="fw fw-fit-to-screen"/>}
+                            content="Fit to Screen"
+                            position="top center"
+                            size="small"
+                            inverted
+                            />
                     </Grid.Column>
                     <Grid.Column className="menu-control" width={3}>
-                        <Icon onClick={handleReset} className="fw fw-refresh" />
-                        <Icon onClick={handleClosed} className="fw fw-uncheck" />
+                        <Popup
+                            trigger={<Icon onClick={handleReset} className="fw fw-refresh"/>}
+                            content="Reset"
+                            position="top center"
+                            size="small"
+                            inverted
+                        />
+                        <Popup
+                            trigger={<Icon onClick={handleClosed} className="fw fw-uncheck"/>}
+                            content="Close"
+                            position="top center"
+                            size="small"
+                            inverted
+                        />
                     </Grid.Column>
                 </Grid.Row>
                 <Grid.Row className="menu-row" columns={3}>
@@ -70,7 +103,6 @@ export const TopMenu = (props: TopMenuProps) => {
                         Depth
                     </Grid.Column>
                     <Grid.Column className="selection-row" width={9}>
-                        <Icon className="fw fw-minus" />
                         <Dropdown
                             text={maxInvocationDepth === -1 ? "All" : maxInvocationDepth.toString()}
                             className="menu-dropdown-small"
@@ -83,9 +115,20 @@ export const TopMenu = (props: TopMenuProps) => {
                                 <Dropdown.Item onClick={() => handleDepthSelect(-1)} text={"All"} />
                             </Dropdown.Menu>
                         </Dropdown>
-                        <Icon className="fw fw-add" />
-                        <Icon className="fw fw-expand-all" />
-                        <Icon className="fw fw-collapse-all" />
+                        <Popup
+                            trigger={<Icon onClick={() => handleDepthSelect(-1)}  className="fw fw-expand-all"/>}
+                            content="Expand all"
+                            position="top center"
+                            size="small"
+                            inverted
+                        />
+                        <Popup
+                            trigger={<Icon onClick={() => handleDepthSelect(0)} className="fw fw-collapse-all"/>}
+                            content="Collapse all"
+                            position="top center"
+                            size="small"
+                            inverted
+                        />
                     </Grid.Column>
                     <Grid.Column width={3} />
                 </Grid.Row>
@@ -94,7 +137,6 @@ export const TopMenu = (props: TopMenuProps) => {
                         Design
                         </Grid.Column>
                     <Grid.Column className="selection-row" width={9}>
-                        <Icon className="fw fw-minus" />
                         <Dropdown className="menu-dropdown-mid " text={selectedModeText}>
                             <Dropdown.Menu>
                                 {
@@ -112,7 +154,6 @@ export const TopMenu = (props: TopMenuProps) => {
                                 }
                             </Dropdown.Menu>
                         </Dropdown>
-                        <Icon className="fw fw-add" />
                     </Grid.Column>
                     <Grid.Column width={3} />
                 </Grid.Row>

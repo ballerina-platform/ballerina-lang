@@ -15,10 +15,10 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/log;
-import ballerina/'lang\.object as lang;
 import ballerina/internal;
 import ballerina/'lang\.int as langint;
+import ballerina/'lang\.object as lang;
+import ballerina/log;
 
 //////////////////////////////////////////
 /// WebSub Subscriber Service Endpoint ///
@@ -40,7 +40,7 @@ public type Listener object {
 
     public function __attach(service s, string? name = ()) returns error? {
         // TODO: handle data and return error on error
-        self.registerWebSubSubscriberServiceEndpoint(s);
+        self.registerWebSubSubscriberService(s);
     }
 
     public function __start() returns error? {
@@ -78,7 +78,7 @@ public type Listener object {
 
     function initWebSubSubscriberServiceEndpoint() = external;
 
-    function registerWebSubSubscriberServiceEndpoint(service serviceType) = external;
+    function registerWebSubSubscriberService(service serviceType) = external;
 
     # Sends subscription requests to the specified/discovered hubs if specified to subscribe on startup.
     function sendSubscriptionRequests() {
@@ -89,26 +89,33 @@ public type Listener object {
                 continue;
             }
 
-            // TODO: fix retrieveSubscriptionParameters to put values as relevant types.
-            string strSubscribeOnStartUp = <string>subscriptionDetails["subscribeOnStartUp"];
-            boolean subscribeOnStartUp = internal:toBoolean(strSubscribeOnStartUp);
+            boolean subscribeOnStartUp = <boolean> subscriptionDetails[ANNOT_FIELD_SUBSCRIBE_ON_STARTUP];
 
             if (subscribeOnStartUp) {
-                string resourceUrl = <string>subscriptionDetails["resourceUrl"];
-                string hub = <string>subscriptionDetails["hub"];
-                string topic = <string>subscriptionDetails["topic"];
+                string? resourceUrl = ();
+                string? hub = ();
+                string topic;
 
-                var clientConfig = trap <http:ClientEndpointConfig>subscriptionDetails["subscriptionClientConfig"];
-                http:ClientEndpointConfig? subscriptionClientConfig =
-                                                    clientConfig is http:ClientEndpointConfig ? clientConfig : ();
+                if (!subscriptionDetails.hasKey(ANNOT_FIELD_TARGET)) {
+                    log:printError(
+                        "Subscription request not sent since hub and topic or resource URL are not specified");
+                    return;
+                }
+                any target = subscriptionDetails.get(ANNOT_FIELD_TARGET);
 
-                if (hub == "" || topic == "") {
-                    if (resourceUrl == "") {
-                        log:printError(
-                            "Subscription Request not sent since hub and/or topic and resource URL are unavailable");
-                        return;
-                    }
-                    var discoveredDetails = retrieveHubAndTopicUrl(resourceUrl, subscriptionClientConfig);
+                if (target is string) {
+                    resourceUrl = target;
+                } else {
+                    [hub, topic] = <[string, string]> target;
+                }
+
+                http:ClientEndpointConfig? hubClientConfig =
+                                        <http:ClientEndpointConfig?> subscriptionDetails[ANNOT_FIELD_HUB_CLIENT_CONFIG];
+
+                if (resourceUrl is string) {
+                    http:ClientEndpointConfig? publisherClientConfig =
+                                <http:ClientEndpointConfig?> subscriptionDetails[ANNOT_FIELD_PUBLISHER_CLIENT_CONFIG];
+                    var discoveredDetails = retrieveHubAndTopicUrl(resourceUrl, publisherClientConfig);
                     if (discoveredDetails is [string, string]) {
                         var [retHub, retTopic] = discoveredDetails;
                         var hubDecodeResponse = http:decode(retHub, "UTF-8");
@@ -123,9 +130,9 @@ public type Listener object {
                         } else {
                             panic <error> topicDecodeResponse;
                         }
-                        subscriptionDetails["hub"] = retHub;
                         hub = retHub;
-                        subscriptionDetails["topic"] = retTopic;
+                        [string, string] hubAndTopic = [retHub, retTopic];
+                        subscriptionDetails[ANNOT_FIELD_TARGET] = hubAndTopic;
                         string webSubServiceName = <string>subscriptionDetails["webSubServiceName"];
                         self.setTopic(webSubServiceName, retTopic);
                     } else {
@@ -134,7 +141,7 @@ public type Listener object {
                         continue;
                     }
                 }
-                invokeClientConnectorForSubscription(hub, subscriptionClientConfig, <@untainted> subscriptionDetails);
+                invokeClientConnectorForSubscription(<string> hub, hubClientConfig, <@untainted> subscriptionDetails);
             }
         }
     }
@@ -212,11 +219,11 @@ public type ExtensionConfig record {|
 # The function called to discover hub and topic URLs defined by a resource URL.
 #
 # + resourceUrl - The resource URL advertising hub and topic URLs
-# + subscriptionClientConfig - The configuration for subscription client
+# + publisherClientConfig - The configuration for the publisher client
 # + return - `(string, string)` (hub, topic) URLs if successful, `error` if not
-function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? subscriptionClientConfig)
-                                            returns @tainted [string, string]|error {
-    http:Client resourceEP = new http:Client(resourceUrl, subscriptionClientConfig);
+function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? publisherClientConfig)
+        returns @tainted [string, string]|error {
+    http:Client resourceEP = new http:Client(resourceUrl, publisherClientConfig);
     http:Request request = new;
     var discoveryResponse = resourceEP->get("", request);
     error websubError = error("Dummy");
@@ -242,40 +249,22 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientEndpointConfig? s
 # Function to invoke the WebSubSubscriberConnector's remote functions for subscription.
 #
 # + hub - The hub to which the subscription request is to be sent
-# + subscriptionClientConfig - The configuration for subscription client
+# + hubClientConfig - The configuration for the hub client
 # + subscriptionDetails - Map containing subscription details
-function invokeClientConnectorForSubscription(string hub, http:ClientEndpointConfig? subscriptionClientConfig, map<any> subscriptionDetails) {
-    Client websubHubClientEP = new Client(hub, subscriptionClientConfig);
+function invokeClientConnectorForSubscription(string hub, http:ClientEndpointConfig? hubClientConfig,
+                                              map<any> subscriptionDetails) {
+    Client websubHubClientEP = new Client(hub, hubClientConfig);
+    [string, string][_, topic] = <[string, string]> subscriptionDetails[ANNOT_FIELD_TARGET];
+    string callback = <string> subscriptionDetails[ANNOT_FIELD_CALLBACK];
 
-    string topic = <string>subscriptionDetails["topic"];
-    string callback = <string>subscriptionDetails["callback"];
+    SubscriptionChangeRequest subscriptionChangeRequest = { topic: topic, callback: callback };
 
-    if (hub == "" || topic == "" || callback == "") {
-        log:printError("Subscription Request not sent since hub, topic and/or callback not specified");
-        return;
+    if (subscriptionDetails.hasKey(ANNOT_FIELD_LEASE_SECONDS)) {
+        subscriptionChangeRequest.leaseSeconds = <int> subscriptionDetails[ANNOT_FIELD_LEASE_SECONDS];
     }
 
-    int leaseSeconds = 0;
-
-    string strLeaseSeconds = <string>subscriptionDetails["leaseSeconds"];
-    var convIntLeaseSeconds = langint:fromString(strLeaseSeconds);
-    if (convIntLeaseSeconds is int) {
-        leaseSeconds = convIntLeaseSeconds;
-    } else {
-        string errCause = <string> convIntLeaseSeconds.detail()?.message;
-        log:printError("Error retreiving specified lease seconds value: " + errCause);
-        return;
-    }
-
-    string secret = <string>subscriptionDetails["secret"];
-
-    SubscriptionChangeRequest subscriptionChangeRequest = { topic:topic, callback:callback };
-
-    if (leaseSeconds != 0) {
-        subscriptionChangeRequest.leaseSeconds = leaseSeconds;
-    }
-    if (secret.trim() != "") {
-        subscriptionChangeRequest.secret = secret;
+    if (subscriptionDetails.hasKey(ANNOT_FIELD_SECRET)) {
+         subscriptionChangeRequest.secret =  <string> subscriptionDetails[ANNOT_FIELD_SECRET];
     }
 
     var subscriptionResponse = websubHubClientEP->subscribe(subscriptionChangeRequest);

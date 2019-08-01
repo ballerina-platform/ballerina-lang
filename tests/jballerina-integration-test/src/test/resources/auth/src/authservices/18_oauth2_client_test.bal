@@ -290,11 +290,9 @@ service echo18 on listener18 {
         if (backendResponse is http:Response) {
             checkpanic caller->respond(backendResponse);
         } else {
-            // TODO: Remove the below casting when new lang syntax are merged.
-            error e = backendResponse;
             http:Response errResponse = new;
-            errResponse.statusCode = http:INTERNAL_SERVER_ERROR_500;
-            var cause = e.detail()?.cause;
+            errResponse.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
+            var cause = backendResponse.detail()?.cause;
             if (cause is error) {
                 var innerCause = cause.detail()?.cause;
                 while(innerCause is error) {
@@ -303,7 +301,7 @@ service echo18 on listener18 {
                 }
                 errResponse.setPayload(<string>cause.detail()?.message);
             } else {
-                errResponse.setPayload(<string>e.detail()?.message);
+                errResponse.setPayload(<string>backendResponse.detail()?.message);
             }
             checkpanic caller->respond(errResponse);
         }

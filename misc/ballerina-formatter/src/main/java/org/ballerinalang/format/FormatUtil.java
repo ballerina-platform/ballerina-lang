@@ -18,13 +18,14 @@ package org.ballerinalang.format;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.format.FormattingVisitorEntry;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.FileSystemProgramDirectory;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
@@ -43,6 +44,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
@@ -93,23 +95,16 @@ public class FormatUtil {
                 if (FormatUtil.isBalFile(argList.get(0))) {
                     ballerinaFilePath = argList.get(0);
                     Path filePath = Paths.get(ballerinaFilePath);
+                    Path programDir = filePath.toAbsolutePath().getParent();
+                    String fileName = filePath.toAbsolutePath().getFileName().toString();
+
                     // If the file doesn't exist or is a directory.
                     if (!Files.exists(filePath) || Files.isDirectory(filePath)) {
                         throw LauncherUtils.createLauncherException(Messages.getNoBallerinaFile(ballerinaFilePath));
                     }
 
-                    String sourceRoot = LSCompilerUtil.getProjectRoot(filePath.toAbsolutePath());
-                    String packageName = LSCompilerUtil.getPackageNameForGivenFile(sourceRoot,
-                            filePath.toAbsolutePath().toString());
-                    if ("".equals(packageName)) {
-                        Path path = filePath.getFileName();
-                        if (path != null) {
-                            packageName = path.toString();
-                        }
-                    }
-
-                    // Compile the given ballerina file.
-                    BLangPackage bLangPackage = compileFile(Paths.get(sourceRoot), packageName);
+                    // Compile ballerina file.
+                    BLangPackage bLangPackage = compileFile(programDir, fileName);
 
                     // If there are compilation errors do not continue the process.
                     if (bLangPackage.diagCollector.hasErrors()) {
@@ -293,6 +288,8 @@ public class FormatUtil {
      */
     private static BLangPackage compileFile(Path sourceRoot, String packageName) {
         CompilerContext context = getCompilerContext(sourceRoot);
+        // Set the SourceDirectory to process this compilation as a program directory.
+        context.put(SourceDirectory.class, new FileSystemProgramDirectory(sourceRoot));
         Compiler compiler = Compiler.getInstance(context);
         return compiler.compile(packageName);
     }
@@ -403,7 +400,8 @@ public class FormatUtil {
     }
 
     private static String getModuleName(String moduleName) {
-        String[] splitedTokens = moduleName.split("" + File.separator);
+        String pattern = Pattern.quote(File.separator);
+        String[] splitedTokens = moduleName.split(pattern);
         return splitedTokens[splitedTokens.length - 1];
     }
 }

@@ -119,7 +119,7 @@ public class RecordVariableDefinitionTest {
         Assert.assertEquals(returns[0].stringValue(), "Peter Parker");
     }
 
-    @Test(description = "Test rest parameter", groups = { "brokenOnLangLibChange"})
+    @Test(description = "Test rest parameter")
     public void testRestParameter() {
         BValue[] returns = BRunUtil.invoke(result, "testRestParameter");
         Assert.assertTrue(returns[0] instanceof BMap);
@@ -130,7 +130,7 @@ public class RecordVariableDefinitionTest {
         Assert.assertEquals(((BMap) bMap.get("other")).get("format").stringValue(), "MM");
     }
 
-    @Test(description = "Test rest parameter in nested record variable", groups = { "brokenOnLangLibChange"})
+    @Test(description = "Test rest parameter in nested record variable")
     public void testNestedRestParameter() {
         BValue[] returns = BRunUtil.invoke(result, "testNestedRestParameter");
         Assert.assertTrue(returns[0] instanceof BMap);
@@ -143,7 +143,7 @@ public class RecordVariableDefinitionTest {
         Assert.assertEquals(bMap2.get("work").stringValue(), "SE");
     }
 
-    @Test(description = "Test rest parameter in nested record variable", groups = { "brokenOnLangLibChange"})
+    @Test(description = "Test rest parameter in nested record variable")
     public void testVariableAssignment() {
         BValue[] returns = BRunUtil.invoke(result, "testVariableAssignment");
         Assert.assertEquals(returns.length, 5);
@@ -180,8 +180,7 @@ public class RecordVariableDefinitionTest {
         Assert.assertEquals(((BInteger) returns[6]).intValue(), 1990);
     }
 
-    @Test(description = "Test record var def inside tuple var def inside record var def",
-            groups = { "brokenOnLangLibChange"})
+    @Test(description = "Test record var def inside tuple var def inside record var def")
     public void testRecordInsideTupleInsideRecord() {
         BValue[] returns = BRunUtil.invoke(result, "testRecordInsideTupleInsideRecord");
         Assert.assertEquals(returns.length, 3);
@@ -205,8 +204,7 @@ public class RecordVariableDefinitionTest {
         Assert.assertEquals(returns[3].stringValue(), "Z");
     }
 
-    @Test(description = "Test record var def inside tuple var def inside record var def",
-            groups = { "brokenOnLangLibChange"})
+    @Test(description = "Test record var def inside tuple var def inside record var def")
     public void testRecordInsideTupleInsideRecordWithVar() {
         BValue[] returns = BRunUtil.invoke(result, "testRecordInsideTupleInsideRecordWithVar");
         Assert.assertEquals(returns.length, 3);
@@ -270,44 +268,33 @@ public class RecordVariableDefinitionTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 30);
     }
 
-    @Test(description = "Test record variable with only a rest parameter", groups = { "brokenOnLangLibChange"})
+    @Test(description = "Test record variable with only a rest parameter")
     public void testRecordVariableWithOnlyRestParam() {
         BValue[] returns = BRunUtil.invoke(result, "testRecordVariableWithOnlyRestParam");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John\", \"age\":{age:30, format:\"YY\", " +
-                "year:1990}, \"married\":true, \"work\":\"SE\"}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John\", \"age\":{\"age\":30, \"format\":\"YY\", " +
+                "\"year\":1990}, \"married\":true, \"work\":\"SE\"}");
     }
 
-    @Test(description = "Test record variables rest param types", groups = "brokenOnJBallerina")
+    @Test(description = "Test record variables rest param types")
     public void testRestParameterType() {
         BValue[] returns = BRunUtil.invoke(result, "testRestParameterType");
-        Assert.assertEquals(returns.length, 7);
+        Assert.assertEquals(returns.length, 5);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
-        Assert.assertFalse(((BBoolean) returns[5]).booleanValue());
-        Assert.assertTrue(((BBoolean) returns[6]).booleanValue());
     }
 
     @Test
     public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 19);
         String redeclaredSymbol = "redeclared symbol ";
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fName'", 37, 26);
         BAssertUtil.validateError(resultNegative, ++i, redeclaredSymbol + "'fiName'", 40, 36);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid closed record binding pattern on opened record type 'Person'", 54, 12);
-        BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'Person', found 'PersonWithAge'", 62, 37);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "invalid closed record binding pattern on opened record type 'Person'", 78, 12);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "not enough fields to match to closed record type 'ClosedFoo'", 81, 15);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "not enough fields to match to closed record type 'ClosedBar'", 82, 28);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'int'", 95, 13);
         BAssertUtil.validateError(resultNegative, ++i,
@@ -332,5 +319,6 @@ public class RecordVariableDefinitionTest {
                 "underscore is not allowed here", 157, 19);
         BAssertUtil.validateError(resultNegative, ++i,
                 "no new variables on left side", 158, 19);
+        Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 }

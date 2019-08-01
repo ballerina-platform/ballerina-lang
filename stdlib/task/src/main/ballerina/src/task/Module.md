@@ -22,8 +22,8 @@ Below are the two types of configurations that can be used to configure a Task L
 
 The `TimerConfiguration` can be used to configure a task that needs to be executed periodically. The `TimerConfiguration` consists of three fields out of which two are optional.
 
-- `interval` - The time interval to wait for the listener to get triggered. This should be given in milliseconds.
-- `initialDelay` - The initial delay before the task gets triggered first. If this is set to `0`, the task will execute immediately. If the field is not set, the `interval` will be applied as the initial delay by default. This is optional and should be given in milliseconds.
+- `intervalInMillis` - The time interval to wait for the listener to get triggered. This should be given in milliseconds.
+- `initialDelayInMillis` - The initial delay before the task gets triggered first. If this is set to `0`, the task will execute immediately. If the field is not set, the `intervalInMillis` will be applied as the initial delay by default. This is optional and should be given in milliseconds.
 - `noOfRecurrences` - The number of times a particular task needs to be executed. This is optional and should be given as an `int`.
 
 The following example creates a listener, which registers a task with an initial delay of 3000 milliseconds and is executed every 1000 milliseconds for 10 times. The `onTrigger ` resource function is triggered when the clock goes off. The `count` variable is incremented by the task.
@@ -34,8 +34,8 @@ import ballerina/task;
 
 // Task Timer configuration record to configure a Task Listener.
 task:TimerConfiguration timerConfiguration = {
-    interval: 1000,
-    initialDelay: 3000,
+    intervalInMillis: 1000,
+    initialDelayInMillis: 3000,
     // Number of recurrences will limit the number of times the timer runs.
     noOfRecurrences: 10
 };
@@ -126,8 +126,8 @@ The following example creates a `task:Scheduler` as a timer. The `createTimer()`
 ```ballerina
 public function createTimer(int interval, int delay, int recurrences) {
     task:TimerConfiguration timerConfiguration = {
-            interval: interval,
-            delay: delay,
+            intervalInMillis: interval,
+            initialDelayInMillis: delay,
             noOfRecurrences: recurrences
     };
     task:Scheduler timer = new(timerConfiguration);

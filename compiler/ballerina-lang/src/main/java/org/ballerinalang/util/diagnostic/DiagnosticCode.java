@@ -50,6 +50,7 @@ public enum DiagnosticCode {
     UNDEFINED_STRUCTURE_FIELD_WITH_TYPE("undefined.field.in.structure.with.type"), // TODO: remove Maryam
     UNDEFINED_STRUCTURE_FIELD("undefined.field.in.structure"),
     TYPE_NOT_ALLOWED_WITH_NEW("type.not.allowed.with.new"),
+    STREAM_INVALID_CONSTRAINT("stream.invalid.constraint"),
     STREAM_INIT_NOT_ALLOWED_HERE("stream.initialization.not.allowed.here"),
     CANNOT_INFER_OBJECT_TYPE_FROM_LHS("cannot.infer.object.type.from.lhs"),
     OBJECT_UNINITIALIZED_FIELD("object.uninitialized.field"),
@@ -182,6 +183,7 @@ public enum DiagnosticCode {
     ARRAY_LITERAL_NOT_ALLOWED("array.literal.not.allowed"),
     STRING_TEMPLATE_LIT_NOT_ALLOWED("string.template.literal.not.allowed"),
     INVALID_RECORD_LITERAL_KEY("invalid.record.literal.key"),
+    INVALID_RECORD_LITERAL_IDENTIFIER_KEY("invalid.record.literal.identifier.key"),
     INVALID_FIELD_NAME_RECORD_LITERAL("invalid.field.name.record.lit"),
     REST_FIELD_NOT_ALLOWED_IN_SEALED_RECORDS("rest.field.not.allowed"),
     OPEN_RECORD_CONSTRAINT_NOT_ALLOWED("open.record.constraint.not.allowed"),
@@ -262,9 +264,12 @@ public enum DiagnosticCode {
     INVALID_LIST_INDEX_EXPR("invalid.list.index.expr"),
     INVALID_ARRAY_INDEX_EXPR("invalid.array.index.expr"),
     SEALED_ARRAY_TYPE_CAN_NOT_INFER_SIZE("sealed.array.type.can.not.infer.size"),
+    // TODO Maryam remove list array tuple and use first only
+    INDEX_OUT_OF_RANGE("index.out.of.range"),
     LIST_INDEX_OUT_OF_RANGE("list.index.out.of.range"),
     ARRAY_INDEX_OUT_OF_RANGE("array.index.out.of.range"),
     TUPLE_INDEX_OUT_OF_RANGE("tuple.index.out.of.range"),
+    INVALID_TYPE_FOR_REST_DESCRIPTOR("invalid.type.for.rest.descriptor"),
     INVALID_TYPE_NEW_LITERAL("invalid.type.new.literal"),
     INVALID_USAGE_OF_KEYWORD("invalid.usage.of.keyword"),
 
@@ -272,8 +277,6 @@ public enum DiagnosticCode {
     NO_MATCHING_RECORD_REF_PATTERN("no.matching.record.ref.found"),
     MULTIPLE_RECORD_REF_PATTERN_FOUND("multiple.matching.record.ref.found"),
     NOT_ENOUGH_PATTERNS_TO_MATCH_RECORD_REF("not.enough.patterns.to.match.record.ref"),
-    INVALID_CLOSED_RECORD_BINDING_PATTERN("invalid.closed.record.binding.pattern"),
-    NOT_ENOUGH_FIELDS_TO_MATCH_CLOSED_RECORDS("not.enough.fields.to.match.closed.record"),
     INVALID_TYPE_DEFINITION_FOR_RECORD_VAR("invalid.type.definition.for.record.var"),
 
     INVALID_ERROR_BINDING_PATTERN("invalid.error.binding.pattern"),
@@ -387,6 +390,7 @@ public enum DiagnosticCode {
     STREAMING_INCOMPATIBLE_TYPES("streaming.incompatible.types"),
     UNDEFINED_INVOCATION_ALIAS("undefined.invocation.alias"),
     INVALID_STREAMING_MODEL_TYPE("invalid.streaming.model.type"),
+    PATTERNS_NOT_SUPPORTED("patterns.not.supported"),
 
     // Taint checking related codes
     ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED("entry.point.parameters.cannot.be.untainted"),
@@ -424,6 +428,7 @@ public enum DiagnosticCode {
     // Dataflow analysis related error codes
     PARTIALLY_INITIALIZED_VARIABLE("partially.initialized.variable"),
 
+    CANNOT_INFER_TYPE("cannot.infer.type"),
     CANNOT_INFER_ERROR_TYPE("cannot.infer.error.type"),
     INVALID_ERROR_CONSTRUCTOR_DETAIL("invalid.error.detail.rec.does.not.match"),
     INDIRECT_ERROR_CTOR_REASON_NOT_ALLOWED("invalid.error.reason.argument.to.indirect.error.constructor"),

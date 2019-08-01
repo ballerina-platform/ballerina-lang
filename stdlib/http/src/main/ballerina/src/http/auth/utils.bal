@@ -72,7 +72,7 @@ function getAuthHandlers(FilterContext context) returns InboundAuthHandler[]|Inb
     }
     // Checks if Auth providers are given at the resource level.
     if (resourceLevelAuthAnn is ServiceResourceAuth) {
-        var resourceAuthHandlers = resourceLevelAuthAnn["authHandlers"];
+        var resourceAuthHandlers = resourceLevelAuthAnn?.authHandlers;
         if (resourceAuthHandlers is InboundAuthHandler[]) {
             if (resourceAuthHandlers.length() > 0) {
                 return resourceAuthHandlers;
@@ -91,7 +91,7 @@ function getAuthHandlers(FilterContext context) returns InboundAuthHandler[]|Inb
     }
     // No Auth providers found at the resource level. Thus, try at the service level.
     if (serviceLevelAuthAnn is ServiceResourceAuth) {
-        var serviceAuthHandlers = serviceLevelAuthAnn["authHandlers"];
+        var serviceAuthHandlers = serviceLevelAuthAnn?.authHandlers;
         if (serviceAuthHandlers is InboundAuthHandler[]) {
             if (serviceAuthHandlers.length() > 0) {
                 return serviceAuthHandlers;
@@ -125,7 +125,7 @@ function getScopes(FilterContext context) returns string[]|string[][]|boolean {
     }
     // check if auth providers are given at resource level
     if (resourceLevelAuthAnn is ServiceResourceAuth) {
-        var resourceScopes = resourceLevelAuthAnn["scopes"];
+        var resourceScopes = resourceLevelAuthAnn?.scopes;
         if (resourceScopes is string[]) {
             if (resourceScopes.length() > 0) {
                 return resourceScopes;
@@ -143,7 +143,7 @@ function getScopes(FilterContext context) returns string[]|string[][]|boolean {
     }
     // no auth providers found in resource level, try in service level
     if (serviceLevelAuthAnn is ServiceResourceAuth) {
-        var serviceScopes = serviceLevelAuthAnn["scopes"];
+        var serviceScopes = serviceLevelAuthAnn?.scopes;
         if (serviceScopes is string[]) {
             if (serviceScopes.length() > 0) {
                 return serviceScopes;
@@ -163,23 +163,19 @@ function getScopes(FilterContext context) returns string[]|string[][]|boolean {
 # + return - Returns the resource-level and service-level authentication annotations.
 function getServiceResourceAuthConfig(FilterContext context) returns [ServiceResourceAuth?, ServiceResourceAuth?] {
     // get authn details from the resource level
-    any annData = reflect:getResourceAnnotations(context.serviceRef, context.resourceName, RESOURCE_ANN_NAME,
-                                                    ANN_MODULE);
+    any annData = reflect:getResourceAnnotations(context.getService(), context.getResourceName(), RESOURCE_ANN_NAME,
+                                                 ANN_MODULE);
     ServiceResourceAuth? resourceLevelAuthAnn = ();
     if !(annData is ()) {
         HttpResourceConfig resourceConfig = <HttpResourceConfig> annData;
-        resourceLevelAuthAnn = resourceConfig["auth"];
+        resourceLevelAuthAnn = resourceConfig?.auth;
     }
 
-    //typedesc serviceTypedesc = typeof context.serviceRef;
-    //HttpServiceConfig? serviceConfig = serviceTypedesc.@ballerina/http:ServiceConfig;
-    //ServiceResourceAuth? serviceLevelAuthAnn = serviceConfig is () ? () : serviceConfig["auth"];
-
-    annData = reflect:getServiceAnnotations(context.serviceRef, SERVICE_ANN_NAME, ANN_MODULE);
+    annData = reflect:getServiceAnnotations(context.getService(), SERVICE_ANN_NAME, ANN_MODULE);
     ServiceResourceAuth? serviceLevelAuthAnn = ();
     if !(annData is ()) {
         HttpServiceConfig serviceConfig = <HttpServiceConfig> annData;
-        serviceLevelAuthAnn = serviceConfig["auth"];
+        serviceLevelAuthAnn = serviceConfig?.auth;
     }
 
     return [resourceLevelAuthAnn, serviceLevelAuthAnn];

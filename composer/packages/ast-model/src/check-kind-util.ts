@@ -7,6 +7,12 @@ export class ASTKindChecker {
     return node.kind === "Abort";
   }
 
+  public static isAnnotAccessExpression(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.AnnotAccessExpression {
+    return node.kind === "AnnotAccessExpression";
+  }
+
   public static isAnnotation(
     node: Ballerina.ASTNode
   ): node is Ballerina.Annotation {
@@ -17,12 +23,6 @@ export class ASTKindChecker {
     node: Ballerina.ASTNode
   ): node is Ballerina.AnnotationAttachment {
     return node.kind === "AnnotationAttachment";
-  }
-
-  public static isArrayLiteralExpr(
-    node: Ballerina.ASTNode
-  ): node is Ballerina.ArrayLiteralExpr {
-    return node.kind === "ArrayLiteralExpr";
   }
 
   public static isArrayType(
@@ -51,12 +51,6 @@ export class ASTKindChecker {
 
   public static isBlock(node: Ballerina.ASTNode): node is Ballerina.Block {
     return node.kind === "Block";
-  }
-
-  public static isBracedTupleExpr(
-    node: Ballerina.ASTNode
-  ): node is Ballerina.BracedTupleExpr {
-    return node.kind === "BracedTupleExpr";
   }
 
   public static isBreak(node: Ballerina.ASTNode): node is Ballerina.Break {
@@ -105,12 +99,6 @@ export class ASTKindChecker {
     return node.kind === "ConstrainedType";
   }
 
-  public static isDeprecated(
-    node: Ballerina.ASTNode
-  ): node is Ballerina.Deprecated {
-    return node.kind === "Deprecated";
-  }
-
   public static isDocumentationDescription(
     node: Ballerina.ASTNode
   ): node is Ballerina.DocumentationDescription {
@@ -129,12 +117,6 @@ export class ASTKindChecker {
     return node.kind === "ElvisExpr";
   }
 
-  public static isErrorConstructor(
-    node: Ballerina.ASTNode
-  ): node is Ballerina.ErrorConstructor {
-    return node.kind === "ErrorConstructor";
-  }
-
   public static isErrorDestructure(
     node: Ballerina.ASTNode
   ): node is Ballerina.ErrorDestructure {
@@ -145,6 +127,12 @@ export class ASTKindChecker {
     node: Ballerina.ASTNode
   ): node is Ballerina.ErrorType {
     return node.kind === "ErrorType";
+  }
+
+  public static isErrorVariable(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.ErrorVariable {
+    return node.kind === "ErrorVariable";
   }
 
   public static isErrorVariableRef(
@@ -201,8 +189,10 @@ export class ASTKindChecker {
     return node.kind === "GroupBy";
   }
 
-  public static isHaving(node: Ballerina.ASTNode): node is Ballerina.Having {
-    return node.kind === "Having";
+  public static isGroupExpr(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.GroupExpr {
+    return node.kind === "GroupExpr";
   }
 
   public static isIdentifier(
@@ -239,6 +229,16 @@ export class ASTKindChecker {
 
   public static isLambda(node: Ballerina.ASTNode): node is Ballerina.Lambda {
     return node.kind === "Lambda";
+  }
+
+  public static isLimit(node: Ballerina.ASTNode): node is Ballerina.Limit {
+    return node.kind === "Limit";
+  }
+
+  public static isListConstructorExpr(
+    node: Ballerina.ASTNode
+  ): node is Ballerina.ListConstructorExpr {
+    return node.kind === "ListConstructorExpr";
   }
 
   public static isLiteral(node: Ballerina.ASTNode): node is Ballerina.Literal {
@@ -291,16 +291,6 @@ export class ASTKindChecker {
     node: Ballerina.ASTNode
   ): node is Ballerina.ObjectType {
     return node.kind === "ObjectType";
-  }
-
-  public static isOrderBy(node: Ballerina.ASTNode): node is Ballerina.OrderBy {
-    return node.kind === "OrderBy";
-  }
-
-  public static isOrderByVariable(
-    node: Ballerina.ASTNode
-  ): node is Ballerina.OrderByVariable {
-    return node.kind === "OrderByVariable";
   }
 
   public static isPanic(node: Ballerina.ASTNode): node is Ballerina.Panic {
@@ -563,12 +553,6 @@ export class ASTKindChecker {
 
   public static isWhile(node: Ballerina.ASTNode): node is Ballerina.While {
     return node.kind === "While";
-  }
-
-  public static isWindowClause(
-    node: Ballerina.ASTNode
-  ): node is Ballerina.WindowClause {
-    return node.kind === "WindowClause";
   }
 
   public static isWorkerFlush(

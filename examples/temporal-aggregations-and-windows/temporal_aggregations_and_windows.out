@@ -1,7 +1,7 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run --experimental temporal_aggregations_and_windows.bal
-[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9090
+[ballerina/http] started HTTP/WS listener 0.0.0.0:9090
 
 $ curl -X POST http://localhost:9090/requests -d "{'message' : 'hello'}"
 "{'message' : 'request successfully received'}"

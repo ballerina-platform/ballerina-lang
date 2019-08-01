@@ -167,7 +167,7 @@ public class ErrorTest {
     public void testGetCallStack() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "getCallStackTest");
         Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStackTest\", moduleName:\"error_test\","
-                + " fileName:\"error_test.bal\", lineNumber:80}");
+                + " fileName:\"error_test.bal\", lineNumber:93}");
     }
 
     @Test
@@ -195,6 +195,13 @@ public class ErrorTest {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "testGenericErrorWithDetailRecord");
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testTrapSuccessScenario() {
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testTrapWithSuccessScenario");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
     @Test(dataProvider = "userDefTypeAsReasonTests")
@@ -235,24 +242,24 @@ public class ErrorTest {
         BAssertUtil.validateError(negativeCompileResult, 1,
                                   "incompatible types: expected 'reason one', found 'reason two'", 31, 31);
         BAssertUtil.validateError(negativeCompileResult, 2,
-                                  "invalid error reason type 'int', expected a subtype of 'string'", 40, 28);
+                                  "invalid error reason type 'int', expected a subtype of 'string'", 41, 28);
         BAssertUtil.validateError(negativeCompileResult, 3, "invalid error detail type 'map', expected a subtype of " 
-                + "'record {| string message?; $error0 cause?; (anydata|error)...; |}'", 40, 33);
+                + "'record {| string message?; $error0 cause?; (anydata|error)...; |}'", 41, 33);
         BAssertUtil.validateError(negativeCompileResult, 4, "invalid error detail type 'boolean', expected a subtype "
-                + "of 'record {| string message?; $error0 cause?; (anydata|error)...; |}'", 41, 36);
+                + "of 'record {| string message?; $error0 cause?; (anydata|error)...; |}'", 42, 36);
         BAssertUtil.validateError(negativeCompileResult, 5,
-                                  "invalid error reason type '1.0f', expected a subtype of 'string'", 44, 7);
+                                  "invalid error reason type '1.0f', expected a subtype of 'string'", 45, 7);
         BAssertUtil.validateError(negativeCompileResult, 6,
-                                  "invalid error reason type 'boolean', expected a subtype of 'string'", 47, 11);
-        BAssertUtil.validateError(negativeCompileResult, 7, "self referenced variable 'e3'", 53, 22);
-        BAssertUtil.validateError(negativeCompileResult, 8, "self referenced variable 'e3'", 53, 43);
-        BAssertUtil.validateError(negativeCompileResult, 9, "self referenced variable 'e4'", 54, 42);
+                                  "invalid error reason type 'boolean', expected a subtype of 'string'", 48, 11);
+        BAssertUtil.validateError(negativeCompileResult, 7, "self referenced variable 'e3'", 54, 22);
+        BAssertUtil.validateError(negativeCompileResult, 8, "self referenced variable 'e3'", 54, 43);
+        BAssertUtil.validateError(negativeCompileResult, 9, "self referenced variable 'e4'", 55, 42);
         BAssertUtil.validateError(negativeCompileResult, 10,
-                "cannot infer reason from error constructor: 'UserDefErrorOne'", 55, 27);
+                "cannot infer reason from error constructor: 'UserDefErrorOne'", 56, 27);
         BAssertUtil.validateError(negativeCompileResult, 11,
-                "cannot infer reason from error constructor: 'MyError'", 56, 19);
+                "cannot infer reason from error constructor: 'MyError'", 57, 19);
         BAssertUtil.validateError(negativeCompileResult, 12,
-                "cannot infer type of the error from '(UserDefErrorOne|UserDefErrorTwo)'", 74, 12);
+                "cannot infer type of the error from '(UserDefErrorOne|UserDefErrorTwo)'", 75, 12);
         BAssertUtil.validateError(negativeCompileResult, 13,
                 "cannot infer reason from error constructor: 'RNError'", 95, 18);
         BAssertUtil.validateError(negativeCompileResult, 14,
@@ -298,5 +305,11 @@ public class ErrorTest {
         Assert.assertEquals(((BString) returns[0]).stringValue(), "foo");
         Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), true);
         Assert.assertEquals(((BError) returns[2]).stringValue(), "foo {code:3456}");
+    }
+
+    @Test()
+    public void testUnionLhsWithIndirectErrorRhs() {
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testUnionLhsWithIndirectErrorRhs");
+        Assert.assertEquals(((BError) returns[0]).getReason(), "Foo");
     }
 }

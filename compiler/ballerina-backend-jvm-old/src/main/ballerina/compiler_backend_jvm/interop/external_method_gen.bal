@@ -29,15 +29,17 @@ type ExternalFunctionWrapper OldStyleExternalFunctionWrapper;
 function genJMethodForBExternalFunc(bir:Function birFunc,
                                       jvm:ClassWriter cw,
                                       bir:Package birModule,
-                                      bir:BType? attachedType = ()) {
+                                      bir:BType? attachedType = (),
+                                      boolean isRemote = false) {
     var extFuncWrapper = getExternalFunctionWrapper(birModule, birFunc, attachedType = attachedType);
-    genJMethodForBExternalFuncOldStyle(extFuncWrapper, cw, birModule, attachedType = attachedType);
+    genJMethodForBExternalFuncOldStyle(extFuncWrapper, cw, birModule, attachedType = attachedType, isRemote = isRemote);
 }
 
 function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extFuncWrapper,
                                             jvm:ClassWriter cw,
                                             bir:Package birModule,
-                                            bir:BType? attachedType = ()) {
+                                            bir:BType? attachedType = (),
+                                            boolean isRemote = false) {
 
     var currentPackageName = getPackageName(birModule.org.value, birModule.name.value);
 
@@ -65,6 +67,16 @@ function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extF
     LabelGenerator labelGen = new();
     TerminatorGenerator termGen = new(mv, indexMap, labelGen, errorGen, birModule);
     mv.visitCode();
+
+    jvm:Label? tryStart = ();
+    jvm:Label? tryEnd = ();
+    jvm:Label? tryHandler = ();
+    if (isRemote) {
+        tryStart = labelGen.getLabel("try-start");
+        tryEnd = labelGen.getLabel("try-end");
+        tryHandler = labelGen.getLabel("try-handler");
+        mv.visitLabel(<jvm:Label>tryStart);
+    }
 
     jvm:Label paramLoadLabel = labelGen.getLabel("param_load");
     mv.visitLabel(paramLoadLabel);
@@ -130,6 +142,13 @@ function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extF
         birFuncParamIndex += 2;
     }
 
+    // if attached type, strand index is given by selfParamIndex
+    int strandIndex = attachedType is () ? strandParamIndex : selfParamIndex;
+    if (isRemote) {
+        emitStartObservationInvocation(mv, strandIndex,
+                    birModule.versionValue.value, birFunc.name.value, "startCallableObservation");
+    }
+
     string jMethodName = birFunc.name.value;
     mv.visitMethodInsn(INVOKESTATIC, extFuncWrapper.jClassName, jMethodName, extFuncWrapper.jMethodVMSig, false);
 
@@ -147,6 +166,27 @@ function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extF
     mv.visitLabel(retLabel);
     mv.visitLineNumber(birFunc.pos.sLine, retLabel);
     termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, birFunc);
+
+    if (isRemote) {
+        mv.visitTryCatchBlock(<jvm:Label>tryStart, <jvm:Label>tryEnd, <jvm:Label>tryHandler, ());
+        mv.visitLabel(<jvm:Label>tryEnd);
+        bir:VariableDcl throwableVarDcl = { typeValue: "string", name: { value: "$_throwable_$" } };
+        int throwableVarIndex = indexMap.getIndex(throwableVarDcl);
+        emitStopObservationInvocation(mv, strandIndex);
+
+        jvm:Label l3 = new();
+        mv.visitLabel(l3);
+        mv.visitLabel(<jvm:Label>tryHandler);
+        mv.visitVarInsn(ASTORE, throwableVarIndex);
+        mv.visitVarInsn(ALOAD, strandIndex);
+        emitStopObservationInvocation(mv, strandIndex);
+
+        jvm:Label l5 = new();
+        mv.visitLabel(l5);
+        mv.visitVarInsn(ALOAD, throwableVarIndex);
+        mv.visitInsn(ATHROW);
+    }
+
     mv.visitMaxs(200, 400);
     mv.visitEnd();
 }
@@ -202,7 +242,7 @@ function createOldStyleExternalFunctionWrapper(bir:Function birFunc, string orgN
     bir:BType?[] jMethodPramTypes = birFunc.typeValue.paramTypes.clone();
     addDefaultableBooleanVarsToSignature(birFunc);
     bir:BInvokableType functionTypeDesc = birFunc.typeValue;
-    bir:BType? attachedType = birFunc.receiverType;
+    bir:BType? attachedType = birFunc.receiver.typeValue;
     string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
                                                 attachedType = attachedType);
     string jMethodVMSig = getMethodDesc(jMethodPramTypes, functionTypeDesc.retType, attachedType = attachedType);

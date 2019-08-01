@@ -18,15 +18,13 @@
 
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.message;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQTransactionContext;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-
-import java.util.Objects;
 
 /**
  * Retrieves the byte array content of the RabbitMQ message.
@@ -45,11 +43,11 @@ import java.util.Objects;
 public class GetByteArrayContent {
 
     public static byte[] getByteArrayContent(Strand strand, ObjectValue messageObjectValue) {
-        boolean isInTransaction = false;
+        boolean isInTransaction = strand.isInTransaction();
         RabbitMQTransactionContext transactionContext = (RabbitMQTransactionContext) messageObjectValue.
                 getNativeData(RabbitMQConstants.RABBITMQ_TRANSACTION_CONTEXT);
-        if (isInTransaction && !Objects.isNull(transactionContext)) {
-            transactionContext.handleTransactionBlock();
+        if (isInTransaction) {
+            transactionContext.handleTransactionBlock(strand);
         }
         return (byte[]) messageObjectValue.getNativeData(RabbitMQConstants.MESSAGE_CONTENT);
     }

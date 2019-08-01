@@ -28,6 +28,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -220,5 +221,43 @@ public class LangLibArrayTest {
     public void testForEach() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testForEach");
         assertEquals(returns[0].stringValue(), "SunMonTues");
+    }
+
+    @Test(dataProvider = "setLengthDataProvider")
+    public void testSetLength(int setLengthTo, int lenAfterSet, String arrayAfterSet, String arrayLenPlusOneAfterSet) {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetLength", new BValue[] {new BInteger(setLengthTo)});
+        assertEquals(((BInteger) returns[0]).intValue(), (long) lenAfterSet);
+        assertEquals(returns[1].stringValue(), arrayAfterSet);
+        assertEquals(returns[2].stringValue(), arrayLenPlusOneAfterSet);
+    }
+
+    @DataProvider(name = "setLengthDataProvider")
+    public static Object[][] setLengthDataProvider() {
+        return new Object[][] {
+                { 0, 0, "[]",                       "[0]"},
+                { 1, 1, "[1]",                      "[1, 0]"},
+                { 6, 6, "[1, 2, 3, 4, 5, 6]",       "[1, 2, 3, 4, 5, 6, 0]"},
+                { 7, 7, "[1, 2, 3, 4, 5, 6, 7]",    "[1, 2, 3, 4, 5, 6, 7, 0]"},
+                { 8, 8, "[1, 2, 3, 4, 5, 6, 7, 0]", "[1, 2, 3, 4, 5, 6, 7, 0, 0]"},
+        };
+    }
+
+    @Test
+    public void testShift() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testShift");
+        assertEquals(returns[0].stringValue(), "[2, 3, 4, 5]");
+        assertEquals(returns[1].stringValue(), "1");
+    }
+
+    @Test
+    public void testUnshift() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUnshift");
+        assertEquals(returns[0].stringValue(), "[8, 8, 1, 2, 3, 4, 5]");
+    }
+
+    @Test
+    public void testUnshiftTypeWithoutFillerValues() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testUnshiftTypeWithoutFillerValues");
+        assertEquals(returns.length, 2);
     }
 }

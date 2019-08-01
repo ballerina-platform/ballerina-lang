@@ -51,7 +51,6 @@ dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:annotations')
-    implementation project(':ballerina-config')
     testCompile project(':ballerina-io')
     testCompile project(':ballerina-auth')
     testCompile project(':ballerina-internal')

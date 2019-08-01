@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>0.992.0</version>
+    <version>1.0.0-alpha</version>
     <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
@@ -11,9 +11,10 @@
     <change-notes><![CDATA[
       <ul>
         <li>Added ballerina sequence diagram view and editing support. </li>
+        <li>Added ballerina home auto detection. </li>
         <li>Added language server based in-place renaming support. </li>
         <li>Added language server based signature-help. </li>
-        <li>Added Debugger Adaptor Protocol Support. </li>
+        <li>Added Debugger Adaptor Protocol support. </li>
       </ul>
     ]]>
     </change-notes>
@@ -54,7 +55,9 @@
         <renamePsiElementProcessor implementation="org.wso2.lsp4intellij.contributors.rename.LSPRenameProcessor"
                                    id="LSPRenameProcessor" order="first"/>
 
-
+        <typedHandler implementation="org.wso2.lsp4intellij.editor.listeners.LSPTypedHandler"
+                      id="BallerinaLspTypedHandler"/>
+        
         <!--Ballerina plugin extensions-->
         <fileTypeFactory implementation="io.ballerina.plugins.idea.BallerinaFileTypeFactory"/>
 
@@ -67,7 +70,7 @@
         <lang.commenter language="Ballerina" implementationClass="io.ballerina.plugins.idea.BallerinaCommenter"/>
 
         <lang.syntaxHighlighterFactory language="Ballerina"
-                                       implementationClass="io.ballerina.plugins.idea.highlighting.BallerinaSyntaxHighlighterFactory"/>
+                                       implementationClass="io.ballerina.plugins.idea.highlighting.syntax.BallerinaSyntaxHighlighterFactory"/>
 
         <fileEditorProvider
                 implementation="io.ballerina.plugins.idea.webview.diagram.preview.BallerinaSplitEditorProvider"/>
@@ -84,14 +87,14 @@
                               implementationClass="io.ballerina.plugins.idea.spellchecker.BallerinaSpellcheckingStrategy"/>
 
         <annotator language="Ballerina"
-                   implementationClass="io.ballerina.plugins.idea.codeinsight.daemon.impl.BallerinaAnnotator"/>
+                   implementationClass="io.ballerina.plugins.idea.highlighting.semantic.BallerinaAnnotator"/>
 
         <!-- file templates -->
         <internalFileTemplate name="Ballerina File"/>
         <internalFileTemplate name="Ballerina Main"/>
 
         <lang.braceMatcher language="Ballerina"
-                           implementationClass="io.ballerina.plugins.idea.codeinsight.highlighting.BallerinaPairedBraceMatcher"/>
+                           implementationClass="io.ballerina.plugins.idea.editor.BallerinaPairedBraceMatcher"/>
 
         <!--folding builder-->
         <lang.foldingBuilder language="Ballerina"
@@ -104,7 +107,7 @@
                 implementation="io.ballerina.plugins.idea.formatter.settings.BallerinaLanguageCodeStyleSettingsProvider"/>
 
         <quoteHandler fileType="Ballerina file"
-                      className="io.ballerina.plugins.idea.codeinsight.editoractions.BallerinaQuoteHandler"/>
+                      className="io.ballerina.plugins.idea.editor.BallerinaQuoteHandler"/>
 
         <enterHandlerDelegate implementation="io.ballerina.plugins.idea.formatter.BallerinaEnterBetweenBracesHandler"/>
         <enterHandlerDelegate
@@ -171,16 +174,13 @@
                              provider="io.ballerina.plugins.idea.configuration.BallerinaConfigurableProvider"
                              dynamic="true"/>
         <projectExtension implementation="io.ballerina.plugins.idea.project.BallerinaProjectExtension"/>
-        <applicationService
-                serviceImplementation="io.ballerina.plugins.idea.codeinsight.imports.BallerinaCodeInsightSettings"/>
         <projectStructureDetector
                 implementation="io.ballerina.plugins.idea.project.BallerinaProjectStructureDetector"/>
         <directoryProjectGenerator
                 implementation="io.ballerina.plugins.idea.BallerinaProjectGenerator"/> <!-- for small IDEs-->
 
-        <applicationService
-                serviceImplementation="io.ballerina.plugins.idea.codeinsight.semanticanalyzer.BallerinaSemanticAnalyzerSettings"/>
-
+        <projectService
+                serviceImplementation="io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings"/>
         <preloadingActivity
                 implementation="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"
                 id="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"/>

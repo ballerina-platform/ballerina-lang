@@ -23,3 +23,33 @@ function name2() {
         }
     };
 }
+
+type Person record {
+    string name;
+    int id;
+    string? address;
+};
+
+function name3() {
+    Person p = {
+        name: "",
+        id: 0,
+        address: ""
+    };
+
+         string  ?  s   =p     ?.    address   ;
+}
+
+function name4() {
+    Person p = {
+        name: "",
+        id: 0,
+        address: ""
+    };
+
+          string   ? s =
+p
+               ?.
+  address
+             ;
+}

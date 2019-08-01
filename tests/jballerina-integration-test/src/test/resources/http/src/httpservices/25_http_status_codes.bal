@@ -34,7 +34,7 @@ service differentStatusCodes on new http:Listener(9223) {
         path: "/okWithoutBody"
     }
     resource function sendOKWithoutBody(http:Caller caller, http:Request req) {
-        checkpanic caller->ok(());
+        checkpanic caller->ok();
     }
 
     @http:ResourceConfig {

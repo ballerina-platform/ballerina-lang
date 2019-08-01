@@ -17,7 +17,7 @@
  */
 package org.ballerinax.jdbc.actions;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TypedescValue;
@@ -44,5 +44,9 @@ public class Select {
         SQLStatement selectStatement = new SelectStatement(client, sqlDatasource, query, parameters,
                 (TypedescValue) recordType, strand);
         return selectStatement.execute();
+    }
+
+    private Select() {
+
     }
 }

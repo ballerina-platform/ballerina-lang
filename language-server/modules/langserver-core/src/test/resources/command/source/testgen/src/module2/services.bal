@@ -32,8 +32,8 @@ service wssService on securedListener2 {
     }
 }
 
-auth:InboundBasicAuthProvider basicAuthProvider1 = new(());
-auth:InboundBasicAuthProvider basicAuthProvider2 = new(());
+auth:InboundBasicAuthProvider basicAuthProvider1 = new;
+auth:InboundBasicAuthProvider basicAuthProvider2 = new;
 
 http:BasicAuthHandler basicAuthHandler1 = new(basicAuthProvider1);
 http:BasicAuthHandler basicAuthHandler2 = new(basicAuthProvider2);

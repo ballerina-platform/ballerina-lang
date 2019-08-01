@@ -19,6 +19,7 @@ package org.ballerinalang.langlib.test;
 
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -47,10 +48,19 @@ public class TypeParamTest {
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'boolean', found 'Foo'", 47, 18);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'Bar', found 'Foo'", 50, 14);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'boolean', found 'BarDetail'", 64, 18);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int', found 'string'", 69, 16);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string', found 'int'", 69, 16);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'string', found '(Person|error)'",
                 88, 16);
         Assert.assertEquals(result.getErrorCount(), err);
+    }
+
+    @Test
+    public void testTypeInferring() {
+
+        CompileResult result = BCompileUtil.compile("test-src/type-param/type_param_infer_test.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
+        BRunUtil.invoke(result, "testArrayFunctionInfer");
+        BRunUtil.invoke(result, "testMapFunctionInfer");
     }
 
 }

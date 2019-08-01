@@ -71,8 +71,8 @@ function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterCo
             var canProcessResponse = authzHandler.canProcess(request);
             if (canProcessResponse is boolean && canProcessResponse) {
                 if(principal is runtime:Principal) {
-                    authorized = authzHandler.process(principal.username,context.serviceName, context.resourceName,
-                                                    request.method, scopes);
+                    authorized = authzHandler.process(principal.username, context.getServiceName(),
+                                            context.getResourceName(), request.method, scopes);
                 } else {
                     authorized = false;
                 }
@@ -88,8 +88,8 @@ function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterCo
             var canProcessResponse = authzHandler.canProcess(request);
             if (canProcessResponse is boolean && canProcessResponse) {
                 if(principal is runtime:Principal) {
-                 authorized = authzHandler.process(principal.username,
-                                    context.serviceName, context.resourceName, request.method, scopes);
+                    authorized = authzHandler.process(principal.username, context.getServiceName(),
+                                                context.getResourceName(), request.method, scopes);
                 } else {
                     authorized = false;
                 }
@@ -119,9 +119,7 @@ function isAuthzSuccessful(Caller caller, boolean|AuthorizationError authorized)
             return false;
         }
     } else {
-        // TODO: Remove the below casting when new lang syntax are merged.
-        error e = authorized;
-        response.setTextPayload("Authorization failure. " + e.reason());
+        response.setTextPayload("Authorization failure. " + <string>authorized.reason());
         var err = caller->respond(response);
         if (err is error) {
             panic <error> err;

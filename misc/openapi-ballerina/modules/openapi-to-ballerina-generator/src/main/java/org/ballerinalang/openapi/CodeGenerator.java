@@ -28,7 +28,6 @@ import com.github.jknack.handlebars.io.FileTemplateLoader;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.openapi.model.BallerinaOpenApi;
 import org.ballerinalang.openapi.model.GenSrcFile;
@@ -38,6 +37,7 @@ import org.ballerinalang.openapi.utils.GeneratorConstants;
 import org.ballerinalang.openapi.utils.GeneratorConstants.GenType;
 import org.ballerinalang.openapi.utils.TypeMatchingUtil;
 import org.ballerinalang.tool.LauncherUtils;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,6 +53,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static org.ballerinalang.openapi.model.GenSrcFile.GenFileType;
+import static org.ballerinalang.openapi.utils.GeneratorConstants.GenType.GEN_CLIENT;
 
 /**
  * This class generates Ballerina Services/Clients for a provided OAS definition.
@@ -90,7 +91,7 @@ public class CodeGenerator {
 
         //Check if the selected path is a ballerina root for service generation
         //TODO check with team for root check
-        Path projectRoot = LSCompilerUtil.findProjectRoot(System.getProperty("user.dir"));
+        Path projectRoot = ProjectDirs.findProjectRoot(Paths.get(System.getProperty("user.dir")));
         if (type.equals(GenType.GEN_SERVICE) && projectRoot == null) {
             throw LauncherUtils.createUsageExceptionWithHelp("Ballerina service generation should be done " +
                     "from the project root. If you like to start with a new project use `ballerina init` command to " +
@@ -99,6 +100,21 @@ public class CodeGenerator {
 
         Path srcPath = CodegenUtils.getSourcePath(srcPackage, outPath);
         Path implPath = CodegenUtils.getImplPath(srcPackage, srcPath);
+
+        if (type.equals(GEN_CLIENT)) {
+            srcPath = srcPath.resolve("client");
+            implPath = implPath.resolve("client");
+
+            if (Files.notExists(srcPath)) {
+                Files.createDirectory(srcPath);
+            }
+
+            if (Files.notExists(implPath)) {
+                Files.createDirectory(implPath);
+            }
+
+        }
+
         List<GenSrcFile> genFiles = generateBalSource(type, definitionPath, serviceName);
         writeGeneratedSources(genFiles, srcPath, implPath);
     }
@@ -122,7 +138,7 @@ public class CodeGenerator {
      */
     public void generate(GenType gt, String definitionPath, String outPath)
             throws IOException, BallerinaOpenApiException {
-        generate(gt, definitionPath, outPath, null);
+        generate(gt, definitionPath, null , outPath);
     }
 
     /**
@@ -254,7 +270,11 @@ public class CodeGenerator {
         // Remove old generated files - if any - before regenerate
         // if srcPackage was not provided and source was written to main package nothing will be deleted.
         if (srcPackage != null && !srcPackage.isEmpty() && Files.exists(srcPath)) {
-            Arrays.stream(new File(String.valueOf(srcPath)).listFiles()).forEach(File::delete);
+            final File[] listFiles = new File(String.valueOf(srcPath)).listFiles();
+            if (listFiles != null) {
+                Arrays.stream(listFiles).forEach(File::delete);
+            }
+
         }
 
         for (GenSrcFile file : sources) {

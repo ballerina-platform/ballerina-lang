@@ -27,9 +27,15 @@ function attachTimer() {
         age: 0
     };
 
-    task:Scheduler timer = new({ interval: 100, initialDelay: 1000 });
-    checkpanic timer.attach(timerService, person);
-    checkpanic timer.start();
+    task:Scheduler timer = new({ intervalInMillis: 100, initialDelayInMillis: 1000 });
+    var attachResult = timer.attach(timerService, person);
+    if (attachResult is error) {
+        panic attachResult;
+    }
+    var startResult = timer.start();
+    if (startResult is error) {
+        panic startResult;
+    }
 }
 
 string result = "";

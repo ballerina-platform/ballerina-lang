@@ -35,7 +35,7 @@ public type HttpCache object {
     #
     # + config - The configurations for the HTTP cache
     public function __init(CacheConfig cacheConfig) {
-            self.cache = new cache:Cache(cacheConfig.expiryTimeMillis, cacheConfig.capacity, cacheConfig.evictionFactor);
+            self.cache = new cache:Cache(cacheConfig.expiryTimeInMillis, cacheConfig.capacity, cacheConfig.evictionFactor);
             self.policy = cacheConfig.policy;
             self.isShared = cacheConfig.isShared;
     }
@@ -140,12 +140,12 @@ public type HttpCache object {
 };
 
 function isCacheableStatusCode (int statusCode) returns boolean {
-    return statusCode == OK_200 || statusCode == NON_AUTHORITATIVE_INFORMATION_203 ||
-           statusCode == NO_CONTENT_204 || statusCode == PARTIAL_CONTENT_206 ||
-           statusCode == MULTIPLE_CHOICES_300 || statusCode == MOVED_PERMANENTLY_301 ||
-           statusCode == NOT_FOUND_404 || statusCode == METHOD_NOT_ALLOWED_405 ||
-           statusCode == GONE_410 || statusCode == URI_TOO_LONG_414 ||
-           statusCode == NOT_IMPLEMENTED_501;
+    return statusCode == STATUS_OK || statusCode == STATUS_NON_AUTHORITATIVE_INFORMATION ||
+           statusCode == STATUS_NO_CONTENT || statusCode == STATUS_PARTIAL_CONTENT ||
+           statusCode == STATUS_MULTIPLE_CHOICES || statusCode == STATUS_MOVED_PERMANENTLY ||
+           statusCode == STATUS_NOT_FOUND || statusCode == STATUS_METHOD_NOT_ALLOWED ||
+           statusCode == STATUS_GONE || statusCode == STATUS_URI_TOO_LONG ||
+           statusCode == STATUS_NOT_IMPLEMENTED;
 }
 
 function addEntry (cache:Cache cache, string key, Response inboundResponse) {

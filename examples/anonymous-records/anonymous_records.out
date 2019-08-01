@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file and use the `ballerina run` command.
 $ ballerina run anonymous_records.bal
-{name:"John Doe", age:25, address:{city:"Colombo", country:"Sri Lanka"}}
-{name:"Jane Doe", age:20, address:{city:"London", country:"UK"}}
-["John Doe", 25, {city:"Colombo", country:"Sri Lanka"}]
+name=John Doe age=25 address=city=Colombo country=Sri Lanka
+name=Jane Doe age=20 address=city=London country=UK
+John Doe 25 city=Colombo country=Sri Lanka

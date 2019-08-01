@@ -6,15 +6,15 @@ listener http:Listener circuitBreakerEP07 = new(9315, { httpVersion: "2.0" });
 http:ClientEndpointConfig conf07 = {
     circuitBreaker: {
         rollingWindow: {
-            timeWindowMillis: 60000,
-            bucketSizeMillis: 20000,
+            timeWindowInMillis: 60000,
+            bucketSizeInMillis: 20000,
             requestVolumeThreshold: 0
         },
         failureThreshold: 0.3,
-        resetTimeMillis: 2000,
+        resetTimeInMillis: 2000,
         statusCodes: [500, 501, 502, 503]
     },
-    timeoutMillis: 2000,
+    timeoutInMillis: 2000,
     httpVersion: "2.0"
 };
 
@@ -65,7 +65,7 @@ service helloService07 on new http:Listener(8095) {
         cbTrialActualCount += 1;
         http:Response res = new;
         if (cbTrialActualCount == 1 || cbTrialActualCount == 2) {
-            res.statusCode = http:SERVICE_UNAVAILABLE_503;
+            res.statusCode = http:STATUS_SERVICE_UNAVAILABLE;
             res.setPayload("Service unavailable.");
         } else {
             res.setPayload("Hello World!!!");
@@ -79,7 +79,7 @@ service helloService07 on new http:Listener(8095) {
 
 function sendCBErrorResponse(http:Caller caller, error e) {
     http:Response response = new;
-    response.statusCode = http:INTERNAL_SERVER_ERROR_500;
+    response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
     string errCause = <string> e.detail()?.message;
     response.setPayload(errCause);
     var responseToCaller = caller->respond(response);

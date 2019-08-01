@@ -77,7 +77,7 @@ public class CompletionVisitorUtil {
         int nodeELine = zeroBasedPosition.eLine;
 
         if ((nodeSLine <= line && nodeELine >= line)) {
-            Map<Name, Scope.ScopeEntry> visibleSymbolEntries = new HashMap<>();
+            Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries = new HashMap<>();
             if (symbolEnv.scope != null) {
                 visibleSymbolEntries.putAll(treeVisitor.resolveAllVisibleSymbols(symbolEnv));
             }
@@ -120,7 +120,7 @@ public class CompletionVisitorUtil {
         int lECol = lastExprPos.eCol;
 
         if (fSLine <= line && lSLine >= line && (fSCol <= col && lECol >= col)) {
-            Map<Name, Scope.ScopeEntry> visibleSymbolEntries = new HashMap<>();
+            Map<Name, List<Scope.ScopeEntry>> visibleSymbolEntries = new HashMap<>();
             if (symbolEnv.scope != null) {
                 visibleSymbolEntries.putAll(treeVisitor.resolveAllVisibleSymbols(symbolEnv));
             }
@@ -229,6 +229,9 @@ public class CompletionVisitorUtil {
      */
     public static List<BLangNode> getObjectItemsOrdered(BLangObjectTypeNode objectTypeNode) {
         List<BLangNode> nodes = new ArrayList<>();
+        if (objectTypeNode == null) {
+            return nodes;
+        }
 
         nodes.addAll(objectTypeNode.getFields().stream()
                 .map(field -> (BLangNode) field)

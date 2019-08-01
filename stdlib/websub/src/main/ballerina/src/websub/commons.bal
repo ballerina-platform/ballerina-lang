@@ -71,6 +71,14 @@ const string X_HUB_TOPIC = "X-Hub-Topic";
 const string CONTENT_TYPE = "Content-Type";
 
 const string ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
+const ANNOT_FIELD_TARGET = "target";
+const ANNOT_FIELD_CALLBACK = "callback";
+const ANNOT_FIELD_LEASE_SECONDS = "leaseSeconds";
+const ANNOT_FIELD_SECRET = "secret";
+const ANNOT_FIELD_SUBSCRIBE_ON_STARTUP = "subscribeOnStartUp";
+const ANNOT_FIELD_HUB_CLIENT_CONFIG = "hubClientConfig";
+const ANNOT_FIELD_PUBLISHER_CLIENT_CONFIG = "publisherClientConfig";
+
 const string WEBSUB_MODULE_NAME = "ballerina/websub";
 
 # The constant used to represent error code of WebSub module.
@@ -164,10 +172,10 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
     string challenge = intentVerificationRequest.challenge;
 
     if (reqMode == mode && reqTopic == topic) {
-        response.statusCode = http:ACCEPTED_202;
+        response.statusCode = http:STATUS_ACCEPTED;
         response.setTextPayload(challenge);
     } else {
-        response.statusCode = http:NOT_FOUND_404;
+        response.statusCode = http:STATUS_NOT_FOUND;
     }
     return response;
 }
@@ -464,22 +472,21 @@ public type RemotePublishConfig record {|
 # + return - `WebSubHub` The WebSubHub object representing the newly started up hub, or `HubStartedUpError` indicating
 #            that the hub is already started, and including the WebSubHub object representing the
 #            already started up hub
-public function startHub(http:Listener hubServiceListener, HubConfiguration? hubConfiguration = ())
+public function startHub(http:Listener hubServiceListener, HubConfiguration hubConfiguration = {})
                                                                     returns WebSubHub|HubStartedUpError {
-    if(hubConfiguration is HubConfiguration) {
-        hubLeaseSeconds = config:getAsInt("b7a.websub.hub.leasetime",
-                                          hubConfiguration.leaseSeconds);
-        hubSignatureMethod = getSignatureMethod(hubConfiguration.signatureMethod);
-        remotePublishConfig = getRemotePublishConfig(hubConfiguration["remotePublish"]);
-        hubTopicRegistrationRequired = config:getAsBoolean("b7a.websub.hub.topicregistration",
-                                        hubConfiguration.topicRegistrationRequired);
+    hubLeaseSeconds = config:getAsInt("b7a.websub.hub.leasetime",
+                                      hubConfiguration.leaseSeconds);
+    hubSignatureMethod = getSignatureMethod(hubConfiguration.signatureMethod);
+    remotePublishConfig = getRemotePublishConfig(hubConfiguration["remotePublish"]);
+    hubTopicRegistrationRequired = config:getAsBoolean("b7a.websub.hub.topicregistration",
+                                    hubConfiguration.topicRegistrationRequired);
 
-        // reset the hubUrl once the other parameters are set. if url is an empty string, create hub url with listener
-        // configs in the native code
-        hubPublicUrl = config:getAsString("b7a.websub.hub.url", hubConfiguration["publicUrl"] ?: "");
-        hubClientConfig = hubConfiguration["clientConfig"];
-        hubPersistenceStoreImpl = hubConfiguration["hubPersistenceStore"];
-    }
+    // reset the hubUrl once the other parameters are set. if url is an empty string, create hub url with listener
+    // configs in the native code
+    hubPublicUrl = config:getAsString("b7a.websub.hub.url", hubConfiguration["publicUrl"] ?: "");
+    hubClientConfig = hubConfiguration["clientConfig"];
+    hubPersistenceStoreImpl = hubConfiguration["hubPersistenceStore"];
+
     if (hubPersistenceStoreImpl is HubPersistenceStore) {
         hubPersistenceEnabled = true;
     }
@@ -555,7 +562,7 @@ public type WebSubHub object {
     # + return - `error` if an error occurred with registration
     public function registerTopic(string topic) returns error? {
         if (!hubTopicRegistrationRequired) {
-            error e = error(WEBSUB_ERROR_CODE, message = "Internal Ballerina Hub not initialized or incorrectly referenced");
+            error e = error(WEBSUB_ERROR_CODE, message = "Topic registration not allowed/not required at the Hub");
             return e;
         }
         return registerTopicAtHub(topic);
@@ -567,7 +574,7 @@ public type WebSubHub object {
     # + return - `error` if an error occurred with unregistration
     public function unregisterTopic(string topic) returns error? {
         if (!hubTopicRegistrationRequired) {
-            error e = error(WEBSUB_ERROR_CODE, message = "Remote topic unregistration not allowed/not required at the Hub");
+            error e = error(WEBSUB_ERROR_CODE, message = "Topic unregistration not allowed/not required at the Hub");
             return e;
         }
         return unregisterTopicAtHub(topic);
@@ -659,3 +666,4 @@ public type SubscriberDetails record {|
 type WebSubError record {
     string message = "";
 };
+

@@ -27,6 +27,38 @@
     display: inline-block;
     min-width: 100%;
     
+    .status-wrapper {
+        width: auto;
+        right: 70px;
+        top: 30px;
+        position: fixed;
+        justify-content: right;
+        z-index: 0;
+        font-size: 14px;
+        font-weight: 300;
+        padding: 0 10px;
+        z-index: 0;
+        border-width: 1px 0 1px 1px;
+        border-style: solid;
+        border-color: #e9e9e9; 
+        background: ~"@{@{color}-diagram-background-color}";
+        cursor: pointer;
+
+        .label {
+            background: ~"@{@{color}-diagram-background-color}";
+            padding: 10px 5px 10px 0;
+            font-size: 14px;
+            font-weight: 300;
+            cursor: pointer;
+        }
+        p {
+            margin: 0; 
+            line-height: 0;
+        }
+        &:hover {
+            cursor: pointer;
+        }
+    }
     .menu-icon {
         font-size: 20px;
         color: #f1f1f1;
@@ -40,13 +72,17 @@
         border-radius: 54%;
         background: #333;
         margin-right: 0;
+        z-index: 1000;
+        top: 1.4em;
 
         .icon {
             margin: 3.5px;
+            cursor: pointer;
         }
 
         &:hover {
             opacity: 0.7;
+            cursor: pointer;
         }
     }
 
@@ -63,6 +99,7 @@
             margin-right: 2px;
             position: fixed;
             right: 2em;
+            top: 1.4em;
             background: ~"@{@{color}-diagram-background-color}";
             z-index: 1000;
             padding-top: 0;
@@ -76,18 +113,24 @@
 
                 .menu-label {
                     font-weight: 500;
-                    padding-top: 10px;
+                    padding-top: 7px;
                 }
 
                 .selection-row {
                     background: ~"@{@{color}-diagram-menu-row-background}";
-                    padding: 0;
+                    padding: 7px 0;
+                    height: 30px;
+                    display: inline-flex;
+
                     .menu-dropdown-small {
                         background: ~"@{@{color}-diagram-menu-dropdown-background}";
-                        padding: 7px;
                         width: 80px;
+                        height: auto;
+                        padding: 10px;
+                        height: 30px;
+                        margin-top: -7px;
                         .text { 
-                            width: 45px;
+                            width: 100px;
                         }
                         .icon {
                             width: 10px;
@@ -95,35 +138,57 @@
                             font-size: 10px;
                         }
                         &.label {
-                            padding: 11px;
                             font-weight: 500;
                             color: #333;
+                            overflow: hidden;
+                            height: 30px;
+                            top: -4px;
+                        }
+                        &.dropdown {
+                            height: 30px;
+                            padding-top: 7px;
+                            width: 160px;
+
+                            .item {
+                                width: 158px;
+                            }
                         }
                     }
                     .icon {
                         font-size: 12px;
-                        padding:0 10px;
                         width: 30px;
+                        margin-left: 5px; 
                         cursor: pointer;
+                        padding-bottom: 10px;
+                        display: inline-flex;
+                        margin-left: 10px;
 
                         &:hover {
-                            opacity: 0.5;
+                            color: #868686;
                         }
                     }
                     .menu-dropdown-mid {
                         background: ~"@{@{color}-diagram-menu-dropdown-background}";
-                        padding: 5px 7px;
-                        width: 150px;
+                        width: 222px;
+                        height: auto;
+                        padding: 10px;
+                        height: 30px;
+                        margin-top: -7px;
+                        .item {
+                            width: 220px;
+                        }
                         .text { 
-                            width: 116px;
+                            width: 180px;
                             overflow: hidden;
                             text-overflow: ellipsis;
                             white-space: nowrap;
+                            margin-top: -5px;
                         }
                         .icon {
                             padding:0;
                             width: 10px;
                             font-size: 10px;
+                            top: -4px;
                         }
                     }
                     .ui.dropdown .menu {
@@ -150,8 +215,7 @@
     
     .diagram-container {
         background: ~"@{@{color}-diagram-background-color}";
-        margin: 2em;
-        height: 100%;
+        height: 110vh;
 
         text {
             fill: ~"@{@{color}-diagram-base-text-color}";
@@ -171,7 +235,7 @@
             font-family: @diagram-font;
             font-size: @diagram-font-size;
             width: 100%;
-            height: 100%;
+            height: 110vh;
             outline: none;
 
             .panel-group-header {
@@ -227,6 +291,11 @@
                 }
                 .panel-body {
                     fill: ~"@{@{color}-diagram-panel-body-background-color}";
+
+                    .client-line {
+                        stroke: ~"@{@{color}-diagram-client-line-stroke-color}";
+                        stroke-width: @diagram-client-line-stroke-width;
+                    }
                     
                     .life-line {
                         stroke: ~"@{@{color}-diagram-life-line-stroke-color}";
@@ -294,6 +363,15 @@
                             stroke-width: 1px;
                         }
                         fill: ~"@{@{color}-diagram-arrow-head-color}";
+                        .invoke-line {
+                            stroke:#aaa;
+                            stroke-width: 0.5;
+                        }
+                        .invoke-arrowhead {
+                            stroke:#aaa;
+                            fill: #aaa;
+                            stroke-width: 0;
+                        }
                     }
                     .start-invocation {
                         line {
@@ -340,9 +418,9 @@
                             font-weight: bold;
                         }
                         .collapser {
-                            stroke: ~"@{@{color}-diagram-collapse-func-color}";
                             cursor: pointer;
                             fill: ~"@{@{color}-diagram-collapse-func-color}";
+                            font-size: 10px;
                         }
                         .life-line {
                             stroke: ~"@{@{color}-diagram-condition-line-stroke-color}";

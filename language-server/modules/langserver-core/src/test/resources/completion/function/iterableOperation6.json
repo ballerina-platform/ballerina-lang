@@ -6,13 +6,64 @@
   "source": "function/source/iterableOperation6.bal",
   "items": [
     {
+      "label": "add(any data)((()|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.table_  \n  \nAdd record to the table.\n  \n  \n---    \n**Parameters**  \n- _data_  \n    A record with data  \n  \n  \n**Return**  \nerror?"
+        }
+      },
+      "insertText": "add(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label":"length()(int)",
+      "kind":"Function",
+      "detail":"Function",
+      "documentation":{
+        "right":{
+          "kind":"markdown",
+          "value":"**Package:** _ballerina/lang.table_  \n  \nReturns the number of members in `tbl`.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
+        }
+      },
+      "insertText":"length(${1})",
+      "insertTextFormat":"Snippet",
+      "command":{
+        "title":"editor.action.triggerParameterHints",
+        "command":"editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "hasNext()(boolean)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.table_  \n  \nChecks for a new row in the given table. If a new row is found, moves the cursor to it.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nboolean"
+        }
+      },
+      "insertText": "hasNext(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "getNext()(any)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nRetrives the current row and return a record with the data in the columns.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nany"
+          "value": "**Package:** _ballerina/lang.table_  \n  \nRetrives the current row and return a record with the data in the columns.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nany"
         }
       },
       "insertText": "getNext(${1})",
@@ -29,7 +80,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nRemove data from the table.\n  \n  \n---    \n**Parameters**  \n- _func_  \n    The function pointer for delete crieteria  \n  \n  \n**Return**  \n(int|error)"
+          "value": "**Package:** _ballerina/lang.table_  \n  \nRemove data from the table.\n  \n  \n---    \n**Parameters**  \n- _func_  \n    The function pointer for delete crieteria  \n  \n  \n**Return**  \n(int|error)"
         }
       },
       "insertText": "remove(${1})",
@@ -40,171 +91,50 @@
       }
     },
     {
+      "label": "TableIterator",
+      "kind": "Class",
+      "detail": "Object",
+      "insertText": "TableIterator",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "iterator()()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.table_  \n  \nReturns an iterator over the members of `tbl`.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nobject { public function next () returns (record {| $map0 value; |}?); }"
+        }
+      },
+      "insertText": "iterator(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "TableConfig",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "TableConfig represents properties used during table initialization.\n"
+      },
+      "insertText": "TableConfig",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "close()",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nReleases the database connection. If the table data is fully iterated, it will be automatically closed. This explicit\nclose is required only if it is not fully iterated.  \n  \n---    \n**Parameters**  \n"
+          "value": "**Package:** _ballerina/lang.table_  \n  \nReleases the database connection. If the table data is fully iterated, it will be automatically closed. This explicit\nclose is required only if it is not fully iterated.  \n  \n---    \n**Parameters**  \n"
         }
       },
       "insertText": "close(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "add(any data)((error|()))",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nAdd record to the table.\n  \n  \n---    \n**Parameters**  \n- _data_  \n    A record with data  \n  \n  \n**Return**  \nerror?"
-        }
-      },
-      "insertText": "add(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "hasNext()(boolean)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/builtin_  \n  \nChecks for a new row in the given table. If a new row is found, moves the cursor to it.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nboolean"
-        }
-      },
-      "insertText": "hasNext(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "foreach(\u003c@lambda:function\u003e)",
-      "kind": "Function",
-      "detail": "Function",
-      "insertText": "foreach(function() {\n\t${1}\n});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "map(\u003c@lambda:function\u003e)",
-      "kind": "Function",
-      "detail": "Function",
-      "insertText": "map(function () returns any {\n\t${1}\n})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "filter(\u003c@lambda:function\u003e)",
-      "kind": "Function",
-      "detail": "Function",
-      "insertText": "filter(function() returns (boolean) {\n\t${1}\n})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "count()",
-      "kind": "Function",
-      "detail": "Function",
-      "insertText": "count()",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "select(functionReference)",
-      "kind": "Function",
-      "detail": "Function",
-      "insertText": "select(${1:functionReference})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "length()",
-      "kind": "Function",
-      "detail": "Function",
-      "insertText": "length()",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "freeze()",
-      "kind": "Function",
-      "detail": "Function",
-      "insertText": "freeze()",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "isFrozen()",
-      "kind": "Function",
-      "detail": "Function",
-      "insertText": "isFrozen()",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "stamp(anydata a)",
-      "kind": "Function",
-      "detail": "Function",
-      "insertText": "stamp(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "clone()",
-      "kind": "Function",
-      "detail": "Function",
-      "insertText": "clone()",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "convert(anydata a)",
-      "kind": "Function",
-      "detail": "Function",
-      "insertText": "convert(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
