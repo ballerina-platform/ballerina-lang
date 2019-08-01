@@ -8,3 +8,5 @@ John Doe
 name=Peter age=16 grades=maths=40 physics=35 chemistry=35
 name=John Doe age=17 grades=maths=80 physics=75 chemistry=65
 name=Peter age=16 grades=maths=40 physics=35 chemistry=35 address=city=Colombo country=Sri Lanka
+maths=80 physics=75 chemistry=65 english=90
+90
