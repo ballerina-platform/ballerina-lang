@@ -14,16 +14,15 @@ public function main() {
     var unionResp = helloWorldBlockingEp->hello("WSO2", headers);
 
     // Reads message and headers from response.
-    if (unionResp is error) {
+    if (unionResp is grpc:Error) {
         io:println("Error from Connector: " + unionResp.reason() + " - "
                 + <string> unionResp.detail()["message"]);
     } else {
         string result;
         grpc:Headers resHeaders;
         [result, resHeaders] = unionResp;
-        io:println("Client Got Response : ");
-        io:println(result);
+        io:println("Client Got Response : " + result);
         string headerValue = resHeaders.get("server_header_key") ?: "none";
-        io:println("Headers: " + headerValue );
+        io:println("Headers: " + headerValue);
     }
 }

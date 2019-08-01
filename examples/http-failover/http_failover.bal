@@ -31,7 +31,7 @@ service failoverDemoService on new http:Listener(9090) {
     // Parameters include a reference to the caller and an object with the request data.
     resource function invokeEndpoint(http:Caller caller, http:Request request) {
 
-        var backendResponse = foBackendEP->get("/", message = request);
+        var backendResponse = foBackendEP->get("/", request);
 
         // The `is` operator is used to separate out union-type returns.
         // The type of `backendResponse` variable is the union of `http:Response` and `error`.
@@ -47,7 +47,7 @@ service failoverDemoService on new http:Listener(9090) {
         } else {
             http:Response response = new;
             response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
-            response.setPayload(<string>backendResponse.detail().message);
+            response.setPayload(<string>backendResponse.detail()?.message);
             var responseToCaller = caller->respond(response);
             if (responseToCaller is error) {
                 log:printError("Error sending response", err = responseToCaller);
