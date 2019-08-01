@@ -1,0 +1,6 @@
+# To start the service, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command.
+$ ballerina run java-arrays.bal
+2
+world
+

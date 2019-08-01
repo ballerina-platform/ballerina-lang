@@ -1,0 +1,2 @@
+Java arrays are represented by `handle` opaque type in Ballerina. They can be manipulated and accessed using
+`getArrayElement`, `setArrayElement` and `getArrayLength` methods provided by `ballerinax/java` module.

@@ -1,0 +1,3 @@
+Java varargs functions (both static and instance) can be invoked from Ballerina.
+If there are overloaded Java method and you want to remove the ambiguity, `paramTypes` field can be used
+to specify the element class type and dimension.
