@@ -34,7 +34,7 @@ public type ArrayType record {|
 # then parameter types are inferred from the corresponding Ballerina function.
 #
 # + class - The class in which the constructor exists
-# + paramTypes - an optional field that describes parameter types of the constructor
+# + paramTypes - An optional field that describes parameter types of the constructor
 public type ConstructorData record {|
     Class class;
     (Class | ArrayType)[] paramTypes?;
