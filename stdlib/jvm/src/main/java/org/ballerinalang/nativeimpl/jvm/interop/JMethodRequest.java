@@ -64,9 +64,9 @@ class JMethodRequest {
     // Parameter count of the Ballerina function
     int bFuncParamCount;
 
-    BType[] bParamTypes;
-    BType bReturnType;
-    boolean throwsException = false;
+    BType[] bParamTypes = null;
+    BType bReturnType = null;
+    boolean returnsBErrorType = false;
     boolean restParamExist = false;
 
     private JMethodRequest() {
@@ -86,7 +86,7 @@ class JMethodRequest {
         jMethodReq.bParamTypes = getBParamTypes(paramTypes);
         BType returnType = getBType(bFuncType.get(RETURN_TYPE_FIELD));
         jMethodReq.bReturnType = returnType;
-        jMethodReq.throwsException = returnType.toString().contains(TypeConstants.ERROR);
+        jMethodReq.returnsBErrorType = returnType.toString().contains(TypeConstants.ERROR);
         jMethodReq.restParamExist = jMethodReqBValue.getBooleanValue(REST_PARAM_EXIST_FIELD);
         return jMethodReq;
     }

@@ -38,9 +38,7 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_BOOLEAN_OBJ_TNAME;
-import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_BYTE_OBJ_TNAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_DOUBLE_OBJ_TNAME;
-import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_FLOAT_OBJ_TNAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_INTEGER_OBJ_TNAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_LONG_OBJ_TNAME;
 import static org.ballerinalang.nativeimpl.jvm.interop.JInterop.J_OBJECT_TNAME;
@@ -134,20 +132,20 @@ class JMethodResolver {
 
     private void validateExceptionTypes(JMethodRequest jMethodRequest, JMethod jMethod) {
         Executable method = jMethod.getMethod();
-        boolean hasCheckedExceptionInSignature = false;
+        boolean throwsCheckedException = false;
         for (Class<?> exceptionType : method.getExceptionTypes()) {
             if (!RuntimeException.class.isAssignableFrom(exceptionType)) {
-                hasCheckedExceptionInSignature = true;
+                throwsCheckedException = true;
                 break;
             }
         }
 
-        boolean hasErrorAsReturn = method instanceof Method &&
+        boolean returnsErrorValue = method instanceof Method &&
                 ErrorValue.class.isAssignableFrom(((Method) method).getReturnType());
 
-        if (((hasCheckedExceptionInSignature && !jMethodRequest.throwsException) ||
-                (jMethodRequest.throwsException && !hasCheckedExceptionInSignature)) &&
-                (jMethodRequest.throwsException && !hasErrorAsReturn)) {
+        if (((throwsCheckedException && !jMethodRequest.returnsBErrorType) ||
+                (jMethodRequest.returnsBErrorType && !throwsCheckedException)) &&
+                (jMethodRequest.returnsBErrorType && !returnsErrorValue)) {
             throw new JInteropException(JInteropException.METHOD_SIGNATURE_NOT_MATCH_REASON,
                     "No such Java method '" + jMethodRequest.methodName + "' which throws checked exception " +
                             "found in class '" + jMethodRequest.declaringClass + "'");
@@ -199,17 +197,24 @@ class JMethodResolver {
             case TypeTags.NULL_TAG:
                 return jParamTypeName.equals(J_VOID_TNAME);
             case TypeTags.INT_TAG:
-                if (jParamTypeName.equals(J_OBJECT_TNAME) || jParamTypeName.equals(J_LONG_OBJ_TNAME)) {
-                    return true;
-                }
             case TypeTags.BYTE_TAG:
-                if (jParamTypeName.equals(J_OBJECT_TNAME) || jParamTypeName.equals(J_INTEGER_OBJ_TNAME)) {
-                    return true;
-                }
             case TypeTags.FLOAT_TAG:
-                if (jParamTypeName.equals(J_OBJECT_TNAME) || jParamTypeName.equals(J_DOUBLE_OBJ_TNAME)) {
+                if (jParamTypeName.equals(J_OBJECT_TNAME)) {
                     return true;
                 }
+
+                if (bParamType.getTag() == TypeTags.INT_TAG && jParamTypeName.equals(J_LONG_OBJ_TNAME)) {
+                    return true;
+                }
+
+                if (bParamType.getTag() == TypeTags.BYTE_TAG && jParamTypeName.equals(J_INTEGER_OBJ_TNAME)) {
+                    return true;
+                }
+
+                if (bParamType.getTag() == TypeTags.FLOAT_TAG && jParamTypeName.equals(J_DOUBLE_OBJ_TNAME)) {
+                    return true;
+                }
+
                 return jParamType.isPrimitive() &&
                         (jParamTypeName.equals(J_PRIMITIVE_INT_TNAME) ||
                                 jParamTypeName.equals(J_PRIMITIVE_BYTE_TNAME) ||
@@ -248,9 +253,9 @@ class JMethodResolver {
                 }
                 return ArrayValue.class.isAssignableFrom(jParamType);
             case TypeTags.UNION_TAG:
-                List<BType> members = ((BUnionType)bParamType).getMemberTypes();
+                List<BType> members = ((BUnionType) bParamType).getMemberTypes();
                 for (BType member : members) {
-                    if (isValidExpectedBType(jParamType, member, jMethodRequest)){
+                    if (isValidExpectedBType(jParamType, member, jMethodRequest)) {
                         return true;
                     }
                 }
