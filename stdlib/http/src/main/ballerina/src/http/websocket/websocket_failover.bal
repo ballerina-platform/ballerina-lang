@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents a WebSocket client endpoint.
+# An webSocket client endpoint which provides failover support over multiple websocket targets.
 #
 # + id - The connection id
 # + negotiatedSubProtocol - The subprotocols that are negotiated with the server
@@ -22,7 +22,7 @@
 # + isOpen - `true` if the connection is open
 # + response - Represents the HTTP response
 # + attributes - A map to store connection related attributes
-public type WebSocketClient client object {
+public type WebSocketFailoverClient client object {
 
     public string id = "";
     public string negotiatedSubProtocol = "";
@@ -32,20 +32,18 @@ public type WebSocketClient client object {
     public map<any> attributes = {};
 
     private WebSocketConnector conn = new;
-    private string url = "";
-    private WebSocketClientEndpointConfig config = {};
+    private WebSocketFailoverClientEndpointConfig config = {};
 
-    # Initializes the client when called.
+    # Failover caller actions which provides failover capabilities to an webSocket client endpoint.
     #
-    # + c - The `WebSocketClientEndpointConfig` of the endpoint
-    public function __init(string url, WebSocketClientEndpointConfig? config = ()) {
-        self.url = url;
+    # + config - The configurations of the client endpoint associated with this `failover` instance
+    public function __init(WebSocketFailoverClientEndpointConfig? config = ()) {
         self.config = config ?: {};
-        self.initEndpoint();
+        self.init();
     }
 
     # Initializes the endpoint.
-    public function initEndpoint() = external;
+    public function init() = external;
 
     # Push text to the connection.
     #
@@ -62,7 +60,7 @@ public type WebSocketClient client object {
     # + data - Binary data to be sent
     # + finalFrame - Set to `true` if this is a final frame of a (long) message
     # + return - `error` if an error occurs when sending
-    public remote function pushBinary(byte[] data, boolean finalFrame = true) returns error? {
+    public remote function pushBinary(byte[] data, boolean finalFrame = true) returns WebSocketError? {
         return self.conn.pushBinary(data, finalFrame);
     }
 
@@ -92,8 +90,8 @@ public type WebSocketClient client object {
     #                   until a close frame is received. If WebSocket frame is received from the remote endpoint,
     #                   within waiting period the connection is terminated immediately.
     # + return - `error` if an error occurs when sending
-    public remote function close(public int? statusCode = 1000, public string? reason = (),
-        public int timeoutInSecs = 60) returns WebSocketError? {
+    public remote function close(int? statusCode = 1000, string? reason = (), int timeoutInSecs = 60)
+    returns WebSocketError? {
         return self.conn.close(statusCode = statusCode, reason = reason, timeoutInSecs = timeoutInSecs);
     }
 
@@ -120,8 +118,10 @@ public type WebSocketClient client object {
 # + secureSocket - SSL/TLS related options
 # + maxFrameSize - The maximum payload size of a WebSocket frame in bytes.
 #                  If this is not set or is negative  or zero the default frame size of 65536 will be used.
+# + targetUrls - The set of urls which are used to connect the server.
+# + failoverInterval - The maximum number of milliseconds to delay a failover attempt.
 # + retryConfig - Configurations related to retry
-public type WebSocketClientEndpointConfig record {|
+public type WebSocketFailoverClientEndpointConfig record {|
     service? callbackService = ();
     string[] subProtocols = [];
     map<string> customHeaders = {};
@@ -129,20 +129,7 @@ public type WebSocketClientEndpointConfig record {|
     boolean readyOnConnect = true;
     SecureSocket? secureSocket = ();
     int maxFrameSize = 0;
+    string[] targetUrls = [];
+    int failoverInterval = 1000;
     WebSocketRetryConfig retryConfig?;
-|};
-
-# Configuration for the websocket reconnect
-#
-# + maxCount - The maximum number of reconnection attempts that will make before giving up. If 0,
-#                   reconnection attempts will continue to be made forever.
-# + intervalInMillis - The number of milliseconds to delay before attempting to reconnect.
-# + backOffFactor - The rate of increase of the reconnect delay. Allows reconnect attempts to back off when problems
-#                persist.
-# + maxIntervalInMillis - The maximum number of milliseconds to delay a reconnection attempt.
-public type WebSocketRetryConfig record {|
-    int maxCount = 0;
-    int intervalInMillis = 1000;
-    float backOffFactor = 1.0;
-    int maxIntervalInMillis = 30000;
 |};

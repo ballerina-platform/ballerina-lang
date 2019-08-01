@@ -22,8 +22,6 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.ballerinalang.test.util.websocket.server.WebSocketRemoteServer;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;
@@ -38,36 +36,83 @@ import java.util.concurrent.TimeUnit;
 public class RetryClientTest extends WebSocketTestCommons {
 
     private WebSocketRemoteServer remoteServer;
-    private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9202/retry/ws";
-    private static final int time = 15;
-    private static final ByteBuffer SENDING_BYTE_BUFFER = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
+    private String url;
+    private int port;
+    private boolean sslEnabled;
 
-    @BeforeClass(description = "Initializes the Ballerina server with the retry_client.bal file")
-    public void setup() throws InterruptedException, URISyntaxException, BallerinaTestException {
-        remoteServer = new WebSocketRemoteServer(15200);
-        remoteServer.run();
-        client = new WebSocketTestClient(URL);
-        client.handshake();
+    public RetryClientTest(int port, boolean sslEnabled, String url) {
+        this.port = port;
+        this.sslEnabled = sslEnabled;
+        this.url = url;
     }
 
-    @Test(description = "Tests retry function for client")
-    public void testRetryClient() throws InterruptedException, BallerinaTestException {
+    @Test(description = "Tests sending and receiving of text frames in WebSockets")
+    public void testRetry() throws URISyntaxException, InterruptedException, BallerinaTestException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
+        remoteServer = new WebSocketRemoteServer(port, sslEnabled);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        remoteServer.run();
+        WebSocketTestClient client = new WebSocketTestClient(url);
+        client.handshake();
+        client.setCountDownLatch(countDownLatch);
         remoteServer.stop();
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         remoteServer.run();
-        client.setCountDownLatch(countDownLatch);
-        countDownLatch.await(time, TimeUnit.SECONDS);
-        client.sendPing(SENDING_BYTE_BUFFER);
-        client.sendText("custom-headers");
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-        Assert.assertEquals(client.getBufferReceived(), SENDING_BYTE_BUFFER);
-        Assert.assertTrue(client.isPong());
+        String textSent = "hi all";
+        client.sendText(textSent);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        Assert.assertEquals(client.getTextReceived(), textSent);
+        remoteServer.stop();
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        client.shutDown();
     }
 
-    @AfterClass(description = "Stops the Ballerina server")
-    public void cleanup() throws InterruptedException {
+    @Test(description = "Tests sending and receiving of binary frames in WebSocket")
+    public void testRetry1() throws URISyntaxException, InterruptedException, BallerinaTestException {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        remoteServer = new WebSocketRemoteServer(port, sslEnabled);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        remoteServer.run();
+        WebSocketTestClient client = new WebSocketTestClient(url);
+        client.handshake();
+        client.setCountDownLatch(countDownLatch);
+        remoteServer.stop();
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        remoteServer.run();
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
+        client.sendBinary(bufferSent);
+        countDownLatch.await(20, TimeUnit.SECONDS);
+        Assert.assertEquals(client.getBufferReceived(), bufferSent);
+        client.shutDown();
+        remoteServer.stop();
+    }
+
+    @Test(description = "Tests sending and receiving of binary frames in WebSocket")
+    public void testRetry2() throws URISyntaxException, InterruptedException, BallerinaTestException {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        remoteServer = new WebSocketRemoteServer(port, sslEnabled);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        remoteServer.run();
+        WebSocketTestClient client = new WebSocketTestClient(url);
+        client.handshake();
+        client.setCountDownLatch(countDownLatch);
+        remoteServer.stop();
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        remoteServer.run();
+        countDownLatch.await(30, TimeUnit.SECONDS);
+        ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
+        client.sendBinary(bufferSent);
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        Assert.assertEquals(client.getBufferReceived(), bufferSent);
+        remoteServer.stop();
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        remoteServer.run();
+        countDownLatch.await(30, TimeUnit.SECONDS);
+        client.sendBinary(bufferSent);
+        countDownLatch.await(30, TimeUnit.SECONDS);
+        Assert.assertEquals(client.getBufferReceived(), bufferSent);
         client.shutDown();
         remoteServer.stop();
     }
