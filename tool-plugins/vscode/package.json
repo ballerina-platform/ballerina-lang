@@ -202,15 +202,6 @@
                 "category": "Ballerina"
             },
             {
-                "command": "ballerina.showDiagram",
-                "title": "Show Diagram",
-                "icon": {
-                    "dark": "./resources/images/icons/design-view-inverse.svg",
-                    "light": "./resources/images/icons/design-view.svg"
-                },
-                "category": "Ballerina"
-            },
-            {
                 "command": "ballerina.showExamples",
                 "title": "Show Examples",
                 "category": "Ballerina"
@@ -262,7 +253,7 @@
             "editor/context": [
                 {
                     "when": "resourceLangId == ballerina",
-                    "command": "ballerina.showDiagram",
+                    "command": "ballerina.showProjectOverview",
                     "group": "navigation"
                 },
                 {

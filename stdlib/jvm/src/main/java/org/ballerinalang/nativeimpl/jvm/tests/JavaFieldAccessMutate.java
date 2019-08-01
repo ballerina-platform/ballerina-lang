@@ -28,9 +28,13 @@ import java.util.UUID;
 public class JavaFieldAccessMutate {
     // Static fields
     public static String contractId = "Ballerina";
+    public static int age = 10;
+    public static short aShort = 11;
 
     // Instance fields
     public Date createdAt;
+    public boolean isEmpty = false;
+    public float lkr = 0.0f;
     public UUID uuid = UUID.fromString("951e8356-d08f-429a-b49d-77df6cee37e2");
 
     public JavaFieldAccessMutate(Date createdAt) {

@@ -17,6 +17,10 @@
  */
 package org.ballerinalang.nativeimpl.jvm.tests;
 
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.MapValue;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.UUID;
@@ -47,6 +51,15 @@ public class StaticMethods {
 
     public static Integer acceptThreeParamsAndReturnSomething(Integer s1, Integer s2, Integer s3) {
         return s1 + s2 + s3;
+    }
+
+    // This scenario is for map value to be passed to interop and return array value.
+    public static ArrayValue getArrayValueFromMap(String key, MapValue mapValue) {
+        ArrayValue arrayValue = new ArrayValue(BTypes.typeInt);
+        arrayValue.add(0, 1);
+        long fromMap = mapValue.getIntValue(key);
+        arrayValue.add(1, fromMap);
+        return arrayValue;
     }
 
     public static String getString(UUID uuid) {

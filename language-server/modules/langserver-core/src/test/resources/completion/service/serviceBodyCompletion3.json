@@ -15,7 +15,7 @@
     },
     {
       "label": "myService1",
-      "kind": "Variable",
+      "kind": "Unit",
       "detail": "myService1",
       "sortText": "120",
       "insertText": "myService1",
@@ -57,29 +57,6 @@
             }
           },
           "newText": "import ballerinax/java.jdbc;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerinax/java.jms",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "java.jms",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerinax/java.jms;\n"
         }
       ]
     },
@@ -425,29 +402,6 @@
             }
           },
           "newText": "import ballerina/streams;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/artemis",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "artemis",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/artemis;\n"
         }
       ]
     },
