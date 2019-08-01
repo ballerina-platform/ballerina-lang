@@ -42,7 +42,7 @@ public type Process object {
         return nativeDestroy(self);
     }
     
-    # Provides a channel to write into, where this data is made available as
+    # Provides a channel (to write into) in which this data is made available as
     # the standard input for the process.
     #
     # + return - The `io:WritableByteChannel` representing the channel to write into for process's standard input
