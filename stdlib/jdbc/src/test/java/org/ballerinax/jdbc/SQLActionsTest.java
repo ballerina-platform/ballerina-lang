@@ -183,6 +183,7 @@ public class SQLActionsTest {
         Assert.assertEquals(((BDecimal) returns[6]).decimalValue(), new BigDecimal("1234.567"));
         Assert.assertEquals(((BDecimal) returns[7]).decimalValue(), new BigDecimal("1234.567"));
         Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D, DELTA);
+        Assert.assertEquals(((BInteger) returns[9]).intValue(), 127);
     }
 
     @Test(groups = CONNECTOR_TEST)
@@ -196,6 +197,7 @@ public class SQLActionsTest {
         Assert.assertEquals(((BDecimal) returns[6]).decimalValue(), new BigDecimal("1234.567"));
         Assert.assertEquals(((BDecimal) returns[7]).decimalValue(), new BigDecimal("1234.567"));
         Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D, DELTA);
+        Assert.assertEquals(((BInteger) returns[9]).intValue(), -128);
     }
 
     @Test(groups = CONNECTOR_TEST)
