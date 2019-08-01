@@ -82,7 +82,7 @@ public const annotation ConstructorData Constructor on source external;
 # which has an external function body. The Ballerina function body is marked as `external` means that the
 # implementation of the function is not provided in the Ballerina source module.
 #
-# Following code snippet shows an example usage of this annotation. Here the `getUUID` Ballerina function's
+# The following code snippet shows an example usage of this annotation. Here, the `getUUID` Ballerina function's
 # implementation is provided by the `java.util.UUID.randomUUID` static method.
 #
 #       import ballerina/java;
