@@ -96,7 +96,7 @@ public const annotation ConstructorData Constructor on source external;
 # from the Ballerina function.
 public const annotation MethodData Method on source external;
 
-# FieldGet annotation describes a Java Field acccess that provides an implementation to a Ballerina function
+# The `FieldGet` annotation describes a Java Field access, which provides an implementation of a Ballerina function,
 # which has an external function body.
 public const annotation FieldData FieldGet on source external;
 
