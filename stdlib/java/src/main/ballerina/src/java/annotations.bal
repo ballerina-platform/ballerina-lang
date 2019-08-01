@@ -79,7 +79,7 @@ public type FieldData record {|
 public const annotation ConstructorData Constructor on source external;
 
 # Method annotation describes a Java method that provides an implementation to a Ballerina function
-# which has an external function body. The Ballerina function body is marked as `external` means that the
+# which has an external function body. If the Ballerina function body is marked as `external`, it means that the
 # implementation of the function is not provided in the Ballerina source module.
 #
 # The following code snippet shows an example usage of this annotation. Here, the `getUUID` Ballerina function's
