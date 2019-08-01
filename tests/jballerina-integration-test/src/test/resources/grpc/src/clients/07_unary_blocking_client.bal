@@ -24,21 +24,21 @@ const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 //    string resp1 = testUnaryBlockingClient("A");
 //    io:println("1. " + resp1);
 //    int resp2 = testUnaryBlockingIntClient(10);
-//    io:println("2. " + resp2);
+//    io:println("2. " + resp2.toString());
 //    float resp3 = testUnaryBlockingFloatClient(8.345);
-//    io:println("3. " + resp3);
+//    io:println("3. " + resp3.toString());
 //    boolean resp4 = testUnaryBlockingBoolClient(true);
-//    io:println("4. " + resp4);
+//    io:println("4. " + resp4.toString());
 //    var resp5 = testResponseInsideMatch("WSO2");
 //    io:println(resp5);
-//    Response resp6 = testUnaryBlockingStructClient({name: "Danesh", message: "OK", age:25});
+//    Response resp6 = testUnaryBlockingStructClient();
 //    io:print("7. ");
 //    io:println(resp6);
 //}
 
 function testUnaryBlockingClient(string name) returns (string) {
-    [string, grpc:Headers]|error unionResp = helloWorldBlockingEp->hello(name);
-    if (unionResp is error) {
+    [string, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->hello(name);
+    if (unionResp is grpc:Error) {
         string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
         io:println(msg);
         return msg;
@@ -52,8 +52,8 @@ function testUnaryBlockingClient(string name) returns (string) {
 }
 
 function testUnaryBlockingIntClient(int age) returns (int) {
-    [int, grpc:Headers]|error unionResp = helloWorldBlockingEp->testInt(age);
-    if (unionResp is error) {
+    [int, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->testInt(age);
+    if (unionResp is grpc:Error) {
         string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
         io:println(msg);
         return -1;
@@ -67,8 +67,8 @@ function testUnaryBlockingIntClient(int age) returns (int) {
 }
 
 function testUnaryBlockingFloatClient(float salary) returns (float) {
-    [float, grpc:Headers]|error unionResp = helloWorldBlockingEp->testFloat(salary);
-    if (unionResp is error) {
+    [float, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->testFloat(salary);
+    if (unionResp is grpc:Error) {
         string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
         io:println(msg);
         return -1.0;
@@ -82,8 +82,8 @@ function testUnaryBlockingFloatClient(float salary) returns (float) {
 }
 
 function testUnaryBlockingBoolClient(boolean isAvailable) returns (boolean) {
-    [boolean, grpc:Headers]|error unionResp = helloWorldBlockingEp->testBoolean(isAvailable);
-    if (unionResp is error) {
+    [boolean, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->testBoolean(isAvailable);
+    if (unionResp is grpc:Error) {
         string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
         io:println(msg);
         return false;
@@ -97,8 +97,8 @@ function testUnaryBlockingBoolClient(boolean isAvailable) returns (boolean) {
 }
 
 function testResponseInsideMatch(string msg) returns Response {
-    [Response, grpc:Headers]|error unionResp = helloWorldBlockingEp->testResponseInsideMatch(msg);
-    if (unionResp is error) {
+    [Response, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->testResponseInsideMatch(msg);
+    if (unionResp is grpc:Error) {
         string message = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
         io:println(message);
         return {};
@@ -111,10 +111,10 @@ function testResponseInsideMatch(string msg) returns Response {
     }
 }
 
-function testUnaryBlockingStructClient(Request req) returns (Response) {
-    //Request req = {name:"Sam", age:25, message:"Testing."};
-    [Response, grpc:Headers]|error unionResp = helloWorldBlockingEp->testStruct(req);
-    if (unionResp is error) {
+function testUnaryBlockingStructClient() returns (Response) {
+    Request req = {name:"Sam", age:10, message:"Testing."};
+    [Response, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->testStruct(req);
+    if (unionResp is grpc:Error) {
         string msg = io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
         io:println(msg);
         return {};
@@ -129,20 +129,23 @@ function testUnaryBlockingStructClient(Request req) returns (Response) {
 
 public type HelloWorldBlockingClient client object {
 
+    *grpc:AbstractClientEndpoint;
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
-        error? result = c.initStub("blocking", ROOT_DESCRIPTOR, getDescriptorMap());
-        if (result is error) {
-            panic result;
+        grpc:Error? result = c.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        if (result is grpc:Error) {
+            error err = result;
+            panic err;
         } else {
             self.grpcClient = c;
         }
     }
 
-    remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|error) {
+    remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
         var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld100/hello", req, headers);
         any result = ();
         grpc:Headers resHeaders = new;
@@ -150,7 +153,7 @@ public type HelloWorldBlockingClient client object {
         return [result.toString(), resHeaders];
     }
 
-    remote function testInt(int req, grpc:Headers? headers = ()) returns ([int, grpc:Headers]|error) {
+    remote function testInt(int req, grpc:Headers? headers = ()) returns ([int, grpc:Headers]|grpc:Error) {
         var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld100/testInt", req, headers);
         anydata result = ();
         grpc:Headers resHeaders = new;
@@ -159,11 +162,11 @@ public type HelloWorldBlockingClient client object {
         if (value is int) {
             return [value, resHeaders];
         } else {
-            return value;
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
         }
     }
 
-    remote function testFloat(float req, grpc:Headers? headers = ()) returns ([float, grpc:Headers]|error) {
+    remote function testFloat(float req, grpc:Headers? headers = ()) returns ([float, grpc:Headers]|grpc:Error) {
         var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld100/testFloat", req, headers);
         anydata result = ();
         grpc:Headers resHeaders = new;
@@ -172,11 +175,11 @@ public type HelloWorldBlockingClient client object {
         if (value is float) {
             return [value, resHeaders];
         } else {
-            return value;
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
         }
     }
 
-    remote function testBoolean(boolean req, grpc:Headers? headers = ()) returns ([boolean, grpc:Headers]|error) {
+    remote function testBoolean(boolean req, grpc:Headers? headers = ()) returns ([boolean, grpc:Headers]|grpc:Error) {
         var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld100/testBoolean", req, headers);
         anydata result = ();
         grpc:Headers resHeaders = new;
@@ -185,11 +188,11 @@ public type HelloWorldBlockingClient client object {
         if (value is boolean) {
             return [value, resHeaders];
         } else {
-            return value;
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
         }
     }
 
-    remote function testStruct(Request req, grpc:Headers? headers = ()) returns ([Response, grpc:Headers]|error) {
+    remote function testStruct(Request req, grpc:Headers? headers = ()) returns ([Response, grpc:Headers]|grpc:Error) {
         var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld100/testStruct", req, headers);
         anydata result = ();
         grpc:Headers resHeaders = new;
@@ -198,11 +201,11 @@ public type HelloWorldBlockingClient client object {
         if (value is Response) {
             return [value, resHeaders];
         } else {
-            return value;
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
         }
     }
 
-    remote function testResponseInsideMatch(string req, grpc:Headers? headers = ()) returns [Response, grpc:Headers]|error {
+    remote function testResponseInsideMatch(string req, grpc:Headers? headers = ()) returns [Response, grpc:Headers]|grpc:Error {
         var unionResp = check self.grpcClient->blockingExecute("grpcservices.HelloWorld100/testResponseInsideMatch", req, headers);
         anydata result = ();
         grpc:Headers resHeaders = new;
@@ -211,7 +214,7 @@ public type HelloWorldBlockingClient client object {
         if (value is Response) {
             return [value, resHeaders];
         } else {
-            return value;
+            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
         }
     }
 };
@@ -219,40 +222,43 @@ public type HelloWorldBlockingClient client object {
 
 public type helloWorldClient client object {
 
+    *grpc:AbstractClientEndpoint;
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
-        error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
-        if (result is error) {
-            panic result;
+        grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        if (result is grpc:Error) {
+            error err = result;
+            panic err;
         } else {
             self.grpcClient = c;
         }
     }
 
-    remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld100/hello", req, msgListener, headers);
     }
 
-    remote function testInt(int req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testInt(int req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld100/testInt", req, msgListener, headers);
     }
 
-    remote function testFloat(float req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testFloat(float req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld100/testFloat", req, msgListener, headers);
     }
 
-    remote function testBoolean(boolean req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testBoolean(boolean req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld100/testBoolean", req, msgListener, headers);
     }
 
-    remote function testStruct(Request req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testStruct(Request req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld100/testStruct", req, msgListener, headers);
     }
 
-    remote function testResponseInsideMatch (string req, service msgListener, grpc:Headers? headers = ()) returns error? {
+    remote function testResponseInsideMatch (string req, service msgListener, grpc:Headers? headers = ()) returns grpc:Error? {
         return self.grpcClient->nonBlockingExecute("grpcservices.HelloWorld100/testResponseInsideMatch", req, msgListener, headers);
     }
 };

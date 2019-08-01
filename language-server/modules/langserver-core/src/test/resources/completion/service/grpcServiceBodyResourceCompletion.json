@@ -192,29 +192,6 @@
       ]
     },
     {
-      "label": "ballerinax/java.jms",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "java.jms",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerinax/java.jms;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.object",
       "kind": "Module",
       "detail": "Package",
@@ -533,29 +510,6 @@
             }
           },
           "newText": "import ballerina/streams;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/artemis",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "artemis",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/artemis;\n"
         }
       ]
     },

@@ -236,27 +236,28 @@ public class EventBus {
                             ClassPrepareEvent evt = (ClassPrepareEvent) event;
 
                             Arrays.stream(this.breakpointsList).forEach(breakpoint -> {
-                                String balName = evt.referenceType().name() + ".bal";
-                                Path path = Paths.get(breakpoint.getSource().getPath());
-                                Path projectRoot = findProjectRoot(path);
-                                String moduleName;
-                                if (projectRoot == null) {
-                                    moduleName = breakpoint.getSource().getName();
-                                } else {
-                                    moduleName = PackageUtils.getRelativeFilePath(path.toString());
-                                }
+                                try {
+                                    List<String> paths = evt.referenceType().sourcePaths("");
+                                    String balName = paths.size() > 0 ? paths.get(0) : "";
 
-                                if (moduleName.equals(balName)) {
-                                    Location location = null;
-                                    try {
-                                        location = evt.referenceType().locationsOfLine(breakpoint.getLine()
-                                                .intValue()).get(0);
+                                    Path path = Paths.get(breakpoint.getSource().getPath());
+                                    Path projectRoot = findProjectRoot(path);
+                                    String moduleName;
+                                    if (projectRoot == null) {
+                                        moduleName = breakpoint.getSource().getName();
+                                    } else {
+                                        moduleName = PackageUtils.getRelativeFilePath(path.toString());
+                                    }
+                                    if (moduleName.equals(balName)) {
+                                        Location location = evt.referenceType().locationsOfLine(
+                                                breakpoint.getLine().intValue()).get(0);
                                         BreakpointRequest bpReq = context.getDebuggee().eventRequestManager()
                                                 .createBreakpointRequest(location);
                                         bpReq.enable();
-                                    } catch (AbsentInformationException e) {
-                                        // ignore absent information
                                     }
+
+                                } catch (AbsentInformationException e) {
+
                                 }
                             });
                         }
@@ -265,8 +266,6 @@ public class EventBus {
                          * If this is BreakpointEvent, then read & print variables.
                          */
                         if (event instanceof BreakpointEvent) {
-                            // disable the breakpoint event
-                            event.request().disable();
                             StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
                             populateMaps();
                             stoppedEventArguments.setReason(StoppedEventArgumentsReason.BREAKPOINT);
@@ -274,7 +273,6 @@ public class EventBus {
                             stoppedEventArguments.setAllThreadsStopped(true);
                             context.getClient().stopped(stoppedEventArguments);
                         } else if (event instanceof StepEvent) {
-                            event.request().disable();
                             populateMaps();
                             StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
                             stoppedEventArguments.setReason(StoppedEventArgumentsReason.STEP);

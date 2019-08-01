@@ -24,6 +24,7 @@ import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.ServerCall;
 import org.ballerinalang.net.grpc.ServiceResource;
 import org.ballerinalang.net.grpc.Status;
+import org.ballerinalang.net.grpc.exception.GrpcServerException;
 
 /**
  * Interface to initiate processing of incoming remote calls for unary services.
@@ -34,8 +35,12 @@ public class UnaryServerCallHandler extends ServerCallHandler {
 
     private ServiceResource resource;
 
-    public UnaryServerCallHandler(Descriptors.MethodDescriptor methodDescriptor, ServiceResource resource) {
+    public UnaryServerCallHandler(Descriptors.MethodDescriptor methodDescriptor, ServiceResource resource)
+            throws GrpcServerException {
         super(methodDescriptor);
+        if (resource == null) {
+            throw new GrpcServerException("Unary service resource doesn't exist.");
+        }
         this.resource = resource;
     }
 

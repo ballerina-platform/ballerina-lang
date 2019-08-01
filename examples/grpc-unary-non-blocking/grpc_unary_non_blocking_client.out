@@ -1,13 +1,13 @@
 # Create a Ballerina project and a module inside it.
 # Generate client endpoint and stub code using `grpc_unary_non_blocking_cont.proto` file.
 # For example, if you create a module named 'client', execute the following command to generate Ballerina code.
-$ ballerina grpc --input grpc_unary_non_blocking_cont.proto --output client --mode client
+$ ballerina grpc --input grpc_unary_non_blocking_cont.proto --output src/client --mode client
 
-# Once you run the command, `grpc_unary_non_blocking_cont_pb.bal` and `HelloWorld_sample_client.bal` files are generated inside client directory.
+# Once you run the command, `grpc_unary_non_blocking_cont_pb.bal` and `HelloWorld_sample_client.bal` files are generated inside client module.
 # Replace the content of `HelloWorld_sample_client.bal` file with the content of `grpc_unary_non_blocking_client.bal` file.
 
 # Execute the following command to build the 'client' module.
 $ ballerina build client
 
 # Run the client using the following command.
-$ ballerina run target/client.balx
+$ ballerina run target/bin/client-executable.jar

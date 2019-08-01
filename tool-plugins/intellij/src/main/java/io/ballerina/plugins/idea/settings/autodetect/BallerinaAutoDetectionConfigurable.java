@@ -30,28 +30,28 @@ import java.awt.Dimension;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+
 /**
- * Adds enabling/disabling Ballerina language server auto detection in settings.
+ * Adds enabling/disabling Ballerina home auto detection in settings.
  */
 public class BallerinaAutoDetectionConfigurable implements SearchableConfigurable {
 
-    private JCheckBox myCbUseAutoDetectedBallerinaHome;
-
-    @NotNull
-    private final BallerinaAutoDetectionSettings myLangServerAutoDetectionSettings;
+    private JCheckBox myAutoDetectionCb;
+    private final BallerinaAutoDetectionSettings myBalHomeAutoDetectionSettings;
     private final boolean myIsDialog;
 
     public BallerinaAutoDetectionConfigurable(@NotNull Project project, boolean dialogMode) {
-        myLangServerAutoDetectionSettings = BallerinaAutoDetectionSettings.getInstance();
+        myBalHomeAutoDetectionSettings = BallerinaAutoDetectionSettings.getInstance(project);
         myIsDialog = dialogMode;
     }
 
     @Nullable
     @Override
     public JComponent createComponent() {
+
         FormBuilder builder = FormBuilder.createFormBuilder();
-        myCbUseAutoDetectedBallerinaHome = new JCheckBox("Enable language server auto detection");
-        builder.addComponent(myCbUseAutoDetectedBallerinaHome);
+        myAutoDetectionCb = new JCheckBox("Auto-Detect Ballerina Home");
+        builder.addComponent(myAutoDetectionCb);
         JPanel result = new JPanel(new BorderLayout());
         result.add(builder.getPanel(), BorderLayout.NORTH);
         if (myIsDialog) {
@@ -62,23 +62,23 @@ public class BallerinaAutoDetectionConfigurable implements SearchableConfigurabl
 
     @Override
     public boolean isModified() {
-        return myLangServerAutoDetectionSettings.autoDetectBalHome() != myCbUseAutoDetectedBallerinaHome.isSelected();
+        return myBalHomeAutoDetectionSettings.getIsAutoDetectionEnabled() != myAutoDetectionCb.isSelected();
     }
 
     @Override
     public void apply() {
-        myLangServerAutoDetectionSettings.setAutoDetectBalHome(myCbUseAutoDetectedBallerinaHome.isSelected());
+        myBalHomeAutoDetectionSettings.setIsAutoDetectionEnabled(myAutoDetectionCb.isSelected());
     }
 
     @Override
     public void reset() {
-        myCbUseAutoDetectedBallerinaHome.setSelected(myLangServerAutoDetectionSettings.autoDetectBalHome());
+        myAutoDetectionCb.setSelected(myBalHomeAutoDetectionSettings.getIsAutoDetectionEnabled());
     }
 
     @NotNull
     @Override
     public String getId() {
-        return "ballerina.langserver.autodetect";
+        return "ballerina.home.autodetect";
     }
 
     @Nullable
@@ -90,7 +90,7 @@ public class BallerinaAutoDetectionConfigurable implements SearchableConfigurabl
     @Nls
     @Override
     public String getDisplayName() {
-        return "Language Server Auto Detection";
+        return "Ballerina Home Auto Detection";
     }
 
     @Nullable
@@ -101,7 +101,7 @@ public class BallerinaAutoDetectionConfigurable implements SearchableConfigurabl
 
     @Override
     public void disposeUIResources() {
-        UIUtil.dispose(myCbUseAutoDetectedBallerinaHome);
-        myCbUseAutoDetectedBallerinaHome = null;
+        UIUtil.dispose(myAutoDetectionCb);
+        myAutoDetectionCb = null;
     }
 }

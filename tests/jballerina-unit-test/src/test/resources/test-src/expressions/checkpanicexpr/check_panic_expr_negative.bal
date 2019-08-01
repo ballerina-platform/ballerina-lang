@@ -16,9 +16,9 @@ function testCheckedExprSemanticErrors2() returns error? {
     string line = checkpanic readLineError();
 }
 
-public type MyError error<string, record { int code; }>;
+public type MyError error<string, record { int code; string message?; error cause?; }>;
 
-public type CustomError error<string, record { int code; string data; }>;
+public type CustomError error<string, record { int code; string data; string message?; error cause?; }>;
 
 function readLine() returns MyError | CustomError {
     MyError e = error("io error", code = 0);

@@ -1,9 +1,9 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run immutable_values.bal
-m1 === m2: true
-Frozen status of m1: true
+m1 === m2: false
+m1 is immutable: false
+m2 is immutable: true
 Error occurred on update: Invalid map insertion: modification not allowed on frozen value
-'.freeze()' successful for m3
-'.freeze()' failed for m4: 'freeze()' not allowed on 'Employee'
+m2 === m3: true
 frozenVal is map<string>

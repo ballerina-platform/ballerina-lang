@@ -18,8 +18,8 @@ import ballerina/task;
 import ballerina/runtime;
 
 task:TimerConfiguration configuration = {
-    interval: 1000,
-    initialDelay: 1000
+    intervalInMillis: 1000,
+    initialDelayInMillis: 1000
 };
 
 boolean isPaused = false;

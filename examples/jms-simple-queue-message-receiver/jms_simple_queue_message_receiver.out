@@ -1,9 +1,0 @@
-# Start the Artemis message broker.
-# Copy the artemis-jms-client-<version>.jar and artemis-selector-<version>.jar files to the <BALLERINA_HOME>/bre/lib directory.
-
-# Navigate to the directory that contains the 'jms_simple_queue_message_receiver.bal' file, and issue the
-# 'ballerina run' command.
-$ ballerina run jms_simple_queue_message_receiver.bal
-# The JMS subscriber runs as a Ballerina service and listens to the subscribed queue
-# or topic.
-2018-06-14 15:26:55,895 INFO  [ballerina/jms] - Message receiver created for queue MyQueue

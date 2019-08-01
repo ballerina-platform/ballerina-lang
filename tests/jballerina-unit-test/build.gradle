@@ -27,7 +27,6 @@ configurations {
 
 dependencies {
     implementation 'org.slf4j:slf4j-api'
-    implementation project(':ballerina-config')
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-io')
@@ -51,7 +50,6 @@ dependencies {
     testCompile 'io.netty:netty-transport'
     testCompile 'io.netty:netty-codec'
     testCompile 'org.wso2.transport.http:org.wso2.transport.http.netty'
-    testCompile 'org.apache.ws.commons.axiom:axiom-dom'
     testCompile 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
     testCompile 'org.testng:testng'
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
@@ -79,7 +77,6 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
     // baloTestImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-jms', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
     // baloTestImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
 //    baloTestImplementation project(path: ':ballerina-streams', configuration: 'baloImplementation')

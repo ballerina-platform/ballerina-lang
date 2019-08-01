@@ -20,7 +20,6 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-config')
     implementation project(':ballerina-runtime')
     implementation 'com.uber.jaeger:jaeger-core'
     implementation 'com.uber.jaeger:jaeger-thrift'

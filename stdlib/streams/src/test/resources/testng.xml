@@ -32,6 +32,8 @@
             <class name="org.ballerinalang.stdlib.streams.BallerinaStreamsV2AggregatorWithGroupByAndWindowTest" />
             <class name="org.ballerinalang.stdlib.streams.BallerinaStreamsV2HavingTest" />
             <class name="org.ballerinalang.stdlib.streams.BallerinaStreamsV2OrderByTest" />
+            <class name="org.ballerinalang.stdlib.streams.BallerinaStreamsV2HoppingWindowTest" />
+            <class name="org.ballerinalang.stdlib.streams.BallerinaStreamsV2CustomWindowTest" />
         </classes>
     </test>
 </suite>

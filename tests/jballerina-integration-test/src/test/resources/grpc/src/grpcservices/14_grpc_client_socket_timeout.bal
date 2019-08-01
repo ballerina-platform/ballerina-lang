@@ -29,8 +29,8 @@ service HelloWorld14 on new grpc:Listener(9104) {
         string message = "Hello " + name;
         runtime:sleep(2000);
         // Sends response message with headers.
-        error? err = caller->send(message);
-        if (err is error) {
+        grpc:Error? err = caller->send(message);
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason() + " - "
                     + <string> err.detail()["message"]);
         }

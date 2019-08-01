@@ -1,13 +1,14 @@
 import ballerina/java;
 
-public function interopWithJavaArrayList() returns [handle, int, handle] {
+public function interopWithJavaArrayList() returns [handle, int, string] {
         handle aList = newArrayListWithInitialSize(10);
-        addElement(aList, java:toJString("Ballerina"));
-        addElement(aList, java:toJString("Language"));
-        addElement(aList, java:toJString("Specification"));
+        addElement(aList, java:fromString("Ballerina"));
+        addElement(aList, java:fromString("Language"));
+        addElement(aList, java:fromString("Specification"));
         handle element = getElement(aList, 2);
+        string? strElement = java:toString(element);
         int listSize = size(aList);
-        return [toString(aList), listSize, element];
+        return [toString(aList), listSize, strElement?:""];
 }
 
 public function newArrayList() returns handle = @java:Constructor {

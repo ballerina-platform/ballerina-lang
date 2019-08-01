@@ -51,7 +51,7 @@ public class GrpcMutualSslWithCertsTest extends GrpcBaseTest {
 
     @Test
     public void testMutualSSLWithcerts() throws IOException {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "10_grpc_ssl_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients", "10_grpc_ssl_client.bal");
         String privateKey = StringEscapeUtils.escapeJava(Paths.get("src", "test", "resources", "certsAndKeys",
                 "private.key").toAbsolutePath().toString());
         String publicCert = StringEscapeUtils.escapeJava(Paths.get("src", "test", "resources", "certsAndKeys",
@@ -62,7 +62,7 @@ public class GrpcMutualSslWithCertsTest extends GrpcBaseTest {
         registry.initRegistry(runtimeParams, null, null);
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         final String serverMsg = "Hello WSO2";
-        BValue[] responses = BRunUtil.invoke(result, "testUnarySecuredBlockingWithCerts", new BValue[] {});
+        BValue[] responses = BRunUtil.invoke(result, "testUnarySecuredBlockingWithCerts", new Object[] {});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         BString responseValues = (BString) responses[0];

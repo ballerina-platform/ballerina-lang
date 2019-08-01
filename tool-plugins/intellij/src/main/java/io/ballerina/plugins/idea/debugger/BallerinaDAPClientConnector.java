@@ -16,6 +16,7 @@
 
 package io.ballerina.plugins.idea.debugger;
 
+import com.google.common.base.Strings;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import io.ballerina.plugins.idea.debugger.client.DAPClient;
@@ -24,6 +25,7 @@ import io.ballerina.plugins.idea.debugger.client.connection.BallerinaSocketStrea
 import io.ballerina.plugins.idea.debugger.client.connection.BallerinaStreamConnectionProvider;
 import io.ballerina.plugins.idea.preloading.OSUtils;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
+import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp4j.debug.Capabilities;
@@ -204,8 +206,15 @@ public class BallerinaDAPClientConnector {
         String os = OSUtils.getOperatingSystem();
         if (os != null) {
             String balSdkPath = BallerinaSdkUtils.getBallerinaSdkFor(project).getSdkPath();
-            if (balSdkPath == null) {
-                LOG.warn(String.format("Couldn't find ballerina SDK for the project%sto start debug server.",
+
+            // Checks for the user-configured auto detection settings.
+            if (Strings.isNullOrEmpty(balSdkPath) &&
+                    BallerinaAutoDetectionSettings.getInstance(project).getIsAutoDetectionEnabled()) {
+                balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
+            }
+
+            if (Strings.isNullOrEmpty(balSdkPath)) {
+                LOG.warn(String.format("Couldn't find ballerina SDK for the project %s to start debug server.",
                         project.getName()));
                 return null;
             }

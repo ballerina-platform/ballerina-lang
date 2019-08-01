@@ -27,7 +27,7 @@ function attachTimer() {
         age: 0
     };
 
-    task:Scheduler timer = new({ interval: 100, initialDelay: 1000 });
+    task:Scheduler timer = new({ intervalInMillis: 100, initialDelayInMillis: 1000 });
     var attachResult = timer.attach(timerService, person);
     if (attachResult is error) {
         panic attachResult;

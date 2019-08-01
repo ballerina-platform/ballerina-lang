@@ -18,8 +18,8 @@
 
 package org.ballerinalang.test.service.grpc.sample;
 
-import org.ballerinalang.model.types.BStructureType;
-import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -28,8 +28,6 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.util.TestUtils;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -48,14 +46,15 @@ public class UnaryBlockingEmptyValueTestCase extends GrpcBaseTest {
     @BeforeClass
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "01_advanced_type_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients", "01_advanced_type_client" +
+                ".bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
     }
 
     @Test
     public void testNoInputOutputStructClient() {
         //Person p = {name:"Danesh", address:{postalCode:10300, state:"Western", country:"Sri Lanka"}};
-        BValue[] responses = BRunUtil.invoke(result, "testNoInputOutputStruct", new BValue[]{});
+        BValue[] responses = BRunUtil.invoke(result, "testNoInputOutputStruct", new Object[]{});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BMap);
         final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];
@@ -68,19 +67,17 @@ public class UnaryBlockingEmptyValueTestCase extends GrpcBaseTest {
 
     @Test
     public void testInputStructNoOutputClient() {
-        PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
         // Stock Quote struct
         // StockQuote quote2 = {symbol: "Ballerina", name:"ballerina/io", last:1.0, low:0.5, high:2.0};
-        StructureTypeInfo requestInfo = packageInfo.getStructInfo("StockQuote");
-        BStructureType requestType = requestInfo.getType();
-        BMap<String, BValue> requestStruct = new BMap<String, BValue>(requestType);
-        requestStruct.put("symbol", new BString("Ballerina"));
-        requestStruct.put("name", new BString("ballerina/io"));
-        requestStruct.put("last", new BFloat(1.0));
-        requestStruct.put("low", new BFloat(0.5));
-        requestStruct.put("high", new BFloat(2.0));
 
-        BValue[] responses = BRunUtil.invoke(result, "testInputStructNoOutput", new BValue[]{requestStruct});
+        MapValue<String, Object> request = BallerinaValues.createRecordValue(".", "StockQuote");
+        request.put("symbol", "Ballerina");
+        request.put("name", "ballerina/io");
+        request.put("last", 1.0);
+        request.put("low", 0.5);
+        request.put("high", 2.0);
+
+        BValue[] responses = BRunUtil.invoke(result, "testInputStructNoOutput", new Object[]{request});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         final BString response = (BString) responses[0];

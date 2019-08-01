@@ -34,6 +34,7 @@ function testInvalidErrorReasonWithConstantAsReason() returns error {
 
 type Foo record {|
     string message;
+    error cause?;
     int...;
 |};
 

@@ -80,7 +80,7 @@ service echo on testEP {
         body: "person"
     }
     resource function body7(http:Caller caller, http:Request req, Stock person) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 
     @http:ResourceConfig {
