@@ -1,6 +1,6 @@
 # README
 
-Ballerina is a programming language for network distribution applications.
+Ballerina is a programming language for network distributed applications.
 
 Ballerina allows you to code with a statically-typed programming language where listeners, services, client endpoints, and streams are first-class constructs. You can use your preferred IDE and CI/CD tools. Discover, consume, and share modules that integrate endpoints with Ballerina Central. Build binaries, containers, and Kubernetes artifacts and deploy as chaos-ready services on cloud and serverless infrastructure. Integrate distributed endpoints with a simple syntax for resiliency, circuit breakers, transactions, and events.
 
