@@ -24,6 +24,11 @@ const string RESOURCE_ANN_NAME = "ResourceConfig";
 # Service level annotation name.
 const string SERVICE_ANN_NAME = "ServiceConfig";
 
+# Service name.
+const string SERVICE_NAME = "ServiceName";
+# Resource name.
+const string RESOURCE_NAME = "ResourceName";
+
 # Authorization header name.
 public const string AUTH_HEADER = "Authorization";
 
