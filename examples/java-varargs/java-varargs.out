@@ -1,4 +1,4 @@
-# To start the service, navigate to the directory that contains the
+# To run this sample, navigate to the directory that contains the
 # `.bal` file and use the `ballerina run` command.
 $ ballerina run java-varargs.bal
 [1, 2, 42]
