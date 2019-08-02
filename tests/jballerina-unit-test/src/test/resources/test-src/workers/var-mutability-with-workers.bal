@@ -39,9 +39,11 @@ public function testWithTuples() returns [string, int] {
     worker w1 {
       str = "Changed inside worker 1!!!";
       i = i + 40;
+      i -> w2;
     }
 
     worker w2 returns int {
+      int j = <- w1;
       i = 100 + i;
       str = str + " -- Changed inside worker 2!!!";
       return i;
