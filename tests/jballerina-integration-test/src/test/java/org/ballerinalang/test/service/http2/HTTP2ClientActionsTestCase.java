@@ -18,7 +18,6 @@
 package org.ballerinalang.test.service.http2;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.service.http.HttpBaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;

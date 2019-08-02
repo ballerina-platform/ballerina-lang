@@ -20,7 +20,6 @@ package org.ballerinalang.test.service.http2;
 
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.service.http.HttpBaseTest;
 import org.testng.annotations.Test;
 
 import java.io.File;
