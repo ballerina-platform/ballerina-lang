@@ -9,7 +9,7 @@ public function main() {
     io:println(l);
 }
 
-// Defines a Ballerina function which will act as getter to a Java field
+// Define a Ballerina function which will act as getter to a Java field.
 public function pi() returns float = @java:FieldGet {
     name:"PI",
     class:"java/lang/Math"
