@@ -1,4 +1,4 @@
-# To start the service, navigate to the directory that contains the
+# To run this sample, navigate to the directory that contains the
 # `.bal` file and use the `ballerina run` command.
 $ ballerina run access-mutate-java-fields.bal
 25.132741228718345
