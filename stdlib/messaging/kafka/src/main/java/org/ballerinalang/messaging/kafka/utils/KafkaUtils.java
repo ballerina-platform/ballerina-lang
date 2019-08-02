@@ -165,7 +165,8 @@ public class KafkaUtils {
             // TODO: Use the above commented code instead of the for loop once #17075 fixed.
             int i = 0;
             for (ConsumerRecord<byte[], byte[]> record : records) {
-                consumerRecordsArray.add(i++, record);
+                MapValue<String, Object> consumerRecord = populateConsumerRecord(record);
+                consumerRecordsArray.add(i++, consumerRecord);
             }
             return new Object[]{listener, true, consumerRecordsArray, true, null, false, null, false};
         } else {
