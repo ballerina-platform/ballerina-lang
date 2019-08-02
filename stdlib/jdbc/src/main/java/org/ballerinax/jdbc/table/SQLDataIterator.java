@@ -242,15 +242,7 @@ public class SQLDataIterator extends TableIterator {
 
     private void validateAndSetRefRecordField(MapValue<String, Object> bStruct, String fieldName, int expectedTypeTag,
             int actualTypeTag, Object value, String exceptionMessage) throws PanickingApplicationException {
-        boolean typeMatches = false;
-        if (expectedTypeTag == actualTypeTag) {
-            typeMatches = true;
-        } else {
-            if ((actualTypeTag == TypeTags.INT_TAG && expectedTypeTag == TypeTags.BOOLEAN_TAG)) {
-                typeMatches = true;
-            }
-        }
-        setMatchingRefRecordField(bStruct, fieldName, value, typeMatches, exceptionMessage);
+        setMatchingRefRecordField(bStruct, fieldName, value, expectedTypeTag == actualTypeTag, exceptionMessage);
     }
 
     private void validateAndSetRefRecordField(MapValue<String, Object> bStruct, String fieldName,
@@ -492,13 +484,15 @@ public class SQLDataIterator extends TableIterator {
         boolean isOriginalValueNull = rs.wasNull();
         if (fieldTypeTag == TypeTags.UNION_TAG) {
             Boolean booleanValue = isOriginalValueNull ? null : boolValue;
-            validateAndSetRefRecordField(bStruct, fieldName, TypeTags.BOOLEAN_TAG, retrieveNonNilTypeTag(fieldType),
+            int[] expectedTypeTags = { TypeTags.INT_TAG, TypeTags.BOOLEAN_TAG };
+            validateAndSetRefRecordField(bStruct, fieldName, expectedTypeTags, retrieveNonNilTypeTag(fieldType),
                     booleanValue, UNASSIGNABLE_UNIONTYPE_EXCEPTION);
         } else {
             if (isOriginalValueNull) {
                 handleNilToNonNillableFieldAssignment();
             } else {
-                validateAndSetRefRecordField(bStruct, fieldName, TypeTags.BOOLEAN_TAG, fieldTypeTag, boolValue,
+                int[] expectedTypeTags = { TypeTags.INT_TAG, TypeTags.BOOLEAN_TAG };
+                validateAndSetRefRecordField(bStruct, fieldName, expectedTypeTags, fieldTypeTag, boolValue,
                         MISMATCHING_FIELD_ASSIGNMENT);
             }
         }
