@@ -70,7 +70,6 @@ public type Listener object {
                 }
             }
         }
-        addAnnotationFilter(self.config);
         var err = self.initEndpoint();
         if (err is error) {
             panic err;
@@ -306,22 +305,6 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
         }
     }
     // No need to validate else part since the function is called if and only if the `auth is ListenerAuth`
-}
-
-type AnnotationFilter object {
-
-    *RequestFilter;
-
-    public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
-        runtime:getInvocationContext().attributes[SERVICE_NAME] = context.getServiceName();
-        runtime:getInvocationContext().attributes[RESOURCE_NAME] = context.getResourceName();
-        return true;
-    }
-};
-
-function addAnnotationFilter(ServiceEndpointConfiguration config) {
-    AnnotationFilter annotationFilter = new;
-    config.filters.unshift(annotationFilter);
 }
 
 //////////////////////////////////
