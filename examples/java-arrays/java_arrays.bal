@@ -1,8 +1,13 @@
-import ballerina/io;
 import ballerinax/java;
+import ballerina/io;
+
+public function splitString(handle receiver, handle regex) returns handle = @java:Method {
+    name:"split",
+    class: "java/lang/String"
+} external;
 
 public function main() {
-    // Convert Ballerina strings to Java strings, to be passed to Java methods.
+    // Convert Ballerina strings to Java strings before passing to Java methods.
     handle helloString = java:fromString("Hello world");
     handle regex = java:fromString(" ");
 
@@ -12,12 +17,7 @@ public function main() {
     int numWords = java:getArrayLength(words);
     io:println(numWords);
 
-    // Access an array element, handle of the array is passed as the first argument.
+    // Access an array element, pass the handle that refers to the Java array instance as the first argument.
     handle secondWord = java:getArrayElement(words, 1);
     io:println(secondWord);
 }
-
-public function splitString(handle receiver, handle regex) returns handle = @java:Method {
-    name:"split",
-    class: "java/lang/String"
-} external;
