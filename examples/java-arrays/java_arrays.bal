@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerinax/java;
 
 public function main() {
-    // Converts Ballerina strings to Java strings, to be passed to Java methods
+    // Convert Ballerina strings to Java strings, to be passed to Java methods.
     handle helloString = java:fromString("Hello world");
     handle regex = java:fromString(" ");
 
