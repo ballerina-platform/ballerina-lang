@@ -29,17 +29,15 @@ type ExternalFunctionWrapper OldStyleExternalFunctionWrapper;
 function genJMethodForBExternalFunc(bir:Function birFunc,
                                       jvm:ClassWriter cw,
                                       bir:Package birModule,
-                                      bir:BType? attachedType = (),
-                                      boolean isRemote = false) {
+                                      bir:BType? attachedType = ()) {
     var extFuncWrapper = getExternalFunctionWrapper(birModule, birFunc, attachedType = attachedType);
-    genJMethodForBExternalFuncOldStyle(extFuncWrapper, cw, birModule, attachedType = attachedType, isRemote = isRemote);
+    genJMethodForBExternalFuncOldStyle(extFuncWrapper, cw, birModule, attachedType = attachedType);
 }
 
 function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extFuncWrapper,
                                             jvm:ClassWriter cw,
                                             bir:Package birModule,
-                                            bir:BType? attachedType = (),
-                                            boolean isRemote = false) {
+                                            bir:BType? attachedType = ()) {
 
     var currentPackageName = getPackageName(birModule.org.value, birModule.name.value);
 
@@ -71,6 +69,7 @@ function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extF
     jvm:Label? tryStart = ();
     jvm:Label? tryEnd = ();
     jvm:Label? tryHandler = ();
+    boolean isRemote = (birFunc.flags & bir:REMOTE) == bir:REMOTE;
     if (isRemote) {
         tryStart = labelGen.getLabel("try-start");
         tryEnd = labelGen.getLabel("try-end");

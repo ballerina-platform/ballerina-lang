@@ -22,14 +22,10 @@ function generateMethod(bir:Function birFunc,
                             bir:BType? attachedType = (),
                             boolean isService = false,
                             string className = "") {
-    boolean isRemote = false;
-    if ((birFunc.flags & bir:REMOTE) == bir:REMOTE) {
-        isRemote = true;
-    }
     if (isExternFunc(birFunc)) {
-        genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType = attachedType, isRemote = isRemote);
+        genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType = attachedType);
     } else {
-        genJMethodForBFunc(birFunc, cw, birModule, isService, isRemote, className, attachedType = attachedType);
+        genJMethodForBFunc(birFunc, cw, birModule, isService, className, attachedType = attachedType);
     }
 }
 
@@ -37,7 +33,6 @@ function genJMethodForBFunc(bir:Function func,
                            jvm:ClassWriter cw,
                            bir:Package module,
                            boolean isService,
-                           boolean isRemote,
                            string className,
                            bir:BType? attachedType = ()) {
     string currentPackageName = getPackageName(module.org.value, module.name.value);
@@ -80,7 +75,9 @@ function genJMethodForBFunc(bir:Function func,
     jvm:Label? tryHandler = ();
 
     boolean isObserved = false;
-    if ((isService || isRemote) && funcName != "__init") {
+    boolean isWorker = (func.flags & bir:WORKER) == bir:WORKER;
+    boolean isRemote = (func.flags & bir:REMOTE) == bir:REMOTE;
+    if ((isService || isRemote || isWorker) && funcName != "__init") {
         // create try catch block to start and stop observability.
         isObserved = true;
         tryStart = labelGen.getLabel("try-start");

@@ -177,7 +177,7 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
         cw.visitSource(v.sourceFileName);
         // generate methods
         foreach var func in v.functions {
-            generateMethod(getFunction(func), cw, module);
+            generateMethod(getFunction(func), cw, module, className = getFunction(func).workerName.value);
         }
         // generate lambdas created during generating methods
         foreach var [name, call] in lambdas.entries() {
