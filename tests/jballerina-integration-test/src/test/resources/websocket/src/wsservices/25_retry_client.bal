@@ -44,8 +44,8 @@ service retryTestService on new http:WebSocketListener(21030) {
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new("ws://localhost:15300/websocket", { callbackService:
             retryclientCallbackService, readyOnConnect: false, retryConfig: {intervalInMillis : 10000}});
-        wsEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
-        wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsEp;
+        wsEp.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
+        wsClientEp.setAttribute(ASSOCIATED_CONNECTION, wsEp);
         var returnVal = wsClientEp->ready();
         if (returnVal is http:WebSocketError) {
            panic <error> returnVal;

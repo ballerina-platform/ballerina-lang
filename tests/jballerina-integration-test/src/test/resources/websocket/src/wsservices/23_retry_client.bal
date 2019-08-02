@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -24,8 +24,8 @@ service on new http:WebSocketListener(21028) {
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new("ws://localhost:15300/websocket", { callbackService:
             retryClientCallbackService, readyOnConnect: false, retryConfig: {intervalInMillis : 3000}});
-        wsEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
-        wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsEp;
+        wsEp.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
+        wsClientEp.setAttribute(ASSOCIATED_CONNECTION, wsEp);
         var returnVal = wsClientEp->ready();
         if (returnVal is http:WebSocketError) {
             panic <error> returnVal;
@@ -50,7 +50,7 @@ service on new http:WebSocketListener(21028) {
 
     resource function onClose(http:WebSocketCaller wsEp, int statusCode, string reason) {
         http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
-        var returnVal = clientEp->close(statusCode = statusCode, reason = reason);
+        var returnVal = clientEp->close(statusCode, reason);
         if (returnVal is http:WebSocketError) {
             panic <error> returnVal;
         }
@@ -61,13 +61,13 @@ service on new http:WebSocketListener(21028) {
 
         http:WebSocketClient clientEp =
                         getAssociatedClientEndpoint(caller);
-        var e = clientEp->close(1011, <string>err.detail()["message"]);
+        var e = clientEp->close(1011, "Unexpected condition");
         if (e is http:WebSocketError) {
             log:printError("Error occurred when closing the connection",
                             <error> e);
         }
-        _ = caller.attributes.remove(ASSOCIATED_CONNECTION);
-        log:printError("Unexpected error hense closing the connection",
+        _ = caller.removeAttribute(ASSOCIATED_CONNECTION);
+        log:printError("Unexpected error hence closing the connection",
                         <error> err);
     }
 }
@@ -100,14 +100,14 @@ service retryClientCallbackService = @http:WebSocketServiceConfig {} service {
     //This resource gets invoked when an error occurs in the connection.
     resource function onError(http:WebSocketClient caller, error err) {
 
-        http:WebSocketCaller serverEp = getAssociatedListener(caller);
-        var e = serverEp->close(statusCode = 1011,
-                        reason = <string>err.detail()["message"]);
+        http:WebSocketCaller serverEp =
+                        getAssociatedListener(caller);
+        var e = serverEp->close(1011, "Unexpected condition");
         if (e is http:WebSocketError) {
             log:printError("Error occurred when closing the connection",
                             err = e);
         }
-        _ = caller.attributes.remove(ASSOCIATED_CONNECTION);
+        _ = caller.removeAttribute(ASSOCIATED_CONNECTION);
         log:printError("Unexpected error hense closing the connection",
                         <error> err);
     }

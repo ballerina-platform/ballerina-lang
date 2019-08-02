@@ -191,7 +191,11 @@ public class WebSocketUtil {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
                 //TODO Temp fix to get return values. Remove
-                callback.setReturnValues(HttpUtil.getError(cause));
+                String message = cause.getMessage();
+                if (cause.getMessage() == null) {
+                    message = "Error occurred when accessing the webSocket connection.";
+                }
+                callback.setReturnValues(createWebSocketError(message));
             } else {
                 //TODO Temp fix to get return values. Remove
                 callback.setReturnValues(null);

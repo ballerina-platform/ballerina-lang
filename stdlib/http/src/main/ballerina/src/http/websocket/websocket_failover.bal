@@ -100,6 +100,65 @@ public type WebSocketFailoverClient client object {
     public remote function ready() returns WebSocketError? {
         return self.conn.ready();
     }
+
+    # Sets a connection related attribute.
+    #
+    # + key - key that identifies the attribute
+    # + value - value of the attribute
+    public function setAttribute(string key, any value) {
+        self.attributes[key] = value;
+    }
+
+    # Gets connection related attribute if any.
+    #
+    # + key - the key to identify the attribute.
+    # + return - the attribute related to the given key or `nil`
+    public function getAttribute(string key) returns any {
+        return self.attributes[key];
+    }
+
+    # Removes connection related attribute if any.
+    #
+    # + key - the key to identify the attribute.
+    # + return - the attribute related to the given key or `nil`
+    public function removeAttribute(string key) returns any {
+        return self.attributes.remove(key);
+    }
+
+    # Gives the connection id associated with this connection.
+    #
+    # + return - the unique id associated with the connection
+    public function getConnectionId() returns string {
+        return self.id;
+    }
+
+    # Gives the subprotocol if any that is negotiated with the client.
+    #
+    # + return - The subprotocol if any negotiated with the client or `nil`
+    public function getNegotiatedSubProtocol() returns string? {
+        return self.negotiatedSubProtocol;
+    }
+
+    # Gives the secured status of the connection.
+    #
+    # + return - `true` if the connection is secure.
+    public function isSecure() returns boolean {
+        return self.secure;
+    }
+
+    # Gives the open or closed status of the connection.
+    #
+    # + return - `true` if the connection is open
+    public function isOpen() returns boolean {
+        return self.open;
+    }
+
+    # Gives the HTTP response if any received for the client handshake request.
+    #
+    # + return - the HTTP response received for the client handshake request
+    public function getHttpResponse() returns Response? {
+        return self.response;
+    }
 };
 
 # Configuration for the WebSocket client endpoint.

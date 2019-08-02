@@ -48,8 +48,8 @@ service failoverTestService on new http:WebSocketListener(21029) {
         http:WebSocketFailoverClient wsClientEp = new({ callbackService:
             failoverclientCallbackService, readyOnConnect: false, targetUrls: ["ws://localhost:8080/websocket",
             "ws://localhost:15100/websocket", "ws://localhost:15200/websocket"]});
-        wsEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
-        wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsEp;
+        wsEp.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
+        wsClientEp.setAttribute(ASSOCIATED_CONNECTION, wsEp);
         var returnVal = wsClientEp->ready();
         if (returnVal is http:WebSocketError) {
            panic <error> returnVal;

@@ -139,7 +139,6 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
 
     @Override
     public void onError(Throwable throwable, HttpCarbonResponse response) {
-        console.println("HAnshake" + throwable.getMessage());
         if (response != null) {
             webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD, HttpUtil.createResponseStruct(response));
         }

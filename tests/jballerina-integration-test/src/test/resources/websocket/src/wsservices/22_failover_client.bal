@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -22,14 +22,14 @@ import ballerina/io;
 
 @http:WebSocketServiceConfig {
 }
-service on new http:WebSocketListener(2102) {
+service on new http:WebSocketListener(21027) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketFailoverClient wsClientEp = new({ callbackService:
-            failoverClientCallbackService, readyOnConnect: false, targetUrls: ["ws://localhost:15100/websocket",
-            "ws://localhost:8080/websocket", "ws://localhost:15200/websocket"] });
-        wsEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
-        wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsEp;
+            failoverClientCallbackService, readyOnConnect: false, targetUrls: ["ws://localhost:15200/websocket",
+            "ws://localhost:8080/websocket", "ws://localhost:15100/websocket"] });
+        wsEp.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
+        wsClientEp.setAttribute(ASSOCIATED_CONNECTION, wsEp);
         var returnVal = wsClientEp->ready();
         if (returnVal is http:WebSocketError) {
             panic <error> returnVal;
@@ -38,7 +38,7 @@ service on new http:WebSocketListener(2102) {
 
     resource function onText(http:WebSocketCaller wsEp, string text) {
         http:WebSocketFailoverClient clientEp = getAssociatedClientEndpoint1(wsEp);
-        io:println(clientEp.isOpen);
+        io:println(clientEp.isOpen());
         var returnVal = clientEp->pushText(text);
         if (returnVal is http:WebSocketError) {
             panic <error> returnVal;
@@ -71,8 +71,8 @@ service on new http:WebSocketListener(2102) {
             log:printError("Error occurred when closing the connection",
                             <error> e);
         }
-        _ = caller.attributes.remove(ASSOCIATED_CONNECTION);
-        log:printError("Unexpected error hense closing the connection",
+        _ = caller.removeAttribute(ASSOCIATED_CONNECTION);
+        log:printError("Unexpected error hence closing the connection",
                         <error> err);
     }
 }
@@ -105,26 +105,24 @@ service failoverClientCallbackService = @http:WebSocketServiceConfig {} service 
     //This resource gets invoked when an error occurs in the connection.
     resource function onError(http:WebSocketFailoverClient caller, error err) {
 
-        http:WebSocketCaller serverEp =
-                        getAssociatedListener1(caller);
-        var e = serverEp->close(statusCode = 1011,
-                        reason = <string>err.detail()["message"]);
+        http:WebSocketCaller serverEp = getAssociatedListener1(caller);
+        var e = serverEp->close(1011, <string>err.detail()["message"]);
         if (e is http:WebSocketError) {
             log:printError("Error occurred when closing the connection",
                             err = e);
         }
-        _ = caller.attributes.remove(ASSOCIATED_CONNECTION);
+        _ = caller.removeAttribute(ASSOCIATED_CONNECTION);
         log:printError("Unexpected error hense closing the connection",
                         <error> err);
     }
 };
 
 public function getAssociatedClientEndpoint1(http:WebSocketCaller wsServiceEp) returns (http:WebSocketFailoverClient) {
-    var returnVal = <http:WebSocketFailoverClient>wsServiceEp.attributes[ASSOCIATED_CONNECTION];
+    var returnVal = <http:WebSocketFailoverClient>wsServiceEp.getAttribute(ASSOCIATED_CONNECTION);
     return returnVal;
 }
 
 public function getAssociatedListener1(http:WebSocketFailoverClient wsClientEp) returns (http:WebSocketCaller) {
-    var returnVal = <http:WebSocketCaller>wsClientEp.attributes[ASSOCIATED_CONNECTION];
+    var returnVal = <http:WebSocketCaller>wsClientEp.getAttribute(ASSOCIATED_CONNECTION);
     return returnVal;
 }

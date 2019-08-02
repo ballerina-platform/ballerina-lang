@@ -93,7 +93,6 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
-        console.println("code" + webSocketCloseMessage.getCloseCode());
         ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
         MapValueImpl clientConfig = webSocketClient.getMapValue(CLIENT_ENDPOINT_CONFIG);
         int statusCode = webSocketCloseMessage.getCloseCode();
@@ -143,7 +142,6 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
 
     @Override
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
-        console.println("jdsdsafdsf" + throwable.getMessage());
         if (throwable instanceof IOException || throwable.getMessage().contains("Unexpected error")) {
             ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
             MapValueImpl clientConfig = webSocketClient.getMapValue(CLIENT_ENDPOINT_CONFIG);
