@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerinax/java;
 
 public function testIntVarargs_1() returns [int, int, int] {
     return [calculateSum(1, 3, 6), calculateSum(6), calculateSum()];
@@ -90,13 +90,13 @@ public function getArrayList(handle... values) returns handle = @java:Method {
 public function mergeLists(handle... values) returns handle = @java:Method {
     name:"merge",
     class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest",
-    paramTypes:[{elementClass:"java.util.List", dimensions:1}]
+    paramTypes:[{class:"java.util.List", dimensions:1}]
 } external;
 
 public function calculateSumOfIntArraysWithAnnot(handle... values) returns int = @java:Method {
     name:"getSumOfIntArrays",
     class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest",
-    paramTypes:[{elementClass:"int", dimensions:2}]
+    paramTypes:[{class:"int", dimensions:2}]
 } external;
 
 public function asList(int... values) returns handle = @java:Method {

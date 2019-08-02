@@ -1,58 +1,50 @@
 NAME
-    Ballerina build - Compiles Ballerina sources and generates binary 
-    outputs
+    Ballerina build - Builds Ballerina module(s) and generates executable
+    outputs.
 
 SYNOPSIS
-    ballerina build [-o <output>] [-c] [--offline] [--skiptests]
-        <balfile | module-name>
-        
+    ballerina build [-o <output>] [--off-line] [--skip-tests] [--skip-lock]
+                    [<bal-file | module-name>]
+
 DESCRIPTION
-     Compiles Ballerina sources and writes the output to a file. 
+    Builds Ballerina module(s)/file and produces an executable jar file(s).
 
-     By default, output filename for a module is the module name
-     suffixed with ‘.balx’. The default output for a source will  
-     replace the ‘.bal’ suffix with ‘.balx’. 
+    Building a Ballerina project or a specific module in a project the
+    executable .jar files will be created in <project-root>/target/bin directory.
 
-     If the output file is specified with the -o flag, the output 
-     will be written to the given output file name. 
+    Building a single Ballerina file will create an executable .jar file in the
+    current directory. The name of the executable file will be
+    <bal-file-name>-executable.jar.
+
+    If the output file is specified with the -o flag, the output
+    will be written to the given output file name. The -o flag will only work
+    for single files.
 
 OPTIONS
-     -o <output>   
-          Writes output to the given file. The provided output 
-          filename may or may not contain the ‘.balx’ suffix. 
+    -o <output>
+        Writes output to the given file. The provided output
+        filename may or may not contain the ‘.jar’ extension.
 
-     -c 
-          Builds a compiled module.
+    --off-line
+        Builds offline without downloading dependencies.
 
-     --offline
-          Builds offline without downloading dependencies.
+    --skip-tests
+        Skips test compilation and execution.
 
-     --skiptests
-          Skips test compilation and execution.
-
-     -r   Recursive mode. Operates as fast as lightning at the
-          expense of a megabyte of virtual memory.
-
-DEFAULT BEHAVIOR
-     Generates a compiled binary file for the source or module given
-     with ‘.balx’ file extension. 
+    --skip-lock
+        Skip using the lock file to resolve dependencies.
 
 EXAMPLES
-     Build hello source program 
-     $ ballerina build hello.bal
-     This will generate a hello.balx output binary file 
+    Build hello source program
+    $ ballerina build hello.bal
+    This will generate a hello-executable.jar file.
 
-     Build hello module
-     $ ballerina build hello
-     This will generate a hello.balx output binary file and place 
-     within target folder
+    Build hello module
+    $ ballerina build hello
+    This will generate a hello-executable.jar output file and place
+    within <project-root>/target/bin directory.
 
-     Build math module with the output named calculate
-     $ ballerina build -o calculate math
-     This will generate a calculate.balx output binary file and place 
-     within target folder
-
-     Build hello module by skipping test execution
-     $ ballerina build hello --skiptests
-     This will generate a hello.balx output binary file without test
-     execution and place within target folder
+    Build all the modules that have entry points in a project in to executables.
+    $ ballerina build
+    This will generate executable jar files and place them within
+    <project-root>/target/bin directory.

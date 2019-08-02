@@ -19,7 +19,6 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
     implementation project(':ballerina-core')
-    implementation project(':ballerina-config')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-logging')
     implementation project(':ballerina-runtime')

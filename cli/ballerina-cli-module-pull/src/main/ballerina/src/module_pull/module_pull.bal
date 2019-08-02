@@ -73,6 +73,8 @@ public function main(string... args) {
     string versionRange = args[8];
     isBuild = <@untainted> args[9] == "true";
     boolean nightlyBuild = <@untainted> args[10] == "true";
+    string langSpecVersion = args[11];
+    string platform = args[12];
 
     if (isBuild) {
         logFormatter = new BuildLogFormatter();
@@ -89,14 +91,14 @@ public function main(string... args) {
                 panic createError("failed to resolve host : " + host + " with port " + port.toString());
             } else {
                 httpEndpoint = result;
-                return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, <@untainted> terminalWidth, nightlyBuild);
+                return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, platform, langSpecVersion, <@untainted> terminalWidth, nightlyBuild);
             }
         }
     } else if (host != "" || strPort != "") {
         panic createError("both host and port should be provided to enable proxy");
     } else {
         httpEndpoint = defineEndpointWithoutProxy(url);
-        return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, <@untainted> terminalWidth, nightlyBuild);
+        return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, platform, langSpecVersion, <@untainted> terminalWidth, nightlyBuild);
     }
 }
 
@@ -110,10 +112,18 @@ public function main(string... args) {
 # + terminalWidth - Width of the terminal
 # + nightlyBuild - Release is a nightly build
 function pullPackage(http:Client httpEndpoint, string url, string modulePath, string baloCache, string versionRange,
-                     string terminalWidth, boolean nightlyBuild) {
+                     string platform, string langSpecVersion, string terminalWidth, boolean nightlyBuild) {
     http:Client centralEndpoint = httpEndpoint;
 
     http:Request req = new;
+    if (platform != "") {
+        req.setHeader("Ballerina-Platform", platform);
+    }
+
+    if (langSpecVersion != "") {
+        req.setHeader("Ballerina-Language-Specficiation-Version", langSpecVersion);
+    }
+
     req.addHeader("Accept-Encoding", "identity");
     http:Response|error httpResponse = centralEndpoint->get(<@untainted> versionRange, req);
     if (httpResponse is error) {
@@ -166,11 +176,11 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
                 string baloCacheWithModulePath = checkpanic filepath:build(baloCache, moduleVersion); // <user.home>.ballerina/balo_cache/<org-name>/<module-name>/<module-version>
 
                 string baloPath = checkpanic filepath:build(baloCacheWithModulePath, baloFile);
-                if (system:exists(baloPath)) {
+                if (system:exists(<@untainted> baloPath)) {
                     panic createError("module already exists in the home repository");
                 }
 
-                string|error createBaloFile = system:createDir(baloCacheWithModulePath, true);
+                string|error createBaloFile = system:createDir(<@untainted> baloCacheWithModulePath, true);
                 if (createBaloFile is error) {
                     panic createError("error creating directory for balo file");
                 }
@@ -195,7 +205,7 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
                         if (nightlyBuild) {
                             // If its a nightly build tag the file as a module from nightly
                             string nightlyBuildMetafile = checkpanic filepath:build(baloCache, "nightly.build");
-                            string|error createdNightlyBuildFile = system:createFile(nightlyBuildMetafile);
+                            string|error createdNightlyBuildFile = system:createFile(<@untainted> nightlyBuildMetafile);
                             if (createdNightlyBuildFile is error) {
                                 panic createError("Error occurred while creating nightly.build file.");
                             }

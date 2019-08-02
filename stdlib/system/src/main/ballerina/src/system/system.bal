@@ -45,7 +45,7 @@ public function uuid() returns string = external;
 #
 # + path - String value of file path.
 # + return - True if path is absolute, else false
-public function exists(string path) returns boolean = external;
+public function exists(@untainted string path) returns boolean = external;
 
 # Creates a new directory with the specified file name.
 # If parentDirs flag is true, Creates a directory in specified path with any necessary parents.
@@ -53,7 +53,7 @@ public function exists(string path) returns boolean = external;
 # + dir - directory name.
 # + parentDirs - Indicates whether the `createDir` should create non-existing parent directories.
 # + return - Returns absolute path value of the created directory or an `Error` if failed
-public function createDir(string dir, boolean parentDirs = false) returns string|Error = external;
+public function createDir(@untainted string dir, boolean parentDirs = false) returns string|Error = external;
 
 # Removes the specified file or directory.
 # If recursive flag is true, Removes the path and any children it contains.
@@ -61,7 +61,7 @@ public function createDir(string dir, boolean parentDirs = false) returns string
 # + path - String value of file/directory path.
 # + recursive - Indicates whether the `remove` should recursively remove all the file inside the given directory.
 # + return - Returns an `Error` if failed to remove.
-public function remove(string path, boolean recursive = false) returns Error? = external;
+public function remove(@untainted string path, boolean recursive = false) returns Error? = external;
 
 # Renames(Moves) old path to new path.
 # If new path already exists and it is not a directory, this replaces the file.
@@ -69,7 +69,7 @@ public function remove(string path, boolean recursive = false) returns Error? = 
 # + oldPath - String value of old file path.
 # + newPath - String value of new file path.
 # + return - Returns an `Error` if failed to rename.
-public function rename(string oldPath, string newPath) returns Error? = external;
+public function rename(@untainted string oldPath, @untainted string newPath) returns Error? = external;
 
 # Returns the default directory to use for temporary files.
 #
@@ -81,13 +81,13 @@ public function tempDir() returns string = external;
 #
 # + path - String value of file path.
 # + return - Returns absolute path value of the created file or an `Error` if failed
-public function createFile(string path) returns string|Error = external;
+public function createFile(@untainted string path) returns string|Error = external;
 
 # Returns metadata information of the file specified in file path.
 #
 # + path - String value of the file path.
 # + return - Returns FileInfo instance with file metadata or an `Error`
-public function getFileInfo(string path) returns FileInfo|Error = external;
+public function getFileInfo(@untainted string path) returns FileInfo|Error = external;
 
 # Reads the directory and returns a list of files and directories # inside the specified directory
 #
@@ -102,5 +102,5 @@ public function readDir(@untainted string path) returns FileInfo[]|Error = exter
 # + destinationPath - String value of new file path.
 # + replaceExisting - Flag to allow replace if file already exists in destination path.
 # + return - Returns an `Error` if failed to rename.
-public function copy(string sourcePath, string destinationPath, boolean replaceExisting = false) returns Error? =
-external;
+public function copy(@untainted string sourcePath, @untainted string destinationPath,
+boolean replaceExisting = false) returns Error? = external;

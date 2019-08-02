@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public const INTEROP_ANNOT_ORG = "ballerina";
+public const INTEROP_ANNOT_ORG = "ballerinax";
 public const INTEROP_ANNOT_MODULE = "java";
 
 public const METHOD = "method";
@@ -41,6 +41,7 @@ public type MethodValidationRequest record {|
     string class;
     anydata bFuncType;
     JType?[] paramTypeConstraints?;
+    boolean restParamExist = false;
 |};
 
 public type FieldValidationRequest record {|
@@ -60,6 +61,7 @@ public type Method record {|
     boolean isStatic = false;
     string sig;
     MethodType mType;
+    string[] throws;
 |};
 
 public type MethodType record {|
