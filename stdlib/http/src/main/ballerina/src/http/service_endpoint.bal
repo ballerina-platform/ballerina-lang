@@ -69,7 +69,7 @@ public type Listener object {
                 }
             }
         }
-        addAnnotationFilter(config);
+        addAnnotationFilter(c);
         var err = self.initEndpoint();
         if (err is error) {
             panic err;
@@ -311,8 +311,7 @@ public type AnnotationFilter object {
 
     *RequestFilter;
 
-    public function filterRequest(http:Caller caller, http:Request request, http:FilterContext context)
-                                  returns boolean {
+    public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
         runtime:getInvocationContext().attributes[SERVICE_NAME] = context.getServiceName();
         runtime:getInvocationContext().attributes[RESOURCE_NAME] = context.getResourceName();
         return true;
