@@ -262,10 +262,6 @@ public class RunCommand implements BLauncherCmd {
                                                             + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension");
             }
         }
-        
-        // Normalize the source path to remove './' or '.\' characters that can appear before the name
-        LauncherUtils.runProgram(sourceRootPath, sourcePath.normalize(), runtimeParams, configFilePath, programArgs,
-                offline, observeFlag, siddhiRuntimeFlag, experimentalFlag);
     }
 
     @Override
