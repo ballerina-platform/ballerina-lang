@@ -61,10 +61,10 @@ service SamplegRPCService on ep {
        // Print the received message.
        io:println("Received message from : " + name);
        // Send the response to the client.
-       error? err = caller->send("Hi " + name + "! Greetings from gRPC service!");
+       grpc:Error? err = caller->send("Hi " + name + "! Greetings from gRPC service!");
 
        // After sending the response, call ‘complete()’ to indicate that the response was completely sent.
-       error? result = caller->complete();
+       grpc:Error? result = caller->complete();
    }
 }
 ```
@@ -80,15 +80,17 @@ grpc:Headers headers = new;
 headers.setEntry("id", "newrequest1");
 
 // Call the method in the service using a client stub.
-var responseFromServer = SamplegRPCServiceBlockingEp->receiveMessage("Ballerina", headers = headers);
-if (responseFromServer is (string, grpc:Headers)) {
+var responseFromServer = SamplegRPCServiceBlockingEp->receiveMessage("Ballerina", headers);
+if (responseFromServer is [string, grpc:Headers]) {
     // If a response is received, print the payload.
-    (string, grpc:Headers) (result, resHeaders) = responseFromServer;
+    string result;
+    grpc:Headers resHeaders;
+    [result, resHeaders] = responseFromServer;
     io:println("Response received : " + result);
 } else {
     // If an error is returned, print the error message.
     io:println("Error while connecting grpc end-point : " + responseFromServer.reason() + " - "
-                                                          + <string>responseFromServer.detail().message);
+                                                          + <string>responseFromServer.detail()["message"]);
 }
 ```
 ### Server Streaming
@@ -106,18 +108,18 @@ service ServerStreaming on ep {
        string[] greets = ["Hi", "Welcome"];
        io:println("HelloWorld");
        // Send multiple responses to the client.
-       foreach var greet in greets {
-           error? err = caller->send(greet + " " + name + "! Greetings from Ballerina service");
+       foreach string greet in greets {
+           grpc:Error? err = caller->send(greet + " " + name + "! Greetings from Ballerina service");
            // If an error is returned, print the error message. print response message otherwise.
-           if (err is error) {
+           if (err is grpc:Error) {
                io:println("Error from Connector: " + err.reason() + " - "
-                                                   + <string>err.detail().message);
+                                                   + <string>err.detail()["message"]);
            } else {
                io:println("send reply: " + msg);
            }
        }
        // Once the messages are sent to the server, call ‘complete()’ to indicate that the request was completely sent.
-       error? result = caller->complete();
+       grpc:Error? result = caller->complete();
    }
 }
 ```
@@ -131,11 +133,11 @@ public function main(string... args) {
     ServerStreamingClient serverStreamingEp = new("http://localhost:9090");
 
     // Execute the service streaming call by registering a message listener.
-    error? result = serverStreamingEp->receiveMessage("test", ServerStreamingMessageListener);
-    if (result is error) {
+    grpc:Error? result = serverStreamingEp->receiveMessage("test", ServerStreamingMessageListener);
+    if (result is grpc:Error) {
         // If the service returns an error, print the error.
         io:println("Error occurred while sending event " + result.reason() + " - "
-                                                        + <string>result.detail().message);
+                                                        + <string>result.detail()["message"]);
     } else {
         io:println("Connected successfully to service");
     }
@@ -154,7 +156,7 @@ service ServerStreamingMessageListener = service {
    // This resource method is invoked if an error is returned.
    resource function onError(error err) {
         io:println("Error from Connector: " + err.reason() + " - "
-                                            + <string>err.detail().message);
+                                            + <string>err.detail()["message"]);
    }
 
    // Invoke this resource when the server sends all the responses to the request.
@@ -212,9 +214,9 @@ grpc:StreamingClient ep;
 
 // Call the relevant service.
 var res = chatEp->chat(ChatMessageListener);
-if (res is error) {
+if (res is grpc:Error) {
     io:println("Error from Connector: " + res.reason() + " - "
-                                        + <string>res.detail().message);
+                                        + <string>res.detail()["message"]);
     return;
 } else {
     io:println("Initialized connection sucessfully.");
@@ -222,10 +224,9 @@ if (res is error) {
 }
 
 // Send multiple messages to the service.
-error? connErr = ep->send(“Hello”);
+grpc:Error? connErr = ep->send(“Hello”);
 
 // After sending the message, call ‘complete()’ to indicate that the request was completely sent. 
-error? result = ep->complete();
+grpc:Error? result = ep->complete();
 
 ```
-
