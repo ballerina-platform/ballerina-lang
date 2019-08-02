@@ -46,28 +46,10 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.JSON)},
         isPublic = true
 )
-public class ToJSON extends BlockingNativeCallableUnit {
+public class ToJSON {
 
     private static final String OPTIONS_ATTRIBUTE_PREFIX = "attributePrefix";
     private static final String OPTIONS_PRESERVE_NS = "preserveNamespaces";
-
-    @Override
-    public void execute(Context ctx) {
-        BValue json = null;
-        try {
-            // Accessing Parameters
-            BXML xml = (BXML) ctx.getRefArgument(0);
-            BMap<String, BValue> optionsStruct = ((BMap<String, BValue>) ctx.getRefArgument(1));
-            String attributePrefix = optionsStruct.get(OPTIONS_ATTRIBUTE_PREFIX).stringValue();
-            boolean preserveNamespaces = ((BBoolean) optionsStruct.get(OPTIONS_PRESERVE_NS)).booleanValue();
-            //Converting to json
-            json = XMLUtils.convertToJSON(xml, attributePrefix, preserveNamespaces);
-        } catch (Throwable e) {
-            ErrorHandler.handleXMLException("convert xml to json", e);
-        }
-
-        ctx.setReturnValues(json);
-    }
 
     public static Object toJSON(Strand strand, XMLValue<?> xml, MapValue<?, ?> options) {
         try {
