@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.test.types.xml;
 
+import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
@@ -1053,5 +1055,13 @@ public class XMLNativeFunctionTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 4);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 2);
         Assert.assertEquals(((BInteger) returns[3]).intValue(), 1);
+    }
+
+    @Test
+    public void testToJsonFunction() {
+        CompileResult result = BCompileUtil.compile("test-src/types/xml/xml-to-json-test.bal");
+        BValue[] returns = BRunUtil.invoke(result, "testToJson");
+        Assert.assertEquals(((BMapType) returns[0].getType()).getConstrainedType().getTag(), TypeTags.JSON_TAG);
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"supun\"}");
     }
 }
