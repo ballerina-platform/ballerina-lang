@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.nativeimpl.jvm.interop.JInteropException.CLASS_NOT_FOUND_REASON;
-import static org.ballerinalang.nativeimpl.jvm.interop.JInteropException.UNSUPPORTED_PRIMITIVE_TYPE_READON;
+import static org.ballerinalang.nativeimpl.jvm.interop.JInteropException.UNSUPPORTED_PRIMITIVE_TYPE_REASON;
 import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
@@ -39,10 +39,11 @@ import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
 class JInterop {
 
     static final String ORG_NAME = "ballerina";
+    static final String BALLERINA_X_ORG_NAME = "ballerinax";
     static final String MODULE_NAME = "jvm";
     static final String JAVA_MODULE_NAME = "java";
     static final String JVM_PACKAGE_PATH = ORG_NAME + ORG_NAME_SEPARATOR + MODULE_NAME;
-    static final String ERROR_REASON_PREFIX = "{" + ORG_NAME + "/" + JAVA_MODULE_NAME + "}";
+    static final String ERROR_REASON_PREFIX = "{" + BALLERINA_X_ORG_NAME + "/" + JAVA_MODULE_NAME + "}";
     static final String PARAM_TYPE_CONSTRAINTS_FIELD = "paramTypeConstraints";
     static final String CLASS_FIELD = "class";
     static final String NAME_FIELD = "name";
@@ -50,6 +51,7 @@ class JInterop {
     static final String IS_INTERFACE_FIELD = "isInterface";
     static final String IS_ARRAY_FIELD = "isArray";
     static final String IS_STATIC_FIELD = "isStatic";
+    static final String REST_PARAM_EXIST_FIELD = "restParamExist";
     static final String SIG_FIELD = "sig";
     static final String METHOD_TYPE_FIELD = "mType";
     static final String FIELD_TYPE_FIELD = "fType";
@@ -57,7 +59,6 @@ class JInterop {
     static final String RETURN_TYPE_FIELD = "retType";
     static final String METHOD_FIELD = "method";
     static final String TAG_FIELD = "tag";
-    static final String BFUNC_TYPE_FIELD = "bFuncType";
     static final String HANDLE_TYPE_NAME = "handle";
     static final String METHOD_TYPE_NAME = "Method";
     static final String FIELD_TYPE_NAME = "Field";
@@ -65,10 +66,38 @@ class JInterop {
     static final String J_REF_TYPE_NAME = "RefType";
     static final String TYPE_NAME_FIELD = "typeName";
     static final String NO_TYPE_NAME = "NoType";
+    static final String METHOD_THROWS_FIELD = "throws";
     static final String B_FUNC_TYPE_FIELD = "bFuncType";
     static final String J_ARRAY_TYPE_NAME = "ArrayType";
     static final String ELEMENT_TYPE_FIELD = "elementType";
     static final String DIMENSIONS_FIELD = "dimensions";
+    static final String UNION_TYPE_MEMBERS_FIELD = "members";
+    static final String TUPLE_TYPE_MEMBERS_FIELD = "tupleTypes";
+    static final String ARRAY_ELEMENT_TYPE_FIELD = "eType";
+
+    static final String RECORD_TNAME = "record";
+    static final String OBJECT_TNAME = "object";
+    static final String UNION_TNAME = "union";
+    static final String TUPLE_TNAME = "tuple";
+    static final String ARRAY_TNAME = "array";
+
+    //jvm type names
+    static final String J_OBJECT_TNAME = Object.class.getTypeName();
+    static final String J_BOOLEAN_OBJ_TNAME = Boolean.class.getTypeName();
+    static final String J_INTEGER_OBJ_TNAME = Integer.class.getTypeName();
+    static final String J_BYTE_OBJ_TNAME = Byte.class.getTypeName();
+    static final String J_LONG_OBJ_TNAME = Long.class.getTypeName();
+    static final String J_DOUBLE_OBJ_TNAME = Double.class.getTypeName();
+    static final String J_FLOAT_OBJ_TNAME = Float.class.getTypeName();
+    static final String J_PRIMITIVE_INT_TNAME = int.class.getTypeName();
+    static final String J_PRIMITIVE_LONG_TNAME = long.class.getTypeName();
+    static final String J_PRIMITIVE_BYTE_TNAME = byte.class.getTypeName();
+    static final String J_PRIMITIVE_SHORT_TNAME = short.class.getTypeName();
+    static final String J_PRIMITIVE_CHAR_TNAME = char.class.getTypeName();
+    static final String J_PRIMITIVE_FLOAT_TNAME = float.class.getTypeName();
+    static final String J_PRIMITIVE_DOUBLE_TNAME = double.class.getTypeName();
+    static final String J_PRIMITIVE_BOOLEAN_TNAME = boolean.class.getTypeName();
+    static final String J_VOID_TNAME = void.class.getTypeName();
 
     static MapValue<String, Object> createRecordBValue(String typeName) {
         return BallerinaValues.createRecordValue(JVM_PACKAGE_PATH, typeName);
@@ -245,7 +274,7 @@ class JInterop {
                 constraintClass = boolean.class;
                 break;
             default:
-                throw new JInteropException(UNSUPPORTED_PRIMITIVE_TYPE_READON,
+                throw new JInteropException(UNSUPPORTED_PRIMITIVE_TYPE_REASON,
                         "Unsupported Java primitive type '" + primitiveTypeName + "'");
         }
         return new ParamTypeConstraint(constraintClass);
@@ -271,7 +300,7 @@ class JInterop {
             case "boolean":
                 return "Z";
             default:
-                throw new JInteropException(UNSUPPORTED_PRIMITIVE_TYPE_READON,
+                throw new JInteropException(UNSUPPORTED_PRIMITIVE_TYPE_REASON,
                         "Unsupported Java primitive type '" + primitiveTypeName + "'");
         }
     }

@@ -116,14 +116,14 @@ export const TopMenu = (props: TopMenuProps) => {
                             </Dropdown.Menu>
                         </Dropdown>
                         <Popup
-                            trigger={<Icon onClick={() => handleDepthSelect(0)}  className="fw fw-expand-all"/>}
+                            trigger={<Icon onClick={() => handleDepthSelect(-1)}  className="fw fw-expand-all"/>}
                             content="Expand all"
                             position="top center"
                             size="small"
                             inverted
                         />
                         <Popup
-                            trigger={<Icon onClick={() => handleDepthSelect(-1)} className="fw fw-collapse-all"/>}
+                            trigger={<Icon onClick={() => handleDepthSelect(0)} className="fw fw-collapse-all"/>}
                             content="Collapse all"
                             position="top center"
                             size="small"

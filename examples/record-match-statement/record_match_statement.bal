@@ -15,9 +15,9 @@ type RecordThree record {
 };
 
 public function main() {
-    RecordOne rec1 = {var1: "Hello", var2: 150};
-    RecordOne rec2 = {var1: "Hello", var2: true};
-    RecordOne rec3 = {var1: "Hello", var2: 150, var3: true};
+    RecordOne rec1 = {var1: "Hello", "var2": 150};
+    RecordOne rec2 = {var1: "Hello", "var2": true};
+    RecordOne rec3 = {var1: "Hello", "var2": 150, "var3": true};
     RecordOne rec4 = {var1: "Hello"};
 
     basicMatch(rec1);

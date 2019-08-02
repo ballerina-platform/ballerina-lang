@@ -54,11 +54,11 @@ public class PrometheusReporter implements MetricReporter {
         EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
         Optional<RuntimeException> prometheus = executor.executeService("prometheus");
         if (prometheus.isPresent()) {
-            console.println("ballerina: failed to start Prometheus HTTP Listener " + hostname + ":" + port + " "
+            console.println("ballerina: failed to start Prometheus HTTP listener " + hostname + ":" + port + " "
                     + prometheus.get().getMessage());
             return;
         }
-        console.println("ballerina: started Prometheus HTTP Listener " + hostname + ":" + port);
+        console.println("ballerina: started Prometheus HTTP listener " + hostname + ":" + port);
     }
 
     @Override

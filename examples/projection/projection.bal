@@ -85,7 +85,7 @@ public function main() {
 }
 
 function printChildrenMessage(Message msg) {
-    io:println("Child name : " + msg.name + " and message : " + msg.message);
+    io:println("Child name : ", msg.name, " and message : ", msg.message);
     addToGlobalChildrenMessageArray(msg);
 }
 

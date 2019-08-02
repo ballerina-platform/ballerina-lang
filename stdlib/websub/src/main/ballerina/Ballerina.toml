@@ -1,3 +1,111 @@
 [project]
 org-name = "ballerina"
 version = "0.0.0"
+
+[platform]
+target = "java"
+
+    [[platform.libraries]]
+    artafactId = "org.wso2.transport.http.netty"
+    version = "6.0.294"
+    path = "./lib/org.wso2.transport.http.netty-6.0.294.jar"
+    groupId = "org.wso2.transport.http"
+    modules = ["web-sub"]
+
+    [[platform.libraries]]
+    artafactId = "netty-common"
+    version = "4.1.34.Final"
+    path = "./lib/netty-common-4.1.34.Final.jar"
+    groupId = "io.netty"
+    modules = ["web-sub"]
+
+    [[platform.libraries]]
+    artafactId = "netty-buffer"
+    version = "4.1.34.Final"
+    path = "./lib/netty-buffer-4.1.34.Final.jar"
+    groupId = "io.netty"
+    modules = ["web-sub"]
+
+    [[platform.libraries]]
+    artafactId = "netty-transport"
+    version = "4.1.34.Final"
+    path = "./lib/netty-transport-4.1.34.Final.jar"
+    groupId = "io.netty"
+    modules = ["web-sub"]
+
+    [[platform.libraries]]
+    artafactId = "netty-resolver"
+    version = "4.1.34.Final"
+    path = "./lib/netty-resolver-4.1.34.Final.jar"
+    groupId = "io.netty"
+    modules = ["web-sub"]
+
+    [[platform.libraries]]
+    artafactId = "netty-handler"
+    version = "4.1.34.Final"
+    path = "./lib/netty-handler-4.1.34.Final.jar"
+    groupId = "io.netty"
+    modules = ["web-sub"]
+
+    [[platform.libraries]]
+    artafactId = "netty-codec-http"
+    version = "4.1.34.Final"
+    path = "./lib/netty-codec-http-4.1.34.Final.jar"
+    groupId = "io.netty"
+    modules = ["web-sub"]
+
+    [[platform.libraries]]
+    artafactId = "netty-codec"
+    version = "4.1.34.Final"
+    path = "./lib/netty-codec-4.1.34.Final.jar"
+    groupId = "io.netty"
+    modules = ["web-sub"]
+
+    [[platform.libraries]]
+    artafactId = "netty-handler-proxy"
+    version = "4.1.34.Final"
+    path = "./lib/io.netty-4.1.34.Final.jar"
+    groupId = "io.netty"
+    modules = ["web-sub"]
+
+    [[platform.libraries]]
+    artafactId = "netty-codec-http2"
+    version = "4.1.34.Final"
+    path = "./lib/netty-codec-http2-4.1.34.Final.jar"
+    groupId = "io.netty"
+    modules = ["web-sub"]
+
+    [[platform.libraries]]
+    artafactId = "commons-pool"
+    version = "1.5.6.wso2v1"
+    path = "./lib/commons-pool-1.5.6.wso2v1.jar"
+    groupId = "commons-pool.wso2"
+    modules = ["web-sub"]
+
+    [[platform.libraries]]
+    artafactId = "snakeyaml"
+    version = "1.16.0.wso2v1"
+    path = "./lib/snakeyaml-1.16.0.wso2v1.jar"
+    groupId = "org.wso2.orbit.org.yaml"
+    modules = ["web-sub"]
+
+    [[platform.libraries]]
+    artafactId = "bcprov-jdk15on"
+    version = "1.61"
+    path = "./lib/bcprov-jdk15on-1.61.jar"
+    groupId = "org.bouncycastle"
+    modules = ["web-sub"]
+
+    [[platform.libraries]]
+    artafactId = "bcpkix-jdk15on"
+    version = "1.61"
+    path = "./lib/bcpkix-jdk15on-1.61.jar"
+    groupId = "org.bouncycastle"
+    modules = ["web-sub"]
+
+    [[platform.libraries]]
+    artafactId = "netty-tcnative-boringssl-static"
+    version = "2.0.22.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.22.Final.jar"
+    groupId = "io.netty"
+    modules = ["web-sub"]

@@ -1,7 +1,6 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run record_type_reference.bal
-name=John Doe designation=Software Engineer
-name=Jane Doe designation=UX Engineer
-name=Mark age=35 designation=Engineering Manager team=name=John Doe designat
-ion=Software Engineer name=Jane Doe designation=UX Engineer company=XYZ Inc.
+age=25 name=John Doe designation=Software Engineer
+age=25 name=Jane Doe designation=UX Engineer
+age=35 name=Mark designation=Engineering Manager team=age=25 name=John Doe designation=Software Engineer age=25 name=Jane Doe designation=UX Engineer company=XYZ Inc.

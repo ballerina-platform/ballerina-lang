@@ -87,6 +87,9 @@ public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources" +
                                                 File.separator + "websub" + File.separator + "subscriber" +
                                                 File.separator + "test_custom_subscribers.bal").getAbsolutePath();
+        
+        String sourceRoot = new File("src" + File.separator + "test" + File.separator + "resources" +
+                                        File.separator + "websub" + File.separator + "subscriber").getAbsolutePath();
 
         webSubSubscriber.addLogLeecher(byKeyCreatedLogLeecher);
         webSubSubscriber.addLogLeecher(byKeyFeatureLogLeecher);
@@ -97,7 +100,7 @@ public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
         webSubSubscriber.addLogLeecher(byHeaderAndPayloadFeaturePullLogLeecher);
         webSubSubscriber.addLogLeecher(byHeaderAndPayloadKeyOnlyLogLeecher);
 
-        webSubSubscriber.startServer(subscriberBal, new int[]{23585, 23686, 23787});
+        webSubSubscriber.startServer(sourceRoot, subscriberBal, new int[]{23585, 23686, 23787});
         // Wait for the services to start up
         Map<String, String> headers = new HashMap<>(2);
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);

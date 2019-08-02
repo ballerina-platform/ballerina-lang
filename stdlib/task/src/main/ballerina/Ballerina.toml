@@ -1,3 +1,27 @@
 [project]
 org-name = "ballerina"
 version = "0.0.0"
+
+[platform]
+target = "java"
+
+    [[platform.libraries]]
+    artafactId = "quartz"
+    version = "2.3.1"
+    path = "./lib/quartz-2.3.1.jar"
+    groupId = "org.quartz-scheduler"
+    modules = ["task"]
+
+    [[platform.libraries]]
+    artafactId = "slf4j-api"
+    version = "1.7.26"
+    path = "./lib/slf4j-api-1.7.26.jar"
+    groupId = "org.slf4j"
+    modules = ["task"]
+
+    [[platform.libraries]]
+    artafactId = "HikariCP"
+    version = "3.3.1"
+    path = "./lib/HikariCP-3.3.1.jar"
+    groupId = "com.zaxxer"
+    modules = ["task"]
