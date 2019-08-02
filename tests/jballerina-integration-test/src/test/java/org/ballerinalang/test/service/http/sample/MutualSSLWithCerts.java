@@ -24,6 +24,7 @@ import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.nio.file.Paths;
 
 /**
@@ -42,12 +43,16 @@ public class MutualSSLWithCerts extends BaseTest {
 
         String balFile = Paths.get("src", "test", "resources", "mutualSSL", "ssl_client.bal").toAbsolutePath()
                 .toString();
+    
+        String sourceRoot = new File("src" + File.separator + "test" + File.separator + "resources"
+                                     + File.separator + "mutualSSL").getAbsolutePath();
 
         String[] flags = { "-e", "certificate.key=" + privateKey, "-e", "public.cert=" + publicCert};
 
         BMainInstance ballerinaClient = new BMainInstance(balServer);
         LogLeecher clientLeecher = new LogLeecher(serverResponse);
-        ballerinaClient.runMain(balFile, flags, null, new LogLeecher[]{clientLeecher});
+        ballerinaClient.runMain(balFile, flags, null, null, new String[]{}, new LogLeecher[]{clientLeecher},
+                sourceRoot);
         clientLeecher.waitForText(20000);
     }
 }

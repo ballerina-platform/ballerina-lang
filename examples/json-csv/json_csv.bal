@@ -1,28 +1,24 @@
 import ballerina/io;
 import ballerina/log;
 
-// Converts a `json` value to an array of Strings.
-// Returns the result as a tuple, which contains the headers and fields.
-function getFields(json rec) returns (string[], string[]) {
-    int count = 0;
-    string [] headers = [];
+// Convert a `map<json>` value to an array of Strings.
+// Return the result as a tuple, which contains the headers and fields.
+function getFields(map<json> rec) returns [string[], string[]] {
     string [] fields = [];
-    headers = rec.getKeys();
-    foreach var field in headers {
-        fields[count] = rec[field].toString();
-        count = count + 1;
+    foreach var field in rec {
+        fields[fields.length()] = field.toString();
     }
-    return (headers, fields);
+    return [rec.keys(), fields];
 }
 
 // Writes `json` content to CSV.
-function writeCsv(json content, string path) returns error? {
-    io:WritableCSVChannel csvch = io:openWritableCsvFile(path);
+function writeCsv(json[] content, string path) returns error? {
+    io:WritableCSVChannel csvch = check io:openWritableCsvFile(path);
     int recIndex = 0;
     int recLen = content.length();
     while (recIndex < recLen) {
-        (string [], string []) result = getFields(content[recIndex]);
-        var (headers, fields) = result;
+        [string [], string []] result = getFields(<map<json>> content[recIndex]);
+        var [headers, fields] = result;
         if (recIndex == 0) {
             //We ignore the result as this would mean a nill return
             check csvch.write(headers);
@@ -30,7 +26,6 @@ function writeCsv(json content, string path) returns error? {
         check csvch.write(fields);
         recIndex = recIndex + 1;
     }
-    return;
 }
 
 public function main() {
@@ -62,7 +57,7 @@ public function main() {
     string path = "./files/sample.csv";
     // Specifies the JSON array, which should be transformed into CSV.
     // Also, provides the location the CSV should be written.
-    var result = writeCsv(sample.employees.employee, path);
+    var result = writeCsv(<json[]> sample.employees.employee, path);
     if (result is error) {
         log:printError("Error occurred while writing csv record :",
                         err = result);

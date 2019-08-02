@@ -79,14 +79,14 @@ public class BasicAsyncOperationsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: future is already cancelled.*")
+            expectedExceptionsMessageRegExp = ".*{error}FutureAlreadyCancelled.*")
     public void testAsyncNonNativeBasic7() {
         BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic7", new BValue[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: future is already cancelled.*")
+            expectedExceptionsMessageRegExp = ".*{error}FutureAlreadyCancelled.*")
     public void testAsyncNonNativeBasic8() {
         BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic8", new BValue[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
@@ -99,14 +99,14 @@ public class BasicAsyncOperationsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: future is already cancelled.*")
+            expectedExceptionsMessageRegExp = ".*{error}FutureAlreadyCancelled.*")
     public void testAsyncNonNativeBasic10() {
         BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic10", new BValue[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: future is already cancelled.*")
+            expectedExceptionsMessageRegExp = ".*{error}FutureAlreadyCancelled.*")
     public void testAsyncNonNativeBasic11() {
         BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic11", new BValue[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());

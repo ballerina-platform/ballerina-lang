@@ -2,7 +2,7 @@ import ballerina/test;
 
 // The `assertEquals()` function allows you to compare primitive types (e.g., int) against composite objects.
 // Compares values of the type `int`.
-@test:Config
+@test:Config{}
 function testAssertIntEquals() {
     int answer = 0;
     int a = 5;
@@ -12,7 +12,7 @@ function testAssertIntEquals() {
 }
 
 // Compares values of the type `float`.
-@test:Config
+@test:Config{}
 function testAssertFloatEquals() {
     float a = 10.000;
     float b = 20.050;
@@ -21,7 +21,7 @@ function testAssertFloatEquals() {
 }
 
 // Compares values of the type `string`.
-@test:Config
+@test:Config{}
 function testAssertStringEquals() {
     string a = "John";
     string b = "Doe";
@@ -30,7 +30,7 @@ function testAssertStringEquals() {
 }
 
 // Compares values of the type `json`.
-@test:Config
+@test:Config{}
 function testAssertJsonEquals() {
     json a = { "name": "Ballerina" };
     json b = { "name": "Ballerina" };
@@ -38,7 +38,7 @@ function testAssertJsonEquals() {
 }
 
 // Compares values of the type `boolean`.
-@test:Config
+@test:Config{}
 function testAssertBooleanEquals() {
     boolean x = true;
     boolean y = true;
@@ -46,7 +46,7 @@ function testAssertBooleanEquals() {
 }
 
 // Compares values of the type `string[]`.
-@test:Config
+@test:Config{}
 function testAssertStringArrayEquals() {
     string[] x = ["A", "B", "C"];
     string[] y = ["A", "B", "C"];
@@ -54,7 +54,7 @@ function testAssertStringArrayEquals() {
 }
 
 // Compares values of the type `int[]`.
-@test:Config
+@test:Config{}
 function testAssertIntArrayEquals() {
     int[] x = [1, 2, 3];
     int[] y = [1, 2, 3];
@@ -62,7 +62,7 @@ function testAssertIntArrayEquals() {
 }
 
 // Compares values of the type `float[]`.
-@test:Config
+@test:Config{}
 function testAssertFloatArrayEquals() {
     float[] x = [1.1, 2.2, 3.3];
     float[] y = [1.1, 2.2, 3.3];
@@ -70,7 +70,7 @@ function testAssertFloatArrayEquals() {
 }
 
 // Compares distinct values of the type `string`.
-@test:Config
+@test:Config{}
 function testAssertNotEqualsString() {
     string s1 = "abc";
     string s2 = "def";
@@ -78,7 +78,7 @@ function testAssertNotEqualsString() {
 }
 
 // Compares distinct values of the type `json`.
-@test:Config
+@test:Config{}
 function testAssertNotEqualsJson() {
     json s1 = { "a": "b" };
     json s2 = { "a": "c" };
@@ -86,21 +86,21 @@ function testAssertNotEqualsJson() {
 }
 
 // Asserts `true`.
-@test:Config
+@test:Config{}
 function testAssertTrue() {
     boolean value = true;
     test:assertTrue(value, msg = "AssertTrue failed");
 }
 
 // Asserts `false`.
-@test:Config
+@test:Config{}
 function testAssertFalse() {
     boolean value = false;
     test:assertFalse(value, msg = "AssertFalse failed");
 }
 
 // A test-example, which is failing intentionally.
-@test:Config
+@test:Config{}
 function testAssertFail() {
     if (true) {
         return;

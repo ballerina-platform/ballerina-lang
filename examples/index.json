@@ -330,10 +330,6 @@
             {
                 "name": "XML Access",
                 "url": "xml-access"
-            },
-            {
-                "name": "XML/JSON Conversion",
-                "url": "xml-to-json-conversion"
             }
         ]
     },
@@ -416,10 +412,6 @@
             {
                 "name": "Fork Variable Access",
                 "url": "fork-variable-access"
-            },
-            {
-                "name": "Async",
-                "url": "async"
             },
             {
                 "name": "Lock",
@@ -898,7 +890,7 @@
             },
             {
                 "name": "Durable Subscriptions",
-                "url": "nats-streaming-consumer-with-data-binding"
+                "url": "nats-streaming-durable-subscriptions"
             },
             {
                 "name": "Queue Groups",

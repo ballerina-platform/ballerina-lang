@@ -101,7 +101,7 @@ service backEndService on new http:Listener(9097) {
                 checkpanic caller->respond("Error in parsing media type");
             }
         } else {
-            checkpanic caller->respond(());
+            checkpanic caller->respond();
         }
     }
 }

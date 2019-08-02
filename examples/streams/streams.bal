@@ -60,13 +60,14 @@ public function main() {
 
 // This function accepts `Employee` values and is used to subscribe to a stream.
 function printEmployeeName(Employee employee) {
-    io:println("Employee event received for Employee Name: "
-                    + employee.name);
+    io:println("Employee event received for Employee Name: ",
+        employee.name);
 }
 
 // This function accepts `float` values and is used to subscribe to a stream.
 function printTemperature(float temperature) {
-    io:println("Temperature event received: " + temperature);
+    io:println("Temperature event received: ",
+        temperature.toString());
 }
 
 // This function accepts values of `anydata` type and is used to subscribe to a stream.

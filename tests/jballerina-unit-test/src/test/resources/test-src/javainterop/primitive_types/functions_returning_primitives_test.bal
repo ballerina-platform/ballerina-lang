@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerinax/java;
 
 // Functions returns Ballerina boolean
 function testReturningBBooleanJBoolean(handle receiver, handle strValue) returns boolean {

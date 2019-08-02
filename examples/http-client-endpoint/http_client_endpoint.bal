@@ -39,13 +39,13 @@ public function main() {
     req.addHeader("Sample-Name", "http-client-connector");
     // The `get()`, `head()`, and `options()` can have the optional `message` parameter,
     // which will be a request or a payload.
-    response = clientEndpoint->get("/get", message = req);
+    response = clientEndpoint->get("/get", req);
     if (response is http:Response) {
         string contentType = response.getHeader("Content-Type");
         io:println("Content-Type: " + contentType);
 
         int statusCode = response.statusCode;
-        io:println("Status code: " + statusCode);
+        io:println("Status code: " + statusCode.toString());
 
     } else {
         io:println("Error when calling the backend: " , response.reason());

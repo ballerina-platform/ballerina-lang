@@ -71,7 +71,7 @@ service service1 = service {
     resource function onTrigger(Person person) {
         if (person.age < person.maxAge) {
             person.age = person.age + 1;
-            io:println("Hi " + person.name + " you are " + person.age + " years old now.");
+            io:println("Hi " + person.name + " you are " + person.age.toString() + " years old now.");
         }
     }
 };
@@ -79,7 +79,7 @@ service service1 = service {
 service service2 = service {
     resource function onTrigger(Person person) {
         if (person.age == 5) {
-            io:println(person.name + " started schooling at age " + person.age);
+            io:println(person.name + " started schooling at age " + person.age.toString());
         }
     }
 };

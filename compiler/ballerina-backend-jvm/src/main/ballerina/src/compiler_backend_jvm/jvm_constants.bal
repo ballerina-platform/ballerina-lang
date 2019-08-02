@@ -256,6 +256,7 @@ const string STRAND_STATE = "org/ballerinalang/jvm/scheduling/State";
 const string FUNCTION_POINTER = "org/ballerinalang/jvm/values/FPValue";
 const string FUNCTION = "java/util/function/Function";
 const string CONSUMER = "java/util/function/Consumer";
+const string EXCEPTION = "java/lang/Exception";
 
 const string STRING_BUILDER = "java/lang/StringBuilder";
 const string COMPARABLE = "java/lang/Comparable";
@@ -275,6 +276,9 @@ const string RUNTIME_UTILS = "org/ballerinalang/jvm/util/RuntimeUtils";
 const string ARGUMENT_PARSER = "org/ballerinalang/jvm/util/ArgumentParser";
 const string LAUNCH_UTILS = "org/ballerinalang/jvm/launch/LaunchUtils";
 const string MATH_UTILS = "org/ballerinalang/jvm/MathUtils";
+const string BAL_ERROR_REASONS = "org/ballerinalang/jvm/util/exceptions/BallerinaErrorReasons";
+const string RUNTIME_ERRORS = "org/ballerinalang/jvm/util/exceptions/RuntimeErrors";
+const string BLANG_EXCEPTION_HELPER = "org/ballerinalang/jvm/util/exceptions/BLangExceptionHelper";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";

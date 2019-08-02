@@ -55,12 +55,13 @@ public class TableDataStreamingTestCase extends BaseTest {
         setUpDatabase();
         String balFile = Paths.get("src", "test", "resources", "data", "streaming", "streaming_test.bal")
                 .toAbsolutePath().toString();
+        String sourceRoot = Paths.get("src", "test", "resources", "data", "streaming").toAbsolutePath().toString();
         Map<String, String> envProperties = new HashMap<>(1);
         // Had to increase this to 150 from 100 which worked with BVM. Created an issue: #16846
         envProperties.put("JAVA_OPTS", "-Xms150m -Xmx150m");
         int[] requiredPorts = {9090};
         serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(balFile, null, envProperties, requiredPorts);
+        serverInstance.startServer(sourceRoot, balFile, null, envProperties, requiredPorts);
     }
 
     private void setUpDatabase() throws SQLException {

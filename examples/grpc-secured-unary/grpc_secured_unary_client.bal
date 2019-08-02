@@ -14,13 +14,12 @@ public function main() {
 
     // Executes unary blocking secured call.
     var unionResp = helloWorldBlockingEp->hello("WSO2");
-    if (unionResp is error) {
+    if (unionResp is grpc:Error) {
         io:println("Error from Connector: " + unionResp.reason() + " - "
                                          + <string> unionResp.detail()["message"]);
     } else {
         string result;
         [result, _] = unionResp;
-        io:println("Client Got Response : ");
-        io:println(result);
+        io:println("Client Got Response : " + result);
     }
 }

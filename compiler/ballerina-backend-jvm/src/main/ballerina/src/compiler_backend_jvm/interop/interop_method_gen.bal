@@ -40,7 +40,8 @@ function createJInteropFunctionWrapper(jvm:InteropValidationRequest jInteropVali
     // Update the function wrapper only for Java interop functions
     BIRFunctionWrapper birFuncWrapper = getFunctionWrapper(birFunc, orgName, moduleName,
                                                 versionValue, birModuleClassName);
-    if jInteropValidationReq is jvm:MethodValidationRequest {
+    if (jInteropValidationReq is jvm:MethodValidationRequest) {
+        jInteropValidationReq.restParamExist = birFunc.restParamExist;
         return createJMethodWrapper(jInteropValidationReq, birFuncWrapper);
     } else {
         return createJFieldWrapper(jInteropValidationReq, birFuncWrapper);
@@ -180,10 +181,12 @@ function genJFieldForInteropField(JFieldFunctionWrapper jFieldFuncWrapper,
         mv.visitJumpInsn(IFNONNULL, elseBlockLabel);
         jvm:Label thenBlockLabel = labelGen.getLabel("receiver_null_check_then");
         mv.visitLabel(thenBlockLabel);
-        mv.visitTypeInsn(NEW, "java/lang/RuntimeException");
-        mv.visitInsn(DUP);
-        mv.visitLdcInsn("instance is null");
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/RuntimeException", "<init>", "(Ljava/lang/String;)V", false);
+        mv.visitFieldInsn(GETSTATIC, BAL_ERROR_REASONS, "JAVA_NULL_REFERENCE_ERROR", "L" + STRING_VALUE + ";");
+        mv.visitFieldInsn(GETSTATIC, RUNTIME_ERRORS, "JAVA_NULL_REFERENCE", "L" + RUNTIME_ERRORS + ";");
+        mv.visitInsn(ICONST_0);
+        mv.visitTypeInsn(ANEWARRAY, OBJECT);
+        mv.visitMethodInsn(INVOKESTATIC, BLANG_EXCEPTION_HELPER, "getRuntimeException",
+            "(L" + STRING_VALUE + ";L" + RUNTIME_ERRORS + ";[L" + OBJECT + ";)L" + ERROR_VALUE + ";", false);
         mv.visitInsn(ATHROW);
         mv.visitLabel(elseBlockLabel);
     }
@@ -229,7 +232,12 @@ function genJFieldForInteropField(JFieldFunctionWrapper jFieldFuncWrapper,
             mv.visitVarInsn(ALOAD, returnJObjectVarRefIndex);
             mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, "<init>", "(Ljava/lang/Object;)V", false);
         } else {
-            performWideningPrimitiveConversion(mv, <BValueType>retType, <jvm:PrimitiveType>jFieldType);
+            // bType is a value-type
+            if(jFieldType is jvm:PrimitiveType) {
+                performWideningPrimitiveConversion(mv, <BValueType>retType, jFieldType);
+            } else {
+                addUnboxInsn(mv, retType);
+            }
         }
         generateVarStore(mv, retVarDcl, currentPackageName, returnVarRefIndex);
     }
@@ -264,6 +272,20 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
     TerminatorGenerator termGen = new(mv, indexMap, labelGen, errorGen, birModule);
     mv.visitCode();
 
+    // start try
+    jvm:Label tryBodyLabel = new;
+    jvm:Label tryHandleLabel = labelGen.getLabel("return_lable");
+
+    // iterate the exception classes and generate visitTryCatch
+    foreach var exception in extFuncWrapper.jMethod.throws {
+        jvm:Label catchLabel = labelGen.getLabel(exception + "$label$");
+        mv.visitTryCatchBlock(tryBodyLabel, tryHandleLabel, catchLabel, exception);
+    }
+    // catch all the unhandled exceptions
+    jvm:Label throwableLabel = labelGen.getLabel("throwable" + "$label$");
+    mv.visitTryCatchBlock(tryBodyLabel, tryHandleLabel, throwableLabel, THROWABLE);
+
+    mv.visitLabel(tryBodyLabel);
     jvm:Label paramLoadLabel = labelGen.getLabel("param_load");
     mv.visitLabel(paramLoadLabel);
     mv.visitLineNumber(birFunc.pos.sLine, paramLoadLabel);
@@ -333,10 +355,12 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
         mv.visitJumpInsn(IFNONNULL, elseBlockLabel);
         jvm:Label thenBlockLabel = labelGen.getLabel("receiver_null_check_then");
         mv.visitLabel(thenBlockLabel);
-        mv.visitTypeInsn(NEW, "java/lang/RuntimeException");
-        mv.visitInsn(DUP);
-        mv.visitLdcInsn("instance is null");
-        mv.visitMethodInsn(INVOKESPECIAL, "java/lang/RuntimeException", "<init>", "(Ljava/lang/String;)V", false);
+        mv.visitFieldInsn(GETSTATIC, BAL_ERROR_REASONS, "JAVA_NULL_REFERENCE_ERROR", "L" + STRING_VALUE + ";");
+        mv.visitFieldInsn(GETSTATIC, RUNTIME_ERRORS, "JAVA_NULL_REFERENCE", "L" + RUNTIME_ERRORS + ";");
+        mv.visitInsn(ICONST_0);
+        mv.visitTypeInsn(ANEWARRAY, OBJECT);
+        mv.visitMethodInsn(INVOKESTATIC, BLANG_EXCEPTION_HELPER, "getRuntimeException",
+            "(L" + STRING_VALUE + ";L" + RUNTIME_ERRORS + ";[L" + OBJECT + ";)L" + ERROR_VALUE + ";", false);
         mv.visitInsn(ATHROW);
         mv.visitLabel(elseBlockLabel);
     } else if jMethod.kind is jvm:CONSTRUCTOR {
@@ -376,6 +400,7 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
     bir:BType retType = <bir:BType>birFunc.typeValue["retType"];
     if retType is bir:BTypeNil {
     } else {
+        boolean isVoidReturnThrows = false;
         bir:VariableDcl retVarDcl = { typeValue: <bir:BType>retType, name: { value: "$_ret_var_$" }, kind: "LOCAL" };
         returnVarRefIndex = indexMap.getIndex(retVarDcl);
         if retType is bir:BTypeHandle {
@@ -387,21 +412,93 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
             mv.visitInsn(DUP);
             mv.visitVarInsn(ALOAD, returnJObjectVarRefIndex);
             mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, "<init>", "(Ljava/lang/Object;)V", false);
-        } else {
-            performWideningPrimitiveConversion(mv, <BValueType>retType, <jvm:PrimitiveType>jMethodRetType);
+        } else if (retType is BValueType) {
+            // retType is a value-type
+            if(jMethodRetType is jvm:PrimitiveType) {
+                performWideningPrimitiveConversion(mv, retType, jMethodRetType);
+            } else {
+                addUnboxInsn(mv, retType);
+            }
+        } else if (retType is bir:BUnionType) {
+            if (jMethodRetType is jvm:PrimitiveType) {
+                bir:BType bType = getBTypeFromJType(jMethodRetType);
+                performWideningPrimitiveConversion(mv, <BValueType> bType, jMethodRetType);
+                addBoxInsn(mv, bType);
+                if bType is bir:BTypeNil {
+                    isVoidReturnThrows = true;
+                }
+            } else if (jMethodRetType is jvm:RefType) {
+                jvm:Label afterHandle = labelGen.getLabel("after_handle");
+                if (jMethodRetType.typeName == "java/lang/Object") {
+                    mv.visitInsn(DUP);
+                    mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
+                    mv.visitJumpInsn(IFNE, afterHandle);
+
+                    mv.visitInsn(DUP);
+                    mv.visitTypeInsn(INSTANCEOF, "java/lang/Number");
+                    mv.visitJumpInsn(IFNE, afterHandle);
+
+                    mv.visitInsn(DUP);
+                    mv.visitTypeInsn(INSTANCEOF, "java/lang/Boolean");
+                    mv.visitJumpInsn(IFNE, afterHandle);
+
+                    mv.visitInsn(DUP);
+                    mv.visitTypeInsn(INSTANCEOF, REF_VALUE);
+                    mv.visitJumpInsn(IFNE, afterHandle);
+
+                    mv.visitInsn(DUP);
+                    mv.visitTypeInsn(INSTANCEOF, "java/lang/Byte");
+                    mv.visitJumpInsn(IFNE, afterHandle);
+                }
+                bir:VariableDcl retJObjectVarDcl = { typeValue: "any", name: { value: "$_ret_jobject_var_$" }, kind: "LOCAL" };
+                int returnJObjectVarRefIndex = indexMap.getIndex(retJObjectVarDcl);
+                mv.visitVarInsn(ASTORE, returnJObjectVarRefIndex);
+                mv.visitTypeInsn(NEW, HANDLE_VALUE);
+                mv.visitInsn(DUP);
+                mv.visitVarInsn(ALOAD, returnJObjectVarRefIndex);
+                mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, "<init>", "(Ljava/lang/Object;)V", false);
+                mv.visitLabel(afterHandle);
+            }
         }
-        generateVarStore(mv, retVarDcl, currentPackageName, returnVarRefIndex);
+        if (!isVoidReturnThrows) {
+            generateVarStore(mv, retVarDcl, currentPackageName, returnVarRefIndex);
+        }  
     }
 
     jvm:Label retLabel = labelGen.getLabel("return_lable");
     mv.visitLabel(retLabel);
     mv.visitLineNumber(birFunc.pos.sLine, retLabel);
-    termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, birFunc);
+    
+    if (retType is bir:BUnionType && getActualType(retType) is bir:BTypeNil) {
+        mv.visitInsn(ACONST_NULL);
+        mv.visitInsn(ARETURN);
+    } else {
+        termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, birFunc);
+    }
+    
+    
+    // iterate the exception classes and generate catch blocks
+    foreach var exception in extFuncWrapper.jMethod.throws {
+        jvm:Label catchLabel = labelGen.getLabel(exception + "$label$");
+        mv.visitLabel(catchLabel);
+        //mv.visitLdcInsn(exception);
+        mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createInteropError", io:sprintf("(L%s;)L%s;", EXCEPTION, ERROR_VALUE), false);
+        mv.visitInsn(ARETURN);
+    }
+
+    // throw unhandled exception error
+    mv.visitLabel(throwableLabel);
+    // get the class name of the error
+    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Class", "getName", "()Ljava/lang/String;", false);
+    mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createError", io:sprintf("(L%s;)L%s;", STRING_VALUE, ERROR_VALUE), false);
+    mv.visitInsn(ATHROW);
+
     mv.visitMaxs(200, 400);
     mv.visitEnd();
 }
 
-type BValueType bir:BTypeInt | bir:BTypeFloat | bir:BTypeBoolean | bir:BTypeByte;
+type BValueType bir:BTypeInt | bir:BTypeFloat | bir:BTypeBoolean | bir:BTypeByte | bir:BTypeNil;
 
 // These conversions are already validate beforehand, therefore I am just emitting type conversion instructions here.
 // We can improve following logic with a type lattice.
@@ -421,6 +518,28 @@ function performWideningPrimitiveConversion(jvm:MethodVisitor mv, BValueType bTy
             mv.visitInsn(I2D);
         }
     }
+}
+// Get real type by removing error when error added due to a throw
+function getActualType(bir:BUnionType unionType) returns bir:BType? {
+    if (unionType.members.length() > 2) {
+        // Java side also returns a union, 
+        // we don't need to do anything specific for error
+        return unionType;
+    }
+    bir:BType? retType = ();
+    boolean hasError = false;
+    foreach var member in unionType.members {
+        if (member is bir:BErrorType) {
+            hasError = true;
+        } else {
+            retType = member;
+        }
+    }
+    if (hasError) {
+        // union has no error type included
+        return retType;
+    }
+    return unionType;
 }
 
 // We can improve following logic with a type lattice.
@@ -478,12 +597,23 @@ function loadMethodParamToStackInInteropFunction(jvm:MethodVisitor mv,
 }
 
 function convertToJVMValue(jvm:MethodVisitor mv, bir:BType bType, jvm:JType jvmType) {
-    if bType is bir:BTypeHandle && (jvmType is jvm:RefType|jvm:ArrayType) {
-        mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
-        string classSig = getSignatureForJType(jvmType);
-        mv.visitTypeInsn(CHECKCAST, classSig);
+    if bType is bir:BTypeHandle {
+        if (jvmType is jvm:RefType|jvm:ArrayType) {
+            mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
+            string classSig = getSignatureForJType(jvmType);
+            mv.visitTypeInsn(CHECKCAST, classSig);
+        } else {
+            // should never reach here
+            error e = error(io:sprintf("invalid java method type: %s", jvmType));
+            panic e;
+        }
     } else {
-        performNarrowingPrimitiveConversion(mv, <BValueType>bType, <jvm:PrimitiveType>jvmType);
+        // bType is a value-type
+        if (jvmType is jvm:PrimitiveType) {
+            performNarrowingPrimitiveConversion(mv, <BValueType>bType, jvmType);
+        } else {
+            addBoxInsn(mv, bType);
+        }
     }
 }
 
@@ -627,6 +757,25 @@ function genArrayStore(jvm:MethodVisitor mv, jvm:JType jType) {
     }
 
     mv.visitInsn(code);
+}
+
+function getBTypeFromJType(jvm:JType jType) returns bir:BType {
+    int code;
+    if jType is jvm:Int | jvm:Long | jvm:Short{
+        return bir:TYPE_INT;
+    } else if jType is jvm:Double | jvm:Float {
+        return bir:TYPE_FLOAT;
+    } else if jType is jvm:Byte {
+        return bir:TYPE_BYTE;
+    } else if jType is jvm:Boolean {
+        return bir:TYPE_BOOLEAN;
+    } else if jType is jvm:Char {
+        return bir:TYPE_STRING;
+    } else if jType is jvm:Void {
+        return bir:TYPE_NIL;
+    } else {
+        panic error("Unknown primitive type in interop");
+    }
 }
 
 function genArrayNew(jvm:MethodVisitor mv, jvm:JType elementType) {

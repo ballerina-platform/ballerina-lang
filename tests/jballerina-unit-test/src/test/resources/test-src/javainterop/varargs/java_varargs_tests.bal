@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerinax/java;
 
 public function testIntVarargs_1() returns [int, int, int] {
     return [calculateSum(1, 3, 6), calculateSum(6), calculateSum()];
@@ -37,10 +37,22 @@ public function testGetSumOfIntArraysWithAnnot() returns int {
 }
 
 public function testJavaListVarargs() returns handle {
-    handle arrayList1 = getArrayList(java:toJString("apples"), java:toJString("arranges"), java:toJString("grapes"));
-    handle arrayList2 = getArrayList(java:toJString("pineapple"));
-    handle arrayList3 = getArrayList(java:toJString("mangoes"));
+    handle arrayList1 = getArrayList(java:fromString("apples"), java:fromString("arranges"), java:fromString("grapes"));
+    handle arrayList2 = getArrayList(java:fromString("pineapple"));
+    handle arrayList3 = getArrayList(java:fromString("mangoes"));
     return mergeLists(arrayList1, arrayList2, arrayList3);
+}
+
+public function testPrimitiveVarargsWithGenerics() returns handle {
+    return asList(3, 6, 9);
+}
+
+public function testPasingValueTypeToJavaObject() returns int {
+    return toShort(4);
+}
+
+public function testJavaGenericReturnType() returns [int, float, handle] {
+    return [getIntFromGeneric(8), getFloatFromGeneric(3.25), getStringFromGeneric(java:fromString("apples"))];
 }
 
 // ------------ External functions -------------
@@ -78,11 +90,36 @@ public function getArrayList(handle... values) returns handle = @java:Method {
 public function mergeLists(handle... values) returns handle = @java:Method {
     name:"merge",
     class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest",
-    paramTypes:[{elementClass:"java.util.List", dimensions:1}]
+    paramTypes:[{class:"java.util.List", dimensions:1}]
 } external;
 
 public function calculateSumOfIntArraysWithAnnot(handle... values) returns int = @java:Method {
     name:"getSumOfIntArrays",
     class: "org.ballerinalang.test.javainterop.varargs.JavaVarargsTest",
-    paramTypes:[{elementClass:"int", dimensions:2}]
+    paramTypes:[{class:"int", dimensions:2}]
+} external;
+
+public function asList(int... values) returns handle = @java:Method {
+    name:"asList",
+    class: "java.util.Arrays"
+} external;
+
+public function toShort(int value) returns int = @java:Method {
+    name:"toShort",
+    class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
+} external;
+
+public function getIntFromGeneric(int value) returns int = @java:Method {
+    name:"getGenericValue",
+    class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
+} external;
+
+public function getFloatFromGeneric(float value) returns float = @java:Method {
+    name:"getGenericValue",
+    class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
+} external;
+
+public function getStringFromGeneric(handle value) returns handle = @java:Method {
+    name:"getGenericValue",
+    class:"org.ballerinalang.test.javainterop.varargs.JavaVarargsTest"
 } external;

@@ -1,10 +1,10 @@
-import ballerina/java;
+import ballerinax/java;
 
 public function testOverloadedConstructorsWithOneParam() returns [handle, handle] {
-    handle bufferStrValue = java:toJString("string buffer value");
+    handle bufferStrValue = java:fromString("string buffer value");
     handle stringBuffer = newStringBuffer(bufferStrValue);
 
-    handle builderStrValue = java:toJString("string builder value");
+    handle builderStrValue = java:fromString("string builder value");
     handle stringBuilder = newStringBuilder(builderStrValue);
 
     handle stringCreatedWithBuffer = newStringWithStringBuffer(stringBuffer);

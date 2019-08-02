@@ -25,8 +25,8 @@ function getCount() returns int {
 
 function triggerTimer() {
     task:TimerConfiguration configuration = {
-        interval: 500,
-        initialDelay: 1000,
+        intervalInMillis: 500,
+        initialDelayInMillis: 1000,
         noOfRecurrences: 3
     };
 

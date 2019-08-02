@@ -49,7 +49,7 @@ const debugConfigProvider: DebugConfigurationProvider = {
                 return;
             }
 
-            config.script = window.activeTextEditor.document.uri.path;
+            config.script = window.activeTextEditor.document.uri.fsPath
         }
         config.debuggeePort = "5010";
 
