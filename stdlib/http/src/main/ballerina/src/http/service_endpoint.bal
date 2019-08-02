@@ -16,7 +16,6 @@
 
 import ballerina/crypto;
 import ballerina/log;
-import ballerina/runtime;
 import ballerina/system;
 import ballerina/'lang\.object as lang;
 
