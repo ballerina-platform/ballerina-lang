@@ -4,7 +4,7 @@ import ballerinax/java;
 public function main() {
     float r = 4;
     // An external field getter can be called like any other Ballerina function.
-    // If a filed is non-static, receiver instance has to be provided as the first parameter
+    // If a field is non-static, the receiver instance has to be provided as the first parameter.
     float l = 2 * pi() * r;
     io:println(l);
 }
