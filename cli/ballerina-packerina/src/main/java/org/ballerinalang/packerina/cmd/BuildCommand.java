@@ -253,7 +253,7 @@ public class BuildCommand implements BLauncherCmd {
     
                 try {
                     // TODO: use a files system
-                    Path tempTarget = Files.createTempDirectory(pkgOrSourceFileNameAsString);
+                    Path tempTarget = Files.createTempDirectory("ballerina-build-" + System.nanoTime());
                     BuildContext buildContext = new BuildContext(sourceRootPath, tempTarget, sourceFullPath);
                     buildContext.setOut(outStream);
                     buildContext.setOut(errStream);
