@@ -278,10 +278,10 @@ public class RunExecutableTask implements Task {
             }
             
         } catch (IOException e) {
-            throw new BLangRuntimeException(
-                    "failed to read the specified configuration file: " + ballerinaConfPath.toString(), e);
+            throw createLauncherException("failed to read the specified configuration file: " +
+                                          ballerinaConfPath.toString());
         } catch (RuntimeException e) {
-            throw new BLangRuntimeException(e.getMessage(), e);
+            throw createLauncherException(e.getMessage());
         }
     }
 }
