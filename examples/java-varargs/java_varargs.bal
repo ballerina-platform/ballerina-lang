@@ -1,5 +1,5 @@
-import ballerinax/java;
 import ballerina/io;
+import ballerinax/java;
 
 public function main() {
     var answer = 42;

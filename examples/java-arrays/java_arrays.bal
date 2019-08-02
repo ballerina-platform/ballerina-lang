@@ -1,5 +1,5 @@
-import ballerinax/java;
 import ballerina/io;
+import ballerinax/java;
 
 public function main() {
     // Converts Ballerina strings to Java strings, to be passed to Java methods
