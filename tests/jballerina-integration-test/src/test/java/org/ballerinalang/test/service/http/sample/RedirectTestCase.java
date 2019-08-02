@@ -123,4 +123,12 @@ public class RedirectTestCase extends HttpBaseTest {
         Assert.assertEquals(response.getData(), "HTTPs Result:https://localhost:9104/redirect3/result",
                 "Incorrect resolvedRequestedURI");
     }
+
+    @Test(description = "Test http redirection and test whether the resolvedRequestedURI in Single thread model")
+    public void testRedirectSingleThreaded() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(
+                serverInstance.getServiceURLHttp(servicePort, "service1/singleThreaded"));
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "http://localhost:9102/redirect2", "Incorrect resolvedRequestedURI");
+    }
 }

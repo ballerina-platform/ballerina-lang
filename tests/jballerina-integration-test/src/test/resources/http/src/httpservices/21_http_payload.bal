@@ -49,6 +49,20 @@ service testService16 on new http:Listener(9118) {
             checkpanic caller->respond(<@untainted> err.reason());
         }
     }
+
+    @http:ResourceConfig {
+        path: "/singleThreaded",
+        workerPool: http:DISABLE
+    }
+    resource function getPayloadSingleThreaded(http:Caller caller, http:Request request) {
+        var payload = request.getTextPayload();
+        if (payload is string) {
+            checkpanic caller->respond(<@untainted> payload);
+        } else {
+            error err = payload;
+            checkpanic caller->respond(<@untainted> err.reason());
+        }
+    }
 }
 
 @http:ServiceConfig {

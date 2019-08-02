@@ -135,15 +135,15 @@ public class Scheduler {
     /**
      * Method to execute the task in the same thread rather scheduling to a runnable list.
      *
-     * @param params   - parameters to be passed to the function
-     * @param function - function to be executed
-     * @param parent   - parent strand that makes the request to schedule another
-     * @param callback - to notify any listener when ever the execution of the given function is finished
+     * @param params     - parameters to be passed to the function
+     * @param function   - function to be executed
+     * @param parent     - parent strand that makes the request to schedule another
+     * @param callback   - to notify any listener when ever the execution of the given function is finished
      * @param properties - request properties which requires for co-relation
      * @return - Reference to the scheduled task
      */
     public FutureValue execute(Object[] params, Function function, Strand parent, CallableUnitCallback callback,
-                                Map<String, Object> properties) {
+                               Map<String, Object> properties) {
         FutureValue future = createFuture(parent, callback, properties);
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(function, params, future);
@@ -161,7 +161,7 @@ public class Scheduler {
             notifyChannels(item, panic);
             logger.error("Strand died", e);
         }
-        processItemState(item, result, panic);
+        processSchedulerItemState(item, result, panic);
         return future;
     }
 
@@ -234,11 +234,11 @@ public class Scheduler {
                 notifyChannels(item, panic);
                 logger.error("Strand died", e);
             }
-            processItemState(item, result, panic);
+            processSchedulerItemState(item, result, panic);
         }
     }
 
-    private void processItemState(SchedulerItem item, Object result, Throwable panic) {
+    private void processSchedulerItemState(SchedulerItem item, Object result, Throwable panic) {
         switch (item.getState()) {
             case BLOCK_AND_YIELD:
                 if (DEBUG) {
@@ -319,7 +319,7 @@ public class Scheduler {
                     assert runnableList.size() == 0;
 
                     // server agent start code will be inserted in above line during tests.
-                    // It depends on this line number 279.
+                    // It depends on this line number 320.
                     // update the linenumber @BallerinaServerAgent#SCHEDULER_LINE_NUM if modified
                     if (DEBUG) {
                         debugLog("+++++++++ all work completed ++++++++");
@@ -362,7 +362,8 @@ public class Scheduler {
             Thread.sleep(100);
             DEBUG_LOG.add(msg);
             Thread.sleep(100);
-        } catch (InterruptedException ignored) { }
+        } catch (InterruptedException ignored) {
+        }
     }
 
     private void notifyChannels(SchedulerItem item, Throwable panic) {
@@ -371,7 +372,7 @@ public class Scheduler {
             debugLog("notifying channels:" + channels.toString());
         }
 
-        for (ChannelDetails details: channels) {
+        for (ChannelDetails details : channels) {
             WorkerDataChannel wdChannel;
 
             if (details.channelInSameStrand) {
@@ -389,16 +390,16 @@ public class Scheduler {
     }
 
     private void reschedule(SchedulerItem item) {
-            if (!item.getState().equals(State.RUNNABLE)) {
-                // release if the same strand is waiting for others as well (wait multiple)
-                item.setState(State.RUNNABLE);
-                runnableList.add(item);
-                if (DEBUG) {
-                    debugLog(item + " rescheduled");
-                }
-            } else {
-               debugLog(item + " " + item.getState().toString() + " not rescheduled");
+        if (!item.getState().equals(State.RUNNABLE)) {
+            // release if the same strand is waiting for others as well (wait multiple)
+            item.setState(State.RUNNABLE);
+            runnableList.add(item);
+            if (DEBUG) {
+                debugLog(item + " rescheduled");
             }
+        } else {
+            debugLog(item + " " + item.getState().toString() + " not rescheduled");
+        }
     }
 
     private FutureValue createFuture(Strand parent, CallableUnitCallback callback, Map<String, Object> properties) {

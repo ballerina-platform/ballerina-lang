@@ -77,4 +77,14 @@ public class PassthroughServiceSampleTestCase extends HttpBaseTest {
         assertTrue(response.getData().contains("Part1"));
         assertTrue(response.getData().contains("Part2"));
     }
+
+    @Test(description = "Test Passthrough sample test case using single thread model")
+    public void testPassthroughServiceUsingSingleThreadModel() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(
+                serverInstance.getServiceURLHttp(9113, "passthrough/singleThreaded"));
+        assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString()),
+                     TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
+        assertEquals(response.getData(), responseMessage, "Message content mismatched");
+    }
 }

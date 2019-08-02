@@ -27,6 +27,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Test whether the xml payload gets parsed properly, after the said payload has been retrieved as a byte array.
@@ -40,5 +42,17 @@ public class HttpPayloadTestCase extends HttpBaseTest {
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
         Assert.assertEquals(response.getData(), "W3Schools Home PageRSS Tutorial", "Message content mismatched");
+    }
+
+    @Test
+    public void testPayloadSingleThreaded() throws IOException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9118, "test/singleThreaded"),
+                                                         "Hello World", headers);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
+                , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+        Assert.assertEquals(response.getData(), "Hello World");
     }
 }
