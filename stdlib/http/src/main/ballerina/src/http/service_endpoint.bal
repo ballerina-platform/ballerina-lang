@@ -16,6 +16,7 @@
 
 import ballerina/crypto;
 import ballerina/log;
+import ballerina/runtime;
 import ballerina/system;
 import ballerina/'lang\.object as lang;
 
@@ -307,7 +308,7 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
     // No need to validate else part since the function is called if and only if the `auth is ListenerAuth`
 }
 
-public type AnnotationFilter object {
+type AnnotationFilter object {
 
     *RequestFilter;
 
