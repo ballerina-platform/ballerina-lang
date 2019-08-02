@@ -6,5 +6,3 @@
 // Java reference value, i.e., a Java object. Also, in jBallerina, Java constructors and Java methods can provide
 // the implementations of Ballerina functions that are marked as `external`.
 // In this example, let's look at how to create Java objects by invoking their constructors from Ballerina.
-
-
