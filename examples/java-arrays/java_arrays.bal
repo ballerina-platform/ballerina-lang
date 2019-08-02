@@ -12,7 +12,7 @@ public function main() {
     int numWords = java:getArrayLength(words);
     io:println(numWords);
 
-    // Access array element, handle of the array is passed as the first argument
+    // Access an array element, handle of the array is passed as the first argument.
     handle secondWord = java:getArrayElement(words, 1);
     io:println(secondWord);
 }
