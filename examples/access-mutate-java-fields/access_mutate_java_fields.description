@@ -1,3 +1,3 @@
 // Java fields (both static and instance) can be read and modified in Ballerina.
-// From Ballerina side they will appear as function calls. Following example shows how to read field value.
+// From the Ballerina side they will appear as function calls. This example shows how to read a field value.
 // Similarly `@java:FieldGet` annotation can be used to create setter external functions.
