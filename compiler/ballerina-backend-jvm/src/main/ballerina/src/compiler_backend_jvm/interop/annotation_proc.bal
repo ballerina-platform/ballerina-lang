@@ -21,7 +21,6 @@ const NAME_FIELD_NAME = "name";
 const CLASS_FIELD_NAME = "class";
 const FIELD_METHOD_FIELD_NAME = "method";
 const PARAM_TYPES_FIELD_NAME = "paramTypes";
-const string ELEMENT_CLASS_FIELD_NAME = "elementClass";
 const string DIMENSIONS_FIELD_NAME = "dimensions";
 
 function getInteropAnnotValue(bir:Function birFunc) returns jvm:InteropValidationRequest? {
@@ -109,7 +108,7 @@ function buildParamTypeConstraints(bir:AnnotationValue? annotValue,
                 jType = jvm:getJTypeFromTypeName(<string> annotArrayElement.literalValue);
             } else if annotArrayElement is bir:AnnotationRecordValue {
                 map<bir:AnnotationValue> annotValueMap = annotArrayElement.annotValueMap;
-                string elementClass = <string> getLiteralValueFromAnnotValue(annotValueMap.get(ELEMENT_CLASS_FIELD_NAME));
+                string elementClass = <string> getLiteralValueFromAnnotValue(annotValueMap.get(CLASS_FIELD_NAME));
                 byte dimensions = <byte> getLiteralValueFromAnnotValue(annotValueMap.get(DIMENSIONS_FIELD_NAME));
                 jType = jvm:getJArrayTypeFromTypeName(elementClass, dimensions);
             } else {

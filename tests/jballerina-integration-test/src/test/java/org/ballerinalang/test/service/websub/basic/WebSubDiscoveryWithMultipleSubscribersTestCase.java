@@ -67,13 +67,17 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends WebSubBaseTe
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources" +
                                                 File.separator + "websub" + File.separator + "subscriber" +
                                                 File.separator + "test_multiple_subscribers.bal").getAbsolutePath();
+    
+        String sourceRoot = new File("src" + File.separator + "test" + File.separator + "resources" +
+                                        File.separator + "websub" + File.separator + "subscriber").getAbsolutePath();
+        
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherOne);
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherTwo);
         webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecherOne);
         webSubSubscriber.addLogLeecher(internalHubNotificationLogLeecherTwo);
 
         String[] subscriberArgs = {"-e", "test.hub.url=" + "https://localhost:23191/websub/hub"};
-        webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{23383});
+        webSubSubscriber.startServer(sourceRoot, subscriberBal, subscriberArgs, new int[]{23383});
     }
 
     @Test

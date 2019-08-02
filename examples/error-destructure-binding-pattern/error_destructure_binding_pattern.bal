@@ -41,6 +41,8 @@ function getSampleError() returns SampleError {
 }
 
 type Foo record {|
+    string message?;
+    error cause?;
     string detailMsg;
     boolean isFatal;
 |};

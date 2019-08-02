@@ -167,6 +167,7 @@ class ProcessedStatement {
             String sqlDataType = sqlType.toUpperCase(Locale.getDefault());
             switch (sqlDataType) {
             case Constants.SQLDataTypes.SMALLINT:
+            case Constants.SQLDataTypes.TINYINT:
                 setSmallIntValue(stmt, value, index, direction);
                 break;
             case Constants.SQLDataTypes.VARCHAR:
@@ -199,9 +200,6 @@ class ProcessedStatement {
             case Constants.SQLDataTypes.BIT:
             case Constants.SQLDataTypes.BOOLEAN:
                 setBooleanValue(stmt, value, index, direction);
-                break;
-            case Constants.SQLDataTypes.TINYINT:
-                setTinyIntValue(stmt, value, index, direction);
                 break;
             case Constants.SQLDataTypes.BIGINT:
                 setBigIntValue(stmt, value, index, direction);
@@ -506,50 +504,6 @@ class ProcessedStatement {
             }
         } catch (SQLException e) {
             throw new SQLException("Error while setting boolean value to statement. " + e.getMessage(), e.getSQLState(),
-                    e.getErrorCode());
-        }
-    }
-
-    private void setTinyIntValue(PreparedStatement stmt, Object value, int index, int direction)
-            throws ApplicationException, SQLException {
-        Byte val = null;
-        if (value != null) {
-            BType type = TypeChecker.getType(value);
-            switch (type.getTag()) {
-            case TypeTags.BYTE_TAG:
-            case TypeTags.INT_TAG:
-                val = ((Long) value).byteValue();
-                break;
-            case TypeTags.STRING_TAG:
-                val = Byte.parseByte((String) value);
-                break;
-            default:
-                throw new ApplicationException("Invalid input value \"" + value.toString()
-                        + "\" specified for byte");
-
-            }
-        }
-        try {
-            if (Constants.QueryParamDirection.IN == direction) {
-                if (val == null) {
-                    stmt.setNull(index + 1, Types.TINYINT);
-                } else {
-                    stmt.setByte(index + 1, val);
-                }
-            } else if (Constants.QueryParamDirection.INOUT == direction) {
-                if (val == null) {
-                    stmt.setNull(index + 1, Types.TINYINT);
-                } else {
-                    stmt.setByte(index + 1, val);
-                }
-                ((CallableStatement) stmt).registerOutParameter(index + 1, Types.TINYINT);
-            } else if (Constants.QueryParamDirection.OUT == direction) {
-                ((CallableStatement) stmt).registerOutParameter(index + 1, Types.TINYINT);
-            } else {
-                throw new ApplicationException("Invalid direction specified in the jdbc:Parameter at index " + index);
-            }
-        } catch (SQLException e) {
-            throw new SQLException("Error while setting tinyint value to statement. " + e.getMessage(), e.getSQLState(),
                     e.getErrorCode());
         }
     }

@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerinax/java;
 
 public function interopWithArrayAndMap() returns int[] {
     map<int> mapVal = { "keyVal":8};
@@ -50,7 +50,7 @@ public function interopWithUnionReturn() returns boolean {
         return false;
     }
     var b = acceptIntUnionReturn(2);
-    if (!(b is string)) {
+    if (!(b is handle)) {
         return false;
     }
     var c = acceptIntUnionReturn(3);
@@ -64,7 +64,7 @@ public function interopWithUnionReturn() returns boolean {
     return true;
 }
 
-public function acceptIntUnionReturn(int s) returns int|string|float|boolean = @java:Method {
+public function acceptIntUnionReturn(int s) returns int|string|float|boolean|handle = @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
@@ -149,5 +149,30 @@ public function interopWithAnydataReturn() returns boolean {
 public function acceptIntAnydataReturn(int s) returns anydata= @java:Method {
     class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
     name:"acceptIntUnionReturn"
+} external;
+
+public function acceptIntReturnIntThrowsCheckedException(int a) returns int | error = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function acceptRecordAndRecordReturnWhichThrowsCheckedException(Employee e, string newVal) returns Employee | error = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function acceptIntUnionReturnWhichThrowsCheckedException(int s) returns int|string|float|boolean|error = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function acceptRefTypesAndReturnMapWhichThrowsCheckedException(Person a, [int, string, Person] b,
+                    int|string|Employee c, error d, any e, anydata f, Employee g) returns map<any> | error = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function acceptStringErrorReturnWhichThrowsCheckedException(string s) returns error = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function getArrayValueFromMapWhichThrowsCheckedException(string key, map<int> mapValue) returns int[] | error = @java:Method {
+    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 

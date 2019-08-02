@@ -34,7 +34,6 @@ import java.io.PrintStream;
  *
  * @since 0.990.4
  */
-@Test(groups = { "brokenOnJBallerina" })
 public class ArgumentParserPositiveTest {
 
     private static final String MAIN_FUNCTION_TEST_SRC_DIR = "test-src/main.function/";
@@ -120,12 +119,12 @@ public class ArgumentParserPositiveTest {
     }
 
     @Test(dataProvider = "arrayValues")
-    public void testValidArrayArg(String arg) throws IOException {
+    public void testValidArrayArg(String arg, String expectedValue) throws IOException {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                 "test_main_with_array_param.bal");
         resetTempOut();
         runMain(compileResult, new String[]{arg});
-        Assert.assertEquals(tempOutStream.toString(), arg, "string arg parsed as invalid array");
+        Assert.assertEquals(tempOutStream.toString(), expectedValue, "string arg parsed as invalid array");
     }
 
     @Test
@@ -143,7 +142,7 @@ public class ArgumentParserPositiveTest {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                 "test_main_with_defaultable_param.bal");
         resetTempOut();
-        runMain(compileResult, new String[]{"-i=2", "-s=hi", "false", "is"});
+        runMain(compileResult, new String[]{"-i=2", "-s=hi", "-b=false", "-s2=is"});
         Assert.assertEquals(tempOutStream.toString(), "2 hi world: is false",
                             "string arg parsed as invalid named arg");
     }
@@ -153,18 +152,18 @@ public class ArgumentParserPositiveTest {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                 "test_main_with_defaultable_param.bal");
         resetTempOut();
-        runMain(compileResult, new String[]{"-s=hi", "false", "is"});
+        runMain(compileResult, new String[]{"1", "false", "-s=hi", "-s2=is"});
         Assert.assertEquals(tempOutStream.toString(), "1 hi world: is false",
                             "string arg parsed as invalid named arg");
     }
 
-    @Test(groups = "brokenOnJBallerina")
+    @Test
     public void testNoNamedArg() throws IOException {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                 "test_main_with_defaultable_param.bal");
         resetTempOut();
-        runMain(compileResult, new String[]{"true", "is"});
-        Assert.assertEquals(tempOutStream.toString(), "1 default hello world: is true",
+        runMain(compileResult, new String[]{"1", "true"});
+        Assert.assertEquals(tempOutStream.toString(), "1 default hello world: default true",
                             "string args with no named args parsed as invalid args");
     }
 
@@ -176,10 +175,10 @@ public class ArgumentParserPositiveTest {
         runMain(compileResult, new String[]{"1000", "1.0", "Hello Ballerina", "255", "true",
                 "{ \"name\": \"Maryam\" }", "<book>Harry Potter</book>",
                 "{ \"name\": \"Em\" }", "just", "the", "rest"});
-        Assert.assertTrue(tempOutStream.toString().contains(
-                            "integer: 1000, float: 1.0, string: Hello Ballerina, byte: 255, boolean: true, " +
-                                    "JSON Name Field: Maryam, XML Element Name: book, Employee Name Field: Em, "),
-                                    "string rest args: just the rest string args parsed as invalid args");
+        Assert.assertEquals(tempOutStream.toString(),
+                            "integer: 3e8, float: 1.0, string: Hello Ballerina, byte: 255, boolean: true, JSON Name " 
+                                    + "Field: Maryam, XML Element Name: book, Employee Name Field: Em, string rest " 
+                                    + "args: just the rest ");
     }
 
     @Test
@@ -245,7 +244,7 @@ public class ArgumentParserPositiveTest {
                 "test_main_with_optional_defaultable_param.bal");
         resetTempOut();
         runMain(compileResult, new String[]{"-s=ballerina", "-m={\"eleven\":11,\"twelve\":12}"});
-        Assert.assertEquals(tempOutStream.toString(), "string value: ballerina {\"eleven\":11, \"twelve\":12}",
+        Assert.assertEquals(tempOutStream.toString(), "string value: ballerina eleven=11 twelve=12",
                             "evaluated to invalid value");
     }
 
@@ -296,11 +295,13 @@ public class ArgumentParserPositiveTest {
 
     @DataProvider(name = "arrayValues")
     public Object[][] arrayValues() {
-        return new Object[][]{
-                {"[1, 2, 3]"},
-                {"[1.1, 1.2, 1.3]"},
-                {"[true, false, true]"},
-                {"[{\"name\":\"Maryam\"}, {\"address\":\"Colombo\"}]"}
+        return new Object[][] {
+                { "[1, 2, 3]", "1 2 3" },
+                { "[1.1, 1.2, 1.3]", "1.1 1.2 1.3" },
+                { "[true, false, true]", "true false true" },
+                { "[{\"name\":\"Maryam\"}, {\"address\":\"Colombo\"}]", 
+                  "[{\"name\":\"Maryam\"}, {\"address\":\"Colombo\"}]"
+                }
         };
     }
 
@@ -316,7 +317,7 @@ public class ArgumentParserPositiveTest {
     public Object[][] optionalDefaultableParamArgAndResult() {
         return new Object[][]{
                 {"-s=hello world", "string value: hello world m is nil"},
-                {"-m={\"one\":1,\"two\":2}", "string value: s is nil {\"one\":1, \"two\":2}"}
+                {"-m={\"one\":1,\"two\":2}", "string value: s is nil one=1 two=2"}
         };
     }
 
