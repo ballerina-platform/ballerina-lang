@@ -6,7 +6,7 @@ public function main() {
     handle helloString = java:fromString("Hello world");
     handle regex = java:fromString(" ");
 
-    // Invokes an external method, implemented in Java
+    // Invoke an external method, implemented in Java.
     handle words = splitString(helloString, regex);
 
     int numWords = java:getArrayLength(words);
