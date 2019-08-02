@@ -41,6 +41,7 @@ public type MethodValidationRequest record {|
     string class;
     anydata bFuncType;
     JType?[] paramTypeConstraints?;
+    boolean restParamExist = false;
 |};
 
 public type FieldValidationRequest record {|

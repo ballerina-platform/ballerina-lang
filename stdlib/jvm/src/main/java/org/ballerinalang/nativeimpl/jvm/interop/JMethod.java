@@ -21,9 +21,12 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a java method in this implementation.
@@ -57,6 +60,10 @@ class JMethod {
         return Modifier.isStatic(method.getModifiers());
     }
 
+    boolean isInstanceMethod() {
+        return !isStatic() && !(method instanceof Constructor);
+    }
+
     String getName() {
         if (kind == JMethodKind.CONSTRUCTOR) {
             return "<init>";
@@ -67,6 +74,10 @@ class JMethod {
 
     JMethodKind getKind() {
         return kind;
+    }
+
+    Executable getMethod() {
+        return method;
     }
 
     String getSignature() {
@@ -90,9 +101,16 @@ class JMethod {
     }
 
     ArrayValue getExceptionTypes() {
-        ArrayValue arrayValue = new ArrayValue(new BArrayType(BTypes.typeString), method.getExceptionTypes().length);
-        int i = 0;
+        List<Class> checkedExceptions = new ArrayList<>();
         for (Class<?> exceptionType : method.getExceptionTypes()) {
+            if (!RuntimeException.class.isAssignableFrom(exceptionType)) {
+                checkedExceptions.add(exceptionType);
+            }
+        }
+
+        ArrayValue arrayValue = new ArrayValue(new BArrayType(BTypes.typeString), checkedExceptions.size());
+        int i = 0;
+        for (Class<?> exceptionType : checkedExceptions) {
             arrayValue.add(i++, exceptionType.getName().replace(".", "/"));
         }
         return arrayValue;

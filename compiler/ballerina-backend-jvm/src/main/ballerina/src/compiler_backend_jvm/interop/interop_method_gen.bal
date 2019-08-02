@@ -40,7 +40,8 @@ function createJInteropFunctionWrapper(jvm:InteropValidationRequest jInteropVali
     // Update the function wrapper only for Java interop functions
     BIRFunctionWrapper birFuncWrapper = getFunctionWrapper(birFunc, orgName, moduleName,
                                                 versionValue, birModuleClassName);
-    if jInteropValidationReq is jvm:MethodValidationRequest {
+    if (jInteropValidationReq is jvm:MethodValidationRequest) {
+        jInteropValidationReq.restParamExist = birFunc.restParamExist;
         return createJMethodWrapper(jInteropValidationReq, birFuncWrapper);
     } else {
         return createJFieldWrapper(jInteropValidationReq, birFuncWrapper);
