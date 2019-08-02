@@ -21,5 +21,3 @@ public function splitString(handle receiver, handle regex) returns handle = @jav
     name:"split",
     class: "java/lang/String"
 } external;
-
-
