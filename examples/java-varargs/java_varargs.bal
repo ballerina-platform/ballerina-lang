@@ -3,7 +3,7 @@ import ballerinax/java;
 
 public function main() {
     var answer = 42;
-    // External vararg function can be called like any other Ballerina vararg function
+    // An external vararg function can be called like any other Ballerina vararg function.
     // If a method is non-static, receiver instance has to be provided as the first parameter
     var javaList = asList(1, 2, answer);
     io:println(javaList);
