@@ -850,7 +850,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return true;
         } else {
             BType sourceType = checkExpr(expression, env);
-            if(expression.getKind() == NodeKind.LITERAL && type.getKind() == TypeKind.FINITE) {
+            if (expression.getKind() == NodeKind.LITERAL && type.getKind() == TypeKind.FINITE) {
                 if (types.isAssignableToFiniteType(type, (BLangLiteral) expression)) {
                     return true;
                 }
