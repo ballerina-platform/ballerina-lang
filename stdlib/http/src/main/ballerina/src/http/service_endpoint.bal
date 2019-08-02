@@ -69,7 +69,7 @@ public type Listener object {
                 }
             }
         }
-        addAnnotationFilter(c);
+        addAnnotationFilter(self.config);
         var err = self.initEndpoint();
         if (err is error) {
             panic err;
