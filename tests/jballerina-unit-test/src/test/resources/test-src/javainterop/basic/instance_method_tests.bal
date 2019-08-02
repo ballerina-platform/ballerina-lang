@@ -4,8 +4,20 @@ function testAcceptNothingAndReturnNothing(handle receiver) {
     increaseCounterByOne(receiver);
 }
 
-function testAcceptNothingAndReturnVoidThrows(handle receiver) returns int|error {
+function testAcceptNothingAndReturnVoidThrows(handle receiver) returns error? {
     return testThrowsWithVoid(receiver);
+}
+
+function testAcceptNothingAndReturnVoidThrowsReturn(handle receiver) returns error? {
+    return testThrowsWithVoidReturn(receiver);
+}
+
+function testHandleOrErrorReturn(handle receiver) returns handle|error {
+    return handleOrErrorReturn(receiver);
+}
+
+function testHandleOrErrorReturnThrows(handle receiver) returns handle|error {
+    return handleOrErrorReturnThrows(receiver);
 }
 
 function testInteropFunctionWithDifferentName(handle receiver) {
@@ -73,7 +85,19 @@ public function setGetCounterValueWhichThrowsUncheckedException(handle receiver,
     class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
 } external;
 
-public function testThrowsWithVoid(handle receiver) returns error|int = @java:Method{
+public function testThrowsWithVoid(handle receiver) returns error? = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
+public function testThrowsWithVoidReturn(handle receiver) returns error? = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
+public function handleOrErrorReturn(handle receiver) returns handle|error = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
+public function handleOrErrorReturnThrows(handle receiver) returns handle|error = @java:Method{
     class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
 } external;
 

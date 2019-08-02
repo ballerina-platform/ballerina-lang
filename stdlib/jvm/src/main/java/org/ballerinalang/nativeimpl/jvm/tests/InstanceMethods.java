@@ -70,7 +70,21 @@ public class InstanceMethods {
         return this.counter;
     }
 
-    public int testThrowsWithVoid() throws InterruptedException {
+    public void testThrowsWithVoid() throws InterruptedException {
         throw new InterruptedException();
+    }
+
+    public void testThrowsWithVoidReturn() throws InterruptedException {
+        if (false) throw new InterruptedException();
+    }
+
+    public Integer handleOrErrorReturn() throws InterruptedException {
+        if (false) throw new InterruptedException();
+        return 70;
+    }
+
+    public Integer handleOrErrorReturnThrows() throws InterruptedException {
+        if (true) throw new InterruptedException();
+        return 70;
     }
 }

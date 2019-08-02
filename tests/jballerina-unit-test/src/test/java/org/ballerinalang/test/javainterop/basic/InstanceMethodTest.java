@@ -18,6 +18,7 @@
 package org.ballerinalang.test.javainterop.basic;
 
 import org.ballerinalang.model.types.BErrorType;
+import org.ballerinalang.model.types.BHandleType;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BHandleValue;
 import org.ballerinalang.model.values.BValue;
@@ -57,7 +58,7 @@ public class InstanceMethodTest {
         Assert.assertEquals(testIns.getCounter(), new Integer(1));
     }
 
-    @Test(description = "Test invoking a java instance function that accepts and return nothing")
+    @Test(description = "Test invoking a java instance function that accepts and return nothing but has a throws")
     public void testVoidWithThrows() {
         InstanceMethods testIns = new InstanceMethods();
         BValue[] args = new BValue[1];
@@ -69,7 +70,33 @@ public class InstanceMethodTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0].getType() instanceof BErrorType);
         Assert.assertEquals(((BError) returns[0]).getReason(), "java.lang.InterruptedException");
+
+        returns = BRunUtil.invoke(result, "testAcceptNothingAndReturnVoidThrowsReturn", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNull(returns[0]);
     }
+
+    @Test(description = "Test invoking functions with return type error|handle")
+    public void handleOrErrorReturn() {
+        InstanceMethods testIns = new InstanceMethods();
+        BValue[] args = new BValue[1];
+        args[0] = new BHandleValue(testIns);
+
+        BValue[] returns = BRunUtil.invoke(result, "testHandleOrErrorReturn", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((Integer) ((BHandleValue) returns[0]).getValue()).intValue(), 70);
+
+        returns = BRunUtil.invoke(result, "testHandleOrErrorReturnThrows", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0].getType() instanceof BHandleType);
+    }
+
+    public void handleOrErrorWithObjectReturn() {}
+
+    public void testPrimitiveOrErrorReturn() {}
+
+    public void testUnionWithErrorReturn() {}
 
     @Test(description = "Test invoking a java instance function that accepts and return nothing")
     public void testInteropFunctionWithDifferentName() {
