@@ -109,7 +109,7 @@ public class SQLConnectionPoolTest {
         Assert.assertTrue(error2.matches(connectionTimeoutError), "Actual Error: " + error2);
     }
 
-    @Test(groups = POOL_TEST_GROUP)
+    @Test(groups = POOL_TEST_GROUP, enabled = false)
     public void testGlobalConnectionPoolSingleDestinationConcurrent() {
         String dbPath = "jdbc:h2:file:." + File.separator + "target" + File.separator + "tempdb" + File.separator
                 + "TEST_SQL_CONNECTION_POOL_GLOBAL_1";
@@ -126,7 +126,7 @@ public class SQLConnectionPoolTest {
         Assert.assertTrue(error.matches(connectionTimeoutError), "Actual Error: " + error);
     }
 
-    @Test(groups = POOL_TEST_GROUP)
+    @Test(groups = POOL_TEST_GROUP, enabled = false)
     public void testLocalSharedConnectionPoolConfigSingleDestination() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testLocalSharedConnectionPoolConfigSingleDestination");
         Assert.assertTrue(returns[0] instanceof BValueArray);
@@ -137,7 +137,7 @@ public class SQLConnectionPoolTest {
         Assert.assertTrue(error.matches(connectionTimeoutError), "Actual Error: " + error);
     }
 
-    @Test(groups = POOL_TEST_GROUP)
+    @Test(groups = POOL_TEST_GROUP, enabled = false)
     public void testLocalSharedConnectionPoolConfigSingleDestinationWithEqualDbOptions() {
         BValue[] returns = BRunUtil
                 .invokeFunction(result, "testLocalSharedConnectionPoolConfigSingleDestinationWithEqualDbOptions");
@@ -169,7 +169,7 @@ public class SQLConnectionPoolTest {
         Assert.assertTrue(error2.matches(connectionTimeoutError), "Actual Error: " + error2);
     }
 
-    @Test(groups = POOL_TEST_GROUP)
+    @Test(groups = POOL_TEST_GROUP, enabled = false)
     public void testLocalSharedConnectionPoolConfigMultipleDestinations() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testLocalSharedConnectionPoolConfigMultipleDestinations");
         Assert.assertTrue(returns[0] instanceof BValueArray);
