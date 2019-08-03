@@ -19,7 +19,6 @@
 package org.ballerinalang.stdlib.system;
 
 import org.apache.commons.lang3.SystemUtils;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -102,8 +101,8 @@ public class SystemTest {
     public void testExecInUnixLike2() {
         if (SystemUtils.IS_OS_UNIX) {
             BValue[] returns = BRunUtil.invoke(compileResult, "testExecInUnixLike2");
-            Assert.assertTrue(returns[0] instanceof BInteger);
-            Assert.assertNotEquals(((BInteger) returns[0]).intValue(), 0);
+            Assert.assertTrue(returns[0] instanceof BString);
+            Assert.assertEquals(returns[0].stringValue().trim(), "/");
         }
     }
     
@@ -111,15 +110,6 @@ public class SystemTest {
     public void testExecInUnixLike3() {
         if (SystemUtils.IS_OS_UNIX) {
             BValue[] returns = BRunUtil.invoke(compileResult, "testExecInUnixLike3");
-            Assert.assertTrue(returns[0] instanceof BString);
-            Assert.assertEquals(returns[0].stringValue().trim(), "/");
-        }
-    }
-    
-    @Test
-    public void testExecInUnixLike4() {
-        if (SystemUtils.IS_OS_UNIX) {
-            BValue[] returns = BRunUtil.invoke(compileResult, "testExecInUnixLike4");
             Assert.assertTrue(returns[0] instanceof BString);
             Assert.assertEquals(returns[0].stringValue().trim(), "BAL_TEST");
         }
