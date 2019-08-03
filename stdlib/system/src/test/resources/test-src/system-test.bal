@@ -63,21 +63,14 @@ function testExecInUnixLike1() returns [string, int, int]|error {
     return [result, ec1, ec2];
 }
 
-function testExecInUnixLike2() returns int|error {
-    system:Process x1 = check system:exec("sleep", {}, (), "5");
-    x1.destroy();
-    var ec = check x1.exitCode();
-    return ec;
-}
-
-function testExecInUnixLike3() returns string|error {
+function testExecInUnixLike2() returns string|error {
     system:Process x1 = check system:exec("pwd", {}, "/");
     var x1out = x1.stdout();
     var result = toString(x1out);
     return result;
 }
 
-function testExecInUnixLike4() returns string|error {
+function testExecInUnixLike3() returns string|error {
     system:Process x1 = check system:exec("grep", {}, (), "BAL_TEST");
     io:WritableDataChannel ch = new(x1.stdin());
     check ch.writeString("BAL_TEST", "UTF-8");
