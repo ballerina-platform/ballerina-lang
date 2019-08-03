@@ -7,16 +7,19 @@
     [![codecov](https://codecov.io/gh/ballerina-platform/ballerina-lang/branch/master/graph/badge.svg)](https://codecov.io/gh/ballerina-platform/ballerina-lang)
   [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Ballerina is a compiled, type safe, concurrent programming language designed to make it simple to write microservices that integrate APIs.
+In the cloud, applications interact with their environment over the network. Ballerina is a general-purpose programming language with features optimized for these network distributed applications. It is easy to write and modify and is suitable for application programmers.
 
-#### Integration Syntax
-A compiled, transactional, statically and strongly typed programming language with textual and graphical syntaxes. Ballerina incorporates fundamental concepts of distributed system integration and offers a type safe, concurrent environment to implement microservices.
+#### Services
+It has first-class language constructs for providing and consuming services.
 
-#### Networked Type System
-A type system that embraces network payload variability with primitive, object, union, and tuple types.
+#### Sequence diagrams
+The structure of functions and programs allows them to be viewed as sequence diagrams showing the interactions between concurrently executing parts.
 
-#### Concurrency
-An execution model composed of lightweight parallel worker units that are non-blocking where no function can lock an executing thread manifesting sequence concurrency. 
+#### Structural typing
+It allows for looser coupling between distributed components and eliminates the friction of data binding.
+
+#### Metadata
+Extensible metadata enables easy integration of Ballerina programs with cloud platforms. 
  
 ## Table of contents
 
