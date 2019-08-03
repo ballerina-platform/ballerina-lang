@@ -19,6 +19,7 @@ package org.ballerinax.jdbc;
 
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -71,7 +72,10 @@ public class SQLConnectionPoolTest {
 
     @Test(groups = POOL_TEST_GROUP)
     public void testGlobalConnectionPoolSingleDestination() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testGlobalConnectionPoolSingleDestination");
+        String dbPath = "jdbc:h2:file:." + File.separator + "target" + File.separator + "tempdb" + File.separator
+                + "TEST_SQL_CONNECTION_POOL_GLOBAL_1";
+        BValue[] args = { new BString(dbPath) };
+        BValue[] returns = BRunUtil.invokeFunction(result, "testGlobalConnectionPoolSingleDestination", args);
         Assert.assertTrue(returns[0] instanceof BValueArray);
         for (int i = 0; i < 10; i++) {
             Assert.assertEquals("1", (((BValueArray) returns[0])).getRefValue(i).stringValue());
@@ -82,7 +86,12 @@ public class SQLConnectionPoolTest {
 
     @Test(groups = POOL_TEST_GROUP)
     public void testGlobalConnectionPoolsMultipleDestinations() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testGlobalConnectionPoolsMultipleDestinations");
+        String dbPath1 = "jdbc:h2:file:." + File.separator + "target" + File.separator + "tempdb" + File.separator
+                + "TEST_SQL_CONNECTION_POOL_GLOBAL_1";
+        String dbPath2 = "jdbc:h2:file:." + File.separator + "target" + File.separator + "tempdb" + File.separator
+                + "TEST_SQL_CONNECTION_POOL_GLOBAL_2";
+        BValue[] args = { new BString(dbPath1), new BString(dbPath2) };
+        BValue[] returns = BRunUtil.invokeFunction(result, "testGlobalConnectionPoolsMultipleDestinations", args);
         Assert.assertTrue(returns[0] instanceof BValueArray);
         Assert.assertEquals(returns[0].size(), 2);
         BValueArray jsonArray1 = ((BValueArray) (((BValueArray) returns[0]).getRefValue(0)));
@@ -102,7 +111,10 @@ public class SQLConnectionPoolTest {
 
     @Test(groups = POOL_TEST_GROUP)
     public void testGlobalConnectionPoolSingleDestinationConcurrent() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testGlobalConnectionPoolSingleDestinationConcurrent");
+        String dbPath = "jdbc:h2:file:." + File.separator + "target" + File.separator + "tempdb" + File.separator
+                + "TEST_SQL_CONNECTION_POOL_GLOBAL_1";
+        BValue[] args = { new BString(dbPath) };
+        BValue[] returns = BRunUtil.invokeFunction(result, "testGlobalConnectionPoolSingleDestinationConcurrent", args);
         Assert.assertTrue(returns[0] instanceof BValueArray);
         for (int i = 0; i < 5; i++) {
             BValueArray array = ((BValueArray) ((BValueArray) returns[0]).getRefValue(i));
@@ -139,7 +151,11 @@ public class SQLConnectionPoolTest {
 
     @Test(groups = POOL_TEST_GROUP)
     public void testLocalSharedConnectionPoolConfigDifferentDbOptions() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "testLocalSharedConnectionPoolConfigDifferentDbOptions");
+        String dbPath = "jdbc:h2:file:." + File.separator + "target" + File.separator + "tempdb" + File.separator
+                + "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2";
+        BValue[] args = { new BString(dbPath) };
+        BValue[] returns = BRunUtil
+                .invokeFunction(result, "testLocalSharedConnectionPoolConfigDifferentDbOptions", args);
         Assert.assertTrue(returns[0] instanceof BValueArray);
         BValueArray returnArray = (BValueArray) returns[0];
 

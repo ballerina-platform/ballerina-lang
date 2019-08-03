@@ -24,34 +24,33 @@ public type Result record {
     int val;
 };
 
-function testGlobalConnectionPoolSingleDestination() returns @tainted (int|string?)[] {
-    return drainGlobalPool("TEST_SQL_CONNECTION_POOL_GLOBAL_1");
+function testGlobalConnectionPoolSingleDestination(string dbUrl) returns @tainted (int|string?)[] {
+    return drainGlobalPool(dbUrl);
 }
 
-function drainGlobalPool(string dbName) returns @tainted (int|string?)[] {
-    string jdbcURL = "jdbc:h2:file:./target/tempdb/" + dbName;
+function drainGlobalPool(string dbUrl) returns @tainted (int|string?)[] {
     jdbc:Client testDB1 = new({
-            url: jdbcURL,
+            url: dbUrl,
             username: "SA",
             password: ""
         });
     jdbc:Client testDB2 = new({
-            url: jdbcURL,
+            url: dbUrl,
             username: "SA",
             password: ""
         });
     jdbc:Client testDB3 = new({
-            url: jdbcURL,
+            url: dbUrl,
             username: "SA",
             password: ""
         });
     jdbc:Client testDB4 = new({
-            url: jdbcURL,
+            url: dbUrl,
             username: "SA",
             password: ""
         });
     jdbc:Client testDB5 = new({
-            url: jdbcURL,
+            url: dbUrl,
             username: "SA",
             password: ""
         });
@@ -87,9 +86,9 @@ function drainGlobalPool(string dbName) returns @tainted (int|string?)[] {
     return returnArray;
 }
 
-function testGlobalConnectionPoolsMultipleDestinations() returns @tainted [(int|string?)[], (int|string?)[]] {
-    var errorFromFristDestination = drainGlobalPool("TEST_SQL_CONNECTION_POOL_GLOBAL_1");
-    var errorFromSecondDestination = drainGlobalPool("TEST_SQL_CONNECTION_POOL_GLOBAL_2");
+function testGlobalConnectionPoolsMultipleDestinations(string dbUrl1, string dbUrl2) returns @tainted [(int|string?)[], (int|string?)[]] {
+    var errorFromFristDestination = drainGlobalPool(dbUrl1);
+    var errorFromSecondDestination = drainGlobalPool(dbUrl2);
     return [errorFromFristDestination, errorFromSecondDestination];
 }
 
@@ -99,21 +98,21 @@ function closeTable(table<record{}>|error? t) {
     }
 }
 
-function testGlobalConnectionPoolSingleDestinationConcurrent() returns @tainted (int|string?)[][] {
+function testGlobalConnectionPoolSingleDestinationConcurrent(string dbUrl) returns @tainted (int|string?)[][] {
     worker w1 returns [table<record{}>|error,table<record{}>|error] {
-        return testGlobalConnectionPoolConcurrentHelper1();
+        return testGlobalConnectionPoolConcurrentHelper1(dbUrl);
     }
 
     worker w2 returns [table<record{}>|error,table<record{}>|error] {
-        return testGlobalConnectionPoolConcurrentHelper1();
+        return testGlobalConnectionPoolConcurrentHelper1(dbUrl);
     }
 
     worker w3 returns [table<record{}>|error,table<record{}>|error] {
-        return testGlobalConnectionPoolConcurrentHelper1();
+        return testGlobalConnectionPoolConcurrentHelper1(dbUrl);
     }
 
     worker w4 returns [table<record{}>|error,table<record{}>|error] {
-        return testGlobalConnectionPoolConcurrentHelper1();
+        return testGlobalConnectionPoolConcurrentHelper1(dbUrl);
     }
 
     record {
@@ -146,9 +145,9 @@ function closeTables([table<record{}>|error?, table<record{}>|error?] t) {
     closeTable(y);
 }
 
-function testGlobalConnectionPoolConcurrentHelper1() returns @tainted [table<record{}>|error,table<record{}>|error] {
+function testGlobalConnectionPoolConcurrentHelper1(string dbUrl) returns @tainted [table<record{}>|error,table<record{}>|error] {
     jdbc:Client testDB1 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_GLOBAL_1",
+            url: dbUrl,
             username: "SA",
             password: ""
         });
@@ -390,7 +389,7 @@ function testLocalSharedConnectionPoolConfigMultipleDestinations() returns @tain
     return returnArray;
 }
 
-function testLocalSharedConnectionPoolConfigDifferentDbOptions() returns @tainted (int|string?)[] {
+function testLocalSharedConnectionPoolConfigDifferentDbOptions(string dbUrl) returns @tainted (int|string?)[] {
     jdbc:Client testDB1;
     jdbc:Client testDB2;
     jdbc:Client testDB3;
@@ -401,21 +400,21 @@ function testLocalSharedConnectionPoolConfigDifferentDbOptions() returns @tainte
 
     // One pool will be created to these clients.
     testDB1 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
+            url: dbUrl,
             username: "SA",
             password: "",
             poolOptions: poolOptions2,
             dbOptions: { "PAGE_SIZE": 512, "ACCESS_MODE_DATA": "rw", "AUTO_RECONNECT": true, "IFEXISTS": true }
         });
     testDB2 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
+            url: dbUrl,
             username: "SA",
             password: "",
             poolOptions: poolOptions2,
             dbOptions: { "PAGE_SIZE": 512, "ACCESS_MODE_DATA": "rw", "IFEXISTS": true, "AUTO_RECONNECT": true }
         });
     testDB3 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
+            url: dbUrl,
             username: "SA",
             password: "",
             poolOptions: poolOptions2,
@@ -423,21 +422,21 @@ function testLocalSharedConnectionPoolConfigDifferentDbOptions() returns @tainte
         });
     // Another pool will be created to these clients.
     testDB4 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
+            url: dbUrl,
             username: "SA",
             password: "",
             poolOptions: poolOptions2,
             dbOptions: { "IFEXISTS": true, "PAGE_SIZE": 512, "AUTO_RECONNECT": true }
         });
     testDB5 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
+            url: dbUrl,
             username: "SA",
             password: "",
             poolOptions: poolOptions2,
             dbOptions: { "IFEXISTS": true, "AUTO_RECONNECT": true, "PAGE_SIZE": 512 }
         });
     testDB6 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
+            url: dbUrl,
             username: "SA",
             password: "",
             poolOptions: poolOptions2,
