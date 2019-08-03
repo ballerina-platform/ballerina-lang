@@ -19,9 +19,7 @@
 package org.ballerinalang.stdlib.mime;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -190,8 +188,7 @@ public class Util {
      * @return A ballerina struct that represent a body part
      */
     public static ObjectValue getXmlBodyPart() {
-        OMNode omNode = (OMNode) XMLFactory.parse("<name>Ballerina</name>").value();
-        BXMLItem xmlContent = new BXMLItem(omNode);
+        BXMLItem xmlContent = new BXMLItem("<name>Ballerina</name>");
         ObjectValue bodyPart = createEntityObject();
         EntityBodyChannel byteChannel = new EntityBodyChannel(new ByteArrayInputStream(
                 xmlContent.stringValue().getBytes(StandardCharsets.UTF_8)));
