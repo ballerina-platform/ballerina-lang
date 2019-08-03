@@ -777,13 +777,15 @@ public abstract class LSCompletionProvider {
         @moduleName:Rec
          */
         int maxTokenVisitCount = 4;
-        int counter = 0;
-        while (counter < lhsDefaultTokenTypes.size() && counter < maxTokenVisitCount) {
+        int visitCount = 0;
+        int counter = lhsDefaultTokenTypes.size() - 1;
+        while (counter >= 0 && visitCount < maxTokenVisitCount) {
             Integer token = lhsDefaultTokenTypes.get(counter);
             if (token == BallerinaParser.AT) {
                 return true;
             }
-            counter++;
+            counter--;
+            visitCount++;
         }
         
         return false;
