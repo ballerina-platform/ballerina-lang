@@ -32,8 +32,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.ballerinalang.stdlib.system.utils.SystemConstants.FILE_INFO_TYPE;
-import static org.ballerinalang.stdlib.system.utils.SystemConstants.PROCESS_TYPE;
 import static org.ballerinalang.stdlib.system.utils.SystemConstants.PROCESS_FIELD;
+import static org.ballerinalang.stdlib.system.utils.SystemConstants.PROCESS_TYPE;
 import static org.ballerinalang.stdlib.system.utils.SystemConstants.SYSTEM_PACKAGE_PATH;
 import static org.ballerinalang.stdlib.time.util.TimeUtils.createTimeRecord;
 import static org.ballerinalang.stdlib.time.util.TimeUtils.getTimeRecord;
