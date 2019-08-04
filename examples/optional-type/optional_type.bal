@@ -16,12 +16,12 @@ function getValue(string key) returns string? {
 }
 
 public function main() {
-    // It is optional for `getValue()` to return a value of type `string`. Thus, the value could be either
+    // It is optional for `getValue()` to return a value of the type `string`. Thus, the value could be either
     // of type `string` or of type `()` and needs to be handled explicitly.
     // The statement `string s = getValue("string");` produces a compilation error.
     string? s = getValue("string");
 
-    // The type test can then be used to check if the value is in fact a `string` and operate on it.
+    // The type test can then be used to check if the value is in fact a `string` and then operate on it.
     if (s is string) {
         io:println("Length of the string: ", s.length());
     } else {
