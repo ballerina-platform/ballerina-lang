@@ -20,6 +20,7 @@ import com.intellij.ide.actions.CreateFileFromTemplateAction;
 import com.intellij.ide.actions.CreateFileFromTemplateDialog;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 import icons.BallerinaIcons;
@@ -28,8 +29,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
+import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_SRC_DIR_NAME;
+
 /**
- * Handles creating new Ballerina file.
+ * Handles creating new Ballerina files.
  */
 public class BallerinaCreateFileAction extends CreateFileFromTemplateAction implements DumbAware {
 
@@ -37,7 +40,7 @@ public class BallerinaCreateFileAction extends CreateFileFromTemplateAction impl
     private static final String BALLERINA_MAIN = "Ballerina Main";
     private static final String BALLERINA_SERVICE = "Ballerina Service";
 
-    private static final String NEW_BALLERINA_FILE = "New Ballerina File";
+    private static final String NEW_BALLERINA_FILE = "Ballerina File";
     private static final String DEFAULT_BALLERINA_TEMPLATE_PROPERTY = "Empty file";
 
     public BallerinaCreateFileAction() {
@@ -47,6 +50,11 @@ public class BallerinaCreateFileAction extends CreateFileFromTemplateAction impl
     @Override
     protected void buildDialog(Project project, PsiDirectory directory,
                                @NotNull CreateFileFromTemplateDialog.Builder builder) {
+
+        if (directory.getName().equals(BALLERINA_SRC_DIR_NAME)) {
+            Messages.showWarningDialog("Ballerina project files can only exist inside ballerina modules under" +
+                    " src directory.", "Warning");
+        }
         builder.setTitle(NEW_BALLERINA_FILE).addKind(BALLERINA_MAIN, BallerinaIcons.ICON, BALLERINA_MAIN)
                 .addKind(BALLERINA_SERVICE, BallerinaIcons.ICON, BALLERINA_SERVICE)
                 .addKind(BALLERINA_EMPTY_FILE, BallerinaIcons.ICON, BALLERINA_EMPTY_FILE);

@@ -218,7 +218,7 @@
                     icon="BallerinaIcons.Layout.PREVIEW_ONLY">
             </action>
         </group>
-        <action id="Ballerina.NewBallerinaFile" class="io.ballerina.plugins.idea.actions.BallerinaCreateFileAction"
+        <action id="NewBallerinaFile" class="io.ballerina.plugins.idea.actions.BallerinaCreateFileAction"
                 text="Ballerina File" description="Create new Ballerina file">
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
         </action>
