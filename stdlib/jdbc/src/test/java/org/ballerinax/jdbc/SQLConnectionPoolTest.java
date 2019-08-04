@@ -84,7 +84,7 @@ public class SQLConnectionPoolTest {
         Assert.assertTrue(error.matches(connectionTimeoutError), "Actual Error: " + error);
     }
 
-    @Test(groups = POOL_TEST_GROUP)
+    @Test(groups = POOL_TEST_GROUP, enabled = false)
     public void testGlobalConnectionPoolsMultipleDestinations() {
         String dbPath1 = "jdbc:h2:file:." + File.separator + "target" + File.separator + "tempdb" + File.separator
                 + "TEST_SQL_CONNECTION_POOL_GLOBAL_1";
