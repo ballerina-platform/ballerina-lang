@@ -22,7 +22,6 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,15 +32,15 @@ import java.nio.file.StandardCopyOption;
  * Task to copy the executable to a given location. This requires the {@link CreateExecutableTask} to be completed.
  */
 public class CopyExecutableTask implements Task {
-    private Path outputFileOrDirectoryName;
+    private Path outputPath;
     
     /**
      * Creates task to copy the executable.
      *
-     * @param outputFileOrDirectoryName Location of the executable to be copied.
+     * @param outputPath Location of the executable to be copied.
      */
-    public CopyExecutableTask(Path outputFileOrDirectoryName) {
-        this.outputFileOrDirectoryName = outputFileOrDirectoryName;
+    public CopyExecutableTask(Path outputPath) {
+        this.outputPath = outputPath;
     }
     
     @Override
@@ -52,42 +51,35 @@ public class CopyExecutableTask implements Task {
                 
                 // if the given output path is a directory, copy the executable to the given directory. name of the
                 // executable is not changed.
-                if (Files.isDirectory(this.outputFileOrDirectoryName)) {
+                if (Files.isDirectory(this.outputPath)) {
                     // create output directory if it does not exists
-                    if (Files.notExists(this.outputFileOrDirectoryName)) {
-                        Files.createDirectories(this.outputFileOrDirectoryName);
+                    if (Files.notExists(this.outputPath)) {
+                        Files.createDirectories(this.outputPath);
                     }
     
                     // this 'if' is to avoid spot bugs
                     Path executableFileName = executableFile.getFileName();
                     if (null != executableFileName) {
-                        this.outputFileOrDirectoryName = this.outputFileOrDirectoryName.resolve(
+                        this.outputPath = this.outputPath.resolve(
                                 executableFileName.toString());
                     }
                 }
                 
                 // check if the output path is a file
-                if (Files.isRegularFile(this.outputFileOrDirectoryName)) {
-                    // check if the output file has the .jar extension.
-                    if (!this.outputFileOrDirectoryName.toString().endsWith(
-                            ProjectDirConstants.BLANG_COMPILED_JAR_EXT)) {
-                        throw new BLangCompilerException("output executable should end with '" +
-                                                         ProjectDirConstants.BLANG_COMPILED_JAR_EXT + "' extension.");
-                    }
-                    
+                if (Files.isRegularFile(this.outputPath)) {
                     // if the given path is not an absolute path. copy the executable to the source root.
-                    if (!this.outputFileOrDirectoryName.isAbsolute()) {
+                    if (!this.outputPath.isAbsolute()) {
                         Path sourceRoot = buildContext.get(BuildContextField.SOURCE_ROOT);
-                        this.outputFileOrDirectoryName = sourceRoot.resolve(this.outputFileOrDirectoryName);
+                        this.outputPath = sourceRoot.resolve(this.outputPath);
                     }
                 }
                 
                 // copy the executable. replace the existing executable if exists.
-                Files.copy(executableFile, this.outputFileOrDirectoryName, StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(executableFile, this.outputPath, StandardCopyOption.REPLACE_EXISTING);
                 
                 // update executable location and target dir
                 // this is to avoid spotbugs
-                Path executableDir = this.outputFileOrDirectoryName.getParent();
+                Path executableDir = this.outputPath.getParent();
                 if (null != executableDir) {
                     buildContext.updateExecutableDir(executableDir);
                 }

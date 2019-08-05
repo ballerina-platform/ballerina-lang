@@ -253,7 +253,7 @@ public class BuildCommandTest extends CommandTest {
         new CommandLine(buildCommand).parse(compileArgs);
         buildCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("Please provide a Ballerina file as a"));
+        Assert.assertTrue(readOutput().contains("please provide a Ballerina file as a"));
     }
 
 

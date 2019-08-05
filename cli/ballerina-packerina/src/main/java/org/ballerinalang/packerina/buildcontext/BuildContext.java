@@ -116,9 +116,10 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
      *
      * @param sourceRootPath The root of the source files. If its a project then its project root. If its a single bal
      *                       file then is it the parent directory of the bal file.
+     * @param source         The name of the source file or the name of the module.
      */
-    public BuildContext(Path sourceRootPath) {
-        this(sourceRootPath, null);
+    public BuildContext(Path sourceRootPath, Path source) {
+        this(sourceRootPath, sourceRootPath.resolve(TARGET_DIR_NAME), source);
     }
     
     /**
@@ -126,10 +127,9 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
      *
      * @param sourceRootPath The root of the source files. If its a project then its project root. If its a single bal
      *                       file then is it the parent directory of the bal file.
-     * @param source         The name of the source file or the name of the module.
      */
-    public BuildContext(Path sourceRootPath, Path source) {
-        this(sourceRootPath, sourceRootPath.resolve(TARGET_DIR_NAME), source);
+    public BuildContext(Path sourceRootPath) {
+        this(sourceRootPath, null);
     }
     
     /**

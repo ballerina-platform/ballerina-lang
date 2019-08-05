@@ -49,8 +49,7 @@ public class CopyModuleJarTask implements Task {
         try {
             Files.createDirectories(tmpDir);
         } catch (IOException e) {
-            throw new BallerinaException("unable to create tmp directory in target :" +
-                    e.getMessage());
+            throw new BallerinaException("unable to create tmp directory in target :" + e.getMessage());
         }
 
         List<BLangPackage> moduleBirMap = buildContext.getModules();
@@ -61,8 +60,7 @@ public class CopyModuleJarTask implements Task {
             try {
                 Files.copy(jarOutput, jarTarget, StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
-                throw new BallerinaException("unable to copy the module jar :" +
-                        e.getMessage());
+                throw new BallerinaException("unable to copy the module jar :" + e.getMessage());
             }
         }
         // Imported jar
@@ -74,8 +72,7 @@ public class CopyModuleJarTask implements Task {
                     try {
                         Files.copy(importJar, jarTarget, StandardCopyOption.REPLACE_EXISTING);
                     } catch (IOException e) {
-                        throw new BallerinaException("unable to copy the imported jar :" +
-                                e.getMessage());
+                        throw new BallerinaException("unable to copy the imported jar :" + e.getMessage());
                     }
                 }
             }
