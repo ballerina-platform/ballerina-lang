@@ -112,5 +112,7 @@ boolean replaceExisting = false) returns Error? = external;
 # + dir - The current working directory to be set to the process
 # + args - Command arguments to be passed in
 # + return - Returns a `Process` object in success, or else, an `Error` if there is a failure
-public function exec(string command, map<string> env = {}, string? dir = (), string... args) returns Process|Error = external;
+public function exec(@untainted string command, @untainted map<string> env = {}, 
+                     @untainted string? dir = (), @untainted string... args) 
+                     returns Process|Error = external;
 
