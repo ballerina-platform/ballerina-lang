@@ -887,7 +887,8 @@ public class BLangPackageBuilder {
         return ignoredVar;
     }
 
-    private BLangErrorVariable.BLangErrorDetailEntry createErrorDetailEntry(DiagnosticPos pos, String bindingVarName, BLangIdentifier bLangIdentifier) {
+    private BLangErrorVariable.BLangErrorDetailEntry createErrorDetailEntry(DiagnosticPos pos, String bindingVarName,
+                                                                            BLangIdentifier bLangIdentifier) {
         BLangSimpleVariable simpleVariableNode = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         simpleVariableNode.name = (BLangIdentifier) this.createIdentifier(bindingVarName);
         simpleVariableNode.pos = pos;
