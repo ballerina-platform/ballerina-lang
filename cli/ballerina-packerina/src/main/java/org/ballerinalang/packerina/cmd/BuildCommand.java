@@ -73,20 +73,20 @@ import static org.ballerinalang.packerina.cmd.Constants.BUILD_COMMAND;
                                                          "executable outputs.")
 public class BuildCommand implements BLauncherCmd {
     
-    private Path userDir;
     private final PrintStream outStream;
     private final PrintStream errStream;
+    private Path sourceRootPath;
     private boolean exitWhenFinish;
 
     public BuildCommand() {
-        userDir = Paths.get(System.getProperty("user.dir"));
+        sourceRootPath = Paths.get(System.getProperty("user.dir"));
         outStream = System.out;
         errStream = System.err;
         exitWhenFinish = true;
     }
 
     public BuildCommand(Path userDir, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
-        this.userDir = userDir;
+        this.sourceRootPath = userDir;
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
@@ -148,14 +148,9 @@ public class BuildCommand implements BLauncherCmd {
         }
     
         // validation and decide source root and source full path
-        Path sourceRootPath;
         Path sourcePath = null;
         Path targetPath;
-    
-        // Get source root path using user.dir.
-        sourceRootPath = this.userDir;
-    
-    
+        
         // when no bal file or module is given, it is assumed to build all modules of the project. check if the command
         // is executed within a ballerina project. update source root path if command executed inside a project.
         if (this.argList == null || this.argList.size() == 0) {
