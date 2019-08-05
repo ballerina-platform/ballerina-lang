@@ -21,6 +21,7 @@ type MyErrorTwo error<ERR_REASON, ErrorDetails>;
 
 type ErrorDetails record {
    string message;
+   error cause?;
 };
 
 type Employee record {
@@ -399,7 +400,7 @@ function testObjectCastNegative() {
 function testStreamCastPositive() returns boolean {
     stream<int> s1 = new;
     any a = s1;
-    stream<any> s2 = <stream<int|float>> a;
+    stream<anydata> s2 = <stream<int|float>> a;
     return s1 === s2;
 }
 
@@ -510,7 +511,7 @@ function testOutOfOrderUnionConstraintCastPositive() returns boolean {
 function testOutOfOrderUnionConstraintCastNegative() {
     stream<int|float> s1 = new;
     any a = s1;
-    stream<boolean|EmployeeObject> s2 = <stream<boolean|EmployeeObject>> a;
+    stream<boolean|error> s2 = <stream<boolean|error>> a;
 }
 
 function testStringAsInvalidBasicType() {

@@ -22,6 +22,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -226,12 +227,37 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
      * @since 0.990.4
      */
     public static class Lock extends BIRTerminator {
-        public final Set<BIRGlobalVariableDcl> globalVars;
+        public final BIRGlobalVariableDcl globalVar;
         public final BIRBasicBlock lockedBB;
 
-        public Lock(DiagnosticPos pos, Set<BIRGlobalVariableDcl> globalVars, BIRBasicBlock lockedBB) {
+        public Lock(DiagnosticPos pos, BIRGlobalVariableDcl globalVar, BIRBasicBlock lockedBB) {
             super(pos, InstructionKind.LOCK);
-            this.globalVars = globalVars;
+            this.globalVar = globalVar;
+            this.lockedBB = lockedBB;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
+    /**
+     * A lock instruction.
+     * <p>
+     * e.g., lock [#3, #0] bb6
+     *
+     * @since 0.990.4
+     */
+    public static class FieldLock extends BIRTerminator {
+        public BIRVariableDcl localVar;
+        public String field;
+        public final BIRBasicBlock lockedBB;
+
+        public FieldLock(DiagnosticPos pos, BIRVariableDcl localVar, String field, BIRBasicBlock lockedBB) {
+            super(pos, InstructionKind.FIELD_LOCK);
+            this.localVar = localVar;
+            this.field = field;
             this.lockedBB = lockedBB;
         }
 
@@ -250,11 +276,14 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
      */
     public static class Unlock extends BIRTerminator {
         public final Set<BIRGlobalVariableDcl> globalVars;
+        public final Map<BIRVariableDcl, Set<String>> fieldLocks;
         public final BIRBasicBlock unlockBB;
 
-        public Unlock(DiagnosticPos pos, Set<BIRGlobalVariableDcl> globalVars, BIRBasicBlock unlockBB) {
+        public Unlock(DiagnosticPos pos, Set<BIRGlobalVariableDcl> globalVars,
+                      Map<BIRVariableDcl, Set<String>> fieldLocks, BIRBasicBlock unlockBB) {
             super(pos, InstructionKind.UNLOCK);
             this.globalVars = globalVars;
+            this.fieldLocks = fieldLocks;
             this.unlockBB = unlockBB;
         }
 

@@ -39,7 +39,7 @@ under the License.
 <!--            <package name="org.ballerinalang.langserver.workspace.*"/>-->
             <package name="org.ballerinalang.langserver.formatting.*"/>
             <package name="org.ballerinalang.langserver.extensions.document.*"/>
-<!--            <package name="org.ballerinalang.langserver.codeaction.*"/>-->
+            <package name="org.ballerinalang.langserver.codeaction.*"/>
         </packages>
     </test>
 </suite>

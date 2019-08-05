@@ -18,29 +18,38 @@
 
 package org.ballerinalang.test.filter;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.Utils;
+import org.ballerinalang.test.util.HttpClientRequest;
+import org.ballerinalang.test.util.HttpResponse;
+import org.ballerinalang.test.util.TestConstant;
+import org.testng.Assert;
 import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeGroups;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Base test class for Filter integration test cases which starts/stops the filter services as ballerina packages
- * before and after tests are run.
+ * Base test class for Filter integration test cases which starts/stops the filter services as ballerina packages before
+ * and after tests are run.
  */
 public class FilterTestCommons extends BaseTest {
     protected static BServerInstance serverInstance;
+    static final String RESPONSE_CODE_MISMATCHED = "Response code mismatched";
 
     @BeforeGroups(value = "filter-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
-        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098};
+        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9094, 9095, 9096, 9097, 9098, 9099};
         Utils.checkPortsAvailability(requiredPorts);
 
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
-                "filter").getAbsolutePath();
+                                           "filter").getAbsolutePath();
 
         serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(basePath, "filterservices");
@@ -50,5 +59,13 @@ public class FilterTestCommons extends BaseTest {
     public void cleanup() throws Exception {
         serverInstance.removeAllLeechers();
         serverInstance.shutdownServer();
+    }
+
+    HttpResponse getHttpResponse(int i, String s) throws IOException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(i, s), headers);
+        Assert.assertNotNull(response);
+        return response;
     }
 }

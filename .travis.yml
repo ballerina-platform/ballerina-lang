@@ -37,7 +37,7 @@ install:
 
 script:
   - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-  - ./gradlew build --console=plain --stacktrace -scan -x createJavadoc -x openapi-ballerina:ballerina-to-openapi-generator:test
+  - ./gradlew build --console=plain --stacktrace -scan -x createJavadoc
   # Killing background sleep loop
   - kill %1
 
@@ -56,3 +56,4 @@ cache:
 branches:
   only:
     - master
+    - packerina-dev

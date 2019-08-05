@@ -21,10 +21,10 @@ import ballerina/io;
 # Provides a set of configurations for controlling the failover behaviour of the endpoint.
 #
 # + failoverCodes - Array of HTTP response status codes for which the failover mechanism triggers
-# + interval - Failover delay interval in milliseconds
+# + intervalInMillis - Failover delay intervalInMillis in milliseconds
 public type FailoverConfig record {|
     int[] failoverCodes = [];
-    int interval = 0;
+    int intervalInMillis = 0;
 |};
 
 // TODO: This can be made package private
@@ -66,7 +66,7 @@ public type FailoverClient client object {
             FailoverInferredConfig failoverInferredConfig = {
                 failoverClientsArray:clients,
                 failoverCodesIndex:failoverCodes,
-                failoverInterval:failoverClientConfig.intervalMillis
+                failoverInterval:failoverClientConfig.intervalInMillis
             };
             self.failoverInferredConfig = failoverInferredConfig;
         }
@@ -94,7 +94,7 @@ public type FailoverClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function head(string path, RequestMessage message = ()) returns Response|ClientError {
+    public remote function head(string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_HEAD, self);
         if (result is HttpFuture) {
@@ -142,7 +142,7 @@ public type FailoverClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function options(string path, RequestMessage message = ()) returns Response|ClientError {
+    public remote function options(string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_OPTIONS, self);
         if (result is HttpFuture) {
@@ -187,10 +187,10 @@ public type FailoverClient client object {
     # The DELETE remote function implementation of the Failover Connector.
     #
     # + path - Resource path
-    # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
+    # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function delete(string path, RequestMessage message) returns Response|ClientError {
+    public remote function delete(string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_DELETE, self);
         if (result is HttpFuture) {
@@ -206,7 +206,7 @@ public type FailoverClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The response or an `http:ClientError` if failed to fulfill the request
-    public remote function get(string path, RequestMessage message = ()) returns Response|ClientError {
+    public remote function get(string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         var result = performFailoverAction(path, req, HTTP_GET, self);
         if (result is HttpFuture) {
@@ -441,7 +441,7 @@ function populateErrorsFromLastResponse (Response inResponse, ClientError?[] fai
 # + httpVersion - The HTTP version to be used to communicate with the endpoint
 # + http1Settings - Configurations related to HTTP/1.x protocol
 # + http2Settings - Configurations related to HTTP/2 protocol
-# + timeoutMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
+# + timeoutInMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
 # + forwarded - The choice of setting `forwarded`/`x-forwarded` header
 # + followRedirects - Redirect related options
 # + poolConfig - Configurations associated with request pooling
@@ -453,12 +453,12 @@ function populateErrorsFromLastResponse (Response inResponse, ClientError?[] fai
 # + circuitBreaker - Circuit Breaker behaviour configurations
 # + retryConfig - Retry related options
 # + failoverCodes - Array of HTTP response status codes for which the failover behaviour should be triggered
-# + intervalMillis - Failover delay interval in milliseconds
+# + intervalInMillis - Failover delay interval in milliseconds
 public type FailoverClientEndpointConfiguration record {|
     string httpVersion = HTTP_1_1;
     Http1Settings http1Settings = {};
     Http2Settings http2Settings = {};
-    int timeoutMillis = 60000;
+    int timeoutInMillis = 60000;
     string forwarded = "disable";
     FollowRedirects? followRedirects = ();
     ProxyConfig? proxy = ();
@@ -470,7 +470,7 @@ public type FailoverClientEndpointConfiguration record {|
     CircuitBreakerConfig? circuitBreaker = ();
     RetryConfig? retryConfig = ();
     int[] failoverCodes = [501, 502, 503, 504];
-    int intervalMillis = 0;
+    int intervalInMillis = 0;
 |};
 
 function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfiguration foConfig,
@@ -479,7 +479,7 @@ function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfigur
         http1Settings: foConfig.http1Settings,
         http2Settings: foConfig.http2Settings,
         circuitBreaker:foConfig.circuitBreaker,
-        timeoutMillis:foConfig.timeoutMillis,
+        timeoutInMillis:foConfig.timeoutInMillis,
         httpVersion:foConfig.httpVersion,
         forwarded:foConfig.forwarded,
         followRedirects:foConfig.followRedirects,

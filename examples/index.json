@@ -41,6 +41,10 @@
                 "url": "functions"
             },
             {
+                "name": "Required Parameters",
+                "url": "functions-with-required-parameters"
+            },
+            {
                 "name": "Defaultable Parameters",
                 "url": "functions-with-defaultable-parameters"
             },
@@ -175,8 +179,8 @@
                 "url": "constants"
             },
             {
-                "name": "Integer Ranges",
-                "url": "integer-ranges"
+                "name": "Range Expressions",
+                "url": "range-expressions"
             },
             {
                 "name": "String Template Literal",
@@ -258,28 +262,24 @@
                 "url": "length"
             },
             {
-                "name": "Type Conversion",
-                "url": "type-conversion"
-            },
-            {
                 "name": "Type Cast",
                 "url": "type-cast"
             },
             {
-                "name": "Nil Lifting",
-                "url": "nil-lifting"
-            },
-            {
-                "name": "Immutable Values",
-                "url": "immutable-values"
+                "name": "Optional Field Access",
+                "url": "optional-field-access"
             },
             {
                 "name": "Cloning Values",
                 "url": "clone"
             },
             {
-                "name": "Stamping Values",
-                "url": "stamp"
+                "name": "Immutable Values",
+                "url": "immutable-values"
+            },
+            {
+                "name": "Type Conversion",
+                "url": "type-conversion"
             }
         ]
     },
@@ -292,8 +292,16 @@
                 "url": "json"
             },
             {
+                "name": "JSON Objects",
+                "url": "json-objects"
+            },
+            {
                 "name": "JSON Arrays",
                 "url": "json-arrays"
+            },
+            {
+                "name": "JSON Access",
+                "url": "json-access"
             },
             {
                 "name": "JSON/Record/Map Conversion",
@@ -322,10 +330,6 @@
             {
                 "name": "XML Access",
                 "url": "xml-access"
-            },
-            {
-                "name": "XML/JSON Conversion",
-                "url": "xml-to-json-conversion"
             }
         ]
     },
@@ -408,10 +412,6 @@
             {
                 "name": "Fork Variable Access",
                 "url": "fork-variable-access"
-            },
-            {
-                "name": "Async",
-                "url": "async"
             },
             {
                 "name": "Lock",
@@ -872,72 +872,6 @@
         ]
     },
     {
-        "title": "JMS",
-        "column": 3,
-        "category": "Working over the network",
-        "samples": [{
-                "name": "Basic Queue Receiver",
-                "url": "jms-simple-queue-message-receiver"
-            },
-            {
-                "name": "Basic Queue Producer",
-                "url": "jms-simple-queue-message-producer"
-            },
-            {
-                "name": "Basic Topic Subscriber",
-                "url": "jms-simple-topic-message-subscriber"
-            },
-            {
-                "name": "Basic Topic Producer",
-                "url": "jms-simple-topic-message-producer"
-            },
-            {
-                "name": "Basic Durable Topic Subscriber",
-                "url": "jms-simple-durable-topic-message-subscriber"
-            },
-            {
-                "name": "Queue Receiver",
-                "url": "jms-queue-message-receiver"
-            },
-            {
-                "name": "Queue Producer",
-                "url": "jms-queue-message-producer"
-            },
-            {
-                "name": "Topic Subscriber",
-                "url": "jms-topic-message-subscriber"
-            },
-            {
-                "name": "Topic Producer",
-                "url": "jms-topic-message-producer"
-            },
-            {
-                "name": "Synchronous Queue Receiver",
-                "url": "jms-synchronous-queue-message-receiver"
-            },
-            {
-                "name": "Queue Receiver with Client Acknowledgment",
-                "url": "jms-queue-message-receiver-with-client-acknowledgment"
-            },
-            {
-                "name": "Durable Topic Subscriber",
-                "url": "jms-durable-topic-message-subscriber"
-            },
-            {
-                "name": "Transactional Queue Producer",
-                "url": "transactional-queue-message-producer"
-            },
-            {
-                "name": "JMS Headers and Properties",
-                "url": "jms-headers-and-properties"
-            },
-            {
-                "name": "Send JMS Message to HTTP Endpoint",
-                "url": "send-jms-message-to-http-endpoint"
-            }
-        ]
-    },
-    {
         "title": "NATS",
         "column": 3,
         "category": "Working over the network",
@@ -956,7 +890,7 @@
             },
             {
                 "name": "Durable Subscriptions",
-                "url": "nats-streaming-consumer-with-data-binding"
+                "url": "nats-streaming-durable-subscriptions"
             },
             {
                 "name": "Queue Groups",
@@ -1000,45 +934,6 @@
             {
                 "name": "Transaction Consumer",
                 "url": "rabbitmq-transaction-consumer"
-            }
-        ]
-    },
-    {
-        "title": "ActiveMQ Artemis",
-        "column": 2,
-        "category": "Working over the network",
-        "samples": [
-            {
-                "name": "ANYCAST Consumer",
-                "url": "artemis-anycast-session-consumer"
-            },
-            {
-                "name": "ANYCAST Producer",
-                "url": "artemis-anycast-session-producer"
-            },
-            {
-                "name": "Basic MULTICAST Consumer",
-                "url": "artemis-multicast-consumer"
-            },
-            {
-                "name": "Basic MULTICAST Producer",
-                "url": "artemis-multicast-producer"
-            },
-            {
-                "name": "Basic Blocking Transaction Consumer",
-                "url": "artemis-simple-transaction-consumer"
-            },
-            {
-                "name": "Basic Blocking Transaction Producer",
-                "url": "artemis-simple-transaction-producer"
-            },
-            {
-                "name": "Transaction Producer",
-                "url": "artemis-transaction-producer"
-            },
-            {
-                "name": "Data Binding",
-                "url": "artemis-data-binding"
             }
         ]
     },

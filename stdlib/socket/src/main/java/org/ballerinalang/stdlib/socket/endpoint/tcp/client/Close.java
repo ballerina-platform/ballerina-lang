@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.socket.endpoint.tcp.client;
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -60,7 +60,8 @@ public class Close {
                 SelectorManager.getInstance().unRegisterChannel(socketChannel);
             }
             // This need to handle to support multiple client close.
-            if (Boolean.parseBoolean(client.getNativeData(IS_CLIENT).toString())) {
+            Object isClient = client.getNativeData(IS_CLIENT);
+            if (isClient != null && Boolean.parseBoolean(isClient.toString())) {
                 SelectorManager.getInstance().stop();
             }
         } catch (IOException e) {

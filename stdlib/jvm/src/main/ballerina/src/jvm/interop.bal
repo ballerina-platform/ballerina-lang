@@ -14,11 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public const INTEROP_ANNOT_ORG = "ballerina";
+public const INTEROP_ANNOT_ORG = "ballerinax";
 public const INTEROP_ANNOT_MODULE = "java";
 
-public const STATIC = "static";
-public const INSTANCE = "instance";
+public const METHOD = "method";
 public const CONSTRUCTOR = "constructor";
 
 public const CONSTRUCTOR_ANNOT_TAG = "Constructor";
@@ -34,21 +33,20 @@ public type MethodAnnotTag CONSTRUCTOR_ANNOT_TAG | METHOD_ANNOT_TAG;
 public type FieldAnnotTag FIELD_GET_ANNOT_TAG | FIELD_PUT_ANNOT_TAG;
 public type InteropAnnotTag MethodAnnotTag | FieldAnnotTag;
 
-public type MethodKind STATIC | INSTANCE | CONSTRUCTOR;
-public type FieldKind STATIC | INSTANCE;
+public type MethodKind METHOD | CONSTRUCTOR;
 
 public type MethodValidationRequest record {|
     string name;
     MethodKind kind;
     string class;
     anydata bFuncType;
-    JType?[] paramTypeConstraints;
+    JType?[] paramTypeConstraints?;
+    boolean restParamExist = false;
 |};
 
 public type FieldValidationRequest record {|
     string name;
     string class;
-    boolean isStatic=false;
     FieldMethod method;
     anydata bFuncType;
 |};
@@ -60,8 +58,10 @@ public type Method record {|
     string class;
     boolean isInterface = false;
     MethodKind kind;
+    boolean isStatic = false;
     string sig;
     MethodType mType;
+    string[] throws;
 |};
 
 public type MethodType record {|
@@ -82,13 +82,11 @@ public function validateAndGetJMethod(MethodValidationRequest methodValidationRe
 
 public function validateAndGetJField(FieldValidationRequest fieldValidationReq) returns Field | error = external;
 
-public function getMethodKindFromAnnotTag(MethodAnnotTag annotTagRef, boolean isStatic) returns MethodKind {
+public function getMethodKindFromAnnotTag(MethodAnnotTag annotTagRef) returns MethodKind {
     if annotTagRef is CONSTRUCTOR_ANNOT_TAG {
         return CONSTRUCTOR;
-    } else if isStatic {
-        return STATIC;
     } else {
-        return INSTANCE;
+        return METHOD;
     }
 }
 

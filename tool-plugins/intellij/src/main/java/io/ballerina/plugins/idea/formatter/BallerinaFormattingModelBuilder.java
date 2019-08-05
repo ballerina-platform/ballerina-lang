@@ -77,7 +77,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.CONST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CONTINUE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DAY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL_INTEGER_LITERAL;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEPRECATED;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DIV;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ELLIPSIS;
@@ -333,7 +332,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(XMLNS).spaceIf(true)
                 .around(RETURNS).spaceIf(true)
                 .around(VERSION).spaceIf(true)
-                .around(DEPRECATED).spaceIf(true)
                 .around(IS).spaceIf(true)
                 .around(TRAP).spaceIf(true)
                 .around(PANIC).spaceIf(true)

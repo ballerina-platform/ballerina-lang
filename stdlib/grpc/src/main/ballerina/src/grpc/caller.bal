@@ -35,12 +35,12 @@ public type Caller client object {
     # + res - - The outbound response message.
     # + headers - - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - - Returns an error if encounters an error while sending the response, returns nil otherwise.
-    public remote function send(any res, Headers? headers = ()) returns error? = external;
+    public remote function send(any res, Headers? headers = ()) returns Error? = external;
 
     # Informs the caller, server finished sending messages.
     #
     # + return - Returns an error if encounters an error while sending the response, returns nil otherwise.
-    public remote function complete() returns error? = external;
+    public remote function complete() returns Error? = external;
 
     # Checks whether the connection is closed by the caller.
     #
@@ -53,7 +53,7 @@ public type Caller client object {
     # + message - Error message.
     # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
     # + return - Returns an error if encounters an error while sending the response, returns nil otherwise.
-    public remote function sendError(int statusCode, string message, Headers? headers = ()) returns error? = external;
+    public remote function sendError(int statusCode, string message, Headers? headers = ()) returns Error? = external;
 };
 
 # Presents a read-only view of the remote address.

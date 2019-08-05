@@ -23,42 +23,6 @@ function testGetKeys () returns (string[]) {
     return jm.keys();
 }
 
-//function testToXML (json msg) returns (xml | error?) {
-//    return msg.toXML({});
-//}
-//
-//function testToXMLStringValue () returns (xml | error?) {
-//    json j = "value";
-//    return j.toXML({});
-//}
-//
-//function testToXMLBooleanValue () returns (xml | error?) {
-//    json j = true;
-//    return j.toXML({});
-//}
-//
-//function testToXMLString (json msg) returns (string) {
-//    var x = msg.toXML({});
-//    string retVal = "";
-//    if (x is xml) {
-//        retVal = io:sprintf("%s", x);
-//    }
-//    return retVal;
-//}
-//
-//function testToXMLWithXMLSequence (json msg) returns (string) {
-//    var x = msg.toXML({});
-//    string retVal = "";
-//    if (x is xml) {
-//        retVal = io:sprintf("%s", x);
-//    }
-//    return retVal;
-//}
-//
-//function testToXMLWithOptions (json msg) returns (xml | error?) {
-//    return msg.toXML({attributePrefix:"#", arrayEntryTag:"wrapper"});
-//}
-
 function testStringToJSONConversion() returns @tainted (json | error) {
     string s = "{\"foo\": \"bar\"}";
     io:StringReader reader = new(s);

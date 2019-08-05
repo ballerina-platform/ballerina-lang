@@ -47,4 +47,30 @@ public class InstanceMethods {
         this.counter = newValue1 + newValue2;
         return this.counter;
     }
+
+    public Integer setAndGetCounterValueWhichThrowsCheckedException(Integer newValue)
+            throws JavaInteropTestCheckedException {
+        this.counter = newValue;
+        return this.counter;
+    }
+
+    public Integer setAndGetCounterValueWhichThrowsUncheckedException(Integer newValue)
+            throws UnsupportedOperationException {
+        this.counter = newValue;
+        return this.counter;
+    }
+
+    public long setGetCounterValueWhichThrowsCheckedException(float newValue) throws JavaInteropTestCheckedException {
+        this.counter = (int) newValue;
+        return this.counter;
+    }
+
+    public long setGetCounterValueWhichThrowsUncheckedException(float newValue) throws UnsupportedOperationException {
+        this.counter = (int) newValue;
+        return this.counter;
+    }
+
+    public int testThrowsWithVoid() throws InterruptedException {
+        throw new InterruptedException();
+    }
 }

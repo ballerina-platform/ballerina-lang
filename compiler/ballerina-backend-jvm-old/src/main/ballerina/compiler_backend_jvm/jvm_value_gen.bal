@@ -30,17 +30,17 @@ public type ObjectGenerator object {
             bir:BType bType = typeDef.typeValue;
             if (bType is bir:BObjectType && !bType.isAbstract) {
                 self.currentObjectType = bType;
-                string className = self.getTypeValueClassName(typeDef.name.value);
+                string className = getTypeValueClassName(self.module, typeDef.name.value);
                 byte[] bytes = self.createObjectValueClass(bType, className, typeDef, false);
                 jarEntries[className + ".class"] = bytes;
             } else if (bType is bir:BServiceType) {
                 self.currentObjectType = bType.oType;
-                string className = self.getTypeValueClassName(typeDef.name.value);
+                string className = getTypeValueClassName(self.module, typeDef.name.value);
                 byte[] bytes = self.createObjectValueClass(bType.oType, className, typeDef, true);
                 jarEntries[className + ".class"] = bytes;
             } else if (bType is bir:BRecordType) {
                 self.currentRecordType = bType;
-                string className = self.getTypeValueClassName(typeDef.name.value);
+                string className = getTypeValueClassName(self.module, typeDef.name.value);
                 byte[] bytes = self.createRecordValueClass(bType, className, typeDef);
                 jarEntries[className + ".class"] = bytes;
             }
@@ -48,10 +48,6 @@ public type ObjectGenerator object {
     }
 
     // Private methods
-
-    private function getTypeValueClassName(string typeName) returns string {
-        return getPackageName(self.module.org.value, self.module.name.value) + cleanupTypeName(typeName);
-    }
 
     private function createObjectValueClass(bir:BObjectType objectType, string className,
                                             bir:TypeDef typeDef, boolean isService) returns byte[] {
@@ -65,10 +61,10 @@ public type ObjectGenerator object {
 
         bir:Function?[]? attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs is bir:Function?[]) {
-            self.createObjectMethods(cw, attachedFuncs);
+            self.createObjectMethods(cw, attachedFuncs, isService, className);
         }
 
-        self.createObjectInit(cw);
+        self.createObjectInit(cw, fields, className);
         self.createCallMethod(cw, attachedFuncs, className, objectType.name.value, isService);
         self.createGetMethod(cw, fields, className);
         self.createSetMethod(cw, fields, className);
@@ -92,22 +88,26 @@ public type ObjectGenerator object {
             if (field is bir:BObjectField) {
                 jvm:FieldVisitor fv = cw.visitField(0, field.name.value, getTypeDesc(field.typeValue));
                 fv.visitEnd();
+                string lockClass = "L" + LOCK_VALUE + ";";
+                fv = cw.visitField(ACC_PUBLIC + ACC_FINAL, computeLockNameFromString(field.name.value), lockClass);
+                fv.visitEnd();
             }
         }
     }
 
-    private function createObjectMethods(jvm:ClassWriter cw, bir:Function?[] attachedFuncs) {
+    private function createObjectMethods(jvm:ClassWriter cw, bir:Function?[] attachedFuncs, boolean isService,
+                                                                                                string className) {
         foreach var func in attachedFuncs {
             if (func is bir:Function) {
                 if !isExternFunc(func) {
                     addDefaultableBooleanVarsToSignature(func);
                 }
-                generateMethod(func, cw, self.module, attachedType = self.currentObjectType);
+                generateMethod(func, cw, self.module, attachedType = self.currentObjectType, isService = isService, className = className);
             }
         }
     }
 
-    private function createObjectInit(jvm:ClassWriter cw) {
+    private function createObjectInit(jvm:ClassWriter cw, bir:BObjectField?[] fields, string className) {
         jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), (), ());
         mv.visitCode();
 
@@ -117,6 +117,19 @@ public type ObjectGenerator object {
         mv.visitVarInsn(ALOAD, 1);
         // invoke super(type);
         mv.visitMethodInsn(INVOKESPECIAL, ABSTRACT_OBJECT_VALUE, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), false);
+
+        string lockClass = "L" + LOCK_VALUE + ";";
+        foreach var field in fields {
+            if (field is bir:BObjectField) {
+                jvm:Label fLabel = new;
+                mv.visitLabel(fLabel);
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitTypeInsn(NEW, LOCK_VALUE);
+                mv.visitInsn(DUP);
+                mv.visitMethodInsn(INVOKESPECIAL, LOCK_VALUE, "<init>", "()V", false);
+                mv.visitFieldInsn(PUTFIELD, className, computeLockNameFromString(field.name.value), lockClass);
+            }
+        }
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(5, 5);
@@ -159,17 +172,17 @@ public type ObjectGenerator object {
 
             if (isExternFunc(func)) {
                 mv.visitVarInsn(ALOAD, 1);
-                mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "blockedOnExtern", "Z");
+                mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "isBlockedOnExtern", "()Z", false);
                 jvm:Label blockedOnExternLabel = new;
                 mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
 
                 mv.visitVarInsn(ALOAD, 1);
                 mv.visitInsn(ICONST_0);
-                mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/Strand", "blockedOnExtern", "Z");
-
+                mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/scheduling/Strand", "blockedOnExtern", "Z");
+                
                 if (!(retType is () || retType is bir:BTypeNil)) {
                     mv.visitVarInsn(ALOAD, 1);
-                    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/Strand", "returnValue", "Ljava/lang/Object;");
+                    mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue", "Ljava/lang/Object;");
                     mv.visitInsn(ARETURN);
                 } else {
                     mv.visitInsn(ACONST_NULL);
@@ -319,6 +332,7 @@ public type ObjectGenerator object {
         }
 
         self.createRecordConstructor(cw, className);
+        self.createRecordInitWrapper(cw, className, typeDef);
         self.createLambdas(cw);
         cw.visitEnd();
         return cw.toByteArray();
@@ -327,7 +341,7 @@ public type ObjectGenerator object {
     private function createRecordMethods(jvm:ClassWriter cw, bir:Function?[] attachedFuncs) {
         foreach var func in attachedFuncs {
             if (func is bir:Function) {
-                generateMethod(func, cw, self.module, attachedType = self.currentRecordType);
+                generateMethod(func, cw, self.module);
             }
         }
     }
@@ -340,26 +354,69 @@ public type ObjectGenerator object {
         mv.visitVarInsn(ALOAD, 0);
         // load type
         mv.visitVarInsn(ALOAD, 1);
-
-        // invoke super(type);
+        // invoke `super(type)`;
         mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
-        mv.visitVarInsn(ALOAD, 0);
 
-        mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Strand");
+        mv.visitTypeInsn(NEW, STRAND);
         mv.visitInsn(DUP);
-        mv.visitTypeInsn(NEW, "org/ballerinalang/jvm/Scheduler");
+        mv.visitTypeInsn(NEW, SCHEDULER);
         mv.visitInsn(DUP);
         mv.visitInsn(ICONST_4);
         //TODO remove this and load the strand from ALOAD
         mv.visitInsn(ICONST_0);
         mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(IZ)V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, STRAND, "<init>", io:sprintf("(L%s;)V", SCHEDULER) , false);
 
-        mv.visitMethodInsn(INVOKESPECIAL, "org/ballerinalang/jvm/Strand", "<init>",
-                            "(Lorg/ballerinalang/jvm/Scheduler;)V", false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, className, "__init_", "(Lorg/ballerinalang/jvm/Strand;)V", false);
+        // Invoke the init-functions of referenced types. This is done to initialize the 
+        // defualt values of the fields coming from the referenced types.
 
+        // Invoke the init-function of this type.
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKESTATIC, className, "$init", io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
         mv.visitInsn(RETURN);
-        mv.visitMaxs(5, 5);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private function createRecordInitWrapper(jvm:ClassWriter cw, string className, bir:TypeDef typeDef) {
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$init", 
+                                              io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), (), ());
+        mv.visitCode();
+        // load strand
+        mv.visitVarInsn(ALOAD, 0);
+        // load value
+        mv.visitVarInsn(ALOAD, 1);
+
+        // Invoke the init-functions of referenced types. This is done to initialize the 
+        // defualt values of the fields coming from the referenced types.
+        foreach (bir:BType? typeRef in typeDef.typeRefs) {
+            if (typeRef is bir:BRecordType) {
+                string refTypeClassName = getReferencedTypeValueClassName(typeRef.moduleId, typeRef.name.value);
+                mv.visitInsn(DUP2);
+                mv.visitMethodInsn(INVOKESTATIC, refTypeClassName, "$init", io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
+            }
+        }
+
+        // Invoke the init-function of this type.
+        string initFuncName;
+        string valueClassName;
+        bir:Function?[] attachedFuncs = <bir:Function?[]>typeDef.attachedFuncs;
+
+        // Attached functions are empty for type-labeling. In such cases, call the __init() of
+        // the original type value;
+        if (attachedFuncs.length() != 0) {
+            initFuncName = <string> attachedFuncs[0].name.value;
+            valueClassName = className;
+        } else {
+            // record type is the original record-type of this type-label
+            bir:BRecordType recordType = <bir:BRecordType> typeDef.typeValue;
+            valueClassName = getReferencedTypeValueClassName(recordType.moduleId, recordType.name.value);
+            initFuncName = cleanupFunctionName(recordType.name.value + "__init_");
+        }
+
+        mv.visitMethodInsn(INVOKESTATIC, valueClassName, initFuncName, io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
 };
@@ -401,6 +458,14 @@ function createDefaultCase(jvm:MethodVisitor mv, jvm:Label defaultCaseLabel, int
     mv.visitMethodInsn(INVOKESPECIAL, BLANG_RUNTIME_EXCEPTION, "<init>",
             io:sprintf("(L%s;)V", STRING_VALUE), false);
     mv.visitInsn(ATHROW);
+}
+
+function getTypeValueClassName(bir:Package module, string typeName) returns string {
+    return getPackageName(module.org.value, module.name.value) + cleanupTypeName(typeName);
+}
+
+function getReferencedTypeValueClassName(bir:ModuleID moduleId, string typeName) returns string {
+    return getPackageName(moduleId.org, moduleId.name) + cleanupTypeName(typeName);
 }
 
 function createLabelsForEqualCheck(jvm:MethodVisitor mv, int nameRegIndex, NamedNode?[] nodes,

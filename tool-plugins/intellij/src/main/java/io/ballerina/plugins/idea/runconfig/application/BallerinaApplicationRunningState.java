@@ -28,11 +28,11 @@ import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
-import io.ballerina.plugins.idea.codeinsight.autodetect.BallerinaAutoDetectionSettings;
 import io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import io.ballerina.plugins.idea.runconfig.BallerinaRunningState;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
+import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings;
 import io.ballerina.plugins.idea.util.BallerinaExecutor;
 import io.ballerina.plugins.idea.util.BallerinaHistoryProcessListener;
 import org.jetbrains.annotations.NotNull;
@@ -139,8 +139,9 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
             // Tries to get the ballerina executable path using the SDK.
             String balSdkPath = BallerinaSdkService.getInstance(getConfiguration().getProject()).getSdkHomePath(module);
             // If any sdk is not found and user has chosen to auto detect ballerina home.
-            if (Strings.isNullOrEmpty(balSdkPath) && BallerinaAutoDetectionSettings.getInstance().autoDetectBalHome()) {
-                balSdkPath = BallerinaSdkUtils.autoDetectSdk();
+            if (Strings.isNullOrEmpty(balSdkPath) && BallerinaAutoDetectionSettings.getInstance(project).
+                    getIsAutoDetectionEnabled()) {
+                balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
             }
             ballerinaExecutor.withBallerinaPath(balSdkPath);
         } else {
@@ -155,8 +156,9 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
             // Tries to get the ballerina executable path using the SDK.
             String balSdkPath = BallerinaSdkService.getInstance(getConfiguration().getProject()).getSdkHomePath(module);
             // If any sdk is not found and user has chosen to auto detect ballerina home.
-            if (Strings.isNullOrEmpty(balSdkPath) && BallerinaAutoDetectionSettings.getInstance().autoDetectBalHome()) {
-                balSdkPath = BallerinaSdkUtils.autoDetectSdk();
+            if (Strings.isNullOrEmpty(balSdkPath) && BallerinaAutoDetectionSettings.getInstance(project)
+                    .getIsAutoDetectionEnabled()) {
+                balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
             }
             ballerinaExecutor.withBallerinaPath(balSdkPath);
         }

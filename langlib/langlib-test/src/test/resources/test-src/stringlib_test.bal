@@ -75,3 +75,19 @@ function testJoin() returns string {
     string[] days = ["Sunday", "Monday", "Tuesday"];
     return strings:'join(", ", ...days);
 }
+
+function testCodePointCompare(string st1, string st2) returns int {
+    return strings:codePointCompare(st1, st2);
+}
+
+function testGetCodepoint(string st, int index) returns int {
+    return st.getCodePoint(index);
+}
+
+function testToCodepointInts(string st) returns int[] {
+    return st.toCodePointInts();
+}
+
+function testFromCodePointInts(int[] ints) returns string|error {
+    return strings:fromCodePointInts(ints);
+}

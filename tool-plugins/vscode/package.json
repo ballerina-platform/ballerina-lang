@@ -202,15 +202,6 @@
                 "category": "Ballerina"
             },
             {
-                "command": "ballerina.showDiagram",
-                "title": "Show Diagram",
-                "icon": {
-                    "dark": "./resources/images/icons/design-view-inverse.svg",
-                    "light": "./resources/images/icons/design-view.svg"
-                },
-                "category": "Ballerina"
-            },
-            {
                 "command": "ballerina.showExamples",
                 "title": "Show Examples",
                 "category": "Ballerina"
@@ -262,7 +253,7 @@
             "editor/context": [
                 {
                     "when": "resourceLangId == ballerina",
-                    "command": "ballerina.showDiagram",
+                    "command": "ballerina.showProjectOverview",
                     "group": "navigation"
                 },
                 {
@@ -293,7 +284,7 @@
         "postinstall": "node ./node_modules/vscode/bin/install",
         "update-version": "node ./scripts/update-version.js",
         "test-compile": "tsc -p ./",
-        "test-disabled": "npm run test-compile && node ./node_modules/vscode/bin/test",
+        "test": "npm run test-compile && node ./node_modules/vscode/bin/test",
         "test-coverage": "cross-env COVER_CONFIG=html npm run test",
         "package": "vsce package"
     },

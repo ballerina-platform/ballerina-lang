@@ -133,6 +133,8 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      */
     public static class BLangRecordKey extends BLangNode {
 
+        public boolean computedKey = false;
+
         public BLangExpression expr;
 
         // This field is set only if the record type is struct.

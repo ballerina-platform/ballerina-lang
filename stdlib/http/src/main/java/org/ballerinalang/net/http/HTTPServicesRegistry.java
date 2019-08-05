@@ -20,7 +20,7 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.Scheduler;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -200,6 +200,36 @@ public class HTTPServicesRegistry {
         public ServicesMapHolder(Map<String, HttpService> servicesByBasePath, List<String> sortedServiceURIs) {
             this.servicesByBasePath = servicesByBasePath;
             this.sortedServiceURIs = sortedServiceURIs;
+        }
+    }
+
+    /**
+     * Un-register a service from the map.
+     *
+     * @param service requested service to be unregistered.
+     */
+    public void unRegisterService(ObjectValue service) {
+        List<HttpService> httpServices = HttpService.buildHttpService(service);
+        for (HttpService httpService : httpServices) {
+            String hostName = httpService.getHostName();
+            ServicesMapHolder servicesMapHolder = servicesMapByHost.get(hostName);
+            if (servicesMapHolder == null) {
+                continue;
+            }
+            servicesByBasePath = getServicesByHost(hostName);
+            sortedServiceURIs = getSortedServiceURIsByHost(hostName);
+
+            String basePath = httpService.getBasePath();
+            if (!servicesByBasePath.containsKey(basePath)) {
+                continue;
+            }
+            servicesByBasePath.remove(basePath);
+            sortedServiceURIs.remove(basePath);
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format("Service detached : %s with context %s", service.getType().getName(),
+                                           basePath));
+            }
+            sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
         }
     }
 }

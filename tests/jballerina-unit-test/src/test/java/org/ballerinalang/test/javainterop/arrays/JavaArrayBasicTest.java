@@ -18,6 +18,7 @@
 package org.ballerinalang.test.javainterop.arrays;
 
 import org.ballerinalang.model.values.BHandleValue;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -75,5 +76,34 @@ public class JavaArrayBasicTest {
         String[] parts = strValue.split(" ");
         Arrays.sort(parts);
         Assert.assertEquals(((BHandleValue) returns[0]).getValue(), parts);
+    }
+
+    @Test(description = "Test java:getArrayElement function in ballerinax/java module")
+    public void testGetArrayElementMethod() {
+        BValue[] returns = BRunUtil.invoke(result, "testGetArrayElementMethod");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(((BHandleValue) returns[0]).getValue(), "Ballerina");
+        Assert.assertEquals(((BHandleValue) returns[1]).getValue(), "Programming");
+        Assert.assertEquals(((BHandleValue) returns[2]).getValue(), "Specification");
+    }
+
+    @Test(description = "Test java:testSetArrayElementMethod function in ballerinax/java module")
+    public void testSetArrayElementMethod() {
+        BValue[] args = new BValue[3];
+        args[0] = new BHandleValue("Peter");
+        args[1] = new BHandleValue("John");
+        args[2] = new BHandleValue("Jane");
+        BValue[] returns = BRunUtil.invoke(result, "testSetArrayElementMethod", args);
+        Assert.assertEquals(returns.length, 1);
+
+        String[] parts = {"Peter", "John", "Programming", "Jane"};
+        Assert.assertEquals(((BHandleValue) returns[0]).getValue(), parts);
+    }
+
+    @Test(description = "Test java:testGetArrayLengthMethod function in ballerinax/java module")
+    public void testGetArrayLengthMethod() {
+        BValue[] returns = BRunUtil.invoke(result, "testGetArrayLengthMethod");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
     }
 }

@@ -1,7 +1,11 @@
-import ballerina/java;
+import ballerinax/java;
 
 function testAcceptNothingAndReturnNothing(handle receiver) {
     increaseCounterByOne(receiver);
+}
+
+function testAcceptNothingAndReturnVoidThrows(handle receiver) returns int|error {
+    return testThrowsWithVoid(receiver);
 }
 
 function testInteropFunctionWithDifferentName(handle receiver) {
@@ -28,21 +32,48 @@ function testAcceptTwoParamsAndReturnSomething(handle receiver, handle h1, handl
 
 // Interop functions
 
-@java:Method{class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"}
-public function increaseCounterByOne(handle receiver) = external;
+public function increaseCounterByOne(handle receiver) = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
 
-@java:Method{class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods", name:"increaseCounterByOne"}
-public function interopFunctionWithDifferentName(handle receiver) = external;
+public function interopFunctionWithDifferentName(handle receiver) = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods",
+    name:"increaseCounterByOne"
+} external;
 
-@java:Method{class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"}
-public function getCounter(handle receiver) returns handle = external;
+public function getCounter(handle receiver) returns handle = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
 
-@java:Method{class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"}
-public function setCounterValue(handle receiver, handle h) = external;
+public function setCounterValue(handle receiver, handle h) = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
 
-@java:Method{class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"}
-public function setAndGetCounterValue(handle receiver, handle h) returns handle = external;
+public function setAndGetCounterValue(handle receiver, handle h) returns handle = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
 
-@java:Method{class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"}
-public function setTwiceAndGetCounterValue(handle receiver, handle h1, handle h2) returns handle = external;
+public function setTwiceAndGetCounterValue(handle receiver, handle h1, handle h2) returns handle = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
+public function setAndGetCounterValueWhichThrowsCheckedException(handle receiver, handle h) returns handle | error = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
+public function setAndGetCounterValueWhichThrowsUncheckedException(handle receiver, handle h) returns handle = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
+public function setGetCounterValueWhichThrowsCheckedException(handle receiver, float f) returns int | error = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
+public function setGetCounterValueWhichThrowsUncheckedException(handle receiver, float f) returns int = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
+public function testThrowsWithVoid(handle receiver) returns error|int = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
 

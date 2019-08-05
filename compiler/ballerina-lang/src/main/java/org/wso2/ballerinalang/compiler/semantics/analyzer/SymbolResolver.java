@@ -881,7 +881,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return namespaces;
     }
 
-    public void reloadErrorType() {
+    public void reloadErrorAndDependentTypes() {
 
         ScopeEntry entry = symTable.rootPkgSymbol.scope.lookup(Names.ERROR);
         while (entry != NOT_FOUND_ENTRY) {
@@ -894,6 +894,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.errorConstructor = symTable.errorType.ctorSymbol;
             symTable.pureType = BUnionType.create(null, symTable.anydataType, this.symTable.errorType);
             symTable.detailType.restFieldType = symTable.pureType;
+            symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null);
             symTable.defineOperators(); // Define all operators e.g. binary, unary, cast and conversion
             symTable.pureType = BUnionType.create(null, symTable.anydataType, symTable.errorType);
             return;
@@ -1043,6 +1044,9 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BTupleType tupleType = new BTupleType(tupleTypeSymbol, memberTypes);
         tupleTypeSymbol.type = tupleType;
+        if (tupleTypeNode.restParamType !=  null) {
+            tupleType.restType = resolveTypeNode(tupleTypeNode.restParamType, env);
+        }
 
         resultType = tupleType;
     }
@@ -1098,6 +1102,12 @@ public class SymbolResolver extends BLangNodeVisitor {
             resultType = new BTableType(TypeTags.TABLE, constraintType, type.tsymbol);
             return;
         } else if (type.tag == TypeTags.STREAM) {
+            if (!types.isPureType(constraintType)) {
+                dlog.error(constrainedTypeNode.constraint.pos, DiagnosticCode.STREAM_INVALID_CONSTRAINT,
+                           constraintType);
+                resultType = symTable.semanticError;
+                return;
+            }
             constrainedType = new BStreamType(TypeTags.STREAM, constraintType, null);
         } else if (type.tag == TypeTags.FUTURE) {
             constrainedType = new BFutureType(TypeTags.FUTURE, constraintType, null);
@@ -1159,7 +1169,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         functionTypeNode.getParams().forEach(t -> paramTypes.add(resolveTypeNode((BLangType) t.getTypeNode(), env)));
         BType retParamType = resolveTypeNode(functionTypeNode.returnTypeNode, this.env);
         resultType = new BInvokableType(paramTypes, retParamType, null);
-    }
+    } 
 
     /**
      * Lookup all the visible in-scope symbols for a given environment scope.
@@ -1167,13 +1177,24 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @param env Symbol environment
      * @return all the visible symbols
      */
-    public Map<Name, ScopeEntry> getAllVisibleInScopeSymbols(SymbolEnv env) {
-        Map<Name, ScopeEntry> visibleEntries = new HashMap<>();
-        visibleEntries.putAll(env.scope.entries);
+    public Map<Name, List<ScopeEntry>> getAllVisibleInScopeSymbols(SymbolEnv env) {
+        Map<Name, List<ScopeEntry>> visibleEntries = new HashMap<>();
+        env.scope.entries.forEach((key, value) -> {
+            ArrayList<ScopeEntry> entryList = new ArrayList<>();
+            entryList.add(value);
+            visibleEntries.put(key, entryList);
+        });
         if (env.enclEnv != null) {
-            getAllVisibleInScopeSymbols(env.enclEnv).forEach((name, scopeEntry) -> {
+            getAllVisibleInScopeSymbols(env.enclEnv).forEach((name, entryList) -> {
                 if (!visibleEntries.containsKey(name)) {
-                    visibleEntries.put(name, scopeEntry);
+                    visibleEntries.put(name, entryList);
+                } else {
+                    List<ScopeEntry> scopeEntries = visibleEntries.get(name);
+                    entryList.forEach(scopeEntry -> {
+                        if (!scopeEntries.contains(scopeEntry)) {
+                            scopeEntries.add(scopeEntry);
+                        }
+                    });
                 }
             });
         }

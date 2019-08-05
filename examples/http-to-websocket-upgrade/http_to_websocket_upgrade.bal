@@ -21,7 +21,7 @@ service httpService on new http:Listener(9090) {
             resp.statusCode = 500;
         } else {
             io:println(payload);
-            resp.setPayload(string `HTTP POST received: ${untaint payload}`);
+            resp.setPayload(string `HTTP POST received: ${<@untainted> payload}`);
         }
 
         var err = caller->respond(resp);
@@ -53,7 +53,7 @@ service wsService = @http:WebSocketServiceConfig {subProtocols: ["xml, json"]
                                          ,idleTimeoutInSeconds: 20} service {
 
     resource function onOpen(http:WebSocketCaller caller) {
-        io:println("New WebSocket connection: " + caller.id);
+        io:println("New WebSocket connection: " + caller.getConnectionId());
     }
 
     resource function onText(http:WebSocketCaller caller, string text) {
@@ -65,6 +65,6 @@ service wsService = @http:WebSocketServiceConfig {subProtocols: ["xml, json"]
     }
 
     resource function onIdleTimeout(http:WebSocketCaller caller) {
-        io:println("Idle timeout: " + caller.id);
+        io:println("Idle timeout: " + caller.getConnectionId());
     }
 };

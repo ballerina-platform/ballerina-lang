@@ -54,7 +54,7 @@ public const RFC_7234 = "RFC_7234";
 #
 # + enabled - Specifies whether HTTP caching is enabled. Caching is enabled by default.
 # + isShared - Specifies whether the HTTP caching layer should behave as a public cache or a private cache
-# + expiryTimeMillis - The number of milliseconds to keep an entry in the cache
+# + expiryTimeInMillis - The number of milliseconds to keep an entry in the cache
 # + capacity - The capacity of the cache
 # + evictionFactor - The fraction of entries to be removed when the cache is full. The value should be
 #                    between 0 (exclusive) and 1 (inclusive).
@@ -64,7 +64,7 @@ public const RFC_7234 = "RFC_7234";
 public type CacheConfig record {|
     boolean enabled = true;
     boolean isShared = false;
-    int expiryTimeMillis = 86400;
+    int expiryTimeInMillis = 86400;
     int capacity = 8388608; // 8MB
     float evictionFactor = 0.2;
     CachingPolicy policy = CACHE_CONTROL_AND_VALIDATORS;
@@ -128,7 +128,7 @@ public type HttpCachingClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function head(string path, RequestMessage message = ()) returns @tainted Response|ClientError {
+    public remote function head(string path, public RequestMessage message = ()) returns @tainted Response|ClientError {
         Request req = <Request>message;
         setRequestCacheControlHeader(req);
         return getCachedResponse(self.cache, self.httpClient, req, HEAD, path, self.cacheConfig.isShared, false);
@@ -202,7 +202,7 @@ public type HttpCachingClient client object {
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function delete(string path, RequestMessage message) returns Response|ClientError {
+    public remote function delete(string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = <Request>message;
         setRequestCacheControlHeader(req);
 
@@ -220,7 +220,7 @@ public type HttpCachingClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function get(string path, RequestMessage message = ()) returns @tainted Response|ClientError {
+    public remote function get(string path, public RequestMessage message = ()) returns @tainted Response|ClientError {
         Request req = <Request>message;
         setRequestCacheControlHeader(req);
         return getCachedResponse(self.cache, self.httpClient, req, GET, path, self.cacheConfig.isShared, false);
@@ -233,7 +233,7 @@ public type HttpCachingClient client object {
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function options(string path, RequestMessage message = ()) returns Response|ClientError {
+    public remote function options(string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = <Request>message;
         setRequestCacheControlHeader(req);
 
@@ -446,7 +446,7 @@ function getValidationResponse(HttpClient httpClient, Request req, Response cach
 
     log:printDebug("Response for validation request received");
     // Based on https://tools.ietf.org/html/rfc7234#section-4.3.3
-    if (validationResponse.statusCode == NOT_MODIFIED_304) {
+    if (validationResponse.statusCode == STATUS_NOT_MODIFIED) {
         return handle304Response(validationResponse, cachedResponse, cache, path, httpMethod);
     } else if (validationResponse.statusCode >= 500 && validationResponse.statusCode < 600) {
         // May forward the response or act as if the origin server failed to respond and serve a

@@ -51,8 +51,11 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.ballerinalang.openapi.model.GenSrcFile.GenFileType;
+import static org.ballerinalang.openapi.utils.GeneratorConstants.GenType.GEN_CLIENT;
 
 /**
  * This class generates Ballerina Services/Clients for a provided OAS definition.
@@ -99,6 +102,21 @@ public class CodeGenerator {
 
         Path srcPath = CodegenUtils.getSourcePath(srcPackage, outPath);
         Path implPath = CodegenUtils.getImplPath(srcPackage, srcPath);
+
+        if (type.equals(GEN_CLIENT)) {
+            srcPath = srcPath.resolve("client");
+            implPath = implPath.resolve("client");
+
+            if (Files.notExists(srcPath)) {
+                Files.createDirectory(srcPath);
+            }
+
+            if (Files.notExists(implPath)) {
+                Files.createDirectory(implPath);
+            }
+
+        }
+
         List<GenSrcFile> genFiles = generateBalSource(type, definitionPath, serviceName);
         writeGeneratedSources(genFiles, srcPath, implPath);
     }
@@ -122,7 +140,7 @@ public class CodeGenerator {
      */
     public void generate(GenType gt, String definitionPath, String outPath)
             throws IOException, BallerinaOpenApiException {
-        generate(gt, definitionPath, outPath, null);
+        generate(gt, definitionPath, null , outPath);
     }
 
     /**
@@ -160,7 +178,8 @@ public class CodeGenerator {
         openApi.setModuleName(srcPackage);
         openApi.setServers(api);
         openApi.setTags(api.getTags());
-        openApi.setDefinitionPath(definitionPath);
+        openApi.setDefinitionPath(definitionPath.replaceAll(Pattern.quote("\\"),
+                Matcher.quoteReplacement("\\\\")));
 
         // modelPackage is not in use at the moment. All models will be written into same package as other src files.
         // Therefore value set to modelPackage is ignored here
@@ -254,7 +273,11 @@ public class CodeGenerator {
         // Remove old generated files - if any - before regenerate
         // if srcPackage was not provided and source was written to main package nothing will be deleted.
         if (srcPackage != null && !srcPackage.isEmpty() && Files.exists(srcPath)) {
-            Arrays.stream(new File(String.valueOf(srcPath)).listFiles()).forEach(File::delete);
+            final File[] listFiles = new File(String.valueOf(srcPath)).listFiles();
+            if (listFiles != null) {
+                Arrays.stream(listFiles).forEach(File::delete);
+            }
+
         }
 
         for (GenSrcFile file : sources) {

@@ -2,12 +2,12 @@ import ballerina/http;
 import ballerina/mime;
 import ballerina/io;
 
-function testContentType(http:Response res, string contentTypeValue) returns string? {
+function testContentType(http:Response res, string contentTypeValue) returns @tainted string? {
     res.setContentType(contentTypeValue);
     return res.getContentType();
 }
 
-function testGetContentLength(http:Response res) returns string {
+function testGetContentLength(http:Response res) returns @tainted string {
     return res.getHeader("content-length");
 }
 
@@ -16,32 +16,33 @@ function testAddHeader(http:Response res, string key, string value) returns http
     return res;
 }
 
-function testGetHeader(http:Response res, string key) returns string {
+function testGetHeader(http:Response res, string key) returns @tainted string {
     string contentType = res.getHeader(key);
     return contentType;
 }
 
-function testGetHeaders(http:Response res, string key) returns string[] {
+function testGetHeaders(http:Response res, string key) returns @tainted string[] {
     return res.getHeaders(key);
 }
 
-function testGetJsonPayload(http:Response res) returns json|error {
+function testGetJsonPayload(http:Response res) returns @tainted json|error {
     return res.getJsonPayload();
 }
 
-function testGetTextPayload (http:Response res) returns (string | error) {
+function testGetTextPayload (http:Response res) returns @tainted string|error {
     return res.getTextPayload();
 }
 
-function testGetBinaryPayload(http:Response res) returns byte[]|error {
+function testGetBinaryPayload(http:Response res) returns  @tainted byte[]|error {
     return res.getBinaryPayload();
 }
 
-function testGetXmlPayload(http:Response res) returns xml|error {
+function testGetXmlPayload(http:Response res) returns @tainted xml|error {
     return res.getXmlPayload();
 }
 
-function testSetPayloadAndGetText((string|xml|json|byte[]|io:ReadableByteChannel) payload) returns string|error {
+function testSetPayloadAndGetText((string|xml|json|byte[]|io:ReadableByteChannel) payload) returns
+                                    @tainted string|error {
     http:Response res = new;
     res.setPayload(payload);
     return res.getTextPayload();

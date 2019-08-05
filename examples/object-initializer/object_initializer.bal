@@ -9,18 +9,18 @@ type Person object {
     private int age;
 
     function __init(string name, int age) returns error? {
-        self.name = check validateName(name);
-        self.age = age;
+        self.name = name;
+        self.age = check validateAge(age);
     }
 };
 
-function validateName(string name) returns string|error {
-    if (check name.matches("[A-Za-z]*")) {
-        return name;
+function validateAge(int age) returns int|error {
+    if (age > 0 && age < 100) {
+        return age;
     }
 
-    error invName = error("Invalid name format");
-    return invName;
+    error invalidAge = error("The age should be between 0-100");
+    return invalidAge;
 }
 
 public function main() {
@@ -30,6 +30,6 @@ public function main() {
     io:println(p1);
 
     // `p2` will be an error since the name does not conform to the expected format.
-    Person|error p2 = new("John123", 25);
+    Person|error p2 = new("Sam", -20);
     io:println(p2);
 }

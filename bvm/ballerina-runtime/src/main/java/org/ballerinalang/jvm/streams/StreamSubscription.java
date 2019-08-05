@@ -19,15 +19,14 @@
 package org.ballerinalang.jvm.streams;
 
 
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.StreamValue;
 
 import java.util.Observable;
 import java.util.Observer;
 
 /**
- * The {@link StreamSubscription} is the base abstract class for {@link DefaultStreamSubscription} and
- * {@link SiddhiStreamSubscription}.
+ * The {@link StreamSubscription} is the base abstract class for {@link DefaultStreamSubscription}.
  *
  * @since 0.995.0
  */

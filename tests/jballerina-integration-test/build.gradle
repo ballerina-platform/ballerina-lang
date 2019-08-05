@@ -48,7 +48,6 @@ configurations {
 
 dependencies {
     implementation 'org.ballerinalang:ballerina-lang:0.992.0-m2-SNAPSHOT'
-    implementation project(':ballerina-config')
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:annotations')
@@ -65,21 +64,18 @@ dependencies {
     implementation project(':ballerina-transactions')
     implementation project(':protobuf-ballerina')
     implementation project(':ballerina-transactions')
-    implementation project(':ballerina-activemq-artemis')
     implementation project(':ballerina-websub')
-    implementation project(':ballerina-jms')
     implementation project(':ballerina-socket')
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-time')
     implementation project(':ballerina-filepath')
     implementation project(':ballerina-observability')
-    implementation project(':ballerina-activemq-artemis')
     implementation project(':ballerina-jwt')
     implementation project(':ballerina-ldap')
     implementation project(':ballerina-oauth2')
     implementation project(':ballerina-backend-jvm')
     implementation project(':ballerina-jvm')
-//    implementation project(':observability-test-utils')
+    implementation project(':observability-test-utils')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
 
 
@@ -95,7 +91,6 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-jms', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-socket', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
@@ -105,8 +100,7 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
-//    baloTestImplementation project(path: ':observability-test-utils', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-activemq-artemis', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':observability-test-utils', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
@@ -125,7 +119,6 @@ dependencies {
 
     testCompile project(':ballerina-mime')
     testCompile project(':ballerina-runtime')
-    testCompile project(':ballerina-activemq-artemis')
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'io.netty:netty-transport'
     testCompile 'io.netty:netty-codec-http'
@@ -137,13 +130,12 @@ dependencies {
     testCompile 'com.h2database:h2'
     testCompile 'io.ballerina.messaging:broker-amqp'
     testCompile 'org.apache.directory.server:apacheds-all'
-    testCompile 'org.apache.activemq:artemis-server'
     testCompile 'org.apache.commons:commons-text'
     testCompile 'org.testng:testng'
 
     testUtils project(path: ':ballerina-test-utils', configuration: 'shadow')
     jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
-//    observeTestUtils project(path: ':observability-test-utils', configuration: 'shadow')
+    observeTestUtils project(path: ':observability-test-utils', configuration: 'shadow')
 }
 
 task createBre(type: org.gradle.api.tasks.Copy) {
@@ -159,12 +151,13 @@ test {
     maxParallelForks = 1
     systemProperty 'basedir', "$buildDir"
     systemProperty 'libdir', "$buildDir"
+    systemProperty 'observability.test.utils', "$buildDir/../../observability-test-utils/"
     systemProperty 'server.zip', configurations.jballerinaTools.asPath
     systemProperty 'jballerina.server.zip', configurations.jballerinaTools.asPath
     systemProperty 'java.util.logging.config.file', "$buildDir/resources/test/logging.properties"
     systemProperty 'java.util.logging.manager', 'org.ballerinalang.logging.BLogManager'
     systemProperty 'ballerina.agent.path', configurations.testUtils.asPath
-//    systemProperty 'observability-test-natives.jar', configurations.observeTestUtils.asPath
+    systemProperty 'observability-test-natives.jar', configurations.observeTestUtils.asPath
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }

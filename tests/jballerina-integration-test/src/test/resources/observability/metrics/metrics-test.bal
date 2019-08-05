@@ -32,14 +32,14 @@ service metricsTest on new http:Listener(9090){
             password: "",
             poolOptions: { maximumPoolSize: 10 }
         });
-        var dbResult = testDB -> select("SELECT * FROM Products", null);
+        var dbResult = testDB -> select("SELECT * FROM Products", ());
         io:println(dbResult);
         if (dbResult is table<record {}>) {
-            var jData = json.create(dbResult);
+            var jData = json.constructFrom(dbResult);
             if (jData is json) {
                 string result = jData.toString();
                 http:Response resp = new;
-                resp.setTextPayload(untaint result);
+                resp.setTextPayload(<@untainted> result);
                 checkpanic caller->respond(resp);
             }  else {
                 error err = error ("error occurred 1111");

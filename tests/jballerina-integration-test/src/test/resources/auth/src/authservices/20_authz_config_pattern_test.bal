@@ -17,7 +17,7 @@
 import ballerina/auth;
 import ballerina/http;
 
-auth:InboundBasicAuthProvider basicAuthProvider20 = new(());
+auth:InboundBasicAuthProvider basicAuthProvider20 = new;
 http:BasicAuthHandler basicAuthHandler20 = new(basicAuthProvider20);
 
 listener http:Listener listener20 = new(20026, {
@@ -45,7 +45,7 @@ service echo20 on listener20 {
         }
     }
     resource function test1(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 
     @http:ResourceConfig {
@@ -56,7 +56,7 @@ service echo20 on listener20 {
         }
     }
     resource function test2(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 
     @http:ResourceConfig {
@@ -67,7 +67,7 @@ service echo20 on listener20 {
         }
     }
     resource function test3(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 
     @http:ResourceConfig {
@@ -78,7 +78,7 @@ service echo20 on listener20 {
         }
     }
     resource function test4(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 
     @http:ResourceConfig {
@@ -89,6 +89,6 @@ service echo20 on listener20 {
         }
     }
     resource function test5(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 }

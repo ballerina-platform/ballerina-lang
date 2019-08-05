@@ -23,8 +23,10 @@ import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.eclipse.lsp4j.Hover;
+import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -70,11 +72,18 @@ public class HoverUtil {
      * Get Hover from documentation attachment.
      *
      * @param docAttachment     Documentation attachment
-     * @param symbol hovered symbol                         
+     * @param symbol hovered symbol
      * @return {@link Hover}    hover object.
      */
     public static Hover getHoverFromDocAttachment(MarkdownDocAttachment docAttachment, BSymbol symbol) {
         MarkupContent hoverMarkupContent = new MarkupContent();
+        if (docAttachment == null) {
+            Hover hover = new Hover();
+            List<Either<String, MarkedString>> contents = new ArrayList<>();
+            contents.add(Either.forLeft(""));
+            hover.setContents(contents);
+            return hover;
+        }
         hoverMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
         StringBuilder content = new StringBuilder();
         Map<String, List<MarkdownDocAttachment.Parameter>> filterAttributes =
@@ -233,15 +242,18 @@ public class HoverUtil {
      */
     public static MarkdownDocAttachment getMarkdownDocForSymbol(BSymbol bSymbol) {
         SymbolKind symbolKind = bSymbol.kind == null ? bSymbol.type.tsymbol.kind : bSymbol.kind;
+        if (symbolKind == null) {
+            return bSymbol.markdownDocumentation;
+        }
         MarkdownDocAttachment markdownDocAttachment = null;
         
         switch (symbolKind) {
-            case FUNCTION:
-                markdownDocAttachment = bSymbol.markdownDocumentation;
-                break;
             case RECORD:
             case OBJECT:
                 markdownDocAttachment = bSymbol.type.tsymbol.markdownDocumentation;
+                break;
+            case FUNCTION:
+                markdownDocAttachment = bSymbol.markdownDocumentation;
                 break;
             default:
                 break;
@@ -285,6 +297,9 @@ public class HoverUtil {
         Map<String, List<MarkdownDocAttachment.Parameter>> filteredAttributes = new HashMap<>();
         String paramType = "";
         SymbolKind symbolKind = symbol.kind == null ? symbol.type.tsymbol.kind : symbol.kind;
+        if (symbolKind == null) {
+            return filteredAttributes;
+        }
         switch (symbolKind) {
             case FUNCTION:
                 paramType = ContextConstants.DOC_PARAM;

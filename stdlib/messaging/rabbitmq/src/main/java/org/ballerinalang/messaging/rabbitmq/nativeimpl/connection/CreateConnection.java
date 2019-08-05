@@ -19,7 +19,7 @@
 package org.ballerinalang.messaging.rabbitmq.nativeimpl.connection;
 
 import com.rabbitmq.client.Connection;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;

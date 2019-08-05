@@ -55,8 +55,8 @@ service PingPongTestService2 on new http:WebSocketListener(21014) {
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new("ws://localhost:15200/websocket", { callbackService:
             clientCallbackService2, readyOnConnect: false });
-        wsEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
-        wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsEp;
+        wsEp.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
+        wsClientEp.setAttribute(ASSOCIATED_CONNECTION, wsEp);
         var returnVal = wsClientEp->ready();
         if (returnVal is http:WebSocketError) {
            panic <error> returnVal;
@@ -83,7 +83,10 @@ service PingPongTestService2 on new http:WebSocketListener(21014) {
 
         if (text == "tell-remote-server-to-ping") {
             clientEp = getAssociatedClientEndpoint(wsEp);
-            log:printInfo(clientEp.response.getHeader("upgrade"));
+            var resp = clientEp.getHttpResponse();
+            if (resp is http:Response) {
+                log:printInfo(resp.getHeader("upgrade"));
+            }
             var returnVal = clientEp->pushText("ping");
             if (returnVal is http:WebSocketError) {
                 panic <error> returnVal;
@@ -98,9 +101,12 @@ service PingPongTestService2 on new http:WebSocketListener(21014) {
         }
         if (text == "server-headers") {
             clientEp = getAssociatedClientEndpoint(wsEp);
-            var returnVal = clientEp->pushText(clientEp.response.getHeader("X-server-header"));
-            if (returnVal is http:WebSocketError) {
-                panic <error> returnVal;
+            var resp = clientEp.getHttpResponse();
+            if (resp is http:Response) {
+                var returnVal = clientEp->pushText(resp.getHeader("X-server-header"));
+                if (returnVal is http:WebSocketError) {
+                    panic <error> returnVal;
+                }
             }
         }
     }

@@ -19,9 +19,9 @@ service HelloWorld on ep {
         string message = "Hello " + name;
 
         // Send a response message to the caller.
-        error? err = caller->send(message);
+        grpc:Error? err = caller->send(message);
 
-        if (err is error) {
+        if (err is grpc:Error) {
             log:printError("Error from Connector: " + err.reason() + " - "
                                                     + <string> err.detail()["message"]);
         } else {
@@ -29,8 +29,8 @@ service HelloWorld on ep {
         }
 
         // Send the `completed` notification to the caller.
-        error? result = caller->complete();
-        if (result is error) {
+        grpc:Error? result = caller->complete();
+        if (result is grpc:Error) {
             log:printError("Error in sending completed notification to caller",
                 err = result);
         }

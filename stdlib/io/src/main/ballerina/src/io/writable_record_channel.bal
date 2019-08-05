@@ -25,8 +25,8 @@ public type WritableTextRecordChannel object {
     # + channel - WritableCharacterChannel which will point to the input/output resource
     # + rs - Record separator (this could be a regex)
     # + fs - Field separator (this could be a regex)
-    public function __init(WritableCharacterChannel characterChannel, string fs = "", string rs = "",
-                           string fmt = "default") {
+    public function __init(WritableCharacterChannel characterChannel, public string fs = "", public string rs = "",
+                           public string fmt = "default") {
         self.init(characterChannel, fs, rs, fmt);
     }
 

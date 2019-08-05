@@ -200,47 +200,82 @@ public class TableIterator implements DataIterator {
                 ++index;
                 switch (type.getTag()) {
                     case TypeTags.INT_TAG:
-                        value = rs.getLong(index);
-                        break;
                     case TypeTags.STRING_TAG:
-                        value = rs.getString(index);
-                        break;
                     case TypeTags.FLOAT_TAG:
-                        value = rs.getDouble(index);
-                        break;
                     case TypeTags.DECIMAL_TAG:
-                        value = rs.getBigDecimal(index);
-                        break;
                     case TypeTags.BOOLEAN_TAG:
-                        value = rs.getBoolean(index);
-                        break;
                     case TypeTags.JSON_TAG:
-                        String jsonValue = rs.getString(index);
-                        value = JSONParser.parse(jsonValue);
-                        break;
                     case TypeTags.XML_TAG:
-                        String xmlValue = rs.getString(index);
-                        value = new XMLItem(xmlValue);
-                        break;
                     case TypeTags.ARRAY_TAG:
-                        BType arrayElementType = ((BArrayType) type).getElementType();
-                        if (arrayElementType.getTag() == TypeTags.BYTE_TAG) {
-                            Blob blobValue = rs.getBlob(index);
-                            value = new ArrayValue(blobValue.getBytes(1L, (int) blobValue.length()));
+                        value = fetchValue(index, type);
+                        break;
+                    case TypeTags.UNION_TAG:
+                        List<BType> members = ((BUnionType) sf.getFieldType()).getMemberTypes();
+                        if (members.size() != 2) {
+                            throw new BallerinaException(
+                                    "Corresponding Union type in the record is not an assignable nillable type");
+                        }
+                        if (members.get(0).getTag() == TypeTags.NULL_TAG) {
+                            value = fetchValue(index, members.get(1));
+                        } else if (members.get(1).getTag() == TypeTags.NULL_TAG) {
+                            value = fetchValue(index, members.get(0));
                         } else {
-                            Array arrayValue = rs.getArray(index);
-                            value = getDataArray(arrayValue);
+                            throw new BallerinaException(
+                                    "Corresponding Union type in the record is not an assignable nillable type");
                         }
                         break;
                 }
-
                 bStruct.put(fieldName, value);
-
             }
         } catch (SQLException e) {
             throw new BallerinaException("error in generating next row of data :" + e.getMessage());
         }
         return bStruct;
+    }
+
+    private Object fetchValue(int index, BType type) throws SQLException {
+        Object value = null;
+        switch (type.getTag()) {
+            case TypeTags.INT_TAG:
+                value = rs.getLong(index);
+                break;
+            case TypeTags.STRING_TAG:
+                value = rs.getString(index);
+                break;
+            case TypeTags.FLOAT_TAG:
+                value = rs.getDouble(index);
+                break;
+            case TypeTags.DECIMAL_TAG:
+                value = rs.getBigDecimal(index);
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                value = rs.getBoolean(index);
+                break;
+            case TypeTags.JSON_TAG:
+                String jsonValue = rs.getString(index);
+                value = JSONParser.parse(jsonValue);
+                break;
+            case TypeTags.XML_TAG:
+                String xmlValue = rs.getString(index);
+                value = new XMLItem(xmlValue);
+                break;
+            case TypeTags.ARRAY_TAG:
+                BType arrayElementType = ((BArrayType) type).getElementType();
+                if (arrayElementType.getTag() == TypeTags.BYTE_TAG) {
+                    Blob blobValue = rs.getBlob(index);
+                    if (blobValue != null) {
+                        value = new ArrayValue(blobValue.getBytes(1L, (int) blobValue.length()));
+                    }
+                } else {
+                    Array arrayValue = rs.getArray(index);
+                    value = getDataArray(arrayValue);
+                }
+                break;
+        }
+        if (rs.wasNull()) {
+            value = null;
+        }
+        return value;
     }
 
     @Override
@@ -410,18 +445,22 @@ public class TableIterator implements DataIterator {
             BType type = sf.getFieldType();
             int typeTag = TypeTags.ANY_TAG;
             switch (type.getTag()) {
-                case TypeTags.INT_TAG | TypeTags.STRING_TAG | TypeTags.FLOAT_TAG | TypeTags.BOOLEAN_TAG
-                     | TypeTags.JSON_TAG | TypeTags.XML_TAG:
-                    typeTag = type.getTag();
-                    break;
-                case TypeTags.ARRAY_TAG:
-                    BType elementType = ((BArrayType) type).getElementType();
-                    if (elementType.getTag() == TypeTags.BYTE_TAG) {
-                        typeTag = TypeTags.BYTE_TAG;
-                    } else {
-                        typeTag = TypeTags.ARRAY_TAG;
-                    }
-                    break;
+            case TypeTags.INT_TAG:
+            case TypeTags.STRING_TAG:
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.BOOLEAN_TAG:
+            case TypeTags.JSON_TAG:
+            case TypeTags.XML_TAG:
+                typeTag = type.getTag();
+                break;
+            case TypeTags.ARRAY_TAG:
+                BType elementType = ((BArrayType) type).getElementType();
+                if (elementType.getTag() == TypeTags.BYTE_TAG) {
+                    typeTag = TypeTags.BYTE_TAG;
+                } else {
+                    typeTag = TypeTags.ARRAY_TAG;
+                }
+                break;
             }
             ColumnDefinition def = new ColumnDefinition(sf.getFieldName(), typeTag);
             columnDefs.add(def);

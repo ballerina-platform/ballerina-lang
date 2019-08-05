@@ -284,7 +284,7 @@ public class TableLiteralSyntaxTest {
                 "incompatible types: record of type:Company cannot be added to a table with type:Person");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testToJson() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testToJson");
         Assert.assertEquals((returns[0]).stringValue(), "[{\"id\":1, \"age\":30, \"salary\":300.5, \"name\":\"jane\", "
@@ -292,7 +292,7 @@ public class TableLiteralSyntaxTest {
                 + "{\"id\":3, \"age\":32, \"salary\":100.5, \"name\":\"john\", \"married\":false}]");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testToXML() {
         BValue[] returns = BRunUtil.invoke(result, "testToXML");
         Assert.assertEquals((returns[0]).stringValue(), "<results><result><id>1</id><age>30</age>"
@@ -302,7 +302,7 @@ public class TableLiteralSyntaxTest {
                 + "</result></results>");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testTableWithAllDataToJson() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testTableWithAllDataToJson");
         Assert.assertTrue(returns[0] instanceof BValueArray);
@@ -325,14 +325,14 @@ public class TableLiteralSyntaxTest {
                 "<results><result><id>1</id><blobData>Sample Text" + "</blobData></result></results>");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testStructWithDefaultDataToJson() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testStructWithDefaultDataToJson");
         Assert.assertEquals((returns[0]).stringValue(),
                 "[{\"id\":1, \"age\":0, \"salary\":0.0, \"name\":\"\", " + "\"married\":false}]");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testStructWithDefaultDataToXml() {
         BValue[] returns = BRunUtil.invoke(result, "testStructWithDefaultDataToXml");
         Assert.assertEquals((returns[0]).stringValue(),
@@ -340,7 +340,7 @@ public class TableLiteralSyntaxTest {
                         + "<married>false</married></result></results>");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testTableWithArrayDataToJson() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testTableWithArrayDataToJson");
         Assert.assertEquals((returns[0]).stringValue(), "[{\"id\":1, \"intArrData\":[1, 2, 3], "
@@ -383,7 +383,7 @@ public class TableLiteralSyntaxTest {
         }
     }
 
-    @Test(enabled = false)
+    @Test
     public void testTableAddAndAccess() {
         BValue[] returns = BRunUtil.invoke(result, "testTableAddAndAccess");
         Assert.assertEquals((returns[0]).stringValue(),

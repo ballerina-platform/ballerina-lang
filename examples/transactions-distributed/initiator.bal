@@ -28,9 +28,9 @@ service InitiatorService on new http:Listener(8080) {
             // gets infected and joins the distributed transaction.
             boolean successful = callBusinessService();
             if (successful) {
-                res.statusCode = http:OK_200;
+                res.statusCode = http:STATUS_OK;
             } else {
-                res.statusCode = http:INTERNAL_SERVER_ERROR_500;
+                res.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
                 abort;
             }
 
@@ -66,6 +66,6 @@ function callBusinessService() returns boolean {
     if (result is error) {
         return false;
     }  else {
-        return (result.statusCode == http:OK_200);
+        return (result.statusCode == http:STATUS_OK);
     }
 }

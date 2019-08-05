@@ -19,10 +19,8 @@
 package org.ballerinalang.stdlib.ldap.nativeimpl;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.ldap.CommonLdapConfiguration;
@@ -31,7 +29,6 @@ import org.ballerinalang.stdlib.ldap.LdapConstants;
 import org.ballerinalang.stdlib.ldap.SslContextTrustManager;
 import org.ballerinalang.stdlib.ldap.util.LdapUtils;
 import org.ballerinalang.stdlib.ldap.util.SslUtils;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,12 +52,7 @@ import javax.net.ssl.SSLContext;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "ldap",
         functionName = "initLdapConnectionContext", isPublic = true)
-public class InitLdapConnectionContext extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-
-    }
+public class InitLdapConnectionContext {
 
     public static MapValue<String, Object> initLdapConnectionContext(Strand strand, MapValue<?, ?> authProviderConfig,
                                                                      String instanceId) {
@@ -101,8 +93,8 @@ public class InitLdapConnectionContext extends BlockingNativeCallableUnit {
                 authProviderConfig.getBooleanValue(LdapConstants.CONNECTION_POOLING_ENABLED));
         commonLdapConfiguration.setLdapConnectionTimeout(
                 authProviderConfig.getIntValue(LdapConstants.CONNECTION_TIME_OUT).intValue());
-        commonLdapConfiguration.setReadTimeout(
-                authProviderConfig.getIntValue(LdapConstants.READ_TIME_OUT).intValue());
+        commonLdapConfiguration.setReadTimeoutInMillis(
+                authProviderConfig.getIntValue(LdapConstants.READ_TIME_OUT_IN_MILLIS).intValue());
         commonLdapConfiguration.setRetryAttempts(
                 authProviderConfig.getIntValue(LdapConstants.RETRY_ATTEMPTS).intValue());
 
@@ -124,7 +116,7 @@ public class InitLdapConnectionContext extends BlockingNativeCallableUnit {
             return ldapConnectionRecord;
         } catch (KeyStoreException | KeyManagementException | NoSuchAlgorithmException
                 | CertificateException | NamingException | IOException e) {
-            throw new BallerinaException(e.getMessage(), e);
+            throw LdapUtils.createError(e.getMessage());
         } finally {
             if (sslConfig != null) {
                 LdapUtils.removeServiceName();
@@ -134,8 +126,8 @@ public class InitLdapConnectionContext extends BlockingNativeCallableUnit {
 
     private static void setSslConfig(MapValue sslConfig, CommonLdapConfiguration commonLdapConfiguration,
                                      String instanceId)
-            throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException,
-                   CertificateException {
+                              throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException,
+                                     CertificateException {
         MapValue<?, ?> trustStore = sslConfig.getMapValue(LdapConstants.AUTH_STORE_CONFIG_TRUST_STORE);
         String trustCerts = sslConfig.getStringValue(LdapConstants.AUTH_STORE_CONFIG_TRUST_CERTIFICATES);
 
