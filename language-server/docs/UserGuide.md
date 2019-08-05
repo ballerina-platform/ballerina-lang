@@ -163,7 +163,7 @@ In order to get an overview of a certain item you can hover over the particular 
 ## Signature Help
 You can get an overview of a function signature with the signature help feature. Signature help will be triggered when you type Open Bracket <kbd>(</kbd> after the function name and also <kbd>,</kbd> within the function arguments.
 
-![](../docs/images/signatureHelp.gif)
+![](../docs/images/SignatureHelp.gif)
 
 <a name="CodeAction" />
 
