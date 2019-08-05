@@ -172,6 +172,14 @@ public class ErrorVariableReferenceTest {
         Assert.assertEquals(returns[0].stringValue(), "the reason");
     }
 
+    @Test(description = "Test simple indirect error ref pattern")
+    public void testIndirectErrorRefBindingPattern() {
+        BValue[] returns = BRunUtil.invoke(result, "testIndirectErrorRefBindingPattern");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns[0].stringValue(), "msg");
+        Assert.assertNull(returns[1]);
+    }
+
     @Test
     public void testNegativeRecordVariables() {
         Assert.assertEquals(resultNegative.getErrorCount(), 12);

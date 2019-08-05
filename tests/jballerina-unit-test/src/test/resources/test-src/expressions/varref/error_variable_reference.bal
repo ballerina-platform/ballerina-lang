@@ -215,3 +215,12 @@ function testDefaultErrorRefBindingPattern() returns string {
     error(reason, ... _) = e;
     return reason;
 }
+
+function testIndirectErrorRefBindingPattern() returns [string?, any|error] {
+    SampleError e = error("the reason", message="msg");
+    string? message;
+    any|error other;
+    map<anydata|error> rest;
+    SampleError(message=message, other=other, ...rest) = e;
+    return [message, other];
+}

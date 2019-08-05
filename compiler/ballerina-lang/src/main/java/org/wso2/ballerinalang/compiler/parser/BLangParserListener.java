@@ -1003,8 +1003,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean restPatternAvailable = ctx.errorRefRestPattern() != null;
 
+        boolean indirectErrorRefPattern = ctx.typeName() != null;
+
         this.pkgBuilder.addErrorVariableReference(getCurrentPos(ctx), getWS(ctx),
-                numNamedArgs, reasonRefAvailable, restPatternAvailable);
+                numNamedArgs, reasonRefAvailable, restPatternAvailable, indirectErrorRefPattern);
     }
 
     @Override
