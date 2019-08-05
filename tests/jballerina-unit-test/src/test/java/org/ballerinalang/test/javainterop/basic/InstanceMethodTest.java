@@ -104,7 +104,7 @@ public class InstanceMethodTest {
 
         BValue[] returns = BRunUtil.invoke(result, "handleOrErrorWithObjectReturn", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BByte)returns[0]).intValue(), 70);
+        Assert.assertEquals(((BByte) returns[0]).intValue(), 70);
 
         returns = BRunUtil.invoke(result, "handleOrErrorWithObjectReturnThrows", args);
         Assert.assertEquals(returns.length, 1);
