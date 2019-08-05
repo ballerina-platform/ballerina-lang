@@ -75,6 +75,7 @@ dependencies {
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'com.h2database:h2'
+    testCompile 'org.hsqldb:hsqldb'
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     
     implementation 'com.zaxxer:HikariCP'

@@ -29,17 +29,18 @@ under the License.
             </run>
         </groups>
         <packages>
-            <package name="org.ballerinax.jdbc.transaction.*"/>
+<!--            <package name="org.ballerinax.jdbc.transaction.*"/>-->
+            <package name="org.ballerinax.jdbc.newtests.actions.*"/>
         </packages>
-        <classes>
-            <class name="org.ballerinax.jdbc.H2ClientActionsTest"/>
-            <class name="org.ballerinax.jdbc.SQLActionsTest"/>
-            <class name="org.ballerinax.jdbc.SQLConnectionPoolTest"/>
-            <class name="org.ballerinax.jdbc.SQLConnectorInitTest"/>
+<!--        <classes>-->
+<!--            <class name="org.ballerinax.jdbc.H2ClientActionsTest"/>-->
+<!--            <class name="org.ballerinax.jdbc.SQLActionsTest"/>-->
+<!--            <class name="org.ballerinax.jdbc.SQLConnectionPoolTest"/>-->
+<!--            <class name="org.ballerinax.jdbc.SQLConnectorInitTest"/>-->
 
-            <class name="org.ballerinax.jdbc.table.TableTest"/>
-            <!-- #16805 -->
-            <!--class name="org.ballerinax.jdbc.table.TableIterationTest"/-->
-        </classes>
+<!--            <class name="org.ballerinax.jdbc.table.TableTest"/>-->
+<!--            &lt;!&ndash; #16805 &ndash;&gt;-->
+<!--            &lt;!&ndash;class name="org.ballerinax.jdbc.table.TableIterationTest"/&ndash;&gt;-->
+<!--        </classes>-->
     </test>
 </suite>
