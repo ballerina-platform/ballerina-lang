@@ -242,7 +242,12 @@ You can convert an abstract Object definition to a non object definition, with t
 
 <a name="Tips" />
 
-#### Tips
+## Tips
+- For better performance during hover operation increase the hover delay in your editor settings. 1000ms is recommended.
+- In your ballerina module, if there are syntax errors in other files rather than the one you are editing, there may be inconsistencies while providing auto completions and suggestions.
+- Language server operations' behavior may unpredictable if there are multiple errors in the source. For an instance, for the auto-completions there can only be one syntax error which should be at cursor position, in order to provide better experience
+
+**Note:** These will be addressed in later releases for better user experience
 
 <a name="KnownIssues" />
 
