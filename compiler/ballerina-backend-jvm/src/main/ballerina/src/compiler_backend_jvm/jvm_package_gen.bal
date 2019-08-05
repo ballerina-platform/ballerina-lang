@@ -79,6 +79,7 @@ function isBIRFunctionExtern(string key) returns boolean {
         BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap[key]);
         return isExternFunc(functionWrapper.func);
     } else {
+        io:println("+++++++++++++++++++++++++++++");
         error err = error("cannot find function definition for : " + key);
         panic err;
     }
@@ -175,6 +176,8 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
             generateDefaultConstructor(cw, OBJECT);
         }
         cw.visitSource(v.sourceFileName);
+        bir:Function?[] funcs = v.functions;
+        funcs[funcs.length()] = generateImportModInitializer(module);
         // generate methods
         foreach var func in v.functions {
             generateMethod(getFunction(func), cw, module);

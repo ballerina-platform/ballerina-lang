@@ -744,6 +744,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             if (isModuleInitFunction(module, func) && terminator is bir:Return) {
                 generateAnnotLoad(mv, module.typeDefs, getPackageName(module.org.value, module.name.value));
             }
+            io:println("lookup func name - " + funcName);
             termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType, isObserved);
             if (isTerminatorTrapped) {
                 // close the started try block with a catch statement for terminator.
@@ -1648,10 +1649,72 @@ function calculateModuleStartFuncName(bir:ModuleID id) returns string {
  }
 
 function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
+    // foreach var mod in pkg.importModules {
+        // var id = importModuleToModuleId(mod);
+        // string initFuncName = cleanupFunctionName(calculateModuleInitFuncName(id));
+        // string startFuncName = cleanupFunctionName(calculateModuleStartFuncName(id));
+
+        // skip the init function invocation is its already generated
+        // by some other package
+        // if (isInitInvoked(initFuncName)) {
+        //     continue;
+        // }
+
+        string moduleClassName = getModuleLevelClassName(pkg.org.value, pkg.name.value, MODULE_INIT_CLASS_NAME);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKESTATIC, moduleClassName, IMPORT_MODULE_INIT_METHOD_NAME,
+                "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
+
+        // mv.visitVarInsn(ALOAD, 0);
+        // mv.visitMethodInsn(INVOKESTATIC, moduleClassName, startFuncName,
+        //         "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
+
+        // generatedInitFuncs[generatedInitFuncs.length()] = initFuncName;
+    // }
+}
+
+// public type Call record {|
+//     DiagnosticPos pos;
+//     VarRef?[] args;
+//     TerminatorKind kind;
+//     VarRef? lhsOp;
+//     ModuleID pkgID;
+//     Name name;
+//     boolean isVirtual;
+//     BasicBlock thenBB;
+// |};
+// public type BasicBlock record {|
+//     Name id = {};
+//     Instruction?[] instructions = [];
+//     Terminator terminator = {pos:{}, kind:"RETURN"};
+// |};
+
+function generateImportModInitializer(bir:Package pkg) returns bir:Function {
+    bir:BasicBlock?[] basicBlocks = [];
+    int bbId = 0;
+    bir:BasicBlock nextBB = {id: getNextBBId(bbId), instructions: []};
+    basicBlocks[basicBlocks.length()] = nextBB;
     foreach var mod in pkg.importModules {
         var id = importModuleToModuleId(mod);
-        string initFuncName = cleanupFunctionName(calculateModuleInitFuncName(id));
-        string startFuncName = cleanupFunctionName(calculateModuleStartFuncName(id));
+        // string initFuncName = createFuncName(id, ".<init>"); //calculateModuleInitFuncName(id);
+        // string startFuncName = createFuncName(id, ".<start>"); //calculateModuleStartFuncName(id);
+        string initFuncName = calculateModuleInitFuncName(id);
+        io:println("init func name - " + initFuncName);
+        string startFuncName = calculateModuleStartFuncName(id);
+
+        bir:BasicBlock initNextBB = {id: getNextBBId(bbId), instructions: []};
+        basicBlocks[basicBlocks.length()] = initNextBB;
+        bir:Call initCallTerm = {pos:{}, args:[], kind:bir:TERMINATOR_CALL, lhsOp:(), pkgID:id,
+                            name:{value:initFuncName}, isVirtual:false, thenBB:initNextBB};
+        nextBB.terminator = initCallTerm;
+
+        bir:BasicBlock startNextBB = {id: getNextBBId(bbId), instructions: []};
+        basicBlocks[basicBlocks.length()] = startNextBB;
+        bir:Call startCallTerm = {pos:{}, args:[], kind:bir:TERMINATOR_CALL, lhsOp:(), pkgID:id,
+                            name:{value:startFuncName}, isVirtual:false, thenBB:startNextBB};
+        initNextBB.terminator = startCallTerm;
+
+        nextBB = startNextBB;
 
         // skip the init function invocation is its already generated
         // by some other package
@@ -1659,19 +1722,61 @@ function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
             continue;
         }
 
-        string moduleClassName = getModuleLevelClassName(id.org, id.name, MODULE_INIT_CLASS_NAME);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
-                "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
-
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESTATIC, moduleClassName, startFuncName,
-                "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
-
         generatedInitFuncs[generatedInitFuncs.length()] = initFuncName;
     }
+    bir:Return ret = {pos:{}, kind:bir:TERMINATOR_RETURN};
+    nextBB.terminator = ret;
+    bir:Function func = {pos:{}, basicBlocks:basicBlocks, localVars:[{name:{value:"%0"}}], 
+                            name:{value:IMPORT_MODULE_INIT_METHOD_NAME}, typeValue:{retType:"()"},
+                            workerChannels:[], receiver:(), restParamExist:false};
+    return func;
 }
 
+
+function createFuncName(bir:ModuleID id, string name) returns string {
+    string org = id.org;
+    string moduleName = id.name;
+    string versionValue = id.modVersion;
+
+    if ("." == moduleName) {
+        return moduleName + name;
+    }
+
+    string orgName = "";
+    if (!internal:equalsIgnoreCase(org, "$anon")) {
+        orgName = orgName + "/";
+    }
+
+    if (versionValue == "") {
+        return orgName + moduleName + name;
+    }
+
+    return orgName + moduleName + ":" + versionValue + name;
+}
+// public type BInvokableType record {
+//     BType?[] paramTypes = [];
+//     BType retType?;
+// }%0
+// public type Function record {|
+//     DiagnosticPos pos;
+//     int argsCount = 0;
+//     BasicBlock?[] basicBlocks = [];
+//     FunctionParam?[] params = [];
+//     BasicBlock?[][] paramDefaultBBs = [];
+//     ErrorEntry?[] errorEntries = [];
+//     VariableDcl?[] localVars = [];
+//     Name name = {};
+//     BInvokableType typeValue = {};
+//     int flags = PRIVATE;
+//     ChannelDetail[] workerChannels;
+//     VariableDcl? receiver;
+//     boolean restParamExist;
+//     AnnotationAttachment?[] annotAttachments = [];
+// |};
+function getNextBBId(int nextId) returns bir:Name {
+    string bbIdPrefix = "genBB";
+    return {value:bbIdPrefix + nextId.toString()};
+} 
 
 function generateParamCast(int paramIndex, bir:BType targetType, jvm:MethodVisitor mv) {
     // load BValue array

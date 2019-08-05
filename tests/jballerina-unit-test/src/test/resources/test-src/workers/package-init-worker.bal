@@ -4,6 +4,7 @@ int i = getInt();
 
 function getInt() returns int {
     worker w1 returns int {
+        runtime:sleep(1000);
         return 1;
     }
     worker w2 {

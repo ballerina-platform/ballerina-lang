@@ -216,6 +216,7 @@ function getExternalFunctionWrapper(bir:Package birModule, bir:Function birFunc,
     if (birFuncWrapper is ExternalFunctionWrapper) {
         return birFuncWrapper;
     } else {
+        io:println("-------------------------");
         panic error("cannot find function definition for : " + lookupKey);
     }
 }
