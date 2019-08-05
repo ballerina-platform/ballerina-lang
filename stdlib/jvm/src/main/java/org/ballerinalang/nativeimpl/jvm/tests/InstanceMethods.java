@@ -87,4 +87,39 @@ public class InstanceMethods {
         if (true) throw new InterruptedException();
         return 70;
     }
+
+    public Object handleOrErrorWithObjectReturn() throws InterruptedException {
+        if (false) throw new InterruptedException();
+        return 70;
+    }
+
+    public Object handleOrErrorWithObjectReturnThrows() throws InterruptedException {
+        if (true) throw new InterruptedException();
+        return 70;
+    }
+
+    public float primitiveOrErrorReturn() throws InterruptedException {
+        if (false) throw new InterruptedException();
+        return 55;
+    }
+
+    public float primitiveOrErrorReturnThrows() throws InterruptedException {
+        if (true) throw new InterruptedException();
+        return 55;
+    }
+
+    public byte unionWithErrorReturnByte() throws InterruptedException {
+        if (false) throw new InterruptedException();
+        return '5';
+    }
+
+    public byte unionWithErrorReturnThrows() throws InterruptedException {
+        if (true) throw new InterruptedException();
+        return '5';
+    }
+
+    public String unionWithErrorReturnHandle() throws InterruptedException {
+        if (false) throw new InterruptedException();
+        return "handle ret";
+    }
 }
