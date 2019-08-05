@@ -16,6 +16,7 @@
 
 import ballerina/crypto;
 import ballerina/log;
+import ballerina/runtime;
 import ballerina/system;
 import ballerina/'lang\.object as lang;
 
@@ -69,6 +70,7 @@ public type Listener object {
                 }
             }
         }
+        initAttributeFilter(self.config);
         var err = self.initEndpoint();
         if (err is error) {
             panic err;
@@ -304,6 +306,22 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
         }
     }
     // No need to validate else part since the function is called if and only if the `auth is ListenerAuth`
+}
+
+type AttributeFilter object {
+
+    *RequestFilter;
+
+    public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
+        runtime:getInvocationContext().attributes["ServiceName"] = context.getServiceName();
+        runtime:getInvocationContext().attributes["ResourceName"] = context.getResourceName();
+        return true;
+    }
+};
+
+function initAttributeFilter(ServiceEndpointConfiguration config) {
+    AnnotationFilter annotationFilter = new;
+    config.filters.unshift(annotationFilter);
 }
 
 //////////////////////////////////
