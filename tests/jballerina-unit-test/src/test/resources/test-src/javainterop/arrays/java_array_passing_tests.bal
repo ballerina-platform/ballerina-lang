@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerinax/java;
 
 public function testPassingJavaIntArray(handle arrayValue) returns handle {
     sortJavaIntArray(arrayValue);

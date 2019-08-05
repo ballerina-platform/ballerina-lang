@@ -1,3 +1,13 @@
 [project]
 org-name = "ballerina"
 version = "0.0.0"
+
+[platform]
+target = "java"
+
+    [[platform.libraries]]
+    artafactId = "slf4j-api"
+    version = "1.7.26"
+    path = "./lib/slf4j-api-1.7.26.jar"
+    groupId = "org.slf4j"
+    modules = ["runtime-api"]

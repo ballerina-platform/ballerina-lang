@@ -248,7 +248,7 @@
 
     <test name="ballerina-data-streaming-tests" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.data.streaming.TableDataStreamingTestCase"/>
+<!--            <class name="org.ballerinalang.test.data.streaming.TableDataStreamingTestCase"/>-->
         </classes>
     </test>
     <test name="ballerina-socket-tests" parallel="false">
@@ -260,12 +260,10 @@
     </test>
 
     <test name="ballerina-observability-tests" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true" />
+        <parameter name="enableJBallerinaTests" value="true"/>
         <classes>
-            <class
-                    name="org.ballerinalang.test.observability.tracing.TracingTestCase" />
-            <!--<class-->
-            <!--name="org.ballerinalang.test.observability.metrics.MetricsTestCase" />-->
+            <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
+            <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
         </classes>
     </test>
 </suite>

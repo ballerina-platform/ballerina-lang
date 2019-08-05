@@ -76,6 +76,7 @@ type ResultBalTypes record {
     decimal NUMERIC_TYPE;
     decimal DECIMAL_TYPE;
     float REAL_TYPE;
+    int TINYINT_TYPE;
 };
 
 type Employee record {
@@ -495,7 +496,8 @@ function testBlobInParameter() returns @tainted [int, byte[]] {
     return [insertCount, blobVal];
 }
 
-function testINParametersWithDirectValues() returns @tainted [int, int, float, float, boolean, string, decimal, decimal, float] {
+function testINParametersWithDirectValues() returns @tainted [int, int, float, float, boolean, string, decimal, decimal,
+    float, int] {
     jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
@@ -505,14 +507,15 @@ function testINParametersWithDirectValues() returns @tainted [int, int, float, f
 
     var result = testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type, float_type,
         double_type, boolean_type, string_type, numeric_type, decimal_type, real_type,
-        bit_type) VALUES (?,?,?,?,?,?,?,?,?,?,?)", 25, 1, 9223372036854774807, 123.34, 2139095039.1, true, "Hello",
-        1234.567, 1234.567, 1234.567, [1, 2]);
+        bit_type, tinyint_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", 25, 1, 9223372036854774807, 123.34, 2139095039.1, true, "Hello",
+        1234.567, 1234.567, 1234.567, [1, 2], 127);
     int insertCount = 0;
     if (result is jdbc:UpdateResult) {
         insertCount = result.updatedRowCount;
     }
+    io:println(result);
     var dt = testDB->select("SELECT int_type, long_type,
-            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type from
+            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type from
             DataTypeTable where row_id = 25", ResultBalTypes);
     int i = -1;
     int l = -1;
@@ -523,6 +526,7 @@ function testINParametersWithDirectValues() returns @tainted [int, int, float, f
     decimal n = -1;
     decimal dec = -1;
     float real = -1;
+    int tinyInt = -1;
     if (dt is table<ResultBalTypes>) {
         while (dt.hasNext()) {
             var rs = dt.getNext();
@@ -535,15 +539,16 @@ function testINParametersWithDirectValues() returns @tainted [int, int, float, f
                 n = rs.NUMERIC_TYPE;
                 dec = rs.DECIMAL_TYPE;
                 real = rs.REAL_TYPE;
+                tinyInt = rs.TINYINT_TYPE;
             }
         }
     }
     checkpanic testDB.stop();
-    return [i, l, f, d, b, s, n, dec, real];
+    return [i, l, f, d, b, s, n, dec, real, tinyInt];
 }
 
 function testINParametersWithDirectVariables() returns @tainted [int, int, float,
-        float, boolean, string, decimal, decimal, float] {
+        float, boolean, string, decimal, decimal, float, int] {
     jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
@@ -562,17 +567,18 @@ function testINParametersWithDirectVariables() returns @tainted [int, int, float
     decimal decimalType = 1234.567;
     float realType = 1234.567;
     byte[] byteArray = [1, 2];
+    int tinyint_type  = -128;
 
     var result = testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type,
-            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, bit_type)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?)", rowid, intType, longType, floatType, doubleType, boolType,
-            stringType, numericType, decimalType, realType, byteArray);
+            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, bit_type,
+            tinyint_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", rowid, intType, longType, floatType, doubleType, boolType,
+            stringType, numericType, decimalType, realType, byteArray,tinyint_type);
     int insertCount = 0;
     if (result is jdbc:UpdateResult) {
         insertCount = result.updatedRowCount;
     }
     var dt = testDB->select("SELECT int_type, long_type,
-            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type from
+            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type from
             DataTypeTable where row_id = 26", ResultBalTypes);
     int i = -1;
     int l = -1;
@@ -583,6 +589,7 @@ function testINParametersWithDirectVariables() returns @tainted [int, int, float
     decimal n = -1;
     decimal dec = -1;
     float real = -1;
+    int tinyint = -1;
 
     if (dt is table<ResultBalTypes>) {
         while (dt.hasNext()) {
@@ -596,11 +603,12 @@ function testINParametersWithDirectVariables() returns @tainted [int, int, float
                 n = rs.NUMERIC_TYPE;
                 dec = rs.DECIMAL_TYPE;
                 real = rs.REAL_TYPE;
+                tinyint = rs.TINYINT_TYPE;
             }
         }
     }
     checkpanic testDB.stop();
-    return [i, l, f, d, b, s, n, dec, real];
+    return [i, l, f, d, b, s, n, dec, real, tinyint];
 }
 
 function testNullINParameterValues() returns int {

@@ -414,10 +414,6 @@
                 "url": "fork-variable-access"
             },
             {
-                "name": "Async",
-                "url": "async"
-            },
-            {
                 "name": "Lock",
                 "url": "locks"
             }

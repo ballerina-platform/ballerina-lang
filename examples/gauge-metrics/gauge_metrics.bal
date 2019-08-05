@@ -108,7 +108,7 @@ function printGauge(observe:Gauge gauge) {
     observe:Snapshot[]? snapshots = gauge.getSnapshot();
     json|error snapshotAsAJson = json.constructFrom(snapshots);
     if snapshotAsAJson is json {
-        io:println(snapshotAsAJson);
+        io:println(snapshotAsAJson.toJsonString());
     }
     //Get the current value of the gauge.
     io:println("Gauge - ", gauge.name, " Current Value: "

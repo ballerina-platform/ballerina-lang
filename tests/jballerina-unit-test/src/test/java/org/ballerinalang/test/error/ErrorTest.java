@@ -125,8 +125,8 @@ public class ErrorTest {
 
         Assert.assertEquals(message,
                 "error: largeNumber message=large number\n\t" +
-                        "at errorPanicCallee(error_test.bal:37)\n\t" +
-                        "   errorPanicTest(error_test.bal:31)");
+                        "at error_test:errorPanicCallee(error_test.bal:37)\n\t" +
+                        "   error_test:errorPanicTest(error_test.bal:31)");
     }
 
     @Test
@@ -166,8 +166,9 @@ public class ErrorTest {
     @Test
     public void testGetCallStack() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "getCallStackTest");
-        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStackTest\", moduleName:\"error_test\","
-                + " fileName:\"error_test.bal\", lineNumber:93}");
+        Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStack\", " +
+                                                      "moduleName:\"ballerina.runtime.errors\"," +
+                                                      " fileName:\"errors.bal\", lineNumber:33}");
     }
 
     @Test
@@ -236,7 +237,7 @@ public class ErrorTest {
 
     @Test
     public void testErrorNegative() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 13);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 15);
         BAssertUtil.validateError(negativeCompileResult, 0,
                                   "incompatible types: expected 'reason one|reason two', found 'string'", 26, 31);
         BAssertUtil.validateError(negativeCompileResult, 1,
@@ -260,6 +261,10 @@ public class ErrorTest {
                 "cannot infer reason from error constructor: 'MyError'", 57, 19);
         BAssertUtil.validateError(negativeCompileResult, 12,
                 "cannot infer type of the error from '(UserDefErrorOne|UserDefErrorTwo)'", 75, 12);
+        BAssertUtil.validateError(negativeCompileResult, 13,
+                "cannot infer reason from error constructor: 'RNError'", 96, 18);
+        BAssertUtil.validateError(negativeCompileResult, 14,
+                "cannot infer reason from error constructor: 'RNStrError'", 97, 21);
     }
     @DataProvider(name = "userDefTypeAsReasonTests")
     public Object[][] userDefTypeAsReasonTests() {

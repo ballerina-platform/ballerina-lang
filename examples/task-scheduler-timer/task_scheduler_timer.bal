@@ -15,7 +15,7 @@ public function main() {
 
     // Initializes the timer scheduler using the interval value.
     // The delay will be equal to the interval as an initial delay is not provided.
-    task:Scheduler timer = new({ interval: intervalInMillis });
+    task:Scheduler timer = new({ intervalInMillis: intervalInMillis });
 
     // Define a person object
     Person person = { name: "Sam", age: 0, maxAge: 10 };

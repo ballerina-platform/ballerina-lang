@@ -78,7 +78,7 @@ public class JavaArrayBasicTest {
         Assert.assertEquals(((BHandleValue) returns[0]).getValue(), parts);
     }
 
-    @Test(description = "Test java:getArrayElement function in ballerina/java module")
+    @Test(description = "Test java:getArrayElement function in ballerinax/java module")
     public void testGetArrayElementMethod() {
         BValue[] returns = BRunUtil.invoke(result, "testGetArrayElementMethod");
         Assert.assertEquals(returns.length, 3);
@@ -87,7 +87,7 @@ public class JavaArrayBasicTest {
         Assert.assertEquals(((BHandleValue) returns[2]).getValue(), "Specification");
     }
 
-    @Test(description = "Test java:testSetArrayElementMethod function in ballerina/java module")
+    @Test(description = "Test java:testSetArrayElementMethod function in ballerinax/java module")
     public void testSetArrayElementMethod() {
         BValue[] args = new BValue[3];
         args[0] = new BHandleValue("Peter");
@@ -100,7 +100,7 @@ public class JavaArrayBasicTest {
         Assert.assertEquals(((BHandleValue) returns[0]).getValue(), parts);
     }
 
-    @Test(description = "Test java:testGetArrayLengthMethod function in ballerina/java module")
+    @Test(description = "Test java:testGetArrayLengthMethod function in ballerinax/java module")
     public void testGetArrayLengthMethod() {
         BValue[] returns = BRunUtil.invoke(result, "testGetArrayLengthMethod");
         Assert.assertEquals(returns.length, 1);

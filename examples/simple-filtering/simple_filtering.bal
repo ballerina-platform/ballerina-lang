@@ -79,8 +79,8 @@ public function main() {
 }
 
 function printChildren(Child child) {
-    io:println("Child detected. Child name : " +
-            child.name + ", age : " + child.age + " and from : " + child.city);
+    io:println("Child detected. Child name : ",
+            child.name,  ", age : ", child.age, " and from : ", child.city);
     addToGlobalChildrenArray(child);
 }
 

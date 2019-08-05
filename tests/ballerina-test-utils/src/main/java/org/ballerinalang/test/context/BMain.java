@@ -92,6 +92,21 @@ public interface BMain {
      */
     void runMain(String balFile, String[] flags, String[] args, Map<String, String> envProperties,
                  String[] clientArgs, LogLeecher[] leechers) throws BallerinaTestException;
+    
+    /**
+     * Run ballerina main function provided .bal file.
+     *
+     * @param balFile       bal file path
+     * @param flags         flags to pass
+     * @param args          arguments to pass
+     * @param envProperties environment properties
+     * @param clientArgs    arguments which program expects
+     * @param leechers      log leechers to check the log if any
+     * @param sourceRoot    source root of the bal file
+     * @throws BallerinaTestException if any exception is thrown when running the main function
+     */
+    void runMain(String balFile, String[] flags, String[] args, Map<String, String> envProperties,
+                 String[] clientArgs, LogLeecher[] leechers, String sourceRoot) throws BallerinaTestException;
     // ********************* End bal file run methods. *******************
 
     // ********************* Begin bal package run methods. *******************
