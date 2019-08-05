@@ -209,7 +209,7 @@ public class RunCommand implements BLauncherCmd {
                 !RepoUtils.isBallerinaProject(sourceRootPath)) {
     
                 try {
-                    Path tempTarget = Files.createTempDirectory(sourcePath.toString());
+                    Path tempTarget = Files.createTempDirectory("ballerina-build-" + System.nanoTime());
                     BuildContext buildContext = new BuildContext(sourceRootPath, tempTarget, sourceFullPath);
                     buildContext.put(BuildContextField.COMPILER_CONTEXT, context);
         
@@ -262,10 +262,6 @@ public class RunCommand implements BLauncherCmd {
                                                             + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension");
             }
         }
-        
-        // Normalize the source path to remove './' or '.\' characters that can appear before the name
-        LauncherUtils.runProgram(sourceRootPath, sourcePath.normalize(), runtimeParams, configFilePath, programArgs,
-                offline, observeFlag, siddhiRuntimeFlag, experimentalFlag);
     }
 
     @Override

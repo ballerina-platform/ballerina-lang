@@ -50,7 +50,8 @@ service echo on ep {
         methods: ["GET"],
         path: "/sayHello",
         auth: {
-            scopes: ["hello"]
+            scopes: ["hello"],
+            enabled: true
         }
     }
     // The authentication and authorization settings can be overridden at
