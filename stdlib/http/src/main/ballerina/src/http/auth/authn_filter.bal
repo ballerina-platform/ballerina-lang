@@ -75,9 +75,6 @@ function handleAuthRequest(InboundAuthHandler[]|InboundAuthHandler[][] authHandl
 
 function checkForAuthHandlers(InboundAuthHandler[] authHandlers, Request request) returns boolean|AuthenticationError {
     AuthenticationError? err = ();
-    if (authHandlers.length() == 0) {
-        return prepareAuthenticationError("Authentication handler array is defined as an empty array.");
-    }
     foreach InboundAuthHandler authHandler in authHandlers {
         boolean canProcessResponse = authHandler.canProcess(request);
         if (canProcessResponse) {
