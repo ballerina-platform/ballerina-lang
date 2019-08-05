@@ -37,7 +37,7 @@ Currently the Ballerina Language Server has been integrated to Ballerina [VSCode
 ## Code Diagnostics
 Language Server Diagnostics provides syntax & semantic errors/diagnostics in a ballerina source.
 
-![](../docs/images/semanticsAndSyntactics.gif)  
+![](../docs/images/diagnostics.gif)  
 
 <a name="SuggestionsAndAutoCompletion" />
 
@@ -73,14 +73,12 @@ As well as the top level constructs, you can get the templates for following sta
 - For Each Statement
 - Transaction
 
-![](../docs/images/templates2.gif)
-
 <a name="ContextawareSuggestionsAndCompletions" />
 
 #### Context aware Suggestions and Completions
-Language server provides context aware suggestions and completions for a wide range of language attributes and features. As an example, if you have defined a listener, remote functions defined against the listener will be suggested as shown below.
+Language server provides context aware suggestions and completions for a wide range of language attributes and features. As an example, if you have defined a client, remote functions defined against the client will be suggested as shown below.
 
-![](../docs/images/endpointActions.gif)
+![](../docs/images/contextAwareSuggestions.gif)
 
 Other than that, you can get the suggestions for following language attributes as well.
 - Visible Functions
@@ -96,7 +94,7 @@ Following are some special cases of code completions and suggestions.
 #### Imports Suggestions
 For importing packages you can choose from the suggested list of package names. Currently, Package suggestion for the import statements are supported for the packages defined under the ballerina organization name.
 
-![](../docs/images/addImport.gif)
+![](../docs/images/importSuggestions.gif)
 
 <a name="AnnotationsSuggestion" />
 
