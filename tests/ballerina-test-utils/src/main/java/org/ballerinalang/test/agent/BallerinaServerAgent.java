@@ -113,7 +113,7 @@ public class BallerinaServerAgent {
                     cc.addField(CtField.make("boolean agentStarted;", cc));
 
                     CtMethod m = cc.getDeclaredMethod("run");
-                    m.insertAt(SCHEDULER_LINE_NUM,"if (!agentStarted && immortal) {" +
+                    m.insertAt(SCHEDULER_LINE_NUM, "if (!agentStarted && immortal) {" +
                             "org.ballerinalang.test.agent.BallerinaServerAgent.startAgentServer();" +
                             "agentStarted = true;" +
                             " }");
