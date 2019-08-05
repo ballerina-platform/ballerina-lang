@@ -44,7 +44,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
@@ -60,29 +59,19 @@ public class KafkaConsumerAndProducerWithSSLTest {
     private CompileResult result;
     private static File dataDir;
     private static KafkaCluster kafkaCluster;
-    private Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
+    private static Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
     private String configFile = "test-src/ssl/kafka_ssl.bal";
     private String message = "Hello World SSL Test";
-    private Properties prop;
 
     //Constants
     private String filePath = "<FILE_PATH>";
-    private String keystoresAndTruststores = "data-files/keystores-truststores";
+    private static String keystoresAndTruststores = "data-files/keystores-truststores";
 
     @BeforeClass
     public void setup() throws IOException {
-        prop = new Properties();
-        prop.put("listeners", "SSL://localhost:9094");
-        prop.put("security.inter.broker.protocol", "SSL");
-        prop.put("ssl.client.auth", "required");
-        prop.put("ssl.keystore.location", resourceDir + "/" + keystoresAndTruststores + "/kafka.server.keystore.jks");
-        prop.put("ssl.keystore.password", "test1234");
-        prop.put("ssl.key.password", "test1234");
-        prop.put("ssl.truststore.location", resourceDir + "/" + keystoresAndTruststores
-                + "/kafka.server.truststore.jks");
-        prop.put("ssl.truststore.password", "test1234");
-        kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true)
-                .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(1).startup();
+        Properties prop = getKafkaBrokerProperties();
+        kafkaCluster = kafkaCluster(prop).deleteDataPriorToStartup(true)
+                .deleteDataUponShutdown(true).addBrokers(1).startup();
         kafkaCluster.createTopic("test-topic-ssl", 2, 1);
         //Setting the keystore and trust-store file paths
         setFilePath(resourceDir.toString() + "/" + configFile, filePath, resourceDir.toString()
@@ -90,7 +79,7 @@ public class KafkaConsumerAndProducerWithSSLTest {
         result = BCompileUtil.compile(configFile);
     }
 
-    @Test(description = "Test SSL produce")
+    @Test(description = "Test SSL producer and consumer")
     public void testKafkaProducerWithSSL() {
         BValue[] args = new BValue[1];
         args[0] = new BString(message);
@@ -100,23 +89,8 @@ public class KafkaConsumerAndProducerWithSSLTest {
             Assert.assertTrue(returnBValues[0] instanceof BBoolean);
             return ((BBoolean) returnBValues[0]).booleanValue();
         });
-    }
 
-    @Test(
-            description = "Test consumer polling with SSL",
-            dependsOnMethods = "testKafkaProducerWithSSL",
-            enabled = false
-    )
-    @SuppressWarnings("unchecked")
-    public void testKafkaConsumerWithSSL() {
-        CountDownLatch completion = new CountDownLatch(1);
-        kafkaCluster.useTo().produceStrings("test-topic-ssl", 1, completion::countDown, () -> message);
-        try {
-            completion.await();
-        } catch (Exception ex) {
-            //Ignore
-        }
-        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
+        await().atMost(100000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaPollWithSSL");
             Assert.assertEquals(returnBValues.length, 1);
             Assert.assertTrue(returnBValues[0] instanceof BString);
@@ -150,12 +124,14 @@ public class KafkaConsumerAndProducerWithSSLTest {
         }
     }
 
-    private static KafkaCluster kafkaCluster() {
+    private static KafkaCluster kafkaCluster(Properties prop) {
         if (kafkaCluster != null) {
             throw new IllegalStateException();
         }
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-ssl-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(ZOOKEEPER_PORT_1, KAFKA_BROKER_PORT);
+        kafkaCluster = new KafkaCluster().usingDirectory(dataDir)
+                .withPorts(ZOOKEEPER_PORT_1, KAFKA_BROKER_PORT)
+                .withKafkaConfiguration(prop);
         return kafkaCluster;
     }
 
@@ -188,4 +164,18 @@ public class KafkaConsumerAndProducerWithSSLTest {
         }
     }
 
+    private static Properties getKafkaBrokerProperties() {
+        Properties prop = new Properties();
+        prop.put("listeners", "SSL://localhost:9094");
+        prop.put("security.inter.broker.protocol", "SSL");
+        prop.put("ssl.client.auth", "required");
+        prop.put("ssl.keystore.location", resourceDir + "/" + keystoresAndTruststores + "/kafka.server.keystore.jks");
+        prop.put("ssl.keystore.password", "test1234");
+        prop.put("ssl.key.password", "test1234");
+        prop.put("ssl.truststore.location", resourceDir + "/" + keystoresAndTruststores
+                + "/kafka.server.truststore.jks");
+        prop.put("ssl.truststore.password", "test1234");
+
+        return prop;
+    }
 }

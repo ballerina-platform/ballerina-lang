@@ -34,7 +34,7 @@ int count = 0;
 service kafkaTestService on kafkaConsumer {
     resource function onMessage(kafka:Consumer consumer, kafka:ConsumerRecord[] records) {
         foreach var kafkaRecord in records {
-            count = 10;
+            count += 1;
         }
     }
 }

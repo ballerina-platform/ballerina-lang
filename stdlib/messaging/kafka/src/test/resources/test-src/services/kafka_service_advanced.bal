@@ -48,7 +48,9 @@ service kafkaService on kafkaConsumer {
         string groupId
     ) {
         if (records.length() > 0 && groupId == "advanced-service-test-group") {
-            isSuccess = true;
+            foreach var offset in offsets {
+                isSuccess = true;
+            }
         }
     }
 }

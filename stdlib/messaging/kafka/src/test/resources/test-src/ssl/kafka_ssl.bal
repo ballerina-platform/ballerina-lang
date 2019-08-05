@@ -99,7 +99,9 @@ function funcKafkaPollWithSSL() returns string|error {
         if (results.length() == 1) {
             var kafkaRecord = results[0];
             byte[] serializedMsg = kafkaRecord.value;
-            return encoding:byteArrayToString(serializedMsg, "UTF-8");
+            return encoding:byteArrayToString(serializedMsg, "utf-8");
+        } else if (results.length() > 1) {
+            return "More than one message received";
         } else {
             return "";
         }

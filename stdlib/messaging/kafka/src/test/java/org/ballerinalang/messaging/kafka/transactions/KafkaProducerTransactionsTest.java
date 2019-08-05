@@ -54,7 +54,7 @@ public class KafkaProducerTransactionsTest {
                 .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(3).startup();
     }
 
-    @Test(description = "Test Kafka producer send function within transaction", enabled = false)
+    @Test(description = "Test Kafka producer send function within transaction")
     public void testKafkaSend() {
         result = BCompileUtil.compile(getFilePath("test-src/transactions/kafka_transactions_send.bal"));
         BValue[] inputBValues = {};
@@ -71,7 +71,7 @@ public class KafkaProducerTransactionsTest {
         }
     }
 
-    @Test(description = "Test kafka producer commitConsumerOffsets() function", enabled = false)
+    @Test(description = "Test kafka producer commitConsumerOffsets() function")
     public void testKafkaCommitConsumerOffsetsTest() {
         result = BCompileUtil.compile(
                 getFilePath("test-src/transactions/kafka_transactions_commit_consumer_offsets.bal"));
@@ -100,7 +100,7 @@ public class KafkaProducerTransactionsTest {
         }
     }
 
-    @Test(description = "Test producer commit consumer functionality", enabled = false)
+    @Test(description = "Test producer commit consumer functionality")
     public void testKafkaCommitConsumerTest() {
         result = BCompileUtil.compile(getFilePath("test-src/transactions/kafka_transactions_commit_consumer.bal"));
         BRunUtil.invoke(result, "funcTestKafkaProduce");
