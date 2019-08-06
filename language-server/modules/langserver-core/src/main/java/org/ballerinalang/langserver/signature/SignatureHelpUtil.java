@@ -159,6 +159,7 @@ public class SignatureHelpUtil {
                     break;
                 }
             }
+            paramIndex += StringUtils.countMatches(funcInvocation, ',');
             Collections.reverse(collected);
             List<String> flatTokensText = collected.stream().map(Token::getText).collect(Collectors.toList());
             funcInvocation = String.join("", flatTokensText) + ")";
