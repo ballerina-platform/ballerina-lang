@@ -86,7 +86,7 @@ public class SystemTest {
                 "Invalid return value");
     }
     
-    @Test
+    @Test (enabled = false)
     public void testExecInUnixLike1() {
         if (SystemUtils.IS_OS_UNIX) {
             BValue[] returns = BRunUtil.invoke(compileResult, "testExecInUnixLike1");
@@ -97,7 +97,7 @@ public class SystemTest {
         }
     }
     
-    @Test
+    @Test (enabled = false)
     public void testExecInUnixLike2() {
         if (SystemUtils.IS_OS_UNIX) {
             BValue[] returns = BRunUtil.invoke(compileResult, "testExecInUnixLike2");
@@ -106,7 +106,7 @@ public class SystemTest {
         }
     }
     
-    @Test
+    @Test (enabled = false)
     public void testExecInUnixLike3() {
         if (SystemUtils.IS_OS_UNIX) {
             BValue[] returns = BRunUtil.invoke(compileResult, "testExecInUnixLike3");
