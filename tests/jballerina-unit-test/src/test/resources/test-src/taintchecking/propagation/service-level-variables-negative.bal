@@ -6,6 +6,7 @@ any globalLevelVariable = "";
 service sample on helloWorldEP {
     any serviceLevelVariable = "";
     @tainted any taintedServiceVar = "";
+    string serviceVarStr = getTaintedStr();
 
     @http:ResourceConfig {
         methods:["GET"],
@@ -18,9 +19,16 @@ service sample on helloWorldEP {
         globalLevelVariable = foo;
         sen(self.taintedServiceVar);
     }
+
+    function foo() returns @tainted string {
+        return "";
+    }
 }
 
 function sen(@untainted any secureIn) {
 
 }
 
+function getTaintedStr() returns @tainted string {
+    return "";
+}

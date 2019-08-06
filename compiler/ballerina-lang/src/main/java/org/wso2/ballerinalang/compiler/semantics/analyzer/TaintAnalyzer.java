@@ -24,6 +24,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.BLangBuiltInMethod;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -297,7 +298,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         // Analyze top level variable nodes.
         analyzeNode(topLevelNodeGroups.get(true));
         // Analyze top level nodes other than variable nodes.
-        analyzeNode(topLevelNodeGroups.get(false));
+        List<TopLevelNode> nonVariableNodes = topLevelNodeGroups.get(false);
+
+        // Partition and run service analysis last to satisfy function analysis dependencies on service variables.
+        Map<Boolean, List<TopLevelNode>> servicePartition = nonVariableNodes.stream()
+                .collect(Collectors.partitioningBy(node -> node.getKind() == NodeKind.SERVICE));
+        analyzeNode(servicePartition.get(false));
+        analyzeNode(servicePartition.get(true));
 
         analyzerPhase = AnalyzerPhase.BLOCKED_NODE_ANALYSIS;
         resolveBlockedInvokable(blockedNodeList);
@@ -419,6 +426,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             setTaintedStatus(serviceNode.symbol, TaintedStatus.TAINTED);
             setTaintedStatus(serviceNode.serviceTypeDefinition.symbol, TaintedStatus.TAINTED);
         }
+        serviceNode.serviceTypeDefinition.accept(this);
     }
 
     @Override
@@ -514,7 +522,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isModuleVariable(BSymbol symbol) {
-        return symbol.owner.getKind() == SymbolKind.PACKAGE;
+        if (symbol.owner.getKind() == SymbolKind.PACKAGE) {
+            return true;
+        }
+        if (symbol.owner.kind == SymbolKind.OBJECT) {
+            return ((BObjectTypeSymbol) symbol.owner).type.getKind() == TypeKind.SERVICE;
+        }
+        return false;
     }
 
     @Override

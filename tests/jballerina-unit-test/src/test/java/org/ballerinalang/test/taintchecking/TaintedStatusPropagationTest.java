@@ -371,10 +371,11 @@ public class TaintedStatusPropagationTest {
     public void testServiceVariablesNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/service-level-variables-negative.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 3);
-        BAssertUtil.validateError(result, 0, "tainted value passed to global variable 'serviceLevelVariable'", 17, 9);
-        BAssertUtil.validateError(result, 1, "tainted value passed to global variable 'globalLevelVariable'", 18, 9);
-        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'secureIn'", 19, 13);
+        Assert.assertEquals(result.getDiagnostics().length, 4);
+        BAssertUtil.validateError(result, 0, "tainted value passed to global variable 'serviceVarStr'", 9, 5);
+        BAssertUtil.validateError(result, 1, "tainted value passed to global variable 'serviceLevelVariable'", 18, 9);
+        BAssertUtil.validateError(result, 2, "tainted value passed to global variable 'globalLevelVariable'", 19, 9);
+        BAssertUtil.validateError(result, 3, "tainted value passed to untainted parameter 'secureIn'", 20, 13);
     }
 
     @Test
