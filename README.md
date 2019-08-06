@@ -4,21 +4,15 @@
   [![GitHub last commit](https://img.shields.io/github/last-commit/ballerina-platform/ballerina-lang.svg)](https://github.com/ballerina-platform/ballerina-lang/commits/master)
   [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-In the cloud, applications interact with their environment over the network. Ballerina is a general-purpose programming language with features optimized for these network distributed applications. It is easy to write and modify and is suitable for application programmers.
+# The Ballerina Programming Language
 
-#### Services
-It has first-class language constructs for providing and consuming services.
+Ballerina is a programming language for network distributed applications. 
+
+#### Providing and consuming services
+It has inherently concurrent first-class language constructs for providing and consuming services.
 
 #### Sequence diagrams
-The structure of functions and programs allows them to be viewed as sequence diagrams showing the interactions between concurrently executing parts.
-
-#### Structural typing
-It allows for looser coupling between distributed components and eliminates the friction of data binding.
-
-#### Metadata
-Extensible metadata enables easy integration of Ballerina programs with cloud platforms. 
- 
-## Table of contents
+Sequence diagram based graphical view shows the most fundamental aspect of the semantics of a network distributed application.
 
 #### Structural typing
 It allows for looser coupling between distributed components and eliminates the friction of data binding.
