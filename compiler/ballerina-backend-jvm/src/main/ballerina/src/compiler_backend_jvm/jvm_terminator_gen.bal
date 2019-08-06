@@ -457,28 +457,38 @@ type TerminatorGenerator object {
     }
 
     function genAsyncCallTerm(bir:AsyncCall callIns, string funcName, int localVarOffset, bir:BType? attachedType) {
+        string orgName = callIns.pkgID.org;
+        string moduleName = callIns.pkgID.name;
         // Load the scheduler from strand
         self.mv.visitVarInsn(ALOAD, localVarOffset);
         self.mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", io:sprintf("L%s;", SCHEDULER));
 
+        // create an Object[] for the rest params
+        int argsCount = callIns.args.length();
         //create an object array of args
-        self.mv.visitIntInsn(BIPUSH, callIns.args.length() * 2 + 1);
+        self.mv.visitLdcInsn(argsCount * 2 + 1);
+        self.mv.visitInsn(L2I);
         self.mv.visitTypeInsn(ANEWARRAY, OBJECT);
-        
+
         int paramIndex = 1;
         foreach var arg in callIns.args {
-            bir:VarRef argRef = getVarRef(arg);
             self.mv.visitInsn(DUP);
-            self.mv.visitIntInsn(BIPUSH, paramIndex);
+            self.mv.visitLdcInsn(paramIndex);
+            self.mv.visitInsn(L2I);
 
-            var varDcl = getVariableDcl(argRef.variableDcl);
-            self.loadVar(varDcl);
-            bir:BType bType = argRef.typeValue;
-            addBoxInsn(self.mv, bType);
+            boolean userProvidedArg = self.visitArg(arg);
+            // Add the to the rest params array
+            addBoxInsn(self.mv, arg?.typeValue);
             self.mv.visitInsn(AASTORE);
             paramIndex += 1;
 
-            self.loadTrueValueAsArg(paramIndex);
+            self.mv.visitInsn(DUP);
+            self.mv.visitLdcInsn(paramIndex);
+            self.mv.visitInsn(L2I);
+
+            self.loadBooleanArgToIndicateUserProvidedArg(orgName, moduleName, userProvidedArg);
+            addBoxInsn(self.mv, "boolean");
+            self.mv.visitInsn(AASTORE);
             paramIndex += 1;
         }
 

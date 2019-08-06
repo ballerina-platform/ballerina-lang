@@ -425,17 +425,23 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
             typeDefMap[key] = typeDef;
         }
 
-        if (bType is bir:BObjectType && !bType.isAbstract) {
+        if ((bType is bir:BObjectType && !bType.isAbstract) || bType is bir:BServiceType) {
             bir:Function?[] attachedFuncs = getFunctions(typeDef.attachedFuncs);
+            string typeName = "";
+            if (bType is bir:BObjectType) {
+                typeName = bType.name.value;
+            } else {
+                typeName = bType.oType.name.value;
+            }
             foreach var func in attachedFuncs {
 
                 // link the bir function for lookup
                 bir:Function currentFunc = getFunction(func);
                 string functionName = currentFunc.name.value;
-                string lookupKey = bType.name.value + "." + functionName;
+                string lookupKey = typeName + "." + functionName;
 
                 if (!isExternFunc(currentFunc)) {
-                    var result = pkgName + cleanupTypeName(bType.name.value);
+                    var result = pkgName + cleanupTypeName(typeName);
                     birFunctionMap[pkgName + lookupKey] = getFunctionWrapper(currentFunc, orgName, moduleName,
                                                                         versionValue, result);
                     continue;
