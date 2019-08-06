@@ -67,35 +67,28 @@ function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterCo
     boolean|AuthorizationError authorized = true;
     runtime:Principal? principal = runtime:getInvocationContext()?.principal;
     if (scopes is string[]) {
-        if (scopes.length() > 0) {
-            var canProcessResponse = authzHandler.canProcess(request);
-            if (canProcessResponse is boolean && canProcessResponse) {
-                if(principal is runtime:Principal) {
-                    authorized = authzHandler.process(principal.username, context.getServiceName(),
-                                            context.getResourceName(), request.method, scopes);
-                } else {
-                    authorized = false;
-                }
+        var canProcessResponse = authzHandler.canProcess(request);
+        if (canProcessResponse is boolean && canProcessResponse) {
+            if(principal is runtime:Principal) {
+                authorized = authzHandler.process(principal.username, context.getServiceName(),
+                                        context.getResourceName(), request.method, scopes);
             } else {
-                authorized = canProcessResponse;
+                authorized = false;
             }
         } else {
-            // scopes are not defined, no need to authorize
-            authorized = true;
+            authorized = canProcessResponse;
         }
     } else {
-        if (scopes[0].length() > 0) {
-            var canProcessResponse = authzHandler.canProcess(request);
-            if (canProcessResponse is boolean && canProcessResponse) {
-                if(principal is runtime:Principal) {
-                    authorized = authzHandler.process(principal.username, context.getServiceName(),
-                                                context.getResourceName(), request.method, scopes);
-                } else {
-                    authorized = false;
-                }
+        var canProcessResponse = authzHandler.canProcess(request);
+        if (canProcessResponse is boolean && canProcessResponse) {
+            if(principal is runtime:Principal) {
+                authorized = authzHandler.process(principal.username, context.getServiceName(),
+                                            context.getResourceName(), request.method, scopes);
             } else {
-                authorized = canProcessResponse;
+                authorized = false;
             }
+        } else {
+            authorized = canProcessResponse;
         }
     }
     return authorized;
