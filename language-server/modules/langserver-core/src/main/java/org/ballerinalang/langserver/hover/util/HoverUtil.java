@@ -18,7 +18,9 @@ package org.ballerinalang.langserver.hover.util;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.model.Whitespace;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -27,9 +29,13 @@ import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -73,9 +79,10 @@ public class HoverUtil {
      *
      * @param docAttachment     Documentation attachment
      * @param symbol hovered symbol
+     * @param ctx   LS Context
      * @return {@link Hover}    hover object.
      */
-    public static Hover getHoverFromDocAttachment(MarkdownDocAttachment docAttachment, BSymbol symbol) {
+    public static Hover getHoverFromDocAttachment(MarkdownDocAttachment docAttachment, BSymbol symbol, LSContext ctx) {
         MarkupContent hoverMarkupContent = new MarkupContent();
         if (docAttachment == null) {
             Hover hover = new Hover();
@@ -96,17 +103,27 @@ public class HoverUtil {
 
         if (filterAttributes.get(ContextConstants.DOC_PARAM) != null) {
             content.append(getFormattedHoverDocContent(ContextConstants.PARAM_TITLE,
-                    getDocAttributes(filterAttributes.get(ContextConstants.DOC_PARAM))));
+                                                       getDocAttributes(
+                                                               filterAttributes.get(ContextConstants.DOC_PARAM), symbol,
+                                                               ctx)));
         }
 
         if (filterAttributes.get(ContextConstants.DOC_FIELD) != null) {
             content.append(getFormattedHoverDocContent(ContextConstants.FIELD_TITLE,
-                    getDocAttributes(filterAttributes.get(ContextConstants.DOC_FIELD))));
+                                                       getDocAttributes(
+                                                               filterAttributes.get(ContextConstants.DOC_FIELD), symbol,
+                                                               ctx)));
         }
 
         if (docAttachment.returnValueDescription != null && !docAttachment.returnValueDescription.isEmpty()) {
+            String returnValueDesc = docAttachment.returnValueDescription;
+            if (symbol instanceof BInvokableSymbol) {
+                // Get type information
+                BInvokableSymbol invokableSymbol = (BInvokableSymbol) symbol;
+                returnValueDesc = "`" + CommonUtil.getBTypeName(invokableSymbol.retType, ctx) + "`: " + returnValueDesc;
+            }
             content.append(getFormattedHoverDocContent(ContextConstants.RETURN_TITLE,
-                    getReturnValueDescription(docAttachment.returnValueDescription)));
+                                                       getReturnValueDescription(returnValueDesc)));
         }
 
         hoverMarkupContent.setValue(content.toString());
@@ -329,17 +346,39 @@ public class HoverUtil {
      * Get the doc annotation attributes.
      *
      * @param parameters        parameters to be extracted
+     * @param symbol            symbol
+     * @param ctx               LS Context
      * @return {@link String }  extracted content of annotation
      */
-    private static String getDocAttributes(List<MarkdownDocAttachment.Parameter> parameters) {
+    private static String getDocAttributes(List<MarkdownDocAttachment.Parameter> parameters, BSymbol symbol,
+                                           LSContext ctx) {
+        Map<String, BType> types = new HashMap<>();
+        if (symbol instanceof BInvokableSymbol) {
+            // If it is a parameters set of a function invocation
+            BInvokableSymbol invokableSymbol = (BInvokableSymbol) symbol;
+            for (BVarSymbol param : invokableSymbol.params) {
+                types.put(param.name.value, param.type);
+            }
+        } else if (symbol instanceof BStructureTypeSymbol) {
+            // If it is a field set of a object or a record
+            BStructureTypeSymbol objectTypeSymbol = (BStructureTypeSymbol) symbol;
+            objectTypeSymbol.scope.entries.values()
+                    .stream()
+                    .filter(s -> s.symbol instanceof BVarSymbol && s.symbol.getFlags().contains(Flag.PUBLIC))
+                    .forEach(s -> types.put(s.symbol.name.value, s.symbol.type));
+        }
         StringBuilder value = new StringBuilder();
         for (MarkdownDocAttachment.Parameter parameter : parameters) {
+            String type = "";
+            if (!types.isEmpty() && types.get(parameter.name) != null) {
+                type = "`" + CommonUtil.getBTypeName(types.get(parameter.name), ctx) + "` ";
+            }
             value.append("- ")
+                    .append(type)
                     .append(parameter.name.trim())
-                    .append(":")
+                    .append(": ")
                     .append(parameter.description.trim()).append("\r\n");
         }
-
         return value.toString();
     }
 
