@@ -49,6 +49,7 @@ function toString(io:ReadableByteChannel input) returns string {
         if (x is error) { break; }
         else { result = result + x; }
     }
+    var ign = charIn.close();
     return <@untainted> result;
 }
 
