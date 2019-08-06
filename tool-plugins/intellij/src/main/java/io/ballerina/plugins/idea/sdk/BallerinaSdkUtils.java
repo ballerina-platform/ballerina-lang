@@ -332,7 +332,10 @@ public class BallerinaSdkUtils {
             Stream<String> stream = Files.lines(Paths.get(filePath), StandardCharsets.UTF_8);
             StringBuilder contentBuilder = new StringBuilder();
             stream.forEach(s -> contentBuilder.append(s).append("\n"));
-            return contentBuilder.toString().trim();
+            String balHomePath = contentBuilder.toString().trim();
+            // Removes "/bin" from the path since we only need the ballerina home root.
+            balHomePath = !Strings.isNullOrEmpty(balHomePath) ? balHomePath.replace("/bin", "") : "";
+            return balHomePath;
         } catch (Exception ignored) {
             return "";
         }

@@ -22,10 +22,8 @@ import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -86,13 +84,10 @@ public class IgnoreReturnExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Invalid parameters received for the ignore return type command!");
         }
 
-        LSDocument document = new LSDocument(documentUri);
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
-        LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-
-        BLangInvocation functionNode = null;
+        BLangInvocation functionNode;
         try {
-            functionNode = getFunctionInvocationNode(sLine, sCol, document, documentManager, lsCompiler, context);
+            functionNode = getFunctionInvocationNode(sLine, sCol, documentUri, documentManager, context);
         } catch (LSCompilerException e) {
             throw new LSCommandExecutorException("Error while compiling the source!");
         }

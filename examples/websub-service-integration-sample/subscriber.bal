@@ -11,7 +11,7 @@ listener websub:Listener websubEP = new(8181);
 @websub:SubscriberServiceConfig {
     path: "/ordereventsubscriber",
     subscribeOnStartUp: true,
-    resourceUrl: "http://localhost:9090/ordermgt/order",
+    target: "http://localhost:9090/ordermgt/order",
     leaseSeconds: 3600,
     secret: "Kslk30SNF2AChs2"
 }

@@ -192,8 +192,7 @@ class ValidatorUtil {
                                 if (keyValue.getValue() instanceof BLangLiteral) {
                                     BLangLiteral value = (BLangLiteral) keyValue.getValue();
                                     if (value.getValue() instanceof String) {
-                                        resourceSummary.setPath((String) value.getValue());
-                                        resourceSummary.setPathPosition(path.getPosition());
+                                        resourceSummary.setBody((String) value.getValue());
                                     }
                                 }
                             }
