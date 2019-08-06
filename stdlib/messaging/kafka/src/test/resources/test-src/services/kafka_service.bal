@@ -20,7 +20,7 @@ import ballerina/io;
 string topic = "service-test";
 
 kafka:ConsumerConfig consumerConfigs = {
-    bootstrapServers: "localhost:9094",
+    bootstrapServers: "localhost:9103",
     groupId: "service-test-group",
     clientId: "service-consumer",
     offsetReset: "earliest",
@@ -34,7 +34,7 @@ int count = 0;
 service kafkaTestService on kafkaConsumer {
     resource function onMessage(kafka:Consumer consumer, kafka:ConsumerRecord[] records) {
         foreach var kafkaRecord in records {
-            count = 10;
+            count += 1;
         }
     }
 }
