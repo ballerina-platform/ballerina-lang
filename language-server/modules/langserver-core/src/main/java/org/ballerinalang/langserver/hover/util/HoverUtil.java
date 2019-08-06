@@ -353,6 +353,9 @@ public class HoverUtil {
     private static String getDocAttributes(List<MarkdownDocAttachment.Parameter> parameters, BSymbol symbol,
                                            LSContext ctx) {
         Map<String, BType> types = new HashMap<>();
+        if (symbol instanceof BVarSymbol && !(symbol instanceof BInvokableSymbol)) {
+            symbol = ((BVarSymbol) symbol).type.tsymbol;
+        }
         if (symbol instanceof BInvokableSymbol) {
             // If it is a parameters set of a function invocation
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) symbol;
