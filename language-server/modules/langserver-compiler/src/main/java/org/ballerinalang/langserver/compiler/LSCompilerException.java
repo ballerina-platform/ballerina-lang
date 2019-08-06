@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.compiler;
 
 /**
- * This exception is thrown when LSCompiler encouters an error.
+ * This exception is thrown when LSModuleCompiler encouters an error.
  */
 public class LSCompilerException extends Exception {
     public LSCompilerException(String message) {

@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.compiler.workspace;
 
+import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Range;
 
@@ -141,6 +142,15 @@ public interface WorkspaceDocumentManager {
      * @return Code lenses of the file
      */
     List<CodeLens> getCodeLenses(Path filePath);
+
+    /**
+     * Returns the LSDocument associated with the file.
+     *
+     * @param filePath Path of the file
+     * @return LSDocument of the file
+     * @throws WorkspaceDocumentException when the LSDocument is not available
+     */
+    LSDocument getLSDocument(Path filePath) throws WorkspaceDocumentException;
 
     /**
      * Close the given file in document manager.

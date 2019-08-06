@@ -48,8 +48,8 @@ public class LSPackageCacheTest {
         CompilerContext context = LSCompilerUtil.prepareCompilerContext(packageID, packageRepository, sourceDocument,
                                                                         true, documentManager);
         // Compile test bal file
-        LSCompiler lsCompiler = new LSCompiler(documentManager);
-        lsCompiler.updateAndCompileFile(filePath, content, CompilerPhase.TAINT_ANALYZE, documentManager);
+//        LSModuleCompiler lsCompiler = new LSModuleCompiler(documentManager);
+        ExtendedLSCompiler.updateAndCompileFile(filePath, content, CompilerPhase.TAINT_ANALYZE);
 
         // Check cache whether it still holds the current package
         Set<String> packageMayKeySet = LSPackageCache.getInstance(context).getPackageMap().keySet();
