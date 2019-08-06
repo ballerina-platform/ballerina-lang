@@ -62,6 +62,6 @@ public function main() {
     error? results = system:copy(“/A/B/C”, “/A/B/D”, replaceExisting = true);
 
     // Execute an OS command as a subprocess
-    system:Process|error proc = check system:exec("ls", {}, "/", "-la");
+    system:Process|system:Error proc = check system:exec("ls", {}, "/", "-la");
 }
 ```
