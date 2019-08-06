@@ -1721,7 +1721,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         Map<String, BField> fields = rhsDetailType.fields.stream()
                 .collect(Collectors.toMap(field -> field.name.value, field -> field));
 
-        BType wideType = interpolateWideType(rhsDetailType, (BRecordType) ((BErrorType) lhsRef.type).detailType);
+        BType wideType = interpolateWideType(rhsDetailType, lhsRef.detail);
         for (BLangNamedArgsExpression detailItem : lhsRef.detail) {
             BField matchedDetailItem = fields.get(detailItem.name.value);
             BType matchedType;
@@ -1730,7 +1730,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     dlog.error(detailItem.pos, DiagnosticCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN, detailItem.name);
                     return;
                 } else {
-                    matchedType = BUnionType.create(null, symTable.nilType, wideType);
+                    matchedType = BUnionType.create(null, symTable.nilType, rhsDetailType.restFieldType);
                 }
             } else {
                 matchedType = matchedDetailItem.type;
@@ -1753,14 +1753,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private BType interpolateWideType(BRecordType rhsDetailType, BRecordType detailType) {
-        Map<String, BType> lhsFieldTypes = detailType.fields.stream()
-                .collect(Collectors.toMap(f -> f.name.value, f -> f.type));
+    private BType interpolateWideType(BRecordType rhsDetailType, List<BLangNamedArgsExpression> detailType) {
+        Set<String> extractedKeys = detailType.stream().map(detail -> detail.name.value).collect(Collectors.toSet());
 
         BUnionType wideType = BUnionType.create(null);
         for (BField field : rhsDetailType.fields) {
             // avoid fields extracted from binding pattern
-            if (!lhsFieldTypes.containsKey(field.name.value)) {
+            if (!extractedKeys.contains(field.name.value)) {
                 wideType.add(field.type);
             }
         }
