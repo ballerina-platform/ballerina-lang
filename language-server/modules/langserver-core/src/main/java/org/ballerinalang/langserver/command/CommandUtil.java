@@ -643,6 +643,13 @@ public class CommandUtil {
         } else if (bLangNode.getRight() instanceof BLangObjectTypeNode) {
             return (BLangObjectTypeNode) bLangNode.getRight();
         } else {
+            BLangNode parent = bLangNode.getLeft().parent;
+            while (parent != null) {
+                if (parent instanceof BLangObjectTypeNode) {
+                    return (BLangObjectTypeNode) parent;
+                }
+                parent = parent.parent;
+            }
             return null;
         }
     }
@@ -657,6 +664,13 @@ public class CommandUtil {
         } else if (bLangNode.getRight() instanceof BLangInvocation) {
             return (BLangInvocation) bLangNode.getRight();
         } else {
+            BLangNode parent = bLangNode.getLeft().parent;
+            while (parent != null) {
+                if (parent instanceof BLangInvocation) {
+                    return (BLangInvocation) parent;
+                }
+                parent = parent.parent;
+            }
             return null;
         }
     }
