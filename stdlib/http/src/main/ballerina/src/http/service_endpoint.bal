@@ -250,6 +250,11 @@ public const KEEPALIVE_ALWAYS = "ALWAYS";
 # Closes the connection irrespective of the `connection` header value }
 public const KEEPALIVE_NEVER = "NEVER";
 
+# Constant for the service name reference.
+public const SERVICE_NAME = "SERVICE_NAME";
+# Constant for the resource name reference.
+public const RESOURCE_NAME = "RESOURCE_NAME";
+
 # Adds authentication and authorization filters.
 #
 # + config - `ServiceEndpointConfiguration` instance
@@ -300,8 +305,8 @@ type AttributeFilter object {
     *RequestFilter;
 
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
-        runtime:getInvocationContext().attributes["SERVICE_NAME"] = context.getServiceName();
-        runtime:getInvocationContext().attributes["RESOURCE_NAME"] = context.getResourceName();
+        runtime:getInvocationContext().attributes[SERVICE_NAME] = context.getServiceName();
+        runtime:getInvocationContext().attributes[RESOURCE_NAME] = context.getResourceName();
         return true;
     }
 };
