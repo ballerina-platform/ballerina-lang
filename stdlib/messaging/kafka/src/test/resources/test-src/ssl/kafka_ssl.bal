@@ -20,7 +20,7 @@ import ballerina/kafka;
 string topic = "test-topic-ssl";
 
 kafka:ProducerConfig producerConfigs = {
-    bootstrapServers: "localhost:9094",
+    bootstrapServers: "localhost:9104",
     clientId:"ssl-producer",
     acks:"all",
     noRetries:3,
@@ -45,7 +45,7 @@ kafka:ProducerConfig producerConfigs = {
 kafka:Producer kafkaProducer = new(producerConfigs);
 
 kafka:ProducerConfig producerNegativeConfigs = {
-    bootstrapServers: "localhost:9094",
+    bootstrapServers: "localhost:9104",
     clientId:"ssl-producer-negative",
     acks:"all",
     maxBlock: 1000,
@@ -55,7 +55,7 @@ kafka:ProducerConfig producerNegativeConfigs = {
 kafka:Producer negativeProducer = new (producerNegativeConfigs);
 
 kafka:ConsumerConfig consumerConfig = {
-    bootstrapServers:"localhost:9094",
+    bootstrapServers:"localhost:9104",
     groupId:"test-group",
     clientId: "ssl-consumer",
     offsetReset:"earliest",

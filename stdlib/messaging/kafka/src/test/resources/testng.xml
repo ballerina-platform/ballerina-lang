@@ -19,7 +19,7 @@
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="ballerina-kafka-test-suite" parallel="false">
+<suite name="ballerina-kafka-test-suite">
     <test name="ballerina-kafka-consumer-tests">
         <!-- Consumer-Related tests -->
         <classes>
@@ -45,7 +45,11 @@
         <!-- Kafka service related tests -->
         <classes>
             <class name="org.ballerinalang.messaging.kafka.services.KafkaServiceTest"/>
-            <class name="org.ballerinalang.messaging.kafka.services.KafkaServiceCompilerTest"/>
+        </classes>
+    </test>
+    <test name="ballerina-kafka-compiler-test">
+        <classes>
+            <class name="org.ballerinalang.messaging.kafka.compiler.KafkaServiceCompilerTest"/>
         </classes>
     </test>
     <test name="ballerina-kafka-transactions-test">

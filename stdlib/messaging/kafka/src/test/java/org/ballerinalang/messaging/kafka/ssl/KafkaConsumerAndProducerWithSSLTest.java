@@ -39,7 +39,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,25 +46,25 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.KAFKA_BROKER_PORT;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.ZOOKEEPER_PORT_1;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.UNCHECKED;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SSL;
 
 /**
  * Test cases for ballerina.kafka consumer and producer with SSL.
  */
-@Test(singleThreaded = true)
 public class KafkaConsumerAndProducerWithSSLTest {
 
     private CompileResult result;
     private static File dataDir;
     private static KafkaCluster kafkaCluster;
-    private static Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
-    private String configFile = "test-src/ssl/kafka_ssl.bal";
+    private static String resourceDir = Paths.get("src", "test", "resources").toString();
+    private static String configFile = Paths.get(TEST_SRC, TEST_SSL, "kafka_ssl.bal").toString();
     private String message = "Hello World SSL Test";
 
     //Constants
     private String filePath = "<FILE_PATH>";
-    private static String keystoresAndTruststores = "data-files/keystores-truststores";
+    private static String keystoresAndTruststores = Paths.get("data-files", "keystores-truststores").toString();
 
     @BeforeClass
     public void setup() throws IOException {
@@ -74,9 +73,10 @@ public class KafkaConsumerAndProducerWithSSLTest {
                 .deleteDataUponShutdown(true).addBrokers(1).startup();
         kafkaCluster.createTopic("test-topic-ssl", 2, 1);
         //Setting the keystore and trust-store file paths
-        setFilePath(resourceDir.toString() + "/" + configFile, filePath, resourceDir.toString()
-                + "/" + keystoresAndTruststores);
-        result = BCompileUtil.compile(configFile);
+        String filePathString = Paths.get(resourceDir, configFile).toAbsolutePath().toString();
+        setFilePath(filePathString, filePath, Paths.get(resourceDir,
+                keystoresAndTruststores).toAbsolutePath().toString());
+        result = BCompileUtil.compile(Paths.get(resourceDir, configFile).toAbsolutePath().toString());
     }
 
     @Test(description = "Test SSL producer and consumer")
@@ -98,6 +98,7 @@ public class KafkaConsumerAndProducerWithSSLTest {
         });
     }
 
+    @SuppressWarnings(UNCHECKED)
     @Test(description = "Test kafka consumer connect with no SSL config values")
     public void testKafkaConsumerSSLConnectNegative() {
         BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaSSLConnectNegative");
@@ -111,8 +112,8 @@ public class KafkaConsumerAndProducerWithSSLTest {
     @AfterClass
     public void tearDown() {
         //Reverting the keystore and trust-store file paths
-        setFilePath(resourceDir.toString() + "/" + configFile, resourceDir.toString()
-                + "/" + keystoresAndTruststores, filePath);
+        setFilePath(Paths.get(resourceDir, configFile).toAbsolutePath().toString(),
+                Paths.get(resourceDir, keystoresAndTruststores).toAbsolutePath().toString(), filePath);
         if (kafkaCluster != null) {
             kafkaCluster.shutdown();
             kafkaCluster = null;
@@ -130,13 +131,13 @@ public class KafkaConsumerAndProducerWithSSLTest {
         }
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-ssl-test");
         kafkaCluster = new KafkaCluster().usingDirectory(dataDir)
-                .withPorts(ZOOKEEPER_PORT_1, KAFKA_BROKER_PORT)
+                .withPorts(2191, 9104)
                 .withKafkaConfiguration(prop);
         return kafkaCluster;
     }
 
     private static void setFilePath(String path, String searchValue, String newValue) {
-        List<String> lines = new ArrayList<String>();
+        List<String> lines = new ArrayList<>();
         String line;
         try {
             File file = new File(path);
@@ -166,7 +167,7 @@ public class KafkaConsumerAndProducerWithSSLTest {
 
     private static Properties getKafkaBrokerProperties() {
         Properties prop = new Properties();
-        prop.put("listeners", "SSL://localhost:9094");
+        prop.put("listeners", "SSL://localhost:9104");
         prop.put("security.inter.broker.protocol", "SSL");
         prop.put("ssl.client.auth", "required");
         prop.put("ssl.keystore.location", resourceDir + "/" + keystoresAndTruststores + "/kafka.server.keystore.jks");
