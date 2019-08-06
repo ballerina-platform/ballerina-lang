@@ -21,7 +21,6 @@ package org.ballerinalang.packerina.task;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -33,6 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
@@ -49,7 +49,7 @@ public class CopyModuleJarTask implements Task {
         try {
             Files.createDirectories(tmpDir);
         } catch (IOException e) {
-            throw new BallerinaException("unable to create tmp directory in target :" + e.getMessage());
+            throw createLauncherException("unable to create tmp directory in target :" + e.getMessage());
         }
 
         List<BLangPackage> moduleBirMap = buildContext.getModules();
@@ -60,7 +60,7 @@ public class CopyModuleJarTask implements Task {
             try {
                 Files.copy(jarOutput, jarTarget, StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
-                throw new BallerinaException("unable to copy the module jar :" + e.getMessage());
+                throw createLauncherException("unable to copy the module jar :" + e.getMessage());
             }
         }
         // Imported jar
@@ -72,7 +72,7 @@ public class CopyModuleJarTask implements Task {
                     try {
                         Files.copy(importJar, jarTarget, StandardCopyOption.REPLACE_EXISTING);
                     } catch (IOException e) {
-                        throw new BallerinaException("unable to copy the imported jar :" + e.getMessage());
+                        throw createLauncherException("unable to copy the imported jar :" + e.getMessage());
                     }
                 }
             }

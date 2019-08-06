@@ -18,20 +18,20 @@
 
 package org.ballerinalang.packerina.task;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.MultiModuleContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
-import org.ballerinalang.packerina.utils.EmptyPrintStream;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Path;
 import java.util.List;
+
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
 /**
  * Task for compiling a package.
@@ -43,35 +43,23 @@ public class CompileTask implements Task {
         CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
         
         Compiler compiler = Compiler.getInstance(context);
-        boolean isBuild = !(buildContext.out() instanceof EmptyPrintStream);
+        compiler.setOutStream(buildContext.out());
         if (buildContext.getSourceType() == SourceType.SINGLE_BAL_FILE) {
             SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
             Path balFile = singleFileContext.getBalFile().getFileName();
             if (null != balFile) {
-                BLangPackage compiledModule;
-                // TODO: pull out the logs printed in the compiler out of it. compiler does'nt need to print.
-                if (isBuild) {
-                    compiledModule = compiler.build(balFile.toString());
-                } else {
-                    compiledModule = compiler.compile(balFile.toString());
-                }
+                BLangPackage compiledModule = compiler.build(balFile.toString());
                 singleFileContext.setModule(compiledModule);
             } else {
-                throw new BLangCompilerException("unable to find ballerina source");
+                throw createLauncherException("unable to find ballerina source");
             }
         } else if (buildContext.getSourceType() == SourceType.SINGLE_MODULE) {
             SingleModuleContext moduleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-            // TODO: pull out the logs printed in the compiler out of it. compiler does'nt need to print.
-            BLangPackage compiledModule;
-            if (isBuild) {
-                compiledModule = compiler.build(moduleContext.getModuleName());
-            } else {
-                compiledModule = compiler.compile(moduleContext.getModuleName());
-            }
+            BLangPackage compiledModule = compiler.build(moduleContext.getModuleName());
             moduleContext.setModule(compiledModule);
         } else {
             MultiModuleContext multiModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-            List<BLangPackage> compiledModules = compiler.compilePackages(isBuild);
+            List<BLangPackage> compiledModules = compiler.compilePackages(true);
             multiModuleContext.setModules(compiledModules);
         }
         
@@ -79,7 +67,7 @@ public class CompileTask implements Task {
         List<BLangPackage> modules = buildContext.getModules();
         for (BLangPackage module : modules) {
             if (module.diagCollector.hasErrors()) {
-                throw new BLangCompilerException("compilation contains errors");
+                throw createLauncherException("compilation contains errors");
             }
         }
         

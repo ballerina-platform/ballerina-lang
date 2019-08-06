@@ -86,7 +86,7 @@ public class CompileCommand implements BLauncherCmd {
         this.exitWhenFinish = exitWhenFinish;
     }
 
-    @CommandLine.Option(names = {"--offline"}, description = "Builds offline without downloading dependencies.")
+    @CommandLine.Option(names = {"--offline"}, description = "Compiles offline without downloading dependencies.")
     private boolean offline;
 
     @CommandLine.Option(names = {"--skip-lock"}, description = "Skip using the lock file to resolve dependencies")
@@ -144,10 +144,10 @@ public class CompileCommand implements BLauncherCmd {
         Path sourcePath = null;
         Path targetPath;
     
-        // when no bal file or module is given, it is assumed to build all modules of the project. check if the command
-        // is executed within a ballerina project. update source root path if command executed inside a project.
+        // when no bal file or module is given, it is assumed to compile all modules of the project. check if the
+        // command is executed within a ballerina project. update source root path if command executed inside a project.
         if (this.argList == null || this.argList.size() == 0) {
-            // when building all the modules
+            // when compiling all the modules
             //// validate and set source root path
             if (!ProjectDirs.isProject(this.sourceRootPath)) {
                 Path findRoot = ProjectDirs.findProjectRoot(this.sourceRootPath);
@@ -167,19 +167,20 @@ public class CompileCommand implements BLauncherCmd {
             throw LauncherUtils.createLauncherException("`compile` command cannot be used on ballerina files. it can" +
                                                         " only be used with ballerina projects.");
         } else {
-            // when building a ballerina module
+            // when compiling a ballerina module
             //// check if command executed from project root.
             if (!RepoUtils.isBallerinaProject(this.sourceRootPath)) {
-                throw LauncherUtils.createLauncherException("you are trying to build a module that is not inside " +
+                throw LauncherUtils.createLauncherException("you are trying to compile a module that is not inside " +
                                                             "a project. Run `ballerina new` from " +
                                                             this.sourceRootPath + " to initialize it as a " +
-                                                            "project and then build the module.");
+                                                            "project and then compile the module.");
             }
         
             //// check if module name given is not absolute.
             if (Paths.get(argList.get(0)).isAbsolute()) {
-                throw LauncherUtils.createLauncherException("you are trying to build a module by giving the absolute" +
-                                                            " path. you only need give the name of the module.");
+                throw LauncherUtils.createLauncherException("you are trying to compile a module by giving the " +
+                                                            "absolute path. you only need give the name of the " +
+                                                            "module.");
             }
         
             String moduleName = argList.get(0);
@@ -222,6 +223,8 @@ public class CompileCommand implements BLauncherCmd {
         buildContext.setErr(errStream);
         buildContext.put(BuildContextField.COMPILER_CONTEXT, context);
     
+        Path configFilePath = null == this.configFilePath ? null : Paths.get(this.configFilePath);
+    
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask())  // clean the target directory
                 .addTask(new CreateTargetDirTask()) //  create target directory.
@@ -231,7 +234,7 @@ public class CompileCommand implements BLauncherCmd {
                 .addTask(new CopyNativeLibTask())   // copy the native libs
                 .addTask(new CreateJarTask(this.dumpBIR))   // create the jar
                 .addTask(new CopyModuleJarTask())
-                .addTask(new RunTestsTask(), this.skipTests)    // run tests
+                .addTask(new RunTestsTask(configFilePath), this.skipTests)  // run tests
                 .addTask(new CreateLockFileTask())  // create a lock file
                 .addTask(new CreateDocsTask())  // generate API docs
                 .build();

@@ -18,7 +18,6 @@
 
 package org.ballerinalang.packerina.task;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 
@@ -28,6 +27,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
 /**
  * Cleans up the target directory.
@@ -41,7 +42,7 @@ public class CleanTargetDirTask implements Task {
                 delete(targetDir);
             }
         } catch (IOException e) {
-            throw new BLangCompilerException("error occurred cleaning artifacts output target: " + targetDir);
+            throw createLauncherException("unable to clean target'" + targetDir.toString() + "': " + targetDir);
         }
     }
     

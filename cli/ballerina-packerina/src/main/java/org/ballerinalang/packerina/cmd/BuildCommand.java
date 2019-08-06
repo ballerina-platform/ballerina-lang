@@ -93,7 +93,7 @@ public class BuildCommand implements BLauncherCmd {
     }
 
     @CommandLine.Option(names = {"--output", "-o"}, description = "Writes output to the given file. The provided " +
-                                                                  "output filename may or may not contain the ‘.jar’ " +
+                                                                  "output filename may or may not contain the '.jar' " +
                                                                   "extension.")
     private String output;
 
@@ -125,7 +125,9 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
     private boolean experimentalFlag;
 
-    @CommandLine.Option(names = {"--config", "-c"}, description = "Path to the configuration file for running tests.")
+    @CommandLine.Option(names = {"--config", "-c"}, description = "Path to the configuration file when running tests." +
+                                                                  " A configuration file cannot be set if " +
+                                                                  "'--skip-tests' flag is passed.")
     private String configFilePath;
 
     @CommandLine.Option(names = "--siddhi-runtime", description = "Enable siddhi runtime for stream processing.")
@@ -141,8 +143,13 @@ public class BuildCommand implements BLauncherCmd {
         if (this.argList != null && this.argList.size() > 1) {
             CommandUtil.printError(this.errStream,
                     "too many arguments.",
-                    "ballerina build [<module-name>]",
+                    "ballerina build [<bal-file> | <module-name>]",
                     true);
+        }
+        
+        if (!this.skipTests && null != this.configFilePath) {
+            throw LauncherUtils.createLauncherException("you cannot use a config file for tests when tests are set " +
+                                                        "to skip with '--skip-tests'.");
         }
         
         if (this.nativeBinary) {
@@ -163,17 +170,16 @@ public class BuildCommand implements BLauncherCmd {
                                                             " a single ballerina file.");
             }
         
-            // validate and set source root path
+            //// validate and set source root path
             if (!ProjectDirs.isProject(this.sourceRootPath)) {
                 Path findRoot = ProjectDirs.findProjectRoot(this.sourceRootPath);
                 if (null == findRoot) {
-                    CommandUtil.printError(this.errStream,
-                            "please provide a Ballerina file as a " +
-                            "input or run build command inside a project",
-                            "ballerina build [<filename.bal>]",
-                            false);
-                    return;
+                    throw LauncherUtils.createLauncherException("you are trying to build a ballerina project but " +
+                                                                "there is no Ballerina.toml file. Run " +
+                                                                "'ballerina new' from '" + this.sourceRootPath +
+                                                                "' to initialize it as a project.");
                 }
+                
                 this.sourceRootPath = findRoot;
             }
         
@@ -204,7 +210,11 @@ public class BuildCommand implements BLauncherCmd {
             } catch (IOException e) {
                 throw LauncherUtils.createLauncherException("error occurred when creating executable.");
             }
-        } else {
+        } else if (Files.exists(
+                this.sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(this.argList.get(0))) &&
+                   Files.isDirectory(
+               this.sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(this.argList.get(0)))) {
+            
             // when building a ballerina module
             //// output flag cannot be set for projects
             if (null != this.output) {
@@ -215,7 +225,7 @@ public class BuildCommand implements BLauncherCmd {
             //// check if command executed from project root.
             if (!RepoUtils.isBallerinaProject(this.sourceRootPath)) {
                 throw LauncherUtils.createLauncherException("you are trying to build a module that is not inside " +
-                                                            "a project. Run `ballerina new` from " +
+                                                            "a project. Run 'ballerina new' from " +
                                                             this.sourceRootPath + " to initialize it as a " +
                                                             "project and then build the module.");
             }
@@ -241,6 +251,10 @@ public class BuildCommand implements BLauncherCmd {
             }
     
             targetPath = sourcePath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
+        } else {
+            throw LauncherUtils.createLauncherException("invalid ballerina source path, it should either be a module " +
+                                                        "name in a ballerina project or a file with a \'" +
+                                                        BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension.");
         }
         
         // normalize paths
@@ -267,7 +281,7 @@ public class BuildCommand implements BLauncherCmd {
         buildContext.put(BuildContextField.COMPILER_CONTEXT, context);
     
         boolean isSingleFileBuild = buildContext.getSourceType().equals(SINGLE_BAL_FILE);
-        Path outputPath = null == this.output ? null : Paths.get(this.output);
+        Path outputPath = null == this.output ? this.sourceRootPath : Paths.get(this.output);
         Path configFilePath = null == this.configFilePath ? null : Paths.get(this.configFilePath);
         
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
@@ -279,8 +293,8 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CopyNativeLibTask(), isSingleFileBuild)    // copy the native libs(projects only)
                 .addTask(new CreateJarTask(this.dumpBIR))    // create the jar
                 .addTask(new CopyModuleJarTask())
-                .addTask(new RunTestsTask(configFilePath), this.skipTests || isSingleFileBuild)// run tests
-                                                                                                    // (projects only)
+                .addTask(new RunTestsTask(configFilePath), this.skipTests || isSingleFileBuild) // run tests
+                                                                                                // (projects only)
                 .addTask(new CreateExecutableTask())    // create the executable .jar file
                 .addTask(new CopyExecutableTask(outputPath), !isSingleFileBuild)    // copy executable
                 .addTask(new PrintExecutablePathTask()) // print the location of the executable

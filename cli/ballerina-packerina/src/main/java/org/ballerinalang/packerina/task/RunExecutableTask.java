@@ -120,14 +120,14 @@ public class RunExecutableTask implements Task {
                 switch (buildContext.getSourceType()) {
                     case SINGLE_BAL_FILE:
                         SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                        throw new BLangCompilerException("no entry points found in '" +
-                                                         singleFileContext.getBalFile() + "'");
+                        throw createLauncherException("no entry points found in '" + singleFileContext.getBalFile() +
+                                                      "'.");
                     case SINGLE_MODULE:
                         SingleModuleContext singleModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                        throw new BLangCompilerException("no entry points found in '" +
-                                                         singleModuleContext.getModuleName() + "'");
+                        throw createLauncherException("no entry points found in '" +
+                                                         singleModuleContext.getModuleName() + "'.");
                     default:
-                        throw new BLangCompilerException("cannot run given source.");
+                        throw createLauncherException("unknown source type found when running executable.");
                 }
             }
         }
@@ -141,15 +141,15 @@ public class RunExecutableTask implements Task {
         
         // if the executable does not exist
         if (Files.notExists(this.executablePath)) {
-            throw new BLangCompilerException("cannot run '" + this.executablePath.toAbsolutePath().toString() +
+            throw createLauncherException("cannot run '" + this.executablePath.toAbsolutePath().toString() +
                                              "' as it does not exist.");
         }
     
         // if the executable is not a file and not an extension with .jar
         if (!(Files.isRegularFile(this.executablePath) &&
             this.executablePath.toString().endsWith(BLANG_COMPILED_JAR_EXT))) {
-            
-            throw new BLangCompilerException("cannot run '" + this.executablePath.toAbsolutePath().toString() +
+    
+            throw createLauncherException("cannot run '" + this.executablePath.toAbsolutePath().toString() +
                                              "' as it is not an executable with .jar extension.");
         }
     

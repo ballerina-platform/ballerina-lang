@@ -58,13 +58,13 @@ public class CompileCommandTest extends CommandTest {
         super.setup();
         projectDirectory = tmpDir.resolve("compileTest");
         Files.createDirectory(projectDirectory);
-        URI uri = null;
         try {
-            uri = getClass().getClassLoader().getResource("compile_command_test_project").toURI();
+            URI uri = getClass().getClassLoader()
+                    .getResource("test-resources/valid-project/compile_command_test_project").toURI();
+            Files.walkFileTree(Paths.get(uri), new Copy(Paths.get(uri), projectDirectory));
         } catch (URISyntaxException e) {
-            new AssertionError("Failed to setup compile test");
+            Assert.fail("error loading resources");
         }
-        Files.walkFileTree(Paths.get(uri), new Copy(Paths.get(uri), projectDirectory));
     }
 
     @Test(description = "Test Compile Command in a Project")

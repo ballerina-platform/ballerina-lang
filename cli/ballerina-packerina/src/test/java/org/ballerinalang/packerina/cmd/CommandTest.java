@@ -18,6 +18,8 @@
 
 package org.ballerinalang.packerina.cmd;
 
+import org.ballerinalang.tool.BLauncherCmd;
+import org.ballerinalang.tool.BLauncherException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -39,6 +41,13 @@ public abstract class CommandTest {
     protected Path tmpDir;
     private ByteArrayOutputStream console;
     protected PrintStream printStream;
+    
+    @BeforeClass
+    public void setup() throws IOException {
+        this.tmpDir = Files.createTempDirectory("b7a-cmd-test");
+        this.console = new ByteArrayOutputStream();
+        this.printStream = new PrintStream(this.console);
+    }
 
     protected String readOutput() throws IOException {
         return readOutput(false);
@@ -56,17 +65,30 @@ public abstract class CommandTest {
         }
         return output;
     }
-
-    @BeforeClass
-    public void setup() throws IOException {
-        tmpDir = Files.createTempDirectory("b7a-cmd-test");
-        console = new ByteArrayOutputStream();
-        printStream = new PrintStream(console);
+    
+    /**
+     * Execute a command and get the exception.
+     *
+     * @param cmd The command.
+     * @return The error message.
+     */
+    public String executeAndGetException(BLauncherCmd cmd) {
+        try {
+            cmd.execute();
+            Assert.fail("Expected exception did not occur.");
+        } catch (BLauncherException e) {
+            if (e.getMessages().size() == 1) {
+                return e.getMessages().get(0);
+            }
+        } catch (Exception e) {
+            Assert.fail("Invalid exception found: " + e.getClass().toString() + "-" + e.getMessage());
+        }
+        return null;
     }
 
     @AfterClass
     public void cleanup() throws IOException {
-        Files.walk(tmpDir)
+        Files.walk(this.tmpDir)
                 .sorted(Comparator.reverseOrder())
                 .forEach(path -> {
                     try {

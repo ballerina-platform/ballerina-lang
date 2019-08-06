@@ -18,7 +18,6 @@
 
 package org.ballerinalang.packerina.task;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -27,6 +26,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
 /**
  * Task to copy the executable to a given location. This requires the {@link CreateExecutableTask} to be completed.
@@ -78,14 +79,14 @@ public class CopyExecutableTask implements Task {
                 Files.copy(executableFile, this.outputPath, StandardCopyOption.REPLACE_EXISTING);
                 
                 // update executable location and target dir
-                // this is to avoid spotbugs
+                // this 'if' is to avoid spotbugs
                 Path executableDir = this.outputPath.getParent();
                 if (null != executableDir) {
                     buildContext.updateExecutableDir(executableDir);
                 }
             }
         } catch (IOException e) {
-            throw new BLangCompilerException("error occurred copying executable: " + e.getMessage());
+            throw createLauncherException("unable to copying executable: " + e.getMessage());
         }
     }
 }

@@ -33,7 +33,7 @@ public class PrintExecutablePathTask implements Task {
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         for (BLangPackage module : buildContext.getModules()) {
             Path executablePath = buildContext.getExecutablePathFromTarget(module.packageID);
-            buildContext.out().println(sourceRootPath.relativize(executablePath).toString());
+            buildContext.out().println("\t" + sourceRootPath.relativize(executablePath).toString());
         }
     }
 }
