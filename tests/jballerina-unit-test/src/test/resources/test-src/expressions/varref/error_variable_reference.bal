@@ -224,3 +224,45 @@ function testIndirectErrorRefBindingPattern() returns [string?, any|error] {
     SampleError(message=message, other=other, ...rest) = e;
     return [message, other];
 }
+
+const FILE_OPN = "FILE-OPEN";
+type FileOpenErrorDetail record {|
+    string message;
+    error cause?;
+    string targetFileName;
+    int errorCode;
+    int flags?;
+|};
+type FileOpenError error<FILE_OPN, FileOpenErrorDetail>;
+
+function testIndirectErrorRefMandatoryFields() returns
+        [string, string, int, int?,
+            string, map<anydata|error>,
+            string, string, map<string|int>] {
+    FileOpenError e = FileOpenError(message="file open failed",
+                                targetFileName="/usr/bhah/a.log",
+                                errorCode=45221,
+                                flags=128);
+    string message;
+    string fileName;
+    int errorCode;
+    int? flags;
+    FileOpenError(message=message,
+                    targetFileName=fileName,
+                    errorCode=errorCode,
+                    flags=flags) = e;
+
+    error upcast = e;
+    string reason;
+    map<anydata|error> rest;
+    error(reason=reason, ...rest) = upcast;
+
+    string reason2;
+    string messageX;
+    map<string|int> rest2;
+    error(reason=reason2, message=messageX, ...rest2) = e;
+
+    return [message, fileName, errorCode, flags,
+                reason, rest,
+                reason2, messageX, rest2];
+}

@@ -1720,6 +1720,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BRecordType rhsDetailType = (BRecordType) rhsErrorType.detailType;
         Map<String, BField> fields = rhsDetailType.fields.stream()
                 .collect(Collectors.toMap(field -> field.name.value, field -> field));
+
+        BType wideType = interpolateWideType(rhsDetailType, (BRecordType) ((BErrorType) lhsRef.type).detailType);
         for (BLangNamedArgsExpression detailItem : lhsRef.detail) {
             BField matchedDetailItem = fields.get(detailItem.name.value);
             BType matchedType;
@@ -1728,7 +1730,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     dlog.error(detailItem.pos, DiagnosticCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN, detailItem.name);
                     return;
                 } else {
-                    matchedType = BUnionType.create(null, symTable.nilType, rhsDetailType.restFieldType);
+                    matchedType = BUnionType.create(null, symTable.nilType, wideType);
                 }
             } else {
                 matchedType = matchedDetailItem.type;
@@ -1741,14 +1743,31 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             checkErrorDetailRefItem(detailItem.pos, rhsPos, detailItem, matchedType);
         }
         if (lhsRef.restVar != null && !isIgnoreVar(lhsRef)) {
-            BMapType expRestType = new BMapType(TypeTags.MAP, rhsDetailType.restFieldType, null);
+            BMapType expRestType = new BMapType(TypeTags.MAP, wideType, null);
             if (lhsRef.restVar.type.tag != TypeTags.MAP
-                    || !types.isAssignable(rhsDetailType.restFieldType, ((BMapType) lhsRef.restVar.type).constraint)) {
+                    || !types.isAssignable(wideType, ((BMapType) lhsRef.restVar.type).constraint)) {
                 dlog.error(lhsRef.restVar.pos, DiagnosticCode.INCOMPATIBLE_TYPES, lhsRef.restVar.type, expRestType);
                 return;
             }
             typeChecker.checkExpr(lhsRef.restVar, env);
         }
+    }
+
+    private BType interpolateWideType(BRecordType rhsDetailType, BRecordType detailType) {
+        Map<String, BType> lhsFieldTypes = detailType.fields.stream()
+                .collect(Collectors.toMap(f -> f.name.value, f -> f.type));
+
+        BUnionType wideType = BUnionType.create(null);
+        for (BField field : rhsDetailType.fields) {
+            // avoid fields extracted from binding pattern
+            if (!lhsFieldTypes.containsKey(field.name.value)) {
+                wideType.add(field.type);
+            }
+        }
+        if (!rhsDetailType.sealed) {
+            wideType.add(rhsDetailType.restFieldType);
+        }
+        return wideType;
     }
 
     private boolean isIgnoreVar(BLangErrorVarRef lhsRef) {
