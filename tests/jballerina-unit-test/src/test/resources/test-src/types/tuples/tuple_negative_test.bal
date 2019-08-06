@@ -38,6 +38,24 @@ function invalidTupleAssignmentToUnion() {
     [Person, int] | [Employee, int] | () k3 = [p, 3]; // ambiguous
 }
 
+function testTupleToArrayAssignmentNegative() returns int[] {
+    [string...] x = ["a", "b", "c"];
+    int[] y = x;
+    return y;
+}
+
+function testArrayToTupleAssignmentNegative() returns [int...] {
+    string[] x = ["a", "b", "c"];
+    [int...] y = x;
+    return y;
+}
+
+function testArrayToTupleAssignmentNegative2() returns [int, string...] {
+    (int|string)[] x = [1, "b", "c"];
+    [int, string...] y = x;
+    return y;
+}
+
 function tupleAssignmentToAnyAndVar () {
     var x1 = (1); // brace hence valid
     any x2 = (1); // brace hence valid

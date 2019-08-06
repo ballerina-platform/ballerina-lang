@@ -28,7 +28,6 @@ import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContex
 import org.ballerinalang.tool.util.BFileUtil;
 import org.ballerinalang.util.BootstrapRunner;
 import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.observability.ObservabilityConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -278,10 +277,10 @@ public class RunExecutableTask implements Task {
             }
             
         } catch (IOException e) {
-            throw new BLangRuntimeException(
-                    "failed to read the specified configuration file: " + ballerinaConfPath.toString(), e);
+            throw createLauncherException("failed to read the specified configuration file: " +
+                                          ballerinaConfPath.toString());
         } catch (RuntimeException e) {
-            throw new BLangRuntimeException(e.getMessage(), e);
+            throw createLauncherException(e.getMessage());
         }
     }
 }

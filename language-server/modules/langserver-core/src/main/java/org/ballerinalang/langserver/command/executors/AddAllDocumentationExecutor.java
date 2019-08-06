@@ -24,9 +24,9 @@ import org.ballerinalang.langserver.command.docs.DocAttachmentInfo;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.Flag;
@@ -78,8 +78,8 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
         BLangPackage bLangPackage;
         try {
             WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
-            LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-            bLangPackage = lsCompiler.getBLangPackage(context, docManager, false, LSCustomErrorStrategy.class, false);
+            bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager, false, LSCustomErrorStrategy.class,
+                    false);
         } catch (LSCompilerException e) {
             throw new LSCommandExecutorException("Couldn't compile the source", e);
         }

@@ -33,10 +33,9 @@ import org.ballerinalang.langserver.command.executors.CreateVariableExecutor;
 import org.ballerinalang.langserver.command.executors.IgnoreReturnExecutor;
 import org.ballerinalang.langserver.command.executors.ImportModuleExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
-import org.ballerinalang.langserver.compiler.workspace.ExtendedWorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.ExecuteCommandParams;
@@ -283,9 +282,8 @@ public class CommandExecutionTest {
             }
 
             // Compile the test file through the actual path, since it depends on the source-code
-            LSCompiler compiler = new LSCompiler(ExtendedWorkspaceDocumentManagerImpl.getInstance());
             Path currentModule = LSCompilerUtil.getCurrentModulePath(testFilePath);
-            BallerinaFile balFile = compiler.compileFile(currentModule, CompilerPhase.TAINT_ANALYZE);
+            BallerinaFile balFile = ExtendedLSCompiler.compileFile(currentModule, CompilerPhase.TAINT_ANALYZE);
             // Check for compiler errors and diagnostics
             if (!balFile.getBLangPackage().isPresent() ||
                     (balFile.getDiagnostics().isPresent() && !balFile.getDiagnostics().get().isEmpty())) {

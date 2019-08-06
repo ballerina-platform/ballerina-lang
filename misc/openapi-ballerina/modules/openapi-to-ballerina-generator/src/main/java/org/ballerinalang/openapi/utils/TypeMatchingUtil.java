@@ -208,7 +208,8 @@ public class TypeMatchingUtil {
 
         if (schema.get$ref() != null) {
             String[] refArray = schema.get$ref().split("/");
-            schemaType.setreference(refArray[refArray.length - 1]);
+            schemaType.setreference(StringUtils.capitalize(refArray[refArray.length - 1]));
+            schemaType.setItemName(refArray[refArray.length - 1].toLowerCase(Locale.ENGLISH));
         }
     }
 
@@ -322,19 +323,16 @@ public class TypeMatchingUtil {
         }
 
         if (requestBody.getContent() != null) {
-            for (Map.Entry<String, MediaType> entry : requestBody.getContent().entrySet()) {
-                OpenApiSchemaType schemaType = new OpenApiSchemaType();
-                final MediaType entryValue = entry.getValue();
+            final Map.Entry<String, MediaType> entry = requestBody.getContent().entrySet().iterator().next();
+            OpenApiSchemaType schemaType = new OpenApiSchemaType();
+            final MediaType entryValue = entry.getValue();
+            schemaType.setSchemaType(entry.getKey());
 
-                schemaType.setSchemaType(entry.getKey());
-
-                if (entryValue.getSchema() != null) {
-                    getTypesFromSchema(entryValue.getSchema(), schemaType);
-                }
-
-                contentList.add(schemaType);
+            if (entryValue.getSchema() != null) {
+                getTypesFromSchema(entryValue.getSchema(), schemaType);
             }
 
+            contentList.add(schemaType);
             requestBodyType.setContentList(contentList);
         }
 

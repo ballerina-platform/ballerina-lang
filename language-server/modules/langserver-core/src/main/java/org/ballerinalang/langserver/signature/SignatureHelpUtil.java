@@ -25,7 +25,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
@@ -247,7 +247,7 @@ public class SignatureHelpUtil {
 
     private static Optional<String> parseAndGetFunctionInvocationPath(String subRule, LSServiceOperationContext context)
             throws LSCompilerException {
-        Optional<BLangPackage> bLangPackage = LSCompiler.compileContent(subRule, CompilerPhase.CODE_ANALYZE)
+        Optional<BLangPackage> bLangPackage = ExtendedLSCompiler.compileContent(subRule, CompilerPhase.CODE_ANALYZE)
                 .getBLangPackage();
 
         if (!bLangPackage.isPresent()) {

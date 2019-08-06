@@ -1,5 +1,6 @@
 import ballerina/http;
 import ballerina/log;
+import ballerina/oauth2;
 
 // Define the OAuth2 client endpoint to call the backend services.
 // The OAuth2 authentication with client credentials grant type is enabled by
@@ -12,7 +13,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider1 = new({
 });
 http:BearerAuthHandler oauth2Handler1 = new(oauth2Provider1);
 
-http:Client clientEP1 = new("https://api.bitbucket.org/2.0", config = {
+http:Client clientEP1 = new("https://api.bitbucket.org/2.0", {
     auth: {
         authHandler: oauth2Handler1
     }
@@ -36,7 +37,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider2 = new({
 });
 http:BearerAuthHandler oauth2Handler2 = new(oauth2Provider2);
 
-http:Client clientEP2 = new("https://api.bitbucket.org/2.0", config = {
+http:Client clientEP2 = new("https://api.bitbucket.org/2.0", {
     auth: {
         authHandler: oauth2Handler2
     }
@@ -45,7 +46,7 @@ http:Client clientEP2 = new("https://api.bitbucket.org/2.0", config = {
 // Defines the OAuth2 client endpoint to call the backend services.
 // The OAuth2 authentication with direct token mode is enabled by creating
 // an `oauth2:OutboundOAuth2Provider` with the relevant configurations passed
-// as a record. If the`accessToken` is invalid or not provided, it will
+// as a record. If the `accessToken` is invalid or not provided, it will
 // be automatically refreshed with the provided `refreshConfig`.
 oauth2:OutboundOAuth2Provider oauth2Provider3 = new({
     accessToken: "ya29.GlvQBkqJS0yn0zsZm4IIUUzLk3DH1rRiCMKnHiz6deycKmTFiDsuoFlFfrmXF8dCb0gyzLyXpnv3VcrIlauj3nMs61CbydaAqMl6RwVIU2r2qg1StVVvxRWT9_Or",
@@ -58,7 +59,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider3 = new({
 });
 http:BearerAuthHandler oauth2Handler3 = new(oauth2Provider3);
 
-http:Client clientEP3 = new("https://www.googleapis.com/tasks/v1", config = {
+http:Client clientEP3 = new("https://www.googleapis.com/tasks/v1", {
     auth: {
         authHandler: oauth2Handler3
     }
@@ -69,22 +70,38 @@ public function main() {
     var response1 = clientEP1->get("/repositories/b7ademo");
     if (response1 is http:Response) {
         var result = response1.getJsonPayload();
-        log:printInfo(result is error ?
-                                    "Failed to retrieve payload for clientEP1."
-                                    : <string> result.values[0].uuid);
+        if (result is json) {
+            var values = result.values;
+            if (values is json[]) {
+                var uuid = values[0].uuid;
+                if (uuid is json) {
+                    log:printInfo(uuid.toString());
+                }
+            }
+        } else {
+            log:printError("Failed to retrieve payload for clientEP1.");
+        }
     } else {
-        log:printError("Failed to call the endpoint.", err = response1);
+        log:printError("Failed to call the endpoint from clientEP1.", err = response1);
     }
 
     // Send a `GET` request to the specified endpoint.
     var response2 = clientEP2->get("/repositories/b7ademo");
     if (response2 is http:Response) {
         var result = response2.getJsonPayload();
-        log:printInfo((result is error) ?
-                                    "Failed to retrieve payload for clientEP2."
-                                    : <string> result.values[0].uuid);
+        if (result is json) {
+            var values = result.values;
+            if (values is json[]) {
+                var uuid = values[0].uuid;
+                if (uuid is json) {
+                    log:printInfo(uuid.toString());
+                }
+            }
+        } else {
+            log:printError("Failed to retrieve payload for clientEP2.");
+        }
     } else {
-        log:printError("Failed to call the endpoint.", err = response2);
+        log:printError("Failed to call the endpoint from clientEP2.", err = response2);
     }
 
     // Send a `GET` request to the specified endpoint.
@@ -95,6 +112,6 @@ public function main() {
                                     "Failed to retrieve payload for clientEP3."
                                     : <string> result.kind);
     } else {
-        log:printError("Failed to call the endpoint.", err = response3);
+        log:printError("Failed to call the endpoint from clientEP3.", err = response3);
     }
 }

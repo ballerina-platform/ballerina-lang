@@ -18,9 +18,9 @@ service {{cut serviceName " "}} on {{#servers}}ep{{@index}}{{#unless @last}}, {{
     @http:ResourceConfig {
         methods:["{{operationType}}"],
         path:"{{pathName}}"{{#requestBody}}{{#contentList}},{{#requestBody}} {{/requestBody}}
-        body:"request_{{ref}}"{{/contentList}}{{/requestBody}}
+        body:"{{itemName}}"{{/contentList}}{{/requestBody}}
     }
-    resource function {{operationName}} (http:Caller outboundEp, http:Request _{{operationId}}Req{{#parameters}}{{#isPathParam}}, {{#paramType}}{{schemaType}}{{/paramType}} {{paramName}}{{/isPathParam}}{{/parameters}}{{#if requestBody}},{{/if}}{{#requestBody}}{{#contentList}} {{ref}} request_{{ref}}{{/contentList}}{{/requestBody}} ) returns error? {{=<% %>=}}{<%={{ }}=%>
+    resource function {{operationName}} (http:Caller outboundEp, http:Request {{operationId}}Req{{#parameters}}{{#isPathParam}}, {{#paramType}}{{schemaType}}{{/paramType}} {{paramName}}{{/isPathParam}}{{/parameters}}{{#if requestBody}},{{/if}}{{#requestBody}}{{#contentList}} {{reference}} {{itemName}}{{/contentList}}{{/requestBody}} ) returns error? {{=<% %>=}}{<%={{ }}=%>
 
     }
 {{/operations}}{{/paths}}
