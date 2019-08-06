@@ -367,7 +367,7 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
         // Generate init class. Init function should be the first function of the package, hence check first 
         // function.
         bir:Function initFunc = <bir:Function>functions[0];
-        string functionName = initFunc.name.value;
+        string functionName = cleanupFunctionName(initFunc.name.value);
         JavaClass class = { sourceFileName:initFunc.pos.sourceFileName, moduleClass:initClass };
         class.functions[0] = initFunc;
         jvmClassMap[initClass] = class;
