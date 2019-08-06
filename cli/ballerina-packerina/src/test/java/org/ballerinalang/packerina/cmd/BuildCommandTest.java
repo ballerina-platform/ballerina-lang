@@ -194,15 +194,25 @@ public class BuildCommandTest extends CommandTest {
         Files.delete(sourceRoot.resolve("hello_world-executable.jar"));
     }
     
-    @Test(description = "Build a no args with toml and ballerina file. Should identify it as a ballerina project.")
-    public void buildBalFileWithTomlNoArgTest() {
-        Path sourceRoot = this.testResources.resolve("single-bal-file-with-toml");
+    @Test(description = "Build a ballerina project with no modules.")
+    public void buildBalProjWithNoModulesTest() {
+        Path sourceRoot = this.testResources.resolve("project-with-no-modules");
         BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false);
         new CommandLine(buildCommand).parse();
         
         String exMsg = executeAndGetException(buildCommand);
-        Assert.assertEquals(exMsg, "cannot find 'src' directory in the ballerina project. 'src' directory is missing " +
-                                   "at: " + sourceRoot.toString());
+        Assert.assertEquals(exMsg, "error: no modules found to compile.");
+    }
+    
+    @Test(description = "Build a ballerina project with non existing module.")
+    public void buildBalProjectWithInvalidModuleTest() {
+        Path sourceRoot = this.testResources.resolve("project-with-no-modules");
+        BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false);
+        new CommandLine(buildCommand).parse("xyz");
+        
+        String exMsg = executeAndGetException(buildCommand);
+        Assert.assertEquals(exMsg, "error: invalid ballerina source path, it should either be a module name in a " +
+                                   "ballerina project or a file with a '.bal' extension.");
     }
     
     @Test(description = "Test Build Command in a Project")

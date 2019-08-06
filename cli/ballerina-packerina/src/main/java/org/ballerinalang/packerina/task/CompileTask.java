@@ -60,6 +60,9 @@ public class CompileTask implements Task {
         } else {
             MultiModuleContext multiModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
             List<BLangPackage> compiledModules = compiler.compilePackages(true);
+            if (compiledModules.size() == 0) {
+                throw createLauncherException("no modules found to compile.");
+            }
             multiModuleContext.setModules(compiledModules);
         }
         
