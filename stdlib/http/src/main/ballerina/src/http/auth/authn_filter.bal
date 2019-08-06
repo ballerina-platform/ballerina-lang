@@ -35,10 +35,6 @@ public type AuthnFilter object {
     # + context - A filter context
     # + return - Returns `true` if the filter succeeds. Else, returns `false`.
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
-        // TODO: Fix this properly with a separate filter which is set as the top-most filter of the filters array.
-        runtime:getInvocationContext().attributes["ServiceName"] = context.getServiceName();
-        runtime:getInvocationContext().attributes["ResourceName"] = context.getResourceName();
-
         boolean|AuthenticationError authenticated;
         var authHandlers = getAuthHandlers(context);
         if (authHandlers is InboundAuthHandler[]|InboundAuthHandler[][]) {
