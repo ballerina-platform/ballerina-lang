@@ -7,7 +7,7 @@ public function main() returns error? {
 
     // Input value for crypto operations.
     string input = "Hello Ballerina!";
-    byte[] inputArr = input.toByteArray("UTF-8");
+    byte[] inputArr = input.toBytes();
 
     // Hashing input value using MD5 hashing algorithm, and printing hash value using Hex encoding.
     byte[] output = crypto:hashMd5(inputArr);
@@ -32,7 +32,7 @@ public function main() returns error? {
 
     // The key used for HMAC generation.
     string key = "somesecret";
-    byte[] keyArr = key.toByteArray("UTF-8");
+    byte[] keyArr = key.toBytes();
 
     // HMAC generation for input value using MD5 hasing algorithm, and printing HMAC value using Hex encoding.
     output = crypto:hmacMd5(inputArr, keyArr);
@@ -56,17 +56,16 @@ public function main() returns error? {
 
 
     // Hex encoded CRC32B checksum generation for input value.
-    io:println("CRC32B for text: " + crypto:crc32b(input));
+    io:println("CRC32B for text: " + crypto:crc32b(inputArr));
 
     // Hex encoded CRC32B checksum generation for XML data.
     xml xmlContent = xml `<foo>Hello Ballerina</foo>`;
-    io:println("CRC32 for xml content: " + crypto:crc32b(xmlContent));
+    io:println("CRC32 for xml content: " + crypto:crc32b(xmlContent.toString().toBytes()));
 
 
     // Obtaining reference to a RSA private key stored within a PKCS#12 or PFX format archive file.
-    crypto:KeyStore keyStore = { path: "crypto/sampleKeystore.p12", password: "ballerina" };
-    var privateKey = crypto:decodePrivateKey(keyStore = keyStore, keyAlias = "ballerina",
-        keyPassword = "ballerina");
+    crypto:KeyStore keyStore = { path: "./sampleKeystore.p12", password: "ballerina" };
+    var privateKey = crypto:decodePrivateKey(keyStore, "ballerina", "ballerina");
 
     if (privateKey is crypto:PrivateKey) {
         // Signing input value using RSA-MD5 signature algorithms, and printing the signature value using Hex encoding.
@@ -89,7 +88,7 @@ public function main() returns error? {
         output = check crypto:signRsaSha512(inputArr, privateKey);
         io:println("Hex encoded RSA-SHA512 signature: " + encoding:encodeHex(output));
     } else {
-        io:println("invalid private key");
+        io:println("Invalid private key");
     }
 
      // Randomly generate a 128 bit key for AES encryption.
@@ -110,8 +109,8 @@ public function main() returns error? {
      io:println("AES CBC PKCS5 decrypted value: " + encoding:byteArrayToString(output));
 
      // Encrypt and decrypt input value using AES CBC no padding.
-     output = check crypto:encryptAesCbc(inputArr, rsaKeyArr, ivArr, padding = crypto:NONE);
-     output = check crypto:decryptAesCbc(output, rsaKeyArr, ivArr, padding = crypto:NONE);
+     output = check crypto:encryptAesCbc(inputArr, rsaKeyArr, ivArr, crypto:NONE);
+     output = check crypto:decryptAesCbc(output, rsaKeyArr, ivArr, crypto:NONE);
      io:println("AES CBC no padding decrypted value: " + encoding:byteArrayToString(output));
 
      // Encrypt and decrypt input value using AES GCM PKCS5 padding.
@@ -120,8 +119,8 @@ public function main() returns error? {
      io:println("AES GCM PKCS5 decrypted value: " + encoding:byteArrayToString(output));
 
      // Encrypt and decrypt input value using AES GCM no padding.
-     output = check crypto:encryptAesGcm(inputArr, rsaKeyArr, ivArr, padding = crypto:NONE);
-     output = check crypto:decryptAesGcm(output, rsaKeyArr, ivArr, padding = crypto:NONE);
+     output = check crypto:encryptAesGcm(inputArr, rsaKeyArr, ivArr, crypto:NONE);
+     output = check crypto:decryptAesGcm(output, rsaKeyArr, ivArr, crypto:NONE);
      io:println("AES GCM no padding decrypted value: " + encoding:byteArrayToString(output));
 
      // Encrypt and decrypt input value using AES ECB PKCS5 padding.
@@ -130,16 +129,15 @@ public function main() returns error? {
      io:println("AES ECB PKCS5 decrypted value: " + encoding:byteArrayToString(output));
 
      // Encrypt and decrypt input value using AES ECB no padding.
-     output = check crypto:encryptAesEcb(inputArr, rsaKeyArr, padding = crypto:NONE);
-     output = check crypto:decryptAesEcb(output, rsaKeyArr, padding = crypto:NONE);
+     output = check crypto:encryptAesEcb(inputArr, rsaKeyArr, crypto:NONE);
+     output = check crypto:decryptAesEcb(output, rsaKeyArr, crypto:NONE);
      io:println("AES ECB no padding decrypted value: " + encoding:byteArrayToString(output));
 
      // Public key used for RSA encryption.
-     crypto:PublicKey rsaPublicKey = check crypto:decodePublicKey(keyStore = keyStore, keyAlias = "ballerina");
+     crypto:PublicKey rsaPublicKey = check crypto:decodePublicKey(keyStore, "ballerina");
 
      // Private key used for RSA decryption.
-     crypto:PrivateKey rsaPrivateKey = check crypto:decodePrivateKey(keyStore = keyStore, keyAlias = "ballerina",
-                                                            keyPassword = "ballerina");
+     crypto:PrivateKey rsaPrivateKey = check crypto:decodePrivateKey(keyStore, "ballerina", "ballerina");
 
      // Encrypt and decrypt input value using RSA ECB PKCS1 padding.
      output = check crypto:encryptRsaEcb(inputArr, rsaPublicKey);
@@ -147,7 +145,7 @@ public function main() returns error? {
      io:println("RSA ECB PKCS1 decrypted value: " + encoding:byteArrayToString(output));
 
      // Encrypt and decrypt input value using RSA ECB OAEPwithSHA512andMGF1 padding.
-     output = check crypto:encryptRsaEcb(inputArr, rsaPublicKey, padding = crypto:OAEPwithSHA512andMGF1);
-     output = check crypto:decryptRsaEcb(output, rsaPrivateKey, padding = crypto:OAEPwithSHA512andMGF1);
+     output = check crypto:encryptRsaEcb(inputArr, rsaPublicKey, crypto:OAEPwithSHA512andMGF1);
+     output = check crypto:decryptRsaEcb(output, rsaPrivateKey, crypto:OAEPwithSHA512andMGF1);
      io:println("RSA ECB OAEPwithSHA512andMGF1 decrypted value: " + encoding:byteArrayToString(output));
 }

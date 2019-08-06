@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.compiler.workspace;
 
+import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -39,12 +40,18 @@ public class WorkspaceDocument {
     private String content;
     private String prunedContent;
     private boolean usePrunedSource;
+    private LSDocument lsDocument;
 
-    public WorkspaceDocument(Path path, String content) {
+    public WorkspaceDocument(Path path, String content, boolean isTempFile) {
         this.path = path;
         this.content = content;
         this.codeLenses = new ArrayList<>();
         this.usePrunedSource = false;
+        lsDocument = isTempFile ? null : new LSDocument(path.toUri().toString());
+    }
+
+    public WorkspaceDocument(Path path, String content) {
+        this(path, content, false);
     }
 
     public List<CodeLens> getCodeLenses() {
@@ -89,6 +96,10 @@ public class WorkspaceDocument {
     public void setPrunedContent(String prunedContent) {
         this.prunedContent = prunedContent;
         this.usePrunedSource = true;
+    }
+
+    public LSDocument getLSDocument() {
+        return lsDocument;
     }
 
     private String getRangeTextAppliedContent(Range range, String newText, String oldText) {

@@ -28,7 +28,7 @@ import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.Object;
 import org.ballerinalang.docgen.generator.model.Record;
 import org.ballerinalang.docgen.generator.model.Type;
-import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.testng.Assert;
@@ -219,7 +219,7 @@ public class HtmlDocTest {
      */
     private BLangPackage createPackage(String source) {
         try {
-            BallerinaFile ballerinaFile = LSCompiler.compileContent(source, CompilerPhase.TYPE_CHECK);
+            BallerinaFile ballerinaFile = ExtendedLSCompiler.compileContent(source, CompilerPhase.TYPE_CHECK);
 
             ballerinaFile.getDiagnostics().ifPresent(
                     diagnostics -> {

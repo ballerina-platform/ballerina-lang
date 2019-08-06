@@ -22,7 +22,7 @@ import org.ballerinalang.langserver.command.testgen.renderer.RendererOutput;
 import org.ballerinalang.langserver.command.testgen.renderer.TemplateBasedRendererOutput;
 import org.ballerinalang.langserver.command.testgen.template.RootTemplate;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
@@ -120,7 +120,7 @@ public class TestGenerator {
             // Create tests from blang package
             BallerinaFile ballerinaFile;
             try {
-                ballerinaFile = LSCompiler.compileContent(testContent, CompilerPhase.COMPILER_PLUGIN);
+                ballerinaFile = ExtendedLSCompiler.compileContent(testContent, CompilerPhase.COMPILER_PLUGIN);
             } catch (LSCompilerException e) {
                 throw new TestGeneratorException("Could not compile the test content", e);
             }
