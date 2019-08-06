@@ -20,7 +20,6 @@ package org.ballerinalang.packerina.cmd;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.packerina.TaskExecutor;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
-import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.packerina.task.CompileTask;
 import org.ballerinalang.packerina.task.CopyExecutableTask;
@@ -204,7 +203,7 @@ public class BuildCommand implements BLauncherCmd {
             if (!Files.isRegularFile(sourcePath)) {
                 throw LauncherUtils.createLauncherException("'" + sourcePath + "' is not ballerina file.");
             }
-    
+            
             try {
                 targetPath = Files.createTempDirectory("ballerina-build-" + System.nanoTime());
             } catch (IOException e) {
@@ -261,10 +260,10 @@ public class BuildCommand implements BLauncherCmd {
         this.sourceRootPath = this.sourceRootPath.normalize();
         sourcePath = sourcePath == null ? null : sourcePath.normalize();
         targetPath = targetPath.normalize();
-    
+        
         // create compiler context
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
+        CompilerContext compilerContext = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(PROJECT_DIR, this.sourceRootPath.toString());
         options.put(OFFLINE, Boolean.toString(this.offline));
         options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
@@ -275,10 +274,9 @@ public class BuildCommand implements BLauncherCmd {
         options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(this.siddhiRuntimeFlag));
     
         // create builder context
-        BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath);
+        BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath, compilerContext);
         buildContext.setOut(outStream);
         buildContext.setErr(errStream);
-        buildContext.put(BuildContextField.COMPILER_CONTEXT, context);
     
         boolean isSingleFileBuild = buildContext.getSourceType().equals(SINGLE_BAL_FILE);
         Path outputPath = null == this.output ? this.sourceRootPath : Paths.get(this.output);

@@ -18,6 +18,7 @@
 
 package org.ballerinalang.packerina.cmd;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.BLauncherException;
 import org.testng.Assert;
@@ -80,6 +81,8 @@ public abstract class CommandTest {
             if (e.getMessages().size() == 1) {
                 return e.getMessages().get(0);
             }
+        } catch (BLangCompilerException e) {
+            return e.getMessage();
         } catch (Exception e) {
             Assert.fail("Invalid exception found: " + e.getClass().toString() + "-" + e.getMessage());
         }

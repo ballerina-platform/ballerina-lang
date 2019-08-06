@@ -167,14 +167,42 @@ public class BuildCommandTest extends CommandTest {
     @Test(description = "Build bal file with no entry")
     public void buildBalFileWithNoEntry() {
         // valid source root path
-        Path validBalFilePath = this.testResources.resolve("valid-bal-file-with-no-entry");
-        BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false);
+        Path sourceRoot = this.testResources.resolve("valid-bal-file-with-no-entry");
+        BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false);
         // non existing bal file
         new CommandLine(buildCommand).parse("hello_world.bal");
         
         String exMsg = executeAndGetException(buildCommand);
         Assert.assertEquals(exMsg, "error: no entry points found in '" +
-                                   validBalFilePath.resolve("hello_world.bal").toString() + "'.");
+                                   sourceRoot.resolve("hello_world.bal").toString() + "'.");
+    }
+    
+    @Test(description = "Build a valid ballerina file with toml")
+    public void buildBalFileWithTomlTest() throws IOException {
+        Path sourceRoot = this.testResources.resolve("single-bal-file-with-toml");
+        BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false);
+        new CommandLine(buildCommand).parse("hello_world.bal");
+        buildCommand.execute();
+        
+        String buildLog = readOutput();
+        Assert.assertTrue(buildLog.contains("Compiling source"));
+        Assert.assertTrue(buildLog.contains("\thello_world.bal"));
+        Assert.assertTrue(buildLog.contains("Generating executables"));
+        Assert.assertTrue(buildLog.contains("\thello_world-executable.jar"));
+        Assert.assertTrue(Files.exists(sourceRoot.resolve("hello_world-executable.jar")));
+    
+        Files.delete(sourceRoot.resolve("hello_world-executable.jar"));
+    }
+    
+    @Test(description = "Build a no args with toml and ballerina file. Should identify it as a ballerina project.")
+    public void buildBalFileWithTomlNoArgTest() {
+        Path sourceRoot = this.testResources.resolve("single-bal-file-with-toml");
+        BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false);
+        new CommandLine(buildCommand).parse();
+        
+        String exMsg = executeAndGetException(buildCommand);
+        Assert.assertEquals(exMsg, "cannot find 'src' directory in the ballerina project. 'src' directory is missing " +
+                                   "at: " + sourceRoot.toString());
     }
     
     @Test(description = "Test Build Command in a Project")

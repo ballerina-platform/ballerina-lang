@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.toml.model.Manifest;
@@ -29,6 +30,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -124,16 +126,47 @@ public class SourceDirectoryManager {
         }
 
         Path projectDirPath = Paths.get(srcDirPathName);
-        // TODO Validate projectDirPath, exists, get Absolute path etc. no simlinks
-        // TODO Validate the project directory
-        // TODO Check whether it is a directory and it exists.
-        // TODO to real path.. isReadable isWritable etc.
-        String standaloneFile = options.get(CompilerOptionName.STANDALONE_FILE);
-        srcDirectory = new FileSystemProjectDirectory(projectDirPath);
-        if (!srcDirectory.canHandle(projectDirPath) || standaloneFile != null) {
-            srcDirectory = new FileSystemProgramDirectory(projectDirPath);
+        
+        if (Files.notExists(projectDirPath)) {
+            throw new BLangCompilerException("'" + projectDirPath + "' project directory does not exist.");
         }
-
+    
+        if (!Files.isDirectory(projectDirPath)) {
+            throw new BLangCompilerException("'" + projectDirPath + "' project directory does not exist.");
+        }
+    
+        if (Files.isSymbolicLink(projectDirPath)) {
+            throw new BLangCompilerException("'" + projectDirPath + "' project directory is symlink.");
+        }
+    
+        if (!Files.isWritable(projectDirPath)) {
+            throw new BLangCompilerException("'" + projectDirPath + "' is not writable.");
+        }
+    
+        projectDirPath = projectDirPath.normalize().toAbsolutePath();
+        
+        String sourceType = options.get(CompilerOptionName.SOURCE_TYPE);
+        switch (sourceType) {
+            case "SINGLE_BAL_FILE":
+                srcDirectory = new FileSystemProgramDirectory(projectDirPath);
+                break;
+            case "SINGLE_MODULE":
+            case "ALL_MODULES":
+                // if src folder is missing
+                if (Files.notExists(projectDirPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME))) {
+                    throw new BLangCompilerException("cannot find 'src' directory in the ballerina project. 'src' " +
+                                                     "directory is missing at: " + projectDirPath.toString());
+                }
+                srcDirectory = new FileSystemProjectDirectory(projectDirPath);
+                break;
+            default:
+                // resort to 'canHandle'
+                srcDirectory = new FileSystemProjectDirectory(projectDirPath);
+                if (!srcDirectory.canHandle(projectDirPath)) {
+                    srcDirectory = new FileSystemProgramDirectory(projectDirPath);
+                }
+        }
+        
         context.put(SourceDirectory.class, srcDirectory);
         return srcDirectory;
     }
