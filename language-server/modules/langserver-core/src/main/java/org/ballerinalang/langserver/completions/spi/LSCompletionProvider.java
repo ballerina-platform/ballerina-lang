@@ -312,7 +312,8 @@ public abstract class LSCompletionProvider {
             if (!pkgAlreadyImported && !populatedList.contains(orgName + "/" + name)) {
                 CompletionItem item = new CompletionItem();
                 item.setLabel(ballerinaPackage.getFullPackageNameAlias());
-                String insertText = name;
+                String[] pkgNameComps = name.split("\\.");
+                String insertText = pkgNameComps[pkgNameComps.length - 1];
                 // Check for the lang lib module insert text
                 if ("ballerina".equals(orgName) && name.startsWith("lang.")) {
                     String[] pkgNameComponents = name.split("\\.");
@@ -507,7 +508,8 @@ public abstract class LSCompletionProvider {
         return visibleSymbols.stream()
                 .filter(symbolInfo -> {
                     BSymbol symbol = symbolInfo.getScopeEntry().symbol;
-                    return symbol instanceof BPackageSymbol && alias.equals(symbol.getName().getValue());
+                    String[] nameComps = symbol.getName().value.split("\\.");
+                    return symbol instanceof BPackageSymbol && alias.equals(nameComps[nameComps.length - 1]);
                 })
                 .findAny();
     }
