@@ -25,7 +25,7 @@ import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
@@ -575,7 +575,7 @@ public abstract class LSCompletionProvider {
         
         Optional<BLangPackage> bLangPackage;
         try {
-            bLangPackage = LSCompiler.compileContent(subRule.toString(), CompilerPhase.CODE_ANALYZE)
+            bLangPackage = ExtendedLSCompiler.compileContent(subRule.toString(), CompilerPhase.CODE_ANALYZE)
                     .getBLangPackage();
         } catch (LSCompilerException e) {
             throw new LSCompletionException("Error while parsing the sub-rule");

@@ -27,12 +27,12 @@ import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
-import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
@@ -92,22 +92,22 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
-    private final LSCompiler lsCompiler;
 
     public BallerinaDocumentServiceImpl(LSGlobalContext globalContext) {
         this.ballerinaLanguageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
         this.documentManager = globalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
-        this.lsCompiler = new LSCompiler(documentManager);
     }
 
     @Override
     public CompletableFuture<BallerinaOASResponse> openApiDefinition(BallerinaOASRequest request) {
-        String fileUri = request.getBallerinaDocument().getUri();
-        Path formattingFilePath = new LSDocument(fileUri).getPath();
-        Path compilationPath = getUntitledFilePath(formattingFilePath.toString()).orElse(formattingFilePath);
-        Optional<Lock> lock = documentManager.lockFile(compilationPath);
-
         BallerinaOASResponse reply = new BallerinaOASResponse();
+        String fileUri = request.getBallerinaDocument().getUri();
+        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+        if (!filePath.isPresent()) {
+            return CompletableFuture.supplyAsync(() -> reply);
+        }
+        Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
+        Optional<Lock> lock = documentManager.lockFile(compilationPath);
 
         try {
             String fileContent = documentManager.getFileContent(compilationPath);
@@ -135,8 +135,11 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     @Override
     public void apiDesignDidChange(ApiDesignDidChangeParams params) {
         String fileUri = params.getDocumentIdentifier().getUri();
-        Path sourceFilePath = new LSDocument(fileUri).getPath();
-        Optional<Lock> lock = documentManager.lockFile(sourceFilePath);
+        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+        if (!filePath.isPresent()) {
+            return;
+        }
+        Optional<Lock> lock = documentManager.lockFile(filePath.get());
 
         try {
             //Generate compilation unit for provided Open Api Sep JSON
@@ -153,19 +156,19 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             }
 
             //Generate ballerina file to get services
-            BallerinaFile oasServiceBal = LSCompiler.compileContent(oasServiceFile.get().getContent(),
+            BallerinaFile oasServiceBal = ExtendedLSCompiler.compileContent(oasServiceFile.get().getContent(),
                     CompilerPhase.CODE_ANALYZE);
 
             Optional<BLangPackage> oasFilePackage = oasServiceBal.getBLangPackage();
 
-            String fileContent = documentManager.getFileContent(sourceFilePath);
+            String fileContent = documentManager.getFileContent(filePath.get());
             String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
             int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
             int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
             int totalLines = contentComponents.length;
             Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
 
-            BallerinaFile ballerinaFile = LSCompiler.compileContent(fileContent, CompilerPhase.CODE_ANALYZE);
+            BallerinaFile ballerinaFile = ExtendedLSCompiler.compileContent(fileContent, CompilerPhase.CODE_ANALYZE);
             Optional<BLangPackage> bLangPackage = ballerinaFile.getBLangPackage();
 
             if (bLangPackage.isPresent() && bLangPackage.get().symbol != null && oasFilePackage.isPresent()) {
@@ -212,13 +215,16 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     public CompletableFuture<BallerinaServiceListResponse> serviceList(BallerinaServiceListRequest request) {
         BallerinaServiceListResponse reply = new BallerinaServiceListResponse();
         String fileUri = request.getDocumentIdentifier().getUri();
-        Path formattingFilePath = new LSDocument(fileUri).getPath();
-        Path compilationPath = getUntitledFilePath(formattingFilePath.toString()).orElse(formattingFilePath);
+        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+        if (!filePath.isPresent()) {
+            return CompletableFuture.supplyAsync(() -> reply);
+        }
+        Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
         Optional<Lock> lock = documentManager.lockFile(compilationPath);
 
         try {
             String fileContent = documentManager.getFileContent(compilationPath);
-            BallerinaFile ballerinaFile = LSCompiler.compileContent(fileContent, CompilerPhase.CODE_ANALYZE);
+            BallerinaFile ballerinaFile = ExtendedLSCompiler.compileContent(fileContent, CompilerPhase.CODE_ANALYZE);
             Optional<BLangPackage> bLangPackage = ballerinaFile.getBLangPackage();
             ArrayList<String> services = new ArrayList<>();
 
@@ -253,15 +259,17 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     public CompletableFuture<BallerinaASTResponse> ast(BallerinaASTRequest request) {
         BallerinaASTResponse reply = new BallerinaASTResponse();
         String fileUri = request.getDocumentIdentifier().getUri();
-        Path formattingFilePath = new LSDocument(fileUri).getPath();
-        Path compilationPath = getUntitledFilePath(formattingFilePath.toString()).orElse(formattingFilePath);
+        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+        if (!filePath.isPresent()) {
+            return CompletableFuture.supplyAsync(() -> reply);
+        }
+        Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
         Optional<Lock> lock = documentManager.lockFile(compilationPath);
         try {
             LSContext astContext = new LSServiceOperationContext();
             astContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
-            BLangPackage bLangPackage = lsCompiler.getBLangPackage(astContext, this.documentManager, true,
-                    LSCustomErrorStrategy.class, false);
-            astContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
+            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, true, LSCustomErrorStrategy.class,
+                    false);
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(true);
         } catch (LSCompilerException | JSONGenerationException e) {
@@ -276,8 +284,11 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     public CompletableFuture<BallerinaASTDidChangeResponse> astDidChange(BallerinaASTDidChange notification) {
         BallerinaASTDidChangeResponse reply = new BallerinaASTDidChangeResponse();
         String fileUri = notification.getTextDocumentIdentifier().getUri();
-        Path formattingFilePath = new LSDocument(fileUri).getPath();
-        Path compilationPath = getUntitledFilePath(formattingFilePath.toString()).orElse(formattingFilePath);
+        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+        if (!filePath.isPresent()) {
+            return CompletableFuture.supplyAsync(() -> reply);
+        }
+        Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
         Optional<Lock> lock = documentManager.lockFile(compilationPath);
         try {
             // calculate range to replace
@@ -323,14 +334,17 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     @Override
     public CompletableFuture<BallerinaProject> project(BallerinaProjectParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            Path sourceFilePath = new LSDocument(params.getDocumentIdentifier().getUri()).getPath();
             BallerinaProject project = new BallerinaProject();
-            project.setPath(getProjectDir(sourceFilePath));
+            Optional<Path> filePath = CommonUtil.getPathFromURI(params.getDocumentIdentifier().getUri());
+            if (!filePath.isPresent()) {
+                return project;
+            }
+            project.setPath(getProjectDir(filePath.get()));
             return project;
         });
     }
 
-    private JsonElement getTreeForContent(LSContext context) throws LSCompilerException, JSONGenerationException {
+    private JsonElement getTreeForContent(LSContext context) throws JSONGenerationException {
         BLangPackage bLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         VisibleEndpointVisitor visibleEndpointVisitor = new VisibleEndpointVisitor(compilerContext);
