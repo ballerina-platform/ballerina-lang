@@ -35,7 +35,7 @@ import org.testng.annotations.Test;
  */
 public class FunctionPointersTest {
 
-    private CompileResult fpProgram, privateFPProgram, globalProgram, structProgram;
+    private CompileResult fpProgram, privateFPProgram, globalProgram, structProgram, closureFPProgram;
 
     @BeforeClass
     public void setup() {
@@ -44,6 +44,8 @@ public class FunctionPointersTest {
                 "private-function-pointers");
         globalProgram = BCompileUtil.compile("test-src/expressions/lambda/global-function-pointers.bal");
         structProgram = BCompileUtil.compile("test-src/expressions/lambda/struct-function-pointers.bal");
+        closureFPProgram =
+                BCompileUtil.compile("test-src/expressions/lambda/function-pointer-with-closure.bal");
     }
 
     @Test
@@ -260,8 +262,13 @@ public class FunctionPointersTest {
 
     @Test
     public void testFunctionPointerWithAClosure() {
-        CompileResult compile = BCompileUtil.compile("test-src/expressions/lambda/function-pointer-with-closure.bal");
-        BValue[] returns = BRunUtil.invoke(compile, "testArrayFunctionInfer");
+        BValue[] returns = BRunUtil.invoke(closureFPProgram, "testArrayFunctionInfer");
         Assert.assertEquals(returns[0].stringValue(), "abccde");
+    }
+
+    @Test
+    public void testInvoke() {
+        BValue[] returns = BRunUtil.invoke(closureFPProgram, "invokeApplyFunction");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 6);
     }
 }
