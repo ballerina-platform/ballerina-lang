@@ -39,22 +39,22 @@ import static org.ballerinalang.packerina.cmd.Constants.CLEAN_COMMAND;
 @CommandLine.Command(name = CLEAN_COMMAND, description = "Ballerina clean - Cleans out the target directory of a " +
                                                          "project.")
 public class CleanCommand implements BLauncherCmd {
-    private static PrintStream outStream = System.out;
+    private final PrintStream outStream;
     private final Path sourceRootPath;
     
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
     
     public CleanCommand() {
-        sourceRootPath = Paths.get(System.getProperty("user.dir"));
-        outStream = System.out;
+        this.sourceRootPath = Paths.get(System.getProperty("user.dir"));
+        this.outStream = System.out;
     }
     
     @Override
     public void execute() {
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(CLEAN_COMMAND);
-            outStream.println(commandUsageInfo);
+            this.outStream.println(commandUsageInfo);
             return;
         }
     
@@ -68,7 +68,7 @@ public class CleanCommand implements BLauncherCmd {
     
             Runtime.getRuntime().exit(0);
         } else {
-            outStream.println("'clean' command can only be executed from a ballerina project");
+            this.outStream.println("'clean' command can only be executed from a ballerina project");
             Runtime.getRuntime().exit(1);
         }
     }

@@ -92,23 +92,25 @@ public class BuildCommand implements BLauncherCmd {
         this.exitWhenFinish = exitWhenFinish;
     }
 
-    @CommandLine.Option(names = {"--output", "-o"}, description = "write executable output to the given file")
+    @CommandLine.Option(names = {"--output", "-o"}, description = "Writes output to the given file. The provided " +
+                                                                  "output filename may or may not contain the ‘.jar’ " +
+                                                                  "extension.")
     private String output;
 
-    @CommandLine.Option(names = {"--off-line"})
+    @CommandLine.Option(names = {"--off-line"}, description = "Builds offline without downloading dependencies.")
     private boolean offline;
 
-    @CommandLine.Option(names = {"--skip-lock"})
+    @CommandLine.Option(names = {"--skip-lock"}, description = "Skip using the lock file to resolve dependencies.")
     private boolean skipLock;
 
-    @CommandLine.Option(names = {"--skip-tests"})
+    @CommandLine.Option(names = {"--skip-tests"}, description = "Skips test compilation and execution.")
     private boolean skipTests;
 
     @CommandLine.Parameters
     private List<String> argList;
 
     @CommandLine.Option(names = {"--native"}, hidden = true,
-            description = "compile Ballerina program to a native binary")
+                        description = "Compile Ballerina program to a native binary")
     private boolean nativeBinary;
 
     @CommandLine.Option(names = "--dump-bir", hidden = true)
@@ -120,13 +122,13 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = "--experimental", description = "enable experimental language features")
+    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
     private boolean experimentalFlag;
 
-    @CommandLine.Option(names = {"--config"}, description = "path to the configuration file")
+    @CommandLine.Option(names = {"--config", "-c"}, description = "Path to the configuration file for running tests.")
     private String configFilePath;
 
-    @CommandLine.Option(names = "--siddhi-runtime", description = "enable siddhi runtime for stream processing")
+    @CommandLine.Option(names = "--siddhi-runtime", description = "Enable siddhi runtime for stream processing.")
     private boolean siddhiRuntimeFlag;
 
     public void execute() {
@@ -162,8 +164,8 @@ public class BuildCommand implements BLauncherCmd {
             }
         
             // validate and set source root path
-            if (!ProjectDirs.isProject(sourceRootPath)) {
-                Path findRoot = ProjectDirs.findProjectRoot(sourceRootPath);
+            if (!ProjectDirs.isProject(this.sourceRootPath)) {
+                Path findRoot = ProjectDirs.findProjectRoot(this.sourceRootPath);
                 if (null == findRoot) {
                     CommandUtil.printError(this.errStream,
                             "please provide a Ballerina file as a " +
@@ -172,19 +174,19 @@ public class BuildCommand implements BLauncherCmd {
                             false);
                     return;
                 }
-                sourceRootPath = findRoot;
+                this.sourceRootPath = findRoot;
             }
         
-            targetPath = sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
+            targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         } else if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
             // when a single bal file is provided.
             
             //// check if path given is an absolute path. update source root accordingly.
             if (Paths.get(this.argList.get(0)).isAbsolute()) {
                 sourcePath = Paths.get(this.argList.get(0));
-                sourceRootPath = sourcePath.getParent();
+                this.sourceRootPath = sourcePath.getParent();
             } else {
-                sourcePath = sourceRootPath.resolve(this.argList.get(0));
+                sourcePath = this.sourceRootPath.resolve(this.argList.get(0));
             }
             
             //// check if the given file exists.
@@ -211,10 +213,10 @@ public class BuildCommand implements BLauncherCmd {
             }
             
             //// check if command executed from project root.
-            if (!RepoUtils.isBallerinaProject(sourceRootPath)) {
+            if (!RepoUtils.isBallerinaProject(this.sourceRootPath)) {
                 throw LauncherUtils.createLauncherException("you are trying to build a module that is not inside " +
                                                             "a project. Run `ballerina new` from " +
-                                                            sourceRootPath + " to initialize it as a " +
+                                                            this.sourceRootPath + " to initialize it as a " +
                                                             "project and then build the module.");
             }
             
@@ -234,7 +236,7 @@ public class BuildCommand implements BLauncherCmd {
             sourcePath = Paths.get(moduleName);
             
             //// check if module exists.
-            if (Files.notExists(sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(sourcePath))) {
+            if (Files.notExists(this.sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(sourcePath))) {
                 throw LauncherUtils.createLauncherException("'" + sourcePath + "' module does not exist.");
             }
     
@@ -242,14 +244,14 @@ public class BuildCommand implements BLauncherCmd {
         }
         
         // normalize paths
-        sourceRootPath = sourceRootPath.normalize();
+        this.sourceRootPath = this.sourceRootPath.normalize();
         sourcePath = sourcePath == null ? null : sourcePath.normalize();
         targetPath = targetPath.normalize();
     
         // create compiler context
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(PROJECT_DIR, sourceRootPath.toString());
+        options.put(PROJECT_DIR, this.sourceRootPath.toString());
         options.put(OFFLINE, Boolean.toString(this.offline));
         options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
         options.put(LOCK_ENABLED, Boolean.toString(!this.skipLock));
@@ -259,13 +261,14 @@ public class BuildCommand implements BLauncherCmd {
         options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(this.siddhiRuntimeFlag));
     
         // create builder context
-        BuildContext buildContext = new BuildContext(sourceRootPath, targetPath, sourcePath);
+        BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath);
         buildContext.setOut(outStream);
         buildContext.setErr(errStream);
         buildContext.put(BuildContextField.COMPILER_CONTEXT, context);
     
         boolean isSingleFileBuild = buildContext.getSourceType().equals(SINGLE_BAL_FILE);
         Path outputPath = null == this.output ? null : Paths.get(this.output);
+        Path configFilePath = null == this.configFilePath ? null : Paths.get(this.configFilePath);
         
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
@@ -276,7 +279,8 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CopyNativeLibTask(), isSingleFileBuild)    // copy the native libs(projects only)
                 .addTask(new CreateJarTask(this.dumpBIR))    // create the jar
                 .addTask(new CopyModuleJarTask())
-                .addTask(new RunTestsTask(), this.skipTests || isSingleFileBuild)   // run tests(projects only)
+                .addTask(new RunTestsTask(configFilePath), this.skipTests || isSingleFileBuild)// run tests
+                                                                                                    // (projects only)
                 .addTask(new CreateExecutableTask())    // create the executable .jar file
                 .addTask(new CopyExecutableTask(outputPath), !isSingleFileBuild)    // copy executable
                 .addTask(new PrintExecutablePathTask()) // print the location of the executable
@@ -288,7 +292,7 @@ public class BuildCommand implements BLauncherCmd {
         
         taskExecutor.executeTasks(buildContext);
         
-        if (exitWhenFinish) {
+        if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }
     }
