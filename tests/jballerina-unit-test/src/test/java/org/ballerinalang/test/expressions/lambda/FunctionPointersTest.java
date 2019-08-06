@@ -257,4 +257,11 @@ public class FunctionPointersTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "test1");
     }
+
+    @Test
+    public void testFunctionPointerWithAClosure() {
+        CompileResult compile = BCompileUtil.compile("test-src/expressions/lambda/function-pointer-with-closure.bal");
+        BValue[] returns = BRunUtil.invoke(compile, "testArrayFunctionInfer");
+        Assert.assertEquals(returns[0].stringValue(), "abccde");
+    }
 }

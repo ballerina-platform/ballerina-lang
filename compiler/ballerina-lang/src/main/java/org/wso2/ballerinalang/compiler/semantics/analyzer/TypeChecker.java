@@ -2727,6 +2727,31 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         if (isFunctionPointer(funcSymbol)) {
             iExpr.functionPointerInvocation = true;
+            BLangInvokableNode encInvokable = env.enclInvokable;
+            if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA) &&
+                    !(funcSymbol.owner instanceof BPackageSymbol) &&
+                    !isFunctionArgument(funcSymbol, encInvokable.requiredParams)) {
+                SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+                BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv,
+                        funcSymbol.name, SymTag.VARIABLE);
+                if (resolvedSymbol != symTable.notFoundSymbol && !encInvokable.flagSet.contains(Flag.ATTACHED)) {
+                    resolvedSymbol.closure = true;
+                    ((BLangFunction) encInvokable).closureVarSymbols.add(
+                            new ClosureVarSymbol(resolvedSymbol, iExpr.pos));
+                }
+            }
+            if (env.node.getKind() == NodeKind.ARROW_EXPR && !(funcSymbol.owner instanceof BPackageSymbol)) {
+                if (!isFunctionArgument(funcSymbol, ((BLangArrowFunction) env.node).params)) {
+                    SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+                    BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, funcSymbol.name,
+                            SymTag.VARIABLE);
+                    if (resolvedSymbol != symTable.notFoundSymbol) {
+                        resolvedSymbol.closure = true;
+                        ((BLangArrowFunction) env.node).closureVarSymbols.add(
+                                new ClosureVarSymbol(resolvedSymbol, iExpr.pos));
+                    }
+                }
+            }
         }
         if (Symbols.isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX);
