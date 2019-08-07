@@ -179,7 +179,7 @@ public class ReferencesUtil {
         // Ignore the optional check since it has been handled during prepareReference and throws exception
         BSymbol bSymbol = symbolAtCursor.get().getSymbol();
         return bSymbol != null
-                ? HoverUtil.getHoverFromDocAttachment(HoverUtil.getMarkdownDocForSymbol(bSymbol), bSymbol)
+                ? HoverUtil.getHoverFromDocAttachment(HoverUtil.getMarkdownDocForSymbol(bSymbol), bSymbol, context)
                 : HoverUtil.getDefaultHoverObject();
     }
 

@@ -1,12 +1,12 @@
 {
-  "result": {
-    "contents": {
-      "kind": "markdown",
-      "value": "**Description**\r\n\r\nReturns the index of the first occurrence of `substr` in the part of the `str` starting at `startIndex`\nor nil if it does not occur.\r\n\r\n**Param**\r\n- str:the string\r\n- substr:sub string to search for\r\n- start:index to start search from\r\n\r\n**Return**\r\n- index of first `substr` occurrence or nil\r\n\r\n"
-    }
-  },
-  "id": {
-    "left": "324"
-  },
-  "jsonrpc": "2.0"
+    "result": {
+        "contents": {
+            "kind": "markdown",
+            "value": "**Description**\r\n\r\nReturns the index of the first occurrence of `substr` in the part of the `str` starting at `startIndex`\nor nil if it does not occur.\r\n\r\n**Param**\r\n- `string` str: the string\r\n- `string` substr: sub string to search for\r\n- start: index to start search from\r\n\r\n**Return**\r\n- `(int|())`: index of first `substr` occurrence or nil\r\n\r\n"
+        }
+    },
+    "id": {
+        "left": "324"
+    },
+    "jsonrpc": "2.0"
 }
