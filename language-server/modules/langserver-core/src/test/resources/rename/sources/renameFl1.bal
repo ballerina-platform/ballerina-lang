@@ -49,4 +49,7 @@ type person record {
 function testFunction() {
     person newPerson = {};
     newPerson.name = "Bob";
+    SampleError e = error("the reason", message="msg");
 }
+
+error SampleError = error("errorCode", message = "");
