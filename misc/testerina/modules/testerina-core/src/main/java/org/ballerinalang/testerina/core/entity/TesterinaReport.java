@@ -31,10 +31,18 @@ import java.util.Map;
  */
 public class TesterinaReport {
 
-    private static PrintStream outStream = System.out;
+    private PrintStream outStream;
     private Map<String, TestSummary> testReportOfPackage = new HashMap<>();
     private boolean failure;
-
+    
+    public TesterinaReport() {
+        this(System.out);
+    }
+    
+    public TesterinaReport(PrintStream outStream) {
+        this.outStream = outStream;
+    }
+    
     public void printTestSuiteSummary(String packageName) {
         TestSummary testSummary = testReportOfPackage.get(packageName);
         if (testSummary == null) {

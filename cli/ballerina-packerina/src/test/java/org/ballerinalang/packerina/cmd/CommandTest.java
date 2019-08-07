@@ -54,13 +54,13 @@ public abstract class CommandTest {
         return readOutput(false);
     }
 
-    protected String readOutput(boolean slient) throws IOException {
+    protected String readOutput(boolean silent) throws IOException {
         String output = "";
         output = console.toString();
         console.close();
         console = new ByteArrayOutputStream();
         printStream = new PrintStream(console);
-        if (!slient) {
+        if (!silent) {
             PrintStream out = System.out;
             out.println(output);
         }
@@ -73,15 +73,17 @@ public abstract class CommandTest {
      * @param cmd The command.
      * @return The error message.
      */
-    public String executeAndGetException(BLauncherCmd cmd) {
+    public String executeAndGetException(BLauncherCmd cmd) throws IOException {
         try {
             cmd.execute();
             Assert.fail("Expected exception did not occur.");
         } catch (BLauncherException e) {
             if (e.getMessages().size() == 1) {
+                readOutput(true);
                 return e.getMessages().get(0);
             }
         } catch (BLangCompilerException e) {
+            readOutput(true);
             return e.getMessage();
         } catch (Exception e) {
             Assert.fail("Invalid exception found: " + e.getClass().toString() + "-" + e.getMessage());

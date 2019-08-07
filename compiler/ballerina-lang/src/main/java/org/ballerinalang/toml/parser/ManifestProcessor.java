@@ -22,6 +22,8 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.DependencyMetadata;
 import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.model.Project;
+import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -46,20 +48,23 @@ public class ManifestProcessor {
     private static final CompilerContext.Key<ManifestProcessor> MANIFEST_PROC_KEY = new CompilerContext.Key<>();
     private static final Pattern semVerPattern = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)");
     private final Manifest manifest;
-
+    
     public static ManifestProcessor getInstance(CompilerContext context) {
         try {
             ManifestProcessor manifestProcessor = context.get(MANIFEST_PROC_KEY);
             if (manifestProcessor == null) {
                 SourceDirectory sourceDirectory = context.get(SourceDirectory.class);
-                Manifest manifest = ManifestProcessor.parseTomlContentAsStream(sourceDirectory.getManifestContent());
+                Manifest manifest = new Manifest();
+                if (sourceDirectory instanceof FileSystemProjectDirectory) {
+                    manifest = ManifestProcessor.parseTomlContentAsStream(sourceDirectory.getManifestContent());
+                }
                 ManifestProcessor instance = new ManifestProcessor(manifest);
                 context.put(MANIFEST_PROC_KEY, instance);
                 return instance;
             }
             return manifestProcessor;
-        } catch (TomlException te) {
-            throw new BLangCompilerException(te.getMessage());
+        } catch (TomlException tomlException) {
+            throw new BLangCompilerException(tomlException.getMessage());
         }
     }
 
@@ -74,12 +79,12 @@ public class ManifestProcessor {
     /**
      * Get the char stream of the content from file.
      *
-     * @param fileName path of the toml file
+     * @param tomlPath path of the toml file
      * @return manifest object
      * @throws IOException exception if the file cannot be found
      */
-    public static Manifest parseTomlContentFromFile(String fileName) throws IOException, TomlException {
-        InputStream targetStream = new FileInputStream(fileName);
+    public static Manifest parseTomlContentFromFile(Path tomlPath) throws IOException, TomlException {
+        InputStream targetStream = new FileInputStream(tomlPath.toFile());
         Manifest manifest = parseTomlContentAsStream(targetStream);
         validateManifestDependencies(manifest);
         return manifest;

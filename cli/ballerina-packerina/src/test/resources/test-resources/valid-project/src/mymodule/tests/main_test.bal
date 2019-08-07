@@ -16,7 +16,7 @@ function beforeFunc () {
 
 # Test function
 
-@test:Config{
+@test:Config {
     before:"beforeFunc",
     after:"afterFunc"
 }

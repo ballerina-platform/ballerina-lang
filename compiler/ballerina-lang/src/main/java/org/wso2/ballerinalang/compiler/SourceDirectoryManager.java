@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -76,16 +77,15 @@ public class SourceDirectoryManager {
     }
 
     private Manifest getManifest() {
-        Manifest manifest;
-        if (sourceDirectory.getManifestContent() == null) {
-            manifest = new Manifest();
-        } else {
-            try {
+        Manifest manifest = new Manifest();
+        try {
+            if (sourceDirectory instanceof FileSystemProjectDirectory) {
                 manifest = ManifestProcessor.parseTomlContentAsStream(sourceDirectory.getManifestContent());
-            } catch (TomlException e) {
-                manifest = new Manifest();
             }
+        } catch (TomlException tomlException) {
+            throw new BLangCompilerException(tomlException.getMessage());
         }
+        
         if (manifest.getProject().getVersion().isEmpty()) {
             manifest.getProject().setVersion(Names.DEFAULT_VERSION.getValue());
         }
@@ -120,60 +120,72 @@ public class SourceDirectoryManager {
     // private methods
 
     private SourceDirectory initializeAndGetSourceDirectory(CompilerContext context) {
-        SourceDirectory srcDirectory = context.get(SourceDirectory.class);
-        if (srcDirectory != null) {
-            return srcDirectory;
-        }
-
-        String srcDirPathName = options.get(CompilerOptionName.PROJECT_DIR);
-        if (srcDirPathName == null || srcDirPathName.isEmpty()) {
-            throw new IllegalArgumentException("invalid project directory path");
-        }
-
-        Path projectDirPath = Paths.get(srcDirPathName);
+        try {
+            SourceDirectory srcDirectory = context.get(SourceDirectory.class);
+            if (srcDirectory != null) {
+                return srcDirectory;
+            }
         
-        if (Files.notExists(projectDirPath)) {
-            throw new BLangCompilerException("'" + projectDirPath + "' project directory does not exist.");
-        }
-    
-        if (!Files.isDirectory(projectDirPath)) {
-            throw new BLangCompilerException("'" + projectDirPath + "' project directory does not exist.");
-        }
-    
-        if (Files.isSymbolicLink(projectDirPath)) {
-            throw new BLangCompilerException("'" + projectDirPath + "' project directory is symlink.");
-        }
-    
-        if (!Files.isWritable(projectDirPath)) {
-            throw new BLangCompilerException("'" + projectDirPath + "' is not writable.");
-        }
-    
-        projectDirPath = projectDirPath.normalize().toAbsolutePath();
+            String srcDirPathName = options.get(CompilerOptionName.PROJECT_DIR);
+            if (srcDirPathName == null || srcDirPathName.isEmpty()) {
+                throw new IllegalArgumentException("invalid project directory path");
+            }
         
-        String sourceType = options.get(CompilerOptionName.SOURCE_TYPE);
-        switch (sourceType) {
-            case "SINGLE_BAL_FILE":
-                srcDirectory = new FileSystemProgramDirectory(projectDirPath);
-                break;
-            case "SINGLE_MODULE":
-            case "ALL_MODULES":
-                // if src folder is missing
-                if (Files.notExists(projectDirPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME))) {
-                    throw new BLangCompilerException("cannot find 'src' directory in the ballerina project. 'src' " +
-                                                     "directory is missing at: " + projectDirPath.toString());
-                }
-                srcDirectory = new FileSystemProjectDirectory(projectDirPath);
-                break;
-            default:
-                // resort to 'canHandle'
-                srcDirectory = new FileSystemProjectDirectory(projectDirPath);
-                if (!srcDirectory.canHandle(projectDirPath)) {
+            Path projectDirPath = Paths.get(srcDirPathName);
+        
+            if (Files.notExists(projectDirPath)) {
+                throw new BLangCompilerException("'" + projectDirPath + "' project directory does not exist.");
+            }
+        
+            if (!Files.isDirectory(projectDirPath)) {
+                throw new BLangCompilerException("'" + projectDirPath + "' project directory does not exist.");
+            }
+        
+            if (Files.isSymbolicLink(projectDirPath)) {
+                throw new BLangCompilerException("'" + projectDirPath + "' project directory is symlink.");
+            }
+        
+            if (!Files.isWritable(projectDirPath)) {
+                throw new BLangCompilerException("'" + projectDirPath + "' is not writable.");
+            }
+        
+            projectDirPath = projectDirPath.normalize().toAbsolutePath();
+        
+            String sourceType = options.get(CompilerOptionName.SOURCE_TYPE);
+            switch (sourceType) {
+                case "SINGLE_BAL_FILE":
                     srcDirectory = new FileSystemProgramDirectory(projectDirPath);
-                }
-        }
+                    break;
+                case "SINGLE_MODULE":
+                case "ALL_MODULES":
+                    // if src folder is missing
+                    if (Files.notExists(projectDirPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME))) {
+                        throw new BLangCompilerException("cannot find 'src' directory in the ballerina project. 'src' " +
+                                                         "directory is missing at: " + projectDirPath.toString());
+                    }
+                    srcDirectory = new FileSystemProjectDirectory(projectDirPath);
+                    break;
+                default:
+                    // resort to 'canHandle'
+                    srcDirectory = new FileSystemProjectDirectory(projectDirPath);
+                    if (!srcDirectory.canHandle(projectDirPath)) {
+                        srcDirectory = new FileSystemProgramDirectory(projectDirPath);
+                    }
+            }
         
-        context.put(SourceDirectory.class, srcDirectory);
-        return srcDirectory;
+            // validate Ballerina.toml
+            if (srcDirectory instanceof FileSystemProjectDirectory) {
+                Path manifestPath = projectDirPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME);
+                ManifestProcessor.parseTomlContentFromFile(manifestPath);
+            }
+        
+            context.put(SourceDirectory.class, srcDirectory);
+            return srcDirectory;
+        } catch (IOException e) {
+            throw new BLangCompilerException("error occurred in finding manifest");
+        } catch (TomlException tomlException) {
+            throw new BLangCompilerException(tomlException.getMessage());
+        }
     }
 
     private Name getOrgName(Manifest manifest) {

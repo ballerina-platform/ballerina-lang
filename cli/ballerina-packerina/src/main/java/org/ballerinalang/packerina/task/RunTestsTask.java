@@ -84,7 +84,7 @@ public class RunTestsTask implements Task {
         // Create a class loader to
 
         if (programFileMap.size() > 0) {
-            TesterinaUtils.executeTests(sourceRootPath, programFileMap);
+            TesterinaUtils.executeTests(sourceRootPath, programFileMap, buildContext.out(), buildContext.err());
         }
     }
     

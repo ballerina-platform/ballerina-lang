@@ -72,18 +72,18 @@ public class BTestRunner {
 
     private PrintStream errStream;
     private PrintStream outStream;
-    private TesterinaReport tReport = new TesterinaReport();
+    private TesterinaReport tReport;
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
     private List<String> sourcePackages = new ArrayList<>();
     
     public BTestRunner() {
-        this.outStream = System.out;
-        this.errStream = System.err;
+        this(System.out, System.err);
     }
     
     public BTestRunner(PrintStream outStream, PrintStream errStream) {
         this.outStream = outStream;
         this.errStream = errStream;
+        tReport = new TesterinaReport(this.outStream);
     }
     
     public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups) {

@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  * @since 0.964
  */
 public class Manifest {
-    private Project project;
+    private Project project = new Project();
     private Map<String, Object> dependencies = new LinkedHashMap<>();
     private Platform platform = new Platform();
 

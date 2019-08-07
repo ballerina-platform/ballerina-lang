@@ -373,7 +373,7 @@ public class LSCompilerUtil {
     static Manifest getManifest(Path projectDirPath) {
         Path tomlFilePath = projectDirPath.resolve((ProjectDirConstants.MANIFEST_FILE_NAME));
         try {
-            return ManifestProcessor.parseTomlContentFromFile(tomlFilePath.toString());
+            return ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
         } catch (IOException | TomlException e) {
             return new Manifest();
         }
