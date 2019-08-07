@@ -172,8 +172,9 @@ public class HttpCarbonMessage {
      * available message size. This method is blocking function. Hence, use with care.
      * @param maxLength is the maximum length to count
      * @return counted length
+     * @throws InterruptedException if interrupted while waiting
      */
-    public long countMessageLengthTill(long maxLength) {
+    public long countMessageLengthTill(long maxLength) throws InterruptedException {
         return this.blockingEntityCollector.countMessageLengthTill(maxLength);
     }
 

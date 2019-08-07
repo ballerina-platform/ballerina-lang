@@ -70,8 +70,9 @@ public interface EntityCollector {
      * available message size. This method is blocking function. Hence, use with care.
      * @param maxLength is the maximum length to count
      * @return counted length
+     * @throws InterruptedException if interrupted while waiting
      */
-    long countMessageLengthTill(long maxLength);
+    long countMessageLengthTill(long maxLength) throws InterruptedException;
 
     /**
      * Complete the message.

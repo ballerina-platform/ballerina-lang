@@ -32,10 +32,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
  * Blocking entity collector.
@@ -45,6 +46,7 @@ public class BlockingEntityCollector implements EntityCollector {
     private static final Logger LOG = LoggerFactory.getLogger(BlockingEntityCollector.class);
 
     private int soTimeOut;
+    private int pollTimeOut = 60000;
     private EntityBodyState state;
 
     private BlockingQueue<HttpContent> httpContentQueue;
@@ -81,7 +83,7 @@ public class BlockingEntityCollector implements EntityCollector {
             readWriteLock.lock();
             if (state == EntityBodyState.CONSUMABLE || state == EntityBodyState.EXPECTING) {
                 waitForEntity();
-                HttpContent httpContent = httpContentQueue.poll();
+                HttpContent httpContent = httpContentQueue.poll(pollTimeOut, MILLISECONDS);
 
                 if (httpContent instanceof LastHttpContent) {
                     state = EntityBodyState.CONSUMED;
@@ -113,7 +115,7 @@ public class BlockingEntityCollector implements EntityCollector {
             List<HttpContent> contentList = new ArrayList<>();
             while (state == EntityBodyState.CONSUMABLE || state == EntityBodyState.EXPECTING) {
                 waitForEntity();
-                HttpContent httpContent = httpContentQueue.poll();
+                HttpContent httpContent = httpContentQueue.poll(pollTimeOut, MILLISECONDS);
                 size += httpContent.content().readableBytes();
                 contentList.add(httpContent);
                 if ((httpContent instanceof LastHttpContent)) {
@@ -133,19 +135,19 @@ public class BlockingEntityCollector implements EntityCollector {
         return size;
     }
 
-    public long countMessageLengthTill(long maxSize) {
+    public long countMessageLengthTill(long maxSize) throws InterruptedException {
         long size = 0;
         try {
             readWriteLock.lock();
             List<HttpContent> contentList = new ArrayList<>();
             while (state == EntityBodyState.CONSUMABLE || state == EntityBodyState.EXPECTING) {
                 waitForEntity();
-                HttpContent httpContent = httpContentQueue.poll();
+                HttpContent httpContent = httpContentQueue.poll(pollTimeOut, MILLISECONDS);
                 size += httpContent.content().readableBytes();
                 contentList.add(httpContent);
                 if (size >= maxSize) {
                     while (!httpContentQueue.isEmpty()) {
-                        contentList.add(httpContentQueue.poll());
+                        contentList.add(httpContentQueue.poll(pollTimeOut, MILLISECONDS));
                     }
                     break;
                 } else if ((httpContent instanceof LastHttpContent)) {
@@ -156,6 +158,7 @@ public class BlockingEntityCollector implements EntityCollector {
             state = EntityBodyState.CONSUMABLE;
         } catch (InterruptedException e) {
             LOG.warn("Error while getting full message length", e);
+            throw e;
         } catch (Exception e) {
             LOG.error("Error while retrieving http content length", e);
         } finally {
@@ -167,7 +170,7 @@ public class BlockingEntityCollector implements EntityCollector {
 
     private void waitForEntity() throws InterruptedException {
         while (httpContentQueue.isEmpty()) {
-            if (!readCondition.await(soTimeOut, TimeUnit.SECONDS)) {
+            if (!readCondition.await(soTimeOut, MILLISECONDS)) {
                 break;
             }
         }
@@ -180,7 +183,7 @@ public class BlockingEntityCollector implements EntityCollector {
                 boolean isEndOfMessageProcessed = false;
                 while (!isEndOfMessageProcessed) {
                     waitForEntity();
-                    HttpContent httpContent = httpContentQueue.poll();
+                    HttpContent httpContent = httpContentQueue.poll(pollTimeOut, MILLISECONDS);
                     if (httpContent instanceof LastHttpContent) {
                         isEndOfMessageProcessed = true;
                         state = EntityBodyState.CONSUMED;
