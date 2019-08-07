@@ -26,9 +26,8 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecutor;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.command.executors.CreateObjectInitializerExecutor;
-import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.CodeActionContext;
@@ -74,7 +73,7 @@ public class CodeActionTest {
     }
 
     @Test(dataProvider = "codeaction-no-diagnostics-data-provider")
-    public void testCodeActionWithoutDiagnostics(String config, String source) {
+    public void testCodeActionWithoutDiagnostics(String config, String source) throws IOException {
         String configJsonPath = "codeaction" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
@@ -84,8 +83,10 @@ public class CodeActionTest {
         CodeActionContext codeActionContext = new CodeActionContext(new ArrayList<>());
         Range range = gson.fromJson(configJsonObject.get("range"), Range.class);
 
+        TestUtil.openDocument(this.serviceEndpoint, sourcePath);
         String response = TestUtil.getCodeActionResponse(this.serviceEndpoint, sourcePath.toString(), range,
                                                          codeActionContext);
+        TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
         JsonArray result = parser.parse(response).getAsJsonObject().getAsJsonArray("result");
 
         Assert.assertEquals(numberOfCommands, result.size());
@@ -119,14 +120,13 @@ public class CodeActionTest {
         String configJsonPath = "codeaction" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-        TestUtil.openDocument(serviceEndpoint, sourcePath);
 
-        LSCompiler lsCompiler = new LSCompiler(WorkspaceDocumentManagerImpl.getInstance());
-        BallerinaFile ballerinaFile = lsCompiler.compileFile(sourcePath, CompilerPhase.COMPILER_PLUGIN);
+        BallerinaFile ballerinaFile = ExtendedLSCompiler.compileFile(sourcePath, CompilerPhase.COMPILER_PLUGIN);
         List<Diagnostic> lsDiagnostics = new ArrayList<>();
         ballerinaFile.getDiagnostics().ifPresent(diagnostics -> lsDiagnostics.addAll(getLSDiagnostics(diagnostics)));
         CodeActionContext codeActionContext = new CodeActionContext(lsDiagnostics);
         Range range = gson.fromJson(configJsonObject.get("range"), Range.class);
+        TestUtil.openDocument(serviceEndpoint, sourcePath);
         String res = TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, codeActionContext);
         TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
 
@@ -158,8 +158,7 @@ public class CodeActionTest {
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         TestUtil.openDocument(serviceEndpoint, sourcePath);
 
-        LSCompiler lsCompiler = new LSCompiler(WorkspaceDocumentManagerImpl.getInstance());
-        BallerinaFile ballerinaFile = lsCompiler.compileFile(sourcePath, CompilerPhase.COMPILER_PLUGIN);
+        BallerinaFile ballerinaFile = ExtendedLSCompiler.compileFile(sourcePath, CompilerPhase.COMPILER_PLUGIN);
         List<Diagnostic> lsDiagnostics = new ArrayList<>();
         ballerinaFile.getDiagnostics().ifPresent(diagnostics -> lsDiagnostics.addAll(getLSDiagnostics(diagnostics)));
         CodeActionContext context = new CodeActionContext(lsDiagnostics);
@@ -199,8 +198,7 @@ public class CodeActionTest {
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         TestUtil.openDocument(serviceEndpoint, sourcePath);
 
-        LSCompiler lsCompiler = new LSCompiler(WorkspaceDocumentManagerImpl.getInstance());
-        BallerinaFile ballerinaFile = lsCompiler.compileFile(sourcePath, CompilerPhase.COMPILER_PLUGIN);
+        BallerinaFile ballerinaFile = ExtendedLSCompiler.compileFile(sourcePath, CompilerPhase.COMPILER_PLUGIN);
         List<Diagnostic> lsDiagnostics = new ArrayList<>();
         ballerinaFile.getDiagnostics().ifPresent(diagnostics -> lsDiagnostics.addAll(getLSDiagnostics(diagnostics)));
         CodeActionContext context = new CodeActionContext(lsDiagnostics);

@@ -20,8 +20,8 @@ import org.ballerinalang.langserver.command.executors.MessageExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
+import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
@@ -57,18 +57,16 @@ public class CodeLensUtil {
      * Compile and get code lenses.
      *
      * @param fileUri         file uri
-     * @param lsCompiler      LS Compiler
      * @param documentManager Document Manager
      * @return a list of code lenses
      * @throws LSCompilerException thrown when compilation error occurs
      */
-    public static List<CodeLens> compileAndGetCodeLenses(String fileUri, LSCompiler lsCompiler,
-                                                         WorkspaceDocumentManager documentManager)
+    public static List<CodeLens> compileAndGetCodeLenses(String fileUri, WorkspaceDocumentManager documentManager) 
             throws LSCompilerException {
         List<CodeLens> lenses = new ArrayList<>();
         LSServiceOperationContext codeLensContext = new LSServiceOperationContext();
         codeLensContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
-        BLangPackage bLangPackage = lsCompiler.getBLangPackage(codeLensContext, documentManager, true,
+        BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(codeLensContext, documentManager, true,
                                                                LSCustomErrorStrategy.class, false);
         // Source compilation has no errors, continue
         Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()

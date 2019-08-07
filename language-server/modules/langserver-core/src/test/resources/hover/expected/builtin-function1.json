@@ -1,12 +1,12 @@
 {
-  "result": {
-    "contents": {
-      "kind": "markdown",
-      "value": "**Description**\r\n\r\nPrints `any` or `error` value(s) to the STDOUT followed by a new line.\r\n\r\n**Param**\r\n- values:The value(s) to be printed.\r\n\r\n"
-    }
-  },
-  "id": {
-    "left": "324"
-  },
-  "jsonrpc": "2.0"
+    "result": {
+        "contents": {
+            "kind": "markdown",
+            "value": "**Description**\r\n\r\nPrints `any` or `error` value(s) to the STDOUT followed by a new line.\r\n\r\n**Param**\r\n- values: The value(s) to be printed.\r\n\r\n"
+        }
+    },
+    "id": {
+        "left": "324"
+    },
+    "jsonrpc": "2.0"
 }

@@ -165,7 +165,7 @@ public class TestCommand implements BLauncherCmd {
                     .addTask(new CreateBaloTask())
                     .addTask(new CreateBirTask())
                     .addTask(new CopyNativeLibTask())
-                    .addTask(new CreateJarTask())
+                    .addTask(new CreateJarTask(false))
                     .addTask(new CopyModuleJarTask())
                     .addTask(new RunTestsTask(), this.skipTests)
                     .build();
@@ -221,7 +221,7 @@ public class TestCommand implements BLauncherCmd {
                             .addTask(new CreateTargetDirTask())
                             .addTask(new CompileTask())
                             .addTask(new CreateBirTask())
-                            .addTask(new CreateJarTask())
+                            .addTask(new CreateJarTask(false))
                             .addTask(new CopyModuleJarTask())
                             .addTask(new RunTestsTask(), this.skipTests)
                             .build();
@@ -252,7 +252,7 @@ public class TestCommand implements BLauncherCmd {
                         .addTask(new CreateBaloTask())
                         .addTask(new CreateBirTask())
                         .addTask(new CopyNativeLibTask())
-                        .addTask(new CreateJarTask())
+                        .addTask(new CreateJarTask(false))
                         .addTask(new CopyModuleJarTask())
                         .addTask(new RunTestsTask(), this.skipTests)
                         .build();

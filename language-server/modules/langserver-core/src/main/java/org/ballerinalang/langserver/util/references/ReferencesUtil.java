@@ -19,9 +19,9 @@ import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
@@ -57,29 +57,26 @@ public class ReferencesUtil {
     private ReferencesUtil() {
     }
 
-    public static List<BLangPackage> getPreparedModules(LSDocument document, WorkspaceDocumentManager docManager,
-                                                        LSCompiler lsCompiler, Position position, LSContext context,
+    public static List<BLangPackage> getPreparedModules(String fileUri, WorkspaceDocumentManager docManager,
+                                                        Position position, LSContext context,
                                                         boolean compileProject)
             throws WorkspaceDocumentException, LSCompilerException {
-        Path defFilePath = document.getPath();
-        Path compilationPath = getUntitledFilePath(defFilePath.toString()).orElse(defFilePath);
+        Optional<Path> defFilePath = CommonUtil.getPathFromURI(fileUri);
+        if (!defFilePath.isPresent()) {
+            return new ArrayList<>();
+        }
+        Path compilationPath = getUntitledFilePath(defFilePath.toString()).orElse(defFilePath.get());
         Optional<Lock> lock = docManager.lockFile(compilationPath);
         Class errStrategy = LSCustomErrorStrategy.class;
         try {
-            context.put(DocumentServiceKeys.FILE_URI_KEY, document.getURIString());
+            context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
             context.put(NodeContextKeys.REFERENCES_KEY, new SymbolReferencesModel());
 
             // With the sub-rule parser, find the token
             String documentContent = docManager.getFileContent(compilationPath);
             ReferencesSubRuleParser.parserCompilationUnit(documentContent, context, position);
 
-            List<BLangPackage> bLangPackages = lsCompiler.getBLangPackages(context, docManager, true, errStrategy,
-                                                                           compileProject, false);
-
-            // Set the current package.
-            BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages, document);
-            context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, currentBLangPackage);
-            return bLangPackages;
+            return LSModuleCompiler.getBLangPackages(context, docManager, true, errStrategy, compileProject, false);
         } finally {
             lock.ifPresent(Lock::unlock);
         }
@@ -88,9 +85,9 @@ public class ReferencesUtil {
     /**
      * Get the definition.
      *
-     * @param modules   List of project modules
-     * @param context   Definition context
-     * @param position  Cursor Position
+     * @param modules  List of project modules
+     * @param context  Definition context
+     * @param position Cursor Position
      * @return {@link List}     List of definition locations
      */
     public static List<Location> getDefinition(List<BLangPackage> modules, LSContext context, Position position) {
@@ -126,9 +123,8 @@ public class ReferencesUtil {
                                                                        Position position)
             throws WorkspaceDocumentException, LSCompilerException {
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
-        LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-        List<BLangPackage> modules = ReferencesUtil.getPreparedModules(document, documentManager, lsCompiler,
-                                                                       position, context, true);
+        List<BLangPackage> modules = ReferencesUtil.getPreparedModules(document.getURIString(), documentManager,
+                position, context, true);
         prepareReferences(modules, context, position);
         SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
         Optional<SymbolReferencesModel.Reference> symbolAtCursor = referencesModel.getReferenceAtCursor();
@@ -138,10 +134,10 @@ public class ReferencesUtil {
     /**
      * Get the rename workspace edits.
      *
-     * @param modules   Build modules in project
-     * @param context   Language server context
-     * @param newName   New name to replace
-     * @param position  Cursor position
+     * @param modules  Build modules in project
+     * @param context  Language server context
+     * @param newName  New name to replace
+     * @param position Cursor position
      * @return {@link WorkspaceEdit}    Rename workspace edit
      */
     public static WorkspaceEdit getRenameWorkspaceEdits(List<BLangPackage> modules, LSContext context, String newName,
@@ -169,9 +165,9 @@ public class ReferencesUtil {
 
     /**
      * Get the hover content.
-     * 
-     * @param modules Only the Current blang module is contained in the list
-     * @param context Hover operation context
+     *
+     * @param modules  Only the Current blang module is contained in the list
+     * @param context  Hover operation context
      * @param position Cursor position
      * @return {@link Hover} Hover content
      */
@@ -183,7 +179,7 @@ public class ReferencesUtil {
         // Ignore the optional check since it has been handled during prepareReference and throws exception
         BSymbol bSymbol = symbolAtCursor.get().getSymbol();
         return bSymbol != null
-                ? HoverUtil.getHoverFromDocAttachment(HoverUtil.getMarkdownDocForSymbol(bSymbol), bSymbol)
+                ? HoverUtil.getHoverFromDocAttachment(HoverUtil.getMarkdownDocForSymbol(bSymbol), bSymbol, context)
                 : HoverUtil.getDefaultHoverObject();
     }
 
@@ -278,7 +274,7 @@ public class ReferencesUtil {
                 basePath = basePath.resolve("src").resolve(pkgName);
             }
             basePath = basePath.resolve(cUnitName);
-            
+
             uri = basePath.toUri().toString();
             TextEdit textEdit = new TextEdit(getRange(referencePos), newName);
             if (workspaceEdit.getChanges().containsKey(uri)) {
