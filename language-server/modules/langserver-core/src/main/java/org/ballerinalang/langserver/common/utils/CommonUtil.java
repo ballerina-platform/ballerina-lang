@@ -1005,8 +1005,8 @@ public class CommonUtil {
      */
     public static String getPlainTextSnippet(String snippet) {
         return snippet
-                .replaceAll("(\\$\\{\\d:)([a-zA-Z]*:*[a-zA-Z]*)(\\})", "$2")
-                .replaceAll("(\\$\\{\\d\\})", "");
+                .replaceAll("(\\$\\{\\d+:)([a-zA-Z]*:*[a-zA-Z]*)(\\})", "$2")
+                .replaceAll("(\\$\\{\\d+\\})", "");
     }
 
     public static BallerinaParser prepareParser(String content) {
