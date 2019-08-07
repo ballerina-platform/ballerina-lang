@@ -46,7 +46,7 @@ type TerminatorGenerator object {
         } else if (terminator is bir:Call) {
             self.genCallTerm(terminator, funcName, localVarOffset);
         } else if (terminator is bir:AsyncCall) {
-            self.genAsyncCallTerm(terminator, funcName, localVarOffset, attachedType);
+            self.genAsyncCallTerm(terminator, localVarOffset, attachedType);
         } else if (terminator is bir:Branch) {
             self.genBranchTerm(terminator, funcName);
         } else if (terminator is bir:Return) {
@@ -456,7 +456,7 @@ type TerminatorGenerator object {
         return true;
     }
 
-    function genAsyncCallTerm(bir:AsyncCall callIns, string funcName, int localVarOffset, bir:BType? attachedType) {
+    function genAsyncCallTerm(bir:AsyncCall callIns, int localVarOffset, bir:BType? attachedType) {
         string orgName = callIns.pkgID.org;
         string moduleName = callIns.pkgID.name;
         // Load the scheduler from strand
@@ -492,6 +492,7 @@ type TerminatorGenerator object {
             paramIndex += 1;
         }
 
+        string funcName = callIns.name.value;
         string lambdaName = "$" + funcName + "$lambda$" + self.lambdaIndex.toString() + "$";
         string currentPackageName = getPackageName(self.module.org.value, self.module.name.value);
         string lookupKey = "";
