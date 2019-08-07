@@ -149,3 +149,27 @@ function testDefaultValuesInTuples () returns [string, int, boolean, float] {
     [boolean, int, string, float] x = [false, 0, "", 0.0];
     return [x[2], x[1], x[0], x[3]];
 }
+
+function testTupleToArrayAssignment() returns string[] {
+    [string...] x = ["a", "b", "c"];
+    string[] y = x;
+    return y;
+}
+
+function testArrayToTupleAssignment1() returns [string...] {
+    string[] x = ["a", "b", "c"];
+    [string...] y = x;
+    return y;
+}
+
+function testArrayToTupleAssignment2() returns [string, string...] {
+    string[] x = ["a", "b", "c"];
+    [string, string...] y = x;
+    return y;
+}
+
+function testArrayToTupleAssignment3() returns [string, string[]] {
+    string[] x = ["a", "b", "c"];
+    [string, string...] [i, ...j] = x;
+    return [i, j];
+}

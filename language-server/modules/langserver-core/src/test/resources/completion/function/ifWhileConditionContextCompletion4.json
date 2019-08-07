@@ -1013,6 +1013,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "AttributeFilter",
+      "kind": "Class",
+      "detail": "Object",
+      "sortText": "120",
+      "insertText": "AttributeFilter",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "WebSocketListener",
       "kind": "Class",
       "detail": "Object",

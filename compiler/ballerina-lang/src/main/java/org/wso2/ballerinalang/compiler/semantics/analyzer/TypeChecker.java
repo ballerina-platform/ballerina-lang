@@ -3117,7 +3117,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 case NAMED_ARGS_EXPR:
                     BVarSymbol varSymbol = params.get(((BLangNamedArgsExpression) expr).name.value);
                     if (!env.enclPkg.packageID.equals(iExpr.symbol.pkgID)
-                            && !Symbols.isFlagOn(varSymbol.flags, Flags.PUBLIC)) {
+                            && (varSymbol != null && !Symbols.isFlagOn(varSymbol.flags, Flags.PUBLIC))) {
                         // can not provide a named arg, if the arg is not public and the caller is not from same package
                         dlog.error(expr.pos, DiagnosticCode.NON_PUBLIC_ARG_ACCESSED_WITH_NAMED_ARG,
                                 ((BLangNamedArgsExpression) expr).name.value, iExpr.toString());

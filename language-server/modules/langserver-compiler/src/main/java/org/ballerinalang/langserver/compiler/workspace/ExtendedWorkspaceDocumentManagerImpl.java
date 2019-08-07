@@ -17,8 +17,6 @@ package org.ballerinalang.langserver.compiler.workspace;
 
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Range;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,8 +33,6 @@ import java.util.concurrent.locks.Lock;
  * openFile() are aware of the browser refreshes that may cause file already opened exceptions.
  */
 public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManagerImpl {
-
-    private static final Logger logger = LoggerFactory.getLogger(ExtendedWorkspaceDocumentManagerImpl.class);
 
     private volatile WorkspaceDocument tempDocument;
 
@@ -187,7 +183,7 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
         // Acquire a lock for the temp-file
         Optional<Lock> lock = super.lockFile(tempFile);
         if (tempDocument == null) {
-            tempDocument = new WorkspaceDocument(tempFile, "");
+            tempDocument = new WorkspaceDocument(tempFile, "", true);
         } else {
             tempDocument.setPath(tempFile);
         }

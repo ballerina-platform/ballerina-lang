@@ -32,10 +32,13 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_CONSUMER;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
 
 /**
@@ -56,7 +59,8 @@ public class KafkaConsumerSubscribeToPatternTest {
 
     @Test(description = "Test functionality of getAvailableTopics() function")
     public void testKafkaConsumerSubscribeToPattern () {
-        result = BCompileUtil.compile(getFilePath("test-src/consumer/kafka_consumer_subscribe_to_pattern.bal"));
+        result = BCompileUtil.compile(getFilePath(
+                Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_subscribe_to_pattern.bal")));
         try {
             await().atMost(5000, TimeUnit.MILLISECONDS).until(() -> {
                 BValue[] returnBValuesAll = BRunUtil.invoke(result, "funcKafkaGetAvailableTopicsCount");
