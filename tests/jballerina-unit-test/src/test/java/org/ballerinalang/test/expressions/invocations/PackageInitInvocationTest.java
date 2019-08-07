@@ -47,4 +47,12 @@ public class PackageInitInvocationTest {
         Assert.assertTrue(values[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) values[0]).intValue(), 19);
     }
+
+    @Test
+    public void testGetValueFromPackageLevelAsyncInvocation() {
+        BValue[] values = BRunUtil.invoke(result, "testGetIntValue");
+        Assert.assertEquals(values.length, 1);
+        Assert.assertTrue(values[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) values[0]).intValue(), 899);
+    }
 }

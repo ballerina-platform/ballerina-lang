@@ -2064,6 +2064,34 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "SERVICE_NAME",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Constant for the service name reference."
+        }
+      },
+      "sortText": "221",
+      "insertText": "SERVICE_NAME",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RESOURCE_NAME",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Constant for the resource name reference."
+        }
+      },
+      "sortText": "221",
+      "insertText": "RESOURCE_NAME",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "CONNECTION_CLOSURE_ERROR",
       "kind": "Variable",
       "detail": "string",
