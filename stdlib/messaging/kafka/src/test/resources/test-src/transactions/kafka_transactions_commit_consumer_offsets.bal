@@ -105,13 +105,13 @@ function funcTestPollAgain() returns boolean {
 }
 
 function funcGetPartitionOffset(kafka:Consumer consumer) returns kafka:PartitionOffset[]|error {
-    error|kafka:ConsumerRecord[] result = consumer->poll(2000);
+    var result = consumer->poll(1000);
     if (result is error) {
         return result;
     } else {
         kafka:PartitionOffset[] offsets = [];
         int i = 0;
-        foreach kafka:ConsumerRecord kafkaRecord in result {
+        foreach var kafkaRecord in result {
             kafka:TopicPartition partition = { topic: kafkaRecord.topic, partition: kafkaRecord.partition };
             kafka:PartitionOffset offset = { partition: partition, offset: kafkaRecord.offset };
             offsets[i] = offset;

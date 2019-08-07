@@ -204,6 +204,7 @@ public class DefinitionTest {
                 {"defLambda2.json", "lambda"},
                 {"defLambda3.json", "lambda"},
                 {"defLambda4.json", "lambda"},
+                {"defObject1.json", "object"},
 //                TODO: enable
 //                {"defExpressionNamedArgs.json", "expression"},
         };
