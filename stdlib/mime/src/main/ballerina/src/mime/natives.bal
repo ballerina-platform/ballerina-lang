@@ -208,8 +208,8 @@ public type Entity object {
         return getContentDispositionObject(contentDispositionVal);
     }
 
-    # Sets the entity body with the given content. To send string literals that doesn't start with `{`, `[` or a number
-    # as json, set the content-type header to `application/json` or use `setJsonPayload` method instead.
+    # Sets the entity body with the given content. Note that any string value is set as text/plain and to send a
+    # json compatible string, set the content-type header to `application/json` or use the `setJsonPayload` method instead.
     #
     # + entityBody - Entity body can be of type `string`,`xml`,`json`,`byte[]`,`io:ReadableByteChannel` or `Entity[]`
     public function setBody(@untainted string|xml|json|byte[]|io:ReadableByteChannel|Entity[] entityBody) {
