@@ -66,30 +66,16 @@ function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterCo
                             string[]|string[][] scopes) returns boolean|AuthorizationError {
     boolean|AuthorizationError authorized = true;
     runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-    if (scopes is string[]) {
+    if (principal is runtime:Principal) {
         var canProcessResponse = authzHandler.canProcess(request);
         if (canProcessResponse is boolean && canProcessResponse) {
-            if(principal is runtime:Principal) {
-                authorized = authzHandler.process(principal.username, context.getServiceName(),
-                                        context.getResourceName(), request.method, scopes);
-            } else {
-                authorized = false;
-            }
+            authorized = authzHandler.process(principal.username, context.getServiceName(),
+                                              context.getResourceName(), request.method, scopes);
         } else {
             authorized = canProcessResponse;
         }
     } else {
-        var canProcessResponse = authzHandler.canProcess(request);
-        if (canProcessResponse is boolean && canProcessResponse) {
-            if(principal is runtime:Principal) {
-                authorized = authzHandler.process(principal.username, context.getServiceName(),
-                                            context.getResourceName(), request.method, scopes);
-            } else {
-                authorized = false;
-            }
-        } else {
-            authorized = canProcessResponse;
-        }
+        authorized = false;
     }
     return authorized;
 }
