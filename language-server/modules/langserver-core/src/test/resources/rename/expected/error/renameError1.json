@@ -3,8 +3,8 @@
     "file": "renameFl1.bal"
   },
   "position": {
-    "line": 50,
-    "character": 16
+    "line": 54,
+    "character": 13
   },
   "result": {
     "changes": {
@@ -12,12 +12,12 @@
         {
           "range": {
             "start": {
-              "line": 50,
-              "character": 14
+              "line": 54,
+              "character": 6
             },
             "end": {
-              "line": 50,
-              "character": 18
+              "line": 54,
+              "character": 17
             }
           },
           "newText": "renamedVal"
@@ -25,11 +25,11 @@
         {
           "range": {
             "start": {
-              "line": 44,
-              "character": 11
+              "line": 51,
+              "character": 4
             },
             "end": {
-              "line": 44,
+              "line": 51,
               "character": 15
             }
           },
