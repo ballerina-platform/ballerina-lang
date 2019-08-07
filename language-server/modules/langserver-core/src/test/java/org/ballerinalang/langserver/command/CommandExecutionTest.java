@@ -36,6 +36,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.ExecuteCommandParams;
@@ -249,7 +250,7 @@ public class CommandExecutionTest {
     }
 
     @Test(dataProvider = "testgen-data-provider")
-    public void testTestGeneration(String config, Path source) throws IOException {
+    public void testTestGeneration(String config, Path source) throws IOException, CompilationFailedException {
         String configJsonPath = "command" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
         Path testFilePath = LSCompilerUtil.getCurrentModulePath(sourcePath).resolve(ProjectDirConstants.TEST_DIR_NAME)

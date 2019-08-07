@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
@@ -68,7 +69,7 @@ public class BallerinaProjectServiceImpl implements BallerinaProjectService {
             JsonObject jsonModulesInfo = getJsonReply(astContext, modules);
             reply.setModules(jsonModulesInfo);
             reply.setParseSuccess(true);
-        } catch (JSONGenerationException | URISyntaxException e) {
+        } catch (CompilationFailedException | JSONGenerationException | URISyntaxException e) {
             reply.setParseSuccess(false);
         }
         return CompletableFuture.supplyAsync(() -> reply);
