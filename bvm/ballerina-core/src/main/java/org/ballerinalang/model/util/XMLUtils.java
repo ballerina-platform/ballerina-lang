@@ -18,9 +18,7 @@
 package org.ballerinalang.model.util;
 
 import org.apache.axiom.c14n.Canonicalizer;
-import org.apache.axiom.c14n.exceptions.AlgorithmAlreadyRegisteredException;
 import org.apache.axiom.c14n.exceptions.CanonicalizationException;
-import org.apache.axiom.c14n.exceptions.InvalidCanonicalizerException;
 import org.apache.axiom.om.DeferredParsingException;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMAttribute;
