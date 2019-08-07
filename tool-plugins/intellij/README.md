@@ -4,73 +4,35 @@
 [![Version](https://img.shields.io/jetbrains/plugin/v/9520-ballerina.svg)](https://plugins.jetbrains.com/plugin/9520-ballerina)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/9520-ballerina.svg)](https://plugins.jetbrains.com/plugin/9520-ballerina)
 
-![alt text](getting-started/ballerina-intellij-plugin.png)
+The IntelliJ Ballerina plugin provides the Ballerina development capabilities in IntelliJ IDEA. Click on the below links for instructions on how to download, install, and use the features of the IntelliJ plugin.
 
-[Ballerina](https://ballerina.io/) is a simple programming language whose syntax and runtime address the hard 
-problems of integration. As a Turing complete language, Ballerina enables agility with edit, build, and run cycles. 
-Ballerina code is compiled into services that include transactions, embedded brokers, and gateway runtime.
-Ballerina makes it easy to build resilient services for integration and orchestrate across distributed endpoints.
-
-Ballerina plugin provides Ballerina Language support in IntelliJ IDEA.
-
-## Table of Contents
-
-- [**Getting Started**](getting-started/README.md)
-    - [How To Install](#how-to-install)
-    - [Setting Up Ballerina SDK](getting-started/setting-up-ballerina-sdk/README.md)
-    - [Writing Hello World In Ballerina](getting-started/writing-hello-world/README.md)
-    
-- [**Plugin Features**](getting-started/plugin-features/README.md)
-    - [Running Ballerina Programs](getting-started/plugin-features/README.md#running-ballerina-programs)
-    - [Debugging Ballerina Programs](getting-started/plugin-features/README.md#debugging-ballerina-programs) 
-    - [Diagram View](getting-started/plugin-features/README.md#diagram-view)
-    - [Import Modules On-the-fly](getting-started/plugin-features/README.md#import-modules-on-the-fly)
-    - [Auto Import Unambiguous Modules](getting-started/plugin-features/README.md#auto-import-unambiguous-modules)
-    - [Find Usage](getting-started/plugin-features/README.md#find-usage)
-    - [Go to Definition](getting-started/plugin-features/README.md#go-to-definition)
-    - [Formatting](getting-started/plugin-features/README.md#formatting)
-    - [Parameter Information](getting-started/plugin-features/README.md#parameter-information)
-    - [Quick Documentation](getting-started/plugin-features/README.md#quick-documentation)
-    - [Object/Record Fields suggestions](getting-started/plugin-features/README.md#objectrecord-fields-suggestions)
-    - [Annotation fields suggestions](getting-started/plugin-features/README.md#annotation-fields-suggestions)
-    - [File Templates](getting-started/plugin-features/README.md#file-templates)
-    - [Live Templates and Code snippets](getting-started/plugin-features/README.md#live-templates-and-code-snippets)
-    - [Spell Checking](getting-started/plugin-features/README.md#spell-checking)
-    - [Semantic Analyzing](getting-started/plugin-features/README.md#semantic-analyzing) 
-
-- [**Plugin Developer Guide**](getting-started/plugin-developer-guide/README.md#plugin-developer-guide)
-    - [Testing/Debugging the plugin using IntelliJ](getting-started/plugin-developer-guide/README.md#testingdebugging-the-plugin-using-intellij-idea)
-    
-- [**Release Versions Schema**](#release-versions-schema)
-- [**How To Contribute**](#how-to-contribute) 
-- [**Licence**](#license)
-- [**Copyright**](#copyright)
-- [**Useful Links**](#useful-links)
-
-
-## How To Install
-
-### From Jetbrains Plugin Repository
-1. Go to **Settings** (**Preferences** in **MacOS**)-> **Plugins**. 
-2. Select **Browse Repositories** button at the bottom. 
-3. Search for **Ballerina** using the search box. Ballerina plugin will show up. Then you can install the plugin using the Install button.
-4. Restart IDEA.
-
-### Installing the Plugin from Disk
-If you have a plugin file available on your computer, you can install it from disk. A plugin file is an archive file (ZIP or a JAR) and you do not need to decompress it before installation
-1. Navigate to the plugin source directory using terminal and run `./gradlew buildPlugin`. 
-**ballerina-intellij-idea-plugin-[VERSION].zip** is created in the **build/distributions** directory.
-  >**NOTE:** On Windows, you don’t need the leading `./` in front of the `gradlew` command
-2. Open IntelliJ IDEA and go to **File -> Settings** (**IntelliJ IDEA -> Preferences** in **macOS**) and select 
-**Plugins**.
-3. Click **Install plugin from disc** button and select the **plugin ZIP** file. Please make sure to install 
-the ZIP file, not the extracted JAR files. This ZIP contains an additional library as well. Without this library, the 
-plugin will not work properly.
-4. Restart IDEA.
-
-  >**IMPORTANT:** After completing the above steps, please follow the instructions to [Set Up Ballerina SDK](getting-started/setting-up-ballerina-sdk/README.md)
-  for your ballerina projects, in order to activate all the plugin capabilities. 
-
+- [**Prerequisites**](https://ballerina.io/learn/tools-ides/intellij-plugin/#prerequisites)
+- [**Installing the plugin**](https://ballerina.io/learn/tools-ides/intellij-plugin/#installing-the-plugin)
+    - [Installing via the IntelliJ IDE](https://ballerina.io/learn/tools-ides/intellij-plugin/#installing-via-the-intellij-ide)
+    - [Installing using the ZIP file](https://ballerina.io/learn/tools-ides/intellij-plugin/#installing-using-the-zip-file)
+- [**Using the plugin**](https://ballerina.io/learn/tools-ides/intellij-plugin/using-the-intellij-plugin/)
+    - [Creating a new Ballerina project](https://ballerina.io/learn/tools-ides/intellij-plugin/using-the-intellij-plugin#creating-a-new-ballerina-project)
+    - [Setting up Ballerina SDK for an existing project](https://ballerina.io/learn/tools-ides/intellij-plugin/using-the-intellij-plugin#setting-up-ballerina-sdk-for-an-existing-project)
+    - [Creating a new Ballerina file](https://ballerina.io/learn/tools-ides/intellij-plugin/using-the-intellij-plugin/#creating-a-new-ballerina-file)
+- [**Using the features of the plugin**](https://ballerina.io/learn/tools-ides/intellij-plugin/using-intellij-plugin-features/)
+   - [Running Ballerina Programs](https://ballerina.io/learn/tools-ides/intellij-plugin/using-intellij-plugin-features#running-ballerina-programs)
+    - [Debugging Ballerina Programs](https://ballerina.io/learn/tools-ides/intellij-plugin/using-intellij-plugin-features#debugging-ballerina-programs) 
+    - [Sequence Diagram View](https://ballerina.io/learn/tools-ides/intellij-plugin/using-intellij-plugin-features#viewing-the-sequence-diagram)
+    - [Import Modules On-the-fly](https://ballerina.io/learn/tools-ides/intellij-plugin/using-intellij-plugin-features#importing-modules-on-the-fly)
+    - [Auto Import Unambiguous Modules](https://ballerina.io/learn/tools-ides/intellij-plugin/using-intellij-plugin-features#importing-unambiguous-modules)
+    - [Find Usages](https://ballerina.io/learn/tools-ides/intellij-plugin/using-intellij-plugin-features#finding-usage)
+    - [Go To Definition](https://ballerina.io/learn/tools-ides/intellij-plugin/using-intellij-plugin-features#viewing-definitions)
+    - [Formatting](https://ballerina.io/learn/tools-ides/intellij-plugin/using-intellij-plugin-features#formatting-ballerina-codes)
+    - [Parameter Information](https://ballerina.io/learn/tools-ides/intellij-plugin/using-intellij-plugin-features#viewing-details-of-parameters)
+    - [Quick Documentation](https://ballerina.io/learn/tools-ides/intellij-plugin/using-intellij-plugin-features#viewing-documentation)
+    - [Annotation Fields Suggestions](https://ballerina.io/learn/tools-ides/intellij-plugin/using-intellij-plugin-features#adding-annotation-fields-via-suggestions)
+    - [File Templates](https://ballerina.io/learn/tools-ides/intellij-plugin/using-intellij-plugin-features#using-file-templates)
+    - [Live Templates and Code snippets](https://ballerina.io/learn/tools-ides/intellij-plugin/using-intellij-plugin-features#using-code-snippet-templates)
+    - [Spell Checking](https://ballerina.io/learn/tools-ides/intellij-plugin/using-intellij-plugin-features#checking-spellings)
+    - [Semantic Analyzing](https://ballerina.io/learn/tools-ides/intellij-plugin/using-intellij-plugin-features#analyzing-semantics)
+    - [Code Folding](https://ballerina.io/learn/tools-ides/intellij-plugin/using-intellij-plugin-features#code-folding) 
+- [**Developer Guide**]((https://ballerina.io/learn/tools-ides/intellij-plugin/#developer-guide))
+    - [Testing/Debugging the plugin using IntelliJ]((https://ballerina.io/learn/tools-ides/intellij-plugin/using-intellij-plugin-features#testing/debugging-the-plugin-using-intelliJ))
 
 ## Release Versions Schema
 
@@ -81,20 +43,8 @@ Below you can see the plugin versions that correspond to the versions of the Int
 | 0.8.0 - 0.8.2 | IntelliJ IDEA 2016.3 - 2016.4 |
 | 0.8.3 - 0.981.0 | IntelliJ IDEA 2016.3+ |
 | 0.982.0+ | IntelliJ IDEA 2017.3+ |
-
-
-## How to Contribute
-Pull requests are highly encouraged and we recommend you to create a GitHub issue to discuss the issue or feature that you are contributing to.
-
-
-## License
-Ballerina IDEA plugin source is licensed under the [Apache 2.0 License](LICENSE).
-
-
-## Copyright
-Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-
+| 0.991.1+ | IntelliJ IDEA 2018.3+
 
 ## Useful Links
-* The ballerina-dev@googlegroups.com mailing list is for discussing code changes to the Ballerina project.
+* Use the ballerina-dev@googlegroups.com mailing list to discuss code changes to the Ballerina project.
 * Chat live with us on our [Slack channel](https://ballerina.io/open-source/slack/).
