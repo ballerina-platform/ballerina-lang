@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -79,7 +80,11 @@ public class SourceDirectoryManager {
         if (sourceDirectory.getManifestContent() == null) {
             manifest = new Manifest();
         } else {
-            manifest = ManifestProcessor.parseTomlContentAsStream(sourceDirectory.getManifestContent());
+            try {
+                manifest = ManifestProcessor.parseTomlContentAsStream(sourceDirectory.getManifestContent());
+            } catch (TomlException e) {
+                manifest = new Manifest();
+            }
         }
         if (manifest.getProject().getVersion().isEmpty()) {
             manifest.getProject().setVersion(Names.DEFAULT_VERSION.getValue());

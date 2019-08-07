@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  * @since 0.964
  */
 public class Manifest {
-    private Project project = new Project();
+    private Project project;
     private Map<String, Object> dependencies = new LinkedHashMap<>();
     private Platform platform = new Platform();
 
@@ -103,66 +103,6 @@ public class Manifest {
             } else {
                 throw new BLangCompilerException("Platform target is not supported by installed Ballerina SDK");
             }
-        }
-    }
-
-    /**
-     * Project definition.
-     */
-    public static class Project {
-        private String orgName = "";
-        private String version = "";
-        private List<String> license = new LinkedList<>();
-        private List<String> authors = new LinkedList<>();
-        private String repository = "";
-        private List<String> keywords = new LinkedList<>();
-
-        public String getOrgName() {
-            return orgName;
-        }
-
-        public void setOrgName(String orgName) {
-            this.orgName = orgName;
-        }
-
-        public String getVersion() {
-            return version;
-        }
-
-        public void setVersion(String version) {
-            this.version = version;
-        }
-
-        public List<String> getLicense() {
-            return license;
-        }
-
-        public void setLicense(List<String> license) {
-            this.license = license;
-        }
-
-        public List<String> getAuthors() {
-            return authors;
-        }
-
-        public void setAuthors(List<String> authors) {
-            this.authors = authors;
-        }
-
-        public String getRepository() {
-            return repository;
-        }
-
-        public void setRepository(String repository) {
-            this.repository = repository;
-        }
-
-        public List<String> getKeywords() {
-            return keywords;
-        }
-
-        public void setKeywords(List<String> keywords) {
-            this.keywords = keywords;
         }
     }
 }

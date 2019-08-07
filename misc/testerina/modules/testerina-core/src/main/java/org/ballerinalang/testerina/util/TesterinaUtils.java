@@ -196,13 +196,24 @@ public class TesterinaUtils {
      */
     public static void executeTests(Path sourceRootPath, Map<BLangPackage, JBallerinaInMemoryClassLoader>
             programFileMap) {
+        executeTests(sourceRootPath, programFileMap, System.out, System.err);
+    }
+    
+    /**
+     * Execute tests in build.
+     *
+     * @param sourceRootPath source root path
+     * @param programFileMap map containing bLangPackage nodes along with their compiled program files
+     */
+    public static void executeTests(Path sourceRootPath, Map<BLangPackage, JBallerinaInMemoryClassLoader>
+            programFileMap, PrintStream outStream, PrintStream errStream) {
         // Set org-name and version to the Testerina Registry.
         setManifestConfigs(sourceRootPath);
-
-        BTestRunner testRunner = new BTestRunner();
+        
+        BTestRunner testRunner = new BTestRunner(outStream, errStream);
         // Run the tests
         testRunner.runTest(programFileMap);
-
+        
         if (testRunner.getTesterinaReport().isFailure()) {
             cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
             Runtime.getRuntime().exit(1);

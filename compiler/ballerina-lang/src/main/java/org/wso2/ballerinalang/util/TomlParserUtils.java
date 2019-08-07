@@ -17,6 +17,8 @@
  */
 package org.wso2.ballerinalang.util;
 
+import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.toml.parser.ManifestProcessor;
@@ -56,7 +58,7 @@ public class TomlParserUtils {
         Path manifestFilePath = projectDirPath.resolve((ProjectDirConstants.MANIFEST_FILE_NAME));
         try {
             return ManifestProcessor.parseTomlContentFromFile(manifestFilePath.toString());
-        } catch (IOException e) {
+        } catch (IOException | TomlException e) {
             return new Manifest();
         }
     }

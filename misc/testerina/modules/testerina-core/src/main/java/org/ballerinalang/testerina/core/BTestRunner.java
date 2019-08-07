@@ -70,12 +70,22 @@ public class BTestRunner {
 
     public static final String MODULE_INIT_CLASS_NAME = "___init";
 
-    private static PrintStream errStream = System.err;
-    private static PrintStream outStream = System.out;
+    private PrintStream errStream;
+    private PrintStream outStream;
     private TesterinaReport tReport = new TesterinaReport();
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
     private List<String> sourcePackages = new ArrayList<>();
-
+    
+    public BTestRunner() {
+        this.outStream = System.out;
+        this.errStream = System.err;
+    }
+    
+    public BTestRunner(PrintStream outStream, PrintStream errStream) {
+        this.outStream = outStream;
+        this.errStream = errStream;
+    }
+    
     public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups) {
         runTest(sourceRoot, sourceFilePaths, groups, Boolean.TRUE);
     }

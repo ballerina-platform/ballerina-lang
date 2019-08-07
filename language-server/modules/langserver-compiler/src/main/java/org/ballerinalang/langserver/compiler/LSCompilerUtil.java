@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSPr
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProjectDirectory;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
+import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
@@ -373,7 +374,7 @@ public class LSCompilerUtil {
         Path tomlFilePath = projectDirPath.resolve((ProjectDirConstants.MANIFEST_FILE_NAME));
         try {
             return ManifestProcessor.parseTomlContentFromFile(tomlFilePath.toString());
-        } catch (IOException e) {
+        } catch (IOException | TomlException e) {
             return new Manifest();
         }
     }

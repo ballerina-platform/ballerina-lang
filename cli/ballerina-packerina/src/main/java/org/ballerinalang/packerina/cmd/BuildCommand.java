@@ -249,7 +249,7 @@ public class BuildCommand implements BLauncherCmd {
                 throw LauncherUtils.createLauncherException("'" + sourcePath + "' module does not exist.");
             }
     
-            targetPath = sourcePath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
+            targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         } else {
             throw LauncherUtils.createLauncherException("invalid ballerina source path, it should either be a module " +
                                                         "name in a ballerina project or a file with a \'" +

@@ -18,6 +18,8 @@
 package org.ballerinalang.toml.parser;
 
 import com.moandjiezana.toml.Toml;
+import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.DependencyMetadata;
 import org.ballerinalang.toml.model.Manifest;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
@@ -26,12 +28,13 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Manifest Processor which processes the toml file parsed and populate the Manifest POJO.
@@ -41,19 +44,23 @@ import java.util.Map;
 public class ManifestProcessor {
 
     private static final CompilerContext.Key<ManifestProcessor> MANIFEST_PROC_KEY = new CompilerContext.Key<>();
-    private static final PrintStream ERR_STREAM = System.err;
+    private static final Pattern semVerPattern = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)");
     private final Manifest manifest;
 
     public static ManifestProcessor getInstance(CompilerContext context) {
-        ManifestProcessor manifestProcessor = context.get(MANIFEST_PROC_KEY);
-        if (manifestProcessor == null) {
-            SourceDirectory sourceDirectory = context.get(SourceDirectory.class);
-            Manifest manifest = ManifestProcessor.parseTomlContentAsStream(sourceDirectory.getManifestContent());
-            ManifestProcessor instance = new ManifestProcessor(manifest);
-            context.put(MANIFEST_PROC_KEY, instance);
-            return instance;
+        try {
+            ManifestProcessor manifestProcessor = context.get(MANIFEST_PROC_KEY);
+            if (manifestProcessor == null) {
+                SourceDirectory sourceDirectory = context.get(SourceDirectory.class);
+                Manifest manifest = ManifestProcessor.parseTomlContentAsStream(sourceDirectory.getManifestContent());
+                ManifestProcessor instance = new ManifestProcessor(manifest);
+                context.put(MANIFEST_PROC_KEY, instance);
+                return instance;
+            }
+            return manifestProcessor;
+        } catch (TomlException te) {
+            throw new BLangCompilerException(te.getMessage());
         }
-        return manifestProcessor;
     }
 
     private ManifestProcessor(Manifest manifest) {
@@ -71,7 +78,7 @@ public class ManifestProcessor {
      * @return manifest object
      * @throws IOException exception if the file cannot be found
      */
-    public static Manifest parseTomlContentFromFile(String fileName) throws IOException {
+    public static Manifest parseTomlContentFromFile(String fileName) throws IOException, TomlException {
         InputStream targetStream = new FileInputStream(fileName);
         Manifest manifest = parseTomlContentAsStream(targetStream);
         validateManifestDependencies(manifest);
@@ -84,10 +91,18 @@ public class ManifestProcessor {
      * @param content toml file content as a string
      * @return manifest object
      */
-    public static Manifest parseTomlContentFromString(String content) {
+    public static Manifest parseTomlContentFromString(String content) throws TomlException {
         Toml toml = new Toml().read(content);
+        if (toml.isEmpty()) {
+            throw new TomlException("invalid Ballerina.toml file: the Ballerina.toml file should have " +
+                                    "the organization name and the version of the project. example: \n" +
+                                    "[project]\n" +
+                                    "org-name=\"my_org\"\n" +
+                                    "version=\"1.0.0\"\n");
+        }
         Manifest manifest = toml.to(Manifest.class);
         manifest.getProject().setOrgName(toml.getString("project.org-name"));
+        validateManifestProject(manifest);
         validateManifestDependencies(manifest);
         return manifest;
     }
@@ -98,21 +113,48 @@ public class ManifestProcessor {
      * @param inputStream inputstream of the toml file content
      * @return manifest object
      */
-    public static Manifest parseTomlContentAsStream(InputStream inputStream) {
+    public static Manifest parseTomlContentAsStream(InputStream inputStream) throws TomlException {
         try {
             Toml toml = new Toml().read(inputStream);
+            if (toml.isEmpty()) {
+                throw new TomlException("invalid Ballerina.toml file: the Ballerina.toml file should have " +
+                                                 "the organization name and the version of the project. example: \n" +
+                                                 "[project]\n" +
+                                                 "org-name=\"my_org\"\n" +
+                                                 "version=\"1.0.0\"\n");
+            }
+            
             Manifest manifest = toml.to(Manifest.class);
             manifest.getProject().setOrgName(toml.getString("project.org-name"));
+            validateManifestProject(manifest);
             validateManifestDependencies(manifest);
             return manifest;
         } catch (IllegalStateException ise) {
-            ERR_STREAM.println("error occurred parsing Ballerina.toml: " +
-                               ise.getMessage().toLowerCase(Locale.getDefault()));
+            throw new BLangCompilerException("invalid Ballerina.toml file: " +
+                                             ise.getMessage().toLowerCase(Locale.getDefault()));
         }
-        return new Manifest();
     }
     
-    private static void validateManifestDependencies(Manifest manifest) {
+    private static void validateManifestProject(Manifest manifest) throws TomlException {
+        if (null == manifest.getProject()) {
+            throw new TomlException("invalid Ballerina.toml file: cannot find [project]");
+        }
+    
+        if (null == manifest.getProject().getOrgName() || "".equals(manifest.getProject().getOrgName())) {
+            throw new TomlException("invalid Ballerina.toml file: cannot find 'org-name' under [project]");
+        }
+        
+        if (null == manifest.getProject().getVersion() || "".equals(manifest.getProject().getVersion())) {
+            throw new TomlException("invalid Ballerina.toml file: cannot find 'version' under [project]");
+        }
+    
+        Matcher semverMatcher = semVerPattern.matcher(manifest.getProject().getVersion());
+        if (!semverMatcher.matches()) {
+            throw new TomlException("invalid Ballerina.toml file: 'version' under [project] is not semver");
+        }
+    }
+    
+    private static void validateManifestDependencies(Manifest manifest) throws TomlException {
         for (Map.Entry<String, Object> dependency : manifest.getDependenciesAsObjectMap().entrySet()) {
             DependencyMetadata metadata = new DependencyMetadata();
             if (dependency.getValue() instanceof String) {
@@ -128,12 +170,14 @@ public class ManifestProcessor {
         
                     Path dependencyBaloPath = Paths.get(metadata.getPath());
                     if (!Files.exists(dependencyBaloPath)) {
-                        ERR_STREAM.println("balo file for dependency '" + dependency.getKey() + "' does not exists: " +
-                                           dependencyBaloPath.toAbsolutePath());
+                        throw new TomlException("invalid Ballerina.toml file: balo file for dependency [" +
+                                                         dependency.getKey() + "] does not exists: " +
+                                                         dependencyBaloPath.toAbsolutePath());
                     }
                 }
             } else {
-                ERR_STREAM.println("invalid dependency metadata found for: " + dependency.getKey());
+                throw new TomlException("invalid Ballerina.toml file: invalid metadata found for dependency" +
+                                                 " [" + dependency.getKey() + "]");
             }
         }
     }

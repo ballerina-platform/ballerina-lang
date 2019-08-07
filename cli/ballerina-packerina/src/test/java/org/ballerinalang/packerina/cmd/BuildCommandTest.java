@@ -41,11 +41,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import static org.ballerinalang.packerina.utils.FileUtils.deleteDirectory;
 
 /**
  * Build command tests.
@@ -213,6 +216,47 @@ public class BuildCommandTest extends CommandTest {
         String exMsg = executeAndGetException(buildCommand);
         Assert.assertEquals(exMsg, "error: invalid ballerina source path, it should either be a module name in a " +
                                    "ballerina project or a file with a '.bal' extension.");
+    }
+    
+    @Test(description = "Build a ballerina project with non existing module.")
+    public void buildBalProjectTomlTest() throws IOException {
+        Path sourceRoot = this.testResources.resolve("ballerina-toml");
+        BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false);
+        new CommandLine(buildCommand).parse("foo");
+        
+        String exMsg = executeAndGetException(buildCommand);
+        Assert.assertEquals(exMsg, "invalid Ballerina.toml file: the Ballerina.toml file should have " +
+                                         "the organization name and the version of the project. example: \n" +
+                                         "[project]\n" +
+                                         "org-name=\"my_org\"\n" +
+                                         "version=\"1.0.0\"\n");
+    
+        String tomlContent = "[project]";
+        Files.write(sourceRoot.resolve("Ballerina.toml"), tomlContent.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+        exMsg = executeAndGetException(buildCommand);
+        Assert.assertEquals(exMsg, "invalid Ballerina.toml file: cannot find 'org-name' under [project]");
+    
+        tomlContent = "[project]\norg-name=\"bar\"";
+        Files.write(sourceRoot.resolve("Ballerina.toml"), tomlContent.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+        exMsg = executeAndGetException(buildCommand);
+        Assert.assertEquals(exMsg, "invalid Ballerina.toml file: cannot find 'version' under [project]");
+    
+        tomlContent = "[project]\norg-name=\"bar\"\nversion=\"a.b.c\"";
+        Files.write(sourceRoot.resolve("Ballerina.toml"), tomlContent.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+        exMsg = executeAndGetException(buildCommand);
+        Assert.assertEquals(exMsg, "invalid Ballerina.toml file: 'version' under [project] is not semver");
+    
+        tomlContent = "[project]\norg-name=\"bar\"\nversion=\"1.2.0\"";
+        Files.write(sourceRoot.resolve("Ballerina.toml"), tomlContent.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+        buildCommand.execute();
+        String buildLog = readOutput();
+        Assert.assertEquals(buildLog, "Compiling source\n" +
+                                      "\tbar/foo:1.2.0\n" +
+                                      "Created target/balo/foo-2019r3-any-1.2.0.balo\n" +
+                                      "Generating executables\n" +
+                                      "\ttarget/bin/foo-executable.jar\n");
+    
+        deleteDirectory(sourceRoot.resolve("target"));
     }
     
     @Test(description = "Test Build Command in a Project")
