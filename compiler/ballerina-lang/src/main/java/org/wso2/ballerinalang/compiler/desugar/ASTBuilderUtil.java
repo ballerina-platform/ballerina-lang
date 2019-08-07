@@ -657,7 +657,7 @@ public class ASTBuilderUtil {
         BLangIdentifier nameNode = (BLangIdentifier)  TreeBuilder.createIdentifierNode();
 
         nameNode.setLiteral(false);
-        nameNode.setValue(Names.OBJECT_INIT_SUFFIX.getValue());
+        nameNode.setValue(Names.USER_DEFINED_INIT_SUFFIX.getValue());
         invocationNode.name = nameNode;
         invocationNode.pkgAlias = pkgNameNode;
 
