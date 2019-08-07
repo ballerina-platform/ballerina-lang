@@ -16,6 +16,7 @@
 
 import ballerina/crypto;
 import ballerina/log;
+import ballerina/runtime;
 import ballerina/system;
 import ballerina/'lang\.object as lang;
 
@@ -58,17 +59,15 @@ public type Listener object {
         self.config = c;
         var auth = self.config["auth"];
         if (auth is ListenerAuth) {
-            var authHandlers = auth.authHandlers;
-            if (authHandlers is InboundAuthHandler[]) {
-                if (authHandlers.length() > 0) {
-                    initListener(self.config);
-                }
+            var secureSocket = self.config.secureSocket;
+            if (secureSocket is ServiceSecureSocket) {
+                addAuthFilters(self.config);
             } else {
-                if (authHandlers[0].length() > 0) {
-                    initListener(self.config);
-                }
+                error err = error("Secure sockets have not been cofigured in order to enable auth providers.");
+                panic err;
             }
         }
+        addAttributeFilter(self.config);
         var err = self.initEndpoint();
         if (err is error) {
             panic err;
@@ -97,16 +96,6 @@ public type Listener object {
     # + return - An `error` if there is any error occurred during the service detachment process or else nil
     public function detach(service s) returns error? = external;
 };
-
-function initListener(ServiceEndpointConfiguration config) {
-    var secureSocket = config.secureSocket;
-    if (secureSocket is ServiceSecureSocket) {
-        addAuthFiltersForSecureListener(config);
-    } else {
-        error err = error("Secure sockets have not been cofigured in order to enable auth providers.");
-        panic err;
-    }
-}
 
 # Presents a read-only view of the remote address.
 #
@@ -261,10 +250,15 @@ public const KEEPALIVE_ALWAYS = "ALWAYS";
 # Closes the connection irrespective of the `connection` header value }
 public const KEEPALIVE_NEVER = "NEVER";
 
+# Constant for the service name reference.
+public const SERVICE_NAME = "SERVICE_NAME";
+# Constant for the resource name reference.
+public const RESOURCE_NAME = "RESOURCE_NAME";
+
 # Adds authentication and authorization filters.
 #
 # + config - `ServiceEndpointConfiguration` instance
-function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
+function addAuthFilters(ServiceEndpointConfiguration config) {
     // Add authentication and authorization filters as the first two filters if there are no any filters specified OR
     // the auth filter position is specified as 0. If there are any filters specified, the authentication and
     // authorization filters should be added into the position specified.
@@ -304,6 +298,22 @@ function addAuthFiltersForSecureListener(ServiceEndpointConfiguration config) {
         }
     }
     // No need to validate else part since the function is called if and only if the `auth is ListenerAuth`
+}
+
+type AttributeFilter object {
+
+    *RequestFilter;
+
+    public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
+        runtime:getInvocationContext().attributes[SERVICE_NAME] = context.getServiceName();
+        runtime:getInvocationContext().attributes[RESOURCE_NAME] = context.getResourceName();
+        return true;
+    }
+};
+
+function addAttributeFilter(ServiceEndpointConfiguration config) {
+    AttributeFilter attributeFilter = new;
+    config.filters.unshift(attributeFilter);
 }
 
 //////////////////////////////////

@@ -24,9 +24,9 @@ import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -72,16 +72,14 @@ public class CreateObjectInitializerExecutor implements LSCommandExecutor {
                 line = Integer.parseInt(((JsonObject) arg).get(ARG_VALUE).getAsString());
             }
         }
-        BLangPackage bLangPackage = null;
+        BLangPackage bLangPackage;
         try {
             WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
-            LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-            bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false,
-                                                      LSCustomErrorStrategy.class, false);
+            bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager, false,
+                    LSCustomErrorStrategy.class, false);
         } catch (LSCompilerException e) {
             throw new LSCommandExecutorException("Couldn't compile the source", e);
         }
-        context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
         String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
         int finalLine = line;

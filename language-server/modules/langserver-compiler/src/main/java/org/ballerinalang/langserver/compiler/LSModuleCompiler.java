@@ -16,25 +16,18 @@
 package org.ballerinalang.langserver.compiler;
 
 import org.antlr.v4.runtime.ANTLRErrorStrategy;
-import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
-import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
-import org.ballerinalang.langserver.compiler.workspace.ExtendedWorkspaceDocumentManagerImpl;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.toml.model.Manifest;
-import org.ballerinalang.util.diagnostic.Diagnostic;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -43,7 +36,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.prepareCompilerContext;
@@ -51,122 +43,9 @@ import static org.ballerinalang.langserver.compiler.LSCompilerUtil.prepareCompil
 /**
  * Language server compiler implementation for Ballerina.
  */
-public class LSCompiler {
+public class LSModuleCompiler {
 
-    private final WorkspaceDocumentManager docManager;
-
-    /**
-     * Special LS Compiler instance with the Extended Document Manager to compile the content.
-     */
-    private static final LSCompiler INSTANCE = new LSCompiler(ExtendedWorkspaceDocumentManagerImpl.getInstance());
-
-    /**
-     * Returns a new LS Compiler instance with this document manager.
-     *
-     * @param docManager document manager
-     */
-    public LSCompiler(WorkspaceDocumentManager docManager) {
-        this.docManager = docManager;
-    }
-
-    /**
-     * Returns a BallerinaFile compiling in-memory content.
-     *
-     * @param content content to be compiled
-     * @param phase   {@link CompilerPhase} for the compiler
-     * @return {@link BallerinaFile} containing the compiled package
-     * @throws LSCompilerException when compiler error occurred
-     */
-    public static BallerinaFile compileContent(String content, CompilerPhase phase) throws LSCompilerException {
-        java.nio.file.Path filePath = LSCompilerUtil.createTempFile(LSCompilerUtil.UNTITLED_BAL);
-        ExtendedWorkspaceDocumentManagerImpl documentManager = ExtendedWorkspaceDocumentManagerImpl.getInstance();
-        Optional<Lock> exModeLock = documentManager.enableExplicitMode(filePath);
-        Optional<Lock> fileLock = documentManager.lockFile(filePath);
-        try {
-            documentManager.updateFile(filePath, content);
-            BallerinaFile bFile = INSTANCE.compileFile(filePath, phase);
-            documentManager.closeFile(filePath);
-            return bFile;
-        } catch (WorkspaceDocumentException e) {
-            throw new LSCompilerException("Error occurred while compiling file:" + filePath.toString(), e);
-        } finally {
-            documentManager.disableExplicitMode(exModeLock.orElse(null));
-            fileLock.ifPresent(Lock::unlock);
-        }
-    }
-
-    /**
-     * Compile file.
-     *
-     * @param filePath file {@link Path} of the file
-     * @param phase    {@link CompilerPhase} for the compiler
-     * @return {@link BallerinaFile} containing compiled package
-     */
-    public BallerinaFile compileFile(Path filePath, CompilerPhase phase) {
-        LSDocument lsDocument = new LSDocument(filePath.toUri().toString());
-        String packageName = lsDocument.getOwnerModule();
-        String projectRoot = lsDocument.getProjectRoot();
-
-        PackageRepository packageRepo = new WorkspacePackageRepository(lsDocument.getProjectRoot(), docManager);
-        PackageID packageID;
-        if ("".equals(lsDocument.getOwnerModule())) {
-            Path path = filePath.getFileName();
-            if (path != null) {
-                packageName = path.toString();
-                packageID = new PackageID(path.toString());
-            } else {
-                packageID = new PackageID(Names.ANON_ORG, new Name(packageName), Names.DEFAULT_VERSION);
-            }
-        } else {
-            packageID = generatePackageFromManifest(packageName, projectRoot);
-        }
-        CompilerContext context = prepareCompilerContext(packageID, packageRepo, lsDocument, true, docManager, phase);
-
-        BallerinaFile bfile;
-        BLangPackage bLangPackage = null;
-        boolean isProjectDir = lsDocument.isWithinProject();
-        try {
-            BLangDiagnosticLog.getInstance(context).errorCount = 0;
-            Compiler compiler = Compiler.getInstance(context);
-            bLangPackage = compiler.compile(packageName);
-            LSPackageCache.getInstance(context).invalidate(bLangPackage.packageID);
-        } catch (RuntimeException e) {
-            // Ignore.
-        }
-        if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
-            List<Diagnostic> diagnostics = ((CollectDiagnosticListener) context.get(DiagnosticListener.class))
-                    .getDiagnostics();
-            bfile = new BallerinaFile(bLangPackage, diagnostics, isProjectDir, context);
-        } else {
-            bfile = new BallerinaFile(bLangPackage, new ArrayList<>(), isProjectDir, context);
-        }
-        return bfile;
-    }
-
-    /**
-     * Updates content and compile file.
-     *
-     * @param content         content need to be updated
-     * @param filePath        file {@link Path} of the file
-     * @param phase           {@link CompilerPhase} for the compiler
-     * @param documentManager document manager
-     * @return {@link BallerinaFile} containing compiled package
-     * @throws LSCompilerException when compiler error occurred
-     */
-    public BallerinaFile updateAndCompileFile(Path filePath, String content, CompilerPhase phase,
-                                              WorkspaceDocumentManager documentManager)
-            throws LSCompilerException {
-        Optional<Lock> lock = documentManager.lockFile(filePath);
-        try {
-            documentManager.updateFile(filePath, content);
-            return this.compileFile(filePath, phase);
-        } catch (WorkspaceDocumentException e) {
-            throw new LSCompilerException(
-                    "Error occurred while compiling the content in file path: " + filePath.toString(), e
-            );
-        } finally {
-            lock.ifPresent(Lock::unlock);
-        }
+    private LSModuleCompiler() {
     }
 
     /**
@@ -180,7 +59,7 @@ public class LSCompiler {
      * @return {@link List}      A list of packages when compile full project
      * @throws LSCompilerException when compilation fails
      */
-    public BLangPackage getBLangPackage(LSContext context,
+    public static BLangPackage getBLangPackage(LSContext context,
                                         WorkspaceDocumentManager docManager, boolean preserveWS,
                                         Class<? extends ANTLRErrorStrategy> errStrategy,
                                         boolean compileFullProject) throws LSCompilerException {
@@ -202,7 +81,7 @@ public class LSCompiler {
      * @return {@link List}      A list of packages when compile full project
      * @throws URISyntaxException when the uri of the source root is invalid
      */
-    public List<BLangPackage> getBLangModules(LSContext context, WorkspaceDocumentManager docManager,
+    public static List<BLangPackage> getBLangModules(LSContext context, WorkspaceDocumentManager docManager,
                                               boolean preserveWS, Class<? extends ANTLRErrorStrategy> errStrategy)
                                               throws URISyntaxException {
         String sourceRoot = Paths.get(new URI(context.get(DocumentServiceKeys.SOURCE_ROOT_KEY))).toString();
@@ -226,7 +105,7 @@ public class LSCompiler {
      * @return {@link List}      A list of packages when compile full project
      * @throws LSCompilerException Whenever compilation fails
      */
-    public List<BLangPackage> getBLangPackages(LSContext context, WorkspaceDocumentManager docManager,
+    public static List<BLangPackage> getBLangPackages(LSContext context, WorkspaceDocumentManager docManager,
                                                boolean preserveWS, Class<? extends ANTLRErrorStrategy> errStrategy, 
                                                boolean compileFullProject, boolean clearProjectModules) 
             throws LSCompilerException {
@@ -291,16 +170,35 @@ public class LSCompiler {
         } catch (Exception e) {
             throw new LSCompilerException("Compilation failed", e);
         }
+        Optional<BLangPackage> currentPackage = filterCurrentPackage(packages, context);
+        currentPackage.ifPresent(bLangPackage -> {
+            context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
+            context.put(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY, bLangPackage.packageID);
+        });
         return packages;
     }
 
-    private PackageID generatePackageFromManifest(String pkgName, String projectRoot) {
+    private static PackageID generatePackageFromManifest(String pkgName, String projectRoot) {
         Manifest manifest = LSCompilerUtil.getManifest(Paths.get(projectRoot));
         Name orgName = manifest.getProject().getOrgName() == null || manifest.getProject().getOrgName().isEmpty() ?
                 Names.ANON_ORG : new Name(manifest.getProject().getOrgName());
         Name version = manifest.getProject().getVersion() == null || manifest.getProject().getVersion().isEmpty() ?
                 Names.DEFAULT_VERSION : new Name(manifest.getProject().getVersion());
         return new PackageID(orgName, new Name(pkgName), version);
+    }
+
+    /**
+     * Get current package by given file name.
+     *
+     * @param packages list of packages to be searched
+     * @param context  LSContext
+     * @return {@link Optional} current package
+     */
+    private static Optional<BLangPackage> filterCurrentPackage(List<BLangPackage> packages, LSContext context) {
+        String currentPkg = context.get(DocumentServiceKeys.CURRENT_PKG_NAME_KEY);
+        return packages.stream()
+                .filter(bLangPackage -> bLangPackage.packageID.name.getValue().equals(currentPkg))
+                .findAny();
     }
 }
 
