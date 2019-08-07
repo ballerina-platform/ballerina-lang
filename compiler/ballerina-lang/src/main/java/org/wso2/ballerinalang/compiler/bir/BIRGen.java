@@ -2120,16 +2120,7 @@ public class BIRGen extends BLangNodeVisitor {
                                                        VarScope.FUNCTION, VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
-
-        BLangLiteral nameLiteral = new BLangLiteral();
-        nameLiteral.pos = streamLiteral.pos;
-        nameLiteral.type = symTable.stringType;
-        nameLiteral.value = streamLiteral.streamName;
-        nameLiteral.accept(this);
-        BIROperand columnsOp = this.env.targetOperand;
-
-        emit(new BIRNonTerminator.NewStream(streamLiteral.pos, streamLiteral.type, toVarRef, columnsOp));
-
+        emit(new BIRNonTerminator.NewStream(streamLiteral.pos, streamLiteral.type, toVarRef));
         this.env.targetOperand = toVarRef;
     }
 

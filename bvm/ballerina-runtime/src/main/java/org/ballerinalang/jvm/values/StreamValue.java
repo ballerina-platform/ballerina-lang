@@ -35,36 +35,29 @@ import java.util.UUID;
  */
 public class StreamValue implements RefValue {
 
-    private static final String TOPIC_NAME_PREFIX = "TOPIC_NAME_";
+    private static final String STREAM_NAME = "STREAM_";
 
     private BType type;
     private BType constraintType;
-
-    private String streamId;
 
     private StreamSubscriptionManager streamSubscriptionManager;
 
     /**
      * The name of the underlying broker topic representing the stream object.
      */
-    public String topicName;
+    public String streamId;
 
-    public StreamValue(BType type, String name) {
+    public StreamValue(BType type) {
         this.streamSubscriptionManager = StreamSubscriptionManager.getInstance();
         this.constraintType = ((BStreamType) type).getConstrainedType();
         this.type = new BStreamType(constraintType);
 
-        /*if (constraintType instanceof BIndexedType) {
-            this.topicName = TOPIC_NAME_PREFIX + ((BIndexedType) constraintType).getElementType() + "_" + name;
-        } */
-
         if (constraintType != null) {
-            this.topicName = TOPIC_NAME_PREFIX + constraintType + "_" + name;
+            this.streamId = STREAM_NAME + constraintType;
         } else {
-            this.topicName = TOPIC_NAME_PREFIX + name; //TODO: check for improvement
+            this.streamId = STREAM_NAME; //TODO: check for improvement
         }
-        topicName = topicName.concat("_").concat(UUID.randomUUID().toString());
-        this.streamId = name;
+        streamId = streamId.concat("_").concat(UUID.randomUUID().toString());
     }
 
     public String getStreamId() {
@@ -120,12 +113,4 @@ public class StreamValue implements RefValue {
     public void subscribe(FPValue<Object[], Object> functionPointer) {
         streamSubscriptionManager.registerMessageProcessor(this, functionPointer);
     }
-
-//    public void subscribe(InputHandler inputHandler) {
-//        if (constraintType.getTag() != TypeTags.OBJECT_TYPE_TAG
-//            && constraintType.getTag() != TypeTags.RECORD_TYPE_TAG) {
-//            throw BallerinaErrors.createError("Streaming Support is only available with streams accepting objects");
-//        }
-//        streamSubscriptionManager.registerMessageProcessor(this, inputHandler);
-//    }
 }

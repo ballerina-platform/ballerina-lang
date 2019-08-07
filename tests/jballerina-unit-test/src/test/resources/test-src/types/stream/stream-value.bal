@@ -81,6 +81,24 @@ function testStreamPublishingAndSubscriptionForRecord() returns [Employee, Emplo
     return [origEmployee, publishedEmployee, globalEmployee];
 }
 
+function testRecordPublishingToStreamArray() returns [Employee, Employee, Employee] {
+    globalEmployee = {};
+    Employee origEmployee = globalEmployee;
+    stream<Employee>[] s1 = [];
+    s1[1] = new; //Initialize 1st element in the array, so 0th element will be also filled with filler value.
+
+    s1[0].subscribe(assignGlobalEmployee);
+    Employee publishedEmployee = { id:1234, name:"Maryam" };
+    s1[0].publish(publishedEmployee);
+    int startTime = time:currentTime().time;
+
+    //allow for value update
+    while (globalEmployee.id == 0 && time:currentTime().time - startTime < 1000) {
+        runtime:sleep(100);
+    }
+    return [origEmployee, publishedEmployee, globalEmployee];
+}
+
 Employee[] globalEmployeeArray = [];
 
 function testStreamPublishingAndSubscriptionForMultipleRecordEvents() returns [Employee[], Employee[]] {

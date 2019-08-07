@@ -3255,7 +3255,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangTypeInit typeInitExpr) {
         switch (typeInitExpr.type.tag) {
             case TypeTags.STREAM:
-                result = getInitExpr(typeInitExpr.type, typeInitExpr);
+                result = new BLangStreamLiteral(typeInitExpr.pos, typeInitExpr.type);
                 break;
             default:
                 if (typeInitExpr.type.tag == TypeTags.OBJECT && typeInitExpr.initInvocation.symbol == null) {
@@ -6183,27 +6183,6 @@ public class Desugar extends BLangNodeVisitor {
                                                            (BInvokableType) initFunction.type);
         structureTypeNode.initFunction = initFunction;
         return rewrite(initFunction, env);
-    }
-
-    private BLangExpression getInitExpr(BType type, BLangTypeInit typeInitExpr) {
-        String identifier;
-        switch (typeInitExpr.parent.getKind()) {
-            case ASSIGNMENT:
-                identifier = ((BLangSimpleVarRef) ((BLangAssignment) typeInitExpr.parent).varRef).symbol.name.value;
-                break;
-            case VARIABLE:
-                identifier = ((BLangSimpleVariable) typeInitExpr.parent).name.value;
-                break;
-            default:
-                return null;
-                // shouldn't reach here - todo need to fix as param
-        }
-        switch (type.tag) {
-            case TypeTags.STREAM:
-                return new BLangStreamLiteral(typeInitExpr.pos, type, identifier);
-            default:
-                return null;
-        }
     }
 
     private void visitBinaryLogicalExpr(BLangBinaryExpr binaryExpr) {
