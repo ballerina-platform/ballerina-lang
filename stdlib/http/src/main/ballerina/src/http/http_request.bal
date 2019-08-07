@@ -433,8 +433,8 @@ public type Request object {
         self.setEntity(entity);
     }
 
-    # Sets the request payload. To send string literals that doesn't start with `{`, `[` or a number as json, set the content-type header
-    # to `application/json` or use `setJsonPayload` method instead.
+    # Sets the request payload. To send string literals that doesn't start with `{`, `[` or a number as json, set the
+    # content-type header to `application/json` or use `setJsonPayload` method instead.
     #
     # + payload - Payload can be of type `string`, `xml`, `json`, `byte[]`, `ByteChannel` or `Entity[]` (i.e: a set
     #             of body parts)
