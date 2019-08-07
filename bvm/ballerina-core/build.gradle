@@ -34,7 +34,6 @@ dependencies {
     implementation 'io.netty:netty-buffer'
     implementation 'io.netty:netty-common'
     implementation 'io.netty:netty-codec-http'
-    implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
     implementation 'org.apache.ws.commons.axiom:axiom-api'
     implementation 'org.apache.ws.commons.axiom:axiom-impl'
     implementation 'org.apache.ws.commons.axiom:axiom-dom'

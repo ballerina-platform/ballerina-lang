@@ -83,7 +83,6 @@ dependencies {
         implementation 'org.slf4j:slf4j-simple:1.7.26'
         implementation 'org.slf4j:slf4j-jdk14:1.7.26'
         implementation 'org.testng:testng:6.14.3'
-        implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging:2.3.7'
         implementation 'org.wso2.orbit.com.lmax:disruptor:3.3.2.wso2v2'
         implementation 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
         implementation 'org.wso2.orbit.org.yaml:snakeyaml:1.16.0.wso2v1'

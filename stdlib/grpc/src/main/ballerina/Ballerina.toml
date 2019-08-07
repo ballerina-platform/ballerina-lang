@@ -132,13 +132,6 @@ target = "java"
     modules = ["grpc"]
 
     [[platform.libraries]]
-    artafactId = "org.wso2.carbon.messaging"
-    version = "2.3.7"
-    path = "./lib/org.wso2.carbon.messaging-2.2.3.jar"
-    groupId = "org.wso2.carbon.messaging"
-    modules = ["grpc"]
-
-    [[platform.libraries]]
     artafactId = "org.wso2.carbon.core"
     version = "5.1.0"
     path = "./lib/org.wso2.carbon.core-5.1.0.jar"

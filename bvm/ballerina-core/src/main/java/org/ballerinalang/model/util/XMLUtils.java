@@ -82,21 +82,21 @@ public class XMLUtils {
 
     static {
         Canonicalizer.init();
-        try {
-            Canonicalizer.register("http://www.w3.org/TR/2001/REC-xml-c14n-20010315",
-                                   "org.apache.axiom.c14n.impl.Canonicalizer20010315OmitComments");
-            Canonicalizer.register("http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments",
-                                   "org.apache.axiom.c14n.impl.Canonicalizer20010315WithComments");
-            Canonicalizer.register("http://www.w3.org/2001/10/xml-exc-c14n#",
-                                   "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclOmitComments");
-            Canonicalizer.register("http://www.w3.org/2001/10/xml-exc-c14n#WithComments",
-                                   "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclWithComments");
-            canonicalizer = Canonicalizer.getInstance("http://www.w3.org/2001/10/xml-exc-c14n#WithComments");
-        } catch (AlgorithmAlreadyRegisteredException e) {
-            // ignore
-        } catch (InvalidCanonicalizerException e) {
-            throw new BallerinaException("Error initializing canonicalizer: " + e.getMessage());
-        }
+//        try {
+//            Canonicalizer.register("http://www.w3.org/TR/2001/REC-xml-c14n-20010315",
+//                                   "org.apache.axiom.c14n.impl.Canonicalizer20010315OmitComments");
+//            Canonicalizer.register("http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments",
+//                                   "org.apache.axiom.c14n.impl.Canonicalizer20010315WithComments");
+//            Canonicalizer.register("http://www.w3.org/2001/10/xml-exc-c14n#",
+//                                   "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclOmitComments");
+//            Canonicalizer.register("http://www.w3.org/2001/10/xml-exc-c14n#WithComments",
+//                                   "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclWithComments");
+//            canonicalizer = Canonicalizer.getInstance("http://www.w3.org/2001/10/xml-exc-c14n#WithComments");
+//        } catch (AlgorithmAlreadyRegisteredException e) {
+//            // ignore
+//        } catch (InvalidCanonicalizerException e) {
+//            throw new BallerinaException("Error initializing canonicalizer: " + e.getMessage());
+//        }
     }
 
     /**
