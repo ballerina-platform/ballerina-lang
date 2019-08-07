@@ -76,6 +76,10 @@ public class ReferencesUtil {
             String documentContent = docManager.getFileContent(compilationPath);
             ReferencesSubRuleParser.parserCompilationUnit(documentContent, context, position);
 
+            if (context.get(NodeContextKeys.NODE_NAME_KEY) == null) {
+                throw new IllegalStateException("Couldn't find a valid identifier token at cursor!");
+            }
+
             return LSModuleCompiler.getBLangPackages(context, docManager, true, errStrategy, compileProject, false);
         } finally {
             lock.ifPresent(Lock::unlock);
@@ -235,7 +239,8 @@ public class ReferencesUtil {
         // Prune the found symbol references
         SymbolReferencesModel symbolReferencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
         if (!symbolReferencesModel.getReferenceAtCursor().isPresent()) {
-            throw new UserErrorException("Not supported due to compilation failures!");
+            String nodeName = context.get(NodeContextKeys.NODE_NAME_KEY);
+            throw new IllegalStateException("Symbol at cursor '" + nodeName + "' not supported or could not find!");
         }
 
         SymbolReferencesModel.Reference symbolAtCursor = symbolReferencesModel.getReferenceAtCursor().get();
