@@ -19,11 +19,11 @@ import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.exception.UserErrorException;
@@ -60,7 +60,7 @@ public class ReferencesUtil {
 
     public static List<BLangPackage> getPreparedModules(String fileUri, WorkspaceDocumentManager docManager,
                                                         Position position, LSContext context, boolean compileProject)
-            throws WorkspaceDocumentException, LSCompilerException {
+            throws WorkspaceDocumentException, CompilationFailedException {
         Optional<Path> defFilePath = CommonUtil.getPathFromURI(fileUri);
         if (!defFilePath.isPresent()) {
             return new ArrayList<>();
@@ -125,7 +125,7 @@ public class ReferencesUtil {
 
     public static SymbolReferencesModel.Reference getReferenceAtCursor(LSContext context, LSDocument document,
                                                                        Position position)
-            throws WorkspaceDocumentException, LSCompilerException {
+            throws WorkspaceDocumentException, CompilationFailedException {
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         List<BLangPackage> modules = ReferencesUtil.getPreparedModules(document.getURIString(), documentManager,
                 position, context, true);

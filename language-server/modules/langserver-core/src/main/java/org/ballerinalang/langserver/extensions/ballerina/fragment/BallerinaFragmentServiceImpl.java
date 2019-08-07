@@ -21,9 +21,9 @@ import com.google.gson.JsonObject;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
-import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
@@ -71,7 +71,7 @@ public class BallerinaFragmentServiceImpl implements BallerinaFragmentService {
                 JsonObject jsonASTFragment = getJsonNodeForFragment(jsonModel, sourceFragment);
                 return FormattingSourceGen.build(jsonASTFragment, null);
             }
-        } catch (JSONGenerationException | LSCompilerException e) {
+        } catch (JSONGenerationException | CompilationFailedException e) {
             logger.error("Error while generating AST for fragment", e);
         }
         return null;
@@ -146,7 +146,7 @@ public class BallerinaFragmentServiceImpl implements BallerinaFragmentService {
     }
 
     private static JsonElement getJsonModel(String source)
-            throws LSCompilerException, JSONGenerationException {
+            throws CompilationFailedException, JSONGenerationException {
         BallerinaFile model = ExtendedLSCompiler.compileContent(source, CompilerPhase.DEFINE);
         Optional<BLangCompilationUnit> compilationUnit = model.getBLangPackage()
                 .map(b -> b.getCompilationUnits().stream().filter(
