@@ -97,6 +97,23 @@ public class BStreamValueTest {
                 "Record field \"name\" of received event does not match that of published event");
     }
 
+    @Test(description = "Test publishing records to a stream in a stream array")
+    public void testRecordPublishingToStreamArray() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecordPublishingToStreamArray");
+        BMap<String, BValue> origEmployee = (BMap<String, BValue>) returns[0];
+        BMap<String, BValue> publishedEmployee = (BMap<String, BValue>) returns[1];
+        BMap<String, BValue> modifiedOrigEmployee = (BMap<String, BValue>) returns[2];
+        Assert.assertEquals(((BInteger) origEmployee.get("id")).intValue(), 0);
+        Assert.assertTrue(origEmployee.get("name").stringValue().isEmpty());
+        Assert.assertEquals(publishedEmployee.getType().getName(), modifiedOrigEmployee.getType().getName());
+        Assert.assertEquals(((BInteger) modifiedOrigEmployee.get("id")).intValue(),
+                            ((BInteger) publishedEmployee.get("id")).intValue(),
+                            "Record field \"id\" of received event does not match that of published event");
+        Assert.assertEquals(modifiedOrigEmployee.get("name").stringValue(),
+                            publishedEmployee.get("name").stringValue(),
+                            "Record field \"name\" of received event does not match that of published event");
+    }
+
     @Test(description = "Test receipt of multiple record events with correct subscription and publishing")
     public void testStreamPublishingAndSubscriptionForMultipleRecordEvents() {
         BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForMultipleRecordEvents");

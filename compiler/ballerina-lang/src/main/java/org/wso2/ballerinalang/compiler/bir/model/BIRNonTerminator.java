@@ -658,14 +658,12 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
      * @since 0.995.0
      */
     public static class NewStream extends BIRNonTerminator {
-        public BIROperand nameOp;
         public BType type;
 
-        public NewStream(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand nameOp) {
+        public NewStream(DiagnosticPos pos, BType type, BIROperand lhsOp) {
             super(pos, InstructionKind.NEW_STREAM);
             this.type = type;
             this.lhsOp = lhsOp;
-            this.nameOp = nameOp;
         }
 
         @Override

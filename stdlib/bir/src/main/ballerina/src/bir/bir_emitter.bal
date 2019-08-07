@@ -303,8 +303,6 @@ type InstructionEmitter object {
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ", ins.kind, " ");
             self.typeEmitter.emitType(ins.typeValue);
-            print(", ");
-            self.opEmitter.emitOp(ins.nameOp);
             println(";");
         } else if (ins is NewTable) {
             print(tabs);
