@@ -49,13 +49,12 @@ The `AuthProvider` and `authConfig` need to be specified for the hub listener an
 A user can specify `AuthProvider` as follows and set it to the `hubListenerConfig` record, which is passed when starting the hub.
 
 ``` ballerina
-http:AuthProvider basicAuthProvider = {
-    scheme: http:BASIC_AUTH,
-    authStoreProvider: http:CONFIG_AUTH_STORE
-};
+http:BasicAuthHandler basicAuthHandler = new(new auth:InboundBasicAuthProvider());
 
 http:ServiceEndpointConfiguration hubListenerConfig = {
-    authProviders: [basicAuthProvider],
+    auth: {
+        authHandlers: [basicAuthHandler]
+    },
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -64,9 +63,9 @@ http:ServiceEndpointConfiguration hubListenerConfig = {
     }
 };
 
-var val = websub:startHub(new http:Listener (9191, config =  hubListenerConfig));
+var val = websub:startHub(new http:Listener(9191, hubListenerConfig));
 ```
-In addition to the `AuthProvider` for the listener, a user also has to specify the `authConfig` properties at the service 
+In addition to the `BasicAuthHandler` for the listener, a user also has to specify the `authConfig` properties at the service
 config level. 
 
  
@@ -74,28 +73,33 @@ It can be populated by providing the `authConfig` via a TOML file under the `b7a
 Recognized users can also be mentioned in the same file, which permits the auth providers to read it. 
 
 ```
-["b7a.websub.hub.auth"]
-enabled=true  // enables the authentication
-scopes="scope1" // defines the scope of possible users
+[b7a.websub.hub.auth]
+enabled=true  # enables the authentication
+scopes="scope1" # defines the scope of possible users
 
-["b7a.users"]
+[b7a.users]
 
-["b7a.users.tom"]
+[b7a.users.tom]
 password="1234"
 scopes="scope1"
 ```
 
 Once the hub is secured using basic auth, a subscriber should provide the relevant `auth` config in the 
-`subscriptionClientConfig` field of the subscriber service annotation.
+`hubClientConfig` field of the subscriber service annotation.
 
 ```ballerina
+auth:OutboundBasicAuthProvider basicAuthProvider = new({
+    username: "tom",
+    password: "1234"
+});
+
+http:BasicAuthHandler basicAuthHandler = new(basicAuthProvider);
+
 @websub:SubscriberServiceConfig {
     path: "/ordereventsubscriber",
-    subscriptionClientConfig: {
+    hubClientConfig: {
         auth: {
-            scheme: http:BASIC_AUTH,
-            username: "tom",
-            password: "1234"
+            authHandler: basicAuthHandler
         }
     }
 }
@@ -107,37 +111,12 @@ The Ballerina WebSub Hub supports persistence of topic and subscription data tha
 restarted.
  
 Users can introduce their own persistence implementation, by introducing an object type that is structurally 
-equivalent to the `websub:HubPersistenceStore` abstract object. Alternatively, the H2-based 
-`websub:H2HubPersistenceStore` object made available in the `ballerina/websub` module could be used to persist data.
+equivalent to the `websub:HubPersistenceStore` abstract object.
 
 Persistence can be enabled by setting a suitable `websub:HubPersistenceStore` value for the `hubPersistenceStore` field 
 in the `HubConfiguration` record, which is passed to the `websub:startHub()` function.
 
-```ballerina
-import ballerina/h2;
-import ballerina/http;
-import ballerina/websub;
-
-// Define an `h2:Client` to use with the `websub:H2HubPersistenceStore`.
-h2:Client h2Client = new({
-    path: "./target/hubDB",
-    name: "hubdb",
-    username: "user1",
-    password: "pass1"
-});
-
-// Define a `websub:H2HubPersistenceStore` as a `websub:HubPersistenceStore`.
-websub:HubPersistenceStore hubPersistenceStore = new websub:H2HubPersistenceStore(h2Client);
-// Set the defined persistence store as the `hubPersistenceStore` in the `hubConfig` record.
-websub:HubConfiguration hubConfig = {
-    hubPersistenceStore: hubPersistenceStore
-};
-
-// Pass the `hubConfig` record when starting up the hub to enable persistence.
-var result = websub:startHub(new http:Listener(8080), hubConfiguration = hubConfig);
-```
-
-Any subscriptions added at the hub will now be available even when the hub is restarted.
+Any subscriptions added at the hub will be available even after the hub is restarted.
 
 #### Publisher
 
@@ -168,8 +147,7 @@ listener websub:Listener websubEP = new(8181);
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
-    topic: "<TOPIC_URL>",
-    hub: "<HUB_URL>",
+    target: ["<HUB_URL>", "<TOPIC_URL>"],
     leaseSeconds: 3600,
     secret: "<SECRET>"
 }
@@ -180,7 +158,7 @@ service websubSubscriber on websubEP {
         if (payload is string) {
             log:printInfo("WebSub Notification Received: " + payload);
         } else {
-            log:printError("Error retrieving payload as string", err = payload);
+            log:printError("Error retrieving payload as string", payload);
         }
     }
 }
@@ -197,8 +175,7 @@ listener websub:Listener websubEP = new(8181);
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
-    topic: "<TOPIC_URL>",
-    hub: "<HUB_URL>",
+    target: ["<HUB_URL>", "<TOPIC_URL>"],
     leaseSeconds: 3600,
     secret: "<SECRET>"
 }
@@ -209,7 +186,7 @@ service websubSubscriber on websubEP {
         // Insert logic to build subscription/unsubscription intent verification response.
         var result = caller->respond(response);
         if (result is error) { 
-            log:printError("Error responding to intent verification request", err = result); 
+            log:printError("Error responding to intent verification request", result);
         }
     }
 
@@ -218,7 +195,7 @@ service websubSubscriber on websubEP {
         if (payload is string) {
             log:printInfo("WebSub Notification Received: " + payload);
         } else {
-            log:printError("Error retrieving payload as string", err = payload);
+            log:printError("Error retrieving payload as string", payload);
         }
     }
 }
@@ -248,7 +225,7 @@ public function main() {
 
     var registrationResponse = webSubHub.registerTopic("<TOPIC_URL>");
     if (registrationResponse is error) {
-        log:printError("Error occurred registering topic: " + <string>registrationResponse.detail().message);
+        log:printError("Error occurred registering topic: " + <string>registrationResponse.detail()?.message);
     } else {
         log:printInfo("Topic registration successful!");
     }
@@ -259,7 +236,7 @@ public function main() {
     log:printInfo("Publishing update to internal Hub");
     var publishResponse = webSubHub.publishUpdate("<TOPIC_URL>", {"action": "publish", "mode": "internal-hub"});
     if (publishResponse is error) {
-        log:printError("Error notifying hub: " + <string>publishResponse.detail().message);
+        log:printError("Error notifying hub: " + <string>publishResponse.detail()?.message);
     } else {
         log:printInfo("Update notification successful!");
     }
@@ -282,7 +259,7 @@ public function main() {
 
     var registrationResponse = websubHubClientEP->registerTopic("<TOPIC_URL>");
     if (registrationResponse is error) {
-        log:printError("Error occurred registering topic: " + <string>registrationResponse.detail().message);
+        log:printError("Error occurred registering topic: " + <string>registrationResponse.detail()?.message);
     } else {
         log:printInfo("Topic registration successful!");
     }
@@ -293,7 +270,7 @@ public function main() {
     log:printInfo("Publishing update to remote Hub");
     var publishResponse = websubHubClientEP->publishUpdate("<TOPIC_URL>", { "action": "publish", "mode": "remote-hub" });
     if (publishResponse is error) {
-        log:printError("Error notifying hub: " + <string>publishResponse.detail().message);
+        log:printError("Error notifying hub: " + <string>publishResponse.detail()?.message);
     } else {
         log:printInfo("Update notification successful!");
     }
@@ -389,13 +366,13 @@ websub:ExtensionConfig extensionConfig = {
     topicIdentifier: websub:TOPIC_ID_HEADER,
     topicHeader: "<HEADER_TO_CONSIDER>",
     headerResourceMap: {
-        "issueOpened": ("onIssueOpened", IssueOpenedEvent),
-        "issueClosed": ("onIssueClosed", IssueClosedEvent)
+        "issueOpened": ["onIssueOpened", IssueOpenedEvent],
+        "issueClosed": ["onIssueClosed", IssueClosedEvent]
     }
 };
 ```
 
-The `"issueOpened": ("onIssueOpened", IssueOpenedEvent)` entry indicates that when the value of the 
+The `"issueOpened": ["onIssueOpened", IssueOpenedEvent]` entry indicates that when the value of the
 `<HEADER_TO_CONSIDER>` header is `issueOpened`, dispatching should happen to a resource named `onIssueOpened`. 
 
 The first parameter of this resource will be the generic `websub:Notification` record, and the second parameter will 
@@ -411,14 +388,14 @@ websub:ExtensionConfig extensionConfig = {
     topicIdentifier: websub:TOPIC_ID_PAYLOAD_KEY,
     payloadKeyResourceMap: {
         "<PAYLOAD_KEY_TO_CONSIDER>": {
-            "issueOpened": ("onIssueOpened", IssueOpenedEvent),
-            "issueClosed": ("onIssueClosed", IssueClosedEvent)
+            "issueOpened": ["onIssueOpened", IssueOpenedEvent],
+            "issueClosed": ["onIssueClosed", IssueClosedEvent]
         }
     }
 };
 ```
 
-The `"issueOpened": ("onIssueOpened", IssueOpenedEvent)` entry indicates that when the value for the JSON payload
+The `"issueOpened": ["onIssueOpened", IssueOpenedEvent]` entry indicates that when the value for the JSON payload
  key `<PAYLOAD_KEY_TO_CONSIDER>` is `issueOpened`, dispatching should happen to a resource named `onIssueOpened`.
 
 The first parameter of this resource will be the generic `websub:Notification` record, and the second parameter will 
@@ -436,14 +413,14 @@ websub:ExtensionConfig extensionConfig = {
     headerAndPayloadKeyResourceMap: {
         "issue" : {
             "<PAYLOAD_KEY_TO_CONSIDER>" : {
-                "opened": ("onIssueOpened", IssueOpenedEvent),
-                "closed": ("onIssueClosed", IssueClosedEvent)
+                "opened": ["onIssueOpened", IssueOpenedEvent],
+                "closed": ["onIssueClosed", IssueClosedEvent]
             }
         }
     }
 };
 ```
-The `"opened": ("onIssueOpened", IssueOpenedEvent)` entry indicates that when the value of the 
+The `"opened": ["onIssueOpened", IssueOpenedEvent]` entry indicates that when the value of the
 `<HEADER_TO_CONSIDER>` header is `issue` and the value of the `<PAYLOAD_KEY_TO_CONSIDER>` JSON payload key is `opened`, 
 dispatching should happen to a resource named `onIssueOpened`.
 
@@ -460,6 +437,7 @@ The following example is for a service provider that
 for (e.g., "onIssueOpened" when an issue is opened and "onIssueAssigned" when an issue is assigned)
 
 ```ballerina
+import ballerina/lang.'object as objects;
 import ballerina/websub;
 
 // Introduce a record mapping the JSON payload received when an issue is opened.
@@ -478,7 +456,7 @@ public type IssueAssignedEvent record {
 // Introduce a new `listener` wrapping the generic `ballerina/websub:Listener` 
 public type WebhookListener object {
 
-    *AbstractListener;
+    *objects:AbstractListener;
 
     private websub:Listener websubListener;
 
@@ -488,8 +466,8 @@ public type WebhookListener object {
             topicIdentifier: websub:TOPIC_ID_HEADER,
             topicHeader: "Event-Header",
             headerResourceMap: {
-                "issueOpened": ("onIssueOpened", IssueOpenedEvent),
-                "issueAssigned": ("onIssueAssigned", IssueAssignedEvent)
+                "issueOpened": ["onIssueOpened", IssueOpenedEvent],
+                "issueAssigned": ["onIssueAssigned", IssueAssignedEvent]
             }
         };
         
@@ -499,11 +477,11 @@ public type WebhookListener object {
         };
             
         // Initialize the wrapped generic listener.
-        self.websubListener = new(port, config = sseConfig);
+        self.websubListener = new(port, sseConfig);
     }
 
     public function __attach(service s, string? name = ()) returns error?  {
-        return self.websubListener.__attach(s, name = name);
+        return self.websubListener.__attach(s, name);
     }
 
     public function __start() returns error? {

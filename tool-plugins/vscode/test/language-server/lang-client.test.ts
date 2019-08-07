@@ -55,6 +55,7 @@ suite("Language Server Tests", function () {
     test("Test getAST", function (done): void {
         langClient.onReady().then(() => {
             const filePath = path.join(getBBEPath(), 'hello-world', 'hello_world.bal');
+            console.log("Test file ##### " + filePath);
             let uri = Uri.file(filePath.toString());
             langClient.getAST(uri).then((response) => {
                 expect(response).to.contain.keys('ast', 'parseSuccess');

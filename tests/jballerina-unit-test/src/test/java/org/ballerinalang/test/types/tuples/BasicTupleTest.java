@@ -122,9 +122,34 @@ public class BasicTupleTest {
         Assert.assertEquals(((BFloat) returns[3]).intValue(), 0);
     }
 
+    @Test(description = "Test tuple to array assignment")
+    public void testTupleToArrayAssignment() {
+        BValue[] returns = BRunUtil.invoke(result, "testTupleToArrayAssignment", new BValue[]{});
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(returns[0].stringValue(), "a");
+        Assert.assertEquals(returns[1].stringValue(), "b");
+        Assert.assertEquals(returns[2].stringValue(), "c");
+    }
+
+    @Test(description = "Test array to tuple assignment")
+    public void testArrayToTupleAssignment() {
+        BValue[] returns = BRunUtil.invoke(result, "testArrayToTupleAssignment1", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "[\"a\", \"b\", \"c\"]");
+
+        returns = BRunUtil.invoke(result, "testArrayToTupleAssignment2", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "[\"a\", \"b\", \"c\"]");
+
+        returns = BRunUtil.invoke(result, "testArrayToTupleAssignment3", new BValue[]{});
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns[0].stringValue(), "a");
+        Assert.assertEquals(returns[1].stringValue(), "[\"b\", \"c\"]");
+    }
+
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 18);
+        Assert.assertEquals(resultNegative.getErrorCount(), 21);
         BAssertUtil.validateError(
                 resultNegative, 0, "tuple and expression size does not match", 18, 25);
         BAssertUtil.validateError(
@@ -133,6 +158,17 @@ public class BasicTupleTest {
                 resultNegative, 2, "ambiguous type '([int,boolean,string]|[any,boolean,string])?'", 34, 63);
         BAssertUtil.validateError(
                 resultNegative, 3, "ambiguous type '([Person,int]|[Employee,int])?'", 38, 47);
+    }
+
+    @Test(description = "Test negative scenarios of assigning tuples and arrays")
+    public void testNegativeTupleArrayAssignments() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 21);
+        BAssertUtil.validateError(
+                resultNegative, 4, "incompatible types: expected 'int[]', found '[string...]'", 43, 15);
+        BAssertUtil.validateError(
+                resultNegative, 5, "incompatible types: expected '[int...]', found 'string[]'", 49, 18);
+        BAssertUtil.validateError(
+                resultNegative, 6, "incompatible types: expected '[int,string...]', found '(int|string)[]'", 55, 26);
     }
 
     @Test(enabled = false, description = "Test negatives of index based access of tuple type")

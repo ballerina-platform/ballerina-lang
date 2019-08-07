@@ -19,7 +19,7 @@ import ballerina/kafka;
 string topic = "service-stop-test";
 
 kafka:ConsumerConfig consumerConfigs = {
-    bootstrapServers: "localhost:9094",
+    bootstrapServers: "localhost:9103",
     groupId: "service-stop-test-group",
     clientId: "service-stop-consumer",
     offsetReset: "earliest",
@@ -38,7 +38,7 @@ service kafkaTestService on kafkaConsumer {
 }
 
 kafka:ProducerConfig producerConfigs = {
-    bootstrapServers: "localhost:9094",
+    bootstrapServers: "localhost:9103",
     clientId: "service-producer",
     acks: "all",
     noRetries: 3

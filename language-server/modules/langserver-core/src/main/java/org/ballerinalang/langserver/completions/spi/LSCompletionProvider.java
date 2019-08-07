@@ -25,7 +25,7 @@ import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompiler;
+import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
@@ -312,7 +312,8 @@ public abstract class LSCompletionProvider {
             if (!pkgAlreadyImported && !populatedList.contains(orgName + "/" + name)) {
                 CompletionItem item = new CompletionItem();
                 item.setLabel(ballerinaPackage.getFullPackageNameAlias());
-                String insertText = name;
+                String[] pkgNameComps = name.split("\\.");
+                String insertText = pkgNameComps[pkgNameComps.length - 1];
                 // Check for the lang lib module insert text
                 if ("ballerina".equals(orgName) && name.startsWith("lang.")) {
                     String[] pkgNameComponents = name.split("\\.");
@@ -507,7 +508,8 @@ public abstract class LSCompletionProvider {
         return visibleSymbols.stream()
                 .filter(symbolInfo -> {
                     BSymbol symbol = symbolInfo.getScopeEntry().symbol;
-                    return symbol instanceof BPackageSymbol && alias.equals(symbol.getName().getValue());
+                    String[] nameComps = symbol.getName().value.split("\\.");
+                    return symbol instanceof BPackageSymbol && alias.equals(nameComps[nameComps.length - 1]);
                 })
                 .findAny();
     }
@@ -575,7 +577,7 @@ public abstract class LSCompletionProvider {
         
         Optional<BLangPackage> bLangPackage;
         try {
-            bLangPackage = LSCompiler.compileContent(subRule.toString(), CompilerPhase.CODE_ANALYZE)
+            bLangPackage = ExtendedLSCompiler.compileContent(subRule.toString(), CompilerPhase.CODE_ANALYZE)
                     .getBLangPackage();
         } catch (LSCompilerException e) {
             throw new LSCompletionException("Error while parsing the sub-rule");
@@ -777,13 +779,15 @@ public abstract class LSCompletionProvider {
         @moduleName:Rec
          */
         int maxTokenVisitCount = 4;
-        int counter = 0;
-        while (counter < lhsDefaultTokenTypes.size() && counter < maxTokenVisitCount) {
+        int visitCount = 0;
+        int counter = lhsDefaultTokenTypes.size() - 1;
+        while (counter >= 0 && visitCount < maxTokenVisitCount) {
             Integer token = lhsDefaultTokenTypes.get(counter);
             if (token == BallerinaParser.AT) {
                 return true;
             }
-            counter++;
+            counter--;
+            visitCount++;
         }
         
         return false;

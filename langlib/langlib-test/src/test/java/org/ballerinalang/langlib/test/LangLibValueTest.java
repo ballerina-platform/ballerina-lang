@@ -173,7 +173,9 @@ public class LangLibValueTest {
             { "testMappingJsonNoIntersectionMergeSuccess" },
             { "testMappingJsonWithIntersectionMergeFailure1" },
             { "testMappingJsonWithIntersectionMergeFailure2" },
-            { "testMappingJsonWithIntersectionMergeSuccess" }
+            { "testMappingJsonWithIntersectionMergeSuccess" },
+            { "testMergeJsonSuccessForValuesWithNonIntersectingCyclicRefererences" },
+            { "testMergeJsonFailureForValuesWithIntersectingCyclicRefererences" }
         };
     }
 }

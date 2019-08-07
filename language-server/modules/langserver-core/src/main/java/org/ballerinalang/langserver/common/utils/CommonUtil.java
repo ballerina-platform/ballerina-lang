@@ -30,7 +30,6 @@ import org.ballerinalang.langserver.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
@@ -108,6 +107,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -305,11 +307,13 @@ public class CommonUtil {
     public static String topLevelNodeInLine(TextDocumentIdentifier identifier, int cursorLine,
                                             WorkspaceDocumentManager docManager) {
         List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint");
-        LSDocument document = new LSDocument(identifier.getUri());
+        Optional<Path> filePath = CommonUtil.getPathFromURI(identifier.getUri());
+        if (!filePath.isPresent()) {
+            return "";
+        }
 
         try {
-            Path filePath = document.getPath();
-            Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath);
+            Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath.get());
             String fileContent = docManager.getFileContent(compilationPath);
             String[] splitedFileContent = fileContent.split(LINE_SEPARATOR_SPLIT);
             if ((splitedFileContent.length - 1) >= cursorLine) {
@@ -337,35 +341,9 @@ public class CommonUtil {
             }
             return null;
         } catch (WorkspaceDocumentException e) {
-            logger.error("Error occurred while reading content of file: " + document.toString());
+            logger.error("Error occurred while reading content of file: " + filePath.get().toString());
             return null;
         }
-    }
-
-    /**
-     * Get current package by given file name.
-     *
-     * @param packages list of packages to be searched
-     * @param document  string file URI
-     * @return {@link BLangPackage} current package
-     */
-    public static BLangPackage getCurrentPackageByFileName(List<BLangPackage> packages, LSDocument document) {
-        Path filePath = document.getPath();
-        String currentModule = document.getOwnerModule().isEmpty()
-                ? document.getProjectRoot() : document.getOwnerModule();
-        try {
-            for (BLangPackage bLangPackage : packages) {
-                if (bLangPackage.packageID.sourceFileName != null &&
-                        bLangPackage.packageID.sourceFileName.value.equals(filePath.getFileName().toString())) {
-                    return bLangPackage;
-                } else if (currentModule.equals(bLangPackage.packageID.name.value)) {
-                    return bLangPackage;
-                }
-            }
-        } catch (NullPointerException e) {
-            return packages.get(0);
-        }
-        return null;
     }
 
     /**
@@ -1528,6 +1506,21 @@ public class CommonUtil {
                 languageClient.logMessage(new MessageParams(MessageType.Error, message + " " + details + "\n" + baos));
             }
         }
+    }
+
+    /**
+     * Get the path from given string URI.
+     *
+     * @param uri file uri
+     * @return {@link Optional} Path from the URI
+     */
+    public static Optional<Path> getPathFromURI(String uri) {
+        try {
+            return Optional.ofNullable(Paths.get(new URL(uri).toURI()));
+        } catch (URISyntaxException | MalformedURLException e) {
+            // ignore
+        }
+        return Optional.empty();
     }
 
     private static String getErrorDetails(TextDocumentIdentifier textDocument, Throwable error, Position... position) {

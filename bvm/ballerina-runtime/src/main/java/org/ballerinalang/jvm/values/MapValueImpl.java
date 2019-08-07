@@ -19,6 +19,7 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.JSONGenerator;
+import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.TypeConverter;
 import org.ballerinalang.jvm.commons.TypeValuePair;
@@ -44,6 +45,7 @@ import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -57,6 +59,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import static org.ballerinalang.jvm.JSONUtils.mergeJson;
 import static org.ballerinalang.jvm.values.freeze.FreezeUtils.handleInvalidUpdate;
 
 /**
@@ -206,6 +209,42 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             this.put((K) key, (V) value);
             return (V) value;
         } finally {
+            writeLock.unlock();
+        }
+    }
+
+    @Override
+    public Object merge(MapValue v2, boolean checkMergeability) {
+        writeLock.lock();
+        try {
+            ((MapValueImpl) v2).writeLock.lock();
+
+            if (checkMergeability) {
+                ErrorValue errorIfUnmergeable = JSONUtils.getErrorIfUnmergeable(this, v2, new ArrayList<>());
+                if (errorIfUnmergeable != null) {
+                    return errorIfUnmergeable;
+                }
+            }
+
+            MapValue<String, Object> m1 = (MapValue<String, Object>) this;
+            MapValue<String, Object> m2 = (MapValue<String, Object>) v2;
+
+            for (Map.Entry<String, Object> entry : m2.entrySet()) {
+                String key = entry.getKey();
+
+                if (!m1.containsKey(key)) {
+                    m1.put(key, entry.getValue());
+                    continue;
+                }
+
+                // Set checkMergeability to false to avoid rechecking mergeability.
+                // Since write locks are acquired, the initial check should suffice, and merging will always succeed.
+                m1.put(key, mergeJson(m1.get(key), entry.getValue(), false));
+            }
+
+            return this;
+        } finally {
+            ((MapValueImpl) v2).writeLock.unlock();
             writeLock.unlock();
         }
     }
