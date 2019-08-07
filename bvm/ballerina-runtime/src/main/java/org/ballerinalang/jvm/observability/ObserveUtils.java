@@ -21,6 +21,7 @@ package org.ballerinalang.jvm.observability;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.observability.tracer.BSpan;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -111,6 +112,23 @@ public class ObserveUtils {
             setObserverContextToCurrentFrame(strand, observerContext.getParent());
         }
         observerContext.setFinished();
+    }
+
+    /**
+     * Report an error to an observer context.
+     *
+     * @param strand which holds the observer context.
+     * @param errorValue the error value to be attached to the observer context.
+     */
+    public static void reportError(Strand strand, ErrorValue errorValue) {
+        if (!enabled || strand.observerContext == null) {
+            return;
+        }
+        ObserverContext observerContext = strand.observerContext;
+        observers.forEach(observer -> {
+            observerContext.addProperty(ObservabilityConstants.PROPERTY_ERROR, Boolean.TRUE);
+            observerContext.addProperty(ObservabilityConstants.PROPERTY_BSTRUCT_ERROR, errorValue);
+        });
     }
 
     /**
