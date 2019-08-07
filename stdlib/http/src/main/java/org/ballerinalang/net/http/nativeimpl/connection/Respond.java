@@ -60,7 +60,7 @@ import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler
 )
 public class Respond extends ConnectionAction {
 
-    private static final Logger log = LoggerFactory.getLogger(Respond.class);
+    private static final Logger log = HttpUtil.getHttpLogger();
 
     public static Object nativeRespond(Strand strand, ObjectValue connectionObj, ObjectValue outboundResponseObj) {
         //TODO : NonBlockingCallback is temporary fix to handle non blocking call

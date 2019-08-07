@@ -31,10 +31,8 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
-import org.ballerinalang.net.http.actions.httpclient.AbstractHTTPAction;
 import org.ballerinalang.net.http.exception.WebSocketException;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
@@ -54,7 +52,7 @@ import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ERROR_DETA
  */
 public class WebSocketUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractHTTPAction.class);
+    private static final Logger logger = HttpUtil.getHttpLogger();
 
     static MapValue getServiceConfigAnnotation(ObjectValue service) {
         return (MapValue) service.getType().getAnnotation(HttpConstants.PROTOCOL_PACKAGE_HTTP,

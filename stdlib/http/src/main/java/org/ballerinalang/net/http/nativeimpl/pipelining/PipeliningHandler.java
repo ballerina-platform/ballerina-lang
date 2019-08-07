@@ -20,6 +20,7 @@ package org.ballerinalang.net.http.nativeimpl.pipelining;
 
 import io.netty.channel.ChannelHandlerContext;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import org.ballerinalang.net.http.HttpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
@@ -39,7 +40,7 @@ import static org.ballerinalang.net.http.nativeimpl.connection.ResponseWriter.se
  */
 public class PipeliningHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(PipeliningHandler.class);
+    private static final Logger log = HttpUtil.getHttpLogger();
 
     /**
      * This method should be used whenever a response should be sent out via other places (eg:- error responses,

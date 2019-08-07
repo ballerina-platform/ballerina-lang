@@ -201,7 +201,7 @@ public class HttpUtil {
     public static final boolean TRUE = true;
     public static final boolean FALSE = false;
 
-    private static final Logger log = LoggerFactory.getLogger(HttpUtil.class);
+    private static final Logger log = HttpUtil.getHttpLogger();
 
     private static final String METHOD_ACCESSED = "isMethodAccessed";
     private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
@@ -813,7 +813,6 @@ public class HttpUtil {
         setPropertiesToTransportMessage(outboundMsg, outboundMsgObj);
     }
 
-    @SuppressWarnings("unchecked")
     private static void setHeadersToTransportMessage(HttpCarbonMessage outboundMsg, ObjectValue messageObj) {
         ObjectValue entityObj = (ObjectValue) messageObj
                 .get(isRequest(messageObj) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
@@ -1690,6 +1689,10 @@ public class HttpUtil {
         String serviceTypeName = balService.getType().getName();
         int serviceIndex = serviceTypeName.lastIndexOf("$$service$");
         return serviceTypeName.substring(0, serviceIndex);
+    }
+
+    public static Logger getHttpLogger() {
+        return LoggerFactory.getLogger(HttpConstants.BALLERINA_HTTP_LOGGER_NAME);
     }
 
     private HttpUtil() {

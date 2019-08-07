@@ -36,7 +36,7 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_ENDPOINT_STOPPED;
  */
 public class HttpConnectorPortBindingListener implements PortBindingEventListener {
 
-    private static final Logger log = LoggerFactory.getLogger(HttpConnectorPortBindingListener.class);
+    private static final Logger log = HttpUtil.getHttpLogger();
     private static final PrintStream console = System.out;
 
     @Override

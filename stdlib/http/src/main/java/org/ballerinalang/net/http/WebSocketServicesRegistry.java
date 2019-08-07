@@ -35,7 +35,7 @@ import java.nio.charset.StandardCharsets;
  */
 public class WebSocketServicesRegistry {
 
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketServicesRegistry.class);
+    private static final Logger logger = HttpUtil.getHttpLogger();
     private URITemplate<WebSocketService, WebSocketMessage> uriTemplate;
 
     public void registerService(WebSocketService service) {

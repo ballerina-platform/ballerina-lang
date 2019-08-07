@@ -41,7 +41,6 @@ import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;
@@ -73,7 +72,7 @@ import static org.wso2.transport.http.netty.contract.Constants.ENCODING_GZIP;
  */
 public abstract class AbstractHTTPAction implements InterruptibleNativeCallableUnit {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractHTTPAction.class);
+    private static final Logger logger = HttpUtil.getHttpLogger();
 
     private static final String CACHE_BALLERINA_VERSION;
 

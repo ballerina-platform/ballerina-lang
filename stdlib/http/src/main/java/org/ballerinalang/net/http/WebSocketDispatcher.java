@@ -51,6 +51,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import static org.ballerinalang.net.http.WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE;
 import static org.ballerinalang.net.http.WebSocketConstants.STATUS_CODE_FOR_NO_STATUS_CODE_PRESENT;
@@ -63,7 +64,7 @@ import static org.ballerinalang.net.http.WebSocketConstants.STATUS_CODE_FOR_NO_S
  */
 public class WebSocketDispatcher {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketDispatcher.class);
+    private static final Logger log = HttpUtil.getHttpLogger();
 
     private WebSocketDispatcher() {
     }
@@ -163,8 +164,7 @@ public class WebSocketDispatcher {
                             (BStructureType) dataType);
                 case TypeTags.ARRAY_TAG:
                     if (((BArrayType) dataType).getElementType().getTag() == TypeTags.BYTE_TAG) {
-                        return new ArrayValue(
-                                aggregateString.getBytes(Charset.forName(MimeConstants.UTF_8)));
+                        return new ArrayValue(aggregateString.getBytes(StandardCharsets.UTF_8));
                     }
                     break;
                 default:

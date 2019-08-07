@@ -42,7 +42,7 @@ import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
  */
 public class HTTPServicesRegistry {
 
-    private static final Logger logger = LoggerFactory.getLogger(HTTPServicesRegistry.class);
+    private static final Logger logger = HttpUtil.getHttpLogger();
 
     protected Map<String, ServicesMapHolder> servicesMapByHost = new ConcurrentHashMap<>();
     protected Map<String, HttpService> servicesByBasePath;

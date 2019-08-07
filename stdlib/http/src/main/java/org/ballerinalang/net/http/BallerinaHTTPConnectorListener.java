@@ -28,7 +28,6 @@ import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.runtime.Constants;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -46,7 +45,7 @@ import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY
  */
 public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
-    private static final Logger log = LoggerFactory.getLogger(BallerinaHTTPConnectorListener.class);
+    private static final Logger log = HttpUtil.getHttpLogger();
     protected static final String HTTP_RESOURCE = "httpResource";
 
     private final HTTPServicesRegistry httpServicesRegistry;

@@ -55,7 +55,7 @@ import static org.ballerinalang.net.http.HttpUtil.sanitizeBasePath;
  */
 public class HttpService implements Cloneable {
 
-    private static final Logger log = LoggerFactory.getLogger(HttpService.class);
+    private static final Logger log = HttpUtil.getHttpLogger();
 
     protected static final String BASE_PATH_FIELD = "basePath";
     private static final String COMPRESSION_FIELD = "compression";

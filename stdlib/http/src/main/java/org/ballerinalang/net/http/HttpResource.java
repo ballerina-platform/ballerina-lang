@@ -47,7 +47,7 @@ import static org.ballerinalang.net.http.HttpUtil.checkConfigAnnotationAvailabil
  */
 public class HttpResource {
 
-    private static final Logger log = LoggerFactory.getLogger(HttpResource.class);
+    private static final Logger log = HttpUtil.getHttpLogger();
 
     private static final String METHODS_FIELD = "methods";
     private static final String PATH_FIELD = "path";
@@ -281,8 +281,6 @@ public class HttpResource {
     }
 
     public List<BType> getParamTypes() {
-        List<BType> paramTypes = new ArrayList<>();
-        paramTypes.addAll(Arrays.asList(this.balResource.getParameterType()));
-        return paramTypes;
+        return new ArrayList<>(Arrays.asList(this.balResource.getParameterType()));
     }
 }
