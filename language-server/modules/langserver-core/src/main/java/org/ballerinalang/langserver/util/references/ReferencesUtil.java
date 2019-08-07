@@ -58,8 +58,7 @@ public class ReferencesUtil {
     }
 
     public static List<BLangPackage> getPreparedModules(String fileUri, WorkspaceDocumentManager docManager,
-                                                        Position position, LSContext context,
-                                                        boolean compileProject)
+                                                        Position position, LSContext context, boolean compileProject)
             throws WorkspaceDocumentException, LSCompilerException {
         Optional<Path> defFilePath = CommonUtil.getPathFromURI(fileUri);
         if (!defFilePath.isPresent()) {
