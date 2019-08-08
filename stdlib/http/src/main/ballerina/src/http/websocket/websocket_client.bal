@@ -179,6 +179,6 @@ public type WebSocketClientEndpointConfig record {|
     map<string> customHeaders = {};
     int idleTimeoutInSeconds = -1;
     boolean readyOnConnect = true;
-    SecureSocket? secureSocket = ();
+    ClientSecureSocket? secureSocket = ();
     int maxFrameSize = 0;
 |};

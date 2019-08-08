@@ -84,12 +84,10 @@ const int DEFAULT_LISTENER_TIMEOUT = 120000; //2 mins
 # + httpVersion - HTTP version supported by the endpoint. This should be 2.0 as gRPC works only with HTTP/2.
 # + timeoutInMillis - Period of time in milliseconds that a connection waits for a read/write operation. Use value 0 to
 #                   disable timeout.
-# + requestLimits - Configures the parameters for request validation.
 public type ServiceEndpointConfiguration record {|
     string host = "0.0.0.0";
     ServiceSecureSocket? secureSocket = ();
     string httpVersion = "2.0";
-    RequestLimits? requestLimits = ();
     int timeoutInMillis = DEFAULT_LISTENER_TIMEOUT;
 |};
 
@@ -131,16 +129,3 @@ public type ServiceSecureSocket record {|
     int sessionTimeoutInSeconds?;
 |};
 
-# Configures limits for requests. If these limits are violated, the request is rejected.
-#
-# + maxUriLength - Maximum allowed length for a URI. Exceeding this limit will result in a
-#                  `414 - URI Too Long` response.
-# + maxHeaderSize - Maximum allowed size for headers. Exceeding this limit will result in a
-#                   `413 - Payload Too Large` response.
-# + maxEntityBodySize - Maximum allowed size for the entity body. Exceeding this limit will result in a
-#                       `413 - Payload Too Large` response.
-public type RequestLimits record {|
-    int maxUriLength = -1;
-    int maxHeaderSize = -1;
-    int maxEntityBodySize = -1;
-|};

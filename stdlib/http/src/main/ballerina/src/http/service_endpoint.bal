@@ -115,21 +115,6 @@ public type Local record {|
     int port = 0;
 |};
 
-# Configures limits for requests. If these limits are violated, the request is rejected.
-#
-# + maxUriLength - Maximum allowed length for a URI. Exceeding this limit will result in a
-#                  `414 - URI Too Long` response.
-# + maxHeaderSize - Maximum allowed size for headers. Exceeding this limit will result in a
-#                   `413 - Payload Too Large` response.
-# + maxEntityBodySize - Maximum allowed size for the entity body. By default it is set to -1 which means there
-#                       is no restriction `maxEntityBodySize`, On the Exceeding this limit will result in a
-#                       `413 - Payload Too Large` response.
-public type RequestLimits record {|
-    int maxUriLength = 4096;
-    int maxHeaderSize = 8192;
-    int maxEntityBodySize = -1;
-|};
-
 # Provides a set of configurations for HTTP service endpoints.
 #
 # + host - The host name/IP of the endpoint
@@ -137,7 +122,6 @@ public type RequestLimits record {|
 # + secureSocket - The SSL configurations for the service endpoint. This needs to be configured in order to
 #                  communicate through HTTPS.
 # + httpVersion - Highest HTTP version supported by the endpoint
-# + requestLimits - Configures the parameters for request validation
 # + filters - If any pre-processing needs to be done to the request before dispatching the request to the
 #             resource, filters can applied
 # + timeoutInMillis - Period of time in milliseconds that a connection waits for a read/write operation. Use value 0 to
@@ -149,7 +133,6 @@ public type ServiceEndpointConfiguration record {|
     ServiceHttp1Settings http1Settings = {};
     ServiceSecureSocket? secureSocket = ();
     string httpVersion = "1.1";
-    RequestLimits requestLimits = {};
     //TODO: update as a optional field
     (RequestFilter | ResponseFilter)[] filters = [];
     int timeoutInMillis = DEFAULT_LISTENER_TIMEOUT;
@@ -164,9 +147,19 @@ public type ServiceEndpointConfiguration record {|
 # + maxPipelinedRequests - Defines the maximum number of requests that can be processed at a given time on a single
 #                          connection. By default 10 requests can be pipelined on a single cinnection and user can
 #                          change this limit appropriately.
+# + maxUriLength - Maximum allowed length for a URI. Exceeding this limit will result in a
+#                  `414 - URI Too Long` response.
+# + maxHeaderSize - Maximum allowed size for headers. Exceeding this limit will result in a
+#                   `413 - Payload Too Large` response.
+# + maxEntityBodySize - Maximum allowed size for the entity body. By default it is set to -1 which means there
+#                       is no restriction `maxEntityBodySize`, On the Exceeding this limit will result in a
+#                       `413 - Payload Too Large` response.
 public type ServiceHttp1Settings record {|
     KeepAlive keepAlive = KEEPALIVE_AUTO;
     int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
+    int maxUriLength = 4096;
+    int maxHeaderSize = 8192;
+    int maxEntityBodySize = -1;
 |};
 
 # Authentication configurations for the listener.
