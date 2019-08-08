@@ -1884,7 +1884,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             if (invNode.flagSet.contains(Flag.LAMBDA)) {
                 // If function analysis is blocked and current a lambda function is being analyzed, mark the enclosing
                 // top level function as blocked.
-                isBlocked = processBlockedNode(currTopLevelFunction);
+                BLangFunction prevTopLevelFunction = this.currTopLevelFunction;
+                if (invNode.getKind() == NodeKind.FUNCTION) {
+                    this.currTopLevelFunction = (BLangFunction) invNode;
+                }
+                isBlocked = processBlockedNode(this.currTopLevelFunction);
+                this.currTopLevelFunction = prevTopLevelFunction;
             } else {
                 isBlocked = processBlockedNode(invNode);
             }

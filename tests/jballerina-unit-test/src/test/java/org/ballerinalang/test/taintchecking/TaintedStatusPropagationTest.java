@@ -20,7 +20,6 @@ import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 /**
@@ -588,5 +587,12 @@ public class TaintedStatusPropagationTest {
         Assert.assertEquals(result.getDiagnostics().length, 2);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'p'", 33, 16);
         BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'p'", 39, 16);
+    }
+
+    @Test
+    public void testGlobalFunctionPointerAsyncInvocation() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/taintchecking/propagation/global-func-pointer-async-invocation.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 }
