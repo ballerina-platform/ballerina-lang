@@ -12,9 +12,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nParse a string in JSON format and return the the value that it represents.\nAll numbers in the JSON will be represented as float values.\nReturns an error if the string cannot be parsed.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(json|error)"
+          "value": "**Package:** _ballerina/lang.value_  \n  \nParse a string in JSON format and return the the value that it represents.\nAll numbers in the JSON will be represented as float values.\nReturns an error if the string cannot be parsed.\n  \n  \n---    \n**Parameters**  \n- _value_  \n    string representation of json  \n  \n  \n**Return**  \n(json|error)"
         }
       },
+      "sortText": "130",
       "insertText": "fromJsonString(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -29,9 +30,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns the unicode codepoint at index `i`.\n  \n  \n---    \n**Parameters**  \n- _str_  \n    the string  \n  \n- _i_  \n    code point index  \n  \n  \n**Return**  \nint"
         }
       },
+      "sortText": "130",
       "insertText": "getCodePoint(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -46,9 +48,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns an array with an int for each code point in `str`.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint[]"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns an array with an int for each code point in `str`.\n  \n  \n---    \n**Parameters**  \n- _str_  \n    the string  \n  \n  \n**Return**  \nint[]"
         }
       },
+      "sortText": "130",
       "insertText": "toCodePointInts(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -63,9 +66,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nReturn a-z into A-Z and leave other characters unchanged  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nReturn a-z into A-Z and leave other characters unchanged.\n  \n  \n---    \n**Parameters**  \n- _str_  \n    the string  \n  \n  \n**Return**  \nstring"
         }
       },
+      "sortText": "130",
       "insertText": "toUpperAscii(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -80,9 +84,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns a string that is a substring of this string.\n  \n  \n---    \n**Parameters**  \n- _str_  \n    source string.  \n  \n- _startIndex_  \n    the beginning index, inclusive.  \n  \n- _endIndex_  \n    the ending index, exclusive.  \n  \n  \n**Return**  \nstring"
         }
       },
+      "sortText": "130",
       "insertText": "substring(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -97,10 +102,29 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns an iterator over the string\nThe iterator will return the substrings of length 1 in order.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nobject { public function next () returns (record {| string value; |}?); }"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns an iterator over the string\nThe iterator will return the substrings of length 1 in order.\n  \n  \n---    \n**Parameters**  \n- _str_  \n    the string  \n  \n  \n**Return**  \nobject { public function next () returns (record {| string value; |}?); }"
         }
       },
+      "sortText": "130",
       "insertText": "iterator(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "isReadOnly()(boolean)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nTests whether `v` is read-only, i.e. immutable\nReturns true if read-only, false otherwise.\n  \n  \n---    \n**Parameters**  \n- _value_  \n    source value  \n  \n  \n**Return**  \nboolean"
+        }
+      },
+      "sortText": "130",
+      "insertText": "isReadOnly(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -114,9 +138,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nRemove ASCII white space characters (0x9...0xD, 0x20) from start and end of `str`  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nRemove ASCII white space characters (0x9...0xD, 0x20) from start and end of `str`.\n  \n  \n---    \n**Parameters**  \n- _str_  \n    the string  \n  \n  \n**Return**  \nstring"
         }
       },
+      "sortText": "130",
       "insertText": "trim(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -131,9 +156,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns a new string composed of `strs` elements joined together with `separator`.\n  \n  \n---    \n**Parameters**  \n- _seperator_  \n    delimiter string  \n  \n- _strs_  \n    strings to join  \n  \n  \n**Return**  \nstring"
         }
       },
+      "sortText": "130",
       "insertText": "join(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -148,9 +174,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns the index of the first occurrence of `substr` in the part of the `str` starting at `startIndex`\nor nil if it does not occur  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint?"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns the index of the first occurrence of `substr` in the part of the `str` starting at `startIndex`\nor nil if it does not occur.\n  \n  \n---    \n**Parameters**  \n- _str_  \n    the string  \n  \n- _substr_  \n    sub string to search for  \n  \n- _start_  \n    index to start search from  \n  \n  \n**Return**  \nint?"
         }
       },
+      "sortText": "130",
       "insertText": "indexOf(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -165,10 +192,29 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nStandard lib (not lang lib) should have a Unicode module (or set of modules)\nto deal with Unicode properly. These will need to be updated as each\nnew Unicode version is released.\nReturn A-Z into a-z and leave other characters unchanged  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nReturn A-Z into a-z and leave other characters unchanged.\n  \n  \n---    \n**Parameters**  \n- _str_  \n    the string  \n  \n  \n**Return**  \nstring"
         }
       },
+      "sortText": "130",
       "insertText": "toLowerAscii(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toJsonString()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturn the string that represents `v` in JSON format.\n  \n  \n---    \n**Parameters**  \n- _value_  \n    json value  \n  \n  \n**Return**  \nstring"
+        }
+      },
+      "sortText": "130",
+      "insertText": "toJsonString(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -179,6 +225,7 @@
       "label": "StringIterator",
       "kind": "Class",
       "detail": "Object",
+      "sortText": "120",
       "insertText": "StringIterator",
       "insertTextFormat": "Snippet"
     },
@@ -189,10 +236,29 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nRepresents `str` as an array of bytes using UTF-8  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nbyte[]"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nRepresents `str` as an array of bytes using UTF-8.\n  \n  \n---    \n**Parameters**  \n- _str_  \n    the string  \n  \n  \n**Return**  \nbyte[]"
         }
       },
+      "sortText": "130",
       "insertText": "toBytes(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "cloneReadOnly()(anydata)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `value` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n---    \n**Parameters**  \n- _value_  \n    source value  \n"
+        }
+      },
+      "sortText": "130",
+      "insertText": "cloneReadOnly(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -206,9 +272,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns the length of the string.\n  \n  \n---    \n**Parameters**  \n- _str_  \n    the string  \n  \n  \n**Return**  \nint"
         }
       },
+      "sortText": "130",
       "insertText": "length(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -223,10 +290,47 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nConcatenate all the `strs`. Empty string if empty.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nConcatenate all the `strs`. Empty string if empty.\n  \n  \n---    \n**Parameters**  \n- _strs_  \n    strings to concat  \n  \n  \n**Return**  \nstring"
         }
       },
+      "sortText": "130",
       "insertText": "concat(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "mergeJson(json j2)((json|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturn the result of merging json value `j1` with `j2`.\n  \n  \n---    \n**Parameters**  \n- _j1_  \n    json value  \n  \n- _j2_  \n    json value  \n  \n  \n**Return**  \n(json|error)"
+        }
+      },
+      "sortText": "130",
+      "insertText": "mergeJson(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "clone()(anydata)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `value`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n---    \n**Parameters**  \n- _value_  \n    source value  \n"
+        }
+      },
+      "sortText": "130",
+      "insertText": "clone(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -240,10 +344,29 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nboolean"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns true if `str` end with `substr`.\n  \n  \n---    \n**Parameters**  \n- _str_  \n    the string  \n  \n- _substr_  \n    sub string  \n  \n  \n**Return**  \nboolean"
         }
       },
+      "sortText": "130",
       "insertText": "endsWith(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toString()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a simple, human-readable representation of `value` as a string.\n  \n  \n---    \n**Parameters**  \n- _value_  \n    source value  \n  \n  \n**Return**  \nstring"
+        }
+      },
+      "sortText": "130",
+      "insertText": "toString(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -257,9 +380,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \nLexicographically compare strings using their Unicode code points\nThis will allow strings to be ordered in a consistent and well-defined way,\nbut the ordering will not typically be consistent with cultural expectations\nfor sorted order.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nLexicographically compare strings using their Unicode code points.\nThis will allow strings to be ordered in a consistent and well-defined way,\nbut the ordering will not typically be consistent with cultural expectations\nfor sorted order.\n  \n  \n---    \n**Parameters**  \n- _str1_  \n    string to compare  \n  \n- _str2_  \n    string to compare  \n  \n  \n**Return**  \nint"
         }
       },
+      "sortText": "130",
       "insertText": "codePointCompare(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -274,9 +398,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nboolean"
+          "value": "**Package:** _ballerina/lang.string_  \n  \nReturns true if `str` starts with `substr`.\n  \n  \n---    \n**Parameters**  \n- _str_  \n    the string  \n  \n- _substr_  \n    sub string  \n  \n  \n**Return**  \nboolean"
         }
       },
+      "sortText": "130",
       "insertText": "startsWith(${1})",
       "insertTextFormat": "Snippet",
       "command": {

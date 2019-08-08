@@ -52,11 +52,11 @@ public class TimerSchedulerTest {
         });
     }
 
-    @Test(description = "Test service parameter passing", enabled = false)
+    @Test(description = "Test service parameter passing")
     public void testTimerAttachment() {
-        CompileResult compileResult = BCompileUtil.compile("scheduler/timer/service_parameter.bal");
+        CompileResult compileResult = BCompileUtil.compile("scheduler/timer/timer_attachment.bal");
         BRunUtil.invoke(compileResult, "attachTimer");
-        String expectedResult = "Sam is 10 years old";
+        String expectedResult = "Sam is 5 years old";
         try {
             await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
                 BValue[] result = BRunUtil.invoke(compileResult, "getResult");

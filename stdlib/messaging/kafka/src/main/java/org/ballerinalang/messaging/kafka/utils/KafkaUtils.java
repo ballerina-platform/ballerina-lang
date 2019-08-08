@@ -505,12 +505,19 @@ public class KafkaUtils {
             return null;
         }
         return createRecord(getConsumerRecord(),
-                record.key(),
-                record.value(),
+                getByteArrayValue(record.key()),
+                getByteArrayValue(record.value()),
                 record.offset(),
                 record.partition(),
                 record.timestamp(),
                 record.topic());
+    }
+
+    private static ArrayValue getByteArrayValue(byte[] byteArray) {
+        if (Objects.isNull(byteArray)) {
+            return null;
+        }
+        return new ArrayValue(byteArray);
     }
 
     public static MapValue<String, Object> getConsumerRecord() {
