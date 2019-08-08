@@ -169,6 +169,9 @@
             <class name="org.ballerinalang.test.service.websocket.PushTextFailureTest"/>
             <class name="org.ballerinalang.test.service.websocket.IsOpenTest"/>
             <class name="org.ballerinalang.test.service.websocket.SslEchoTest"/>
+            <class name="org.ballerinalang.test.service.websocket.FailoverTest"/>
+            <class name="org.ballerinalang.test.service.websocket.RetryTest"/>
+            <class name="org.ballerinalang.test.service.websocket.FailoverClientWithRetry"/>
         </classes>
     </test>
 

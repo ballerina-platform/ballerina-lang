@@ -22,13 +22,13 @@ import ballerina/io;
 
 @http:WebSocketServiceConfig {
 }
-service on new http:WebSocketListener(21027) {
+service on new http:WebSocketListener(21029) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketFailoverClient wsClientEp = new({ callbackService:
-            failoverClientCallbackService, readyOnConnect: false, targetUrls:
+            failoverClientWithRetryCallbackService, readyOnConnect: false, targetUrls:
             ["ws://localhost:8080/websocket", "ws://localhost:15100/websocket",
-            "ws://localhost:15200/websocket"]});
+            "ws://localhost:15200/websocket"], retryConfig: {}});
         wsEp.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
         wsClientEp.setAttribute(ASSOCIATED_CONNECTION, wsEp);
         var returnVal = wsClientEp->ready();
@@ -78,7 +78,7 @@ service on new http:WebSocketListener(21027) {
     }
 }
 
-service failoverClientCallbackService = @http:WebSocketServiceConfig {} service {
+service failoverClientWithRetryCallbackService = @http:WebSocketServiceConfig {} service {
     resource function onText(http:WebSocketFailoverClient wsEp, string text) {
         http:WebSocketCaller serviceEp = getAssociatedListener1(wsEp);
         var returnVal = serviceEp->pushText(text);
@@ -117,13 +117,3 @@ service failoverClientCallbackService = @http:WebSocketServiceConfig {} service 
                         <error> err);
     }
 };
-
-public function getAssociatedClientEndpoint1(http:WebSocketCaller wsServiceEp) returns (http:WebSocketFailoverClient) {
-    var returnVal = <http:WebSocketFailoverClient>wsServiceEp.getAttribute(ASSOCIATED_CONNECTION);
-    return returnVal;
-}
-
-public function getAssociatedListener1(http:WebSocketFailoverClient wsClientEp) returns (http:WebSocketCaller) {
-    var returnVal = <http:WebSocketCaller>wsClientEp.getAttribute(ASSOCIATED_CONNECTION);
-    return returnVal;
-}

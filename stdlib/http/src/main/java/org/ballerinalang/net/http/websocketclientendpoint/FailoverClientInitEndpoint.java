@@ -25,7 +25,6 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
@@ -34,24 +33,22 @@ import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.exception.WebSocketException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 
-import static org.ballerinalang.net.http.WebSocketConstants.CONNECTOR_FACTORY;
-import static org.ballerinalang.net.http.WebSocketConstants.FAILOVER_INTEVAL;
-import static org.ballerinalang.net.http.WebSocketConstants.IS_CONNECTION_LOST;
-import static org.ballerinalang.net.http.WebSocketConstants.IS_CONNECTION_MADE;
-import static org.ballerinalang.net.http.WebSocketConstants.NO_OF_RECONNECT_ATTEMPTS;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+
+import static org.ballerinalang.net.http.WebSocketConstants.FAILOVER_CONFIG;
 import static org.ballerinalang.net.http.WebSocketConstants.RETRY_CONFIG;
-import static org.ballerinalang.net.http.WebSocketConstants.SUB_TARGET_URLS_INDEX;
 import static org.ballerinalang.net.http.WebSocketConstants.TARGET_URLS;
-import static org.ballerinalang.net.http.WebSocketConstants.TARGET_URL_INDEX;
-import static org.ballerinalang.net.http.WebSocketUtil.checkParameter;
-import static org.ballerinalang.net.http.WebSocketUtil.getIntegerValue;
 import static org.ballerinalang.net.http.WebSocketUtil.getWebSocketService;
 import static org.ballerinalang.net.http.WebSocketUtil.initialiseWebSocketConnection;
+import static org.ballerinalang.net.http.WebSocketUtil.populateFailoverConnectorConfig;
+import static org.ballerinalang.net.http.WebSocketUtil.populateRetryConnectorConfig;
 
 /**
  * Initialize the failover WebSocket Client.
- *
  */
 
 @BallerinaFunction(
@@ -63,44 +60,51 @@ import static org.ballerinalang.net.http.WebSocketUtil.initialiseWebSocketConnec
                 structType = WebSocketConstants.FAILOVER_WEBSOCKET_CLIENT,
                 structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
         ),
-        args = {@Argument(name = "config", type = TypeKind.RECORD,
-                structType = "WebSocketFailoverClientEndpointConfig")},
         isPublic = true
 )
-public class Init extends BlockingNativeCallableUnit {
 
-    private static final Logger logger = LoggerFactory.getLogger(Init.class);
+public class FailoverClientInitEndpoint extends BlockingNativeCallableUnit {
+
+    private static final Logger logger = LoggerFactory.getLogger(FailoverClientInitEndpoint.class);
 
     @Override
     public void execute(Context context) {
     }
 
-    public static void init(Strand strand, ObjectValue webSocketClient) {
+    public static void init(Strand strand, ObjectValue webSocketClient) throws URISyntaxException {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
         MapValue<String, Object> clientEndpointConfig = (MapValue<String, Object>) webSocketClient.getMapValue(
                 HttpConstants.CLIENT_ENDPOINT_CONFIG);
         ArrayValue targets = clientEndpointConfig.getArrayValue(TARGET_URLS);
-        int failoverInterval =  getIntegerValue(Long.valueOf(clientEndpointConfig.get(FAILOVER_INTEVAL).
-                toString()));
-        if (targets.size() == 0) {
-           throw new WebSocketException("TargetUrls should have atleast one URL");
+        ArrayList<String> newTargetUrls = new ArrayList<>();
+        int index = 0;
+        for (int i = 0; i < targets.size(); i++) {
+            URI uri = new URI(targets.get(i).toString());
+            String scheme = uri.getScheme();
+            if (!"ws".equalsIgnoreCase(scheme) && !"wss".equalsIgnoreCase(scheme)) {
+                logger.error(targets.get(i).toString() + " drop from the targets url" +
+                                "because webSocket client supports only WS(S) scheme.");
+            } else {
+                newTargetUrls.add(index, targets.get(i).toString());
+                index++;
+            }
         }
-        if (failoverInterval < 0) {
-            logger.warn("The maxInterval's value set for the configuration needs to be " +
-                    "greater than -1. The " + failoverInterval + "value is set to 1.0");
-            webSocketClient.getMapValue(HttpConstants.CLIENT_ENDPOINT_CONFIG).put(FAILOVER_INTEVAL, 1000);
+        logger.info("New targetUrls are " + newTargetUrls);
+        if (newTargetUrls.size() == 0) {
+            throw new WebSocketException("TargetUrls should have atleast one valid URL.");
         }
+        HttpWsConnectorFactory connectorFactory = HttpUtil.createHttpWsConnectionFactory();
+        FailoverClientConnectorConfig failoverClientConnectorConfig = new FailoverClientConnectorConfig();
+        populateFailoverConnectorConfig(clientEndpointConfig, failoverClientConnectorConfig, connectorFactory,
+                newTargetUrls);
+        webSocketClient.addNativeData(FAILOVER_CONFIG, failoverClientConnectorConfig);
         if (clientEndpointConfig.get(RETRY_CONFIG) != null) {
-            webSocketClient.addNativeData(NO_OF_RECONNECT_ATTEMPTS, 0);
-            checkParameter(webSocketClient);
+            RetryConnectorConfig retryConnectorConfig = new RetryConnectorConfig();
+            populateRetryConnectorConfig(clientEndpointConfig, retryConnectorConfig, null,
+                    newTargetUrls);
+            webSocketClient.addNativeData(RETRY_CONFIG, retryConnectorConfig);
         }
-        webSocketClient.addNativeData(CONNECTOR_FACTORY, HttpUtil.createHttpWsConnectionFactory());
-        webSocketClient.addNativeData(TARGET_URL_INDEX, 0);
-        webSocketClient.addNativeData(IS_CONNECTION_LOST, false);
-        webSocketClient.addNativeData(SUB_TARGET_URLS_INDEX, 0);
-        webSocketClient.addNativeData(IS_CONNECTION_MADE, false);
-        webSocketClient.addNativeData(TARGET_URLS, targets);
-        initialiseWebSocketConnection(targets.getString(0), webSocketClient,
+        initialiseWebSocketConnection(newTargetUrls.get(0), webSocketClient,
                 getWebSocketService(clientEndpointConfig, strand));
     }
 }

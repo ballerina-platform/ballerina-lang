@@ -24,19 +24,17 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketConstants;
+import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 
-import static org.ballerinalang.net.http.WebSocketConstants.CONNECTOR_FACTORY;
-import static org.ballerinalang.net.http.WebSocketConstants.NO_OF_RECONNECT_ATTEMPTS;
 import static org.ballerinalang.net.http.WebSocketConstants.RETRY_CONFIG;
-import static org.ballerinalang.net.http.WebSocketUtil.checkParameter;
 import static org.ballerinalang.net.http.WebSocketUtil.getWebSocketService;
 import static org.ballerinalang.net.http.WebSocketUtil.initialiseWebSocketConnection;
+import static org.ballerinalang.net.http.WebSocketUtil.populateRetryConnectorConfig;
 
 /**
  * Initialize the WebSocket Client.
@@ -53,11 +51,9 @@ import static org.ballerinalang.net.http.WebSocketUtil.initialiseWebSocketConnec
                 structType = WebSocketConstants.WEBSOCKET_CLIENT,
                 structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
         ),
-        args = {@Argument(name = "epName", type = TypeKind.STRING),
-                @Argument(name = "config", type = TypeKind.RECORD, structType = "WebSocketClientEndpointConfig")},
         isPublic = true
 )
-public class InitEndpoint extends BlockingNativeCallableUnit {
+public class ClientInitEndpoint extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
@@ -67,12 +63,12 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
         MapValue<String, Object> clientEndpointConfig = (MapValue<String, Object>) webSocketClient.getMapValue(
                 HttpConstants.CLIENT_ENDPOINT_CONFIG);
-        if (clientEndpointConfig.get(RETRY_CONFIG) != null) {
-            webSocketClient.addNativeData(NO_OF_RECONNECT_ATTEMPTS, 0);
-            checkParameter(webSocketClient);
-        }
+        HttpWsConnectorFactory connectorFactory = HttpUtil.createHttpWsConnectionFactory();
+        RetryConnectorConfig retryConnectorConfig = new RetryConnectorConfig();
+        populateRetryConnectorConfig(clientEndpointConfig, retryConnectorConfig, connectorFactory, null);
+        webSocketClient.addNativeData(RETRY_CONFIG, retryConnectorConfig);
+
         String remoteUrl = webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG);
-        webSocketClient.addNativeData(CONNECTOR_FACTORY, HttpUtil.createHttpWsConnectionFactory());
         initialiseWebSocketConnection(remoteUrl, webSocketClient, getWebSocketService(clientEndpointConfig, strand));
     }
 }

@@ -114,25 +114,28 @@ public class FailoverClientTest extends WebSocketTestCommons {
         remoteServer = new WebSocketRemoteServer(port);
         remoteServer.run();
         remoteServer1.run();
-        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-        WebSocketTestClient client = new WebSocketTestClient("ws://localhost:21029/failover/ws");
+        countDownLatch.await(12, TimeUnit.SECONDS);
+        WebSocketTestClient client = new WebSocketTestClient(url);
         client.handshake();
         client.setCountDownLatch(countDownLatch);
-        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-//        String textSent = "hi all";
-//        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-//        client.sendText(textSent);
-//        countDownLatch.await(10, TimeUnit.SECONDS);
-//        Assert.assertEquals(client.getTextReceived(), textSent);
+        countDownLatch.await(12, TimeUnit.SECONDS);
+        String textSent = "hi all";
+        countDownLatch.await(12, TimeUnit.SECONDS);
+        client.sendText(textSent);
+        countDownLatch.await(10, TimeUnit.SECONDS);
+        Assert.assertEquals(client.getTextReceived(), textSent);
         countDownLatch.await(15, TimeUnit.SECONDS);
         remoteServer.stop();
-        countDownLatch.await(100, TimeUnit.SECONDS);
+        CountDownLatch countDownLatch1 = new CountDownLatch(1);
+        countDownLatch1.await(50, TimeUnit.SECONDS);
         ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
         client.sendBinary(bufferSent);
-        countDownLatch.await(30, TimeUnit.SECONDS);
+        countDownLatch1.await(30, TimeUnit.SECONDS);
         Assert.assertEquals(client.getBufferReceived(), bufferSent);
         client.shutDown();
         remoteServer1.stop();
         countDownLatch.await(time, TimeUnit.SECONDS);
+        CountDownLatch countDownLatch2 = new CountDownLatch(1);
+        countDownLatch2.await(12, TimeUnit.SECONDS);
     }
 }
