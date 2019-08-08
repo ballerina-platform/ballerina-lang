@@ -100,7 +100,7 @@ public class HoverUtil {
         Map<String, List<MarkdownDocAttachment.Parameter>> filterAttributes =
                 filterDocumentationAttributes(docAttachment, symbol);
 
-        if (!docAttachment.description.isEmpty()) {
+        if (docAttachment.description != null && !docAttachment.description.isEmpty()) {
             String description =
                     CommonUtil.MD_LINE_SEPARATOR + docAttachment.description.trim() + CommonUtil.MD_LINE_SEPARATOR;
             content.append(getFormattedHoverDocContent(ContextConstants.DESCRIPTION, description));
