@@ -40,8 +40,8 @@ import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import org.wso2.transport.http.netty.contractimpl.listener.MaxEntityBodyValidator;
-import org.wso2.transport.http.netty.contractimpl.listener.MessageQueueHandler;
 import org.wso2.transport.http.netty.contractimpl.listener.UriAndHeaderLengthValidator;
+import org.wso2.transport.http.netty.contractimpl.listener.WebSocketMessageQueueHandler;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultServerHandshakeFuture;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketInboundFrameHandler;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketUtil;
@@ -202,7 +202,7 @@ public class DefaultWebSocketHandshaker implements WebSocketHandshaker {
         channelFuture.addListener(future -> {
             if (future.isSuccess() && future.cause() == null) {
                 WebSocketInboundFrameHandler frameHandler = new WebSocketInboundFrameHandler(true, secureConnection,
-                        target, handshaker.selectedSubprotocol(), connectorFuture, new MessageQueueHandler());
+                        target, handshaker.selectedSubprotocol(), connectorFuture, new WebSocketMessageQueueHandler());
                 configureFrameHandlingPipeline(idleTimeout, frameHandler);
                 handshakeFuture.notifySuccess(frameHandler.getWebSocketConnection());
             } else {

@@ -43,7 +43,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketFrameType;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
-import org.wso2.transport.http.netty.contractimpl.listener.MessageQueueHandler;
+import org.wso2.transport.http.netty.contractimpl.listener.WebSocketMessageQueueHandler;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketCloseMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketControlMessage;
 
@@ -59,7 +59,7 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     private final String target;
     private final String negotiatedSubProtocol;
     private final WebSocketConnectorFuture connectorFuture;
-    private final MessageQueueHandler messageQueueHandler;
+    private final WebSocketMessageQueueHandler webSocketMessageQueueHandler;
     private boolean caughtException;
     private boolean closeFrameReceived;
     private boolean closeInitialized;
@@ -69,13 +69,13 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
 
     public WebSocketInboundFrameHandler(boolean isServer, boolean secureConnection, String target,
                                         String negotiatedSubProtocol, WebSocketConnectorFuture connectorFuture,
-                                        MessageQueueHandler messageQueueHandler) {
+                                        WebSocketMessageQueueHandler webSocketMessageQueueHandler) {
         this.isServer = isServer;
         this.secureConnection = secureConnection;
         this.target = target;
         this.negotiatedSubProtocol = negotiatedSubProtocol;
         this.connectorFuture = connectorFuture;
-        this.messageQueueHandler = messageQueueHandler;
+        this.webSocketMessageQueueHandler = webSocketMessageQueueHandler;
         this.closeInitialized = false;
     }
 
@@ -115,7 +115,7 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) {
-        webSocketConnection = new DefaultWebSocketConnection(ctx, this, messageQueueHandler, secureConnection,
+        webSocketConnection = new DefaultWebSocketConnection(ctx, this, webSocketMessageQueueHandler, secureConnection,
                                                              negotiatedSubProtocol);
     }
 

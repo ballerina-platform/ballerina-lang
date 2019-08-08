@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorFuture;
-import org.wso2.transport.http.netty.contractimpl.listener.MessageQueueHandler;
+import org.wso2.transport.http.netty.contractimpl.listener.WebSocketMessageQueueHandler;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultClientHandshakeFuture;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketInboundFrameHandler;
@@ -46,7 +46,7 @@ public class WebSocketClientHandshakeHandler extends ChannelInboundHandlerAdapte
     private static final Logger LOG = LoggerFactory.getLogger(WebSocketClientHandshakeHandler.class);
 
     private final WebSocketClientHandshaker handshaker;
-    private final MessageQueueHandler messageQueueHandler;
+    private final WebSocketMessageQueueHandler webSocketMessageQueueHandler;
     private final boolean secure;
     private final boolean autoRead;
     private final String requestedUri;
@@ -55,10 +55,10 @@ public class WebSocketClientHandshakeHandler extends ChannelInboundHandlerAdapte
     private HttpCarbonResponse httpCarbonResponse;
 
     public WebSocketClientHandshakeHandler(WebSocketClientHandshaker handshaker,
-            DefaultClientHandshakeFuture handshakeFuture, MessageQueueHandler messageQueueHandler,
+            DefaultClientHandshakeFuture handshakeFuture, WebSocketMessageQueueHandler webSocketMessageQueueHandler,
             boolean secure, boolean autoRead, String requestedUri, WebSocketConnectorFuture connectorFuture) {
         this.handshaker = handshaker;
-        this.messageQueueHandler = messageQueueHandler;
+        this.webSocketMessageQueueHandler = webSocketMessageQueueHandler;
         this.secure = secure;
         this.autoRead = autoRead;
         this.requestedUri = requestedUri;
@@ -95,7 +95,8 @@ public class WebSocketClientHandshakeHandler extends ChannelInboundHandlerAdapte
                                                                        false));
             }
             WebSocketInboundFrameHandler inboundFrameHandler = new WebSocketInboundFrameHandler(
-                    false, secure, requestedUri, handshaker.actualSubprotocol(), connectorFuture, messageQueueHandler);
+                    false, secure, requestedUri, handshaker.actualSubprotocol(), connectorFuture,
+                    webSocketMessageQueueHandler);
             channel.pipeline().addLast(Constants.WEBSOCKET_FRAME_HANDLER, inboundFrameHandler);
             channel.pipeline().remove(Constants.WEBSOCKET_CLIENT_HANDSHAKE_HANDLER);
             DefaultWebSocketConnection webSocketConnection = inboundFrameHandler.getWebSocketConnection();
