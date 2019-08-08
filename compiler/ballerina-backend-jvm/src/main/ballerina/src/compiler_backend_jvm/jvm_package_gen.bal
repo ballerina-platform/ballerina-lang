@@ -186,8 +186,12 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
         // clear the lambdas
         lambdas = {};
         cw.visitEnd();
-        byte[] classContent = cw.toByteArray();
-        jarFile.pkgEntries[moduleClass + ".class"] = classContent;
+        var result = cw.toByteArray();
+        if (result is byte[]) {
+            jarFile.pkgEntries[moduleClass + ".class"] = result;
+        } else {
+            panic getCompileError(result, module);
+        }
     }
 }
 

@@ -71,7 +71,12 @@ public type ObjectGenerator object {
         self.createLambdas(cw);
         
         cw.visitEnd();
-        return cw.toByteArray();
+        var result = cw.toByteArray();
+        if (result is byte[]) {
+            return result;
+        } else {
+            panic getCompileError(result, typeDef);
+        }
     }
 
     private function createLambdas(jvm:ClassWriter cw) {
@@ -335,7 +340,12 @@ public type ObjectGenerator object {
         self.createRecordInitWrapper(cw, className, typeDef);
         self.createLambdas(cw);
         cw.visitEnd();
-        return cw.toByteArray();
+        var result = cw.toByteArray();
+        if (result is byte[]) {
+            return result;
+        } else {
+            panic getCompileError(result, typeDef);
+        }
     }
 
     private function createRecordMethods(jvm:ClassWriter cw, bir:Function?[] attachedFuncs) {

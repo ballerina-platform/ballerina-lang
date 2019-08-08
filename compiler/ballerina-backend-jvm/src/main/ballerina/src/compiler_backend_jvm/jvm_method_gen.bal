@@ -1795,7 +1795,13 @@ function generateFrameClassForFunction (string pkgName, bir:Function? func, map<
     fv.visitEnd();
 
     cw.visitEnd();
-    pkgEntries[frameClassName + ".class"] = cw.toByteArray();
+
+    var result = cw.toByteArray();
+    if (result is byte[]) {
+        pkgEntries[frameClassName + ".class"] = result;
+    } else {
+        panic getCompileError(result, currentFunc);
+    }
 }
 
 function getFrameClassName(string pkgName, string funcName, bir:BType? attachedType) returns string {
@@ -2043,4 +2049,48 @@ function stringArrayContains(string[] array, string item) returns boolean {
         }
     }
     return false;
+}
+
+function getCompileError(error e, bir:Package|bir:TypeDef|bir:Function src) returns error {
+    string reason = e.reason();
+    map<anydata|error> detail = e.detail();
+    string name = <string> detail.get("name");
+
+    if (reason == ERROR_REASON_METHOD_TOO_LARGE) {
+        bir:DiagnosticPos? pos = getLineNumberInfo(src, name);
+        if (pos is bir:DiagnosticPos) {
+            return error(io:sprintf("%s:%s:%s:: method is too large: '%s'", pos.sourceFileName,
+                        pos.sCol, pos.sLine, name));
+        } else {
+            return error(io:sprintf("method is too large: '%s'", name));
+        }
+    } else if (reason == ERROR_REASON_CLASS_TOO_LARGE) {
+        return error(io:sprintf("file too large: '%s'", name));
+    }
+
+    // should never reach here
+    return e;
+}
+
+function getLineNumberInfo(bir:Package|bir:TypeDef|bir:Function src, string name) returns bir:DiagnosticPos? {
+    if (src is bir:Function) {
+        return src.pos;
+    } else if (src is bir:Package) {
+        foreach var func in src.functions {
+            if (func is bir:Function && cleanupFunctionName(func.name.value) == name) {
+                return func.pos;
+            }
+        }
+    } else {
+        bir:Function?[]? attachedFuncs = src.attachedFuncs;
+        if (attachedFuncs is bir:Function?[]) {
+            foreach var func in attachedFuncs {
+                if (func is bir:Function && cleanupFunctionName(func.name.value) == name) {
+                    return func.pos;
+                }
+            }
+        } 
+    }
+
+    return ();
 }
