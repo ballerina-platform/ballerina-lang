@@ -74,8 +74,8 @@ function testExecInUnixLike2() returns string|error {
 function testExecInUnixLike3() returns string|error {
     system:Process x1 = check system:exec("grep", {}, (), "BAL_TEST");
     io:WritableDataChannel ch = new(x1.stdin());
-    check ch.writeString("BAL_TEST", "UTF-8");
-    check ch.close();
+    var ign = ch.writeString("BAL_TEST", "UTF-8");
+    ign = ch.close();
     var result = toString(x1.stdout());
     return result;
 }

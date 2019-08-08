@@ -83,16 +83,14 @@ public type Process object {
                 }
             }
         }
-        
-        var cr2 = input.close();
-        if (cr2 is error) {
-            io:println("Error closing pipe input: ", cr2);
-        }
-        var cr1 = output.close();
+        var cr1 = input.close();
         if (cr1 is error) {
-            io:println("Error closing pipe output: ", cr1);
+            io:println("Error closing pipe input: ", cr1);
         }
-        
+        var cr2 = output.close();
+        if (cr2 is error) {
+            io:println("Error closing pipe output: ", cr2);
+        }        
     }
 
 };
