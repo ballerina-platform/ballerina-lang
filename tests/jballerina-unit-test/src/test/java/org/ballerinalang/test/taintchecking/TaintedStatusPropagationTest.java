@@ -218,7 +218,7 @@ public class TaintedStatusPropagationTest {
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Ignore ("Refer git issue https://github.com/ballerina-platform/ballerina-lang/issues/17018")
+    @Test
     public void testLambdaNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/lambda-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
@@ -258,12 +258,11 @@ public class TaintedStatusPropagationTest {
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Ignore ("Refer git issue https://github.com/ballerina-platform/ballerina-lang/issues/17018")
+    @Test
     public void testIterableNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/iterable-negative.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 2);
+        Assert.assertEquals(result.getDiagnostics().length, 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 3, 20);
-        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 5, 59);
     }
 
     @Test
@@ -272,13 +271,12 @@ public class TaintedStatusPropagationTest {
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Ignore ("Refer git issue https://github.com/ballerina-platform/ballerina-lang/issues/17018")
-    public void testIterableWitinIterableNegative() {
+    @Test
+    public void testLambdaAsArgumentToIterableLanglibFunction() {
         CompileResult result = BCompileUtil
-                .compile("test-src/taintchecking/propagation/iterable-within-iterable-negative.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 2);
-        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 7, 32);
-        BAssertUtil.validateError(result, 1, "tainted value passed to global variable 'globalVar'", 12, 38);
+                .compile("test-src/taintchecking/propagation/lambda-as-argument-to-iterable-negative.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 1);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 6, 28);
     }
 
     @Test
@@ -546,7 +544,7 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
-    public void testErrorNegative() {
+        public void testErrorNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/error-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 4);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 19, 20);
