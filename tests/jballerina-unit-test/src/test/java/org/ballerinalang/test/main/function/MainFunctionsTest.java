@@ -30,7 +30,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import static org.ballerinalang.test.util.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -120,21 +119,6 @@ public class MainFunctionsTest {
                             "expected the main function to be invoked");
         assertTrue(result.contains("const error reason"), "invalid error reason");
         assertTrue(result.contains("message=error message"), "invalid error message");
-    }
-
-    @Test
-    public void invalidMainFunctionSignatureTest() {
-        CompileResult negativeResult = BCompileUtil.compile("test-src/main.function/test_main_function_negative.bal");
-        assertEquals(negativeResult.getErrorCount(), 5);
-        validateError(negativeResult, 0, "the main function should be public", 17, 1);
-        validateError(negativeResult, 1, "invalid type 'typedesc' as main function parameter, expected anydata",
-                      17, 15);
-        validateError(negativeResult, 2, "invalid type '(int|typedesc)' as main function parameter, expected anydata",
-                      17, 32);
-        validateError(negativeResult, 3, "invalid type 'FooObject[]' as main function parameter, expected anydata",
-                      17, 57);
-        validateError(negativeResult, 4, "invalid main function return type 'string', expected a subtype of 'error?'",
-                      17, 81);
     }
 
     @AfterClass

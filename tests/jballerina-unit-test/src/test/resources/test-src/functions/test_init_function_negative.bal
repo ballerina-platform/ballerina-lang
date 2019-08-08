@@ -14,10 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function main(typedesc<any> t, int|typedesc<any> i = 1, FooObject... f) returns string {
-    return "invalid";
+public function __init(string s, int i = 1, boolean... b) returns error {
+    return error("invalid");
 }
-
-type FooObject object {
-    string name = "invalid";
-};

@@ -395,7 +395,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         analysisState.restParam = funcNode.restParam;
 
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
-        if (funcNode.flagSet.contains(Flag.RESOURCE)) {
+        if (funcNode.flagSet.contains(Flag.RESOURCE) || isMainFunction(funcNode)) {
             // This is to analyze the entry-point function and attach taint table to it.
             entryPointPreAnalysis = true;
             boolean isBlocked = visitInvokable(funcNode, funcEnv);
@@ -2856,6 +2856,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             result = 31 * result + invokableNode.symbol.name.hashCode();
             return result;
         }
+    }
+
+    private boolean isMainFunction(BLangFunction funcNode) {
+        return "main".equals(funcNode.name.value) && Symbols.isPublic(funcNode.symbol);
     }
 
     // Used to store the analysis state of each function being visited.
