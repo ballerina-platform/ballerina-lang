@@ -358,6 +358,7 @@ public type FuncBodyParser object {
         var lhsOp = self.parseVarRef();
         var pkgId = self.reader.readModuleIDCpRef();
         var name = self.reader.readStringCpRef();
+        var retType = self.reader.readTypeCpRef();
 
         var mapCount = self.reader.readInt32();
         VarRef?[] maps = [];
@@ -375,7 +376,8 @@ public type FuncBodyParser object {
             params[i] = dcl;
             i += 1;
         }
-        FPLoad fpLoad = {pos:pos, kind:INS_KIND_FP_LOAD, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, params:params, closureMaps:maps};
+        FPLoad fpLoad = {pos:pos, kind:INS_KIND_FP_LOAD, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, params:params, 
+            closureMaps:maps, retType:retType};
         return fpLoad;
     }
 
