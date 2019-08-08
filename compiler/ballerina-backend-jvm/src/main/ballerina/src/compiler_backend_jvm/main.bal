@@ -48,9 +48,11 @@ public function main(string... args) {
         i = i + 1;
     }
 
-    var result = generateJarBinary(pathToEntryBir, mapPath, dumpBir);
-    if (result is JarFile) {
-        writeJarFile(result, targetPath);
+    var jarFile = generateJarBinary(pathToEntryBir, mapPath, dumpBir);
+    if (jarFile is error) {
+        jvm:systemExit(1);
+    } else {
+        writeJarFile(jarFile, targetPath);
     }
 }
 
