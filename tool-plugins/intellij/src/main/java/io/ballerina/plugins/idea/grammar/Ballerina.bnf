@@ -282,7 +282,7 @@ ArrayTypeName ::= TypeName (LEFT_BRACKET (IntegerLiteral | MUL)? RIGHT_BRACKET)+
 NullableTypeName ::= TypeName <<nullableTypePredicate>> QUESTION_MARK
 UnionTypeName ::= TypeName (PIPE TypeName)+
 GroupTypeName ::= LEFT_PARENTHESIS <<isGroupType>> TypeName RIGHT_PARENTHESIS {pin=1}
-TupleTypeName ::=  LEFT_BRACKET TypeName (COMMA TypeName)* (COMMA TupleRestDescriptor)? RIGHT_BRACKET {pin=1}
+TupleTypeName ::=  LEFT_BRACKET ((TypeName (COMMA TypeName)* (COMMA TupleRestDescriptor)?) | TupleRestDescriptor) RIGHT_BRACKET {pin=1}
 ObjectTypeName ::= ((client? abstract) | (abstract? client?)) object LEFT_BRACE ObjectBody RIGHT_BRACE {pin=3}
 
 InclusiveRecordTypeDescriptor ::=   record LEFT_BRACE FieldDescriptor* RIGHT_BRACE
@@ -373,7 +373,7 @@ RecordLiteralBody ::= (RecordKeyValue (COMMA RecordKeyValue)*){pin(".*")=1}
 
 RecordKeyValue ::= RecordKey COLON Expression {pin=1}
 
-RecordKey ::= Expression | identifier
+RecordKey ::= LEFT_BRACKET Expression RIGHT_BRACKET | Expression | identifier
 
 TableLiteral ::= table LEFT_BRACE TableColumnDefinition? (COMMA TableDataArray)? RIGHT_BRACE {pin=1}
 
@@ -447,10 +447,14 @@ BindingPattern ::= identifier | StructuredBindingPattern
 StructuredBindingPattern ::= ListBindingPattern | RecordBindingPattern | ErrorBindingPattern
 
 ErrorBindingPattern ::= error LEFT_PARENTHESIS identifier (COMMA ErrorDetailBindingPattern)* (COMMA ErrorRestBindingPattern)? RIGHT_PARENTHESIS {pin=1}
-ErrorMatchPattern ::= TYPE_ERROR LEFT_PARENTHESIS ErrorArgListMatchPattern RIGHT_PARENTHESIS
+ErrorMatchPattern ::= TYPE_ERROR LEFT_PARENTHESIS ErrorArgListMatchPattern RIGHT_PARENTHESIS | TypeName LEFT_PARENTHESIS ErrorFieldMatchPatterns RIGHT_PARENTHESIS
 ErrorArgListMatchPattern::= SimpleMatchPattern (COMMA ErrorDetailBindingPattern)* (COMMA RestMatchPattern)?
                           | ErrorDetailBindingPattern (COMMA ErrorDetailBindingPattern)* (COMMA RestMatchPattern)?
                           | RestMatchPattern
+
+ErrorFieldMatchPatterns ::= ErrorDetailBindingPattern (COMMA ErrorDetailBindingPattern)* (COMMA RestMatchPattern)? | RestMatchPattern
+
+
 ErrorRestBindingPattern ::= ELLIPSIS identifier
 RestMatchPattern ::= ELLIPSIS var identifier
 SimpleMatchPattern ::= var? (identifier | QUOTED_STRING_LITERAL)
@@ -476,20 +480,17 @@ BindingRefPattern ::= VariableReference
 
 StructuredRefBindingPattern ::= ListRefBindingPattern | RecordRefBindingPattern
 
-// TODO : Add rest binding pattern to comply with 2019r1 spec.
-ListRefBindingPattern ::= LEFT_BRACKET BindingRefPattern (COMMA BindingRefPattern)+ RIGHT_BRACKET {pin=1}
+ListRefBindingPattern ::= LEFT_BRACKET ((BindingRefPattern (COMMA BindingRefPattern)* (COMMA ListRefRestPattern)?) | ListRefRestPattern) RIGHT_BRACKET {pin=1}
 
-RecordRefBindingPattern ::= ClosedRecordRefBindingPattern | OpenRecordRefBindingPattern
+ListRefRestPattern ::= ELLIPSIS VariableReference {pin=1}
 
-OpenRecordRefBindingPattern ::= LEFT_BRACE EntryRefBindingPattern RIGHT_BRACE
-
-ClosedRecordRefBindingPattern ::= LEFT_CLOSED_RECORD_DELIMITER PIPE FieldRefBindingPattern (COMMA FieldRefBindingPattern)* PIPE RIGHT_CLOSED_RECORD_DELIMITER {pin=1}
+RecordRefBindingPattern ::= LEFT_BRACE EntryRefBindingPattern RIGHT_BRACE
 
 ErrorRefBindingPattern ::= error LEFT_PARENTHESIS ((VariableReference (COMMA ErrorNamedArgRefPattern)*) | ErrorNamedArgRefPattern+) (COMMA ErrorRefRestPattern)? RIGHT_PARENTHESIS
 ErrorNamedArgRefPattern ::= identifier ASSIGN BindingRefPattern
 ErrorRefRestPattern::= ELLIPSIS VariableReference
 
-EntryRefBindingPattern ::= FieldRefBindingPattern (COMMA FieldRefBindingPattern)* (COMMA RestRefBindingPattern)? | RestRefBindingPattern
+EntryRefBindingPattern ::= FieldRefBindingPattern (COMMA FieldRefBindingPattern)* (COMMA RestRefBindingPattern)? | RestRefBindingPattern?
 
 FieldRefBindingPattern ::= identifier (COLON BindingRefPattern)? {pin=1}
 
