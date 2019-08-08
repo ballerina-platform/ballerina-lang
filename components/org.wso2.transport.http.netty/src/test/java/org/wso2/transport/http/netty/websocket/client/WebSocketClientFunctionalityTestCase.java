@@ -80,7 +80,7 @@ public class WebSocketClientFunctionalityTestCase {
         sendTextMessageAndReceiveResponse(textSent, connectorListener, webSocketConnection);
         WebSocketTextMessage textMessage = connectorListener.getReceivedTextMessageToClient();
 
-        assetMessageProperties(textMessage);
+        assertMessageProperties(textMessage);
         Assert.assertEquals(textMessage.getText(), textSent);
         Assert.assertTrue(textMessage.isFinalFragment());
     }
@@ -125,7 +125,7 @@ public class WebSocketClientFunctionalityTestCase {
         sendAndReceiveBinaryMessage(bufferSent, connectorListener, webSocketConnection);
         WebSocketBinaryMessage receivedBinaryMessage = connectorListener.getReceivedBinaryMessageToClient();
 
-        assetMessageProperties(receivedBinaryMessage);
+        assertMessageProperties(receivedBinaryMessage);
         Assert.assertEquals(receivedBinaryMessage.getByteBuffer(), bufferSent);
         Assert.assertEquals(receivedBinaryMessage.getByteArray(), bytes);
     }
@@ -237,7 +237,7 @@ public class WebSocketClientFunctionalityTestCase {
         webSocketConnection.terminateConnection(1000, "");
     }
 
-    private void assetMessageProperties(WebSocketMessage webSocketMessage) {
+    private void assertMessageProperties(WebSocketMessage webSocketMessage) {
         Assert.assertEquals(webSocketMessage.getTarget(), "ws://localhost:9010/websocket");
         Assert.assertFalse(webSocketMessage.isServerMessage());
     }

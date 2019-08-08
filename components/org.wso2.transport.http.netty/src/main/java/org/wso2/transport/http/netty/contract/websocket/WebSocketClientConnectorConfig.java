@@ -40,6 +40,7 @@ public class WebSocketClientConnectorConfig extends SslConfiguration {
     private boolean autoRead;
     private final HttpHeaders headers;
     private int maxFrameSize = 65536;
+    private boolean webSocketCompressionEnabled;
 
     public WebSocketClientConnectorConfig(String remoteAddress) {
         this.remoteAddress = remoteAddress;
@@ -158,5 +159,13 @@ public class WebSocketClientConnectorConfig extends SslConfiguration {
 
     public void setMaxFrameSize(int maxFrameSize) {
         this.maxFrameSize = maxFrameSize;
+    }
+
+    public boolean isWebSocketCompressionEnabled() {
+        return webSocketCompressionEnabled;
+    }
+
+    public void setWebSocketCompressionEnabled(boolean webSocketCompressionEnabled) {
+        this.webSocketCompressionEnabled = webSocketCompressionEnabled;
     }
 }

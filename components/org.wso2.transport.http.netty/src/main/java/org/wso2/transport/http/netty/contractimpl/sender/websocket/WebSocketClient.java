@@ -155,7 +155,9 @@ public class WebSocketClient {
         pipeline.addLast(new HttpClientCodec());
         // Assuming that WebSocket Handshake messages will not be large than 8KB
         pipeline.addLast(new HttpObjectAggregator(8192));
-        pipeline.addLast(WebSocketClientCompressionHandler.INSTANCE);
+        if (connectorConfig.isWebSocketCompressionEnabled()) {
+            pipeline.addLast(WebSocketClientCompressionHandler.INSTANCE);
+        }
         pipeline.addLast(Utf8FrameValidator.class.getName(), new Utf8FrameValidator());
         if (idleTimeout > 0) {
             pipeline.addLast(new IdleStateHandler(0, 0, idleTimeout, TimeUnit.MILLISECONDS));
