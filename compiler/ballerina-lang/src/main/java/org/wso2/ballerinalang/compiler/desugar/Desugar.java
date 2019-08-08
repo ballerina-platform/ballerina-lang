@@ -445,11 +445,13 @@ public class Desugar extends BLangNodeVisitor {
      * @param env           Symbol environment
      */
     private void createInvokableSymbol(BLangFunction bLangFunction, SymbolEnv env) {
-        BInvokableType invokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
+        BType returnType = bLangFunction.returnTypeNode.type == null ?
+                symResolver.resolveTypeNode(bLangFunction.returnTypeNode, env) : bLangFunction.returnTypeNode.type;
+
+        BInvokableType invokableType = new BInvokableType(new ArrayList<>(), returnType, null);
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(bLangFunction.flagSet),
                 new Name(bLangFunction.name.value), env.enclPkg.packageID, invokableType, env.enclPkg.symbol, true);
-        functionSymbol.retType = bLangFunction.returnTypeNode.type == null ?
-                symResolver.resolveTypeNode(bLangFunction.returnTypeNode, env) : bLangFunction.returnTypeNode.type;
+        functionSymbol.retType = returnType;
         // Add parameters
         for (BLangVariable param : bLangFunction.requiredParams) {
             functionSymbol.params.add(param.symbol);
@@ -6398,10 +6400,17 @@ public class Desugar extends BLangNodeVisitor {
 
         for (int j = 0; j < generatedFunctions.size() - 1; j++) {
             BLangFunction thisFunction = generatedFunctions.get(j);
+
+            BLangCheckedExpr checkedExpr =
+                    ASTBuilderUtil.createCheckExpr(initFunction.pos,
+                                                   createInvocationNode(generatedFunctions.get(j + 1).name.value,
+                                                                        new ArrayList<>(), symTable.errorOrNilType),
+                                                   symTable.nilType);
+            checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
+
             BLangExpressionStmt expressionStmt = ASTBuilderUtil.createExpressionStmt(thisFunction.pos,
                     thisFunction.body);
-            expressionStmt.expr = createInvocationNode(generatedFunctions.get(j + 1).name.value, new ArrayList<>(),
-                    symTable.nilType);
+            expressionStmt.expr = checkedExpr;
             expressionStmt.expr.pos = initFunction.pos;
 
             if (j > 0) { // skip init func
@@ -6429,7 +6438,6 @@ public class Desugar extends BLangNodeVisitor {
      */
     private BLangFunction createIntermediateInitFunction(BLangPackage pkgNode, SymbolEnv env, int iteration) {
         String alias = pkgNode.symbol.pkgID.toString();
-        // TODO: 8/8/19 validate error return
         BLangFunction initFunction = ASTBuilderUtil
                 .createInitFunctionWithErrorOrNilReturn(pkgNode.pos, alias,
                                                         new Name(Names.INIT_FUNCTION_SUFFIX.value + iteration),
