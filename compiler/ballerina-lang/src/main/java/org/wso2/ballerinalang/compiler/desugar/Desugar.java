@@ -381,13 +381,18 @@ public class Desugar extends BLangNodeVisitor {
      */
     private void createPackageInitFunctions(BLangPackage pkgNode, SymbolEnv env) {
         String alias = pkgNode.symbol.pkgID.toString();
-        pkgNode.initFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias, Names.INIT_FUNCTION_SUFFIX);
+        pkgNode.initFunction = ASTBuilderUtil.createInitFunctionWithErrorOrNilReturn(pkgNode.pos, alias,
+                                                                                     Names.INIT_FUNCTION_SUFFIX,
+                                                                                     symTable);
         // Add package level namespace declarations to the init function
         pkgNode.xmlnsList.forEach(xmlns -> {
             pkgNode.initFunction.body.addStatement(createNamespaceDeclrStatement(xmlns));
         });
-        pkgNode.startFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias, Names.START_FUNCTION_SUFFIX);
-        pkgNode.stopFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias, Names.STOP_FUNCTION_SUFFIX);
+        pkgNode.startFunction = ASTBuilderUtil.createInitFunctionWithErrorOrNilReturn(pkgNode.pos, alias,
+                                                                                      Names.START_FUNCTION_SUFFIX,
+                                                                                      symTable);
+        pkgNode.stopFunction = ASTBuilderUtil.createInitFunctionWithNilReturn(pkgNode.pos, alias,
+                                                                              Names.STOP_FUNCTION_SUFFIX);
         // Create invokable symbol for init function
         createInvokableSymbol(pkgNode.initFunction, env);
         // Create invokable symbol for start function
@@ -6191,7 +6196,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangFunction createInitFunctionForStructureType(BLangStructureTypeNode structureTypeNode, SymbolEnv env,
                                                              Name suffix) {
         BLangFunction initFunction = ASTBuilderUtil
-                .createInitFunction(structureTypeNode.pos, Names.EMPTY.value, suffix);
+                .createInitFunctionWithNilReturn(structureTypeNode.pos, Names.EMPTY.value, suffix);
 
         // Create the receiver
         initFunction.receiver = ASTBuilderUtil.createReceiver(structureTypeNode.pos, structureTypeNode.type);
@@ -6424,8 +6429,11 @@ public class Desugar extends BLangNodeVisitor {
      */
     private BLangFunction createIntermediateInitFunction(BLangPackage pkgNode, SymbolEnv env, int iteration) {
         String alias = pkgNode.symbol.pkgID.toString();
-        BLangFunction initFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias,
-                new Name(Names.INIT_FUNCTION_SUFFIX.value + iteration));
+        // TODO: 8/8/19 validate error return
+        BLangFunction initFunction = ASTBuilderUtil
+                .createInitFunctionWithErrorOrNilReturn(pkgNode.pos, alias,
+                                                        new Name(Names.INIT_FUNCTION_SUFFIX.value + iteration),
+                                                        symTable);
         // Create invokable symbol for init function
         createInvokableSymbol(initFunction, env);
         return initFunction;
