@@ -24,9 +24,7 @@ import org.antlr.v4.runtime.TokenStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
-import org.ballerinalang.langserver.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
@@ -58,6 +56,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.services.LanguageClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
@@ -1005,8 +1004,8 @@ public class CommonUtil {
      */
     public static String getPlainTextSnippet(String snippet) {
         return snippet
-                .replaceAll("(\\$\\{\\d:)([a-zA-Z]*:*[a-zA-Z]*)(\\})", "$2")
-                .replaceAll("(\\$\\{\\d\\})", "");
+                .replaceAll("(\\$\\{\\d+:)([a-zA-Z]*:*[a-zA-Z]*)(\\})", "$2")
+                .replaceAll("(\\$\\{\\d+\\})", "");
     }
 
     public static BallerinaParser prepareParser(String content) {
@@ -1206,7 +1205,8 @@ public class CommonUtil {
      */
     public static Predicate<BLangImportPackage> importInCurrentFilePredicate(LSContext ctx) {
         String currentFile = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        return importPkg -> importPkg.pos.getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(currentFile);
+        return importPkg -> importPkg.pos.getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(currentFile)
+                && importPkg.getWS() != null;
     }
 
     /**
@@ -1471,10 +1471,9 @@ public class CommonUtil {
      * Notify user an error message through LSP protocol.
      *
      * @param error          {@link Throwable}
-     * @param languageServer language server
+     * @param languageClient language client
      */
-    public static void notifyUser(UserErrorException error, BallerinaLanguageServer languageServer) {
-        ExtendedLanguageClient languageClient = languageServer.getClient();
+    public static void notifyUser(UserErrorException error, LanguageClient languageClient) {
         if (languageClient != null) {
             languageClient.showMessage(new MessageParams(MessageType.Error, error.getMessage()));
         }
@@ -1485,15 +1484,14 @@ public class CommonUtil {
      *
      * @param message        log message
      * @param error          {@link Throwable}
-     * @param languageServer language server
+     * @param languageClient language client
      * @param textDocument   text document
      * @param position       position
      */
-    public static void logError(String message, Throwable error, BallerinaLanguageServer languageServer,
+    public static void logError(String message, Throwable error, LanguageClient languageClient,
                                 TextDocumentIdentifier textDocument, Position... position) {
         String details = getErrorDetails(textDocument, error, position);
         if (CommonUtil.LS_DEBUG_ENABLED) {
-            ExtendedLanguageClient languageClient = languageServer.getClient();
             if (languageClient != null) {
                 final Charset charset = StandardCharsets.UTF_8;
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();

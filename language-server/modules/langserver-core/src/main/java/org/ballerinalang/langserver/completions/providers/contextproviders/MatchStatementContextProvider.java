@@ -79,7 +79,7 @@ public class MatchStatementContextProvider extends LSCompletionProvider {
             filteredList.forEach(symbolInfo -> {
                 if (CommonUtil.isValidInvokableSymbol(symbolInfo.getScopeEntry().symbol)) {
                     BSymbol scopeEntrySymbol = symbolInfo.getScopeEntry().symbol;
-                    completionItems.add(this.fillInvokableSymbolMatchSnippet((BInvokableSymbol) scopeEntrySymbol));
+                    completionItems.add(this.fillInvokableSymbolMatchSnippet((BInvokableSymbol) scopeEntrySymbol, ctx));
                 }
             });
         } else {
@@ -88,7 +88,7 @@ public class MatchStatementContextProvider extends LSCompletionProvider {
                 BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
                 if (CommonUtil.isValidInvokableSymbol(symbolInfo.getScopeEntry().symbol)
                         && ((bSymbol.flags & Flags.ATTACHED) != Flags.ATTACHED)) {
-                    completionItems.add(this.fillInvokableSymbolMatchSnippet((BInvokableSymbol) bSymbol));
+                    completionItems.add(this.fillInvokableSymbolMatchSnippet((BInvokableSymbol) bSymbol, ctx));
                 } else if (!(symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol)
                         && bSymbol instanceof BVarSymbol) {
                     fillVarSymbolMatchSnippet((BVarSymbol) bSymbol, completionItems);
@@ -124,13 +124,13 @@ public class MatchStatementContextProvider extends LSCompletionProvider {
         return signature.toString();
     }
 
-    private CompletionItem fillInvokableSymbolMatchSnippet(BInvokableSymbol func) {
+    private CompletionItem fillInvokableSymbolMatchSnippet(BInvokableSymbol func, LSContext ctx) {
         String functionSignature = getFunctionSignature(func);
         String variableValuePattern = getVariableValueDestructurePattern();
         String variableValueSnippet = this.generateMatchSnippet(variableValuePattern);
 
         return BFunctionCompletionItemBuilder.build(func, functionSignature,
-                                                    functionSignature + " " + variableValueSnippet);
+                                                    functionSignature + " " + variableValueSnippet, ctx);
     }
 
     private void fillVarSymbolMatchSnippet(BVarSymbol varSymbol, List<CompletionItem> completionItems) {
