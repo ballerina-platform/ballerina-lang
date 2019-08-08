@@ -6547,7 +6547,8 @@ public class FormattingNodeTree {
                 JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
                 String indentation = this.getIndentation(formatConfig, false);
                 String indentationOfParent = this.getParentIndentation(formatConfig);
-                boolean useParentIndentation = formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean();
+                boolean useParentIndentation = formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION)
+                        .getAsBoolean();
 
                 this.preserveHeight(ws, useParentIndentation ? indentationOfParent : indentation);
 
