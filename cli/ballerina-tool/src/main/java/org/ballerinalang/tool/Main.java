@@ -415,7 +415,7 @@ public class Main {
             }
 
             if (sdksCommands == null) {
-                ToolUtil.listSDKs(outStream);
+                ToolUtil.listSDKs(outStream, false);
                 return;
             } else if (sdksCommands.size() > 1) {
                 throw LauncherUtils.createUsageExceptionWithHelp("too many arguments given");
