@@ -249,8 +249,8 @@ public class BuildCommandTest extends CommandTest {
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog, "ballerina: you are trying to build a ballerina project but there is no " +
-                                      "Ballerina.toml file.\n");
+        Assert.assertEquals(buildLog, "ballerina: you are trying to build/compile a ballerina project but there is " +
+                                      "no Ballerina.toml file.\n");
     }
     
     @Test(description = "Build bal file with no entry")

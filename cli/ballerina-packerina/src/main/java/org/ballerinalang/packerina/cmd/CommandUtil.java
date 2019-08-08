@@ -73,7 +73,7 @@ public class CommandUtil {
     }
     
     /**
-     * Exit with error code 1
+     * Exit with error code 1.
      *
      * @param exit Whether to exit or not.
      */

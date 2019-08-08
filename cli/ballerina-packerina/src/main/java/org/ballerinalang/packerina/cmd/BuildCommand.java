@@ -90,13 +90,18 @@ public class BuildCommand implements BLauncherCmd {
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
     }
-
+    
+    @CommandLine.Option(names = {"--compile", "-c"}, description = "Compile the source without generating " +
+                                                                   "executable(s).")
+    private boolean compile;
+    
     @CommandLine.Option(names = {"--output", "-o"}, description = "Writes output to the given file. The provided " +
                                                                   "output filename may or may not contain the '.jar' " +
                                                                   "extension.")
     private String output;
 
-    @CommandLine.Option(names = {"--off-line"}, description = "Builds offline without downloading dependencies.")
+    @CommandLine.Option(names = {"--off-line"}, description = "Builds/Compiles offline without downloading " +
+                                                              "dependencies.")
     private boolean offline;
 
     @CommandLine.Option(names = {"--skip-lock"}, description = "Skip using the lock file to resolve dependencies.")
@@ -124,7 +129,7 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
     private boolean experimentalFlag;
 
-    @CommandLine.Option(names = {"--config", "-c"}, description = "Path to the configuration file when running tests." +
+    @CommandLine.Option(names = {"--test-config"}, description = "Path to the configuration file when running tests." +
                                                                   " A configuration file cannot be set if " +
                                                                   "'--skip-tests' flag is passed.")
     private String configFilePath;
@@ -182,7 +187,7 @@ public class BuildCommand implements BLauncherCmd {
                 Path findRoot = ProjectDirs.findProjectRoot(this.sourceRootPath);
                 if (null == findRoot) {
                     CommandUtil.printError(this.errStream,
-                            "you are trying to build a ballerina project but there is no Ballerina.toml file.",
+                            "you are trying to build/compile a ballerina project but there is no Ballerina.toml file.",
                             null,
                             false);
                     CommandUtil.exitError(this.exitWhenFinish);
@@ -195,39 +200,48 @@ public class BuildCommand implements BLauncherCmd {
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         } else if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
             // when a single bal file is provided.
-            
-            //// check if path given is an absolute path. update source root accordingly.
-            if (Paths.get(this.argList.get(0)).isAbsolute()) {
-                sourcePath = Paths.get(this.argList.get(0));
-                this.sourceRootPath = sourcePath.getParent();
+            if (this.compile) {
+                CommandUtil.printError(this.errStream,
+                        "'-c' or '--compile' flag cannot be used on ballerina files. the flag can only be used with " +
+                        "ballerina projects.",
+                        null,
+                        false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
             } else {
-                sourcePath = this.sourceRootPath.resolve(this.argList.get(0));
-            }
-            
-            //// check if the given file exists.
-            if (Files.notExists(sourcePath)) {
-                CommandUtil.printError(this.errStream,
-                        "'" + sourcePath + "' ballerina file does not exist.",
-                        null,
-                        false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
-            }
-            
-            //// check if the given file is a regular file and not a symlink.
-            if (!Files.isRegularFile(sourcePath)) {
-                CommandUtil.printError(this.errStream,
-                        "'" + sourcePath + "' is not ballerina file. check if it is a symlink or shortcut.",
-                        null,
-                        false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
-            }
-            
-            try {
-                targetPath = Files.createTempDirectory("ballerina-build-" + System.nanoTime());
-            } catch (IOException e) {
-                throw LauncherUtils.createLauncherException("error occurred when creating executable.");
+                //// check if path given is an absolute path. update source root accordingly.
+                if (Paths.get(this.argList.get(0)).isAbsolute()) {
+                    sourcePath = Paths.get(this.argList.get(0));
+                    this.sourceRootPath = sourcePath.getParent();
+                } else {
+                    sourcePath = this.sourceRootPath.resolve(this.argList.get(0));
+                }
+                
+                //// check if the given file exists.
+                if (Files.notExists(sourcePath)) {
+                    CommandUtil.printError(this.errStream,
+                            "'" + sourcePath + "' ballerina file does not exist.",
+                            null,
+                            false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
+                }
+                
+                //// check if the given file is a regular file and not a symlink.
+                if (!Files.isRegularFile(sourcePath)) {
+                    CommandUtil.printError(this.errStream,
+                            "'" + sourcePath + "' is not ballerina file. check if it is a symlink or shortcut.",
+                            null,
+                            false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
+                }
+                
+                try {
+                    targetPath = Files.createTempDirectory("ballerina-build-" + System.nanoTime());
+                } catch (IOException e) {
+                    throw LauncherUtils.createLauncherException("error occurred when creating executable.");
+                }
             }
         } else if (Files.exists(
                 this.sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(this.argList.get(0))) &&
@@ -248,7 +262,7 @@ public class BuildCommand implements BLauncherCmd {
             //// check if command executed from project root.
             if (!RepoUtils.isBallerinaProject(this.sourceRootPath)) {
                 CommandUtil.printError(this.errStream,
-                        "you are trying to build a module that is not inside a project.",
+                        "you are trying to build/compile a module that is not inside a project.",
                         null,
                         false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -258,9 +272,9 @@ public class BuildCommand implements BLauncherCmd {
             //// check if module name given is not absolute.
             if (Paths.get(argList.get(0)).isAbsolute()) {
                 CommandUtil.printError(this.errStream,
-                        "you are trying to build a module by giving the absolute path. you only need give the name " +
-                        "of the module.",
-                        "ballerina build [<module-name>]",
+                        "you are trying to build/compile a module by giving the absolute path. you only need give " +
+                        "the name of the module.",
+                        "ballerina build [-c] [<module-name>]",
                         true);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
@@ -279,7 +293,7 @@ public class BuildCommand implements BLauncherCmd {
             if (Files.notExists(this.sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(sourcePath))) {
                 CommandUtil.printError(this.errStream,
                         "'" + sourcePath + "' module does not exist.",
-                        "ballerina build <module-name>",
+                        "ballerina build [-c] <module-name>",
                         true);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
@@ -324,7 +338,7 @@ public class BuildCommand implements BLauncherCmd {
         
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
-                .addTask(new CreateTargetDirTask()) //  create target directory.
+                .addTask(new CreateTargetDirTask()) // create target directory.
                 .addTask(new CompileTask()) // compile the modules
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the balos for modules(projects only)
                 .addTask(new CreateBirTask())   // create the bir
@@ -333,12 +347,12 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CopyModuleJarTask())
                 .addTask(new RunTestsTask(configFilePath), this.skipTests || isSingleFileBuild) // run tests
                                                                                                 // (projects only)
-                .addTask(new CreateExecutableTask())    // create the executable .jar file
+                .addTask(new CreateExecutableTask(), this.compile)  // create the executable .jar file
                 .addTask(new CopyExecutableTask(outputPath), !isSingleFileBuild)    // copy executable
-                .addTask(new PrintExecutablePathTask()) // print the location of the executable
+                .addTask(new PrintExecutablePathTask(), this.compile)   // print the location of the executable
                 .addTask(new CreateLockFileTask(), isSingleFileBuild)   // create a lock file(projects only)
                 .addTask(new CreateDocsTask(), isSingleFileBuild)   // generate API docs(projects only)
-                .addTask(new RunCompilerPluginTask())   // run compiler plugins
+                .addTask(new RunCompilerPluginTask(), this.compile) // run compiler plugins
                 .addTask(new CleanTargetDirTask(), !isSingleFileBuild)  // clean the target dir(single bals only)
                 .build();
         
