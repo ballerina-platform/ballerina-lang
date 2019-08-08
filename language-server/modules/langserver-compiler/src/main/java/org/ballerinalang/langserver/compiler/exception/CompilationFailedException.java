@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,26 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.compiler;
+package org.ballerinalang.langserver.compiler.exception;
 
 /**
- * This exception is thrown when LSCompiler encouters an error.
+ * Exception for the Ballerina Compiler failures.
+ *
+ * @since 1.0.0
  */
-public class LSCompilerException extends Exception {
-    public LSCompilerException(String message) {
+public class CompilationFailedException extends Exception {
+    public CompilationFailedException(String message) {
         super(message);
     }
 
-    public LSCompilerException(String message, Throwable cause) {
+    public CompilationFailedException(String message, Throwable cause) {
         super(message, cause);
     }
-
-    public LSCompilerException(Throwable cause) {
-        super(cause);
-    }
-
-    public LSCompilerException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }
-

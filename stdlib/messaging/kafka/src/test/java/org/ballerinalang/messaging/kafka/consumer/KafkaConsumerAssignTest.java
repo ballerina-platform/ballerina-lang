@@ -33,8 +33,11 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Properties;
 
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_CONSUMER;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
 
 /**
@@ -48,7 +51,8 @@ public class KafkaConsumerAssignTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        result = BCompileUtil.compile(getFilePath("test-src/consumer/kafka_consumer_assign.bal"));
+        result = BCompileUtil.compile(
+                getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_assign.bal")));
         Properties prop = new Properties();
         kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true)
                 .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(1).startup();

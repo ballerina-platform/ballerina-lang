@@ -18,7 +18,9 @@ package org.ballerinalang.langserver.hover.util;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.model.Whitespace;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -27,9 +29,13 @@ import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -39,12 +45,15 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.io.BufferedReader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Utility class for Hover functionality of language server.
@@ -73,9 +82,10 @@ public class HoverUtil {
      *
      * @param docAttachment     Documentation attachment
      * @param symbol hovered symbol
+     * @param ctx   LS Context
      * @return {@link Hover}    hover object.
      */
-    public static Hover getHoverFromDocAttachment(MarkdownDocAttachment docAttachment, BSymbol symbol) {
+    public static Hover getHoverFromDocAttachment(MarkdownDocAttachment docAttachment, BSymbol symbol, LSContext ctx) {
         MarkupContent hoverMarkupContent = new MarkupContent();
         if (docAttachment == null) {
             Hover hover = new Hover();
@@ -90,23 +100,35 @@ public class HoverUtil {
                 filterDocumentationAttributes(docAttachment, symbol);
 
         if (!docAttachment.description.isEmpty()) {
-            String description = "\r\n" + docAttachment.description.trim() + "\r\n";
+            String description =
+                    CommonUtil.MD_LINE_SEPARATOR + docAttachment.description.trim() + CommonUtil.MD_LINE_SEPARATOR;
             content.append(getFormattedHoverDocContent(ContextConstants.DESCRIPTION, description));
         }
 
         if (filterAttributes.get(ContextConstants.DOC_PARAM) != null) {
             content.append(getFormattedHoverDocContent(ContextConstants.PARAM_TITLE,
-                    getDocAttributes(filterAttributes.get(ContextConstants.DOC_PARAM))));
+                                                       getDocAttributes(
+                                                               filterAttributes.get(ContextConstants.DOC_PARAM), symbol,
+                                                               ctx)));
         }
 
         if (filterAttributes.get(ContextConstants.DOC_FIELD) != null) {
             content.append(getFormattedHoverDocContent(ContextConstants.FIELD_TITLE,
-                    getDocAttributes(filterAttributes.get(ContextConstants.DOC_FIELD))));
+                                                       getDocAttributes(
+                                                               filterAttributes.get(ContextConstants.DOC_FIELD), symbol,
+                                                               ctx)));
         }
 
         if (docAttachment.returnValueDescription != null && !docAttachment.returnValueDescription.isEmpty()) {
-            content.append(getFormattedHoverDocContent(ContextConstants.RETURN_TITLE,
-                    getReturnValueDescription(docAttachment.returnValueDescription)));
+            String returnType = "";
+            if (symbol instanceof BInvokableSymbol) {
+                // Get type information
+                BInvokableSymbol invokableSymbol = (BInvokableSymbol) symbol;
+                returnType = " `" + CommonUtil.getBTypeName(invokableSymbol.retType, ctx) + "`";
+            }
+            content.append(getFormattedHoverDocContent(ContextConstants.RETURN_TITLE, returnType,
+                                                       getReturnValueDescription(
+                                                               docAttachment.returnValueDescription)));
         }
 
         hoverMarkupContent.setValue(content.toString());
@@ -329,22 +351,49 @@ public class HoverUtil {
      * Get the doc annotation attributes.
      *
      * @param parameters        parameters to be extracted
+     * @param symbol            symbol
+     * @param ctx               LS Context
      * @return {@link String }  extracted content of annotation
      */
-    private static String getDocAttributes(List<MarkdownDocAttachment.Parameter> parameters) {
+    private static String getDocAttributes(List<MarkdownDocAttachment.Parameter> parameters, BSymbol symbol,
+                                           LSContext ctx) {
+        Map<String, BType> types = new HashMap<>();
+        if (symbol instanceof BVarSymbol && !(symbol instanceof BInvokableSymbol)) {
+            symbol = ((BVarSymbol) symbol).type.tsymbol;
+        }
+        if (symbol instanceof BInvokableSymbol) {
+            // If it is a parameters set of a function invocation
+            BInvokableSymbol invokableSymbol = (BInvokableSymbol) symbol;
+            for (BVarSymbol param : invokableSymbol.params) {
+                types.put(param.name.value, param.type);
+            }
+        } else if (symbol instanceof BStructureTypeSymbol) {
+            // If it is a field set of a object or a record
+            BStructureTypeSymbol objectTypeSymbol = (BStructureTypeSymbol) symbol;
+            objectTypeSymbol.scope.entries.values()
+                    .stream()
+                    .filter(s -> s.symbol instanceof BVarSymbol && s.symbol.getFlags().contains(Flag.PUBLIC))
+                    .forEach(s -> types.put(s.symbol.name.value, s.symbol.type));
+        }
         StringBuilder value = new StringBuilder();
         for (MarkdownDocAttachment.Parameter parameter : parameters) {
+            String type = "";
+            if (!types.isEmpty() && types.get(parameter.name) != null) {
+                type = "`" + CommonUtil.getBTypeName(types.get(parameter.name), ctx) + "` ";
+            }
             value.append("- ")
+                    .append(type)
                     .append(parameter.name.trim())
-                    .append(":")
-                    .append(parameter.description.trim()).append("\r\n");
+                    .append(": ")
+                    .append(parameter.description.trim()).append(CommonUtil.MD_LINE_SEPARATOR);
         }
-
         return value.toString();
     }
 
     private static String getReturnValueDescription(String returnVal) {
-        return "- " + returnVal.trim() + "\r\n";
+        BufferedReader reader = new BufferedReader(new StringReader(returnVal));
+        return "- " + reader.lines().map(String::trim).collect(Collectors.joining(CommonUtil.MD_LINE_SEPARATOR)) +
+                CommonUtil.MD_LINE_SEPARATOR;
     }
 
     /**
@@ -354,6 +403,10 @@ public class HoverUtil {
      * @return {@link String} formatted string using markdown.
      */
     private static String getFormattedHoverDocContent(String header, String content) {
-        return "**" + header + "**\r\n" + content + "\r\n";
+        return getFormattedHoverDocContent(header, "", content);
+    }
+
+    private static String getFormattedHoverDocContent(String header, String subHeader, String content) {
+        return "**" + header + "**" + subHeader + CommonUtil.MD_LINE_SEPARATOR + content + CommonUtil.MD_LINE_SEPARATOR;
     }
 }
