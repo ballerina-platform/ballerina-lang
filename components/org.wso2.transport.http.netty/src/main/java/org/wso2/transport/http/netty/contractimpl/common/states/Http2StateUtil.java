@@ -48,7 +48,9 @@ import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHand
 import org.wso2.transport.http.netty.contractimpl.listener.http2.InboundMessageHolder;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2DataEventListener;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
+import org.wso2.transport.http.netty.contractimpl.sender.states.http2.RequestCompleted;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2InboundContentListener;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
@@ -437,5 +439,17 @@ public class Http2StateUtil {
                 }
             }
         });
+    }
+
+    public static void initHttp2MessageContext(HttpCarbonMessage outboundRequest,
+                                               Http2TargetHandler http2TargetHandler) {
+        Http2MessageStateContext http2MessageStateContext = outboundRequest.getHttp2MessageStateContext();
+        if (http2MessageStateContext == null) {
+            http2MessageStateContext = new Http2MessageStateContext();
+            http2MessageStateContext.setSenderState(new RequestCompleted(http2TargetHandler, null));
+            outboundRequest.setHttp2MessageStateContext(http2MessageStateContext);
+        } else if (http2MessageStateContext.getSenderState() == null) {
+            http2MessageStateContext.setSenderState(new RequestCompleted(http2TargetHandler, null));
+        }
     }
 }

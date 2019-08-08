@@ -43,6 +43,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.wso2.transport.http.netty.contractimpl.common.Util.createInboundRespCarbonMsg;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.safelyRemoveHandlers;
+import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.initHttp2MessageContext;
 
 /**
  * A class responsible for handling responses coming from BE.
@@ -167,6 +168,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         // Remove Http specific handlers
         safelyRemoveHandlers(targetChannel.getChannel().pipeline(), Constants.IDLE_STATE_HANDLER,
                              Constants.HTTP_TRACE_LOG_HANDLER);
+        initHttp2MessageContext(outboundRequestMsg, http2TargetHandler);
         http2ClientChannel.addDataEventListener(
                 Constants.IDLE_STATE_HANDLER,
                 new Http2ClientTimeoutHandler(http2ClientChannel.getSocketIdleTimeout(), http2ClientChannel));

@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.transport.http.netty.http2;
+package org.wso2.transport.http.netty.http2.connectionpool;
 
 import io.netty.handler.codec.http.HttpMethod;
 import org.slf4j.Logger;
@@ -50,7 +50,7 @@ import java.util.HashMap;
 
 import static org.testng.Assert.assertNotNull;
 import static org.wso2.transport.http.netty.util.Http2Util.assertResult;
-import static org.wso2.transport.http.netty.util.Http2Util.getTestClient;
+import static org.wso2.transport.http.netty.util.Http2Util.getTestHttp2Client;
 import static org.wso2.transport.http.netty.util.TestUtil.SERVER_CONNECTOR_PORT;
 
 /**
@@ -95,13 +95,13 @@ public class H2ConnectionPoolWithPriorKnowledge {
     @Test
     public void testPriorKnowledgeWithPool() {
         //Since we have only two eventloops, upstream will have two different pools.
-        HttpClientConnector client1 = getTestClient(httpWsConnectorFactory, true); //Upstream uses eventloop1 pool
+        HttpClientConnector client1 = getTestHttp2Client(httpWsConnectorFactory, true); //Upstream uses eventloop1 pool
         String response1 = getResponse(client1);
-        HttpClientConnector client2 = getTestClient(httpWsConnectorFactory, true); //Upstream uses eventloop2 pool
+        HttpClientConnector client2 = getTestHttp2Client(httpWsConnectorFactory, true); //Upstream uses eventloop2 pool
         String response2 = getResponse(client2);
-        HttpClientConnector client3 = getTestClient(httpWsConnectorFactory, true); //Upstream uses eventloop1 pool
+        HttpClientConnector client3 = getTestHttp2Client(httpWsConnectorFactory, true); //Upstream uses eventloop1 pool
         String response3 = getResponse(client3);
-        HttpClientConnector client4 = getTestClient(httpWsConnectorFactory, true); //Upstream uses eventloop2 pool
+        HttpClientConnector client4 = getTestHttp2Client(httpWsConnectorFactory, true); //Upstream uses eventloop2 pool
         String response4 = getResponse(client4);
 
         assertResult(response1, response2, response3, response4);
