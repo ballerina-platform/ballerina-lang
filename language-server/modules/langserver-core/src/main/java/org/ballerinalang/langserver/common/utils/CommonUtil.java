@@ -503,22 +503,26 @@ public class CommonUtil {
             annotationStart.append(aliasComponent).append(CommonKeys.PKG_DELIMITER_KEYWORD);
         }
         if (annotationSymbol.attachedType != null) {
-            annotationStart.append(annotationSymbol.getName().getValue()).append(" ").append(CommonKeys.OPEN_BRACE_KEY)
-                    .append(LINE_SEPARATOR);
-            List<BField> requiredFields = new ArrayList<>();
-            if (annotationSymbol.attachedType.type instanceof BRecordType) {
-                requiredFields = getRecordRequiredFields(((BRecordType) annotationSymbol.attachedType.type));
+            annotationStart.append(annotationSymbol.getName().getValue());
+            BType attachedType = annotationSymbol.attachedType.type;
+            BType resultType = attachedType instanceof BArrayType ? ((BArrayType) attachedType).eType : attachedType;
+            if (resultType instanceof BRecordType || resultType instanceof BMapType) {
+                List<BField> requiredFields = new ArrayList<>();
+                annotationStart.append(" ").append(CommonKeys.OPEN_BRACE_KEY).append(LINE_SEPARATOR);
+                if (resultType instanceof BRecordType) {
+                    requiredFields.addAll(getRecordRequiredFields(((BRecordType) resultType)));
+                }
                 List<String> insertTexts = new ArrayList<>();
                 requiredFields.forEach(field -> {
                     String fieldInsertionText = "\t" + getRecordFieldCompletionInsertText(field, 1);
                     insertTexts.add(fieldInsertionText);
                 });
                 annotationStart.append(String.join("," + LINE_SEPARATOR, insertTexts));
+                if (requiredFields.isEmpty()) {
+                    annotationStart.append("\t").append("${1}");
+                }
+                annotationStart.append(LINE_SEPARATOR).append(CommonKeys.CLOSE_BRACE_KEY);
             }
-            if (requiredFields.isEmpty()) {
-                annotationStart.append("\t").append("${1}").append(LINE_SEPARATOR);
-            }
-            annotationStart.append(CommonKeys.CLOSE_BRACE_KEY);
         } else {
             annotationStart.append(annotationSymbol.getName().getValue());
         }
@@ -1160,15 +1164,18 @@ public class CommonUtil {
             }
             insertText.append("{").append(LINE_SEPARATOR);
             int tabCount = tabOffset;
+            List<String> requiredFieldInsertTexts = new ArrayList<>();
             for (BField requiredField : requiredFields) {
-                insertText.append(String.join("", Collections.nCopies(tabCount + 1, "\t")))
-                        .append(getRecordFieldCompletionInsertText(requiredField, tabCount))
-                        .append(String.join("", Collections.nCopies(tabCount, "\t")))
-                        .append(LINE_SEPARATOR);
+                String fieldText = String.join("", Collections.nCopies(tabCount + 1, "\t")) +
+                        getRecordFieldCompletionInsertText(requiredField, tabCount) +
+                        String.join("", Collections.nCopies(tabCount, "\t"));
+                requiredFieldInsertTexts.add(fieldText);
                 tabCount++;
             }
-            insertText.append(String.join("", Collections.nCopies(tabOffset, "\t")))
-                    .append("}").append(LINE_SEPARATOR);
+            insertText.append(String.join(CommonUtil.LINE_SEPARATOR, requiredFieldInsertTexts));
+            insertText.append(LINE_SEPARATOR)
+                    .append(String.join("", Collections.nCopies(tabOffset, "\t")))
+                    .append("}");
         } else if (fieldType instanceof BArrayType) {
             insertText.append("[").append("${1}").append("]");
         } else if (fieldType.tsymbol != null && fieldType.tsymbol.name.getValue().equals("string")) {
