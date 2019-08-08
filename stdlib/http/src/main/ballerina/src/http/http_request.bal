@@ -433,10 +433,11 @@ public type Request object {
         self.setEntity(entity);
     }
 
-    # Sets the request payload.
+    # Sets the request payload. Note that any string value is set as `text/plain`. To send a JSON-compatible string,
+    # set the content-type header to `application/json` or use the `setJsonPayload` method instead.
     #
-    # + payload - Payload can be of type `string`, `xml`, `json`, `byte[]`, `ByteChannel` or `Entity[]` (i.e: a set
-    #             of body parts)
+    # + payload - Payload can be of type `string`, `xml`, `json`, `byte[]`, `ByteChannel`, or `Entity[]` (i.e., a set
+    # of body parts).
     public function setPayload(string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[] payload) {
         if (payload is string) {
             self.setTextPayload(payload);
