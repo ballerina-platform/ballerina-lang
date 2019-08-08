@@ -31,7 +31,6 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -104,8 +103,6 @@ public class TracingTestCase extends BaseTest {
         Type type = new TypeToken<List<BMockSpan>>() {
         }.getType();
         String data = HttpClientRequest.doGet(service + "getMockTracers").getData();
-        PrintStream out = System.out;
-        out.println(data);
         List<BMockSpan> mockSpans = new Gson().fromJson(data, type);
 
         // 1. echoService0__service_0 -> resourceOne (Root Span)
@@ -127,8 +124,6 @@ public class TracingTestCase extends BaseTest {
         Type type = new TypeToken<List<BMockSpan>>() {
         }.getType();
         String data = HttpClientRequest.doGet(service + "getMockTracers").getData();
-        PrintStream out = System.out;
-        out.println(data);
         List<BMockSpan> mockSpans = new Gson().fromJson(data, type);
 
         // 7. echoService0__service_0 -> getMockTracers (Root Span)
@@ -157,8 +152,6 @@ public class TracingTestCase extends BaseTest {
         Type type = new TypeToken<List<BMockSpan>>() {
         }.getType();
         String data = HttpClientRequest.doGet(service + "getMockTracers").getData();
-        PrintStream out = System.out;
-        out.println(data);
         List<BMockSpan> mockSpans = new Gson().fromJson(data, type);
 
         // 17. echoService1__service_0 -> getMockTracers (Root Span)
@@ -196,8 +189,6 @@ public class TracingTestCase extends BaseTest {
         Type type = new TypeToken<List<BMockSpan>>() {
         }.getType();
         String data = HttpClientRequest.doGet(service + "getMockTracers").getData();
-        PrintStream out = System.out;
-        out.println(data);
         List<BMockSpan> mockSpans = new Gson().fromJson(data, type);
 
         // 27. echoService2__service_0 -> getMockTracers (Root Span)
@@ -217,6 +208,46 @@ public class TracingTestCase extends BaseTest {
 
         Assert.assertEquals(mockSpans.stream()
                 .filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 8, "Mismatch in number of root spans.");
+    }
+
+    @Test(dependsOnMethods = "testOOTBTracingWithWorkers")
+    public void testOOTBTracingWithErrors() throws Exception {
+        final String service = "http://localhost:9094/echoService/";
+        HttpClientRequest.doGet(service + "resourceOne/3");
+        Thread.sleep(1000);
+        Type type = new TypeToken<List<BMockSpan>>() {
+        }.getType();
+        String data = HttpClientRequest.doGet(service + "getMockTracers").getData();
+        List<BMockSpan> mockSpans = new Gson().fromJson(data, type);
+
+        Assert.assertEquals(mockSpans.size(), 46, "Mismatch in number of spans reported.");
+
+        HttpClientRequest.doGet(service + "resourceOne/2");
+        Thread.sleep(1000);
+        type = new TypeToken<List<BMockSpan>>() {
+        }.getType();
+        data = HttpClientRequest.doGet(service + "getMockTracers").getData();
+        mockSpans = new Gson().fromJson(data, type);
+
+        Assert.assertEquals(mockSpans.size(), 54, "Mismatch in number of spans reported.");
+
+        HttpClientRequest.doGet(service + "resourceOne/1");
+        Thread.sleep(1000);
+        type = new TypeToken<List<BMockSpan>>() {
+        }.getType();
+        data = HttpClientRequest.doGet(service + "getMockTracers").getData();
+        mockSpans = new Gson().fromJson(data, type);
+
+        Assert.assertEquals(mockSpans.size(), 61, "Mismatch in number of spans reported.");
+
+        HttpClientRequest.doGet(service + "resourceOne/0");
+        Thread.sleep(1000);
+        type = new TypeToken<List<BMockSpan>>() {
+        }.getType();
+        data = HttpClientRequest.doGet(service + "getMockTracers").getData();
+        mockSpans = new Gson().fromJson(data, type);
+
+        Assert.assertEquals(mockSpans.size(), 64, "Mismatch in number of spans reported.");
     }
 
     private static void copyFile(File source, File dest) throws IOException {
