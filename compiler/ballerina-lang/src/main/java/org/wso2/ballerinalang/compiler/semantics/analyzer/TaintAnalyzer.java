@@ -2690,7 +2690,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             } else if (taintRecord.taintError != null && taintRecord.taintError.size() > 0) {
                 // This is when current parameter is derived to be untainted.
                 taintRecord.taintError.forEach(error -> {
-                    if (error.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE) {
+                    if (error.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE
+                        || error.diagnosticCode == DiagnosticCode.TAINTED_VALUE_PASSED_TO_MODULE_OBJECT) {
                         addTaintError(taintRecord.taintError);
                     } else {
                         DiagnosticPos argPos = argExpr.pos != null ? argExpr.pos : invocationExpr.pos;
