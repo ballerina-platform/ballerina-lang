@@ -65,7 +65,7 @@ public class BuildCommandTest extends CommandTest {
         try {
             this.testResources = super.tmpDir.resolve("build-test-resources");
             URI testResourcesURI = getClass().getClassLoader().getResource("test-resources").toURI();
-            Files.walkFileTree(Paths.get(testResourcesURI), new CompileCommandTest.Copy(Paths.get(testResourcesURI),
+            Files.walkFileTree(Paths.get(testResourcesURI), new BuildCommandTest.Copy(Paths.get(testResourcesURI),
                     this.testResources));
         } catch (URISyntaxException e) {
             Assert.fail("error loading resources");
