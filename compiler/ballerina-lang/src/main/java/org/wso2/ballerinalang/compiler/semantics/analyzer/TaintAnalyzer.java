@@ -168,7 +168,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -396,7 +395,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         analysisState.restParam = funcNode.restParam;
 
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
-        if (funcNode.flagSet.contains(Flag.RESOURCE) || CompilerUtils.isMainFunction(funcNode)) {
+        if (funcNode.flagSet.contains(Flag.RESOURCE)) {
             // This is to analyze the entry-point function and attach taint table to it.
             entryPointPreAnalysis = true;
             boolean isBlocked = visitInvokable(funcNode, funcEnv);
