@@ -95,16 +95,18 @@ public final class BFunctionCompletionItemBuilder {
         item.setInsertTextFormat(InsertTextFormat.Snippet);
         item.setDetail(ItemResolverConstants.FUNCTION_TYPE);
         item.setKind(CompletionItemKind.Function);
-        List<String> funcArguments = FunctionGenerator.getFuncArguments(bSymbol, ctx);
-        if (bSymbol != null && !funcArguments.isEmpty()) {
-            Command cmd = new Command("editor.action.triggerParameterHints", "editor.action.triggerParameterHints");
-            item.setCommand(cmd);
-        }
-        int invocationType = (ctx == null || ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY) == null) ? -1
-                : ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
-        boolean skipFirstParam = CommonUtil.skipFirstParam(bSymbol, invocationType);
-        if (bSymbol != null && bSymbol.markdownDocumentation != null) {
-            item.setDocumentation(getDocumentation(bSymbol, skipFirstParam, ctx));
+        if (bSymbol != null) {
+            List<String> funcArguments = FunctionGenerator.getFuncArguments(bSymbol, ctx);
+            if (!funcArguments.isEmpty()) {
+                Command cmd = new Command("editor.action.triggerParameterHints", "editor.action.triggerParameterHints");
+                item.setCommand(cmd);
+            }
+            int invocationType = (ctx == null || ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY) == null) ? -1
+                    : ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
+            boolean skipFirstParam = CommonUtil.skipFirstParam(bSymbol, invocationType);
+            if (bSymbol.markdownDocumentation != null) {
+                item.setDocumentation(getDocumentation(bSymbol, skipFirstParam, ctx));
+            }
         }
     }
 
