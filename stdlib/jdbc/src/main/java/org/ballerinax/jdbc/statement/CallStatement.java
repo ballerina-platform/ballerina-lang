@@ -44,6 +44,7 @@ import java.sql.CallableStatement;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.NClob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -300,6 +301,11 @@ public class CallStatement extends AbstractSQLStatement {
                 break;
                 case Constants.SQLDataTypes.BLOB: {
                     Blob value = stmt.getBlob(index + 1);
+                    paramValue.put(PARAMETER_VALUE_FIELD, SQLDatasourceUtils.getString(value));
+                }
+                break;
+                case Constants.SQLDataTypes.NCLOB: {
+                    NClob value = stmt.getNClob(index + 1);
                     paramValue.put(PARAMETER_VALUE_FIELD, SQLDatasourceUtils.getString(value));
                 }
                 break;
