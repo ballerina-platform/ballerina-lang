@@ -21,6 +21,9 @@ import ballerina/runtime;
 // Server endpoint configuration
 listener grpc:Listener ep3 = new (9093);
 
+map<grpc:Caller> consMap = {};
+boolean initialized = false;
+
 @grpc:ServiceConfig {name:"chat",
     clientStreaming:true,
     serverStreaming:true}
@@ -29,16 +32,14 @@ listener grpc:Listener ep3 = new (9093);
     descMap: getDescriptorMap3()
 }
 service Chat on ep3 {
-    map<grpc:Caller> consMap = {};
-    boolean initialized = false;
 
     resource function onOpen(grpc:Caller caller) {
         io:println(string `${caller.getId()} connected to chat`);
-        self.consMap[caller.getId().toString()] = caller;
+        consMap[caller.getId().toString()] = caller;
         io:println("Client registration completed. Connection map status");
-        io:println("Map length: " + self.consMap.length().toString());
-        io:println(self.consMap);
-        self.initialized = true;
+        io:println("Map length: " + consMap.length().toString());
+        io:println(consMap);
+        initialized = true;
     }
 
     resource function onMessage(grpc:Caller caller, ChatMessage chatMsg) {
@@ -46,18 +47,18 @@ service Chat on ep3 {
         string msg = string `${chatMsg.name}: ${chatMsg.message}`;
         io:println("Server received message: " + msg);
         int waitCount = 0;
-        while(!self.initialized) {
+        while(!initialized) {
             runtime:sleep(1000);
-            io:println("Waiting till connection initialize. status: " + self.initialized.toString());
+            io:println("Waiting till connection initialize. status: " + initialized.toString());
             if (waitCount > 10) {
                 break;
             }
             waitCount += 1;
         }
         io:println("Starting message broadcast. Connection map status");
-        io:println("Map length: " + self.consMap.length().toString());
-        io:println(self.consMap);
-        foreach var [callerId, connection] in self.consMap.entries() {
+        io:println("Map length: " + consMap.length().toString());
+        io:println(consMap);
+        foreach var [callerId, connection] in consMap.entries() {
             conn = connection;
             grpc:Error? err = conn->send(msg);
             if (err is grpc:Error) {
@@ -78,11 +79,11 @@ service Chat on ep3 {
         grpc:Caller conn;
         string msg = string `${caller.getId()} left the chat`;
         io:println(msg);
-        var v = self.consMap.remove(caller.getId().toString());
+        var v = consMap.remove(caller.getId().toString());
         io:println("Starting client left broadcast. Connection map status");
-        io:println("Map length: " + self.consMap.length().toString());
-        io:println(self.consMap);
-        foreach var [callerId, connection] in self.consMap.entries() {
+        io:println("Map length: " + consMap.length().toString());
+        io:println(consMap);
+        foreach var [callerId, connection] in consMap.entries() {
             conn = connection;
             grpc:Error? err = conn->send(msg);
             if (err is grpc:Error) {
