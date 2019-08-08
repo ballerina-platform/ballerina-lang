@@ -71,6 +71,17 @@ public class CommandUtil {
             stream.println("For more information try --help");
         }
     }
+    
+    /**
+     * Exit with error code 1
+     *
+     * @param exit Whether to exit or not.
+     */
+    public static void exitError(boolean exit) {
+        if (exit) {
+            Runtime.getRuntime().exit(1);
+        }
+    }
 
     /**
      * Initialize a new ballerina project in the given path.

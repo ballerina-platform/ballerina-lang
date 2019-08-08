@@ -20,7 +20,6 @@ package org.ballerinalang.packerina.cmd;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.packerina.TaskExecutor;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
-import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.packerina.task.CompileTask;
 import org.ballerinalang.packerina.task.CopyModuleJarTask;
@@ -86,7 +85,7 @@ public class CompileCommand implements BLauncherCmd {
         this.exitWhenFinish = exitWhenFinish;
     }
 
-    @CommandLine.Option(names = {"--offline"}, description = "Compiles offline without downloading dependencies.")
+    @CommandLine.Option(names = {"--off-line"}, description = "Compiles offline without downloading dependencies.")
     private boolean offline;
 
     @CommandLine.Option(names = {"--skip-lock"}, description = "Skip using the lock file to resolve dependencies")
@@ -114,7 +113,9 @@ public class CompileCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features")
     private boolean experimentalFlag;
 
-    @CommandLine.Option(names = {"--config"}, description = "Path to the configuration file")
+    @CommandLine.Option(names = {"--config"}, description = "Path to the configuration file when running tests." +
+                                                            " A configuration file cannot be set if " +
+                                                            "'--skip-tests' flag is passed.")
     private String configFilePath;
 
     @CommandLine.Option(names = "--siddhi-runtime", description = "Enable siddhi runtime for stream processing")
@@ -136,6 +137,11 @@ public class CompileCommand implements BLauncherCmd {
         }
     
     
+        if (!this.skipTests && null != this.configFilePath) {
+            throw LauncherUtils.createLauncherException("you cannot use a config file for tests when tests are set " +
+                                                        "to skip with '--skip-tests'.");
+        }
+    
         if (this.nativeBinary) {
             throw LauncherUtils.createLauncherException("llvm native generation is not supported");
         }
@@ -148,30 +154,36 @@ public class CompileCommand implements BLauncherCmd {
         // command is executed within a ballerina project. update source root path if command executed inside a project.
         if (this.argList == null || this.argList.size() == 0) {
             // when compiling all the modules
+        
             //// validate and set source root path
             if (!ProjectDirs.isProject(this.sourceRootPath)) {
                 Path findRoot = ProjectDirs.findProjectRoot(this.sourceRootPath);
                 if (null == findRoot) {
-                    CommandUtil.printError(this.errStream,
-                            "compile command can be only run inside a Ballerina project",
-                            null,
-                            false);
-                    return;
+                    throw LauncherUtils.createLauncherException("you are trying to compile a ballerina project but " +
+                                                                "there is no Ballerina.toml file. Run " +
+                                                                "'ballerina new' from '" + this.sourceRootPath +
+                                                                "' to initialize it as a project.");
                 }
+            
                 this.sourceRootPath = findRoot;
             }
         
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         } else if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
             // when a single bal file is provided.
-            throw LauncherUtils.createLauncherException("`compile` command cannot be used on ballerina files. it can" +
+            throw LauncherUtils.createLauncherException("'compile' command cannot be used on ballerina files. it can" +
                                                         " only be used with ballerina projects.");
-        } else {
+        } else if (Files.exists(
+                this.sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(this.argList.get(0))) &&
+                   Files.isDirectory(
+                       this.sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(this.argList.get(0)))) {
+        
             // when compiling a ballerina module
+        
             //// check if command executed from project root.
             if (!RepoUtils.isBallerinaProject(this.sourceRootPath)) {
                 throw LauncherUtils.createLauncherException("you are trying to compile a module that is not inside " +
-                                                            "a project. Run `ballerina new` from " +
+                                                            "a project. Run 'ballerina new' from " +
                                                             this.sourceRootPath + " to initialize it as a " +
                                                             "project and then compile the module.");
             }
@@ -197,7 +209,11 @@ public class CompileCommand implements BLauncherCmd {
                 throw LauncherUtils.createLauncherException("'" + sourcePath + "' module does not exist.");
             }
         
-            targetPath = sourcePath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
+            targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
+        } else {
+            throw LauncherUtils.createLauncherException("invalid ballerina source path, it should either be a module " +
+                                                        "name in a ballerina project or a file with a \'" +
+                                                        BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension.");
         }
     
         // normalize paths
@@ -206,8 +222,8 @@ public class CompileCommand implements BLauncherCmd {
         targetPath = targetPath.normalize();
     
         // create compiler context
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
+        CompilerContext compilerContext = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(PROJECT_DIR, this.sourceRootPath.toString());
         options.put(OFFLINE, Boolean.toString(this.offline));
         options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
@@ -216,12 +232,11 @@ public class CompileCommand implements BLauncherCmd {
         options.put(TEST_ENABLED, "true");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
         options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(this.siddhiRuntimeFlag));
-        
+    
         // create builder context
-        BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath);
+        BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath, compilerContext);
         buildContext.setOut(outStream);
         buildContext.setErr(errStream);
-        buildContext.put(BuildContextField.COMPILER_CONTEXT, context);
     
         Path configFilePath = null == this.configFilePath ? null : Paths.get(this.configFilePath);
     
@@ -238,7 +253,7 @@ public class CompileCommand implements BLauncherCmd {
                 .addTask(new CreateLockFileTask())  // create a lock file
                 .addTask(new CreateDocsTask())  // generate API docs
                 .build();
-        
+    
         taskExecutor.executeTasks(buildContext);
     
         if (this.exitWhenFinish) {
@@ -258,7 +273,7 @@ public class CompileCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina compile [<module-name>] [--offline] [--skip-tests] [--skip-lock] \n");
+        out.append("  ballerina compile [<module-name>] [--off-line] [--skip-tests] [--skip-lock] \n");
     }
 
     @Override

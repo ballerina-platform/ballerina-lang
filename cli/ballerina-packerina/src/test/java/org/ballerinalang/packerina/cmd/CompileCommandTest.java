@@ -38,9 +38,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.stream.Stream;
+
+import static org.ballerinalang.packerina.utils.FileUtils.deleteDirectory;
 
 
 /**
@@ -49,29 +52,161 @@ import java.util.stream.Stream;
  * @since 1.0.0
  */
 public class CompileCommandTest extends CommandTest {
-
     private Path moduleBalo;
-    private Path projectDirectory;
+    private Path testResources;
 
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
-        projectDirectory = tmpDir.resolve("compileTest");
-        Files.createDirectory(projectDirectory);
         try {
-            URI uri = getClass().getClassLoader()
-                    .getResource("test-resources/valid-project/compile_command_test_project").toURI();
-            Files.walkFileTree(Paths.get(uri), new Copy(Paths.get(uri), projectDirectory));
+            this.testResources = super.tmpDir.resolve("compile-test-resources");
+            URI testResourcesURI = getClass().getClassLoader().getResource("test-resources").toURI();
+            Files.walkFileTree(Paths.get(testResourcesURI), new CompileCommandTest.Copy(Paths.get(testResourcesURI),
+                    this.testResources));
         } catch (URISyntaxException e) {
             Assert.fail("error loading resources");
         }
+    }
+    
+    @Test(description = "Compile non .bal file")
+    public void testNonBalFileCompile() throws IOException {
+        Path nonBalFilePath = this.testResources.resolve("non-bal-file");
+        CompileCommand compileCommand = new CompileCommand(nonBalFilePath, printStream, printStream, false);
+        new CommandLine(compileCommand).parse("hello_world.txt");
+        String exMsg = executeAndGetException(compileCommand);
+        Assert.assertEquals(exMsg, "error: invalid ballerina source path, it should either be a module name in a " +
+                                   "ballerina project or a file with a \'.bal\' extension.");
+    }
+    
+    @Test(description = "Compile a valid ballerina file")
+    public void testCompileBalFile() throws IOException {
+        Path validBalFilePath = this.testResources.resolve("valid-bal-file");
+        // set valid source root
+        CompileCommand compileCommand = new CompileCommand(validBalFilePath, printStream, printStream, false);
+        // name of the file as argument
+        new CommandLine(compileCommand).parse("hello_world.bal");
+        String exMsg = executeAndGetException(compileCommand);
+        Assert.assertEquals(exMsg, "error: 'compile' command cannot be used on ballerina files. it can only be used " +
+                                   "with ballerina projects.");
+    }
+    
+    @Test(description = "Compile a valid ballerina file by passing invalid source root path and absolute bal file path")
+    public void testCompileBalFileWithAbsolutePath() throws IOException {
+        Path validBalFilePath = this.testResources.resolve("valid-bal-file");
+        // set an invalid source root
+        CompileCommand compileCommand = new CompileCommand(this.testResources, printStream, printStream, false);
+        // give absolute path as arg
+        new CommandLine(compileCommand).parse(validBalFilePath.resolve("hello_world.bal").toAbsolutePath().toString());
+        String exMsg = executeAndGetException(compileCommand);
+        Assert.assertEquals(exMsg, "error: 'compile' command cannot be used on ballerina files. it can only be used " +
+                                   "with ballerina projects.");
+    }
+    
+    @Test(description = "Compile a valid ballerina file with toml")
+    public void testCompileBalFileWithToml() throws IOException {
+        Path sourceRoot = this.testResources.resolve("single-bal-file-with-toml");
+        CompileCommand compileCommand = new CompileCommand(sourceRoot, printStream, printStream, false);
+        new CommandLine(compileCommand).parse("hello_world.bal");
+        String exMsg = executeAndGetException(compileCommand);
+        Assert.assertEquals(exMsg, "error: 'compile' command cannot be used on ballerina files. it can only be used " +
+                                   "with ballerina projects.");
+    }
+    
+    @Test(description = "Compile a ballerina project with no modules.")
+    public void testBCompileBalProjWithNoModules() throws IOException {
+        Path sourceRoot = this.testResources.resolve("project-with-no-modules");
+        CompileCommand compileCommand = new CompileCommand(sourceRoot, printStream, printStream, false);
+        new CommandLine(compileCommand).parse();
+        
+        String exMsg = executeAndGetException(compileCommand);
+        Assert.assertEquals(exMsg, "error: no modules found to compile.");
+    }
+    
+    @Test(description = "Compile a ballerina project with non existing module.")
+    public void testCompileBalProjectWithInvalidModule() throws IOException {
+        Path sourceRoot = this.testResources.resolve("project-with-no-modules");
+        CompileCommand compileCommand = new CompileCommand(sourceRoot, printStream, printStream, false);
+        new CommandLine(compileCommand).parse("xyz");
+        
+        String exMsg = executeAndGetException(compileCommand);
+        Assert.assertEquals(exMsg, "error: invalid ballerina source path, it should either be a module name in a " +
+                                   "ballerina project or a file with a '.bal' extension.");
+    }
+    
+    @Test(description = "Compile a ballerina project with non existing module.")
+    public void testCompileBalProjectToml() throws IOException {
+        Path sourceRoot = this.testResources.resolve("ballerina-toml");
+        CompileCommand compileCommand = new CompileCommand(sourceRoot, printStream, printStream, false);
+        new CommandLine(compileCommand).parse("foo");
+        
+        compileCommand.execute();
+        String compileLog = readOutput(true);
+        Assert.assertEquals(compileLog, "Compiling source\n" +
+                                      "\tbar/foo:1.2.0\n" +
+                                      "Created target/balo/foo-2019r3-any-1.2.0.balo\n" +
+                                      "\n" +
+                                      "Running tests\n" +
+                                      "    bar/foo:1.2.0\n" +
+                                      "\tNo tests found\n\n");
+        
+        deleteDirectory(sourceRoot.resolve("target"));
+        
+        String tomlContent = "";
+        Files.write(sourceRoot.resolve("Ballerina.toml"), tomlContent.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+        compileCommand = new CompileCommand(sourceRoot, printStream, printStream, false);
+        String exMsg = executeAndGetException(compileCommand);
+        Assert.assertEquals(exMsg, "invalid Ballerina.toml file: the Ballerina.toml file should have " +
+                                   "the organization name and the version of the project. example: \n" +
+                                   "[project]\n" +
+                                   "org-name=\"my_org\"\n" +
+                                   "version=\"1.0.0\"\n");
+        
+        tomlContent = "[project]";
+        Files.write(sourceRoot.resolve("Ballerina.toml"), tomlContent.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+        exMsg = executeAndGetException(compileCommand);
+        Assert.assertEquals(exMsg, "invalid Ballerina.toml file: cannot find 'org-name' under [project]");
+        
+        tomlContent = "[project]\norg-name=\"bar\"";
+        Files.write(sourceRoot.resolve("Ballerina.toml"), tomlContent.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+        exMsg = executeAndGetException(compileCommand);
+        Assert.assertEquals(exMsg, "invalid Ballerina.toml file: cannot find 'version' under [project]");
+        
+        tomlContent = "[project]\norg-name=\"bar\"\nversion=\"a.b.c\"";
+        Files.write(sourceRoot.resolve("Ballerina.toml"), tomlContent.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+        exMsg = executeAndGetException(compileCommand);
+        Assert.assertEquals(exMsg, "invalid Ballerina.toml file: 'version' under [project] is not semver");
+        
+        readOutput(true);
+    }
+    
+    @Test(description = "Compile a valid ballerina project with tests")
+    public void testCompileBalProjectWithTests() throws IOException {
+        Path sourceRoot = this.testResources.resolve("project-with-tests");
+        CompileCommand compileCommand = new CompileCommand(sourceRoot, printStream, printStream, false);
+        new CommandLine(compileCommand).parse();
+        compileCommand.execute();
+        
+        String compileLog = readOutput(true);
+        Assert.assertEquals(compileLog, "Compiling source\n" +
+                                      "\tbar/foo:1.2.0\n" +
+                                      "Created target/balo/foo-2019r3-any-1.2.0.balo\n" +
+                                      "\n" +
+                                      "Running tests\n" +
+                                      "    bar/foo:1.2.0\n" +
+                                      "\t1 passing\n" +
+                                      "\t0 failing\n" +
+                                      "\t0 skipped\n\n");
+        
+        deleteDirectory(sourceRoot.resolve("target"));
+        
+        readOutput(true);
     }
 
     @Test(description = "Test Compile Command in a Project")
     public void testCompileCommand() throws IOException {
 
         // Create jar files for the test since we cannot commit jar files to git.
-        Path libs = projectDirectory.resolve("libs");
+        Path libs = this.testResources.resolve("valid-project").resolve("libs");
         Files.createDirectory(libs);
         Files.createFile(libs.resolve("toml4j.jar"));
         Files.createFile(libs.resolve("swagger.jar"));
@@ -79,7 +214,8 @@ public class CompileCommandTest extends CommandTest {
 
         // Compile the project
         String[] compileArgs = {};
-        CompileCommand compileCommand = new CompileCommand(projectDirectory, printStream, printStream, false);
+        CompileCommand compileCommand = new CompileCommand(this.testResources.resolve("valid-project"), printStream,
+                printStream, false);
         new CommandLine(compileCommand).parse(compileArgs);
         compileCommand.execute();
 
@@ -98,7 +234,7 @@ public class CompileCommandTest extends CommandTest {
         // -- cache          <- BIR cache directory
         // --tmp             <- tmp dir that contains the native libs
 
-        Path target = projectDirectory.resolve(ProjectDirConstants.TARGET_DIR_NAME);
+        Path target = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.TARGET_DIR_NAME);
         Assert.assertTrue(Files.exists(target), "Check if target directory is created");
 
         Assert.assertTrue(Files.exists(target.resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY)),
@@ -114,7 +250,7 @@ public class CompileCommandTest extends CommandTest {
         Path tmpDir = target.resolve(ProjectDirConstants.TARGET_TMP_DIRECTORY);
         Assert.assertTrue(Files.exists(tmpDir));
 
-        Path lockFile = projectDirectory.resolve(ProjectDirConstants.LOCK_FILE_NAME);
+        Path lockFile = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.LOCK_FILE_NAME);
         Assert.assertTrue(Files.exists(lockFile), "Check if lock file is created");
 
         readOutput(true);
@@ -203,7 +339,7 @@ public class CompileCommandTest extends CommandTest {
                 });
 
 
-        Path tmpDir = projectDirectory.resolve(ProjectDirConstants.TARGET_DIR_NAME).
+        Path tmpDir = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.TARGET_DIR_NAME).
                 resolve(ProjectDirConstants.TARGET_TMP_DIRECTORY);
 
         // Check if the native libs are in the tmp folder
@@ -219,7 +355,7 @@ public class CompileCommandTest extends CommandTest {
         Assert.assertTrue(Files.exists(importJar));
 
         // Check if imported bir is in the project target
-        Path importBir = projectDirectory.resolve(ProjectDirConstants.TARGET_DIR_NAME)
+        Path importBir = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.TARGET_DIR_NAME)
                 .resolve(ProjectDirConstants.CACHES_DIR_NAME).resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME)
                 .resolve("testOrg").resolve("myimport").resolve("0.1.0").resolve("myimport.bir");
         Assert.assertTrue(Files.exists(importBir));
@@ -229,33 +365,33 @@ public class CompileCommandTest extends CommandTest {
     @Test(dependsOnMethods = {"testCompileCommand"})
     public void testTargetCacheDirectory() throws IOException {
         // check for the cache directory in target
-        Path cache = projectDirectory.resolve(ProjectDirConstants.TARGET_DIR_NAME)
+        Path cache = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.TARGET_DIR_NAME)
                 .resolve(ProjectDirConstants.CACHES_DIR_NAME);
 
         // Assert.assertTrue(Files.exists(cache) && Files.isDirectory(cache));
         // check if each module has a bit in cache directory
     }
 
-    @Test(description = "Test Compile Command for a single file.")
-    public void testCompileCommandSingleFile() throws IOException {
-        Path balFile = tmpDir.resolve("compile_main.bal");
-        Files.createFile(balFile);
-
-        String question = "public function main(){ int i =5; }";
-        Files.write(balFile, question.getBytes());
-
-        // Compile the project
-        String[] compileArgs = {};
-        CompileCommand compileCommand = new CompileCommand(tmpDir, printStream, printStream, false);
-        new CommandLine(compileCommand).parse(compileArgs);
-        compileCommand.execute();
-
-        Assert.assertFalse(Files.exists(tmpDir.resolve(ProjectDirConstants.TARGET_DIR_NAME)),
-                "Check if target directory is not created");
-        Assert.assertTrue(readOutput().contains("compile command can be only run inside a Ballerina project"));
-        Path lockFile = tmpDir.resolve(ProjectDirConstants.LOCK_FILE_NAME);
-        Assert.assertFalse(Files.exists(lockFile), "Check if lock file is created");
-    }
+//    @Test(description = "Test Compile Command for a single file.")
+//    public void testCompileCommandSingleFile() throws IOException {
+//        Path balFile = tmpDir.resolve("compile_main.bal");
+//        Files.createFile(balFile);
+//
+//        String question = "public function main(){ int i =5; }";
+//        Files.write(balFile, question.getBytes());
+//
+//        // Compile the project
+//        String[] compileArgs = {};
+//        CompileCommand compileCommand = new CompileCommand(tmpDir, printStream, printStream, false);
+//        new CommandLine(compileCommand).parse(compileArgs);
+//        compileCommand.execute();
+//
+//        Assert.assertFalse(Files.exists(tmpDir.resolve(ProjectDirConstants.TARGET_DIR_NAME)),
+//                "Check if target directory is not created");
+//        Assert.assertTrue(readOutput().contains("compile command can be only run inside a Ballerina project"));
+//        Path lockFile = tmpDir.resolve(ProjectDirConstants.LOCK_FILE_NAME);
+//        Assert.assertFalse(Files.exists(lockFile), "Check if lock file is created");
+//    }
 
     // Check compile command inside a module directory
 
