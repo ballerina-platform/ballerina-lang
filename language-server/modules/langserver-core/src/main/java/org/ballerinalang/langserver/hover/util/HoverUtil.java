@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.hover.util;
 
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
+import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.model.Whitespace;
@@ -106,17 +107,17 @@ public class HoverUtil {
         }
 
         if (filterAttributes.get(ContextConstants.DOC_PARAM) != null) {
-            content.append(getFormattedHoverDocContent(ContextConstants.PARAM_TITLE,
-                                                       getDocAttributes(
-                                                               filterAttributes.get(ContextConstants.DOC_PARAM), symbol,
-                                                               ctx)));
+            String docAttributes = getDocAttributes(filterAttributes.get(ContextConstants.DOC_PARAM), symbol, ctx);
+            if (!docAttributes.isEmpty()) {
+                content.append(getFormattedHoverDocContent(ContextConstants.PARAM_TITLE, docAttributes));
+            }
         }
 
         if (filterAttributes.get(ContextConstants.DOC_FIELD) != null) {
-            content.append(getFormattedHoverDocContent(ContextConstants.FIELD_TITLE,
-                                                       getDocAttributes(
-                                                               filterAttributes.get(ContextConstants.DOC_FIELD), symbol,
-                                                               ctx)));
+            String docAttributes = getDocAttributes(filterAttributes.get(ContextConstants.DOC_FIELD), symbol, ctx);
+            if (!docAttributes.isEmpty()) {
+                content.append(getFormattedHoverDocContent(ContextConstants.FIELD_TITLE, docAttributes));
+            }
         }
 
         if (docAttachment.returnValueDescription != null && !docAttachment.returnValueDescription.isEmpty()) {
@@ -361,10 +362,19 @@ public class HoverUtil {
         if (symbol instanceof BVarSymbol && !(symbol instanceof BInvokableSymbol)) {
             symbol = ((BVarSymbol) symbol).type.tsymbol;
         }
+        boolean skipFirstParam = false;
         if (symbol instanceof BInvokableSymbol) {
             // If it is a parameters set of a function invocation
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) symbol;
-            for (BVarSymbol param : invokableSymbol.params) {
+            List<BVarSymbol> params = invokableSymbol.params;
+            int invocationType = (ctx == null || ctx.get(NodeContextKeys.INVOCATION_TOKEN_TYPE_KEY) == null) ? -1
+                    : ctx.get(NodeContextKeys.INVOCATION_TOKEN_TYPE_KEY);
+            skipFirstParam = CommonUtil.skipFirstParam(invokableSymbol, invocationType);
+            for (int i = 0; i < params.size(); i++) {
+                if (i == 0 && skipFirstParam) {
+                    continue;
+                }
+                BVarSymbol param = params.get(i);
                 types.put(param.name.value, param.type);
             }
         } else if (symbol instanceof BStructureTypeSymbol) {
@@ -376,7 +386,11 @@ public class HoverUtil {
                     .forEach(s -> types.put(s.symbol.name.value, s.symbol.type));
         }
         StringBuilder value = new StringBuilder();
-        for (MarkdownDocAttachment.Parameter parameter : parameters) {
+        for (int i = 0; i < parameters.size(); i++) {
+            if (i == 0 && skipFirstParam) {
+                continue;
+            }
+            MarkdownDocAttachment.Parameter parameter = parameters.get(i);
             String type = "";
             if (!types.isEmpty() && types.get(parameter.name) != null) {
                 type = "`" + CommonUtil.getBTypeName(types.get(parameter.name), ctx) + "` ";
