@@ -4,8 +4,20 @@ function testAcceptNothingAndReturnNothing(handle receiver) {
     increaseCounterByOne(receiver);
 }
 
-function testAcceptNothingAndReturnVoidThrows(handle receiver) returns int|error {
+function testAcceptNothingAndReturnVoidThrows(handle receiver) returns error? {
     return testThrowsWithVoid(receiver);
+}
+
+function testAcceptNothingAndReturnVoidThrowsReturn(handle receiver) returns error? {
+    return testThrowsWithVoidReturn(receiver);
+}
+
+function testHandleOrErrorReturn(handle receiver) returns handle|error {
+    return handleOrErrorReturn(receiver);
+}
+
+function testHandleOrErrorReturnThrows(handle receiver) returns handle|error {
+    return handleOrErrorReturnThrows(receiver);
 }
 
 function testInteropFunctionWithDifferentName(handle receiver) {
@@ -28,6 +40,29 @@ function testAcceptTwoParamsAndReturnSomething(handle receiver, handle h1, handl
     return setTwiceAndGetCounterValue(receiver, h1, h2);
 }
 
+function testHandleOrErrorWithObjectReturn(handle receiver) returns error|handle {
+     return handleOrErrorWithObjectReturn(receiver);
+}
+
+function testPrimitiveOrErrorReturn(handle receiver) returns error|float {
+     return primitiveOrErrorReturn(receiver);
+}
+
+function testPrimitiveOrErrorReturnThrows(handle receiver) returns error|float {
+     return primitiveOrErrorReturnThrows(receiver);
+}
+
+function testUnionWithErrorReturnByte(handle receiver) returns error|int|boolean|byte|handle {
+     return unionWithErrorReturnByte(receiver);
+}
+
+function testUnionWithErrorReturnThrows(handle receiver) returns error|int|boolean|byte|handle {
+     return unionWithErrorReturnThrows(receiver);
+}
+
+function testUnionWithErrorReturnHandle(handle receiver) returns error|int|boolean|byte|handle {
+     return unionWithErrorReturnHandle(receiver);
+}
 
 
 // Interop functions
@@ -73,7 +108,46 @@ public function setGetCounterValueWhichThrowsUncheckedException(handle receiver,
     class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
 } external;
 
-public function testThrowsWithVoid(handle receiver) returns error|int = @java:Method{
+public function testThrowsWithVoid(handle receiver) returns error? = @java:Method{
     class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
 } external;
 
+public function testThrowsWithVoidReturn(handle receiver) returns error? = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
+public function handleOrErrorReturn(handle receiver) returns handle|error = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
+public function handleOrErrorReturnThrows(handle receiver) returns handle|error = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
+public function handleOrErrorWithObjectReturn(handle receiver) returns handle|error = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
+public function handleOrErrorWithObjectReturnThrows(handle receiver) returns handle|error = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
+public function primitiveOrErrorReturn(handle receiver) returns float|error = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
+public function primitiveOrErrorReturnThrows(handle receiver) returns float|error = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
+public function unionWithErrorReturnByte(handle receiver) returns error|int|boolean|byte|handle = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
+public function unionWithErrorReturnThrows(handle receiver) returns error|int|boolean|byte|handle = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
+public function unionWithErrorReturnHandle(handle receiver) returns error|int|boolean|byte|handle = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;

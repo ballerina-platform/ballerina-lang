@@ -31,8 +31,13 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
+import java.io.BufferedReader;
+import java.io.StringReader;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -51,13 +56,14 @@ public final class BFunctionCompletionItemBuilder {
      * @param bSymbol    BSymbol or null
      * @param label      label
      * @param insertText insert text
+     * @param context {@link LSContext}
      * @return {@link CompletionItem}
      */
-    public static CompletionItem build(BInvokableSymbol bSymbol, String label, String insertText) {
+    public static CompletionItem build(BInvokableSymbol bSymbol, String label, String insertText, LSContext context) {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
         item.setInsertText(insertText);
-        setMeta(item, bSymbol);
+        setMeta(item, bSymbol, context);
         return item;
     }
 
@@ -70,7 +76,7 @@ public final class BFunctionCompletionItemBuilder {
      */
     public static CompletionItem build(BInvokableSymbol bSymbol, LSContext context) {
         CompletionItem item = new CompletionItem();
-        setMeta(item, bSymbol);
+        setMeta(item, bSymbol, context);
         if (bSymbol != null) {
             // Override function signature
             String functionName = CommonUtil.getFunctionNameFromSymbol(bSymbol);
@@ -82,41 +88,46 @@ public final class BFunctionCompletionItemBuilder {
         return item;
     }
 
-    private static void setMeta(CompletionItem item, BInvokableSymbol bSymbol) {
+    private static void setMeta(CompletionItem item, BInvokableSymbol bSymbol, LSContext context) {
         item.setInsertTextFormat(InsertTextFormat.Snippet);
         item.setDetail(ItemResolverConstants.FUNCTION_TYPE);
         item.setKind(CompletionItemKind.Function);
         item.setCommand(new Command("editor.action.triggerParameterHints", "editor.action.triggerParameterHints"));
         if (bSymbol != null && bSymbol.markdownDocumentation != null) {
-            item.setDocumentation(getDocumentation(bSymbol));
+            item.setDocumentation(getDocumentation(bSymbol, context));
         }
     }
 
-    private static Either<String, MarkupContent> getDocumentation(BInvokableSymbol bInvokableSymbol) {
+    private static Either<String, MarkupContent> getDocumentation(BInvokableSymbol bInvokableSymbol, LSContext ctx) {
         String pkgID = bInvokableSymbol.pkgID.toString();
 
-        MarkdownDocAttachment markdownDocAttachment = bInvokableSymbol.getMarkdownDocAttachment();
-        String description = markdownDocAttachment.description == null ? "" : markdownDocAttachment.description;
-        List<MarkdownDocAttachment.Parameter> parameters = markdownDocAttachment.parameters;
+        MarkdownDocAttachment docAttachment = bInvokableSymbol.getMarkdownDocAttachment();
+        String description = docAttachment.description == null ? "" : docAttachment.description;
+        List<MarkdownDocAttachment.Parameter> parameters = docAttachment.parameters;
         List<BVarSymbol> defaultParams = bInvokableSymbol.getParameters().stream()
                 .filter(varSymbol -> varSymbol.defaultableParam).collect(Collectors.toList());
 
-        MarkupContent docMarkupContent = new MarkupContent();
+        Map<String, BType> types = new HashMap<>();
+        for (BVarSymbol param : bInvokableSymbol.params) {
+            types.put(param.name.value, param.type);
+        }
 
+        MarkupContent docMarkupContent = new MarkupContent();
         docMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
         String documentation = "**Package:** " + "_" + pkgID + "_" + CommonUtil.MD_LINE_SEPARATOR
-                + CommonUtil.MD_LINE_SEPARATOR + description + CommonUtil.MD_LINE_SEPARATOR
-                + CommonUtil.MD_LINE_SEPARATOR + "---  " + CommonUtil.MD_LINE_SEPARATOR + "**Parameters**"
+                + CommonUtil.MD_LINE_SEPARATOR + description
+                + CommonUtil.MD_LINE_SEPARATOR + "**Params**"
                 + CommonUtil.MD_LINE_SEPARATOR
                 + parameters.stream()
                 .map(parameter -> {
                     Optional<BVarSymbol> defaultVal = defaultParams.stream()
                             .filter(bVarSymbol -> bVarSymbol.getName().getValue().equals(parameter.getName()))
                             .findFirst();
-                    String paramDescription = "- _" + parameter.getName() + "_" + CommonUtil.MD_LINE_SEPARATOR
-                            + "    " + parameter.getDescription() + CommonUtil.MD_LINE_SEPARATOR;
+                    String type = (!types.isEmpty() && types.get(parameter.name) != null) ?
+                            "`" + CommonUtil.getBTypeName(types.get(parameter.name), ctx) + "` " : "";
+                    String paramDescription = "- " + type + parameter.getName() + ": " + parameter.getDescription();
                     if (defaultVal.isPresent()) {
-                        return paramDescription + "(Default Parameter)";
+                        return paramDescription + "(Defaultable)";
                     }
                     return paramDescription;
                 })
@@ -125,9 +136,15 @@ public final class BFunctionCompletionItemBuilder {
         if (!(bInvokableSymbol.retType instanceof BNilType)
                 && bInvokableSymbol.retType != null
                 && bInvokableSymbol.retType.tsymbol != null) {
-            documentation = documentation + CommonUtil.MD_LINE_SEPARATOR
-                    + CommonUtil.MD_LINE_SEPARATOR + "**Return**" + CommonUtil.MD_LINE_SEPARATOR
-                    + bInvokableSymbol.retType.toString();
+            String desc = "";
+            if (docAttachment.returnValueDescription != null && !docAttachment.returnValueDescription.isEmpty()) {
+                BufferedReader reader = new BufferedReader(new StringReader(docAttachment.returnValueDescription));
+                desc = "- " + reader.lines().map(String::trim)
+                        .collect(Collectors.joining(CommonUtil.MD_LINE_SEPARATOR)) + CommonUtil.MD_LINE_SEPARATOR;
+            }
+            documentation = documentation + CommonUtil.MD_LINE_SEPARATOR + CommonUtil.MD_LINE_SEPARATOR + "**Returns**"
+                    + " `" + CommonUtil.getBTypeName(bInvokableSymbol.retType, ctx) + "` " +
+                    CommonUtil.MD_LINE_SEPARATOR + desc + CommonUtil.MD_LINE_SEPARATOR;
         }
         docMarkupContent.setValue(documentation);
 

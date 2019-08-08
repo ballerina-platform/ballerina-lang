@@ -6,23 +6,6 @@
   "source": "function/source/iterableOperation3.bal",
   "items": [
     {
-      "label": "setName(string xName)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml_  \n  \n  \n  \n---    \n**Parameters**  \n"
-        }
-      },
-      "insertText": "setName(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "getTextValue()(string)",
       "kind": "Function",
       "detail": "Function",
@@ -32,7 +15,26 @@
           "value": "**Package:** _ballerina/lang.xml_  \n  \nGet the text value of a XML. If the XML is a sequence, concatenation of the text values of the members of the\nsequence is returned. If the XML is an element, then the text value of the sequence of children is returned. If\nthe XML is a text item, then the text is returned. Otherwise, an empty string is returned.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    The xml source  \n  \n  \n**Return**  \nstring"
         }
       },
+      "sortText": "130",
       "insertText": "getTextValue(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "setName(string xName)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.xml_  \n  \nChange the name of element `elmem` to `xName`.\n  \n  \n---    \n**Parameters**  \n- _elem_  \n    xml element  \n  \n- _xName_  \n    new name  \n"
+        }
+      },
+      "sortText": "130",
+      "insertText": "setName(${1});",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -46,44 +48,11 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml_  \n  \nReturns true if `x` is a singleton xml sequence consisting of a comment item.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nboolean"
+          "value": "**Package:** _ballerina/lang.xml_  \n  \nReturns true if `x` is a singleton xml sequence consisting of a comment item.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    xml value  \n  \n  \n**Return**  \nboolean"
         }
       },
+      "sortText": "130",
       "insertText": "isComment(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "removeChildren(string qname)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml_  \n  \nRemove children matching the given name from an XML. This operation has no effect\nif the XML is not an element type XML.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    The xml source  \n  \n- _qname_  \n    Namespace qualified name of the children to be removed  \n"
-        }
-      },
-      "insertText": "removeChildren(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "getName()(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml_  \n  \nReturns a string giving the expanded name of `elem`.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
-        }
-      },
-      "insertText": "getName(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -100,7 +69,44 @@
           "value": "**Package:** _ballerina/lang.xml_  \n  \nGet all the items that are of element type, and matches the given qualified name, in an XML sequence.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    The xml source  \n  \n- _qname_  \n    Qualified name of the element  \n  \n  \n**Return**  \nxml"
         }
       },
+      "sortText": "130",
       "insertText": "select(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "getName()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.xml_  \n  \nReturns a string giving the expanded name of `elem`.\n  \n  \n---    \n**Parameters**  \n- _elem_  \n    xml element  \n  \n  \n**Return**  \nstring"
+        }
+      },
+      "sortText": "130",
+      "insertText": "getName(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "removeChildren(string qname)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.xml_  \n  \nRemove children matching the given name from an XML. This operation has no effect\nif the XML is not an element type XML.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    The xml source  \n  \n- _qname_  \n    Namespace qualified name of the children to be removed  \n"
+        }
+      },
+      "sortText": "130",
+      "insertText": "removeChildren(${1});",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -114,9 +120,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml_  \n  \nReturns the content of a text or processing instruction or comment item.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+          "value": "**Package:** _ballerina/lang.xml_  \n  \nReturns the content of a text or processing instruction or comment item.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    xml item  \n  \n  \n**Return**  \nstring"
         }
       },
+      "sortText": "130",
       "insertText": "getContent(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -134,6 +141,7 @@
           "value": "**Package:** _ballerina/lang.xml_  \n  \nSets the attributes to the provided attributes map.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    The xml source  \n  \n- _attributes_  \n    Attributes map  \n"
         }
       },
+      "sortText": "130",
       "insertText": "setAttributes(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -151,24 +159,8 @@
           "value": "**Package:** _ballerina/lang.xml_  \n  \nGet the fully qualified name of the element as a string. Returns an empty string if the XML is not a singleton.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    The xml source  \n  \n  \n**Return**  \nstring"
         }
       },
+      "sortText": "130",
       "insertText": "getElementName(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "getTarget()(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml_  \n  \nReturns the target part of the processing instruction.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
-        }
-      },
-      "insertText": "getTarget(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -182,10 +174,29 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml_  \n  \nReturns an iterator over the xml items of `x`  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nobject { public function next () returns (record {| $|0 value; |}?); }"
+          "value": "**Package:** _ballerina/lang.xml_  \n  \nReturns an iterator over the xml items of `x`\n  \n  \n---    \n**Parameters**  \n- _x_  \n    xml item to iterate  \n  \n  \n**Return**  \nobject { public function next () returns (record {| $|0 value; |}?); }"
         }
       },
+      "sortText": "130",
       "insertText": "iterator(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "getTarget()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.xml_  \n  \nReturns the target part of the processing instruction.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    xml processing instruction item  \n  \n  \n**Return**  \nstring"
+        }
+      },
+      "sortText": "130",
+      "insertText": "getTarget(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -202,7 +213,26 @@
           "value": "**Package:** _ballerina/lang.xml_  \n  \nStrips any text items from an XML sequence that are all whitespace.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    The xml source  \n  \n  \n**Return**  \nxml"
         }
       },
+      "sortText": "130",
       "insertText": "strip(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "isReadOnly()(boolean)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nTests whether `v` is read-only, i.e. immutable\nReturns true if read-only, false otherwise.\n  \n  \n---    \n**Parameters**  \n- _value_  \n    source value  \n  \n  \n**Return**  \nboolean"
+        }
+      },
+      "sortText": "130",
+      "insertText": "isReadOnly(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -219,6 +249,7 @@
           "value": "**Package:** _ballerina/lang.xml_  \n  \nSlice and return a subsequence of the an XML sequence.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    The xml source  \n  \n- _startIndex_  \n    Start index, inclusive  \n  \n- _endIndex_  \n    End index, exclusive  \n  \n  \n**Return**  \nxml"
         }
       },
+      "sortText": "130",
       "insertText": "slice(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -236,6 +267,7 @@
           "value": "**Package:** _ballerina/lang.xml_  \n  \nMake a deep copy of an XML.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    The xml source  \n  \n  \n**Return**  \nxml"
         }
       },
+      "sortText": "130",
       "insertText": "copy(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -253,6 +285,7 @@
           "value": "**Package:** _ballerina/lang.xml_  \n  \nRemove an attribute from an XML.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    The xml source  \n  \n- _qname_  \n    Qualified name of the attribute  \n"
         }
       },
+      "sortText": "130",
       "insertText": "removeAttribute(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -267,27 +300,11 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nxml"
+          "value": "**Package:** _ballerina/lang.xml_  \n  \nFor xml sequence returns the result of applying function `func` to each member of sequence `item`.\nFor xml element returns the result of applying function `funct` to `item`.\n  \n  \n---    \n**Parameters**  \n- _arr_  \n    the x  \n  \n- _func_  \n    a function to apply to each child or `item`  \n  \n  \n**Return**  \nxml"
         }
       },
+      "sortText": "130",
       "insertText": "map(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "isText()(boolean)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml_  \n  \nReturns true if `x` is an xml sequence consisting of one or more character items.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nboolean"
-        }
-      },
-      "insertText": "isText(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -298,20 +315,22 @@
       "label": "XMLIterator",
       "kind": "Class",
       "detail": "Object",
+      "sortText": "120",
       "insertText": "XMLIterator",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "isProcessingInstruction()(boolean)",
+      "label": "isText()(boolean)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml_  \n  \nReturns true if `x` is a singleton xml sequence consisting of a processing instruction item.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nboolean"
+          "value": "**Package:** _ballerina/lang.xml_  \n  \nReturns true if `x` is an xml sequence consisting of one or more character items.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    xml value  \n  \n  \n**Return**  \nboolean"
         }
       },
-      "insertText": "isProcessingInstruction(${1})",
+      "sortText": "130",
+      "insertText": "isText(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -328,7 +347,26 @@
           "value": "**Package:** _ballerina/lang.xml_  \n  \nSearches in children recursively for elements matching the qualified name and returns a sequence containing them\nall. Does not search within a matched result.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    The xml source  \n  \n- _qname_  \n    Qualified name of the element  \n  \n  \n**Return**  \nxml"
         }
       },
+      "sortText": "130",
       "insertText": "selectDescendants(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "isProcessingInstruction()(boolean)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.xml_  \n  \nReturns true if `x` is a singleton xml sequence consisting of a processing instruction item.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    xml value  \n  \n  \n**Return**  \nboolean"
+        }
+      },
+      "sortText": "130",
+      "insertText": "isProcessingInstruction(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -342,9 +380,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml_  \n  \nReturns the map representing the attributes of `elem`.\nThis includes namespace attributes.\nThe keys in the map are the expanded name of the attribute.\nPanics if `isElement(elem)` is not true.\nThere is no setAttributes function.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nmap\u003cstring\u003e"
+          "value": "**Package:** _ballerina/lang.xml_  \n  \nReturns the map representing the attributes of `elem`.\nThis includes namespace attributes.\nThe keys in the map are the expanded name of the attribute.\nPanics if `isElement(elem)` is not true.\nThere is no setAttributes function.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    xml element  \n  \n  \n**Return**  \nmap\u003cstring\u003e"
         }
       },
+      "sortText": "130",
       "insertText": "getAttributes(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -362,24 +401,8 @@
           "value": "**Package:** _ballerina/lang.xml_  \n  \nAppend children to an XML if its an element type XML. Error otherwise.\nNew children will be appended at the end of the existing children.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    The xml source  \n  \n- _children_  \n    children  \n"
         }
       },
+      "sortText": "130",
       "insertText": "appendChildren(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "forEach(function ((xml|string)) returns () func)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml_  \n  \n  \n  \n---    \n**Parameters**  \n"
-        }
-      },
-      "insertText": "forEach(${1});",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -393,10 +416,65 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml_  \n  \nReturns true if `x` is a singleton xml sequence consisting of an element item.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nboolean"
+          "value": "**Package:** _ballerina/lang.xml_  \n  \nReturns true if `x` is a singleton xml sequence consisting of an element item.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    xml value  \n  \n  \n**Return**  \nboolean"
         }
       },
+      "sortText": "130",
       "insertText": "isElement(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "forEach(function ((xml|string)) returns () func)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.xml_  \n  \nFor xml sequence apply the `func` to children of `item`.\nFor xml element apply the `func` to `item`.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    the xml value  \n  \n- _func_  \n    a function to apply to each child or `item`  \n"
+        }
+      },
+      "sortText": "130",
+      "insertText": "forEach(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "cloneReadOnly()(anydata)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `value` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n---    \n**Parameters**  \n- _value_  \n    source value  \n"
+        }
+      },
+      "sortText": "130",
+      "insertText": "cloneReadOnly(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "length()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.xml_  \n  \nReturns number of XML items in `x`.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    xml item  \n  \n  \n**Return**  \nint"
+        }
+      },
+      "sortText": "130",
+      "insertText": "length(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -413,24 +491,8 @@
           "value": "**Package:** _ballerina/lang.xml_  \n  \nCheck whether the XML sequence is empty.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    The xml source  \n  \n  \n**Return**  \nboolean"
         }
       },
+      "sortText": "130",
       "insertText": "isEmpty(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "length()(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml_  \n  \nReturns number of XML items in `x`.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
-        }
-      },
-      "insertText": "length(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -447,6 +509,7 @@
           "value": "**Package:** _ballerina/lang.xml_  \n  \nCheck whether the XML sequence contains only a single element.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    The xml source  \n  \n  \n**Return**  \nboolean"
         }
       },
+      "sortText": "130",
       "insertText": "isSingleton(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -464,6 +527,7 @@
           "value": "**Package:** _ballerina/lang.xml_  \n  \nGet the type of a XML as a string. If the XML is singleton, type can be one of \u0027element\u0027, \u0027text\u0027, \u0027comment\u0027 or \u0027pi\u0027.\nReturns an empty string if the XML is not a singleton.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    The xml source  \n  \n  \n**Return**  \nstring"
         }
       },
+      "sortText": "130",
       "insertText": "getItemType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -478,9 +542,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml_  \n  \nConcatenate all the `xs`. Empty xml sequence if empty.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nxml"
+          "value": "**Package:** _ballerina/lang.xml_  \n  \nConcatenate all the `xs`. Empty xml sequence if empty.\n  \n  \n---    \n**Parameters**  \n- _xs_  \n    xml or string items to concat  \n  \n  \n**Return**  \nxml"
         }
       },
+      "sortText": "130",
       "insertText": "concat(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -495,9 +560,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nxml"
+          "value": "**Package:** _ballerina/lang.xml_  \n  \nFor xml sequence returns a new xml sequence constructed from children of `x` for which `func` returns true.\nFor xml element returns a new xml sequence constructed from `x` if `x` applied to `funct` returns true, else\nreturns an empty sequence.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    xml value  \n  \n- _func_  \n    a predicate to apply to each child to determine if it should be included  \n  \n  \n**Return**  \nxml"
         }
       },
+      "sortText": "130",
       "insertText": "filter(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -512,9 +578,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml_  \n  \nReturns the children of `elem`.\nPanics if `isElement(elem)` is not true.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nxml"
+          "value": "**Package:** _ballerina/lang.xml_  \n  \nReturns the children of `elem`.\nPanics if `isElement(elem)` is not true.\n  \n  \n---    \n**Parameters**  \n- _elem_  \n    xml element  \n  \n  \n**Return**  \nxml"
         }
       },
+      "sortText": "130",
       "insertText": "getChildren(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -532,7 +599,44 @@
           "value": "**Package:** _ballerina/lang.xml_  \n  \nGet all the items that are of element type in an XML sequence.\n  \n  \n---    \n**Parameters**  \n- _x_  \n    The xml source  \n  \n  \n**Return**  \nxml"
         }
       },
+      "sortText": "130",
       "insertText": "elements(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "clone()(anydata)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `value`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n---    \n**Parameters**  \n- _value_  \n    source value  \n"
+        }
+      },
+      "sortText": "130",
+      "insertText": "clone(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toString()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a simple, human-readable representation of `value` as a string.\n  \n  \n---    \n**Parameters**  \n- _value_  \n    source value  \n  \n  \n**Return**  \nstring"
+        }
+      },
+      "sortText": "130",
+      "insertText": "toString(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -546,9 +650,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml_  \n  \nSets the children of `elem` to `children`.\nPanics if `isElement(elem)` is not true.  \n  \n---    \n**Parameters**  \n"
+          "value": "**Package:** _ballerina/lang.xml_  \n  \nSets the children of `elem` to `children`.\nPanics if `isElement(elem)` is not true.\n  \n  \n---    \n**Parameters**  \n- _elem_  \n    xml element  \n  \n- _children_  \n    xml or string to set as children  \n"
         }
       },
+      "sortText": "130",
       "insertText": "setChildren(${1});",
       "insertTextFormat": "Snippet",
       "command": {

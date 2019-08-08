@@ -18,22 +18,13 @@
 
 package org.ballerinalang.langlib.value;
 
-import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.TypeConstants;
-import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import java.util.Map;
 
 /**
  * Merge two JSON values.
@@ -50,48 +41,7 @@ import java.util.Map;
 public class MergeJson {
 
     public static Object mergeJson(Strand strand, Object j1, Object j2) {
-
-        if (j1 == null) {
-            return j2;
-        }
-
-        if (j2 == null) {
-            return j1;
-        }
-
-        BType j1Type = TypeChecker.getType(j1);
-        BType j2Type = TypeChecker.getType(j2);
-
-        if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
-            return BallerinaErrors.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
-                                               "Cannot merge JSON values of types '" + j1Type + "' and '" +
-                                                       j2Type + "'");
-        }
-
-        MapValue<String, Object> m1 = (MapValue<String, Object>) j1;
-        MapValue<String, Object> m2 = (MapValue<String, Object>) j2;
-
-        for (Map.Entry<String, Object> entry : m2.entrySet()) {
-            String key = entry.getKey();
-
-            if (!m1.containsKey(key)) {
-                m1.put(key, entry.getValue());
-                continue;
-            }
-
-            Object elementMergeResult = mergeJson(strand, m1.get(key), entry.getValue());
-            BType elementMergeResultType = TypeChecker.getType(elementMergeResult);
-
-            if (elementMergeResultType.getTag() == TypeTags.ERROR_TAG) {
-                MapValueImpl<String, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
-                detailMap.put(TypeConstants.DETAIL_MESSAGE, "JSON Merge failed for key '" + key + "'");
-                detailMap.put(TypeConstants.DETAIL_CAUSE, elementMergeResult);
-                return BallerinaErrors.createError(BallerinaErrorReasons.MERGE_JSON_ERROR, detailMap);
-            }
-
-            m1.put(key, elementMergeResult);
-        }
-        return m1;
+        return JSONUtils.mergeJson(j1, j2, true);
     }
 
 }

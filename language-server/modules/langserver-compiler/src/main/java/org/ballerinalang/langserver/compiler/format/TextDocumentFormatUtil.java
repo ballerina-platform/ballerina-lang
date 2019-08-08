@@ -25,12 +25,12 @@ import com.google.gson.JsonPrimitive;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.langserver.compiler.LSCompiler;
-import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
@@ -88,23 +88,21 @@ public class TextDocumentFormatUtil {
      * Get the AST for the current text document's content.
      *
      * @param file            File path as a URI
-     * @param lsCompiler      Language server compiler
      * @param documentManager Workspace document manager instance
      * @param context         Document formatting context
      * @return {@link JsonObject}   AST as a Json Object
      * @throws JSONGenerationException when AST build fails
-     * @throws LSCompilerException     when compilation fails
+     * @throws CompilationFailedException     when compilation fails
      */
-    public static JsonObject getAST(Path file, LSCompiler lsCompiler,
-                                    WorkspaceDocumentManager documentManager, LSContext context)
-            throws JSONGenerationException, LSCompilerException {
+    public static JsonObject getAST(Path file, WorkspaceDocumentManager documentManager, LSContext context)
+            throws JSONGenerationException, CompilationFailedException {
         String path = file.toAbsolutePath().toString();
         LSDocument lsDocument = new LSDocument(path);
         String packageName = lsDocument.getOwnerModule();
         String[] breakFromPackage = path.split(Pattern.quote(packageName + File.separator));
         String relativePath = breakFromPackage[breakFromPackage.length - 1];
 
-        final BLangPackage bLangPackage = lsCompiler.getBLangPackage(context, documentManager,
+        final BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager,
                 true, LSCustomErrorStrategy.class, false);
         final List<Diagnostic> diagnostics = new ArrayList<>();
         JsonArray errors = new JsonArray();

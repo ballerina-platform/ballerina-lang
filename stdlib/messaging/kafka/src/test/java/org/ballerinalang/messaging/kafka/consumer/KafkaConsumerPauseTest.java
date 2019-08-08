@@ -35,17 +35,19 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_CONSUMER;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.produceToKafkaCluster;
 
 /**
  * Test cases for ballerina.net.kafka consumer ( with Pause ) native functions.
  */
-@Test(singleThreaded = true)
 public class KafkaConsumerPauseTest {
     private CompileResult result;
     private static File dataDir;
@@ -53,10 +55,10 @@ public class KafkaConsumerPauseTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        result = BCompileUtil.compile(getFilePath("test-src/consumer/kafka_consumer_pause.bal"));
+        result = BCompileUtil.compile(getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_pause.bal")));
         Properties prop = new Properties();
-        kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true)
-                .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(1).startup();
+        kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true).deleteDataUponShutdown(true)
+                .withKafkaConfiguration(prop).addBrokers(1).startup();
         kafkaCluster.createTopic("test", 1, 1);
     }
 

@@ -102,7 +102,7 @@ public class WebSocketUtil {
             @Override
             public void onError(Throwable throwable) {
                 if (callback != null) {
-                    callback.notifyFailure(createWebSocketError(WsInvalidHandshakeError ,
+                    callback.notifyFailure(createWebSocketError(WsInvalidHandshakeError,
                             "Unable to complete handshake:" + throwable.getMessage()));
                 } else {
                     throw new WebSocketException("Unable to complete handshake", throwable);
@@ -159,7 +159,7 @@ public class WebSocketUtil {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
                 //TODO Temp fix to get return values. Remove
-                callback.setReturnValues(createWebSocketError(null, cause.getMessage()));
+                callback.setReturnValues(createWebSocketError(cause.getMessage()));
 
             } else {
                 //TODO Temp fix to get return values. Remove
