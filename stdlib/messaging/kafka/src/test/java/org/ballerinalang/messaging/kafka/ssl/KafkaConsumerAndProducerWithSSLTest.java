@@ -146,6 +146,7 @@ public class KafkaConsumerAndProducerWithSSLTest {
             while ((line = br.readLine()) != null) {
                 if (line.contains(searchValue)) {
                     line = line.replace(searchValue, newValue);
+                    line = line.replace("\\", "\\\\");
                 }
                 lines.add(line);
             }
