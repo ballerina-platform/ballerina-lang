@@ -359,34 +359,6 @@ public class BuildCommandTest extends CommandTest {
         readOutput(true);
     }
     
-    @Test(description = "Build a valid ballerina project with tests")
-    public void testBuildBalProjectWithTests() throws IOException {
-        Path sourceRoot = this.testResources.resolve("project-with-tests");
-        BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false);
-        new CommandLine(buildCommand).parse();
-        buildCommand.execute();
-        
-        String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog, "Compiling source\n" +
-                                      "\tbar/foo:1.2.0\n" +
-                                      "Created target/balo/foo-2019r3-any-1.2.0.balo\n" +
-                                      "\n" +
-                                      "Running tests\n" +
-                                      "    bar/foo:1.2.0\n" +
-                                      "\t1 passing\n" +
-                                      "\t0 failing\n" +
-                                      "\t0 skipped\n" +
-                                      "\n" +
-                                      "Generating executables\n" +
-                                      "\ttarget/bin/foo-executable.jar\n");
-        
-        Assert.assertTrue(Files.exists(sourceRoot.resolve("target").resolve("bin").resolve("foo-executable.jar")));
-    
-        deleteDirectory(sourceRoot.resolve("target"));
-        
-        readOutput(true);
-    }
-    
     @Test(description = "Test Build Command in a Project")
     public void testBuildCommand() throws IOException {
 

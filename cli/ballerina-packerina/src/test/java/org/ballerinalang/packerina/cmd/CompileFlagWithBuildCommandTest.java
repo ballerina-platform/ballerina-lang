@@ -193,29 +193,6 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
         
         readOutput(true);
     }
-    
-    @Test(description = "Compile a valid ballerina project with tests")
-    public void testCompileBalProjectWithTests() throws IOException {
-        Path sourceRoot = this.testResources.resolve("project-with-tests");
-        BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false);
-        new CommandLine(buildCommand).parse("-c");
-        buildCommand.execute();
-        
-        String compileLog = readOutput(true);
-        Assert.assertEquals(compileLog, "Compiling source\n" +
-                                      "\tbar/foo:1.2.0\n" +
-                                      "Created target/balo/foo-2019r3-any-1.2.0.balo\n" +
-                                      "\n" +
-                                      "Running tests\n" +
-                                      "    bar/foo:1.2.0\n" +
-                                      "\t1 passing\n" +
-                                      "\t0 failing\n" +
-                                      "\t0 skipped\n\n");
-        
-        deleteDirectory(sourceRoot.resolve("target"));
-        
-        readOutput(true);
-    }
 
     @Test(description = "Test Compile Command in a Project")
     public void testBuildCommand() throws IOException {
