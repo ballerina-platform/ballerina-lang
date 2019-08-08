@@ -418,9 +418,13 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
             switch (this.getSourceType()) {
                 case SINGLE_BAL_FILE:
                     SingleFileContext singleFileContext = this.get(BuildContextField.SOURCE_CONTEXT);
-                    String executableFileName = singleFileContext.getBalFileNameWithoutExtension() +
-                                                ProjectDirConstants.EXEC_SUFFIX + BLANG_COMPILED_JAR_EXT;
-                    return this.executableDir.resolve(executableFileName);
+                    if (null == singleFileContext.getExecutableFilePath()) {
+                        String executableFileName = singleFileContext.getBalFileNameWithoutExtension() +
+                                                    ProjectDirConstants.EXEC_SUFFIX + BLANG_COMPILED_JAR_EXT;
+                        return this.executableDir.resolve(executableFileName);
+                    } else {
+                        return singleFileContext.getExecutableFilePath();
+                    }
                 case SINGLE_MODULE:
                 case ALL_MODULES:
                     return this.executableDir.resolve(moduleID.name.value +

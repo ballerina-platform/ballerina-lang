@@ -20,14 +20,19 @@ package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
+import org.ballerinalang.packerina.utils.FileUtils;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
+import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
  * Task to copy the executable to a given location. This requires the {@link CreateExecutableTask} to be completed.
@@ -49,29 +54,28 @@ public class CopyExecutableTask implements Task {
         try {
             for (BLangPackage module : buildContext.getModules()) {
                 Path executableFile = buildContext.getExecutablePathFromTarget(module.packageID);
+                Path sourceRoot = buildContext.get(BuildContextField.SOURCE_ROOT);
                 
-                // if the given output path is a directory, copy the executable to the given directory. name of the
-                // executable is not changed.
-                if (Files.isDirectory(this.outputPath)) {
-                    // create output directory if it does not exists
-                    if (Files.notExists(this.outputPath)) {
-                        Files.createDirectories(this.outputPath);
+                if (this.outputPath.isAbsolute()) {
+                    if (Files.isDirectory(this.outputPath)) {
+                        if (Files.notExists(this.outputPath)) {
+                            Files.createDirectories(this.outputPath);
+                        }
+                        
+                        Path executableFileName = executableFile.getFileName();
+                        if (null != executableFileName) {
+                            this.outputPath = this.outputPath.resolve(executableFileName.toString());
+                        }
+                    } else {
+                        if (!this.outputPath.toString().endsWith(BLANG_COMPILED_JAR_EXT)) {
+                            this.outputPath = Paths.get(this.outputPath.toString() + BLANG_COMPILED_JAR_EXT);
+                        }
                     }
-    
-                    // this 'if' is to avoid spot bugs
-                    Path executableFileName = executableFile.getFileName();
-                    if (null != executableFileName) {
-                        this.outputPath = this.outputPath.resolve(
-                                executableFileName.toString());
-                    }
-                }
-                
-                // check if the output path is a file
-                if (Files.isRegularFile(this.outputPath)) {
-                    // if the given path is not an absolute path. copy the executable to the source root.
-                    if (!this.outputPath.isAbsolute()) {
-                        Path sourceRoot = buildContext.get(BuildContextField.SOURCE_ROOT);
+                } else {
+                    if (FileUtils.hasExtension(this.outputPath)) {
                         this.outputPath = sourceRoot.resolve(this.outputPath);
+                    } else {
+                        this.outputPath = sourceRoot.resolve(this.outputPath + BLANG_COMPILED_JAR_EXT);
                     }
                 }
                 
@@ -83,6 +87,10 @@ public class CopyExecutableTask implements Task {
                 Path executableDir = this.outputPath.getParent();
                 if (null != executableDir) {
                     buildContext.updateExecutableDir(executableDir);
+                    if (SINGLE_BAL_FILE == buildContext.getSourceType()) {
+                        SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
+                        singleFileContext.setExecutableFilePath(this.outputPath);
+                    }
                 }
             }
         } catch (IOException e) {

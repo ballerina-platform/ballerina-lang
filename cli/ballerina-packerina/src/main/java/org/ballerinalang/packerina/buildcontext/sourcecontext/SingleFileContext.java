@@ -35,6 +35,7 @@ public class SingleFileContext {
      */
     private Path balFile;
     private BLangPackage module;
+    private Path executableFilePath = null;
     
     public SingleFileContext(Path balFile) {
         if (Files.exists(balFile) && balFile.isAbsolute()) {
@@ -54,6 +55,14 @@ public class SingleFileContext {
     
     public void setModule(BLangPackage module) {
         this.module = module;
+    }
+    
+    public Path getExecutableFilePath() {
+        return this.executableFilePath;
+    }
+    
+    public void setExecutableFilePath(Path executableFilePath) {
+        this.executableFilePath = executableFilePath;
     }
     
     public String getBalFileNameWithoutExtension() {

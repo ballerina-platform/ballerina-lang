@@ -22,6 +22,7 @@ import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
+import java.io.File;
 import java.nio.file.Path;
 
 /**
@@ -33,7 +34,17 @@ public class PrintExecutablePathTask implements Task {
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         for (BLangPackage module : buildContext.getModules()) {
             Path executablePath = buildContext.getExecutablePathFromTarget(module.packageID);
-            buildContext.out().println("\t" + sourceRootPath.relativize(executablePath).toString());
+            Path relativePathToExecutable = sourceRootPath.relativize(executablePath);
+            if (null != relativePathToExecutable) {
+                if (relativePathToExecutable.toString().contains("..") ||
+                    relativePathToExecutable.toString().contains("." + File.separator)) {
+                    buildContext.out().println("\t" + executablePath.toString());
+                } else {
+                    buildContext.out().println("\t" + relativePathToExecutable.toString());
+                }
+            } else {
+                buildContext.out().println("\t" + executablePath.toString());
+            }
         }
     }
 }
