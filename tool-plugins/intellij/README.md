@@ -32,7 +32,7 @@ The IntelliJ Ballerina plugin provides the Ballerina development capabilities in
     - [Semantic Analyzing](https://ballerina.io/learn/tools-ides/intellij-plugin/using-intellij-plugin-features#analyzing-semantics)
     - [Code Folding](https://ballerina.io/learn/tools-ides/intellij-plugin/using-intellij-plugin-features#code-folding) 
 - [**Developer Guide**]((https://ballerina.io/learn/tools-ides/intellij-plugin/#developer-guide))
-    - [Testing/Debugging the plugin using IntelliJ]((https://ballerina.io/learn/tools-ides/intellij-plugin/using-intellij-plugin-features#testing/debugging-the-plugin-using-intelliJ))
+    - [Testing/Debugging the plugin using IntelliJ](https://ballerina.io/learn/tools-ides/intellij-plugin/using-intellij-plugin-features#testing/debugging-the-plugin-using-intellij)
 
 ## Release Versions Schema
 
@@ -42,8 +42,8 @@ Below you can see the plugin versions that correspond to the versions of the Int
 |--- | --- |
 | 0.8.0 - 0.8.2 | IntelliJ IDEA 2016.3 - 2016.4 |
 | 0.8.3 - 0.981.0 | IntelliJ IDEA 2016.3+ |
-| 0.982.0+ | IntelliJ IDEA 2017.3+ |
-| 0.991.1+ | IntelliJ IDEA 2018.3+
+| 0.982.0 - 0.991.0 | IntelliJ IDEA 2017.3+ |
+| 0.991.1+ | IntelliJ IDEA 2018.3+ |
 
 ## Useful Links
 * Use the ballerina-dev@googlegroups.com mailing list to discuss code changes to the Ballerina project.
