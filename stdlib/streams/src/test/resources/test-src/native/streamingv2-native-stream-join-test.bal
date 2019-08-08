@@ -118,9 +118,9 @@ function joinFunc() {
 
     // Window processors
     streams:Window lengthWindowA = streams:length([1],
-        nextProcessPointer = function (streams:StreamEvent?[] e) {joinProcessor.process(e);});
+        nextProcessPointer = function (streams:StreamEvent?[] e) {joinProcessor.process(<@untainted> e);});
     streams:Window lengthWindowB = streams:length([1],
-        nextProcessPointer = function (streams:StreamEvent?[] e) {joinProcessor.process(e);});
+        nextProcessPointer = function (streams:StreamEvent?[] e) {joinProcessor.process(<@untainted> e);});
 
     // Set the window processors to the join processor
     joinProcessor.setLHS("stockStream", lengthWindowA);
