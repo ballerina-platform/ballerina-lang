@@ -2055,7 +2055,6 @@ function getCompileError(error e, bir:Package|bir:TypeDef|bir:Function src) retu
     string reason = e.reason();
     map<anydata|error> detail = e.detail();
     string name = <string> detail.get("name");
-
     if (reason == ERROR_REASON_METHOD_TOO_LARGE) {
         bir:DiagnosticPos? pos = getLineNumberInfo(src, name);
         if (pos is bir:DiagnosticPos) {
