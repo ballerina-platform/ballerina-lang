@@ -28,13 +28,13 @@ import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
-import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
@@ -246,7 +246,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                 });
             }
             reply.setServices(services.toArray(new String[0]));
-        } catch (LSCompilerException | WorkspaceDocumentException e) {
+        } catch (CompilationFailedException | WorkspaceDocumentException e) {
             logger.error("error: while processing service definition at converter service: " + e.getMessage());
         } finally {
             lock.ifPresent(Lock::unlock);
@@ -272,7 +272,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     false);
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(true);
-        } catch (LSCompilerException | JSONGenerationException e) {
+        } catch (CompilationFailedException | JSONGenerationException e) {
             reply.setParseSuccess(false);
         } finally {
             lock.ifPresent(Lock::unlock);

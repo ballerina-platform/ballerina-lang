@@ -45,12 +45,15 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.io.BufferedReader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Utility class for Hover functionality of language server.
@@ -97,7 +100,8 @@ public class HoverUtil {
                 filterDocumentationAttributes(docAttachment, symbol);
 
         if (!docAttachment.description.isEmpty()) {
-            String description = "\r\n" + docAttachment.description.trim() + "\r\n";
+            String description =
+                    CommonUtil.MD_LINE_SEPARATOR + docAttachment.description.trim() + CommonUtil.MD_LINE_SEPARATOR;
             content.append(getFormattedHoverDocContent(ContextConstants.DESCRIPTION, description));
         }
 
@@ -116,14 +120,15 @@ public class HoverUtil {
         }
 
         if (docAttachment.returnValueDescription != null && !docAttachment.returnValueDescription.isEmpty()) {
-            String returnValueDesc = docAttachment.returnValueDescription;
+            String returnType = "";
             if (symbol instanceof BInvokableSymbol) {
                 // Get type information
                 BInvokableSymbol invokableSymbol = (BInvokableSymbol) symbol;
-                returnValueDesc = "`" + CommonUtil.getBTypeName(invokableSymbol.retType, ctx) + "`: " + returnValueDesc;
+                returnType = " `" + CommonUtil.getBTypeName(invokableSymbol.retType, ctx) + "`";
             }
-            content.append(getFormattedHoverDocContent(ContextConstants.RETURN_TITLE,
-                                                       getReturnValueDescription(returnValueDesc)));
+            content.append(getFormattedHoverDocContent(ContextConstants.RETURN_TITLE, returnType,
+                                                       getReturnValueDescription(
+                                                               docAttachment.returnValueDescription)));
         }
 
         hoverMarkupContent.setValue(content.toString());
@@ -380,13 +385,15 @@ public class HoverUtil {
                     .append(type)
                     .append(parameter.name.trim())
                     .append(": ")
-                    .append(parameter.description.trim()).append("\r\n");
+                    .append(parameter.description.trim()).append(CommonUtil.MD_LINE_SEPARATOR);
         }
         return value.toString();
     }
 
     private static String getReturnValueDescription(String returnVal) {
-        return "- " + returnVal.trim() + "\r\n";
+        BufferedReader reader = new BufferedReader(new StringReader(returnVal));
+        return "- " + reader.lines().map(String::trim).collect(Collectors.joining(CommonUtil.MD_LINE_SEPARATOR)) +
+                CommonUtil.MD_LINE_SEPARATOR;
     }
 
     /**
@@ -396,6 +403,10 @@ public class HoverUtil {
      * @return {@link String} formatted string using markdown.
      */
     private static String getFormattedHoverDocContent(String header, String content) {
-        return "**" + header + "**\r\n" + content + "\r\n";
+        return getFormattedHoverDocContent(header, "", content);
+    }
+
+    private static String getFormattedHoverDocContent(String header, String subHeader, String content) {
+        return "**" + header + "**" + subHeader + CommonUtil.MD_LINE_SEPARATOR + content + CommonUtil.MD_LINE_SEPARATOR;
     }
 }
