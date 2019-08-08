@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.compiler;
 
 import org.antlr.v4.runtime.ANTLRErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.model.elements.PackageID;
@@ -57,17 +58,14 @@ public class LSModuleCompiler {
      * @param errStrategy        custom error strategy class
      * @param compileFullProject updateAndCompileFile full project from the source root
      * @return {@link List}      A list of packages when compile full project
-     * @throws LSCompilerException when compilation fails
+     * @throws CompilationFailedException when compilation fails
      */
-    public static BLangPackage getBLangPackage(LSContext context,
-                                        WorkspaceDocumentManager docManager, boolean preserveWS,
-                                        Class<? extends ANTLRErrorStrategy> errStrategy,
-                                        boolean compileFullProject) throws LSCompilerException {
+    public static BLangPackage getBLangPackage(LSContext context, WorkspaceDocumentManager docManager,
+                                               boolean preserveWS, Class<? extends ANTLRErrorStrategy> errStrategy,
+                                               boolean compileFullProject)
+            throws CompilationFailedException {
         List<BLangPackage> bLangPackages = getBLangPackages(context, docManager, preserveWS, errStrategy,
                 compileFullProject, false);
-        if (bLangPackages.isEmpty()) {
-            throw new LSCompilerException("Couldn't find any compiled artifact!");
-        }
         return bLangPackages.get(0);
     }
 
@@ -80,16 +78,21 @@ public class LSModuleCompiler {
      * @param errStrategy        Custom error strategy class
      * @return {@link List}      A list of packages when compile full project
      * @throws URISyntaxException when the uri of the source root is invalid
+     * @throws CompilationFailedException when the compiler throws any error
      */
     public static List<BLangPackage> getBLangModules(LSContext context, WorkspaceDocumentManager docManager,
                                               boolean preserveWS, Class<? extends ANTLRErrorStrategy> errStrategy)
-                                              throws URISyntaxException {
+            throws URISyntaxException, CompilationFailedException {
         String sourceRoot = Paths.get(new URI(context.get(DocumentServiceKeys.SOURCE_ROOT_KEY))).toString();
         PackageRepository pkgRepo = new WorkspacePackageRepository(sourceRoot, docManager);
 
         CompilerContext compilerContext = prepareCompilerContext(pkgRepo, sourceRoot, preserveWS, docManager);
         Compiler compiler = LSCompilerUtil.getCompiler(context, "", compilerContext, errStrategy);
-        return compiler.compilePackages(false);
+        try {
+            return compiler.compilePackages(false);
+        } catch (RuntimeException e) {
+            throw new CompilationFailedException("Compilation failed", e);
+        }
     }
 
 
@@ -103,12 +106,13 @@ public class LSModuleCompiler {
      * @param compileFullProject updateAndCompileFile full project from the source root
      * @param clearProjectModules whether clear current project modules from ls package cache
      * @return {@link List}      A list of packages when compile full project
-     * @throws LSCompilerException Whenever compilation fails
+     * @throws CompilationFailedException Whenever compilation fails
      */
     public static List<BLangPackage> getBLangPackages(LSContext context, WorkspaceDocumentManager docManager,
-                                               boolean preserveWS, Class<? extends ANTLRErrorStrategy> errStrategy, 
-                                               boolean compileFullProject, boolean clearProjectModules) 
-            throws LSCompilerException {
+                                                      boolean preserveWS,
+                                                      Class<? extends ANTLRErrorStrategy> errStrategy,
+                                                      boolean compileFullProject, boolean clearProjectModules)
+            throws CompilationFailedException {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         Optional<String> unsavedFileId = LSCompilerUtil.getUntitledFileId(uri);
         if (unsavedFileId.isPresent()) {
@@ -167,8 +171,11 @@ public class LSModuleCompiler {
                 LSPackageCache.getInstance(compilerContext).invalidate(bLangPackage.packageID);
                 packages.add(bLangPackage);
             }
-        } catch (Exception e) {
-            throw new LSCompilerException("Compilation failed", e);
+        } catch (RuntimeException e) {
+            throw new CompilationFailedException("Compilation failed!", e);
+        }
+        if (packages.isEmpty()) {
+            throw new CompilationFailedException("Couldn't find any compiled artifact!");
         }
         Optional<BLangPackage> currentPackage = filterCurrentPackage(packages, context);
         currentPackage.ifPresent(bLangPackage -> {

@@ -827,6 +827,9 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
                 && this.cursorCol <= zeroBasedPos.eCol) {
             // This is the symbol at current cursor position
             this.symbolReferences.setReferenceAtCursor(ref);
+            if (isDefinition) {
+                this.symbolReferences.addDefinition(ref);
+            }
             return;
         }
 

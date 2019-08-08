@@ -1,15 +1,119 @@
 {
   "position": {
-    "line": 9,
+    "line": 2,
     "character": 4
   },
-  "source": "service/source/serviceBodyCompletion7.bal",
+  "source": "packageimport/source/module2/packageImport4.bal",
   "items": [
+    {
+      "label": "xmlns",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "110",
+      "insertText": "xmlns \"${1}\" as ${2:ns};",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "var",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "210",
+      "insertText": "var ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "error",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "110",
+      "insertText": "error ${1:name} \u003d error(\"${2:errorCode}\", message \u003d \"${3}\");",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "foreach",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "foreach ${1:var} ${2:item} in ${3:itemList} {\n\t${4}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "fork",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "fork {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "if",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "if (${1:true}) {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lock",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "lock {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "match",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "match ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "panic",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "panic ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "return",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "return;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "transaction",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "transaction with retries \u003d ${1:0} {\n\t${2}\n} onretry {\n\t${3}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "while",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "while (${1:true}) {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "worker",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "110",
+      "insertText": "worker ${1:name} {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    },
     {
       "label": "float",
       "kind": "Keyword",
       "detail": "Float",
-      "sortText": "160",
+      "sortText": "120",
       "insertText": "float",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +121,7 @@
       "label": "xml",
       "kind": "Keyword",
       "detail": "Xml",
-      "sortText": "160",
+      "sortText": "120",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
@@ -25,7 +129,7 @@
       "label": "byte",
       "kind": "Keyword",
       "detail": "Byte",
-      "sortText": "160",
+      "sortText": "120",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
     },
@@ -33,7 +137,7 @@
       "label": "handle",
       "kind": "Keyword",
       "detail": "Handle",
-      "sortText": "160",
+      "sortText": "120",
       "insertText": "handle",
       "insertTextFormat": "Snippet"
     },
@@ -44,7 +148,7 @@
       "documentation": {
         "left": "Defaultable argument names. This is for internal use.\n"
       },
-      "sortText": "160",
+      "sortText": "120",
       "insertText": "ArgsData",
       "insertTextFormat": "Snippet"
     },
@@ -52,7 +156,7 @@
       "label": "null",
       "kind": "Keyword",
       "detail": "Nil",
-      "sortText": "160",
+      "sortText": "120",
       "insertText": "null",
       "insertTextFormat": "Snippet"
     },
@@ -60,31 +164,34 @@
       "label": "decimal",
       "kind": "Keyword",
       "detail": "Decimal",
-      "sortText": "160",
+      "sortText": "120",
       "insertText": "decimal",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Listener",
-      "kind": "Class",
-      "detail": "Object",
-      "sortText": "160",
-      "insertText": "Listener",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "string",
       "kind": "Keyword",
       "detail": "String",
-      "sortText": "160",
+      "sortText": "120",
       "insertText": "string",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "error",
+      "kind": "Keyword",
+      "detail": "Error",
+      "documentation": {
+        "left": "Default error type.\nThe first type parameter discribe reason type which must be a subtype of string,\nand the second type parameter is for the error detail.\nThe error detail record type may contain an optional message, optional cause,\nand any other pure constrained mapping values."
+      },
+      "sortText": "120",
+      "insertText": "error",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "stream",
       "kind": "Keyword",
       "detail": "Stream",
-      "sortText": "160",
+      "sortText": "120",
       "insertText": "stream",
       "insertTextFormat": "Snippet"
     },
@@ -92,7 +199,7 @@
       "label": "json",
       "kind": "Keyword",
       "detail": "Json",
-      "sortText": "160",
+      "sortText": "120",
       "insertText": "json",
       "insertTextFormat": "Snippet"
     },
@@ -100,7 +207,7 @@
       "label": "map",
       "kind": "Keyword",
       "detail": "Map",
-      "sortText": "160",
+      "sortText": "120",
       "insertText": "map",
       "insertTextFormat": "Snippet"
     },
@@ -108,7 +215,7 @@
       "label": "table",
       "kind": "Keyword",
       "detail": "Table",
-      "sortText": "160",
+      "sortText": "120",
       "insertText": "table",
       "insertTextFormat": "Snippet"
     },
@@ -116,7 +223,7 @@
       "label": "anydata",
       "kind": "Keyword",
       "detail": "Anydata",
-      "sortText": "160",
+      "sortText": "120",
       "insertText": "anydata",
       "insertTextFormat": "Snippet"
     },
@@ -124,7 +231,7 @@
       "label": "any",
       "kind": "Keyword",
       "detail": "Any",
-      "sortText": "160",
+      "sortText": "120",
       "insertText": "any",
       "insertTextFormat": "Snippet"
     },
@@ -132,15 +239,23 @@
       "label": "int",
       "kind": "Keyword",
       "detail": "Int",
-      "sortText": "160",
+      "sortText": "120",
       "insertText": "int",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "args",
+      "kind": "Variable",
+      "detail": "string[]",
+      "sortText": "120",
+      "insertText": "args",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "boolean",
       "kind": "Keyword",
       "detail": "Boolean",
-      "sortText": "160",
+      "sortText": "120",
       "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
@@ -148,7 +263,7 @@
       "label": "future",
       "kind": "Keyword",
       "detail": "Future",
-      "sortText": "160",
+      "sortText": "120",
       "insertText": "future",
       "insertTextFormat": "Snippet"
     },
@@ -156,7 +271,7 @@
       "label": "service",
       "kind": "Keyword",
       "detail": "Service",
-      "sortText": "160",
+      "sortText": "120",
       "insertText": "service",
       "insertTextFormat": "Snippet"
     },
@@ -164,16 +279,16 @@
       "label": "typedesc",
       "kind": "Keyword",
       "detail": "Typedesc",
-      "sortText": "160",
+      "sortText": "120",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lang",
+      "label": "strings",
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "lang",
+      "insertText": "strings",
       "insertTextFormat": "Snippet"
     },
     {
@@ -196,6 +311,29 @@
             }
           },
           "newText": "import ballerinax/java.jdbc;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.object",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "\u0027object",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.\u0027object;\n"
         }
       ]
     },
@@ -518,29 +656,6 @@
             }
           },
           "newText": "import ballerina/reflect;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.string",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "\u0027string",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.\u0027string;\n"
         }
       ]
     },
@@ -1233,45 +1348,6 @@
           "newText": "import ballerina/socket;\n"
         }
       ]
-    },
-    {
-      "label": "public",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "120",
-      "insertText": "public ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "resource",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "110",
-      "insertText": "resource function ${1:newResource}(${2}) {\n\t${3}\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/http;\n"
-        }
-      ]
-    },
-    {
-      "label": "function",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "110",
-      "insertText": "function ${1:name}(${2}) {\n\t${3}\n}",
-      "insertTextFormat": "Snippet"
     }
   ]
 }

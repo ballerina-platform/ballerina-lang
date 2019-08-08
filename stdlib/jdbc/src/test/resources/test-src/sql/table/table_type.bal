@@ -520,13 +520,15 @@ function testArrayData() returns @tainted [int[], int[], decimal[], string[], bo
     string[] string_arr = [];
     boolean[] boolean_arr = [];
     if (tableOrError is table<ResultMap>) {
-        var rs = tableOrError.getNext();
-        if (rs is ResultMap) {
-            int_arr = rs.INT_ARRAY;
-            long_arr = rs.LONG_ARRAY;
-            float_arr = rs.FLOAT_ARRAY;
-            boolean_arr = rs.BOOLEAN_ARRAY;
-            string_arr = rs.STRING_ARRAY;
+        while (tableOrError.hasNext()) {
+            var rs = tableOrError.getNext();
+            if (rs is ResultMap) {
+                int_arr = rs.INT_ARRAY;
+                long_arr = rs.LONG_ARRAY;
+                float_arr = rs.FLOAT_ARRAY;
+                boolean_arr = rs.BOOLEAN_ARRAY;
+                string_arr = rs.STRING_ARRAY;
+            }
         }
     }
     checkpanic testDB.stop();
