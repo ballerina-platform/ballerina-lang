@@ -2056,28 +2056,29 @@ function getCompileError(error e, bir:Package|bir:TypeDef|bir:Function src) retu
     map<anydata|error> detail = e.detail();
     string name = <string> detail.get("name");
     if (reason == ERROR_REASON_METHOD_TOO_LARGE) {
-        bir:DiagnosticPos? pos = getLineNumberInfo(src, name);
-        if (pos is bir:DiagnosticPos) {
-            return error(io:sprintf("%s:%s:%s:: method is too large: '%s'", pos.sourceFileName,
-                        pos.sCol, pos.sLine, name));
-        } else {
+        bir:Function? func = findBIRFunction(src, name);
+        if (func is ()) {
             return error(io:sprintf("method is too large: '%s'", name));
+        } else {
+            bir:DiagnosticPos pos = func.pos;
+            return error(io:sprintf("%s:%s:%s:: method is too large: '%s'", pos.sourceFileName,
+                         pos.sLine, pos.sCol, func.name.value));
         }
     } else if (reason == ERROR_REASON_CLASS_TOO_LARGE) {
-        return error(io:sprintf("file too large: '%s'", name));
+        return error(io:sprintf("file is too large: '%s'", name));
     }
 
     // should never reach here
     return e;
 }
 
-function getLineNumberInfo(bir:Package|bir:TypeDef|bir:Function src, string name) returns bir:DiagnosticPos? {
+function findBIRFunction(bir:Package|bir:TypeDef|bir:Function src, string name) returns bir:Function? {
     if (src is bir:Function) {
-        return src.pos;
+        return src;
     } else if (src is bir:Package) {
         foreach var func in src.functions {
             if (func is bir:Function && cleanupFunctionName(func.name.value) == name) {
-                return func.pos;
+                return func;
             }
         }
     } else {
@@ -2085,7 +2086,7 @@ function getLineNumberInfo(bir:Package|bir:TypeDef|bir:Function src, string name
         if (attachedFuncs is bir:Function?[]) {
             foreach var func in attachedFuncs {
                 if (func is bir:Function && cleanupFunctionName(func.name.value) == name) {
-                    return func.pos;
+                    return func;
                 }
             }
         } 
