@@ -63,7 +63,7 @@ public class KafkaConsumerAndProducerWithSSLTest {
     private String message = "Hello World SSL Test";
 
     //Constants
-    private String filePath = "<FILE_PATH>";
+    private String filePathString = "<FILE_PATH>";
     private static String keystoresAndTruststores = Paths.get("data-files", "keystores-truststores").toString();
 
     @BeforeClass
@@ -73,8 +73,8 @@ public class KafkaConsumerAndProducerWithSSLTest {
                 .deleteDataUponShutdown(true).addBrokers(1).startup();
         kafkaCluster.createTopic("test-topic-ssl", 2, 1);
         //Setting the keystore and trust-store file paths
-        String filePathString = Paths.get(resourceDir, configFile).toAbsolutePath().toString();
-        setFilePath(filePathString, filePath, Paths.get(resourceDir,
+        String filePath = Paths.get(resourceDir, configFile).toAbsolutePath().toString();
+        setFilePath(filePath, filePathString, Paths.get(resourceDir,
                 keystoresAndTruststores).toAbsolutePath().toString());
         result = BCompileUtil.compile(Paths.get(resourceDir, configFile).toAbsolutePath().toString());
     }
@@ -113,7 +113,7 @@ public class KafkaConsumerAndProducerWithSSLTest {
     public void tearDown() {
         //Reverting the keystore and trust-store file paths
         setFilePath(Paths.get(resourceDir, configFile).toAbsolutePath().toString(),
-                Paths.get(resourceDir, keystoresAndTruststores).toAbsolutePath().toString(), filePath);
+                Paths.get(resourceDir, keystoresAndTruststores).toAbsolutePath().toString(), filePathString);
         if (kafkaCluster != null) {
             kafkaCluster.shutdown();
             kafkaCluster = null;
