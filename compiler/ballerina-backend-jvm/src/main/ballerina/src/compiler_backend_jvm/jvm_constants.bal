@@ -321,7 +321,7 @@ const string THROWABLE = "java/lang/Throwable";
 
 // code generation related constants.
 const string MODULE_INIT_CLASS_NAME = "___init";
-const string IMPORT_MODULE_INIT_METHOD_NAME = "___initDepMod";
+const string MODULE_INIT = "$moduleInit";
 const string BAL_EXTENSION = ".bal";
 const string WINDOWS_PATH_SEPERATOR = "\\";
 const string UNIX_PATH_SEPERATOR = "/";

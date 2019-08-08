@@ -79,7 +79,6 @@ function isBIRFunctionExtern(string key) returns boolean {
         BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap[key]);
         return isExternFunc(functionWrapper.func);
     } else {
-        io:println("+++++++++++++++++++++++++++++");
         error err = error("cannot find function definition for : " + key);
         panic err;
     }
@@ -171,13 +170,13 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
             }
             generateStaticInitializer(module.globalVars, cw, moduleClass, serviceEPAvailable);
             generateCreateTypesMethod(cw, module.typeDefs);
+            generateModuleInitializer(cw, module, pkgName);
         } else {
             cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
             generateDefaultConstructor(cw, OBJECT);
         }
         cw.visitSource(v.sourceFileName);
         bir:Function?[] funcs = v.functions;
-        funcs[funcs.length()] = generateImportModInitializer(module);
         // generate methods
         foreach var func in v.functions {
             generateMethod(getFunction(func), cw, module);
@@ -374,13 +373,14 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
         JavaClass class = { sourceFileName:initFunc.pos.sourceFileName, moduleClass:initClass };
         class.functions[0] = initFunc;
         jvmClassMap[initClass] = class;
-        birFunctionMap[pkgName + functionName] = getFunctionWrapper(getFunction(initFunc), orgName, moduleName,
+        birFunctionMap[pkgName + functionName] = getFunctionWrapper(initFunc, orgName, moduleName,
                                                                     versionValue, initClass);
         count += 1;
 
         bir:Function startFunc = <bir:Function>functions[1];
         functionName = startFunc.name.value;
-
+        birFunctionMap[pkgName + functionName] = getFunctionWrapper(startFunc, orgName, moduleName,
+                                                                    versionValue, initClass);
         class.functions[1] = startFunc;
         count += 1;
 
