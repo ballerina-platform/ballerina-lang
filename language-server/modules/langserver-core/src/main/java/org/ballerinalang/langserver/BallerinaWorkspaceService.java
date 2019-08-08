@@ -24,8 +24,8 @@ import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvider;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
+import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
@@ -64,7 +64,6 @@ public class BallerinaWorkspaceService implements WorkspaceService {
     private BallerinaLanguageServer languageServer;
     private WorkspaceDocumentManager workspaceDocumentManager;
     private DiagnosticsHelper diagnosticsHelper;
-    private LSCompiler lsCompiler;
     private Map<String, Boolean> experimentalClientCapabilities;
     private static final Gson GSON = new Gson();
     private BallerinaClientConfigHolder configHolder = BallerinaClientConfigHolder.getInstance();
@@ -73,7 +72,6 @@ public class BallerinaWorkspaceService implements WorkspaceService {
         this.languageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
         this.workspaceDocumentManager = globalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
         this.diagnosticsHelper = globalContext.get(LSGlobalContextKeys.DIAGNOSTIC_HELPER_KEY);
-        this.lsCompiler = new LSCompiler(workspaceDocumentManager);
     }
 
     @Override
@@ -86,7 +84,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                 for (Path path : this.workspaceDocumentManager.getAllFilePaths()) {
                     symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
                     symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, path.toUri().toString());
-                    List<BLangPackage> bLangPackage = lsCompiler.getBLangPackages(symbolsContext,
+                    List<BLangPackage> bLangPackage = LSModuleCompiler.getBLangPackages(symbolsContext,
                                                                                   workspaceDocumentManager,
                                                                                   false, LSCustomErrorStrategy.class,
                                                                                   true, false);
@@ -110,10 +108,10 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                     ((BLangCompilationUnit) compilationUnit[1]).accept(visitor);
                 });
             } catch (UserErrorException e) {
-                notifyUser(e, languageServer);
+                notifyUser(e, languageServer.getClient());
             } catch (Throwable e) {
                 String msg = "Operation 'workspace/symbol' failed!";
-                logError(msg, e, languageServer, null, (Position) null);
+                logError(msg, e, languageServer.getClient(), null, (Position) null);
             }
             // Here we should extract only the Symbol information only.
             // TODO: Need to find a decoupled way to manage both with the same Symbol finding visitor
@@ -147,7 +145,6 @@ public class BallerinaWorkspaceService implements WorkspaceService {
             executeCommandContext.put(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY, params.getArguments());
             executeCommandContext.put(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY, this.workspaceDocumentManager);
             executeCommandContext.put(ExecuteCommandKeys.LANGUAGE_SERVER_KEY, this.languageServer);
-            executeCommandContext.put(ExecuteCommandKeys.LS_COMPILER_KEY, this.lsCompiler);
             executeCommandContext.put(ExecuteCommandKeys.DIAGNOSTICS_HELPER_KEY, this.diagnosticsHelper);
 
             try {
@@ -157,14 +154,14 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                     return executor.get().execute(executeCommandContext);
                 }
             } catch (UserErrorException e) {
-                notifyUser(e, languageServer);
+                notifyUser(e, languageServer.getClient());
             } catch (Throwable e) {
                 String msg = "Operation 'workspace/executeCommand' failed!";
-                logError(msg, e, languageServer, null, (Position) null);
+                logError(msg, e, languageServer.getClient(), null, (Position) null);
             }
             logError("Operation 'workspace/executeCommand' failed!",
                      new LSCommandExecutorException("No command executor found for '" + params.getCommand() + "'"),
-                     languageServer, null, (Position) null);
+                     languageServer.getClient(), null, (Position) null);
             return false;
         });
     }

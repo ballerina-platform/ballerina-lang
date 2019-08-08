@@ -50,6 +50,10 @@ public class MetricsLaunchListener implements LaunchListener {
     public void beforeRunProgram(boolean service) {
         if (DefaultMetricRegistry.getInstance() == null) {
             ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+            if (!configRegistry.isInitialized()) {
+                // If config registry is not initialized, skip setting metric registry as well.
+                return;
+            }
             if (!configRegistry.getAsBoolean(CONFIG_METRICS_ENABLED)) {
                 // Create default MetricRegistry with NoOpMetricProvider
                 DefaultMetricRegistry.setInstance(new MetricRegistry(new NoOpMetricProvider()));

@@ -184,7 +184,7 @@ public class BuildCommand implements BLauncherCmd {
                     .addTask(new CreateBaloTask())
                     .addTask(new CreateBirTask())
                     .addTask(new CopyNativeLibTask())
-                    .addTask(new CreateJarTask())
+                    .addTask(new CreateJarTask(dumpBIR))
                     .addTask(new CopyModuleJarTask())
                     .addTask(new RunTestsTask(), this.skipTests)
                     .addTask(new CreateExecutableTask())
@@ -253,7 +253,7 @@ public class BuildCommand implements BLauncherCmd {
     
                 try {
                     // TODO: use a files system
-                    Path tempTarget = Files.createTempDirectory(pkgOrSourceFileNameAsString);
+                    Path tempTarget = Files.createTempDirectory("ballerina-build-" + System.nanoTime());
                     BuildContext buildContext = new BuildContext(sourceRootPath, tempTarget, sourceFullPath);
                     buildContext.setOut(outStream);
                     buildContext.setOut(errStream);
@@ -263,7 +263,7 @@ public class BuildCommand implements BLauncherCmd {
                             .addTask(new CreateTargetDirTask())
                             .addTask(new CompileTask())
                             .addTask(new CreateBirTask())
-                            .addTask(new CreateJarTask())
+                            .addTask(new CreateJarTask(dumpBIR))
                             .addTask(new CopyModuleJarTask())
                             .addTask(new RunTestsTask(), this.skipTests)
                             .addTask(new CreateExecutableTask())
@@ -298,7 +298,7 @@ public class BuildCommand implements BLauncherCmd {
                         .addTask(new CreateBaloTask())
                         .addTask(new CreateBirTask())
                         .addTask(new CopyNativeLibTask())
-                        .addTask(new CreateJarTask())
+                        .addTask(new CreateJarTask(dumpBIR))
                         .addTask(new CopyModuleJarTask())
                         .addTask(new RunTestsTask(), this.skipTests)
                         .addTask(new CreateExecutableTask())

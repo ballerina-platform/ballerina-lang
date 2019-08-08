@@ -484,13 +484,15 @@ public class SQLDataIterator extends TableIterator {
         boolean isOriginalValueNull = rs.wasNull();
         if (fieldTypeTag == TypeTags.UNION_TAG) {
             Boolean booleanValue = isOriginalValueNull ? null : boolValue;
-            validateAndSetRefRecordField(bStruct, fieldName, TypeTags.BOOLEAN_TAG, retrieveNonNilTypeTag(fieldType),
+            int[] expectedTypeTags = { TypeTags.INT_TAG, TypeTags.BOOLEAN_TAG };
+            validateAndSetRefRecordField(bStruct, fieldName, expectedTypeTags, retrieveNonNilTypeTag(fieldType),
                     booleanValue, UNASSIGNABLE_UNIONTYPE_EXCEPTION);
         } else {
             if (isOriginalValueNull) {
                 handleNilToNonNillableFieldAssignment();
             } else {
-                validateAndSetRefRecordField(bStruct, fieldName, TypeTags.BOOLEAN_TAG, fieldTypeTag, boolValue,
+                int[] expectedTypeTags = { TypeTags.INT_TAG, TypeTags.BOOLEAN_TAG };
+                validateAndSetRefRecordField(bStruct, fieldName, expectedTypeTags, fieldTypeTag, boolValue,
                         MISMATCHING_FIELD_ASSIGNMENT);
             }
         }

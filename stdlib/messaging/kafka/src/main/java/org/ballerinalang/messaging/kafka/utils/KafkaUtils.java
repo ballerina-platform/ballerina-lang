@@ -165,7 +165,8 @@ public class KafkaUtils {
             // TODO: Use the above commented code instead of the for loop once #17075 fixed.
             int i = 0;
             for (ConsumerRecord<byte[], byte[]> record : records) {
-                consumerRecordsArray.add(i++, record);
+                MapValue<String, Object> consumerRecord = populateConsumerRecord(record);
+                consumerRecordsArray.add(i++, consumerRecord);
             }
             return new Object[]{listener, true, consumerRecordsArray, true, null, false, null, false};
         } else {
@@ -504,12 +505,19 @@ public class KafkaUtils {
             return null;
         }
         return createRecord(getConsumerRecord(),
-                record.key(),
-                record.value(),
+                getByteArrayValue(record.key()),
+                getByteArrayValue(record.value()),
                 record.offset(),
                 record.partition(),
                 record.timestamp(),
                 record.topic());
+    }
+
+    private static ArrayValue getByteArrayValue(byte[] byteArray) {
+        if (Objects.isNull(byteArray)) {
+            return null;
+        }
+        return new ArrayValue(byteArray);
     }
 
     public static MapValue<String, Object> getConsumerRecord() {
