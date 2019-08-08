@@ -472,7 +472,7 @@ public class TaintedStatusPropagationTest {
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test
+    @Test(enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/17497
     public void testSimpleWorkerInteractionNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/simple-worker-interaction-negative.bal");
@@ -544,7 +544,7 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
-        public void testErrorNegative() {
+    public void testErrorNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/error-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 4);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 19, 20);
