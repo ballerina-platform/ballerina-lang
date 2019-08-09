@@ -1796,8 +1796,9 @@ function generateFrameClassForFunction (string pkgName, bir:Function? func, map<
 
     cw.visitEnd();
 
-    byte[] result = checkpanic cw.toByteArray();
-    pkgEntries[frameClassName + ".class"] = result;
+    // panic if there are errors in the frame class. These cannot be logged, since
+    // frame classes are internal implementation details.
+    pkgEntries[frameClassName + ".class"] = checkpanic cw.toByteArray();
 }
 
 function getFrameClassName(string pkgName, string funcName, bir:BType? attachedType) returns string {

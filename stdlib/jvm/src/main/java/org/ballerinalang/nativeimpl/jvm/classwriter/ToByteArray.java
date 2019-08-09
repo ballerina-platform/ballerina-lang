@@ -72,7 +72,7 @@ public class ToByteArray extends BlockingNativeCallableUnit {
         } catch (ClassTooLargeException e) {
             MapValue<String, String> details = new MapValueImpl<>(BTypes.typeErrorDetail);
             details.put(NAME, e.getClassName());
-            return BallerinaErrors.createError(ErrorReasons.METHOD_TOO_LARGE, details);
+            return BallerinaErrors.createError(ErrorReasons.CLASS_TOO_LARGE, details);
         } catch (Exception e) {
             return BallerinaErrors.createError(e.getMessage());
         }

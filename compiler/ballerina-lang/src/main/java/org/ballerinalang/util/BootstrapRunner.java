@@ -202,7 +202,7 @@ public class BootstrapRunner {
             Throwable target = e.getTargetException();
             throw new RuntimeException(target.getMessage(), target);
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | MalformedURLException e) {
-            throw new BLangCompilerException("could not invoke compiler backend", e);
+            throw new RuntimeException("could not invoke compiler backend", e);
         }
     }
 

@@ -54,7 +54,7 @@ public class ClassVerifier {
      * Verifies the validity of classes.
      * 
      * @param jarEntries Content of all classes that needs to be verified.
-     * @param bytes Content of classes thats needs to be loaded before starting the verification.
+     * @param jarPath path to the jar to be loaded.
      * @return An optional error, if there are verification errors.
      */
     public static Optional<ErrorValue> verify(Map<String, ArrayValue> jarEntries, String jarPath) {
@@ -74,7 +74,7 @@ public class ClassVerifier {
 
     /**
      * This method is an extension of
-     * {@code jdk.internal.org.objectweb.asm.util.CheckClassAdapter#verify(ClassReader, boolean, java.io.PrintWriter)}
+     * {@code jdk.internal.org.objectweb.asm.util.CheckClassAdapter#verify(ClassReader, boolean, java.io.PrintWriter)}.
      * 
      * @param bytes Bytes stream of the class to be verified.
      * @return An optional error, if there are verification errors.
