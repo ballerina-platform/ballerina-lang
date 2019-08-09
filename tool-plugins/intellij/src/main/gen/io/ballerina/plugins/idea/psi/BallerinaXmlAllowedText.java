@@ -21,15 +21,6 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaComment extends PsiElement {
-
-  @NotNull
-  List<BallerinaExpression> getExpressionList();
-
-  @Nullable
-  PsiElement getXmlCommentEnd();
-
-  @NotNull
-  PsiElement getXmlCommentStart();
+public interface BallerinaXmlAllowedText extends PsiElement {
 
 }
