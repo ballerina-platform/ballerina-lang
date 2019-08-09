@@ -72,10 +72,11 @@ public type ObjectGenerator object {
         
         cw.visitEnd();
         var result = cw.toByteArray();
-        if (result is byte[]) {
-            return result;
+        if !(result is byte[]) {
+            logCompileError(result, typeDef, self.module);
+            return [];
         } else {
-            panic getCompileError(result, typeDef);
+            return result;
         }
     }
 
@@ -341,10 +342,11 @@ public type ObjectGenerator object {
         self.createLambdas(cw);
         cw.visitEnd();
         var result = cw.toByteArray();
-        if (result is byte[]) {
-            return result;
+        if !(result is byte[]) {
+            logCompileError(result, typeDef, self.module);
+            return [];
         } else {
-            panic getCompileError(result, typeDef);
+            return result;
         }
     }
 

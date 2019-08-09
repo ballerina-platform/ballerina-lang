@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
  *
  * @since 1.0
  */
+@Test(groups = { "brokenOnJBallerina" })
 public class CodegenErrorsTest {
 
     @Test(expectedExceptions = RuntimeException.class,

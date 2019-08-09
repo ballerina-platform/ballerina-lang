@@ -1796,12 +1796,8 @@ function generateFrameClassForFunction (string pkgName, bir:Function? func, map<
 
     cw.visitEnd();
 
-    var result = cw.toByteArray();
-    if (result is byte[]) {
-        pkgEntries[frameClassName + ".class"] = result;
-    } else {
-        panic getCompileError(result, currentFunc);
-    }
+    byte[] result = checkpanic cw.toByteArray();
+    pkgEntries[frameClassName + ".class"] = result;
 }
 
 function getFrameClassName(string pkgName, string funcName, bir:BType? attachedType) returns string {
@@ -2051,26 +2047,32 @@ function stringArrayContains(string[] array, string item) returns boolean {
     return false;
 }
 
-function getCompileError(error e, bir:Package|bir:TypeDef|bir:Function src) returns error {
-    string reason = e.reason();
-    map<anydata|error> detail = e.detail();
+function logCompileError(error compileError, bir:Package|bir:TypeDef|bir:Function src, bir:Package currentModule) {
+    string reason = compileError.reason();
+    map<anydata|error> detail = compileError.detail();
+    error err;
+    bir:DiagnosticPos pos;
+    string name;
     if (reason == ERROR_REASON_METHOD_TOO_LARGE) {
-        string name = <string> detail.get("name");
+        name = <string> detail.get("name");
+        err = error(io:sprintf("method is too large: '%s'", name));
         bir:Function? func = findBIRFunction(src, name);
         if (func is ()) {
-            return error(io:sprintf("method is too large: '%s'", name));
+            panic compileError;
         } else {
-            bir:DiagnosticPos pos = func.pos;
-            return error(io:sprintf("%s:%s:%s:: method is too large: '%s'", pos.sourceFileName,
-                         pos.sLine, pos.sCol, func.name.value));
+            pos = func.pos;
         }
     } else if (reason == ERROR_REASON_CLASS_TOO_LARGE) {
-        string name = <string> detail.get("name");
-        return error(io:sprintf("file is too large: '%s'", name));
+        name = <string> detail.get("name");
+        err = error(io:sprintf("file is too large: '%s'", name));
+        pos = {};
+    } else {
+        panic compileError;
     }
 
-    // should never reach here
-    return e;
+    logError(err, pos, currentModule);
+    string pkgName = getPackageName(currentModule.org.value, currentModule.name.value);
+    functionGenErrors[pkgName + name] = err;
 }
 
 function findBIRFunction(bir:Package|bir:TypeDef|bir:Function src, string name) returns bir:Function? {

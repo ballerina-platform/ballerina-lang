@@ -189,12 +189,19 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
         // clear the lambdas
         lambdas = {};
         cw.visitEnd();
+
         var result = cw.toByteArray();
-        if (result is byte[]) {
-            jarFile.pkgEntries[moduleClass + ".class"] = result;
+        if (result is error) {
+            logCompileError(result, module, module);
+            jarFile.pkgEntries[moduleClass + ".class"] = [];
         } else {
-            panic getCompileError(result, module);
+            jarFile.pkgEntries[moduleClass + ".class"] = result;
         }
+    }
+
+    if (functionGenErrors.length() > 0) {
+        error err = error("package generation failed");
+        return err;
     }
 }
 
@@ -419,18 +426,13 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
             }
 
             if (birFuncWrapperOrError is error) {
-                logError(birFuncWrapperOrError, birFunc, module);
+                logError(birFuncWrapperOrError, birFunc.pos, module);
                 functionGenErrors[pkgName + birFuncName] = birFuncWrapperOrError;
                 continue;
             } else {
                 birFunctionMap[pkgName + birFuncName] = birFuncWrapperOrError;
             }
         }
-    }
-
-    if (functionGenErrors.length() > 0) {
-        error err = error("function generation failed");
-        return err;
     }
 
     // link typedef - object attached native functions
@@ -481,8 +483,7 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
     return jvmClassMap;
 }
 
-function logError(error err, bir:Function birFunc, bir:Package module) {
-    bir:DiagnosticPos pos = birFunc.pos;
+function logError(error err, bir:DiagnosticPos pos, bir:Package module) {
     string fileName = pos.sourceFileName;
     int sLine = pos.sLine;
     int eLine = pos.eLine;
