@@ -24,7 +24,7 @@ public type Listener object {
     *lang:AbstractListener;
 
     private int port = 0;
-    private ServiceEndpointConfiguration config = {};
+    private ListenerConfiguration config = {};
 
     # Starts the registered service.
     #
@@ -53,7 +53,7 @@ public type Listener object {
     #
     # + port - Listener port.
     # + config - The ServiceEndpointConfiguration of the endpoint.
-    public function __init(int port, ServiceEndpointConfiguration? config = ()) {
+    public function __init(int port, ListenerConfiguration? config = ()) {
         self.config = config ?: {};
         self.port = port;
         error? err = self.initEndpoint();
@@ -84,9 +84,9 @@ const int DEFAULT_LISTENER_TIMEOUT = 120000; //2 mins
 # + httpVersion - HTTP version supported by the endpoint. This should be 2.0 as gRPC works only with HTTP/2.
 # + timeoutInMillis - Period of time in milliseconds that a connection waits for a read/write operation. Use value 0 to
 #                   disable timeout.
-public type ServiceEndpointConfiguration record {|
+public type ListenerConfiguration record {|
     string host = "0.0.0.0";
-    ServiceSecureSocket? secureSocket = ();
+    ListenerSecureSocket? secureSocket = ();
     string httpVersion = "2.0";
     int timeoutInMillis = DEFAULT_LISTENER_TIMEOUT;
 |};
@@ -108,7 +108,7 @@ public type ServiceEndpointConfiguration record {|
 # + ocspStapling - Enable/disable OCSP stapling
 # + handshakeTimeoutInSeconds - SSL handshake time out
 # + sessionTimeoutInSeconds - SSL session time out
-public type ServiceSecureSocket record {|
+public type ListenerSecureSocket record {|
     crypto:TrustStore? trustStore = ();
     crypto:KeyStore? keyStore = ();
     string certFile = "";
@@ -124,7 +124,7 @@ public type ServiceSecureSocket record {|
                         "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256"];
     string sslVerifyClient = "";
     boolean shareSession = true;
-    ServiceOcspStapling? ocspStapling = ();
+    ListenerOcspStapling? ocspStapling = ();
     int handshakeTimeoutInSeconds?;
     int sessionTimeoutInSeconds?;
 |};

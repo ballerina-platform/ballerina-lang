@@ -121,7 +121,7 @@ public type WebhookServerForPayload object {
             }
         };
         string host = config is () ? "" : config.host;
-        websub:SubscriberServiceEndpointConfiguration sseConfig = {
+        websub:SubscriberListenerConfiguration sseConfig = {
             host: host,
             extensionConfig: extensionConfig
         };
@@ -159,7 +159,7 @@ public type WebhookServerForHeader object {
             }
         };
         string host = config is () ? "" : config.host;
-        websub:SubscriberServiceEndpointConfiguration sseConfig = {
+        websub:SubscriberListenerConfiguration sseConfig = {
             host: host,
             extensionConfig: extensionConfig
         };
@@ -218,7 +218,7 @@ public type WebhookServerForHeaderAndPayload object {
             }
         };
         string host = config is () ? "" : config.host;
-        websub:SubscriberServiceEndpointConfiguration sseConfig = {
+        websub:SubscriberListenerConfiguration sseConfig = {
             host: host,
             extensionConfig: extensionConfig
         };
