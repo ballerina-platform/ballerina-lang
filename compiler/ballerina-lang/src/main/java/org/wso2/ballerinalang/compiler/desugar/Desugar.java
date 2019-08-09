@@ -397,10 +397,8 @@ public class Desugar extends BLangNodeVisitor {
         createInvokableSymbol(pkgNode.initFunction, env);
         // Create invokable symbol for start function
         createInvokableSymbol(pkgNode.startFunction, env);
-        addNilReturnStatement(pkgNode.startFunction.body);
         // Create invokable symbol for stop function
         createInvokableSymbol(pkgNode.stopFunction, env);
-        addNilReturnStatement(pkgNode.stopFunction.body);
     }
 
     private void addUserDefinedModuleInitInvocationAndReturn(BLangPackage pkgNode) {
@@ -541,6 +539,9 @@ public class Desugar extends BLangNodeVisitor {
 
         serviceDesugar.rewriteListeners(pkgNode.globalVars, env);
         serviceDesugar.rewriteServiceAttachments(serviceAttachments, env);
+
+        addNilReturnStatement(pkgNode.startFunction.body);
+        addNilReturnStatement(pkgNode.stopFunction.body);
 
         pkgNode.initFunction = splitInitFunction(pkgNode, env);
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
@@ -5019,6 +5020,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangBlockStmt patternBlockFailureCase = (BLangBlockStmt) TreeBuilder.createBlockNode();
         patternBlockFailureCase.pos = pos;
+        // TODO: 8/9/19 Maryam remove returnOnError check and see
         if (!isCheckPanicExpr && returnOnError) {
             //return e;
             BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
