@@ -804,8 +804,11 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
     bir:BType returnType = bir:TYPE_NIL;
     if (lhsType is bir:BFutureType) {
         returnType = lhsType.returnType;
-    } else if (lhsType is bir:BInvokableType) { 
-        returnType = <bir:BType> lhsType?.retType;
+    } else if (ins is bir:FPLoad) {
+        returnType = ins.retType;
+        if (returnType is bir:BInvokableType) {
+            returnType = <bir:BType> returnType?.retType;
+        }
     } else {
         error err = error( "JVM generation is not supported for async return type " +
                                         io:sprintf("%s", lhsType));
@@ -938,8 +941,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
     } else {
         string methodDesc = getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount);
         string jvmClass = lookupFullQualifiedClassName(getPackageName(orgName, moduleName) + funcName);
-        mv.visitMethodInsn(INVOKESTATIC, jvmClass, funcName, getLambdaMethodDesc(paramBTypes, returnType,
-                           closureMapsCount), false);
+        mv.visitMethodInsn(INVOKESTATIC, jvmClass, funcName, methodDesc, false);
     }
 
     if (isVoid) {

@@ -533,6 +533,7 @@ public type FPLoad record {|
     Name name;
     VariableDcl?[] params;
     VarRef?[] closureMaps;
+    BType retType;
 |};
 
 public type FieldAccess record {|
