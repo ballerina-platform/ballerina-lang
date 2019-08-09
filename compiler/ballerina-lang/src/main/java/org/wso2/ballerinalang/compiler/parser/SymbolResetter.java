@@ -71,6 +71,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -1148,8 +1150,12 @@ public class SymbolResetter extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorType errorType) {
         errorType.reset();
-        errorType.reasonType.accept(this);
-        errorType.detailType.accept(this);
+        if (errorType.reasonType != null) {
+            errorType.reasonType.accept(this);
+        }
+        if (errorType.detailType != null) {
+            errorType.detailType.accept(this);
+        }
     }
 
 
@@ -1407,6 +1413,46 @@ public class SymbolResetter extends BLangNodeVisitor {
     public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
         waitLiteral.reset();
         waitLiteral.accept(this);
+    }
+
+    @Override
+    public void visit(BLangGroupExpr groupExpr) {
+        groupExpr.reset();
+        if (groupExpr.expression == null) {
+            return;
+        }
+        groupExpr.expression.accept(this);
+    }
+
+    @Override
+    public void visit(BLangLock.BLangLockStmt lockStmtNode) {
+        lockStmtNode.reset();
+    }
+
+    @Override
+    public void visit(BLangLock.BLangUnLockStmt unLockNode) {
+        unLockNode.reset();
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr.BLangTupleLiteral tupleLiteral) {
+        tupleLiteral.reset();
+        tupleLiteral.accept(this);
+    }
+
+    @Override
+    public void visit(BLangIgnoreExpr ignoreExpr) {
+        ignoreExpr.reset();
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess.BLangStringAccessExpr stringAccessExpr) {
+        stringAccessExpr.reset();
+    }
+
+    @Override
+    public void visit(BLangRecordLiteral.BLangRecordKeyValue recordKeyValue) {
+        recordKeyValue.reset();
     }
 
     private void throwInvalidStateException(Class clazz) {
