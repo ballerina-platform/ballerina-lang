@@ -774,40 +774,10 @@ NamedArgs ::= identifier ASSIGN Expression {pin=2}
 
 RestArgs ::= ELLIPSIS Expression {pin=1}
 
-// XML parsing
+// Todo - remove after restoring xml grammar
+XmlLiteral ::= XML_LITERAL_START XmlAllowedText XML_LITERAL_END
+XmlAllowedText ::= XML_ALL_CHAR*
 
-XmlLiteral ::= XML_LITERAL_START XmlItem XML_LITERAL_END {pin=1}
-
-XmlItem ::= ProcIns | Comment | Element | XmlText | cdata
-
-Content ::= XmlText? ((ProcIns | Comment | Element | cdata) XmlText?)*
-
-//Todo - Verify
-Comment ::= XML_COMMENT_START (XML_COMMENT_TEMPLATE_TEXT Expression RIGHT_BRACE)* XML_COMMENT_TEXT* XML_COMMENT_END {pin=1}
-
-Element ::= StartTag Content CloseTag | EmptyTag
-
-StartTag ::= XML_TAG_OPEN XmlQualifiedName Attribute* XML_TAG_CLOSE {pin=1}
-
-CloseTag ::= XML_TAG_OPEN_SLASH XmlQualifiedName XML_TAG_CLOSE {pin=1}
-
-EmptyTag ::= XML_TAG_OPEN XmlQualifiedName Attribute* XML_TAG_SLASH_CLOSE {pin=1}
-
-ProcIns ::= XML_TAG_SPECIAL_OPEN (XML_PI_TEMPLATE_TEXT Expression RIGHT_BRACE)* XML_PI_TEXT {pin=1}
-
-Attribute ::= XmlQualifiedName EQUALS XmlQuotedString;
-
-XmlText ::= (XML_TEMPLATE_TEXT Expression RIGHT_BRACE)+ XML_TEXT_SEQUENCE? | XML_TEXT_SEQUENCE
-
-XmlQuotedString ::= XmlSingleQuotedString | XmlDoubleQuotedString
-
-XmlSingleQuotedString ::= SINGLE_QUOTE (XML_SINGLE_QUOTED_TEMPLATE_STRING Expression RIGHT_BRACE)* XML_SINGLE_QUOTED_STRING_SEQUENCE? SINGLE_QUOTE_END
-
-XmlDoubleQuotedString ::= DOUBLE_QUOTE (XML_DOUBLE_QUOTED_TEMPLATE_STRING Expression RIGHT_BRACE)* XML_DOUBLE_QUOTED_STRING_SEQUENCE? DOUBLE_QUOTE_END
-
-XmlQualifiedName ::= (XML_QNAME QNAME_SEPARATOR)? XML_QNAME
-
-// Todo - Uncomment
 StringTemplateLiteral ::= STRING_TEMPLATE_LITERAL_START StringTemplateContent? STRING_TEMPLATE_LITERAL_END {pin=1 /*recoverWhile=StringTemplateLiteralRecover*/}
 
 // Todo - Update to statement recover
