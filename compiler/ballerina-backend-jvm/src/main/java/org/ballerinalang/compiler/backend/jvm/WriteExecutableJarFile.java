@@ -23,7 +23,6 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -32,7 +31,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
-import java.util.Optional;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -67,11 +65,13 @@ public class WriteExecutableJarFile extends BlockingNativeCallableUnit {
     public static void writeExecutableJarToFile(Strand strand, MapValue oJarFile, String targetPath) {
         try {
             writeJarContent(oJarFile, new FileOutputStream(targetPath));
-            Optional<ErrorValue> result =
-                    ClassVerifier.verify((Map<String, ArrayValue>) oJarFile.get(PKG_ENTRIES), targetPath);
-            if (result.isPresent()) {
-                throw result.get();
-            }
+            
+            // TODO: enable the verification once the uber-jar generation is complete.
+            // Optional<ErrorValue> result =
+            // ClassVerifier.verify((Map<String, ArrayValue>) oJarFile.get(PKG_ENTRIES), targetPath);
+            // if (result.isPresent()) {
+            // throw result.get();
+            // }
         } catch (IOException e) {
             throw new BLangCompilerException("jar file generation failed: " + e.getMessage(), e);
         }
