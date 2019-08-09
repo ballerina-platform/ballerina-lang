@@ -22,6 +22,10 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
@@ -30,9 +34,11 @@ import java.nio.file.Paths;
 public class TomlFileToManifestTest {
 
     @Test(description = "Test which covers all the attributes tested above")
-    public void testTomlFile() {
-        Manifest manifest = TomlParserUtils.getManifest(Paths.get(System.getProperty("user.dir"), "src", "test",
-                                                                  "resources"));
+    public void testTomlFile() throws URISyntaxException {
+        URI ballerinaTomlURI = getClass().getClassLoader().getResource("Ballerina.toml").toURI();
+        Path ballerinTomlPath = Paths.get(ballerinaTomlURI);
+        
+        Manifest manifest = TomlParserUtils.getManifest(ballerinTomlPath.getParent());
         Assert.assertEquals(manifest.getProject().getOrgName(), "foo");
         Assert.assertEquals(manifest.getProject().getVersion(), "1.0.0");
         Assert.assertEquals(manifest.getProject().getRepository(), "https://github.com/ballerinalang/ballerina");
@@ -43,14 +49,9 @@ public class TomlFileToManifestTest {
         Assert.assertEquals(manifest.getProject().getKeywords().get(2), "crypto");
         Assert.assertEquals(manifest.getProject().getKeywords().size(), 3);
 
-        Assert.assertEquals(manifest.getDependencies().size(), 2);
+        Assert.assertEquals(manifest.getDependencies().size(), 1);
         
         Assert.assertEquals(manifest.getDependencies().get(0).getModuleName(), "wso2/twitter");
         Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getVersion(), "2.3.4");
-    
-        Assert.assertEquals(manifest.getDependencies().get(1).getModuleName(), "wso2/github");
-        Assert.assertEquals(manifest.getDependencies().get(1).getMetadata().getVersion(), "1.2.3");
-        Assert.assertEquals(manifest.getDependencies().get(1).getMetadata().getPath(), "path/to/github.balo");
-        
     }
 }

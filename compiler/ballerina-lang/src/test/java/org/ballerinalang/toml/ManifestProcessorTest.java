@@ -24,68 +24,66 @@ import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 /**
  * Test class to populate Manifest object by reading the toml.
  */
 public class ManifestProcessorTest {
+    private String validProjectBlock = "[project]\n" +
+                                       "org-name = \"foo\"\n" +
+                                       "version = \"1.0.0\"\n";
     
     @Test(description = "Empty Ballerina.toml file", expectedExceptions = TomlException.class,
-          expectedExceptionsMessageRegExp = "invalid Ballerina.toml file: the Ballerina.toml file should have " +
-                                            "the organization name and the version of the project. example: \n" +
-                                            "[project]\n" +
+          expectedExceptionsMessageRegExp = ".*invalid Ballerina.toml file: organization name and the version of the " +
+                                            "project is missing. example: \n" +
+                                            "\\[project\\]\n" +
                                             "org-name=\"my_org\"\n" +
-                                            "version=\"1.0.0\"\n")
+                                            "version=\"1.0.0\".*")
     public void testEmpty() throws TomlException {
         ManifestProcessor.parseTomlContentFromString("");
     }
     
     
     @Test(description = "Invalid Ballerina.toml file", expectedExceptions = TomlException.class,
-          expectedExceptionsMessageRegExp = "invalid Ballerina.toml file: the Ballerina.toml file should have " +
-                                            "the organization name and the version of the project. example: \n" +
-                                            "[project]\n" +
-                                            "org-name=\"my_org\"\n" +
-                                            "version=\"1.0.0\"\n")
+          expectedExceptionsMessageRegExp = "invalid Ballerina.toml file: invalid key on line 1: \\[foo")
     public void testInvalid() throws TomlException {
         ManifestProcessor.parseTomlContentFromString("[foo");
-    }
-    
-    @Test(description = "Module name in module section has an effect")
-    public void testPackageName() throws TomlException {
-        Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project] \n" +
-                "#Name of the module \n orgName = \"foo\"");
-        Assert.assertEquals(manifest.getProject().getOrgName(), "foo");
     }
 
     @Test(description = "Attribute with single comment doesn't have an effect")
     public void testAttributeWithSingleComment() throws TomlException {
         Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project] \n" +
-                "#Name of the module \n orgName = \"foo\"");
+                "#Name of the module \n org-name = \"foo\" \n" +
+                 "version = \"1.0.0\"");
         Assert.assertEquals(manifest.getProject().getOrgName(), "foo");
     }
 
     @Test(description = "Attribute with multiline comments doesn't have an effect")
     public void testAttributeWithMultilineComments() throws TomlException {
         Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project] \n" +
-                "# Name of the module \n #This is the module config section \n orgName = \"foo/string\"");
+                "# Name of the module \n #This is the module config section \n org-name = \"foo/string\"\n" +
+                                                                         "version = \"1.0.0\"");
         Assert.assertEquals(manifest.getProject().getOrgName(), "foo/string");
     }
 
     @Test(description = "Key with special characters in module section has no effect")
     public void testPackageNameWithSpecialCharacters() throws TomlException {
-        ManifestProcessor.parseTomlContentFromString("[project] \n name-value = \"orgName/string\"");
-        Assert.assertNotEquals(null, "\"org-name/string\"");
+        ManifestProcessor.parseTomlContentFromString(this.validProjectBlock + " \n name-value = \"bar/string\"");
     }
 
     @Test(description = "Version in module section has an effect")
     public void testVersion() throws TomlException {
-        Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project] \n version = \"1.0.0\"");
+        Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock);
+        Assert.assertEquals(manifest.getProject().getOrgName(), "foo");
         Assert.assertEquals(manifest.getProject().getVersion(), "1.0.0");
     }
 
     @Test(description = "Authors in module section has an effect")
     public void testAuthors() throws TomlException {
-        Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project] \n" +
+        Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock +
                 "authors = [\"tyler@wso2.com\", \"manu@wso2.com\"]");
         Assert.assertEquals(manifest.getProject().getAuthors().get(0), "tyler@wso2.com");
         Assert.assertEquals(manifest.getProject().getAuthors().get(1), "manu@wso2.com");
@@ -93,32 +91,27 @@ public class ManifestProcessorTest {
 
     @Test(description = "Empty author array in module section has an effect")
     public void testEmptyAuthorArray() throws TomlException {
-        Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project] \n authors = []");
+        Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock + "authors = []");
         Assert.assertEquals(manifest.getProject().getAuthors().size(), 0);
     }
 
     @Test(description = "Repository url in module section has an effect")
     public void testRepositoryURL() throws TomlException {
-        Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project] \n " +
+        Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock +
                 "repository = \"https://github.com/ballerinalang/ballerina\"");
         Assert.assertEquals(manifest.getProject().getRepository(), "https://github.com/ballerinalang/ballerina");
     }
 
-    @Test(description = "Version in non-module section has no effect")
+    @Test(description = "Version in non-module section has no effect", expectedExceptions = TomlException.class,
+          expectedExceptionsMessageRegExp = "invalid Ballerina.toml file: cannot find \\[project\\]")
     public void testVersionNeg() throws TomlException {
         Manifest manifest = ManifestProcessor.parseTomlContentFromString("[patches] \n version = \"v1\"");
         Assert.assertNull(manifest.getProject());
     }
-
-    @Test(description = "Location in module section has no effect")
-    public void testLocationNeg() throws TomlException {
-        ManifestProcessor.parseTomlContentFromString("[project] \n location = \"local\"");
-        Assert.assertNotEquals(null, "local");
-    }
     
     @Test(description = "Keywords in module section has an effect")
     public void testKeywords() throws TomlException {
-        Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project] \n" +
+        Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock +
                 "keywords=[\"ballerina\",\"security\",\"security\"]");
         Assert.assertEquals(manifest.getProject().getKeywords().get(0), "ballerina");
         Assert.assertEquals(manifest.getProject().getKeywords().get(1), "security");
@@ -127,35 +120,50 @@ public class ManifestProcessorTest {
 
     @Test(description = "Description in module section has an effect")
     public void testLicenseDescription() throws TomlException {
-        Manifest manifest = ManifestProcessor.parseTomlContentFromString("[project] \n " +
-                "license = \"MIT OR Apache-2.0\"");
-        Assert.assertEquals(manifest.getProject().getLicense(), "MIT OR Apache-2.0");
+        Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock +
+                "license = [\"MIT\", \"Apache-2.0\"]");
+        Assert.assertEquals(manifest.getProject().getLicense().get(0), "MIT");
+        Assert.assertEquals(manifest.getProject().getLicense().get(1), "Apache-2.0");
     }
 
     @Test(description = "One dependency added to the dependencies section has an effect")
-    public void testSingleDependencies() throws TomlException {
-        Manifest manifest = ManifestProcessor.parseTomlContentFromString("[dependencies] \n " +
-                "string-utils = {path = \"src/string-utils\", version = \"1.1.5\"} \n");
+    public void testSingleDependencies() throws TomlException, IOException {
+        Path tmpDir = Files.createTempDirectory("manifest-test-");
+        Path baloPath = tmpDir.resolve("string_utils.balo");
+        Files.createFile(baloPath);
+        
+        Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock + "[dependencies] \n " +
+                "string-utils = {path = \"" + baloPath + "\", version = \"1.1.5\"} \n");
         Assert.assertEquals(manifest.getDependencies().get(0).getModuleName(), "string-utils");
         Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getVersion(), "1.1.5");
-        Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getPath(), "src/string-utils");
+        Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getPath(), baloPath.toString());
+        
+        Files.delete(baloPath);
+        Files.delete(tmpDir);
     }
 
     @Test(description = "Empty dependency added to the dependencies section has no effect")
     public void testSingleEmptyDependencies() throws TomlException {
-        Manifest manifest = ManifestProcessor.parseTomlContentFromString("[dependencies] \n " +
+        Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock + "[dependencies] \n " +
                 "string-utils = {} \n");
         Assert.assertEquals(manifest.getDependencies().get(0).getModuleName(), "string-utils");
     }
 
     @Test(description = "Multiple dependencies added to the dependencies section has an effect")
-    public void testMultipleDependencies() throws TomlException {
-        Manifest manifest = ManifestProcessor.parseTomlContentFromString("[dependencies] \n " +
-                "string-utils = { path = \"src/string-utils\", version = \"1.0.5\" } \n " +
+    public void testMultipleDependencies() throws TomlException, IOException {
+        Path tmpDir = Files.createTempDirectory("manifest-test-");
+        Path baloPath = tmpDir.resolve("string_utils.balo");
+        Files.createFile(baloPath);
+        
+        Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock + "[dependencies] \n " +
+                "string-utils = { path = \"" + baloPath + "\", version = \"1.0.5\" } \n " +
                 "jquery = { version = \"2.2.3\" } \n");
         Assert.assertEquals(manifest.getDependencies().get(0).getModuleName(), "string-utils");
         Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getVersion(), "1.0.5");
         Assert.assertEquals(manifest.getDependencies().get(1).getModuleName(), "jquery");
         Assert.assertEquals(manifest.getDependencies().get(1).getMetadata().getVersion(), "2.2.3");
+    
+        Files.delete(baloPath);
+        Files.delete(tmpDir);
     }
 }

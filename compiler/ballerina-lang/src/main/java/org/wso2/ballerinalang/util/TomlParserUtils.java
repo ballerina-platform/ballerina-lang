@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.util;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Settings;

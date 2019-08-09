@@ -96,19 +96,29 @@ public class ManifestProcessor {
      * @return manifest object
      */
     public static Manifest parseTomlContentFromString(String content) throws TomlException {
+        try {
         Toml toml = new Toml().read(content);
-        if (toml.isEmpty()) {
-            throw new TomlException("invalid Ballerina.toml file: the Ballerina.toml file should have " +
-                                    "the organization name and the version of the project. example: \n" +
-                                    "[project]\n" +
-                                    "org-name=\"my_org\"\n" +
-                                    "version=\"1.0.0\"\n");
+            if (toml.isEmpty()) {
+                throw new TomlException("invalid Ballerina.toml file: organization name and the version of the " +
+                                        "project is missing. example: \n" +
+                                        "[project]\n" +
+                                        "org-name=\"my_org\"\n" +
+                                        "version=\"1.0.0\"\n");
+            }
+            
+            if (null == toml.getTable("project")) {
+                throw new TomlException("invalid Ballerina.toml file: cannot find [project]");
+            }
+            
+            Manifest manifest = toml.to(Manifest.class);
+            manifest.getProject().setOrgName(toml.getString("project.org-name"));
+            validateManifestProject(manifest);
+            validateManifestDependencies(manifest);
+            return manifest;
+        } catch (IllegalStateException ise) {
+            String tomlErrMsg = lowerCaseFirstLetter(ise.getMessage().toLowerCase(Locale.getDefault()));
+            throw new TomlException("invalid Ballerina.toml file: " + tomlErrMsg);
         }
-        Manifest manifest = toml.to(Manifest.class);
-        manifest.getProject().setOrgName(toml.getString("project.org-name"));
-        validateManifestProject(manifest);
-        validateManifestDependencies(manifest);
-        return manifest;
     }
 
     /**
@@ -121,11 +131,15 @@ public class ManifestProcessor {
         try {
             Toml toml = new Toml().read(inputStream);
             if (toml.isEmpty()) {
-                throw new TomlException("invalid Ballerina.toml file: the Ballerina.toml file should have " +
-                                                 "the organization name and the version of the project. example: \n" +
-                                                 "[project]\n" +
-                                                 "org-name=\"my_org\"\n" +
-                                                 "version=\"1.0.0\"\n");
+                throw new TomlException("invalid Ballerina.toml file: organization name and the version of the " +
+                                        "project is missing. example: \n" +
+                                        "[project]\n" +
+                                        "org-name=\"my_org\"\n" +
+                                        "version=\"1.0.0\"\n");
+            }
+    
+            if (null == toml.getTable("project")) {
+                throw new TomlException("invalid Ballerina.toml file: cannot find [project]");
             }
             
             Manifest manifest = toml.to(Manifest.class);
@@ -134,16 +148,18 @@ public class ManifestProcessor {
             validateManifestDependencies(manifest);
             return manifest;
         } catch (IllegalStateException ise) {
-            throw new BLangCompilerException("invalid Ballerina.toml file: " +
-                                             ise.getMessage().toLowerCase(Locale.getDefault()));
+            String tomlErrMsg = lowerCaseFirstLetter(ise.getMessage().toLowerCase(Locale.getDefault()));
+            throw new TomlException("invalid Ballerina.toml file: " + tomlErrMsg);
         }
     }
     
+    /**
+     * Validate the project block in manifest.
+     *
+     * @param manifest The manifest.
+     * @throws TomlException When the project block is invalid.
+     */
     private static void validateManifestProject(Manifest manifest) throws TomlException {
-        if (null == manifest.getProject()) {
-            throw new TomlException("invalid Ballerina.toml file: cannot find [project]");
-        }
-    
         if (null == manifest.getProject().getOrgName() || "".equals(manifest.getProject().getOrgName())) {
             throw new TomlException("invalid Ballerina.toml file: cannot find 'org-name' under [project]");
         }
@@ -158,6 +174,12 @@ public class ManifestProcessor {
         }
     }
     
+    /**
+     * Validate dependencies block in manifest.
+     *
+     * @param manifest The manifest.
+     * @throws TomlException When the dependencies block is invalid.
+     */
     private static void validateManifestDependencies(Manifest manifest) throws TomlException {
         for (Map.Entry<String, Object> dependency : manifest.getDependenciesAsObjectMap().entrySet()) {
             DependencyMetadata metadata = new DependencyMetadata();
@@ -184,5 +206,15 @@ public class ManifestProcessor {
                                                  " [" + dependency.getKey() + "]");
             }
         }
+    }
+    
+    /**
+     * Lowercase the first letter of this string.
+     *
+     * @param content contect
+     * @return converted string
+     */
+    private static String lowerCaseFirstLetter(String content) {
+        return content.substring(0, 1).toLowerCase(Locale.getDefault()) + content.substring(1);
     }
 }
