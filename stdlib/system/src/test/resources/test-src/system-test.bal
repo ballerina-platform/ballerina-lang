@@ -41,7 +41,7 @@ function testRandomString() returns (string) {
     return system:uuid();
 }
 
-function toString(io:ReadableByteChannel input) returns string {
+function toString(io:ReadableByteChannel input) returns string|error {
     string result = "";
     io:ReadableCharacterChannel charIn = new(input, "UTF-8");
     while (true) {
@@ -49,7 +49,7 @@ function toString(io:ReadableByteChannel input) returns string {
         if (x is error) { break; }
         else { result = result + x; }
     }
-    var ign = charIn.close();
+    check charIn.close();
     return <@untainted> result;
 }
 
@@ -60,22 +60,22 @@ function testExecInUnixLike1() returns [string, int, int]|error {
     var x3out = x1.pipe(x2).pipe(x3).stdout();
     var ec1 = check x3.waitForExit();
     var ec2 = check x3.exitCode();
-    var result = toString(x3out);
+    var result = check toString(x3out);
     return [result, ec1, ec2];
 }
 
 function testExecInUnixLike2() returns string|error {
     system:Process x1 = check system:exec("pwd", {}, "/");
     var x1out = x1.stdout();
-    var result = toString(x1out);
+    var result = check toString(x1out);
     return result;
 }
 
 function testExecInUnixLike3() returns string|error {
     system:Process x1 = check system:exec("grep", {}, (), "BAL_TEST");
     io:WritableDataChannel ch = new(x1.stdin());
-    var ign = ch.writeString("BAL_TEST", "UTF-8");
-    ign = ch.close();
-    var result = toString(x1.stdout());
+    check ch.writeString("BAL_TEST", "UTF-8");
+    check ch.close();
+    var result = check toString(x1.stdout());
     return result;
 }
