@@ -103,6 +103,14 @@ public class RunExecutableTask implements Task {
     @Override
     public void execute(BuildContext buildContext) {
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
+    
+        // load configurations from config file
+        loadConfigurations(sourceRootPath, this.runtimeParams, this.configFilePath, this.observeFlag);
+        
+        if (!this.isGeneratedExecutable) {
+            this.runExecutable();
+            return;
+        }
 
         BLangPackage executableModule = null;
         // set executable path from an executable built on the go
@@ -156,14 +164,7 @@ public class RunExecutableTask implements Task {
         // set the source root path relative to the source path i.e. set the parent directory of the source path
         System.setProperty(ProjectDirConstants.BALLERINA_SOURCE_ROOT, sourceRootPath.toString());
         
-        // load configurations from config file
-        loadConfigurations(sourceRootPath, this.runtimeParams, this.configFilePath, this.observeFlag);
-        
-        if (this.isGeneratedExecutable) {
-            this.runGeneratedExecutable(executableModule);
-        } else {
-            this.runExecutable();
-        }
+        this.runGeneratedExecutable(executableModule);
     }
     
     /**

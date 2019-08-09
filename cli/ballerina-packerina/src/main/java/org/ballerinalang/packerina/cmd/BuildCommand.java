@@ -78,10 +78,10 @@ public class BuildCommand implements BLauncherCmd {
     private boolean exitWhenFinish;
 
     public BuildCommand() {
-        sourceRootPath = Paths.get(System.getProperty("user.dir"));
-        outStream = System.out;
-        errStream = System.err;
-        exitWhenFinish = true;
+        this.sourceRootPath = Paths.get(System.getProperty("user.dir"));
+        this.outStream = System.out;
+        this.errStream = System.err;
+        this.exitWhenFinish = true;
     }
 
     public BuildCommand(Path userDir, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
@@ -129,9 +129,7 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
     private boolean experimentalFlag;
 
-    @CommandLine.Option(names = {"--test-config"}, description = "Path to the configuration file when running tests." +
-                                                                  " A configuration file cannot be set if " +
-                                                                  "'--skip-tests' flag is passed.")
+    @CommandLine.Option(names = {"--test-config"}, description = "Path to the configuration file when running tests.")
     private String configFilePath;
 
     @CommandLine.Option(names = "--siddhi-runtime", description = "Enable siddhi runtime for stream processing.")
@@ -274,7 +272,7 @@ public class BuildCommand implements BLauncherCmd {
                 CommandUtil.printError(this.errStream,
                         "you are trying to build/compile a module by giving the absolute path. you only need give " +
                         "the name of the module.",
-                        "ballerina build [-c] [<module-name>]",
+                        "ballerina build [-c] <module-name>",
                         true);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
