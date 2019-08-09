@@ -27,3 +27,32 @@ CREATE TABLE StringTypes (
    clob_type clob
 );
 /
+
+CREATE TABLE BooleanTypes (
+    id INT,
+    bool_type BOOLEAN,
+    bit_type BIT
+);
+/
+
+CREATE TABLE BinaryTypes (
+    id INT,
+    binary_type BINARY(9),
+    varbinary_type VARBINARY(9),
+    blob_type BLOB(100),
+    longvarbinary_type LONGVARBINARY,
+    binaryvarying_type BINARY VARYING(9),
+    binarylargetobj_type BINARY LARGE OBJECT(1M)
+);
+/
+
+CREATE TABLE TimeTypes (
+    id INT,
+    date_type DATE,
+    timenz_type TIME(6) WITHOUT TIME ZONE,
+    timestampnz_type TIMESTAMP(6) WITHOUT TIME ZONE,
+    datetime_type DATETIME,
+    timez_type TIME(6) WITH TIME ZONE,
+    timestampz_type TIMESTAMP(6) WITH TIME ZONE
+);
+/

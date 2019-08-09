@@ -21,6 +21,7 @@ import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -143,8 +144,9 @@ public class UpdateTest {
         Assert.assertEquals(((BFloat) returns[9]).floatValue(), -5000.78, 0.01);
     }
 
+    //Insert String Values
     @Test
-    public void testInsertStringDataWithParameters1() {
+    public void testInsertStringDataWithParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testInsertStringDataWithParameters");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(returns[1].stringValue(), "test1");
@@ -155,6 +157,92 @@ public class UpdateTest {
         Assert.assertEquals(returns[6].stringValue(), "test4");
         Assert.assertEquals(returns[7].stringValue(), "test5");
         Assert.assertEquals(returns[8].stringValue(), "hello ballerina code");
+    }
+
+    @Test
+    public void testInsertStringDataWithDirectParams() {
+        BValue[] returns = BRunUtil.invoke(result, "testInsertStringDataWithDirectParams");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(returns[1].stringValue(), "str1");
+        Assert.assertEquals(returns[2].stringValue(), "str2      ");
+        Assert.assertEquals(returns[3].stringValue(), "A");
+        Assert.assertEquals(returns[4].stringValue(), "str3      ");
+        Assert.assertEquals(returns[5].stringValue(), "B");
+        Assert.assertEquals(returns[6].stringValue(), "str4");
+        Assert.assertEquals(returns[7].stringValue(), "str5");
+        Assert.assertEquals(returns[8].stringValue(), "hello ballerina code");
+    }
+
+    @Test
+    public void testInsertBoolDataAsIntsAndReturnInts() {
+        BValue[] returns = BRunUtil.invoke(result, "testInsertBoolDataAsIntsAndReturnInts");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
+    }
+
+    //Insert Boolean values
+    @Test
+    public void testInsertBoolDataAsIntsAndReturnBool() {
+        BValue[] returns = BRunUtil.invoke(result, "testInsertBoolDataAsIntsAndReturnBool");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+    }
+
+    @Test
+    public void testInsertBoolDataAsIntsAndReturnBoolAsDirectParams() {
+        BValue[] returns = BRunUtil.invoke(result, "testInsertBoolDataAsIntsAndReturnBoolAsDirectParams");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+    }
+
+    @Test
+    public void testInsertBoolDataAsIntsInvalidParams() {
+        BValue[] returns = BRunUtil.invoke(result, "testInsertBoolDataAsIntsInvalidParams");
+        Assert.assertTrue(returns[0].stringValue().contains("{ballerinax/java.jdbc}ApplicationError"));
+        Assert.assertTrue(returns[0].stringValue().contains("Invalid integer value \"91\" specified for boolean"));
+    }
+
+    //Insert binary values
+    @Test
+    public void testInsertBinaryDataWithParameters() {
+        BValue[] returns = BRunUtil.invoke(result, "testInsertBinaryDataWithParameters");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(new String(((BValueArray) returns[1]).getBytes()), "blob data");
+        Assert.assertEquals(new String(((BValueArray) returns[2]).getBytes()), "blob data");
+        Assert.assertEquals(new String(((BValueArray) returns[3]).getBytes()), "blob data");
+        Assert.assertEquals(new String(((BValueArray) returns[4]).getBytes()), "blob data");
+        Assert.assertEquals(new String(((BValueArray) returns[5]).getBytes()), "blob data");
+        Assert.assertEquals(new String(((BValueArray) returns[6]).getBytes()), "blob data");
+    }
+
+    //Insert Date time Values
+    @Test
+    public void testInsertTimeDataAsString() {
+        BValue[] returns = BRunUtil.invoke(result, "testInsertTimeDataAsString");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertTrue(returns[1].stringValue().contains("2019-08-09"));
+        Assert.assertTrue(returns[2].stringValue().contains("20:08:08"));
+        Assert.assertTrue(returns[3].stringValue().contains("2019-08-09T20:08:08"));
+        Assert.assertTrue(returns[4].stringValue().contains("2019-08-09T20:08:08"));
+        //TODO:#17546
+        //Assert.assertEquals(returns[5].stringValue(), "20:08:08.034900-08:00");
+        //Assert.assertEquals(returns[6].stringValue(), "2019-08-09");
+    }
+
+    @Test
+    public void testInsertTimeDataAsBallerinaTime() {
+        BValue[] returns = BRunUtil.invoke(result, "testInsertTimeDataAsBallerinaTime");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
+        //TODO:#17546
+        //Assert.assertTrue(((BBoolean) returns[5]).booleanValue());
+        //Assert.assertTrue(((BBoolean) returns[6]).booleanValue());
     }
 
     @AfterSuite
