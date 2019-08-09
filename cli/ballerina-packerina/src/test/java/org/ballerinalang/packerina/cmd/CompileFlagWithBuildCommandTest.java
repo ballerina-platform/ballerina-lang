@@ -170,8 +170,8 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
         Files.write(sourceRoot.resolve("Ballerina.toml"), tomlContent.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
         buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false);
         String exMsg = executeAndGetException(buildCommand);
-        Assert.assertEquals(exMsg, "invalid Ballerina.toml file: the Ballerina.toml file should have " +
-                                   "the organization name and the version of the project. example: \n" +
+        Assert.assertEquals(exMsg, "invalid Ballerina.toml file: organization name and the version of the project " +
+                                   "is missing. example: \n" +
                                    "[project]\n" +
                                    "org-name=\"my_org\"\n" +
                                    "version=\"1.0.0\"\n");
