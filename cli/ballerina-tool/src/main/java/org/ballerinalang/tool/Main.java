@@ -104,24 +104,35 @@ public class Main {
             cmdParser.addSubcommand(BallerinaCliCommands.ENCRYPT, encryptCmd);
             encryptCmd.setParentCmdParser(cmdParser);
 
+            //SDK Command
             SDKCmd sdkCmd = new SDKCmd();
-            cmdParser.addSubcommand(BallerinaCliCommands.SDK, sdkCmd);
-            sdkCmd.setParentCmdParser(cmdParser);
+            CommandLine sdkCmdParser = new CommandLine(sdkCmd);
+            sdkCmd.setParentCmdParser(sdkCmdParser);
+
+            ListCmd listCmd = new ListCmd();
+            sdkCmdParser.addSubcommand(BallerinaCliCommands.LIST, listCmd);
+            listCmd.setParentCmdParser(sdkCmdParser);
 
             InstallCmd installCmd = new InstallCmd();
-            cmdParser.addSubcommand(BallerinaCliCommands.INSTALL, installCmd);
-            installCmd.setParentCmdParser(cmdParser);
+            sdkCmdParser.addSubcommand(BallerinaCliCommands.INSTALL, installCmd);
+            installCmd.setParentCmdParser(sdkCmdParser);
 
             UpdateCmd updateCmd = new UpdateCmd();
-            cmdParser.addSubcommand(BallerinaCliCommands.UPDATE, updateCmd);
-            updateCmd.setParentCmdParser(cmdParser);
+            sdkCmdParser.addSubcommand(BallerinaCliCommands.UPDATE, updateCmd);
+            updateCmd.setParentCmdParser(sdkCmdParser);
 
             RemoveCmd removeCmd = new RemoveCmd();
-            cmdParser.addSubcommand(BallerinaCliCommands.REMOVE, removeCmd);
-            removeCmd.setParentCmdParser(cmdParser);
+            sdkCmdParser.addSubcommand(BallerinaCliCommands.REMOVE, removeCmd);
+            removeCmd.setParentCmdParser(sdkCmdParser);
+
+            sdkCmdParser.setCommandName("sdk");
+            sdkCmdParser.setPosixClusteredShortOptionsAllowed(false);
+
+            cmdParser.addSubcommand(BallerinaCliCommands.SDK, sdkCmdParser);
 
             cmdParser.setCommandName("ballerina");
             cmdParser.setPosixClusteredShortOptionsAllowed(false);
+
 
             List<CommandLine> parsedCommands = cmdParser.parse(args);
 
@@ -391,17 +402,56 @@ public class Main {
         }
     }
 
+    /**
+     * This class represents the "Update" command and it holds arguments and flags specified by the user.
+     *
+     * @since 1.0
+     */
+    @CommandLine.Command(name = "sdk", description = "List Ballerina SDKs")
+    private static class SDKCmd implements BLauncherCmd {
+
+        @CommandLine.Option(names = { "--help", "-h", "?" }, hidden = true, description = "for more information")
+        private boolean helpFlag;
+
+        @Override
+        public void execute() {
+            if (helpFlag) {
+                printUsageInfo(BallerinaCliCommands.HELP);
+                return;
+            }
+
+            printUsageInfo(BallerinaCliCommands.SDK);
+        }
+
+        @Override
+        public String getName() {
+            return BallerinaCliCommands.SDK;
+        }
+
+        @Override
+        public void printLongDesc(StringBuilder out) {
+
+        }
+
+        @Override
+        public void printUsage(StringBuilder out) {
+        }
+
+        @Override
+        public void setParentCmdParser(CommandLine parentCmdParser) {
+        }
+    }
 
     /**
      * This class represents the "Update" command and it holds arguments and flags specified by the user.
      *
      * @since 1.0
      */
-    @CommandLine.Command(name = "sdks", description = "List Ballerina SDKs")
-    private static class SDKCmd implements BLauncherCmd {
+    @CommandLine.Command(name = "list", description = "List Ballerina SDKs")
+    private static class ListCmd implements BLauncherCmd {
 
         @CommandLine.Parameters(description = "Command name")
-        private List<String> sdksCommands;
+        private List<String> listCommands;
 
         @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
         private boolean helpFlag;
@@ -410,18 +460,18 @@ public class Main {
 
         public void execute() {
             if (helpFlag) {
-                printUsageInfo(BallerinaCliCommands.SDK);
+                printUsageInfo(BallerinaCliCommands.LIST);
                 return;
             }
 
-            if (sdksCommands == null) {
+            if (listCommands == null) {
                 ToolUtil.listSDKs(outStream, false);
                 return;
-            } else if (sdksCommands.size() > 1) {
+            } else if (listCommands.size() > 1) {
                 throw LauncherUtils.createUsageExceptionWithHelp("too many arguments given");
             }
 
-            String userCommand = sdksCommands.get(0);
+            String userCommand = listCommands.get(0);
             if (parentCmdParser.getSubcommands().get(userCommand) == null) {
                 throw LauncherUtils.createUsageExceptionWithHelp("unknown command `" + userCommand + "`");
             }
@@ -429,7 +479,7 @@ public class Main {
 
         @Override
         public String getName() {
-            return BallerinaCliCommands.VERSION;
+            return BallerinaCliCommands.LIST;
         }
 
         @Override
@@ -471,7 +521,9 @@ public class Main {
             }
 
             if (installCommands == null) {
-                ToolUtil.install(outStream, "0.991.0");
+                throw LauncherUtils.createUsageExceptionWithHelp("provide distribution");
+            } else if (installCommands.size() == 1) {
+                ToolUtil.install(outStream, installCommands.get(0));
                 return;
             } else if (installCommands.size() > 1) {
                 throw LauncherUtils.createUsageExceptionWithHelp("too many arguments given");
@@ -584,7 +636,9 @@ public class Main {
             }
 
             if (removeCommands == null) {
-                ToolUtil.remove(outStream, "0.991.0");
+                throw LauncherUtils.createUsageExceptionWithHelp("provide distribution");
+            } else if (removeCommands.size() == 1) {
+                ToolUtil.remove(outStream, removeCommands.get(0));
                 return;
             } else if (removeCommands.size() > 1) {
                 throw LauncherUtils.createUsageExceptionWithHelp("too many arguments given");
@@ -598,7 +652,7 @@ public class Main {
 
         @Override
         public String getName() {
-            return BallerinaCliCommands.VERSION;
+            return BallerinaCliCommands.REMOVE;
         }
 
         @Override

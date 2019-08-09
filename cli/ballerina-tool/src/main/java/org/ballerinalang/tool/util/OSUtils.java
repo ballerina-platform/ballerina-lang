@@ -19,25 +19,38 @@ package org.ballerinalang.tool.util;
 import java.util.Locale;
 
 /**
- * Utility functions used by launcher.
+ * Utility functions used by tools.
  */
 public class OSUtils {
 
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
 
     /**
-     * Returns name of the operating system running. null if not a unsupported operating system.
-     * @return operating system
+     * Provide the path of configuration file.
+     * @return File path
      */
-    public static String getConfigPath() {
+    public static String getToolPath() {
+        String home = System.getProperty("user.home");
         if (OSUtils.isWindows()) {
-            return "C:\\Program Files\\Ballerina\\";
+            return home + "\\Ballerina\\";
         } else if (OSUtils.isUnix() || OSUtils.isSolaris()) {
-            return "/usr/lib/ballerina/";
+            return home + "/Library/Ballerina/";
         } else if (OSUtils.isMac()) {
-            return "/Library/Ballerina/";
+            return home + "/Library/Ballerina/";
         }
         return null;
+    }
+
+    public static String getUserAgent(String ballerinaVersion, String toolVersion, String distributionType) {
+        String os = "none";
+        if (OSUtils.isWindows()) {
+            os = "win-64";
+        } else if (OSUtils.isUnix() || OSUtils.isSolaris()) {
+            os = "linux-64";
+        } else if (OSUtils.isMac()) {
+            os = "macos-64";
+        }
+        return distributionType + "/" + ballerinaVersion + " (" + os + ") Updater/" + toolVersion;
     }
 
     private static boolean isWindows() {
