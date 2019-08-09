@@ -322,7 +322,7 @@ task generateDocs(type: JavaExec) {
     dependsOn ':docerina-gradle-plugin:build'
     inputs.dir("$buildDir/ballerina/");
     outputs.dir("$buildDir/api-docs")
-    outputs.cacheIf { false }
+    outputs.cacheIf { true }
 
     systemProperty("BALLERINA_DEV_COMPILE_BALLERINA_ORG", true)
     def basePath = '/' + project.name + '-' + project.version + '/'
