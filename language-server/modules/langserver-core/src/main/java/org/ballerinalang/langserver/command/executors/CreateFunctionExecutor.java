@@ -27,8 +27,8 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
@@ -118,7 +118,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         BLangInvocation functionNode;
         try {
             functionNode = getFunctionInvocationNode(line, column, documentUri, documentManager, context);
-        } catch (LSCompilerException e) {
+        } catch (CompilationFailedException e) {
             throw new LSCommandExecutorException("Error while compiling the source!");
         }
         if (functionNode == null) {

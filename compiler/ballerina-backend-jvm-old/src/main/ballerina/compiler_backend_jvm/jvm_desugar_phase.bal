@@ -15,7 +15,7 @@
 // under the License.
 
 function addDefaultableBooleanVarsToSignature(bir:Function? func) {
-    bir:Function currentFunc = getFunction(untaint func);
+    bir:Function currentFunc = getFunction(<@untainted> func);
     currentFunc.typeValue = currentFunc.typeValue.clone();
     currentFunc.typeValue.paramTypes = updateParamTypesWithDefaultableBooleanVar(currentFunc.typeValue.paramTypes);
     int index = 0;
@@ -59,7 +59,7 @@ public function rewriteRecordInits(bir:TypeDef?[] typeDefs) {
         if (recordType is bir:BRecordType) {
             bir:Function?[] attachFuncs = <bir:Function?[]> typeDef.attachedFuncs;
             foreach var func in attachFuncs {
-                rewriteRecordInitFunction(<bir:Function>func, recordType);
+                rewriteRecordInitFunction(<bir:Function> func, recordType);
             }
         }
     }

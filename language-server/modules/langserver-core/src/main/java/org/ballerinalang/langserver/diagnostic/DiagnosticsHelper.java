@@ -17,10 +17,10 @@ package org.ballerinalang.langserver.diagnostic;
 
 import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.Diagnostic;
@@ -59,10 +59,11 @@ public class DiagnosticsHelper {
      * @param client     Language server client
      * @param context    LS context
      * @param docManager LS Document manager
-     * @throws LSCompilerException throws a LS compiler exception
+     * @throws CompilationFailedException throws a LS compiler exception
      */
     public synchronized void compileAndSendDiagnostics(LanguageClient client, LSContext context,
-                                                       WorkspaceDocumentManager docManager) throws LSCompilerException {
+                                                       WorkspaceDocumentManager docManager) throws
+                                                                                            CompilationFailedException {
         // Compile diagnostics
         List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics = new ArrayList<>();
         LSDocument lsDocument = new LSDocument(context.get(DocumentServiceKeys.FILE_URI_KEY));
