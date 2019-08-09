@@ -2054,8 +2054,8 @@ function stringArrayContains(string[] array, string item) returns boolean {
 function getCompileError(error e, bir:Package|bir:TypeDef|bir:Function src) returns error {
     string reason = e.reason();
     map<anydata|error> detail = e.detail();
-    string name = <string> detail.get("name");
     if (reason == ERROR_REASON_METHOD_TOO_LARGE) {
+        string name = <string> detail.get("name");
         bir:Function? func = findBIRFunction(src, name);
         if (func is ()) {
             return error(io:sprintf("method is too large: '%s'", name));
@@ -2065,6 +2065,7 @@ function getCompileError(error e, bir:Package|bir:TypeDef|bir:Function src) retu
                          pos.sLine, pos.sCol, func.name.value));
         }
     } else if (reason == ERROR_REASON_CLASS_TOO_LARGE) {
+        string name = <string> detail.get("name");
         return error(io:sprintf("file is too large: '%s'", name));
     }
 
