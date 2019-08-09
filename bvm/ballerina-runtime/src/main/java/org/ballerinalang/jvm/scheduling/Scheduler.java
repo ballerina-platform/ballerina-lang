@@ -68,6 +68,10 @@ public class Scheduler {
     }
 
     private AtomicInteger totalStrands = new AtomicInteger();
+    /**
+     * By default number of threads = (Available logical Processors * 2).
+     * This can be changed by setting the BAL_MAX_POOL_SIZE system variable.
+     */
     private int numThreads;
     private Semaphore mainBlockSem;
 
