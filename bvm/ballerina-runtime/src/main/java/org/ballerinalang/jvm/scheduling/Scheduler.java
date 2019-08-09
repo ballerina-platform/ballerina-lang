@@ -83,7 +83,8 @@ public class Scheduler {
         } catch (Throwable t) {
             // Log and continue with default
             this.numThreads = Runtime.getRuntime().availableProcessors() * 2;
-            logger.error("Error occurred in scheduler while reading system variable:" + BLangConstants.BAL_MAX_POOL_SIZE_ENV, t);
+            logger.error("Error occurred in scheduler while reading system variable:" +
+                    BLangConstants.BAL_MAX_POOL_SIZE_ENV, t);
         }
         this.immortal = immortal;
     }
