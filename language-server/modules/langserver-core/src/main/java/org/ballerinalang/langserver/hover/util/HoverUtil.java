@@ -402,7 +402,7 @@ public class HoverUtil {
     }
 
     private static String getReturnValueDescription(String returnVal) {
-        return "- " + CommonUtil.NEW_LINE_PATTERN.matcher(returnVal).replaceAll(CommonUtil.MD_LINE_SEPARATOR) +
+        return "- " + CommonUtil.MD_NEW_LINE_PATTERN.matcher(returnVal).replaceAll(CommonUtil.MD_LINE_SEPARATOR) +
                 CommonUtil.MD_LINE_SEPARATOR;
     }
 
@@ -417,7 +417,7 @@ public class HoverUtil {
     }
 
     private static String getFormattedHoverDocContent(String header, String subHeader, String content) {
-        return "**" + header + "**" + subHeader + CommonUtil.MD_LINE_SEPARATOR + CommonUtil.NEW_LINE_PATTERN.matcher(
+        return "**" + header + "**" + subHeader + CommonUtil.MD_LINE_SEPARATOR + CommonUtil.MD_NEW_LINE_PATTERN.matcher(
                 content)
                 .replaceAll(CommonUtil.MD_LINE_SEPARATOR) + CommonUtil.MD_LINE_SEPARATOR;
     }

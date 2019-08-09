@@ -153,7 +153,7 @@ public final class BFunctionCompletionItemBuilder {
                 && bInvokableSymbol.retType.tsymbol != null) {
             String desc = "";
             if (docAttachment.returnValueDescription != null && !docAttachment.returnValueDescription.isEmpty()) {
-                desc = "- " + CommonUtil.NEW_LINE_PATTERN.matcher(docAttachment.returnValueDescription).replaceAll(
+                desc = "- " + CommonUtil.MD_NEW_LINE_PATTERN.matcher(docAttachment.returnValueDescription).replaceAll(
                         CommonUtil.MD_LINE_SEPARATOR) + CommonUtil.MD_LINE_SEPARATOR;
             }
             documentation += CommonUtil.MD_LINE_SEPARATOR + CommonUtil.MD_LINE_SEPARATOR + "**Returns**"

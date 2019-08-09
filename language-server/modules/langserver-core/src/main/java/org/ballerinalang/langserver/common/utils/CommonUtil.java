@@ -147,7 +147,7 @@ public class CommonUtil {
 
     public static final String LINE_SEPARATOR_SPLIT = "\\r?\\n";
 
-    public static final Pattern NEW_LINE_PATTERN = Pattern.compile("\\r\\n?|\\n");
+    public static final Pattern MD_NEW_LINE_PATTERN = Pattern.compile("\\s\\s\\r\\n?|\\s\\s\\n|\\r\\n?|\\n");
 
     public static final boolean LS_DEBUG_ENABLED;
 
