@@ -184,6 +184,10 @@ public class ServerConnectorBootstrap {
         httpServerChannelInitializer.setPipeliningThreadGroup(pipeliningGroup);
     }
 
+    public void setWebSocketCompressionEnabled(boolean webSocketCompressionEnabled) {
+        httpServerChannelInitializer.setWebSocketCompressionEnabled(webSocketCompressionEnabled);
+    }
+
     class HttpServerConnector implements ServerConnector {
 
        private final Logger log = LoggerFactory.getLogger(HttpServerConnector.class);

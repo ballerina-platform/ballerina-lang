@@ -53,6 +53,7 @@ public class ListenerConfiguration extends SslConfiguration {
     private List<Parameter> parameters = getDefaultParameters();
     private RequestSizeValidationConfig requestSizeValidationConfig = new RequestSizeValidationConfig();
     private boolean pipeliningEnabled;
+    private boolean webSocketCompressionEnabled;
     private long pipeliningLimit;
 
     public ListenerConfiguration() {
@@ -191,5 +192,13 @@ public class ListenerConfiguration extends SslConfiguration {
 
     public void setPipeliningLimit(long pipeliningLimit) {
         this.pipeliningLimit = pipeliningLimit;
+    }
+
+    public boolean isWebSocketCompressionEnabled() {
+        return webSocketCompressionEnabled;
+    }
+
+    public void setWebSocketCompressionEnabled(boolean webSocketCompressionEnabled) {
+        this.webSocketCompressionEnabled = webSocketCompressionEnabled;
     }
 }
