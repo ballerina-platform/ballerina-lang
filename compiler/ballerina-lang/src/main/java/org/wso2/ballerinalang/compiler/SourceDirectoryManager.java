@@ -152,25 +152,29 @@ public class SourceDirectoryManager {
             projectDirPath = projectDirPath.normalize().toAbsolutePath();
         
             String sourceType = options.get(CompilerOptionName.SOURCE_TYPE);
-            switch (sourceType) {
-                case "SINGLE_BAL_FILE":
-                    srcDirectory = new FileSystemProgramDirectory(projectDirPath);
-                    break;
-                case "SINGLE_MODULE":
-                case "ALL_MODULES":
-                    // if src folder is missing
-                    if (Files.notExists(projectDirPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME))) {
-                        throw new BLangCompilerException("cannot find 'src' directory in the ballerina project. 'src' " +
-                                                         "directory is missing at: " + projectDirPath.toString());
-                    }
-                    srcDirectory = new FileSystemProjectDirectory(projectDirPath);
-                    break;
-                default:
-                    // resort to 'canHandle'
-                    srcDirectory = new FileSystemProjectDirectory(projectDirPath);
-                    if (!srcDirectory.canHandle(projectDirPath)) {
+            if (null != sourceType) {
+                switch (sourceType) {
+                    case "SINGLE_BAL_FILE":
                         srcDirectory = new FileSystemProgramDirectory(projectDirPath);
-                    }
+                        break;
+                    case "SINGLE_MODULE":
+                    case "ALL_MODULES":
+                        // if src folder is missing
+                        if (Files.notExists(projectDirPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME))) {
+                            throw new BLangCompilerException("cannot find 'src' directory in the ballerina project. " +
+                                                             "'src' directory is missing at: " +
+                                                             projectDirPath.toString());
+                        }
+                        srcDirectory = new FileSystemProjectDirectory(projectDirPath);
+                        break;
+                    default:
+                }
+            } else {
+                // resort to 'canHandle'
+                srcDirectory = new FileSystemProjectDirectory(projectDirPath);
+                if (!srcDirectory.canHandle(projectDirPath)) {
+                    srcDirectory = new FileSystemProgramDirectory(projectDirPath);
+                }
             }
         
             // validate Ballerina.toml
