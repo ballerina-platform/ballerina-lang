@@ -40,6 +40,10 @@
             <class name="org.wso2.transport.http.netty.proxyserver.HttpProxyServerTestCase" />
 
             <class name="org.wso2.transport.http.netty.ClientConnectorTimeoutTestCase" />
+            <class name="org.wso2.transport.http.netty.ClientTimeoutWhileWritingBodyTestCase" />
+            <class name="org.wso2.transport.http.netty.ClientTimeoutWhileReadingBodyTestCase" />
+            <class name="org.wso2.transport.http.netty.ServerCloseWhileReadingBodyTestCase" />
+            <class name="org.wso2.transport.http.netty.ServerCloseWhileWritingBodyTestCase" />
             <class name="org.wso2.transport.http.netty.ClientConnectorConnectionRefusedTestCase" />
             <class name="org.wso2.transport.http.netty.ClientConnectorClosureAfterRequestReadTestCase" />
 
