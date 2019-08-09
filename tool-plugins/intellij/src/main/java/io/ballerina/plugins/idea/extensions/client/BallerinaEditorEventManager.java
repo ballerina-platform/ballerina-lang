@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package io.ballerina.plugins.idea.extensions.editoreventmanager;
+package io.ballerina.plugins.idea.extensions.client;
 
 import com.google.gson.JsonObject;
 import com.intellij.openapi.diagnostic.Logger;
@@ -24,7 +24,6 @@ import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.event.EditorMouseListener;
 import com.intellij.openapi.editor.event.EditorMouseMotionListener;
-import io.ballerina.plugins.idea.extensions.client.BallerinaRequestManager;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTDidChange;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTDidChangeResponse;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTRequest;
