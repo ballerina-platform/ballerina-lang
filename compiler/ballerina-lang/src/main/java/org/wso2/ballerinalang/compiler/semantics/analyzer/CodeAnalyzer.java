@@ -1910,6 +1910,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangCheckedExpr checkedExpr) {
         analyzeExpr(checkedExpr.expr);
         boolean enclInvokableHasErrorReturn = false;
+
+        if (this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
+            // Check at module level.
+            return;
+        }
+
         BType exprType = env.enclInvokable.getReturnTypeNode().type;
         if (exprType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) env.enclInvokable.getReturnTypeNode().type;
