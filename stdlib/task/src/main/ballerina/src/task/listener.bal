@@ -49,11 +49,11 @@ public type Listener object {
         }
     }
 
-    public function __gracefulStop () returns error? {
+    public function __gracefulStop() returns error? {
         return ();
     }
 
-    public function __immediateStop () returns error? {
+    public function __immediateStop() returns error? {
         var result = self.stop();
         if (result is error) {
             panic result;

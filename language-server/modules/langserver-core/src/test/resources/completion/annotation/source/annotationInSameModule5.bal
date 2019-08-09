@@ -38,11 +38,11 @@ type Listener object {
     public function __start() returns error? {
     }
 
-    public function __gracefulStop () returns error? {
+    public function __gracefulStop() returns error? {
         return ();
     }
 
-    public function __immediateStop () returns error? {
+    public function __immediateStop() returns error? {
         return ();
     }
 };

@@ -25,8 +25,8 @@ const ATTACH_METHOD_INCREMENT_VALUE = 2;
 // abstract object {
 //    function __attach (service s, string? name = ()) returns error?;
 //    function __start () returns error?;
-//    function __gracefulStop () returns error?;
-//    function __immediateStop () returns error?;
+//    function __gracefulStop() returns error?;
+//    function __immediateStop() returns error?;
 // }
 type CustomListener object {
     *AbstractListener;
@@ -41,11 +41,11 @@ type CustomListener object {
         globalVar += START_METHOD_INCREMENT_VALUE;
     }
 
-    public function __gracefulStop () returns error? {
+    public function __gracefulStop() returns error? {
         return ();
     }
 
-    public function __immediateStop () returns error? {
+    public function __immediateStop() returns error? {
         return ();
     }
 
