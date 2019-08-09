@@ -172,7 +172,7 @@ public class BootstrapRunner {
             Object[] params = new Object[]{commands.toArray(new String[0])};
             backendMainMethod.invoke(null, params);
         } catch (InvocationTargetException e) {
-            throw new BLangCompilerException(((InvocationTargetException) e).getTargetException().getMessage());
+            throw new BLangCompilerException(e.getTargetException().getMessage());
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException e) {
             throw new BLangCompilerException("could not invoke compiler backend", e);
         }
@@ -201,10 +201,8 @@ public class BootstrapRunner {
         } catch (InvocationTargetException e) {
             Throwable target = e.getTargetException();
             throw new RuntimeException(target.getMessage(), target);
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException e) {
-            throw new RuntimeException("could not invoke compiler backend", e);
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("could not invoke compiler backend", e);
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | MalformedURLException e) {
+            throw new BLangCompilerException("could not invoke compiler backend", e);
         }
     }
 

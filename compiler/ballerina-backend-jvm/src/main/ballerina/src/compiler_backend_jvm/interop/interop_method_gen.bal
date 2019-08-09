@@ -34,7 +34,7 @@ function createJInteropFunctionWrapper(jvm:InteropValidationRequest jInteropVali
                                        string orgName,
                                        string moduleName,
                                        string versionValue,
-                                       string  birModuleClassName) returns JInteropFunctionWrapper  {
+                                       string  birModuleClassName) returns JInteropFunctionWrapper | error  {
 
     addDefaultableBooleanVarsToSignature(birFunc);
     // Update the function wrapper only for Java interop functions
@@ -49,11 +49,8 @@ function createJInteropFunctionWrapper(jvm:InteropValidationRequest jInteropVali
 }
 
 function createJMethodWrapper(jvm:MethodValidationRequest jMethodValidationReq,
-                              BIRFunctionWrapper birFuncWrapper) returns JMethodFunctionWrapper  {
-    var jMethodOrError = jvm:validateAndGetJMethod(jMethodValidationReq);
-    if (jMethodOrError is error) {
-        panic jMethodOrError;
-    }
+                              BIRFunctionWrapper birFuncWrapper) returns JMethodFunctionWrapper | error {
+    var jMethod = check jvm:validateAndGetJMethod(jMethodValidationReq);
 
     return  {
         orgName : birFuncWrapper.orgName,
@@ -62,16 +59,13 @@ function createJMethodWrapper(jvm:MethodValidationRequest jMethodValidationReq,
         func : birFuncWrapper.func,
         fullQualifiedClassName : birFuncWrapper.fullQualifiedClassName,
         jvmMethodDescription : birFuncWrapper.jvmMethodDescription,
-        jMethod: <jvm:Method>jMethodOrError
+        jMethod: <jvm:Method>jMethod
     };
 }
 
 function createJFieldWrapper(jvm:FieldValidationRequest jFieldValidationReq,
-                             BIRFunctionWrapper birFuncWrapper) returns JFieldFunctionWrapper  {
-    var jFieldOrError = jvm:validateAndGetJField(jFieldValidationReq);
-    if (jFieldOrError is error) {
-        panic jFieldOrError;
-    }
+                             BIRFunctionWrapper birFuncWrapper) returns JFieldFunctionWrapper | error  {
+    var jField = check jvm:validateAndGetJField(jFieldValidationReq);
 
     return  {
         orgName : birFuncWrapper.orgName,
@@ -80,7 +74,7 @@ function createJFieldWrapper(jvm:FieldValidationRequest jFieldValidationReq,
         func : birFuncWrapper.func,
         fullQualifiedClassName : birFuncWrapper.fullQualifiedClassName,
         jvmMethodDescription : birFuncWrapper.jvmMethodDescription,
-        jField: <jvm:Field>jFieldOrError
+        jField: <jvm:Field>jField
     };
 }
 
