@@ -253,8 +253,10 @@ public class Http2ClientChannel {
      * Notify all the streams in the closed channel.
      */
     private void handleConnectionClose() {
-        inFlightMessages.values().forEach(outBoundMsgHolder -> outBoundMsgHolder.getRequest()
-                .getHttp2MessageStateContext().getSenderState().handleConnectionClose(outBoundMsgHolder));
+        if (!inFlightMessages.isEmpty()) {
+            inFlightMessages.values().forEach(outBoundMsgHolder -> outBoundMsgHolder.getRequest()
+                    .getHttp2MessageStateContext().getSenderState().handleConnectionClose(outBoundMsgHolder));
+        }
     }
 
     /**
