@@ -14,20 +14,4 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/websub;
-
-service websubSubscriber =
-@websub:SubscriberServiceConfig {
-    path: "/websub",
-    subscribeOnStartUp: true,
-    target: ["http://websubpubhub.com", "http://websubpubtopic.com"]
-}
-@websub:SubscriberServiceConfig {
-    path: "/websub",
-    subscribeOnStartUp: true,
-    target: ["http://websubpubhubtwo.com", "http://websubpubtopictwo.com"]
-}
-service {
-    resource function onNotification (websub:Notification notification) {
-    }
-};
+public function systemExit(int status) = external;

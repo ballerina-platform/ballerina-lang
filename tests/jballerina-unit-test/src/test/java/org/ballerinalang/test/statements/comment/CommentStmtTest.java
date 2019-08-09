@@ -30,7 +30,6 @@ import java.util.List;
 /**
  * Class to test comments.
  */
-@Test(groups = "brokenOnJBallerina")
 public class CommentStmtTest {
 
     private CompileResult result;

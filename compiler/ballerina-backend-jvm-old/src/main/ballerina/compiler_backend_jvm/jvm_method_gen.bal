@@ -811,8 +811,11 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
     bir:BType returnType = bir:TYPE_NIL;
     if (lhsType is bir:BFutureType) {
         returnType = lhsType.returnType;
-    } else if (lhsType is bir:BInvokableType) { 
-        returnType = lhsType.retType;
+    } else if (ins is bir:FPLoad) {
+        returnType = ins.retType;
+        if (returnType is bir:BInvokableType) {
+            returnType = <bir:BType> returnType.retType;
+        }
     } else {
         error err = error( "JVM generation is not supported for async return type " +
                                         io:sprintf("%s", lhsType));
