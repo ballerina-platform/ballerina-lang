@@ -16,7 +16,13 @@
  */
 package org.ballerinalang.test.functions;
 
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.annotations.Test;
 
@@ -29,6 +35,40 @@ import static org.testng.Assert.assertEquals;
  * @since 1.0
  */
 public class InitFunctionTest {
+
+    @Test
+    public void testMainFunctionWithUserDefinedInit() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/functions/test_main_with_init_function.bal");
+        BValue[] result = BRunUtil.invoke(compileResult, "main");
+
+        assertEquals(result.length, 1);
+        assertEquals(result[0].getType().getTag(), TypeTags.ERROR_TAG);
+
+        BError errorValue = (BError) result[0];
+
+        BValue iValue = ((BMap) errorValue.getDetails()).get("i");
+        assertEquals(iValue.getType().getTag(), TypeTags.INT_TAG);
+        assertEquals(((BInteger) iValue).intValue(), 24L);
+    }
+
+    @Test
+    public void testMainFunctionWithImportsWithUserDefinedInit() {
+        CompileResult compileResult = BCompileUtil.compile(this, "test-src/functions/TestProjWithInitFuncs", "a.b");
+        BValue[] result = BRunUtil.invoke(compileResult, "main");
+
+        assertEquals(result.length, 1);
+        assertEquals(result[0].getType().getTag(), TypeTags.ERROR_TAG);
+
+        BError errorValue = (BError) result[0];
+
+        BValue iValue = ((BMap) errorValue.getDetails()).get("i");
+        assertEquals(iValue.getType().getTag(), TypeTags.INT_TAG);
+        assertEquals(((BInteger) iValue).intValue(), 110L);
+
+        BValue sValue = ((BMap) errorValue.getDetails()).get("s");
+        assertEquals(sValue.getType().getTag(), TypeTags.STRING_TAG);
+        assertEquals(sValue.stringValue(), "hello world");
+    }
 
     @Test
     public void invalidInitFunctionSignatureTest() {
