@@ -21,7 +21,11 @@ public type ABC object {
         startCount += 1;
     }
 
-    public function __stop() returns error? {
+    public function __gracefulStop () returns error? {
+        return ();
+    }
+
+    public function __immediateStop () returns error? {
         return ();
     }
 
@@ -41,7 +45,11 @@ public type PQR object {
         startCount += 1;
     }
 
-    public function __stop() returns error? {
+    public function __gracefulStop () returns error? {
+        return ();
+    }
+
+    public function __immediateStop () returns error? {
         return ();
     }
 

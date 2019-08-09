@@ -57,7 +57,11 @@ public type StreamingListener object {
 
     function subscribe() = external;
 
-    public function __stop() returns error? {
+    public function __gracefulStop () returns error? {
+        return ();
+    }
+
+    public function __immediateStop () returns error? {
         return self.close();
     }
 

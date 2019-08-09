@@ -136,8 +136,12 @@ public type WebhookServerForPayload object {
         return self.websubListener.__start();
     }
 
-    public function __stop() returns error? {
-        return self.websubListener.__stop();
+    public function __gracefulStop () returns error? {
+        return ();
+    }
+
+    public function __immediateStop () returns error? {
+        return self.websubListener.__immediateStop();
     }
 };
 
@@ -174,8 +178,12 @@ public type WebhookServerForHeader object {
         return self.websubListener.__start();
     }
 
-    public function __stop() returns error? {
-        return self.websubListener.__stop();
+    public function __gracefulStop () returns error? {
+        return ();
+    }
+
+    public function __immediateStop () returns error? {
+        return self.websubListener.__immediateStop();
     }
 };
 
@@ -233,7 +241,11 @@ public type WebhookServerForHeaderAndPayload object {
         return self.websubListener.__start();
     }
 
-    public function __stop() returns error? {
-        return self.websubListener.__stop();
+    public function __gracefulStop () returns error? {
+        return ();
+    }
+
+    public function __immediateStop () returns error? {
+        return self.websubListener.__immediateStop();
     }
 };

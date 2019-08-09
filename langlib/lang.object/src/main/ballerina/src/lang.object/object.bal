@@ -21,9 +21,13 @@ public type AbstractListener abstract object {
     # + return - error when fail to start, nil otherwise.
     public function __start() returns error?;
 
-    # Handle listner stop.
-    # + return - error when fail to stop, nil otherwise.
-    public function __stop() returns error?;
+    # Handle listener stop gracefully.
+    # + return - error if `__gracefulStop` for some reason, nil otherwise.
+    public function __gracefulStop () returns error?;
+
+    # Handle listener stop immediatly.
+    # + return - error if `__immediateStop` for some reason, nil otherwise.
+    public function __immediateStop () returns error?;
 
     # Handle attaching to service `s`.
     # + return - error if attachment failes, nil othrwise.

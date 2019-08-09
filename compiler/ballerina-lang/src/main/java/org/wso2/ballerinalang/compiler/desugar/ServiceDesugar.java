@@ -62,7 +62,7 @@ public class ServiceDesugar {
     private static final CompilerContext.Key<ServiceDesugar> SERVICE_DESUGAR_KEY = new CompilerContext.Key<>();
 
     private static final String START_METHOD = "__start";
-    private static final String STOP_METHOD = "__stop";
+    private static final String STOP_METHOD = "__immediateStop";
     private static final String ATTACH_METHOD = "__attach";
     private static final String LISTENER = "$LISTENER";
 
