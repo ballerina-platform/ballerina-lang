@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.ballerina.plugins.idea.settings.autodetect;
+package io.ballerina.plugins.idea.settings.experimental;
 
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
@@ -33,26 +33,27 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 /**
- * Adds enabling/disabling Ballerina home auto detection in settings.
+ * Adds capability of enabling/disabling ballerina experimental feature support.
  */
-public class BallerinaAutoDetectionConfigurable implements SearchableConfigurable {
+public class BallerinaExperimentalFeatureConfigurable implements SearchableConfigurable {
 
-    private JCheckBox myAutoDetectionCb;
-    private final BallerinaAutoDetectionSettings myBalHomeAutoDetectionSettings;
+    private JCheckBox myCbAllowExperimental;
+
+    @NotNull
+    private final BallerinaExperimentalFeatureSettings ballerinaExperimentalFeatureSettings;
     private final boolean myIsDialog;
 
-    public BallerinaAutoDetectionConfigurable(@NotNull Project project, boolean dialogMode) {
-        myBalHomeAutoDetectionSettings = BallerinaAutoDetectionSettings.getInstance(project);
+    public BallerinaExperimentalFeatureConfigurable(@NotNull Project project, boolean dialogMode) {
+        ballerinaExperimentalFeatureSettings = BallerinaExperimentalFeatureSettings.getInstance();
         myIsDialog = dialogMode;
     }
 
     @Nullable
     @Override
     public JComponent createComponent() {
-
         FormBuilder builder = FormBuilder.createFormBuilder();
-        myAutoDetectionCb = new JCheckBox("Auto-Detect Ballerina Home");
-        builder.addComponent(myAutoDetectionCb);
+        myCbAllowExperimental = new JCheckBox("Allow ballerina experimental features");
+        builder.addComponent(myCbAllowExperimental);
         JPanel result = new JPanel(new BorderLayout());
         result.add(builder.getPanel(), BorderLayout.NORTH);
         if (myIsDialog) {
@@ -63,24 +64,27 @@ public class BallerinaAutoDetectionConfigurable implements SearchableConfigurabl
 
     @Override
     public boolean isModified() {
-        return myBalHomeAutoDetectionSettings.getIsAutoDetectionEnabled() != myAutoDetectionCb.isSelected();
+        return ballerinaExperimentalFeatureSettings.getAllowExperimental() != myCbAllowExperimental.isSelected();
     }
 
     @Override
     public void apply() {
-        myBalHomeAutoDetectionSettings.setIsAutoDetectionEnabled(myAutoDetectionCb.isSelected());
+        ballerinaExperimentalFeatureSettings.setAllowExperimental(myCbAllowExperimental.isSelected());
+        // Need to prompt a restart action to clear and re re-spawn language server instance with the changed
+        // configuration.
+        // Todo - Figure out a way to apply changes without restarting IDE.
         BallerinaSdkUtils.showRestartDialog(null);
     }
 
     @Override
     public void reset() {
-        myAutoDetectionCb.setSelected(myBalHomeAutoDetectionSettings.getIsAutoDetectionEnabled());
+        myCbAllowExperimental.setSelected(ballerinaExperimentalFeatureSettings.getAllowExperimental());
     }
 
     @NotNull
     @Override
     public String getId() {
-        return "ballerina.home.autodetect";
+        return "ballerina.allow.experimental";
     }
 
     @Nullable
@@ -92,7 +96,7 @@ public class BallerinaAutoDetectionConfigurable implements SearchableConfigurabl
     @Nls
     @Override
     public String getDisplayName() {
-        return "Ballerina Home Auto Detection";
+        return "Experimental Features";
     }
 
     @Nullable
@@ -103,7 +107,7 @@ public class BallerinaAutoDetectionConfigurable implements SearchableConfigurabl
 
     @Override
     public void disposeUIResources() {
-        UIUtil.dispose(myAutoDetectionCb);
-        myAutoDetectionCb = null;
+        UIUtil.dispose(myCbAllowExperimental);
+        myCbAllowExperimental = null;
     }
 }
