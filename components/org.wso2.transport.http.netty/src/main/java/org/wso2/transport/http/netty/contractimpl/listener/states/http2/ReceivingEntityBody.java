@@ -45,15 +45,9 @@ public class ReceivingEntityBody implements ListenerState {
     private static final Logger LOG = LoggerFactory.getLogger(ReceivingEntityBody.class);
 
     private final Http2MessageStateContext http2MessageStateContext;
-    private boolean headerSent;
 
     ReceivingEntityBody(Http2MessageStateContext http2MessageStateContext) {
         this.http2MessageStateContext = http2MessageStateContext;
-    }
-
-    ReceivingEntityBody(Http2MessageStateContext http2MessageStateContext, boolean headerSent) {
-        this(http2MessageStateContext);
-        this.headerSent = headerSent;
     }
 
     @Override
@@ -96,7 +90,7 @@ public class ReceivingEntityBody implements ListenerState {
         // going to send the response back.
         // This conditional check is needed because, either to write response headers or response body, response
         // writer calls this method. So we need to check whether headers sent to change the state.
-        if (headerSent) {
+        if (http2MessageStateContext.isHeadersSent()) {
             // response header already sent. move the state to SendingEntityBody.
             http2MessageStateContext.setListenerState(
                     new SendingEntityBody(http2OutboundRespListener, http2MessageStateContext));
