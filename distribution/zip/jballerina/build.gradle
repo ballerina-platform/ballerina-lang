@@ -65,7 +65,7 @@ dependencies {
     dist 'org.bouncycastle:bcprov-jdk15on:1.61'
     dist 'org.bouncycastle:bcpkix-jdk15on:1.61'
 
-    dist 'info.picocli:picocli:3.3.0'
+    dist 'info.picocli:picocli:4.0.1'
     dist 'org.apache.kafka:kafka-clients:2.0.0'
     dist 'org.apache.kafka:kafka_2.11:2.0.0'
     dist 'org.apache.james:apache-mime4j-core:0.7.2'

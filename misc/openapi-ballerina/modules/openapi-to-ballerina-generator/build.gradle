@@ -36,7 +36,7 @@ dependencies {
     implementation 'io.swagger.parser.v3:swagger-parser-v2-converter'
     implementation 'io.swagger.parser.v3:swagger-parser-v3'
     implementation 'com.github.jknack:handlebars:4.0.6'
-    implementation 'info.picocli:picocli:3.9.0'
+    implementation 'info.picocli:picocli:4.0.1'
     implementation 'javax.ws.rs:javax.ws.rs-api:2.0'
     implementation project(':ballerina-tool')
     implementation project(':ballerina-lang')
