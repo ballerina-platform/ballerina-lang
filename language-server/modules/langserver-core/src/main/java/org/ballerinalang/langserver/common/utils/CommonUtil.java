@@ -31,7 +31,6 @@ import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
-import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
@@ -70,7 +69,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -503,22 +501,26 @@ public class CommonUtil {
             annotationStart.append(aliasComponent).append(CommonKeys.PKG_DELIMITER_KEYWORD);
         }
         if (annotationSymbol.attachedType != null) {
-            annotationStart.append(annotationSymbol.getName().getValue()).append(" ").append(CommonKeys.OPEN_BRACE_KEY)
-                    .append(LINE_SEPARATOR);
-            List<BField> requiredFields = new ArrayList<>();
-            if (annotationSymbol.attachedType.type instanceof BRecordType) {
-                requiredFields = getRecordRequiredFields(((BRecordType) annotationSymbol.attachedType.type));
+            annotationStart.append(annotationSymbol.getName().getValue());
+            BType attachedType = annotationSymbol.attachedType.type;
+            BType resultType = attachedType instanceof BArrayType ? ((BArrayType) attachedType).eType : attachedType;
+            if (resultType instanceof BRecordType || resultType instanceof BMapType) {
+                List<BField> requiredFields = new ArrayList<>();
+                annotationStart.append(" ").append(CommonKeys.OPEN_BRACE_KEY).append(LINE_SEPARATOR);
+                if (resultType instanceof BRecordType) {
+                    requiredFields.addAll(getRecordRequiredFields(((BRecordType) resultType)));
+                }
                 List<String> insertTexts = new ArrayList<>();
                 requiredFields.forEach(field -> {
                     String fieldInsertionText = "\t" + getRecordFieldCompletionInsertText(field, 1);
                     insertTexts.add(fieldInsertionText);
                 });
                 annotationStart.append(String.join("," + LINE_SEPARATOR, insertTexts));
+                if (requiredFields.isEmpty()) {
+                    annotationStart.append("\t").append("${1}");
+                }
+                annotationStart.append(LINE_SEPARATOR).append(CommonKeys.CLOSE_BRACE_KEY);
             }
-            if (requiredFields.isEmpty()) {
-                annotationStart.append("\t").append("${1}").append(LINE_SEPARATOR);
-            }
-            annotationStart.append(CommonKeys.CLOSE_BRACE_KEY);
         } else {
             annotationStart.append(annotationSymbol.getName().getValue());
         }
@@ -1051,22 +1053,6 @@ public class CommonUtil {
     }
 
     /**
-     * Get the function invocation parameter signature.
-     *
-     * @param symbol    parameter variable symbol
-     * @param isDefault default parameter or not
-     * @param ctx       Language Server Operation Context
-     * @return {@link String} Parameter signature
-     */
-    public static String getFunctionInvocationParameterSignature(BVarSymbol symbol, boolean isDefault, LSContext ctx) {
-        if (!isDefault) {
-            return CommonUtil.getBTypeName(symbol.type, ctx) + " " + symbol.getName();
-        } else {
-            return CommonUtil.getBTypeName(symbol.type, ctx) + " " + symbol.getName() + " = " + "()";
-        }
-    }
-
-    /**
      * Get the function invocation signature.
      *
      * @param symbol       ballerina function instance
@@ -1078,32 +1064,9 @@ public class CommonUtil {
                                                                       LSContext ctx) {
         StringBuilder signature = new StringBuilder(functionName + "(");
         StringBuilder insertText = new StringBuilder(functionName + "(");
-        List<BVarSymbol> parameterDefs = new ArrayList<>(symbol.getParameters());
-        BVarSymbol restParam = symbol.restParam;
-        int invocationType = (ctx == null || ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY) == null) ? -1
-                : ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
-        boolean skipFirstParam = skipFirstParam(symbol, invocationType);
-
-        if (symbol.kind == null && SymbolKind.RECORD == symbol.owner.kind || SymbolKind.FUNCTION == symbol.owner.kind) {
-            // Get only the argument types combined
-            List<String> funcArguments = FunctionGenerator.getFuncArguments(symbol, ctx);
-            if (!funcArguments.isEmpty()) {
-                signature.append(String.join(", ", funcArguments));
-                insertText.append("${1}");
-            }
-        } else {
-            List<String> paramsList = new ArrayList<>();
-            for (int itr = 0; itr < parameterDefs.size(); itr++) {
-                if (itr == 0 && skipFirstParam) {
-                    continue;
-                }
-                BVarSymbol param = parameterDefs.get(itr);
-                paramsList.add(getFunctionInvocationParameterSignature(param, false, ctx));
-            }
-            if (restParam != null && (restParam.type instanceof BArrayType)) {
-                paramsList.add("..." + CommonUtil.getBTypeName(((BArrayType) restParam.type).eType, ctx));
-            }
-            signature.append(String.join(", ", paramsList));
+        List<String> funcArguments = FunctionGenerator.getFuncArguments(symbol, ctx);
+        if (!funcArguments.isEmpty()) {
+            signature.append(String.join(", ", funcArguments));
             insertText.append("${1}");
         }
         signature.append(")");
@@ -1160,15 +1123,18 @@ public class CommonUtil {
             }
             insertText.append("{").append(LINE_SEPARATOR);
             int tabCount = tabOffset;
+            List<String> requiredFieldInsertTexts = new ArrayList<>();
             for (BField requiredField : requiredFields) {
-                insertText.append(String.join("", Collections.nCopies(tabCount + 1, "\t")))
-                        .append(getRecordFieldCompletionInsertText(requiredField, tabCount))
-                        .append(String.join("", Collections.nCopies(tabCount, "\t")))
-                        .append(LINE_SEPARATOR);
+                String fieldText = String.join("", Collections.nCopies(tabCount + 1, "\t")) +
+                        getRecordFieldCompletionInsertText(requiredField, tabCount) +
+                        String.join("", Collections.nCopies(tabCount, "\t"));
+                requiredFieldInsertTexts.add(fieldText);
                 tabCount++;
             }
-            insertText.append(String.join("", Collections.nCopies(tabOffset, "\t")))
-                    .append("}").append(LINE_SEPARATOR);
+            insertText.append(String.join(CommonUtil.LINE_SEPARATOR, requiredFieldInsertTexts));
+            insertText.append(LINE_SEPARATOR)
+                    .append(String.join("", Collections.nCopies(tabOffset, "\t")))
+                    .append("}");
         } else if (fieldType instanceof BArrayType) {
             insertText.append("[").append("${1}").append("]");
         } else if (fieldType.tsymbol != null && fieldType.tsymbol.name.getValue().equals("string")) {
@@ -1383,7 +1349,7 @@ public class CommonUtil {
      * @return {@link Boolean} whether we show the first param or not
      */
     public static boolean skipFirstParam(BInvokableSymbol invokableSymbol, int invocationType) {
-        return isLangLibSymbol(invokableSymbol) && invocationType == BallerinaParser.DOT;
+        return isLangLibSymbol(invokableSymbol) && invocationType != BallerinaParser.COLON;
     }
 
     /**

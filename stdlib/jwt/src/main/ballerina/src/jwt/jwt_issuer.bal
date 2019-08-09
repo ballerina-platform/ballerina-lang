@@ -149,6 +149,10 @@ function buildPayloadString(JwtPayload payload) returns string|Error {
     } else if (aud is string[]) {
         payloadJson[AUD] = aud;
     }
+    int? nbf = payload?.nbf;
+    if (nbf is int) {
+        payloadJson[NBF] = nbf;
+    }
     var customClaims = payload?.customClaims;
     if (customClaims is map<json>) {
         payloadJson = addMapToJson(payloadJson, customClaims);

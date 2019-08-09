@@ -1140,12 +1140,12 @@ function loadFiniteType(jvm:MethodVisitor mv, bir:BFiniteType finiteType) {
 
     foreach var valueTypePair in finiteType.values {
         var value = valueTypePair[0];
-        bir:BType? valueType = valueTypePair[1];
+        bir:BType valueType = valueTypePair[1];
         mv.visitInsn(DUP);
 
         if (valueType is bir:BTypeNil) {
             mv.visitInsn(ACONST_NULL);
-        } else if (value is bir:Decimal) { 
+        } else if (value is bir:Decimal) {
             // do nothing
         } else {
             mv.visitLdcInsn(value);
