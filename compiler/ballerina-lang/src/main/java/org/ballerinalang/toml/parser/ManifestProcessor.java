@@ -74,13 +74,14 @@ public class ManifestProcessor {
     public Manifest getManifest() {
         return this.manifest;
     }
-
+    
     /**
      * Get the char stream of the content from file.
      *
      * @param tomlPath path of the toml file
      * @return manifest object
-     * @throws IOException exception if the file cannot be found
+     * @throws IOException   exception if the file cannot be found
+     * @throws TomlException exception when parsing toml
      */
     public static Manifest parseTomlContentFromFile(Path tomlPath) throws IOException, TomlException {
         InputStream targetStream = new FileInputStream(tomlPath.toFile());
@@ -88,12 +89,13 @@ public class ManifestProcessor {
         validateManifestDependencies(manifest);
         return manifest;
     }
-
+    
     /**
      * Get the char stream from string content.
      *
      * @param content toml file content as a string
      * @return manifest object
+     * @throws TomlException exception when parsing toml
      */
     public static Manifest parseTomlContentFromString(String content) throws TomlException {
         try {
@@ -120,12 +122,13 @@ public class ManifestProcessor {
             throw new TomlException("invalid Ballerina.toml file: " + tomlErrMsg);
         }
     }
-
+    
     /**
      * Get the char stream from inputstream.
      *
      * @param inputStream inputstream of the toml file content
      * @return manifest object
+     * @throws TomlException exception when parsing toml
      */
     public static Manifest parseTomlContentAsStream(InputStream inputStream) throws TomlException {
         try {
