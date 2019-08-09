@@ -26,3 +26,4 @@ function () returns int sumFunction =
              future<int> intFuture = start getInt();
              return wait intFuture;
         };
+        
