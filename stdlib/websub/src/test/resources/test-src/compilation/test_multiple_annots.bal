@@ -20,14 +20,12 @@ service websubSubscriber =
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
-    topic: "http://websubpubtopic.com",
-    hub: "http://websubpubhub.com"
+    target: ["http://websubpubhub.com", "http://websubpubtopic.com"]
 }
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
-    topic: "http://websubpubtopictwo.com",
-    hub: "http://websubpubhubtwo.com"
+    target: ["http://websubpubhubtwo.com", "http://websubpubtopictwo.com"]
 }
 service {
     resource function onNotification (websub:Notification notification) {
