@@ -28,7 +28,6 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -53,6 +52,7 @@ import static org.ballerinalang.model.types.TypeKind.STRING;
                 @Argument(name = "targetPath", type = STRING),
         }
 )
+@SuppressWarnings("unchecked")
 public class WriteExecutableJarFile extends BlockingNativeCallableUnit {
 
     private static final String PKG_ENTRIES = "pkgEntries";
@@ -66,26 +66,18 @@ public class WriteExecutableJarFile extends BlockingNativeCallableUnit {
 
     public static void writeExecutableJarToFile(Strand strand, MapValue oJarFile, String targetPath) {
         try {
-            byte[] bytes = getJarContent(oJarFile);
+            writeJarContent(oJarFile, new FileOutputStream(targetPath));
             Optional<ErrorValue> result =
-                    ClassVerifier.verify((Map<String, ArrayValue>) oJarFile.get(PKG_ENTRIES), bytes);
+                    ClassVerifier.verify((Map<String, ArrayValue>) oJarFile.get(PKG_ENTRIES), targetPath);
             if (result.isPresent()) {
                 throw result.get();
             }
-
-            writeJar(targetPath, bytes);
         } catch (IOException e) {
             throw new BLangCompilerException("jar file generation failed: " + e.getMessage(), e);
         }
     }
 
-    private static void writeJar(String targetPath, byte[] bytes) throws IOException {
-        try (FileOutputStream stream = new FileOutputStream(targetPath)) {
-            stream.write(bytes);
-        }
-    }
-
-    private static byte[] getJarContent(MapValue<String, MapValue> entries) throws IOException {
+    private static void writeJarContent(MapValue<String, MapValue> entries, OutputStream out) throws IOException {
         Manifest manifest = new Manifest();
         manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
 
@@ -94,8 +86,7 @@ public class WriteExecutableJarFile extends BlockingNativeCallableUnit {
             manifestEntries.forEach((k, v) -> manifest.getMainAttributes().put(new Attributes.Name(k), v));
         }
 
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                JarOutputStream target = new JarOutputStream(baos, manifest)) {
+        try (JarOutputStream target = new JarOutputStream(out, manifest)) {
             if (!entries.containsKey(PKG_ENTRIES)) {
                 throw new BLangCompilerException("no class file entries found in the record");
             }
@@ -108,8 +99,6 @@ public class WriteExecutableJarFile extends BlockingNativeCallableUnit {
                 target.write(entryContent);
                 target.closeEntry();
             }
-
-            return baos.toByteArray();
         }
     }
 }

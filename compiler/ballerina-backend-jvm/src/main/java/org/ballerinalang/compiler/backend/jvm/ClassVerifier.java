@@ -31,6 +31,10 @@ import org.objectweb.asm.tree.analysis.BasicValue;
 import org.objectweb.asm.tree.analysis.SimpleVerifier;
 import org.objectweb.asm.util.CheckClassAdapter;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -53,15 +57,19 @@ public class ClassVerifier {
      * @param bytes Content of classes thats needs to be loaded before starting the verification.
      * @return An optional error, if there are verification errors.
      */
-    public static Optional<ErrorValue> verify(Map<String, ArrayValue> jarEntries, byte[] bytes) {
-        for (Map.Entry<String, ArrayValue> entries : jarEntries.entrySet()) {
-            Optional<ErrorValue> result = verify(entries.getValue().getBytes(), new InMemoryClassLoader(bytes));
-            if (result.isPresent()) {
-                return result;
+    public static Optional<ErrorValue> verify(Map<String, ArrayValue> jarEntries, String jarPath) {
+        try {
+            ClassLoader cl = new URLClassLoader(new URL[] { Paths.get(jarPath).toUri().toURL() });
+            for (Map.Entry<String, ArrayValue> entries : jarEntries.entrySet()) {
+                Optional<ErrorValue> result = verify(entries.getValue().getBytes(), cl);
+                if (result.isPresent()) {
+                    return result;
+                }
             }
+            return Optional.empty();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e.getMessage(), e);
         }
-
-        return Optional.empty();
     }
 
     /**
