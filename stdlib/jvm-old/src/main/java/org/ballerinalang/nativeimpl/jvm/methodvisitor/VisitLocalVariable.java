@@ -19,6 +19,8 @@ package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
@@ -52,13 +54,16 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
 public class VisitLocalVariable extends BlockingNativeCallableUnit {
 
     @Override
+    @Deprecated
     public void execute(Context context) {
-        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(context, 0);
-        String varName = context.getStringArgument(0);
-        String descriptor = context.getStringArgument(1);
-        Label startLabel = ASMUtil.getRefArgumentNativeData(context, 1);
-        Label endLabel = ASMUtil.getRefArgumentNativeData(context, 2);
-        int index = (int) context.getIntArgument(0);
-        mv.visitLocalVariable(varName, descriptor, null, startLabel , endLabel, index);
+        throw new UnsupportedOperationException("BVM Unsupported");
+    }
+
+    public static void visitLocalVariable(Strand strand, ObjectValue oMv, String varName, String descriptor,
+                            ObjectValue oStartLabel, ObjectValue oEndLabel, long index) {
+        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(oMv);
+        Label startLabel = ASMUtil.getRefArgumentNativeData(oStartLabel);
+        Label endLabel = ASMUtil.getRefArgumentNativeData(oEndLabel);
+        mv.visitLocalVariable(varName, descriptor, null, startLabel, endLabel, (int) index);
     }
 }
