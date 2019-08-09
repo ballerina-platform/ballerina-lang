@@ -31,6 +31,7 @@ public class BLangConstants {
     public static final short VERSION_NUMBER = 26;
 
     public static final String MAIN_FUNCTION_NAME = "main";
+    public static final String BAL_MAX_POOL_SIZE_ENV = "BAL_MAX_POOL_SIZE";
     public static final String INIT_FUNCTION_SUFFIX = "..<init>";
     public static final String CONSTRUCTOR_FUNCTION_SUFFIX = "__init";
     public static final String START_FUNCTION_SUFFIX = ".<start>";

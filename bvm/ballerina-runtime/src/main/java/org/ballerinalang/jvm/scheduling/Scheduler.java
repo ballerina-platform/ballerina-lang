@@ -17,6 +17,7 @@
 package org.ballerinalang.jvm.scheduling;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
@@ -67,8 +68,21 @@ public class Scheduler {
     }
 
     private AtomicInteger totalStrands = new AtomicInteger();
-    private final int numThreads;
+    private int numThreads;
     private Semaphore mainBlockSem;
+
+    public Scheduler(boolean immortal) {
+        try {
+            String poolSizeConf = System.getenv(BLangConstants.BAL_MAX_POOL_SIZE_ENV);
+            this.numThreads = poolSizeConf == null ?
+                    Runtime.getRuntime().availableProcessors() * 2 : Integer.parseInt(poolSizeConf);
+        } catch (Throwable t) {
+            // Log and continue with default
+            this.numThreads = Runtime.getRuntime().availableProcessors() * 2;
+            logger.error("Error occurred in scheduler while reading system variable:" + BLangConstants.BAL_MAX_POOL_SIZE_ENV, t);
+        }
+        this.immortal = immortal;
+    }
 
     public Scheduler(int numThreads, boolean immortal) {
         this.numThreads = numThreads;

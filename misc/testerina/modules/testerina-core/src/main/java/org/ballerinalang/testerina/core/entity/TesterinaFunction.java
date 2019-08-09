@@ -86,7 +86,7 @@ public class TesterinaFunction {
     }
 
     public BValue[] invoke() throws BallerinaException {
-        final Scheduler scheduler = new Scheduler(4, false);
+        final Scheduler scheduler = new Scheduler(false);
         runOnSchedule(programFile, bFunction.name, scheduler);
         return new BValue[0];
     }
