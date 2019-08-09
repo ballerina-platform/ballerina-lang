@@ -29,6 +29,8 @@ import java.io.PrintStream;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -45,6 +47,7 @@ import static org.ballerinalang.jvm.scheduling.SchedulerItem.POISON_PILL;
 public class Scheduler {
 
 
+    private ExecutorService executor;
     private static final Logger logger = LoggerFactory.getLogger(Scheduler.class);
     /**
      * Scheduler does not get killed if the immortal value is true. Specific to services.
@@ -87,11 +90,13 @@ public class Scheduler {
                     BLangConstants.BAL_MAX_POOL_SIZE_ENV, t);
         }
         this.immortal = immortal;
+        this.executor = Executors.newWorkStealingPool(200);
     }
 
     public Scheduler(int numThreads, boolean immortal) {
         this.numThreads = numThreads;
         this.immortal = immortal;
+        this.executor = Executors.newWorkStealingPool(200);
     }
 
     public FutureValue scheduleFunction(Object[] params, FPValue<?, ?> fp, Strand parent) {
@@ -123,6 +128,7 @@ public class Scheduler {
         SchedulerItem item = new SchedulerItem(function, params, future);
         future.strand.schedulerItem = item;
         totalStrands.incrementAndGet();
+//        System.out.println("increment"+ totalStrands);
         if (DEBUG) {
             debugLog(item + " scheduled");
         }
@@ -144,6 +150,7 @@ public class Scheduler {
         SchedulerItem item = new SchedulerItem(consumer, params, future);
         future.strand.schedulerItem = item;
         totalStrands.incrementAndGet();
+//        System.out.println("increment"+ totalStrands);
         if (DEBUG) {
             debugLog(item + " scheduled");
         }
@@ -168,16 +175,16 @@ public class Scheduler {
             debugLogger.setDaemon(true);
             debugLogger.start();
         }
-        this.mainBlockSem = new Semaphore(-(numThreads - 1));
-        for (int i = 0; i < numThreads - 1; i++) {
-            new Thread(this::runSafely, "jbal-strand-exec-" + i).start();
-        }
+//        this.mainBlockSem = new Semaphore(-(numThreads - 1));
+//        for (int i = 0; i < numThreads - 1; i++) {
+//            new Thread(this::runSafely, "jbal-strand-exec-" + i).start();
+//        }
         this.runSafely();
-        try {
-            this.mainBlockSem.acquire();
-        } catch (InterruptedException e) {
-            logger.error("Error while waiting for poison to work", e);
-        }
+//        try {
+//            this.mainBlockSem.acquire();
+//        } catch (InterruptedException e) {
+//            logger.error("Error while waiting for poison to work", e);
+//        }
     }
 
     /**
@@ -185,9 +192,13 @@ public class Scheduler {
      */
     private void runSafely() {
         try {
+            this.executor = Executors.newWorkStealingPool(200);
             run();
         } catch (Throwable t) {
             logger.error("Error occurred in scheduler", t);
+        } finally {
+            runnableList.clear();
+            this.executor.shutdown();
         }
     }
 
@@ -204,119 +215,246 @@ public class Scheduler {
             }
 
             if (item == POISON_PILL) {
-                this.mainBlockSem.release();
+//                this.mainBlockSem.release();
+//                System.out.println("+++++++++ break ++++++++");
                 break;
             }
 
-            Object result = null;
-            Throwable panic = null;
-            try {
-                if (DEBUG) {
-                    debugLog(item + " executing");
+            class Task implements Runnable {
+                SchedulerItem item;
+                Task(SchedulerItem item) {
+                    this.item = item;
                 }
-                result = item.execute();
-            } catch (Throwable e) {
-                panic = e;
-                notifyChannels(item, panic);
-                logger.error("Strand died", e);
-            }
 
-            switch (item.getState()) {
-                case BLOCK_AND_YIELD:
-                    if (DEBUG) {
-                        debugLog(item + " blocked");
-                    }
-                    item.future.strand.lock();
-                    // need to recheck due to concurrency, unblockStrand() may have changed state
-                    if (item.getState().getStatus() == State.YIELD.getStatus()) {
-                        reschedule(item);
-                        item.future.strand.unlock();
-                        break;
-                    }
-                    if (DEBUG) {
-                        debugLog(item + " parked");
-                    }
-                    item.parked = true;
-                    item.future.strand.unlock();
-                    break;
-                case BLOCK_ON_AND_YIELD:
-                    WaitContext waitContext = item.future.strand.waitContext;
-                    waitContext.lock();
-                    waitContext.intermediate = false;
-                    if (waitContext.runnable) {
-                        waitContext.completed = true;
-                        reschedule(item);
-                    } else {
+                @Override
+                public void run() {
+                    Object result = null;
+                    Throwable panic = null;
+                    try {
                         if (DEBUG) {
-                            debugLog(item + " waiting");
+                            debugLog(item + " executing");
                         }
-                    }
-                    waitContext.unLock();
-                    break;
-                case YIELD:
-                    reschedule(item);
-                    if (DEBUG) {
-                        debugLog(item + " yielded");
-                    }
-                    break;
-                case RUNNABLE:
-                    item.future.result = result;
-                    item.future.isDone = true;
-                    item.future.panic = panic;
-                    // TODO clean, better move it to future value itself
-                    if (item.future.callback != null) {
-                        if (item.future.panic != null) {
-                            item.future.callback.notifyFailure(BallerinaErrors.createError(panic));
-                        } else {
-                            item.future.callback.notifySuccess();
-                        }
+                        result = item.execute();
+
+                    } catch (Throwable e) {
+                        panic = e;
+                        notifyChannels(item, panic);
+                        logger.error("Strand died", e);
                     }
 
-                    Strand justCompleted = item.future.strand;
-                    assert !justCompleted.getState().equals(State.DONE) : "Can't be completed twice";
-
-                    justCompleted.setState(State.DONE);
-
-
-                    for (WaitContext ctx : justCompleted.waitingContexts) {
-                        ctx.lock();
-                        if (!ctx.completed) {
-                            if ((item.future.panic != null && ctx.handlePanic()) || ctx.waitCompleted(result)) {
-                                if (ctx.intermediate) {
-                                    ctx.runnable = true;
-                                } else {
-                                    ctx.completed = true;
-                                    reschedule(ctx.schedulerItem);
+                    switch (item.getState()) {
+                        case BLOCK_AND_YIELD:
+                            if (DEBUG) {
+                                debugLog(item + " blocked");
+                            }
+                            item.future.strand.lock();
+                            // need to recheck due to concurrency, unblockStrand() may have changed state
+                            if (item.getState().getStatus() == State.YIELD.getStatus()) {
+                                reschedule(item);
+                                item.future.strand.unlock();
+                                break;
+                            }
+                            if (DEBUG) {
+                                debugLog(item + " parked");
+                            }
+                            item.parked = true;
+                            item.future.strand.unlock();
+                            break;
+                        case BLOCK_ON_AND_YIELD:
+                            WaitContext waitContext = item.future.strand.waitContext;
+                            waitContext.lock();
+                            waitContext.intermediate = false;
+                            if (waitContext.runnable) {
+                                waitContext.completed = true;
+                                reschedule(item);
+                            } else {
+                                if (DEBUG) {
+                                    debugLog(item + " waiting");
                                 }
                             }
-                        }
-                        ctx.unLock();
-                    }
-
-                    cleanUp(justCompleted);
-
-                    int strandsLeft = totalStrands.decrementAndGet();
-                    if (strandsLeft == 0) {
-                        // (number of started stands - finished stands) = 0, all the work is done
-                        assert runnableList.size() == 0;
-
-                        // server agent start code will be inserted in above line during tests.
-                        // It depends on this line number 279.
-                        // update the linenumber @BallerinaServerAgent#SCHEDULER_LINE_NUM if modified
-                        if (DEBUG) {
-                            debugLog("+++++++++ all work completed ++++++++");
-                        }
-
-                        if (!immortal) {
-                            for (int i = 0; i < numThreads; i++) {
-                                runnableList.add(POISON_PILL);
+                            waitContext.unLock();
+                            break;
+                        case YIELD:
+                            reschedule(item);
+                            if (DEBUG) {
+                                debugLog(item + " yielded");
                             }
-                        }
+                            break;
+                        case RUNNABLE:
+                            item.future.result = result;
+                            item.future.isDone = true;
+                            item.future.panic = panic;
+                            // TODO clean, better move it to future value itself
+                            if (item.future.callback != null) {
+                                if (item.future.panic != null) {
+                                    item.future.callback.notifyFailure(BallerinaErrors.createError(panic));
+                                } else {
+                                    item.future.callback.notifySuccess();
+                                }
+                            }
+
+                            Strand justCompleted = item.future.strand;
+                            assert !justCompleted.getState().equals(State.DONE) : "Can't be completed twice";
+
+                            justCompleted.setState(State.DONE);
+
+
+                            for (WaitContext ctx : justCompleted.waitingContexts) {
+                                ctx.lock();
+                                if (!ctx.completed) {
+                                    if ((item.future.panic != null && ctx.handlePanic()) || ctx.waitCompleted(result)) {
+                                        if (ctx.intermediate) {
+                                            ctx.runnable = true;
+                                        } else {
+                                            ctx.completed = true;
+                                            reschedule(ctx.schedulerItem);
+                                        }
+                                    }
+                                }
+                                ctx.unLock();
+                            }
+
+                            cleanUp(justCompleted);
+
+                            int strandsLeft = totalStrands.decrementAndGet();
+//                            System.out.println(strandsLeft);
+                            if (strandsLeft == 0) {
+                                // (number of started stands - finished stands) = 0, all the work is done
+                                assert runnableList.size() == 0;
+
+                                // server agent start code will be inserted in above line during tests.
+                                // It depends on this line number 279.
+                                // update the linenumber @BallerinaServerAgent#SCHEDULER_LINE_NUM if modified
+                                if (DEBUG) {
+                                    debugLog("+++++++++ all work completed ++++++++");
+                                }
+//                                System.out.println("+++++++++ all work completed ++++++++");
+
+                                if (!immortal) {
+//                                    for (int i = 0; i < numThreads; i++) {
+                                    runnableList.add(POISON_PILL);
+//                                    }
+                                }
+                            }
+                            break;
+                        default:
+                            assert false : "illegal strand state during execute " + item.getState();
                     }
-                    break;
-                default:
-                    assert false : "illegal strand state during execute " + item.getState();
+                }
             }
+
+            executor.submit(new Task(item));
+
+//            Object result = null;
+//            Throwable panic = null;
+//            try {
+//                if (DEBUG) {
+//                    debugLog(item + " executing");
+//                }
+//                result = item.execute();
+//
+//            } catch (Throwable e) {
+//                panic = e;
+//                notifyChannels(item, panic);
+//                logger.error("Strand died", e);
+//            }
+//
+//            switch (item.getState()) {
+//                case BLOCK_AND_YIELD:
+//                    if (DEBUG) {
+//                        debugLog(item + " blocked");
+//                    }
+//                    item.future.strand.lock();
+//                    // need to recheck due to concurrency, unblockStrand() may have changed state
+//                    if (item.getState().getStatus() == State.YIELD.getStatus()) {
+//                        reschedule(item);
+//                        item.future.strand.unlock();
+//                        break;
+//                    }
+//                    if (DEBUG) {
+//                        debugLog(item + " parked");
+//                    }
+//                    item.parked = true;
+//                    item.future.strand.unlock();
+//                    break;
+//                case BLOCK_ON_AND_YIELD:
+//                    WaitContext waitContext = item.future.strand.waitContext;
+//                    waitContext.lock();
+//                    waitContext.intermediate = false;
+//                    if (waitContext.runnable) {
+//                        waitContext.completed = true;
+//                        reschedule(item);
+//                    } else {
+//                        if (DEBUG) {
+//                            debugLog(item + " waiting");
+//                        }
+//                    }
+//                    waitContext.unLock();
+//                    break;
+//                case YIELD:
+//                    reschedule(item);
+//                    if (DEBUG) {
+//                        debugLog(item + " yielded");
+//                    }
+//                    break;
+//                case RUNNABLE:
+//                    item.future.result = result;
+//                    item.future.isDone = true;
+//                    item.future.panic = panic;
+//                    // TODO clean, better move it to future value itself
+//                    if (item.future.callback != null) {
+//                        if (item.future.panic != null) {
+//                            item.future.callback.notifyFailure(BallerinaErrors.createError(panic));
+//                        } else {
+//                            item.future.callback.notifySuccess();
+//                        }
+//                    }
+//
+//                    Strand justCompleted = item.future.strand;
+//                    assert !justCompleted.getState().equals(State.DONE) : "Can't be completed twice";
+//
+//                    justCompleted.setState(State.DONE);
+//
+//
+//                    for (WaitContext ctx : justCompleted.waitingContexts) {
+//                        ctx.lock();
+//                        if (!ctx.completed) {
+//                            if ((item.future.panic != null && ctx.handlePanic()) || ctx.waitCompleted(result)) {
+//                                if (ctx.intermediate) {
+//                                    ctx.runnable = true;
+//                                } else {
+//                                    ctx.completed = true;
+//                                    reschedule(ctx.schedulerItem);
+//                                }
+//                            }
+//                        }
+//                        ctx.unLock();
+//                    }
+//
+//                    cleanUp(justCompleted);
+//
+//                    int strandsLeft = totalStrands.decrementAndGet();
+//                    if (strandsLeft == 0) {
+//                        // (number of started stands - finished stands) = 0, all the work is done
+//                        assert runnableList.size() == 0;
+//
+//                        // server agent start code will be inserted in above line during tests.
+//                        // It depends on this line number 279.
+//                        // update the linenumber @BallerinaServerAgent#SCHEDULER_LINE_NUM if modified
+//                        if (DEBUG) {
+//                            debugLog("+++++++++ all work completed ++++++++");
+//                        }
+//
+//                        if (!immortal) {
+//                            for (int i = 0; i < numThreads; i++) {
+//                                runnableList.add(POISON_PILL);
+//                            }
+//                        }
+//                    }
+//                    break;
+//                default:
+//                    assert false : "illegal strand state during execute " + item.getState();
+//            }
         }
     }
 
