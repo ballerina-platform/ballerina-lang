@@ -698,7 +698,7 @@ function generateShutdownSignalListener(bir:Package pkg, string initClass, map<b
     mv.visitEnd();
 
     cw.visitEnd();
-    jarEntries[innerClassName + ".class"] = cw.toByteArray();
+    jarEntries[innerClassName + ".class"] = checkpanic cw.toByteArray();
 }
 
 function scheduleStopMethod(jvm:MethodVisitor mv, bir:Package pkg, string initClass, ErrorHandlerGenerator errorGen) {
