@@ -25,6 +25,8 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.CompilationUnitNode;
+import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -127,7 +129,9 @@ public class Parser {
                         .forEach(diagnostic -> context.get(DiagnosticListener.class).received(diagnostic));
 
                 CompilationUnitNode compilationUnitNode = cUnitCacheItem.getCompilationUnitNode();
-                compilationUnitNode.getTopLevelNodes().forEach(node -> symbolResetter.resetTopLevelNode(node));
+                List<TopLevelNode> nodes = compilationUnitNode.getTopLevelNodes();
+                nodes.removeIf(node -> node.getKind() == NodeKind.IMPORT && node.getWS() == null);
+                nodes.forEach(node -> symbolResetter.resetTopLevelNode(node));
                 return compilationUnitNode;
             }
 
