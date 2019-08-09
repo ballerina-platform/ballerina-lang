@@ -36,6 +36,10 @@ import { ExtendedLangClient } from './extended-language-client';
 import { info, getOutputChannel } from '../utils/index';
 import { AssertionError } from "assert";
 import { OVERRIDE_BALLERINA_HOME, BALLERINA_HOME, ALLOW_EXPERIMENTAL, ENABLE_DEBUG_LOG } from "./preferences";
+import TelemetryReporter from "vscode-extension-telemetry";
+import { createTelemetryReporter } from "../telemetry";
+
+export const EXTENSION_ID = 'ballerina.ballerina';
 
 export interface ConstructIdentifier {
     moduleName: string;
@@ -44,6 +48,7 @@ export interface ConstructIdentifier {
 }
 
 export class BallerinaExtension {
+    public telemetryReporter: TelemetryReporter;
     public ballerinaHome: string;
     public extension: Extension<any>;
     private clientOptions: LanguageClientOptions;
@@ -58,12 +63,13 @@ export class BallerinaExtension {
         this.ballerinaHome = '';
         this.webviewPanels = {};
         // Load the extension
-        this.extension = extensions.getExtension('ballerina.ballerina')!;
+        this.extension = extensions.getExtension(EXTENSION_ID)!;
         this.clientOptions = {
             documentSelector: [{ scheme: 'file', language: 'ballerina' }],
             outputChannel: getOutputChannel(),
             revealOutputChannelOn: RevealOutputChannelOn.Never,
         };
+        this.telemetryReporter = createTelemetryReporter(this);
     }
 
     setContext(context: ExtensionContext) {
@@ -435,6 +441,14 @@ export class BallerinaExtension {
 
     public getWebviewPanels() {
         return this.webviewPanels;
+    }
+
+    public getID(): string {
+        return this.extension.id;
+    }
+
+    public getVersion(): string {
+        return this.extension.packageJSON.version;
     }
 }
 

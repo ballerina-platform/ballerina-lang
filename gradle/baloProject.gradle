@@ -1,15 +1,24 @@
-import org.gradle.internal.os.OperatingSystem;
+import org.gradle.internal.os.OperatingSystem
 
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 
 configurations {
     balo { transitive false }
     balx { transitive false }
+    oldBirJar { transitive false }
+    oldBir { transitive false }
+    nativeMap { transitive false }
 }
+
+project.ext.moduleName = files(file('src/main/ballerina').listFiles()).filter { File f ->
+    f.isDirectory() && f.name != 'target' && f.name != '.ballerina'
+}.singleFile.name
+
 
 def duplicateSrcPath = "$buildDir/duplicate-src"
 def baloCreationPath = "$duplicateSrcPath/.ballerina/repo/ballerina"
 def balxCreationPath = "$duplicateSrcPath/target"
+def buildLog = file("$duplicateSrcPath/ballerina-internal.log")
 
 
 // We duplicate source to avoid creating garbage in source dir
@@ -20,6 +29,13 @@ task duplicateBalSouce(type: Copy) {
     into duplicateSrcPath
 
     outputs.cacheIf { false }
+}
+
+task copyExternalMappingNextToBir(type: Copy) {
+    dependsOn compileJava
+    from "$buildDir/classes/java/main/META-INF/this.map.json"
+    into "$buildDir/generated-bir-jar"
+    rename { project.ext.moduleName + ".map.json" }
 }
 
 task convertDuplicateSrcToProject() {
@@ -36,37 +52,82 @@ task convertDuplicateSrcToProject() {
     outputs.cacheIf { false }
 }
 
-task createBalo(type: Exec) {
+task deleteBirJar(type: Delete) {
+  delete "build/duplicate-src/target"
+}
+
+task deleteBalBuildLog(type: Delete) {
+  delete buildLog
+}
+
+task createOldBirJar(type: Exec) {
+    dependsOn deleteBalBuildLog
     dependsOn configurations.balo
     dependsOn convertDuplicateSrcToProject
     workingDir "$buildDir/duplicate-src"
+    dependsOn compileJava
+
+    environment 'BALLERINA_NATIVE_MAP': "$buildDir/classes/java/main/META-INF/this.map.json"
+//    environment 'BALLERINA_REPO_LOOKUP_VERBOSE': 'true'
+//    environment 'BAL_JAVA_DEBUG': '5005'
 
     doFirst {
         configurations.balo.each {
             if (OperatingSystem.current().isWindows()) {
-                commandLine 'cmd.exe', '/c', new File(it, '/bin/ballerina.bat'), 'build', '--skiptests'
+                commandLine 'cmd.exe', '/c', new File(it, '/bin/ballerina.bat'), 'build', '--skiptests', project.ext.moduleName
             } else {
-                commandLine 'sh', new File(it, '/bin/ballerina'), 'build', '--skiptests'
+                commandLine 'sh', new File(it, '/bin/ballerina'), 'build', '--skiptests', project.ext.moduleName
             }
+            println commandLine
         }
     }
 
     doLast {
-        if (file("$duplicateSrcPath/ballerina-internal.log").exists()) {
-            println file("$duplicateSrcPath/ballerina-internal.log").text
+        if (buildLog.exists()) {
+            println "contents of " + buildLog + " :"
+            println file(buildLog).text
             throw new GradleException("ballerina internal error")
         }
     }
 
     inputs.files configurations.balo
     inputs.dir "src/main/ballerina/"
-    outputs.dir baloCreationPath
+    outputs.dir "build/duplicate-src/target"
     outputs.dir balxCreationPath
     outputs.cacheIf { true }
 }
 
+task copyBirJar(type: Copy){
+    from "$buildDir/duplicate-src/target"
+    into "$buildDir/generated-bir-jar"
+    dependsOn createOldBirJar
+    eachFile {file ->
+        file.path = file.path.replaceAll(/^.*\//, '')
+    }
+}
 
 artifacts {
-    balo file(baloCreationPath), { builtBy(createBalo) }
-    balx file(balxCreationPath), { builtBy(createBalo) }
+    balo file(baloCreationPath), { builtBy(createOldBirJar) }
+    balx file(balxCreationPath), { builtBy(createOldBirJar) }
+    oldBir file('build/generated-bir-jar/' + project.ext.moduleName + '.bir'), {builtBy(copyBirJar)}
+    oldBirJar file('build/generated-bir-jar/' + project.ext.moduleName + '.jar'), {builtBy(copyBirJar)}
+    nativeMap file('build/generated-bir-jar/' + project.ext.moduleName + '.map.json'),
+            {builtBy(copyExternalMappingNextToBir)}
+}
+
+compileJava {
+    dependsOn configurations.balo
+    doFirst {
+        configurations.balo.each {
+            sourceSets.main.compileClasspath += fileTree(dir : new File(it, '/bre/lib/').path)
+        }
+    }
+}
+
+createJavadoc {
+    enabled = false
+}
+
+spotbugsMain {
+    enabled = false
 }

@@ -24,10 +24,10 @@ import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.Position;
@@ -71,7 +71,7 @@ public class ImportModuleExecutor implements LSCommandExecutor {
         if (documentUri != null && context.get(ExecuteCommandKeys.PKG_NAME_KEY) != null) {
             try {
                 LSModuleCompiler.getBLangPackage(context, documentManager, false, LSCustomErrorStrategy.class, false);
-            } catch (LSCompilerException e) {
+            } catch (CompilationFailedException e) {
                 throw new LSCommandExecutorException("Couldn't compile the source", e);
             }
             String pkgName = context.get(ExecuteCommandKeys.PKG_NAME_KEY);

@@ -23,6 +23,7 @@ type BIRFunctionWrapper record {
     bir:Function func;
     string fullQualifiedClassName;
     string jvmMethodDescription;
+
 };
 
 map<BIRFunctionWrapper> birFunctionMap = {};
