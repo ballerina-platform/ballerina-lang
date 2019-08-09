@@ -81,3 +81,44 @@ function testDefineInlineNamespace1() returns (xml) {
     ;
     return x1;
 }
+
+function testGetAttributesAsMap() returns [map<string>?, map<string>?, string, string] {
+    var x1 = xml `<root xmlns:ns0="http://sample.com/wso2/a1" ns0:foo1="bar1" foo2="bar2"/>`;
+    var x2 = xml `<root xmlns="http://sample.com/default/namepsace" xmlns:ns0="http://sample.com/wso2/a1" ns0:foo1="bar1" foo2="bar2"/>`;
+
+    map<string>? m1 = x1@;
+    map<string>? m2 =
+    x2
+    @
+    ;
+
+    var a = m1["{http://sample.com/wso2/a1}foo1"];
+    var s1 = a is string ? a : "";
+    a = m1[ns0:foo1];
+    var s2 = a is string ? a : "";
+    return [m1, m2, s1, s2];
+}
+
+function testAttributeAccess() returns string? {
+    // Creates an XML element, which has attributes that are bound to a namespace as well as ones that are not.
+    xml x1 = xml `<ns0:book ns0:status="available" count="5"/>`;
+
+    // An attribute can also be accessed using the string representation of the qualified name.
+    var s = <string?>x1@["{http://sample.com/wso2/a1}status"];
+    string y = "";
+    if (s is string) {
+        justFunc(s);
+        y = s;
+    }
+    return y;
+}
+
+function nonSingletonXmlAttributeAccess() returns boolean {
+    xml x = xml `<someEle>cont</someEle>`;
+    xml y = xml `<elem>More-Stuff</elem>`;
+    xml nonSingleton = x + y;
+    if (nonSingleton@ is ()) {
+        return true;
+    }
+    return false;
+}

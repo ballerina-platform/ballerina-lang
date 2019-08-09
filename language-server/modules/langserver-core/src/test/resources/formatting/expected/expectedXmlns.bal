@@ -11,10 +11,10 @@ public function main() {
     xmlns "http://ballerina.com/default";
 
     // Namespaces can be used for XML-qualified names.
-    io:println(ns0: foo);
+    io:println(ns0:foo);
 
     // Module level namespaces can be overridden at the function level.
     xmlns
     "http://ballerina.com/updated" as ns0;
-    io:println(ns0: foo);
+    io:println(ns0:foo);
 }

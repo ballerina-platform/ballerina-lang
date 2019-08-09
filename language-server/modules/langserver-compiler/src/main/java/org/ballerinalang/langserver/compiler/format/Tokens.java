@@ -47,6 +47,7 @@ public class Tokens {
     public static final String SUB = "-";
     public static final String ADD = "+";
     public static final String DIV = "/";
+    public static final String AT = "@";
 
     // Keywords.
     public static final String VAR = "var";
