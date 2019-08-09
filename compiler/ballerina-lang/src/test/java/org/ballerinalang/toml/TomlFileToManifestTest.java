@@ -24,7 +24,6 @@ import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
