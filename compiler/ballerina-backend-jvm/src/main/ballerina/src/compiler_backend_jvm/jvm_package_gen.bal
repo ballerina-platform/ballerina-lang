@@ -26,6 +26,8 @@ type BIRFunctionWrapper record {
 
 };
 
+map<error> functionGenErrors = {};
+
 map<BIRFunctionWrapper> birFunctionMap = {};
 
 map<bir:TypeDef> typeDefMap = {};
@@ -104,7 +106,7 @@ function lookupGlobalVarClassName(string key) returns string {
     }
 }
 
-public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile, boolean isEntry) {
+public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile, boolean isEntry) returns error? {
     string orgName = moduleId.org;
     string moduleName = moduleId.name;
     string pkgName = getPackageName(orgName, moduleName);
@@ -119,11 +121,11 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
 
     // generate imported modules recursively
     foreach var mod in module.importModules {
-        generatePackage(importModuleToModuleId(mod), jarFile, false);
+        check generatePackage(importModuleToModuleId(mod), jarFile, false);
     }
 
     typeOwnerClass = getModuleLevelClassName(<@untainted> orgName, <@untainted> moduleName, MODULE_INIT_CLASS_NAME);
-    map<JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass, <@untainted> lambdas);
+    map<JavaClass> jvmClassMap = check generateClassNameMappings(module, pkgName, typeOwnerClass, <@untainted> lambdas);
 
     if (!isEntry) {
         return;
@@ -348,7 +350,7 @@ function cleanupPackageName(string pkgName) returns string {
 # + lambdaCalls - The lambdas
 # + return - The map of javaClass records on given source file name
 function generateClassNameMappings(bir:Package module, string pkgName, string initClass, 
-                                   map<bir:AsyncCall|bir:FPLoad> lambdaCalls) returns map<JavaClass> {
+                                   map<bir:AsyncCall|bir:FPLoad> lambdaCalls) returns map<JavaClass> | error {
     
     string orgName = module.org.value;
     string moduleName = module.name.value;
@@ -403,17 +405,30 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
                 }
             }
 
-            BIRFunctionWrapper birFuncWrapper;
+            BIRFunctionWrapper | error birFuncWrapperOrError;
             if (isExternFunc(getFunction(birFunc))) {
-                birFuncWrapper = createExternalFunctionWrapper(birFunc, orgName, moduleName,
+                birFuncWrapperOrError = createExternalFunctionWrapper(birFunc, orgName, moduleName,
                                                     versionValue, birModuleClassName);
             } else {
                 addDefaultableBooleanVarsToSignature(birFunc);
-                birFuncWrapper = getFunctionWrapper(birFunc, orgName, moduleName, versionValue, birModuleClassName);
+                birFuncWrapperOrError = getFunctionWrapper(birFunc, orgName, moduleName, versionValue, birModuleClassName);
             }
-            birFunctionMap[pkgName + birFuncName] = birFuncWrapper;
+
+            if (birFuncWrapperOrError is error) {
+                logError(birFuncWrapperOrError, birFunc, module);
+                functionGenErrors[pkgName + birFuncName] = birFuncWrapperOrError;
+                continue;
+            } else {
+                birFunctionMap[pkgName + birFuncName] = birFuncWrapperOrError;
+            }
         }
     }
+
+    if (functionGenErrors.length() > 0) {
+        error err = error("function generation failed");
+        return err;
+    }
+
     // link typedef - object attached native functions
     bir:TypeDef?[] typeDefs = module.typeDefs;
 
@@ -460,6 +475,28 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
         }
     }
     return jvmClassMap;
+}
+
+function logError(error err, bir:Function birFunc, bir:Package module) {
+    bir:DiagnosticPos pos = birFunc.pos;
+    string fileName = pos.sourceFileName;
+    int sLine = pos.sLine;
+    int eLine = pos.eLine;
+    int sCol = pos.sCol;
+    int eCol = pos.eCol;
+    string orgName = module.org.value;
+    string moduleName = module.name.value;
+    string versionValue = module.versionValue.value;
+
+    string pkgIdStr = orgName + ":" + moduleName;
+
+    if (moduleName == "." && orgName == "$anon") {
+        pkgIdStr = ".:";
+    }
+
+    string positionStr = pkgIdStr + ":" + fileName + ":" + io:sprintf("%s", sLine) + ":" + io:sprintf("%s", sCol);
+
+    io:println("error: " + positionStr + ": " + io:sprintf("%s", err.reason()) + " " + io:sprintf("%s", err.detail()));
 }
 
 function getFunctionWrapper(bir:Function currentFunc, string orgName ,string moduleName, 
