@@ -144,6 +144,7 @@ public type RequestLimits record {|
 #                   disable timeout
 # + auth - Listener authenticaton configurations
 # + server - The server name which should appear as a response header
+# + webSocketCompressionEnabled - Enable support for compression in WebSocket
 public type ServiceEndpointConfiguration record {|
     string host = "0.0.0.0";
     ServiceHttp1Settings http1Settings = {};
@@ -155,6 +156,7 @@ public type ServiceEndpointConfiguration record {|
     int timeoutInMillis = DEFAULT_LISTENER_TIMEOUT;
     ListenerAuth auth?;
     string? server = ();
+    boolean webSocketCompressionEnabled = true;
 |};
 
 # Provides settings related to HTTP/1.x protocol.
@@ -315,37 +317,3 @@ function addAttributeFilter(ServiceEndpointConfiguration config) {
     AttributeFilter attributeFilter = new;
     config.filters.unshift(attributeFilter);
 }
-
-//////////////////////////////////
-/// WebSocket Service Endpoint ///
-//////////////////////////////////
-# Represents a WebSocket service endpoint.
-// public type WebSocketListener Listener;
-public type WebSocketListener object {
-
-    *lang:AbstractListener;
-
-    private Listener httpEndpoint;
-
-    public function __start() returns error? {
-        return self.httpEndpoint.start();
-    }
-
-    public function __stop() returns error? {
-        return self.httpEndpoint.stop();
-    }
-
-    public function __attach(service s, string? name = ()) returns error? {
-        return self.httpEndpoint.register(s, name);
-    }
-
-
-    # Gets invoked during module initialization to initialize the endpoint.
-    #
-    # + port - The port of the endpoint
-    # + config - The `ServiceEndpointConfiguration` of the endpoint
-    public function __init(int port, ServiceEndpointConfiguration? config = ()) {
-        self.httpEndpoint = new(port, config);
-    }
-
-};

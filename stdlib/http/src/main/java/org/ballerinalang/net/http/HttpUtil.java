@@ -813,7 +813,6 @@ public class HttpUtil {
         setPropertiesToTransportMessage(outboundMsg, outboundMsgObj);
     }
 
-    @SuppressWarnings("unchecked")
     private static void setHeadersToTransportMessage(HttpCarbonMessage outboundMsg, ObjectValue messageObj) {
         ObjectValue entityObj = (ObjectValue) messageObj
                 .get(isRequest(messageObj) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
@@ -1511,6 +1510,10 @@ public class HttpUtil {
         }
 
         listenerConfiguration.setPipeliningEnabled(true); //Pipelining is enabled all the time
+        Object webSocketCompressionEnabled = endpointConfig.get(WebSocketConstants.COMPRESSION_ENABLED_CONFIG);
+        if (webSocketCompressionEnabled != null) {
+            listenerConfiguration.setWebSocketCompressionEnabled((Boolean) webSocketCompressionEnabled);
+        }
 
         return listenerConfiguration;
     }
