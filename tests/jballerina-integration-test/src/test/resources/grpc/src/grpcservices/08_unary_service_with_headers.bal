@@ -31,7 +31,7 @@ service HelloWorld101 on ep8 {
         io:println("name: " + name);
         string message = "Hello " + name;
         if (!headers.exists("x-id")) {
-            error? err = caller->sendError(grpc:ABORTED, "x-id header is missing");
+            grpc:Error? err = caller->sendError(grpc:ABORTED, "x-id header is missing");
         } else {
             io:println("Request Header: " + (headers.get("x-id") ?: ""));
             headers.removeAll();
@@ -40,8 +40,8 @@ service HelloWorld101 on ep8 {
             io:print("Response Headers: ");
             io:println(headers.getAll("x-id"));
         }
-        error? err = caller->send(message, headers);
-        if (err is error) {
+        grpc:Error? err = caller->send(message, headers);
+        if (err is grpc:Error) {
             io:println("Error from Connector: " + err.reason());
         } else {
             io:println("Server send response : " + message);

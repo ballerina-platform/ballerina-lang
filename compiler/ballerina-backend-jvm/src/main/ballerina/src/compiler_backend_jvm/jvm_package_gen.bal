@@ -23,6 +23,7 @@ type BIRFunctionWrapper record {
     bir:Function func;
     string fullQualifiedClassName;
     string jvmMethodDescription;
+
 };
 
 map<BIRFunctionWrapper> birFunctionMap = {};
@@ -367,7 +368,7 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
         // Generate init class. Init function should be the first function of the package, hence check first 
         // function.
         bir:Function initFunc = <bir:Function>functions[0];
-        string functionName = initFunc.name.value;
+        string functionName = cleanupFunctionName(initFunc.name.value);
         JavaClass class = { sourceFileName:initFunc.pos.sourceFileName, moduleClass:initClass };
         class.functions[0] = initFunc;
         jvmClassMap[initClass] = class;
@@ -425,17 +426,23 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
             typeDefMap[key] = typeDef;
         }
 
-        if (bType is bir:BObjectType && !bType.isAbstract) {
+        if ((bType is bir:BObjectType && !bType.isAbstract) || bType is bir:BServiceType) {
             bir:Function?[] attachedFuncs = getFunctions(typeDef.attachedFuncs);
+            string typeName = "";
+            if (bType is bir:BObjectType) {
+                typeName = bType.name.value;
+            } else {
+                typeName = bType.oType.name.value;
+            }
             foreach var func in attachedFuncs {
 
                 // link the bir function for lookup
                 bir:Function currentFunc = getFunction(func);
                 string functionName = currentFunc.name.value;
-                string lookupKey = bType.name.value + "." + functionName;
+                string lookupKey = typeName + "." + functionName;
 
                 if (!isExternFunc(currentFunc)) {
-                    var result = pkgName + cleanupTypeName(bType.name.value);
+                    var result = pkgName + cleanupTypeName(typeName);
                     birFunctionMap[pkgName + lookupKey] = getFunctionWrapper(currentFunc, orgName, moduleName,
                                                                         versionValue, result);
                     continue;

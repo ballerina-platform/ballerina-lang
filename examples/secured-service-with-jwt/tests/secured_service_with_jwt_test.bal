@@ -4,25 +4,13 @@ import ballerina/jwt;
 import ballerina/test;
 import ballerina/runtime;
 
-@test:Config
-function testFunc() {
-    setJwtTokenToAuthContext();
-    testAuthSuccess();
-    clearTokenFromAuthContext();
-    setInvalidJwtTokenToAuthContext();
-    testAuthnFailure();
-    clearTokenFromAuthContext();
-    setJwtTokenWithNoScopesToAuthContext();
-    testAuthzFailure();
-    clearTokenFromAuthContext();
-}
-
+@test:Config {}
 function testAuthSuccess() {
+    setJwtTokenToAuthContext();
     // Creates a client.
-    jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new(());
-    http:BearerAuthHandler outboundJwtAuthHandler =
-                                            new(outboundJwtAuthProvider);
-    http:Client httpEndpoint = new("https://localhost:9090", config = {
+    jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new;
+    http:BearerAuthHandler outboundJwtAuthHandler = new(outboundJwtAuthProvider);
+    http:Client httpEndpoint = new("https://localhost:9090", {
         auth: {
             authHandler: outboundJwtAuthHandler
         }
@@ -35,14 +23,16 @@ function testAuthSuccess() {
     } else {
         test:assertFail(msg = "Failed to call the endpoint:");
     }
+    clearTokenFromAuthContext();
 }
 
+@test:Config {}
 function testAuthnFailure() {
+    setInvalidJwtTokenToAuthContext();
     // Creates a client.
-    jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new(());
-    http:BearerAuthHandler outboundJwtAuthHandler =
-                                            new(outboundJwtAuthProvider);
-    http:Client httpEndpoint = new("https://localhost:9090", config = {
+    jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new;
+    http:BearerAuthHandler outboundJwtAuthHandler = new(outboundJwtAuthProvider);
+    http:Client httpEndpoint = new("https://localhost:9090", {
         auth: {
             authHandler: outboundJwtAuthHandler
         }
@@ -55,14 +45,16 @@ function testAuthnFailure() {
     } else {
         test:assertFail(msg = "Failed to call the endpoint:");
     }
+    clearTokenFromAuthContext();
 }
 
+@test:Config {}
 function testAuthzFailure() {
+    setJwtTokenWithNoScopesToAuthContext();
     // Creates a client.
-    jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new(());
-    http:BearerAuthHandler outboundJwtAuthHandler =
-                                            new(outboundJwtAuthProvider);
-    http:Client httpEndpoint = new("https://localhost:9090", config = {
+    jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new;
+    http:BearerAuthHandler outboundJwtAuthHandler = new(outboundJwtAuthProvider);
+    http:Client httpEndpoint = new("https://localhost:9090", {
         auth: {
             authHandler: outboundJwtAuthHandler
         }
@@ -75,6 +67,7 @@ function testAuthzFailure() {
     } else {
         test:assertFail(msg = "Failed to call the endpoint:");
     }
+    clearTokenFromAuthContext();
 }
 
 function setJwtTokenToAuthContext () {

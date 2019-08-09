@@ -533,7 +533,7 @@ public class TableTest {
     }
 
     @Test(dependsOnGroups = TABLE_TEST,
-          description = "Check whether all sql connectors are closed properly.", enabled = false) //Issue #9048
+          description = "Check whether all sql connectors are closed properly.") //Issue #9048
     public void testCloseConnectionPool() {
         BValue connectionCountQuery = new BString("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS");
         BValue[] args = { connectionCountQuery };

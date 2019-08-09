@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
- 
+
 plugins {
     id 'base'
 }
@@ -50,30 +50,26 @@ dependencies {
     dist 'com.uber.jaeger:jaeger-thrift:0.24.0'
     dist 'com.zaxxer:HikariCP:3.3.1'
     dist 'io.dropwizard.metrics:metrics-core:3.1.0'
-    dist 'javax.jms:javax.jms-api:2.0.1'
     dist 'javax.transaction:javax.transaction-api:1.2'
     dist 'org.apache.thrift:libthrift:0.10.0'
     dist 'org.hdrhistogram:HdrHistogram:2.1.10'
     dist 'org.jvnet.mimepull:mimepull:1.9.7'
     dist 'org.quartz-scheduler:quartz-jobs:2.3.0'
     dist 'org.quartz-scheduler:quartz:2.3.0'
-    dist 'org.slf4j:slf4j-api:1.7.22'
     dist 'org.slf4j:slf4j-jdk14:1.7.22'
     dist 'org.wso2.carbon:org.wso2.carbon.core:5.1.0'
     dist 'org.wso2.orbit.com.lmax:disruptor:3.3.2.wso2v2'
     dist 'org.wso2.securevault:org.wso2.securevault:1.0.0-wso2v2'
     dist 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
-    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.1.0'
+    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.1.1'
     dist 'org.bouncycastle:bcprov-jdk15on:1.61'
     dist 'org.bouncycastle:bcpkix-jdk15on:1.61'
 
     dist 'info.picocli:picocli:3.3.0'
-    dist 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
+    dist 'org.apache.kafka:kafka-clients:2.0.0'
+    dist 'org.apache.kafka:kafka_2.11:2.0.0'
     dist 'org.apache.james:apache-mime4j-core:0.7.2'
     dist 'org.apache.ws.commons.axiom:axiom-api:1.2.20'
-    dist 'org.apache.ws.commons.axiom:axiom-c14n:1.2.22'
-    dist 'org.apache.ws.commons.axiom:axiom-dom:1.2.2'
-    dist 'org.apache.ws.commons.axiom:axiom-impl:1.2.20'
     dist 'io.ballerina.messaging:broker-auth:0.970.0'
     dist 'io.ballerina.messaging:broker-common:0.970.0'
     dist 'io.ballerina.messaging:broker-coordination:0.970.0'
@@ -83,7 +79,6 @@ dependencies {
     dist 'org.apache.geronimo.specs:geronimo-stax-api_1.0_spec:1.0.1'
     dist 'com.google.code.gson:gson:2.7'
     dist 'com.google.guava:guava:19.0'
-    dist 'com.moandjiezana.toml:toml4j:0.7.2'
     dist 'com.github.jknack:handlebars:4.0.6'
     dist 'jaxen:jaxen:1.1.6'
     dist 'io.netty:netty-buffer:4.1.34.Final'
@@ -96,11 +91,8 @@ dependencies {
     dist 'io.netty:netty-resolver:4.1.34.Final'
     dist 'io.netty:netty-tcnative-boringssl-static:2.0.23.Final'
     dist 'io.netty:netty-transport:4.1.34.Final'
-    dist 'org.apache.commons:commons-lang3:3.5'
     dist 'commons-logging:commons-logging:1.1.1'
     dist 'commons-pool.wso2:commons-pool:1.5.6.wso2v1'
-    dist 'io.opentracing:opentracing-api:0.31.0'
-    dist 'io.opentracing:opentracing-util:0.31.0'
     dist 'org.wso2.carbon.messaging:org.wso2.carbon.messaging:2.3.7'
     dist 'org.wso2.carbon.metrics:org.wso2.carbon.metrics.core:2.3.7'
     dist 'com.google.protobuf:protobuf-java:3.5.1'
@@ -108,8 +100,6 @@ dependencies {
     dist 'org.wso2.staxon:staxon-core:1.2.0.wso2v2'
     dist 'com.rabbitmq:amqp-client:5.6.0'
     dist 'com.jcraft:jzlib:1.1.3'
-    dist 'org.apache.activemq:artemis-core-client:2.7.0'
-    dist 'org.apache.activemq:artemis-commons:2.7.0'
     dist 'io.nats:java-nats-streaming:2.1.6'
     dist 'io.nats:jnats:2.4.0'
     dist 'commons-beanutils:commons-beanutils:1.9.3'
@@ -131,7 +121,6 @@ dependencies {
     distBal project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-internal', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-io', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-jms', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-log-api', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-math', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-mime', configuration: 'baloImplementation')
@@ -148,7 +137,7 @@ dependencies {
     distBal project(path: ':ballerina-java', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-websub', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-xslt', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-activemq-artemis', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-kafka', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-rabbitmq', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-nats', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-utils', configuration: 'baloImplementation')
@@ -186,7 +175,6 @@ dependencies {
     balSource project(path: ':ballerina-encoding', configuration: 'balSource')
     balSource project(path: ':ballerina-internal', configuration: 'balSource')
     balSource project(path: ':ballerina-io', configuration: 'balSource')
-    balSource project(path: ':ballerina-jms', configuration: 'balSource')
     balSource project(path: ':ballerina-log-api', configuration: 'balSource')
     balSource project(path: ':ballerina-math', configuration: 'balSource')
     balSource project(path: ':ballerina-mime', configuration: 'balSource')
@@ -203,7 +191,7 @@ dependencies {
     balSource project(path: ':ballerina-java', configuration: 'balSource')
     balSource project(path: ':ballerina-websub', configuration: 'balSource')
     balSource project(path: ':ballerina-xslt', configuration: 'balSource')
-    balSource project(path: ':ballerina-activemq-artemis', configuration: 'balSource')
+    balSource project(path: ':ballerina-kafka', configuration: 'balSource')
     balSource project(path: ':ballerina-rabbitmq', configuration: 'balSource')
     balSource project(path: ':ballerina-nats', configuration: 'balSource')
     balSource project(path: ':ballerina-utils', configuration: 'balSource')
@@ -231,7 +219,6 @@ dependencies {
 
     dist project(':ballerina-auth')
     dist project(':ballerina-cli-utils')
-    dist project(':ballerina-config')
     dist project(':ballerina-config-api')
     dist project(':ballerina-core')
     dist project(':ballerina-crypto')
@@ -243,7 +230,6 @@ dependencies {
     dist project(':ballerina-encoding')
     dist project(':ballerina-internal')
     dist project(':ballerina-io')
-    dist project(':ballerina-jms')
     dist project(':ballerina-lang')
     dist project(':ballerina-log-api')
     dist project(':ballerina-logging')
@@ -269,10 +255,9 @@ dependencies {
     dist project(':ballerina-xslt')
     dist project(':ballerina-utils')
     dist project(':metrics-extensions:ballerina-metrics-extension')
-//    dist project(':metrics-extensions:ballerina-prometheus-extension')
-    dist project(':toml-parser')
+    dist project(':metrics-extensions:ballerina-prometheus-extension')
     dist project(':tracing-extensions:ballerina-jaeger-extension')
-    dist project(':ballerina-activemq-artemis')
+    dist project(':ballerina-kafka')
     dist project(':ballerina-rabbitmq')
     dist project(':ballerina-nats')
     dist project(':ballerina-jwt')
@@ -297,7 +282,7 @@ dependencies {
     dist project(':ballerina-lang:value')
     dist project(':ballerina-lang:xml')
 
-//    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
+    birJar project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'prometheusJar')
 
     staticArtifacts files('COPYRIGHT', 'LICENSE', 'README.md')
 }

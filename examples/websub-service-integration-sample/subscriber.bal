@@ -11,7 +11,7 @@ listener websub:Listener websubEP = new(8181);
 @websub:SubscriberServiceConfig {
     path: "/ordereventsubscriber",
     subscribeOnStartUp: true,
-    resourceUrl: "http://localhost:9090/ordermgt/order",
+    target: "http://localhost:9090/ordermgt/order",
     leaseSeconds: 3600,
     secret: "Kslk30SNF2AChs2"
 }
@@ -22,7 +22,7 @@ service websubSubscriber on websubEP {
         if (payload is string) {
             log:printInfo("WebSub Notification Received: " + payload);
         } else {
-            log:printError("Error retrieving payload as string", err = payload);
+            log:printError("Error retrieving payload as string", payload);
         }
     }
 }

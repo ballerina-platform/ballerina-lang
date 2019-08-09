@@ -20,6 +20,7 @@ const ERR_REASON = "const error reason";
 type ErrorRecord record {
     string message;
     int statusCode;
+    error cause?;
 };
 
 type USER_DEF_ERROR error<ERR_REASON, ErrorRecord>;

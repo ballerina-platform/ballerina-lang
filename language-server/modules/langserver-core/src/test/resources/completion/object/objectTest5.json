@@ -10,7 +10,7 @@
       "kind": "Module",
       "detail": "Package",
       "sortText": "140",
-      "insertText": "java.jdbc",
+      "insertText": "jdbc",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -25,29 +25,6 @@
             }
           },
           "newText": "import ballerinax/java.jdbc;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerinax/java.jms",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "java.jms",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerinax/java.jms;\n"
         }
       ]
     },
@@ -71,29 +48,6 @@
             }
           },
           "newText": "import ballerina/lang.\u0027object;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/streams.balx",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "streams.balx",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/streams.balx;\n"
         }
       ]
     },
@@ -393,29 +347,6 @@
             }
           },
           "newText": "import ballerina/streams;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/artemis",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "artemis",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/artemis;\n"
         }
       ]
     },
@@ -880,29 +811,6 @@
       ]
     },
     {
-      "label": "ballerina/transactions.balx",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "transactions.balx",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/transactions.balx;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.decimal",
       "kind": "Module",
       "detail": "Package",
@@ -972,29 +880,6 @@
       ]
     },
     {
-      "label": "ballerina/cache.balx",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "cache.balx",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/cache.balx;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.table",
       "kind": "Module",
       "detail": "Package",
@@ -1014,29 +899,6 @@
             }
           },
           "newText": "import ballerina/lang.\u0027table;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.annotations",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "\u0027annotations",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.\u0027annotations;\n"
         }
       ]
     },

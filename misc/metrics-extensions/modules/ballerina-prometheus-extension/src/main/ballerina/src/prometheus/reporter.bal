@@ -17,6 +17,8 @@
 import ballerina/http;
 import ballerina/observe;
 import ballerina/config;
+import ballerina/'lang\.string as str;
+import ballerina/internal;
 
 const string METRIC_TYPE_GAUGE = "gauge";
 const string METRIC_TYPE_SUMMARY = "summary";
@@ -24,8 +26,8 @@ const string EMPTY_STRING = "";
 
 const string PROMETHEUS_PORT_CONFIG = "b7a.observability.metrics.prometheus.port";
 const string PROMETHEUS_HOST_CONFIG = "b7a.observability.metrics.prometheus.host";
-final int REPORTER_PORT = config:getAsInt(PROMETHEUS_PORT_CONFIG, defaultValue = 9797);
-final string REPORTER_HOST = config:getAsString(PROMETHEUS_HOST_CONFIG, defaultValue = "0.0.0.0");
+final int REPORTER_PORT = config:getAsInt(PROMETHEUS_PORT_CONFIG, 9797);
+final string REPORTER_HOST = config:getAsString(PROMETHEUS_HOST_CONFIG, "0.0.0.0");
 
 const string EXPIRY_TAG = "timeWindow";
 const string PERCENTILE_TAG = "quantile";
@@ -35,9 +37,6 @@ listener http:Listener prometheusListener = new(REPORTER_PORT, config = {host:RE
 @http:ServiceConfig {
     basePath: "/metrics"
 }
-//documentation {
-//    The Prometheus service reporter. This service will be called periodically by prometheus server.
-//}
 service PrometheusReporter on prometheusListener {
 
     # This method retrieves all metrics registered in the ballerina metrics registry,
@@ -52,21 +51,22 @@ service PrometheusReporter on prometheusListener {
         string payload = EMPTY_STRING;
         foreach var m in metrics {
             observe:Metric metric = <observe:Metric> m;
-            string  qualifiedMetricName = metric.name.replaceAll("/", "_").replaceAll("\\.", "_");
+            string s1 = internal:replaceAll(metric.name, "/", "_");
+            string qualifiedMetricName = internal:replaceAll(s1, "/", "_");
             string metricReportName = getMetricName(qualifiedMetricName, "value");
             payload += generateMetricHelp(metricReportName, metric.desc);
             payload += generateMetricInfo(metricReportName, metric.metricType);
             payload += generateMetric(metricReportName, metric.tags, metric.value);
-            if (metric.metricType.equalsIgnoreCase(METRIC_TYPE_GAUGE) && metric.summary !== ()){
+            if ((str:toLowerAscii(metric.metricType) == (METRIC_TYPE_GAUGE)) && metric.summary !== ()){
                 map<string> tags = metric.tags;
                 observe:Snapshot[]? summaries = metric.summary;
                 if (summaries is ()) {
                     payload += "\n";
                 } else {
                     foreach var aSnapshot in summaries {
-                        tags[EXPIRY_TAG] = string.convert(aSnapshot.timeWindow);
+                        tags[EXPIRY_TAG] = aSnapshot.timeWindow.toString();
                         payload += generateMetricHelp(qualifiedMetricName, "A Summary of " +  qualifiedMetricName + " for window of "
-                                                    + aSnapshot.timeWindow);
+                                                    + aSnapshot.timeWindow.toString());
                         payload += generateMetricInfo(qualifiedMetricName, METRIC_TYPE_SUMMARY);
                         payload += generateMetric(getMetricName(qualifiedMetricName, "mean"), tags, aSnapshot.mean);
                         payload += generateMetric(getMetricName(qualifiedMetricName, "max"), tags, aSnapshot.max);
@@ -74,7 +74,7 @@ service PrometheusReporter on prometheusListener {
                         payload += generateMetric(getMetricName(qualifiedMetricName, "stdDev"), tags,
                         aSnapshot.stdDev);
                         foreach var percentileValue in aSnapshot.percentileValues  {
-                            tags[PERCENTILE_TAG] = string.convert(percentileValue.percentile);
+                            tags[PERCENTILE_TAG] = percentileValue.percentile.toString();
                             payload += generateMetric(qualifiedMetricName, tags, percentileValue.value);
                         }
                         _ = tags.remove(EXPIRY_TAG);
@@ -91,16 +91,20 @@ service PrometheusReporter on prometheusListener {
 
 # This util function creates the type description based on the prometheus format for the specific metric.
 #
-# + metric - Formatted metric information.
+# + name - Name of the Metric.
+# + metricType - Type of Metric.
+# + return - Formatted metric information.
 function generateMetricInfo(string name, string metricType) returns string {
     return "# TYPE " + name + " " + metricType + "\n";
 }
 
 # This util function creates the metric help description based on the prometheus format for the specific metric.
 #
-# + metric - Formatted metric help information.
+# + name - Name of the Metric.
+# + description - Description of the Metric.
+# + return - Formatted metric description information.
 function generateMetricHelp(string name, string description) returns string {
-    if (!description.equalsIgnoreCase(EMPTY_STRING)) {
+    if (description != EMPTY_STRING) {
         return "# HELP " + name + " " + description + "\n";
     }
     return EMPTY_STRING;
@@ -109,13 +113,16 @@ function generateMetricHelp(string name, string description) returns string {
 # This util function creates the metric along with its name, labels, and values based on the prometheus
 # format for the specific metric.
 #
-# + metric - Formatted metric values.
+# + name - Name of the Metric.
+# + labels - Labels attached to the Metric.
+# + value - Values attached to the Metric.
+# + return - Formatted Metric.
 function generateMetric(string name, map<string>? labels, int|float value) returns string {
     string strValue = "";
     if (value is int) {
-        strValue = (string.convert(value)) + ".0";
+        strValue = value.toString() + ".0";
     } else {
-        strValue = string.convert(value);
+        strValue = value.toString();
     }
 
     if (labels is map<string>) {
@@ -128,8 +135,8 @@ function generateMetric(string name, map<string>? labels, int|float value) retur
 
 function getLabelsString(map<string> labels) returns string {
     string stringLabel = "{";
-    foreach var [key, value] in labels {
-        string labelKey = key.replaceAll("\\.", "_");
+    foreach var [key, value] in labels.entries() {
+        string labelKey = internal:replaceAll(key, "\\.", "_");
         string entry = labelKey + "=\"" + value + "\"";
         stringLabel += (entry + ",");
     }
@@ -140,9 +147,6 @@ function getLabelsString(map<string> labels) returns string {
     }
 }
 
-# This utils function generates the name for the summary metric type.
-#
-# + metric - Formatted metric name.
 function getMetricName(string name, string summaryType) returns string {
     return name + "_" + summaryType;
 }

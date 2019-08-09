@@ -17,6 +17,11 @@
  */
 package org.ballerinalang.test.javainterop.basic;
 
+import org.ballerinalang.model.types.BErrorType;
+import org.ballerinalang.model.types.BHandleType;
+import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BHandleValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.jvm.tests.InstanceMethods;
@@ -53,6 +58,101 @@ public class InstanceMethodTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNull(returns[0]);
         Assert.assertEquals(testIns.getCounter(), new Integer(1));
+    }
+
+    @Test(description = "Test invoking a java instance function that accepts and return nothing but has a throws")
+    public void testVoidWithThrows() {
+        InstanceMethods testIns = new InstanceMethods();
+        BValue[] args = new BValue[1];
+        args[0] = new BHandleValue(testIns);
+
+        BValue[] returns = BRunUtil.invoke(result, "testAcceptNothingAndReturnVoidThrows", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0].getType() instanceof BErrorType);
+        Assert.assertEquals(((BError) returns[0]).getReason(), "java.lang.InterruptedException");
+
+        returns = BRunUtil.invoke(result, "testAcceptNothingAndReturnVoidThrowsReturn", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNull(returns[0]);
+    }
+
+    @Test(description = "Test invoking a java instance function with return type error|handle")
+    public void handleOrErrorReturn() {
+        InstanceMethods testIns = new InstanceMethods();
+        BValue[] args = new BValue[1];
+        args[0] = new BHandleValue(testIns);
+
+        BValue[] returns = BRunUtil.invoke(result, "testHandleOrErrorReturn", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertTrue(returns[0].getType() instanceof BHandleType);
+        Assert.assertEquals(((Integer) ((BHandleValue) returns[0]).getValue()).intValue(), 70);
+
+        returns = BRunUtil.invoke(result, "testHandleOrErrorReturnThrows", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].getType().getName(), "error");
+        Assert.assertEquals(((BError) returns[0]).getReason(), "java.lang.InterruptedException");
+    }
+
+    @Test(description = "Test invoking a java instance function with return type error|handle and java Object return")
+    public void handleOrErrorWithObjectReturn() {
+        InstanceMethods testIns = new InstanceMethods();
+        BValue[] args = new BValue[1];
+        args[0] = new BHandleValue(testIns);
+
+        BValue[] returns = BRunUtil.invoke(result, "handleOrErrorWithObjectReturn", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BByte) returns[0]).intValue(), 70);
+
+        returns = BRunUtil.invoke(result, "handleOrErrorWithObjectReturnThrows", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].getType().getName(), "error");
+        Assert.assertEquals(((BError) returns[0]).getReason(), "java.lang.InterruptedException");
+    }
+
+    @Test(description = "Test invoking a java instance function with return type error|<primitive>")
+    public void testPrimitiveOrErrorReturn() {
+        InstanceMethods testIns = new InstanceMethods();
+        BValue[] args = new BValue[1];
+        args[0] = new BHandleValue(testIns);
+
+        BValue[] returns = BRunUtil.invoke(result, "testPrimitiveOrErrorReturn", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].getType().getName(), "float");
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 55.0);
+
+        returns = BRunUtil.invoke(result, "testPrimitiveOrErrorReturnThrows", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].getType().getName(), "error");
+        Assert.assertEquals(((BError) returns[0]).getReason(), "java.lang.InterruptedException");
+    }
+
+    @Test(description = "Test invoking a java instance function with return type error|<union>")
+    public void testUnionWithErrorReturn() {
+        InstanceMethods testIns = new InstanceMethods();
+        BValue[] args = new BValue[1];
+        args[0] = new BHandleValue(testIns);
+
+        BValue[] returns = BRunUtil.invoke(result, "testUnionWithErrorReturnByte", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].getType().getName(), "byte");
+        Assert.assertEquals(((BByte) returns[0]).byteValue(), '5');
+
+        returns = BRunUtil.invoke(result, "testUnionWithErrorReturnThrows", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].getType().getName(), "error");
+        Assert.assertEquals(((BError) returns[0]).getReason(), "java.lang.InterruptedException");
+
+        returns = BRunUtil.invoke(result, "testUnionWithErrorReturnHandle", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].getType().getName(), "handle");
+        Assert.assertEquals(((BHandleValue) returns[0]).getValue(), "handle ret");
     }
 
     @Test(description = "Test invoking a java instance function that accepts and return nothing")

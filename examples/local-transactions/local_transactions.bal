@@ -3,7 +3,7 @@ import ballerinax/java.jdbc;
 
 // Creates an endpoint for the H2 database. Changes the DB details before running the example.
 jdbc:Client testDB = new ({
-    path: "jdbc:h2:file:./local-transactions/testdb",
+    url: "jdbc:h2:file:./local-transactions/testdb",
     username: "test",
     password: "test",
     poolOptions: { maximumPoolSize: 5 }
@@ -33,8 +33,8 @@ public function main() {
         // This is the second remote function participant of the transaction.
         ret = testDB->update("INSERT INTO SALARY (ID, MON_SALARY)
                                  VALUES (1, 2500)");
-        if (ret is UpdateResult) {
-            io:println("Inserted count: " + ret.updatedRowCount);
+        if (ret is jdbc:UpdateResult) {
+            io:println("Inserted count: ", ret.updatedRowCount);
             // If the transaction is forced to abort, it will roll back the transaction
             // and exit the transaction block without retrying.
             if (ret.updatedRowCount == 0) {
@@ -71,15 +71,15 @@ public function main() {
     // Closes the connection pool.
     var stopRet = testDB.stop();
     if (stopRet is error) {
-        io:println(stopRet.detail().message);
+        io:println(stopRet.detail()["message"]);
     }
 }
 
 // This function handles the return of the update operation.
 function handleUpdate(jdbc:UpdateResult|error returned, string message) {
     if (returned is jdbc:UpdateResult) {
-        io:println(message + " status: " + returned.updatedRowCount);
+        io:println(message + " status: ", returned.updatedRowCount);
     } else {
-        io:println(message + " failed: " + returned.reason());
+        io:println(message + " failed: ", returned.reason());
     }
 }

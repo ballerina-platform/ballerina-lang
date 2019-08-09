@@ -10,8 +10,7 @@ listener websub:Listener websubEP = new websub:Listener(8181);
 @websub:SubscriberServiceConfig {
     path: "/websub",
     subscribeOnStartUp: true,
-    topic: "http://websubpubtopic.com",
-    hub: "http://localhost:9191/websub/hub",
+    target: ["http://localhost:9191/websub/hub", "http://websubpubtopic.com"],
     leaseSeconds: 36000,
     secret: "Kslk30SNF2AChs2"
 }
@@ -30,7 +29,7 @@ service websubSubscriber on websubEP {
         } else {
             log:printWarn("Intent verification denied for subscription request");
         }
-        var result = caller->respond(untaint response);
+        var result = caller->respond(<@untainted> response);
 
         if (result is error) {
             log:printError("Error responding to intent verification request",

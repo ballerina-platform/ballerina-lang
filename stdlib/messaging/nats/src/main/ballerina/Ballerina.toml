@@ -1,3 +1,34 @@
 [project]
 org-name = "ballerina"
 version = "0.0.0"
+
+[platform]
+target = "java"
+
+    [[platform.libraries]]
+    artafactId = "java-nats-streaming"
+    version = "2.1.0"
+    path = "./lib/java-nats-streaming-2.1.0.jar"
+    groupId = "io.nats"
+    modules = ["nats"]
+
+    [[platform.libraries]]
+    artafactId = "jnats"
+    version = "2.1.0"
+    path = "./lib/jnats-2.1.0.jar"
+    groupId = "io.nats"
+    modules = ["nats"]
+
+    [[platform.libraries]]
+    artafactId = "guava"
+    version = "19"
+    path = "./lib/guava-19.0.jar"
+    groupId = "com.google.guava"
+    modules = ["nats"]
+
+    [[platform.libraries]]
+    artafactId = "protobuf-java"
+    version = "3.7.0"
+    path = "./lib/protobuf-java-3.7.0.jar"
+    groupId = "com.google.protobuf"
+    modules = ["nats"]

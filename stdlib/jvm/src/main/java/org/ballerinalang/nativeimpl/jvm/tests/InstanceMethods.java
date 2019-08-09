@@ -47,4 +47,99 @@ public class InstanceMethods {
         this.counter = newValue1 + newValue2;
         return this.counter;
     }
+
+    public Integer setAndGetCounterValueWhichThrowsCheckedException(Integer newValue)
+            throws JavaInteropTestCheckedException {
+        this.counter = newValue;
+        return this.counter;
+    }
+
+    public Integer setAndGetCounterValueWhichThrowsUncheckedException(Integer newValue)
+            throws UnsupportedOperationException {
+        this.counter = newValue;
+        return this.counter;
+    }
+
+    public long setGetCounterValueWhichThrowsCheckedException(float newValue) throws JavaInteropTestCheckedException {
+        this.counter = (int) newValue;
+        return this.counter;
+    }
+
+    public long setGetCounterValueWhichThrowsUncheckedException(float newValue) throws UnsupportedOperationException {
+        this.counter = (int) newValue;
+        return this.counter;
+    }
+
+    public void testThrowsWithVoid() throws InterruptedException {
+        throw new InterruptedException();
+    }
+
+    public void testThrowsWithVoidReturn() throws InterruptedException {
+        if (false) {
+            throw new InterruptedException();
+        }
+    }
+
+    public Integer handleOrErrorReturn() throws InterruptedException {
+        if (false) {
+            throw new InterruptedException();
+        }
+        return 70;
+    }
+
+    public Integer handleOrErrorReturnThrows() throws InterruptedException {
+        if (true) {
+            throw new InterruptedException();
+        }
+        return 70;
+    }
+
+    public Object handleOrErrorWithObjectReturn() throws InterruptedException {
+        if (false) {
+            throw new InterruptedException();
+        }
+        return 70;
+    }
+
+    public Object handleOrErrorWithObjectReturnThrows() throws InterruptedException {
+        if (true) {
+            throw new InterruptedException();
+        }
+        return 70;
+    }
+
+    public float primitiveOrErrorReturn() throws InterruptedException {
+        if (false) {
+            throw new InterruptedException();
+        }
+        return 55;
+    }
+
+    public float primitiveOrErrorReturnThrows() throws InterruptedException {
+        if (true) {
+            throw new InterruptedException();
+        }
+        return 55;
+    }
+
+    public byte unionWithErrorReturnByte() throws InterruptedException {
+        if (false) {
+            throw new InterruptedException();
+        }
+        return '5';
+    }
+
+    public byte unionWithErrorReturnThrows() throws InterruptedException {
+        if (true) {
+            throw new InterruptedException();
+        }
+        return '5';
+    }
+
+    public String unionWithErrorReturnHandle() throws InterruptedException {
+        if (false) {
+            throw new InterruptedException();
+        }
+        return "handle ret";
+    }
 }

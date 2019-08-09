@@ -23,6 +23,7 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
@@ -55,6 +56,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Optional;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.ACCEPT_ENCODING;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
@@ -318,6 +320,7 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
         final HTTPClientConnectorListener httpClientConnectorLister = ObserveUtils.isObservabilityEnabled() ?
                 new ObservableHttpClientConnectorListener(dataContext) :
                 new HTTPClientConnectorListener(dataContext);
+
         final HttpMessageDataStreamer outboundMsgDataStreamer = getHttpMessageDataStreamer(outboundRequestMsg);
         final OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
         ObjectValue requestObj = dataContext.getRequestObj();
@@ -461,40 +464,41 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
      */
     private static class ObservableHttpClientConnectorListener extends HTTPClientConnectorListener {
 
-        //TODO Fix this along with observability migration
-//        private final Context context;
-//
+        private final DataContext context;
+
         private ObservableHttpClientConnectorListener(DataContext dataContext) {
             super(dataContext);
-//            this.context = dataContext.context;
+            this.context = dataContext;
         }
-//
-//        @Override
-//        public void onMessage(HttpCarbonMessage httpCarbonMessage) {
-//            super.onMessage(httpCarbonMessage);
-//            int statusCode = httpCarbonMessage.getHttpStatusCode();
-//            addHttpStatusCode(statusCode != null ? statusCode : 0);
-//        }
-//
-//        @Override
-//        public void onError(Throwable throwable) {
-//            super.onError(throwable);
-//            if (throwable instanceof ClientConnectorException) {
-//                ClientConnectorException clientConnectorException = (ClientConnectorException) throwable;
-//                addHttpStatusCode(clientConnectorException.getHttpStatusCode());
-//                Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
-//                observerContext.ifPresent(ctx -> {
-//                    ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR, Boolean.TRUE);
-//                    ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR_MESSAGE, throwable.getMessage());
-//                });
-//
-//            }
-//        }
-//
-//        private void addHttpStatusCode(int statusCode) {
-//            Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
-//            observerContext.ifPresent(ctx -> ctx.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE,
-//                                                        String.valueOf(statusCode)));
-//        }
+
+        @Override
+        public void onMessage(HttpCarbonMessage httpCarbonMessage) {
+            super.onMessage(httpCarbonMessage);
+            int statusCode = httpCarbonMessage.getHttpStatusCode();
+            addHttpStatusCode(statusCode);
+        }
+
+        @Override
+        public void onError(Throwable throwable) {
+            super.onError(throwable);
+            if (throwable instanceof ClientConnectorException) {
+                ClientConnectorException clientConnectorException = (ClientConnectorException) throwable;
+                addHttpStatusCode(clientConnectorException.getHttpStatusCode());
+                Optional<ObserverContext> observerContext =
+                        ObserveUtils.getObserverContextOfCurrentFrame(context.getStrand());
+                observerContext.ifPresent(ctx -> {
+                    ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR, Boolean.TRUE);
+                    ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR_MESSAGE, throwable.getMessage());
+                });
+
+            }
+        }
+
+        private void addHttpStatusCode(int statusCode) {
+            Optional<ObserverContext> observerContext =
+                    ObserveUtils.getObserverContextOfCurrentFrame(context.getStrand());
+            observerContext.ifPresent(ctx -> ctx.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE,
+                    String.valueOf(statusCode)));
+        }
     }
 }

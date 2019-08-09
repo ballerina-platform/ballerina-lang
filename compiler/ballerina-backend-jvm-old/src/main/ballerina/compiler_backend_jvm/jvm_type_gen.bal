@@ -997,7 +997,15 @@ function loadTupleType(jvm:MethodVisitor mv, bir:BTupleType bType) {
         mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", io:sprintf("(L%s;)Z", OBJECT), true);
         mv.visitInsn(POP);
     }
-    mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>", io:sprintf("(L%s;)V",LIST), false);
+
+    bir:BType? restType = bType.restType;
+    if (restType is bir:BType) {
+        loadType(mv, restType);
+    } else {
+        mv.visitInsn(ACONST_NULL);
+    }
+
+    mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>", io:sprintf("(L%s;L%s;)V", LIST, BTYPE), false);
     return;
 }
 
@@ -1132,12 +1140,12 @@ function loadFiniteType(jvm:MethodVisitor mv, bir:BFiniteType finiteType) {
 
     foreach var valueTypePair in finiteType.values {
         var value = valueTypePair[0];
-        bir:BType? valueType = valueTypePair[1];
+        bir:BType valueType = valueTypePair[1];
         mv.visitInsn(DUP);
 
         if (valueType is bir:BTypeNil) {
             mv.visitInsn(ACONST_NULL);
-        } else if (value is bir:Decimal) { 
+        } else if (value is bir:Decimal) {
             // do nothing
         } else {
             mv.visitLdcInsn(value);

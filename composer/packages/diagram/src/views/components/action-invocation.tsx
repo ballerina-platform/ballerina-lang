@@ -33,10 +33,10 @@ export const ActionInvocation: React.StatelessComponent<{
 
         return (
             <g className="action-invocation">
-                <line {...sendLine} />
-                <ArrowHead direction="right" x={sendLine.x2} y={sendLine.y2} />
-                <line {...receiveLine} strokeDasharray={5} />
-                <ArrowHead direction="left" x={receiveLine.x1} y={receiveLine.y1} />
+                <line {...sendLine} className="invoke-line" />
+                <ArrowHead direction="right" x={sendLine.x2} y={sendLine.y2} className="invoke-arrowhead" />
+                <line {...receiveLine} strokeDasharray={5} className="invoke-line" />
+                <ArrowHead direction="left" x={receiveLine.x1} y={receiveLine.y1} className="invoke-arrowhead"/>
                 <rect x={sendLine.x2} y={sendLine.y2} width="6" height={(config.statement.height / 2)}
                     className="life-line-endpoint-activity" />
                 <Popup

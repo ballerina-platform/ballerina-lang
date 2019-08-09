@@ -34,6 +34,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,10 +48,11 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 public class TracingTestCase extends BaseTest {
     private static BServerInstance serverInstance;
 
-    private static final String LIBDIR = System.getProperty("libdir");
+    private static final String OBESERVABILITY_TEST_BIR = System.getProperty("observability.test.utils");
     private static final String RESOURCE_LOCATION = "src" + File.separator + "test" + File.separator +
             "resources" + File.separator + "observability" + File.separator + "tracing" + File.separator;
     private static final String TEST_NATIVES_JAR = "observability-test-natives.jar";
+    private static final String TEST_OBSERVE_JAR = "testobserve.jar";
 
     private static final String DEST_FUNCTIONS_JAR = File.separator + "bre" + File.separator + "lib"
             + File.separator + TEST_NATIVES_JAR;
@@ -57,16 +60,27 @@ public class TracingTestCase extends BaseTest {
     @BeforeGroups(value = "tracing-test", alwaysRun = true)
     private void setup() throws Exception {
         int[] requiredPorts = new int[]{9090, 9091, 9092};
-
         serverInstance = new BServerInstance(balServer);
 
         copyFile(new File(System.getProperty(TEST_NATIVES_JAR)), new File(serverInstance.getServerHome()
                 + DEST_FUNCTIONS_JAR));
+
+        // copy to bre/libs
+        Path observeTestBaloPath =
+                Paths.get(OBESERVABILITY_TEST_BIR, "build", "generated-balo", "repo", "ballerina", "testobserve");
+        FileUtils.copyDirectoryToDirectory(observeTestBaloPath.toFile(),
+                Paths.get(serverInstance.getServerHome(), "lib", "repo", "ballerina").toFile());
+
+        // copy to bir-cache
+        FileUtils.copyDirectoryToDirectory(observeTestBaloPath.toFile(),
+                Paths.get(serverInstance.getServerHome(), "bir-cache", "ballerina").toFile());
         FileUtils.copyDirectoryToDirectory(
-                new File(LIBDIR + File.separator + "lib" + File.separator + "repo" +
-                        File.separator + "ballerina" + File.separator + "testobserve"),
-                new File(serverInstance.getServerHome()
-                        + File.separator + "lib" + File.separator + "repo" + File.separator + "ballerina"));
+                Paths.get(OBESERVABILITY_TEST_BIR, "build", "generated-bir", "ballerina", "testobserve").toFile(),
+                Paths.get(serverInstance.getServerHome(), "bir-cache", "ballerina").toFile());
+
+        // copy code-gen-ed generated-jar
+        copyFile(Paths.get(OBESERVABILITY_TEST_BIR, "build", "generated-bir-jar", TEST_OBSERVE_JAR).toFile(),
+                Paths.get(serverInstance.getServerHome(), "bre", "lib", TEST_OBSERVE_JAR).toFile());
 
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "observability" + File.separator + "tracing").getAbsolutePath();
@@ -94,7 +108,13 @@ public class TracingTestCase extends BaseTest {
         out.println(data);
         List<BMockSpan> mockSpans = new Gson().fromJson(data, type);
 
-        Assert.assertEquals(mockSpans.size(), 8, "Mismatch in number of spans reported.");
+        // 1. helloWorld_service_0 -> resourceOne (Root Span)
+        // 2. helloWorld_service_0 -> ballerina/http/Client:get
+        // 3. helloWorld_service_0 -> ballerina/http/HttpClient:get
+        // 4. helloWorld_service_0 -> resourceTwo
+        // 5. helloWorld_service_0 -> ballerina/http/Caller:respond
+        // 6. helloWorld_service_0 -> ballerina/http/Caller:respond
+        Assert.assertEquals(mockSpans.size(), 6, "Mismatch in number of spans reported.");
         Assert.assertEquals(mockSpans.stream()
                 .filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1, "Mismatch in number of root spans.");
     }
@@ -111,7 +131,25 @@ public class TracingTestCase extends BaseTest {
         out.println(data);
         List<BMockSpan> mockSpans = new Gson().fromJson(data, type);
 
-        Assert.assertEquals(mockSpans.size(), 20, "Mismatch in number of spans reported.");
+        // 1. helloWorld_service_0 -> resourceOne (Root Span)
+        // 2. helloWorld_service_0 -> ballerina/http/Client:get
+        // 3. helloWorld_service_0 -> ballerina/http/HttpClient:get
+        // 4. helloWorld_service_0 -> resourceTwo
+        // 5. helloWorld_service_0 -> ballerina/http/Caller:respond
+        // 6. helloWorld_service_0 -> ballerina/http/Caller:respond
+
+        // 7. helloWorld_service_0 -> getMockTracers (Root Span)
+        // 8. helloWorld_service_0 -> ballerina/http/Caller:respond
+
+        // 9. helloWorld_service_0 -> resourceOne (Root Span)
+        // 10. helloWorld_service_0 -> uSpanOne
+        // 11. helloWorld_service_0 -> uSpanTwo
+        // 12. helloWorld_service_0 -> ballerina/http/Client:get
+        // 13. helloWorld_service_0 -> ballerina/http/HttpClient:get
+        // 14. helloWorld_service_0 -> resourceTwo
+        // 15. helloWorld_service_0 -> ballerina/http/Caller:respond
+        // 16. helloWorld_service_0 -> ballerina/http/Caller:respond
+        Assert.assertEquals(mockSpans.size(), 16, "Mismatch in number of spans reported.");
         Assert.assertEquals(mockSpans
                 .stream()
                 .filter(bMockSpan -> bMockSpan.getParentId() == 0)
@@ -130,7 +168,37 @@ public class TracingTestCase extends BaseTest {
         out.println(data);
         List<BMockSpan> mockSpans = new Gson().fromJson(data, type);
 
-        Assert.assertEquals(mockSpans.size(), 32, "Mismatch in number of spans reported.");
+        // 1. helloWorld_service_0 -> resourceOne (Root Span)
+        // 2. helloWorld_service_0 -> ballerina/http/Client:get
+        // 3. helloWorld_service_0 -> ballerina/http/HttpClient:get
+        // 4. helloWorld_service_0 -> resourceTwo
+        // 5. helloWorld_service_0 -> ballerina/http/Caller:respond
+        // 6. helloWorld_service_0 -> ballerina/http/Caller:respond
+
+        // 7. helloWorld_service_0 -> getMockTracers (Root Span)
+        // 8. helloWorld_service_0 -> ballerina/http/Caller:respond
+
+        // 9. helloWorld_service_0 -> resourceOne (Root Span)
+        // 10. helloWorld_service_0 -> uSpanOne
+        // 11. helloWorld_service_0 -> uSpanTwo
+        // 12. helloWorld_service_0 -> ballerina/http/Client:get
+        // 13. helloWorld_service_0 -> ballerina/http/HttpClient:get
+        // 14. helloWorld_service_0 -> resourceTwo
+        // 15. helloWorld_service_0 -> ballerina/http/Caller:respond
+        // 16. helloWorld_service_0 -> ballerina/http/Caller:respond
+
+        // 17. helloWorld_service_0 -> getMockTracers (Root Span)
+        // 18. helloWorld_service_0 -> ballerina/http/Caller:respond
+
+        // 19. helloWorld_service_0 -> resourceOne (Root Span)
+        // 20. helloWorld_service_0 -> ballerina/http/Client:get
+        // 21. helloWorld_service_0 -> ballerina/http/HttpClient:get
+        // 22. helloWorld_service_0 -> resourceTwo
+        // 23. helloWorld_service_0 -> ballerina/http/Caller:respond
+        // 24. helloWorld_service_0 -> ballerina/http/Caller:respond
+        // 24. helloWorld_service_0 -> uSpanThree (Root Span)
+        // 24. helloWorld_service_0 -> uSpanFour
+        Assert.assertEquals(mockSpans.size(), 26, "Mismatch in number of spans reported.");
 
         Assert.assertEquals(mockSpans.stream()
                 .filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 6, "Mismatch in number of root spans.");

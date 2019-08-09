@@ -29,34 +29,32 @@ import org.testng.annotations.Test;
  */
 public class WebSocketCompilationTest {
 
-    //The success tests have been disabled till https://github.com/ballerina-platform/ballerina-lang/issues/15867 is
-    // resolved
     private static final String TEST_PATH = "test-src/websocket/";
 
-    @Test(description = "Successfully compiling WebSocketService", enabled = false)
+    @Test(description = "Successfully compiling WebSocketService")
     public void testSuccessServer() {
-        CompileResult compileResult = BCompileUtil.compile(TEST_PATH + "success.bal");
+        CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "success.bal");
 
         Assert.assertEquals(compileResult.toString(), "Compilation Successful");
     }
 
-    @Test(description = "Successfully compiling WebSocketClientService", enabled = false)
+    @Test(description = "Successfully compiling WebSocketClientService")
     public void testSuccessClient() {
-        CompileResult compileResult = BCompileUtil.compile(TEST_PATH + "success_client.bal");
+        CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "success_client.bal");
 
         Assert.assertEquals(compileResult.toString(), "Compilation Successful");
     }
 
-    @Test(description = "Successfully compiling WebSocket upgrade resource", enabled = false)
+    @Test(description = "Successfully compiling WebSocket upgrade resource")
     public void testSuccessWebSocketUpgrade() {
-        CompileResult compileResult = BCompileUtil.compile(TEST_PATH + "success_websocket_upgrade.bal");
+        CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "success_websocket_upgrade.bal");
 
         Assert.assertEquals(compileResult.toString(), "Compilation Successful");
     }
 
     @Test(description = "Invalid signature for onOpen and onIdle resources")
     public void testFailOnOpenOnIdle() {
-        CompileResult compileResult = BCompileUtil.compile(TEST_PATH + "fail_onOpen_onIdle.bal");
+        CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "fail_onOpen_onIdle.bal");
 
         assertExpectedDiagnosticsLength(compileResult, 3);
         BAssertUtil.validateError(compileResult, 0, "Invalid resource signature for onOpen resource in service " +
@@ -69,7 +67,7 @@ public class WebSocketCompilationTest {
 
     @Test(description = "Invalid parameter count for onText resource")
     public void testFailOnTextParamCount() {
-        CompileResult compileResult = BCompileUtil.compile(TEST_PATH + "fail_onText_param_count.bal");
+        CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "fail_onText_param_count.bal");
 
         assertExpectedDiagnosticsLength(compileResult, 1);
         BAssertUtil.validateError(compileResult, 0, "Invalid resource signature for onText resource in service " +
@@ -78,63 +76,63 @@ public class WebSocketCompilationTest {
 
     @Test(description = "Invalid signature for onText resource with int")
     public void testFailOnTextInt() {
-        CompileResult compileResult = BCompileUtil.compile(TEST_PATH + "fail_onText.bal");
+        CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "fail_onText.bal");
 
         assertExpectedDiagnosticsLength(compileResult, 1);
         BAssertUtil.validateError(compileResult, 0,
-                                  "Invalid resource signature for onText resource in service : The second " +
-                                          "parameter should be a string, json, xml, byte[] or a record type", 21, 5);
+                "Invalid resource signature for onText resource in service : The second " +
+                        "parameter should be a string, json, xml, byte[] or a record type", 21, 5);
     }
 
     @Test(description = "Invalid signature for onText resource with JSON and final fragment")
     public void testFailOnTextJSON() {
-        CompileResult compileResult = BCompileUtil.compile(TEST_PATH + "fail_onText_JSON.bal");
+        CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "fail_onText_JSON.bal");
 
         assertExpectedDiagnosticsLength(compileResult, 1);
         BAssertUtil.validateError(compileResult, 0,
-                                  "Invalid resource signature for onText resource in service : Final " +
-                                          "fragment is not valid if the second parameter is not a string", 21, 5);
+                "Invalid resource signature for onText resource in service : Final " +
+                        "fragment is not valid if the second parameter is not a string", 21, 5);
     }
 
     @Test(description = "Invalid signature for onBinary resource")
     public void testFailOnBinary() {
-        CompileResult compileResult = BCompileUtil.compile(TEST_PATH + "fail_onBinary.bal");
+        CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "fail_onBinary.bal");
 
         assertExpectedDiagnosticsLength(compileResult, 1);
         BAssertUtil.validateError(compileResult, 0,
-                                  "Invalid resource signature for onBinary resource in service : The second " +
-                                          "parameter should be a byte[]", 27, 5);
+                "Invalid resource signature for onBinary resource in service : The second " +
+                        "parameter should be a byte[]", 27, 5);
     }
 
     @Test(description = "Invalid signature for onPing and onPong resources")
     public void testFailOnPingOnPong() {
-        CompileResult compileResult = BCompileUtil.compile(TEST_PATH + "fail_onPing_onPong.bal");
+        CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "fail_onPing_onPong.bal");
 
         assertExpectedDiagnosticsLength(compileResult, 3);
         BAssertUtil.validateError(compileResult, 0,
-                                  "Invalid resource signature for onPing resource in service : The second " +
-                                          "parameter should be a byte[]", 27, 5);
+                "Invalid resource signature for onPing resource in service : The second " +
+                        "parameter should be a byte[]", 27, 5);
         BAssertUtil.validateError(compileResult, 1, "Invalid resource signature for onPong resource in service " +
                 ": Expected parameter count = 2", 31, 5);
         BAssertUtil.validateError(compileResult, 2,
-                                  "Invalid resource signature for onPong resource in service : The second " +
-                                          "parameter should be a byte[]", 31, 5);
+                "Invalid resource signature for onPong resource in service : The second " +
+                        "parameter should be a byte[]", 31, 5);
     }
 
     @Test(description = "Invalid signature for onClose resource")
     public void testFailOnClose() {
-        CompileResult compileResult = BCompileUtil.compile(TEST_PATH + "fail_onClose.bal");
+        CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "fail_onClose.bal");
 
         assertExpectedDiagnosticsLength(compileResult, 1);
         BAssertUtil.validateError(compileResult, 0,
-                                  "Invalid resource signature for onClose resource in service : The third parameter " +
-                                          "should be a string",
-                                  27, 5);
+                "Invalid resource signature for onClose resource in service : The third parameter " +
+                        "should be a string",
+                27, 5);
     }
 
     @Test(description = "Invalid signature for onError resources")
     public void testFailOnError() {
-        CompileResult compileResult = BCompileUtil.compile(TEST_PATH + "fail_onError.bal");
+        CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "fail_onError.bal");
 
         assertExpectedDiagnosticsLength(compileResult, 2);
         BAssertUtil.validateError(compileResult, 0, "Invalid resource signature for onError resource in service " +
@@ -145,7 +143,7 @@ public class WebSocketCompilationTest {
 
     @Test(description = "Invalid resource in WebSocketService")
     public void testInValidResource() {
-        CompileResult compileResult = BCompileUtil.compile(TEST_PATH + "invalid_resource.bal");
+        CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "invalid_resource.bal");
 
         assertExpectedDiagnosticsLength(compileResult, 1);
         BAssertUtil.validateError(compileResult, 0, "Invalid resource name onFind in service ", 27, 5);
@@ -153,26 +151,26 @@ public class WebSocketCompilationTest {
 
     @Test(description = "Invalid resource onOpen in WebSocketClientService")
     public void testFailOnOpenClient() {
-        CompileResult compileResult = BCompileUtil.compile(TEST_PATH + "fail_onOpen_client.bal");
+        CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "fail_onOpen_client.bal");
 
         assertExpectedDiagnosticsLength(compileResult, 1);
         BAssertUtil.validateError(compileResult, 0,
-                                  "onOpen resource is not supported for WebSocketClientService",
-                                  22, 5);
+                "onOpen resource is not supported for WebSocketClientService",
+                22, 5);
     }
 
     @Test(description = "WebSocket upgrade resource config has a no upgradeService")
     public void testFailWebSocketUpgradeNoService() {
-        CompileResult compileResult = BCompileUtil.compile(TEST_PATH + "fail_websocket_upgrade_no_service.bal");
+        CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "fail_websocket_upgrade_no_service.bal");
 
         assertExpectedDiagnosticsLength(compileResult, 1);
         BAssertUtil.validateError(compileResult, 0,
-                                  "An upgradeService need to be specified for the WebSocket upgrade resource", 24, 5);
+                "An upgradeService need to be specified for the WebSocket upgrade resource", 24, 5);
     }
 
     @Test(description = "Resource returns can only be error or nil")
     public void testResourceReturn() {
-        CompileResult compileResult = BCompileUtil.compile(TEST_PATH + "resource_return.bal");
+        CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "resource_return.bal");
 
         assertExpectedDiagnosticsLength(compileResult, 1);
         BAssertUtil.validateError(compileResult, 0, "Invalid return type: expected error?", 21, 5);

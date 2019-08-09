@@ -24,28 +24,27 @@ public function main() {
             lname: "Punke", age: 30
         }
     };
-    // The below example shows how you can convert a record to a JSON object.
-    // This conversion is unsafe because it may not be possible to convert some data types
-    // that are defined in the record to JSON.
-    // Similarly, you can use the `.stamp()` built-in method to manipulate the value
-    // itself by attempting to change its type.
-    json|error j = json.convert(theRevenant);
+    // This example shows how you can convert a record to a JSON object.
+    // This conversion could return an error because it may not be possible
+    // to convert some data types that are defined in the record to JSON.
+    json|error j = json.constructFrom(theRevenant);
     if (j is json) {
         io:println(j);
         io:println(j.writer.lname);
     }
 
     // Similarly, you can convert a record to a map.
-    map<anydata>|error movieMap = map<anydata>.convert(theRevenant);
+    map<anydata>|error movieMap = map<anydata>.constructFrom(theRevenant);
     if (movieMap is map<anydata>) {
-        Person|error writer = Person.convert(movieMap["writer"]);
+        Person|error writer = Person.constructFrom(movieMap["writer"]);
         if (writer is Person) {
             io:println(writer.age);
         }
     }
 
-    // The below example shows how you can convert a JSON object to a record.
-    // This conversion is unsafe because the field names and types are unknown until they are executed during the runtime.
+    // This example shows how you can convert a JSON object to a record.
+    // This conversion could return an error because the field names and 
+    // types are unknown until they are evaluated at runtime.
     json inceptionJ = {
         title: "Inception",
         year: "2010",
@@ -56,7 +55,7 @@ public function main() {
             age: 30
         }
     };
-    Movie|error inception = Movie.convert(inceptionJ);
+    Movie|error inception = Movie.constructFrom(inceptionJ);
     if (inception is Movie) {
         io:println(inception);
     }

@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -1044,6 +1045,9 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BTupleType tupleType = new BTupleType(tupleTypeSymbol, memberTypes);
         tupleTypeSymbol.type = tupleType;
+        if (tupleTypeNode.restParamType !=  null) {
+            tupleType.restType = resolveTypeNode(tupleTypeNode.restParamType, env);
+        }
 
         resultType = tupleType;
     }
@@ -1188,7 +1192,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 } else {
                     List<ScopeEntry> scopeEntries = visibleEntries.get(name);
                     entryList.forEach(scopeEntry -> {
-                        if (!scopeEntries.contains(scopeEntry)) {
+                        if (!scopeEntries.contains(scopeEntry) && !(scopeEntry.symbol instanceof BVarSymbol)) {
                             scopeEntries.add(scopeEntry);
                         }
                     });

@@ -49,8 +49,8 @@ service HelloWorld85 on ep9 {
     resource function hello(grpc:Caller caller, string name) {
         log:printInfo("name: " + name);
         string message = "Hello " + name;
-        error? err = caller->send(message);
-        if (err is error) {
+        grpc:Error? err = caller->send(message);
+        if (err is grpc:Error) {
             log:printError(err.reason(), err);
         } else {
             log:printInfo("Server send response : " + message);

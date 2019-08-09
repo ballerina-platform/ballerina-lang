@@ -32,7 +32,7 @@ import java.net.UnknownHostException;
  * Launch debugger adapter protocol server instance.
  */
 public class Launcher {
-
+    private static final int DEFAULT_PORT = 4711;
     public static void main(String[] args) {
         ServerSocket server;
         DataOutputStream os;
@@ -40,7 +40,7 @@ public class Launcher {
         Socket clientSocket;
 
         try {
-            int port = 4711;
+            int port = args.length == 0 ? DEFAULT_PORT : Integer.parseInt(args[0]);
             server = new ServerSocket(port);
             PrintStream out = System.out;
             out.println("Debug server started on " + port);

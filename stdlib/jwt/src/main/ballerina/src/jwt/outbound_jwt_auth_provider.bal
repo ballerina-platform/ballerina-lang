@@ -21,17 +21,17 @@ import ballerina/time;
 
 # Represents outbound JWT authenticator.
 #
-# + jwtIssuerConfig - Inferred JWT issuer configurations
+# + jwtIssuerConfig - JWT issuer configurations
 public type OutboundJwtAuthProvider object {
 
     *auth:OutboundAuthProvider;
 
-    public InferredJwtIssuerConfig? jwtIssuerConfig;
+    public JwtIssuerConfig? jwtIssuerConfig;
 
     # Provides authentication based on the provided JWT configuration.
     #
-    # + jwtAuthProviderConfig - Inferred JWT issuer configurations
-    public function __init(InferredJwtIssuerConfig? jwtIssuerConfig) {
+    # + jwtIssuerConfig - JWT issuer configurations
+    public function __init(JwtIssuerConfig? jwtIssuerConfig = ()) {
         self.jwtIssuerConfig = jwtIssuerConfig;
     }
 
@@ -41,7 +41,7 @@ public type OutboundJwtAuthProvider object {
     public function generateToken() returns string|auth:Error {
         string authToken = EMPTY_STRING;
         var jwtIssuerConfig = self.jwtIssuerConfig;
-        if (jwtIssuerConfig is InferredJwtIssuerConfig) {
+        if (jwtIssuerConfig is JwtIssuerConfig) {
             authToken = check getAuthTokenForJWTAuth(jwtIssuerConfig);
         } else {
             runtime:AuthenticationContext? authContext = runtime:getInvocationContext()?.authenticationContext;
@@ -51,7 +51,7 @@ public type OutboundJwtAuthProvider object {
         }
         if (authToken == EMPTY_STRING) {
             return auth:prepareError("JWT was not used during inbound authentication.
-                                    Provide OutboundJwtAuthProviderConfig to issue new token.");
+            Provide JwtIssuerConfig to issue new token.");
         }
         return authToken;
     }
@@ -67,38 +67,50 @@ public type OutboundJwtAuthProvider object {
 
 # Represents authentication provider configurations that supports generating JWT for client interactions.
 #
-# + issuer - Expected JWT token issuer
-# + audience - Expected JWT token audience
-# + expTime - Expiry time for newly issued JWT tokens
-# + issuerConfig - JWT issuer configurations
-# + signingAlg - Signing algorithm for signing newly issued JWT tokens
-public type InferredJwtIssuerConfig record {|
+# + username - JWT token username
+# + issuer - JWT token issuer
+# + audience - JWT token audience
+# + expTime - Expiry time
+# + keyStoreConfig - JWT key store configurations
+# + signingAlg - Signing algorithm
+public type JwtIssuerConfig record {|
+    string username?;
     string issuer;
     string[] audience;
     int expTime = 300;
-    JwtIssuerConfig issuerConfig;
+    JwtKeyStoreConfig keyStoreConfig;
     JwtSigningAlgorithm signingAlg = RS256;
 |};
 
 # Process auth token for JWT auth.
 #
-# + jwtIssuerConfig - Inferred JWT issuer configurations
+# + jwtIssuerConfig - JWT issuer configurations
 # + return - Auth token or `Error` if an error occurred during the JWT issuing or validation
-function getAuthTokenForJWTAuth(InferredJwtIssuerConfig jwtIssuerConfig) returns string|Error {
+function getAuthTokenForJWTAuth(JwtIssuerConfig jwtIssuerConfig) returns string|Error {
     JwtHeader header = { alg: jwtIssuerConfig.signingAlg, typ: "JWT" };
-    runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-    if (principal is runtime:Principal) {
-        JwtPayload payload = {
-            sub: principal.username,
-            iss: jwtIssuerConfig.issuer,
-            exp: time:currentTime().time / 1000 + jwtIssuerConfig.expTime,
-            iat: time:currentTime().time / 1000,
-            nbf: time:currentTime().time / 1000,
-            jti: system:uuid(),
-            aud: jwtIssuerConfig.audience
-        };
-         // TODO: cache the token per-user per-client and reuse it
-        return issueJwt(header, payload, jwtIssuerConfig.issuerConfig);
+    string username;
+    string? configUsername = jwtIssuerConfig?.username;
+    if (configUsername is string) {
+        username = configUsername;
+    } else {
+        runtime:Principal? principal = runtime:getInvocationContext()?.principal;
+        if (principal is runtime:Principal) {
+            username = principal.username;
+        } else {
+            return prepareError("Failed to generate auth token since username is not provided at issuer config and
+            the Principal record is also not defined at the invocation context.");
+        }
     }
-    return prepareError("Principal is not defined at invocation context.");
+
+    JwtPayload payload = {
+        sub: username,
+        iss: jwtIssuerConfig.issuer,
+        exp: time:currentTime().time / 1000 + jwtIssuerConfig.expTime,
+        iat: time:currentTime().time / 1000,
+        nbf: time:currentTime().time / 1000,
+        jti: system:uuid(),
+        aud: jwtIssuerConfig.audience
+    };
+     // TODO: cache the token per-user per-client and reuse it
+    return issueJwt(header, payload, jwtIssuerConfig.keyStoreConfig);
 }

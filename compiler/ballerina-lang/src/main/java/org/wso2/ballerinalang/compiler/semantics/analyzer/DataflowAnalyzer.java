@@ -526,7 +526,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
-        recordLiteral.keyValuePairs.forEach(keyValPar -> analyzeNode(keyValPar.valueExpr, env));
+        recordLiteral.keyValuePairs.forEach(keyValPar -> {
+            if (keyValPar.key.computedKey) {
+                analyzeNode(keyValPar.key.expr, env);
+            }
+            analyzeNode(keyValPar.valueExpr, env);
+        });
     }
 
     @Override
@@ -1262,7 +1267,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 }
                 return;
             case TUPLE_VARIABLE_REF:
-                ((BLangTupleVarRef) varRef).expressions.forEach(this::checkAssignment);
+                BLangTupleVarRef tupleVarRef = (BLangTupleVarRef) varRef;
+                tupleVarRef.expressions.forEach(this::checkAssignment);
+                if (tupleVarRef.restParam != null) {
+                    checkAssignment((BLangExpression) tupleVarRef.restParam);
+                }
                 return;
             case ERROR_VARIABLE_REF:
                 BLangErrorVarRef errorVarRef = (BLangErrorVarRef) varRef;

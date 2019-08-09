@@ -2,8 +2,8 @@
 # To start the service, navigate to the directory that contains the
 # `.bal` file, and use the `ballerina run` command.
 $ ballerina run order_mgmt_service.bal
-[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9191
+[ballerina/http] started HTTP/WS listener 0.0.0.0:9191
 [ballerina/websub] Default Ballerina WebSub Hub started up at http://localhost:9191/websub/hub
-[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9090
+[ballerina/http] started HTTP/WS listener 0.0.0.0:9090
 2018-08-08 10:56:50,220 INFO  [ballerina/websub] - Intent verification successful for mode: [subscribe], for callback URL: [http://localhost:8181/ordereventsubscriber]
 2018-08-08 10:57:00,921 INFO  [] - New Order Added: 1001

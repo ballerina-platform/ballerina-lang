@@ -220,7 +220,7 @@ function testRecordEquivalence() returns Foo {
 }
 
 function testUnorderedFieldRecordsInAMatch() returns Foo? {
-    AnotherFoo|string aFoo = {a: "A", b: "B", c: "C", d: 10, f: "rest field"};
+    AnotherFoo|string aFoo = {a: "A", b: "B", c: "C", d: 10, "f": "rest field"};
 
     if aFoo is AnotherFoo {
         return aFoo;

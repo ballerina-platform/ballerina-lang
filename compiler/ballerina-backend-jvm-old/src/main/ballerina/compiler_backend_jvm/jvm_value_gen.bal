@@ -61,7 +61,7 @@ public type ObjectGenerator object {
 
         bir:Function?[]? attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs is bir:Function?[]) {
-            self.createObjectMethods(cw, attachedFuncs);
+            self.createObjectMethods(cw, attachedFuncs, isService, className);
         }
 
         self.createObjectInit(cw, fields, className);
@@ -76,7 +76,7 @@ public type ObjectGenerator object {
 
     private function createLambdas(jvm:ClassWriter cw) {
         // generate lambdas created during generating methods
-        foreach var (name, call) in lambdas {
+        foreach var [name, call] in lambdas {
             generateLambdaMethod(call, cw, name);
         }
         // clear the lambdas
@@ -95,13 +95,14 @@ public type ObjectGenerator object {
         }
     }
 
-    private function createObjectMethods(jvm:ClassWriter cw, bir:Function?[] attachedFuncs) {
+    private function createObjectMethods(jvm:ClassWriter cw, bir:Function?[] attachedFuncs, boolean isService,
+                                                                                                string className) {
         foreach var func in attachedFuncs {
             if (func is bir:Function) {
                 if !isExternFunc(func) {
                     addDefaultableBooleanVarsToSignature(func);
                 }
-                generateMethod(func, cw, self.module, attachedType = self.currentObjectType);
+                generateMethod(func, cw, self.module, attachedType = self.currentObjectType, isService = isService, className = className);
             }
         }
     }
@@ -116,7 +117,7 @@ public type ObjectGenerator object {
         mv.visitVarInsn(ALOAD, 1);
         // invoke super(type);
         mv.visitMethodInsn(INVOKESPECIAL, ABSTRACT_OBJECT_VALUE, "<init>", io:sprintf("(L%s;)V", OBJECT_TYPE), false);
-
+        
         string lockClass = "L" + LOCK_VALUE + ";";
         foreach var field in fields {
             if (field is bir:BObjectField) {
@@ -178,7 +179,7 @@ public type ObjectGenerator object {
                 mv.visitVarInsn(ALOAD, 1);
                 mv.visitInsn(ICONST_0);
                 mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/scheduling/Strand", "blockedOnExtern", "Z");
-                
+            
                 if (!(retType is () || retType is bir:BTypeNil)) {
                     mv.visitVarInsn(ALOAD, 1);
                     mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue", "Ljava/lang/Object;");
@@ -220,7 +221,7 @@ public type ObjectGenerator object {
                 addBoxInsn(mv, retType);
                 if (isService) {
                     mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "handleResourceError", io:sprintf("(L%s;)L%s;",
-                                                                            OBJECT, OBJECT) , false);
+                                                                                OBJECT, OBJECT) , false);
                 }
             }
             mv.visitInsn(ARETURN);
@@ -322,7 +323,7 @@ public type ObjectGenerator object {
             returns byte[] {
         jvm:ClassWriter cw = new(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.sourceFileName);
-        currentClass = untaint className;
+        currentClass = <@untainted> className;
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, (), MAP_VALUE_IMPL, [MAP_VALUE]);
 
         bir:Function?[]? attachedFuncs = typeDef.attachedFuncs;
@@ -378,7 +379,7 @@ public type ObjectGenerator object {
     }
 
     private function createRecordInitWrapper(jvm:ClassWriter cw, string className, bir:TypeDef typeDef) {
-        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$init", 
+        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$init",
                                               io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), (), ());
         mv.visitCode();
         // load strand

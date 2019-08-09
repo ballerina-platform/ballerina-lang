@@ -21,7 +21,10 @@ import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
-import events.EventBus;
+import org.ballerinalang.debugadapter.launchrequest.Launch;
+import org.ballerinalang.debugadapter.launchrequest.LaunchFactory;
+import org.ballerinalang.debugadapter.terminator.OSUtils;
+import org.ballerinalang.debugadapter.terminator.TerminatorFactory;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.Capabilities;
 import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
@@ -56,7 +59,6 @@ import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -80,7 +82,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     private EventBus eventBus;
     private Map<Long, ThreadReference> threadsMap = new HashMap<>();
-    private String sourceRoot;
+    Context context;
     private Process launchedProcess;
     private BufferedReader launchedStdoutStream;
     private BufferedReader launchedErrorStream;
@@ -91,10 +93,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Capabilities> initialize(InitializeRequestArguments args) {
+        context = new Context();
         Capabilities capabilities = new Capabilities();
         capabilities.setSupportsConfigurationDoneRequest(true);
         capabilities.setSupportsTerminateRequest(true);
-        this.eventBus = new EventBus(client);
+        context.setClient(client);
+        this.eventBus = new EventBus(context);
         getClient().initialized();
         return CompletableFuture.completedFuture(capabilities);
     }
@@ -123,90 +127,56 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Void> launch(Map<String, Object> args) {
-        try {
-            sourceRoot = args.get("sourceRoot").toString();
-            String ballerinaHome = args.get("ballerina.home").toString();
-            String ballerinaExec = ballerinaHome + File.separator + "bin" + File.separator + "ballerina";
-            String balFile = args.get("script").toString();
-
-            String packageName = args.get("package") == null ? "" : args.get("package").toString();
-            if (!sourceRoot.endsWith(File.separator)) {
-                sourceRoot += File.separator;
+        Launch launcher = new LaunchFactory().getLauncher(args);
+        launchedProcess = launcher.start();
+        CompletableFuture.runAsync(() -> {
+            if (launchedProcess != null) {
+                launchedErrorStream = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream(),
+                        StandardCharsets.UTF_8));
+                String line;
+                try {
+                    while ((line = launchedErrorStream.readLine()) != null) {
+                        sendOutput(line, STDERR);
+                    }
+                } catch (IOException e) {
+                    sendOutput(e.toString(), STDERR);
+                }
             }
+        });
 
-            String debuggeePort = args.get("debuggeePort").toString();
-            ProcessBuilder processBuilder = new ProcessBuilder();
-            processBuilder.command(ballerinaExec, "run", "--debug", debuggeePort, "--experimental",
-                    balFile);
-            launchedProcess = processBuilder.start();
-
-            CompletableFuture.runAsync(() -> {
-                if (launchedProcess != null) {
-                    launchedStdoutStream = new BufferedReader(new InputStreamReader(launchedProcess.getInputStream(),
-                            StandardCharsets.UTF_8));
-                    String line;
-                    try {
-                        while ((line = launchedStdoutStream.readLine()) != null) {
-                            if (line.contains("Listening for transport dt_socket")) {
-                                attachToLaunchedProcess(Integer.parseInt(debuggeePort), packageName);
-                            }
-                            sendOutput(line, STDOUT);
+        CompletableFuture.runAsync(() -> {
+            if (launchedProcess != null) {
+                launchedStdoutStream = new BufferedReader(new InputStreamReader(launchedProcess.getInputStream(),
+                        StandardCharsets.UTF_8));
+                String line;
+                try {
+                    while ((line = launchedStdoutStream.readLine()) != null) {
+                        if (line.contains("Listening for transport dt_socket")) {
+                            debuggee = launcher.attachToLaunchedProcess();
+                            context.setDebuggee(debuggee);
+                            this.eventBus.startListening();
                         }
-                    } catch (IOException e) {
-
+                        sendOutput(line, STDOUT);
                     }
-                }
-            });
+                } catch (IOException e) {
 
-            CompletableFuture.runAsync(() -> {
-                if (launchedProcess != null) {
-                    launchedErrorStream = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream(),
-                            StandardCharsets.UTF_8));
-                    String line;
-                    try {
-                        while ((line = launchedErrorStream.readLine()) != null) {
-                            sendOutput(line, STDERR);
-                        }
-                    } catch (IOException e) {
-
-                    }
                 }
-            });
-        } catch (IOException e) {
-            return CompletableFuture.completedFuture(null);
-        }
+            }
+        });
         return CompletableFuture.completedFuture(null);
-    }
-
-    private void attachToLaunchedProcess(int debuggeePort, String packageName) {
-        try {
-            debuggee = new DebuggerAttachingVM(debuggeePort).initialize();
-            EventRequestManager erm = debuggee.eventRequestManager();
-            ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
-            classPrepareRequest.enable();
-            this.eventBus.setDebuggee(debuggee);
-            this.eventBus.startListening(sourceRoot, packageName);
-        } catch (IOException e) {
-        } catch (IllegalConnectorArgumentsException e) {
-        }
     }
 
     @Override
     public CompletableFuture<Void> attach(Map<String, Object> args) {
         try {
-            sourceRoot = args.get("sourceRoot").toString();
-            String packageName = args.get("package") != null ? args.get("package").toString() : "";
-            if (!sourceRoot.endsWith(File.separator)) {
-                sourceRoot += File.separator;
-            }
             int debuggeePort = Integer.parseInt(args.get("debuggeePort").toString());
             debuggee = new DebuggerAttachingVM(debuggeePort).initialize();
 
             EventRequestManager erm = debuggee.eventRequestManager();
             ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
             classPrepareRequest.enable();
-            this.eventBus.setDebuggee(debuggee);
-            this.eventBus.startListening(sourceRoot, packageName);
+            context.setDebuggee(debuggee);
+            this.eventBus.startListening();
 
         } catch (IOException e) {
             return CompletableFuture.completedFuture(null);
@@ -364,7 +334,11 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         return thread;
     }
 
-    private void exit() {
+    private void exit(boolean terminateDebuggee) {
+        if (terminateDebuggee) {
+            new TerminatorFactory().getTerminator(OSUtils.getOperatingSystem()).terminate();
+        }
+
         if (launchedErrorStream != null) {
             try {
                 launchedErrorStream.close();
@@ -393,14 +367,14 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Void> disconnect(DisconnectArguments args) {
-        this.exit();
+        boolean terminateDebuggee = args.getTerminateDebuggee() == null ? false : args.getTerminateDebuggee();
+        this.exit(terminateDebuggee);
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public CompletableFuture<Void> terminate(TerminateArguments args) {
-        this.exit();
-        debuggee.dispose();
+        this.exit(true);
         return CompletableFuture.completedFuture(null);
     }
 

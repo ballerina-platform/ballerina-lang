@@ -34,7 +34,7 @@ type TerminatorGenerator object {
     }
 
     function genTerminator(bir:Terminator terminator, bir:Function func, string funcName,
-                           int localVarOffset, int returnVarRefIndex, bir:BType? attachedType) {
+                           int localVarOffset, int returnVarRefIndex, bir:BType? attachedType, boolean isObserved = false) {
         if (terminator is bir:Lock) {
             self.genLockTerm(terminator, funcName, localVarOffset);
         } else if (terminator is bir:FieldLock) {
@@ -50,7 +50,7 @@ type TerminatorGenerator object {
         } else if (terminator is bir:Branch) {
             self.genBranchTerm(terminator, funcName);
         } else if (terminator is bir:Return) {
-            self.genReturnTerm(terminator, returnVarRefIndex, func);
+            self.genReturnTerm(terminator, returnVarRefIndex, func, isObserved = isObserved, localVarOffset = localVarOffset);
         } else if (terminator is bir:Panic) {
             self.errorGen.genPanic(terminator);
         } else if (terminator is bir:Wait) {
@@ -150,8 +150,13 @@ type TerminatorGenerator object {
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    function genReturnTerm(bir:Return returnIns, int returnVarRefIndex, bir:Function func) {
-        bir:BType bType = func.typeValue.retType;
+    int kl = 0;
+    function genReturnTerm(bir:Return returnIns, int returnVarRefIndex, bir:Function func,
+                            boolean isObserved = false, int localVarOffset = -1) {
+        if (isObserved) {
+            emitStopObservationInvocation(self.mv, localVarOffset);
+        }
+        bir:BType bType = <bir:BType> func.typeValue.retType;
         if (bType is bir:BTypeNil) {
             self.mv.visitInsn(RETURN);
         } else if (bType is bir:BTypeInt) {
@@ -342,7 +347,8 @@ type TerminatorGenerator object {
     private function genBuiltinTypeAttachedFuncCall(bir:Call callIns, string orgName, string moduleName, 
                                                     int localVarOffset) {
         string methodLookupName = callIns.name.value;
-        int index = methodLookupName.indexOf(".") + 1;
+        int? optionalIndex = methodLookupName.indexOf(".");
+        int index = optionalIndex is int ? optionalIndex + 1 : 0;
         string methodName = methodLookupName.substring(index, methodLookupName.length());
         self.genStaticCall(callIns, orgName, moduleName, localVarOffset, methodName, methodLookupName);
     }

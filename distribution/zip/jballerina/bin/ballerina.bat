@@ -73,6 +73,18 @@ for /F "tokens=2 delims=:" %%a in ('mode con') do for %%b in (%%a) do (
   )
 )
 
+set argCount=0
+for %%x in (%*) do (
+   set /A argCount+=1
+   set "argValue[!argCount!]=%%~x"
+)
+
+set /a counter=1
+for /l %%i in (1, 1, %argCount%) do (
+   set /a counter=!counter!+1
+   if "!argValue[%%i]!"=="--debug" call set BAL_JAVA_DEBUG=%%!counter!
+)
+
 if defined BAL_JAVA_DEBUG goto commandDebug
 
 rem ----- Process the input command -------------------------------------------

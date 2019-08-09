@@ -21,7 +21,7 @@
 import {
     workspace, window, commands, languages, Uri,
     ConfigurationChangeEvent, extensions,
-    Extension, ExtensionContext, IndentAction,
+    Extension, ExtensionContext, IndentAction, WebviewPanel,
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY,
@@ -36,6 +36,10 @@ import { ExtendedLangClient } from './extended-language-client';
 import { info, getOutputChannel } from '../utils/index';
 import { AssertionError } from "assert";
 import { OVERRIDE_BALLERINA_HOME, BALLERINA_HOME, ALLOW_EXPERIMENTAL, ENABLE_DEBUG_LOG } from "./preferences";
+import TelemetryReporter from "vscode-extension-telemetry";
+import { createTelemetryReporter } from "../telemetry";
+
+export const EXTENSION_ID = 'ballerina.ballerina';
 
 export interface ConstructIdentifier {
     moduleName: string;
@@ -44,23 +48,28 @@ export interface ConstructIdentifier {
 }
 
 export class BallerinaExtension {
-
+    public telemetryReporter: TelemetryReporter;
     public ballerinaHome: string;
     public extension: Extension<any>;
     private clientOptions: LanguageClientOptions;
     public langClient?: ExtendedLangClient;
     public context?: ExtensionContext;
     private projectTreeElementClickedCallbacks: Array<(construct: ConstructIdentifier) => void> = [];
+    private webviewPanels: {
+        [name: string]: WebviewPanel;
+    };
 
     constructor() {
         this.ballerinaHome = '';
+        this.webviewPanels = {};
         // Load the extension
-        this.extension = extensions.getExtension('ballerina.ballerina')!;
+        this.extension = extensions.getExtension(EXTENSION_ID)!;
         this.clientOptions = {
             documentSelector: [{ scheme: 'file', language: 'ballerina' }],
             outputChannel: getOutputChannel(),
             revealOutputChannelOn: RevealOutputChannelOn.Never,
         };
+        this.telemetryReporter = createTelemetryReporter(this);
     }
 
     setContext(context: ExtensionContext) {
@@ -104,7 +113,8 @@ export class BallerinaExtension {
                 this.checkCompatibleVersion(pluginVersion, ballerinaVersion);
                 // if Home is found load Language Server.
                 this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client',
-                    getServerOptions(this.getBallerinaHome(), this.isExperimental()), this.clientOptions, false);
+                    getServerOptions(this.getBallerinaHome(), this.isExperimental(), this.isDebugLogsEnabled()),
+                                                         this.clientOptions, false);
 
                 // 0.983.0 and 0.982.0 versions are incapable of handling client capabilities 
                 if (ballerinaVersion !== "0.983.0" && ballerinaVersion !== "0.982.0") {
@@ -262,7 +272,7 @@ export class BallerinaExtension {
                     return;
                 }
                 
-                resolve(version.replace(/Ballerina /, '').replace(/[\n\t\r]/g, ''));
+                resolve(version.split('\n')[0].replace(/Ballerina /, '').replace(/[\n\t\r]/g, ''));
             });
         });
     }
@@ -353,6 +363,10 @@ export class BallerinaExtension {
         return <boolean>workspace.getConfiguration().get(ALLOW_EXPERIMENTAL);
     }
 
+    isDebugLogsEnabled(): boolean {
+        return <boolean>workspace.getConfiguration().get(ENABLE_DEBUG_LOG);
+    }
+
     autoDetectBallerinaHome(): string {
         // try to detect the environment.
         const platform: string = process.platform;
@@ -363,7 +377,7 @@ export class BallerinaExtension {
                     return process.env.BALLERINA_HOME;
                 }
                 try {
-                    ballerinaPath = execSync('where ballerina').toString().trim();
+                    ballerinaPath = execSync('where ballerina.bat').toString().trim();
                 } catch (error) {
                     return ballerinaPath;
                 }
@@ -419,6 +433,22 @@ export class BallerinaExtension {
 
     public onProjectTreeElementClicked(callback: (construct: ConstructIdentifier) => void) {
         this.projectTreeElementClickedCallbacks.push(callback);
+    }
+
+    public addWebviewPanel(name: string, panel: WebviewPanel) {
+		this.webviewPanels[name] = panel;
+    }
+
+    public getWebviewPanels() {
+        return this.webviewPanels;
+    }
+
+    public getID(): string {
+        return this.extension.id;
+    }
+
+    public getVersion(): string {
+        return this.extension.packageJSON.version;
     }
 }
 

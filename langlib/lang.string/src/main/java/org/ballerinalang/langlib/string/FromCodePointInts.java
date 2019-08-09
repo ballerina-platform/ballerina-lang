@@ -20,7 +20,6 @@ package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -41,7 +40,16 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class FromCodePointInts {
 
     public static Object fromCodePointInts(Strand strand, ArrayValue codePoints) {
-        throw BallerinaErrors.createError(BallerinaErrorReasons.OPERATION_NOT_SUPPORTED,
-                                          "fromCodePointInts() function not supported");
+        int codePoint = 0;
+        try {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < codePoints.size(); i++) {
+                codePoint = (int) codePoints.getInt(i);
+                builder.appendCodePoint(codePoint);
+            }
+            return builder.toString();
+        } catch (IllegalArgumentException e) {
+            return BallerinaErrors.createError("Invalid codepoint: " + codePoint);
+        }
     }
 }

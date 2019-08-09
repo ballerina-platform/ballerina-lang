@@ -73,14 +73,8 @@ function getAuthHandlers(FilterContext context) returns InboundAuthHandler[]|Inb
     // Checks if Auth providers are given at the resource level.
     if (resourceLevelAuthAnn is ServiceResourceAuth) {
         var resourceAuthHandlers = resourceLevelAuthAnn?.authHandlers;
-        if (resourceAuthHandlers is InboundAuthHandler[]) {
-            if (resourceAuthHandlers.length() > 0) {
-                return resourceAuthHandlers;
-            }
-        } else if (resourceAuthHandlers is InboundAuthHandler[][]) {
-            if (resourceAuthHandlers[0].length() > 0) {
-                return resourceAuthHandlers;
-            }
+        if (!(resourceAuthHandlers is ())) {
+            return resourceAuthHandlers;
         }
     }
 
@@ -92,14 +86,8 @@ function getAuthHandlers(FilterContext context) returns InboundAuthHandler[]|Inb
     // No Auth providers found at the resource level. Thus, try at the service level.
     if (serviceLevelAuthAnn is ServiceResourceAuth) {
         var serviceAuthHandlers = serviceLevelAuthAnn?.authHandlers;
-        if (serviceAuthHandlers is InboundAuthHandler[]) {
-            if (serviceAuthHandlers.length() > 0) {
-                return serviceAuthHandlers;
-            }
-        } else if (serviceAuthHandlers is InboundAuthHandler[][]) {
-            if (serviceAuthHandlers[0].length() > 0) {
-                return serviceAuthHandlers;
-            }
+        if (!(serviceAuthHandlers is ())) {
+            return serviceAuthHandlers;
         }
     }
     return true;
@@ -126,14 +114,8 @@ function getScopes(FilterContext context) returns string[]|string[][]|boolean {
     // check if auth providers are given at resource level
     if (resourceLevelAuthAnn is ServiceResourceAuth) {
         var resourceScopes = resourceLevelAuthAnn?.scopes;
-        if (resourceScopes is string[]) {
-            if (resourceScopes.length() > 0) {
-                return resourceScopes;
-            }
-        } else if (resourceScopes is string[][]) {
-            if (resourceScopes[0].length() > 0) {
-                return resourceScopes;
-            }
+        if (!(resourceScopes is ())) {
+            return resourceScopes;
         }
     }
 
@@ -144,14 +126,8 @@ function getScopes(FilterContext context) returns string[]|string[][]|boolean {
     // no auth providers found in resource level, try in service level
     if (serviceLevelAuthAnn is ServiceResourceAuth) {
         var serviceScopes = serviceLevelAuthAnn?.scopes;
-        if (serviceScopes is string[]) {
-            if (serviceScopes.length() > 0) {
-                return serviceScopes;
-            }
-        } else if (serviceScopes is string[][]) {
-            if (serviceScopes[0].length() > 0) {
-                return serviceScopes;
-            }
+        if (!(serviceScopes is ())) {
+            return serviceScopes;
         }
     }
     return true;
@@ -163,7 +139,7 @@ function getScopes(FilterContext context) returns string[]|string[][]|boolean {
 # + return - Returns the resource-level and service-level authentication annotations.
 function getServiceResourceAuthConfig(FilterContext context) returns [ServiceResourceAuth?, ServiceResourceAuth?] {
     // get authn details from the resource level
-    any annData = reflect:getResourceAnnotations(context.serviceRef, context.resourceName, RESOURCE_ANN_NAME,
+    any annData = reflect:getResourceAnnotations(context.getService(), context.getResourceName(), RESOURCE_ANN_NAME,
                                                  ANN_MODULE);
     ServiceResourceAuth? resourceLevelAuthAnn = ();
     if !(annData is ()) {
@@ -171,7 +147,7 @@ function getServiceResourceAuthConfig(FilterContext context) returns [ServiceRes
         resourceLevelAuthAnn = resourceConfig?.auth;
     }
 
-    annData = reflect:getServiceAnnotations(context.serviceRef, SERVICE_ANN_NAME, ANN_MODULE);
+    annData = reflect:getServiceAnnotations(context.getService(), SERVICE_ANN_NAME, ANN_MODULE);
     ServiceResourceAuth? serviceLevelAuthAnn = ();
     if !(annData is ()) {
         HttpServiceConfig serviceConfig = <HttpServiceConfig> annData;
