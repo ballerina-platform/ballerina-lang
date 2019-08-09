@@ -26,18 +26,23 @@ import ballerina/'lang\.int as langint;
 # + issuer - Expected issuer
 # + audience - Expected audience
 # + clockSkewInSeconds - Clock skew in seconds
-# + trustStore - Trust store used for signature verification
-# + certificateAlias - Token signed public key certificate alias
-# + validateCertificate - Validate public key certificate notBefore and notAfter periods
+# + trustStoreConfig - JWT trust store configurations
 # + jwtCache - Cache used to store parsed JWT information as CachedJwt
 public type JwtValidatorConfig record {|
     string issuer?;
     string|string[] audience?;
     int clockSkewInSeconds = 0;
-    crypto:TrustStore trustStore?;
-    string certificateAlias?;
-    boolean validateCertificate?;
+    JwtTrustStoreConfig trustStoreConfig?;
     cache:Cache jwtCache = new(900000, 1000, 0.25);
+|};
+
+# Represents JWT trust store configurations.
+#
+# + trustStore - Trust store used for signature verification
+# + certificateAlias - Token signed public key certificate alias
+public type JwtTrustStoreConfig record {|
+    crypto:TrustStore trustStore;
+    string certificateAlias;
 |};
 
 # Represents parsed and cached JWT.
