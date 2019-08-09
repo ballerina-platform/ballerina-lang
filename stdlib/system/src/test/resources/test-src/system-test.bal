@@ -56,11 +56,10 @@ function toString(io:ReadableByteChannel input) returns string|error {
 function testExecInUnixLike1() returns [string, int, int]|error {
     system:Process x1 = check system:exec("env", { "BAL_EXEC_TEST_VAR":"X" });
     system:Process x2 = check system:exec("grep", {}, (), "BAL_EXEC_TEST_VAR");
-    system:Process x3 = check system:exec("wc", {}, (), "-l");
-    var x3out = x1.pipe(x2).pipe(x3).stdout();
-    var ec1 = check x3.waitForExit();
-    var ec2 = check x3.exitCode();
-    var result = check toString(x3out);
+    var x2out = x1.pipe(x2).stdout();
+    var ec1 = check x2.waitForExit();
+    var ec2 = check x2.exitCode();
+    var result = check toString(x2out);
     return [result, ec1, ec2];
 }
 
@@ -77,5 +76,14 @@ function testExecInUnixLike3() returns string|error {
     check ch.writeString("BAL_TEST", "UTF-8");
     check ch.close();
     var result = check toString(x1.stdout());
+    return result;
+}
+
+function testExecInUnixLike4() returns string|error {
+    system:Process x1 = check system:exec("env", { "BAL_EXEC_TEST_VAR":"X" });
+    system:Process x2 = check system:exec("grep", {}, (), "BAL_EXEC_TEST_VAR");
+    system:Process x3 = check system:exec("wc", {}, (), "-l");
+    var x3out = x1.pipe(x2).pipe(x3).stdout();
+    var result = check toString(x3out);
     return result;
 }

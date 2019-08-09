@@ -90,8 +90,7 @@ public class SystemTest {
     public void testExecInUnixLike1() {
         if (SystemUtils.IS_OS_UNIX) {
             BValue[] returns = BRunUtil.invoke(compileResult, "testExecInUnixLike1");
-            Assert.assertTrue(returns[0] instanceof BString);
-            Assert.assertEquals(returns[0].stringValue().trim(), "1");
+            Assert.assertEquals(returns[0].stringValue().trim(), "BAL_EXEC_TEST_VAR=X");
             Assert.assertEquals(returns[1].stringValue(), "0");
             Assert.assertEquals(returns[2].stringValue(), "0");
         }
@@ -101,7 +100,6 @@ public class SystemTest {
     public void testExecInUnixLike2() {
         if (SystemUtils.IS_OS_UNIX) {
             BValue[] returns = BRunUtil.invoke(compileResult, "testExecInUnixLike2");
-            Assert.assertTrue(returns[0] instanceof BString);
             Assert.assertEquals(returns[0].stringValue().trim(), "/");
         }
     }
@@ -110,8 +108,15 @@ public class SystemTest {
     public void testExecInUnixLike3() {
         if (SystemUtils.IS_OS_UNIX) {
             BValue[] returns = BRunUtil.invoke(compileResult, "testExecInUnixLike3");
-            Assert.assertTrue(returns[0] instanceof BString);
             Assert.assertEquals(returns[0].stringValue().trim(), "BAL_TEST");
+        }
+    }
+    
+    @Test (enabled = false)
+    public void testExecInUnixLike4() {
+        if (SystemUtils.IS_OS_UNIX) {
+            BValue[] returns = BRunUtil.invoke(compileResult, "testExecInUnixLike4");
+            Assert.assertEquals(returns[0].stringValue().trim(), "1");
         }
     }
     
