@@ -18,18 +18,28 @@
 
 package org.wso2.transport.http.netty.contractimpl.listener.states.http2;
 
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http2.Http2Exception;
+import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contract.exceptions.EndpointTimeOutException;
+import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import static org.wso2.transport.http.netty.contract.Constants.HTTP2_SERVER_TIMEOUT_ERROR_MESSAGE;
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.writeHttp2Promise;
 
 /**
@@ -48,7 +58,7 @@ public class EntityBodyReceived implements ListenerState {
     }
 
     @Override
-    public void readInboundRequestHeaders(Http2HeadersFrame headersFrame) {
+    public void readInboundRequestHeaders(ChannelHandlerContext ctx, Http2HeadersFrame headersFrame) {
         LOG.warn("readInboundRequestHeaders is not a dependant action of this state");
     }
 
@@ -92,5 +102,21 @@ public class EntityBodyReceived implements ListenerState {
                 http2OutboundRespListener.getInboundRequestMsg(),
                 http2OutboundRespListener.getInboundRequestMsg().getHttpOutboundRespStatusFuture(),
                 http2OutboundRespListener.getOriginalStreamId());
+    }
+
+    @Override
+    public void handleStreamTimeout(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
+                                    Http2OutboundRespListener http2OutboundRespListener, int streamId) {
+        try {
+            serverConnectorFuture.notifyErrorListener(new EndpointTimeOutException(
+                    IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE,
+                    HttpResponseStatus.GATEWAY_TIMEOUT.code()));
+        } catch (ServerConnectorException e) {
+            LOG.error(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE + ":" + e.getMessage());
+        }
+        //Write server timeout error to caller
+        Http2StateUtil.sendRequestTimeoutResponse(ctx, http2OutboundRespListener, streamId,
+                                                  HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.copiedBuffer(
+                        HTTP2_SERVER_TIMEOUT_ERROR_MESSAGE, CharsetUtil.UTF_8), false, false);
     }
 }

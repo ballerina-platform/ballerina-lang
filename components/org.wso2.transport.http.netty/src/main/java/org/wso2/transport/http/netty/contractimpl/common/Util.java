@@ -40,7 +40,10 @@ import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.handler.ssl.ReferenceCountedOpenSslContext;
 import io.netty.handler.ssl.ReferenceCountedOpenSslEngine;
 import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslHandler;
+import io.netty.handler.ssl.SslProvider;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
@@ -71,6 +74,7 @@ import java.nio.channels.ClosedChannelException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -315,13 +319,14 @@ public class Util {
      * Configure outbound HTTP pipeline for SSL configuration.
      *
      * @param socketChannel Socket channel of outbound connection
-     * @param sslConfig {@link SSLConfig}
-     * @param host host of the connection
-     * @param port port of the connection
+     * @param sslConfig     {@link SSLConfig}
+     * @param host          host of the connection
+     * @param port          port of the connection
+     * @return the {@link SSLEngine} which enables secure communication
      * @throws SSLException if any error occurs in the SSL connection
      */
     public static SSLEngine configureHttpPipelineForSSL(SocketChannel socketChannel, String host, int port,
-            SSLConfig sslConfig) throws SSLException {
+                                                        SSLConfig sslConfig) throws SSLException {
         LOG.debug("adding ssl handler");
         SSLEngine sslEngine = null;
         SslHandler sslHandler;
@@ -340,12 +345,16 @@ public class Util {
                 socketChannel.pipeline().addLast(new OCSPStaplingHandler((ReferenceCountedOpenSslEngine) sslEngine));
             }
         } else {
-            if (sslConfig.getTrustStore() != null) {
-                sslHandlerFactory.createSSLContextFromKeystores(false);
-                sslEngine = instantiateAndConfigSSL(sslConfig, host, port, sslConfig.isHostNameVerificationEnabled(),
-                        sslHandlerFactory);
+            if (sslConfig.isDisableSsl()) {
+                sslEngine = createInsecureSslEngine(socketChannel, host, port);
             } else {
-                sslEngine = getSslEngineForCerts(socketChannel, host, port, sslConfig, sslHandlerFactory);
+                if (sslConfig.getTrustStore() != null) {
+                    sslHandlerFactory.createSSLContextFromKeystores(false);
+                    sslEngine = instantiateAndConfigSSL(sslConfig, host, port,
+                            sslConfig.isHostNameVerificationEnabled(), sslHandlerFactory);
+                } else {
+                    sslEngine = getSslEngineForCerts(socketChannel, host, port, sslConfig, sslHandlerFactory);
+                }
             }
             sslHandler = new SslHandler(sslEngine);
             setSslHandshakeTimeOut(sslConfig, sslHandler);
@@ -369,6 +378,14 @@ public class Util {
             setHostNameVerfication(sslEngine);
         }
         return sslEngine;
+    }
+
+    private static SSLEngine createInsecureSslEngine(SocketChannel socketChannel, String host, int port)
+            throws SSLException {
+        SslContext sslContext = SslContextBuilder.forClient().sslProvider(SslProvider.JDK)
+                .trustManager(InsecureTrustManagerFactory.INSTANCE).build();
+        SslHandler sslHandler = sslContext.newHandler(socketChannel.alloc(), host, port);
+        return sslHandler.engine();
     }
 
     /**
@@ -648,8 +665,9 @@ public class Util {
     /**
      * Adds a listener to notify the outbound response future if an error occurs while writing the response message.
      *
-     * @param outboundRespStatusFuture the future of outbound response write operation
-     * @param channelFuture            the channel future related to response write operation
+     * @param outboundRespStatusFuture  the future of outbound response write operation
+     * @param channelFuture             the channel future related to response write operation
+     * @param http2OutboundRespListener the http/2 outbound response listener
      */
     public static void addResponseWriteFailureListener(HttpResponseFuture outboundRespStatusFuture,
                                                        ChannelFuture channelFuture,
@@ -909,5 +927,13 @@ public class Util {
         if (handshakeTimeout > 0) {
             sslHandler.setHandshakeTimeout(handshakeTimeout, TimeUnit.SECONDS);
         }
+    }
+
+    public static long ticksInNanos() {
+        return System.nanoTime();
+    }
+
+    public static ScheduledFuture<?> schedule(ChannelHandlerContext ctx, Runnable task, long delay) {
+        return ctx.executor().schedule(task, delay, TimeUnit.NANOSECONDS);
     }
 }

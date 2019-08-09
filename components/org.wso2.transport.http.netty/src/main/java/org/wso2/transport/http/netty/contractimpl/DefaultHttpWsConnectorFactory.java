@@ -96,6 +96,7 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
         serverConnectorBootstrap.addServerHeader(listenerConfig.getServerHeader());
 
         serverConnectorBootstrap.setPipeliningEnabled(listenerConfig.isPipeliningEnabled());
+        serverConnectorBootstrap.setWebSocketCompressionEnabled(listenerConfig.isWebSocketCompressionEnabled());
         serverConnectorBootstrap.setPipeliningLimit(listenerConfig.getPipeliningLimit());
 
         if (listenerConfig.isPipeliningEnabled()) {

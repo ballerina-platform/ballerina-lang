@@ -102,6 +102,12 @@ public class ReceivingEntityBody implements SenderState {
         LOG.warn("readInboundPromise is not a dependant action of this state");
     }
 
+    @Override
+    public void handleStreamTimeout(OutboundMsgHolder outboundMsgHolder, boolean serverPush) {
+        //This is handled by {@link Http2ClientTimeoutHandler#handleIncompleteResponse(OutboundMsgHolder, boolean)}
+        // method.
+    }
+
     private void onDataRead(Http2DataFrame http2DataFrame, OutboundMsgHolder outboundMsgHolder, boolean serverPush,
                             Http2MessageStateContext http2MessageStateContext) {
         int streamId = http2DataFrame.getStreamId();

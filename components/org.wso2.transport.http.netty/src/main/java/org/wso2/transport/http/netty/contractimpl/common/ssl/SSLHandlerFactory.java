@@ -75,7 +75,8 @@ public class SSLHandlerFactory {
     /**
      * This is uset to create the sslContext from keystores.
      *
-     * @return sslContext
+     * @param isServer identifies whether the server or the client has called this method.
+     * @return sslContext represents a secure socket protocol implementation
      */
     public SSLContext createSSLContextFromKeystores(boolean isServer) {
         String protocol = sslConfig.getSSLProtocol();

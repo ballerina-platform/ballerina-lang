@@ -18,8 +18,10 @@
 
 package org.wso2.transport.http.netty.contractimpl.listener.states.http2;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http2.Http2Exception;
+import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
@@ -37,10 +39,11 @@ public interface ListenerState {
     /**
      * Reads headers of inbound request.
      *
+     * @param ctx          channel handler context
      * @param headersFrame inbound header frame
      * @throws Http2Exception if an error occurs while reading
      */
-    void readInboundRequestHeaders(Http2HeadersFrame headersFrame) throws Http2Exception;
+    void readInboundRequestHeaders(ChannelHandlerContext ctx, Http2HeadersFrame headersFrame) throws Http2Exception;
 
     /**
      * Reads entity body of inbound request.
@@ -86,4 +89,15 @@ public interface ListenerState {
      */
     void writeOutboundPromise(Http2OutboundRespListener http2OutboundRespListener, Http2PushPromise pushPromise)
             throws Http2Exception;
+
+    /**
+     * Handles the stream timeout.
+     *
+     * @param serverConnectorFuture     the sever connector future
+     * @param ctx                       the channel handler context
+     * @param http2OutboundRespListener the http/2 outbound response listener
+     * @param streamId                  the stream id
+     */
+    void handleStreamTimeout(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
+                             Http2OutboundRespListener http2OutboundRespListener, int streamId);
 }

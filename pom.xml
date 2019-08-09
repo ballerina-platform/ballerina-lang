@@ -25,7 +25,7 @@
     <packaging>pom</packaging>
     <groupId>org.wso2.transport.http</groupId>
     <artifactId>http-parent</artifactId>
-    <version>6.0.299-SNAPSHOT</version>
+    <version>6.1.6-SNAPSHOT</version>
     <name>WSO2 Carbon Transport Parent</name>
 
     <modules>
@@ -337,7 +337,7 @@
 
         <!-- Following two properties should be removed once the versions are added the wso2 parent pom CARBON-15729 -->
         <maven.checkstyle.plugin.version>2.17</maven.checkstyle.plugin.version>
-        <maven.findbugs.plugin.version>3.0.3</maven.findbugs.plugin.version>
+        <maven.findbugs.plugin.version>3.0.5</maven.findbugs.plugin.version>
 
         <carbon.metrics.version>2.0.0</carbon.metrics.version>
         <metrics.version>3.1.2</metrics.version>
@@ -359,4 +359,3 @@
     </properties>
 
 </project>
-

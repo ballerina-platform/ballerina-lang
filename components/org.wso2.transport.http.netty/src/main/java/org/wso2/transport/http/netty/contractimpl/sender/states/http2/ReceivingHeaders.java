@@ -32,6 +32,7 @@ import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.exceptions.EndpointTimeOutException;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler;
@@ -49,6 +50,7 @@ import static org.wso2.transport.http.netty.contract.Constants.DIRECTION_RESPONS
 import static org.wso2.transport.http.netty.contract.Constants.EXECUTOR_WORKER_POOL;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP2_METHOD;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_VERSION_2_0;
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_HEADERS;
 import static org.wso2.transport.http.netty.contract.Constants.INBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.contract.Constants.POOLED_BYTE_BUFFER_FACTORY;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.releaseContent;
@@ -113,6 +115,15 @@ public class ReceivingHeaders implements SenderState {
     public void readInboundPromise(ChannelHandlerContext ctx, Http2PushPromise http2PushPromise,
                                    OutboundMsgHolder outboundMsgHolder) {
         LOG.warn("readInboundPromise is not a dependant action of this state");
+    }
+
+    @Override
+    public void handleStreamTimeout(OutboundMsgHolder outboundMsgHolder, boolean serverPush) {
+        if (!serverPush) {
+            outboundMsgHolder.getResponseFuture().notifyHttpListener(new EndpointTimeOutException(
+                    IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_HEADERS,
+                    HttpResponseStatus.GATEWAY_TIMEOUT.code()));
+        }
     }
 
     private void onHeadersRead(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,

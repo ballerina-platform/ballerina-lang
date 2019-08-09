@@ -18,13 +18,17 @@
 
 package org.wso2.transport.http.netty.contractimpl.common.states;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http2.DefaultHttp2Headers;
 import io.netty.handler.codec.http2.Http2CodecUtil;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
@@ -41,9 +45,12 @@ import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorExceptio
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
+import org.wso2.transport.http.netty.contractimpl.listener.http2.InboundMessageHolder;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2DataEventListener;
+import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
+import org.wso2.transport.http.netty.contractimpl.sender.states.http2.RequestCompleted;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2InboundContentListener;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
@@ -55,6 +62,8 @@ import java.net.InetSocketAddress;
 
 import static org.wso2.transport.http.netty.contract.Constants.CHNL_HNDLR_CTX;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_BODY;
+import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_HEADERS;
 import static org.wso2.transport.http.netty.contract.Constants.INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.contract.Constants.LISTENER_INTERFACE_ID;
 import static org.wso2.transport.http.netty.contract.Constants.LISTENER_PORT;
@@ -63,6 +72,7 @@ import static org.wso2.transport.http.netty.contract.Constants.POOLED_BYTE_BUFFE
 import static org.wso2.transport.http.netty.contract.Constants.PROMISED_STREAM_REJECTED_ERROR;
 import static org.wso2.transport.http.netty.contract.Constants.PROTOCOL;
 import static org.wso2.transport.http.netty.contract.Constants.TO;
+import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.handleIncompleteInboundMessage;
 
 /**
  * HTTP/2 utility functions for states.
@@ -76,21 +86,25 @@ public class Http2StateUtil {
     /**
      * Notifies the registered listeners which listen for the incoming carbon messages.
      *
-     * @param http2SourceHandler the HTTP2 source handler
-     * @param httpRequestMsg     the http request message
-     * @param streamId           the id of the stream
+     * @param http2SourceHandler   the HTTP2 source handler
+     * @param inboundMessageHolder the inbound http request holder
+     * @param streamId             the id of the stream
      */
-    public static void notifyRequestListener(Http2SourceHandler http2SourceHandler, HttpCarbonMessage httpRequestMsg,
-                                             int streamId) {
+    public static void notifyRequestListener(Http2SourceHandler http2SourceHandler,
+                                             InboundMessageHolder inboundMessageHolder, int streamId) {
+        HttpCarbonMessage httpRequestMsg = inboundMessageHolder.getInboundMsg();
         if (http2SourceHandler.getServerConnectorFuture() != null) {
             try {
                 ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
-                outboundRespFuture.setHttpConnectorListener(new Http2OutboundRespListener(
-                    http2SourceHandler.getServerChannelInitializer(), httpRequestMsg,
-                    http2SourceHandler.getChannelHandlerContext(), http2SourceHandler.getConnection(),
-                    http2SourceHandler.getEncoder(), streamId, http2SourceHandler.getServerName(),
-                    http2SourceHandler.getRemoteAddress(), http2SourceHandler.getServerRemoteFlowControlListener()));
+                Http2OutboundRespListener http2OutboundRespListener = new Http2OutboundRespListener(
+                        http2SourceHandler.getServerChannelInitializer(), httpRequestMsg,
+                        http2SourceHandler.getChannelHandlerContext(), http2SourceHandler.getConnection(),
+                        http2SourceHandler.getEncoder(), streamId, http2SourceHandler.getServerName(),
+                        http2SourceHandler.getRemoteAddress(), http2SourceHandler.getServerRemoteFlowControlListener(),
+                        http2SourceHandler.getHttp2ServerChannel());
+                outboundRespFuture.setHttpConnectorListener(http2OutboundRespListener);
                 http2SourceHandler.getServerConnectorFuture().notifyHttpListener(httpRequestMsg);
+                inboundMessageHolder.setHttp2OutboundRespListener(http2OutboundRespListener);
             } catch (Exception e) {
                 LOG.error("Error while notifying listeners", e);
             }
@@ -104,6 +118,7 @@ public class Http2StateUtil {
      *
      * @param httpRequest        the HTTPRequest message
      * @param http2SourceHandler the HTTP/2 source handler
+     * @param streamId           the stream id
      * @return the CarbonRequest Message created from given HttpRequest
      */
     public static HttpCarbonRequest setupCarbonRequest(HttpRequest httpRequest, Http2SourceHandler http2SourceHandler,
@@ -142,12 +157,21 @@ public class Http2StateUtil {
      * @param streamId                 the id of the stream
      * @param http2Headers             the Http2Headers received over a HTTP/2 stream
      * @param endStream                is this the end of stream
+     * @param respListener             http/2 outbound response listener
      * @throws Http2Exception throws if a protocol-related error occurred
      */
     public static void writeHttp2ResponseHeaders(ChannelHandlerContext ctx, Http2ConnectionEncoder encoder,
                                                  HttpResponseFuture outboundRespStatusFuture, int streamId,
                                                  Http2Headers http2Headers, boolean endStream,
                                                  Http2OutboundRespListener respListener) throws Http2Exception {
+        for (Http2DataEventListener dataEventListener : respListener.getHttp2ServerChannel().getDataEventListeners()) {
+            if (!dataEventListener.onHeadersWrite(ctx, streamId, http2Headers, endStream)) {
+                break;
+            }
+        }
+        if (endStream) {
+            respListener.getHttp2ServerChannel().getStreamIdRequestMap().remove(streamId);
+        }
         ChannelFuture channelFuture = encoder.writeHeaders(
             ctx, streamId, http2Headers, 0, endStream, ctx.newPromise());
         encoder.flowController().writePendingBytes();
@@ -229,7 +253,7 @@ public class Http2StateUtil {
      */
     public static void releaseDataFrame(Http2SourceHandler http2SourceHandler, Http2DataFrame dataFrame) {
         int streamId = dataFrame.getStreamId();
-        HttpCarbonMessage sourceReqCMsg = http2SourceHandler.getStreamIdRequestMap().get(streamId);
+        HttpCarbonMessage sourceReqCMsg = http2SourceHandler.getStreamIdRequestMap().get(streamId).getInboundMsg();
         if (sourceReqCMsg != null) {
             sourceReqCMsg.addHttpContent(new DefaultLastHttpContent());
             http2SourceHandler.getStreamIdRequestMap().remove(streamId);
@@ -278,7 +302,8 @@ public class Http2StateUtil {
             }
         }
 
-        encoder.writeHeaders(ctx, streamId, http2Headers, dependencyId, weight, false, 0, endStream, ctx.newPromise());
+        encoder.writeHeaders(ctx, streamId, http2Headers, dependencyId, weight, false, 0, endStream,
+                             ctx.newPromise());
         encoder.flowController().writePendingBytes();
         ctx.flush();
 
@@ -335,6 +360,7 @@ public class Http2StateUtil {
     /**
      * Adds a push promise message.
      *
+     * @param ctx                the channel handler context
      * @param http2PushPromise   the HTTP2 push promise
      * @param http2ClientChannel the client channel related to the handler
      * @param outboundMsgHolder  the outbound message holder
@@ -372,5 +398,58 @@ public class Http2StateUtil {
      */
     public static void releaseContent(HttpContent httpContent) {
         httpContent.release();
+    }
+
+    public static void sendRequestTimeoutResponse(ChannelHandlerContext ctx,
+                                                  Http2OutboundRespListener http2OutboundRespListener,
+                                                  int streamId, HttpResponseStatus httpResponseStatus,
+                                                  ByteBuf content, boolean handleIncompleteRequest,
+                                                  boolean whileReceivingHeader) {
+        try {
+            Http2Headers headers = new DefaultHttp2Headers();
+            headers.status(httpResponseStatus.codeAsText());
+
+            Http2ConnectionEncoder encoder = http2OutboundRespListener.getEncoder();
+
+            encoder.writeHeaders(ctx, streamId, headers, 0, false, ctx.newPromise());
+            ChannelFuture dataFuture = encoder.writeData(ctx, streamId, content, 0, true, ctx.newPromise());
+            handleFuture(dataFuture, handleIncompleteRequest, whileReceivingHeader,
+                         http2OutboundRespListener.getInboundRequestMsg());
+            encoder.flowController().writePendingBytes();
+            ctx.flush();
+        } catch (Http2Exception e) {
+            LOG.error("Error in sending timeout response:" + e.getMessage());
+        }
+    }
+
+    private static void handleFuture(ChannelFuture outboundRespFuture, boolean handleIncompleteRequest,
+                                     boolean whileReceivingHeader, HttpCarbonMessage inboundRequestMsg) {
+        outboundRespFuture.addListener((ChannelFutureListener) channelFuture -> {
+            Throwable cause = channelFuture.cause();
+            if (cause != null) {
+                LOG.warn("Failed to send: {}", cause.getMessage());
+            }
+            if (handleIncompleteRequest) {
+                if (whileReceivingHeader) {
+                    handleIncompleteInboundMessage(inboundRequestMsg,
+                                                   IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_HEADERS);
+                } else {
+                    handleIncompleteInboundMessage(inboundRequestMsg,
+                                                   IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_BODY);
+                }
+            }
+        });
+    }
+
+    public static void initHttp2MessageContext(HttpCarbonMessage outboundRequest,
+                                               Http2TargetHandler http2TargetHandler) {
+        Http2MessageStateContext http2MessageStateContext = outboundRequest.getHttp2MessageStateContext();
+        if (http2MessageStateContext == null) {
+            http2MessageStateContext = new Http2MessageStateContext();
+            http2MessageStateContext.setSenderState(new RequestCompleted(http2TargetHandler, null));
+            outboundRequest.setHttp2MessageStateContext(http2MessageStateContext);
+        } else if (http2MessageStateContext.getSenderState() == null) {
+            http2MessageStateContext.setSenderState(new RequestCompleted(http2TargetHandler, null));
+        }
     }
 }

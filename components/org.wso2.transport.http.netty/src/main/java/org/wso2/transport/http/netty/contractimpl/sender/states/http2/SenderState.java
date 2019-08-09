@@ -39,15 +39,17 @@ public interface SenderState {
      *
      * @param ctx         the channel handler context
      * @param httpContent the initial content of the entity body
+     * @throws Http2Exception if a protocol or connection related error occurred
      */
     void writeOutboundRequestHeaders(ChannelHandlerContext ctx, HttpContent httpContent) throws Http2Exception;
 
     /**
      * Writes entity body of outbound request.
      *
-     * @param ctx         the channel handler context
-     * @param httpContent the content of the entity body
+     * @param ctx                      the channel handler context
+     * @param httpContent              the content of the entity body
      * @param http2MessageStateContext the message state context
+     * @throws Http2Exception if a protocol or connection related error occurred
      */
     void writeOutboundRequestBody(ChannelHandlerContext ctx, HttpContent httpContent,
                                   Http2MessageStateContext http2MessageStateContext) throws Http2Exception;
@@ -81,9 +83,18 @@ public interface SenderState {
     /**
      * Reads inbound promise.
      *
+     * @param ctx               the channel handler context
      * @param http2PushPromise  the HTTP/2 promise frame
      * @param outboundMsgHolder the outbound message holder
      */
     void readInboundPromise(ChannelHandlerContext ctx, Http2PushPromise http2PushPromise,
                             OutboundMsgHolder outboundMsgHolder);
+
+    /**
+     * Handles stream timeout.
+     *
+     * @param outboundMsgHolder the outbound message holder
+     * @param serverPush        indicates the response type
+     */
+    void handleStreamTimeout(OutboundMsgHolder outboundMsgHolder, boolean serverPush);
 }
