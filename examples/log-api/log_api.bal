@@ -1,4 +1,5 @@
 import ballerina/log;
+import ballerina/io;
 
 public function main() {
     error e = error("error occurred");
@@ -12,7 +13,7 @@ public function main() {
     // parameters.
     log:printDebug("debug log");
     log:printError("error log");
-    log:printError("error log with cause", err = e);
+    log:printError("error log with cause", e);
     log:printInfo("info log");
     log:printTrace("trace log");
     log:printWarn("warn log");
@@ -32,4 +33,24 @@ public function main() {
     // `<MODULE_NAME>.loglevel`.
     //
     // E.g., `-e foo.loglevel=DEBUG`
+    Fruit apple = new("Apple");
+    Fruit orange = new("Orange");
+
+    log:printDebug("Fruit's name is Strawberry");
+    log:printDebug(io:sprintf("Fruits' names are %s, %s", apple.getName(), orange.getName()));
+    log:printDebug(function() returns string {
+        return io:sprintf("Fruit's name is %s", apple.getName());
+    });
+    // Retrieving log messages through complex operations are allowed through an optional function pointer
+    // parameter that will be executed if and only if that particular log level is activated.
 }
+
+public type Fruit object {
+     string name;
+     public function __init(string name) {
+	    self.name = name;
+     }
+     function getName() returns string {
+        return self.name;
+     }
+};

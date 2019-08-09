@@ -2,16 +2,19 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run log_api.bal
-2018-05-30 11:00:50,875 ERROR [] - error log
-2018-05-30 11:00:50,883 ERROR [] - error log with cause : {message:"error occurred", cause:null}
-2018-05-30 11:00:50,884 INFO  [] - info log
-2018-05-30 11:00:50,886 WARN  [] - warn log
+2019-08-09 11:47:07,334 ERROR [ballerina/log] - error log
+2019-08-09 11:47:07,340 ERROR [ballerina/log] - error log with cause : error error occurred
+2019-08-09 11:47:07,341 INFO  [ballerina/log] - info log
+2019-08-09 11:47:07,342 WARN  [ballerina/log] - warn log
 
 # If the log level is set to `TRACE`, logs of all log levels are logged.
 $ ballerina run -e b7a.log.level=TRACE log_api.bal
-2018-05-30 11:01:26,083 DEBUG [] - debug log
-2018-05-30 11:01:26,086 ERROR [] - error log
-2018-05-30 11:01:26,087 ERROR [] - error log with cause : {message:"error occurred", cause:null}
-2018-05-30 11:01:26,088 INFO  [] - info log
-2018-05-30 11:01:26,088 TRACE [] - trace log
-2018-05-30 11:01:26,089 WARN  [] - warn log
+2019-08-09 11:48:04,411 DEBUG [ballerina/log] - debug log
+2019-08-09 11:48:04,415 ERROR [ballerina/log] - error log
+2019-08-09 11:48:04,416 ERROR [ballerina/log] - error log with cause : error error occurred
+2019-08-09 11:48:04,416 INFO  [ballerina/log] - info log
+2019-08-09 11:48:04,417 TRACE [ballerina/log] - trace log
+2019-08-09 11:48:04,421 WARN  [ballerina/log] - warn log
+2019-08-09 11:48:04,422 DEBUG [ballerina/log] - Fruit's name is Strawberry
+2019-08-09 11:48:04,423 DEBUG [ballerina/log] - Fruits' names are Apple, Orange
+2019-08-09 11:48:04,424 DEBUG [ballerina/log] - Fruit's name is Apple
