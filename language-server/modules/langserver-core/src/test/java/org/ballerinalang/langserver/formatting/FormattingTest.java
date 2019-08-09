@@ -157,6 +157,9 @@ public class FormattingTest {
                 {"expectedForkJoin.bal", "forkJoin.bal"},
                 {"expectedEmpty.bal", "empty.bal"},
                 {"expectedDelimiter.bal", "delimiter.bal"},
+                {"expectedXmlns.bal", "xmlns.bal"},
+                {"expectedXMLTextLiteral.bal", "xmlTextLiteral.bal"},
+                {"expectedXMLCommentLiteral.bal", "xmlCommentLiteral.bal"},
         };
     }
 

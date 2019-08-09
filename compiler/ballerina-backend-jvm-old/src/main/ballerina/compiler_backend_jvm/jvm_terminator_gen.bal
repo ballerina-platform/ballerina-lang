@@ -150,12 +150,13 @@ type TerminatorGenerator object {
         self.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
+    int kl = 0;
     function genReturnTerm(bir:Return returnIns, int returnVarRefIndex, bir:Function func,
-                           boolean isObserved = false, int localVarOffset = -1) {
+                            boolean isObserved = false, int localVarOffset = -1) {
         if (isObserved) {
             emitStopObservationInvocation(self.mv, localVarOffset);
         }
-        bir:BType bType = func.typeValue.retType;
+        bir:BType bType = <bir:BType> func.typeValue.retType;
         if (bType is bir:BTypeNil) {
             self.mv.visitInsn(RETURN);
         } else if (bType is bir:BTypeInt) {
@@ -346,7 +347,8 @@ type TerminatorGenerator object {
     private function genBuiltinTypeAttachedFuncCall(bir:Call callIns, string orgName, string moduleName, 
                                                     int localVarOffset) {
         string methodLookupName = callIns.name.value;
-        int index = methodLookupName.indexOf(".") + 1;
+        int? optionalIndex = methodLookupName.indexOf(".");
+        int index = optionalIndex is int ? optionalIndex + 1 : 0;
         string methodName = methodLookupName.substring(index, methodLookupName.length());
         self.genStaticCall(callIns, orgName, moduleName, localVarOffset, methodName, methodLookupName);
     }

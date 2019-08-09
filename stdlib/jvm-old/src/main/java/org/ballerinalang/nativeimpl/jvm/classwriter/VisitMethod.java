@@ -19,9 +19,9 @@ package org.ballerinalang.nativeimpl.jvm.classwriter;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -59,15 +59,17 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
 public class VisitMethod extends BlockingNativeCallableUnit {
 
     @Override
+    @Deprecated
     public void execute(Context context) {
+        throw new UnsupportedOperationException("BVM Unsupported");
+    }
 
-        ClassWriter cw = ASMUtil.getRefArgumentNativeData(context, 0);
-        int access = (int) context.getIntArgument(0);
-        String name = context.getStringArgument(0);
-        String descriptor = context.getStringArgument(1);
-        MethodVisitor mv = cw.visitMethod(access, name, descriptor, null, null);
-        BMap<String, BValue> rerunWrapperObject = ASMUtil.newObject(context, METHOD_VISITOR);
+    public static ObjectValue visitMethod(Strand strand, ObjectValue oCw, long access, String name, String descriptor,
+                                          Object signature, Object exceptions) {
+        ClassWriter cw = ASMUtil.getRefArgumentNativeData(oCw);
+        MethodVisitor mv = cw.visitMethod((int) access, name, descriptor, null, null);
+        ObjectValue rerunWrapperObject = ASMUtil.newObject(METHOD_VISITOR);
         ASMUtil.addNativeDataToObject(mv, rerunWrapperObject);
-        context.setReturnValues(rerunWrapperObject);
+        return rerunWrapperObject;
     }
 }
