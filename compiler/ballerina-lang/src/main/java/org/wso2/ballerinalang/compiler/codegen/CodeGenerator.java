@@ -356,6 +356,10 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public ProgramFile generateBALX(BLangPackage pkgNode) {
+        throw new UnsupportedOperationException("BVM is deprecated");
+    }
+
+    private ProgramFile generateBALXOld(BLangPackage pkgNode) {
         ProgramFile programFile = new ProgramFile();
 
         // Add all the packages to the program file structure.
