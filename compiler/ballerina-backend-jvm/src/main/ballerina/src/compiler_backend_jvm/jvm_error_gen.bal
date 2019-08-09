@@ -88,11 +88,12 @@ type ErrorHandlerGenerator object {
         int runtimePanicVarIndex = indexMap.getIndex(runtimePanicVar);
         mv.visitVarInsn(ASTORE, runtimePanicVarIndex);
         mv.visitVarInsn(ALOAD, runtimePanicVarIndex);
-        mv.visitTypeInsn(INSTANCEOF, "org/ballerinalang/jvm/values/ErrorValue");
+        mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
         jvm:Label runtimePanicErrorLabel = new;
         mv.visitJumpInsn(IFNE, runtimePanicErrorLabel);
         mv.visitVarInsn(ALOAD, runtimePanicVarIndex);
-        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, "handleRuntimeThrowable", io:sprintf("(L%s;)V", THROWABLE), false);
+        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_THROWABLE_METHOD, io:sprintf("(L%s;)V", THROWABLE),
+                            false);
         mv.visitInsn(RETURN);
         mv.visitLabel(runtimePanicErrorLabel);
         mv.visitVarInsn(ALOAD, runtimePanicVarIndex);
