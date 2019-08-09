@@ -235,7 +235,7 @@ public class ConnectionManager {
                                                             Class eventLoopClass) {
         return new GenericObjectPool(
             new PoolableTargetChannelFactoryPerSrcHndlr(genericObjectPool, channelFactory, clientEventGroup,
-                                                            eventLoopClass),
+                                                        eventLoopClass),
             instantiateAndConfigureConfig());
     }
 
