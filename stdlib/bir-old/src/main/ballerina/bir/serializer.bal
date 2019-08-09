@@ -70,7 +70,7 @@ function serializeTypes(BType?[] bTypes, string delimiter) returns string {
         result = result + serialize(bType);
         first = false;
     }
-    return untaint result;
+    return <@untainted> result;
 }
 
 function serializeFields(BObjectField?[] fields) returns string {
@@ -81,7 +81,7 @@ function serializeFields(BObjectField?[] fields) returns string {
             result = result + serialize(field.typeValue) + " " + field.name.value + delimiter;
         }
     }
-    return untaint result;
+    return <@untainted> result;
 }
 
 function serializeRecordFields(BRecordField?[] fields) returns string {
@@ -102,5 +102,5 @@ function serializeAttachedFunc(BAttachedFunction?[] functions) returns string {
             result = result + serialize(func.funcType) + " " + func.name.value + "; ";
         }
     }
-    return untaint result;
+    return <@untainted> result;
 }
