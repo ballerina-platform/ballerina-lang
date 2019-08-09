@@ -56,6 +56,7 @@ public class WriteXml {
                     IOConstants.CHARACTER_CHANNEL_NAME);
             EventContext eventContext = new EventContext(callback);
             IOUtils.writeFull(characterChannel, content.toString(), eventContext);
+            callback.setReturnValues(null);
         } catch (BallerinaException e) {
             callback.setReturnValues(IOUtils.createError(e.getMessage()));
         } finally {
