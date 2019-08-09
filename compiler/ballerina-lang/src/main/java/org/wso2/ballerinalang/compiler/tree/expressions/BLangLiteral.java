@@ -79,7 +79,8 @@ public class BLangLiteral extends BLangExpression implements LiteralNode {
 
     @Override
     public void reset() {
-        super.reset();
+        this.typeChecked = false;
+        this.narrowedTypeInfo = null;
         this.isJSONContext = false;
         this.isFiniteContext = false;
     }

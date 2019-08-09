@@ -39,7 +39,7 @@ public class BLangRecordVarRef extends BLangVariableReference implements RecordV
     public BVarSymbol varSymbol;
     public BLangIdentifier pkgAlias;
     public List<BLangRecordVarRefKeyValue> recordRefFields;
-    public ExpressionNode restParam;
+    public BLangExpression restParam;
 
     public BLangRecordVarRef() {
         recordRefFields = new ArrayList<>();

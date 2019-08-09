@@ -40,8 +40,7 @@ class LSInMemorySourceEntry extends FileSystemSourceInput {
         super(path, root.resolve(Paths.get(pkgId.name.value)));
         try {
             this.sourceBytes = documentManager.getFileContent(this.getPath()).getBytes(StandardCharsets.UTF_8);
-            byte[] bytes = documentManager.getFileContent(this.getPath()).getBytes(StandardCharsets.UTF_8);
-            this.hashValue = this.getMD5Hash(bytes);
+            this.hashValue = this.getMD5Hash(this.sourceBytes);
         } catch (WorkspaceDocumentException | NoSuchAlgorithmException e) {
             throw new RuntimeException("Error in loading package source entry '" + getPath() +
                     "': " + e.getMessage(), e);
