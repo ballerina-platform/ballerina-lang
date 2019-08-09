@@ -149,7 +149,8 @@ public class RunCommand implements BLauncherCmd {
         }
     
         // validation and decide source root and source full path
-        Path sourceRootPath = Paths.get(System.getProperty("user.dir"));
+        Path sourceRootPath = this.sourceRoot == null ? Paths.get(System.getProperty("user.dir")) :
+                              Paths.get(this.sourceRoot);
         Path sourcePath;
         Path targetPath;
     
