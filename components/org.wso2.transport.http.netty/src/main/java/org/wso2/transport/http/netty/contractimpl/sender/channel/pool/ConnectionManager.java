@@ -234,9 +234,9 @@ public class ConnectionManager {
                                                             EventLoopGroup clientEventGroup,
                                                             Class eventLoopClass) {
         return new GenericObjectPool(
-            new PoolableTargetChannelFactoryPerSrcHndlr(genericObjectPool, channelFactory, clientEventGroup,
-                                                        eventLoopClass),
-            instantiateAndConfigureConfig());
+                new PoolableTargetChannelFactoryPerSrcHndlr(genericObjectPool, channelFactory, clientEventGroup,
+                                                            eventLoopClass),
+                instantiateAndConfigureConfig());
     }
 
     private GenericObjectPool createPoolForRoute(PoolableTargetChannelFactory poolableTargetChannelFactory) {
