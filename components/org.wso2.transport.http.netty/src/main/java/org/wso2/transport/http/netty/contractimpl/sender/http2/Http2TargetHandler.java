@@ -273,7 +273,9 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        LOG.error("Channel is inactive");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Channel is inactive");
+        }
         http2ClientChannel.destroy();
     }
 }

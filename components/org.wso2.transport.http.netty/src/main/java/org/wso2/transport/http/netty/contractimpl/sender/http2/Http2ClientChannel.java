@@ -242,10 +242,19 @@ public class Http2ClientChannel {
      * Destroys the Http2 client channel.
      */
     void destroy() {
+        handleConnectionClose();
         this.connection.removeListener(streamCloseListener);
         inFlightMessages.clear();
         promisedMessages.clear();
         http2ConnectionManager.removeClientChannel(httpRoute, this);
+    }
+
+    /**
+     * Notify all the streams in the closed channel.
+     */
+    private void handleConnectionClose() {
+        inFlightMessages.values().forEach(outBoundMsgHolder -> outBoundMsgHolder.getRequest()
+                .getHttp2MessageStateContext().getSenderState().handleConnectionClose(outBoundMsgHolder));
     }
 
     /**

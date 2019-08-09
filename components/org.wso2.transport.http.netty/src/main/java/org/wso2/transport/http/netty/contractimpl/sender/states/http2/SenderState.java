@@ -97,4 +97,9 @@ public interface SenderState {
      * @param serverPush        indicates the response type
      */
     void handleStreamTimeout(OutboundMsgHolder outboundMsgHolder, boolean serverPush);
+
+    /**
+     * Handles the connection close event.
+     */
+    void handleConnectionClose(OutboundMsgHolder outboundMsgHolder);
 }

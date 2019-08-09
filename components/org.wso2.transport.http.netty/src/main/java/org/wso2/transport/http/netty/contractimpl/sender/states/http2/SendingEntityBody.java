@@ -45,6 +45,7 @@ import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_BODY;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.onPushPromiseRead;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.writeHttp2Headers;
 
@@ -121,6 +122,15 @@ public class SendingEntityBody implements SenderState {
                     IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_BODY,
                     HttpResponseStatus.GATEWAY_TIMEOUT.code()));
         }
+    }
+
+    @Override
+    public void handleConnectionClose(OutboundMsgHolder outboundMsgHolder) {
+//        outboundMsgHolder.getResponseFuture().notifyHttpListener(new EndpointTimeOutException(
+//                REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY,
+//                HttpResponseStatus.GATEWAY_TIMEOUT.code()));
+        //TODO:Check whether the explicit notification is needed.
+        LOG.error(REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY);
     }
 
     private void writeContent(ChannelHandlerContext ctx, HttpContent msg) throws Http2Exception {
