@@ -117,4 +117,5 @@ public class Tokens {
     public static final String IMPORT = "import";
     public static final String VERSION = "version";
     public static final String TYPEDESC = "typedesc";
+    public static final String XMLNS = "xmlns";
 }

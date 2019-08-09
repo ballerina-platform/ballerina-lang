@@ -19,7 +19,9 @@ package org.ballerinalang.langserver.completions.builder;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.eclipse.lsp4j.Command;
@@ -39,6 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 /**
@@ -88,17 +91,27 @@ public final class BFunctionCompletionItemBuilder {
         return item;
     }
 
-    private static void setMeta(CompletionItem item, BInvokableSymbol bSymbol, LSContext context) {
+    private static void setMeta(CompletionItem item, BInvokableSymbol bSymbol, LSContext ctx) {
         item.setInsertTextFormat(InsertTextFormat.Snippet);
         item.setDetail(ItemResolverConstants.FUNCTION_TYPE);
         item.setKind(CompletionItemKind.Function);
-        item.setCommand(new Command("editor.action.triggerParameterHints", "editor.action.triggerParameterHints"));
-        if (bSymbol != null && bSymbol.markdownDocumentation != null) {
-            item.setDocumentation(getDocumentation(bSymbol, context));
+        if (bSymbol != null) {
+            List<String> funcArguments = FunctionGenerator.getFuncArguments(bSymbol, ctx);
+            if (!funcArguments.isEmpty()) {
+                Command cmd = new Command("editor.action.triggerParameterHints", "editor.action.triggerParameterHints");
+                item.setCommand(cmd);
+            }
+            int invocationType = (ctx == null || ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY) == null) ? -1
+                    : ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
+            boolean skipFirstParam = CommonUtil.skipFirstParam(bSymbol, invocationType);
+            if (bSymbol.markdownDocumentation != null) {
+                item.setDocumentation(getDocumentation(bSymbol, skipFirstParam, ctx));
+            }
         }
     }
 
-    private static Either<String, MarkupContent> getDocumentation(BInvokableSymbol bInvokableSymbol, LSContext ctx) {
+    private static Either<String, MarkupContent> getDocumentation(BInvokableSymbol bInvokableSymbol,
+                                                                  boolean skipFirstParam, LSContext ctx) {
         String pkgID = bInvokableSymbol.pkgID.toString();
 
         MarkdownDocAttachment docAttachment = bInvokableSymbol.getMarkdownDocAttachment();
@@ -115,24 +128,28 @@ public final class BFunctionCompletionItemBuilder {
         MarkupContent docMarkupContent = new MarkupContent();
         docMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
         String documentation = "**Package:** " + "_" + pkgID + "_" + CommonUtil.MD_LINE_SEPARATOR
-                + CommonUtil.MD_LINE_SEPARATOR + description
-                + CommonUtil.MD_LINE_SEPARATOR + "**Params**"
-                + CommonUtil.MD_LINE_SEPARATOR
-                + parameters.stream()
-                .map(parameter -> {
-                    Optional<BVarSymbol> defaultVal = defaultParams.stream()
-                            .filter(bVarSymbol -> bVarSymbol.getName().getValue().equals(parameter.getName()))
-                            .findFirst();
-                    String type = (!types.isEmpty() && types.get(parameter.name) != null) ?
-                            "`" + CommonUtil.getBTypeName(types.get(parameter.name), ctx) + "` " : "";
-                    String paramDescription = "- " + type + parameter.getName() + ": " + parameter.getDescription();
-                    if (defaultVal.isPresent()) {
-                        return paramDescription + "(Defaultable)";
-                    }
-                    return paramDescription;
-                })
-                .collect(Collectors.joining(CommonUtil.MD_LINE_SEPARATOR));
-
+                + CommonUtil.MD_LINE_SEPARATOR + description + CommonUtil.MD_LINE_SEPARATOR;
+        StringJoiner joiner = new StringJoiner(CommonUtil.MD_LINE_SEPARATOR);
+        for (int i = 0; i < parameters.size(); i++) {
+            MarkdownDocAttachment.Parameter parameter = parameters.get(i);
+            if (i == 0 && skipFirstParam) {
+                continue;
+            }
+            Optional<BVarSymbol> defaultVal = defaultParams.stream()
+                    .filter(bVarSymbol -> bVarSymbol.getName().getValue().equals(parameter.getName()))
+                    .findFirst();
+            String type = (!types.isEmpty() && types.get(parameter.name) != null) ?
+                    "`" + CommonUtil.getBTypeName(types.get(parameter.name), ctx) + "` " : "";
+            String paramDescription = "- " + type + parameter.getName() + ": " + parameter.getDescription();
+            if (defaultVal.isPresent()) {
+                joiner.add(paramDescription + "(Defaultable)");
+            }
+            joiner.add(paramDescription);
+        }
+        String paramsStr = joiner.toString();
+        if (!paramsStr.isEmpty()) {
+            documentation += "**Params**" + CommonUtil.MD_LINE_SEPARATOR + paramsStr;
+        }
         if (!(bInvokableSymbol.retType instanceof BNilType)
                 && bInvokableSymbol.retType != null
                 && bInvokableSymbol.retType.tsymbol != null) {
@@ -142,7 +159,7 @@ public final class BFunctionCompletionItemBuilder {
                 desc = "- " + reader.lines().map(String::trim)
                         .collect(Collectors.joining(CommonUtil.MD_LINE_SEPARATOR)) + CommonUtil.MD_LINE_SEPARATOR;
             }
-            documentation = documentation + CommonUtil.MD_LINE_SEPARATOR + CommonUtil.MD_LINE_SEPARATOR + "**Returns**"
+            documentation += CommonUtil.MD_LINE_SEPARATOR + CommonUtil.MD_LINE_SEPARATOR + "**Returns**"
                     + " `" + CommonUtil.getBTypeName(bInvokableSymbol.retType, ctx) + "` " +
                     CommonUtil.MD_LINE_SEPARATOR + desc + CommonUtil.MD_LINE_SEPARATOR;
         }

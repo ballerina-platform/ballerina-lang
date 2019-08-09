@@ -60,7 +60,7 @@ task createBirJar(type: Exec) {
             if (OperatingSystem.current().isWindows()) {
                 commandLine 'cmd.exe', '/c',
 
-                        new File(it, '/bin/ballerina.bat'), 'run', new File(it, '/bin/compiler_backend_jvm.balx'),
+                        new File(it, '/bin/ballerina.bat'), 'run', new File(it, '/bre/lib/compiler_backend_jvm.jar'),
 
                         generatedBirDir + project.ext.moduleName + '.bir',
                         mapPath,
@@ -70,7 +70,7 @@ task createBirJar(type: Exec) {
             } else {
                 commandLine 'sh',
 
-                        new File(it, '/bin/ballerina'), 'run', new File(it, '/bin/compiler_backend_jvm.balx'),
+                        new File(it, '/bin/ballerina'), 'run', new File(it, '/bre/lib/compiler_backend_jvm.jar'),
 
                         generatedBirDir + project.ext.moduleName + '.bir',
                         mapPath,
@@ -78,6 +78,14 @@ task createBirJar(type: Exec) {
                         'false',
                         "$buildDir/bir-cache"
             }
+            println commandLine
+        }
+    }
+
+    doLast {
+        if(!file("$buildDir/generated-bir-jar/${project.ext.moduleName}.jar").exists()){
+            println "$buildDir/generated-bir-jar/${project.ext.moduleName}.jar not created."
+            throw new GradleException("error in creating bir jar")
         }
     }
 
