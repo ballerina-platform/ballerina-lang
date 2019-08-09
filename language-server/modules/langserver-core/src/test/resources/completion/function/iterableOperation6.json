@@ -12,7 +12,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table_  \n  \nRemove data from the table.\n  \n  \n---    \n**Parameters**  \n- _func_  \n    The function pointer for delete crieteria  \n  \n  \n**Return**  \n(int|error)"
+          "value": "**Package:** _ballerina/lang.table_  \n  \nRemove data from the table.\n  \n  \n  \n**Returns** `(int|error)`   \n- An `int` the number of deleted record count or `error` if any error occurred during removing data  \n  \n"
         }
       },
       "sortText": "130",
@@ -38,16 +38,12 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table_  \n  \nReturns an iterator over the members of `tbl`.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nobject { public function next () returns (record {| $map0 value; |}?); }"
+          "value": "**Package:** _ballerina/lang.table_  \n  \nReturns an iterator over the members of `tbl`.  \n  \n  \n**Returns** ``   \n  \n"
         }
       },
       "sortText": "130",
-      "insertText": "iterator(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "iterator()",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "isReadOnly()(boolean)",
@@ -56,16 +52,12 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nTests whether `v` is read-only, i.e. immutable\nReturns true if read-only, false otherwise.\n  \n  \n---    \n**Parameters**  \n- _value_  \n    source value  \n  \n  \n**Return**  \nboolean"
+          "value": "**Package:** _ballerina/lang.value_  \n  \nTests whether `v` is read-only, i.e. immutable\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Returns** `boolean`   \n- true if read-only, false otherwise  \n  \n"
         }
       },
       "sortText": "130",
-      "insertText": "isReadOnly(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "isReadOnly()",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "TableConfig",
@@ -85,16 +77,12 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table_  \n  \nReleases the database connection. If the table data is fully iterated, it will be automatically closed. This explicit\nclose is required only if it is not fully iterated.  \n  \n---    \n**Parameters**  \n"
+          "value": "**Package:** _ballerina/lang.table_  \n  \nReleases the database connection. If the table data is fully iterated, it will be automatically closed. This explicit\nclose is required only if it is not fully iterated.  \n"
         }
       },
       "sortText": "130",
-      "insertText": "close(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "close();",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "add(any data)((()|error))",
@@ -103,7 +91,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table_  \n  \nAdd record to the table.\n  \n  \n---    \n**Parameters**  \n- _data_  \n    A record with data  \n  \n  \n**Return**  \nerror?"
+          "value": "**Package:** _ballerina/lang.table_  \n  \nAdd record to the table.\n  \n  \n  \n**Returns** `(()|error)`   \n- An `error` will be returned if there is any error occurred during adding data or else nil is returned  \n  \n"
         }
       },
       "sortText": "130",
@@ -121,16 +109,12 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `value` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n---    \n**Parameters**  \n- _value_  \n    source value  \n"
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `value` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
         }
       },
       "sortText": "130",
-      "insertText": "cloneReadOnly(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "cloneReadOnly()",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "length()(int)",
@@ -139,16 +123,12 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table_  \n  \nReturns the number of members in `tbl`.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
+          "value": "**Package:** _ballerina/lang.table_  \n  \nReturns the number of members in `tbl`.  \n  \n  \n**Returns** `int`   \n  \n"
         }
       },
       "sortText": "130",
-      "insertText": "length(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "length()",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "hasNext()(boolean)",
@@ -157,16 +137,12 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table_  \n  \nChecks for a new row in the given table. If a new row is found, moves the cursor to it.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nboolean"
+          "value": "**Package:** _ballerina/lang.table_  \n  \nChecks for a new row in the given table. If a new row is found, moves the cursor to it.\n  \n  \n  \n**Returns** `boolean`   \n- True if there is a new row; false otherwise  \n  \n"
         }
       },
       "sortText": "130",
-      "insertText": "hasNext(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "hasNext()",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "getNext()(any)",
@@ -175,16 +151,12 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table_  \n  \nRetrives the current row and return a record with the data in the columns.\n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nany"
+          "value": "**Package:** _ballerina/lang.table_  \n  \nRetrives the current row and return a record with the data in the columns.\n  \n  \n  \n**Returns** `any`   \n- The resulting row as a record  \n  \n"
         }
       },
       "sortText": "130",
-      "insertText": "getNext(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "getNext()",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "clone()(anydata)",
@@ -193,16 +165,12 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `value`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n---    \n**Parameters**  \n- _value_  \n    source value  \n"
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a clone of `value`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n"
         }
       },
       "sortText": "130",
-      "insertText": "clone(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "clone()",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "toString()(string)",
@@ -211,16 +179,12 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a simple, human-readable representation of `value` as a string.\n  \n  \n---    \n**Parameters**  \n- _value_  \n    source value  \n  \n  \n**Return**  \nstring"
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a simple, human-readable representation of `value` as a string.\n  \n  \n  \n**Returns** `string`   \n- simple, human-readable string representation of `value`  \n  \n- if `value` is a string, then returns `value`  \n- if `value` is `()`, then returns an empty string  \n- if `value` is boolean, then the string `true` or `false`  \n- if `value` is an int, then return `value` represented as a decimal string  \n- if `value` is a float or decimal, then return `value` represented as a decimal string,  \nwith a decimal point only if necessary, but without any suffix indicating the type of `value`  \nreturn `NaN`, `Infinity` for positive infinity, and `-Infinity` for negative infinity  \n- if `value` is a list, then returns the results toString on each member of the list  \nseparated by a space character  \n- if `value` is a map, then returns key=value for each member separated by a space character  \n- if `value` is xml, then returns `value` in XML format (as if it occurred within an XML element)  \n- if `value` is table, TBD  \n- if `value` is an error, then a string consisting of the following in order  \n1. the string `error`  \n2. a space character  \n3. the reason string  \n4. if the detail record is non-empty  \n1. a space character  \n2. the result of calling toString on the detail record  \n- if `value` is an object, then  \n- if `value` provides a `toString` method with a string return type and no required methods,  \nthen the result of calling that method on `value`  \n- otherwise, `object` followed by some implementation-dependent string  \n- if `value` is any other behavioral type, then the identifier for the behavioral type  \n(`function`, `future`, `service`, `typedesc` or `handle`)  \nfollowed by some implementation-dependent string  \n  \nNote that `toString` may produce the same string for two Ballerina values  \nthat are not equal (in the sense of the `==` operator).  \n  \n"
         }
       },
       "sortText": "130",
-      "insertText": "toString(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toString()",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

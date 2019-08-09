@@ -48,6 +48,14 @@ class ReferencesSubRuleParser {
         TokenStream tokenStream = parser.getTokenStream();
         List<Token> tokenList = new ArrayList<>(((CommonTokenStream) tokenStream).getTokens());
         Optional<Token> tokenAtCursor = searchTokenAtCursor(tokenList, pos.getLine(), pos.getCharacter(), true);
-        tokenAtCursor.ifPresent(token -> context.put(NodeContextKeys.NODE_NAME_KEY, token.getText()));
+        tokenAtCursor.ifPresent(token -> {
+            context.put(NodeContextKeys.NODE_NAME_KEY, token.getText());
+            int tokenIndex = token.getTokenIndex() - 1;
+            int tokenType = -1;
+            if (tokenIndex > 0) {
+                tokenType = tokenList.get(tokenIndex).getType();
+            }
+            context.put(NodeContextKeys.INVOCATION_TOKEN_TYPE_KEY, tokenType);
+        });
     }
 }
