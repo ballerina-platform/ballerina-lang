@@ -22,7 +22,6 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.DependencyMetadata;
 import org.ballerinalang.toml.model.Manifest;
-import org.ballerinalang.toml.model.Project;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
