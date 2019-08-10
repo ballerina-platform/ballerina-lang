@@ -47,7 +47,10 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -137,16 +140,9 @@ public class RunCommand implements BLauncherCmd {
         if (null != this.debugPort) {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
         }
-    
-        // filter out the list of arguments given to the ballerina program.
-        // TODO: 7/26/18 improve logic with positioned param
-        String[] programArgs;
-        if (argList.size() >= 2) {
-            argList.remove(0);
-            programArgs = argList.toArray(new String[0]);
-        } else {
-            programArgs = new String[0];
-        }
+        
+        // get program args
+        String[] programArgs = this.getProgramArgs(this.argList);
     
         // validation and decide source root and source full path
         Path sourceRootPath = this.sourceRoot == null ? Paths.get(System.getProperty("user.dir")) :
@@ -313,7 +309,18 @@ public class RunCommand implements BLauncherCmd {
     
         taskExecutor.executeTasks(buildContext);
     }
-
+    
+    /**
+     * Get the program args from the passed argument list.
+     *
+     * @param argList The argument list.
+     * @return An array of program args.
+     */
+    private String[] getProgramArgs(List<String> argList) {
+        String[] argsArray = argList.toArray(new String[0]);
+        return Arrays.copyOfRange(argsArray, 1, argsArray.length);
+    }
+    
     @Override
     public String getName() {
         return BallerinaCliCommands.RUN;
