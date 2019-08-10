@@ -5020,7 +5020,6 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangBlockStmt patternBlockFailureCase = (BLangBlockStmt) TreeBuilder.createBlockNode();
         patternBlockFailureCase.pos = pos;
-        // TODO: 8/9/19 Maryam remove returnOnError check and see
         if (!isCheckPanicExpr && returnOnError) {
             //return e;
             BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();

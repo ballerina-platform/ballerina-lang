@@ -1537,17 +1537,6 @@ function generateLambdaForPackageInits(jvm:ClassWriter cw, bir:Package pkg,
             mv.visitMethodInsn(INVOKESTATIC, initClass, initFuncName, io:sprintf("(L%s;)V", STRAND), false);
         } else {
             mv.visitMethodInsn(INVOKESTATIC, initClass, initFuncName, io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
-            mv.visitInsn(DUP);
-
-            mv.visitFieldInsn(GETSTATIC, BTYPES, TYPES_ERROR, io:sprintf("L%s;", ERROR_TYPE));
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkIsType",
-                               io:sprintf("(L%s;L%s;)Z", OBJECT, BTYPE), false);
-            jvm:Label nilLabel = new;
-            mv.visitJumpInsn(IFEQ, nilLabel);
-            mv.visitTypeInsn(CHECKCAST, ERROR_VALUE);
-            mv.visitInsn(ATHROW);
-
-            mv.visitLabel(nilLabel);
         }
 
         mv.visitInsn(RETURN);
@@ -1570,17 +1559,6 @@ function generateLambdaForPackageInits(jvm:ClassWriter cw, bir:Package pkg,
             mv.visitMethodInsn(INVOKESTATIC, initClass, startFuncName, io:sprintf("(L%s;)V", STRAND), false);
         } else {
             mv.visitMethodInsn(INVOKESTATIC, initClass, startFuncName, io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
-            mv.visitInsn(DUP);
-
-            mv.visitFieldInsn(GETSTATIC, BTYPES, TYPES_ERROR, io:sprintf("L%s;", ERROR_TYPE));
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkIsType",
-                               io:sprintf("(L%s;L%s;)Z", OBJECT, BTYPE), false);
-            jvm:Label nilLabel = new;
-            mv.visitJumpInsn(IFEQ, nilLabel);
-            mv.visitTypeInsn(CHECKCAST, ERROR_VALUE);
-            mv.visitInsn(ATHROW);
-
-            mv.visitLabel(nilLabel);
         }
 
         mv.visitInsn(RETURN);
@@ -1697,17 +1675,6 @@ function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
         } else {
             mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
                             io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
-            mv.visitInsn(DUP);
-
-            mv.visitFieldInsn(GETSTATIC, BTYPES, TYPES_ERROR, io:sprintf("L%s;", ERROR_TYPE));
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkIsType",
-                               io:sprintf("(L%s;L%s;)Z", OBJECT, BTYPE), false);
-            jvm:Label nilLabel = new;
-            mv.visitJumpInsn(IFEQ, nilLabel);
-            mv.visitTypeInsn(CHECKCAST, ERROR_VALUE);
-            mv.visitInsn(ARETURN);
-
-            mv.visitLabel(nilLabel);
         }
 
         mv.visitVarInsn(ALOAD, 0);
@@ -1717,17 +1684,6 @@ function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
         } else {
             mv.visitMethodInsn(INVOKESTATIC, moduleClassName, startFuncName,
                             io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
-            mv.visitInsn(DUP);
-
-            mv.visitFieldInsn(GETSTATIC, BTYPES, TYPES_ERROR, io:sprintf("L%s;", ERROR_TYPE));
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkIsType",
-                               io:sprintf("(L%s;L%s;)Z", OBJECT, BTYPE), false);
-            jvm:Label nilLabel = new;
-            mv.visitJumpInsn(IFEQ, nilLabel);
-            mv.visitTypeInsn(CHECKCAST, ERROR_VALUE);
-            mv.visitInsn(ARETURN);
-
-            mv.visitLabel(nilLabel);
         }
 
         generatedInitFuncs[generatedInitFuncs.length()] = initFuncName;
