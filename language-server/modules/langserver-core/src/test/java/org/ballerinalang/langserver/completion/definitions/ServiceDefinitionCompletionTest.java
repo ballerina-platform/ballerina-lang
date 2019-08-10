@@ -43,22 +43,22 @@ public class ServiceDefinitionCompletionTest extends CompletionTest {
     public Object[][] dataProvider() {
         log.info("Test textDocument/completion for Service Definitions Scope");
         return new Object[][] {
-            {"serviceEndpointBind1.json", "service"},
-            {"serviceEndpointBind2.json", "service"},
+//            {"serviceEndpointBind1.json", "service"},
+//            {"serviceEndpointBind2.json", "service"},
             {"serviceEndpointBind3.json", "service"},
-            {"serviceEndpointBind4.json", "service"},
-            {"serviceBodyCompletion1.json", "service"},
-            {"serviceBodyCompletion2.json", "service"},
-            {"serviceBodyCompletion3.json", "service"},
+//            {"serviceEndpointBind4.json", "service"},
+//            {"serviceBodyCompletion1.json", "service"},
+//            {"serviceBodyCompletion2.json", "service"},
+//            {"serviceBodyCompletion3.json", "service"},
             {"serviceBodyCompletion4.json", "service"},
             {"serviceBodyCompletion5.json", "service"},
-            {"serviceBodyCompletion6.json", "service"},
-            {"serviceBodyCompletion7.json", "service"},
+//            {"serviceBodyCompletion6.json", "service"},
+//            {"serviceBodyCompletion7.json", "service"},
             {"serviceVariableAndFieldsCompletion1.json", "service"},
-            {"httpServiceBodyResourceCompletion.json", "service"},
-            {"websocketServiceBodyResourceCompletion.json", "service"},
+//            {"httpServiceBodyResourceCompletion.json", "service"},
+//            {"websocketServiceBodyResourceCompletion.json", "service"},
 //            {"websubServiceBodyResourceCompletion.json", "service"},
-            {"grpcServiceBodyResourceCompletion.json", "service"},
+//            {"grpcServiceBodyResourceCompletion.json", "service"},
             {"serviceDefinitionContextSuggestion1.json", "service"},
         };
     }
