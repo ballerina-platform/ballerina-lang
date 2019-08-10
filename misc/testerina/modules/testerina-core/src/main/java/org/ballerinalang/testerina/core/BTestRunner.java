@@ -85,8 +85,9 @@ public class BTestRunner {
     
     /**
      * Create Test Runner with given loggers.
-     * @param outStream
-     * @param errStream
+     *
+     * @param outStream The info log stream.
+     * @param errStream The error log strem.
      */
     public BTestRunner(PrintStream outStream, PrintStream errStream) {
         this.outStream = outStream;

@@ -44,7 +44,8 @@ public class TesterinaReport {
     
     /**
      * Create an instance of Testerina Report with a given log stream.
-     * @param outStream
+     *
+     * @param outStream The log stream.
      */
     public TesterinaReport(PrintStream outStream) {
         this.outStream = outStream;
