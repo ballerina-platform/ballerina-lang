@@ -131,7 +131,9 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
         new CommandLine(buildCommand).parse();
     
         String exMsg = executeAndGetException(buildCommand);
-        Assert.assertEquals(exMsg, "error: no modules found to compile.");
+        Assert.assertEquals(exMsg, "cannot find module(s) to build/compile as 'src' " +
+                                   "directory is missing. modules should be placed inside " +
+                                   "an 'src' directory of the project.");
     }
     
     @Test(description = "Compile a ballerina project with non existing module.")
