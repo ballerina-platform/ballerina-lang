@@ -18,30 +18,35 @@
 
 package org.ballerinalang.packerina.task;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
+import org.ballerinalang.packerina.utils.FileUtils;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+
+import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
  * Task to copy the executable to a given location. This requires the {@link CreateExecutableTask} to be completed.
  */
 public class CopyExecutableTask implements Task {
-    private Path outputFileOrDirectoryName;
+    private Path outputPath;
     
     /**
      * Creates task to copy the executable.
      *
-     * @param outputFileOrDirectoryName Location of the executable to be copied.
+     * @param outputPath Location of the executable to be copied.
      */
-    public CopyExecutableTask(Path outputFileOrDirectoryName) {
-        this.outputFileOrDirectoryName = outputFileOrDirectoryName;
+    public CopyExecutableTask(Path outputPath) {
+        this.outputPath = outputPath;
     }
     
     @Override
@@ -49,51 +54,47 @@ public class CopyExecutableTask implements Task {
         try {
             for (BLangPackage module : buildContext.getModules()) {
                 Path executableFile = buildContext.getExecutablePathFromTarget(module.packageID);
+                Path sourceRoot = buildContext.get(BuildContextField.SOURCE_ROOT);
                 
-                // if the given output path is a directory, copy the executable to the given directory. name of the
-                // executable is not changed.
-                if (Files.isDirectory(this.outputFileOrDirectoryName)) {
-                    // create output directory if it does not exists
-                    if (Files.notExists(this.outputFileOrDirectoryName)) {
-                        Files.createDirectories(this.outputFileOrDirectoryName);
+                if (this.outputPath.isAbsolute()) {
+                    if (Files.isDirectory(this.outputPath)) {
+                        if (Files.notExists(this.outputPath)) {
+                            Files.createDirectories(this.outputPath);
+                        }
+                        
+                        Path executableFileName = executableFile.getFileName();
+                        if (null != executableFileName) {
+                            this.outputPath = this.outputPath.resolve(executableFileName.toString());
+                        }
+                    } else {
+                        if (!this.outputPath.toString().endsWith(BLANG_COMPILED_JAR_EXT)) {
+                            this.outputPath = Paths.get(this.outputPath.toString() + BLANG_COMPILED_JAR_EXT);
+                        }
                     }
-    
-                    // this 'if' is to avoid spot bugs
-                    Path executableFileName = executableFile.getFileName();
-                    if (null != executableFileName) {
-                        this.outputFileOrDirectoryName = this.outputFileOrDirectoryName.resolve(
-                                executableFileName.toString());
-                    }
-                }
-                
-                // check if the output path is a file
-                if (Files.isRegularFile(this.outputFileOrDirectoryName)) {
-                    // check if the output file has the .jar extension.
-                    if (!this.outputFileOrDirectoryName.toString().endsWith(
-                            ProjectDirConstants.BLANG_COMPILED_JAR_EXT)) {
-                        throw new BLangCompilerException("output executable should end with '" +
-                                                         ProjectDirConstants.BLANG_COMPILED_JAR_EXT + "' extension.");
-                    }
-                    
-                    // if the given path is not an absolute path. copy the executable to the source root.
-                    if (!this.outputFileOrDirectoryName.isAbsolute()) {
-                        Path sourceRoot = buildContext.get(BuildContextField.SOURCE_ROOT);
-                        this.outputFileOrDirectoryName = sourceRoot.resolve(this.outputFileOrDirectoryName);
+                } else {
+                    if (FileUtils.hasExtension(this.outputPath)) {
+                        this.outputPath = sourceRoot.resolve(this.outputPath);
+                    } else {
+                        this.outputPath = sourceRoot.resolve(this.outputPath + BLANG_COMPILED_JAR_EXT);
                     }
                 }
                 
                 // copy the executable. replace the existing executable if exists.
-                Files.copy(executableFile, this.outputFileOrDirectoryName, StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(executableFile, this.outputPath, StandardCopyOption.REPLACE_EXISTING);
                 
                 // update executable location and target dir
-                // this is to avoid spotbugs
-                Path executableDir = this.outputFileOrDirectoryName.getParent();
+                // this 'if' is to avoid spotbugs
+                Path executableDir = this.outputPath.getParent();
                 if (null != executableDir) {
                     buildContext.updateExecutableDir(executableDir);
+                    if (SINGLE_BAL_FILE == buildContext.getSourceType()) {
+                        SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
+                        singleFileContext.setExecutableFilePath(this.outputPath);
+                    }
                 }
             }
         } catch (IOException e) {
-            throw new BLangCompilerException("error occurred copying executable: " + e.getMessage());
+            throw createLauncherException("unable to copying executable: " + e.getMessage());
         }
     }
 }

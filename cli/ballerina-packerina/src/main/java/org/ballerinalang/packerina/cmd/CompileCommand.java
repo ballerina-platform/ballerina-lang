@@ -20,7 +20,6 @@ package org.ballerinalang.packerina.cmd;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.packerina.TaskExecutor;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
-import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.packerina.task.CompileTask;
 import org.ballerinalang.packerina.task.CopyModuleJarTask;
@@ -34,6 +33,7 @@ import org.ballerinalang.packerina.task.CreateTargetDirTask;
 import org.ballerinalang.packerina.task.RunTestsTask;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
+import org.ballerinalang.util.BLangConstants;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -62,35 +62,36 @@ import static org.ballerinalang.packerina.cmd.Constants.COMPILE_COMMAND;
  *
  * @since 0.992.0
  */
-@CommandLine.Command(name = COMPILE_COMMAND, description = "Compile Ballerina modules")
+@CommandLine.Command(name = COMPILE_COMMAND, description = "Ballerina compile - Compiles Ballerina module(s) and " +
+                                                           "generates a .balo file(s).")
 public class CompileCommand implements BLauncherCmd {
     
-    private Path userDir;
     private final PrintStream outStream;
     private final PrintStream errStream;
+    private Path sourceRootPath;
     private boolean exitWhenFinish;
 
     public CompileCommand() {
-        this.userDir = Paths.get(System.getProperty("user.dir"));
+        this.sourceRootPath = Paths.get(System.getProperty("user.dir"));
         this.outStream = System.out;
         this.errStream = System.err;
         this.exitWhenFinish = true;
     }
 
     public CompileCommand(Path userDir, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
-        this.userDir = userDir;
+        this.sourceRootPath = userDir;
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
     }
 
-    @CommandLine.Option(names = {"--offline"})
+    @CommandLine.Option(names = {"--off-line"}, description = "Compiles offline without downloading dependencies.")
     private boolean offline;
 
-    @CommandLine.Option(names = {"--lockEnabled"})
-    private boolean lockEnabled;
+    @CommandLine.Option(names = {"--skip-lock"}, description = "Skip using the lock file to resolve dependencies")
+    private boolean skipLock;
 
-    @CommandLine.Option(names = {"--skip-tests"})
+    @CommandLine.Option(names = {"--skip-tests"}, description = "Skips test compilation and execution.")
     private boolean skipTests;
 
     @CommandLine.Parameters
@@ -109,158 +110,153 @@ public class CompileCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = "--experimental", description = "enable experimental language features")
+    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features")
     private boolean experimentalFlag;
 
-    @CommandLine.Option(names = {"--config"}, description = "path to the configuration file")
+    @CommandLine.Option(names = {"--config"}, description = "Path to the configuration file when running tests." +
+                                                            " A configuration file cannot be set if " +
+                                                            "'--skip-tests' flag is passed.")
     private String configFilePath;
 
-    @CommandLine.Option(names = "--siddhi-runtime", description = "enable siddhi runtime for stream processing")
+    @CommandLine.Option(names = "--siddhi-runtime", description = "Enable siddhi runtime for stream processing")
     private boolean siddhiRuntimeFlag;
 
     public void execute() {
 
-        if (helpFlag) {
+        if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(COMPILE_COMMAND);
             errStream.println(commandUsageInfo);
             return;
         }
 
-        if (argList != null && argList.size() > 1) {
-            CommandUtil.printError(errStream,
+        if (this.argList != null && this.argList.size() > 1) {
+            CommandUtil.printError(this.errStream,
                     "too many arguments.",
                     "ballerina compile [<module-name>]",
                     true);
         }
-
-        // Get source root path.
-        Path sourceRootPath = userDir;
-
-        // Compile command only works inside a project
-        if (!ProjectDirs.isProject(sourceRootPath)) {
-            Path findRoot = ProjectDirs.findProjectRoot(sourceRootPath);
-            if (null == findRoot) {
-                CommandUtil.printError(errStream,
-                        "compile command can be only run inside a Ballerina project",
-                        null,
-                        false);
-                return;
-            }
-            sourceRootPath = findRoot;
+    
+    
+        if (!this.skipTests && null != this.configFilePath) {
+            throw LauncherUtils.createLauncherException("you cannot use a config file for tests when tests are set " +
+                                                        "to skip with '--skip-tests'.");
         }
-
-        if (nativeBinary) {
-            genNativeBinary(sourceRootPath, argList);
-        } else if (argList == null || argList.size() == 0) {
-            // to build all modules of a project
-            if (!ProjectDirs.isProject(sourceRootPath)) {
-                Path findRoot = ProjectDirs.findProjectRoot(sourceRootPath);
+    
+        if (this.nativeBinary) {
+            throw LauncherUtils.createLauncherException("llvm native generation is not supported");
+        }
+    
+        // validation and decide source root and source full path
+        Path sourcePath = null;
+        Path targetPath;
+    
+        // when no bal file or module is given, it is assumed to compile all modules of the project. check if the
+        // command is executed within a ballerina project. update source root path if command executed inside a project.
+        if (this.argList == null || this.argList.size() == 0) {
+            // when compiling all the modules
+        
+            //// validate and set source root path
+            if (!ProjectDirs.isProject(this.sourceRootPath)) {
+                Path findRoot = ProjectDirs.findProjectRoot(this.sourceRootPath);
                 if (null == findRoot) {
-                    CommandUtil.printError(errStream,
-                            "Please provide a Ballerina file as a " +
-                            "input or run compile command inside a project",
-                            "ballerina compile [<filename.bal>]",
-                            false);
-                    return;
+                    throw LauncherUtils.createLauncherException("you are trying to compile a ballerina project but " +
+                                                                "there is no Ballerina.toml file. Run " +
+                                                                "'ballerina new' from '" + this.sourceRootPath +
+                                                                "' to initialize it as a project.");
                 }
-                sourceRootPath = findRoot;
-            }
-    
-            CompilerContext context = new CompilerContext();
-            CompilerOptions options = CompilerOptions.getInstance(context);
-            options.put(PROJECT_DIR, sourceRootPath.toString());
-            options.put(OFFLINE, Boolean.toString(offline));
-            options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
-            options.put(LOCK_ENABLED, Boolean.toString(lockEnabled));
-            options.put(SKIP_TESTS, Boolean.toString(skipTests));
-            options.put(TEST_ENABLED, "true");
-            options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(experimentalFlag));
-            options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(siddhiRuntimeFlag));
-    
-            BuildContext buildContext = new BuildContext(sourceRootPath);
-            buildContext.setOut(outStream);
-            buildContext.setOut(errStream);
-            buildContext.put(BuildContextField.COMPILER_CONTEXT, context);
-    
-            TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                    .addTask(new CleanTargetDirTask())
-                    .addTask(new CreateTargetDirTask())
-                    .addTask(new CompileTask())
-                    .addTask(new CreateBaloTask())
-                    .addTask(new CreateBirTask())
-                    .addTask(new CopyNativeLibTask())
-                    .addTask(new CreateJarTask(dumpBIR))
-                    .addTask(new CopyModuleJarTask())
-                    .addTask(new RunTestsTask(), this.skipTests)
-                    .addTask(new CreateLockFileTask())
-                    .addTask(new CreateDocsTask())
-                    .build();
-    
-            taskExecutor.executeTasks(buildContext);
-        } else {
-            CompilerContext context = new CompilerContext();
-            CompilerOptions options = CompilerOptions.getInstance(context);
-            options.put(PROJECT_DIR, sourceRootPath.toString());
-            options.put(OFFLINE, Boolean.toString(offline));
-            options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
-            options.put(LOCK_ENABLED, Boolean.toString(lockEnabled));
-            options.put(SKIP_TESTS, Boolean.toString(skipTests));
-            options.put(TEST_ENABLED, "true");
-            options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(experimentalFlag));
-            options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(siddhiRuntimeFlag));
-    
-            // remove the hyphen of the module folder if it exists
-            String pkgOrSourceFileNameAsString = argList.get(0);
-            if (pkgOrSourceFileNameAsString.endsWith("/")) {
-                pkgOrSourceFileNameAsString = pkgOrSourceFileNameAsString.substring(0,
-                        pkgOrSourceFileNameAsString.length() - 1);
-            }
-    
-            // normalize the source path to remove './' or '.\' characters that can appear before the name
-            Path pkgOrSourceFileName = Paths.get(pkgOrSourceFileNameAsString).normalize();
-    
-            // get the absolute path for the source. source can be a module or a bal file.
-            Path sourceFullPath = RepoUtils.isBallerinaProject(sourceRootPath) ?
-                                  sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME)
-                                          .resolve(pkgOrSourceFileName).toAbsolutePath() :
-                                  sourceRootPath.resolve(pkgOrSourceFileName).toAbsolutePath();
-    
-            // check if source exists or not
-            if (Files.notExists(sourceFullPath)) {
-                throw LauncherUtils.createLauncherException("the given module or source file does not exist.");
-            }
             
-            // Checks if the source is a module and if its inside a project (with a Ballerina.toml folder)
-            if (!RepoUtils.isBallerinaProject(sourceRootPath)) {
+                this.sourceRootPath = findRoot;
+            }
+        
+            targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
+        } else if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+            // when a single bal file is provided.
+            throw LauncherUtils.createLauncherException("'compile' command cannot be used on ballerina files. it can" +
+                                                        " only be used with ballerina projects.");
+        } else if (Files.exists(
+                this.sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(this.argList.get(0))) &&
+                   Files.isDirectory(
+                       this.sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(this.argList.get(0)))) {
+        
+            // when compiling a ballerina module
+        
+            //// check if command executed from project root.
+            if (!RepoUtils.isBallerinaProject(this.sourceRootPath)) {
                 throw LauncherUtils.createLauncherException("you are trying to compile a module that is not inside " +
-                                                            "a project. Run `ballerina new` from " +
-                                                            sourceRootPath + " to initialize it as a " +
+                                                            "a project. Run 'ballerina new' from " +
+                                                            this.sourceRootPath + " to initialize it as a " +
                                                             "project and then compile the module.");
             }
-    
-            BuildContext buildContext = new BuildContext(sourceRootPath, pkgOrSourceFileName);
-            buildContext.setOut(outStream);
-            buildContext.setOut(errStream);
-            buildContext.put(BuildContextField.COMPILER_CONTEXT, context);
-    
-            TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                    .addTask(new CleanTargetDirTask())
-                    .addTask(new CreateTargetDirTask())
-                    .addTask(new CompileTask())
-                    .addTask(new CreateBaloTask())
-                    .addTask(new CreateBirTask())
-                    .addTask(new CopyNativeLibTask())
-                    .addTask(new CreateJarTask(dumpBIR))
-                    .addTask(new CopyModuleJarTask())
-                    .addTask(new RunTestsTask(), this.skipTests)
-                    .addTask(new CreateLockFileTask())
-                    .addTask(new CreateDocsTask())
-                    .build();
-    
-            taskExecutor.executeTasks(buildContext);
+        
+            //// check if module name given is not absolute.
+            if (Paths.get(argList.get(0)).isAbsolute()) {
+                throw LauncherUtils.createLauncherException("you are trying to compile a module by giving the " +
+                                                            "absolute path. you only need give the name of the " +
+                                                            "module.");
+            }
+        
+            String moduleName = argList.get(0);
+        
+            //// remove end forward slash
+            if (moduleName.endsWith("/")) {
+                moduleName = moduleName.substring(0, moduleName.length() - 1);
+            }
+        
+            sourcePath = Paths.get(moduleName);
+        
+            //// check if module exists.
+            if (Files.notExists(this.sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(sourcePath))) {
+                throw LauncherUtils.createLauncherException("'" + sourcePath + "' module does not exist.");
+            }
+        
+            targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
+        } else {
+            throw LauncherUtils.createLauncherException("invalid ballerina source path, it should either be a module " +
+                                                        "name in a ballerina project or a file with a \'" +
+                                                        BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension.");
         }
     
-        if (exitWhenFinish) {
+        // normalize paths
+        this.sourceRootPath = this.sourceRootPath.normalize();
+        sourcePath = sourcePath == null ? null : sourcePath.normalize();
+        targetPath = targetPath.normalize();
+    
+        // create compiler context
+        CompilerContext compilerContext = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(compilerContext);
+        options.put(PROJECT_DIR, this.sourceRootPath.toString());
+        options.put(OFFLINE, Boolean.toString(this.offline));
+        options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
+        options.put(LOCK_ENABLED, Boolean.toString(!this.skipLock));
+        options.put(SKIP_TESTS, Boolean.toString(this.skipTests));
+        options.put(TEST_ENABLED, "true");
+        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
+        options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(this.siddhiRuntimeFlag));
+    
+        // create builder context
+        BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath, compilerContext);
+        buildContext.setOut(outStream);
+        buildContext.setErr(errStream);
+    
+        Path configFilePath = null == this.configFilePath ? null : Paths.get(this.configFilePath);
+    
+        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
+                .addTask(new CleanTargetDirTask())  // clean the target directory
+                .addTask(new CreateTargetDirTask()) //  create target directory.
+                .addTask(new CompileTask()) // compile the modules
+                .addTask(new CreateBaloTask())  // create the balos for modules
+                .addTask(new CreateBirTask())   // create the bir
+                .addTask(new CopyNativeLibTask())   // copy the native libs
+                .addTask(new CreateJarTask(this.dumpBIR))   // create the jar
+                .addTask(new CopyModuleJarTask())
+                .addTask(new RunTestsTask(configFilePath), this.skipTests)  // run tests
+                .addTask(new CreateLockFileTask())  // create a lock file
+                .addTask(new CreateDocsTask())  // generate API docs
+                .build();
+    
+        taskExecutor.executeTasks(buildContext);
+    
+        if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }
     }
@@ -272,19 +268,15 @@ public class CompileCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Compiles Ballerina modules and create balo files. \n");
+        out.append("Compiles Ballerina module(s) and generates shareable .balo file(s). \n");
     }
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina compile [<module-name>] \n");
+        out.append("  ballerina compile [<module-name>] [--off-line] [--skip-tests] [--skip-lock] \n");
     }
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
-    }
-
-    private void genNativeBinary(Path projectDirPath, List<String> argList) {
-        throw LauncherUtils.createLauncherException("llvm native generation is not supported");
     }
 }
