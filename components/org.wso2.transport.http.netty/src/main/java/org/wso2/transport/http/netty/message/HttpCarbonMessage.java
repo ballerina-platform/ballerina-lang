@@ -170,10 +170,12 @@ public class HttpCarbonMessage {
      * Count the message length till the given message length and returns.
      * If the message length is shorter than the given length it returns with the
      * available message size. This method is blocking function. Hence, use with care.
+     *
      * @param maxLength is the maximum length to count
      * @return counted length
+     * @throws IllegalStateException if illegal state occurs in the absence of content
      */
-    public long countMessageLengthTill(long maxLength) {
+    public long countMessageLengthTill(long maxLength) throws IllegalStateException {
         return this.blockingEntityCollector.countMessageLengthTill(maxLength);
     }
 
