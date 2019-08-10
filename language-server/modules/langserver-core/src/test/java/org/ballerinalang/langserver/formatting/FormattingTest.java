@@ -163,6 +163,8 @@ public class FormattingTest {
                 {"expectedXMLPILiteral.bal", "xmlPILiteral.bal"},
                 {"expectedXMLElementLiteral.bal", "xmlElementLiteral.bal"},
                 {"expectedXMLAttribute.bal", "xmlAttribute.bal"},
+                {"expectedXMLAttributeAccessExpr.bal", "xmlAttributeAccessExpr.bal"},
+                {"expectedXMLQName.bal", "xmlQName.bal"},
         };
     }
 
