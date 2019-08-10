@@ -56,12 +56,12 @@ public class WebSocketCompilationTest {
     public void testFailOnOpenOnIdle() {
         CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "fail_onOpen_onIdle.bal");
 
-        assertExpectedDiagnosticsLength(compileResult, 3);
-        BAssertUtil.validateError(compileResult, 0, "Invalid resource signature for onOpen resource in service " +
+        assertExpectedDiagnosticsLength(compileResult, 5);
+        BAssertUtil.validateError(compileResult, 1, "Invalid resource signature for onOpen resource in service " +
                 ": The first parameter should be an endpoint", 27, 5);
-        BAssertUtil.validateError(compileResult, 1, "Invalid resource signature for onIdleTimeout resource in " +
+        BAssertUtil.validateError(compileResult, 3, "Invalid resource signature for onIdleTimeout resource in " +
                 "service : Expected parameter count = 1", 30, 5);
-        BAssertUtil.validateError(compileResult, 2, "Invalid resource signature for onIdleTimeout resource in " +
+        BAssertUtil.validateError(compileResult, 4, "Invalid resource signature for onIdleTimeout resource in " +
                 "service : The first parameter should be an endpoint", 30, 5);
     }
 
