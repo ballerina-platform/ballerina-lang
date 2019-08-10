@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -25,9 +25,11 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.DefaultHttpContent;
+import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.LastHttpContent;
@@ -39,69 +41,63 @@ import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+import static org.wso2.transport.http.netty.contract.Constants.TEXT_PLAIN;
 
 /**
  * An initializer class for HTTP Server
  */
-public class MockServerInitializer extends HttpServerInitializer {
+public class HalfResponseCloseServerInitializer extends HttpServerInitializer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MockServerInitializer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HalfResponseCloseServerInitializer.class);
 
-    private String stringContent;
-    private String contentType;
-    private int responseStatusCode;
     private HttpRequest req;
 
-    public MockServerInitializer(String stringContent, String contentType, int responseStatusCode) {
-        this.stringContent = stringContent;
-        this.contentType = contentType;
-        this.responseStatusCode = responseStatusCode;
-    }
+    public HalfResponseCloseServerInitializer() {}
 
     protected void addBusinessLogicHandler(Channel channel) {
-        channel.pipeline().addLast("handler", new MockServerHandler());
+        channel.pipeline().addLast("handler", new HalfResponseCloseServerHandler());
     }
 
-    private class MockServerHandler extends ChannelInboundHandlerAdapter {
+    private class HalfResponseCloseServerHandler extends ChannelInboundHandlerAdapter {
 
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-
-            if (stringContent != null) {
-                if (msg instanceof HttpRequest) {
-                    req = (HttpRequest) msg;
-                } else if (msg instanceof LastHttpContent) {
-                    if (HttpUtil.is100ContinueExpected(req)) {
-                        ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, CONTINUE));
-                    }
-
-                    ByteBuf content = Unpooled.wrappedBuffer(stringContent.getBytes("UTF-8"));
-                    respond(ctx, content);
+            if (msg instanceof HttpRequest) {
+                req = (HttpRequest) msg;
+            } else if (msg instanceof LastHttpContent) {
+                if (HttpUtil.is100ContinueExpected(req)) {
+                    ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, CONTINUE));
                 }
+
+                ByteBuf content = Unpooled.wrappedBuffer("Test-Value".getBytes("UTF-8"));
+                respond(ctx, content);
             }
         }
 
         private void respond(ChannelHandlerContext ctx, ByteBuf content) {
-            FullHttpResponse response = getFullHttpResponse(content);
+            HttpResponse response = getFullHttpResponse(content);
 
             boolean keepAlive = HttpUtil.isKeepAlive(req);
             if (!keepAlive) {
-                ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+                ctx.writeAndFlush(response);
+                ctx.writeAndFlush(new DefaultHttpContent(content)).addListener(ChannelFutureListener.CLOSE);
                 LOG.debug("Writing response with data to client-connector");
                 LOG.debug("Closing the client-connector connection");
             } else {
                 response.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
                 ctx.writeAndFlush(response);
+                ctx.writeAndFlush(new DefaultHttpContent(content)).addListener(ChannelFutureListener.CLOSE);
                 LOG.debug("Writing response with data to client-connector");
             }
         }
 
-        private FullHttpResponse getFullHttpResponse(ByteBuf content) {
-            HttpResponseStatus httpResponseStatus = new HttpResponseStatus(responseStatusCode,
-                                                  HttpResponseStatus.valueOf(responseStatusCode).reasonPhrase());
-            FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, httpResponseStatus, content);
-            response.headers().set(CONTENT_TYPE, contentType);
-            response.headers().set(CONTENT_LENGTH, content.readableBytes());
+        private HttpResponse getFullHttpResponse(ByteBuf content) {
+            HttpResponseStatus httpResponseStatus = new HttpResponseStatus(HttpResponseStatus.OK.code(),
+                                                                           HttpResponseStatus.OK.reasonPhrase());
+            HttpResponse response = new DefaultHttpResponse(HTTP_1_1, httpResponseStatus);
+            response.headers().set(CONTENT_TYPE, TEXT_PLAIN);
+            // Make the content length longer than the actual payload length
+            response.headers().set(CONTENT_LENGTH, content.readableBytes() + 10);
             return response;
         }
     }

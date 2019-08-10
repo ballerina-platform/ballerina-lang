@@ -119,7 +119,7 @@ public class SendingEntityBody implements SenderState {
         if (!serverPush) {
             outboundMsgHolder.getResponseFuture().notifyHttpListener(new EndpointTimeOutException(
                     IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_BODY,
-                    HttpResponseStatus.GATEWAY_TIMEOUT.code()));
+                    HttpResponseStatus.INTERNAL_SERVER_ERROR.code()));
         }
     }
 
