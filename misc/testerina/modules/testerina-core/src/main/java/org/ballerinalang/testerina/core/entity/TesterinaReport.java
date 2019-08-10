@@ -35,10 +35,17 @@ public class TesterinaReport {
     private Map<String, TestSummary> testReportOfPackage = new HashMap<>();
     private boolean failure;
     
+    /**
+     * Create an instance of Testerina Report.
+     */
     public TesterinaReport() {
         this(System.out);
     }
     
+    /**
+     * Create an instance of Testerina Report with a given log stream.
+     * @param outStream
+     */
     public TesterinaReport(PrintStream outStream) {
         this.outStream = outStream;
     }

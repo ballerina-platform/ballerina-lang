@@ -76,10 +76,18 @@ public class BTestRunner {
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
     private List<String> sourcePackages = new ArrayList<>();
     
+    /**
+     * Create Test Runner instance.
+     */
     public BTestRunner() {
         this(System.out, System.err);
     }
     
+    /**
+     * Create Test Runner with given loggers.
+     * @param outStream
+     * @param errStream
+     */
     public BTestRunner(PrintStream outStream, PrintStream errStream) {
         this.outStream = outStream;
         this.errStream = errStream;
