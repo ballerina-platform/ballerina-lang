@@ -37,6 +37,11 @@ public type MockDomainEvent record {|
     path:"/key"
 }
 service keyWebhook on new WebhookServerForPayload(23585) {
+    resource function onIntentVerification(websub:Caller caller, websub:IntentVerificationRequest verRequest) {
+        io:println("Intent verification request received");
+        checkpanic caller->accepted();
+    }
+
     resource function onCreated(websub:Notification notification, MockActionEvent event) {
         io:println("Created Notification Received, action: ", event.action);
     }

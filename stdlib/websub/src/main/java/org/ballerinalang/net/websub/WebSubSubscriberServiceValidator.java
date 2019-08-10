@@ -199,13 +199,13 @@ public class WebSubSubscriberServiceValidator {
     private static void validateIntentVerificationParam(BType paramVarType) {
         boolean validIntentVerificationParam;
 
-        if (paramVarType.getTag() != TypeTags.RECORD_TYPE_TAG) {
+        if (paramVarType.getTag() != TypeTags.OBJECT_TYPE_TAG) {
             validIntentVerificationParam = false;
         } else {
-            BRecordType recordType = (BRecordType) paramVarType;
-            validIntentVerificationParam = recordType.getPackage().org.equals(BALLERINA) &&
-                    recordType.getPackage().name.equals(WEBSUB) &&
-                    recordType.getName().equals(WEBSUB_INTENT_VERIFICATION_REQUEST);
+            BObjectType objectType = (BObjectType) paramVarType;
+            validIntentVerificationParam = objectType.getPackage().org.equals(BALLERINA) &&
+                    objectType.getPackage().name.equals(WEBSUB) &&
+                    objectType.getName().equals(WEBSUB_INTENT_VERIFICATION_REQUEST);
         }
 
         if (!validIntentVerificationParam) {
