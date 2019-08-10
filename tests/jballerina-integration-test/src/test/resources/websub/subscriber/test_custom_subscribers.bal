@@ -25,13 +25,13 @@ public type WebhookListenerConfiguration record {
     string host = "";
 };
 
-public type MockActionEvent record {
+public type MockActionEvent record {|
     string action;
-};
+|};
 
-public type MockDomainEvent record {
+public type MockDomainEvent record {|
     string domain;
-};
+|};
 
 @websub:SubscriberServiceConfig {
     path:"/key"

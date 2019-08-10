@@ -19,13 +19,13 @@ import ballerina/io;
 import ballerina/websub;
 import ballerina/'lang\.object as lang;
 
-public type MockActionEvent record {
+public type MockActionEvent record {|
     string action;
-};
+|};
 
-public type MockDomainEvent record {
+public type MockDomainEvent record {|
     string domain;
-};
+|};
 
 public type WebhookServerForPayload object {
 
