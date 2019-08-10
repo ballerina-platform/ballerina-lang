@@ -180,6 +180,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
+import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
 /**
@@ -322,6 +323,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        this.validateMainFunction(funcNode);
         this.validateModuleInitFunction(funcNode);
         try {
 
@@ -2159,6 +2161,33 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private boolean isValidTransactionBlock() {
         return !(this.withinRetryBlock || this.withinAbortedBlock || this.withinCommittedBlock);
+    }
+
+    private void validateMainFunction(BLangFunction funcNode) {
+        if (!MAIN_FUNCTION_NAME.equals(funcNode.name.value)) {
+            return;
+        }
+
+        if (!Symbols.isPublic(funcNode.symbol)) {
+            this.dlog.error(funcNode.pos, DiagnosticCode.MAIN_SHOULD_BE_PUBLIC);
+        }
+
+        funcNode.requiredParams.forEach(param -> {
+            if (!types.isAnydata(param.type)) {
+                this.dlog.error(param.pos, DiagnosticCode.MAIN_PARAMS_SHOULD_BE_ANYDATA, param.type);
+            }
+        });
+
+        if (funcNode.restParam != null && !types.isAnydata(funcNode.restParam.type)) {
+            this.dlog.error(funcNode.restParam.pos, DiagnosticCode.MAIN_PARAMS_SHOULD_BE_ANYDATA,
+                            funcNode.restParam.type);
+        }
+
+        if (!types.isAssignable(funcNode.returnTypeNode.type,
+                                BUnionType.create(null, symTable.nilType, symTable.errorType))) {
+            this.dlog.error(funcNode.returnTypeNode.pos, DiagnosticCode.MAIN_RETURN_SHOULD_BE_ERROR_OR_NIL,
+                            funcNode.returnTypeNode.type);
+        }
     }
 
     private void validateModuleInitFunction(BLangFunction funcNode) {

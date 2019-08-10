@@ -32,6 +32,7 @@ public class Constants {
     public static final int OPEN_SEALED_ARRAY_INDICATOR = -2;
     public static final int UNSEALED_ARRAY_INDICATOR = -1;
 
+    public static final String MAIN_FUNCTION_NAME = "main";
     public static final String WORKER_LAMBDA_VAR_PREFIX = "0";
 
     public static final String SKIP_TESTS = "false";

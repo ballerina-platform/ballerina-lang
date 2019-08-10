@@ -155,6 +155,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -227,14 +228,23 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private void setEntryPoints(BLangPackage pkgNode) {
-        if (pkgNode.functions.stream()
-                .anyMatch(function -> Symbols.isPublic(function.symbol) && !function.attachedFunction)) {
+        BLangFunction mainFunc = getMainFunction(pkgNode);
+        if (mainFunc != null) {
             pkgNode.symbol.entryPointExists = true;
         }
 
         if (pkgNode.services.size() != 0) {
             pkgNode.symbol.entryPointExists = true;
         }
+    }
+
+    private BLangFunction getMainFunction(BLangPackage pkgNode) {
+        for (BLangFunction funcNode : pkgNode.functions) {
+            if (CompilerUtils.isMainFunction(funcNode)) {
+                return funcNode;
+            }
+        }
+        return null;
     }
 
     // Nodes

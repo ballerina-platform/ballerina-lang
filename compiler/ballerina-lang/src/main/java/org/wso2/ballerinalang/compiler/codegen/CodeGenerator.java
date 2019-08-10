@@ -168,6 +168,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -407,7 +408,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private BLangFunction getMainFunction(BLangPackage pkgNode) {
         for (BLangFunction funcNode : pkgNode.functions) {
-            if ("main".equals(funcNode.name.value) && Symbols.isPublic(funcNode.symbol)) {
+            if (CompilerUtils.isMainFunction(funcNode)) {
                 return funcNode;
             }
         }

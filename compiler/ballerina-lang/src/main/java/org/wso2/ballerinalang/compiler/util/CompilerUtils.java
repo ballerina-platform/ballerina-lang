@@ -17,6 +17,11 @@
 */
 package org.wso2.ballerinalang.compiler.util;
 
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+
+import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
+
 /**
  * A util class for handling common functions across compiler.
  *
@@ -33,5 +38,9 @@ public class CompilerUtils {
             distributedTransactionEnabled = Boolean.valueOf(distributedTxEnabledProp);
         }
         return distributedTransactionEnabled;
+    }
+
+    public static boolean isMainFunction(BLangFunction funcNode) {
+        return MAIN_FUNCTION_NAME.equals(funcNode.name.value) && Symbols.isPublic(funcNode.symbol);
     }
 }

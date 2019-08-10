@@ -111,6 +111,9 @@ public enum DiagnosticCode {
     REFERRED_FUNCTION_SIGNATURE_MISMATCH("referred.function.signature.mismatch"),
 
     INVOKABLE_MUST_RETURN("invokable.must.return"),
+    MAIN_SHOULD_BE_PUBLIC("main.should.be.public"),
+    MAIN_PARAMS_SHOULD_BE_ANYDATA("main.params.should.be.anydata"),
+    MAIN_RETURN_SHOULD_BE_ERROR_OR_NIL("main.return.should.be.error.or.nil"),
     MODULE_INIT_CANNOT_BE_PUBLIC("module.init.cannot.be.public"),
     MODULE_INIT_CANNOT_HAVE_PARAMS("module.init.cannot.have.params"),
     MODULE_INIT_RETURN_SHOULD_BE_ERROR_OR_NIL("module.init.return.should.be.error.or.nil"),
