@@ -62,7 +62,7 @@ public class ServiceDesugar {
     private static final CompilerContext.Key<ServiceDesugar> SERVICE_DESUGAR_KEY = new CompilerContext.Key<>();
 
     private static final String START_METHOD = "__start";
-    private static final String STOP_METHOD = "__immediateStop";
+    private static final String IMMEDIATE_STOP = "__immediateStop";
     private static final String ATTACH_METHOD = "__attach";
     private static final String LISTENER = "$LISTENER";
 
@@ -95,7 +95,7 @@ public class ServiceDesugar {
 
     private void rewriteListener(BLangSimpleVariable variable, SymbolEnv env) {
         rewriteListenerLifeCycleFunction(env.enclPkg.startFunction, variable, env, START_METHOD);
-        rewriteListenerLifeCycleFunction(env.enclPkg.stopFunction, variable, env, STOP_METHOD);
+        rewriteListenerLifeCycleFunction(env.enclPkg.stopFunction, variable, env, IMMEDIATE_STOP);
     }
 
     private void rewriteListenerLifeCycleFunction(BLangFunction lifeCycleFunction, BLangSimpleVariable variable,

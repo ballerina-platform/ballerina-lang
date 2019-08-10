@@ -22,11 +22,11 @@ public type AbstractListener abstract object {
     public function __start() returns error?;
 
     # Handle listener stop gracefully.
-    # + return - error if `__gracefulStop` for some reason, nil otherwise.
+    # + return - `error` if `__gracefulStop` fails for some reason, nil otherwise.
     public function __gracefulStop() returns error?;
 
     # Handle listener stop immediatly.
-    # + return - error if `__immediateStop` for some reason, nil otherwise.
+    # + return - `error` if `__immediateStop` fails for some reason, nil otherwise.
     public function __immediateStop() returns error?;
 
     # Handle attaching to service `s`.
