@@ -524,7 +524,8 @@ public class ObjectTest {
                                   49, 14);
         BAssertUtil.validateError(result, index++, "attempt to refer to non-accessible symbol " + "'Employee" +
                 ".getEmail'", 50, 17);
-        BAssertUtil.validateError(result, index++, "undefined function 'getEmail' in object 'testorg/pkg1:Employee'",
+        BAssertUtil.validateError(result, index++, "undefined function 'getEmail' in object " +
+                                                   "'testorg/pkg1:1.0.0:Employee'",
                                   50, 17);
     }
 
