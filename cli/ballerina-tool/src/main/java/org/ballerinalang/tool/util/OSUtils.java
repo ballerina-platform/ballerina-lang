@@ -16,6 +16,7 @@
 
 package org.ballerinalang.tool.util;
 
+import java.io.File;
 import java.util.Locale;
 
 /**
@@ -32,13 +33,17 @@ public class OSUtils {
     public static String getToolPath() {
         String home = System.getProperty("user.home");
         if (OSUtils.isWindows()) {
-            return home + "\\Ballerina\\";
+            return home + File.separator + ".ballerina" + File.separator + "tools";
         } else if (OSUtils.isUnix() || OSUtils.isSolaris()) {
-            return home + "/Library/Ballerina/";
+            return home + File.separator + ".ballerina" + File.separator + "tools";
         } else if (OSUtils.isMac()) {
-            return home + "/Library/Ballerina/";
+            return home + File.separator + ".ballerina" + File.separator + "tools";
         }
         return null;
+    }
+
+    public static String getDistributionsPath() {
+        return getToolPath() + File.separator + "distributions";
     }
 
     public static String getUserAgent(String ballerinaVersion, String toolVersion, String distributionType) {

@@ -45,7 +45,7 @@ import java.util.zip.ZipInputStream;
 public class ToolUtil {
     //private static final String STAGING_URL = "https://api.staging-central.ballerina.io/update-tool";
     private static final String BALLERINA_CONFIG = "ballerina-version";
-    private static final String BALLERINA_TOOLS_CONFIG = "ballerina-tool-version";
+    private static final String BALLERINA_TOOLS_CONFIG = "ballerina-tools-version";
 
     private static final String STAGING_URL = "http://localhost:3030/update-tool";
 //    public static void main(String [] args) {
@@ -73,7 +73,7 @@ public class ToolUtil {
                             dist.getStringValue("type") + "-" + dist.getStringValue("version")));
                 }
             } else {
-                File folder = new File(OSUtils.getToolPath());
+                File folder = new File(OSUtils.getDistributionsPath());
                 File[] listOfFiles;
                 listOfFiles = folder.listFiles();
                 for (int i = 0; i < listOfFiles.length; i++) {
@@ -92,11 +92,11 @@ public class ToolUtil {
      * @return Used Ballerina version
      */
     private static String getCurrentBallerinaVersion() throws IOException {
-        return getVersion(OSUtils.getToolPath() + File.separator + BALLERINA_CONFIG);
+        return getVersion(OSUtils.getDistributionsPath() + File.separator + BALLERINA_CONFIG);
     }
 
     private static void setCurrentBallerinaVersion(String version) throws IOException {
-        setVersion(OSUtils.getToolPath() + File.separator + BALLERINA_CONFIG, version);
+        setVersion(OSUtils.getDistributionsPath() + File.separator + BALLERINA_CONFIG, version);
     }
 
     /**
@@ -113,8 +113,7 @@ public class ToolUtil {
 
 
     private static String getVersion(String path) throws IOException {
-        String fileName = OSUtils.getToolPath() + File.separator + BALLERINA_CONFIG;
-        BufferedReader br = Files.newBufferedReader(Paths.get(fileName));
+        BufferedReader br = Files.newBufferedReader(Paths.get(path));
         List<String> list = br.lines().collect(Collectors.toList());
         return list.get(0);
     }
@@ -141,7 +140,7 @@ public class ToolUtil {
 
     public static void install(PrintStream printStream, String distribution) {
         try {
-            File installFile = new File(OSUtils.getToolPath() + File.separator + distribution);
+            File installFile = new File(OSUtils.getDistributionsPath() + File.separator + distribution);
             if (installFile.exists()) {
                 if (distribution.equals(getCurrentBallerinaVersion())) {
                     printStream.println(distribution + " is already in use ");
@@ -156,7 +155,7 @@ public class ToolUtil {
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("user-agent",
-                        OSUtils.getUserAgent(getCurrentBallerinaVersion(), getCurrentToolsVersion(), distributionType));
+                        OSUtils.getUserAgent(distributionVersion, getCurrentToolsVersion(), distributionType));
                 conn.setRequestProperty("Accept", "application/json");
                 if (conn.getResponseCode() == 302) {
                     String newUrl = conn.getHeaderField("Location");
@@ -164,7 +163,7 @@ public class ToolUtil {
                     conn.setRequestProperty("content-type", "binary/data");
                     printStream.print("Downloading " + distribution);
                     InputStream in = conn.getInputStream();
-                    String zipFileLocation = OSUtils.getToolPath() + distribution + ".zip";
+                    String zipFileLocation = OSUtils.getDistributionsPath() + File.separator + distribution + ".zip";
                     FileOutputStream out = new FileOutputStream(zipFileLocation);
                     byte[] b = new byte[1024];
                     int count;
@@ -178,7 +177,34 @@ public class ToolUtil {
                     }
                     printStream.println();
                     File zipFile = new File(zipFileLocation);
-                    unzip(zipFile, OSUtils.getToolPath());
+                    unzip(zipFile, OSUtils.getDistributionsPath());
+                    zipFile.delete();
+                    setCurrentBallerinaVersion(distribution);
+
+                    if (conn.getResponseCode() != 200) {
+                        throw new RuntimeException("Failed : HTTP error code : "
+                                + conn.getResponseCode());
+                    }
+                    conn.disconnect();
+                    printStream.println(distribution + " is installed ");
+                } else if (conn.getResponseCode() == 200) {
+                    printStream.print("Downloading " + distribution);
+                    InputStream in = conn.getInputStream();
+                    String zipFileLocation = OSUtils.getDistributionsPath() + File.separator + distribution + ".zip";
+                    FileOutputStream out = new FileOutputStream(zipFileLocation);
+                    byte[] b = new byte[1024];
+                    int count;
+                    int progress = 0;
+                    while ((count = in.read(b)) > 0) {
+                        out.write(b, 0, count);
+                        progress++;
+                        if (progress % 1024 == 0) {
+                            printStream.print(".");
+                        }
+                    }
+                    printStream.println();
+                    File zipFile = new File(zipFileLocation);
+                    unzip(zipFile, OSUtils.getDistributionsPath());
                     zipFile.delete();
                     setCurrentBallerinaVersion(distribution);
 
@@ -206,7 +232,7 @@ public class ToolUtil {
             if (version.equals(getCurrentBallerinaVersion())) {
                 outStream.println("You cannot remove default Ballerina version");
             } else {
-                File directory = new File(OSUtils.getToolPath() + File.separator + version);
+                File directory = new File(OSUtils.getDistributionsPath() + File.separator + version);
                 if (directory.exists()) {
                     removeDirectory(directory);
                     outStream.println(version + " deleted successfully");

@@ -456,6 +456,9 @@ public class Main {
         @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
         private boolean helpFlag;
 
+        @CommandLine.Option(names = {"--remote"}, hidden = true)
+        private boolean remoteFlag;
+
         private CommandLine parentCmdParser;
 
         public void execute() {
@@ -465,7 +468,7 @@ public class Main {
             }
 
             if (listCommands == null) {
-                ToolUtil.listSDKs(outStream, false);
+                ToolUtil.listSDKs(outStream, remoteFlag);
                 return;
             } else if (listCommands.size() > 1) {
                 throw LauncherUtils.createUsageExceptionWithHelp("too many arguments given");
