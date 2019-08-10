@@ -24,10 +24,10 @@ import org.ballerinalang.langserver.command.docs.DocAttachmentInfo;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
@@ -78,7 +78,7 @@ public class AddDocumentationExecutor implements LSCommandExecutor {
             WorkspaceDocumentManager documentManager = ctx.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
             bLangPackage = LSModuleCompiler.getBLangPackage(ctx, documentManager, false, LSCustomErrorStrategy.class,
                     false);
-        } catch (LSCompilerException e) {
+        } catch (CompilationFailedException e) {
             throw new LSCommandExecutorException("Couldn't compile the source", e);
         }
 

@@ -820,8 +820,11 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
     bir:BType returnType = bir:TYPE_NIL;
     if (lhsType is bir:BFutureType) {
         returnType = lhsType.returnType;
-    } else if (lhsType is bir:BInvokableType) { 
-        returnType = <bir:BType> lhsType?.retType;
+    } else if (ins is bir:FPLoad) {
+        returnType = ins.retType;
+        if (returnType is bir:BInvokableType) {
+            returnType = <bir:BType> returnType?.retType;
+        }
     } else {
         error err = error( "JVM generation is not supported for async return type " +
                                         io:sprintf("%s", lhsType));
@@ -954,8 +957,7 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
     } else {
         string methodDesc = getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount);
         string jvmClass = lookupFullQualifiedClassName(getPackageName(orgName, moduleName) + funcName);
-        mv.visitMethodInsn(INVOKESTATIC, jvmClass, funcName, getLambdaMethodDesc(paramBTypes, returnType,
-                           closureMapsCount), false);
+        mv.visitMethodInsn(INVOKESTATIC, jvmClass, funcName, methodDesc, false);
     }
 
     if (isVoid) {
@@ -1269,6 +1271,9 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
     // start all listeners
     startListeners(mv, serviceEPAvailable);
 
+    // register a shutdown hook to call package stop() method.
+    registerShutdownListener(mv, initClass);
+
     BalToJVMIndexMap indexMap = new;
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
     ErrorHandlerGenerator errorGen = new(mv, indexMap, pkgName);
@@ -1278,7 +1283,6 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
     mv.visitTypeInsn(NEW, SCHEDULER);
     mv.visitInsn(DUP);
     mv.visitInsn(ICONST_4);
-
     mv.visitInsn(ICONST_0);
     mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(IZ)V", false);
 
@@ -1385,6 +1389,15 @@ function stopListeners(jvm:MethodVisitor mv, boolean isServiceEPAvailable) {
     mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "stopListeners", "(Z)V", false);
 }
 
+function registerShutdownListener(jvm:MethodVisitor mv, string initClass) {
+    string shutdownClassName = initClass + "$SignalListener";
+    mv.visitMethodInsn(INVOKESTATIC, JAVA_RUNTIME, "getRuntime", io:sprintf("()L%s;", JAVA_RUNTIME), false);
+    mv.visitTypeInsn(NEW, shutdownClassName);
+    mv.visitInsn(DUP);
+    mv.visitMethodInsn(INVOKESPECIAL, shutdownClassName, "<init>", "()V", false);
+    mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_RUNTIME, "addShutdownHook", io:sprintf("(L%s;)V", JAVA_THREAD), false);
+}
+
 function scheduleStartMethod(jvm:MethodVisitor mv, bir:Package pkg, string initClass, boolean serviceEPAvailable,
     ErrorHandlerGenerator errorGen) {
     // schedule the start method
@@ -1417,7 +1430,6 @@ function scheduleStartMethod(jvm:MethodVisitor mv, bir:Package pkg, string initC
     mv.visitFieldInsn(PUTFIELD, STRAND, "frames", io:sprintf("[L%s;", OBJECT));
     errorGen.printStackTraceFromFutureValue(mv);
     mv.visitInsn(POP);
-    
 }
 
 # Generate a lambda function to invoke ballerina main.
@@ -1539,40 +1551,33 @@ function generateLambdaForPackageInits(jvm:ClassWriter cw, bir:Package pkg,
     //need to generate lambda for package Init as well, if exist
     if (hasInitFunction(pkg)) {
         string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
-        jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC,
-            io:sprintf("$lambda$%s$", initFuncName),
-            io:sprintf("([L%s;)V", OBJECT), (), ());
-        mv.visitCode();
-
-         //load strand as first arg
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(ICONST_0);
-        mv.visitInsn(AALOAD);
-        mv.visitTypeInsn(CHECKCAST, STRAND);
-        mv.visitMethodInsn(INVOKESTATIC, initClass, initFuncName, io:sprintf("(L%s;)V", STRAND), false);
-
-        mv.visitInsn(RETURN);
-        mv.visitMaxs(0,0);
-        mv.visitEnd();
+        generateLambdaForFunction(cw, initFuncName, initClass);
 
         // generate another lambda for start function as well
         string startFuncName = cleanupFunctionName(getModuleStartFuncName(pkg));
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, 
-            io:sprintf("$lambda$%s$", startFuncName),
-            io:sprintf("([L%s;)V", OBJECT), (), ());
-        mv.visitCode();
+        generateLambdaForFunction(cw, startFuncName, initClass);
 
-         //load strand as first arg
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(ICONST_0);
-        mv.visitInsn(AALOAD);
-        mv.visitTypeInsn(CHECKCAST, STRAND);
-        mv.visitMethodInsn(INVOKESTATIC, initClass, startFuncName, io:sprintf("(L%s;)V", STRAND), false);
-
-        mv.visitInsn(RETURN);
-        mv.visitMaxs(0,0);
-        mv.visitEnd();
+        string stopFuncName = cleanupFunctionName(getModuleStopFuncName(pkg));
+        generateLambdaForFunction(cw, stopFuncName, initClass);
     }
+}
+
+function generateLambdaForFunction(jvm:ClassWriter cw, string funcName, string initClass) {
+    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, 
+                        io:sprintf("$lambda$%s$", funcName),
+                        io:sprintf("([L%s;)V", OBJECT), (), ());
+    mv.visitCode();
+
+    //load strand as first arg
+    mv.visitVarInsn(ALOAD, 0);
+    mv.visitInsn(ICONST_0);
+    mv.visitInsn(AALOAD);
+    mv.visitTypeInsn(CHECKCAST, STRAND);
+    mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, io:sprintf("(L%s;)V", STRAND), false);
+
+    mv.visitInsn(RETURN);
+    mv.visitMaxs(0,0);
+    mv.visitEnd();
 }
 
 # Generate cast instruction from String to target type
@@ -1661,7 +1666,11 @@ function getModuleStartFuncName(bir:Package module) returns string {
 
 function calculateModuleStartFuncName(bir:ModuleID id) returns string {
     return calculateModuleSpecialFuncName(id, "<start>");
- }
+}
+
+function getModuleStopFuncName(bir:Package module) returns string {
+    return calculateModuleSpecialFuncName(packageToModuleId(module), "<stop>");
+}
 
 function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
     foreach var mod in pkg.importModules {

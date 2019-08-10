@@ -26,10 +26,10 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
-import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.LSCompletionException;
 import org.ballerinalang.langserver.completions.LSCompletionProviderFactory;
@@ -137,22 +137,22 @@ public abstract class LSCompletionProvider {
      * @return {@link List}     list of completion items
      */
     protected List<CompletionItem> getCompletionItemList(List<SymbolInfo> symbolInfoList, LSContext context) {
-        List<String> processedSymbols = new ArrayList<>();
+        List<BSymbol> processedSymbols = new ArrayList<>();
         List<CompletionItem> completionItems = new ArrayList<>();
         symbolInfoList.removeIf(CommonUtil.invalidSymbolsPredicate());
         symbolInfoList.forEach(symbolInfo -> {
-            if (processedSymbols.contains(symbolInfo.getSymbolName())) {
-                // In the case of type guarded variables multiple symbols with the same symbol name and we ignore those
+            BSymbol symbol = symbolInfo.getScopeEntry().symbol;
+            if (processedSymbols.contains(symbol)) {
                 return;
             }
             Optional<BSymbol> bTypeSymbol;
-            BSymbol bSymbol = symbolInfo.isCustomOperation() ? null : symbolInfo.getScopeEntry().symbol;
+            BSymbol bSymbol = symbolInfo.isCustomOperation() ? null : symbol;
             if (CommonUtil.isValidInvokableSymbol(bSymbol) || symbolInfo.isCustomOperation()) {
                 completionItems.add(populateBallerinaFunctionCompletionItem(symbolInfo, context));
             } else if (bSymbol instanceof BConstantSymbol) {
                 completionItems.add(BConstantCompletionItemBuilder.build((BConstantSymbol) bSymbol, context));
             } else if (!(bSymbol instanceof BInvokableSymbol) && bSymbol instanceof BVarSymbol) {
-                String typeName = CommonUtil.getBTypeName(symbolInfo.getScopeEntry().symbol.type, context);
+                String typeName = CommonUtil.getBTypeName(symbol.type, context);
                 completionItems.add(
                         BVariableCompletionItemBuilder.build((BVarSymbol) bSymbol, symbolInfo.getSymbolName(), typeName)
                 );
@@ -160,7 +160,7 @@ public abstract class LSCompletionProvider {
                 // Here skip all the package symbols since the package is added separately
                 completionItems.add(BTypeCompletionItemBuilder.build(bTypeSymbol.get(), symbolInfo.getSymbolName()));
             }
-            processedSymbols.add(symbolInfo.getSymbolName());
+            processedSymbols.add(symbol);
         });
         return completionItems;
     }
@@ -288,7 +288,9 @@ public abstract class LSCompletionProvider {
                             .collect(Collectors.joining("."));
                     String label = pkg.alias.value;
                     String insertText = pkg.alias.value;
-                    if ("ballerina".equals(orgName) && pkgID.nameComps.get(0).getValue().equals("lang")) {
+                    // If the import is a langlib module and there isn't a user defined alias we add ' before
+                    if ("ballerina".equals(orgName) && pkgID.nameComps.get(0).getValue().equals("lang")
+                            && pkgName.endsWith("." + pkg.alias.value)) {
                         insertText = "'" + insertText;
                     }
                     CompletionItem item = new CompletionItem();
@@ -312,7 +314,8 @@ public abstract class LSCompletionProvider {
             if (!pkgAlreadyImported && !populatedList.contains(orgName + "/" + name)) {
                 CompletionItem item = new CompletionItem();
                 item.setLabel(ballerinaPackage.getFullPackageNameAlias());
-                String insertText = name;
+                String[] pkgNameComps = name.split("\\.");
+                String insertText = pkgNameComps[pkgNameComps.length - 1];
                 // Check for the lang lib module insert text
                 if ("ballerina".equals(orgName) && name.startsWith("lang.")) {
                     String[] pkgNameComponents = name.split("\\.");
@@ -435,12 +438,12 @@ public abstract class LSCompletionProvider {
                 BAttachedFunction initFunction = objectTypeSymbol.initializerFunc;
                 CompletionItem newCItem;
                 if (initFunction == null) {
-                    newCItem = BFunctionCompletionItemBuilder.build(null, "new()", "new();");
+                    newCItem = BFunctionCompletionItemBuilder.build(null, "new()", "new();", context);
                 } else {
                     Pair<String, String> signature = CommonUtil.getFunctionInvocationSignature(initFunction.symbol,
                             "new", context);
                     newCItem = BFunctionCompletionItemBuilder.build(initFunction.symbol, signature.getRight(),
-                            signature.getLeft());
+                            signature.getLeft(), context);
                 }
                 completionItems.add(newCItem);
             } else if (isTypeDesc) {
@@ -507,7 +510,8 @@ public abstract class LSCompletionProvider {
         return visibleSymbols.stream()
                 .filter(symbolInfo -> {
                     BSymbol symbol = symbolInfo.getScopeEntry().symbol;
-                    return symbol instanceof BPackageSymbol && alias.equals(symbol.getName().getValue());
+                    String[] nameComps = symbol.getName().value.split("\\.");
+                    return symbol instanceof BPackageSymbol && alias.equals(nameComps[nameComps.length - 1]);
                 })
                 .findAny();
     }
@@ -534,7 +538,7 @@ public abstract class LSCompletionProvider {
         if (symbolInfo.isCustomOperation()) {
             SymbolInfo.CustomOperationSignature signature =
                     symbolInfo.getCustomOperationSignature();
-            return BFunctionCompletionItemBuilder.build(null, signature.getLabel(), signature.getInsertText());
+            return BFunctionCompletionItemBuilder.build(null, signature.getLabel(), signature.getInsertText(), context);
         }
         BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
         if (!(bSymbol instanceof BInvokableSymbol)) {
@@ -577,7 +581,7 @@ public abstract class LSCompletionProvider {
         try {
             bLangPackage = ExtendedLSCompiler.compileContent(subRule.toString(), CompilerPhase.CODE_ANALYZE)
                     .getBLangPackage();
-        } catch (LSCompilerException e) {
+        } catch (CompilationFailedException e) {
             throw new LSCompletionException("Error while parsing the sub-rule");
         }
 

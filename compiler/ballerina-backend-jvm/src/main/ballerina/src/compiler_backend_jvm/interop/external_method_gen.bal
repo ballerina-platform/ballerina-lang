@@ -219,8 +219,8 @@ function getExternalFunctionWrapper(bir:Package birModule, bir:Function birFunc,
     }
 }
 
-function createExternalFunctionWrapper(bir:Function birFunc, string orgName ,string moduleName,
-                                       string versionValue,  string  birModuleClassName) returns BIRFunctionWrapper {
+function createExternalFunctionWrapper(bir:Function birFunc, string orgName ,string moduleName, string versionValue,
+                                        string  birModuleClassName) returns BIRFunctionWrapper | error {
     BIRFunctionWrapper birFuncWrapper;
     jvm:InteropValidationRequest? jInteropValidationReq = getInteropAnnotValue(birFunc);
     if (jInteropValidationReq is ()) {
@@ -240,7 +240,7 @@ function createExternalFunctionWrapper(bir:Function birFunc, string orgName ,str
             panic err;
         }
     } else {
-        birFuncWrapper = createJInteropFunctionWrapper(jInteropValidationReq, birFunc, orgName, moduleName,
+        birFuncWrapper = check createJInteropFunctionWrapper(jInteropValidationReq, birFunc, orgName, moduleName,
                                 versionValue, birModuleClassName);
     }
 
