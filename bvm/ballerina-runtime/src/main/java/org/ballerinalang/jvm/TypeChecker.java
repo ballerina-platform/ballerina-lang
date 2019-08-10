@@ -160,7 +160,7 @@ public class TypeChecker {
      * @param targetType type to test against
      * @return true if the two types are same; false otherwise
      */
-    private static boolean isSameType(BType sourceType, BType targetType) {
+    public static boolean isSameType(BType sourceType, BType targetType) {
         // First check whether both references points to the same object.
         if (sourceType == targetType || sourceType.equals(targetType)) {
             return true;

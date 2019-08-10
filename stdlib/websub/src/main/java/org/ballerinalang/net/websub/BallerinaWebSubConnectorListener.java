@@ -27,6 +27,7 @@ import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
@@ -267,16 +268,16 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
      */
     private MapValue createCustomNotification(HttpCarbonMessage inboundRequest, AttachedFunction resource,
                                               ObjectValue httpRequest) {
-        String[] paramDetails = webSubServicesRegistry.getResourceDetails().get(resource.getName());
-        MapValue<String, Object> customNotification = BallerinaValues.createRecordValue(paramDetails[0],
-                                                                                        paramDetails[1]);
+        BRecordType recordType = webSubServicesRegistry.getResourceDetails().get(resource.getName());
+        MapValue<String, Object> customNotification =
+                BallerinaValues.createRecordValue(recordType.getPackage().getName(), recordType.getName());
         MapValue<String, ?> jsonBody = getJsonBody(httpRequest);
         inboundRequest.setProperty(ENTITY_ACCESSED_REQUEST, httpRequest);
         if (jsonBody != null) {
             return JSONUtils.convertJSONToRecord(jsonBody, (BStructureType) customNotification.getType());
         } else {
             throw new BallerinaException("JSON payload: null. Cannot create custom notification record: "
-                                                 + paramDetails[0] + ":" + paramDetails[1]);
+                                                 + recordType.getQualifiedName());
         }
     }
 

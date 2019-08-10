@@ -192,7 +192,7 @@ public type ExtensionConfig record {|
     //    "watch" : ("onWatch", WatchEvent),
     //    "create" : ("onCreate", CreateEvent)
     //  };
-    map<[string, typedesc<any>]>? headerResourceMap = ();
+    map<[string, typedesc<record{| json...; |}>]>? headerResourceMap = ();
 
     // e.g.,
     //  payloadKeyResourceMap = {
@@ -201,7 +201,7 @@ public type ExtensionConfig record {|
     //        "branch.deleted":  ("onBranchDelete", BranchDeletedEvent)
     //    }
     //  };
-    map<map<[string, typedesc<any>]>>? payloadKeyResourceMap = ();
+    map<map<[string, typedesc<record{| json...; |}>]>>? payloadKeyResourceMap = ();
 
     // e.g.,
     //  headerAndPayloadKeyResourceMap = {
@@ -213,7 +213,7 @@ public type ExtensionConfig record {|
     //        }
     //    }
     //  };
-    map<map<map<[string, typedesc<any>]>>>? headerAndPayloadKeyResourceMap = ();
+    map<map<map<[string, typedesc<record{| json...; |}>]>>>? headerAndPayloadKeyResourceMap = ();
 |};
 
 # The function called to discover hub and topic URLs defined by a resource URL.
