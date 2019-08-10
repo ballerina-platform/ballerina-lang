@@ -20,6 +20,8 @@ package org.ballerinalang.openapi.cmd;
 import org.ballerinalang.tool.BLauncherCmd;
 import picocli.CommandLine;
 
+import java.io.PrintStream;
+
 /**
  * Main class to implement "openapi" command for ballerina.
  * This class will accept sub-commands and execute the relevant sub-command class as given to the sub-commands
@@ -37,11 +39,15 @@ import picocli.CommandLine;
 )
 public class OpenApiCmd implements BLauncherCmd {
     private static final String CMD_NAME = "openapi";
+    private static final PrintStream outStream = System.err;
+
+    @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
+    private boolean helpFlag;
 
     @Override
     public void execute() {
-        //Migrated the command logic to sub commands. This execute is needed if the main command needs to be executed
-        //other than a sub-command.
+        String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(getName());
+        outStream.println(commandUsageInfo);
     }
 
     @Override
