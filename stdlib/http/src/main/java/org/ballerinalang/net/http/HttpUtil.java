@@ -109,7 +109,6 @@ import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
-import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
@@ -641,7 +640,7 @@ public class HttpUtil {
     }
 
     public static void populateInboundRequest(ObjectValue inboundRequest, ObjectValue entity,
-                                              ObjectValue mediaType, HttpCarbonMessage inboundRequestMsg) {
+                                              HttpCarbonMessage inboundRequestMsg) {
         inboundRequest.addNativeData(TRANSPORT_MESSAGE, inboundRequestMsg);
         inboundRequest.addNativeData(REQUEST, true);
 
@@ -656,7 +655,7 @@ public class HttpUtil {
         enrichWithInboundRequestInfo(inboundRequest, inboundRequestMsg);
         enrichWithInboundRequestHeaders(inboundRequest, inboundRequestMsg);
 
-        populateEntity(entity, mediaType, inboundRequestMsg);
+        populateEntity(entity, inboundRequestMsg);
         inboundRequest.set(REQUEST_ENTITY_FIELD, entity);
         inboundRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
 
@@ -746,11 +745,10 @@ public class HttpUtil {
      * Populate inbound response with headers and entity.
      * @param inboundResponse  Ballerina struct to represent response
      * @param entity    Entity of the response
-     * @param mediaType Content type of the response
      * @param inboundResponseMsg      Represent carbon message.
      */
     public static void populateInboundResponse(ObjectValue inboundResponse, ObjectValue entity,
-                                               ObjectValue mediaType, HttpCarbonMessage inboundResponseMsg) {
+                                               HttpCarbonMessage inboundResponseMsg) {
         inboundResponse.addNativeData(TRANSPORT_MESSAGE, inboundResponseMsg);
         int statusCode = inboundResponseMsg.getHttpStatusCode();
         inboundResponse.set(RESPONSE_STATUS_CODE_FIELD, (long) statusCode);
@@ -776,7 +774,7 @@ public class HttpUtil {
             inboundResponse.set(RESPONSE_CACHE_CONTROL_FIELD, responseCacheControl.getObj());
         }
 
-        populateEntity(entity, mediaType, inboundResponseMsg);
+        populateEntity(entity, inboundResponseMsg);
         inboundResponse.set(RESPONSE_ENTITY_FIELD, entity);
         inboundResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
     }
@@ -784,13 +782,10 @@ public class HttpUtil {
     /**
      * Populate entity with headers, content-type and content-length.
      *
-     * @param entity    Represent an entity struct
-     * @param mediaType mediaType struct that needs to be set to the entity
-     * @param cMsg      Represent a carbon message
+     * @param entity Represent an entity struct
+     * @param cMsg   Represent a carbon message
      */
-    private static void populateEntity(ObjectValue entity, ObjectValue mediaType, HttpCarbonMessage cMsg) {
-        String contentType = cMsg.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
-        MimeUtil.setContentType(mediaType, entity, contentType);
+    private static void populateEntity(ObjectValue entity, HttpCarbonMessage cMsg) {
         long contentLength = -1;
         String lengthStr = cMsg.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
         try {
@@ -1157,9 +1152,8 @@ public class HttpUtil {
         ObjectValue responseObj = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_PACKAGE_HTTP,
                                                                     HttpConstants.RESPONSE);
         ObjectValue entity = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, HttpConstants.ENTITY);
-        ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
 
-        HttpUtil.populateInboundResponse(responseObj, entity, mediaType, httpCarbonMessage);
+        HttpUtil.populateInboundResponse(responseObj, entity, httpCarbonMessage);
         return responseObj;
     }
 
