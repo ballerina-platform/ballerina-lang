@@ -255,6 +255,7 @@ public class BIRGen extends BLangNodeVisitor {
         astPkg.globalVars.forEach(astGlobalVar -> astGlobalVar.accept(this));
         astPkg.initFunction.accept(this);
         astPkg.startFunction.accept(this);
+        astPkg.stopFunction.accept(this);
         astPkg.functions.forEach(astFunc -> astFunc.accept(this));
         astPkg.annotations.forEach(astAnn -> astAnn.accept(this));
 
@@ -641,7 +642,7 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         emit(new BIRNonTerminator.FPLoad(lambdaExpr.pos, lambdaExpr.function.symbol.pkgID, funcName, lhsOp, params,
-                getClosureMapOperands(lambdaExpr)));
+                getClosureMapOperands(lambdaExpr), lambdaExpr.type));
         this.env.targetOperand = lhsOp;
     }
 
@@ -2366,7 +2367,8 @@ public class BIRGen extends BLangNodeVisitor {
             params.add(birVarDcl);
         }
 
-        emit(new BIRNonTerminator.FPLoad(fpVarRef.pos, funcSymbol.pkgID, funcName, lhsOp, params, new ArrayList<>()));
+        emit(new BIRNonTerminator.FPLoad(fpVarRef.pos, funcSymbol.pkgID, funcName, lhsOp, params, new ArrayList<>(),
+                funcSymbol.retType));
         this.env.targetOperand = lhsOp;
     }
 

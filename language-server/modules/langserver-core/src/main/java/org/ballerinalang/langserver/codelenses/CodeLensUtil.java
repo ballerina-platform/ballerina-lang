@@ -20,10 +20,10 @@ import org.ballerinalang.langserver.command.executors.MessageExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
@@ -59,10 +59,10 @@ public class CodeLensUtil {
      * @param fileUri         file uri
      * @param documentManager Document Manager
      * @return a list of code lenses
-     * @throws LSCompilerException thrown when compilation error occurs
+     * @throws CompilationFailedException thrown when compilation error occurs
      */
-    public static List<CodeLens> compileAndGetCodeLenses(String fileUri, WorkspaceDocumentManager documentManager) 
-            throws LSCompilerException {
+    public static List<CodeLens> compileAndGetCodeLenses(String fileUri, WorkspaceDocumentManager documentManager)
+            throws CompilationFailedException {
         List<CodeLens> lenses = new ArrayList<>();
         LSServiceOperationContext codeLensContext = new LSServiceOperationContext();
         codeLensContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);

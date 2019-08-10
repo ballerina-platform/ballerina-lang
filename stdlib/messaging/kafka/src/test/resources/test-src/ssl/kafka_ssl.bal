@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/encoding;
+import ballerina/filepath;
 import ballerina/kafka;
 
 string topic = "test-topic-ssl";
@@ -26,11 +27,11 @@ kafka:ProducerConfig producerConfigs = {
     noRetries:3,
     secureSocket: {
         keyStore:{
-            location:"<FILE_PATH>/kafka.client.keystore.jks",
+            location:"<FILE_PATH>" + filepath:getPathSeparator() + "kafka.client.keystore.jks",
             password:"test1234"
         },
         trustStore: {
-            location:"<FILE_PATH>/kafka.client.truststore.jks",
+            location:"<FILE_PATH>" + filepath:getPathSeparator() + "kafka.client.truststore.jks",
             password:"test1234"
         },
         protocol: {
@@ -62,11 +63,11 @@ kafka:ConsumerConfig consumerConfig = {
     topics:["test-topic-ssl"],
     secureSocket: {
         keyStore:{
-            location:"<FILE_PATH>/kafka.client.keystore.jks",
+            location:"<FILE_PATH>" + filepath:getPathSeparator() + "kafka.client.keystore.jks",
             password:"test1234"
         },
         trustStore: {
-            location:"<FILE_PATH>/kafka.client.truststore.jks",
+            location:"<FILE_PATH>" + filepath:getPathSeparator() + "kafka.client.truststore.jks",
             password:"test1234"
         },
         protocol: {

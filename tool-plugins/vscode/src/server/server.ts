@@ -36,6 +36,9 @@ export function getServerOptions(ballerinaHome: string, experimental: boolean, d
 
     let opt: ExecutableOptions = {cwd: cwd};
     opt.env = Object.assign({}, process.env);
+    if (process.platform === "darwin") {
+        opt.env.BALLERINA_HOME = ballerinaHome;
+    }
     if (process.env.LSDEBUG === "true") {
         log('Language Server is starting in debug mode.');
         args.push('--debug');

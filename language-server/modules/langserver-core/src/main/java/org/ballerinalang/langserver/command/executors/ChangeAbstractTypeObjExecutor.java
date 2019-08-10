@@ -22,8 +22,8 @@ import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.Whitespace;
 import org.eclipse.lsp4j.Position;
@@ -92,7 +92,7 @@ public class ChangeAbstractTypeObjExecutor implements LSCommandExecutor {
         BLangObjectTypeNode objectNode;
         try {
             objectNode = getObjectNode(sLine, sCol, documentUri, documentManager, context);
-        } catch (LSCompilerException e) {
+        } catch (CompilationFailedException e) {
             throw new LSCommandExecutorException("Error while compiling the source!");
         }
         if (objectNode == null) {

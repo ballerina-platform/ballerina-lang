@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -572,10 +573,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
-        super.visit(objectTypeNode);
+        objectTypeNode.typeRefs.forEach(this::addObjectReferenceType);
         objectTypeNode.fields.forEach(this::acceptNode);
         objectTypeNode.functions.forEach(this::acceptNode);
         this.acceptNode(objectTypeNode.initFunction);
+        
     }
 
     @Override
@@ -592,7 +594,6 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        // TODO: Complete
         tupleTypeNode.memberTypeNodes.forEach(this::acceptNode);
     }
 
@@ -826,6 +827,9 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
                 && this.cursorCol <= zeroBasedPos.eCol) {
             // This is the symbol at current cursor position
             this.symbolReferences.setReferenceAtCursor(ref);
+            if (isDefinition) {
+                this.symbolReferences.addDefinition(ref);
+            }
             return;
         }
 
@@ -1036,5 +1040,18 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
                 this.workerNamesMap.put(variable.name.value, variable.symbol);
             }
         });
+    }
+    
+    private void addObjectReferenceType(BLangType bLangType) {
+        if (!(bLangType instanceof BLangUserDefinedType)
+                || !((BLangUserDefinedType) bLangType).typeName.getValue().equals(this.tokenName)
+                || !(bLangType.type instanceof BObjectType)) {
+            return;
+        }
+        DiagnosticPos diagnosticPos = bLangType.pos;
+        BObjectType objectType = (BObjectType) bLangType.type;
+        DiagnosticPos pos = new DiagnosticPos(diagnosticPos.src, diagnosticPos.sLine, diagnosticPos.eLine,
+                diagnosticPos.sCol, diagnosticPos.eCol);
+        this.addSymbol(bLangType, objectType.tsymbol, false, pos);
     }
 }
