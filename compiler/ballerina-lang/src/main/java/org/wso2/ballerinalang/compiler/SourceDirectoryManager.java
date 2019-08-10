@@ -131,55 +131,55 @@ public class SourceDirectoryManager {
                 throw new IllegalArgumentException("invalid project directory path");
             }
         
-            Path projectDirPath = Paths.get(srcDirPathName);
+            Path sourceRoot = Paths.get(srcDirPathName);
         
-            if (Files.notExists(projectDirPath)) {
-                throw new BLangCompilerException("'" + projectDirPath + "' project directory does not exist.");
+            if (Files.notExists(sourceRoot)) {
+                throw new BLangCompilerException("'" + sourceRoot + "' project directory does not exist.");
             }
         
-            if (!Files.isDirectory(projectDirPath)) {
-                throw new BLangCompilerException("'" + projectDirPath + "' project directory does not exist.");
+            if (!Files.isDirectory(sourceRoot)) {
+                throw new BLangCompilerException("'" + sourceRoot + "' project directory does not exist.");
             }
         
-            if (Files.isSymbolicLink(projectDirPath)) {
-                throw new BLangCompilerException("'" + projectDirPath + "' project directory is symlink.");
+            if (Files.isSymbolicLink(sourceRoot)) {
+                throw new BLangCompilerException("'" + sourceRoot + "' project directory is symlink.");
             }
         
-            if (!Files.isWritable(projectDirPath)) {
-                throw new BLangCompilerException("'" + projectDirPath + "' is not writable.");
+            if (!Files.isWritable(sourceRoot)) {
+                throw new BLangCompilerException("'" + sourceRoot + "' is not writable.");
             }
         
-            projectDirPath = projectDirPath.normalize().toAbsolutePath();
+            sourceRoot = sourceRoot.normalize().toAbsolutePath();
         
             String sourceType = options.get(CompilerOptionName.SOURCE_TYPE);
             if (null != sourceType) {
                 switch (sourceType) {
                     case "SINGLE_BAL_FILE":
-                        srcDirectory = new FileSystemProgramDirectory(projectDirPath);
+                        srcDirectory = new FileSystemProgramDirectory(sourceRoot);
                         break;
                     case "SINGLE_MODULE":
                     case "ALL_MODULES":
                         // if src folder is missing
-                        if (Files.notExists(projectDirPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME))) {
-                            throw new BLangCompilerException("cannot find 'src' directory in the ballerina project. " +
-                                                             "'src' directory is missing at: " +
-                                                             projectDirPath.toString());
+                        if (Files.notExists(sourceRoot.resolve(ProjectDirConstants.SOURCE_DIR_NAME))) {
+                            throw new BLangCompilerException("cannot find module(s) to build/compile as 'src' " +
+                                                             "directory is missing. modules should be placed inside " +
+                                                             "an 'src' directory of the project.");
                         }
-                        srcDirectory = new FileSystemProjectDirectory(projectDirPath);
+                        srcDirectory = new FileSystemProjectDirectory(sourceRoot);
                         break;
                     default:
                 }
             } else {
                 // resort to 'canHandle'
-                srcDirectory = new FileSystemProjectDirectory(projectDirPath);
-                if (!srcDirectory.canHandle(projectDirPath)) {
-                    srcDirectory = new FileSystemProgramDirectory(projectDirPath);
+                srcDirectory = new FileSystemProjectDirectory(sourceRoot);
+                if (!srcDirectory.canHandle(sourceRoot)) {
+                    srcDirectory = new FileSystemProgramDirectory(sourceRoot);
                 }
             }
         
             // validate Ballerina.toml
             if (srcDirectory instanceof FileSystemProjectDirectory) {
-                Path manifestPath = projectDirPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME);
+                Path manifestPath = sourceRoot.resolve(ProjectDirConstants.MANIFEST_FILE_NAME);
                 ManifestProcessor.parseTomlContentFromFile(manifestPath);
             }
         

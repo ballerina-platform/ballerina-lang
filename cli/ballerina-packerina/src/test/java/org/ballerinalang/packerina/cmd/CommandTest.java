@@ -30,7 +30,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
+
+import static org.ballerinalang.packerina.utils.FileUtils.deleteDirectory;
 
 
 /**
@@ -45,7 +46,7 @@ public abstract class CommandTest {
     
     @BeforeClass
     public void setup() throws IOException {
-        this.tmpDir = Files.createTempDirectory("b7a-cmd-test");
+        this.tmpDir = Files.createTempDirectory("b7a-cmd-test-" + System.nanoTime());
         this.console = new ByteArrayOutputStream();
         this.printStream = new PrintStream(this.console);
     }
@@ -93,15 +94,7 @@ public abstract class CommandTest {
 
     @AfterClass
     public void cleanup() throws IOException {
-        Files.walk(this.tmpDir)
-                .sorted(Comparator.reverseOrder())
-                .forEach(path -> {
-                    try {
-                        Files.delete(path);
-                    } catch (IOException e) {
-                        Assert.fail(e.getMessage(), e);
-                    }
-                });
+        deleteDirectory(this.tmpDir);
         console.close();
         printStream.close();
     }
