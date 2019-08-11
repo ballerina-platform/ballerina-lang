@@ -226,12 +226,12 @@ public class InstanceMethodTest {
         Assert.assertEquals(returns[0].getType().getName(), "error");
         Assert.assertEquals(((BError) returns[0]).getReason(),
                 "org.ballerinalang.nativeimpl.jvm.tests.JavaInteropTestCheckedException");
-        Assert.assertEquals(((BMap)((BError) returns[0]).getDetails()).get("message").stringValue(),
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get("message").stringValue(),
                 "Custom error");
-        BError cause = (BError) ((BMap)((BError) returns[0]).getDetails()).get("cause");
+        BError cause = (BError) ((BMap) ((BError) returns[0]).getDetails()).get("cause");
         Assert.assertEquals(cause.getType().getName(), "error");
         Assert.assertEquals(cause.getReason(), "java.lang.Throwable");
-        Assert.assertEquals(((BMap)cause.getDetails()).get("message").stringValue(), "Interop Throwable");
+        Assert.assertEquals(((BMap) cause.getDetails()).get("message").stringValue(), "Interop Throwable");
     }
 
     @Test(description = "Test content of a exception return")
