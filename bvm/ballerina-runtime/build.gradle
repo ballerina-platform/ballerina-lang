@@ -19,10 +19,9 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 
 configurations {
     // configuration that holds jars to copy into runtime jar
-    includedJarLibs
-    excludedJarLibs
-    compile.extendsFrom includedJarLibs
-    compile.extendsFrom excludedJarLibs
+    dist {
+        transitive false
+    }
 }
 
 dependencies {
@@ -35,18 +34,18 @@ dependencies {
 
     implementation project(':ballerina-config')
 
-    includedJarLibs 'org.apache.ws.commons.axiom:axiom-c14n'
-    includedJarLibs 'org.apache.ws.commons.axiom:axiom-dom'
-    includedJarLibs 'org.apache.ws.commons.axiom:axiom-impl'
-    includedJarLibs 'io.opentracing:opentracing-api'
-    includedJarLibs 'io.opentracing:opentracing-util'
-    includedJarLibs 'org.awaitility:awaitility'
-    includedJarLibs project(':ballerina-config')
-
-    excludedJarLibs 'org.codehaus.woodstox:stax2-api:3.1.1'
-    excludedJarLibs 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
+    dist 'org.apache.ws.commons.axiom:axiom-c14n:1.2.22'
+    dist 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
+    dist 'org.apache.ws.commons.axiom:axiom-impl:1.2.22'
+    dist 'io.opentracing:opentracing-api:0.31.0'
+    dist 'io.opentracing:opentracing-util:0.31.0'
+    dist 'org.awaitility:awaitility:3.1.6'
+    dist project(':ballerina-config')
 }
 
 jar {
-    from { (configurations.includedJarLibs - configurations.excludedJarLibs).collect { it.isDirectory() ? it : zipTree(it) } }
+    from { configurations.dist.collect { it.isDirectory() ? it : zipTree(it) } }
 }
+
+description = 'Ballerina - Runtime'
+

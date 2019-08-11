@@ -340,7 +340,7 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CompileTask()) // compile the modules
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the balos for modules(projects only)
                 .addTask(new CreateBirTask())   // create the bir
-                .addTask(new CopyNativeLibTask(), isSingleFileBuild)    // copy the native libs(projects only)
+                .addTask(new CopyNativeLibTask())    // copy the native libs(projects only)
                 .addTask(new CreateJarTask(this.dumpBIR))    // create the jar
                 .addTask(new CopyModuleJarTask())
                 .addTask(new RunTestsTask(configFilePath), this.skipTests || isSingleFileBuild) // run tests

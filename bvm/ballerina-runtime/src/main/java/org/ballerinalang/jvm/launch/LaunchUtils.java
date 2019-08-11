@@ -27,6 +27,11 @@ import java.util.ServiceLoader;
  */
 public class LaunchUtils {
 
+    public static void setSystemProperties() {
+        System.setProperty("java.util.logging.config.class", "org.ballerinalang.logging.util.LogConfigReader");
+        System.setProperty("java.util.logging.manager", "org.ballerinalang.logging.BLogManager");
+    }
+
     public static void startListeners(boolean isService) {
         ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
         listeners.forEach(listener -> listener.beforeRunProgram(isService));

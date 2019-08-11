@@ -58,6 +58,10 @@
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>toml-parser</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
