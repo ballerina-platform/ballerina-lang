@@ -55,7 +55,7 @@ public class AddCommandTest extends CommandTest {
         // Test if no arguments was passed in
         String[] args = {};
         AddCommand addCommand = new AddCommand(tmpDir, printStream);
-        new CommandLine(addCommand).parse(args);
+        new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
         Assert.assertTrue(readOutput().contains("not a ballerina project"));
@@ -66,7 +66,7 @@ public class AddCommandTest extends CommandTest {
         // Test if no arguments was passed in
         String[] args = {};
         AddCommand addCommand = new AddCommand(projectPath, printStream);
-        new CommandLine(addCommand).parse(args);
+        new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
         Assert.assertTrue(readOutput().contains("The following required arguments were not provided"));
@@ -77,7 +77,7 @@ public class AddCommandTest extends CommandTest {
         // Test if no arguments was passed in
         String[] args = {"mainmodule"};
         AddCommand addCommand = new AddCommand(projectPath, printStream);
-        new CommandLine(addCommand).parse(args);
+        new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
         // Validate against spec
         // -- mymodule/
@@ -112,7 +112,7 @@ public class AddCommandTest extends CommandTest {
         // Test if no arguments was passed in
         String[] args = {"servicemodule", "-t", "service"};
         AddCommand addCommand = new AddCommand(projectPath, printStream);
-        new CommandLine(addCommand).parse(args);
+        new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
         // Validate against spec
@@ -149,7 +149,7 @@ public class AddCommandTest extends CommandTest {
         // Test if no arguments was passed in
         String[] args = {"mymodule2", "-t", "invalid"};
         AddCommand addCommand = new AddCommand(projectPath, printStream);
-        new CommandLine(addCommand).parse(args);
+        new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
         Assert.assertTrue(readOutput().contains("Template not found"));
@@ -162,7 +162,7 @@ public class AddCommandTest extends CommandTest {
         // Test if no arguments was passed in
         String[] args = {"mymo-dule"};
         AddCommand addCommand = new AddCommand(projectPath, printStream);
-        new CommandLine(addCommand).parse(args);
+        new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
         Assert.assertTrue(readOutput().contains("Invalid module name"));
@@ -174,7 +174,7 @@ public class AddCommandTest extends CommandTest {
         // Test if no arguments was passed in
         String[] args = {"--list"};
         AddCommand addCommand = new AddCommand(projectPath, printStream);
-        new CommandLine(addCommand).parse(args);
+        new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
         String output = readOutput();
@@ -188,10 +188,10 @@ public class AddCommandTest extends CommandTest {
         // Test if no arguments was passed in
         String[] args = {"-h"};
         AddCommand addCommand = new AddCommand(projectPath, printStream);
-        new CommandLine(addCommand).parse(args);
+        new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("Ballerina add - Add a Ballerina module"));
+        Assert.assertTrue(readOutput().contains("Ballerina add - Add a Ballerina module in a project"));
     }
 
     @Test(description = "Test add command", dependsOnMethods = {"testAddCommand"})
@@ -199,7 +199,7 @@ public class AddCommandTest extends CommandTest {
         // Test if no arguments was passed in
         String[] args = {"mainmodule"};
         AddCommand addCommand = new AddCommand(projectPath, printStream);
-        new CommandLine(addCommand).parse(args);
+        new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
         Assert.assertTrue(readOutput().contains("A module already exists with the given name"));
