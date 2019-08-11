@@ -134,7 +134,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
             this.idleTimeoutTriggered = true;
-//            ctx.close();
             targetChannel.senderReqRespStateManager.handleIdleTimeoutConnectionClosure(
                     httpResponseFuture, ctx.channel().id().asLongText());
         } else if (evt instanceof HttpClientUpgradeHandler.UpgradeEvent) {
