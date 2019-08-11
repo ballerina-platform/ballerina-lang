@@ -49,9 +49,14 @@ public class PathConverter implements Converter<Path> {
     public PathConverter(Path root) {
         this.root = root;
         this.isResourceFile = root.getFileSystem()
-                .getPathMatcher("glob:src/*/resources/**");
+                // glob:src/*/resources/**
+                .getPathMatcher("glob:" + ProjectDirConstants.SOURCE_DIR_NAME
+                        + "/*/" + ProjectDirConstants.RESOURCE_DIR_NAME + "/**");
         this.isTestResourceFile = root.getFileSystem()
-                .getPathMatcher("glob:src/*/tests/resources/**");
+                // glob:src/*/tests/resources/**
+                .getPathMatcher("glob:" + ProjectDirConstants.SOURCE_DIR_NAME
+                        + "/*/" + ProjectDirConstants.TEST_DIR_NAME + "/"
+                        + ProjectDirConstants.RESOURCE_DIR_NAME + "/**");
     }
 
     private boolean isBalWithTest(Path path, BasicFileAttributes attributes) {
