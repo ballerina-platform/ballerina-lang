@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -24,19 +24,21 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.transport.http.netty.contentaware.listeners.MockHalfResponseMessageListener;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
+import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
-import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
+import org.wso2.transport.http.netty.contract.config.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
-import org.wso2.transport.http.netty.util.server.HttpServer;
-import org.wso2.transport.http.netty.util.server.initializers.HalfResponseCloseServerInitializer;
 
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
@@ -46,29 +48,48 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 /**
- * Tests for HTTP client connector timeout
+ * This class tests for http 1.1 when KeepAlivConfig is set to NEVER.
  */
-public class ServerCloseWhileReadingBodyTestCase {
+public class ServerConnectorTimeoutWhileSendingBodyTestCase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ServerCloseWhileReadingBodyTestCase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ServerConnectorTimeoutWhileSendingBodyTestCase.class);
 
-    private HttpServer httpServer;
+    protected ServerConnector serverConnector;
     private HttpClientConnector httpClientConnector;
-    private HttpWsConnectorFactory connectorFactory;
+    protected ListenerConfiguration listenerConfiguration;
+    protected HttpWsConnectorFactory httpWsConnectorFactory;
+
+    ServerConnectorTimeoutWhileSendingBodyTestCase() {
+        this.listenerConfiguration = new ListenerConfiguration();
+    }
 
     @BeforeClass
-    public void setup() {
-        httpServer = TestUtil.startHTTPServer(TestUtil.HTTPS_SERVER_PORT, new HalfResponseCloseServerInitializer());
+    private void setUp() {
+        listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
+        listenerConfiguration.setServerHeader(TestUtil.TEST_SERVER);
+        listenerConfiguration.setSocketIdleTimeout(3000);
 
-        connectorFactory = new DefaultHttpWsConnectorFactory();
+        ServerBootstrapConfiguration serverBootstrapConfig = new ServerBootstrapConfiguration(new HashMap<>());
+        httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
+
+        serverConnector = httpWsConnectorFactory.createServerConnector(serverBootstrapConfig, listenerConfiguration);
+        ServerConnectorFuture serverConnectorFuture = serverConnector.start();
+        serverConnectorFuture.setHttpConnectorListener(new MockHalfResponseMessageListener());
+        try {
+            serverConnectorFuture.sync();
+        } catch (InterruptedException e) {
+            LOG.error("Thread Interrupted while sleeping ", e);
+        }
+
         SenderConfiguration senderConfiguration = new SenderConfiguration();
-        httpClientConnector = connectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
+        httpClientConnector = httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
     }
 
     @Test
     public void testHttpPost() {
         try {
-            HttpCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.HTTPS_SERVER_PORT, "Test request body", "");
+            HttpCarbonMessage msg = TestUtil
+                    .createHttpsPostReq(TestUtil.SERVER_CONNECTOR_PORT, "Test request body", "");
 
             CountDownLatch latch = new CountDownLatch(1);
             DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
@@ -81,9 +102,9 @@ public class ServerCloseWhileReadingBodyTestCase {
             assertNotNull(response);
             String decoderExceptionMsg = "";
             try {
-                TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());;
+                TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
             } catch (DecoderException de) {
-                decoderExceptionMsg = de.getMessage();
+                decoderExceptionMsg = de.getLocalizedMessage();
             }
             assertEquals(decoderExceptionMsg, Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY);
         } catch (Exception e) {
@@ -92,12 +113,8 @@ public class ServerCloseWhileReadingBodyTestCase {
     }
 
     @AfterClass
-    public void cleanUp() throws ServerConnectorException {
-        try {
-            httpServer.shutdown();
-            connectorFactory.shutdown();
-        } catch (InterruptedException e) {
-            LOG.error("Failed to shutdown the test server");
-        }
+    public void cleanup() throws InterruptedException {
+        serverConnector.stop();
+        httpWsConnectorFactory.shutdown();
     }
 }

@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
-import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -41,19 +40,19 @@ public class ResponseCompleted implements ListenerState {
     private static final Logger LOG = LoggerFactory.getLogger(ResponseCompleted.class);
 
     private final SourceHandler sourceHandler;
-    private final MessageStateContext messageStateContext;
+    private final ListenerReqRespStateManager listenerReqRespStateManager;
 
-    ResponseCompleted(SourceHandler sourceHandler, MessageStateContext messageStateContext,
+    ResponseCompleted(ListenerReqRespStateManager listenerReqRespStateManager, SourceHandler sourceHandler,
                       HttpCarbonMessage inboundRequestMsg) {
+        this.listenerReqRespStateManager = listenerReqRespStateManager;
         this.sourceHandler = sourceHandler;
-        this.messageStateContext = messageStateContext;
         cleanupSourceHandler(inboundRequestMsg);
     }
 
     @Override
     public void readInboundRequestHeaders(HttpCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
-        messageStateContext.setListenerState(new ReceivingHeaders(sourceHandler, messageStateContext));
-        messageStateContext.getListenerState().readInboundRequestHeaders(inboundRequestMsg, inboundRequestHeaders);
+        listenerReqRespStateManager.listenerState = new ReceivingHeaders(listenerReqRespStateManager, sourceHandler);
+        listenerReqRespStateManager.readInboundRequestHeaders(inboundRequestMsg, inboundRequestHeaders);
     }
 
     @Override

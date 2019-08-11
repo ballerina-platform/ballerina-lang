@@ -19,7 +19,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelPipeline;
-import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +29,7 @@ import org.wso2.transport.http.netty.contract.config.ForwardedExtensionConfig;
 import org.wso2.transport.http.netty.contractimpl.common.BackPressureHandler;
 import org.wso2.transport.http.netty.contractimpl.common.HttpRoute;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
-import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.common.states.SenderReqRespStateManager;
 import org.wso2.transport.http.netty.contractimpl.listener.HttpTraceLoggingHandler;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
@@ -55,6 +54,8 @@ import java.util.concurrent.TimeUnit;
 public class TargetChannel {
 
     private static final Logger LOG = LoggerFactory.getLogger(TargetChannel.class);
+
+    public SenderReqRespStateManager senderReqRespStateManager;
 
     private Channel channel;
     private TargetHandler targetHandler;
@@ -202,24 +203,16 @@ public class TargetChannel {
     }
 
     public void writeContent(HttpCarbonMessage httpOutboundRequest) {
-        BackPressureHandler backpressureHandler = Util.getBackPressureHandler(targetHandler.getContext());
-
-        Util.setBackPressureListener(httpOutboundRequest, backpressureHandler, httpOutboundRequest.getSourceContext());
-
         if (handlerExecutor != null) {
             handlerExecutor.executeAtTargetRequestReceiving(httpOutboundRequest);
         }
 
-        resetTargetChannelState();
+        BackPressureHandler backpressureHandler = Util.getBackPressureHandler(targetHandler.getContext());
+        Util.setBackPressureListener(httpOutboundRequest, backpressureHandler, httpOutboundRequest.getSourceContext());
 
-        MessageStateContext messageStateContext = httpOutboundRequest.getMessageStateContext();
-        if (messageStateContext == null) {
-            messageStateContext = new MessageStateContext();
-            httpOutboundRequest.setMessageStateContext(messageStateContext);
-        }
-        httpOutboundRequest.getMessageStateContext()
-                .setSenderState(new SendingHeaders(messageStateContext, this, httpVersion, chunkConfig,
-                                                   httpInboundResponseFuture));
+        resetTargetChannelState();
+        setSenderReqRespStateManager();
+
         httpOutboundRequest.getHttpContentAsync().setMessageListener((httpContent -> {
             //TODO:Until the listener is set, content writing happens in I/O thread. If writability changed
             //while in I/O thread and DefaultBackPressureListener is engaged, there's a chance of I/O thread
@@ -227,7 +220,7 @@ public class TargetChannel {
             Util.checkUnWritabilityAndNotify(targetHandler.getContext(), backpressureHandler);
             this.channel.eventLoop().execute(() -> {
                 try {
-                    writeOutboundRequest(httpOutboundRequest, httpContent);
+                    senderReqRespStateManager.writeOutboundRequestEntity(httpOutboundRequest, httpContent);
                 } catch (Exception exception) {
                     String errorMsg = "Failed to send the request : "
                             + exception.getMessage().toLowerCase(Locale.ENGLISH);
@@ -238,9 +231,10 @@ public class TargetChannel {
         }));
     }
 
-    private void writeOutboundRequest(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) throws Exception {
-        httpOutboundRequest.getMessageStateContext().getSenderState()
-                .writeOutboundRequestEntity(httpOutboundRequest, httpContent);
+    private void setSenderReqRespStateManager() {
+        senderReqRespStateManager = new SenderReqRespStateManager();
+        senderReqRespStateManager.senderState = new SendingHeaders(senderReqRespStateManager, this, httpVersion,
+                                                                   chunkConfig, httpInboundResponseFuture);
     }
 
     private void resetTargetChannelState() {

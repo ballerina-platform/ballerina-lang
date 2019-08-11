@@ -30,7 +30,6 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
-import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.wso2.transport.http.netty.contract.Constants.CHUNKING_CONFIG;
@@ -55,13 +54,14 @@ public class SendingHeaders implements ListenerState {
 
     private final HttpOutboundRespListener outboundResponseListener;
     boolean keepAlive;
-    private final MessageStateContext messageStateContext;
+    private final ListenerReqRespStateManager listenerReqRespStateManager;
     ChunkConfig chunkConfig;
     HttpResponseFuture outboundRespStatusFuture;
 
-    public SendingHeaders(HttpOutboundRespListener outboundResponseListener, MessageStateContext messageStateContext) {
+    public SendingHeaders(ListenerReqRespStateManager listenerReqRespStateManager,
+                          HttpOutboundRespListener outboundResponseListener) {
+        this.listenerReqRespStateManager = listenerReqRespStateManager;
         this.outboundResponseListener = outboundResponseListener;
-        this.messageStateContext = messageStateContext;
         this.chunkConfig = outboundResponseListener.getChunkConfig();
         this.keepAlive = outboundResponseListener.isKeepAlive();
     }
@@ -124,9 +124,9 @@ public class SendingHeaders implements ListenerState {
     }
 
     private void writeResponse(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, boolean headersWritten) {
-        messageStateContext.setListenerState(
-                new SendingEntityBody(messageStateContext, outboundRespStatusFuture, headersWritten));
-        messageStateContext.getListenerState().writeOutboundResponseBody(outboundResponseListener, outboundResponseMsg,
+        listenerReqRespStateManager.listenerState
+                = new SendingEntityBody(listenerReqRespStateManager, outboundRespStatusFuture, headersWritten);
+        listenerReqRespStateManager.writeOutboundResponseBody(outboundResponseListener, outboundResponseMsg,
                                                                          httpContent);
     }
 

@@ -91,6 +91,11 @@ public class HttpClient {
         return send(httpRequest);
     }
 
+    public FullHttpResponse sendHalfRequest(FullHttpRequest httpRequest) {
+        httpRequest.headers().set(HttpHeaderNames.CONTENT_LENGTH, 8490 * 2);
+        return send(httpRequest);
+    }
+
     private FullHttpResponse send(FullHttpRequest httpRequest) {
         CountDownLatch latch = new CountDownLatch(1);
         this.waitForConnectionClosureLatch = new CountDownLatch(1);
@@ -102,7 +107,7 @@ public class HttpClient {
         try {
             latch.await();
         } catch (InterruptedException e) {
-            LOG.warn("Operation go interrupted before receiving the response");
+            LOG.warn("Operation goT interrupted before receiving the response");
         }
         return this.responseHandler.getHttpFullResponse();
     }

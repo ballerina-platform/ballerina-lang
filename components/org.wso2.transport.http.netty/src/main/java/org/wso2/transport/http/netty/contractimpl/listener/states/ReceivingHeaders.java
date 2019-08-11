@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
-import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
@@ -55,14 +54,14 @@ public class ReceivingHeaders implements ListenerState {
 
     private final SourceHandler sourceHandler;
     private final HandlerExecutor handlerExecutor;
-    private final MessageStateContext messageStateContext;
+    private final ListenerReqRespStateManager listenerReqRespStateManager;
     private HttpCarbonMessage inboundRequestMsg;
     private float httpVersion;
 
-    public ReceivingHeaders(SourceHandler sourceHandler, MessageStateContext messageStateContext) {
+    public ReceivingHeaders(ListenerReqRespStateManager listenerReqRespStateManager, SourceHandler sourceHandler) {
+        this.listenerReqRespStateManager = listenerReqRespStateManager;
         this.sourceHandler = sourceHandler;
         this.handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
-        this.messageStateContext = messageStateContext;
     }
 
     @Override
@@ -71,8 +70,9 @@ public class ReceivingHeaders implements ListenerState {
         this.httpVersion = Float.parseFloat(inboundRequestMsg.getHttpVersion());
         boolean continueRequest = is100ContinueRequest(inboundRequestMsg);
         if (continueRequest) {
-            messageStateContext.setListenerState(new Expect100ContinueHeaderReceived(messageStateContext, sourceHandler,
-                                                                                     inboundRequestMsg, httpVersion));
+            listenerReqRespStateManager.listenerState =
+                    new Expect100ContinueHeaderReceived(listenerReqRespStateManager, sourceHandler,
+                                                        inboundRequestMsg, httpVersion);
         }
         notifyRequestListener(inboundRequestMsg);
 
@@ -106,9 +106,9 @@ public class ReceivingHeaders implements ListenerState {
 
     @Override
     public void readInboundRequestBody(Object inboundRequestEntityBody) throws ServerConnectorException {
-        messageStateContext.setListenerState(
-                new ReceivingEntityBody(messageStateContext, inboundRequestMsg, sourceHandler, httpVersion));
-        messageStateContext.getListenerState().readInboundRequestBody(inboundRequestEntityBody);
+        listenerReqRespStateManager.listenerState
+                = new ReceivingEntityBody(listenerReqRespStateManager, inboundRequestMsg, sourceHandler, httpVersion);
+        listenerReqRespStateManager.readInboundRequestBody(inboundRequestEntityBody);
     }
 
     @Override
@@ -121,7 +121,7 @@ public class ReceivingHeaders implements ListenerState {
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
         // If this method is called, it's an application error. Connection needs to be closed once the response is sent.
         respondToIncompleteRequest(sourceHandler.getInboundChannelContext().channel(), outboundResponseListener,
-                                   messageStateContext, outboundResponseMsg, httpContent,
+                                   listenerReqRespStateManager, outboundResponseMsg, httpContent,
                                    REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_HEADERS);
     }
 

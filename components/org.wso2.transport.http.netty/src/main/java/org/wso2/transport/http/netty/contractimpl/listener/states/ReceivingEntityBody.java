@@ -18,12 +18,13 @@
 
 package org.wso2.transport.http.netty.contractimpl.listener.states;
 
-import io.netty.buffer.Unpooled;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
@@ -31,12 +32,12 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
-import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import static io.netty.buffer.Unpooled.copiedBuffer;
 import static io.netty.handler.codec.http.HttpResponseStatus.REQUEST_TIMEOUT;
 import static org.wso2.transport.http.netty.contract.Constants
         .IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_BODY;
@@ -55,14 +56,14 @@ public class ReceivingEntityBody implements ListenerState {
 
     private final HandlerExecutor handlerExecutor;
     private final ServerConnectorFuture serverConnectorFuture;
-    private final MessageStateContext messageStateContext;
+    private final ListenerReqRespStateManager listenerReqRespStateManager;
     private final SourceHandler sourceHandler;
     private final HttpCarbonMessage inboundRequestMsg;
     private final float httpVersion;
 
-    ReceivingEntityBody(MessageStateContext messageStateContext, HttpCarbonMessage inboundRequestMsg,
+    ReceivingEntityBody(ListenerReqRespStateManager listenerReqRespStateManager, HttpCarbonMessage inboundRequestMsg,
                         SourceHandler sourceHandler, float httpVersion) {
-        this.messageStateContext = messageStateContext;
+        this.listenerReqRespStateManager = listenerReqRespStateManager;
         this.inboundRequestMsg = inboundRequestMsg;
         this.sourceHandler = sourceHandler;
         this.handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
@@ -90,8 +91,8 @@ public class ReceivingEntityBody implements ListenerState {
                     }
                     inboundRequestMsg.setLastHttpContentArrived();
                     sourceHandler.resetInboundRequestMsg();
-                    messageStateContext.setListenerState(
-                            new EntityBodyReceived(messageStateContext, sourceHandler, httpVersion));
+                    listenerReqRespStateManager.listenerState
+                            = new EntityBodyReceived(listenerReqRespStateManager, sourceHandler, httpVersion);
                 }
             } catch (RuntimeException ex) {
                 httpContent.release();
@@ -111,7 +112,7 @@ public class ReceivingEntityBody implements ListenerState {
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
         // If this method is called, it's an application error. Connection needs to be closed once the response is sent.
         respondToIncompleteRequest(sourceHandler.getInboundChannelContext().channel(), outboundResponseListener,
-                                   messageStateContext, outboundResponseMsg, httpContent,
+                                   listenerReqRespStateManager, outboundResponseMsg, httpContent,
                                    REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST_BODY);
     }
 
@@ -123,7 +124,11 @@ public class ReceivingEntityBody implements ListenerState {
     @Override
     public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
                                                             ChannelHandlerContext ctx) {
-        ChannelFuture outboundRespFuture = sendRequestTimeoutResponse(ctx, REQUEST_TIMEOUT, Unpooled.EMPTY_BUFFER, 0,
+
+        ByteBuf responseBody =
+                copiedBuffer(IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_BODY, CharsetUtil.UTF_8);
+        ChannelFuture outboundRespFuture = sendRequestTimeoutResponse(ctx, REQUEST_TIMEOUT,
+                                                                      responseBody, responseBody.readableBytes(),
                                                                       httpVersion, sourceHandler.getServerName());
         outboundRespFuture.addListener((ChannelFutureListener) channelFuture -> {
             Throwable cause = channelFuture.cause();

@@ -36,7 +36,6 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
-import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
@@ -49,8 +48,10 @@ import java.util.List;
 import java.util.Queue;
 
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_HEAD_METHOD;
-import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
-import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.contract.Constants
+        .IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
+import static org.wso2.transport.http.netty.contract.Constants
+        .REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_BODY;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.createFullHttpResponse;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.setupContentLengthRequest;
@@ -65,7 +66,7 @@ public class SendingEntityBody implements ListenerState {
 
     private final HandlerExecutor handlerExecutor;
     private final HttpResponseFuture outboundRespStatusFuture;
-    private final MessageStateContext messageStateContext;
+    private final ListenerReqRespStateManager listenerReqRespStateManager;
     private boolean headersWritten;
     private long contentLength = 0;
     private boolean headRequest;
@@ -74,9 +75,9 @@ public class SendingEntityBody implements ListenerState {
     private ChannelHandlerContext sourceContext;
     private SourceHandler sourceHandler;
 
-    SendingEntityBody(MessageStateContext messageStateContext, HttpResponseFuture outboundRespStatusFuture,
-                      boolean headersWritten) {
-        this.messageStateContext = messageStateContext;
+    SendingEntityBody(ListenerReqRespStateManager listenerReqRespStateManager,
+                      HttpResponseFuture outboundRespStatusFuture, boolean headersWritten) {
+        this.listenerReqRespStateManager = listenerReqRespStateManager;
         this.outboundRespStatusFuture = outboundRespStatusFuture;
         this.headersWritten = headersWritten;
         this.handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
@@ -208,8 +209,8 @@ public class SendingEntityBody implements ListenerState {
             } else {
                 outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
             }
-            messageStateContext.setListenerState(
-                    new ResponseCompleted(sourceHandler, messageStateContext, inboundRequestMsg));
+            listenerReqRespStateManager.listenerState
+                    = new ResponseCompleted(listenerReqRespStateManager, sourceHandler, inboundRequestMsg);
             resetOutboundListenerState();
         });
     }

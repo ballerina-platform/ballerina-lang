@@ -41,6 +41,7 @@ import org.wso2.transport.http.netty.contract.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
+import org.wso2.transport.http.netty.contractimpl.listener.states.ListenerReqRespStateManager;
 import org.wso2.transport.http.netty.contractimpl.listener.states.SendingHeaders;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -134,7 +135,7 @@ public class StateUtil {
     }
 
     public static void respondToIncompleteRequest(Channel channel, HttpOutboundRespListener outboundResponseListener,
-                                                  MessageStateContext messageStateContext,
+                                                  ListenerReqRespStateManager listenerReqRespStateManager,
                                                   HttpCarbonMessage outboundResponseMsg, HttpContent httpContent,
                                                   String errorMsg) {
         // Response is processing, but inbound request is not completed yet. So removing the read interest
@@ -145,7 +146,8 @@ public class StateUtil {
 
         // It is an application error. Therefore connection needs to be closed once the response is sent.
         outboundResponseListener.setKeepAliveConfig(KeepAliveConfig.NEVER);
-        messageStateContext.setListenerState(new SendingHeaders(outboundResponseListener, messageStateContext));
-        messageStateContext.getListenerState().writeOutboundResponseHeaders(outboundResponseMsg, httpContent);
+        listenerReqRespStateManager.listenerState
+                = new SendingHeaders(listenerReqRespStateManager, outboundResponseListener);
+        listenerReqRespStateManager.writeOutboundResponseHeaders(outboundResponseMsg, httpContent);
     }
 }

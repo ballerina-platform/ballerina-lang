@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.config.ChunkConfig;
-import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.common.states.SenderReqRespStateManager;
 import org.wso2.transport.http.netty.contractimpl.sender.TargetHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -56,12 +56,13 @@ public class SendingHeaders implements SenderState {
     private final String httpVersion;
     private final ChunkConfig chunkConfig;
     private final TargetChannel targetChannel;
-    private final MessageStateContext messageStateContext;
+    private final SenderReqRespStateManager senderReqRespStateManager;
     private final HttpResponseFuture httpInboundResponseFuture;
 
-    public SendingHeaders(MessageStateContext messageStateContext, TargetChannel targetChannel, String httpVersion,
+    public SendingHeaders(SenderReqRespStateManager senderReqRespStateManager,
+                          TargetChannel targetChannel, String httpVersion,
                           ChunkConfig chunkConfig, HttpResponseFuture httpInboundResponseFuture) {
-        this.messageStateContext = messageStateContext;
+        this.senderReqRespStateManager = senderReqRespStateManager;
         this.targetChannel = targetChannel;
         this.httpVersion = httpVersion;
         this.chunkConfig = chunkConfig;
@@ -80,16 +81,16 @@ public class SendingHeaders implements SenderState {
                 }
             }
             writeRequestHeaders(httpOutboundRequest, httpInboundResponseFuture, httpVersion, targetChannel);
-            writeResponse(httpOutboundRequest, httpContent, true);
+            writeRequestBody(httpOutboundRequest, httpContent, true);
         } else {
             if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO) &&
                     checkChunkingCompatibility(httpVersion, chunkConfig)) {
                 setupChunkedRequest(httpOutboundRequest);
                 writeRequestHeaders(httpOutboundRequest, httpInboundResponseFuture, httpVersion, targetChannel);
-                writeResponse(httpOutboundRequest, httpContent, true);
+                writeRequestBody(httpOutboundRequest, httpContent, true);
                 return;
             }
-            writeResponse(httpOutboundRequest, httpContent, false);
+            writeRequestBody(httpOutboundRequest, httpContent, false);
         }
     }
 
@@ -103,8 +104,8 @@ public class SendingHeaders implements SenderState {
         // If this method is called, it is an application error. Inbound response is receiving before the completion
         // of request header write.
         targetHandler.getOutboundRequestMsg().setIoException(new IOException(INBOUND_RESPONSE_ALREADY_RECEIVED));
-        messageStateContext.setSenderState(new ReceivingHeaders(messageStateContext));
-        messageStateContext.getSenderState().readInboundResponseHeaders(targetHandler, httpInboundResponse);
+        senderReqRespStateManager.senderState = new ReceivingHeaders(senderReqRespStateManager);
+        senderReqRespStateManager.readInboundResponseHeaders(targetHandler, httpInboundResponse);
     }
 
     @Override
@@ -125,9 +126,10 @@ public class SendingHeaders implements SenderState {
         LOG.error("Error in HTTP client: {}", IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS);
     }
 
-    private void writeResponse(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, boolean headersWritten) {
-        messageStateContext.setSenderState(new SendingEntityBody(messageStateContext, targetChannel, headersWritten,
-                                                                 httpInboundResponseFuture));
-        messageStateContext.getSenderState().writeOutboundRequestEntity(outboundResponseMsg, httpContent);
+    private void writeRequestBody(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent,
+                                  boolean headersWritten) {
+        senderReqRespStateManager.senderState = new SendingEntityBody(senderReqRespStateManager, targetChannel,
+                                                                      headersWritten, httpInboundResponseFuture);
+        senderReqRespStateManager.writeOutboundRequestEntity(outboundResponseMsg, httpContent);
     }
 }
