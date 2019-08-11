@@ -166,7 +166,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     public CompletableFuture<Void> launch(Map<String, Object> args) {
         nextVarReference.set(1);
         Launch launcher = new LaunchFactory().getLauncher(args);
-        launchedProcess = launcher.start();
+        try {
+            launchedProcess = launcher.start();
+        } catch (IOException e) {
+            sendOutput("Unable to launch debug adapter", STDERR);
+            return CompletableFuture.completedFuture(null);
+        }
         CompletableFuture.runAsync(() -> {
             if (launchedProcess != null) {
                 launchedErrorStream = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream(),
@@ -177,7 +182,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                         sendOutput(line, STDERR);
                     }
                 } catch (IOException e) {
-                    sendOutput(e.toString(), STDERR);
+                } finally {
+                    this.exit(false);
                 }
             }
         });
@@ -188,16 +194,19 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                         StandardCharsets.UTF_8));
                 String line;
                 try {
+                    sendOutput("Waiting for debug process to start...", STDOUT);
                     while ((line = launchedStdoutStream.readLine()) != null) {
                         if (line.contains("Listening for transport dt_socket")) {
                             debuggee = launcher.attachToLaunchedProcess();
                             context.setDebuggee(debuggee);
+                            sendOutput("Connecting to debug process via debug adapter...", STDOUT);
                             this.eventBus.startListening();
                         }
                         sendOutput(line, STDOUT);
                     }
                 } catch (IOException e) {
-
+                } finally {
+                    this.exit(false);
                 }
             }
         });
@@ -467,6 +476,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     private void sendOutput(String output, String category) {
+        if (output.contains("Listening for transport dt_socket")
+            || output.contains("Please start the remote debugging client to continue")
+                || output.contains("JAVACMD")
+                || output.contains("Stream closed")) {
+            return;
+        }
         OutputEventArguments outputEventArguments = new OutputEventArguments();
         outputEventArguments.setOutput(output + System.lineSeparator());
         outputEventArguments.setCategory(category);
