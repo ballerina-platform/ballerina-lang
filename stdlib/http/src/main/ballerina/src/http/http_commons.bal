@@ -141,7 +141,7 @@ public type HttpOperation HTTP_FORWARD|HTTP_GET|HTTP_POST|HTTP_DELETE|HTTP_OPTIO
                                                                                                 |HTTP_SUBMIT|HTTP_NONE;
 
 // Common type used for HttpFuture and Response used for resiliency clients.
-type HttpResponse Response|HttpFuture;
+public type HttpResponse Response|HttpFuture;
 
 # A record for configuring SSL/TLS protocol and version to be used.
 #

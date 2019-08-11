@@ -55,7 +55,7 @@ public function toString (any|error value) returns string = external;
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-type anydataType anydata;
+public type anydataType anydata;
 
 # Returns a clone of `value`.
 # A clone is a deep copy that does not copy immutable subtrees.
