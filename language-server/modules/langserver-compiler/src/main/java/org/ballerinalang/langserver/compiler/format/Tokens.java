@@ -47,6 +47,7 @@ public class Tokens {
     public static final String SUB = "-";
     public static final String ADD = "+";
     public static final String DIV = "/";
+    public static final String AT = "@";
 
     // Keywords.
     public static final String VAR = "var";
@@ -118,4 +119,5 @@ public class Tokens {
     public static final String VERSION = "version";
     public static final String TYPEDESC = "typedesc";
     public static final String XMLNS = "xmlns";
+    public static final String XML_LITERAL_START = "xml `";
 }

@@ -18,6 +18,7 @@
 
 package org.ballerinalang.stdlib.system;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -84,4 +85,39 @@ public class SystemTest {
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                 "Invalid return value");
     }
+    
+    @Test (enabled = true)
+    public void testExecInUnixLike1() {
+        if (SystemUtils.IS_OS_UNIX) {
+            BValue[] returns = BRunUtil.invoke(compileResult, "testExecInUnixLike1");
+            Assert.assertEquals(returns[0].stringValue().trim(), "BAL_EXEC_TEST_VAR=X");
+            Assert.assertEquals(returns[1].stringValue(), "0");
+            Assert.assertEquals(returns[2].stringValue(), "0");
+        }
+    }
+    
+    @Test (enabled = true)
+    public void testExecInUnixLike2() {
+        if (SystemUtils.IS_OS_UNIX) {
+            BValue[] returns = BRunUtil.invoke(compileResult, "testExecInUnixLike2");
+            Assert.assertEquals(returns[0].stringValue().trim(), "/");
+        }
+    }
+    
+    @Test (enabled = true)
+    public void testExecInUnixLike3() {
+        if (SystemUtils.IS_OS_UNIX) {
+            BValue[] returns = BRunUtil.invoke(compileResult, "testExecInUnixLike3");
+            Assert.assertEquals(returns[0].stringValue().trim(), "BAL_TEST");
+        }
+    }
+    
+    @Test (enabled = false)
+    public void testExecInUnixLike4() {
+        if (SystemUtils.IS_OS_UNIX) {
+            BValue[] returns = BRunUtil.invoke(compileResult, "testExecInUnixLike4");
+            Assert.assertEquals(returns[0].stringValue().trim(), "1");
+        }
+    }
+    
 }

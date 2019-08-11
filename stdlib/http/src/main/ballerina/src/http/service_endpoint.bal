@@ -128,6 +128,7 @@ public type Local record {|
 #                   disable timeout
 # + auth - Listener authenticaton configurations
 # + server - The server name which should appear as a response header
+# + webSocketCompressionEnabled - Enable support for compression in WebSocket
 public type ListenerConfiguration record {|
     string host = "0.0.0.0";
     ListenerHttp1Settings http1Settings = {};
@@ -138,6 +139,7 @@ public type ListenerConfiguration record {|
     int timeoutInMillis = DEFAULT_LISTENER_TIMEOUT;
     ListenerAuth auth?;
     string? server = ();
+    boolean webSocketCompressionEnabled = true;
 |};
 
 # Provides settings related to HTTP/1.x protocol.
