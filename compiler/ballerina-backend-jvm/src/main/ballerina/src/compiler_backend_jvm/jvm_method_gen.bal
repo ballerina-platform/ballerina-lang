@@ -1286,7 +1286,7 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
         mv.visitInsn(ACONST_NULL);
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_CONSUMER_METHOD,
             io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
-        errorGen.printStackTraceFromFutureValue(mv);
+        errorGen.printStackTraceFromFutureValue(mv, indexMap);
         mv.visitInsn(POP);
     }
 
@@ -1314,7 +1314,7 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
         mv.visitIntInsn(BIPUSH, 100);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
         mv.visitFieldInsn(PUTFIELD, STRAND, "frames", io:sprintf("[L%s;", OBJECT));
-        errorGen.printStackTraceFromFutureValue(mv);
+        errorGen.printStackTraceFromFutureValue(mv, indexMap);
         mv.visitInsn(POP);
 
         // At this point we are done executing all the functions including asyncs
@@ -1352,7 +1352,7 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
     }
 
     if (hasInitFunction(pkg)) {
-        scheduleStartMethod(mv, pkg, initClass, serviceEPAvailable, errorGen);
+        scheduleStartMethod(mv, pkg, initClass, serviceEPAvailable, errorGen, indexMap);
     }
 
     // stop all listeners
@@ -1383,7 +1383,7 @@ function registerShutdownListener(jvm:MethodVisitor mv, string initClass) {
 }
 
 function scheduleStartMethod(jvm:MethodVisitor mv, bir:Package pkg, string initClass, boolean serviceEPAvailable,
-    ErrorHandlerGenerator errorGen) {
+    ErrorHandlerGenerator errorGen, BalToJVMIndexMap indexMap) {
     // schedule the start method
     string startFuncName = cleanupFunctionName(getModuleStartFuncName(pkg));
     string startLambdaName = io:sprintf("$lambda$%s$", startFuncName);
@@ -1412,7 +1412,7 @@ function scheduleStartMethod(jvm:MethodVisitor mv, bir:Package pkg, string initC
     mv.visitIntInsn(BIPUSH, 100);
     mv.visitTypeInsn(ANEWARRAY, OBJECT);
     mv.visitFieldInsn(PUTFIELD, STRAND, "frames", io:sprintf("[L%s;", OBJECT));
-    errorGen.printStackTraceFromFutureValue(mv);
+    errorGen.printStackTraceFromFutureValue(mv, indexMap);
     mv.visitInsn(POP);
 }
 

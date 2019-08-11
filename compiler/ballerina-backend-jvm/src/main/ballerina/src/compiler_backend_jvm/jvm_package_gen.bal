@@ -687,7 +687,7 @@ function generateShutdownSignalListener(bir:Package pkg, string initClass, map<b
     BalToJVMIndexMap indexMap = new;
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
     ErrorHandlerGenerator errorGen = new(mv, indexMap, pkgName);
-    scheduleStopMethod(mv, pkg, initClass, errorGen);
+    scheduleStopMethod(mv, pkg, initClass, errorGen, indexMap);
     mv.visitInsn(RETURN);
     mv.visitMaxs(0, 0);
     mv.visitEnd();
@@ -696,7 +696,8 @@ function generateShutdownSignalListener(bir:Package pkg, string initClass, map<b
     jarEntries[innerClassName + ".class"] = cw.toByteArray();
 }
 
-function scheduleStopMethod(jvm:MethodVisitor mv, bir:Package pkg, string initClass, ErrorHandlerGenerator errorGen) {
+function scheduleStopMethod(jvm:MethodVisitor mv, bir:Package pkg, string initClass, ErrorHandlerGenerator errorGen,
+                            BalToJVMIndexMap indexMap) {
     // schedule the start method
     string stopFuncName = cleanupFunctionName(getModuleStopFuncName(pkg));
     string stopLambdaName = io:sprintf("$lambda$%s$", stopFuncName);
@@ -725,6 +726,6 @@ function scheduleStopMethod(jvm:MethodVisitor mv, bir:Package pkg, string initCl
     mv.visitIntInsn(BIPUSH, 100);
     mv.visitTypeInsn(ANEWARRAY, OBJECT);
     mv.visitFieldInsn(PUTFIELD, STRAND, "frames", io:sprintf("[L%s;", OBJECT));
-    errorGen.printStackTraceFromFutureValue(mv);
+    errorGen.printStackTraceFromFutureValue(mv, indexMap);
     mv.visitInsn(POP);
 }

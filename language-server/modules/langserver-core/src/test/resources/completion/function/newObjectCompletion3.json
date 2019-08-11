@@ -1142,6 +1142,24 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "RedirectClient(string url, http:ClientEndpointConfig config, http:FollowRedirects redirectConfig, http:HttpClient httpClient)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http_  \n  \nCreate a redirect client with the given configurations.\n  \n**Params**  \n- `string` url: Target service url  \n- `http:ClientEndpointConfig` config: HTTP ClientEndpointConfig to be used for HTTP client invocation  \n- `http:FollowRedirects` redirectConfig: Configurations associated with redirect  \n- `http:HttpClient` httpClient: HTTP client for outbound HTTP requests"
+        }
+      },
+      "sortText": "130",
+      "insertText": "RedirectClient(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }

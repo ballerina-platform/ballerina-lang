@@ -127,6 +127,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
@@ -145,6 +146,8 @@ public class CommonUtil {
     public static final String FILE_SEPARATOR = File.separator;
 
     public static final String LINE_SEPARATOR_SPLIT = "\\r?\\n";
+
+    public static final Pattern MD_NEW_LINE_PATTERN = Pattern.compile("\\s\\s\\r\\n?|\\s\\s\\n|\\r\\n?|\\n");
 
     public static final boolean LS_DEBUG_ENABLED;
 
