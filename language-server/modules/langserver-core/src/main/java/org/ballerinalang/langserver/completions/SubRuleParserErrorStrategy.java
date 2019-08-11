@@ -67,6 +67,7 @@ public class SubRuleParserErrorStrategy extends DefaultErrorStrategy {
                 || parserRuleContext instanceof BallerinaParser.CallableUnitSignatureContext
                 || parserRuleContext instanceof BallerinaParser.PackageNameContext
                 || parserRuleContext instanceof BallerinaParser.TypeNameContext
+                || parserRuleContext instanceof BallerinaParser.TypeInitExprContext
                 || parserRuleContext instanceof BallerinaParser.PeerWorkerContext) {
             this.fillContext(parserRuleContext.getParent());
         } else {

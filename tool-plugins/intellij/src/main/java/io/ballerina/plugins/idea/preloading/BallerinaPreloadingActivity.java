@@ -31,6 +31,7 @@ import io.ballerina.plugins.idea.sdk.BallerinaPathModificationTracker;
 import io.ballerina.plugins.idea.sdk.BallerinaSdk;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings;
+import io.ballerina.plugins.idea.settings.experimental.BallerinaExperimentalFeatureSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.wso2.lsp4intellij.IntellijLanguageClient;
@@ -38,7 +39,9 @@ import org.wso2.lsp4intellij.client.languageserver.serverdefinition.RawCommandSe
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINAX_SOURCE_PATH;
@@ -131,24 +134,33 @@ public class BallerinaPreloadingActivity extends PreloadingActivity {
 
     private static boolean doRegister(@NotNull Project project, @NotNull String sdkPath) {
         String os = OSUtils.getOperatingSystem();
-        if (os != null) {
-            String args = null;
-            if (os.equals(OSUtils.UNIX) || os.equals(OSUtils.MAC)) {
-                args = Paths.get(sdkPath, LAUNCHER_SCRIPT_PATH, "language-server-launcher.sh").toString();
-            } else if (os.equals(OSUtils.WINDOWS)) {
-                args = Paths.get(sdkPath, LAUNCHER_SCRIPT_PATH, "language-server-launcher.bat").toString();
-            }
-
-            if (!Strings.isNullOrEmpty(args)) {
-                IntellijLanguageClient.addServerDefinition(new RawCommandServerDefinition("bal",
-                        new String[]{args}), project);
-                IntellijLanguageClient.addExtensionManager("bal", new BallerinaLSPExtensionManager());
-                LOG.info("Registered language server definition using Sdk path: " + sdkPath);
-                return true;
-            }
+        if (os == null) {
             return false;
         }
-        return false;
+
+        // Creates the args list to register the language server definition using the ballerina lang-server launcher
+        // script.
+        List<String> args = new ArrayList<>();
+        if (os.equals(OSUtils.UNIX) || os.equals(OSUtils.MAC)) {
+            args.add(Paths.get(sdkPath, LAUNCHER_SCRIPT_PATH, "language-server-launcher.sh").toString());
+        } else if (os.equals(OSUtils.WINDOWS)) {
+            args.add(Paths.get(sdkPath, LAUNCHER_SCRIPT_PATH, "language-server-launcher.bat").toString());
+        }
+
+        // Checks user-configurable setting for allowing ballerina experimental features and sets the flag accordinly.
+        if (BallerinaExperimentalFeatureSettings.getInstance().getAllowExperimental()) {
+            args.add("--experimental");
+        }
+
+        // Registers language server definition in the lsp4intellij lang-client library.
+        IntellijLanguageClient.addServerDefinition(new RawCommandServerDefinition("bal",
+                args.toArray(new String[0])), project);
+
+        // Adds ballerina-specific custom LSP extensions by creating a ballerina lsp extension manager.
+        IntellijLanguageClient.addExtensionManager("bal", new BallerinaLSPExtensionManager());
+
+        LOG.info("Registered language server definition using Sdk path: " + sdkPath);
+        return true;
     }
 
     private static void showInIdeaEventLog(String project, String message) {

@@ -20,7 +20,7 @@ import com.intellij.ProjectTopics;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ComponentManager;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleUtil;
+import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
@@ -96,7 +96,7 @@ public class BallerinaIdeaSdkService extends BallerinaSdkService {
 
     @Override
     public boolean isBallerinaModule(@Nullable Module module) {
-        return super.isBallerinaModule(module) && ModuleUtil.getModuleType(module) == BallerinaModuleType.getInstance();
+        return super.isBallerinaModule(module) && ModuleType.get(module) == BallerinaModuleType.getInstance();
     }
 
     @Nullable

@@ -40,7 +40,7 @@ class ReferencesSubRuleParser {
     private ReferencesSubRuleParser() {
     }
 
-    static void parserCompilationUnit(String content, LSContext context, Position pos) {
+    static void parseCompilationUnit(String content, LSContext context, Position pos) {
         // TODO: 1/23/19 Check what happens when the content is not a valid compilation unit and when there are errors
         BallerinaParser parser = CommonUtil.prepareParser(content);
         parser.setErrorHandler(new DefaultErrorStrategy());

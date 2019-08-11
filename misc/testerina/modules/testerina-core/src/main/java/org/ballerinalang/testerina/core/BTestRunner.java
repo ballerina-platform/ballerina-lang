@@ -70,12 +70,31 @@ public class BTestRunner {
 
     public static final String MODULE_INIT_CLASS_NAME = "___init";
 
-    private static PrintStream errStream = System.err;
-    private static PrintStream outStream = System.out;
-    private TesterinaReport tReport = new TesterinaReport();
+    private PrintStream errStream;
+    private PrintStream outStream;
+    private TesterinaReport tReport;
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
     private List<String> sourcePackages = new ArrayList<>();
-
+    
+    /**
+     * Create Test Runner instance.
+     */
+    public BTestRunner() {
+        this(System.out, System.err);
+    }
+    
+    /**
+     * Create Test Runner with given loggers.
+     *
+     * @param outStream The info log stream.
+     * @param errStream The error log strem.
+     */
+    public BTestRunner(PrintStream outStream, PrintStream errStream) {
+        this.outStream = outStream;
+        this.errStream = errStream;
+        tReport = new TesterinaReport(this.outStream);
+    }
+    
     public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups) {
         runTest(sourceRoot, sourceFilePaths, groups, Boolean.TRUE);
     }
