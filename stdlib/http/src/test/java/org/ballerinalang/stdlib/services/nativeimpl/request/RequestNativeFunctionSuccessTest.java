@@ -70,7 +70,6 @@ import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichEntityWithDef
 import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichTestEntity;
 import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichTestEntityHeaders;
 import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createEntityObject;
-import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createMediaTypeObject;
 import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createRequestObject;
 
 /**
@@ -183,8 +182,7 @@ public class RequestNativeFunctionSuccessTest {
         inRequestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
 
         ObjectValue entity = createEntityObject();
-        ObjectValue mediaType = createMediaTypeObject();
-        HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg);
+        HttpUtil.populateInboundRequest(inRequest, entity, inRequestMsg);
 
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetHeader",
                                               new Object[]{ inRequest, HttpHeaderNames.CONTENT_TYPE.toString() });
@@ -214,8 +212,7 @@ public class RequestNativeFunctionSuccessTest {
         headers.add("test-header", TEXT_PLAIN);
 
         ObjectValue entity = createEntityObject();
-        ObjectValue mediaType = createMediaTypeObject();
-        HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg);
+        HttpUtil.populateInboundRequest(inRequest, entity, inRequestMsg);
 
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetHeaders",
                                               new Object[]{ inRequest, "test-header" });

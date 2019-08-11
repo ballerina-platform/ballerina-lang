@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.util;
 
 import org.antlr.v4.runtime.Token;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.List;
@@ -86,8 +87,10 @@ public class TokensUtil {
     
     private static TokenPosition locateIdentifierTokenAtCursor(Token token, int cLine, int cCol, int tokenLine,
                                                                int tokenStartCol, int tokenEndCol) {
-        if (tokenLine == cLine && tokenStartCol <= cCol && tokenEndCol >= cCol
-                && token.getType() == BallerinaParser.Identifier) {
+        // NOTE: handles 'new' symbol specifically
+        boolean isValid = token.getType() == BallerinaParser.Identifier ||
+                CommonKeys.NEW_KEYWORD_KEY.equals(token.getText());
+        if (tokenLine == cLine && tokenStartCol <= cCol && tokenEndCol >= cCol && isValid) {
             return TokenPosition.ON;
         } else if (cLine > tokenLine || (tokenLine == cLine && cCol >= tokenEndCol)) {
             return TokenPosition.RIGHT;

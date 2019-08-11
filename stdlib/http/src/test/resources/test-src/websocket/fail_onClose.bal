@@ -17,7 +17,7 @@
 import ballerina/http;
 import ballerina/io;
 
-listener http:WebSocketListener wsListener = new(9090, {host: "0.0.0.0"});
+listener http:Listener wsListener = new(9090, {host: "0.0.0.0"});
 
 @http:WebSocketServiceConfig {
     path: "/"

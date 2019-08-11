@@ -49,7 +49,6 @@ import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
 public class Pong {
 
     public static Object pong(Strand strand, ObjectValue wsConnection, ArrayValue binaryData) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         try {
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
@@ -57,7 +56,6 @@ public class Pong {
             ChannelFuture future = connectionInfo.getWebSocketConnection().pong(ByteBuffer.wrap(binaryData.getBytes()));
             WebSocketUtil.handleWebSocketCallback(callback, future);
         } catch (Exception e) {
-            //TODO remove this call back
             callback.setReturnValues(createWebSocketError(WsConnectionError, e.getMessage()));
             callback.notifySuccess();
         }
