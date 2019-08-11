@@ -88,7 +88,7 @@ public class LangServerDebugLogsConfigurable implements SearchableConfigurable {
     @Nls
     @Override
     public String getDisplayName() {
-        return "Language server debug logs";
+        return "Language Server Debug Logs";
     }
 
     @Nullable
