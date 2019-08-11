@@ -18,35 +18,23 @@ package org.wso2.transport.http.netty.contractimpl.sender.channel;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelPipeline;
-import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.contract.config.ChunkConfig;
-import org.wso2.transport.http.netty.contract.config.ForwardedExtensionConfig;
 import org.wso2.transport.http.netty.contractimpl.common.BackPressureHandler;
 import org.wso2.transport.http.netty.contractimpl.common.HttpRoute;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.states.SenderReqRespStateManager;
-import org.wso2.transport.http.netty.contractimpl.listener.HttpTraceLoggingHandler;
-import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
-import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.ConnectionAvailabilityFuture;
-import org.wso2.transport.http.netty.contractimpl.sender.ForwardedHeaderUpdater;
 import org.wso2.transport.http.netty.contractimpl.sender.HttpClientChannelInitializer;
 import org.wso2.transport.http.netty.contractimpl.sender.TargetHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
-import org.wso2.transport.http.netty.contractimpl.sender.states.SendingHeaders;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import java.net.InetSocketAddress;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 /**
  * A class that encapsulate channel and state.
@@ -56,23 +44,20 @@ public class TargetChannel {
     private static final Logger LOG = LoggerFactory.getLogger(TargetChannel.class);
 
     public SenderReqRespStateManager senderReqRespStateManager;
+    public String trgHlrConnPoolId;
 
-    private Channel channel;
-    private TargetHandler targetHandler;
-    private HttpClientChannelInitializer httpClientChannelInitializer;
-    private HttpRoute httpRoute;
-    private ChannelInboundHandlerAdapter correlatedSource;
-    private ChannelFuture channelFuture;
-    private ConnectionManager connectionManager;
     private boolean requestHeaderWritten = false;
-    private String httpVersion;
-    private ChunkConfig chunkConfig;
-    private HandlerExecutor handlerExecutor;
-    private Http2ClientChannel http2ClientChannel;
+    private Channel channel;
+    private HttpClientChannelInitializer httpClientChannelInitializer;
+    private ChannelInboundHandlerAdapter correlatedSource;
+    private ConnectionManager connectionManager;
+    private TargetHandler targetHandler;
 
+    private Http2ClientChannel http2ClientChannel;
+    private final HttpRoute httpRoute;
+    private final ChannelFuture channelFuture;
+    private final HandlerExecutor handlerExecutor;
     private final ConnectionAvailabilityFuture connectionAvailabilityFuture;
-    private HttpResponseFuture httpInboundResponseFuture;
-    private String trgHlrConnPoolId;
 
     public TargetChannel(HttpClientChannelInitializer httpClientChannelInitializer, ChannelFuture channelFuture,
                          HttpRoute httpRoute, ConnectionAvailabilityFuture connectionAvailabilityFuture) {
@@ -89,117 +74,12 @@ public class TargetChannel {
         this.connectionAvailabilityFuture = connectionAvailabilityFuture;
     }
 
-    public ConnectionAvailabilityFuture getConnenctionReadyFuture() {
-        return connectionAvailabilityFuture;
-    }
-
-    public Channel getChannel() {
-        return channel;
-    }
-
-    public TargetChannel setChannel(Channel channel) {
-        this.channel = channel;
-        return this;
-    }
-
-    private TargetHandler getTargetHandler() {
-        return targetHandler;
-    }
-
-    private void setTargetHandler(TargetHandler targetHandler) {
-        this.targetHandler = targetHandler;
-    }
-
-    private HttpClientChannelInitializer getHttpClientChannelInitializer() {
-        return httpClientChannelInitializer;
-    }
-
-    public HttpRoute getHttpRoute() {
-        return httpRoute;
-    }
-
-    public String getTrgHlrConnPoolId() {
-        return trgHlrConnPoolId;
-    }
-
-    public void setTrgHlrConnPoolId(String trgHlrConnPoolId) {
-        this.trgHlrConnPoolId = trgHlrConnPoolId;
-    }
-
-    public ChannelInboundHandlerAdapter getCorrelatedSource() {
-        return correlatedSource;
-    }
-
-    public void setCorrelatedSource(ChannelInboundHandlerAdapter correlatedSource) {
-        this.correlatedSource = correlatedSource;
-    }
-
-    public boolean isRequestHeaderWritten() {
-        return requestHeaderWritten;
-    }
-
-    public void setRequestHeaderWritten(boolean isRequestWritten) {
-        this.requestHeaderWritten = isRequestWritten;
-    }
-
-    public void setHttpVersion(String httpVersion) {
-        this.httpVersion = httpVersion;
-    }
-
-    public void setChunkConfig(ChunkConfig chunkConfig) {
-        this.chunkConfig = chunkConfig;
-    }
-
     public void configTargetHandler(HttpCarbonMessage httpCarbonMessage, HttpResponseFuture httpInboundResponseFuture) {
-        this.setTargetHandler(this.getHttpClientChannelInitializer().getTargetHandler());
-        TargetHandler handler = this.getTargetHandler();
-        handler.setHttpResponseFuture(httpInboundResponseFuture);
-        handler.setOutboundRequestMsg(httpCarbonMessage);
-        handler.setConnectionManager(connectionManager);
-        handler.setTargetChannel(this);
-
-        this.httpInboundResponseFuture = httpInboundResponseFuture;
-    }
-
-    public void setEndPointTimeout(int socketIdleTimeout) {
-        ChannelPipeline pipeline = this.getChannel().pipeline();
-        IdleStateHandler idleStateHandler = new IdleStateHandler(0, 0, socketIdleTimeout, TimeUnit.MILLISECONDS);
-        if (pipeline.get(Constants.TARGET_HANDLER) == null) {
-            pipeline.addLast(Constants.IDLE_STATE_HANDLER, idleStateHandler);
-        } else {
-            pipeline.addBefore(Constants.TARGET_HANDLER, Constants.IDLE_STATE_HANDLER, idleStateHandler);
-        }
-        http2ClientChannel.setSocketIdleTimeout(socketIdleTimeout);
-    }
-
-    public void setCorrelationIdForLogging() {
-        ChannelPipeline pipeline = this.getChannel().pipeline();
-        ChannelInboundHandlerAdapter srcHandler = this.getCorrelatedSource();
-        if (srcHandler != null && pipeline.get(Constants.HTTP_TRACE_LOG_HANDLER) != null) {
-            HttpTraceLoggingHandler loggingHandler = (HttpTraceLoggingHandler)
-                pipeline.get(Constants.HTTP_TRACE_LOG_HANDLER);
-            if (srcHandler instanceof SourceHandler) {
-                SourceHandler h1SourceHandler = (SourceHandler) srcHandler;
-                loggingHandler.setCorrelatedSourceId(
-                    h1SourceHandler.getInboundChannelContext().channel().id().asShortText());
-            } else if (srcHandler instanceof Http2SourceHandler) {
-                Http2SourceHandler h2SourceHandler = (Http2SourceHandler) srcHandler;
-                loggingHandler.setCorrelatedSourceId(
-                    h2SourceHandler.getInboundChannelContext().channel().id().asShortText());
-            }
-        }
-    }
-
-    public void setConnectionManager(ConnectionManager connectionManager) {
-        this.connectionManager = connectionManager;
-    }
-
-    public ChannelFuture getChannelFuture() {
-        return channelFuture;
-    }
-
-    public Http2ClientChannel getHttp2ClientChannel() {
-        return http2ClientChannel;
+        targetHandler = httpClientChannelInitializer.getTargetHandler();
+        targetHandler.setHttpResponseFuture(httpInboundResponseFuture);
+        targetHandler.setOutboundRequestMsg(httpCarbonMessage);
+        targetHandler.setConnectionManager(connectionManager);
+        targetHandler.setTargetChannel(this);
     }
 
     public void writeContent(HttpCarbonMessage httpOutboundRequest) {
@@ -211,7 +91,6 @@ public class TargetChannel {
         Util.setBackPressureListener(httpOutboundRequest, backpressureHandler, httpOutboundRequest.getSourceContext());
 
         resetTargetChannelState();
-        setSenderReqRespStateManager();
 
         httpOutboundRequest.getHttpContentAsync().setMessageListener((httpContent -> {
             //TODO:Until the listener is set, content writing happens in I/O thread. If writability changed
@@ -231,39 +110,51 @@ public class TargetChannel {
         }));
     }
 
-    private void setSenderReqRespStateManager() {
-        senderReqRespStateManager = new SenderReqRespStateManager();
-        senderReqRespStateManager.senderState = new SendingHeaders(senderReqRespStateManager, this, httpVersion,
-                                                                   chunkConfig, httpInboundResponseFuture);
+    public void setConnectionManager(ConnectionManager connectionManager) {
+        this.connectionManager = connectionManager;
+    }
+
+    public ChannelFuture getChannelFuture() {
+        return channelFuture;
     }
 
     private void resetTargetChannelState() {
-        this.setRequestHeaderWritten(false);
+        this.requestHeaderWritten = false;
     }
 
-    public void setForwardedExtension(ForwardedExtensionConfig forwardedConfig, HttpCarbonMessage httpOutboundRequest) {
-        if (forwardedConfig == ForwardedExtensionConfig.DISABLE) {
-            return;
-        }
-        String localAddress = ((InetSocketAddress) this.getChannel().localAddress()).getAddress().getHostAddress();
-        ForwardedHeaderUpdater headerUpdater = new ForwardedHeaderUpdater(httpOutboundRequest, localAddress);
-        if (headerUpdater.isForwardedHeaderRequired()) {
-            headerUpdater.setForwardedHeader();
-            return;
-        }
-        if (headerUpdater.isXForwardedHeaderRequired()) {
-            if (forwardedConfig == ForwardedExtensionConfig.ENABLE) {
-                headerUpdater.setDefactoForwardedHeaders();
-                return;
-            }
-            headerUpdater.transformAndSetForwardedHeader();
-            return;
-        }
-        LOG.warn("Both Forwarded and X-Forwarded-- headers are present. Hence updating only the forwarded header");
-        headerUpdater.setForwardedHeader();
+    public void setCorrelatedSource(ChannelInboundHandlerAdapter correlatedSource) {
+        this.correlatedSource = correlatedSource;
     }
 
-    public String getHttpVersion() {
-        return httpVersion;
+    public ChannelInboundHandlerAdapter getCorrelatedSource() {
+        return correlatedSource;
+    }
+
+    public void setChannel(Channel channel) {
+        this.channel = channel;
+    }
+
+    public Channel getChannel() {
+        return channel;
+    }
+
+    public Http2ClientChannel getHttp2ClientChannel() {
+        return http2ClientChannel;
+    }
+
+    public ConnectionAvailabilityFuture getConnectionReadyFuture() {
+        return connectionAvailabilityFuture;
+    }
+
+    public void setRequestHeaderWritten(boolean isRequestWritten) {
+        this.requestHeaderWritten = isRequestWritten;
+    }
+
+    public boolean isRequestHeaderWritten() {
+        return requestHeaderWritten;
+    }
+
+    public HttpRoute getHttpRoute() {
+        return httpRoute;
     }
 }

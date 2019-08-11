@@ -68,13 +68,13 @@ public class SendingEntityBody implements SenderState {
     private List<HttpContent> contentList = new ArrayList<>();
 
     SendingEntityBody(SenderReqRespStateManager senderReqRespStateManager, TargetChannel targetChannel,
-                             boolean headersWritten, HttpResponseFuture httpInboundResponseFuture) {
+                             boolean headersWritten, HttpResponseFuture httpInboundResponseFuture, String httpVersion) {
         this.senderReqRespStateManager = senderReqRespStateManager;
         this.targetChannel = targetChannel;
         this.headersWritten = headersWritten;
         this.handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
         this.httpInboundResponseFuture = httpInboundResponseFuture;
-        this.httpVersion = targetChannel.getHttpVersion();
+        this.httpVersion = httpVersion;
     }
 
     @Override

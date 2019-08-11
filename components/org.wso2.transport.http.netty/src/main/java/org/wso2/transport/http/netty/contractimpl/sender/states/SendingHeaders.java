@@ -128,8 +128,9 @@ public class SendingHeaders implements SenderState {
 
     private void writeRequestBody(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent,
                                   boolean headersWritten) {
-        senderReqRespStateManager.senderState = new SendingEntityBody(senderReqRespStateManager, targetChannel,
-                                                                      headersWritten, httpInboundResponseFuture);
+        senderReqRespStateManager.senderState =
+                new SendingEntityBody(senderReqRespStateManager, targetChannel, headersWritten,
+                                      httpInboundResponseFuture, httpVersion);
         senderReqRespStateManager.writeOutboundRequestEntity(outboundResponseMsg, httpContent);
     }
 }

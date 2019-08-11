@@ -18,13 +18,19 @@
 
 package org.wso2.transport.http.netty.contractimpl.common.states;
 
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.timeout.IdleStateHandler;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.sender.TargetHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.states.SenderState;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Context class to manipulate current state of the message.
@@ -32,6 +38,12 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 public class SenderReqRespStateManager {
 
     public SenderState senderState;
+
+    private final Channel nettyTargetChannel;
+
+    public SenderReqRespStateManager(Channel nettyTargetChannel) {
+        this.nettyTargetChannel = nettyTargetChannel;
+    }
 
     public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
         senderState.writeOutboundRequestHeaders(httpOutboundRequest, httpContent);
@@ -55,6 +67,19 @@ public class SenderReqRespStateManager {
     }
 
     public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
+        nettyTargetChannel.pipeline().remove(Constants.IDLE_STATE_HANDLER);
+        nettyTargetChannel.close();
+
         senderState.handleIdleTimeoutConnectionClosure(httpResponseFuture, channelID);
+    }
+
+    public void configIdleTimeoutTrigger(int socketIdleTimeout) {
+        ChannelPipeline pipeline = nettyTargetChannel.pipeline();
+        IdleStateHandler idleStateHandler = new IdleStateHandler(0, 0, socketIdleTimeout, TimeUnit.MILLISECONDS);
+        if (pipeline.get(Constants.TARGET_HANDLER) == null) {
+            pipeline.addLast(Constants.IDLE_STATE_HANDLER, idleStateHandler);
+        } else {
+            pipeline.addBefore(Constants.TARGET_HANDLER, Constants.IDLE_STATE_HANDLER, idleStateHandler);
+        }
     }
 }

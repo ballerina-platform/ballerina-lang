@@ -45,7 +45,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.REQUEST_TIMEOUT;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.wso2.transport.http.netty.contract.Constants
-        .IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
+        .IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_BODY;
 
 /**
  * This class tests for http 1.1 when KeepAlivConfig is set to NEVER.
@@ -92,7 +92,7 @@ public class ServerConnectorTimeoutWhileReadingBodyTestCase {
 
             assertTrue(httpClient.waitForChannelClose());
             assertEquals(REQUEST_TIMEOUT.code(), httpResponse.status().code());
-            assertEquals(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE,
+            assertEquals(IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_BODY,
                          TestUtil.getEntityBodyFrom(httpResponse));
         } catch (Exception e) {
             TestUtil.handleException("IOException occurred while running testHttpPost test", e);
