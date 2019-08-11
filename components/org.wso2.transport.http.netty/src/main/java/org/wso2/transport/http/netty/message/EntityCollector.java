@@ -59,12 +59,6 @@ public interface EntityCollector {
     boolean isEmpty();
 
     /**
-     * Get the full message length
-     * @return message length
-     */
-    long getFullMessageLength();
-
-    /**
      * Count the message length till the given message length and returns.
      * If the message length is shorter than the given length it returns with the
      * available message size. This method is blocking function. Hence, use with care.
