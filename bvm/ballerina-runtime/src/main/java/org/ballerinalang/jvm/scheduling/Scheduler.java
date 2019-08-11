@@ -128,7 +128,6 @@ public class Scheduler {
         SchedulerItem item = new SchedulerItem(function, params, future);
         future.strand.schedulerItem = item;
         totalStrands.incrementAndGet();
-//        System.out.println("increment"+ totalStrands);
         if (DEBUG) {
             debugLog(item + " scheduled");
         }
@@ -150,7 +149,6 @@ public class Scheduler {
         SchedulerItem item = new SchedulerItem(consumer, params, future);
         future.strand.schedulerItem = item;
         totalStrands.incrementAndGet();
-//        System.out.println("increment"+ totalStrands);
         if (DEBUG) {
             debugLog(item + " scheduled");
         }
@@ -216,7 +214,6 @@ public class Scheduler {
 
             if (item == POISON_PILL) {
 //                this.mainBlockSem.release();
-//                System.out.println("+++++++++ break ++++++++");
                 break;
             }
 
@@ -317,7 +314,6 @@ public class Scheduler {
                             cleanUp(justCompleted);
 
                             int strandsLeft = totalStrands.decrementAndGet();
-//                            System.out.println(strandsLeft);
                             if (strandsLeft == 0) {
                                 // (number of started stands - finished stands) = 0, all the work is done
                                 assert runnableList.size() == 0;
@@ -328,7 +324,6 @@ public class Scheduler {
                                 if (DEBUG) {
                                     debugLog("+++++++++ all work completed ++++++++");
                                 }
-//                                System.out.println("+++++++++ all work completed ++++++++");
 
                                 if (!immortal) {
 //                                    for (int i = 0; i < numThreads; i++) {
