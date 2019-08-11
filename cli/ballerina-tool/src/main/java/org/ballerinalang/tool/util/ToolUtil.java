@@ -48,19 +48,6 @@ public class ToolUtil {
     private static final String BALLERINA_TOOLS_CONFIG = "ballerina-tools-version";
 
     private static final String STAGING_URL = "http://localhost:3030/update-tool";
-//    public static void main(String [] args) {
-//        listSDKs(System.out, false);
-//    //  remove(System.out, "ballerina-2.0.0-alpha");
-//
-//
-////        try {
-////            getDistribution(System.out, "1.0.0-alpha");
-////        } catch(Exception e) {
-////
-////        }
-//
-//
-//    }
 
     public static void listSDKs(PrintStream outStream, boolean isRemote) {
         try {
@@ -161,55 +148,9 @@ public class ToolUtil {
                     String newUrl = conn.getHeaderField("Location");
                     conn = (HttpURLConnection) new URL(newUrl).openConnection();
                     conn.setRequestProperty("content-type", "binary/data");
-                    printStream.print("Downloading " + distribution);
-                    InputStream in = conn.getInputStream();
-                    String zipFileLocation = OSUtils.getDistributionsPath() + File.separator + distribution + ".zip";
-                    FileOutputStream out = new FileOutputStream(zipFileLocation);
-                    byte[] b = new byte[1024];
-                    int count;
-                    int progress = 0;
-                    while ((count = in.read(b)) > 0) {
-                        out.write(b, 0, count);
-                        progress++;
-                        if (progress % 1024 == 0) {
-                            printStream.print(".");
-                        }
-                    }
-                    printStream.println();
-                    unzip(zipFileLocation, OSUtils.getDistributionsPath());
-                    setCurrentBallerinaVersion(distribution);
-
-                    if (conn.getResponseCode() != 200) {
-                        throw new RuntimeException("Failed : HTTP error code : "
-                                + conn.getResponseCode());
-                    }
-                    conn.disconnect();
-                    printStream.println(distribution + " is installed ");
+                    download(printStream, conn, distribution);
                 } else if (conn.getResponseCode() == 200) {
-                    printStream.print("Downloading " + distribution);
-                    InputStream in = conn.getInputStream();
-                    String zipFileLocation = OSUtils.getDistributionsPath() + File.separator + distribution + ".zip";
-                    FileOutputStream out = new FileOutputStream(zipFileLocation);
-                    byte[] b = new byte[1024];
-                    int count;
-                    int progress = 0;
-                    while ((count = in.read(b)) > 0) {
-                        out.write(b, 0, count);
-                        progress++;
-                        if (progress % 1024 == 0) {
-                            printStream.print(".");
-                        }
-                    }
-                    printStream.println();
-                    unzip(zipFileLocation, OSUtils.getDistributionsPath());
-                    setCurrentBallerinaVersion(distribution);
-
-                    if (conn.getResponseCode() != 200) {
-                        throw new RuntimeException("Failed : HTTP error code : "
-                                + conn.getResponseCode());
-                    }
-                    conn.disconnect();
-                    printStream.println(distribution + " is installed ");
+                    download(printStream, conn, distribution);
                 } else {
                     printStream.println(distribution + " is not found ");
                 }
@@ -219,7 +160,36 @@ public class ToolUtil {
         }
     }
 
+    public static void download(PrintStream printStream, HttpURLConnection conn,
+                                String distribution) throws IOException {
+        printStream.print("Downloading " + distribution);
+        InputStream in = conn.getInputStream();
+        String zipFileLocation = OSUtils.getDistributionsPath() + File.separator + distribution + ".zip";
+        FileOutputStream out = new FileOutputStream(zipFileLocation);
+        byte[] b = new byte[1024];
+        int count;
+        int progress = 0;
+        while ((count = in.read(b)) > 0) {
+            out.write(b, 0, count);
+            progress++;
+            if (progress % 1024 == 0) {
+                printStream.print(".");
+            }
+        }
+        printStream.println();
+        unzip(zipFileLocation, OSUtils.getDistributionsPath());
+        setCurrentBallerinaVersion(distribution);
+
+        if (conn.getResponseCode() != 200) {
+            throw new RuntimeException("Failed : HTTP error code : "
+                    + conn.getResponseCode());
+        }
+        conn.disconnect();
+        printStream.println(distribution + " is installed ");
+    }
+
     public static void update(PrintStream printStream, String version) {
+        //TODO : Get available versions, find latest patch and install that version
         install(printStream, version);
     }
 
