@@ -12,7 +12,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n"
+          "value": "**Package:** _._  \n  \n  \n"
         }
       },
       "sortText": "130",
@@ -30,16 +30,12 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n"
+          "value": "**Package:** _._  \n  \n  \n"
         }
       },
       "sortText": "130",
-      "insertText": "serviceFunc(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "serviceFunc();",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

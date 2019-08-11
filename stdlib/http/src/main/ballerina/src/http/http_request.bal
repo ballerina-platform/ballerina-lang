@@ -303,7 +303,16 @@ public type Request object {
                 mime:HeaderUnavailableError typeError = error(mime:HEADER_UNAVAILABLE, message = errMessage);
                 return getGenericClientError(message, typeError);
             }
-            if (!(internal:equalsIgnoreCase(mime:APPLICATION_FORM_URLENCODED, mimeEntity.getHeader(mime:CONTENT_TYPE)))) {
+            string contentTypeHeaderValue = "";
+            var mediaType = mime:getMediaType(mimeEntity.getHeader(mime:CONTENT_TYPE));
+            if (mediaType is mime:InvalidContentTypeError) {
+                string errorMessage = <string> mediaType.detail()["message"];
+                mime:InvalidContentTypeError typeError = error(mime:INVALID_CONTENT_TYPE, message = errorMessage);
+                return getGenericClientError(message, typeError);
+            } else {
+                contentTypeHeaderValue = mediaType.primaryType + "/" + mediaType.subType;
+            }
+            if (!(internal:equalsIgnoreCase(mime:APPLICATION_FORM_URLENCODED, contentTypeHeaderValue))) {
                 string errorMessage = "Invalid content type : expected 'application/x-www-form-urlencoded'";
                 mime:InvalidContentTypeError typeError = error(mime:INVALID_CONTENT_TYPE, message = errorMessage);
                 return getGenericClientError(message, typeError);

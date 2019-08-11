@@ -31,10 +31,26 @@ import java.util.Map;
  */
 public class TesterinaReport {
 
-    private static PrintStream outStream = System.out;
+    private PrintStream outStream;
     private Map<String, TestSummary> testReportOfPackage = new HashMap<>();
     private boolean failure;
-
+    
+    /**
+     * Create an instance of Testerina Report.
+     */
+    public TesterinaReport() {
+        this(System.out);
+    }
+    
+    /**
+     * Create an instance of Testerina Report with a given log stream.
+     *
+     * @param outStream The log stream.
+     */
+    public TesterinaReport(PrintStream outStream) {
+        this.outStream = outStream;
+    }
+    
     public void printTestSuiteSummary(String packageName) {
         TestSummary testSummary = testReportOfPackage.get(packageName);
         if (testSummary == null) {

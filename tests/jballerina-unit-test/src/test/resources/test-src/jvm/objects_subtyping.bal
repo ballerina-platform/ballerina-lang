@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/subtyping version v1;
+import testorg/subtyping;
 
 type Person1 object {
     public string name = "sample name";
