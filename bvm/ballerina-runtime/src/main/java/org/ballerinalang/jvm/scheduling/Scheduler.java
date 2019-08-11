@@ -33,6 +33,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -195,8 +196,13 @@ public class Scheduler {
         } catch (Throwable t) {
             logger.error("Error occurred in scheduler", t);
         } finally {
-            runnableList.clear();
-            this.executor.shutdown();
+
+            try {
+                this.executor.shutdown();
+                this.executor.awaitTermination(1, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                //ignore
+            }
         }
     }
 
