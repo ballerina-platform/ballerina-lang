@@ -6,6 +6,13 @@ version = "0.0.0"
 target = "java"
 
     [[platform.libraries]]
+    artafactId = "jdbc"
+    version = "@project.version@"
+    path = "./lib/ballerina-jdbc-@project.version@.jar"
+    groupId = "ballerina"
+    modules = ["jdbc"]
+
+    [[platform.libraries]]
     artafactId = "javax.jms-api"
     version = "2.0.1"
     path = "./lib/javax.jms-api-2.0.1.jar"

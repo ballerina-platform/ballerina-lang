@@ -32,3 +32,10 @@ target = "java"
     path = "./lib/protobuf-java-3.7.0.jar"
     groupId = "com.google.protobuf"
     modules = ["nats"]
+    
+    [[platform.libraries]]
+    artafactId = "nats"
+    version = "@project.version@"
+    path = "./lib/ballerina-nats-@project.version@.jar"
+    groupId = "ballerina"
+    modules = ["nats"]

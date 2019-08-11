@@ -6,6 +6,13 @@ version = "0.0.0"
 target = "java"
 
     [[platform.libraries]]
+    artafactId = "observability"
+    version = "@project.version@"
+    path = "./lib/ballerina-observability-@project.version@.jar"
+    groupId = "ballerina"
+    modules = ["observability"]
+
+    [[platform.libraries]]
     artafactId = "opentracing-api"
     version = "0.31.0"
     path = "./lib/opentracing-api-0.31.0.jar"

@@ -1,3 +1,13 @@
 [project]
 org-name = "ballerina"
 version = "0.0.0"
+
+[platform]
+target = "java"
+
+    [[platform.libraries]]
+    artafactId = "kafka"
+    version = "@project.version@"
+    path = "./lib/ballerina-kafka-@project.version@.jar"
+    groupId = "ballerina"
+    modules = ["kafka"]
