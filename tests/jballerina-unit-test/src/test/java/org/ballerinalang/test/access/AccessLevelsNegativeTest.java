@@ -62,7 +62,7 @@ public class AccessLevelsNegativeTest {
     @Test
     public void testPrivateTypeAccessNegative() {
         CompileResult pkgB = BCompileUtil.compile(this, "test-src/access/pvtAccessTest", "B");
-        BAssertUtil.validateError(pkgB, 0, "attempt to refer to non-accessible symbol 'Bar'", 6, 2);
-        BAssertUtil.validateError(pkgB, 1, "unknown type 'Bar'", 6, 2);
+        BAssertUtil.validateError(pkgB, 0, "attempt to refer to non-accessible symbol 'Bar'", 22, 2);
+        BAssertUtil.validateError(pkgB, 1, "unknown type 'Bar'", 22, 2);
     }
 }
