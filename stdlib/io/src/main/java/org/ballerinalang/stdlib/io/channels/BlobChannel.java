@@ -21,35 +21,61 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
 /**
  * Creates channel which will reference byte content.
  */
 public class BlobChannel implements ByteChannel {
 
-    private ReadableByteChannel channel;
+    private ReadableByteChannel readableChannel;
+    
+    private WritableByteChannel writableChannel;
 
     public BlobChannel(ReadableByteChannel channel) {
-        this.channel = channel;
+        this.readableChannel = channel;
+    }
+    
+    public BlobChannel(WritableByteChannel channel) {
+        this.writableChannel = channel;
     }
 
     @Override
     public int read(ByteBuffer dst) throws IOException {
-        return channel.read(dst);
+        if (readableChannel == null) {
+            throw new UnsupportedOperationException();
+        }
+        return readableChannel.read(dst);
     }
 
     @Override
     public int write(ByteBuffer src) throws IOException {
-        throw new UnsupportedOperationException();
+        if (writableChannel == null) {
+            throw new UnsupportedOperationException();
+        }
+        return this.writableChannel.write(src);
     }
 
     @Override
     public boolean isOpen() {
-        return channel.isOpen();
+        if (readableChannel != null) {
+            return readableChannel.isOpen();
+        } else {
+            return writableChannel.isOpen();
+        }
     }
 
     @Override
     public void close() throws IOException {
-        channel.close();
+        if (readableChannel != null) {
+            readableChannel.close();
+        } else {
+            writableChannel.close();
+        }
     }
+    
+    public boolean isReadable() {
+        return readableChannel != null;
+    }
+    
 }
