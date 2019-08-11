@@ -94,7 +94,6 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
                 this.packageNames = stream.filter(path -> Files.isDirectory(path))
                         .filter(ProjectDirs::containsSourceFiles)
                         .map(ProjectDirs::getLastComp)
-                        .filter(dirName -> !isSpecialDirectory(dirName))
                         .map(Path::toString)
                         .collect(Collectors.toList());
             }
@@ -105,16 +104,6 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
         }
         this.scanned = true;
         return this.packageNames;
-    }
-
-    private boolean isSpecialDirectory(Path dirName) {
-        List<String> ignoreDirs = Arrays.asList(//TODO : Top level test directory is needed for testerina and
-                                                // removing this check till it's handled properly.
-                                                //ProjectDirConstants.TEST_DIR_NAME,
-                                                ProjectDirConstants.TARGET_DIR_NAME,
-                                                ProjectDirConstants.RESOURCE_DIR_NAME);
-        String dirNameStr = dirName.toString();
-        return dirNameStr.startsWith(".") || dirName.toFile().isHidden() || ignoreDirs.contains(dirNameStr);
     }
 
     @Override
