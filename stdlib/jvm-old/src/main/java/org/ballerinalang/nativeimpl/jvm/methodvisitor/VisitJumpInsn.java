@@ -19,6 +19,8 @@ package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -47,12 +49,15 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
 public class VisitJumpInsn extends BlockingNativeCallableUnit {
 
     @Override
+    @Deprecated
     public void execute(Context context) {
+        throw new UnsupportedOperationException("BVM Unsupported");
+    }
 
-        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(context, 0);
+    public static void visitJumpInsn(Strand strand, ObjectValue oMv, long opcode, ObjectValue oLabel) {
+        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(oMv);
 
-        int opcode = (int) context.getIntArgument(0);
-        Label label = ASMUtil.getRefArgumentNativeData(context, 1);
-        mv.visitJumpInsn(opcode, label);
+        Label label = ASMUtil.getRefArgumentNativeData(oLabel);
+        mv.visitJumpInsn((int) opcode, label);
     }
 }

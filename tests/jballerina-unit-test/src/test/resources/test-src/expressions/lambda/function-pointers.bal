@@ -149,3 +149,13 @@ function testInTypeGuard() returns int {
     }
     return 1;
 }
+
+function bar() returns string {
+     return "12";
+}
+
+function testSubTypingWithAny() returns any {
+    function () returns any ff = bar;
+    any s = ff();
+    return s;
+}

@@ -149,17 +149,6 @@ service hello on mockEP {
         checkpanic caller->respond(res);
     }
 
-    //Enable this once the getContentLength is added back
-    //@http:resourceConfig {
-    //    path:"/getContentLength"
-    //}
-    //GetContentLength (http:ServerConnector conn, http:Request req) {
-    //    http:Response res = {};
-    //    int length = req.getContentLength();
-    //    res.setJsonPayload({value:length});
-    //    checkpanic conn->respond(res);
-    //}
-
     @http:ResourceConfig {
         path: "/getJsonPayload"
     }

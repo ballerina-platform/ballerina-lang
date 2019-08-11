@@ -19,6 +19,7 @@ package org.ballerinalang.net.http.compiler;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.util.AbstractTransportCompilerPlugin;
@@ -33,7 +34,13 @@ import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_CLIENT;
  * @since 0.965.0
  */
 @SupportedResourceParamTypes(
-        paramTypes = {@SupportedResourceParamTypes.Type(packageName = "http", name = WEBSOCKET_CLIENT)})
+        paramTypes = {
+                @SupportedResourceParamTypes.Type(
+                        packageName = WebSocketConstants.PACKAGE_HTTP,
+                        name = WEBSOCKET_CLIENT
+                )
+        }
+)
 public class WebSocketClientServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
 
     private DiagnosticLog dlog = null;

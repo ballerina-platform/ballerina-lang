@@ -30,7 +30,7 @@ public class WebSocketConstants {
     public static final String PACKAGE_HTTP = "http";
     public static final String FULL_PACKAGE_HTTP = BALLERINA_PACKAGE_PREFIX + PACKAGE_HTTP;
     public static final String SEPARATOR = ":";
-    public static final String WEBSOCKET_LISTENER = "WebSocketListener";
+    public static final String LISTENER = "Listener";
     public static final String WEBSOCKET_CONNECTOR = "WebSocketConnector";
     public static final String WEBSOCKET_CALLER = "WebSocketCaller";
     public static final String WEBSOCKET_CLIENT = "WebSocketClient";
@@ -67,7 +67,9 @@ public class WebSocketConstants {
     public static final String CLIENT_READY_ON_CONNECT = "readyOnConnect";
     public static final String WEBSOCKET_UPGRADE_SERVICE_CONFIG = "upgradeService";
 
-    // WebSocketListener struct field names
+    public static final String COMPRESSION_ENABLED_CONFIG = "webSocketCompressionEnabled";
+
+    // WebSocketListener field names
     public static final String LISTENER_ID_FIELD = "id";
     public static final String LISTENER_NEGOTIATED_SUBPROTOCOLS_FIELD = "negotiatedSubProtocol";
     public static final String LISTENER_IS_SECURE_FIELD = "secure";

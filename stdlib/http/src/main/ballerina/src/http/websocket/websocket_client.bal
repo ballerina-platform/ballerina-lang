@@ -26,12 +26,12 @@ public type WebSocketClient client object {
 
     private WebSocketConnector conn = new;
     private string url = "";
-    private WebSocketClientEndpointConfig config = {};
+    private WebSocketClientConfiguration config = {};
 
     # Initializes the client when called.
     #
-    # + c - The `WebSocketClientEndpointConfig` of the endpoint
-    public function __init(string url, public WebSocketClientEndpointConfig? config = ()) {
+    # + c - The `WebSocketClientConfiguration` of the endpoint
+    public function __init(string url, public WebSocketClientConfiguration? config = ()) {
         self.url = url;
         self.config = config ?: {};
         self.initEndpoint();
@@ -173,7 +173,8 @@ public type WebSocketClient client object {
 # + secureSocket - SSL/TLS related options
 # + maxFrameSize - The maximum payload size of a WebSocket frame in bytes.
 #                  If this is not set or is negative  or zero the default frame size of 65536 will be used.
-public type WebSocketClientEndpointConfig record {|
+# + webSocketCompressionEnabled - Enable support for compression in WebSocket
+public type WebSocketClientConfiguration record {|
     service? callbackService = ();
     string[] subProtocols = [];
     map<string> customHeaders = {};
@@ -181,4 +182,5 @@ public type WebSocketClientEndpointConfig record {|
     boolean readyOnConnect = true;
     SecureSocket? secureSocket = ();
     int maxFrameSize = 0;
+    boolean webSocketCompressionEnabled = true;
 |};
