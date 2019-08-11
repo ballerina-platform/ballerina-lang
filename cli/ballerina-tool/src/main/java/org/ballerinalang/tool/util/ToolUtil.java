@@ -176,9 +176,7 @@ public class ToolUtil {
                         }
                     }
                     printStream.println();
-                    File zipFile = new File(zipFileLocation);
-                    unzip(zipFile, OSUtils.getDistributionsPath());
-                    zipFile.delete();
+                    unzip(zipFileLocation, OSUtils.getDistributionsPath());
                     setCurrentBallerinaVersion(distribution);
 
                     if (conn.getResponseCode() != 200) {
@@ -203,9 +201,7 @@ public class ToolUtil {
                         }
                     }
                     printStream.println();
-                    File zipFile = new File(zipFileLocation);
-                    unzip(zipFile, OSUtils.getDistributionsPath());
-                    zipFile.delete();
+                    unzip(zipFileLocation, OSUtils.getDistributionsPath());
                     setCurrentBallerinaVersion(distribution);
 
                     if (conn.getResponseCode() != 200) {
@@ -278,39 +274,32 @@ public class ToolUtil {
         return distributions;
     }
 
-    public static void unzip(File source, String out) throws IOException {
-        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(source))) {
-
-            ZipEntry entry = zis.getNextEntry();
-
-            while (entry != null) {
-
-                File file = new File(out, entry.getName());
-
-                if (entry.isDirectory()) {
-                    file.mkdirs();
-                } else {
-                    File parent = file.getParentFile();
-
-                    if (!parent.exists()) {
-                        parent.mkdirs();
-                    }
-
-                    try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file))) {
-
-                        byte[] buffer = new byte[Math.toIntExact(entry.getSize())];
-
-                        int location;
-
-                        while ((location = zis.read(buffer)) != -1) {
-                            bos.write(buffer, 0, location);
-                        }
-                    }
-                }
-                entry = zis.getNextEntry();
-            }
+    public static void unzip(String zipFilePath, String destDirectory) throws IOException {
+        File destDir = new File(destDirectory);
+        if (!destDir.exists()) {
+            destDir.mkdir();
         }
+        ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFilePath));
+        ZipEntry entry = zipIn.getNextEntry();
+        while (entry != null) {
+            String filePath = destDirectory + File.separator + entry.getName();
+            if (!entry.isDirectory()) {
+                BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath));
+                byte[] bytesIn = new byte[1024];
+                int read = 0;
+                while ((read = zipIn.read(bytesIn)) != -1) {
+                    bos.write(bytesIn, 0, read);
+                }
+                bos.close();
+            } else {
+                File dir = new File(filePath);
+                dir.mkdir();
+            }
+            zipIn.closeEntry();
+            entry = zipIn.getNextEntry();
+        }
+        zipIn.close();
+        new File(zipFilePath).delete();
     }
-
 }
 
