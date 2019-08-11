@@ -56,7 +56,6 @@ dependencies {
     dist 'org.jvnet.mimepull:mimepull:1.9.7'
     dist 'org.quartz-scheduler:quartz-jobs:2.3.0'
     dist 'org.quartz-scheduler:quartz:2.3.0'
-    dist 'org.slf4j:slf4j-jdk14:1.7.22'
     dist 'org.wso2.carbon:org.wso2.carbon.core:5.1.0'
     dist 'org.wso2.orbit.com.lmax:disruptor:3.3.2.wso2v2'
     dist 'org.wso2.securevault:org.wso2.securevault:1.0.0-wso2v2'
@@ -237,7 +236,7 @@ dependencies {
     dist project(':ballerina-observability')
     dist project(':ballerina-reflect')
     dist project(':ballerina-runtime-api')
-    dist project(':ballerina-runtime')
+    dist project(':ballerina-runtime-all')
     dist project(':ballerina-socket')
     dist project(':ballerina-streaming:siddhi-annotations')
     dist project(':ballerina-streaming:siddhi-core')
