@@ -1130,7 +1130,7 @@
       }
     },
     {
-      "label": "Listener(int port, (http:ServiceEndpointConfiguration|()) config)",
+      "label": "Listener(int port, (http:ListenerConfiguration|()) config)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
