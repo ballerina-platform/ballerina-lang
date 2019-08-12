@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.packaging;
 
+import org.awaitility.Duration;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -39,6 +40,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.given;
+import static org.ballerinalang.test.packaging.PackerinaTestUtils.deleteFiles;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 
 /**
@@ -57,27 +62,29 @@ public class LockFileTestCase extends BaseTest {
     
     @BeforeClass()
     public void setUp() throws IOException, BallerinaTestException {
-        tempHomeDirectory = Files.createTempDirectory("bal-test-integration-packaging-home-");
-        tempProjectsDirectory = Files.createTempDirectory("bal-test-integration-packaging-project-");
+        this.tempHomeDirectory = Files.createTempDirectory("bal-test-integration-packaging-home-");
+        this.tempProjectsDirectory = Files.createTempDirectory("bal-test-integration-packaging-project-");
         
         // copy TestProject1 to a temp
-        Path testProj1 = Paths.get("src", "test", "resources", "packaging", "TestProject1").toAbsolutePath();
-        Files.copy(testProj1, tempProjectsDirectory);
-        testProj1Path = tempProjectsDirectory.resolve("TestProject1");
+        Path originalTestProj1 = Paths.get("src", "test", "resources", "packaging", "TestProject1").toAbsolutePath();
+        this.testProj1Path = this.tempProjectsDirectory.resolve("TestProject1");
+        copyFolder(originalTestProj1, this.testProj1Path);
     
         // rename module names
-        Path testProjModule1Path = testProj1Path.resolve("src").resolve(this.module1Name);
-        Files.createDirectories(testProj1Path.resolve("src").resolve(this.module1Name));
-        Files.move(testProj1Path.resolve("src").resolve("module1"), testProjModule1Path);
+        Path testProjModule1Path = this.testProj1Path.resolve("src").resolve(this.module1Name);
+        Files.createDirectories(this.testProj1Path.resolve("src").resolve(this.module1Name));
+        copyFolder(this.testProj1Path.resolve("src").resolve("module1"), testProjModule1Path);
+        deleteFiles(this.testProj1Path.resolve("src").resolve("module1"));
     
         Path testProjModule2Path = testProj1Path.resolve("src").resolve(this.module2Name);
         Files.createDirectories(testProj1Path.resolve("src").resolve(this.module2Name));
-        Files.move(testProj1Path.resolve("src").resolve("module2"), testProjModule2Path);
+        copyFolder(testProj1Path.resolve("src").resolve("module2"), testProjModule2Path);
+        deleteFiles(testProj1Path.resolve("src").resolve("module2"));
         
         // copy TestProject2 to a temp
-        Path testProj2 = Paths.get("src", "test", "resources", "packaging", "TestProject1").toAbsolutePath();
-        Files.copy(testProj2, tempProjectsDirectory);
+        Path originalTestProj2 = Paths.get("src", "test", "resources", "packaging", "TestProject2").toAbsolutePath();
         testProj2Path = tempProjectsDirectory.resolve("TestProject2");
+        copyFolder(originalTestProj2, testProj2Path);
         
         PackerinaTestUtils.createSettingToml(tempHomeDirectory);
         envVariables = addEnvVariables(PackerinaTestUtils.getEnvVariables());
@@ -131,7 +138,8 @@ public class LockFileTestCase extends BaseTest {
         List<String> replaced = lines.map(line -> line.replaceAll("MODULE_1", module1Name))
                 .collect(Collectors.toList());
         Files.write(fooSayBal, replaced);
-        
+    
+        lines = Files.lines(fooSayBal);
         replaced = lines.map(line -> line.replaceAll("MODULE_2", module2Name))
                 .collect(Collectors.toList());
         Files.write(fooSayBal, replaced);
@@ -145,12 +153,16 @@ public class LockFileTestCase extends BaseTest {
                                  + BLANG_COMPILED_PKG_BINARY_EXT;
         String fooBuildMsg = "Created target" + File.separator + "balo" + File.separator + fooBaloFileName;
         LogLeecher fooBuildLeecher = new LogLeecher(fooBuildMsg);
-        balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{}, new LogLeecher[]{fooBuildLeecher},
-                testProj1Path.toString());
-        fooBuildLeecher.waitForText(10000);
+    
+        given().with().pollInterval(Duration.TEN_SECONDS).and()
+                .with().pollDelay(Duration.FIVE_SECONDS)
+                .await().atMost(60, SECONDS).until(() -> {
+            balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{}, new
+                    LogLeecher[]{fooBuildLeecher}, testProj2Path.toString());
+            Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
+            return Files.exists(lockFilePath);
+        });
         
-        Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
-        Assert.assertTrue(Files.exists(lockFilePath));
     
         // Run and see output
         String msg = "Test me\nHello john!";
@@ -231,7 +243,7 @@ public class LockFileTestCase extends BaseTest {
                 new LogLeecher[]{new LogLeecher(msg)}, testProj2Path.toString());
     }
     
-    @Test(description = "Test push all packages in project to central")
+    @Test(description = "Test push all packages in project to central", dependsOnMethods = "testRebuildTestProj2")
     public void testRebuildTestProj2WithLockRemoved() throws Exception {
         // Delete Ballerina.toml
         Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
@@ -269,12 +281,25 @@ public class LockFileTestCase extends BaseTest {
         return envVariables;
     }
     
+    public  void copyFolder(Path src, Path dest) throws IOException {
+        Files.walk(src)
+                .forEach(source -> copy(source, dest.resolve(src.relativize(source))));
+    }
+    
+    private void copy(Path source, Path dest) {
+        try {
+            Files.copy(source, dest, REPLACE_EXISTING);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+    
     @AfterClass
     private void cleanup() throws Exception {
-        PackerinaTestUtils.deleteFiles(tempHomeDirectory);
-        PackerinaTestUtils.deleteFiles(tempProjectsDirectory);
-        PackerinaTestUtils.deleteFiles(testProj1Path);
-        PackerinaTestUtils.deleteFiles(testProj2Path);
+        deleteFiles(tempHomeDirectory);
+        deleteFiles(tempProjectsDirectory);
+        deleteFiles(testProj1Path);
+        deleteFiles(testProj2Path);
         balServer.cleanup();
     }
 }
