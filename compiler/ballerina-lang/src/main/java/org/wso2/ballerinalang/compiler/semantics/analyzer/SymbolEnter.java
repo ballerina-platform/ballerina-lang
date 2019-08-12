@@ -1478,7 +1478,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void defineExistingVarSymbolInEnv(BVarSymbol varSymbol, SymbolEnv env) {
-        if (!symResolver.isSymbolUnique(env, varSymbol, SymTag.VARIABLE_NAME)) {
+        if (!symResolver.checkForUniqueSymbol(env, varSymbol, SymTag.VARIABLE_NAME)) {
             varSymbol.type = symTable.semanticError;
         }
         env.scope.define(varSymbol.name, varSymbol);

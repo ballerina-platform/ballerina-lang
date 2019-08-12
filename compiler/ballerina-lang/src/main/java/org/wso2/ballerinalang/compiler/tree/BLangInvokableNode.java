@@ -66,6 +66,7 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
      * Scope of clonedEnv will be populated with function parameters one by one at semantic phase to support
      * referencing of previous function parameters.
      */
+    // TODO: Should be properly fixed by doing symbolEnter of function parameters only when needed at semantic phase.
     public SymbolEnv clonedEnv;
 
     public boolean desugaredReturnType;

@@ -167,16 +167,16 @@ public class SymbolResolver extends BLangNodeVisitor {
             return false;
         }
 
-        //if a symbol is found, then check whether it is unique
-        return isUniqueSymbol(pos, symbol, foundSym);
+        // if a symbol is found, then check whether it is unique
+        return isSameSymbol(pos, symbol, foundSym);
     }
 
-    public boolean isSymbolUnique(SymbolEnv env, BSymbol symbol, int expSymTag) {
+    public boolean checkForUniqueSymbol(SymbolEnv env, BSymbol symbol, int expSymTag) {
         BSymbol foundSym = lookupSymbol(env, symbol.name, expSymTag);
         if (foundSym == symTable.notFoundSymbol) {
             return true;
         }
-        return isUniqueSymbol(symbol, foundSym);
+        return isSameSymbol(symbol, foundSym);
     }
 
     /**
@@ -200,7 +200,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         //if a symbol is found, then check whether it is unique
-        return isUniqueSymbol(pos, symbol, foundSym);
+        return isSameSymbol(pos, symbol, foundSym);
     }
 
     /**
@@ -212,7 +212,7 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @param foundSym symbol that is found from the scope.
      * @return true if the symbol is unique, false otherwise.
      */
-    private boolean isUniqueSymbol(DiagnosticPos pos, BSymbol symbol, BSymbol foundSym) {
+    private boolean isSameSymbol(DiagnosticPos pos, BSymbol symbol, BSymbol foundSym) {
         // It is allowed to have a error constructor symbol with the same name as a type def.
         if (symbol.tag == SymTag.CONSTRUCTOR && foundSym.tag == SymTag.ERROR) {
             return true;
@@ -239,7 +239,7 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @param foundSym symbol that is found from the scope.
      * @return true if the symbol is unique, false otherwise.
      */
-    private boolean isUniqueSymbol(BSymbol symbol, BSymbol foundSym) {
+    private boolean isSameSymbol(BSymbol symbol, BSymbol foundSym) {
         // It is allowed to have a error constructor symbol with the same name as a type def.
         if (symbol.tag == SymTag.CONSTRUCTOR && foundSym.tag == SymTag.ERROR) {
             return true;
