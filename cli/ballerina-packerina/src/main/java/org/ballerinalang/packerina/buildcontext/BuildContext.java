@@ -235,10 +235,12 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
             }
         }
     
-        // set source type as string in compiler context
-        CompilerContext compilerContext = this.get(BuildContextField.COMPILER_CONTEXT);
-        CompilerOptions options = CompilerOptions.getInstance(compilerContext);
-        options.put(CompilerOptionName.SOURCE_TYPE, this.srcType.toString());
+        if (this.containsKey(BuildContextField.COMPILER_CONTEXT)) {
+            // set source type as string in compiler context
+            CompilerContext compilerContext = this.get(BuildContextField.COMPILER_CONTEXT);
+            CompilerOptions options = CompilerOptions.getInstance(compilerContext);
+            options.put(CompilerOptionName.SOURCE_TYPE, this.srcType.toString());
+        }
     }
     
     public SourceType getSourceType() {
