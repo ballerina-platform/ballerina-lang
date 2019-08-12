@@ -91,20 +91,20 @@ public class BuildCommand implements BLauncherCmd {
         this.exitWhenFinish = exitWhenFinish;
     }
     
-    @CommandLine.Option(names = {"--compile", "-c"}, description = "Compile the source without generating " +
+    @CommandLine.Option(names = {"--compile", "-c"}, description = "Compiles the source without generating " +
                                                                    "executable(s).")
     private boolean compile;
     
-    @CommandLine.Option(names = {"--output", "-o"}, description = "Writes output to the given file. The provided " +
+    @CommandLine.Option(names = {"--output", "-o"}, description = "Writes the output to the given file. The provided " +
                                                                   "output filename may or may not contain the '.jar' " +
                                                                   "extension.")
     private String output;
 
     @CommandLine.Option(names = {"--off-line"}, description = "Builds/Compiles offline without downloading " +
-                                                              "dependencies.")
+                                                              "the dependencies.")
     private boolean offline;
 
-    @CommandLine.Option(names = {"--skip-lock"}, description = "Skip using the lock file to resolve dependencies.")
+    @CommandLine.Option(names = {"--skip-lock"}, description = "Skips using the lock file to resolve the dependencies.")
     private boolean skipLock;
 
     @CommandLine.Option(names = {"--skip-tests"}, description = "Skips test compilation and execution.")
@@ -114,7 +114,7 @@ public class BuildCommand implements BLauncherCmd {
     private List<String> argList;
 
     @CommandLine.Option(names = {"--native"}, hidden = true,
-                        description = "Compile Ballerina program to a native binary")
+                        description = "Compiles a Ballerina program to a native binary.")
     private boolean nativeBinary;
 
     @CommandLine.Option(names = "--dump-bir", hidden = true)
@@ -126,13 +126,13 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
+    @CommandLine.Option(names = "--experimental", description = "Enables experimental language features.")
     private boolean experimentalFlag;
 
-    @CommandLine.Option(names = {"--test-config"}, description = "Path to the configuration file when running tests.")
+    @CommandLine.Option(names = {"--test-config"}, description = "The path to the configuration file when running tests.")
     private String configFilePath;
 
-    @CommandLine.Option(names = "--siddhi-runtime", description = "Enable siddhi runtime for stream processing.")
+    @CommandLine.Option(names = "--siddhi-runtime", description = "Enables the Siddhi runtime for stream processing.")
     private boolean siddhiRuntimeFlag;
 
     public void execute() {
@@ -145,7 +145,7 @@ public class BuildCommand implements BLauncherCmd {
         // check if there are too many arguments.
         if (this.argList != null && this.argList.size() > 1) {
             CommandUtil.printError(this.errStream,
-                    "too many arguments.",
+                    "Too many arguments.",
                     "ballerina build [<bal-file> | <module-name>]",
                     false);
             
@@ -155,7 +155,7 @@ public class BuildCommand implements BLauncherCmd {
         
         if (this.nativeBinary) {
             CommandUtil.printError(this.errStream,
-                    "llvm native generation is not supported.",
+                    "LLVM native generation is not supported.",
                     null,
                     false);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -173,7 +173,7 @@ public class BuildCommand implements BLauncherCmd {
             //// check if output flag is set
             if (null != this.output) {
                 CommandUtil.printError(this.errStream,
-                        "'-o' and '--output' flag is only supported for building a single ballerina file.",
+                        "The '-o' and '--output' flag is only supported for building a single Ballerina file.",
                         "ballerina build <bal-file> -o foo.jar",
                         true);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -185,7 +185,7 @@ public class BuildCommand implements BLauncherCmd {
                 Path findRoot = ProjectDirs.findProjectRoot(this.sourceRootPath);
                 if (null == findRoot) {
                     CommandUtil.printError(this.errStream,
-                            "you are trying to build/compile a ballerina project but there is no Ballerina.toml file.",
+                            "There is no Ballerina.toml file to build/compile a Ballerina project.",
                             null,
                             false);
                     CommandUtil.exitError(this.exitWhenFinish);
@@ -200,8 +200,8 @@ public class BuildCommand implements BLauncherCmd {
             // when a single bal file is provided.
             if (this.compile) {
                 CommandUtil.printError(this.errStream,
-                        "'-c' or '--compile' flag cannot be used on ballerina files. the flag can only be used with " +
-                        "ballerina projects.",
+                        "The '-c' or '--compile' flag cannot be used with Ballerina files. The flag can only be used with " +
+                        "Ballerina projects.",
                         null,
                         false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -218,7 +218,7 @@ public class BuildCommand implements BLauncherCmd {
                 //// check if the given file exists.
                 if (Files.notExists(sourcePath)) {
                     CommandUtil.printError(this.errStream,
-                            "'" + sourcePath + "' ballerina file does not exist.",
+                            "'" + sourcePath + "' This Ballerina file does not exist.",
                             null,
                             false);
                     CommandUtil.exitError(this.exitWhenFinish);
@@ -228,7 +228,7 @@ public class BuildCommand implements BLauncherCmd {
                 //// check if the given file is a regular file and not a symlink.
                 if (!Files.isRegularFile(sourcePath)) {
                     CommandUtil.printError(this.errStream,
-                            "'" + sourcePath + "' is not ballerina file. check if it is a symlink or shortcut.",
+                            "'" + sourcePath + "' is not a Ballerina file. Check if it is a symlink or a shortcut.",
                             null,
                             false);
                     CommandUtil.exitError(this.exitWhenFinish);
@@ -238,7 +238,7 @@ public class BuildCommand implements BLauncherCmd {
                 try {
                     targetPath = Files.createTempDirectory("ballerina-build-" + System.nanoTime());
                 } catch (IOException e) {
-                    throw LauncherUtils.createLauncherException("error occurred when creating executable.");
+                    throw LauncherUtils.createLauncherException("Error occurred while creating the executable.");
                 }
             }
         } else if (Files.exists(
@@ -250,7 +250,7 @@ public class BuildCommand implements BLauncherCmd {
             //// output flag cannot be set for projects
             if (null != this.output) {
                 CommandUtil.printError(this.errStream,
-                        "'-o' and '--output' flag is only supported for building a single ballerina file.",
+                        "The '-o' and '--output' flag is only supported for building a single Ballerina file.",
                         null,
                         false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -260,7 +260,7 @@ public class BuildCommand implements BLauncherCmd {
             //// check if command executed from project root.
             if (!RepoUtils.isBallerinaProject(this.sourceRootPath)) {
                 CommandUtil.printError(this.errStream,
-                        "you are trying to build/compile a module that is not inside a project.",
+                        "You are trying to build/compile a module that is not inside a project.",
                         null,
                         false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -270,7 +270,7 @@ public class BuildCommand implements BLauncherCmd {
             //// check if module name given is not absolute.
             if (Paths.get(argList.get(0)).isAbsolute()) {
                 CommandUtil.printError(this.errStream,
-                        "you are trying to build/compile a module by giving the absolute path. you only need give " +
+                        "You are trying to build/compile a module by giving the absolute path. You only need to give " +
                         "the name of the module.",
                         "ballerina build [-c] <module-name>",
                         true);
@@ -300,7 +300,7 @@ public class BuildCommand implements BLauncherCmd {
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         } else {
             CommandUtil.printError(this.errStream,
-                    "invalid ballerina source path, it should either be a module name in a ballerina project or a " +
+                    "An invalid Ballerina source path. It should either be a module name in a Ballerina project or a " +
                     "file with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension.",
                     "ballerina build [<bal-file> | <module-name>]",
                     true);
@@ -368,18 +368,18 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Builds Ballerina module(s)/file and produces an executable jar file(s). \n");
+        out.append("Builds a Ballerina module(s)/file and produces an executable .jar file(s). \n");
         out.append("\n");
-        out.append("Building a Ballerina project or a specific module in a project the \n");
-        out.append("executable \".jar\" files will be created in <project-root>/target/bin directory. \n");
+        out.append("When building a Ballerina project or a specific module in a project, the \n");
+        out.append("executable \".jar\" files will be created in the <project-root>/target/bin directory. \n");
         out.append("\n");
         out.append("Building a single Ballerina file will create an executable .jar file in the \n");
-        out.append("current directory. The name of the executable file will be. \n");
+        out.append("current directory. The name of the executable file will be \n");
         out.append("<bal-file-name>-executable.jar. \n");
         out.append("\n");
         out.append("If the output file is specified with the -o flag, the output \n");
         out.append("will be written to the given output file name. The -o flag will only \n");
-        out.append("work for single files. \n");
+        out.append("work for a single file. \n");
     }
 
     @Override

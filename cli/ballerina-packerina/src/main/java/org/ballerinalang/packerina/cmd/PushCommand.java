@@ -36,7 +36,7 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
  *
  * @since 0.964
  */
-@CommandLine.Command(name = PUSH_COMMAND, description = "push modules and binaries available locally to "
+@CommandLine.Command(name = PUSH_COMMAND, description = "Pushes modules and binaries available locally to "
         + "Ballerina Central")
 public class PushCommand implements BLauncherCmd {
     private static PrintStream outStream = System.err;
@@ -53,10 +53,10 @@ public class PushCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--repository", hidden = true)
     private String repositoryHome;
 
-    @CommandLine.Option(names = {"--skip-source-check"}, description = "skip checking if source has changed")
+    @CommandLine.Option(names = {"--skip-source-check"}, description = "Skips checking if the source has been changed.")
     private boolean skipSourceCheck;
 
-    @CommandLine.Option(names = "--experimental", description = "enable experimental language features")
+    @CommandLine.Option(names = "--experimental", description = "Enables experimental language features.")
     private boolean experimentalFlag;
     
     private Path userDir;
@@ -88,7 +88,7 @@ public class PushCommand implements BLauncherCmd {
             Path findRoot = ProjectDirs.findProjectRoot(sourceRootPath);
             if (null == findRoot) {
                 CommandUtil.printError(errStream,
-                        "Push command can be only run inside a Ballerina project",
+                        "Push command can be only run from inside a Ballerina project.",
                         null,
                         false);
                 return;
@@ -115,7 +115,7 @@ public class PushCommand implements BLauncherCmd {
                 Runtime.getRuntime().exit(1);
             }
         } else {
-            throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
+            throw LauncherUtils.createUsageExceptionWithHelp("Too many arguments.");
         }
         // Exit status, zero for OK, non-zero for error
         Runtime.getRuntime().exit(0);
@@ -128,7 +128,7 @@ public class PushCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("push modules to the ballerina central repository");
+        out.append("Pushes modules to the Ballerina central repository.");
     }
 
     @Override

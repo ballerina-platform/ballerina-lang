@@ -62,7 +62,7 @@ import static org.ballerinalang.packerina.cmd.Constants.COMPILE_COMMAND;
  *
  * @since 0.992.0
  */
-@CommandLine.Command(name = COMPILE_COMMAND, description = "Ballerina compile - Compiles Ballerina module(s) and " +
+@CommandLine.Command(name = COMPILE_COMMAND, description = "Ballerina compile - Compiles a Ballerina module(s) and " +
                                                            "generates a .balo file(s).")
 public class CompileCommand implements BLauncherCmd {
     
@@ -85,10 +85,10 @@ public class CompileCommand implements BLauncherCmd {
         this.exitWhenFinish = exitWhenFinish;
     }
 
-    @CommandLine.Option(names = {"--off-line"}, description = "Compiles offline without downloading dependencies.")
+    @CommandLine.Option(names = {"--off-line"}, description = "Compiles offline without downloading the dependencies.")
     private boolean offline;
 
-    @CommandLine.Option(names = {"--skip-lock"}, description = "Skip using the lock file to resolve dependencies")
+    @CommandLine.Option(names = {"--skip-lock"}, description = "Skips using the lock file to resolve the dependencies.")
     private boolean skipLock;
 
     @CommandLine.Option(names = {"--skip-tests"}, description = "Skips test compilation and execution.")
@@ -98,7 +98,7 @@ public class CompileCommand implements BLauncherCmd {
     private List<String> argList;
 
     @CommandLine.Option(names = {"--native"}, hidden = true,
-            description = "compile Ballerina program to a native binary")
+            description = "Compiles a Ballerina program to a native binary.")
     private boolean nativeBinary;
 
     @CommandLine.Option(names = "--dump-bir", hidden = true)
@@ -110,15 +110,15 @@ public class CompileCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features")
+    @CommandLine.Option(names = "--experimental", description = "Enables experimental language features.")
     private boolean experimentalFlag;
 
-    @CommandLine.Option(names = {"--config"}, description = "Path to the configuration file when running tests." +
-                                                            " A configuration file cannot be set if " +
+    @CommandLine.Option(names = {"--config"}, description = "The path to the configuration file when running tests." +
+                                                            " A configuration file cannot be set if the" +
                                                             "'--skip-tests' flag is passed.")
     private String configFilePath;
 
-    @CommandLine.Option(names = "--siddhi-runtime", description = "Enable siddhi runtime for stream processing")
+    @CommandLine.Option(names = "--siddhi-runtime", description = "Enables the Siddhi runtime for stream processing.")
     private boolean siddhiRuntimeFlag;
 
     public void execute() {
@@ -131,19 +131,19 @@ public class CompileCommand implements BLauncherCmd {
 
         if (this.argList != null && this.argList.size() > 1) {
             CommandUtil.printError(this.errStream,
-                    "too many arguments.",
+                    "Too many arguments.",
                     "ballerina compile [<module-name>]",
                     true);
         }
     
     
         if (!this.skipTests && null != this.configFilePath) {
-            throw LauncherUtils.createLauncherException("you cannot use a config file for tests when tests are set " +
+            throw LauncherUtils.createLauncherException("You cannot use a config file for tests when tests are set " +
                                                         "to skip with '--skip-tests'.");
         }
     
         if (this.nativeBinary) {
-            throw LauncherUtils.createLauncherException("llvm native generation is not supported");
+            throw LauncherUtils.createLauncherException("LLVM native generation is not supported.");
         }
     
         // validation and decide source root and source full path
@@ -159,8 +159,8 @@ public class CompileCommand implements BLauncherCmd {
             if (!ProjectDirs.isProject(this.sourceRootPath)) {
                 Path findRoot = ProjectDirs.findProjectRoot(this.sourceRootPath);
                 if (null == findRoot) {
-                    throw LauncherUtils.createLauncherException("you are trying to compile a ballerina project but " +
-                                                                "there is no Ballerina.toml file. Run " +
+                    throw LauncherUtils.createLauncherException("There is no Ballerina.toml file " +
+                                                                "to compile a Ballerina project. Run " +
                                                                 "'ballerina new' from '" + this.sourceRootPath +
                                                                 "' to initialize it as a project.");
                 }
@@ -171,8 +171,8 @@ public class CompileCommand implements BLauncherCmd {
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         } else if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
             // when a single bal file is provided.
-            throw LauncherUtils.createLauncherException("'compile' command cannot be used on ballerina files. it can" +
-                                                        " only be used with ballerina projects.");
+            throw LauncherUtils.createLauncherException("The 'compile' command cannot be used with Ballerina files. It can" +
+                                                        " only be used with Ballerina projects.");
         } else if (Files.exists(
                 this.sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(this.argList.get(0))) &&
                    Files.isDirectory(
@@ -182,7 +182,7 @@ public class CompileCommand implements BLauncherCmd {
         
             //// check if command executed from project root.
             if (!RepoUtils.isBallerinaProject(this.sourceRootPath)) {
-                throw LauncherUtils.createLauncherException("you are trying to compile a module that is not inside " +
+                throw LauncherUtils.createLauncherException("You are trying to compile a module that is not inside " +
                                                             "a project. Run 'ballerina new' from " +
                                                             this.sourceRootPath + " to initialize it as a " +
                                                             "project and then compile the module.");
@@ -190,8 +190,8 @@ public class CompileCommand implements BLauncherCmd {
         
             //// check if module name given is not absolute.
             if (Paths.get(argList.get(0)).isAbsolute()) {
-                throw LauncherUtils.createLauncherException("you are trying to compile a module by giving the " +
-                                                            "absolute path. you only need give the name of the " +
+                throw LauncherUtils.createLauncherException("You are trying to compile a module by giving the " +
+                                                            "absolute path. You only need give the name of the " +
                                                             "module.");
             }
         
@@ -211,8 +211,8 @@ public class CompileCommand implements BLauncherCmd {
         
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         } else {
-            throw LauncherUtils.createLauncherException("invalid ballerina source path, it should either be a module " +
-                                                        "name in a ballerina project or a file with a \'" +
+            throw LauncherUtils.createLauncherException("This is an invalid Ballerina source path. It should either be a module " +
+                                                        "name in a Ballerina project or a file with a \'" +
                                                         BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension.");
         }
     

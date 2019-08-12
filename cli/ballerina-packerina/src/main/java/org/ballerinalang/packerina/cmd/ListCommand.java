@@ -37,7 +37,7 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
  *
  * @since 0.970
  */
-@CommandLine.Command(name = LIST_COMMAND, description = "list dependencies of modules")
+@CommandLine.Command(name = LIST_COMMAND, description = "Lists the dependencies of modules.")
 public class ListCommand implements BLauncherCmd {
     private static final String USER_DIR = "user.dir";
     private static PrintStream outStream = System.err;
@@ -56,7 +56,7 @@ public class ListCommand implements BLauncherCmd {
         }
 
         if (argList != null && argList.size() > 1) {
-            throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
+            throw LauncherUtils.createUsageExceptionWithHelp("Too many arguments.");
         }
 
         // Get source root path.
@@ -70,7 +70,7 @@ public class ListCommand implements BLauncherCmd {
                 String pkgName = argList.get(0);
                 ListUtils.list(sourceRootPath, pkgName);
             } else {
-                throw createLauncherException("Current directory is not a project");
+                throw createLauncherException("This directory is not a project.");
             }
         }
         Runtime.getRuntime().exit(0);
@@ -83,7 +83,7 @@ public class ListCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("lists dependencies of modules \n");
+        out.append("Lists the dependencies of modules. \n");
     }
 
     @Override

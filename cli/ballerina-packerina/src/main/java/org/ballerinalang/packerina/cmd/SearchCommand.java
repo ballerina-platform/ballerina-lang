@@ -33,7 +33,7 @@ import static org.ballerinalang.tool.LauncherUtils.createUsageExceptionWithHelp;
  *
  * @since 0.964
  */
-@CommandLine.Command(name = SEARCH_COMMAND, description = "search for modules within Ballerina Central")
+@CommandLine.Command(name = SEARCH_COMMAND, description = "Searches for modules within Ballerina Central.")
 public class SearchCommand implements BLauncherCmd {
     private static PrintStream outStream = System.err;
 
@@ -59,11 +59,11 @@ public class SearchCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.size() == 0) {
-            throw createUsageExceptionWithHelp("no keyword given");
+            throw createUsageExceptionWithHelp("Keyword is not provided.");
         }
 
         if (argList.size() > 1) {
-            throw createUsageExceptionWithHelp("too many arguments");
+            throw createUsageExceptionWithHelp("Too many arguments.");
         }
 
         String searchArgs = argList.get(0);
@@ -78,7 +78,7 @@ public class SearchCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("searches for modules within Ballerina Central \n");
+        out.append("Searches for modules within Ballerina Central. \n");
     }
 
     @Override

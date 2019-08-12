@@ -69,32 +69,32 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COM
  *
  * @since 1.0.0
  */
-@CommandLine.Command(name = "run", description = "Build and execute a Ballerina program.")
+@CommandLine.Command(name = "run", description = "Builds and executes a Ballerina program.")
 public class RunCommand implements BLauncherCmd {
     
     private final PrintStream errStream;
 
-    @CommandLine.Parameters(description = "Program arguments")
+    @CommandLine.Parameters(description = "Program arguments.")
     private List<String> argList;
 
     @CommandLine.Option(names = {"--sourceroot"},
-            description = "Path to the directory containing source files and modules")
+            description = "The path to the directory containing source files and modules.")
     private String sourceRoot;
 
     @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = {"--off-line"}, description = "Builds offline without downloading dependencies and " +
-                                                              "then run.")
+    @CommandLine.Option(names = {"--off-line"}, description = "Builds offline without downloading the dependencies and " +
+                                                              "then executes.")
     private boolean offline;
 
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
 
-    @CommandLine.Option(names = {"--config", "-c"}, description = "Path to the Ballerina configuration file.")
+    @CommandLine.Option(names = {"--config", "-c"}, description = "The path to the Ballerina configuration file.")
     private String configFilePath;
 
-    @CommandLine.Option(names = "--observe", description = "Enable observability with default configs.")
+    @CommandLine.Option(names = "--observe", description = "Enables observability with the default configs.")
     private boolean observeFlag;
 
     @CommandLine.Option(names = "-e", description = "Ballerina environment parameters.")
@@ -103,10 +103,10 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "-B", description = "Ballerina VM options.")
     private Map<String, String> vmOptions = new HashMap<>();
 
-    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
+    @CommandLine.Option(names = "--experimental", description = "Enables the experimental language features.")
     private boolean experimentalFlag;
 
-    @CommandLine.Option(names = "--siddhiruntime", description = "Enable siddhi runtime for stream processing.")
+    @CommandLine.Option(names = "--siddhiruntime", description = "Enables the Siddhi runtime for stream processing.")
     private boolean siddhiRuntimeFlag;
 
     public RunCommand() {
@@ -126,7 +126,7 @@ public class RunCommand implements BLauncherCmd {
 
         if (this.argList == null || this.argList.size() == 0) {
             CommandUtil.printError(this.errStream,
-                    "no ballerina program given.",
+                    "The Ballerina program is not provided.",
                     "ballerina run {<bal-file> | <module-name>}",
                     true);
     
@@ -159,7 +159,7 @@ public class RunCommand implements BLauncherCmd {
             
             if (Files.notExists(sourcePath)) {
                 CommandUtil.printError(this.errStream,
-                        "'" + sourcePath + "' ballerina file does not exist.",
+                        "'" + sourcePath + "' Ballerina file does not exist.",
                         null,
                         false);
                 Runtime.getRuntime().exit(1);
@@ -188,7 +188,7 @@ public class RunCommand implements BLauncherCmd {
             //// check if the given file exists.
             if (Files.notExists(sourcePath)) {
                 CommandUtil.printError(this.errStream,
-                        "'" + sourcePath + "' ballerina file does not exist.",
+                        "'" + sourcePath + "' Ballerina file does not exist.",
                         null,
                         false);
                 Runtime.getRuntime().exit(1);
@@ -198,7 +198,7 @@ public class RunCommand implements BLauncherCmd {
             //// check if the given file is a regular file and not a symlink.
             if (!Files.isRegularFile(sourcePath)) {
                 CommandUtil.printError(this.errStream,
-                        "'" + sourcePath + "' is not ballerina file. check if it is a symlink or shortcut.",
+                        "'" + sourcePath + "' is not a Ballerina file. Check if it is a symlink or a shortcut.",
                         null,
                         false);
                 Runtime.getRuntime().exit(1);
@@ -208,7 +208,7 @@ public class RunCommand implements BLauncherCmd {
             try {
                 targetPath = Files.createTempDirectory("ballerina-run-" + System.nanoTime());
             } catch (IOException e) {
-                throw LauncherUtils.createLauncherException("error occurred when creating executable.");
+                throw LauncherUtils.createLauncherException("Error occurred when creating the executable.");
             }
         } else if (Files.exists(
                 sourceRootPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(this.argList.get(0))) &&
@@ -220,7 +220,7 @@ public class RunCommand implements BLauncherCmd {
             //// check if command executed from project root.
             if (!RepoUtils.isBallerinaProject(sourceRootPath)) {
                 CommandUtil.printError(this.errStream,
-                        "you are trying to run a module that is not inside a project.",
+                        "You are trying to run a module that is not inside a Ballerina project.",
                         null,
                         false);
                 Runtime.getRuntime().exit(1);
@@ -230,9 +230,9 @@ public class RunCommand implements BLauncherCmd {
             //// check if module name given is not absolute.
             if (Paths.get(argList.get(0)).isAbsolute()) {
                 CommandUtil.printError(this.errStream,
-                        "you are trying to run a module by giving the absolute path. you only need give " +
+                        "You are trying to run a module by giving the absolute path. You only need to give " +
                         "the name of the module.",
-                        "ballerina run <module-name>",
+                        "ballerina run <module-name>.",
                         true);
                 Runtime.getRuntime().exit(1);
                 return;
@@ -260,7 +260,7 @@ public class RunCommand implements BLauncherCmd {
             targetPath = sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         } else {
             CommandUtil.printError(this.errStream,
-                    "invalid ballerina source path, it should either be a module name in a ballerina project or a " +
+                    "This is an invalid Ballerina source path. It should either be a module name in a Ballerina project or a " +
                     "file with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension.",
                     "ballerina run {<bal-file> | <module-name>}",
                     true);
@@ -326,16 +326,16 @@ public class RunCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Run command runs a compiled Ballerina program. \n");
+        out.append("Run command executes a compiled Ballerina program. \n");
         out.append("\n");
         out.append("If a Ballerina source file or a module is given, \n");
-        out.append("run command compiles and runs it. \n");
+        out.append("the run command compiles and executes it. \n");
         out.append("\n");
         out.append("By default, 'ballerina run' executes the main function. \n");
         out.append("If the main function is not there, it executes services. \n");
         out.append("\n");
         out.append("If the -s flag is given, 'ballerina run' executes\n");
-        out.append("services instead of the main function.\n");
+        out.append("the services instead of the main function.\n");
     }
 
     @Override

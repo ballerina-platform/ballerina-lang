@@ -51,7 +51,7 @@ import static org.ballerinalang.packerina.cmd.Constants.ADD_COMMAND;
 /**
  * New command for adding a new module.
  */
-@CommandLine.Command(name = ADD_COMMAND, description = "Add a new module to Ballerina project")
+@CommandLine.Command(name = ADD_COMMAND, description = "Adds a new module to a Ballerina project.")
 public class AddCommand implements BLauncherCmd {
 
     private Path userDir;
@@ -120,8 +120,8 @@ public class AddCommand implements BLauncherCmd {
         Path projectPath = ProjectDirs.findProjectRoot(userDir);
         if (null == projectPath) {
             CommandUtil.printError(errStream,
-                    "not a ballerina project (or any parent up to mount point)\n" +
-                            "You should run this command inside a ballerina project", null, false);
+                    "This is not a Ballerina project (or any parent up to the mount point).\n" +
+                            "You should run this command from inside a Ballerina project.", null, false);
             return;
         }
 
@@ -130,7 +130,7 @@ public class AddCommand implements BLauncherCmd {
             CommandUtil.printError(errStream,
                     "The following required arguments were not provided:\n" +
                             "    <module-name>",
-                    "ballerina add <module-name> [-t|--template <template-name>]",
+                    "ballerina add <module-name> [-t|--template <template-name>].",
                     true);
             return;
         }
@@ -138,7 +138,7 @@ public class AddCommand implements BLauncherCmd {
         // Check if more then one argument is provided
         if (!(1 == argList.size())) {
             CommandUtil.printError(errStream,
-                    "too many arguments.",
+                    "Too many arguments.",
                     "ballerina add <project-name>",
                     true);
             return;
@@ -149,9 +149,9 @@ public class AddCommand implements BLauncherCmd {
         boolean matches = RepoUtils.validatePkg(moduleName);
         if (!matches) {
             CommandUtil.printError(errStream,
-                    "Invalid module name : '" + moduleName + "' :\n" +
-                         "Module name can only contain alphanumerics, underscores and periods " +
-                         "and the maximum length is 256 characters",
+                    "Invalid module name: '" + moduleName + "' :\n" +
+                         "Module name can only contain alphanumerics, underscores, and periods " +
+                         "and the maximum length should be 256 characters.",
                     null,
                     false);
             return;
@@ -160,8 +160,8 @@ public class AddCommand implements BLauncherCmd {
         // Check if the module already exists
         if (ProjectDirs.isModuleExist(projectPath, moduleName)) {
             CommandUtil.printError(errStream,
-                    "A module already exists with the given name : '" + moduleName + "' :\n" +
-                         "Existing module path "
+                    "A module already exists with the given name: '" + moduleName + "' :\n" +
+                         "in the following path:"
                          + projectPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(moduleName),
                     null,
                     false);
@@ -171,7 +171,7 @@ public class AddCommand implements BLauncherCmd {
         // Check if the template exists
         if (!getTemplates().contains(template)) {
             CommandUtil.printError(errStream,
-                    "Template not found, use `ballerina add --list` to view available templates.",
+                    "Template is not found. Use `ballerina add --list` to view the available templates.",
                     null,
                     false);
             return;
@@ -181,15 +181,15 @@ public class AddCommand implements BLauncherCmd {
             createModule(projectPath, moduleName, template);
         } catch (ModuleCreateException e) {
             CommandUtil.printError(errStream,
-                    "Error occurred while creating module : " + e.getMessage(),
+                    "Error occurred while creating the module: " + e.getMessage(),
                     null,
                     false);
             return;
         }
 
-        errStream.println("Added new ballerina module at '" + userDir.relativize(projectPath
+        errStream.println("Added a new Ballerina module at '" + userDir.relativize(projectPath
                 .resolve(ProjectDirConstants.SOURCE_DIR_NAME)
-                .resolve(moduleName)) + "'");
+                .resolve(moduleName)) + "'.");
     }
 
 
@@ -200,7 +200,7 @@ public class AddCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("add a new ballerina module");
+        out.append("Adds a new Ballerina module.");
     }
 
     @Override
@@ -218,20 +218,20 @@ public class AddCommand implements BLauncherCmd {
         try {
             Files.createDirectories(modulePath);
 
-            // We will be creating following in the module directory
+            // We will be creating the following in the module directory
             // - src/
             // -- mymodule/
-            // --- Module.md      <- module level documentation
-            // --- main.bal       <- Contains default main method.
+            // --- Module.md      <- module-level documentation
+            // --- main.bal       <- contains the default main method.
             // --- resources/     <- resources for the module (available at runtime)
-            // --- tests/         <- tests for this module (e.g. unit tests)
+            // --- tests/         <- tests for this module (e.g., unit tests)
             // ---- main_test.bal  <- test file for main
             // ---- resources/    <- resources for these tests
 
             applyTemplate(modulePath, template);
 
         } catch (AccessDeniedException e) {
-            throw new ModuleCreateException("Insufficient Permission");
+            throw new ModuleCreateException("Insufficient permissions.");
         } catch (IOException | TemplateException e) {
             throw new ModuleCreateException(e.getMessage());
         }

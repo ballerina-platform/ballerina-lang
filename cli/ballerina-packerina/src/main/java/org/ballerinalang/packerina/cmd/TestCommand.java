@@ -63,7 +63,7 @@ import static org.ballerinalang.packerina.cmd.Constants.TEST_COMMAND;
  *
  * @since 0.992.0
  */
-@CommandLine.Command(name = TEST_COMMAND, description = "Test Ballerina modules")
+@CommandLine.Command(name = TEST_COMMAND, description = "Tests the Ballerina modules.")
 public class TestCommand implements BLauncherCmd {
 
     private Path userDir;
@@ -101,13 +101,13 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = "--experimental", description = "enable experimental language features")
+    @CommandLine.Option(names = "--experimental", description = "Enables experimental language features.")
     private boolean experimentalFlag;
 
-    @CommandLine.Option(names = {"--config"}, description = "path to the configuration file")
+    @CommandLine.Option(names = {"--config"}, description = "The path to the configuration file.")
     private String configFilePath;
 
-    @CommandLine.Option(names = "--siddhi-runtime", description = "enable siddhi runtime for stream processing")
+    @CommandLine.Option(names = "--siddhi-runtime", description = "Enables the Siddhi runtime for stream processing.")
     private boolean siddhiRuntimeFlag;
 
     public void execute() {
@@ -119,7 +119,7 @@ public class TestCommand implements BLauncherCmd {
 
         if (argList != null && argList.size() > 1) {
             CommandUtil.printError(errStream,
-                    "too many arguments.",
+                    "Too many arguments.",
                     "ballerina compile [<module-name>]",
                     true);
         }
@@ -133,8 +133,8 @@ public class TestCommand implements BLauncherCmd {
                 Path findRoot = ProjectDirs.findProjectRoot(sourceRootPath);
                 if (null == findRoot) {
                     CommandUtil.printError(errStream,
-                            "Please provide a Ballerina file as a " +
-                                    "input or run build command inside a project",
+                            "Provides a Ballerina file as a " +
+                                    "input or the run build command from inside a Ballerina project.",
                             "ballerina build [<filename.bal>]",
                             false);
                     return;
@@ -201,7 +201,7 @@ public class TestCommand implements BLauncherCmd {
 
             // check if source exists or not
             if (Files.notExists(sourceFullPath)) {
-                throw LauncherUtils.createLauncherException("the given module or source file does not exist.");
+                throw LauncherUtils.createLauncherException("The given module or source file does not exist.");
             }
 
             if (Files.isRegularFile(sourceFullPath) &&
@@ -228,13 +228,13 @@ public class TestCommand implements BLauncherCmd {
 
                     taskExecutor.executeTasks(buildContext);
                 } catch (IOException e) {
-                    throw LauncherUtils.createLauncherException("error occurred when creating test artifacts.");
+                    throw LauncherUtils.createLauncherException("Error occurred when creating the test artifacts.");
                 }
             } else if (Files.isDirectory(sourceFullPath)) {
                 // if its a module
                 // Checks if the source is a module and if its inside a project (with a Ballerina.toml folder)
                 if (!RepoUtils.isBallerinaProject(sourceRootPath)) {
-                    throw LauncherUtils.createLauncherException("you are trying to test a module that is not inside " +
+                    throw LauncherUtils.createLauncherException("You are trying to test a module that is not inside " +
                             "a project. Run `ballerina new` from " +
                             sourceRootPath + " to initialize it as a " +
                             "project and then build the module.");
@@ -260,9 +260,9 @@ public class TestCommand implements BLauncherCmd {
                 taskExecutor.executeTasks(buildContext);
             } else {
                 // Invalid source file provided
-                throw LauncherUtils.createLauncherException("invalid ballerina source path, it should either be a " +
+                throw LauncherUtils.createLauncherException("This is an invalid Ballerina source path. It should either be a " +
                         "directory or a file  with a \'"
-                        + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension");
+                        + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension.");
             }
         }
         if (exitWhenFinish) {
@@ -277,7 +277,7 @@ public class TestCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Compiles Ballerina modules and create balo files. \n");
+        out.append("Compiles Ballerina modules and creates .balo files. \n");
     }
 
     @Override

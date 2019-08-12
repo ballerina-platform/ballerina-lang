@@ -36,8 +36,8 @@ import static org.ballerinalang.packerina.cmd.Constants.CLEAN_COMMAND;
  *
  * @since 1.0.0
  */
-@CommandLine.Command(name = CLEAN_COMMAND, description = "Ballerina clean - Cleans out the target directory of a " +
-                                                         "project.")
+@CommandLine.Command(name = CLEAN_COMMAND, description = "Ballerina clean - Cleans the target directory of a " +
+                                                         "Ballerina project.")
 public class CleanCommand implements BLauncherCmd {
     private final PrintStream outStream;
     private final Path sourceRootPath;
@@ -68,7 +68,7 @@ public class CleanCommand implements BLauncherCmd {
     
             Runtime.getRuntime().exit(0);
         } else {
-            this.outStream.println("'clean' command can only be executed from a ballerina project");
+            this.outStream.println("The 'clean' command can only be executed from inside a Ballerina project.");
             Runtime.getRuntime().exit(1);
         }
     }
@@ -80,7 +80,7 @@ public class CleanCommand implements BLauncherCmd {
     
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Cleans the \"target\" directory of a ballerina project. \n");
+        out.append("Cleans the \"target\" directory of a Ballerina project. \n");
     }
     
     @Override

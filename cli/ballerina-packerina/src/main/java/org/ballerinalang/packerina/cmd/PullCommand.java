@@ -44,7 +44,7 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
  * @since 0.964
  */
 @CommandLine.Command(name = PULL_COMMAND,
-                description = "download the module source and binaries from a remote repository")
+                description = "Downloads the module source and binaries from a remote repository.")
 public class PullCommand implements BLauncherCmd {
     private static PrintStream outStream = System.err;
 
@@ -66,11 +66,11 @@ public class PullCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.size() == 0) {
-            throw LauncherUtils.createUsageExceptionWithHelp("no module given");
+            throw LauncherUtils.createUsageExceptionWithHelp("The Module is not provided.");
         }
 
         if (argList.size() > 1) {
-            throw LauncherUtils.createUsageExceptionWithHelp("too many arguments");
+            throw LauncherUtils.createUsageExceptionWithHelp("Too many arguments.");
         }
 
         // Enable remote debugging
@@ -92,7 +92,7 @@ public class PullCommand implements BLauncherCmd {
                                                                     + " are included in the runtime.");
             }
         } else {
-            throw LauncherUtils.createLauncherException("no module-name provided");
+            throw LauncherUtils.createLauncherException("The module name is not provided.");
         }
 
         // Get module name
@@ -120,7 +120,7 @@ public class PullCommand implements BLauncherCmd {
                 Runtime.getRuntime().exit(1);
             }
         } else {
-            outStream.println("couldn't find module " + patten);
+            outStream.println("Couldn't find the module " + patten);
             // Exit status, zero for OK, non-zero for error
             Runtime.getRuntime().exit(1);
         }
@@ -135,7 +135,7 @@ public class PullCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("download modules to the user repository \n");
+        out.append("Downloads modules to the user repository. \n");
     }
 
     @Override
