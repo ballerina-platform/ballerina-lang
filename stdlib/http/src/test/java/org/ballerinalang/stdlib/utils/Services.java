@@ -38,7 +38,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.concurrent.Executors;
 
 /**
  * This contains test utils related to Ballerina service invocations.
@@ -97,7 +96,7 @@ public class Services {
         ObjectValue service = resource.getParentService().getBalService();
         Scheduler scheduler = registryHolder.getRegistry().getScheduler();
         Executor.submit(scheduler, service, resource.getName(), callback, properties, signatureParams);
-        Executors.newSingleThreadExecutor().submit(scheduler::start);
+//        Executors.newSingleThreadExecutor().submit(scheduler::start);
         callback.sync();
 
         HttpCarbonMessage originalMsg = callback.getResponseMsg();
