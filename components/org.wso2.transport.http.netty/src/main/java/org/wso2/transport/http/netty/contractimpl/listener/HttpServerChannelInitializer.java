@@ -99,6 +99,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     private boolean pipeliningEnabled;
     private long pipeliningLimit;
     private EventExecutorGroup pipeliningGroup;
+    private boolean webSocketCompressionEnabled;
 
     @Override
     public void initChannel(SocketChannel ch) throws Exception {
@@ -216,7 +217,8 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         }
 
         serverPipeline.addLast(Constants.WEBSOCKET_SERVER_HANDSHAKE_HANDLER,
-                         new WebSocketServerHandshakeHandler(this.serverConnectorFuture, this.interfaceId));
+                               new WebSocketServerHandshakeHandler(this.serverConnectorFuture, this.interfaceId,
+                                                                   webSocketCompressionEnabled));
         serverPipeline.addLast(Constants.BACK_PRESSURE_HANDLER, new BackPressureHandler());
         serverPipeline.addLast(Constants.HTTP_SOURCE_HANDLER,
                                new SourceHandler(this.serverConnectorFuture, this.interfaceId, this.chunkConfig,
@@ -372,6 +374,10 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
     public void setPipeliningThreadGroup(EventExecutorGroup pipeliningGroup) {
         this.pipeliningGroup = pipeliningGroup;
+    }
+
+    public void setWebSocketCompressionEnabled(boolean webSocketCompressionEnabled) {
+        this.webSocketCompressionEnabled = webSocketCompressionEnabled;
     }
 
     /**

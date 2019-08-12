@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.exceptions.EndpointTimeOutException;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
-import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.common.states.SenderReqRespStateManager;
 import org.wso2.transport.http.netty.contractimpl.sender.TargetHandler;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -43,10 +43,10 @@ public class RequestCompleted implements SenderState {
 
     private static final Logger LOG = LoggerFactory.getLogger(RequestCompleted.class);
 
-    private final MessageStateContext messageStateContext;
+    private final SenderReqRespStateManager senderReqRespStateManager;
 
-    RequestCompleted(MessageStateContext messageStateContext) {
-        this.messageStateContext = messageStateContext;
+    RequestCompleted(SenderReqRespStateManager senderReqRespStateManager) {
+        this.senderReqRespStateManager = senderReqRespStateManager;
     }
 
     @Override
@@ -61,8 +61,8 @@ public class RequestCompleted implements SenderState {
 
     @Override
     public void readInboundResponseHeaders(TargetHandler targetHandler, HttpResponse httpInboundResponse) {
-        messageStateContext.setSenderState(new ReceivingHeaders(messageStateContext));
-        messageStateContext.getSenderState().readInboundResponseHeaders(targetHandler, httpInboundResponse);
+        senderReqRespStateManager.state = new ReceivingHeaders(senderReqRespStateManager);
+        senderReqRespStateManager.readInboundResponseHeaders(targetHandler, httpInboundResponse);
     }
 
     @Override

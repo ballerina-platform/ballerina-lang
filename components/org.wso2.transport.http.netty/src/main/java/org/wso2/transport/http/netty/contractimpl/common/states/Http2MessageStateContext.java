@@ -30,6 +30,8 @@ public class Http2MessageStateContext {
 
     private ListenerState listenerState;
     private SenderState senderState;
+    // Keeps the headers state to avoid sending headers multiple times in bidirectional streaming use case.
+    private boolean headersSent;
 
     /**
      * Set the given listener state to the context.
@@ -65,5 +67,22 @@ public class Http2MessageStateContext {
      */
     public void setSenderState(SenderState senderState) {
         this.senderState = senderState;
+    }
+
+    /**
+     * Returns whether headers are sent or not.
+     * @return true, if headers are already sent. false, otherwise.
+     */
+    public boolean isHeadersSent() {
+        return headersSent;
+    }
+
+    /**
+     * Set true when headers are sent by sender.
+     *
+     * @param headersSent true, when headers are sent.
+     */
+    public void setHeadersSent(boolean headersSent) {
+        this.headersSent = headersSent;
     }
 }

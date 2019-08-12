@@ -58,7 +58,7 @@ public class ClientConnectorTimeoutTestCase {
 
     @BeforeClass
     public void setup() {
-        httpServer = TestUtil.startHTTPServer(TestUtil.HTTPS_SERVER_PORT, new DumbServerInitializer());
+        httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new DumbServerInitializer());
 
         connectorFactory = new DefaultHttpWsConnectorFactory();
         SenderConfiguration senderConfiguration = new SenderConfiguration();
@@ -67,9 +67,9 @@ public class ClientConnectorTimeoutTestCase {
     }
 
     @Test
-    public void testHttpsGet() {
+    public void testHttpGet() {
         try {
-            HttpCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.HTTPS_SERVER_PORT, "", "");
+            HttpCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.HTTP_SERVER_PORT, "", "");
 
             CountDownLatch latch = new CountDownLatch(1);
             DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);

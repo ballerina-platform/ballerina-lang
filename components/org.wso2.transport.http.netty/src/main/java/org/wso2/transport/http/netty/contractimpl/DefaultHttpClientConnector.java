@@ -19,16 +19,11 @@
 
 package org.wso2.transport.http.netty.contractimpl;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
-import io.netty.handler.codec.base64.Base64;
-import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http2.Http2CodecUtil;
-import io.netty.util.AsciiString;
-import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
@@ -36,12 +31,12 @@ import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.config.ForwardedExtensionConfig;
-import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.exceptions.ClientConnectorException;
 import org.wso2.transport.http.netty.contractimpl.common.HttpRoute;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
+import org.wso2.transport.http.netty.contractimpl.common.states.SenderReqRespStateManager;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.ConnectionAvailabilityListener;
@@ -53,16 +48,15 @@ import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientTimeou
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ConnectionManager;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.RequestWriteStarter;
+import org.wso2.transport.http.netty.contractimpl.sender.states.SendingHeaders;
 import org.wso2.transport.http.netty.message.ClientRemoteFlowControlListener;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.Http2Reset;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.ResponseHandle;
 
+import java.net.InetSocketAddress;
 import java.util.NoSuchElementException;
-
-import static org.wso2.transport.http.netty.contract.Constants.COLON;
-import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
 
 /**
  * Implementation of the client connector.
@@ -78,7 +72,6 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
     private int socketIdleTimeout;
     private String httpVersion;
     private ChunkConfig chunkConfig;
-    private KeepAliveConfig keepAliveConfig;
     private boolean isHttp2;
     private ForwardedExtensionConfig forwardedExtensionConfig;
     private EventLoopGroup clientEventGroup;
@@ -188,8 +181,6 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
 
                 if (activeHttp2ClientChannel != null) {
                     outboundMsgHolder.setHttp2ClientChannel(activeHttp2ClientChannel);
-                    Util.setForwardedExtension(senderConfiguration.getForwardedExtensionConfig(),
-                            outboundMsgHolder.getRequest(), outboundMsgHolder.getHttp2ClientChannel().getChannel());
                     new RequestWriteStarter(outboundMsgHolder, activeHttp2ClientChannel).startWritingContent();
                     httpResponseFuture = outboundMsgHolder.getResponseFuture();
                     httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
@@ -205,7 +196,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
             outboundMsgHolder.setHttp2ClientChannel(freshHttp2ClientChannel);
             httpResponseFuture = outboundMsgHolder.getResponseFuture();
 
-            targetChannel.getConnenctionReadyFuture().setListener(new ConnectionAvailabilityListener() {
+            targetChannel.getConnectionReadyFuture().setListener(new ConnectionAvailabilityListener() {
                 @Override
                 public void onSuccess(String protocol, ChannelFuture channelFuture) {
                     if (LOG.isDebugEnabled()) {
@@ -260,8 +251,6 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                     freshHttp2ClientChannel.addDataEventListener(
                             Constants.IDLE_STATE_HANDLER,
                             new Http2ClientTimeoutHandler(socketIdleTimeout, freshHttp2ClientChannel));
-                    Util.setForwardedExtension(senderConfiguration.getForwardedExtensionConfig(),
-                            outboundMsgHolder.getRequest(), outboundMsgHolder.getHttp2ClientChannel().getChannel());
                     new RequestWriteStarter(outboundMsgHolder, freshHttp2ClientChannel).startWritingContent();
                     httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                 }
@@ -272,15 +261,30 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                     freshHttp2ClientChannel.putInFlightMessage(Http2CodecUtil.HTTP_UPGRADE_STREAM_ID,
                             outboundMsgHolder);
                     httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
-                    targetChannel.setChannel(channelFuture.channel());
+                    targetChannel.getHttp2ClientChannel().setSocketIdleTimeout(socketIdleTimeout);
+
+                    Channel targetNettyChannel = channelFuture.channel();
+
+                    initializeSenderReqRespStateMgr(targetNettyChannel);
+
+                    targetChannel.setChannel(targetNettyChannel);
                     targetChannel.configTargetHandler(httpOutboundRequest, httpResponseFuture);
-                    targetChannel.setEndPointTimeout(socketIdleTimeout);
-                    targetChannel.setCorrelationIdForLogging();
-                    targetChannel.setHttpVersion(httpVersion);
-                    targetChannel.setChunkConfig(chunkConfig);
-                    handleOutboundConnectionHeader(keepAliveConfig, httpOutboundRequest);
-                    Util.setForwardedExtension(forwardedExtensionConfig, httpOutboundRequest,
-                            targetChannel.getChannel());
+                    Util.setCorrelationIdForLogging(targetNettyChannel.pipeline(), targetChannel.getCorrelatedSource());
+
+                    Util.handleOutboundConnectionHeader(senderConfiguration, httpOutboundRequest);
+                    String localAddress =
+                            ((InetSocketAddress) targetNettyChannel.localAddress()).getAddress().getHostAddress();
+                    Util.setForwardedExtension(forwardedExtensionConfig, localAddress, httpOutboundRequest);
+                }
+
+                private void initializeSenderReqRespStateMgr(Channel targetNettyChannel) {
+                    SenderReqRespStateManager senderReqRespStateManager =
+                            new SenderReqRespStateManager(targetNettyChannel);
+                    senderReqRespStateManager.configIdleTimeoutTrigger(socketIdleTimeout);
+                    senderReqRespStateManager.state =
+                            new SendingHeaders(senderReqRespStateManager, targetChannel, httpVersion,
+                                               chunkConfig, httpResponseFuture);
+                    targetChannel.senderReqRespStateManager = senderReqRespStateManager;
                 }
 
                 @Override
@@ -343,48 +347,6 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         this.chunkConfig = senderConfiguration.getChunkingConfig();
         this.socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(Constants.ENDPOINT_TIMEOUT);
         this.sslConfig = senderConfiguration.getClientSSLConfig();
-        this.keepAliveConfig = senderConfiguration.getKeepAliveConfig();
         this.forwardedExtensionConfig = senderConfiguration.getForwardedExtensionConfig();
-    }
-
-    private void handleOutboundConnectionHeader(KeepAliveConfig keepAliveConfig,
-                                                        HttpCarbonMessage httpOutboundRequest) {
-        switch (keepAliveConfig) {
-            case AUTO:
-                if (Float.valueOf(httpVersion) >= Constants.HTTP_1_1) {
-                    httpOutboundRequest
-                            .setHeader(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_KEEP_ALIVE);
-                } else {
-                    httpOutboundRequest.setHeader(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_CLOSE);
-                }
-                break;
-            case ALWAYS:
-                httpOutboundRequest.setHeader(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_KEEP_ALIVE);
-                break;
-            case NEVER:
-                httpOutboundRequest.setHeader(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_CLOSE);
-                break;
-            default:
-                //Do nothing
-                break;
-        }
-        // Add proxy-authorization header if proxy is enabled and scheme is http
-        if (senderConfiguration.getScheme().equals(HTTP_SCHEME) &&
-                senderConfiguration.getProxyServerConfiguration() != null &&
-                senderConfiguration.getProxyServerConfiguration().getProxyUsername() != null &&
-                senderConfiguration.getProxyServerConfiguration().getProxyPassword() != null) {
-            setProxyAuthorizationHeader(httpOutboundRequest);
-        }
-    }
-
-    private void setProxyAuthorizationHeader(HttpCarbonMessage httpOutboundRequest) {
-        ByteBuf authz = Unpooled.copiedBuffer(
-                senderConfiguration.getProxyServerConfiguration().getProxyUsername() + COLON
-                        + senderConfiguration.getProxyServerConfiguration().getProxyPassword(), CharsetUtil.UTF_8);
-        ByteBuf authzBase64 = Base64.encode(authz, false);
-        CharSequence authorization = new AsciiString("Basic " + authzBase64.toString(CharsetUtil.US_ASCII));
-        httpOutboundRequest.setHeader(HttpHeaderNames.PROXY_AUTHORIZATION.toString(), authorization);
-        authz.release();
-        authzBase64.release();
     }
 }

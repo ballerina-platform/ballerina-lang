@@ -32,6 +32,7 @@ import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
@@ -116,7 +117,7 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) {
         webSocketConnection = new DefaultWebSocketConnection(ctx, this, webSocketMessageQueueHandler, secureConnection,
-                                                             negotiatedSubProtocol);
+                negotiatedSubProtocol);
     }
 
     @Override
@@ -174,7 +175,11 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
                 notifyTextMessage(frame, frame.text(), frame.isFinalFragment());
             } else if (continuationFrameType == WebSocketFrameType.BINARY) {
                 notifyBinaryMessage(frame, frame.content(), frame.isFinalFragment());
+            } else {
+                ReferenceCountUtil.release(frame);
             }
+        } else {
+            ReferenceCountUtil.release(msg);
         }
     }
 
@@ -187,15 +192,6 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
             closeFrameFuture.addListener(future -> ctx.close().addListener(
                     closeFuture -> connectorFuture.notifyWebSocketListener(webSocketConnection, cause)));
             return;
-        } else {
-            //Todo: remove if https://github.com/netty/netty/pull/8705 gets merged
-            String msg = cause.getMessage();
-            if (msg != null && msg.contains("UTF-8")) {
-                ChannelFuture closeFrameFuture = ctx.channel().writeAndFlush(new CloseWebSocketFrame(
-                        Constants.WEBSOCKET_STATUS_CODE_INVALD_DATA, "Invalid UTF-8 frame received"));
-                closeFrameFuture.addListener(future -> ctx.close().addListener(
-                        closeFuture -> connectorFuture.notifyWebSocketListener(webSocketConnection, cause)));
-            }
         }
         connectorFuture.notifyWebSocketListener(webSocketConnection, cause);
     }
@@ -210,7 +206,7 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     private void notifyBinaryMessage(WebSocketFrame frame, ByteBuf content, boolean finalFragment)
             throws WebSocketConnectorException {
         DefaultWebSocketMessage webSocketBinaryMessage = WebSocketUtil.getWebSocketMessage(frame, content,
-                                                                                           finalFragment);
+                finalFragment);
         setupCommonProperties(webSocketBinaryMessage);
         connectorFuture.notifyWebSocketListener((WebSocketBinaryMessage) webSocketBinaryMessage);
     }

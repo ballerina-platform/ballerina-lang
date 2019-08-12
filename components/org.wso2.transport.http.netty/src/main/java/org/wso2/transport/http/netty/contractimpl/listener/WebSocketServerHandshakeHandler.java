@@ -61,10 +61,13 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
 
     private final ServerConnectorFuture serverConnectorFuture;
     private final String interfaceId;
+    private boolean webSocketCompressionEnabled;
 
-    public WebSocketServerHandshakeHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId) {
+    public WebSocketServerHandshakeHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId,
+                                           boolean webSocketCompressionEnabled) {
         this.serverConnectorFuture = serverConnectorFuture;
         this.interfaceId = interfaceId;
+        this.webSocketCompressionEnabled = webSocketCompressionEnabled;
     }
 
     @Override
@@ -87,10 +90,15 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
                     ChannelHandlerContext decoderCtx = pipeline.context(HttpRequestDecoder.class);
                     pipeline.addAfter(decoderCtx.name(), HTTP_OBJECT_AGGREGATOR,
                                       new HttpObjectAggregator(Constants.WEBSOCKET_REQUEST_SIZE));
-                    pipeline.addAfter(HTTP_OBJECT_AGGREGATOR, WEBSOCKET_COMPRESSION_HANDLER,
-                                      new WebSocketServerCompressionHandler());
-                    pipeline.addAfter(WEBSOCKET_COMPRESSION_HANDLER, Utf8FrameValidator.class.getName(),
-                                      new Utf8FrameValidator());
+                    if (webSocketCompressionEnabled) {
+                        pipeline.addAfter(HTTP_OBJECT_AGGREGATOR, WEBSOCKET_COMPRESSION_HANDLER,
+                                          new WebSocketServerCompressionHandler());
+                        pipeline.addAfter(WEBSOCKET_COMPRESSION_HANDLER, Utf8FrameValidator.class.getName(),
+                                          new Utf8FrameValidator());
+                    } else {
+                        pipeline.addAfter(HTTP_OBJECT_AGGREGATOR, Utf8FrameValidator.class.getName(),
+                                          new Utf8FrameValidator());
+                    }
                     pipeline.addAfter(Utf8FrameValidator.class.getName(), "handshake",
                                       new SimpleChannelInboundHandler<FullHttpRequest>() {
                                           @Override

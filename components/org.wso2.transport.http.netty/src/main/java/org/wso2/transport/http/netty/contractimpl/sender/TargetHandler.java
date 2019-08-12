@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
-import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.common.states.SenderReqRespStateManager;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
@@ -43,6 +43,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.wso2.transport.http.netty.contractimpl.common.Util.createInboundRespCarbonMsg;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.safelyRemoveHandlers;
+import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.initHttp2MessageContext;
 
 /**
  * A class responsible for handling responses coming from BE.
@@ -70,7 +71,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     @SuppressWarnings("unchecked")
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        MessageStateContext messageStateContext = outboundRequestMsg.getMessageStateContext();
+        SenderReqRespStateManager senderReqRespStateManager = targetChannel.senderReqRespStateManager;
 
         if (handlerExecutor != null) {
             handlerExecutor.executeAtTargetResponseReceiving(inboundResponseMsg);
@@ -81,11 +82,11 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                     LOG.warn("Received an unexpected 100-continue response");
                 } else {
                     inboundResponseMsg = createInboundRespCarbonMsg(ctx, (HttpResponse) msg, outboundRequestMsg);
-                    messageStateContext.getSenderState().readInboundResponseHeaders(this, (HttpResponse) msg);
+                    senderReqRespStateManager.readInboundResponseHeaders(this, (HttpResponse) msg);
                 }
             } else {
                 if (inboundResponseMsg != null) {
-                    messageStateContext.getSenderState().readInboundResponseEntityBody(ctx, (HttpContent) msg,
+                    senderReqRespStateManager.readInboundResponseEntityBody(ctx, (HttpContent) msg,
                                                                                        getInboundResponseMsg());
                 }
             }
@@ -113,7 +114,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         if (!idleTimeoutTriggered) {
-            outboundRequestMsg.getMessageStateContext().getSenderState().handleAbruptChannelClosure(httpResponseFuture);
+            targetChannel.senderReqRespStateManager.handleAbruptChannelClosure(httpResponseFuture);
         }
         connectionManager.invalidateTargetChannel(targetChannel);
 
@@ -132,10 +133,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
-            targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
             this.idleTimeoutTriggered = true;
-            ctx.close();
-            outboundRequestMsg.getMessageStateContext().getSenderState().handleIdleTimeoutConnectionClosure(
+            targetChannel.senderReqRespStateManager.handleIdleTimeoutConnectionClosure(
                     httpResponseFuture, ctx.channel().id().asLongText());
         } else if (evt instanceof HttpClientUpgradeHandler.UpgradeEvent) {
             HttpClientUpgradeHandler.UpgradeEvent upgradeEvent = (HttpClientUpgradeHandler.UpgradeEvent) evt;
@@ -167,6 +166,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         // Remove Http specific handlers
         safelyRemoveHandlers(targetChannel.getChannel().pipeline(), Constants.IDLE_STATE_HANDLER,
                              Constants.HTTP_TRACE_LOG_HANDLER);
+        initHttp2MessageContext(outboundRequestMsg, http2TargetHandler);
         http2ClientChannel.addDataEventListener(
                 Constants.IDLE_STATE_HANDLER,
                 new Http2ClientTimeoutHandler(http2ClientChannel.getSocketIdleTimeout(), http2ClientChannel));

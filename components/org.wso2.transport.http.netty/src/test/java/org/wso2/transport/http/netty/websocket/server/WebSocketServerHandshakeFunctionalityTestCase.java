@@ -64,6 +64,7 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost(Constants.LOCALHOST);
         listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
+        listenerConfiguration.setWebSocketCompressionEnabled(true);
         httpConnectorFactory = new DefaultHttpWsConnectorFactory();
         serverConnector = httpConnectorFactory.createServerConnector(TestUtil.getDefaultServerBootstrapConfig(),
                                                                      listenerConfiguration);
@@ -145,7 +146,7 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
         testClient.setCountDownLatch(countDownLatch);
         webSocketConnection.readNextFrame();
         countDownLatch.await(countdownLatchTimeout, TimeUnit.SECONDS);
-        CloseWebSocketFrame closeFrame =  testClient.getReceivedCloseFrame();
+        CloseWebSocketFrame closeFrame = testClient.getReceivedCloseFrame();
 
         Assert.assertNotNull(closeFrame);
         Assert.assertEquals(closeFrame.statusCode(), 1002);
@@ -258,7 +259,7 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
     }
 
     @Test(priority = 1)
-    public void testListerNotSetInMessageReading() throws URISyntaxException, InterruptedException {
+    public void testListnerNotSetInMessageReading() throws URISyntaxException, InterruptedException {
         CountDownLatch serverHandshakeCountDownLatch = new CountDownLatch(1);
         listener.setHandshakeCompleteCountDownLatch(serverHandshakeCountDownLatch);
         WebSocketTestClient testClient = createClientAndHandshake("x-handshake", null);

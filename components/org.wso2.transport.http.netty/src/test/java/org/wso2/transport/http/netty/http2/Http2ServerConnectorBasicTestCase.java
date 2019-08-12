@@ -31,11 +31,8 @@ import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
-import org.wso2.transport.http.netty.contract.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.http2.MessageGenerator;
@@ -43,6 +40,8 @@ import org.wso2.transport.http.netty.util.client.http2.MessageSender;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.wso2.transport.http.netty.util.Http2Util.getTestHttp1Client;
+import static org.wso2.transport.http.netty.util.Http2Util.getTestHttp2Client;
 
 /**
  * This contains basic test cases for HTTP2 Client connector.
@@ -51,9 +50,8 @@ public class Http2ServerConnectorBasicTestCase {
 
     private static final Logger LOG = LoggerFactory.getLogger(Http2ServerConnectorBasicTestCase.class);
 
-    private HttpClientConnector httpClientConnector;
+    private HttpClientConnector h1Client, h2PriorOffClient, h2priorOnClient;
     private ServerConnector serverConnector;
-    private SenderConfiguration senderConfiguration;
     private HttpWsConnectorFactory connectorFactory;
 
     @BeforeClass
@@ -69,18 +67,30 @@ public class Http2ServerConnectorBasicTestCase {
         future.setHttpConnectorListener(new EchoMessageListener());
         future.sync();
 
-        TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
-        senderConfiguration = HttpConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
-        senderConfiguration.setHttpVersion(Constants.HTTP_2_0);
-        httpClientConnector = connectorFactory.createHttpClientConnector(
-                HttpConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
+        h2PriorOffClient = getTestHttp2Client(connectorFactory, false);
+        h2priorOnClient = getTestHttp2Client(connectorFactory, true);
+        h1Client = getTestHttp1Client(connectorFactory);
     }
 
     @Test
-    public void testHttp2Post() {
+    public void testHttp2ServerWithH2PriorOffClient() {
+        testH2Server(h2PriorOffClient);
+    }
+
+    @Test
+    public void testHttp2ServerWithH2PriorOnClient() {
+        testH2Server(h2priorOnClient);
+    }
+
+    @Test
+    public void testHttp2ServerWithHttp1Client() {
+        testH2Server(h1Client);
+    }
+
+    private void testH2Server(HttpClientConnector h2Client) {
         String testValue = "Test Http2 Message";
         HttpCarbonMessage httpCarbonMessage = MessageGenerator.generateRequest(HttpMethod.POST, testValue);
-        HttpCarbonMessage response = new MessageSender(httpClientConnector).sendMessage(httpCarbonMessage);
+        HttpCarbonMessage response = new MessageSender(h2Client).sendMessage(httpCarbonMessage);
         assertNotNull(response, "Expected response not received");
         String result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         assertEquals(result, testValue, "Expected response not received");
@@ -88,8 +98,9 @@ public class Http2ServerConnectorBasicTestCase {
 
     @AfterClass
     public void cleanUp() {
-        senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_1_1));
-        httpClientConnector.close();
+        h1Client.close();
+        h2PriorOffClient.close();
+        h2priorOnClient.close();
         serverConnector.stop();
         try {
             connectorFactory.shutdown();

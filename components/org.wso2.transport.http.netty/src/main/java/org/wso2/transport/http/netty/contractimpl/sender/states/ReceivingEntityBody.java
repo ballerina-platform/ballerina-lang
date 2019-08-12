@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.common.states.SenderReqRespStateManager;
 import org.wso2.transport.http.netty.contractimpl.sender.TargetHandler;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -44,11 +44,11 @@ public class ReceivingEntityBody implements SenderState {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReceivingEntityBody.class);
 
-    private final MessageStateContext messageStateContext;
+    private final SenderReqRespStateManager senderReqRespStateManager;
     private final TargetHandler targetHandler;
 
-    ReceivingEntityBody(MessageStateContext messageStateContext, TargetHandler targetHandler) {
-        this.messageStateContext = messageStateContext;
+    ReceivingEntityBody(SenderReqRespStateManager senderReqRespStateManager, TargetHandler targetHandler) {
+        this.senderReqRespStateManager = senderReqRespStateManager;
         this.targetHandler = targetHandler;
     }
 
@@ -76,7 +76,7 @@ public class ReceivingEntityBody implements SenderState {
             inboundResponseMsg.setLastHttpContentArrived();
             targetHandler.resetInboundMsg();
             targetHandler.getTargetChannel().getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
-            messageStateContext.setSenderState(new EntityBodyReceived());
+            senderReqRespStateManager.state = new EntityBodyReceived();
 
             if (!isKeepAlive(targetHandler.getKeepAliveConfig(), targetHandler.getOutboundRequestMsg())) {
                 targetHandler.closeChannel(ctx);

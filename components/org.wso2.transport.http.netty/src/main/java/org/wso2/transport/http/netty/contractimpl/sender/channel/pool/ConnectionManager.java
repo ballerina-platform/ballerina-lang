@@ -160,7 +160,7 @@ public class ConnectionManager {
             targetChannel.setCorrelatedSource(null);
         }
         targetChannel.setConnectionManager(this);
-        targetChannel.setTrgHlrConnPoolId(trgHlrConnPoolId);
+        targetChannel.trgHlrConnPoolId = trgHlrConnPoolId;
         return targetChannel;
     }
 
@@ -168,7 +168,7 @@ public class ConnectionManager {
         if (targetChannel.getCorrelatedSource() != null) {
             Map<String, GenericObjectPool> objectPoolMap = getTargetPoolMap(targetChannel);
             if (objectPoolMap != null) {
-                releaseChannelToPool(targetChannel, objectPoolMap.get(targetChannel.getTrgHlrConnPoolId()));
+                releaseChannelToPool(targetChannel, objectPoolMap.get(targetChannel.trgHlrConnPoolId));
             }
         } else {
             releaseChannelToPool(targetChannel, globalConnPool.get(targetChannel.getHttpRoute().toString()));
@@ -197,7 +197,7 @@ public class ConnectionManager {
             if (objectPoolMap != null) {
                 try {
                     // Need a null check because SourceHandler side could timeout before TargetHandler side.
-                    String poolId = targetChannel.getTrgHlrConnPoolId();
+                    String poolId = targetChannel.trgHlrConnPoolId;
                     if (objectPoolMap.containsKey(poolId)) {
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("Invalidating connection {} to the pool",

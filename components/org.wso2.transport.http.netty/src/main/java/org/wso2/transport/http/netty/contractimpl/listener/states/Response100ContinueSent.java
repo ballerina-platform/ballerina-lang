@@ -32,7 +32,6 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
-import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -58,19 +57,19 @@ public class Response100ContinueSent extends SendingHeaders {
 
     private static final Logger LOG = LoggerFactory.getLogger(Response100ContinueSent.class);
 
-    private final MessageStateContext messageStateContext;
+    private final ListenerReqRespStateManager listenerReqRespStateManager;
     private final HttpOutboundRespListener outboundResponseListener;
     private final SourceHandler sourceHandler;
     private final float httpVersion;
 
-    Response100ContinueSent(HttpOutboundRespListener outboundResponseListener, SourceHandler sourceHandler,
-                            MessageStateContext messageStateContext) {
-        super(outboundResponseListener, messageStateContext);
+    Response100ContinueSent(ListenerReqRespStateManager listenerReqRespStateManager, SourceHandler sourceHandler,
+                            HttpOutboundRespListener outboundResponseListener) {
+        super(listenerReqRespStateManager, outboundResponseListener);
+        this.listenerReqRespStateManager = listenerReqRespStateManager;
+        this.sourceHandler = sourceHandler;
         this.outboundResponseListener = outboundResponseListener;
         this.chunkConfig = outboundResponseListener.getChunkConfig();
         this.keepAlive = outboundResponseListener.isKeepAlive();
-        this.sourceHandler = sourceHandler;
-        this.messageStateContext = messageStateContext;
         this.httpVersion = Float.parseFloat(outboundResponseListener.getRequestDataHolder().getHttpVersion());
     }
 
@@ -81,10 +80,10 @@ public class Response100ContinueSent extends SendingHeaders {
 
     @Override
     public void readInboundRequestBody(Object inboundRequestEntityBody) throws ServerConnectorException {
-        messageStateContext.setListenerState(
-                new ReceivingEntityBody(messageStateContext, outboundResponseListener.getInboundRequestMsg(),
-                                        sourceHandler, httpVersion));
-        messageStateContext.getListenerState().readInboundRequestBody(inboundRequestEntityBody);
+        listenerReqRespStateManager.state
+                = new ReceivingEntityBody(listenerReqRespStateManager, outboundResponseListener.getInboundRequestMsg(),
+                                                                            sourceHandler, httpVersion);
+        listenerReqRespStateManager.readInboundRequestBody(inboundRequestEntityBody);
     }
 
     @Override
