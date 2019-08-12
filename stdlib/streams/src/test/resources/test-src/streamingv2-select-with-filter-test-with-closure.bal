@@ -24,32 +24,29 @@ type Teacher record {
     string school;
 };
 
-type TeacherOutput record {
-    string name;
+type TeacherOutput record{
+    string TeacherName;
     int age;
-    int sumAge;
-    int count;
 };
 
 int index = 0;
 stream<Teacher> inputStream = new;
 stream<TeacherOutput> outputStream = new;
+TeacherOutput[] globalEmployeeArray = [];
 
-TeacherOutput[] globalTeacherOutputArray = [];
-
-function startAggregationWithoutGroupByQuery() returns TeacherOutput[] {
+function startSelectQuery() returns (TeacherOutput[]) {
 
     Teacher[] teachers = [];
-    Teacher t1 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
-    Teacher t2 = { name: "Raja", age: 45, status: "single", batch: "LK2014", school: "Hindu College" };
+    Teacher t1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Ananda College" };
+    Teacher t2 = { name: "Mohan", age: 45, status: "single", batch: "LK2014", school: "Hindu College" };
+    Teacher t3 = { name: "Shareek", age: 50, status: "single", batch: "LK2014", school: "Zahira College" };
     teachers[0] = t1;
     teachers[1] = t2;
-    teachers[2] = t2;
-    teachers[3] = t1;
+    teachers[2] = t3;
 
-    foo();
+    testSelectQuery();
 
-    outputStream.subscribe(function(TeacherOutput e) {printTeachers(e);});
+    outputStream.subscribe(printTeachers);
     foreach var t in teachers {
         inputStream.publish(t);
     }
@@ -58,29 +55,28 @@ function startAggregationWithoutGroupByQuery() returns TeacherOutput[] {
     while(true) {
         runtime:sleep(500);
         count += 1;
-        if((globalTeacherOutputArray.length()) == 4 || count == 10) {
+        if((globalEmployeeArray.length()) == 2 || count == 10) {
             break;
         }
     }
-    return globalTeacherOutputArray;
+
+    return globalEmployeeArray;
 }
 
-
-//  ------------- Query to be implemented -------------------------------------------------------
-//  from inputStream where inputStream.age > 25
-//  select inputStream.name, inputStream.age, sum (inputStream.age) as sumAge, count() as count
-//      => (TeacherOutput [] o) {
-//            outputStream.publish(o);
-//      }
-//
-
-function foo() {
+function testSelectQuery() {
+    int age = 25;
+    map<string> names = {};
+    map<int> ageMap = {};
+    ageMap["1"] = 25;
+    names["45"] = "Mohan";
+    names["50"] = "Shareek";
     forever {
-        from inputStream where inputStream.age > 25
-        select inputStream.name, inputStream.age, sum (inputStream.age) as sumAge, count() as count
-        => (TeacherOutput [] teachers) {
-            foreach var t in teachers {
-                outputStream.publish(t);
+        from inputStream where inputStream.age > age
+        select <string>names[inputStream.age.toString()] as TeacherName, inputStream.age as age
+        having age > <int>ageMap["1"]
+        => (TeacherOutput[] emp) {
+            foreach var e in emp {
+                outputStream.publish(e);
             }
         }
     }
@@ -91,6 +87,6 @@ function printTeachers(TeacherOutput e) {
 }
 
 function addToGlobalEmployeeArray(TeacherOutput e) {
-    globalTeacherOutputArray[index] = e;
+    globalEmployeeArray[index] = e;
     index = index + 1;
 }
