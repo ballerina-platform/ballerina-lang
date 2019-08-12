@@ -18,7 +18,7 @@
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-public type AnydataType anydata;
+type AnydataType anydata;
 
 # Construct a value with a specified type by copying another value.
 # + t - the type for the copy to be constructed
