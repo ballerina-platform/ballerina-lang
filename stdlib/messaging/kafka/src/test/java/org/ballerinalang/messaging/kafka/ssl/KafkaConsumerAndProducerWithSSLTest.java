@@ -146,6 +146,9 @@ public class KafkaConsumerAndProducerWithSSLTest {
             while ((line = br.readLine()) != null) {
                 if (line.contains(searchValue)) {
                     line = line.replace(searchValue, newValue);
+                    // This is to fix windows tests, which are failing because '\' is identifies as escape character.
+                    // As RegEx and String both considers '\' as an escape character, we have to escape them both.
+                    line = line.replaceAll("\\\\", "\\\\\\\\");
                 }
                 lines.add(line);
             }

@@ -2,7 +2,7 @@
     "result": {
         "contents": {
             "kind": "markdown",
-            "value": "**Description**  \n  \nReturns the index of the first occurrence of `substr` in the part of the `str` starting at `startIndex`\nor nil if it does not occur.  \n  \n**Params**  \n- `string` str: the string  \n- `string` substr: sub string to search for  \n- start: index to start search from  \n  \n**Returns** `(int|())`  \n- index of first `substr` occurrence or nil  \n  \n"
+            "value": "**Description**  \n  \nReturns the index of the first occurrence of `substr` in the part of the `str` starting at `startIndex`  \nor nil if it does not occur.  \n  \n**Params**  \n- `string` substr: sub string to search for  \n- start: index to start search from  \n  \n**Returns** `(int|())`  \n- index of first `substr` occurrence or nil  \n  \n"
         }
     },
     "id": {

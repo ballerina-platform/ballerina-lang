@@ -613,10 +613,8 @@ type InstructionGenerator object {
     function generateStreamNewIns(bir:NewStream streamNewIns) {
         self.mv.visitTypeInsn(NEW, STREAM_VALUE);
         self.mv.visitInsn(DUP);
-        loadType(self.mv, streamNewIns.typeValue);
-        self.loadVar(streamNewIns.nameOp.variableDcl);
-        self.mv.visitMethodInsn(INVOKESPECIAL, STREAM_VALUE, "<init>", io:sprintf("(L%s;L%s;)V", BTYPE,
-                STRING_VALUE), false);
+        loadType(self.mv, streamNewIns.streamType);
+        self.mv.visitMethodInsn(INVOKESPECIAL, STREAM_VALUE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
         self.storeToVar(streamNewIns.lhsOp.variableDcl);
     }
 
@@ -712,6 +710,21 @@ type InstructionGenerator object {
         // invoke set() method
         self.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "set",
                 io:sprintf("(L%s;L%s;)V", STRING_VALUE, OBJECT), true);
+    }
+
+    function generateStringLoadIns(bir:FieldAccess stringLoadIns) {
+        // visit the string
+        self.loadVar(stringLoadIns.rhsOp.variableDcl);
+
+        // visit the key expr
+        self.loadVar(stringLoadIns.keyOp.variableDcl);
+
+        // invoke the `getStringAt()` method
+        self.mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "getStringAt",
+                                io:sprintf("(L%s;J)L%s;", STRING_VALUE, STRING_VALUE), false);
+
+        // store in the target reg
+        self.storeToVar(stringLoadIns.lhsOp.variableDcl);
     }
 
     # Generate a new instance of an array value
@@ -1102,7 +1115,7 @@ function generateVarLoad(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string cu
         return;
     } else if (varDcl.kind == bir:VAR_KIND_CONSTANT) {
         string varName = varDcl.name.value;
-        bir:ModuleID moduleId = varDcl.moduleId;
+        bir:ModuleID moduleId = <bir:ModuleID> varDcl.moduleId;
         string pkgName = getPackageName(moduleId.org, moduleId.name);
         string className = lookupGlobalVarClassName(pkgName + varName);
         string typeSig = getTypeDesc(bType);
@@ -1160,7 +1173,7 @@ function generateVarStore(jvm:MethodVisitor mv, bir:VariableDcl varDcl, string c
         return;
     } else if (varDcl.kind == bir:VAR_KIND_CONSTANT) {
         string varName = varDcl.name.value;
-        bir:ModuleID moduleId = varDcl.moduleId;
+        bir:ModuleID moduleId = <bir:ModuleID> varDcl.moduleId;
         string pkgName = getPackageName(moduleId.org, moduleId.name);
         string className = lookupGlobalVarClassName(pkgName + varName);
         string typeSig = getTypeDesc(bType);

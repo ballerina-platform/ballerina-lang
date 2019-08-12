@@ -271,4 +271,10 @@ public class FunctionPointersTest {
         BValue[] returns = BRunUtil.invoke(closureFPProgram, "invokeApplyFunction");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 6);
     }
+
+    @Test(description = "Test function pointers with subtyping")
+    public void testSubTypingWithAny() {
+        BValue[] returns = BRunUtil.invoke(fpProgram, "testSubTypingWithAny");
+        Assert.assertEquals(returns[0].stringValue(), "12");
+    }
 }

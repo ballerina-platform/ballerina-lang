@@ -151,3 +151,11 @@ public function unionWithErrorReturnThrows(handle receiver) returns error|int|bo
 public function unionWithErrorReturnHandle(handle receiver) returns error|int|boolean|byte|handle = @java:Method{
     class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
 } external;
+
+public function errorDetail(handle receiver) returns error? = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
+public function uncheckedErrorDetail(handle receiver) returns int = @java:Method{
+    class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;

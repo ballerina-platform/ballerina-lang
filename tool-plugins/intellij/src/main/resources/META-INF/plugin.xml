@@ -57,7 +57,7 @@
 
         <typedHandler implementation="org.wso2.lsp4intellij.editor.listeners.LSPTypedHandler"
                       id="BallerinaLspTypedHandler"/>
-        
+
         <!--Ballerina plugin extensions-->
         <fileTypeFactory implementation="io.ballerina.plugins.idea.BallerinaFileTypeFactory"/>
 
@@ -178,7 +178,8 @@
                 implementation="io.ballerina.plugins.idea.project.BallerinaProjectStructureDetector"/>
         <directoryProjectGenerator
                 implementation="io.ballerina.plugins.idea.BallerinaProjectGenerator"/> <!-- for small IDEs-->
-
+        <applicationService
+                serviceImplementation="io.ballerina.plugins.idea.settings.experimental.BallerinaExperimentalFeatureSettings"/>
         <projectService
                 serviceImplementation="io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings"/>
         <preloadingActivity

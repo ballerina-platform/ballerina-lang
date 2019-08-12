@@ -523,8 +523,7 @@ public type NewStream record {|
     DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
-    VarRef nameOp;
-    BType typeValue;
+    BType streamType;
 |};
 
 public type NewInstance record {|
@@ -559,6 +558,7 @@ public type FPLoad record {|
     Name name;
     VariableDcl?[] params;
     VarRef?[] closureMaps;
+    BType retType;
 |};
 
 public type FieldAccess record {|

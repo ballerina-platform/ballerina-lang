@@ -46,7 +46,7 @@ import static org.ballerinalang.langserver.compiler.LSCompilerUtil.prepareCompil
  */
 public class LSModuleCompiler {
 
-    private LSModuleCompiler() {
+    protected LSModuleCompiler() {
     }
 
     /**
@@ -88,13 +88,8 @@ public class LSModuleCompiler {
 
         CompilerContext compilerContext = prepareCompilerContext(pkgRepo, sourceRoot, preserveWS, docManager);
         Compiler compiler = LSCompilerUtil.getCompiler(context, "", compilerContext, errStrategy);
-        try {
-            return compiler.compilePackages(false);
-        } catch (RuntimeException e) {
-            throw new CompilationFailedException("Compilation failed", e);
-        }
+        return compilePackagesSafe(compiler, sourceRoot, false);
     }
-
 
     /**
      * Get the BLangPackage for a given program.
@@ -149,30 +144,27 @@ public class LSModuleCompiler {
         context.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY, pkgID.getNameComps().stream()
                 .map(Name::getValue)
                 .collect(Collectors.joining(".")));
-        try {
-            if (compileFullProject && !projectRoot.isEmpty() && sourceDoc.isWithinProject()) {
-                if (clearProjectModules) {
-                    // If the flag is set, we remove all the modules in the current project from the LSPackageCache
-                    LSPackageCache.getInstance(compilerContext).invalidateProjectModules(sourceDoc.getProjectModules());
-                }
-                Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext, errStrategy);
-                List<BLangPackage> projectPackages = compiler.compilePackages(false);
-                packages.addAll(projectPackages);
-                Optional<BLangPackage> currentPkg = projectPackages.stream().filter(bLangPackage -> {
-                    String name = bLangPackage.packageID.nameComps.stream()
-                            .map(Name::getValue).collect(Collectors.joining("."));
-                    return context.get(DocumentServiceKeys.CURRENT_PKG_NAME_KEY).equals(name);
-                }).findAny();
-                // No need to check the option is existing since the current package always exist
-                LSPackageCache.getInstance(compilerContext).invalidate(currentPkg.get().packageID);
-            } else {
-                Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext, errStrategy);
-                BLangPackage bLangPackage = compiler.compile(pkgName);
-                LSPackageCache.getInstance(compilerContext).invalidate(bLangPackage.packageID);
-                packages.add(bLangPackage);
+
+        if (compileFullProject && !projectRoot.isEmpty() && sourceDoc.isWithinProject()) {
+            if (clearProjectModules) {
+                // If the flag is set, we remove all the modules in the current project from the LSPackageCache
+                LSPackageCache.getInstance(compilerContext).invalidateProjectModules(sourceDoc.getProjectModules());
             }
-        } catch (RuntimeException e) {
-            throw new CompilationFailedException("Compilation failed!", e);
+            Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext, errStrategy);
+            List<BLangPackage> projectPackages = compilePackagesSafe(compiler, projectRoot, false);
+            packages.addAll(projectPackages);
+            Optional<BLangPackage> currentPkg = projectPackages.stream().filter(bLangPackage -> {
+                String name = bLangPackage.packageID.nameComps.stream()
+                        .map(Name::getValue).collect(Collectors.joining("."));
+                return context.get(DocumentServiceKeys.CURRENT_PKG_NAME_KEY).equals(name);
+            }).findAny();
+            // No need to check the option is existing since the current package always exist
+            LSPackageCache.getInstance(compilerContext).invalidate(currentPkg.get().packageID);
+        } else {
+            Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext, errStrategy);
+            BLangPackage bLangPackage = compileSafe(compiler, projectRoot, pkgName);
+            LSPackageCache.getInstance(compilerContext).invalidate(bLangPackage.packageID);
+            packages.add(bLangPackage);
         }
         if (packages.isEmpty()) {
             throw new CompilationFailedException("Couldn't find any compiled artifact!");
@@ -183,6 +175,48 @@ public class LSModuleCompiler {
             context.put(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY, bLangPackage.packageID);
         });
         return packages;
+    }
+
+    /**
+     * Compile a single BLangPackage.
+     *
+     * @param compiler    {@link Compiler}
+     * @param projectRoot project root
+     * @param pkgName     package name or file name
+     * @return {@link BLangPackage}
+     * @throws CompilationFailedException thrown when compilation failed
+     */
+    protected static BLangPackage compileSafe(Compiler compiler, String projectRoot, String pkgName)
+            throws CompilationFailedException {
+        try {
+            return compiler.compile(pkgName);
+        } catch (RuntimeException e) {
+            // NOTE: Remove current CompilerContext to try out a fresh CompilerContext next time
+            // to avoid issues of reusing it.
+//            LSContextManager.getInstance().removeCompilerContext(projectRoot);
+            throw new CompilationFailedException("Compilation failed!", e);
+        }
+    }
+
+    /**
+     * Compile all project modules and get BLangPackages.
+     *
+     * @param compiler    {@link Compiler}
+     * @param projectRoot project root
+     * @param isBuild     if `True` builds all packages
+     * @return a list of {@link BLangPackage}
+     * @throws CompilationFailedException thrown when compilation failed
+     */
+    protected static List<BLangPackage> compilePackagesSafe(Compiler compiler, String projectRoot, boolean isBuild)
+            throws CompilationFailedException {
+        try {
+            return compiler.compilePackages(isBuild);
+        } catch (RuntimeException e) {
+            // NOTE: Remove current CompilerContext to try out a fresh CompilerContext next time
+            // to avoid issues of reusing it.
+//            LSContextManager.getInstance().removeCompilerContext(projectRoot);
+            throw new CompilationFailedException("Compilation failed!", e);
+        }
     }
 
     private static PackageID generatePackageFromManifest(String pkgName, String projectRoot) {

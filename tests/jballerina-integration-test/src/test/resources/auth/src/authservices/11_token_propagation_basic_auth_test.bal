@@ -77,10 +77,12 @@ service passthroughService11 on listener11_1 {
 jwt:InboundJwtAuthProvider jwtAuthProvider11_3 = new({
     issuer: "ballerina",
     audience: ["ballerina"],
-    certificateAlias: "ballerina",
-    trustStore: {
-        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-        password: "ballerina"
+    trustStoreConfig: {
+        certificateAlias: "ballerina",
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
     }
 });
 http:BearerAuthHandler jwtAuthHandler11_3 = new(jwtAuthProvider11_3);

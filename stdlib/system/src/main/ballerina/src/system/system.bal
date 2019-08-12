@@ -104,3 +104,15 @@ public function readDir(@untainted string path) returns FileInfo[]|Error = exter
 # + return - Returns an `Error` if failed to rename.
 public function copy(@untainted string sourcePath, @untainted string destinationPath,
 boolean replaceExisting = false) returns Error? = external;
+
+# Executes an operating system command as a subprocess of the current process.
+#
+# + command - The name of the command to be executed
+# + env - Environment variables to be set to the process
+# + dir - The current working directory to be set to the process
+# + args - Command arguments to be passed in
+# + return - Returns a `Process` object in success, or an `Error` if a failure occurs
+public function exec(@untainted string command, @untainted map<string> env = {}, 
+                     @untainted string? dir = (), @untainted string... args) 
+                     returns Process|Error = external;
+
