@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.testerina.natives.test;
 
 import org.ballerinalang.bre.Context;
@@ -68,6 +68,7 @@ public class StartServiceSkeleton extends BlockingNativeCallableUnit {
     public void execute(Context ctx) {
         String moduleName = ctx.getStringArgument(0);
         String openApiFilePath = ctx.getStringArgument(1);
+        String userDir = System.getProperty("user.dir");
 
         //TODO : validate for duplicate module in the source which can conflict with mock module
         String sourceRoot = System.getProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT);
@@ -77,7 +78,7 @@ public class StartServiceSkeleton extends BlockingNativeCallableUnit {
         generator.setSrcPackage(moduleName);
 
         try {
-            generator.generate(GeneratorConstants.GenType.GEN_SERVICE, openApiFilePath, rootDir.toString());
+            generator.generate(GeneratorConstants.GenType.GEN_SERVICE, userDir, openApiFilePath, rootDir.toString());
 
         } catch (IOException | BallerinaOpenApiException e) {
             throw new BallerinaIOException(String.format("Service skeleton creation failed. Failed to generate the "
@@ -112,7 +113,7 @@ public class StartServiceSkeleton extends BlockingNativeCallableUnit {
                 Files.createDirectories(projectRoot);
             } catch (IOException e) {
                 throw new BallerinaIOException(String.format("Service skeleton creation failed. Failed to create " +
-                               "[.ballerina] %s [cause] %s", projectRoot.toString(), e.getMessage()), e);
+                        "[.ballerina] %s [cause] %s", projectRoot.toString(), e.getMessage()), e);
             }
         }
     }

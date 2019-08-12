@@ -53,6 +53,7 @@ public class CodeGeneratorTest {
 
     @Test(description = "Test Ballerina skeleton generation")
     public void generateSkeleton() {
+        String executionPath = System.getProperty("user.dir");
         final String pkgName = "module";
         String definitionPath = RES_DIR + File.separator + "petstore.yaml";
         CodeGenerator generator = new CodeGenerator();
@@ -65,7 +66,7 @@ public class CodeGeneratorTest {
                 Files.createDirectory(cachePath);
             }
 
-            generator.generate(GenType.GEN_SERVICE, definitionPath, projectPath.toString());
+            generator.generate(GenType.GEN_SERVICE, executionPath, definitionPath, projectPath.toString());
             if (Files.exists(outFile)) {
                 String result = new String(Files.readAllBytes(outFile));
                 Assert.assertTrue(result.contains("listPets (http:Caller outboundEp"));
@@ -79,6 +80,7 @@ public class CodeGeneratorTest {
 
     @Test(description = "Test Ballerina client generation")
     public void generateClient() {
+        String executionPath = System.getProperty("user.dir");
         final String pkgName = "client";
         String definitionPath = RES_DIR + File.separator + "petstore.yaml";
         CodeGenerator generator = new CodeGenerator();
@@ -91,7 +93,7 @@ public class CodeGeneratorTest {
                 Files.createDirectory(cachePath);
             }
 
-            generator.generate(GenType.GEN_CLIENT, definitionPath, projectPath.toString());
+            generator.generate(GenType.GEN_CLIENT, executionPath, definitionPath, projectPath.toString());
             if (Files.exists(outFile)) {
                 String result = new String(Files.readAllBytes(outFile));
                 Assert.assertTrue(result.contains("public remote function listPets()"));
