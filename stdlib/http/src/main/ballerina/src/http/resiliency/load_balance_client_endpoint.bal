@@ -323,8 +323,8 @@ function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBa
 # + failover - Configuration for load balancer whether to fail over in case of a failure
 public type LoadBalanceClientEndpointConfiguration record {|
     string httpVersion = HTTP_1_1;
-    Http1Settings http1Settings = {};
-    Http2Settings http2Settings = {};
+    ClientHttp1Settings http1Settings = {};
+    ClientHttp2Settings http2Settings = {};
     int timeoutInMillis = 60000;
     string forwarded = "disable";
     FollowRedirects? followRedirects = ();

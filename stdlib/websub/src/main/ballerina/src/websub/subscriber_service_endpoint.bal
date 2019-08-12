@@ -30,11 +30,11 @@ public type Listener object {
 
     *lang:AbstractListener;
 
-    public SubscriberServiceEndpointConfiguration? config = ();
+    public SubscriberListenerConfiguration? config = ();
 
     private http:Listener? serviceEndpoint = ();
 
-    public function __init(int port, SubscriberServiceEndpointConfiguration? config = ()) {
+    public function __init(int port, SubscriberListenerConfiguration? config = ()) {
         self.init(port, config);
     }
 
@@ -60,11 +60,11 @@ public type Listener object {
     # Gets called when the endpoint is being initialized during module initialization.
     #
     # + sseEpConfig - The Subscriber Service Endpoint Configuration of the endpoint
-    function init(int port, SubscriberServiceEndpointConfiguration? sseEpConfig = ()) {
+    function init(int port, SubscriberListenerConfiguration? sseEpConfig = ()) {
         self.config = sseEpConfig;
-        http:ServiceEndpointConfiguration? serviceConfig = ();
-        if (sseEpConfig is SubscriberServiceEndpointConfiguration) {
-            http:ServiceEndpointConfiguration httpServiceConfig = {
+        http:ListenerConfiguration? serviceConfig = ();
+        if (sseEpConfig is SubscriberListenerConfiguration) {
+            http:ListenerConfiguration httpServiceConfig = {
                 host: sseEpConfig.host,
                 secureSocket: sseEpConfig.httpServiceSecureSocket
             };
@@ -167,9 +167,9 @@ public type Listener object {
 # + host - The host name/IP of the endpoint
 # + httpServiceSecureSocket - The SSL configurations for the service endpoint
 # + extensionConfig - The extension configuration to introduce custom subscriber services (webhooks)
-public type SubscriberServiceEndpointConfiguration record {|
+public type SubscriberListenerConfiguration record {|
     string host = "";
-    http:ServiceSecureSocket? httpServiceSecureSocket = ();
+    http:ListenerSecureSocket? httpServiceSecureSocket = ();
     ExtensionConfig? extensionConfig = ();
 |};
 
