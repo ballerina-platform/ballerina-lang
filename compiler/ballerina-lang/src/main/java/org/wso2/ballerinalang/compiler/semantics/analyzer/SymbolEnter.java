@@ -628,7 +628,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefSymbol.pkgID = env.enclPkg.packageID;
 
         typeDefSymbol.flags |= Flags.asMask(typeDefinition.flagSet);
-        typeDefSymbol.flags &= getAccessModifierMask(typeDefinition.flagSet, typeDefinition.typeNode);
+        // Reset public flag when set on a non public type.
+        typeDefSymbol.flags &= getPublicFlagResetingMask(typeDefinition.flagSet, typeDefinition.typeNode);
         definedType.flags = typeDefSymbol.flags;
 
         if (typeDefinition.annAttachments.stream()
@@ -651,7 +652,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private int getAccessModifierMask(Set<Flag> flagSet, BLangType typeNode) {
+    // If this type is defined to a public type or this is a anonymous type, return int with all bits set to 1,
+    // so that we can bitwise and it with any flag and the original flag will not change.
+    // If the type is not a public type then return a mask where public flag is set to zero and all others are set
+    // to 1 so that we can perform bitwise and operation to remove the public flag from given flag.
+    private int getPublicFlagResetingMask(Set<Flag> flagSet, BLangType typeNode) {
         boolean isAnonType =
                 typeNode instanceof BLangStructureTypeNode && ((BLangStructureTypeNode) typeNode).isAnonymous;
         if (flagSet.contains(Flag.PUBLIC) || isAnonType) {
