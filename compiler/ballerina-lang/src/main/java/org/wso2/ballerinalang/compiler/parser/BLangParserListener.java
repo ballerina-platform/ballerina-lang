@@ -438,7 +438,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
+        boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext)
+                || (ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext
+                    && ctx.parent.parent.parent instanceof BallerinaParser.FiniteTypeContext
+                    && !(ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext));
 
         boolean isFieldAnalyseRequired =
                 (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
