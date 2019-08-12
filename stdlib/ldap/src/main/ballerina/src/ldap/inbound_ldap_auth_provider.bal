@@ -63,7 +63,8 @@ public type InboundLdapAuthProvider object {
         if (authenticated is boolean) {
             if (authenticated) {
                 auth:setAuthenticationContext("ldap", credential);
-                setPrincipal(username, self.ldapConnectionConfig.domainName, scopes);
+                string userId = self.ldapConnectionConfig.domainName + ":" + username;
+                auth:setPrincipal(userId, username, scopes);
             }
             return authenticated;
         } else {
@@ -156,12 +157,3 @@ public function doAuthenticate(LdapConnection ldapConnection, string username, s
 # + return - `LdapConnection` instance
 public function initLdapConnectionContext(LdapConnectionConfig ldapConnectionConfig, string instanceId)
                                           returns LdapConnection = external;
-
-function setPrincipal(string username, string domainName, string[] scopes) {
-    runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-    if (principal is runtime:Principal) {
-        principal.userId = domainName + ":" + username;
-        principal.username = username;
-        principal.scopes = scopes;
-    }
-}
