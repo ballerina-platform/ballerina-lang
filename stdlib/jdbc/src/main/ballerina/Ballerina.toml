@@ -11,10 +11,3 @@ target = "java"
     path = "./lib/ballerina-jdbc-@project.version@.jar"
     groupId = "ballerina"
     modules = ["jdbc"]
-
-    [[platform.libraries]]
-    artafactId = "javax.jms-api"
-    version = "2.0.1"
-    path = "./lib/javax.jms-api-2.0.1.jar"
-    groupId = "javax.jms"
-    modules = ["jms"]

@@ -213,7 +213,8 @@ public class CopyNativeLibTask implements Task {
                 Path jarTarget = tmpDir.resolve(fileName);
                 Files.copy(libPath, jarTarget, StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
-                throw createLauncherException("unable to copy the dependency jar :" + e.getMessage());
+                throw createLauncherException("unable to find the dependency jar from the distribution: " +
+                                                      e.getMessage());
             }
         });
     }

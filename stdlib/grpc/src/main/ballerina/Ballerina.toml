@@ -148,7 +148,7 @@ target = "java"
     [[platform.libraries]]
     artafactId = "protobuf-java"
     version = "3.7.0"
-    path = "./lib/protobuf-java-3.7.0.jar"
+    path = "./lib/protobuf-java-3.5.1.jar"
     groupId = "com.google.protobuf"
     modules = ["grpc"]
 

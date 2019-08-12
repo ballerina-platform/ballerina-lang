@@ -136,7 +136,7 @@ public class CopyModuleJarTask implements Task {
                     BLANG_COMPILED_JAR_EXT);
             Files.copy(importJar, jarTarget, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            throw createLauncherException("unable to copy the imported jar :" + e.getMessage());
+            throw createLauncherException("unable to find the imported jar from the distribution: " + e.getMessage());
         }
     }
 }
