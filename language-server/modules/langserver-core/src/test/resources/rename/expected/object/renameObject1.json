@@ -12,12 +12,12 @@
         {
           "range": {
             "start": {
-              "line": 39,
-              "character": 13
+              "line": 36,
+              "character": 12
             },
             "end": {
-              "line": 39,
-              "character": 27
+              "line": 36,
+              "character": 26
             }
           },
           "newText": "renamedVal"
@@ -25,12 +25,12 @@
         {
           "range": {
             "start": {
-              "line": 36,
-              "character": 12
+              "line": 39,
+              "character": 13
             },
             "end": {
-              "line": 36,
-              "character": 26
+              "line": 39,
+              "character": 27
             }
           },
           "newText": "renamedVal"

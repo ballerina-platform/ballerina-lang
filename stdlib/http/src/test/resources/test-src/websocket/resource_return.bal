@@ -16,7 +16,7 @@
 
 import ballerina/http;
 
-service on new http:WebSocketListener(9090) {
+service on new http:Listener(9090) {
 
     resource function onText(http:WebSocketCaller caller, string text) returns int {
         return 4;

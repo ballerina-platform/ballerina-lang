@@ -19,9 +19,6 @@
 package org.ballerinalang.stdlib.runtime.nativeimpl;
 
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 
 /**
  * AuthenticationContext represents and holds the authentication information.
@@ -32,50 +29,25 @@ public class AuthenticationContext {
 
     private static final String AUTH_SCHEME_KEY = "scheme";
     private static final String AUTH_TOKEN_KEY = "authToken";
-    private MapValue<String, Object> authenticationContextRecord = null;
-    private BMap<String, BValue> authenticationContextStruct = null;
-
-    //TODO Remove after migration : implemented using bvm values/types
-    public AuthenticationContext(BMap<String, BValue> authContextStruct) {
-        this.authenticationContextStruct = authContextStruct;
-    }
+    private MapValue<String, Object> authenticationContextRecord;
 
     public AuthenticationContext(MapValue<String, Object> authContextRecord) {
         this.authenticationContextRecord = authContextRecord;
     }
 
     public String getScheme() {
-        //TODO this check is to distinguish both bvm and jvm values. Remove after the migration
-        if (authenticationContextStruct != null) {
-            return authenticationContextStruct.get(AUTH_SCHEME_KEY).stringValue();
-        }
         return authenticationContextRecord.get(AUTH_SCHEME_KEY).toString();
     }
 
     public void setScheme(String authType) {
-        //TODO this check is to distinguish both bvm and jvm values. Remove after the migration
-        if (authenticationContextStruct != null) {
-            authenticationContextStruct.put(AUTH_SCHEME_KEY, new BString(authType));
-        } else {
-            authenticationContextRecord.put(AUTH_SCHEME_KEY, authType);
-
-        }
+        authenticationContextRecord.put(AUTH_SCHEME_KEY, authType);
     }
 
     public String getAuthToken() {
-        //TODO this check is to distinguish both bvm and jvm values. Remove after the migration
-        if (authenticationContextStruct != null) {
-            return authenticationContextStruct.get(AUTH_TOKEN_KEY).stringValue();
-        }
         return authenticationContextRecord.get(AUTH_TOKEN_KEY).toString();
     }
 
     public void setAuthToken(String authToken) {
-        //TODO this check is to distinguish both bvm and jvm values. Remove after the migration
-        if (authenticationContextStruct != null) {
-            authenticationContextStruct.put(AUTH_TOKEN_KEY, new BString(authToken));
-        } else {
-            authenticationContextRecord.put(AUTH_TOKEN_KEY, authToken);
-        }
+        authenticationContextRecord.put(AUTH_TOKEN_KEY, authToken);
     }
 }

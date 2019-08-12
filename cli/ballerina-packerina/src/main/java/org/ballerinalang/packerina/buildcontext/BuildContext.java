@@ -19,6 +19,7 @@
 package org.ballerinalang.packerina.buildcontext;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.MultiModuleContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
@@ -30,6 +31,7 @@ import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.util.BLangConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -67,12 +69,13 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     /**
      * Create a build context with context fields.
      *
-     * @param sourceRootPath The root of the source files. If its a project then its project root. If its a single bal
-     *                       file then is it the parent directory of the bal file.
-     * @param targetPath     The location of the target(build artifacts output path).
-     * @param source         The name of the source file or the name of the module. Pass null to build all modules.
+     * @param sourceRootPath  The root of the source files. If its a project then its project root. If its a single bal
+     *                        file then is it the parent directory of the bal file.
+     * @param targetPath      The location of the target(build artifacts output path).
+     * @param source          The name of the source file or the name of the module. Pass null to build all modules.
+     * @param compilerContext The compiler context for compiling.
      */
-    public BuildContext(Path sourceRootPath, Path targetPath, Path source) {
+    public BuildContext(Path sourceRootPath, Path targetPath, Path source, CompilerContext compilerContext) {
         try {
             out = new EmptyPrintStream();
             err = new EmptyPrintStream();
@@ -83,9 +86,12 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                 // set target dir
                 this.put(BuildContextField.TARGET_DIR, targetPath);
                 
+                // set compiler context
+                this.put(BuildContextField.COMPILER_CONTEXT, compilerContext);
+                
                 // set source context
                 this.setSource(source);
-        
+                
                 // save '<target>/balo' dir for balo files
                 this.baloCacheDir = targetPath.resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY);
                 
@@ -93,14 +99,14 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                 this.targetBirCacheDir = targetPath
                         .resolve(ProjectDirConstants.CACHES_DIR_NAME)
                         .resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME);
-        
+                
                 this.put(BuildContextField.BIR_CACHE_DIR, this.targetBirCacheDir);
-        
+                
                 // save '<target>/cache/jar_cache' dir for jar files
                 this.targetJarCacheDir = targetPath
                         .resolve(ProjectDirConstants.CACHES_DIR_NAME)
                         .resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
-        
+                
                 // save '<target>/bin' dir for executables
                 this.executableDir = targetPath.resolve(ProjectDirConstants.BIN_DIR_NAME);
             } else {
@@ -116,9 +122,11 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
      *
      * @param sourceRootPath The root of the source files. If its a project then its project root. If its a single bal
      *                       file then is it the parent directory of the bal file.
+     * @param targetPath     The location of the target(build artifacts output path).
+     * @param source         The name of the source file or the name of the module. Pass null to build all modules.
      */
-    public BuildContext(Path sourceRootPath) {
-        this(sourceRootPath, null);
+    public BuildContext(Path sourceRootPath, Path targetPath, Path source) {
+        this(sourceRootPath, targetPath, source, null);
     }
     
     /**
@@ -130,6 +138,16 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
      */
     public BuildContext(Path sourceRootPath, Path source) {
         this(sourceRootPath, sourceRootPath.resolve(TARGET_DIR_NAME), source);
+    }
+    
+    /**
+     * Create a build context with context fields.
+     *
+     * @param sourceRootPath The root of the source files. If its a project then its project root. If its a single bal
+     *                       file then is it the parent directory of the bal file.
+     */
+    public BuildContext(Path sourceRootPath) {
+        this(sourceRootPath, null);
     }
     
     /**
@@ -190,32 +208,38 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
         if (source == null) {
             this.put(BuildContextField.SOURCE_CONTEXT, new MultiModuleContext());
             this.srcType = SourceType.ALL_MODULES;
-            return;
-        }
-        
-        Path sourceRootPath = this.get(BuildContextField.SOURCE_ROOT);
-        Path absoluteSourcePath = RepoUtils.isBallerinaProject(sourceRootPath) ?
-                                  sourceRootPath.toAbsolutePath().resolve(ProjectDirConstants.SOURCE_DIR_NAME)
-                                          .resolve(source) :
-                                  sourceRootPath.toAbsolutePath().resolve(source);
-        
-        if (Files.isRegularFile(absoluteSourcePath) &&
-            source.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
-            
-            this.put(BuildContextField.SOURCE_CONTEXT, new SingleFileContext(source));
-            this.srcType = SourceType.SINGLE_BAL_FILE;
-        } else if (Files.isDirectory(absoluteSourcePath) &&
-                   !source.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
-            
-            // this 'if' is to avoid spotbugs
-            Path moduleNameAsPath = source.getFileName();
-            if (null != moduleNameAsPath) {
-                String moduleName = moduleNameAsPath.toString();
-                this.put(BuildContextField.SOURCE_CONTEXT, new SingleModuleContext(moduleName));
-                this.srcType = SourceType.SINGLE_MODULE;
-            }
         } else {
-            throw new BLangCompilerException("invalid source type found: '" + source + "' at: " + sourceRootPath);
+            Path sourceRootPath = this.get(BuildContextField.SOURCE_ROOT);
+            Path absoluteSourcePath = RepoUtils.isBallerinaProject(sourceRootPath) ?
+                                      sourceRootPath.toAbsolutePath().resolve(ProjectDirConstants.SOURCE_DIR_NAME)
+                                              .resolve(source) :
+                                      sourceRootPath.toAbsolutePath().resolve(source);
+            
+            if (Files.isRegularFile(absoluteSourcePath) &&
+                source.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+                
+                this.put(BuildContextField.SOURCE_CONTEXT, new SingleFileContext(source));
+                this.srcType = SourceType.SINGLE_BAL_FILE;
+            } else if (Files.isDirectory(absoluteSourcePath) &&
+                       !source.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+                
+                // this 'if' is to avoid spotbugs
+                Path moduleNameAsPath = source.getFileName();
+                if (null != moduleNameAsPath) {
+                    String moduleName = moduleNameAsPath.toString();
+                    this.put(BuildContextField.SOURCE_CONTEXT, new SingleModuleContext(moduleName));
+                    this.srcType = SourceType.SINGLE_MODULE;
+                }
+            } else {
+                throw new BLangCompilerException("invalid source type found: '" + source + "' at: " + sourceRootPath);
+            }
+        }
+    
+        if (this.containsKey(BuildContextField.COMPILER_CONTEXT)) {
+            // set source type as string in compiler context
+            CompilerContext compilerContext = this.get(BuildContextField.COMPILER_CONTEXT);
+            CompilerOptions options = CompilerOptions.getInstance(compilerContext);
+            options.put(CompilerOptionName.SOURCE_TYPE, this.srcType.toString());
         }
     }
     
@@ -396,9 +420,13 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
             switch (this.getSourceType()) {
                 case SINGLE_BAL_FILE:
                     SingleFileContext singleFileContext = this.get(BuildContextField.SOURCE_CONTEXT);
-                    String executableFileName = singleFileContext.getBalFileNameWithoutExtension() +
-                                                ProjectDirConstants.EXEC_SUFFIX + BLANG_COMPILED_JAR_EXT;
-                    return this.executableDir.resolve(executableFileName);
+                    if (null == singleFileContext.getExecutableFilePath()) {
+                        String executableFileName = singleFileContext.getBalFileNameWithoutExtension() +
+                                                    ProjectDirConstants.EXEC_SUFFIX + BLANG_COMPILED_JAR_EXT;
+                        return this.executableDir.resolve(executableFileName);
+                    } else {
+                        return singleFileContext.getExecutableFilePath();
+                    }
                 case SINGLE_MODULE:
                 case ALL_MODULES:
                     return this.executableDir.resolve(moduleID.name.value +

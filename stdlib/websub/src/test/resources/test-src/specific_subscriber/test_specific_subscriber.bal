@@ -48,7 +48,7 @@ public type WebhookServerForPayload object {
                 }
             }
         };
-        websub:SubscriberServiceEndpointConfiguration sseConfig = {
+        websub:SubscriberListenerConfiguration sseConfig = {
             host: host ?: "",
             extensionConfig: extensionConfig
         };

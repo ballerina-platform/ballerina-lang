@@ -117,7 +117,6 @@ public class PackageLoader {
     private final Names names;
     private final BLangDiagnosticLog dlog;
     private static final boolean shouldReadBalo = true;
-    private static PrintStream outStream = System.out;
     private final CompilerPhase compilerPhase;
 
     public static PackageLoader getInstance(CompilerContext context) {
@@ -309,10 +308,13 @@ public class PackageLoader {
         }
     }
 
-    public BLangPackage loadEntryPackage(PackageID pkgId, PackageID enclPackageId, boolean isBuild) {
-        if (isBuild) {
-            outStream.println("    " + (pkgId.isUnnamed ? pkgId.sourceFileName.value : pkgId.toString()));
+    public BLangPackage loadEntryPackage(PackageID pkgId, PackageID enclPackageId, PrintStream outStream) {
+        if (null == outStream) {
+            outStream = System.out;
         }
+    
+        outStream.println("\t" + (pkgId.isUnnamed ? pkgId.sourceFileName.value : pkgId.toString()));
+    
         //even entry package may be already loaded through an import statement.
         BLangPackage bLangPackage = packageCache.get(pkgId);
         if (bLangPackage != null) {

@@ -142,4 +142,18 @@ public class InstanceMethods {
         }
         return "handle ret";
     }
+
+    public void errorDetail() throws JavaInteropTestCheckedException {
+        JavaInteropTestCheckedException e = new JavaInteropTestCheckedException("Custom error");
+        e.initCause(new Throwable("Interop Throwable"));
+        throw e;
+    }
+
+    public int uncheckedErrorDetail() {
+        RuntimeException ex = new RuntimeException("Unchecked Exception", new Throwable("Unchecked cause"));
+        if (true) {
+            throw ex;
+        }
+        return 10;
+    }
 }

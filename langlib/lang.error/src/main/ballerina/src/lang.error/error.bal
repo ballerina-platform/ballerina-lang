@@ -18,7 +18,7 @@
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-type RecordType record {|
+public type RecordType record {|
     string message?;
     error cause?;
     (anydata|error)...;
@@ -28,7 +28,7 @@ type RecordType record {|
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-type StringType string;
+public type StringType string;
 
 # Returns the error's reason string.
 #
