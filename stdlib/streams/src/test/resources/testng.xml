@@ -24,6 +24,8 @@
         <parameter name="enableJBallerinaTests" value="true"/>
        <packages>
            <package name="org.ballerinalang.stdlib.streams.nativeimpl"/>
+           <package name="org.ballerinalang.stdlib.streams.inline"/>
+           <package name="org.ballerinalang.stdlib.streams.negative"/>
        </packages>
         <classes>
             <class name="org.ballerinalang.stdlib.streams.BallerinaStreamsV2TableJoinTest" />
@@ -34,6 +36,7 @@
             <class name="org.ballerinalang.stdlib.streams.BallerinaStreamsV2OrderByTest" />
             <class name="org.ballerinalang.stdlib.streams.BallerinaStreamsV2HoppingWindowTest" />
             <class name="org.ballerinalang.stdlib.streams.BallerinaStreamsV2CustomWindowTest" />
+            <class name="org.ballerinalang.stdlib.streams.BallerinaStreamsV2Test" />
         </classes>
     </test>
 </suite>
