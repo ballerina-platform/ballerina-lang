@@ -31,13 +31,10 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
-import org.wso2.transport.http.netty.contract.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.http2.listeners.Http2NoResponseListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpConnectorUtil;
 import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.http2.MessageGenerator;
@@ -48,14 +45,15 @@ import java.util.concurrent.TimeUnit;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.wso2.transport.http.netty.util.Http2Util.getH2ListenerConfigs;
+import static org.wso2.transport.http.netty.util.Http2Util.getTestHttp2Client;
 import static org.wso2.transport.http.netty.util.TestUtil.HTTP_SCHEME;
 import static org.wso2.transport.http.netty.util.TestUtil.SERVER_PORT1;
 
 /**
  * When the remote channel close the connection due to a SSL handshake issue, client should be notified of it.
  */
-public class RemoteChannelClose {
-    private static final Logger LOG = LoggerFactory.getLogger(RemoteChannelClose.class);
+public class RemoteChannelCloseWithSSLError {
+    private static final Logger LOG = LoggerFactory.getLogger(RemoteChannelCloseWithSSLError.class);
     private HttpClientConnector h2PriorOnClient;
     private ServerConnector serverConnector;
     private HttpWsConnectorFactory connectorFactory;
@@ -69,14 +67,7 @@ public class RemoteChannelClose {
         Http2NoResponseListener http2ServerConnectorListener = new Http2NoResponseListener();
         future.setHttpConnectorListener(http2ServerConnectorListener);
         future.sync();
-
-        TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
-        SenderConfiguration senderConfiguration = new SenderConfiguration();
-        senderConfiguration.setScheme(Constants.HTTP_SCHEME);
-        senderConfiguration.setHttpVersion(Constants.HTTP_2_0);
-        senderConfiguration.setForceHttp2(true);
-        h2PriorOnClient = connectorFactory.createHttpClientConnector(
-                HttpConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
+        h2PriorOnClient = getTestHttp2Client(connectorFactory, true);
     }
 
     //TODO:Change the assertion state once the issue https://githubcom/ballerina-platform/ballerina-lang/issues/17539
