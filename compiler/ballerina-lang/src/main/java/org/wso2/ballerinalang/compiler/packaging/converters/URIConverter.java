@@ -128,7 +128,9 @@ public class URIConverter implements Converter<URI> {
                     runtimeException = execute.get();
                 } else {
                     Patten patten = homeBaloRepo.calculate(moduleID);
-                    return patten.convertToSources(homeBaloRepo.getConverterInstance(), moduleID);
+                    if (patten != Patten.NULL) {
+                        return patten.convertToSources(homeBaloRepo.getConverterInstance(), moduleID);
+                    }
                 }
             }
     

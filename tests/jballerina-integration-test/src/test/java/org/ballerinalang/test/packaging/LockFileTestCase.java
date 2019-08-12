@@ -21,6 +21,7 @@ package org.ballerinalang.test.packaging;
 import org.awaitility.Duration;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
+import org.ballerinalang.test.context.BalServer;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.testng.Assert;
@@ -128,6 +129,7 @@ public class LockFileTestCase extends BaseTest {
                 new LogLeecher[]{module1PushLeecher, module2PushLeecher}, testProj1Path.toString());
         module1PushLeecher.waitForText(5000);
         module2PushLeecher.waitForText(5000);
+        renewBalClient();
     }
     
     @Test(description = "Test pushing a package to central", dependsOnMethods = "testBuildAndPushTestProject1")
@@ -218,6 +220,7 @@ public class LockFileTestCase extends BaseTest {
                 new LogLeecher[]{module1PushLeecher, module2PushLeecher}, testProj1Path.toString());
         module1PushLeecher.waitForText(5000);
         module2PushLeecher.waitForText(5000);
+        renewBalClient();
     }
     
     @Test(description = "Test searching a package from central", dependsOnMethods = "testModifyProj1AndPush")
@@ -241,6 +244,7 @@ public class LockFileTestCase extends BaseTest {
         String msg = "Test me\nHello john!";
         balClient.runMain("run", new String[] {"foo"}, envVariables, new String[0],
                 new LogLeecher[]{new LogLeecher(msg)}, testProj2Path.toString());
+        renewBalClient();
     }
     
     @Test(description = "Test push all packages in project to central", dependsOnMethods = "testRebuildTestProj2")
@@ -292,6 +296,12 @@ public class LockFileTestCase extends BaseTest {
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
+    }
+    
+    private void renewBalClient() throws BallerinaTestException {
+        balServer.cleanup();
+        balServer = new BalServer();
+        balClient =  new BMainInstance(balServer);
     }
     
     @AfterClass

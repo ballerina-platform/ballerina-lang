@@ -276,6 +276,7 @@
             <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>
 <!--            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>-->
             <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>
+            <class name="org.ballerinalang.test.packaging.LockFileTestCase"/>
         </classes>
     </test>
 </suite>
