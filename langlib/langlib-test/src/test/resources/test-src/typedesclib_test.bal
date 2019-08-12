@@ -34,3 +34,17 @@ function testOnTypeName() returns [Person|error, json|error] {
 
    return [pp, ss];
 }
+
+type BRec record {
+    int i = 0;
+};
+
+type CRec record {
+    int i?;
+};
+
+public function testOptionalFieldToMandotoryField() returns any|error {
+    CRec c = {  };
+    var b = BRec.constructFrom(c);
+    return b;
+}

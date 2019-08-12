@@ -1112,7 +1112,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "new(int port, (http:ServiceEndpointConfiguration|()) config)",
+      "label": "new(int port, (http:ListenerConfiguration|()) config)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -1130,7 +1130,7 @@
       }
     },
     {
-      "label": "Listener(int port, (http:ServiceEndpointConfiguration|()) config)",
+      "label": "Listener(int port, (http:ListenerConfiguration|()) config)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {

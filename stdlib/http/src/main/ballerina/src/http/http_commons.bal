@@ -141,7 +141,7 @@ public type HttpOperation HTTP_FORWARD|HTTP_GET|HTTP_POST|HTTP_DELETE|HTTP_OPTIO
                                                                                                 |HTTP_SUBMIT|HTTP_NONE;
 
 // Common type used for HttpFuture and Response used for resiliency clients.
-type HttpResponse Response|HttpFuture;
+public type HttpResponse Response|HttpFuture;
 
 # A record for configuring SSL/TLS protocol and version to be used.
 #
@@ -168,7 +168,7 @@ public type ValidateCert record {|
 # + enable - The status of OCSP stapling
 # + cacheSize - Maximum size of the cache
 # + cacheValidityPeriod - The time period for which a cache entry is valid
-public type ServiceOcspStapling record {|
+public type ListenerOcspStapling record {|
     boolean enable = false;
     int cacheSize = 0;
     int cacheValidityPeriod = 0;

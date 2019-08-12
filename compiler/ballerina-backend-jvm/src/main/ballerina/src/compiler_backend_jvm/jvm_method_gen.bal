@@ -1286,7 +1286,7 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
         mv.visitInsn(ACONST_NULL);
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_CONSUMER_METHOD,
             io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
-        errorGen.printStackTraceFromFutureValue(mv);
+        errorGen.printStackTraceFromFutureValue(mv, indexMap);
         mv.visitInsn(POP);
     }
 
@@ -1314,7 +1314,7 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
         mv.visitIntInsn(BIPUSH, 100);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
         mv.visitFieldInsn(PUTFIELD, STRAND, "frames", io:sprintf("[L%s;", OBJECT));
-        errorGen.printStackTraceFromFutureValue(mv);
+        errorGen.printStackTraceFromFutureValue(mv, indexMap);
         mv.visitInsn(POP);
 
         // At this point we are done executing all the functions including asyncs
@@ -1352,7 +1352,7 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
     }
 
     if (hasInitFunction(pkg)) {
-        scheduleStartMethod(mv, pkg, initClass, serviceEPAvailable, errorGen);
+        scheduleStartMethod(mv, pkg, initClass, serviceEPAvailable, errorGen, indexMap);
     }
 
     // stop all listeners
@@ -1383,7 +1383,7 @@ function registerShutdownListener(jvm:MethodVisitor mv, string initClass) {
 }
 
 function scheduleStartMethod(jvm:MethodVisitor mv, bir:Package pkg, string initClass, boolean serviceEPAvailable,
-    ErrorHandlerGenerator errorGen) {
+    ErrorHandlerGenerator errorGen, BalToJVMIndexMap indexMap) {
     // schedule the start method
     string startFuncName = cleanupFunctionName(getModuleStartFuncName(pkg));
     string startLambdaName = io:sprintf("$lambda$%s$", startFuncName);
@@ -1412,7 +1412,7 @@ function scheduleStartMethod(jvm:MethodVisitor mv, bir:Package pkg, string initC
     mv.visitIntInsn(BIPUSH, 100);
     mv.visitTypeInsn(ANEWARRAY, OBJECT);
     mv.visitFieldInsn(PUTFIELD, STRAND, "frames", io:sprintf("[L%s;", OBJECT));
-    errorGen.printStackTraceFromFutureValue(mv);
+    errorGen.printStackTraceFromFutureValue(mv, indexMap);
     mv.visitInsn(POP);
 }
 
@@ -1804,7 +1804,10 @@ function generateFrameClassForFunction (string pkgName, bir:Function? func, map<
     fv.visitEnd();
 
     cw.visitEnd();
-    pkgEntries[frameClassName + ".class"] = cw.toByteArray();
+
+    // panic if there are errors in the frame class. These cannot be logged, since
+    // frame classes are internal implementation details.
+    pkgEntries[frameClassName + ".class"] = checkpanic cw.toByteArray();
 }
 
 function getFrameClassName(string pkgName, string funcName, bir:BType? attachedType) returns string {
@@ -2052,4 +2055,55 @@ function stringArrayContains(string[] array, string item) returns boolean {
         }
     }
     return false;
+}
+
+function logCompileError(error compileError, bir:Package|bir:TypeDef|bir:Function src, bir:Package currentModule) {
+    string reason = compileError.reason();
+    map<anydata|error> detail = compileError.detail();
+    error err;
+    bir:DiagnosticPos pos;
+    string name;
+    if (reason == ERROR_REASON_METHOD_TOO_LARGE) {
+        name = <string> detail.get("name");
+        err = error(io:sprintf("method is too large: '%s'", name));
+        bir:Function? func = findBIRFunction(src, name);
+        if (func is ()) {
+            panic compileError;
+        } else {
+            pos = func.pos;
+        }
+    } else if (reason == ERROR_REASON_CLASS_TOO_LARGE) {
+        name = <string> detail.get("name");
+        err = error(io:sprintf("file is too large: '%s'", name));
+        pos = {};
+    } else {
+        panic compileError;
+    }
+
+    logError(err, pos, currentModule);
+    string pkgName = getPackageName(currentModule.org.value, currentModule.name.value);
+    functionGenErrors[pkgName + name] = err;
+}
+
+function findBIRFunction(bir:Package|bir:TypeDef|bir:Function src, string name) returns bir:Function? {
+    if (src is bir:Function) {
+        return src;
+    } else if (src is bir:Package) {
+        foreach var func in src.functions {
+            if (func is bir:Function && cleanupFunctionName(func.name.value) == name) {
+                return func;
+            }
+        }
+    } else {
+        bir:Function?[]? attachedFuncs = src.attachedFuncs;
+        if (attachedFuncs is bir:Function?[]) {
+            foreach var func in attachedFuncs {
+                if (func is bir:Function && cleanupFunctionName(func.name.value) == name) {
+                    return func;
+                }
+            }
+        } 
+    }
+
+    return ();
 }
