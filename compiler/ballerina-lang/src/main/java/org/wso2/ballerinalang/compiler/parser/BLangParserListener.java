@@ -899,6 +899,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
+
+        // Error binding pattern using indirect error constructor.
+        if (ctx.typeName() != null) {
+            if (ctx.errorFieldBindingPatterns().errorRestBindingPattern() != null) {
+                String restIdName = ctx.errorFieldBindingPatterns().errorRestBindingPattern().Identifier().getText();
+                DiagnosticPos restPos = getCurrentPos(ctx.errorFieldBindingPatterns().errorRestBindingPattern());
+                this.pkgBuilder.addErrorVariable(getCurrentPos(ctx), getWS(ctx), restIdName, restPos);
+            } else {
+                this.pkgBuilder.addErrorVariable(getCurrentPos(ctx), getWS(ctx), null, null);
+            }
+            return;
+        }
         String reasonIdentifier = ctx.Identifier().getText();
         DiagnosticPos currentPos = getCurrentPos(ctx);
 
@@ -998,8 +1010,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean restPatternAvailable = ctx.errorRefRestPattern() != null;
 
+        boolean indirectErrorRefPattern = ctx.typeName() != null;
+
         this.pkgBuilder.addErrorVariableReference(getCurrentPos(ctx), getWS(ctx),
-                numNamedArgs, reasonRefAvailable, restPatternAvailable);
+                numNamedArgs, reasonRefAvailable, restPatternAvailable, indirectErrorRefPattern);
     }
 
     @Override
