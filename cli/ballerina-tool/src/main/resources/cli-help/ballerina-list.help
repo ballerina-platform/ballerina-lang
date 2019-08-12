@@ -1,15 +1,15 @@
 NAME
-    Ballerina sdk list - List available ballerina SDKs
+    Ballerina dist list - List available ballerina distributions
 
 SYNOPSIS
-    ballerina sdk list
+    ballerina dist list
 
 DESCRIPTION
-     Ballerina sdk list List available ballerina SDKs
+     Ballerina dist list List available ballerina distributions
 
 OPTIONS
-     Ballerina sdk list command takes no options.
+     Ballerina dist list command takes no options.
 
 EXAMPLES
      List available Ballerina versions
-     $ ballerina sdk list
+     $ ballerina dist list

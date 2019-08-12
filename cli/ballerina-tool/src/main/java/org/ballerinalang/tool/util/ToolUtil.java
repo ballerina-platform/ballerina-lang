@@ -71,11 +71,11 @@ public class ToolUtil {
     };
 
     /**
-     * List SDKs in the local and remote.
+     * List distributions in the local and remote.
      * @param outStream stream outputs need to be printed
      * @param isRemote option to list distributions in the central
      */
-    public static void listSDKs(PrintStream outStream, boolean isRemote) {
+    public static void listDistributions(PrintStream outStream, boolean isRemote) {
         try {
             String currentBallerinaVersion = getCurrentBallerinaVersion();
             if (isRemote) {

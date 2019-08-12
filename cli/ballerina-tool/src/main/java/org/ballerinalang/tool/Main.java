@@ -472,7 +472,7 @@ public class Main {
             }
 
             if (listCommands == null) {
-                ToolUtil.listSDKs(outStream, remoteFlag);
+                ToolUtil.listDistributions(outStream, remoteFlag);
                 return;
             } else if (listCommands.size() > 1) {
                 throw LauncherUtils.createUsageExceptionWithHelp("too many arguments given");
@@ -496,7 +496,7 @@ public class Main {
 
         @Override
         public void printUsage(StringBuilder out) {
-            out.append("  ballerina sdks\n");
+            out.append("  ballerina list\n");
         }
 
         @Override
@@ -510,7 +510,7 @@ public class Main {
      *
      * @since 1.0
      */
-    @CommandLine.Command(name = "pull", description = "Pull Ballerina SDK")
+    @CommandLine.Command(name = "pull", description = "Pull Ballerina distribution")
     private static class PullCmd implements BLauncherCmd {
 
         @CommandLine.Parameters(description = "Command name")
@@ -568,7 +568,7 @@ public class Main {
      *
      * @since 1.0
      */
-    @CommandLine.Command(name = "use", description = "Pull Ballerina SDK")
+    @CommandLine.Command(name = "use", description = "Use Ballerina distribution")
     private static class UseCmd implements BLauncherCmd {
 
         @CommandLine.Parameters(description = "Command name")
@@ -626,7 +626,7 @@ public class Main {
      *
      * @since 1.0
      */
-    @CommandLine.Command(name = "update", description = "Update Ballerina current SDK")
+    @CommandLine.Command(name = "update", description = "Update Ballerina current distribution")
     private static class UpdateCmd implements BLauncherCmd {
 
         @CommandLine.Parameters(description = "Command name")
@@ -682,7 +682,7 @@ public class Main {
      *
      * @since 1.0
      */
-    @CommandLine.Command(name = "remove", description = "Remove Ballerina SDK")
+    @CommandLine.Command(name = "remove", description = "Remove Ballerina distribution")
     private static class RemoveCmd implements BLauncherCmd {
 
         @CommandLine.Parameters(description = "Command name")
