@@ -21,6 +21,7 @@ package org.wso2.transport.http.netty.util;
 import com.google.common.io.ByteStreams;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelInitializer;
+import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.FullHttpResponse;
@@ -256,6 +257,20 @@ public class TestUtil {
         return httpPostRequest;
     }
 
+    public static HttpCarbonMessage createHttpPostReq(int serverPort, String payload, String path) {
+        HttpCarbonMessage httpPostRequest = new HttpCarbonMessage(
+                new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, path));
+        httpPostRequest.setProperty(Constants.HTTP_PORT, serverPort);
+        httpPostRequest.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
+        httpPostRequest.setProperty(Constants.HTTP_HOST, TEST_HOST);
+        httpPostRequest.setHttpMethod(Constants.HTTP_POST_METHOD);
+
+        ByteBuffer byteBuffer = ByteBuffer.wrap(payload.getBytes(Charset.forName("UTF-8")));
+        httpPostRequest.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
+
+        return httpPostRequest;
+    }
+
     public static ServerBootstrapConfiguration getDefaultServerBootstrapConfig() {
         return new ServerBootstrapConfiguration(new HashMap<>());
     }
@@ -343,6 +358,23 @@ public class TestUtil {
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running Test", e);
         }
+    }
+
+
+    public static DefaultHttpHeaders getForwardedHeaderSet1() {
+        DefaultHttpHeaders headers = new DefaultHttpHeaders();
+        headers.set(Constants.FORWARDED, "by=203.0.113.60;proto=http;host=example.com");
+        headers.set(Constants.X_FORWARDED_FOR, "123.34.24.67");
+        headers.set(Constants.X_FORWARDED_BY, "13.134.224.167");
+        return headers;
+    }
+
+    public static DefaultHttpHeaders getForwardedHeaderSet2() {
+        DefaultHttpHeaders headers = new DefaultHttpHeaders();
+        headers.set(Constants.X_FORWARDED_BY, "123.34.24.65");
+        headers.set(Constants.X_FORWARDED_HOST, "www.abc.com");
+        headers.set(Constants.X_FORWARDED_PROTO, "https");
+        return headers;
     }
 
     /**

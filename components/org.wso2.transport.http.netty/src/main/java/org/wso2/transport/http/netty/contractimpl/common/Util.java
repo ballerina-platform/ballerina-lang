@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.config.ChunkConfig;
+import org.wso2.transport.http.netty.contract.config.ForwardedExtensionConfig;
 import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.exceptions.ConfigurationException;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
@@ -56,6 +57,7 @@ import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.CertificateValidationHandler;
+import org.wso2.transport.http.netty.contractimpl.sender.ForwardedHeaderUpdater;
 import org.wso2.transport.http.netty.contractimpl.sender.OCSPStaplingHandler;
 import org.wso2.transport.http.netty.message.DefaultBackPressureListener;
 import org.wso2.transport.http.netty.message.DefaultListener;
@@ -935,5 +937,28 @@ public class Util {
 
     public static ScheduledFuture<?> schedule(ChannelHandlerContext ctx, Runnable task, long delay) {
         return ctx.executor().schedule(task, delay, TimeUnit.NANOSECONDS);
+    }
+
+    public static void setForwardedExtension(ForwardedExtensionConfig forwardedConfig,
+            HttpCarbonMessage httpOutboundRequest, Channel channel) {
+        if (forwardedConfig == ForwardedExtensionConfig.DISABLE) {
+            return;
+        }
+        String localAddress = ((InetSocketAddress) channel.localAddress()).getAddress().getHostAddress();
+        ForwardedHeaderUpdater headerUpdater = new ForwardedHeaderUpdater(httpOutboundRequest, localAddress);
+        if (headerUpdater.isForwardedHeaderRequired()) {
+            headerUpdater.setForwardedHeader();
+            return;
+        }
+        if (headerUpdater.isXForwardedHeaderRequired()) {
+            if (forwardedConfig == ForwardedExtensionConfig.ENABLE) {
+                headerUpdater.setDefactoForwardedHeaders();
+                return;
+            }
+            headerUpdater.transformAndSetForwardedHeader();
+            return;
+        }
+        LOG.warn("Both Forwarded and X-Forwarded-- headers are present. Hence updating only the forwarded header");
+        headerUpdater.setForwardedHeader();
     }
 }

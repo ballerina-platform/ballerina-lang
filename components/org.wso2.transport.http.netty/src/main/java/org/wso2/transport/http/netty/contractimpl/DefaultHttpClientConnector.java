@@ -40,6 +40,7 @@ import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.exceptions.ClientConnectorException;
 import org.wso2.transport.http.netty.contractimpl.common.HttpRoute;
+import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
@@ -187,6 +188,8 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
 
                 if (activeHttp2ClientChannel != null) {
                     outboundMsgHolder.setHttp2ClientChannel(activeHttp2ClientChannel);
+                    Util.setForwardedExtension(senderConfiguration.getForwardedExtensionConfig(),
+                            outboundMsgHolder.getRequest(), outboundMsgHolder.getHttp2ClientChannel().getChannel());
                     new RequestWriteStarter(outboundMsgHolder, activeHttp2ClientChannel).startWritingContent();
                     httpResponseFuture = outboundMsgHolder.getResponseFuture();
                     httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
@@ -257,6 +260,8 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                     freshHttp2ClientChannel.addDataEventListener(
                             Constants.IDLE_STATE_HANDLER,
                             new Http2ClientTimeoutHandler(socketIdleTimeout, freshHttp2ClientChannel));
+                    Util.setForwardedExtension(senderConfiguration.getForwardedExtensionConfig(),
+                            outboundMsgHolder.getRequest(), outboundMsgHolder.getHttp2ClientChannel().getChannel());
                     new RequestWriteStarter(outboundMsgHolder, freshHttp2ClientChannel).startWritingContent();
                     httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                 }
@@ -274,8 +279,8 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                     targetChannel.setHttpVersion(httpVersion);
                     targetChannel.setChunkConfig(chunkConfig);
                     handleOutboundConnectionHeader(keepAliveConfig, httpOutboundRequest);
-                    targetChannel
-                            .setForwardedExtension(forwardedExtensionConfig, httpOutboundRequest);
+                    Util.setForwardedExtension(forwardedExtensionConfig, httpOutboundRequest,
+                            targetChannel.getChannel());
                 }
 
                 @Override

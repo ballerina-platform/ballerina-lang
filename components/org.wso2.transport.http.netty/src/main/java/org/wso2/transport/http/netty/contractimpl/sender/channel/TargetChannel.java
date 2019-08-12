@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.config.ChunkConfig;
-import org.wso2.transport.http.netty.contract.config.ForwardedExtensionConfig;
 import org.wso2.transport.http.netty.contractimpl.common.BackPressureHandler;
 import org.wso2.transport.http.netty.contractimpl.common.HttpRoute;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
@@ -35,7 +34,6 @@ import org.wso2.transport.http.netty.contractimpl.listener.HttpTraceLoggingHandl
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
 import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.ConnectionAvailabilityFuture;
-import org.wso2.transport.http.netty.contractimpl.sender.ForwardedHeaderUpdater;
 import org.wso2.transport.http.netty.contractimpl.sender.HttpClientChannelInitializer;
 import org.wso2.transport.http.netty.contractimpl.sender.TargetHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
@@ -45,7 +43,6 @@ import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import java.net.InetSocketAddress;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -245,28 +242,6 @@ public class TargetChannel {
 
     private void resetTargetChannelState() {
         this.setRequestHeaderWritten(false);
-    }
-
-    public void setForwardedExtension(ForwardedExtensionConfig forwardedConfig, HttpCarbonMessage httpOutboundRequest) {
-        if (forwardedConfig == ForwardedExtensionConfig.DISABLE) {
-            return;
-        }
-        String localAddress = ((InetSocketAddress) this.getChannel().localAddress()).getAddress().getHostAddress();
-        ForwardedHeaderUpdater headerUpdater = new ForwardedHeaderUpdater(httpOutboundRequest, localAddress);
-        if (headerUpdater.isForwardedHeaderRequired()) {
-            headerUpdater.setForwardedHeader();
-            return;
-        }
-        if (headerUpdater.isXForwardedHeaderRequired()) {
-            if (forwardedConfig == ForwardedExtensionConfig.ENABLE) {
-                headerUpdater.setDefactoForwardedHeaders();
-                return;
-            }
-            headerUpdater.transformAndSetForwardedHeader();
-            return;
-        }
-        LOG.warn("Both Forwarded and X-Forwarded-- headers are present. Hence updating only the forwarded header");
-        headerUpdater.setForwardedHeader();
     }
 
     public String getHttpVersion() {

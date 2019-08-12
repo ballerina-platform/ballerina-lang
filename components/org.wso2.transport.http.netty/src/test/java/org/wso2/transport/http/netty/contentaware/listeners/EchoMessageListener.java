@@ -54,6 +54,7 @@ public class EchoMessageListener implements HttpConnectorListener {
                 httpResponse.setHeader(HttpHeaderNames.CONNECTION.toString(), HttpHeaderValues.KEEP_ALIVE.toString());
                 httpResponse.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), Constants.TEXT_PLAIN);
                 httpResponse.setHttpStatusCode(HttpResponseStatus.OK.code());
+                setForwardedHeader(httpRequest, httpResponse);
 
                 do {
                     HttpContent httpContent = httpRequest.getHttpContent();
@@ -73,5 +74,23 @@ public class EchoMessageListener implements HttpConnectorListener {
     @Override
     public void onError(Throwable throwable) {
 
+    }
+
+    private void setForwardedHeader(HttpCarbonMessage req, HttpCarbonMessage httpResponse) {
+        if (req.getHeader(Constants.FORWARDED) != null) {
+            httpResponse.setHeader(Constants.FORWARDED, req.getHeader(Constants.FORWARDED));
+        }
+        if (req.getHeader(Constants.X_FORWARDED_FOR) != null) {
+            httpResponse.setHeader(Constants.X_FORWARDED_FOR, req.getHeader(Constants.X_FORWARDED_FOR));
+        }
+        if (req.getHeader(Constants.X_FORWARDED_BY) != null) {
+            httpResponse.setHeader(Constants.X_FORWARDED_BY, req.getHeader(Constants.X_FORWARDED_BY));
+        }
+        if (req.getHeader(Constants.X_FORWARDED_HOST) != null) {
+            httpResponse.setHeader(Constants.X_FORWARDED_HOST, req.getHeader(Constants.X_FORWARDED_HOST));
+        }
+        if (req.getHeader(Constants.X_FORWARDED_PROTO) != null) {
+            httpResponse.setHeader(Constants.X_FORWARDED_PROTO, req.getHeader(Constants.X_FORWARDED_PROTO));
+        }
     }
 }
