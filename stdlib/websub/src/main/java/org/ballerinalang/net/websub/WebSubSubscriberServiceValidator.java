@@ -177,18 +177,7 @@ public class WebSubSubscriberServiceValidator {
     }
 
     private static void validateCallerParam(BType paramVarType) {
-        boolean validIntentVerificationParam;
-
-        if (paramVarType.getTag() != TypeTags.OBJECT_TYPE_TAG) {
-            validIntentVerificationParam = false;
-        } else {
-            BObjectType objectType = (BObjectType) paramVarType;
-            validIntentVerificationParam = objectType.getPackage().org.equals(BALLERINA) &&
-                    objectType.getPackage().name.equals(WEBSUB) &&
-                    objectType.getName().equals(WEBSUB_SERVICE_CALLER);
-        }
-
-        if (!validIntentVerificationParam) {
+        if (!isExpectedObjectParam(paramVarType, WEBSUB_SERVICE_CALLER)) {
             throw BallerinaErrors.createError(
                     String.format("Invalid parameter type '%s' in resource '%s'. Requires '%s:%s'",
                                   paramVarType.getQualifiedName(), RESOURCE_NAME_ON_INTENT_VERIFICATION, WEBSUB_PACKAGE,
@@ -197,18 +186,7 @@ public class WebSubSubscriberServiceValidator {
     }
 
     private static void validateIntentVerificationParam(BType paramVarType) {
-        boolean validIntentVerificationParam;
-
-        if (paramVarType.getTag() != TypeTags.OBJECT_TYPE_TAG) {
-            validIntentVerificationParam = false;
-        } else {
-            BObjectType objectType = (BObjectType) paramVarType;
-            validIntentVerificationParam = objectType.getPackage().org.equals(BALLERINA) &&
-                    objectType.getPackage().name.equals(WEBSUB) &&
-                    objectType.getName().equals(WEBSUB_INTENT_VERIFICATION_REQUEST);
-        }
-
-        if (!validIntentVerificationParam) {
+        if (!isExpectedObjectParam(paramVarType, WEBSUB_INTENT_VERIFICATION_REQUEST)) {
             throw BallerinaErrors.createError(
                     String.format("Invalid parameter type '%s' in resource '%s'. Requires '%s:%s'",
                                   paramVarType.getQualifiedName(), RESOURCE_NAME_ON_INTENT_VERIFICATION, WEBSUB_PACKAGE,
@@ -217,18 +195,7 @@ public class WebSubSubscriberServiceValidator {
     }
 
     private static void validateNotificationParam(String resourceName, BType paramVarType) {
-        boolean validNotificationParam;
-
-        if (paramVarType.getTag() != TypeTags.OBJECT_TYPE_TAG) {
-            validNotificationParam = false;
-        } else {
-            BObjectType objectType = (BObjectType) paramVarType;
-            validNotificationParam = objectType.getPackage().org.equals(BALLERINA) &&
-                    objectType.getPackage().name.equals(WEBSUB) &&
-                    objectType.getName().equals(WEBSUB_NOTIFICATION_REQUEST);
-        }
-
-        if (!validNotificationParam) {
+        if (!isExpectedObjectParam(paramVarType, WEBSUB_NOTIFICATION_REQUEST)) {
             throw BallerinaErrors.createError(
                     String.format("Invalid parameter type '%s' in resource '%s'. Requires '%s:%s'",
                                   paramVarType.getQualifiedName(), resourceName, WEBSUB_PACKAGE,
@@ -242,5 +209,15 @@ public class WebSubSubscriberServiceValidator {
                     String.format("Invalid parameter type '%s' in resource '%s'. Requires '%s'",
                                   paramVarType.getQualifiedName(), resourceName, recordType.getQualifiedName()));
         }
+    }
+
+    private static boolean isExpectedObjectParam(BType specifiedType, String expectedWebSubRecordName) {
+        if (specifiedType.getTag() != TypeTags.OBJECT_TYPE_TAG) {
+            return false;
+        }
+        BObjectType objectType = (BObjectType) specifiedType;
+        return objectType.getPackage().org.equals(BALLERINA) &&
+                objectType.getPackage().name.equals(WEBSUB) &&
+                objectType.getName().equals(expectedWebSubRecordName);
     }
 }

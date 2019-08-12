@@ -340,9 +340,9 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
                 sendIntentVerificiationDenialResponse(httpCarbonMessage, response);
             }
         } catch (UnsupportedEncodingException e) {
+            console.println("ballerina: Intent Verification denied - error extracting query parameters: " +
+                                    e.getMessage());
             sendIntentVerificiationDenialResponse(httpCarbonMessage, response);
-            throw new BallerinaConnectorException("Error responding to intent verification request: "
-                                                          + e.getMessage());
         }
     }
 
@@ -357,12 +357,10 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
         if (!params.containsKey(key)) {
             return "";
         }
-
         Object param = params.get(key);
         if (TypeChecker.getType(param).getTag() != TypeTags.ARRAY_TAG || ((ArrayValue) param).size() < 1) {
             return "";
         }
-
         return ((ArrayValue) param).get(0).toString();
     }
 }
