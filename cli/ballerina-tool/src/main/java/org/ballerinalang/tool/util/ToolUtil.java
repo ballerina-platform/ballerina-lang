@@ -68,6 +68,11 @@ public class ToolUtil {
             }
     };
 
+    /**
+     * List SDKs in the local and remote
+     * @param outStream stream outputs need to be printed
+     * @param isRemote
+     */
     public static void listSDKs(PrintStream outStream, boolean isRemote) {
         try {
             String currentBallerinaVersion = getCurrentBallerinaVersion();
@@ -248,13 +253,11 @@ public class ToolUtil {
 
     private static void removeDirectory(File file) {
         File[] contents = file.listFiles();
-        if (contents != null) {
             for (File f : contents) {
                 if (!Files.isSymbolicLink(f.toPath())) {
                     removeDirectory(f);
                 }
             }
-        }
         file.delete();
     }
 

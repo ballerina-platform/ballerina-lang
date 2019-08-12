@@ -25,6 +25,8 @@ import java.util.Locale;
 public class OSUtils {
 
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+    private static final String BALLERINA_HOME_DIR = ".ballerina";
+    private static final String TOOLS_DIR = "tools";
 
     /**
      * Provide the path of configuration file.
@@ -33,11 +35,11 @@ public class OSUtils {
     public static String getToolPath() {
         String home = System.getProperty("user.home");
         if (OSUtils.isWindows()) {
-            return home + File.separator + ".ballerina" + File.separator + "tools";
+            return home + File.separator + BALLERINA_HOME_DIR + File.separator + TOOLS_DIR;
         } else if (OSUtils.isUnix() || OSUtils.isSolaris()) {
-            return home + File.separator + ".ballerina" + File.separator + "tools";
+            return home + File.separator + BALLERINA_HOME_DIR + File.separator + TOOLS_DIR;
         } else if (OSUtils.isMac()) {
-            return home + File.separator + ".ballerina" + File.separator + "tools";
+            return home + File.separator + BALLERINA_HOME_DIR + File.separator + TOOLS_DIR;
         }
         return null;
     }
@@ -59,18 +61,18 @@ public class OSUtils {
     }
 
     private static boolean isWindows() {
-        return (OS.contains("win"));
+        return OS.contains("win");
     }
 
     private static boolean isMac() {
-        return (OS.contains("mac"));
+        return OS.contains("mac");
     }
 
     private static boolean isUnix() {
-        return (OS.contains("nix") || OS.contains("nux") || OS.contains("aix"));
+        return OS.contains("nix") || OS.contains("nux") || OS.contains("aix");
     }
 
     private static boolean isSolaris() {
-        return (OS.contains("sunos"));
+        return OS.contains("sunos");
     }
 }

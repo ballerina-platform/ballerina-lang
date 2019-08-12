@@ -1,17 +1,17 @@
 NAME
-    Ballerina sdk pull - Pull and use a given distribution version
+    Ballerina dist pull - Pull and use a given distribution version
 
 SYNOPSIS
-    ballerina sdk pull <distribution-version>
+    ballerina dist pull <distribution-version>
 
 DESCRIPTION
      Pull and use a given Ballerina version from project repository.
 
 OPTIONS
-     Ballerina sdk pull command takes no options.
+     Ballerina dist pull command takes no options.
 
 EXAMPLES
      Install Ballerina 1.0.0 version
-     $ ballerina sdk pull jballerina-1.0.0
+     $ ballerina dist pull jballerina-1.0.0
 
      This will download and keep jballerina-1.0.0 distribution and set ballerina command
