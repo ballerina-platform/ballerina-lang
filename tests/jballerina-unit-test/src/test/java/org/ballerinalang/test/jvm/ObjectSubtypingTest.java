@@ -92,9 +92,9 @@ public class ObjectSubtypingTest {
                       28, 5);
         validateError(result, i++, format(msgFormat, "ObjWithPvtField", "AnotherObjWithAPvtField"), 45, 26);
         validateError(result, i++, format(msgFormat, "ObjWithPvtMethod", "AnotherObjWithPvtMethod"), 46, 27);
-        validateError(result, i++, format(msgFormat, "testorg/subtyping:v1:ModuleLevelSubtypableObj", "Subtype1"),
+        validateError(result, i++, format(msgFormat, "testorg/subtyping:1.0.0:ModuleLevelSubtypableObj", "Subtype1"),
                       65, 45);
-        validateError(result, i++, format(msgFormat, "testorg/subtyping:v1:ModuleLevelSubtypableObj2", "Subtype2"),
+        validateError(result, i++, format(msgFormat, "testorg/subtyping:1.0.0:ModuleLevelSubtypableObj2", "Subtype2"),
                       66, 46);
         assertEquals(result.getErrorCount(), i);
     }

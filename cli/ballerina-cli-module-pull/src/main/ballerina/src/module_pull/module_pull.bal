@@ -169,15 +169,21 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
 
             if (valid) {
                 string moduleName = modulePath.substring(internal:lastIndexOf(modulePath, "/") + 1, modulePath.length());
-                string baloFile = moduleName + ".balo";
+                string baloFile = uriParts[uriParts.length() - 1];
 
                 // adding version to the module path
                 string modulePathWithVersion = modulePath + ":" + moduleVersion;
                 string baloCacheWithModulePath = checkpanic filepath:build(baloCache, moduleVersion); // <user.home>.ballerina/balo_cache/<org-name>/<module-name>/<module-version>
 
+                // get file name from content-disposition header
+                if (httpResponse.hasHeader("Content-Disposition")) {
+                    string contentDispositionHeader = httpResponse.getHeader("Content-Disposition");
+                    baloFile = contentDispositionHeader.substring("attachment; filename=".length(), contentDispositionHeader.length());
+                }
+
                 string baloPath = checkpanic filepath:build(baloCacheWithModulePath, baloFile);
                 if (system:exists(<@untainted> baloPath)) {
-                    panic createError("module already exists in the home repository");
+                    panic createError("module already exists in the home repository: " + baloPath);
                 }
 
                 string|error createBaloFile = system:createDir(<@untainted> baloCacheWithModulePath, true);

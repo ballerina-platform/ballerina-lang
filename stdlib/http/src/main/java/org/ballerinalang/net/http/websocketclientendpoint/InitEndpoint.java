@@ -25,7 +25,6 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
@@ -60,10 +59,7 @@ import java.util.concurrent.TimeUnit;
                 type = TypeKind.OBJECT,
                 structType = WebSocketConstants.WEBSOCKET_CLIENT,
                 structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
-        ),
-        args = {@Argument(name = "epName", type = TypeKind.STRING),
-                @Argument(name = "config", type = TypeKind.RECORD, structType = "WebSocketClientEndpointConfig")},
-        isPublic = true
+        )
 )
 public class InitEndpoint extends BlockingNativeCallableUnit {
 
@@ -138,6 +134,8 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         } else {
             HttpUtil.setDefaultTrustStore(clientConnectorConfig);
         }
+        clientConnectorConfig.setWebSocketCompressionEnabled(
+                clientEndpointConfig.getBooleanValue(WebSocketConstants.COMPRESSION_ENABLED_CONFIG));
     }
 
     private static Map<String, String> getCustomHeaders(MapValue<String, Object> headers) {

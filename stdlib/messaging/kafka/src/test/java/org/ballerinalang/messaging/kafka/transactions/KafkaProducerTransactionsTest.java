@@ -32,10 +32,13 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_TRANSACTIONS;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
 
 /**
@@ -54,9 +57,10 @@ public class KafkaProducerTransactionsTest {
                 .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(3).startup();
     }
 
-    @Test(description = "Test Kafka producer send function within transaction", enabled = false)
+    @Test(description = "Test Kafka producer send function within transaction")
     public void testKafkaSend() {
-        result = BCompileUtil.compile(getFilePath("test-src/transactions/kafka_transactions_send.bal"));
+        result = BCompileUtil.compile(getFilePath(
+                Paths.get(TEST_SRC, TEST_TRANSACTIONS, "kafka_transactions_send.bal")));
         BValue[] inputBValues = {};
         BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaAbortTransactionTest", inputBValues);
 
@@ -71,10 +75,10 @@ public class KafkaProducerTransactionsTest {
         }
     }
 
-    @Test(description = "Test kafka producer commitConsumerOffsets() function", enabled = false)
+    @Test(description = "Test kafka producer commitConsumerOffsets() function")
     public void testKafkaCommitConsumerOffsetsTest() {
-        result = BCompileUtil.compile(
-                getFilePath("test-src/transactions/kafka_transactions_commit_consumer_offsets.bal"));
+        result = BCompileUtil.compile(getFilePath(
+                Paths.get(TEST_SRC, TEST_TRANSACTIONS, "kafka_transactions_commit_consumer_offsets.bal")));
         BValue[] inputBValues = {};
         BRunUtil.invoke(result, "funcTestKafkaProduce", inputBValues);
         try {
@@ -100,9 +104,10 @@ public class KafkaProducerTransactionsTest {
         }
     }
 
-    @Test(description = "Test producer commit consumer functionality", enabled = false)
+    @Test(description = "Test producer commit consumer functionality")
     public void testKafkaCommitConsumerTest() {
-        result = BCompileUtil.compile(getFilePath("test-src/transactions/kafka_transactions_commit_consumer.bal"));
+        result = BCompileUtil.compile(getFilePath(
+                Paths.get(TEST_SRC, TEST_TRANSACTIONS, "kafka_transactions_commit_consumer.bal")));
         BRunUtil.invoke(result, "funcTestKafkaProduce");
         try {
             await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {

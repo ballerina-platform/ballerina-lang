@@ -29,7 +29,7 @@ public class Constants {
     static final String TEST_COMMAND = "test";
     static final String INIT_COMMAND = "init";
     static final String NEW_COMMAND = "new";
-    static final String CREATE_COMMAND = "create";
+    static final String ADD_COMMAND = "add";
     static final String LIST_COMMAND = "list";
     static final String PULL_COMMAND = "pull";
     static final String PUSH_COMMAND = "push";

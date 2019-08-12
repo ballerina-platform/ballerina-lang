@@ -1,0 +1,6 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command.
+$ ballerina run java_arrays.bal
+2
+world
+

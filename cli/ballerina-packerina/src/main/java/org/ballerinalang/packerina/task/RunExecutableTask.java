@@ -28,7 +28,6 @@ import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContex
 import org.ballerinalang.tool.util.BFileUtil;
 import org.ballerinalang.util.BootstrapRunner;
 import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.observability.ObservabilityConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -104,6 +103,14 @@ public class RunExecutableTask implements Task {
     @Override
     public void execute(BuildContext buildContext) {
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
+    
+        // load configurations from config file
+        loadConfigurations(sourceRootPath, this.runtimeParams, this.configFilePath, this.observeFlag);
+        
+        if (!this.isGeneratedExecutable) {
+            this.runExecutable();
+            return;
+        }
 
         BLangPackage executableModule = null;
         // set executable path from an executable built on the go
@@ -121,14 +128,14 @@ public class RunExecutableTask implements Task {
                 switch (buildContext.getSourceType()) {
                     case SINGLE_BAL_FILE:
                         SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                        throw new BLangCompilerException("no entry points found in '" +
-                                                         singleFileContext.getBalFile() + "'");
+                        throw createLauncherException("no entry points found in '" + singleFileContext.getBalFile() +
+                                                      "'.");
                     case SINGLE_MODULE:
                         SingleModuleContext singleModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-                        throw new BLangCompilerException("no entry points found in '" +
-                                                         singleModuleContext.getModuleName() + "'");
+                        throw createLauncherException("no entry points found in '" +
+                                                         singleModuleContext.getModuleName() + "'.");
                     default:
-                        throw new BLangCompilerException("cannot run given source.");
+                        throw createLauncherException("unknown source type found when running executable.");
                 }
             }
         }
@@ -142,29 +149,22 @@ public class RunExecutableTask implements Task {
         
         // if the executable does not exist
         if (Files.notExists(this.executablePath)) {
-            throw new BLangCompilerException("cannot run '" + this.executablePath.toAbsolutePath().toString() +
+            throw createLauncherException("cannot run '" + this.executablePath.toAbsolutePath().toString() +
                                              "' as it does not exist.");
         }
     
         // if the executable is not a file and not an extension with .jar
         if (!(Files.isRegularFile(this.executablePath) &&
             this.executablePath.toString().endsWith(BLANG_COMPILED_JAR_EXT))) {
-            
-            throw new BLangCompilerException("cannot run '" + this.executablePath.toAbsolutePath().toString() +
+    
+            throw createLauncherException("cannot run '" + this.executablePath.toAbsolutePath().toString() +
                                              "' as it is not an executable with .jar extension.");
         }
     
         // set the source root path relative to the source path i.e. set the parent directory of the source path
         System.setProperty(ProjectDirConstants.BALLERINA_SOURCE_ROOT, sourceRootPath.toString());
         
-        // load configurations from config file
-        loadConfigurations(sourceRootPath, this.runtimeParams, this.configFilePath, this.observeFlag);
-        
-        if (this.isGeneratedExecutable) {
-            this.runGeneratedExecutable(executableModule);
-        } else {
-            this.runExecutable();
-        }
+        this.runGeneratedExecutable(executableModule);
     }
     
     /**
@@ -278,10 +278,10 @@ public class RunExecutableTask implements Task {
             }
             
         } catch (IOException e) {
-            throw new BLangRuntimeException(
-                    "failed to read the specified configuration file: " + ballerinaConfPath.toString(), e);
+            throw createLauncherException("failed to read the specified configuration file: " +
+                                          ballerinaConfPath.toString());
         } catch (RuntimeException e) {
-            throw new BLangRuntimeException(e.getMessage(), e);
+            throw createLauncherException(e.getMessage());
         }
     }
 }

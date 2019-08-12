@@ -50,6 +50,14 @@ type ResultCount record {
     int COUNTVAL;
 };
 
+type ResultBool record {
+    boolean boolean_type;
+};
+
+type ResultBoolWithInt record {
+    int boolean_type;
+};
+
 type ResultArrayType record {
     int[] INT_ARRAY;
     int[] LONG_ARRAY;
@@ -429,7 +437,7 @@ function testBlobArrayQueryParameter() returns @tainted int {
     return value;
 }
 
-function testINParameters() returns int {
+function testINParameters() returns [int, boolean] {
     jdbc:Client testDB = new({
             url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
             username: "SA",
@@ -461,8 +469,63 @@ function testINParameters() returns int {
     if (result is jdbc:UpdateResult) {
         insertCount = result.updatedRowCount;
     }
+
+    var dt = testDB->select("SELECT boolean_type from DataTypeTable where row_id = 3", ResultBool);
+    boolean bVal = false;
+    if (dt is table<ResultBool>) {
+        foreach var x in dt {
+            bVal = <@untainted>x.boolean_type;
+        }
+    }
     checkpanic testDB.stop();
-    return insertCount;
+    return [insertCount, bVal];
+}
+
+function testINParametersForBool() returns [int, int] {
+    jdbc:Client testDB = new({
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
+
+    jdbc:Parameter paraID = { sqlType: jdbc:TYPE_INTEGER, value: 27 };
+    jdbc:Parameter paraBool = { sqlType: jdbc:TYPE_BOOLEAN, value: 1 };
+
+    var result = testDB->update("INSERT INTO DataTypeTable (row_id, boolean_type) VALUES (?,?)",
+        paraID, paraBool);
+    int insertCount = 0;
+    if (result is jdbc:UpdateResult) {
+        insertCount = result.updatedRowCount;
+    }
+
+    var dt = testDB->select("SELECT boolean_type from DataTypeTable where row_id = 27", ResultBoolWithInt);
+    int bVal = -1;
+    if (dt is table<ResultBoolWithInt>) {
+        foreach var x in dt {
+            bVal = <@untainted>x.boolean_type;
+        }
+    }
+
+    checkpanic testDB.stop();
+    return [insertCount, bVal];
+}
+
+function testInvalidParametersForBool() returns jdbc:UpdateResult|jdbc:Error {
+    jdbc:Client testDB = new({
+            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_H2",
+            username: "SA",
+            password: "",
+            poolOptions: { maximumPoolSize: 1 }
+        });
+
+    jdbc:Parameter paraID = { sqlType: jdbc:TYPE_INTEGER, value: 27 };
+    jdbc:Parameter paraBool = { sqlType: jdbc:TYPE_BOOLEAN, value: 91 };
+
+    var result = testDB->update("INSERT INTO DataTypeTable (row_id, boolean_type) VALUES (?,?)",
+        paraID, paraBool);
+    checkpanic testDB.stop();
+    return result;
 }
 
 function testBlobInParameter() returns @tainted [int, byte[]] {
@@ -513,7 +576,6 @@ function testINParametersWithDirectValues() returns @tainted [int, int, float, f
     if (result is jdbc:UpdateResult) {
         insertCount = result.updatedRowCount;
     }
-    io:println(result);
     var dt = testDB->select("SELECT int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type from
             DataTypeTable where row_id = 25", ResultBalTypes);

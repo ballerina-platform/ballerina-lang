@@ -49,7 +49,6 @@ import java.util.List;
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_FIELD;
 import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createEntityObject;
-import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createMediaTypeObject;
 import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createRequestCacheControlObject;
 import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createResponseCacheControlObject;
 import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createResponseObject;
@@ -442,8 +441,7 @@ public class HttpCachingClientTest {
     private void initInboundResponse(ObjectValue inResponse, HttpCarbonMessage inResponseMsg) {
         HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
         ObjectValue entity = createEntityObject();
-        ObjectValue mediaType = createMediaTypeObject();
-        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, inResponseMsg);
+        HttpUtil.populateInboundResponse(inResponse, entity, inResponseMsg);
     }
 
     private void initOutboundRequest(ObjectValue outRequest, RequestCacheControlObj cacheControl) {
