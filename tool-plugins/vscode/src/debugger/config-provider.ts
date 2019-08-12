@@ -119,7 +119,11 @@ export function activateDebugConfigProvider(ballerinaExtInstance: BallerinaExten
 class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFactory {
     createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined): Thenable<DebugAdapterDescriptor> {
         return new Promise(function (resolve, reject) {
-            BallerinaDebugAdapterDescriptorFactory.launchAdapter(resolve, reject);
+            if (session.configuration && session.configuration.debugServer) {
+                new DebugAdapterServer(session.configuration.debugServer)
+            } else {
+                BallerinaDebugAdapterDescriptorFactory.launchAdapter(resolve, reject);
+            }
         });
     }
     static launchAdapter(resolve: (arg0: DebugAdapterServer) => void, reject: (arg0: string | Buffer) => void) {
