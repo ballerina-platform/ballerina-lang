@@ -10,14 +10,12 @@ import { WorkerSendViewState } from "../view-model/worker-send";
 
 let visibleEPsInCurrentFunc: VisibleEndpoint[] = [];
 let envEndpoints: VisibleEndpoint[] = [];
+let currentWorker: VariableDef | undefined;
 
 function initStatement(node: ASTNode) {
     if (!node.viewState) {
         node.viewState = new StmntViewState();
     }
-    // undo previous expandings
-    // the same statement may be expanded inside some functions but not in others
-    // (node.viewState as StmntViewState).expandContext = undefined;
 }
 
 export const visitor: Visitor = {
@@ -117,8 +115,17 @@ export const visitor: Visitor = {
         }
     },
 
+    beginVisitVariableDef(node: VariableDef) {
+        if (ASTUtil.isWorker(node)) {
+            currentWorker = node;
+        }
+    },
+
     endVisitVariableDef(node: VariableDef) {
         initStatement(node);
+        if (ASTUtil.isWorker(node)) {
+            currentWorker = undefined;
+        }
     },
 
     endVisitAssignment(node: Assignment) {
@@ -136,6 +143,11 @@ export const visitor: Visitor = {
     beginVisitReturn(node: Return) {
         if (!node.viewState) {
             node.viewState = new ReturnViewState();
+        }
+        if (currentWorker) {
+            const viewState = (node.viewState as ReturnViewState);
+            viewState.containingWokerViewState = currentWorker.viewState;
+            (currentWorker.viewState as WorkerViewState).returnStatements.push(node);
         }
     },
 
