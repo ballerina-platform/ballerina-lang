@@ -277,6 +277,28 @@ function testStreamsPublishingForStructurallyEquivalentRecords() returns [any[],
     return [publishedEvents, globalEmployeeArray];
 }
 
+function testStreamViaFuncArg(stream<Employee> employeeStream) returns [any[], any[]] {
+    globalEmployeeArray = [];
+    arrayIndex = 0;
+    employeeStream.subscribe(addPersonToGlobalEmployeeArray);
+    Person p1 = { id:3000, name:"Maryam" };
+    Person p2 = { id:3003, name:"Ziyad" };
+    Person[] publishedEvents = [p1, p2];
+    foreach var event in publishedEvents {
+        employeeStream.publish(event);
+    }
+    int startTime = time:currentTime().time;
+
+    //allow for value update
+    while (globalEmployeeArray.length() < publishedEvents.length() && time:currentTime().time - startTime < 5000) {
+        runtime:sleep(100);
+    }
+    return [publishedEvents, globalEmployeeArray];
+}
+
+function testStreamPublishingInitStreamViaFuncArgs() returns [any[], any[]] {
+    return testStreamViaFuncArg(new);
+}
 
 function printJobDescription(Job j) {
     log:printInfo(j.description);

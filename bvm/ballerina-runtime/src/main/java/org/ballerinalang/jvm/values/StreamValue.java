@@ -35,8 +35,6 @@ import java.util.UUID;
  */
 public class StreamValue implements RefValue {
 
-    private static final String STREAM_NAME = "STREAM_";
-
     private BType type;
     private BType constraintType;
 
@@ -51,13 +49,7 @@ public class StreamValue implements RefValue {
         this.streamSubscriptionManager = StreamSubscriptionManager.getInstance();
         this.constraintType = ((BStreamType) type).getConstrainedType();
         this.type = new BStreamType(constraintType);
-
-        if (constraintType != null) {
-            this.streamId = STREAM_NAME + constraintType;
-        } else {
-            this.streamId = STREAM_NAME; //TODO: check for improvement
-        }
-        streamId = streamId.concat("_").concat(UUID.randomUUID().toString());
+        this.streamId = UUID.randomUUID().toString();
     }
 
     public String getStreamId() {
