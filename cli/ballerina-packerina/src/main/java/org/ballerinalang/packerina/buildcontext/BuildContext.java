@@ -405,7 +405,9 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                             .resolve(moduleID.orgName.value)
                             .resolve(moduleID.name.value)
                             .resolve(moduleID.version.value));
-                    return moduleBirCacheDir.resolve(moduleID.name.value + BLANG_COMPILED_JAR_EXT);
+                    return moduleBirCacheDir.resolve(moduleID.orgName.value + "-" + 
+                                                             moduleID.name.value + "-" +
+                                                             moduleID.version.value + BLANG_COMPILED_JAR_EXT);
                 default:
                     throw new BLangCompilerException("unknown source type found: " + this.getSourceType());
             }

@@ -132,7 +132,8 @@ public class CopyModuleJarTask implements Task {
             importJar = Paths.get(balHomePath, "bre", "lib", id.name.value + BLANG_COMPILED_JAR_EXT);
         }
         try {
-            Path jarTarget = tmpDir.resolve(importz.pkgID.name.value + BLANG_COMPILED_JAR_EXT);
+            Path jarTarget = tmpDir.resolve(id.orgName.value + "-" + id.name.value + "-" + id.version.value + 
+                    BLANG_COMPILED_JAR_EXT);
             Files.copy(importJar, jarTarget, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             throw createLauncherException("unable to copy the imported jar :" + e.getMessage());

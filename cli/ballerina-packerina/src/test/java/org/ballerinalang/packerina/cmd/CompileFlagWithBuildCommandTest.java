@@ -341,11 +341,11 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
         Assert.assertTrue(Files.exists(tomlJarInTmpDir));
 
         // Check if the module libs are in the tmp folder
-        Path moduleJar = tmpDir.resolve("mymodule.jar");
+        Path moduleJar = tmpDir.resolve("testOrg-mymodule-0.1.0.jar");
         Assert.assertTrue(Files.exists(moduleJar));
 
         // Check if the imported libs are in the tmp folder
-        Path importJar = tmpDir.resolve("myimport.jar");
+        Path importJar = tmpDir.resolve("testOrg-myimport-0.1.0.jar");
         Assert.assertTrue(Files.exists(importJar));
 
         // Check if imported bir is in the project target
