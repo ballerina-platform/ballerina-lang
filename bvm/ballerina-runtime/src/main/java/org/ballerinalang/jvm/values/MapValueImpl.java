@@ -587,7 +587,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         }
     }
 
-    private String getJSONString() {
+    public String getJSONString() {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         JSONGenerator gen = new JSONGenerator(byteOut);
         try {
