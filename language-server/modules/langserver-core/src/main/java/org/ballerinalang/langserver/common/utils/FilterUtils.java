@@ -462,7 +462,7 @@ public class FilterUtils {
             if (symbol instanceof BInvokableSymbol) {
                 List<BVarSymbol> params = ((BInvokableSymbol) symbol).params;
                 return params.isEmpty() || params.get(0).type.tag == bType.tag ||
-                        (types.isAssignable(params.get(0).type, bType));
+                        (types.isAssignable(bType, params.get(0).type));
             }
             return symbol.kind != null;
         }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));

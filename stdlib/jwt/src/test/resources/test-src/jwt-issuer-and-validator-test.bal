@@ -88,10 +88,12 @@ function testValidateJwt(string jwtToken, string trustStorePath) returns @tainte
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:JwtValidatorConfig config = {
         issuer: "wso2",
-        certificateAlias: "ballerina",
         audience: ["ballerina", "ballerinaSamples"],
         clockSkewInSeconds: 60,
-        trustStore: trustStore
+        trustStoreConfig: {
+            trustStore: trustStore,
+            certificateAlias: "ballerina"
+        }
     };
 
     var result = jwt:validateJwt(jwtToken, config);
@@ -106,10 +108,12 @@ function testValidateJwtWithSingleAud(string jwtToken, string trustStorePath) re
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:JwtValidatorConfig config = {
         issuer: "wso2",
-        certificateAlias: "ballerina",
         audience: "ballerina",
         clockSkewInSeconds: 60,
-        trustStore: trustStore
+        trustStoreConfig: {
+            trustStore: trustStore,
+            certificateAlias: "ballerina"
+        }
     };
 
     var result = jwt:validateJwt(jwtToken, config);
@@ -125,10 +129,12 @@ function testValidateJwtWithSingleAudAndAudAsArray(string jwtToken, string trust
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:JwtValidatorConfig config = {
         issuer: "wso2",
-        certificateAlias: "ballerina",
         audience: "ballerina",
         clockSkewInSeconds: 60,
-        trustStore: trustStore
+        trustStoreConfig: {
+            trustStore: trustStore,
+            certificateAlias: "ballerina"
+        }
     };
 
     var result = jwt:validateJwt(jwtToken, config);
@@ -183,10 +189,12 @@ function testIssueJwtWithNoAudOrSub(string keyStorePath) returns string|jwt:Erro
 function testValidateJwtWithNoIssOrSub(string jwtToken, string trustStorePath) returns @tainted (boolean|jwt:Error) {
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:JwtValidatorConfig config = {
-        certificateAlias: "ballerina",
         audience: "ballerinaSamples",
         clockSkewInSeconds: 60,
-        trustStore: trustStore
+        trustStoreConfig: {
+            trustStore: trustStore,
+            certificateAlias: "ballerina"
+        }
     };
 
     var result = jwt:validateJwt(jwtToken, config);

@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.command.executors.CreateObjectInitializerExecutor;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.CodeActionContext;
@@ -116,7 +117,8 @@ public class CodeActionTest {
     }
 
     @Test(dataProvider = "codeaction-diagnostics-data-provider")
-    public void testCodeActionWithDiagnostics(String config, String source) throws IOException {
+    public void testCodeActionWithDiagnostics(String config, String source)
+            throws IOException, CompilationFailedException {
         String configJsonPath = "codeaction" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
@@ -151,8 +153,8 @@ public class CodeActionTest {
         Assert.assertTrue(codeActionFound, "Cannot find expected Code Action for: " + title);
     }
 
-    @Test(dataProvider = "codeaction-testgen-data-provider")
-    public void testCodeActionWithTestGen(String config, Path source) throws IOException {
+    @Test(dataProvider = "codeaction-testgen-data-provider", enabled = false)
+    public void testCodeActionWithTestGen(String config, Path source) throws IOException, CompilationFailedException {
         String configJsonPath = "codeaction" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
@@ -192,7 +194,8 @@ public class CodeActionTest {
     }
 
     @Test(dataProvider = "codeaction-quickfixes-data-provider")
-    public void testCodeActionWithQuickFixes(String config, String source) throws IOException {
+    public void testCodeActionWithQuickFixes(String config, String source)
+            throws IOException, CompilationFailedException {
         String configJsonPath = "codeaction" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);

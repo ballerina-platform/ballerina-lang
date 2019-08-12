@@ -1,0 +1,4 @@
+[project]
+# Name of the package
+org-name = "globalcycle"
+version = "1.0.0"

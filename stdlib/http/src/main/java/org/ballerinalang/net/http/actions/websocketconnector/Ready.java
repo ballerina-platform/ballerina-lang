@@ -47,7 +47,6 @@ import static org.ballerinalang.net.http.WebSocketUtil.createWebSocketError;
 public class Ready {
 
     public static Object ready(Strand strand, ObjectValue wsConnection) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         try {
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
@@ -55,15 +54,12 @@ public class Ready {
             boolean isReady = wsConnection.getBooleanValue(WebSocketConstants.CONNECTOR_IS_READY_FIELD);
             if (!isReady) {
                 WebSocketUtil.readFirstFrame(connectionInfo.getWebSocketConnection(), wsConnection);
-                //TODO remove this call back
                 callback.setReturnValues(null);
             } else {
-                //TODO remove this call back
                 callback.setReturnValues(WebSocketUtil.createWebSocketError("Already started reading frames"));
             }
             callback.notifySuccess();
         } catch (Exception e) {
-            //TODO remove this call back
             callback.setReturnValues(createWebSocketError(WsConnectionError, e.getMessage()));
             callback.notifySuccess();
         }

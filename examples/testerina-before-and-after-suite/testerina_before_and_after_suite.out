@@ -1,5 +1,5 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
+# `.bal` file, and execute the `ballerina test` command.
 # You need to have the ballerina-tools distribution
 # installed in order to run this command.
 $ ballerina test testerina_before_and_after_suite.bal

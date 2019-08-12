@@ -58,4 +58,11 @@ public class AccessLevelsNegativeTest {
         BAssertUtil.validateError(compileResult, 20, expectedErrMsg + "'FooTypeObj'", 191, 1);
         BAssertUtil.validateError(compileResult, 21, expectedErrMsg + "'BarTypeRecord'", 193, 1);
     }
+
+    @Test
+    public void testPrivateTypeAccessNegative() {
+        CompileResult pkgB = BCompileUtil.compile(this, "test-src/access/pvtAccessTest", "B");
+        BAssertUtil.validateError(pkgB, 0, "attempt to refer to non-accessible symbol 'Bar'", 22, 2);
+        BAssertUtil.validateError(pkgB, 1, "unknown type 'Bar'", 22, 2);
+    }
 }

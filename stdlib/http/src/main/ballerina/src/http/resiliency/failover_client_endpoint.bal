@@ -456,8 +456,8 @@ function populateErrorsFromLastResponse (Response inResponse, ClientError?[] fai
 # + intervalInMillis - Failover delay interval in milliseconds
 public type FailoverClientEndpointConfiguration record {|
     string httpVersion = HTTP_1_1;
-    Http1Settings http1Settings = {};
-    Http2Settings http2Settings = {};
+    ClientHttp1Settings http1Settings = {};
+    ClientHttp2Settings http2Settings = {};
     int timeoutInMillis = 60000;
     string forwarded = "disable";
     FollowRedirects? followRedirects = ();
