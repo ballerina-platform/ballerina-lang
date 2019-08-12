@@ -91,6 +91,10 @@ public class BuildCommand implements BLauncherCmd {
         this.exitWhenFinish = exitWhenFinish;
     }
     
+    @CommandLine.Option(names = {"--sourceroot"},
+                        description = "Path to the directory containing source files and modules")
+    private String sourceRoot;
+    
     @CommandLine.Option(names = {"--compile", "-c"}, description = "Compile the source without generating " +
                                                                    "executable(s).")
     private boolean compile;
@@ -163,6 +167,7 @@ public class BuildCommand implements BLauncherCmd {
         }
     
         // validation and decide source root and source full path
+        this.sourceRootPath = null != this.sourceRoot ? Paths.get(this.sourceRoot) : this.sourceRootPath;
         Path sourcePath = null;
         Path targetPath;
         
