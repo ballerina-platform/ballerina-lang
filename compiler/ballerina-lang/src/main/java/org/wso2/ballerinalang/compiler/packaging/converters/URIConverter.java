@@ -18,14 +18,13 @@
 
 package org.wso2.ballerinalang.compiler.packaging.converters;
 
-import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
-import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.HomeBaloRepo;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 import org.wso2.ballerinalang.util.TomlParserUtils;
@@ -46,8 +45,7 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
  */
 public class URIConverter implements Converter<URI> {
 
-    private static CacheRepo binaryRepo = new CacheRepo(RepoUtils.createAndGetHomeReposPath(),
-            ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, CompilerPhase.BIR_GEN); // TODO check phase
+    private static HomeBaloRepo homeBaloRepo = new HomeBaloRepo(RepoUtils.createAndGetHomeReposPath());
     private final URI base;
     private boolean isBuild = true;
     private PrintStream errStream = System.err;
@@ -129,8 +127,8 @@ public class URIConverter implements Converter<URI> {
                 if (execute.isPresent()) {
                     runtimeException = execute.get();
                 } else {
-                    Patten patten = binaryRepo.calculate(moduleID);
-                    return patten.convertToSources(binaryRepo.getConverterInstance(), moduleID);
+                    Patten patten = homeBaloRepo.calculate(moduleID);
+                    return patten.convertToSources(homeBaloRepo.getConverterInstance(), moduleID);
                 }
             }
     

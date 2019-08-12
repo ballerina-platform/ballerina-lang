@@ -46,7 +46,7 @@ public class SortablePath implements Comparable<SortablePath> {
         }
         Matcher matcher = semVerPattern.matcher(version);
         if (matcher.matches()) {
-            return semVerToBigInt(version);
+            return semVerToBigInt(matcher.group(1));
         } else {
             return MINUS_ONE;
         }
