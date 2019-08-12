@@ -438,7 +438,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
+        // When ObjectBody's parent's parent is not a FiniteTypeUnit then this is an anonymous object.
+        // It's bit difficult to differentiate between Object type definition and an anonymous object
+        // within a union type since parent lineage is similar in both cases.
+        // Only difference is that in object type definition, object body's parent's parent does not have siblings.
+        boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext)
+                || (ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext
+                    && ctx.parent.parent.parent instanceof BallerinaParser.FiniteTypeContext
+                    && ctx.parent.parent.parent.getChildCount() > 1);
 
         boolean isFieldAnalyseRequired =
                 (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||

@@ -47,7 +47,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
  * 
  * @since 1.0.0
  */
-public class ExtendedLSCompiler {
+public class ExtendedLSCompiler extends LSModuleCompiler {
     private static final ExtendedWorkspaceDocumentManagerImpl docManager =
             ExtendedWorkspaceDocumentManagerImpl.getInstance();
     /**
@@ -104,14 +104,9 @@ public class ExtendedLSCompiler {
         options.put(PRESERVE_WHITESPACE, Boolean.valueOf(true).toString());
         options.put(TEST_ENABLED, String.valueOf(true));
         options.put(SKIP_TESTS, String.valueOf(false));
-        BLangPackage bLangPackage = null;
-        try {
-            BLangDiagnosticLog.getInstance(context).errorCount = 0;
-            Compiler compiler = Compiler.getInstance(context);
-            bLangPackage = compiler.compile(packageName);
-        } catch (RuntimeException e) {
-            throw new CompilationFailedException("Compilation failed!", e);
-        }
+        BLangDiagnosticLog.getInstance(context).errorCount = 0;
+        Compiler compiler = Compiler.getInstance(context);
+        BLangPackage bLangPackage = compileSafe(compiler, parent.toString(), packageName);
         BallerinaFile bfile;
         if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
             List<Diagnostic> diagnostics = ((CollectDiagnosticListener) context.get(DiagnosticListener.class))

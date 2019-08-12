@@ -529,6 +529,11 @@ public class TypeChecker extends BLangNodeVisitor {
         if (expType.tag == symTable.semanticError.tag) {
             return;
         }
+        if (expType.getKind() != TypeKind.TABLE) {
+            dlog.error(tableLiteral.pos, DiagnosticCode.CANNOT_INFER_TABLE_TYPE);
+            resultType = symTable.semanticError;
+            return;
+        }
         BType tableConstraint = ((BTableType) expType).getConstraint();
         if (tableConstraint.tag == TypeTags.NONE) {
             dlog.error(tableLiteral.pos, DiagnosticCode.TABLE_CANNOT_BE_CREATED_WITHOUT_CONSTRAINT);
@@ -847,7 +852,18 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             return true;
         } else {
-            return types.isAssignable(checkExpr(expression, env), type);
+            BType sourceType = checkExpr(expression, env);
+            if (expression.getKind() == NodeKind.LITERAL && type.getKind() == TypeKind.FINITE) {
+                if (types.isAssignableToFiniteType(type, (BLangLiteral) expression)) {
+                    return true;
+                }
+            } else if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangSimpleVarRef simpleVariable = (BLangSimpleVarRef) expression;
+                if (simpleVariable.symbol.getKind() == SymbolKind.CONSTANT) {
+                    sourceType = simpleVariable.symbol.type;
+                }
+            }
+            return types.isAssignable(sourceType, type);
         }
     }
 

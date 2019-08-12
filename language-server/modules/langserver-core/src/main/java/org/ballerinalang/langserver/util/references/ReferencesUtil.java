@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.util.references;
 
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -58,8 +59,22 @@ public class ReferencesUtil {
     private ReferencesUtil() {
     }
 
-    public static List<BLangPackage> getPreparedModules(String fileUri, WorkspaceDocumentManager docManager,
-                                                        Position position, LSContext context, boolean compileProject)
+    /**
+     * Compile modules and find references for this position.
+     *
+     * @param fileUri        file uri
+     * @param docManager     {@link WorkspaceDocumentManager}
+     * @param position       current cursor {@link Position}
+     * @param context        {@link LSContext}
+     * @param compileProject if `True`, compiles the all modules
+     * @return list of {@link BLangPackage}
+     * @throws WorkspaceDocumentException when couldn't find file for uri
+     * @throws CompilationFailedException when compilation failed
+     */
+    public static List<BLangPackage> compileModulesAndFindReferences(String fileUri,
+                                                                     WorkspaceDocumentManager docManager,
+                                                                     Position position, LSContext context,
+                                                                     boolean compileProject)
             throws WorkspaceDocumentException, CompilationFailedException {
         Optional<Path> defFilePath = CommonUtil.getPathFromURI(fileUri);
         if (!defFilePath.isPresent()) {
@@ -74,7 +89,7 @@ public class ReferencesUtil {
 
             // With the sub-rule parser, find the token
             String documentContent = docManager.getFileContent(compilationPath);
-            ReferencesSubRuleParser.parserCompilationUnit(documentContent, context, position);
+            ReferencesSubRuleParser.parseCompilationUnit(documentContent, context, position);
 
             if (context.get(NodeContextKeys.NODE_NAME_KEY) == null) {
                 throw new IllegalStateException("Couldn't find a valid identifier token at cursor!");
@@ -127,8 +142,9 @@ public class ReferencesUtil {
                                                                        Position position)
             throws WorkspaceDocumentException, CompilationFailedException {
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
-        List<BLangPackage> modules = ReferencesUtil.getPreparedModules(document.getURIString(), documentManager,
-                position, context, true);
+        List<BLangPackage> modules = ReferencesUtil.compileModulesAndFindReferences(document.getURIString(),
+                                                                                    documentManager,
+                                                                                    position, context, true);
         prepareReferences(modules, context, position);
         SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
         Optional<SymbolReferencesModel.Reference> symbolAtCursor = referencesModel.getReferenceAtCursor();
@@ -147,6 +163,10 @@ public class ReferencesUtil {
     public static WorkspaceEdit getRenameWorkspaceEdits(List<BLangPackage> modules, LSContext context, String newName,
                                                         Position position) {
         SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
+        String nodeName = context.get(NodeContextKeys.NODE_NAME_KEY);
+        if (CommonKeys.NEW_KEYWORD_KEY.equals(nodeName)) {
+            throw new IllegalStateException("Symbol at cursor '" + nodeName + "' not supported or could not find!");
+        }
         prepareReferences(modules, context, position);
         fillAllReferences(modules, context, position);
         return getWorkspaceEdit(referencesModel, context, newName);

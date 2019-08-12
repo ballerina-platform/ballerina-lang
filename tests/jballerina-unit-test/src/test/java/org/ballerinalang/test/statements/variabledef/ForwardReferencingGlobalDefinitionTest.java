@@ -37,8 +37,8 @@ public class ForwardReferencingGlobalDefinitionTest {
 
     @Test(description = "Test compiler rejecting cyclic references in global variable definitions")
     public void globalDefinitionsWithCyclicReferences() {
-        CompileResult resultNegativeCycleFound = BCompileUtil.compile(this,
-                "test-src/statements/variabledef/TestProj/src/globalcycle", "simple");
+        CompileResult resultNegativeCycleFound = BCompileUtil.compile("test-src/statements/variabledef/globalcycle/",
+                "simple");
         Diagnostic[] diagnostics = resultNegativeCycleFound.getDiagnostics();
         Assert.assertTrue(diagnostics.length > 0);
         BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[employee, person]'", 35, 1);
@@ -86,8 +86,8 @@ public class ForwardReferencingGlobalDefinitionTest {
 
     @Test(description = "Test global variable reference cycle via function")
     public void inFunctionGlobalReferenceCauseCycle() {
-        CompileResult cycle = BCompileUtil.compile(this, "test-src/statements/variabledef/TestProj/src/globalcycle",
-                "viafunc");
+        CompileResult cycle = BCompileUtil.compile("test-src/statements/variabledef/globalcycle/",
+                                                   "viafunc");
 
         Assert.assertTrue(cycle.getDiagnostics().length > 0);
         BAssertUtil.validateError(cycle, 0, "illegal cyclic reference '[fromFuncA, fromFunc, getPersonOuter, " +
@@ -97,7 +97,7 @@ public class ForwardReferencingGlobalDefinitionTest {
     @Test(description = "Test compiler rejecting cyclic references in global variable definitions via object def")
     public void globalDefinitionsListenerDef() {
         CompileResult resultNegativeCycleFound = BCompileUtil.compile(this,
-                "test-src/statements/variabledef/TestProj/src/globalcycle", "viaservice");
+                "test-src/statements/variabledef/globalcycle/", "viaservice");
         Assert.assertEquals(resultNegativeCycleFound.getDiagnostics().length, 1);
         BAssertUtil.validateError(resultNegativeCycleFound, 0, "illegal cyclic reference '[port, o, Obj]'", 22, 1);
     }
