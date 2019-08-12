@@ -1804,7 +1804,10 @@ function generateFrameClassForFunction (string pkgName, bir:Function? func, map<
     fv.visitEnd();
 
     cw.visitEnd();
-    pkgEntries[frameClassName + ".class"] = cw.toByteArray();
+
+    // panic if there are errors in the frame class. These cannot be logged, since
+    // frame classes are internal implementation details.
+    pkgEntries[frameClassName + ".class"] = checkpanic cw.toByteArray();
 }
 
 function getFrameClassName(string pkgName, string funcName, bir:BType? attachedType) returns string {
@@ -2052,4 +2055,55 @@ function stringArrayContains(string[] array, string item) returns boolean {
         }
     }
     return false;
+}
+
+function logCompileError(error compileError, bir:Package|bir:TypeDef|bir:Function src, bir:Package currentModule) {
+    string reason = compileError.reason();
+    map<anydata|error> detail = compileError.detail();
+    error err;
+    bir:DiagnosticPos pos;
+    string name;
+    if (reason == ERROR_REASON_METHOD_TOO_LARGE) {
+        name = <string> detail.get("name");
+        err = error(io:sprintf("method is too large: '%s'", name));
+        bir:Function? func = findBIRFunction(src, name);
+        if (func is ()) {
+            panic compileError;
+        } else {
+            pos = func.pos;
+        }
+    } else if (reason == ERROR_REASON_CLASS_TOO_LARGE) {
+        name = <string> detail.get("name");
+        err = error(io:sprintf("file is too large: '%s'", name));
+        pos = {};
+    } else {
+        panic compileError;
+    }
+
+    logError(err, pos, currentModule);
+    string pkgName = getPackageName(currentModule.org.value, currentModule.name.value);
+    functionGenErrors[pkgName + name] = err;
+}
+
+function findBIRFunction(bir:Package|bir:TypeDef|bir:Function src, string name) returns bir:Function? {
+    if (src is bir:Function) {
+        return src;
+    } else if (src is bir:Package) {
+        foreach var func in src.functions {
+            if (func is bir:Function && cleanupFunctionName(func.name.value) == name) {
+                return func;
+            }
+        }
+    } else {
+        bir:Function?[]? attachedFuncs = src.attachedFuncs;
+        if (attachedFuncs is bir:Function?[]) {
+            foreach var func in attachedFuncs {
+                if (func is bir:Function && cleanupFunctionName(func.name.value) == name) {
+                    return func;
+                }
+            }
+        } 
+    }
+
+    return ();
 }

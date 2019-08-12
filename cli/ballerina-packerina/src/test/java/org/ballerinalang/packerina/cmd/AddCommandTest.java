@@ -28,11 +28,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * Test cases for ballerina create command.
+ * Test cases for ballerina add command.
  *
  * @since 1.0.0
  */
-public class CreateCommandTest extends CommandTest {
+public class AddCommandTest extends CommandTest {
 
     private Path projectPath;
     private Path srcPath;
@@ -50,35 +50,35 @@ public class CreateCommandTest extends CommandTest {
     }
 
 
-    @Test(description = "Test create command outside a project")
-    public void testCreateCommandWithoutProject() throws IOException {
+    @Test(description = "Test add command outside a project")
+    public void testAddCommandWithoutProject() throws IOException {
         // Test if no arguments was passed in
         String[] args = {};
-        CreateCommand createCommand = new CreateCommand(tmpDir, printStream);
-        new CommandLine(createCommand).parse(args);
-        createCommand.execute();
+        AddCommand addCommand = new AddCommand(tmpDir, printStream);
+        new CommandLine(addCommand).parseArgs(args);
+        addCommand.execute();
 
         Assert.assertTrue(readOutput().contains("not a ballerina project"));
     }
 
-    @Test(description = "Test create command without arguments")
-    public void testCreateCommandNoArgs() throws IOException {
+    @Test(description = "Test add command without arguments")
+    public void testAddCommandNoArgs() throws IOException {
         // Test if no arguments was passed in
         String[] args = {};
-        CreateCommand createCommand = new CreateCommand(projectPath, printStream);
-        new CommandLine(createCommand).parse(args);
-        createCommand.execute();
+        AddCommand addCommand = new AddCommand(projectPath, printStream);
+        new CommandLine(addCommand).parseArgs(args);
+        addCommand.execute();
 
         Assert.assertTrue(readOutput().contains("The following required arguments were not provided"));
     }
 
-    @Test(description = "Test create command")
-    public void testCreateCommand() throws IOException {
+    @Test(description = "Test add command")
+    public void testAddCommand() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"mainmodule"};
-        CreateCommand createCommand = new CreateCommand(projectPath, printStream);
-        new CommandLine(createCommand).parse(args);
-        createCommand.execute();
+        AddCommand addCommand = new AddCommand(projectPath, printStream);
+        new CommandLine(addCommand).parseArgs(args);
+        addCommand.execute();
         // Validate against spec
         // -- mymodule/
         // --- Module.md      <- module level documentation
@@ -103,17 +103,17 @@ public class CreateCommandTest extends CommandTest {
         Assert.assertTrue(Files.exists(moduleTests.resolve("resources")));
         Assert.assertTrue(Files.isDirectory(moduleTests.resolve("resources")));
 
-        Assert.assertTrue(readOutput().contains("Created new ballerina module"));
+        Assert.assertTrue(readOutput().contains("Added new ballerina module"));
 
     }
 
-    @Test(description = "Test create command with service template")
-    public void testCreateCommandWithService() throws IOException {
+    @Test(description = "Test add command with service template")
+    public void testAddCommandWithService() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"servicemodule", "-t", "service"};
-        CreateCommand createCommand = new CreateCommand(projectPath, printStream);
-        new CommandLine(createCommand).parse(args);
-        createCommand.execute();
+        AddCommand addCommand = new AddCommand(projectPath, printStream);
+        new CommandLine(addCommand).parseArgs(args);
+        addCommand.execute();
 
         // Validate against spec
         // -- mymodule/
@@ -139,43 +139,43 @@ public class CreateCommandTest extends CommandTest {
         Assert.assertTrue(Files.exists(moduleTests.resolve("resources")));
         Assert.assertTrue(Files.isDirectory(moduleTests.resolve("resources")));
 
-        Assert.assertTrue(readOutput().contains("Created new ballerina module"));
+        Assert.assertTrue(readOutput().contains("Added new ballerina module"));
     }
 
 
     // if an invalid template is passed
-    @Test(description = "Test create command with invalid template")
-    public void testCreateCommandWithInvalidTemplate() throws IOException {
+    @Test(description = "Test add command with invalid template")
+    public void testAddCommandWithInvalidTemplate() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"mymodule2", "-t", "invalid"};
-        CreateCommand createCommand = new CreateCommand(projectPath, printStream);
-        new CommandLine(createCommand).parse(args);
-        createCommand.execute();
+        AddCommand addCommand = new AddCommand(projectPath, printStream);
+        new CommandLine(addCommand).parseArgs(args);
+        addCommand.execute();
 
         Assert.assertTrue(readOutput().contains("Template not found"));
     }
 
 
     // if invalid module name is passed
-    @Test(description = "Test create command with invalid module name")
-    public void testCreateCommandWithInvalidName() throws IOException {
+    @Test(description = "Test add command with invalid module name")
+    public void testAddCommandWithInvalidName() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"mymo-dule"};
-        CreateCommand createCommand = new CreateCommand(projectPath, printStream);
-        new CommandLine(createCommand).parse(args);
-        createCommand.execute();
+        AddCommand addCommand = new AddCommand(projectPath, printStream);
+        new CommandLine(addCommand).parseArgs(args);
+        addCommand.execute();
 
         Assert.assertTrue(readOutput().contains("Invalid module name"));
     }
 
 
-    @Test(description = "Test create list")
-    public void testCreateCommandList() throws IOException {
+    @Test(description = "Test add list")
+    public void testAddCommandList() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"--list"};
-        CreateCommand createCommand = new CreateCommand(projectPath, printStream);
-        new CommandLine(createCommand).parse(args);
-        createCommand.execute();
+        AddCommand addCommand = new AddCommand(projectPath, printStream);
+        new CommandLine(addCommand).parseArgs(args);
+        addCommand.execute();
 
         String output = readOutput();
         Assert.assertTrue(output.contains("Available templates:"));
@@ -183,24 +183,24 @@ public class CreateCommandTest extends CommandTest {
         Assert.assertTrue(output.contains("service"));
     }
 
-    @Test(description = "Test create command with help flag")
-    public void testCreateCommandWithHelp() throws IOException {
+    @Test(description = "Test add command with help flag")
+    public void testAddCommandWithHelp() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"-h"};
-        CreateCommand createCommand = new CreateCommand(projectPath, printStream);
-        new CommandLine(createCommand).parse(args);
-        createCommand.execute();
+        AddCommand addCommand = new AddCommand(projectPath, printStream);
+        new CommandLine(addCommand).parseArgs(args);
+        addCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("Ballerina create - Create a Ballerina module"));
+        Assert.assertTrue(readOutput().contains("Ballerina add - Add a Ballerina module in a project"));
     }
 
-    @Test(description = "Test create command", dependsOnMethods = {"testCreateCommand"})
-    public void testCreateCommandWithExistingModuleName() throws IOException {
+    @Test(description = "Test add command", dependsOnMethods = {"testAddCommand"})
+    public void testAddCommandWithExistingModuleName() throws IOException {
         // Test if no arguments was passed in
         String[] args = {"mainmodule"};
-        CreateCommand createCommand = new CreateCommand(projectPath, printStream);
-        new CommandLine(createCommand).parse(args);
-        createCommand.execute();
+        AddCommand addCommand = new AddCommand(projectPath, printStream);
+        new CommandLine(addCommand).parseArgs(args);
+        addCommand.execute();
 
         Assert.assertTrue(readOutput().contains("A module already exists with the given name"));
     }

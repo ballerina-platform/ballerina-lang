@@ -46,13 +46,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.ballerinalang.packerina.cmd.Constants.CREATE_COMMAND;
+import static org.ballerinalang.packerina.cmd.Constants.ADD_COMMAND;
 
 /**
- * New command for creating a ballerina project.
+ * New command for adding a new module.
  */
-@CommandLine.Command(name = CREATE_COMMAND, description = "Create a new Ballerina project")
-public class CreateCommand implements BLauncherCmd {
+@CommandLine.Command(name = ADD_COMMAND, description = "Add a new module to Ballerina project")
+public class AddCommand implements BLauncherCmd {
 
     private Path userDir;
     private PrintStream errStream;
@@ -71,13 +71,13 @@ public class CreateCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--list", "-l"})
     private boolean list = false;
 
-    public CreateCommand() {
+    public AddCommand() {
         userDir = Paths.get(System.getProperty("user.dir"));
         errStream = System.err;
         initJarFs();
     }
 
-    public CreateCommand(Path userDir, PrintStream errStream) {
+    public AddCommand(Path userDir, PrintStream errStream) {
         this.userDir = userDir;
         this.errStream = errStream;
         initJarFs();
@@ -86,7 +86,7 @@ public class CreateCommand implements BLauncherCmd {
     private void initJarFs() {
         URI uri = null;
         try {
-            uri = CreateCommand.class.getClassLoader().getResource("create_cmd_templates").toURI();
+            uri = AddCommand.class.getClassLoader().getResource("create_cmd_templates").toURI();
             if (uri.toString().contains("!")) {
                 final String[] array = uri.toString().split("!");
                 if (null == jarFs) {
@@ -103,7 +103,7 @@ public class CreateCommand implements BLauncherCmd {
     public void execute() {
         // If help flag is given print the help message.
         if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(CREATE_COMMAND);
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(ADD_COMMAND);
             errStream.println(commandUsageInfo);
             return;
         }
@@ -130,7 +130,7 @@ public class CreateCommand implements BLauncherCmd {
             CommandUtil.printError(errStream,
                     "The following required arguments were not provided:\n" +
                             "    <module-name>",
-                    "ballerina create <module-name> [-t|--template <template-name>]",
+                    "ballerina add <module-name> [-t|--template <template-name>]",
                     true);
             return;
         }
@@ -139,7 +139,7 @@ public class CreateCommand implements BLauncherCmd {
         if (!(1 == argList.size())) {
             CommandUtil.printError(errStream,
                     "too many arguments.",
-                    "ballerina create <project-name>",
+                    "ballerina add <project-name>",
                     true);
             return;
         }
@@ -171,7 +171,7 @@ public class CreateCommand implements BLauncherCmd {
         // Check if the template exists
         if (!getTemplates().contains(template)) {
             CommandUtil.printError(errStream,
-                    "Template not found, use `ballerina create --list` to view available templates.",
+                    "Template not found, use `ballerina add --list` to view available templates.",
                     null,
                     false);
             return;
@@ -187,7 +187,7 @@ public class CreateCommand implements BLauncherCmd {
             return;
         }
 
-        errStream.println("Created new ballerina module at '" + userDir.relativize(projectPath
+        errStream.println("Added new ballerina module at '" + userDir.relativize(projectPath
                 .resolve(ProjectDirConstants.SOURCE_DIR_NAME)
                 .resolve(moduleName)) + "'");
     }
@@ -195,17 +195,17 @@ public class CreateCommand implements BLauncherCmd {
 
     @Override
     public String getName() {
-        return CREATE_COMMAND;
+        return ADD_COMMAND;
     }
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("create a new ballerina module");
+        out.append("add a new ballerina module");
     }
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina create <module-name> [-t|--template <template-name>]\n");
+        out.append("  ballerina add <module-name> [-t|--template <template-name>]\n");
     }
 
     @Override
@@ -249,9 +249,9 @@ public class CreateCommand implements BLauncherCmd {
                     .map(fileName -> fileName.toString())
                     .collect(Collectors.toList());
 
-            if (null != CreateCommand.jarFs) {
+            if (null != AddCommand.jarFs) {
                 return templates.stream().map(t -> t
-                        .replace(CreateCommand.jarFs.getSeparator(), ""))
+                        .replace(AddCommand.jarFs.getSeparator(), ""))
                         .collect(Collectors.toList());
             } else {
                 return templates;
