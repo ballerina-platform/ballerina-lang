@@ -23,7 +23,7 @@ import java.util.List;
 
 /**
  * This class will implement the "openapi" sub-command "gen-service" for Ballerina OpenApi tool.
- * <p>
+ *
  * Ex: ballerina openapi gen-service moduleName:serivceName [-c: copy-contract] [-o: outputFile]
  */
 @CommandLine.Command(name = "gen-service")
