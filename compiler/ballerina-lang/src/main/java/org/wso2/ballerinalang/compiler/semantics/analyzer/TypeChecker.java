@@ -847,7 +847,18 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             return true;
         } else {
-            return types.isAssignable(checkExpr(expression, env), type);
+            BType sourceType = checkExpr(expression, env);
+            if (expression.getKind() == NodeKind.LITERAL && type.getKind() == TypeKind.FINITE) {
+                if (types.isAssignableToFiniteType(type, (BLangLiteral) expression)) {
+                    return true;
+                }
+            } else if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangSimpleVarRef simpleVariable = (BLangSimpleVarRef) expression;
+                if (simpleVariable.symbol.getKind() == SymbolKind.CONSTANT) {
+                    sourceType = simpleVariable.symbol.type;
+                }
+            }
+            return types.isAssignable(sourceType, type);
         }
     }
 
