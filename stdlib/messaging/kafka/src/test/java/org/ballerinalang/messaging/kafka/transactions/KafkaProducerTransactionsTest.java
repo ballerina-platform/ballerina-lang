@@ -140,7 +140,7 @@ public class KafkaProducerTransactionsTest {
             throw new IllegalStateException();
         }
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-transaction-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(2288, 9144);
+        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(14012, 14112);
         return kafkaCluster;
     }
 }

@@ -20,7 +20,7 @@ import ballerina/transactions;
 string topic = "abort-transaction-topic";
 
 kafka:ProducerConfig producerConfigs = {
-    bootstrapServers:"localhost:9144, localhost:9145, localhost:9146",
+    bootstrapServers:"localhost:14112, localhost:14113, localhost:14114",
     clientId:"abort-transaction-producer",
     acks:"all",
     noRetries:3,
