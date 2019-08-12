@@ -34,13 +34,13 @@ public class ResourceDefinitionCompletionTest extends CompletionTest {
     public Object[][] dataProvider() {
         log.info("Test textDocument/completion for Resource Definitions Scope");
         return new Object[][] {
-                {"emptyLineCompletion.json", "resource"},
-                {"nonEmptyLineCompletion.json", "resource"},
+//                {"emptyLineCompletion.json", "resource"},
+//                {"nonEmptyLineCompletion.json", "resource"},
                 {"actionInvocationSuggestion1.json", "resource"},
                 {"actionInvocationSuggestion2.json", "resource"},
                 {"completionBeforeUnderscore1.json", "resource"},
                 {"completionBeforeUnderscore2.json", "resource"},
-                {"completionBeforeUnderscore3.json", "resource"},
+//                {"completionBeforeUnderscore3.json", "resource"},
                 {"completionAvoidRemoteFunctions.json", "resource"},
         };
     }

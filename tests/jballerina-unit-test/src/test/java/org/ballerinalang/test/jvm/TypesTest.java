@@ -786,4 +786,10 @@ public class TypesTest {
                                           new BValue[] {new BDecimal(BigDecimal.valueOf(5))});
         Assert.assertEquals(((BDecimal) result[0]).intValue(), 10);
     }
+
+    @Test
+    public void testObjectWithSameNameAsFileName() {
+        BValue[] result = BRunUtil.invoke(objectsResult, "testObjectWithSameNameAsFileName");
+        Assert.assertEquals((result[0]).stringValue(), "works!");
+    }
 }

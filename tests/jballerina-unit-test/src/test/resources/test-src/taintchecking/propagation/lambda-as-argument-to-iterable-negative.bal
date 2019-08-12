@@ -24,7 +24,12 @@ function taintedJsonReturn() returns @tainted map<record{}[]> {
 string[] types0 = [ "street_number" ];
 string[] types1 = [ "postal_code_suffix" ];
 
-map<record{}[]> data = {
+type AddressLine record {
+    string long_name;
+    string short_name;
+    string[] types;
+};
+map<AddressLine[]> data = {
     "address_components": [
         {
             long_name: "1823",

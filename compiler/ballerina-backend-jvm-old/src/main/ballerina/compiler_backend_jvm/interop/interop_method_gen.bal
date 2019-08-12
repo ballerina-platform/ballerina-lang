@@ -110,7 +110,7 @@ function genJFieldForInteropField(JFieldFunctionWrapper jFieldFuncWrapper,
     int access = ACC_PUBLIC + ACC_STATIC;
 
     jvm:MethodVisitor mv = cw.visitMethod(access, birFunc.name.value, desc, (), ());
-    InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
+    InstructionGenerator instGen = new(mv, indexMap, birModule);
     ErrorHandlerGenerator errorGen = new(mv, indexMap, currentPackageName);
     LabelGenerator labelGen = new();
     TerminatorGenerator termGen = new(mv, indexMap, labelGen, errorGen, birModule);
@@ -266,7 +266,7 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
     int access = ACC_PUBLIC + ACC_STATIC;
 
     jvm:MethodVisitor mv = cw.visitMethod(access, birFunc.name.value, desc, (), ());
-    InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
+    InstructionGenerator instGen = new(mv, indexMap, birModule);
     ErrorHandlerGenerator errorGen = new(mv, indexMap, currentPackageName);
     LabelGenerator labelGen = new();
     TerminatorGenerator termGen = new(mv, indexMap, labelGen, errorGen, birModule);
