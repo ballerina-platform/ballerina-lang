@@ -88,7 +88,7 @@ dependencies {
     dist project(':ballerina-bir')
     birJar project(path: ':ballerina-bir', configuration: 'birJar')
     dist project(':ballerina-utils')
-    dist project(':ballerina-runtime-all')
+    dist project(':ballerina-rt')
 
     dist project(':testerina:testerina-core')
     dist project(':ballerina-formatter')

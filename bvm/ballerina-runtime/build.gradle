@@ -47,5 +47,5 @@ jar {
     from { configurations.dist.collect { it.isDirectory() ? it : zipTree(it) } }
 }
 
-description = 'Ballerina - Runtime'
+description = 'Ballerina - Runtime Core'
 

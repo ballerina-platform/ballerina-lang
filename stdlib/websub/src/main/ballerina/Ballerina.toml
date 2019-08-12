@@ -8,7 +8,7 @@ target = "java"
     [[platform.libraries]]
     artafactId = "web-sub"
     version = "@project.version@"
-    path = "./lib/ballerina-web-sub-@project.version@.jar"
+    path = "./lib/ballerina-websub-@project.version@.jar"
     groupId = "ballerina"
     modules = ["web-sub"]
 

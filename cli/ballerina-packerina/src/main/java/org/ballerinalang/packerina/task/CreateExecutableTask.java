@@ -38,10 +38,10 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
 
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
-import java.util.HashSet;
 
 /**
  * Task for creating the executable jar file.

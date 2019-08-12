@@ -47,7 +47,7 @@ public class CopyModuleJarTask implements Task {
         Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
         Path tmpDir = targetDir.resolve(TARGET_TMP_DIRECTORY);
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
-        Path balHomePath = buildContext.get(BuildContextField.HOME_REPO);
+        String balHomePath = buildContext.get(BuildContextField.HOME_REPO).toString();
 
         try {
             if (!tmpDir.toFile().exists()) {
@@ -57,18 +57,18 @@ public class CopyModuleJarTask implements Task {
             throw createLauncherException("unable to create tmp directory in target :" + e.getMessage());
         }
         // Copy ballerina runtime all jar
-        copyRuntimeAllJar(sourceRootPath, tmpDir);
+        copyRuntimeAllJar(balHomePath, tmpDir);
         // Copy module jar
         List<BLangPackage> moduleBirMap = buildContext.getModules();
         copyModuleJar(buildContext, moduleBirMap, tmpDir);
         // Copy imported jars.
-        copyImportedJars(buildContext, moduleBirMap, sourceRootPath, tmpDir, balHomePath.toString());
+        copyImportedJars(buildContext, moduleBirMap, sourceRootPath, tmpDir, balHomePath);
     }
 
-    private void copyRuntimeAllJar(Path project, Path jarTarget) {
+    private void copyRuntimeAllJar(String balHomePath, Path jarTarget) {
         String ballerinaVersion = System.getProperty("ballerina.version");
-        String runtimeJarName = "ballerina-runtime-all-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
-        Path runtimeAllJar = Paths.get(project.toString(), "..", "bre", "lib", runtimeJarName);
+        String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
+        Path runtimeAllJar = Paths.get(balHomePath, "bre", "lib", runtimeJarName);
         try {
             Files.copy(runtimeAllJar, Paths.get(jarTarget.toString(), runtimeJarName));
         } catch (IOException e) {
