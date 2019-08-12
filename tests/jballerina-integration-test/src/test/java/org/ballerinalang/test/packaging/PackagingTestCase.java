@@ -130,17 +130,13 @@ public class PackagingTestCase extends BaseTest {
 
     @Test(description = "Test pulling a package from central", dependsOnMethods = "testPush")
     public void testPull() {
-        String baloFileName = moduleName + "-"
-                              + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
-                              + ProgramFileConstants.ANY_PLATFORM + "-"
-                              + "0.1.0"
-                              + BLANG_COMPILED_PKG_BINARY_EXT;
+        String baloFileName = moduleName + ".balo";
         Path baloPath = Paths.get(ProjectDirConstants.BALO_CACHE_DIR_NAME,
                                  orgName, moduleName, "0.1.0");
 
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                .with().pollDelay(Duration.FIVE_SECONDS)
-               .await().atMost(60, SECONDS).until(() -> {
+               .await().atMost(90, SECONDS).until(() -> {
             String[] clientArgs = {orgName + "/" + moduleName + ":0.1.0"};
             balClient.runMain("pull", clientArgs, envVariables, new String[]{},
                     new LogLeecher[]{}, balServer.getServerHome());
