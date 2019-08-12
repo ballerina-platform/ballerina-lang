@@ -26,6 +26,9 @@ public interface BallerinaListRefBindingPattern extends PsiElement {
   @NotNull
   List<BallerinaBindingRefPattern> getBindingRefPatternList();
 
+  @Nullable
+  BallerinaListRefRestPattern getListRefRestPattern();
+
   @NotNull
   PsiElement getLeftBracket();
 

@@ -23,8 +23,14 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaErrorMatchPattern extends PsiElement {
 
-  @NotNull
+  @Nullable
   BallerinaErrorArgListMatchPattern getErrorArgListMatchPattern();
+
+  @Nullable
+  BallerinaErrorFieldMatchPatterns getErrorFieldMatchPatterns();
+
+  @Nullable
+  BallerinaTypeName getTypeName();
 
   @NotNull
   PsiElement getLeftParenthesis();
@@ -32,7 +38,7 @@ public interface BallerinaErrorMatchPattern extends PsiElement {
   @NotNull
   PsiElement getRightParenthesis();
 
-  @NotNull
+  @Nullable
   PsiElement getTypeError();
 
 }
