@@ -71,6 +71,20 @@ function testParseTime() returns [int, string, int] {
     return [timeValue, zoneId, zoneoffset];
 }
 
+function testParseTimeWithTimePartOnly() returns [int, string] {
+    int epochTime = 0;
+    string timeFormatted = "";
+    var timeRet = time:parse("09:46:22", "HH:mm:ss");
+    if (timeRet is time:Time) {
+        epochTime = timeRet.time;
+        string|error formattedRet = time:format(timeRet, "HH:mm:ss");
+        if (formattedRet is string) {
+            timeFormatted = formattedRet;
+        }
+    }
+    return [epochTime, timeFormatted];
+}
+
 function testParseRFC1123Time(string timestamp) returns [int, string, int] {
     var timeRet = time:parse(timestamp, time:TIME_FORMAT_RFC_1123);
     int timeValue = 0;

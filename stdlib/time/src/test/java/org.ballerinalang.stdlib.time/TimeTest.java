@@ -82,6 +82,14 @@ public class TimeTest {
         Assert.assertEquals(((BInteger) returns[2]).intValue(), -18000);
     }
 
+    @Test(description = "Test parsing a given time string to time.")
+    public void testParseTimeWithTimePartOnly() {
+        BValue[] returns = BRunUtil.invoke(result, "testParseTimeWithTimePartOnly");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 78382);
+        Assert.assertEquals((returns[1]).stringValue(), "09:46:23");
+    }
+
+
     @Test(description = "Test parsing a given time string to RFC 1123 format")
     public void testParseToRFC1123Time() {
         BValue[] args = {new BString("Wed, 28 Mar 2018 11:56:23 +0530")};
