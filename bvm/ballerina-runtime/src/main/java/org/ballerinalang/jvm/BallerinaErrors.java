@@ -122,7 +122,7 @@ public class BallerinaErrors {
      * @param e java exception
      * @return ballerina error
      */
-    public static ErrorValue createInteropError(Exception e) {
+    public static ErrorValue createInteropError(Throwable e) {
         MapValueImpl<String, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
         if (e.getMessage() != null) {
             detailMap.put(ERROR_MESSAGE_FIELD, e.getMessage());

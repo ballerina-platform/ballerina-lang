@@ -43,9 +43,21 @@ public class BallerinaErrorMatchPatternImpl extends ASTWrapperPsiElement impleme
   }
 
   @Override
-  @NotNull
+  @Nullable
   public BallerinaErrorArgListMatchPattern getErrorArgListMatchPattern() {
-    return findNotNullChildByClass(BallerinaErrorArgListMatchPattern.class);
+    return findChildByClass(BallerinaErrorArgListMatchPattern.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaErrorFieldMatchPatterns getErrorFieldMatchPatterns() {
+    return findChildByClass(BallerinaErrorFieldMatchPatterns.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaTypeName getTypeName() {
+    return findChildByClass(BallerinaTypeName.class);
   }
 
   @Override
@@ -61,9 +73,9 @@ public class BallerinaErrorMatchPatternImpl extends ASTWrapperPsiElement impleme
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getTypeError() {
-    return findNotNullChildByType(TYPE_ERROR);
+    return findChildByType(TYPE_ERROR);
   }
 
 }

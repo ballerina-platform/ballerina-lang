@@ -19,13 +19,7 @@ import ballerina/jwt;
 
 jwt:InboundJwtAuthProvider jwtAuthProvider09 = new({
     issuer:"ballerina",
-    audience: "ballerina.io",
-    certificateAlias: "cert",
-    validateCertificate: false,
-    trustStore: {
-        path: "../../../src/test/resources/auth/testtruststore.p12",
-        password: "ballerina"
-    }
+    audience: "ballerina.io"
 });
 
 http:BearerAuthHandler jwtAuthHandler09 = new(jwtAuthProvider09);
