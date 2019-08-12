@@ -65,23 +65,6 @@ public type OutboundJwtAuthProvider object {
     }
 };
 
-# Represents authentication provider configurations that supports generating JWT for client interactions.
-#
-# + username - JWT token username
-# + issuer - JWT token issuer
-# + audience - JWT token audience
-# + expTime - Expiry time
-# + keyStoreConfig - JWT key store configurations
-# + signingAlg - Signing algorithm
-public type JwtIssuerConfig record {|
-    string username?;
-    string issuer;
-    string[] audience;
-    int expTime = 300;
-    JwtKeyStoreConfig keyStoreConfig;
-    JwtSigningAlgorithm signingAlg = RS256;
-|};
-
 # Process auth token for JWT auth.
 #
 # + jwtIssuerConfig - JWT issuer configurations
@@ -105,7 +88,7 @@ function getAuthTokenForJWTAuth(JwtIssuerConfig jwtIssuerConfig) returns string|
     JwtPayload payload = {
         sub: username,
         iss: jwtIssuerConfig.issuer,
-        exp: time:currentTime().time / 1000 + jwtIssuerConfig.expTime,
+        exp: time:currentTime().time / 1000 + jwtIssuerConfig.expTimeInSeconds,
         iat: time:currentTime().time / 1000,
         nbf: time:currentTime().time / 1000,
         jti: system:uuid(),
