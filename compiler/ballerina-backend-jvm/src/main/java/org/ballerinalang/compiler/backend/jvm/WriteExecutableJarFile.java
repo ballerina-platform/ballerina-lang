@@ -50,6 +50,7 @@ import static org.ballerinalang.model.types.TypeKind.STRING;
                 @Argument(name = "targetPath", type = STRING),
         }
 )
+@SuppressWarnings("unchecked")
 public class WriteExecutableJarFile extends BlockingNativeCallableUnit {
 
     private static final String PKG_ENTRIES = "pkgEntries";
@@ -63,13 +64,20 @@ public class WriteExecutableJarFile extends BlockingNativeCallableUnit {
 
     public static void writeExecutableJarToFile(Strand strand, MapValue oJarFile, String targetPath) {
         try {
-            getJarContent(oJarFile, new FileOutputStream(targetPath));
+            writeJarContent(oJarFile, new FileOutputStream(targetPath));
+            
+            // TODO: enable the verification once the uber-jar generation is complete.
+            // Optional<ErrorValue> result =
+            // ClassVerifier.verify((Map<String, ArrayValue>) oJarFile.get(PKG_ENTRIES), targetPath);
+            // if (result.isPresent()) {
+            // throw result.get();
+            // }
         } catch (IOException e) {
             throw new BLangCompilerException("jar file generation failed: " + e.getMessage(), e);
         }
     }
 
-    private static void getJarContent(MapValue<String, MapValue> entries, OutputStream out) throws IOException {
+    private static void writeJarContent(MapValue<String, MapValue> entries, OutputStream out) throws IOException {
         Manifest manifest = new Manifest();
         manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
 
@@ -79,14 +87,14 @@ public class WriteExecutableJarFile extends BlockingNativeCallableUnit {
         }
 
         try (JarOutputStream target = new JarOutputStream(out, manifest)) {
-
             if (!entries.containsKey(PKG_ENTRIES)) {
                 throw new BLangCompilerException("no class file entries found in the record");
             }
+
             Map<String, ArrayValue> jarEntries = entries.get(PKG_ENTRIES);
-            for (String entryName : jarEntries.keySet()) {
-                byte[] entryContent = jarEntries.get(entryName).getBytes();
-                JarEntry entry = new JarEntry(entryName);
+            for (Map.Entry<String, ArrayValue> keyVal : jarEntries.entrySet()) {
+                byte[] entryContent = keyVal.getValue().getBytes();
+                JarEntry entry = new JarEntry(keyVal.getKey());
                 target.putNextEntry(entry);
                 target.write(entryContent);
                 target.closeEntry();

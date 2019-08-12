@@ -34,7 +34,7 @@ public type ClassWriter object {
 
     public function visitSource(string fileName) = external;
     
-    public function toByteArray() returns byte[] = external;
+    public function toByteArray() returns byte[]|error = external;
 };
 
 
