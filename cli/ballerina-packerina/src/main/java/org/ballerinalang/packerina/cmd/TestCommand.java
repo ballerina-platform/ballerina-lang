@@ -52,7 +52,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURE
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
-import static org.ballerinalang.compiler.CompilerOptionName.SIDDHI_RUNTIME_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.packerina.cmd.Constants.BUILD_COMMAND;
@@ -107,9 +106,6 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--config"}, description = "path to the configuration file")
     private String configFilePath;
 
-    @CommandLine.Option(names = "--siddhi-runtime", description = "enable siddhi runtime for stream processing")
-    private boolean siddhiRuntimeFlag;
-
     public void execute() {
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
@@ -151,7 +147,6 @@ public class TestCommand implements BLauncherCmd {
             options.put(SKIP_TESTS, Boolean.toString(skipTests));
             options.put(TEST_ENABLED, "true");
             options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(experimentalFlag));
-            options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(siddhiRuntimeFlag));
 
             BuildContext buildContext = new BuildContext(sourceRootPath);
             buildContext.setOut(outStream);
@@ -181,7 +176,6 @@ public class TestCommand implements BLauncherCmd {
             options.put(SKIP_TESTS, Boolean.toString(skipTests));
             options.put(TEST_ENABLED, "true");
             options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(experimentalFlag));
-            options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(siddhiRuntimeFlag));
 
             // remove the hyphen of the module folder if it exists
             String pkgOrSourceFileNameAsString = argList.get(0);

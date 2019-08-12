@@ -366,7 +366,7 @@ public class BLangPackageBuilder {
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
     private SymbolTable symTable;
-
+    private boolean streamModuleImported = false;
     private BLangDiagnosticLog dlog;
 
     private static final String IDENTIFIER_LITERAL_PREFIX = "'";
@@ -3706,8 +3706,8 @@ public class BLangPackageBuilder {
         }
     }
 
-    void startForeverNode(DiagnosticPos pos, boolean isSiddhiRuntimeEnabled) {
-        ForeverNode foreverNode = TreeBuilder.createForeverNode(isSiddhiRuntimeEnabled);
+    void startForeverNode(DiagnosticPos pos) {
+        ForeverNode foreverNode = TreeBuilder.createForeverNode();
         ((BLangForever) foreverNode).pos = pos;
         this.foreverNodeStack.push(foreverNode);
     }
@@ -3729,10 +3729,11 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(foreverNode);
 
         // implicit import of streams module, user doesn't want to import explicitly
-        if (!foreverNode.isSiddhiRuntimeEnabled()) {
+        if (!streamModuleImported) {
             List<String> nameComps = getPackageNameComps(Names.STREAMS_MODULE.value);
             addImportPackageDeclaration(pos, null, Names.STREAMS_ORG.value, nameComps, null,
                     nameComps.get(nameComps.size() - 1));
+            streamModuleImported = true;
         }
     }
 

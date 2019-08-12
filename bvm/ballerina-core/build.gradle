@@ -24,10 +24,6 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-config')
-    implementation project(':ballerina-streaming:siddhi-core')
-    implementation project(':ballerina-streaming:siddhi-query-api')
-    implementation project(':ballerina-streaming:siddhi-query-compiler')
-    implementation project(':ballerina-streaming:siddhi-annotations')
     implementation 'org.slf4j:slf4j-api'
     implementation 'io.netty:netty-transport'
     implementation 'io.netty:netty-codec'

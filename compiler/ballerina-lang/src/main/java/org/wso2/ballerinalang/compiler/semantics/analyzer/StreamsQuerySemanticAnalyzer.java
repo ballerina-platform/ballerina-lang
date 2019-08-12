@@ -94,7 +94,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -122,7 +121,6 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
     private SymbolEnv env;
     private BType expType;
     private DiagnosticCode diagCode;
-    private boolean isSiddhiRuntimeEnabled;
     private List<BField> outputStreamFieldList;
 
     private BLangOrderBy orderBy;
@@ -178,7 +176,6 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangForever foreverStatement) {
 
-        isSiddhiRuntimeEnabled = foreverStatement.isSiddhiRuntimeEnabled();
         foreverStatement.setEnv(env);
         for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
             SymbolEnv stmtEnv = SymbolEnv.createStreamingQueryEnv(
@@ -188,11 +185,7 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
 
         //Validate output attribute names with stream/struct
         for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
-            if (isSiddhiRuntimeEnabled) {
-                checkOutputAttributesWithOutputConstraintForSiddhi((BLangStatement) streamingQueryStatement);
-            } else {
-                checkOutputAttributesWithOutputConstraint((BLangStatement) streamingQueryStatement);
-            }
+            checkOutputAttributesWithOutputConstraint((BLangStatement) streamingQueryStatement);
             validateOutputAttributeTypes((BLangStatement) streamingQueryStatement);
         }
     }
@@ -373,27 +366,26 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
-        if (!isSiddhiRuntimeEnabled) {
 
-            if (invocationExpr.expr != null) {
-                analyzeNode(invocationExpr.expr, env);
-            }
-
-            BSymbol aggregatorTypeSymbol = symResolver.lookupSymbolInPackage(invocationExpr.pos, env,
-                    Names.STREAMS_MODULE, names.fromString(AGGREGATOR_OBJECT_NAME), SymTag.OBJECT);
-            BSymbol windowTypeSymbol = symResolver.lookupSymbolInPackage(invocationExpr.pos, env, Names.STREAMS_MODULE,
-                    names.fromString(WINDOW_OBJECT_NAME), SymTag.OBJECT);
-
-            if (checkInvocationExpr(invocationExpr, aggregatorTypeSymbol, windowTypeSymbol,
-                    names.fromIdNode(invocationExpr.pkgAlias))) {
-                return;
-            }
-
-            if (!checkInvocationExpr(invocationExpr, aggregatorTypeSymbol, windowTypeSymbol, Names.STREAMS_MODULE)) {
-                invocationExpr.argExprs.forEach(argExpr -> analyzeNode(argExpr, env));
-                typeChecker.checkExpr(invocationExpr, env);
-            }
+        if (invocationExpr.expr != null) {
+            analyzeNode(invocationExpr.expr, env);
         }
+
+        BSymbol aggregatorTypeSymbol = symResolver.lookupSymbolInPackage(invocationExpr.pos, env,
+                Names.STREAMS_MODULE, names.fromString(AGGREGATOR_OBJECT_NAME), SymTag.OBJECT);
+        BSymbol windowTypeSymbol = symResolver.lookupSymbolInPackage(invocationExpr.pos, env, Names.STREAMS_MODULE,
+                names.fromString(WINDOW_OBJECT_NAME), SymTag.OBJECT);
+
+        if (checkInvocationExpr(invocationExpr, aggregatorTypeSymbol, windowTypeSymbol,
+                names.fromIdNode(invocationExpr.pkgAlias))) {
+            return;
+        }
+
+        if (!checkInvocationExpr(invocationExpr, aggregatorTypeSymbol, windowTypeSymbol, Names.STREAMS_MODULE)) {
+            invocationExpr.argExprs.forEach(argExpr -> analyzeNode(argExpr, env));
+            typeChecker.checkExpr(invocationExpr, env);
+        }
+
     }
 
     @Override
@@ -404,90 +396,63 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
-        if (isSiddhiRuntimeEnabled) {
-            typeTestExpr.expr.accept(this);
-        } else {
-            analyzeNode(typeTestExpr.expr, env);
-            typeChecker.checkExpr(typeTestExpr, env);
-        }
+        analyzeNode(typeTestExpr.expr, env);
+        typeChecker.checkExpr(typeTestExpr, env);
     }
 
     @Override
     public void visit(BLangAnnotAccessExpr annotAccessExpr) {
-        if (isSiddhiRuntimeEnabled) {
-            annotAccessExpr.expr.accept(this);
-        } else {
-            analyzeNode(annotAccessExpr.expr, env);
-            typeChecker.checkExpr(annotAccessExpr, env);
-        }
+        analyzeNode(annotAccessExpr.expr, env);
+        typeChecker.checkExpr(annotAccessExpr, env);
     }
 
     @Override
     public void visit(BLangElvisExpr elvisExpr) {
-        if (isSiddhiRuntimeEnabled) {
-            elvisExpr.lhsExpr.accept(this);
-            elvisExpr.rhsExpr.accept(this);
-        } else {
-            analyzeNode(elvisExpr.lhsExpr, env);
-            analyzeNode(elvisExpr.rhsExpr, env);
-            typeChecker.checkExpr(elvisExpr, env);
-        }
+        analyzeNode(elvisExpr.lhsExpr, env);
+        analyzeNode(elvisExpr.rhsExpr, env);
+        typeChecker.checkExpr(elvisExpr, env);
+
     }
 
     @Override
     public void visit(BLangUnaryExpr unaryExpr) {
-        if (isSiddhiRuntimeEnabled) {
-            unaryExpr.expr.accept(this);
-        } else {
-            analyzeNode(unaryExpr.expr, env);
-            typeChecker.checkExpr(unaryExpr, env);
-        }
+        analyzeNode(unaryExpr.expr, env);
+        typeChecker.checkExpr(unaryExpr, env);
+
     }
 
     @Override
     public void visit(BLangBinaryExpr binaryExpr) {
-        if (isSiddhiRuntimeEnabled) {
-            BLangExpression leftExpression = binaryExpr.getLeftExpression();
-            leftExpression.accept(this);
+        analyzeNode(binaryExpr.lhsExpr, env);
+        analyzeNode(binaryExpr.rhsExpr, env);
+        typeChecker.checkExpr(binaryExpr, env);
 
-            BLangExpression rightExpression = binaryExpr.getRightExpression();
-            rightExpression.accept(this);
-        } else {
-            analyzeNode(binaryExpr.lhsExpr, env);
-            analyzeNode(binaryExpr.rhsExpr, env);
-            typeChecker.checkExpr(binaryExpr, env);
-        }
     }
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        typeChecker.checkExpr(fieldAccessExpr, env);
 
-        if (isSiddhiRuntimeEnabled) {
-            fieldAccessExpr.expr.accept(this);
-        } else {
-            typeChecker.checkExpr(fieldAccessExpr, env);
+        //Rollback to original type from shadowed type
+        BLangVariableReference expr = (BLangVariableReference) fieldAccessExpr.expr;
+        if (expr.symbol != null) {
+            BVarSymbol symbol = ((BVarSymbol) expr.symbol).originalSymbol;
+            if (symbol != null && (symbol.type.tag == TypeTags.STREAM || symbol.type.tag == TypeTags.TABLE)) {
+                expr.symbol = symbol;
+                expr.type = expr.symbol.type;
+            }
 
-            //Rollback to original type from shadowed type
-            BLangVariableReference expr = (BLangVariableReference) fieldAccessExpr.expr;
-            if (expr.symbol != null) {
-                BVarSymbol symbol = ((BVarSymbol) expr.symbol).originalSymbol;
-                if (symbol != null && (symbol.type.tag == TypeTags.STREAM || symbol.type.tag == TypeTags.TABLE)) {
-                    expr.symbol = symbol;
-                    expr.type = expr.symbol.type;
-                }
+            if (env.node != null && env.node.getKind() == NodeKind.SELECT_CLAUSE) {
+                dlog.error(fieldAccessExpr.pos, DiagnosticCode.STREAM_ATTR_NOT_ALLOWED_IN_HAVING_ORDER_BY,
+                           fieldAccessExpr.field.value);
+            }
 
-                if (env.node != null && env.node.getKind() == NodeKind.SELECT_CLAUSE) {
-                    dlog.error(fieldAccessExpr.pos, DiagnosticCode.STREAM_ATTR_NOT_ALLOWED_IN_HAVING_ORDER_BY,
-                               fieldAccessExpr.field.value);
-                }
-
-                if (fieldAccessExpr.expr.type.tag == TypeTags.STREAM) {
-                    BRecordType streamType = (BRecordType) ((BStreamType) fieldAccessExpr.expr.type).constraint;
-                    if (streamType.fields.stream()
-                            .noneMatch(bField -> bField.name.value.equals(fieldAccessExpr.field.value))) {
-                        dlog.error(fieldAccessExpr.pos, DiagnosticCode.UNDEFINED_STREAM_ATTRIBUTE, fieldAccessExpr.field
-                                .value);
-                    }
+            if (fieldAccessExpr.expr.type.tag == TypeTags.STREAM) {
+                BRecordType streamType = (BRecordType) ((BStreamType) fieldAccessExpr.expr.type).constraint;
+                if (streamType.fields.stream()
+                        .noneMatch(bField -> bField.name.value.equals(fieldAccessExpr.field.value))) {
+                    dlog.error(fieldAccessExpr.pos, DiagnosticCode.UNDEFINED_STREAM_ATTRIBUTE, fieldAccessExpr.field
+                            .value);
                 }
             }
         }
@@ -495,76 +460,55 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
-        if (isSiddhiRuntimeEnabled) {
-            indexAccessExpr.indexExpr.accept(this);
-        } else {
-            analyzeNode(indexAccessExpr.indexExpr, env);
-            analyzeNode(indexAccessExpr.expr, env);
-            typeChecker.checkExpr(indexAccessExpr, env);
-        }
+        analyzeNode(indexAccessExpr.indexExpr, env);
+        analyzeNode(indexAccessExpr.expr, env);
+        typeChecker.checkExpr(indexAccessExpr, env);
     }
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
-        if (!isSiddhiRuntimeEnabled) {
-            typeChecker.checkExpr(varRefExpr, env);
-        }
+        typeChecker.checkExpr(varRefExpr, env);
     }
 
     @Override
     public void visit(BLangLiteral literalExpr) {
-        if (!isSiddhiRuntimeEnabled) {
-            typeChecker.checkExpr(literalExpr, env);
-        }
+        typeChecker.checkExpr(literalExpr, env);
     }
 
     @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
-        if (!isSiddhiRuntimeEnabled) {
-            analyzeNode(ternaryExpr.expr, env);
-            analyzeNode(ternaryExpr.thenExpr, env);
-            analyzeNode(ternaryExpr.elseExpr, env);
-            typeChecker.checkExpr(ternaryExpr, env);
-        }
+        analyzeNode(ternaryExpr.expr, env);
+        analyzeNode(ternaryExpr.thenExpr, env);
+        analyzeNode(ternaryExpr.elseExpr, env);
+        typeChecker.checkExpr(ternaryExpr, env);
     }
 
     @Override
     public void visit(BLangTableLiteral tableLiteral) {
-        if (!isSiddhiRuntimeEnabled) {
-            typeChecker.checkExpr(tableLiteral, env);
-        }
-
+        typeChecker.checkExpr(tableLiteral, env);
     }
 
     @Override
     public void visit(BLangListConstructorExpr listConstructorExpr) {
-        if (!isSiddhiRuntimeEnabled) {
-            listConstructorExpr.exprs.forEach(expression -> analyzeNode(expression, env));
-            typeChecker.checkExpr(listConstructorExpr, env);
-        }
+        listConstructorExpr.exprs.forEach(expression -> analyzeNode(expression, env));
+        typeChecker.checkExpr(listConstructorExpr, env);
     }
 
     @Override
     public void visit(BLangGroupExpr groupExpr) {
-        if (!isSiddhiRuntimeEnabled) {
-            analyzeNode(groupExpr.expression, env);
-            typeChecker.checkExpr(groupExpr, env);
-        }
+        analyzeNode(groupExpr.expression, env);
+        typeChecker.checkExpr(groupExpr, env);
     }
 
     @Override
     public void visit(BLangTypeConversionExpr typeConversionExpr) {
-        if (!isSiddhiRuntimeEnabled) {
-            analyzeNode(typeConversionExpr.expr, env);
-            typeChecker.checkExpr(typeConversionExpr, env);
-        }
+        analyzeNode(typeConversionExpr.expr, env);
+        typeChecker.checkExpr(typeConversionExpr, env);
     }
 
     @Override
     public void visit(BLangTypedescExpr typedescExpr) {
-        if (!isSiddhiRuntimeEnabled) {
-            typeChecker.checkExpr(typedescExpr, env);
-        }
+        typeChecker.checkExpr(typedescExpr, env);
     }
 
     @Override
@@ -655,67 +599,6 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
 
     //------------- private methods ---------------------------------------------------------
 
-    private void checkOutputAttributesWithOutputConstraintForSiddhi(BLangStatement streamingQueryStatement) {
-        List<? extends SelectExpressionNode> selectExpressions =
-                ((BLangStreamingQueryStatement) streamingQueryStatement).getSelectClause().getSelectExpressions();
-
-        List<String> variableList = new ArrayList<>();
-        boolean isSelectAll = true;
-        if (!((BLangStreamingQueryStatement) streamingQueryStatement).getSelectClause().isSelectAll()) {
-            isSelectAll = false;
-            for (SelectExpressionNode expressionNode : selectExpressions) {
-                String variableName;
-                if (expressionNode.getIdentifier() != null) {
-                    variableName = expressionNode.getIdentifier();
-                } else {
-                    if (expressionNode.getExpression() instanceof BLangFieldBasedAccess) {
-                        variableName = ((BLangFieldBasedAccess) expressionNode.getExpression()).field.value;
-                    } else {
-                        variableName = ((BLangSimpleVarRef) (expressionNode).getExpression()).variableName.value;
-                    }
-                }
-                variableList.add(variableName);
-            }
-        }
-
-        // Validate whether input stream constraint type only contains attribute type that can be processed by Siddhi
-        if (((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput() != null) {
-            List<BField> fields = ((BStructureType) ((BStreamType) ((BLangExpression)
-                    (((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput()).
-                            getStreamReference()).type).constraint).fields;
-
-            for (BField structField : fields) {
-                validateStreamEventType(((BLangStreamingQueryStatement) streamingQueryStatement).pos, structField);
-                if (isSelectAll) {
-                    //create the variable list to validate when select * clause is used in query
-                    variableList.add(structField.name.value);
-                }
-            }
-        }
-
-        BType streamActionArgumentType = ((BInvokableType) ((BLangLambdaFunction) (((BLangStreamingQueryStatement)
-                streamingQueryStatement).getStreamingAction()).getInvokableBody()).type).paramTypes.get(0);
-
-        if (streamActionArgumentType.tag == TypeTags.ARRAY) {
-            BType structType = (((BArrayType) streamActionArgumentType).eType);
-
-            if (structType.tag == TypeTags.OBJECT || structType.tag == TypeTags.RECORD) {
-                List<BField> structFieldList = ((BStructureType) structType).fields;
-                List<String> structFieldNameList = new ArrayList<>();
-                for (BField structField : structFieldList) {
-                    validateStreamEventType(((BLangStreamAction) ((BLangStreamingQueryStatement)
-                            streamingQueryStatement).getStreamingAction()).pos, structField);
-                    structFieldNameList.add(structField.name.value);
-                }
-
-                if (!variableList.equals(structFieldNameList)) {
-                    dlog.error(((BLangStreamAction) ((BLangStreamingQueryStatement) streamingQueryStatement).
-                            getStreamingAction()).pos, DiagnosticCode.INCOMPATIBLE_STREAM_ACTION_ARGUMENT, structType);
-                }
-            }
-        }
-    }
-
     private void checkOutputAttributesWithOutputConstraint(BLangStatement streamingQueryStatement) {
         List<? extends SelectExpressionNode> selectExpressions =
                 ((BLangStreamingQueryStatement) streamingQueryStatement).getSelectClause().getSelectExpressions();
@@ -783,13 +666,6 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void validateStreamEventType(DiagnosticPos pos, BField field) {
-        if (!(field.type.tag == TypeTags.INT || field.type.tag == TypeTags.BOOLEAN || field.type.tag == TypeTags.STRING
-                || field.type.tag == TypeTags.FLOAT)) {
-            dlog.error(pos, DiagnosticCode.INVALID_STREAM_ATTRIBUTE_TYPE);
-        }
-    }
-
     private void validateStreamingEventType(DiagnosticPos pos, BType actualType, String attributeName, BType expType) {
         if (expType.tag == TypeTags.SEMANTIC_ERROR) {
             return;
@@ -831,28 +707,7 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
                     for (int i = 0; i < selectExpressions.size(); i++) {
                         SelectExpressionNode expressionNode = selectExpressions.get(i);
                         BField structField = null;
-                        if ((isSiddhiRuntimeEnabled && expressionNode.getExpression().getKind() ==
-                                                       NodeKind.FIELD_BASED_ACCESS_EXPR) ||
-                            (expressionNode.getExpression().getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
-                            ((BLangFieldBasedAccess) expressionNode.getExpression()).expr.type.tag ==
-                                    TypeTags.STREAM)) {
-                            String attributeName =
-                                    ((BLangFieldBasedAccess) expressionNode.getExpression()).field.value;
-                            String streamIdentifier = ((BLangSimpleVarRef) ((BLangFieldBasedAccess) expressionNode.
-                                    getExpression()).expr).variableName.value;
-
-                            List<BField> streamFieldList = inputStreamSpecificFieldMap.
-                                    get(streamIdentifier);
-                            if (streamFieldList == null) {
-                                dlog.error(((BLangSelectClause) ((BLangStreamingQueryStatement)
-                                                streamingQueryStatement).getSelectClause()).pos,
-                                        DiagnosticCode.UNDEFINED_STREAM_REFERENCE, streamIdentifier);
-                            } else {
-                                structField = getStructField(streamFieldList, attributeName);
-                                validateAttributeWithOutputStruct(structField, attributeName,
-                                        streamingQueryStatement, outputStreamFieldList.get(i));
-                            }
-                        } else if (expressionNode.getExpression() instanceof BLangSimpleVarRef) {
+                        if (expressionNode.getExpression() instanceof BLangSimpleVarRef) {
                             String attributeName = ((BLangSimpleVarRef) expressionNode.getExpression()).
                                     variableName.getValue();
 
