@@ -157,7 +157,14 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         }
 
         this.eventBus.setBreakpointsList(breakpoints);
+        if (this.context.getDebuggee() != null) {
+            Arrays.stream(breakpoints).forEach(breakpoint -> {
+                this.context.getDebuggee().allClasses().forEach(referenceType -> {
+                    this.eventBus.addBreakpoint(referenceType, breakpoint);
+                });
+            });
 
+        }
         return CompletableFuture.completedFuture(breakpointsResponse);
     }
 
@@ -390,7 +397,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             childVariables.put(variableReference, values);
             dapVariable.setVariablesReference(variableReference);
             dapVariable.setType(varType);
-            dapVariable.setValue("Obj");
+            dapVariable.setValue("Object");
             return dapVariable;
         } else {
             dapVariable.setType(varType);

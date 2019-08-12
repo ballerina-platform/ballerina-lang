@@ -18,6 +18,7 @@ package org.ballerinalang.debugadapter;
 
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
+import com.sun.jdi.ReferenceType;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VMDisconnectedException;
 import com.sun.jdi.event.BreakpointEvent;
@@ -108,32 +109,7 @@ public class EventBus {
                             ClassPrepareEvent evt = (ClassPrepareEvent) event;
 
                             Arrays.stream(this.breakpointsList).forEach(breakpoint -> {
-                                try {
-                                    List<String> paths = evt.referenceType().sourcePaths("");
-                                    String balName = paths.size() > 0 ? paths.get(0) : "";
-
-                                    Path path = Paths.get(breakpoint.getSource().getPath());
-                                    Path projectRoot = findProjectRoot(path);
-                                    String moduleName;
-                                    if (projectRoot == null) {
-                                        moduleName = breakpoint.getSource().getName();
-                                    } else {
-                                        moduleName = PackageUtils.getRelativeFilePath(path.toString());
-                                    }
-                                    if (moduleName.equals(balName)) {
-                                        List<Location> locations = evt.referenceType().locationsOfLine(
-                                                breakpoint.getLine().intValue());
-                                        if (locations.size() > 0) {
-                                            Location location = locations.get(0);
-                                            BreakpointRequest bpReq = context.getDebuggee().eventRequestManager()
-                                                    .createBreakpointRequest(location);
-                                            bpReq.enable();
-                                        }
-                                    }
-
-                                } catch (AbsentInformationException e) {
-
-                                }
+                                addBreakpoint(evt.referenceType(), breakpoint);
                             });
                         }
 
@@ -169,5 +145,34 @@ public class EventBus {
             }
         }
         );
+    }
+
+    public void addBreakpoint(ReferenceType referenceType, Breakpoint breakpoint) {
+        try {
+            List<String> paths = referenceType.sourcePaths("");
+            String balName = paths.size() > 0 ? paths.get(0) : "";
+
+            Path path = Paths.get(breakpoint.getSource().getPath());
+            Path projectRoot = findProjectRoot(path);
+            String moduleName;
+            if (projectRoot == null) {
+                moduleName = breakpoint.getSource().getName();
+            } else {
+                moduleName = PackageUtils.getRelativeFilePath(path.toString());
+            }
+            if (moduleName.equals(balName)) {
+                List<Location> locations = referenceType.locationsOfLine(
+                        breakpoint.getLine().intValue());
+                if (locations.size() > 0) {
+                    Location location = locations.get(0);
+                    BreakpointRequest bpReq = context.getDebuggee().eventRequestManager()
+                            .createBreakpointRequest(location);
+                    bpReq.enable();
+                }
+            }
+
+        } catch (AbsentInformationException e) {
+
+        }
     }
 }
