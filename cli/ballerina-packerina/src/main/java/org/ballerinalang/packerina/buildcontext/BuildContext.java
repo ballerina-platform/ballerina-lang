@@ -237,11 +237,13 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                 throw new BLangCompilerException("invalid source type found: '" + source + "' at: " + sourceRootPath);
             }
         }
-    
-        // set source type as string in compiler context
+        
         CompilerContext compilerContext = this.get(BuildContextField.COMPILER_CONTEXT);
-        CompilerOptions options = CompilerOptions.getInstance(compilerContext);
-        options.put(CompilerOptionName.SOURCE_TYPE, this.srcType.toString());
+        if (compilerContext != null) {
+            // set source type as string in compiler context
+            CompilerOptions options = CompilerOptions.getInstance(compilerContext);
+            options.put(CompilerOptionName.SOURCE_TYPE, this.srcType.toString());
+        }
     }
     
     public SourceType getSourceType() {

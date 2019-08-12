@@ -30,6 +30,9 @@ dependencies {
     implementation project(':ballerina-bir')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-internal')
+    implementation 'org.ow2.asm:asm'
+    implementation 'org.ow2.asm:asm-util'
+    implementation 'org.ow2.asm:asm-tree'
 
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')

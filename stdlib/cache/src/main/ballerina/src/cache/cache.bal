@@ -27,6 +27,15 @@ const int CACHE_CLEANUP_INTERVAL = 5000;
 # Map which stores all of the caches.
 map<Cache> cacheMap = {};
 
+task:TimerConfiguration cacheCleanupTimerConfiguration = {
+    intervalInMillis: CACHE_CLEANUP_INTERVAL,
+    initialDelayInMillis: CACHE_CLEANUP_START_DELAY
+};
+
+task:Scheduler cacheCleanupTimer = new(cacheCleanupTimerConfiguration);
+
+boolean timerStarted = false;
+
 # Represents a cache entry.
 #
 # + value - cache value
@@ -71,24 +80,28 @@ public type Cache object {
         self.capacity = capacity;
         self.evictionFactor = evictionFactor;
 
-        task:TimerConfiguration cacheCleanupTimerConfiguration = {
-            intervalInMillis: CACHE_CLEANUP_INTERVAL,
-            initialDelayInMillis: CACHE_CLEANUP_START_DELAY
-        };
-        task:Scheduler cacheCleanupTimer = new(cacheCleanupTimerConfiguration);
-
         var attachCacheCleanerResult = cacheCleanupTimer.attach(cacheCleanupService);
         if (attachCacheCleanerResult is error) {
             record {| string message?; anydata|error...; |} detail = attachCacheCleanerResult.detail();
             Error e = error(CACHE_ERROR, message = "Failed to create the cache cleanup task: " +  <string> detail["message"]);
             panic e;
         }
-        var timerStartResult = cacheCleanupTimer.start();
-        if (timerStartResult is error) {
-            record {| string message?; anydata|error...; |} detail = timerStartResult.detail();
-            Error e = error(CACHE_ERROR, message = "Failed to start the cache cleanup task: " +  <string> detail["message"]);
-            panic e;
+
+        if (!timerStarted && !cacheCleanupTimer.isStarted()) {
+            lock {
+                if(!cacheCleanupTimer.isStarted()) {
+                    var timerStartResult = cacheCleanupTimer.start();
+                    if (timerStartResult is error) {
+                        record {| string message?; anydata|error...; |} detail = timerStartResult.detail();
+                        Error e = error(CACHE_ERROR, message = "Failed to start the cache cleanup task: " +  <string> detail["message"]);
+                        panic e;
+                    }
+                    timerStarted = true;
+                }
+            }
+
         }
+
     }
 
     # Checks whether the given key has an accociated cache value.
