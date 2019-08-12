@@ -371,6 +371,12 @@ public class Scheduler {
         future.strand.frames = new Object[100];
         return future;
     }
+
+    public void poison() {
+        for (int i = 0; i < numThreads; i++) {
+            runnableList.add(POISON_PILL);
+        }
+    }
 }
 
 /**
