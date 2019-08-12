@@ -78,11 +78,20 @@ public class EntityBodyReceived implements ListenerState {
     public void writeOutboundResponseBody(Http2OutboundRespListener http2OutboundRespListener,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent,
                                           int streamId) throws Http2Exception {
-        // When the initial frames of the response is to be sent.
-        http2MessageStateContext.setListenerState(
-                new SendingHeaders(http2OutboundRespListener, http2MessageStateContext));
-        http2MessageStateContext.getListenerState()
-                .writeOutboundResponseHeaders(http2OutboundRespListener, outboundResponseMsg, httpContent, streamId);
+        if (http2MessageStateContext.isHeadersSent()) {
+            // response header already sent. move the state to SendingEntityBody.
+            http2MessageStateContext.setListenerState(
+                    new SendingEntityBody(http2OutboundRespListener, http2MessageStateContext));
+            http2MessageStateContext.getListenerState()
+                    .writeOutboundResponseBody(http2OutboundRespListener, outboundResponseMsg, httpContent, streamId);
+        } else {
+            // When the initial frames of the response is to be sent.
+            http2MessageStateContext.setListenerState(
+                    new SendingHeaders(http2OutboundRespListener, http2MessageStateContext));
+            http2MessageStateContext.getListenerState()
+                    .writeOutboundResponseHeaders(http2OutboundRespListener, outboundResponseMsg, httpContent,
+                            streamId);
+        }
     }
 
     @Override
