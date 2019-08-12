@@ -72,7 +72,7 @@ public class ConnectionPoolTestCase {
 
     @Test
     public void testPoolPerClient() {
-        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testPoolPerClient");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testPoolPerClient");
         Assert.assertEquals(returns.length, 2);
         ConnectionManager connectionManager1 = verifyPoolConfig(returns[0]);
         ConnectionManager connectionManager2 = verifyPoolConfig(returns[1]);

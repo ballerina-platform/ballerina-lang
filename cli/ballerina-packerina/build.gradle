@@ -27,15 +27,27 @@ dependencies {
 
     bir project(path: ':ballerina-utils',  configuration: 'bir')
     bir project(path: ':ballerina-io',  configuration: 'bir')
+    bir project(path: ':testerina:testerina-core',  configuration: 'bir')
 
     implementation project(':ballerina-lang')
+    implementation project(':ballerina-config')
+    implementation project(':ballerina-logging')
     implementation project(':ballerina-backend-jvm')
     implementation project(':ballerina-core')
     implementation project(':ballerina-tool')
     implementation project(':testerina:testerina-core')
+    implementation 'com.moandjiezana.toml:toml4j'
     implementation 'info.picocli:picocli'
     testCompile 'org.testng:testng'
     testCompile 'com.moandjiezana.toml:toml4j'
+
+    testRuntime project(':ballerina-jvm')
+    testRuntime project(':ballerina-bir')
+    testRuntime project(':ballerina-backend-jvm')
+
+    testRuntime project(path: ':ballerina-backend-jvm', configuration: 'birJar')
+    testRuntime project(path: ':ballerina-jvm', configuration: 'birJar')
+    testRuntime project(path: ':ballerina-bir', configuration: 'birJar')
 
     birJarCompile project(path: ':ballerina-bootstrapper', configuration: 'pack3')
 }
@@ -57,6 +69,10 @@ task createBirCache {
     outputs.cacheIf { false }
 }
 
+checkstyleMain {
+    exclude 'org/ballerinalang/packerina/model/BaloToml.java'
+}
+
 test {
     dependsOn createBirCache
     dependsOn configurations.birJar
@@ -66,7 +82,7 @@ test {
         suites 'src/test/resources/testng.xml'
     }
     doFirst {
-        systemProperty "ballerina.bootstrap.home", files(configurations.birJarCompile).singleFile
+//        systemProperty "ballerina.bootstrap.home", files(configurations.birJarCompile).singleFile
     }
 }
 

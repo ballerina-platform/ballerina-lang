@@ -22,7 +22,6 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.StreamValue;
-import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,14 +55,6 @@ public class StreamSubscriptionManager implements Observer {
             processors.computeIfAbsent(stream.topicName, key -> new ArrayList<>())
                     .add(new DefaultStreamSubscription(stream, functionPointer, this));
         }
-    }
-
-    public void registerMessageProcessor(StreamValue stream, InputHandler inputHandler) {
-        synchronized (this) {
-            processors.computeIfAbsent(stream.topicName, key -> new ArrayList<>())
-                    .add(new SiddhiStreamSubscription(stream, inputHandler, this));
-        }
-
     }
 
     public void sendMessage(StreamValue stream, Strand strand, Object value) {

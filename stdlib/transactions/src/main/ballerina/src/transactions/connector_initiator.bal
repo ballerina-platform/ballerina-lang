@@ -18,10 +18,10 @@ import ballerina/http;
 
 type InitiatorClientConfig record {
     string registerAtURL = "";
-    int timeoutMillis = 0;
+    int timeoutInMillis = 0;
     record {
         int count = 0;
-        int interval = 0;
+        int intervalInMillis = 0;
     } retryConfig = {};
 };
 
@@ -30,10 +30,10 @@ type InitiatorClientEP client object {
 
     function __init(InitiatorClientConfig conf) {
         http:Client httpEP = new(conf.registerAtURL, {
-                timeoutMillis:conf.timeoutMillis,
+                timeoutInMillis:conf.timeoutInMillis,
                 retryConfig:{
                     count:conf.retryConfig.count,
-                    interval:conf.retryConfig.interval
+                    intervalInMillis:conf.retryConfig.intervalInMillis
                 }
             });
         self.httpClient = httpEP;
@@ -53,7 +53,7 @@ type InitiatorClientEP client object {
         var result = httpClient->post("", req);
         http:Response res = check result;
         int statusCode = res.statusCode;
-        if (statusCode != http:OK_200) {
+        if (statusCode != http:STATUS_OK) {
             error err = error("Registration for transaction: " + transactionId + " failed response code: "
                 + statusCode.toString());
             return err;

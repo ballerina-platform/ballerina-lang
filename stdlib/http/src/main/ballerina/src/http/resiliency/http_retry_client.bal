@@ -22,15 +22,15 @@ import ballerina/runtime;
 # Derived set of configurations from the `RetryConfig`.
 #
 # + count - Number of retry attempts before giving up
-# + interval - Retry interval in milliseconds
+# + intervalInMillis - Retry interval in milliseconds
 # + backOffFactor - Multiplier of the retry interval to exponentially increase retry interval
-# + maxWaitInterval - Maximum time of the retry interval in milliseconds
+# + maxWaitIntervalInMillis - Maximum time of the retry interval in milliseconds
 # + statusCodes - HTTP response status codes which are considered as failures
 public type RetryInferredConfig record {|
     int count = 0;
-    int interval = 0;
+    int intervalInMillis = 0;
     float backOffFactor = 0.0;
-    int maxWaitInterval = 0;
+    int maxWaitIntervalInMillis = 0;
     boolean[] statusCodes = [];
 |};
 
@@ -87,7 +87,7 @@ public type RetryClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function head(string path, RequestMessage message = ()) returns Response|ClientError {
+    public remote function head(string path, public RequestMessage message = ()) returns Response|ClientError {
         var result = performRetryAction(path, <Request>message, HTTP_HEAD, self);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -167,7 +167,7 @@ public type RetryClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function delete(string path, RequestMessage message) returns Response|ClientError {
+    public remote function delete(string path, public RequestMessage message = ()) returns Response|ClientError {
         var result = performRetryAction(path, <Request>message, HTTP_DELETE, self);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -183,7 +183,7 @@ public type RetryClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function get(string path, RequestMessage message = ()) returns Response|ClientError {
+    public remote function get(string path, public RequestMessage message = ()) returns Response|ClientError {
         var result = performRetryAction(path, <Request>message, HTTP_GET, self);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -199,7 +199,7 @@ public type RetryClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - The HTTP `Response` message, or an error if the invocation fails
-    public remote function options(string path, RequestMessage message = ()) returns Response|ClientError {
+    public remote function options(string path, public RequestMessage message = ()) returns Response|ClientError {
         var result = performRetryAction(path, <Request>message, HTTP_OPTIONS, self);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -284,7 +284,7 @@ function performRetryAction(@untainted string path, Request request, HttpOperati
     HttpClient httpClient = retryClient.httpClient;
     int currentRetryCount = 0;
     int retryCount = retryClient.retryInferredConfig.count;
-    int interval = retryClient.retryInferredConfig.interval;
+    int intervalInMillis = retryClient.retryInferredConfig.intervalInMillis;
     boolean[] statusCodeIndex = retryClient.retryInferredConfig.statusCodes;
     initializeBackOffFactorAndMaxWaitInterval(retryClient);
     
@@ -303,8 +303,8 @@ function performRetryAction(@untainted string path, Request request, HttpOperati
             int responseStatusCode = backendResponse.statusCode;
             if (statusCodeIndex.length() > responseStatusCode && (statusCodeIndex[responseStatusCode])
                                                               && currentRetryCount < (retryCount)) {
-                [interval, currentRetryCount] =
-                                calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, interval);
+                [intervalInMillis, currentRetryCount] =
+                                calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, intervalInMillis);
             } else {
                 return backendResponse;
             }
@@ -314,23 +314,23 @@ function performRetryAction(@untainted string path, Request request, HttpOperati
                 int responseStatusCode = response.statusCode;
                 if (statusCodeIndex.length() > responseStatusCode && (statusCodeIndex[responseStatusCode])
                                                                   && currentRetryCount < (retryCount)) {
-                    [interval, currentRetryCount] =
-                                    calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, interval);
+                    [intervalInMillis, currentRetryCount] =
+                                    calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, intervalInMillis);
                 } else {
                     // We return the HttpFuture object as this is called by submit method.
                     return backendResponse;
                 }
             } else {
-                [interval, currentRetryCount] =
-                                calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, interval);
+                [intervalInMillis, currentRetryCount] =
+                                calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, intervalInMillis);
                 httpConnectorErr = response;
             }
         } else {
-            [interval, currentRetryCount] =
-                            calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, interval);
+            [intervalInMillis, currentRetryCount] =
+                            calculateEffectiveIntervalAndRetryCount(retryClient, currentRetryCount, intervalInMillis);
             httpConnectorErr = backendResponse;
         }
-        runtime:sleep(interval);
+        runtime:sleep(intervalInMillis);
     }
     return httpConnectorErr;
 }
@@ -339,8 +339,8 @@ function initializeBackOffFactorAndMaxWaitInterval(RetryClient retryClient) {
     if (retryClient.retryInferredConfig.backOffFactor <= 0.0) {
         retryClient.retryInferredConfig.backOffFactor = 1.0;
     }
-    if (retryClient.retryInferredConfig.maxWaitInterval == 0) {
-        retryClient.retryInferredConfig.maxWaitInterval = 60000;
+    if (retryClient.retryInferredConfig.maxWaitIntervalInMillis == 0) {
+        retryClient.retryInferredConfig.maxWaitIntervalInMillis = 60000;
     }
 }
 
@@ -355,7 +355,7 @@ function calculateEffectiveIntervalAndRetryCount(RetryClient retryClient, int cu
     int interval = currentDelay;
     if (currentRetryCount != 0) {
         interval = getWaitTime(retryClient.retryInferredConfig.backOffFactor,
-                    retryClient.retryInferredConfig.maxWaitInterval, interval);
+                    retryClient.retryInferredConfig.maxWaitIntervalInMillis, interval);
     }
     int retryCount = currentRetryCount + 1;
     return [interval, retryCount];

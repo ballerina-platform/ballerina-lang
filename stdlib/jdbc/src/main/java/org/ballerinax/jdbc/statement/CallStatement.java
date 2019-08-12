@@ -21,10 +21,14 @@ import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.TableResourceManager;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BStructureType;
+import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TableValue;
@@ -81,9 +85,9 @@ public class CallStatement extends AbstractSQLStatement {
 
     @Override
     public Object execute() {
-        //TODO: JBalMigration Commenting out transaction handling and observability
+        //TODO: JBalMigration Commenting out transaction handling
         //TODO: #16033
-        // checkAndObserveSQLAction(context, datasource, query);
+        checkAndObserveSQLAction(strand, datasource, query);
         Connection conn = null;
         CallableStatement stmt = null;
         List<ResultSet> resultSets = null;
@@ -125,12 +129,12 @@ public class CallStatement extends AbstractSQLStatement {
         } catch (SQLException e) {
             cleanupResources(resultSets, stmt, conn, !isInTransaction);
             handleErrorOnTransaction(this.strand);
-            // checkAndObserveSQLError(context, "execute stored procedure failed: " + e.getMessage());
+            checkAndObserveSQLError(strand, "execute stored procedure failed: " + e.getMessage());
             return ErrorGenerator.getSQLDatabaseError(e, errorMessagePrefix);
         } catch (ApplicationException e) {
             cleanupResources(resultSets, stmt, conn, !isInTransaction);
             handleErrorOnTransaction(this.strand);
-            // checkAndObserveSQLError(context, "execute stored procedure failed: " + e.getMessage());
+            checkAndObserveSQLError(strand, "execute stored procedure failed: " + e.getMessage());
             return ErrorGenerator.getSQLApplicationError(e, errorMessagePrefix);
         }
         return null;
@@ -139,7 +143,9 @@ public class CallStatement extends AbstractSQLStatement {
     private ArrayValue constructTablesForResultSets(List<ResultSet> resultSets, TableResourceManager rm,
                                                      ArrayValue structTypes, String databaseProductName)
             throws SQLException, ApplicationException {
-        ArrayValue bTables = new ArrayValue(BTypes.typeTable);
+        BRecordType tableConstraint = new BRecordType("$table$anon$constraint$", null, 0, false);
+        tableConstraint.restFieldType = BTypes.typeAnydata;
+        ArrayValue bTables = new ArrayValue(new BArrayType(new BTableType(tableConstraint)));
         // TODO: "mysql" equality condition is part of the temporary fix to support returning the result set in the case
         // of stored procedures returning only one result set in MySQL. Refer ballerina-platform/ballerina-lang#8643
         if (databaseProductName.contains(Constants.DatabaseNames.MYSQL)
@@ -234,9 +240,17 @@ public class CallStatement extends AbstractSQLStatement {
                 case Constants.SQLDataTypes.INTEGER: {
                     int value = stmt.getInt(index + 1);
                     //Value is the first position of the struct
+                    paramValue.put(PARAMETER_VALUE_FIELD, (long) value);
+                }
+                break;
+                case Constants.SQLDataTypes.NVARCHAR:
+                case Constants.SQLDataTypes.NCHAR: {
+                    String value = stmt.getNString(index + 1);
                     paramValue.put(PARAMETER_VALUE_FIELD, value);
                 }
                 break;
+                case Constants.SQLDataTypes.CHAR:
+                case Constants.SQLDataTypes.LONGNVARCHAR:
                 case Constants.SQLDataTypes.VARCHAR: {
                     String value = stmt.getString(index + 1);
                     paramValue.put(PARAMETER_VALUE_FIELD, value);
@@ -248,7 +262,7 @@ public class CallStatement extends AbstractSQLStatement {
                     if (value == null) {
                         paramValue.put(PARAMETER_VALUE_FIELD, 0);
                     } else {
-                        paramValue.put(PARAMETER_VALUE_FIELD, value);
+                        paramValue.put(PARAMETER_VALUE_FIELD, new DecimalValue(value));
                     }
                 }
                 break;
@@ -265,7 +279,7 @@ public class CallStatement extends AbstractSQLStatement {
                 break;
                 case Constants.SQLDataTypes.SMALLINT: {
                     short value = stmt.getShort(index + 1);
-                    paramValue.put(PARAMETER_VALUE_FIELD, value);
+                    paramValue.put(PARAMETER_VALUE_FIELD, (long) value);
                 }
                 break;
                 case Constants.SQLDataTypes.BIGINT: {
@@ -276,7 +290,7 @@ public class CallStatement extends AbstractSQLStatement {
                 case Constants.SQLDataTypes.REAL:
                 case Constants.SQLDataTypes.FLOAT: {
                     float value = stmt.getFloat(index + 1);
-                    paramValue.put(PARAMETER_VALUE_FIELD, value);
+                    paramValue.put(PARAMETER_VALUE_FIELD, (double) value);
                 }
                 break;
                 case Constants.SQLDataTypes.DOUBLE: {
@@ -294,6 +308,7 @@ public class CallStatement extends AbstractSQLStatement {
                     paramValue.put(PARAMETER_VALUE_FIELD, SQLDatasourceUtils.getString(value));
                 }
                 break;
+                case Constants.SQLDataTypes.VARBINARY:
                 case Constants.SQLDataTypes.BINARY: {
                     byte[] value = stmt.getBytes(index + 1);
                     paramValue.put(PARAMETER_VALUE_FIELD, SQLDatasourceUtils.getString(value));

@@ -89,7 +89,7 @@ public class TestExecutionTestCase extends BaseTest {
                 "\n" +
                 "Running tests\n" +
                 "    integrationtests/bar:0.0.1\n" +
-                "ballerina: started HTTP/WS endpoint 0.0.0.0:9090\n" +
+                "ballerina: started HTTP/WS listener 0.0.0.0:9090\n" +
                 "I'm the before suite service function!\n" +
                 "Do your service Tests!\n" +
                 "I'm the after suite service function!\n" +
@@ -125,7 +125,7 @@ public class TestExecutionTestCase extends BaseTest {
                 "\t0 skipped\n" +
                 "\n" +
                 "    integrationtests/bar:0.0.1\n" +
-                "ballerina: started HTTP/WS endpoint 0.0.0.0:9090\n" +
+                "ballerina: started HTTP/WS listener 0.0.0.0:9090\n" +
                 "I'm the before suite service function!\n" +
                 "Do your service Tests!\n" +
                 "I'm the after suite service function!\n" +

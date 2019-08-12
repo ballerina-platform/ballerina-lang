@@ -76,7 +76,7 @@ public enum ItemSorters {
      * @return {@link CompletionItemSorter} - Item sorter for the given context
      */
     public static CompletionItemSorter get(Class context) {
-        if (!resolverMap.containsKey(context)) {
+        if (context == null || !resolverMap.containsKey(context)) {
             return resolverMap.get(DefaultItemSorter.class);
         }
         return resolverMap.get(context);

@@ -32,6 +32,7 @@ public class BlobIOChannel extends Channel {
 
     public BlobIOChannel(BlobChannel channel) throws BallerinaIOException {
         super(channel, new ChannelReader(), new ChannelWriter());
+        this.setReadable(channel.isReadable());
     }
 
     /**
@@ -40,11 +41,6 @@ public class BlobIOChannel extends Channel {
     @Override
     public void transfer(int position, int count, WritableByteChannel dstChannel) throws IOException {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean isReadable() {
-        return true;
     }
 
     @Override
@@ -61,4 +57,5 @@ public class BlobIOChannel extends Channel {
     public boolean remaining() {
         return false;
     }
+    
 }

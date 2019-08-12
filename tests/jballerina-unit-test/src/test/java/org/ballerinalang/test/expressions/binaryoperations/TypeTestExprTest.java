@@ -571,7 +571,7 @@ public class TypeTestExprTest {
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
     }
 
-    @Test (groups = "brokenOnLangLibChange")
+    @Test
     public void testIntersectingUnionFalse() {
         BValue[] returns = BRunUtil.invoke(result, "testIntersectingUnionFalse");
         Assert.assertEquals(returns.length, 2);

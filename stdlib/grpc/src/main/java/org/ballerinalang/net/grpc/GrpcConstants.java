@@ -34,10 +34,10 @@ public class GrpcConstants {
     public static final String ORG_NAME = "ballerina";
     public static final String PROTOCOL_STRUCT_PACKAGE_GRPC = ORG_NAME + ORG_NAME_SEPARATOR + "grpc";
 
-    public static final String HTTPS_ENDPOINT_STARTED = "[ballerina/grpc] started HTTPS/WSS endpoint ";
-    public static final String HTTP_ENDPOINT_STARTED = "[ballerina/grpc] started HTTP/WS endpoint ";
-    public static final String HTTPS_ENDPOINT_STOPPED = "[ballerina/grpc] stopped HTTPS/WSS endpoint ";
-    public static final String HTTP_ENDPOINT_STOPPED = "[ballerina/grpc] stopped HTTP/WS endpoint ";
+    public static final String HTTPS_ENDPOINT_STARTED = "[ballerina/grpc] started HTTPS/WSS listener ";
+    public static final String HTTP_ENDPOINT_STARTED = "[ballerina/grpc] started HTTP/WS listener ";
+    public static final String HTTPS_ENDPOINT_STOPPED = "[ballerina/grpc] stopped HTTPS/WSS listener ";
+    public static final String HTTP_ENDPOINT_STOPPED = "[ballerina/grpc] stopped HTTP/WS listener ";
 
     //server side endpoint constants.
     public static final String SERVICE_REGISTRY_BUILDER = "SERVICE_REGISTRY_BUILDER";
@@ -164,7 +164,46 @@ public class GrpcConstants {
     }
 
     // Listener struct fields
-    public static final String LISTENER_ID_FIELD = "id";
     public static final String LISTENER_CONNECTION_FIELD = "conn";
 
+    // Error codes
+    public static final String CANCELLED_ERROR = "{ballerina/grpc}CancelledError";
+    public static final String UNKNOWN_ERROR = "{ballerina/grpc}UnKnownError";
+    public static final String INVALID_ARGUMENT_ERROR = "{ballerina/grpc}InvalidArgumentError";
+    public static final String DEADLINE_EXCEEDED_ERROR = "{ballerina/grpc}DeadlineExceededError";
+    public static final String NOT_FOUND_ERROR = "{ballerina/grpc}NotFoundError";
+    public static final String ALREADY_EXISTS_ERROR = "{ballerina/grpc}AleadyExistsError";
+    public static final String PERMISSION_DENIED_ERROR = "{ballerina/grpc}PermissionDeniedError";
+    public static final String RESOURCE_EXHAUSTED_ERROR = "{ballerina/grpc}ResourceExhaustedError";
+    public static final String FAILED_PRECONDITION_ERROR = "{ballerina/grpc}FailedPreconditionError";
+    public static final String ABORTED_ERROR = "{ballerina/grpc}AbortedError";
+    public static final String OUT_OF_RANGE_ERROR = "{ballerina/grpc}OutOfRangeError";
+    public static final String UNIMPLEMENTED_ERROR = "{ballerina/grpc}UnimplementedError";
+    public static final String INTERNAL_ERROR = "{ballerina/grpc}InternalError";
+    public static final String UNAVAILABLE_ERROR = "{ballerina/grpc}UnavailableError";
+    public static final String DATA_LOSS_ERROR = "{ballerina/grpc}DataLossError";
+    public static final String UNAUTHENTICATED_ERROR = "{ballerina/grpc}UnauthenticatedError";
+
+    public static final Map<Integer, String> STATUS_ERROR_MAP;
+
+    static {
+        Map<Integer, String> statusErrorMap = new HashMap<>();
+        statusErrorMap.put(Status.Code.CANCELLED.value(), CANCELLED_ERROR);
+        statusErrorMap.put(Status.Code.UNKNOWN.value(), UNKNOWN_ERROR);
+        statusErrorMap.put(Status.Code.INVALID_ARGUMENT.value(), INVALID_ARGUMENT_ERROR);
+        statusErrorMap.put(Status.Code.DEADLINE_EXCEEDED.value(), DEADLINE_EXCEEDED_ERROR);
+        statusErrorMap.put(Status.Code.NOT_FOUND.value(), NOT_FOUND_ERROR);
+        statusErrorMap.put(Status.Code.ALREADY_EXISTS.value(), ALREADY_EXISTS_ERROR);
+        statusErrorMap.put(Status.Code.PERMISSION_DENIED.value(), PERMISSION_DENIED_ERROR);
+        statusErrorMap.put(Status.Code.RESOURCE_EXHAUSTED.value(), RESOURCE_EXHAUSTED_ERROR);
+        statusErrorMap.put(Status.Code.FAILED_PRECONDITION.value(), FAILED_PRECONDITION_ERROR);
+        statusErrorMap.put(Status.Code.ABORTED.value(), ABORTED_ERROR);
+        statusErrorMap.put(Status.Code.OUT_OF_RANGE.value(), OUT_OF_RANGE_ERROR);
+        statusErrorMap.put(Status.Code.UNIMPLEMENTED.value(), UNIMPLEMENTED_ERROR);
+        statusErrorMap.put(Status.Code.INTERNAL.value(), INTERNAL_ERROR);
+        statusErrorMap.put(Status.Code.UNAVAILABLE.value(), UNAVAILABLE_ERROR);
+        statusErrorMap.put(Status.Code.DATA_LOSS.value(), DATA_LOSS_ERROR);
+        statusErrorMap.put(Status.Code.UNAUTHENTICATED.value(), UNAUTHENTICATED_ERROR);
+        STATUS_ERROR_MAP = Collections.unmodifiableMap(statusErrorMap);
+    }
 }

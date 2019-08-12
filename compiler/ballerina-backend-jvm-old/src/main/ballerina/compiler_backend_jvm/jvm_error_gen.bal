@@ -38,7 +38,7 @@ type ErrorHandlerGenerator object {
         self.mv.visitLabel(startLabel);
     }
 
-    function generateTryInsForTrap(bir:ErrorEntry currentEE, string[] errorVarNames, jvm:Label endLabel, 
+    function generateTryInsForTrap(bir:ErrorEntry currentEE, string[] errorVarNames, jvm:Label endLabel,
                                    jvm:Label handlerLabel, jvm:Label jumpLabel) {
         var varDcl = <bir:VariableDcl>currentEE.errorOp.variableDcl;
         int lhsIndex = self.getJVMIndexOfVarRef(varDcl);
@@ -81,6 +81,7 @@ type ErrorHandlerGenerator object {
         mv.visitJumpInsn(IFNULL, labelIf);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, io:sprintf("L%s;", THROWABLE));
         mv.visitInsn(ATHROW);
+
         mv.visitInsn(RETURN);
         mv.visitLabel(labelIf);
     }

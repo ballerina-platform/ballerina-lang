@@ -8,12 +8,12 @@ import ballerina/runtime;
 // with/without passing the JWT issuer configurations as a record. If the JWT
 // issuer configurations are passed, a new JWT will be issued and it will be
 // used for the outbound authentication.
-jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new(());
+jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new;
 
 // Create a Bearer Auth handler with the created JWT Auth provider.
 http:BearerAuthHandler outboundJwtAuthHandler = new(outboundJwtAuthProvider);
 
-http:Client httpEndpoint = new("https://localhost:9090", config = {
+http:Client httpEndpoint = new("https://localhost:9090", {
     auth: {
         authHandler: outboundJwtAuthHandler
     }
@@ -43,38 +43,5 @@ public function main() {
                                         : result);
     } else {
         log:printError("Failed to call the endpoint.", err = response);
-    }
-}
-
-// Defines the sample backend service, which is secured with JWT Auth
-// authentication.
-jwt:InboundJwtAuthProvider inboundJwtAuthProvider = new({
-    issuer: "ballerina",
-    audience: "ballerina.io",
-    certificateAlias: "ballerina",
-    trustStore: {
-        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-        password: "ballerina"
-    }
-});
-http:BearerAuthHandler inboundJwtAuthHandler = new(inboundJwtAuthProvider);
-listener http:Listener ep = new(9090, config = {
-    auth: {
-        authHandlers: [inboundJwtAuthHandler]
-    },
-    secureSocket: {
-        keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            password: "ballerina"
-        }
-    }
-});
-
-service hello on ep {
-    resource function sayHello(http:Caller caller, http:Request req) {
-        error? result = caller->respond("Hello, World!!!");
-        if (result is error) {
-            log:printError("Error in responding to caller", err = result);
-        }
     }
 }

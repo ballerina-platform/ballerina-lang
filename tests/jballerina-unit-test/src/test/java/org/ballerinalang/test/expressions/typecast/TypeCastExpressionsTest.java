@@ -177,7 +177,7 @@ public class TypeCastExpressionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=incompatible " +
-                    "types: 'stream<int\\|float>' cannot be cast to 'stream<boolean\\|EmployeeObject>'.*")
+                    "types: 'stream<int\\|float>' cannot be cast to 'stream<boolean\\|error>'.*")
     public void testOutOfOrderUnionConstraintCastNegative() {
         BRunUtil.invoke(result, "testOutOfOrderUnionConstraintCastNegative");
     }

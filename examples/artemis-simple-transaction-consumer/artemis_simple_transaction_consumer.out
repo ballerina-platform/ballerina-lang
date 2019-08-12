@@ -1,6 +1,0 @@
-# Make sure to have the ActiveMQ Artemis broker running.
-
-# Navigate to the directory that contains the 'artemis_simple_transaction_consumer.bal' file and execute the
-# 'ballerina run' command as follows.
-$ ballerina run --experimental artemis_simple_transaction_consumer.bal
-2019-05-17 14:11:29,258 INFO  [ballerina/transactions] - Created transaction: 78aabdba-3994-47cd-b083-80744961f69b

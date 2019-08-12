@@ -997,7 +997,15 @@ function loadTupleType(jvm:MethodVisitor mv, bir:BTupleType bType) {
         mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", io:sprintf("(L%s;)Z", OBJECT), true);
         mv.visitInsn(POP);
     }
-    mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>", io:sprintf("(L%s;)V",LIST), false);
+
+    bir:BType? restType = bType.restType;
+    if (restType is bir:BType) {
+        loadType(mv, restType);
+    } else {
+        mv.visitInsn(ACONST_NULL);
+    }
+
+    mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>", io:sprintf("(L%s;L%s;)V", LIST, BTYPE), false);
     return;
 }
 
@@ -1088,6 +1096,8 @@ function getTypeDesc(bir:BType bType) returns string {
         return io:sprintf("L%s;", ARRAY_VALUE );
     } else if (bType is bir:BErrorType) {
         return io:sprintf("L%s;", ERROR_VALUE);
+    } else if (bType is bir:BFutureType) {
+        return io:sprintf("L%s;", FUTURE_VALUE);
     } else if (bType is bir:BMapType || bType is bir:BRecordType) {
         return io:sprintf("L%s;", MAP_VALUE);
     } else if (bType is bir:BTypeDesc) {

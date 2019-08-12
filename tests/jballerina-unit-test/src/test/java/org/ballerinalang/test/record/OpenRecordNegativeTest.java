@@ -46,9 +46,9 @@ public class OpenRecordNegativeTest {
         String expectedErrMsg = "incompatible types: expected 'string', ";
         int indx = 0;
 
-        validateError(result, indx++, expectedErrMsg + "found 'int'", 8, 45);
-        validateError(result, indx++, expectedErrMsg + "found 'boolean'", 8, 57);
-        validateError(result, indx++, "invalid usage of record literal with type 'anydata'", 17, 36);
+        validateError(result, indx++, expectedErrMsg + "found 'int'", 8, 51);
+        validateError(result, indx++, expectedErrMsg + "found 'boolean'", 8, 66);
+        validateError(result, indx++, "invalid usage of record literal with type 'anydata'", 17, 40);
         validateError(result, indx++, "unknown type 'Animal'", 21, 5);
         validateError(result, indx++, "incompatible types: expected 'anydata', found 'Bar'", 30, 21);
         validateError(result, indx++, "incompatible types: expected 'anydata', found 'error'", 48, 17);
@@ -76,8 +76,8 @@ public class OpenRecordNegativeTest {
         Assert.assertEquals(compileResult.getErrorCount(), 3);
         String duplicateKey = "invalid usage of record literal: duplicate key ";
         validateError(compileResult, 0, duplicateKey + "'noOfChildren'", 13, 58);
-        validateError(compileResult, 1, duplicateKey + "'x'", 14, 41);
-        validateError(compileResult, 2, duplicateKey + "'x'", 15, 53);
+        validateError(compileResult, 1, duplicateKey + "'x'", 14, 43);
+        validateError(compileResult, 2, duplicateKey + "'x'", 15, 57);
     }
 
     @Test(description = "Test function invocation on a nil-able function pointer")

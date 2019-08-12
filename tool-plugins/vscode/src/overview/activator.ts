@@ -21,12 +21,13 @@ import * as os from 'os';
 import * as path from 'path';
 import * as _ from 'lodash';
 
-import { BallerinaExtension, ExtendedLangClient, ConstructIdentifier } from 'src/core';
+import { BallerinaExtension, ExtendedLangClient, ConstructIdentifier, ballerinaExtInstance } from '../core';
 import { ExtensionContext, commands, window, Uri, ViewColumn, TextDocumentChangeEvent, 
 	workspace, WebviewPanel } from 'vscode';
 
 import {render} from './renderer';
 import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
+import { TM_EVENT_OPEN_PROJECT_OVERVIEW_VIA_CMD, CMP_PROJECT_OVERVIEW } from '../telemetry';
 
 const DEBOUNCE_WAIT = 500;
 
@@ -40,8 +41,9 @@ function updateWebView(docUri: Uri): void {
 }
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
-    let context = <ExtensionContext> ballerinaExtInstance.context;
-	let langClient = <ExtendedLangClient> ballerinaExtInstance.langClient;
+	const reporter = ballerinaExtInstance.telemetryReporter;
+    const context = <ExtensionContext> ballerinaExtInstance.context;
+	const langClient = <ExtendedLangClient> ballerinaExtInstance.langClient;
 
 	function updateSelectedConstruct(construct: ConstructIdentifier) {
 		// If Project Overview is already showing update it to show the selected construct
@@ -62,9 +64,12 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 	});
 
 	const projectOverviewDisposable = commands.registerCommand('ballerina.showProjectOverview', () => {
+		reporter.sendTelemetryEvent(TM_EVENT_OPEN_PROJECT_OVERVIEW_VIA_CMD, { component: CMP_PROJECT_OVERVIEW });
 		return ballerinaExtInstance.onReady()
 		.then(() => {
 			openWebView(context, langClient);
+		}).catch((e) => {
+			reporter.sendTelemetryException(e, { component: CMP_PROJECT_OVERVIEW });
 		});
 	});
     context.subscriptions.push(projectOverviewDisposable);
@@ -135,6 +140,8 @@ function openWebView(context: ExtensionContext, langClient: ExtendedLangClient, 
 			{ viewColumn: ViewColumn.One, preserveFocus: true },
 			getCommonWebViewOptions()
 		);
+
+		ballerinaExtInstance.addWebviewPanel("overview", overviewPanel);
 	}
 
 	const editor = window.activeTextEditor;
@@ -156,7 +163,7 @@ function openWebView(context: ExtensionContext, langClient: ExtendedLangClient, 
 }
 
 function getSourceRoot(currentPath: string, root: string): string|undefined {
-	if (fs.existsSync(path.join(currentPath, 'Ballerina.Toml'))) {
+	if (fs.existsSync(path.join(currentPath, 'Ballerina.toml'))) {
 		if (currentPath !== os.homedir()) {
 			return currentPath;
 		}

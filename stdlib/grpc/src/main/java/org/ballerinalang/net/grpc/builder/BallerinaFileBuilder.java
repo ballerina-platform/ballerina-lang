@@ -39,7 +39,7 @@ import org.ballerinalang.net.grpc.builder.components.ServiceStub;
 import org.ballerinalang.net.grpc.builder.components.StubFile;
 import org.ballerinalang.net.grpc.builder.utils.BalGenConstants;
 import org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils;
-import org.ballerinalang.net.grpc.exception.BalGenerationException;
+import org.ballerinalang.net.grpc.exception.CodeBuilderException;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.proto.definition.EmptyMessage;
 import org.slf4j.Logger;
@@ -96,7 +96,7 @@ public class BallerinaFileBuilder {
         this.balOutPath = balOutPath;
     }
     
-    public void build(String mode) {
+    public void build(String mode) throws CodeBuilderException {
         // compute root descriptor source code.
         computeSourceContent(rootDescriptor, mode);
         // compute dependent descriptor source code.
@@ -105,7 +105,7 @@ public class BallerinaFileBuilder {
         }
     }
 
-    private void computeSourceContent(byte[] descriptor, String mode) {
+    private void computeSourceContent(byte[] descriptor, String mode) throws CodeBuilderException {
         try (InputStream targetStream = new ByteArrayInputStream(descriptor)) {
             DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
                     .parseFrom(targetStream);
@@ -200,7 +200,7 @@ public class BallerinaFileBuilder {
             String stubFilePath = generateOutputFile(this.balOutPath, filename + STUB_FILE_PREFIX);
             writeOutputFile(stubFileObject, DEFAULT_SKELETON_DIR, SKELETON_TEMPLATE_NAME, stubFilePath);
         } catch (IOException | GrpcServerException e) {
-            throw new BalGenerationException("Error while generating .bal file.", e);
+            throw new CodeBuilderException("Error while generating source files.", e);
         }
     }
 
@@ -267,13 +267,13 @@ public class BallerinaFileBuilder {
             return result;
         });
         handlebars.registerHelper("camelcase", (object, options) -> {
-            if (object != null && object instanceof String) {
+            if (object instanceof String) {
                 return BalGenerationUtils.toCamelCase((String) object);
             }
             return "";
         });
         handlebars.registerHelper("uppercase", (object, options) -> {
-            if (object != null && object instanceof String) {
+            if (object instanceof String) {
                 return ((String) object).toUpperCase(Locale.ENGLISH);
             }
             return "";

@@ -54,7 +54,7 @@ public function testOneofFieldValue() returns string {
     Request1_Age age = {age:31};
     Request1 request = {name:first, other:age};
     var result = blockingEp->hello(request);
-    if (result is error) {
+    if (result is grpc:Error) {
         return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
     } else {
         Response1 resp = {message:""};
@@ -67,7 +67,7 @@ public function testDoubleFieldValue() returns string {
     ZZZ_OneA oneA = {one_a:1.7976931348623157E308};
     ZZZ zzz = {value:oneA};
     var result = blockingEp->testOneofField(zzz);
-    if (result is error) {
+    if (result is grpc:Error) {
         return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
     } else {
         ZZZ resp;
@@ -84,7 +84,7 @@ public function testFloatFieldValue() returns string {
     ZZZ_OneB oneB = {one_b:3.4028235E38};
     ZZZ zzz = {value:oneB};
     var result = blockingEp->testOneofField(zzz);
-    if (result is error) {
+    if (result is grpc:Error) {
         return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
     } else {
         ZZZ resp;
@@ -101,7 +101,7 @@ public function testInt64FieldValue() returns string {
     ZZZ_OneC oneC = {one_c:-9223372036854775808};
     ZZZ zzz = {value:oneC};
     var result = blockingEp->testOneofField(zzz);
-    if (result is error) {
+    if (result is grpc:Error) {
         return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
     } else {
         ZZZ resp;
@@ -118,7 +118,7 @@ public function testUInt64FieldValue() returns string {
     ZZZ_OneD oneD = {one_d:9223372036854775807};
     ZZZ zzz = {value:oneD};
     var result = blockingEp->testOneofField(zzz);
-    if (result is error) {
+    if (result is grpc:Error) {
         return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
     } else {
         ZZZ resp;
@@ -135,7 +135,7 @@ public function testInt32FieldValue() returns string {
     ZZZ_OneE oneE = {one_e:-2147483648};
     ZZZ zzz = {value:oneE};
     var result = blockingEp->testOneofField(zzz);
-    if (result is error) {
+    if (result is grpc:Error) {
         return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
     } else {
         ZZZ resp;
@@ -152,7 +152,7 @@ public function testFixed64FieldValue() returns string {
     ZZZ_OneF oneF = {one_f:9223372036854775807};
     ZZZ zzz = {value:oneF};
     var result = blockingEp->testOneofField(zzz);
-    if (result is error) {
+    if (result is grpc:Error) {
         return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
     } else {
         ZZZ resp;
@@ -169,7 +169,7 @@ public function testFixed32FieldValue() returns string {
     ZZZ_OneG oneG = {one_g:2147483647};
     ZZZ zzz = {value:oneG};
     var result = blockingEp->testOneofField(zzz);
-    if (result is error) {
+    if (result is grpc:Error) {
         return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
     } else {
         ZZZ resp;
@@ -186,7 +186,7 @@ public function testBolFieldValue() returns string {
     ZZZ_OneH oneH = {one_h:true};
     ZZZ zzz = {value:oneH};
     var result = blockingEp->testOneofField(zzz);
-    if (result is error) {
+    if (result is grpc:Error) {
         return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
     } else {
         ZZZ resp;
@@ -203,7 +203,7 @@ public function testStringFieldValue() returns string {
     ZZZ_OneI oneI = {one_i:"Testing"};
     ZZZ zzz = {value:oneI};
     var result = blockingEp->testOneofField(zzz);
-    if (result is error) {
+    if (result is grpc:Error) {
         return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
     } else {
         ZZZ resp;
@@ -221,7 +221,7 @@ public function testMessageFieldValue() returns string {
     ZZZ_OneJ oneJ = {one_j:aaa};
     ZZZ zzz = {value:oneJ};
     var result = blockingEp->testOneofField(zzz);
-    if (result is error) {
+    if (result is grpc:Error) {
         return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
     } else {
         ZZZ resp;
@@ -240,7 +240,7 @@ public function testBytesFieldValue() returns string {
     ZZZ_OneK oneK = {one_k:bytes};
     ZZZ zzz = {value:oneK};
     var result = blockingEp->testOneofField(zzz);
-    if (result is error) {
+    if (result is grpc:Error) {
         return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
     } else {
         ZZZ resp;
@@ -255,20 +255,24 @@ public function testBytesFieldValue() returns string {
 }
 
 public type OneofFieldServiceBlockingClient client object {
+
+    *grpc:AbstractClientEndpoint;
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
-        error? result = c.initStub("blocking", ROOT_DESCRIPTOR, getDescriptorMap());
-        if (result is error) {
-            panic result;
+        grpc:Error? result = c.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        if (result is grpc:Error) {
+            error err = result;
+            panic err;
         } else {
             self.grpcClient = c;
         }
     }
 
-    remote function hello(Request1 req, grpc:Headers? headers = ()) returns ([Response1, grpc:Headers]|error) {
+    remote function hello(Request1 req, grpc:Headers? headers = ()) returns ([Response1, grpc:Headers]|grpc:Error) {
 
         var payload = check self.grpcClient->blockingExecute("grpcservices.OneofFieldService/hello", req, headers);
         grpc:Headers resHeaders = new;
@@ -278,12 +282,12 @@ public type OneofFieldServiceBlockingClient client object {
         if (value is Response1) {
             return [value, resHeaders];
         } else {
-            error err = error("{ballerina/grpc}INTERNAL", message = value.reason());
+            grpc:Error err = grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
             return err;
         }
     }
 
-    remote function testOneofField(ZZZ req, grpc:Headers? headers = ()) returns ([ZZZ, grpc:Headers]|error) {
+    remote function testOneofField(ZZZ req, grpc:Headers? headers = ()) returns ([ZZZ, grpc:Headers]|grpc:Error) {
 
         var payload = check self.grpcClient->blockingExecute("grpcservices.OneofFieldService/testOneofField", req, headers);
         grpc:Headers resHeaders = new;
@@ -293,7 +297,7 @@ public type OneofFieldServiceBlockingClient client object {
         if (value is ZZZ) {
             return [value, resHeaders];
         } else {
-            error err = error("{ballerina/grpc}INTERNAL", message = value.reason());
+            grpc:Error err = grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
             return err;
         }
     }
@@ -301,25 +305,29 @@ public type OneofFieldServiceBlockingClient client object {
 };
 
 public type OneofFieldServiceClient client object {
+
+    *grpc:AbstractClientEndpoint;
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
-        error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
-        if (result is error) {
-            panic result;
+        grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        if (result is grpc:Error) {
+            error err = result;
+            panic err;
         } else {
             self.grpcClient = c;
         }
     }
 
-    remote function hello(Request1 req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function hello(Request1 req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
 
         return self.grpcClient->nonBlockingExecute("grpcservices.OneofFieldService/hello", req, msgListener, headers);
     }
 
-    remote function testOneofField(ZZZ req, service msgListener, grpc:Headers? headers = ()) returns (error?) {
+    remote function testOneofField(ZZZ req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
 
         return self.grpcClient->nonBlockingExecute("grpcservices.OneofFieldService/testOneofField", req, msgListener, headers);
     }

@@ -1,3 +1,13 @@
 [project]
 org-name = "ballerina"
 version = "0.0.0"
+
+[platform]
+target = "java"
+
+    [[platform.libraries]]
+    artafactId = "commons-lang3"
+    version = "3.8.1"
+    path = "./lib/commons-lang3-3.8.1.jar"
+    groupId = "org.apache.commons"
+    modules = ["ldap"]

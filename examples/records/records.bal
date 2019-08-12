@@ -61,4 +61,18 @@ public function main() {
     // E.g., `peter.address.street = "Palm Grove";` will result in a compile error.
     peter["address"] = <Address>{ city: "Colombo", country: "Sri Lanka" };
     io:println(peter);
+
+    // Create a `Grades` record adding additional fields for the `int`-typed rest field.
+    // The `english` field is not specified in the record, but is allowed since `Grades` is an
+    // open record with an `int`-typed rest field.
+    // Keys for such field should either be `string` literals or expressions (i.e., they
+    // cannot be identifiers).
+    Grades grades = { maths: 80, physics: 75, chemistry: 65, "english": 90 };
+    io:println(grades);
+
+    // Similarly, only member access can be used to access the fields that are possibly
+    // added for the rest field. An `int` value is returned if the field is present in the
+    // record, else `()` is returned.
+    int? english = grades["english"];
+    io:println(english);
 }

@@ -18,6 +18,7 @@ import ballerina/io;
 import ballerina/bir;
 import ballerina/jvm;
 import ballerina/reflect;
+import ballerina/system;
 import ballerina/internal;
 
 public type JarFile record {|
@@ -31,15 +32,14 @@ public type JavaClass record {|
     bir:Function?[] functions = [];
 |};
 
-internal:Path birHome = new("");
 bir:BIRContext currentBIRContext = new;
 string[] birCacheDirs = [];
 
 public function main(string... args) {
-    string pathToEntryBir = untaint args[0];
-    string mapPath = untaint args[1];
+    string pathToEntryBir = <@untainted> args[0];
+    string mapPath = <@untainted> args[1];
     string targetPath = args[2];
-    boolean dumpBir = boolean.convert(args[3]);
+    boolean dumpBir = "true".equalsIgnoreCase(args[3]);
 
     var numCacheDirs = args.length() - 4;
     int i = 0;
@@ -68,25 +68,31 @@ function generateJarBinary(string pathToEntryBir, string mapPath, boolean dumpBi
 
     JarFile jarFile = {};
     generatePackage(createModuleId(entryMod.org.value, entryMod.name.value, entryMod.versionValue.value),
-                    untaint jarFile, true);
+                    <@untainted> jarFile, true);
 
     return jarFile;
 }
 
 function readMap(string path) returns map<string> {
     var rbc = io:openReadableFile(path);
-    io:ReadableCharacterChannel rch = new(rbc, "UTF8");
-
-    var result = untaint rch.readJson();
-    var didClose = rch.close();
-    if (result is error) {
-        panic result;
+    if (rbc is error) {
+        error openError = <error>rbc;
+        panic openError;
     } else {
-        var externalMap = map<string>.convert(result);
-        if (externalMap is error){
-            panic externalMap;
+        io:ReadableCharacterChannel rch = new(rbc, "UTF8");
+
+        var result = <@untainted> rch.readJson();
+        var didClose = rch.close();
+        if (result is error) {
+            error e = <error>result;
+            panic e;
         } else {
-            return externalMap;
+            var externalMap = map<string>.convert(result);
+            if (externalMap is error){
+                panic externalMap;
+            } else {
+                return externalMap;
+            }
         }
     }
 }

@@ -1,10 +1,10 @@
 # To start the service, navigate to the directory that contains the
 # `.bal` file and use the `ballerina run` command with `--observe` param.
 $ ballerina run --observe counter_metrics.bal
+[ballerina/http] started HTTP/WS listener 0.0.0.0:9797
+ballerina: started Prometheus HTTP listener 0.0.0.0:9797
 ballerina: started publishing tracers to Jaeger on localhost:5775
-[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9797
-ballerina: started Prometheus HTTP endpoint 0.0.0.0:9797
-[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9090
+[ballerina/http] started HTTP/WS listener 0.0.0.0:9090
 
 ------------------------------------------
 Global Counter = 1

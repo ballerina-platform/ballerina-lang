@@ -133,7 +133,7 @@ dependencies {
     birJar project(path: ':ballerina-cli-module-search', configuration: 'cliModuleSearchJar')
     birJar project(path: ':ballerina-cli-module-token-update', configuration: 'cliModuleTokenUpdateJar')
 
-//    balx project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'balx')
+    birJar project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'prometheusJar')
 }
 
 
@@ -325,13 +325,13 @@ task generateDocs(type: JavaExec) {
     outputs.cacheIf { true }
 
     systemProperty("BALLERINA_DEV_COMPILE_BALLERINA_ORG", true)
-    systemProperty("BALLERINA_DEV_LOAD_BUILTIN_FROM_SOURCE", true)
+    def basePath = '/' + project.name + '-' + project.version + '/'
+    systemProperty("ballerina.home", basePath)
     
     classpath = files(pathingJar.archivePath)
     main = 'org.ballerinalang.plugin.gradle.doc.DocerinaGen'
-
     def libs = "$buildDir/ballerina/"
-    args("$libs", "$buildDir/api-docs")
+    args("$libs", "$buildDir/api-docs", "lang.__internal,lang.annotations,llvm")
 }
 
 task createApiDocsZip(type: Zip) {
@@ -354,6 +354,7 @@ task createZip(type: Zip) {
     with copyComposerFontsSpec(basePath)
     with copyBallerinaZipSpec(basePath)
     with copydebugAdapterDistributionSpec(basePath)
+    with copyDebugAdapterLauncher(basePath)
     with examplesSpec(basePath)
     with apiDocsSpec(basePath)
     with copyStaticSpec(basePath)
@@ -377,6 +378,7 @@ task updateBalHome(type: Copy) {
     with copyComposerFontsSpec(installDir)
     with copyBallerinaZipSpec(installDir)
     with copydebugAdapterDistributionSpec(installDir)
+    with copyDebugAdapterLauncher(installDir)
     with apiDocsSpec(installDir)
     with examplesSpec(installDir)
     with copyStaticSpec(installDir)

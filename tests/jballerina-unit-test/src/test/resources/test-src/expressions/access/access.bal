@@ -113,7 +113,7 @@ public const NONE = ();
 function testMemberAccessOnNillableObjectField() returns boolean {
     string st = "test string";
     Gamma g1 = new({});
-    Gamma g2 = new({ status: FAILED, oth: st });
+    Gamma g2 = new({ status: FAILED, "oth": st });
 
     string key1 = "status";
     string key2 = "oth";

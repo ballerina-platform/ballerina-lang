@@ -185,6 +185,7 @@ public class DefinitionTest {
                 {"defTransaction1.json", "transaction"},
                 {"defGlobal1.json", "global"},
                 {"defRecord1.json", "record"},
+                {"defRecord2.json", "record"},
                 {"defError1.json", "error"},
                 {"defWaitExpression1.json", "waitexpression"},
                 {"defExpressionConnectorInit.json", "expression"},
@@ -203,6 +204,7 @@ public class DefinitionTest {
                 {"defLambda2.json", "lambda"},
                 {"defLambda3.json", "lambda"},
                 {"defLambda4.json", "lambda"},
+                {"defObject1.json", "object"},
 //                TODO: enable
 //                {"defExpressionNamedArgs.json", "expression"},
         };

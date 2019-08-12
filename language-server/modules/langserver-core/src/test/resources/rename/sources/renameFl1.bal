@@ -31,3 +31,25 @@ type RecData1 record {
     int i;
     string v;
 };
+
+
+type Client client  object {
+    Client? secondaryStore;
+
+    public function __init(Client? failoverStore) {
+        self.secondaryStore = failoverStore;
+    }
+};
+
+type person record {
+    string name = "";
+    int age = globalVal;
+};
+
+function testFunction() {
+    person newPerson = {};
+    newPerson.name = "Bob";
+    SampleError e = error("the reason", message="msg");
+}
+
+error SampleError = error("errorCode", message = "");

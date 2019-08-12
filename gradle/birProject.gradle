@@ -60,7 +60,7 @@ task createBirJar(type: Exec) {
             if (OperatingSystem.current().isWindows()) {
                 commandLine 'cmd.exe', '/c',
 
-                        new File(it, '/bin/ballerina.bat'), 'run', new File(it, '/bin/compiler_backend_jvm.balx'),
+                        new File(it, '/bin/ballerina.bat'), 'run', new File(it, '/bre/lib/compiler_backend_jvm.jar'),
 
                         generatedBirDir + project.ext.moduleName + '.bir',
                         mapPath,
@@ -70,7 +70,7 @@ task createBirJar(type: Exec) {
             } else {
                 commandLine 'sh',
 
-                        new File(it, '/bin/ballerina'), 'run', new File(it, '/bin/compiler_backend_jvm.balx'),
+                        new File(it, '/bin/ballerina'), 'run', new File(it, '/bre/lib/compiler_backend_jvm.jar'),
 
                         generatedBirDir + project.ext.moduleName + '.bir',
                         mapPath,
@@ -78,6 +78,14 @@ task createBirJar(type: Exec) {
                         'false',
                         "$buildDir/bir-cache"
             }
+            println commandLine
+        }
+    }
+
+    doLast {
+        if(!file("$buildDir/generated-bir-jar/${project.ext.moduleName}.jar").exists()){
+            println "$buildDir/generated-bir-jar/${project.ext.moduleName}.jar not created."
+            throw new GradleException("error in creating bir jar")
         }
     }
 
@@ -92,6 +100,29 @@ task copySelfToBirCache(type: Copy) {
     dependsOn createBirAndMappings
     from "$buildDir/generated-bir"
     into "$buildDir/bir-cache"
+}
+
+task createBirZipArtifact(type: Zip) {
+    from "$buildDir/generated-bir"
+    include '**/*'
+    archiveName "$project.name-bir-artifact.zip"
+    destinationDir(file("$buildDir/bir-artifact/"))
+}
+
+publishing {
+    publications {
+        mavenJava {
+            if (file("$buildDir/generated-bir-jar/" + moduleName + ".jar").exists()) {
+                artifact source: file("$buildDir/generated-bir-jar/" + moduleName + ".jar"), classifier: "bir-jar"
+            }
+            if (file("$buildDir/generated-bir/ballerina/" + moduleName + "/0.0.0/" + moduleName + ".bir").exists()) {
+                artifact source: createBirZipArtifact, classifier: "bir", extension: 'zip'
+            }
+            if (file("$buildDir/generated-bir/ballerinax/" + moduleName + "/0.0.0/" + moduleName + ".bir").exists()) {
+                artifact source: createBirZipArtifact, classifier: "bir", extension: 'zip'
+            }
+        }
+    }
 }
 
 test {

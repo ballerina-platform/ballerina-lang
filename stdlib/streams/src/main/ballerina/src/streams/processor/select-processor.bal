@@ -56,6 +56,10 @@ public type Select object {
                     self.aggregatorsCloneMap.removeAll();
                 }
 
+                if (event.eventType == TIMER) {
+                    continue;
+                }
+
                 string groupbyKey = self.getGroupByKey(self.groupbyFuncArray, event);
                 Aggregator[] aggregatorsClone = [];
                 var aggregators = self.aggregatorsCloneMap[groupbyKey];

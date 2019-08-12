@@ -100,7 +100,7 @@ public class EncodingUtil {
      * @param errMsg Error description
      * @return conversion error
      */
-    public static ErrorValue createEncodingError(String errMsg) {
+    public static ErrorValue createError(String errMsg) {
         return BallerinaErrors.createError(Constants.ENCODING_ERROR_CODE, errMsg);
     }
 }

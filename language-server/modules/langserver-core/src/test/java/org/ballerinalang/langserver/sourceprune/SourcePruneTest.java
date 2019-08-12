@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
-import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.completions.CompletionKeys;
@@ -41,6 +40,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * Test the source prune operation with specific sources individual from the completion operation.
@@ -71,15 +71,18 @@ public class SourcePruneTest {
         String source = configObject.getAsJsonPrimitive("source").getAsString();
         LSContext lsContext = this.getLSContext(source, position);
         String fileUri = lsContext.get(DocumentServiceKeys.FILE_URI_KEY);
-        Path compilationPath = new LSDocument(fileUri).getPath();
-        String documentContent = new String(Files.readAllBytes(compilationPath)).replaceAll("\r?\n", LINE_SEPARATOR);
+        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+        if (!filePath.isPresent()) {
+            Assert.fail("Invalid File path: [" + fileUri + "]");
+        }
+        String documentContent = new String(Files.readAllBytes(filePath.get())).replaceAll("\r?\n", LINE_SEPARATOR);
 
-        this.documentManager.openFile(compilationPath, documentContent);
+        this.documentManager.openFile(filePath.get(), documentContent);
         try {
             SourcePruner.pruneSource(lsContext);
-            String prunedSource = documentManager.getFileContent(compilationPath);
+            String prunedSource = documentManager.getFileContent(filePath.get());
             Path expectedPath = expectedRoot.resolve(configObject.getAsJsonPrimitive("expected").getAsString());
-            String expected = new String(Files.readAllBytes(expectedPath));
+            String expected = new String(Files.readAllBytes(expectedPath)).replaceAll("\r?\n", LINE_SEPARATOR);
             boolean sourceMatch = prunedSource.equals(expected);
             if (!sourceMatch) {
                 Assert.fail("Sources Does not Match for " + configPath + System.lineSeparator()
@@ -87,7 +90,7 @@ public class SourcePruneTest {
                         + "Expected Source [" + expected + "]");
             }
             Assert.assertEquals(prunedSource, expected);
-            BallerinaParser parser = CommonUtil.prepareParser(prunedSource, true);
+            BallerinaParser parser = CommonUtil.prepareParser(prunedSource);
             parser.compilationUnit();
             boolean prunedSourceErrors = parser.getNumberOfSyntaxErrors() != 0;
             if (prunedSourceErrors) {

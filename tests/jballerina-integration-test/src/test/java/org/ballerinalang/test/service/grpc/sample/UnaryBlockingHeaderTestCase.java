@@ -41,16 +41,16 @@ public class UnaryBlockingHeaderTestCase {
     @BeforeClass
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "08_unary_client_with_headers.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients",
+                "08_unary_client_with_headers.bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
     }
 
     @Test
     public void testBlockingBallerinaClient() {
-        BString request = new BString("WSO2");
         final String serverMsg = "Hello WSO2";
 
-        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient", new BValue[]{request});
+        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient", new Object[]{"WSO2"});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         Assert.assertEquals(responses[0].stringValue(), "Client got response: " + serverMsg);
@@ -58,10 +58,9 @@ public class UnaryBlockingHeaderTestCase {
 
     @Test
     public void testBlockingHeaderClient() {
-        BString request = new BString("WSO2");
         final String serverMsg = "Header: 2233445677";
 
-        BValue[] responses = BRunUtil.invoke(result, "testBlockingHeader", new BValue[]{request});
+        BValue[] responses = BRunUtil.invoke(result, "testBlockingHeader", new Object[]{"WSO2"});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         Assert.assertEquals(responses[0].stringValue(), serverMsg);

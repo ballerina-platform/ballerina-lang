@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.command.LSCommandExecutor;
 import org.ballerinalang.langserver.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.eclipse.lsp4j.MessageType;
@@ -81,7 +80,6 @@ public class PullModuleExecutor implements LSCommandExecutor {
             String ballerinaHome = Paths.get(CommonUtil.BALLERINA_HOME).resolve("bin").resolve("ballerina").toString();
             ProcessBuilder processBuilder = new ProcessBuilder(ballerinaHome, "pull", moduleName);
             LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
-            LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
             DiagnosticsHelper diagnosticsHelper = context.get(ExecuteCommandKeys.DIAGNOSTICS_HELPER_KEY);
             try {
                 notifyClient(client, MessageType.Info, "Pulling '" + moduleName + "' from the Ballerina Central...");
@@ -98,7 +96,7 @@ public class PullModuleExecutor implements LSCommandExecutor {
 
                 if (error == null || error.isEmpty()) {
                     notifyClient(client, MessageType.Info, "Pulling success for the '" + moduleName + "' module!");
-                    clearDiagnostics(client, lsCompiler, diagnosticsHelper, documentUri);
+                    clearDiagnostics(client, diagnosticsHelper, documentUri);
                 } else {
                     notifyClient(client, MessageType.Error,
                             "Pulling failed for the '" + moduleName + "' module!\n" + error);

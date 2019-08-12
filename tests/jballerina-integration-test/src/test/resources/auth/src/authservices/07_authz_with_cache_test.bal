@@ -20,10 +20,12 @@ import ballerina/jwt;
 jwt:InboundJwtAuthProvider jwtAuthProvider07 = new({
     issuer: "ballerina",
     audience: "ballerina",
-    certificateAlias: "ballerina",
-    trustStore: {
-        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-        password: "ballerina"
+    trustStoreConfig: {
+        certificateAlias: "ballerina",
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
     }
 });
 
@@ -50,6 +52,6 @@ listener http:Listener listener07 = new(20008, {
 service echo07 on listener07 {
 
     resource function test(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(());
+        checkpanic caller->respond();
     }
 }

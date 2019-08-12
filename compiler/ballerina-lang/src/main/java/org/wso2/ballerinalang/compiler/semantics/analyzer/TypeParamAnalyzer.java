@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -47,6 +48,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -78,6 +80,7 @@ public class TypeParamAnalyzer {
 
     private SymbolTable symTable;
     private Types types;
+    private BLangDiagnosticLog dlog;
 
     public static TypeParamAnalyzer getInstance(CompilerContext context) {
 
@@ -95,6 +98,7 @@ public class TypeParamAnalyzer {
 
         this.symTable = SymbolTable.getInstance(context);
         this.types = Types.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     static boolean isTypeParam(BType expType) {
@@ -110,7 +114,7 @@ public class TypeParamAnalyzer {
 
     void checkForTypeParamsInArg(BType actualType, SymbolEnv env, BType expType) {
         // Not a langlib module invocation
-        if (env.typeParamsEntries == null) {
+        if (notRequireTypeParams(env)) {
             return;
         }
 
@@ -118,12 +122,17 @@ public class TypeParamAnalyzer {
         findTypeParam(expType, actualType, env, new HashSet<>(), findTypeParamResult);
     }
 
+    boolean notRequireTypeParams(SymbolEnv env) {
+
+        return env.typeParamsEntries == null;
+    }
+
     BType getReturnTypeParams(SymbolEnv env, BType expType) {
 
-        if (env.typeParamsEntries == null || env.typeParamsEntries.isEmpty()) {
+        if (notRequireTypeParams(env) || env.typeParamsEntries.isEmpty()) {
             return expType;
         }
-        return getMatchingBoundType(expType, env, new HashSet<>());
+        return getMatchingBoundType(expType, env);
     }
 
     public BType getNominalType(BType type, Name name, int flag) {
@@ -138,6 +147,11 @@ public class TypeParamAnalyzer {
 
         int flag = type.flags | Flags.TYPE_PARAM;
         return createBuiltInType(type, name, flag);
+    }
+
+    BType getMatchingBoundType(BType expType, SymbolEnv env) {
+
+        return getMatchingBoundType(expType, env, new HashSet<>());
     }
 
     // Private methods.
@@ -164,6 +178,8 @@ public class TypeParamAnalyzer {
                 return false;
             case TypeTags.MAP:
                 return containsTypeParam(((BMapType) type).constraint, resolvedTypes);
+            case TypeTags.STREAM:
+                return containsTypeParam(((BStreamType) type).constraint, resolvedTypes);
             case TypeTags.RECORD:
                 BRecordType recordType = (BRecordType) type;
                 for (BField field : recordType.fields) {
@@ -240,6 +256,11 @@ public class TypeParamAnalyzer {
 
     private void findTypeParam(BType expType, BType actualType, SymbolEnv env, HashSet<BType> resolvedTypes,
                                FindTypeParamResult result) {
+        findTypeParam(expType, actualType, env, resolvedTypes, result, false);
+    }
+
+    private void findTypeParam(BType expType, BType actualType, SymbolEnv env, HashSet<BType> resolvedTypes,
+                               FindTypeParamResult result, boolean checkContravariance) {
 
         if (resolvedTypes.contains(expType)) {
             return;
@@ -250,8 +271,14 @@ public class TypeParamAnalyzer {
             updateTypeParamAndBoundType(env, expType, actualType, result);
 
             // If type param discovered before, now type check with actual type. It has to be matched.
-            types.checkType(env.node.pos, actualType, getMatchingBoundType(expType, env, new HashSet<>()),
-                            DiagnosticCode.INCOMPATIBLE_TYPES);
+
+            if (checkContravariance) {
+                types.checkType(env.node.pos, getMatchingBoundType(expType, env, new HashSet<>()), actualType,
+                                DiagnosticCode.INCOMPATIBLE_TYPES);
+            } else {
+                types.checkType(env.node.pos, actualType, getMatchingBoundType(expType, env, new HashSet<>()),
+                                DiagnosticCode.INCOMPATIBLE_TYPES);
+            }
             return;
         }
         // Bound type is a structure. Visit recursively to find bound type.
@@ -274,6 +301,12 @@ public class TypeParamAnalyzer {
                 if (actualType.tag == TypeTags.RECORD) {
                     findTypeParamInMapForRecord((BMapType) expType, (BRecordType) actualType, env, resolvedTypes,
                                                 result);
+                }
+                return;
+            case TypeTags.STREAM:
+                if (actualType.tag == TypeTags.STREAM) {
+                    findTypeParam(((BStreamType) expType).constraint, ((BStreamType) actualType).constraint, env,
+                                  resolvedTypes, result);
                 }
                 return;
             case TypeTags.TUPLE:
@@ -325,6 +358,10 @@ public class TypeParamAnalyzer {
         if (env.typeParamsEntries.stream()
                 .noneMatch(entry -> entry.typeParam.tsymbol.pkgID.equals(typeParamType.tsymbol.pkgID)
                         && entry.typeParam.tsymbol.name.equals(typeParamType.tsymbol.name))) {
+            if (boundType == symTable.noType) {
+                dlog.error(env.node.pos, DiagnosticCode.CANNOT_INFER_TYPE);
+                return;
+            }
             env.typeParamsEntries.add(new SymbolEnv.TypeParamEntry(typeParamType, boundType));
         }
     }
@@ -393,7 +430,7 @@ public class TypeParamAnalyzer {
                                               HashSet<BType> resolvedTypes, FindTypeParamResult result) {
 
         for (int i = 0; i < expType.paramTypes.size() && i < actualType.paramTypes.size(); i++) {
-            findTypeParam(expType.paramTypes.get(i), actualType.paramTypes.get(i), env, resolvedTypes, result);
+            findTypeParam(expType.paramTypes.get(i), actualType.paramTypes.get(i), env, resolvedTypes, result, true);
         }
         findTypeParam(expType.retType, actualType.retType, env, resolvedTypes, result);
     }
@@ -457,7 +494,8 @@ public class TypeParamAnalyzer {
             return env.typeParamsEntries.stream().filter(typeParamEntry -> typeParamEntry.typeParam == expType)
                     .findFirst()
                     .map(typeParamEntry -> typeParamEntry.boundType)
-                    .orElse(expType);
+                    // Else, this need to be inferred from the context.
+                    .orElse(symTable.noType);
         }
 
         if (resolvedTypes.contains(expType)) {
@@ -473,6 +511,10 @@ public class TypeParamAnalyzer {
                 BType constraint = ((BMapType) expType).constraint;
                 return new BMapType(TypeTags.MAP, getMatchingBoundType(constraint, env, resolvedTypes),
                         symTable.mapType.tsymbol);
+            case TypeTags.STREAM:
+                BType streamConstraint = ((BStreamType) expType).constraint;
+                return new BStreamType(TypeTags.STREAM, getMatchingBoundType(streamConstraint, env, resolvedTypes),
+                                       symTable.streamType.tsymbol);
             case TypeTags.TUPLE:
                 return getMatchingTupleBoundType((BTupleType) expType, env, resolvedTypes);
             case TypeTags.RECORD:

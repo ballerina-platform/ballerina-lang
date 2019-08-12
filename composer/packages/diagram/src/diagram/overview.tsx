@@ -3,6 +3,7 @@ import { IBallerinaLangClient, ProjectAST } from "@ballerina/lang-service";
 import { PanZoom } from "panzoom";
 import React from "react";
 import { DropdownItemProps, List, ListItemProps, Loader } from "semantic-ui-react";
+import { visitor as expandingResettingVisitor } from "../visitors/expandings-undoing-visitor";
 import { CommonDiagramProps, Diagram } from "./diagram";
 import { DiagramMode } from "./diagram-context";
 import { DiagramUtils } from "./diagram-utils";
@@ -75,16 +76,22 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
 
     public updateAST() {
         const { langClient, sourceRootUri, docUri } = this.props;
-
         if (sourceRootUri) {
             langClient.getProjectAST({ sourceRoot: sourceRootUri }).then((result) => {
+                if (!result || !(Object.keys(result.modules).length > 0)) {
+                    return;
+                }
                 this.setState({
                     modules: result.modules
                 });
-            });
+            }, () => {/** no op */});
         } else {
             langClient.getAST({documentIdentifier: {uri: docUri}}).then((result) => {
                 const ast = result.ast as any;
+                if (!ast) {
+                    return;
+                }
+
                 this.setState({
                     modules: {
                         [ast.name]: {
@@ -127,9 +134,49 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
             return this.renderModulesList();
         }
 
-        const selectedModule = this.state.selectedConstruct.moduleName;
-        const selectedConstruct = this.state.selectedConstruct.constructName;
-        const selectedSubConstruct = this.state.selectedConstruct.subConstructName;
+        const {
+            selectedAST,
+            selectedUri,
+        } = this.getSelected(this.state.selectedConstruct);
+
+        return (
+            <div style={{height: "100%"}}>
+                <TopMenu
+                    modes={modes}
+                    handleModeChange={this.handleModeChange}
+                    selectedModeText={this.state.modeText}
+                    openedState={this.state.openedState}
+                    handleBackClick={this.handleBackClick}
+                    handleFitClick={this.handleFitClick}
+                    handleZoomIn={this.handleZoomIn}
+                    handleZoomOut={this.handleZoomOut}
+                    handleOpened={this.handleOpened}
+                    handleClosed={this.handleClosed}
+                    zoomFactor={this.state.zoomFactor}
+                    handleReset={this.handleReset}
+                    handleDepthSelect={this.setMaxInvocationDepth}
+                    maxInvocationDepth={this.state.maxInvocationDepth}
+                />
+                <Diagram ast={selectedAST}
+                    langClient={this.props.langClient}
+                    projectAst={modules}
+                    docUri={selectedUri}
+                    zoom={0} height={0} width={1000}
+                    mode={this.state.mode}
+                    setPanZoomComp={this.setPanZoomComp}
+                    maxInvocationDepth={this.state.maxInvocationDepth}>
+                </Diagram>
+            </div>
+        );
+    }
+
+    private getSelected(selectConstructDetails: ConstructIdentifier): {
+        selectedAST: ASTNode | undefined,
+        selectedUri: string,
+    } {
+        const selectedModule = selectConstructDetails.moduleName;
+        const selectedConstruct = selectConstructDetails.constructName;
+        const selectedSubConstruct = selectConstructDetails.subConstructName;
         const moduleList = this.getModuleList();
 
         const moduleNames: string[] = [];
@@ -161,35 +208,10 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
             }
         });
 
-        return (
-            <div style={{height: "100%"}}>
-                <TopMenu
-                    modes={modes}
-                    handleModeChange={this.handleModeChange}
-                    selectedModeText={this.state.modeText}
-                    openedState={this.state.openedState}
-                    handleBackClick={this.handleBackClick}
-                    handleFitClick={this.handleFitClick}
-                    handleZoomIn={this.handleZoomIn}
-                    handleZoomOut={this.handleZoomOut}
-                    handleOpened={this.handleOpened}
-                    handleClosed={this.handleClosed}
-                    zoomFactor={this.state.zoomFactor}
-                    handleReset={this.handleReset}
-                    handleDepthSelect={this.setMaxInvocationDepth}
-                    maxInvocationDepth={this.state.maxInvocationDepth}
-                />
-                <Diagram ast={selectedAST}
-                    langClient={this.props.langClient}
-                    projectAst={modules}
-                    docUri={selectedUri}
-                    zoom={0} height={0} width={1000}
-                    mode={this.state.mode}
-                    setPanZoomComp={this.setPanZoomComp}
-                    maxInvocationDepth={this.state.maxInvocationDepth}>
-                </Diagram>
-            </div>
-        );
+        return {
+            selectedAST,
+            selectedUri
+        };
     }
 
     private renderModulesList() {
@@ -304,7 +326,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
         const fitToWidthZoomScale = containerWidth / diagramWidth;
 
         this.panZoomComp.zoomAbs(0, 0, fitToWidthZoomScale);
-        this.panZoomComp.moveTo(0, 0);
+        this.panZoomComp.moveTo(20, 20);
     }
 
     private handleZoomIn() {
@@ -357,6 +379,19 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
     }
 
     private setMaxInvocationDepth(depth: number) {
+        // reset any expandings
+        if (!this.state.selectedConstruct) {
+            return;
+        }
+
+        const {
+            selectedAST
+        } = this.getSelected(this.state.selectedConstruct);
+
+        if (selectedAST) {
+            ASTUtil.traversNode(selectedAST, expandingResettingVisitor);
+        }
+
         this.setState({
             maxInvocationDepth: depth,
         });

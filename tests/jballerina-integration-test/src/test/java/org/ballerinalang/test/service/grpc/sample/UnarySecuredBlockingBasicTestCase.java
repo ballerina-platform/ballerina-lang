@@ -46,11 +46,12 @@ public class UnarySecuredBlockingBasicTestCase extends GrpcBaseTest {
 
     @Test
     public void testUnarySecuredBlocking() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "09_grpc_secured_unary_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients",
+                "09_grpc_secured_unary_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         final String serverMsg = "Hello WSO2";
 
-        BValue[] responses = BRunUtil.invoke(result, "testUnarySecuredBlocking", new BValue[]{});
+        BValue[] responses = BRunUtil.invoke(result, "testUnarySecuredBlocking", new Object[]{});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         BString responseValues = (BString) responses[0];

@@ -32,6 +32,8 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.JSONGenerator;
+import org.ballerinalang.jvm.observability.ObserveUtils;
+import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
@@ -91,16 +93,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_HTTP_HOST;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_HTTP_PORT;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_PEER_ADDRESS;
 import static org.ballerinalang.mime.util.EntityBodyHandler.checkEntityBodyAvailability;
 import static org.ballerinalang.mime.util.MimeConstants.BOUNDARY;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
-import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
@@ -116,6 +124,7 @@ import static org.ballerinalang.net.http.HttpConstants.CONNECTION_MANAGER;
 import static org.ballerinalang.net.http.HttpConstants.CONNECTION_POOLING_MAX_ACTIVE_STREAMS_PER_CONNECTION;
 import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_CERTIFICATE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_DISABLE_SSL;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_HANDSHAKE_TIMEOUT;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_PASSWORD;
@@ -159,6 +168,7 @@ import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 import static org.ballerinalang.stdlib.io.utils.IOConstants.DETAIL_RECORD_TYPE_NAME;
 import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE;
 import static org.wso2.transport.http.netty.contract.Constants.ENCODING_GZIP;
+import static org.wso2.transport.http.netty.contract.Constants.HTTP_1_1_VERSION;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_TRANSFER_ENCODING_IDENTITY;
 import static org.wso2.transport.http.netty.contract.Constants.PROMISED_STREAM_REJECTED_ERROR;
 import static org.wso2.transport.http.netty.contract.Constants
@@ -630,7 +640,7 @@ public class HttpUtil {
     }
 
     public static void populateInboundRequest(ObjectValue inboundRequest, ObjectValue entity,
-                                              ObjectValue mediaType, HttpCarbonMessage inboundRequestMsg) {
+                                              HttpCarbonMessage inboundRequestMsg) {
         inboundRequest.addNativeData(TRANSPORT_MESSAGE, inboundRequestMsg);
         inboundRequest.addNativeData(REQUEST, true);
 
@@ -645,7 +655,7 @@ public class HttpUtil {
         enrichWithInboundRequestInfo(inboundRequest, inboundRequestMsg);
         enrichWithInboundRequestHeaders(inboundRequest, inboundRequestMsg);
 
-        populateEntity(entity, mediaType, inboundRequestMsg);
+        populateEntity(entity, inboundRequestMsg);
         inboundRequest.set(REQUEST_ENTITY_FIELD, entity);
         inboundRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
 
@@ -735,11 +745,10 @@ public class HttpUtil {
      * Populate inbound response with headers and entity.
      * @param inboundResponse  Ballerina struct to represent response
      * @param entity    Entity of the response
-     * @param mediaType Content type of the response
      * @param inboundResponseMsg      Represent carbon message.
      */
     public static void populateInboundResponse(ObjectValue inboundResponse, ObjectValue entity,
-                                               ObjectValue mediaType, HttpCarbonMessage inboundResponseMsg) {
+                                               HttpCarbonMessage inboundResponseMsg) {
         inboundResponse.addNativeData(TRANSPORT_MESSAGE, inboundResponseMsg);
         int statusCode = inboundResponseMsg.getHttpStatusCode();
         inboundResponse.set(RESPONSE_STATUS_CODE_FIELD, (long) statusCode);
@@ -765,7 +774,7 @@ public class HttpUtil {
             inboundResponse.set(RESPONSE_CACHE_CONTROL_FIELD, responseCacheControl.getObj());
         }
 
-        populateEntity(entity, mediaType, inboundResponseMsg);
+        populateEntity(entity, inboundResponseMsg);
         inboundResponse.set(RESPONSE_ENTITY_FIELD, entity);
         inboundResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
     }
@@ -773,13 +782,10 @@ public class HttpUtil {
     /**
      * Populate entity with headers, content-type and content-length.
      *
-     * @param entity    Represent an entity struct
-     * @param mediaType mediaType struct that needs to be set to the entity
-     * @param cMsg      Represent a carbon message
+     * @param entity Represent an entity struct
+     * @param cMsg   Represent a carbon message
      */
-    private static void populateEntity(ObjectValue entity, ObjectValue mediaType, HttpCarbonMessage cMsg) {
-        String contentType = cMsg.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
-        MimeUtil.setContentType(mediaType, entity, contentType);
+    private static void populateEntity(ObjectValue entity, HttpCarbonMessage cMsg) {
         long contentLength = -1;
         String lengthStr = cMsg.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
         try {
@@ -802,7 +808,6 @@ public class HttpUtil {
         setPropertiesToTransportMessage(outboundMsg, outboundMsgObj);
     }
 
-    @SuppressWarnings("unchecked")
     private static void setHeadersToTransportMessage(HttpCarbonMessage outboundMsg, ObjectValue messageObj) {
         ObjectValue entityObj = (ObjectValue) messageObj
                 .get(isRequest(messageObj) ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
@@ -1107,21 +1112,20 @@ public class HttpUtil {
     }
 
     public static void checkAndObserveHttpRequest(Strand strand, HttpCarbonMessage message) {
-        // TODO fix observability utils
-//        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(strand);
-//        observerContext.ifPresent(ctx -> {
-//            HttpUtil.injectHeaders(message, ObserveUtils.getContextProperties(ctx));
-//            ctx.addTag(TAG_KEY_HTTP_METHOD, message.getHttpMethod());
-//            ctx.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
-//            ctx.addTag(TAG_KEY_PEER_ADDRESS,
-//                       message.getProperty(PROPERTY_HTTP_HOST) + ":" + message.getProperty(PROPERTY_HTTP_PORT));
-//            // Add HTTP Status Code tag. The HTTP status code will be set using the response message.
-//            // Sometimes the HTTP status code will not be set due to errors etc. Therefore, it's very important to set
-//            // some value to HTTP Status Code to make sure that tags will not change depending on various
-//            // circumstances.
-//            // HTTP Status code must be a number.
-//            ctx.addTag(TAG_KEY_HTTP_STATUS_CODE, Integer.toString(0));
-//        });
+        Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(strand);
+        observerContext.ifPresent(ctx -> {
+            HttpUtil.injectHeaders(message, ObserveUtils.getContextProperties(strand.observerContext));
+            strand.observerContext.addTag(TAG_KEY_HTTP_METHOD, message.getHttpMethod());
+            strand.observerContext.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
+            strand.observerContext.addTag(TAG_KEY_PEER_ADDRESS,
+                       message.getProperty(PROPERTY_HTTP_HOST) + ":" + message.getProperty(PROPERTY_HTTP_PORT));
+            // Add HTTP Status Code tag. The HTTP status code will be set using the response message.
+            // Sometimes the HTTP status code will not be set due to errors etc. Therefore, it's very important to set
+            // some value to HTTP Status Code to make sure that tags will not change depending on various
+            // circumstances.
+            // HTTP Status code must be a number.
+            strand.observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE, Integer.toString(0));
+        });
     }
 
     public static void injectHeaders(HttpCarbonMessage msg, Map<String, String> headers) {
@@ -1147,9 +1151,8 @@ public class HttpUtil {
         ObjectValue responseObj = BallerinaValues.createObjectValue(HttpConstants.PROTOCOL_PACKAGE_HTTP,
                                                                     HttpConstants.RESPONSE);
         ObjectValue entity = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, HttpConstants.ENTITY);
-        ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
 
-        HttpUtil.populateInboundResponse(responseObj, entity, mediaType, httpCarbonMessage);
+        HttpUtil.populateInboundResponse(responseObj, entity, httpCarbonMessage);
         return responseObj;
     }
 
@@ -1257,7 +1260,12 @@ public class HttpUtil {
         String certFile = secureSocket.getStringValue(ENDPOINT_CONFIG_CERTIFICATE);
         String trustCerts = secureSocket.getStringValue(ENDPOINT_CONFIG_TRUST_CERTIFICATES);
         String keyPassword = secureSocket.getStringValue(ENDPOINT_CONFIG_KEY_PASSWORD);
+        boolean disableSslValidation = secureSocket.getBooleanValue(ENDPOINT_CONFIG_DISABLE_SSL);
         List<Parameter> clientParams = new ArrayList<>();
+        if (disableSslValidation) {
+            sslConfiguration.disableSsl();
+            return;
+        }
         if (trustStore != null && StringUtils.isNotBlank(trustCerts)) {
             throw new BallerinaException("Cannot configure both trustStore and trustCerts at the same time.");
         }
@@ -1441,13 +1449,20 @@ public class HttpUtil {
      */
     public static ListenerConfiguration getListenerConfig(long port, MapValue endpointConfig) {
         String host = endpointConfig.getStringValue(HttpConstants.ENDPOINT_CONFIG_HOST);
-        String keepAlive = endpointConfig.get(HttpConstants.ENDPOINT_CONFIG_KEEP_ALIVE).toString();
         MapValue sslConfig = endpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         String httpVersion = endpointConfig.getStringValue(HttpConstants.ENDPOINT_CONFIG_VERSION);
         MapValue requestLimits = endpointConfig.getMapValue(HttpConstants.ENDPOINT_REQUEST_LIMITS);
         long idleTimeout = endpointConfig.getIntValue(HttpConstants.ENDPOINT_CONFIG_TIMEOUT);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
+        if (HTTP_1_1_VERSION.equals(httpVersion)) {
+            MapValue<String, Object> http1Settings = (MapValue<String, Object>) endpointConfig.get(
+                    HttpConstants.HTTP1_SETTINGS);
+            listenerConfiguration.setPipeliningLimit(http1Settings.getIntValue(
+                    HttpConstants.PIPELINING_REQUEST_LIMIT));
+            String keepAlive = http1Settings.getStringValue(HttpConstants.ENDPOINT_CONFIG_KEEP_ALIVE);
+            listenerConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAlive));
+        }
 
         if (host == null || host.trim().isEmpty()) {
             listenerConfiguration.setHost(ConfigRegistry.getInstance().getConfigOrDefault("b7a.http.host",
@@ -1460,8 +1475,6 @@ public class HttpUtil {
             throw new BallerinaConnectorException("Listener port is not defined!");
         }
         listenerConfiguration.setPort(Math.toIntExact(port));
-
-        listenerConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAlive));
 
         // Set Request validation limits.
         if (requestLimits != null) {
@@ -1491,8 +1504,10 @@ public class HttpUtil {
         }
 
         listenerConfiguration.setPipeliningEnabled(true); //Pipelining is enabled all the time
-        listenerConfiguration.setPipeliningLimit(endpointConfig.getIntValue(
-                HttpConstants.PIPELINING_REQUEST_LIMIT));
+        Object webSocketCompressionEnabled = endpointConfig.get(WebSocketConstants.COMPRESSION_ENABLED_CONFIG);
+        if (webSocketCompressionEnabled != null) {
+            listenerConfiguration.setWebSocketCompressionEnabled((Boolean) webSocketCompressionEnabled);
+        }
 
         return listenerConfiguration;
     }

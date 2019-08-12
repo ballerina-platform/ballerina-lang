@@ -41,7 +41,7 @@ public class DecodeBase64 {
             byte[] output = Base64.getDecoder().decode(input);
             return new ArrayValue(output);
         } catch (IllegalArgumentException e) {
-            return EncodingUtil.createEncodingError("Input is not a valid Base64 value");
+            return EncodingUtil.createError("Input is not a valid Base64 value");
         }
     }
 }

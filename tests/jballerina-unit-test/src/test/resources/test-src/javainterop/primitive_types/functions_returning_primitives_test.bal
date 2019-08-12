@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerinax/java;
 
 // Functions returns Ballerina boolean
 function testReturningBBooleanJBoolean(handle receiver, handle strValue) returns boolean {
@@ -57,51 +57,74 @@ function testReturningBFloatJDouble(handle receiver) returns float {
 }
 
 // Interop Functions returns Ballerina boolean
-@java:Method {name:"contentEquals", class:"java.lang.String", paramTypes: ["java.lang.String", "java.lang.String"]}
-public function getBBooleanJBoolean(handle receiver, handle strValue) returns boolean = external;
+public function getBBooleanJBoolean(handle receiver, handle strValue) returns boolean = @java:Method {
+    name:"contentEquals",
+    class:"java.lang.String",
+    paramTypes: ["java.lang.String", "java.lang.String"]
+} external;
 
 
 // Interop Functions returns Ballerina byte
-@java:Method {name:"byteValue", class:"java.lang.Long"}
-public function getBByteJByte(handle receiver) returns byte = external;
+public function getBByteJByte(handle receiver) returns byte = @java:Method {
+    name:"byteValue",
+    class:"java.lang.Long"
+} external;
 
 
 // Interop Functions returns Ballerina int
-@java:Method {name:"byteValue", class:"java.lang.Long"}
-public function getBIntJByte(handle receiver) returns int = external;
+public function getBIntJByte(handle receiver) returns int = @java:Method {
+    name:"byteValue",
+    class:"java.lang.Long"
+} external;
 
-@java:Method {name:"shortValue", class:"java.lang.Long"}
-public function getBIntJShort(handle receiver) returns int = external;
+public function getBIntJShort(handle receiver) returns int = @java:Method {
+    name:"shortValue",
+    class:"java.lang.Long"
+} external;
 
 //@java:Method {name:"shortValue", class:"java.lang.Long"}
 //public function getBIntJChar(handle receiver) returns int = external;
 
-@java:Method {name:"intValue", class:"java.lang.Long", isStatic: false}
-public function getBIntJInt(handle receiver) returns int = external;
+public function getBIntJInt(handle receiver) returns int = @java:Method {
+    name:"intValue",
+    class:"java.lang.Long"
+} external;
 
-@java:Method {name:"longValue", class:"java.lang.Long"}
-public function getBIntJLong(handle receiver) returns int = external;
+public function getBIntJLong(handle receiver) returns int = @java:Method {
+    name:"longValue",
+    class:"java.lang.Long"
+} external;
 
 
 
 
 
 // Interop Functions returns Ballerina float
-@java:Method {name:"byteValue", class:"java.lang.Double"}
-public function getBFloatJByte(handle receiver) returns float = external;
+public function getBFloatJByte(handle receiver) returns float = @java:Method {
+    name:"byteValue",
+    class:"java.lang.Double"
+} external;
 
-@java:Method {name:"shortValue", class:"java.lang.Double"}
-public function getBFloatJShort(handle receiver) returns float = external;
+public function getBFloatJShort(handle receiver) returns float = @java:Method {
+    name:"shortValue",
+    class:"java.lang.Double"
+} external;
 
 //@java:Method {name:"charValue", class:"java.lang.Double"}
 //public function getBFloatJChar(handle receiver) returns float = external;
 
-@java:Method {name:"intValue", class:"java.lang.Double"}
-public function getBFloatJInt(handle receiver) returns float = external;
+public function getBFloatJInt(handle receiver) returns float = @java:Method {
+    name:"intValue",
+    class:"java.lang.Double"
+} external;
 
-@java:Method {name:"floatValue", class:"java.lang.Double"}
-public function getBFloatJFloat(handle receiver) returns float = external;
+public function getBFloatJFloat(handle receiver) returns float = @java:Method {
+    name:"floatValue",
+    class:"java.lang.Double"
+} external;
 
-@java:Method {name:"doubleValue", class:"java.lang.Double"}
-public function getBFloatJDouble(handle receiver) returns float = external;
+public function getBFloatJDouble(handle receiver) returns float = @java:Method {
+    name:"doubleValue",
+    class:"java.lang.Double"
+} external;
 

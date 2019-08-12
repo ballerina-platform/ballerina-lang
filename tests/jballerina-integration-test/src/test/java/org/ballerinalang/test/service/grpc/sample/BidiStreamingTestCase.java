@@ -44,11 +44,11 @@ public class BidiStreamingTestCase extends GrpcBaseTest {
     @Test(description = "Test bidirectional streaming client")
     public void testBidiStreamingClient() {
 
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients",
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients",
                 "03_bidirectional_streaming_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
 
-        BValue[] responses = BRunUtil.invoke(result, "testBidiStreaming", new BValue[]{});
+        BValue[] responses = BRunUtil.invoke(result, "testBidiStreaming", new Object[][]{});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         BString response = (BString) responses[0];

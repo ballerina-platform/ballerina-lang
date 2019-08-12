@@ -19,7 +19,7 @@ import ballerina/log;
 
 @http:WebSocketServiceConfig {
 }
-service on new http:WebSocketListener(21021) {
+service on new http:Listener(21021) {
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new("wss://localhost:15400/websocket", { callbackService:
             sslClientService, secureSocket: { trustStore: {
@@ -27,8 +27,8 @@ service on new http:WebSocketListener(21021) {
                 password: "ballerina"
             }
             }, readyOnConnect: false });
-        wsEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
-        wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsEp;
+        wsEp.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
+        wsClientEp.setAttribute(ASSOCIATED_CONNECTION, wsEp);
         var returnVal = wsClientEp->ready();
         if (returnVal is http:WebSocketError) {
             panic <error> returnVal;

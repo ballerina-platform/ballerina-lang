@@ -34,7 +34,7 @@ public type ClassWriter object {
 
     public function visitSource(string fileName) = external;
     
-    public function toByteArray() returns byte[] = external;
+    public function toByteArray() returns byte[]|error = external;
 };
 
 
@@ -70,11 +70,13 @@ public type MethodVisitor object {
                                         int closureMapCount) = external;
     
     public function visitTryCatchBlock(Label startLabel, Label endLabel, Label handlerLabel,
-                                        string exceptionType) = external;
+                                        string? exceptionType) = external;
                                         
     public function visitLineNumber(int line, Label label) = external;
 
     public function visitLocalVariable(string varName, string descriptor, Label startLabel, Label endLabel, int index) = external;
+
+    public function visitIincInsn(int variable, int amount) = external;
 };
 
 

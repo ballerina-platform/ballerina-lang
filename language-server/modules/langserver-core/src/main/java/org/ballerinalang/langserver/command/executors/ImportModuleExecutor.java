@@ -24,17 +24,16 @@ import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompiler;
-import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.List;
 
@@ -70,20 +69,16 @@ public class ImportModuleExecutor implements LSCommandExecutor {
 
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         if (documentUri != null && context.get(ExecuteCommandKeys.PKG_NAME_KEY) != null) {
-            LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-            BLangPackage bLangPackage;
             try {
-                bLangPackage = lsCompiler.getBLangPackage(context, documentManager, false, 
-                        LSCustomErrorStrategy.class, false);
-            } catch (LSCompilerException e) {
+                LSModuleCompiler.getBLangPackage(context, documentManager, false, LSCustomErrorStrategy.class, false);
+            } catch (CompilationFailedException e) {
                 throw new LSCommandExecutorException("Couldn't compile the source", e);
             }
-            String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-            BLangPackage srcOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
             String pkgName = context.get(ExecuteCommandKeys.PKG_NAME_KEY);
 
             // Filter the imports except the runtime import
-            List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(srcOwnerPkg, context);
+            context.put(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY, CommonUtil.getCurrentFileImports(context));
+            List<BLangImportPackage> imports = CommonUtil.getCurrentFileImports(context);
 
             Position start = new Position(0, 0);
             if (!imports.isEmpty()) {

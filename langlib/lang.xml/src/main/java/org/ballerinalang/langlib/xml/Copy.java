@@ -42,7 +42,7 @@ import java.util.HashMap;
 )
 public class Copy extends BlockingNativeCallableUnit {
 
-private static final String OPERATION = "get children from xml";
+private static final String OPERATION = "copy xml";
 
     @Override
     public void execute(Context ctx) {

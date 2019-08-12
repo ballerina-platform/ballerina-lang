@@ -51,12 +51,12 @@ service test on new http:Listener(9090) {
             foreach var part in bodyParts {
                 content = content + " -- " + handleContent(part);
             }
-            response.setPayload(untaint content);
+            response.setPayload(<@untainted> content);
         } else {
             // If there is an error while getting the body parts, set the response code as 500 and
             // set the error message as the response message.
             response.statusCode = 500;
-            response.setPayload(untaint bodyParts.reason());
+            response.setPayload(<@untainted> bodyParts.reason());
         }
 
         var result = caller->respond(response);
@@ -67,7 +67,7 @@ service test on new http:Listener(9090) {
 }
 
 // The function that handles the content based on the body part type.
-function handleContent(mime:Entity bodyPart) returns string {
+function handleContent(mime:Entity bodyPart) returns @tainted string {
     var mediaType = mime:getMediaType(bodyPart.getContentType());
     if (mediaType is mime:MediaType) {
         // Get the base type of the specific body part.

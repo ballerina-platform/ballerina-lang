@@ -241,8 +241,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.typeDefinitions.forEach(typDef -> typDefs.add(typDef));
         defineTypeNodes(typDefs, pkgEnv);
 
-        pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
-
         // Enabled logging errors after type def visit.
         // TODO: Do this in a cleaner way
         pkgEnv.logErrors = true;
@@ -267,6 +265,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define annotation nodes.
         pkgNode.annotations.forEach(annot -> defineNode(annot, pkgEnv));
+
+        pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
 
         // Update globalVar for endpoints.
         pkgNode.globalVars.stream().filter(var -> var.symbol.type.tsymbol != null && Symbols

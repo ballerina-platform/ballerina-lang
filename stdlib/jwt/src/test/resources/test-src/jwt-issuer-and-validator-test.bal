@@ -20,7 +20,7 @@ import ballerina/time;
 
 function testIssueJwt(string keyStorePath) returns string|jwt:Error {
     crypto:KeyStore keyStore = { path: keyStorePath, password: "ballerina" };
-    jwt:JwtIssuerConfig config = {
+    jwt:JwtKeyStoreConfig config = {
         keyStore: keyStore,
         keyAlias: "ballerina",
         keyPassword: "ballerina"
@@ -42,7 +42,7 @@ function testIssueJwt(string keyStorePath) returns string|jwt:Error {
 
 function testIssueJwtWithSingleAud(string keyStorePath) returns string|jwt:Error {
     crypto:KeyStore keyStore = { path: keyStorePath, password: "ballerina" };
-    jwt:JwtIssuerConfig config = {
+    jwt:JwtKeyStoreConfig config = {
         keyStore: keyStore,
         keyAlias: "ballerina",
         keyPassword: "ballerina"
@@ -64,7 +64,7 @@ function testIssueJwtWithSingleAud(string keyStorePath) returns string|jwt:Error
 
 function testIssueJwtWithSingleAudAndAudAsArray(string keyStorePath) returns string|jwt:Error {
     crypto:KeyStore keyStore = { path: keyStorePath, password: "ballerina" };
-    jwt:JwtIssuerConfig config = {
+    jwt:JwtKeyStoreConfig config = {
         keyStore: keyStore,
         keyAlias: "ballerina",
         keyPassword: "ballerina"
@@ -88,10 +88,12 @@ function testValidateJwt(string jwtToken, string trustStorePath) returns @tainte
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:JwtValidatorConfig config = {
         issuer: "wso2",
-        certificateAlias: "ballerina",
         audience: ["ballerina", "ballerinaSamples"],
-        clockSkew: 60,
-        trustStore: trustStore
+        clockSkewInSeconds: 60,
+        trustStoreConfig: {
+            trustStore: trustStore,
+            certificateAlias: "ballerina"
+        }
     };
 
     var result = jwt:validateJwt(jwtToken, config);
@@ -106,10 +108,12 @@ function testValidateJwtWithSingleAud(string jwtToken, string trustStorePath) re
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:JwtValidatorConfig config = {
         issuer: "wso2",
-        certificateAlias: "ballerina",
         audience: "ballerina",
-        clockSkew: 60,
-        trustStore: trustStore
+        clockSkewInSeconds: 60,
+        trustStoreConfig: {
+            trustStore: trustStore,
+            certificateAlias: "ballerina"
+        }
     };
 
     var result = jwt:validateJwt(jwtToken, config);
@@ -125,10 +129,12 @@ function testValidateJwtWithSingleAudAndAudAsArray(string jwtToken, string trust
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:JwtValidatorConfig config = {
         issuer: "wso2",
-        certificateAlias: "ballerina",
         audience: "ballerina",
-        clockSkew: 60,
-        trustStore: trustStore
+        clockSkewInSeconds: 60,
+        trustStoreConfig: {
+            trustStore: trustStore,
+            certificateAlias: "ballerina"
+        }
     };
 
     var result = jwt:validateJwt(jwtToken, config);
@@ -141,7 +147,7 @@ function testValidateJwtWithSingleAudAndAudAsArray(string jwtToken, string trust
 
 function testIssueJwtWithNoIssOrSub(string keyStorePath) returns @tainted (string|jwt:Error) {
     crypto:KeyStore keyStore = { path: keyStorePath, password: "ballerina" };
-    jwt:JwtIssuerConfig config = {
+    jwt:JwtKeyStoreConfig config = {
         keyStore: keyStore,
         keyAlias: "ballerina",
         keyPassword: "ballerina"
@@ -161,7 +167,7 @@ function testIssueJwtWithNoIssOrSub(string keyStorePath) returns @tainted (strin
 
 function testIssueJwtWithNoAudOrSub(string keyStorePath) returns string|jwt:Error {
     crypto:KeyStore keyStore = { path: keyStorePath, password: "ballerina" };
-    jwt:JwtIssuerConfig config = {
+    jwt:JwtKeyStoreConfig config = {
         keyStore: keyStore,
         keyAlias: "ballerina",
         keyPassword: "ballerina"
@@ -183,10 +189,12 @@ function testIssueJwtWithNoAudOrSub(string keyStorePath) returns string|jwt:Erro
 function testValidateJwtWithNoIssOrSub(string jwtToken, string trustStorePath) returns @tainted (boolean|jwt:Error) {
     crypto:TrustStore trustStore = { path: trustStorePath, password: "ballerina" };
     jwt:JwtValidatorConfig config = {
-        certificateAlias: "ballerina",
         audience: "ballerinaSamples",
-        clockSkew: 60,
-        trustStore: trustStore
+        clockSkewInSeconds: 60,
+        trustStoreConfig: {
+            trustStore: trustStore,
+            certificateAlias: "ballerina"
+        }
     };
 
     var result = jwt:validateJwt(jwtToken, config);

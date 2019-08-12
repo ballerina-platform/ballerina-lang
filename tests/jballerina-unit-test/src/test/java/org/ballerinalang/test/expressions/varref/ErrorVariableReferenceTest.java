@@ -166,6 +166,12 @@ public class ErrorVariableReferenceTest {
         Assert.assertEquals(results.get("fatal").stringValue(), "true");
     }
 
+    @Test(description = "Test default error var ref with rest underscore")
+    public void testDefaultErrorRefBindingPattern() {
+        BValue[] returns = BRunUtil.invoke(result, "testDefaultErrorRefBindingPattern");
+        Assert.assertEquals(returns[0].stringValue(), "the reason");
+    }
+
     @Test
     public void testNegativeRecordVariables() {
         Assert.assertEquals(resultNegative.getErrorCount(), 12);
@@ -184,16 +190,16 @@ public class ErrorVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "error constructor expression is not supported for error binding pattern", 43, 81);
         BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'boolean', found 'string'", 64, 18);
+                incompatibleTypes + "expected 'boolean', found 'string'", 65, 18);
         BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes +
-                "expected '[any,string,map,[error,any]]', found '[int,string,error,[error,Foo]]'", 78, 58);
+                "expected '[any,string,map,[error,any]]', found '[int,string,error,[error,Foo]]'", 79, 58);
         BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes + "expected 'Bar', " +
-                "found 'record {| string message?; $error0 cause?; (anydata|error)...; |}'", 92, 32);
+                "found 'record {| string message?; $error0 cause?; (anydata|error)...; |}'", 93, 32);
         BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'boolean', found 'string'", 93, 20);
+                incompatibleTypes + "expected 'boolean', found 'string'", 94, 20);
         BAssertUtil.validateError(resultNegative, ++i,
-                                  "error binding pattern does not support index based assignment", 111, 39);
+                                  "error binding pattern does not support index based assignment", 112, 39);
         BAssertUtil.validateError(resultNegative, ++i,
-                                  "error binding pattern does not support index based assignment", 111, 79);
+                                  "error binding pattern does not support index based assignment", 112, 79);
     }
 }

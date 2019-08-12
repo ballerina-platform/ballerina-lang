@@ -1,5 +1,5 @@
 # To start the service, navigate to the directory that contains the
 # `.bal` file and use the `ballerina run` command.
 $ ballerina run http_expect_header.bal
-[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9090
+[ballerina/http] started HTTP/WS listener 0.0.0.0:9090
 2018-12-04 21:37:36,272 INFO  [ballerina/log] - TEST 100 CONTINUE

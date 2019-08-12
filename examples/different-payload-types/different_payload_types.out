@@ -1,8 +1,8 @@
 # To start the service, navigate to the directory that contains the
 # `.bal` file and use the `ballerina run` command.
 $ ballerina run different_payload_types.bal
-[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9091
-[ballerina/http] started HTTP/WS endpoint 0.0.0.0:9090
+[ballerina/http] started HTTP/WS listener 0.0.0.0:9091
+[ballerina/http] started HTTP/WS listener 0.0.0.0:9090
 2018-12-04 21:17:59,696 INFO  [ballerina/log] - Text data: Hello
 2018-12-04 21:17:59,717 INFO  [ballerina/log] - Text data: Hello
 2018-12-04 21:17:59,727 INFO  [ballerina/log] - Entity body is not available
