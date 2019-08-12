@@ -41,11 +41,6 @@ import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
-import javax.xml.XMLConstants;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamWriter;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -55,6 +50,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.xml.XMLConstants;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamWriter;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
 
