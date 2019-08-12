@@ -18,7 +18,6 @@
 
 package org.ballerinalang.test.packaging;
 
-import org.awaitility.Duration;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -29,19 +28,17 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.awaitility.Awaitility.given;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 
 /**
@@ -49,170 +46,216 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COM
  */
 public class LockFileTestCase extends BaseTest {
     private Path tempHomeDirectory;
-    private Path tempProjectDirectory;
-    private String moduleName = "test";
-    private String datePushed;
+    private Path tempProjectsDirectory;
     private String orgName = "bcintegrationtest";
     private Map<String, String> envVariables;
     private BMainInstance balClient;
+    private Path testProj1Path;
+    private String module1Name = "test" + PackerinaTestUtils.randomModuleName(10);
+    private String module2Name = "test" + PackerinaTestUtils.randomModuleName(10);
+    private Path testProj2Path;
     
     @BeforeClass()
     public void setUp() throws IOException, BallerinaTestException {
         tempHomeDirectory = Files.createTempDirectory("bal-test-integration-packaging-home-");
-        tempProjectDirectory = Files.createTempDirectory("bal-test-integration-packaging-project-");
-        moduleName = moduleName + PackerinaTestUtils.randomModuleName(10);
+        tempProjectsDirectory = Files.createTempDirectory("bal-test-integration-packaging-project-");
+        
+        // copy TestProject1 to a temp
+        Path testProj1 = Paths.get("src", "test", "resources", "packaging", "TestProject1").toAbsolutePath();
+        Files.copy(testProj1, tempProjectsDirectory);
+        testProj1Path = tempProjectsDirectory.resolve("TestProject1");
+    
+        // rename module names
+        Path testProjModule1Path = testProj1Path.resolve("src").resolve(this.module1Name);
+        Files.createDirectories(testProj1Path.resolve("src").resolve(this.module1Name));
+        Files.move(testProj1Path.resolve("src").resolve("module1"), testProjModule1Path);
+    
+        Path testProjModule2Path = testProj1Path.resolve("src").resolve(this.module2Name);
+        Files.createDirectories(testProj1Path.resolve("src").resolve(this.module2Name));
+        Files.move(testProj1Path.resolve("src").resolve("module2"), testProjModule2Path);
+        
+        // copy TestProject2 to a temp
+        Path testProj2 = Paths.get("src", "test", "resources", "packaging", "TestProject1").toAbsolutePath();
+        Files.copy(testProj2, tempProjectsDirectory);
+        testProj2Path = tempProjectsDirectory.resolve("TestProject2");
+        
         PackerinaTestUtils.createSettingToml(tempHomeDirectory);
         envVariables = addEnvVariables(PackerinaTestUtils.getEnvVariables());
         balClient = new BMainInstance(balServer);
     }
     
+    /**
+     * Build and push TestProj1 to central.
+     * @throws Exception
+     */
     @Test(description = "Test create a ballerina project and module to be pushed to central")
-    public void testCreateProject() throws Exception {
-        Path projectPath = tempProjectDirectory.resolve("initProject");
-        
-        // Create project
-        balClient.runMain("new", new String[]{"initProject"}, envVariables, new String[]{}, new LogLeecher[]{},
-                projectPath.getParent().toString());
-        
-        // Update org name
-        PackerinaTestUtils.updateManifestOrgName(projectPath, orgName);
-        
-        Assert.assertTrue(Files.exists(projectPath));
-        Assert.assertTrue(Files.isDirectory(projectPath));
-        
-        // Create module
-        balClient.runMain("add", new String[]{moduleName}, envVariables, new String[]{}, new LogLeecher[]{},
-                projectPath.toString());
-        
-        Assert.assertTrue(Files.exists(projectPath.resolve("src").resolve(moduleName)));
-        Assert.assertTrue(Files.isDirectory(projectPath.resolve("src").resolve(moduleName)));
-    }
-    
-    @Test(description = "Test pushing a package to central", dependsOnMethods = "testCreateProject")
-    public void testPush() throws Exception {
-        Path projectPath = tempProjectDirectory.resolve("initProject");
-        
-        // Get date and time of the module pushed.
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd-EE");
-        datePushed = dtf.format(LocalDateTime.now());
-        
-        // First try to push without building
-        String firstMsg = "error: cannot find balo file for the module: " + moduleName + ". Run " +
-                          "'ballerina build -c <module_name>' to compile and generate the balo.";
-        LogLeecher clientLeecher = new LogLeecher(firstMsg, LogLeecher.LeecherType.ERROR);
-        balClient.runMain("push", new String[]{moduleName}, envVariables, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath.toString());
-        clientLeecher.waitForText(2000);
-        
-        String baloFileName = moduleName + "-"
+    public void testBuildAndPushTestProject1() throws BallerinaTestException {
+        // Build module
+        String module1BaloFileName = module1Name + "-"
                               + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
                               + ProgramFileConstants.ANY_PLATFORM + "-"
-                              + "0.1.0"
+                              + "1.0.0"
                               + BLANG_COMPILED_PKG_BINARY_EXT;
-        Path baloPath = projectPath.resolve("target").resolve("balo").resolve(baloFileName);
-        Assert.assertTrue(Files.notExists(baloPath));
+    
+        String module2BaloFileName = module2Name + "-"
+                                     + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                                     + ProgramFileConstants.ANY_PLATFORM + "-"
+                                     + "1.0.0"
+                                     + BLANG_COMPILED_PKG_BINARY_EXT;
+        String module1BuildMsg = "Created target" + File.separator + "balo" + File.separator + module1BaloFileName;
+        String module2BuildMsg = "Created target" + File.separator + "balo" + File.separator + module2BaloFileName;
+        LogLeecher module1BuildLeecher = new LogLeecher(module1BuildMsg);
+        LogLeecher module2BuildLeecher = new LogLeecher(module2BuildMsg);
+        balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{},
+                new LogLeecher[]{module1BuildLeecher, module2BuildLeecher}, testProj1Path.toString());
+        module1BuildLeecher.waitForText(5000);
+        module2BuildLeecher.waitForText(5000);
+        
+        
+        // Push built modules
+        String module1PushMsg = orgName + "/" + module1Name + ":1.0.0 [project repo -> central]";
+        String module2PushMsg = orgName + "/" + module2Name + ":1.0.0 [project repo -> central]";
+        LogLeecher module1PushLeecher = new LogLeecher(module1PushMsg);
+        LogLeecher module2PushLeecher = new LogLeecher(module2PushMsg);
+        balClient.runMain("push", new String[]{}, envVariables, new String[]{},
+                new LogLeecher[]{module1PushLeecher, module2PushLeecher}, testProj1Path.toString());
+        module1PushLeecher.waitForText(5000);
+        module2PushLeecher.waitForText(5000);
+    }
+    
+    @Test(description = "Test pushing a package to central", dependsOnMethods = "testBuildAndPushTestProject1")
+    public void testBuildTestProject2() throws Exception {
+        // Replace module name in source file
+        Path fooSayBal = testProj2Path.resolve("src").resolve("foo").resolve("foo_say.bal");
+        Stream<String> lines = Files.lines(fooSayBal);
+        List<String> replaced = lines.map(line -> line.replaceAll("MODULE_1", module1Name))
+                .collect(Collectors.toList());
+        Files.write(fooSayBal, replaced);
+        
+        replaced = lines.map(line -> line.replaceAll("MODULE_2", module2Name))
+                .collect(Collectors.toList());
+        Files.write(fooSayBal, replaced);
+        lines.close();
         
         // Build module
-        String buildMessage = "Created target" + File.separator + "balo" + File.separator + baloFileName;
-        clientLeecher = new LogLeecher(buildMessage);
-        balClient.runMain("build", new String[]{"-c", moduleName}, envVariables, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath.toString());
+        String fooBaloFileName = "foo-"
+                                 + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                                 + ProgramFileConstants.ANY_PLATFORM + "-"
+                                 + "1.0.0"
+                                 + BLANG_COMPILED_PKG_BINARY_EXT;
+        String fooBuildMsg = "Created target" + File.separator + "balo" + File.separator + fooBaloFileName;
+        LogLeecher fooBuildLeecher = new LogLeecher(fooBuildMsg);
+        balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{}, new LogLeecher[]{fooBuildLeecher},
+                testProj1Path.toString());
+        fooBuildLeecher.waitForText(10000);
         
-        // Then try to push without the flag so it builds the artifact
-        String secondMsg = orgName + "/" + moduleName + ":0.1.0 [project repo -> central]";
-        clientLeecher = new LogLeecher(secondMsg);
-        balClient.runMain("push", new String[]{moduleName}, envVariables, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath.toString());
-        clientLeecher.waitForText(5000);
+        Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
+        Assert.assertTrue(Files.exists(lockFilePath));
+    
+        // Run and see output
+        String msg = "Test me\nHello john!";
+        balClient.runMain("run", new String[] {"foo"}, envVariables, new String[0],
+                new LogLeecher[]{new LogLeecher(msg)}, testProj2Path.toString());
     }
     
-    @Test(description = "Test pulling a package from central", dependsOnMethods = "testPush")
-    public void testPull() {
-        String baloFileName = moduleName + "-"
-                              + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
-                              + ProgramFileConstants.ANY_PLATFORM + "-"
-                              + "0.1.0"
-                              + BLANG_COMPILED_PKG_BINARY_EXT;
-        Path baloPath = Paths.get(ProjectDirConstants.BALO_CACHE_DIR_NAME,
-                orgName, moduleName, "0.1.0");
-        
-        given().with().pollInterval(Duration.TEN_SECONDS).and()
-                .with().pollDelay(Duration.FIVE_SECONDS)
-                .await().atMost(60, SECONDS).until(() -> {
-            String[] clientArgs = {orgName + "/" + moduleName + ":0.1.0"};
-            balClient.runMain("pull", clientArgs, envVariables, new String[]{},
-                    new LogLeecher[]{}, balServer.getServerHome());
-            return Files.exists(tempHomeDirectory.resolve(baloPath).resolve(baloFileName));
-        });
-        
-        Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(baloPath).resolve(baloFileName)));
+    @Test(description = "Test pulling a package from central", dependsOnMethods = "testBuildTestProject2")
+    public void testModifyProj1AndPush() throws IOException, BallerinaTestException {
+        // Update code in module1
+        Path module2SourceFile = testProj1Path.resolve("src").resolve(module2Name).resolve("say.bal");
+        Stream<String> lines = Files.lines(module2SourceFile);
+        List<String> replaced = lines.map(line -> line.replaceAll("Hello ", "Hello world "))
+                .collect(Collectors.toList());
+        Files.write(module2SourceFile, replaced);
+        lines.close();
+    
+        // Update Ballerina.toml version
+        Path ballerinaTomlPath = testProj1Path.resolve("Ballerina.toml");
+        lines = Files.lines(ballerinaTomlPath);
+        replaced = lines.map(line -> line.replaceAll("1.0.0", "1.2.0"))
+                .collect(Collectors.toList());
+        Files.write(ballerinaTomlPath, replaced);
+        lines.close();
+    
+        String module1BaloFileName = module1Name + "-"
+                                     + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                                     + ProgramFileConstants.ANY_PLATFORM + "-"
+                                     + "1.2.0"
+                                     + BLANG_COMPILED_PKG_BINARY_EXT;
+    
+        String module2BaloFileName = module2Name + "-"
+                                     + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                                     + ProgramFileConstants.ANY_PLATFORM + "-"
+                                     + "1.2.0"
+                                     + BLANG_COMPILED_PKG_BINARY_EXT;
+        String module1BuildMsg = "Created target" + File.separator + "balo" + File.separator + module1BaloFileName;
+        String module2BuildMsg = "Created target" + File.separator + "balo" + File.separator + module2BaloFileName;
+        LogLeecher module1BuildLeecher = new LogLeecher(module1BuildMsg);
+        LogLeecher module2BuildLeecher = new LogLeecher(module2BuildMsg);
+        balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{},
+                new LogLeecher[]{module1BuildLeecher, module2BuildLeecher}, testProj1Path.toString());
+        module1BuildLeecher.waitForText(5000);
+        module2BuildLeecher.waitForText(5000);
+    
+    
+        // Push built modules
+        String module1PushMsg = orgName + "/" + module1Name + ":1.2.0 [project repo -> central]";
+        String module2PushMsg = orgName + "/" + module2Name + ":1.2.0 [project repo -> central]";
+        LogLeecher module1PushLeecher = new LogLeecher(module1PushMsg);
+        LogLeecher module2PushLeecher = new LogLeecher(module2PushMsg);
+        balClient.runMain("push", new String[]{}, envVariables, new String[]{},
+                new LogLeecher[]{module1PushLeecher, module2PushLeecher}, testProj1Path.toString());
+        module1PushLeecher.waitForText(5000);
+        module2PushLeecher.waitForText(5000);
     }
     
-    @Test(description = "Test searching a package from central", dependsOnMethods = "testPush")
-    public void testSearch() throws BallerinaTestException {
-        String actualMsg = balClient.runMainAndReadStdOut("search", new String[]{moduleName}, envVariables,
-                balServer.getServerHome(), false);
-        
-        // Check if the search results contains the following.
-        Assert.assertTrue(actualMsg.contains("Ballerina Central"));
-        Assert.assertTrue(actualMsg.contains("NAME"));
-        Assert.assertTrue(actualMsg.contains("DESCRIPTION"));
-        Assert.assertTrue(actualMsg.contains("DATE"));
-        Assert.assertTrue(actualMsg.contains("VERSION"));
-        Assert.assertTrue(actualMsg.contains(datePushed));
-        Assert.assertTrue(actualMsg.contains("0.1.0"));
+    @Test(description = "Test searching a package from central", dependsOnMethods = "testModifyProj1AndPush")
+    public void testRebuildTestProj2() throws BallerinaTestException {
+        // Build module
+        String fooBaloFileName = "foo-"
+                                 + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                                 + ProgramFileConstants.ANY_PLATFORM + "-"
+                                 + "1.0.0"
+                                 + BLANG_COMPILED_PKG_BINARY_EXT;
+        String fooBuildMsg = "Created target" + File.separator + "balo" + File.separator + fooBaloFileName;
+        LogLeecher fooBuildLeecher = new LogLeecher(fooBuildMsg);
+        balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{}, new LogLeecher[]{fooBuildLeecher},
+                testProj1Path.toString());
+        fooBuildLeecher.waitForText(10000);
+    
+        Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
+        Assert.assertTrue(Files.exists(lockFilePath));
+    
+        // Run and see output
+        String msg = "Test me\nHello john!";
+        balClient.runMain("run", new String[] {"foo"}, envVariables, new String[0],
+                new LogLeecher[]{new LogLeecher(msg)}, testProj2Path.toString());
     }
     
     @Test(description = "Test push all packages in project to central")
-    public void testPushAllPackages() throws Exception {
-        // Test ballerina init
-        Path projectPath = tempProjectDirectory.resolve("pushAllPackageTest");
-        
-        // Create project
-        balClient.runMain("new", new String[]{"pushAllPackageTest"}, envVariables, new String[]{}, new LogLeecher[]{},
-                projectPath.getParent().toString());
-        
-        Assert.assertTrue(Files.exists(projectPath));
-        Assert.assertTrue(Files.isDirectory(projectPath));
-        
-        String firstPackage = "firstTestPkg" + PackerinaTestUtils.randomModuleName(10);
-        String secondPackage = "secondTestPkg" + PackerinaTestUtils.randomModuleName(10);
-        
-        // update org name
-        PackerinaTestUtils.updateManifestOrgName(projectPath, orgName);
-        
-        // Create first module
-        balClient.runMain("add", new String[]{firstPackage}, envVariables, new String[]{}, new LogLeecher[]{},
-                projectPath.toString());
-        
-        Assert.assertTrue(Files.exists(projectPath.resolve("src").resolve(firstPackage)));
-        Assert.assertTrue(Files.isDirectory(projectPath.resolve("src").resolve(firstPackage)));
-        
-        // Create second module
-        balClient.runMain("add", new String[]{secondPackage}, envVariables, new String[]{}, new LogLeecher[]{},
-                projectPath.toString());
-        
-        Assert.assertTrue(Files.exists(projectPath.resolve("src").resolve(secondPackage)));
-        Assert.assertTrue(Files.isDirectory(projectPath.resolve("src").resolve(secondPackage)));
+    public void testRebuildTestProj2WithLockRemoved() throws Exception {
+        // Delete Ballerina.toml
+        Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
+        Files.delete(lockFilePath);
         
         // Build module
-        balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{},
-                new LogLeecher[]{}, projectPath.toString());
-        
-        LogLeecher clientLeecherOne = new LogLeecher(orgName + "/" + firstPackage + ":0.1.0 [project repo -> central]");
-        LogLeecher clientLeecherTwo = new LogLeecher(orgName + "/" + secondPackage +
-                                                     ":0.1.0 [project repo -> central]");
-        balClient.runMain("push", new String[0], envVariables, new String[]{},
-                new LogLeecher[]{clientLeecherOne, clientLeecherTwo}, projectPath.toString());
-        clientLeecherOne.waitForText(5000);
-        clientLeecherTwo.waitForText(5000);
-    }
+        String fooBaloFileName = "foo-"
+                                 + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                                 + ProgramFileConstants.ANY_PLATFORM + "-"
+                                 + "1.0.0"
+                                 + BLANG_COMPILED_PKG_BINARY_EXT;
+        String fooBuildMsg = "Created target" + File.separator + "balo" + File.separator + fooBaloFileName;
+        LogLeecher fooBuildLeecher = new LogLeecher(fooBuildMsg);
+        balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{}, new LogLeecher[]{fooBuildLeecher},
+                testProj1Path.toString());
+        fooBuildLeecher.waitForText(10000);
     
-    @Test(description = "Test ballerina version")
-    public void testBallerinaVersion() throws Exception {
-        LogLeecher clientLeecher = new LogLeecher(RepoUtils.getBallerinaVersion());
-        balClient.runMain("version", new String[0], envVariables, new String[]{},
-                new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
+        lockFilePath = testProj2Path.resolve("Ballerina.lock");
+        Assert.assertTrue(Files.exists(lockFilePath));
+    
+        // Run and see output
+        String msg = "Test me\nHello world john!";
+        balClient.runMain("run", new String[] {"foo"}, envVariables, new String[0],
+                new LogLeecher[]{new LogLeecher(msg)}, testProj2Path.toString());
     }
     
     /**
@@ -229,8 +272,9 @@ public class LockFileTestCase extends BaseTest {
     @AfterClass
     private void cleanup() throws Exception {
         PackerinaTestUtils.deleteFiles(tempHomeDirectory);
-        PackerinaTestUtils.deleteFiles(tempProjectDirectory);
+        PackerinaTestUtils.deleteFiles(tempProjectsDirectory);
+        PackerinaTestUtils.deleteFiles(testProj1Path);
+        PackerinaTestUtils.deleteFiles(testProj2Path);
         balServer.cleanup();
-        
     }
 }
