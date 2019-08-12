@@ -17,6 +17,7 @@
 package org.ballerinalang.jvm.scheduling;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
@@ -67,8 +68,26 @@ public class Scheduler {
     }
 
     private AtomicInteger totalStrands = new AtomicInteger();
-    private final int numThreads;
+    /**
+     * By default number of threads = (Available logical Processors * 2).
+     * This can be changed by setting the BAL_MAX_POOL_SIZE system variable.
+     */
+    private int numThreads;
     private Semaphore mainBlockSem;
+
+    public Scheduler(boolean immortal) {
+        try {
+            String poolSizeConf = System.getenv(BLangConstants.BAL_MAX_POOL_SIZE_ENV);
+            this.numThreads = poolSizeConf == null ?
+                    Runtime.getRuntime().availableProcessors() * 2 : Integer.parseInt(poolSizeConf);
+        } catch (Throwable t) {
+            // Log and continue with default
+            this.numThreads = Runtime.getRuntime().availableProcessors() * 2;
+            logger.error("Error occurred in scheduler while reading system variable:" +
+                    BLangConstants.BAL_MAX_POOL_SIZE_ENV, t);
+        }
+        this.immortal = immortal;
+    }
 
     public Scheduler(int numThreads, boolean immortal) {
         this.numThreads = numThreads;
@@ -282,7 +301,7 @@ public class Scheduler {
                         assert runnableList.size() == 0;
 
                         // server agent start code will be inserted in above line during tests.
-                        // It depends on this line number 279.
+                        // It depends on this line number 302.
                         // update the linenumber @BallerinaServerAgent#SCHEDULER_LINE_NUM if modified
                         if (DEBUG) {
                             debugLog("+++++++++ all work completed ++++++++");

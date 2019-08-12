@@ -1271,10 +1271,9 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
 
     mv.visitTypeInsn(NEW, SCHEDULER);
     mv.visitInsn(DUP);
-    mv.visitInsn(ICONST_4);
 
     mv.visitInsn(ICONST_0);
-    mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(IZ)V", false);
+    mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(Z)V", false);
 
     if (hasInitFunction(pkg)) {
         string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
