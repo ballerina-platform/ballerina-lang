@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.ballerinalang.openapi.test;
+package org.ballerinalang.openapi;
 
 import org.apache.commons.io.FileUtils;
-import org.ballerinalang.openapi.CodeGenerator;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.openapi.model.GenSrcFile;
 import org.ballerinalang.openapi.utils.GeneratorConstants.GenType;

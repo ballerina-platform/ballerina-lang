@@ -765,7 +765,6 @@ public class TypesTest {
         BValue[] result = BRunUtil.invoke(compileResult, "streamFunc");
         Assert.assertNotNull(result[0]);
         BStream stream = (BStream) result[0];
-        Assert.assertEquals(stream.getStreamId(), "gradesStream");
         BRecordType recordType = (BRecordType) stream.getConstraintType();
         Assert.assertEquals(recordType.getName(), "Grades");
         Map<String, BField> fields = recordType.getFields();

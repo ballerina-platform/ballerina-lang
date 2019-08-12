@@ -1574,12 +1574,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeInit cIExpr) {
-        if (cIExpr.type.tag == TypeTags.STREAM && (cIExpr.parent == null ||
-                (cIExpr.parent.getKind() != NodeKind.ASSIGNMENT && cIExpr.parent.getKind() != NodeKind.VARIABLE))) {
-            // stream initialization is only allowed as an assignment or variable definition
-            dlog.error(cIExpr.pos, DiagnosticCode.STREAM_INIT_NOT_ALLOWED_HERE);
-            return;
-        }
         analyzeExprs(cIExpr.argsExpr);
         analyzeExpr(cIExpr.initInvocation);
     }

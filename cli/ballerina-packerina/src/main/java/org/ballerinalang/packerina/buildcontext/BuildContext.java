@@ -234,10 +234,10 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                 throw new BLangCompilerException("invalid source type found: '" + source + "' at: " + sourceRootPath);
             }
         }
-    
-        if (this.containsKey(BuildContextField.COMPILER_CONTEXT)) {
+        
+        CompilerContext compilerContext = this.get(BuildContextField.COMPILER_CONTEXT);
+        if (compilerContext != null) {
             // set source type as string in compiler context
-            CompilerContext compilerContext = this.get(BuildContextField.COMPILER_CONTEXT);
             CompilerOptions options = CompilerOptions.getInstance(compilerContext);
             options.put(CompilerOptionName.SOURCE_TYPE, this.srcType.toString());
         }

@@ -743,10 +743,7 @@ public class BLangPackageBuilder {
             BLangUserDefinedType errorType = (BLangUserDefinedType) this.typeNodeStack.pop();
             errorVariable.typeNode = errorType;
 
-            errorVariable.reason = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-            BLangIdentifier ignore = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-            ignore.value = Names.IGNORE.value;
-            errorVariable.reason.name = ignore;
+            errorVariable.reason = createIgnoreVar();
         }
         this.errorMatchPatternWS.push(ws);
     }
@@ -779,8 +776,29 @@ public class BLangPackageBuilder {
         }
     }
 
-    void addErrorVariableReference(DiagnosticPos pos, Set<Whitespace> ws, int numNamedArgs, boolean reasonRefAvailable,
-                                   boolean restPatternAvailable) {
+    public void addErrorVariable(DiagnosticPos currentPos, Set<Whitespace> ws, String restIdName,
+                                 DiagnosticPos restPos) {
+        BLangErrorVariable errorVariable = (BLangErrorVariable) varStack.peek();
+        errorVariable.pos = currentPos;
+        errorVariable.addWS(ws);
+
+        BLangType typeNode = (BLangType) this.typeNodeStack.pop();
+        errorVariable.typeNode = typeNode;
+
+        errorVariable.reason = (BLangSimpleVariable)
+                generateBasicVarNodeWithoutType(currentPos, null, "$reason$", currentPos, false);
+
+        if (restIdName != null) {
+            errorVariable.restDetail = (BLangSimpleVariable)
+                    generateBasicVarNodeWithoutType(currentPos, null, restIdName, restPos, false);
+        }
+    }
+
+    void addErrorVariableReference(DiagnosticPos pos, Set<Whitespace> ws,
+                                   int numNamedArgs,
+                                   boolean reasonRefAvailable,
+                                   boolean restPatternAvailable,
+                                   boolean indirectErrorRefPattern) {
         BLangErrorVarRef errorVarRef = (BLangErrorVarRef) TreeBuilder.createErrorVariableReferenceNode();
         errorVarRef.pos = pos;
         errorVarRef.addWS(ws);
@@ -802,9 +820,17 @@ public class BLangPackageBuilder {
         } else {
             int lastItemIndex = namedArgs.size() - 1;
             BLangNamedArgsExpression reason = namedArgs.get(lastItemIndex);
-            namedArgs.remove(lastItemIndex);
             if (reason.name.value.equals("reason")) {
+                namedArgs.remove(lastItemIndex);
                 errorVarRef.reason = (BLangVariableReference) reason.expr;
+            } else if (indirectErrorRefPattern) {
+                // Indirect error ref pattern does not allow reason var ref, hence ignore it.
+                BLangSimpleVarRef ignoreVarRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+                BLangIdentifier ignore = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+                ignore.value = Names.IGNORE.value;
+                ignoreVarRef.variableName = ignore;
+                errorVarRef.reason = ignoreVarRef;
+                errorVarRef.typeNode = (BLangType) this.typeNodeStack.pop();
             } else {
                 dlog.error(pos, DiagnosticCode.INVALID_ERROR_DESTRUCTURING_NO_REASON_GIVEN);
             }
@@ -822,15 +848,17 @@ public class BLangPackageBuilder {
         if (!this.varStack.empty()) {
             if (bindingVarName != null) {
                 BLangErrorVariable errorVariable = (BLangErrorVariable) this.varStack.peek();
-                BLangSimpleVariable simpleVariableNode = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-                simpleVariableNode.name = (BLangIdentifier) this.createIdentifier(bindingVarName);
-                simpleVariableNode.pos = pos;
-                if (this.bindingPatternIdentifierWS.size() > 0) {
-                    simpleVariableNode.addWS(this.bindingPatternIdentifierWS.pop());
-                }
                 BLangErrorVariable.BLangErrorDetailEntry detailEntry =
-                        new BLangErrorVariable.BLangErrorDetailEntry(bLangIdentifier, simpleVariableNode);
+                        createErrorDetailEntry(pos, bindingVarName, bLangIdentifier);
                 errorVariable.detail.add(detailEntry);
+            } else if (this.varStack.size() == 1) {
+                BLangVariable var = this.varStack.pop();
+                BLangErrorVariable errorVariable = new BLangErrorVariable();
+                errorVariable.reason = createIgnoreVar();
+                errorVariable.typeNode = (BLangType) typeNodeStack.pop();
+                errorVariable.detail.add(new BLangErrorVariable.BLangErrorDetailEntry(bLangIdentifier, var));
+                varStack.push(errorVariable);
+
             } else if (this.varStack.size() > 1) {
                 BLangVariable var = this.varStack.pop();
                 BLangVariable detailVar = this.varStack.peek();
@@ -839,7 +867,35 @@ public class BLangPackageBuilder {
                     errorVariable.detail.add(new BLangErrorVariable.BLangErrorDetailEntry(bLangIdentifier, var));
                 }
             }
+        } else {
+            BLangErrorVariable errorVariable = new BLangErrorVariable();
+            errorVariable.typeNode = (BLangType) typeNodeStack.pop();
+
+            // var stack is empty, on inner binding pattern available here such as NERR(foo={item1, itema2});
+            BLangErrorVariable.BLangErrorDetailEntry detailEntry =
+                    createErrorDetailEntry(pos, bindingVarName, bLangIdentifier);
+            errorVariable.detail.add(detailEntry);
+            varStack.push(errorVariable);
         }
+    }
+
+    private BLangSimpleVariable createIgnoreVar() {
+        BLangSimpleVariable ignoredVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+        BLangIdentifier ignore = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        ignore.value = Names.IGNORE.value;
+        ignoredVar.name = ignore;
+        return ignoredVar;
+    }
+
+    private BLangErrorVariable.BLangErrorDetailEntry createErrorDetailEntry(DiagnosticPos pos, String bindingVarName,
+                                                                            BLangIdentifier bLangIdentifier) {
+        BLangSimpleVariable simpleVariableNode = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+        simpleVariableNode.name = (BLangIdentifier) this.createIdentifier(bindingVarName);
+        simpleVariableNode.pos = pos;
+        if (this.bindingPatternIdentifierWS.size() > 0) {
+            simpleVariableNode.addWS(this.bindingPatternIdentifierWS.pop());
+        }
+        return new BLangErrorVariable.BLangErrorDetailEntry(bLangIdentifier, simpleVariableNode);
     }
 
     void addTupleVariable(DiagnosticPos pos, Set<Whitespace> ws, int members, boolean restBindingAvailable) {
