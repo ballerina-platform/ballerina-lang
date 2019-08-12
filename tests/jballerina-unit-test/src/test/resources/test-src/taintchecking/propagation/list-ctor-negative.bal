@@ -14,12 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-import balTest/A;
+public function main(string... args) {
+    [string, string] t = [args[0], args[1]];
+    string[] a = [args[0]];
+    sensitiveTupIn(t);
+    sensitiveArrIn(a);
+}
 
-public function main() {
-	json j = {"a":25};
-	A:Bar f = j;
+function sensitiveTupIn(@untainted [string, string] t) {
 
-	io:println(f);
+}
+
+function sensitiveArrIn(@untainted string[] a) {
+
 }

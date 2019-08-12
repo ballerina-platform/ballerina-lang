@@ -14,6 +14,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
+type myType record { int i; } | 4 | abstract object { int intField1; int intField2; };
+type myType1 string | boolean | 1 | object { int intField1; int intField2; };
 
-type Bar string|xml|json;
+public function testAssigment() {
+    testObj to = new;
+    myType mt = to;
+    myType1 mt1 = to;
+}
+
+type testObj object {
+    int intField = 10;
+    string stringField = "";
+
+    function objFunc() {
+    }
+};

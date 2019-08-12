@@ -27,43 +27,19 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaElementImpl extends ASTWrapperPsiElement implements BallerinaElement {
+public class BallerinaXmlAllowedTextImpl extends ASTWrapperPsiElement implements BallerinaXmlAllowedText {
 
-  public BallerinaElementImpl(@NotNull ASTNode node) {
+  public BallerinaXmlAllowedTextImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitElement(this);
+    visitor.visitXmlAllowedText(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof BallerinaVisitor) accept((BallerinaVisitor)visitor);
     else super.accept(visitor);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaCloseTag getCloseTag() {
-    return findChildByClass(BallerinaCloseTag.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaContent getContent() {
-    return findChildByClass(BallerinaContent.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaEmptyTag getEmptyTag() {
-    return findChildByClass(BallerinaEmptyTag.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaStartTag getStartTag() {
-    return findChildByClass(BallerinaStartTag.class);
   }
 
 }

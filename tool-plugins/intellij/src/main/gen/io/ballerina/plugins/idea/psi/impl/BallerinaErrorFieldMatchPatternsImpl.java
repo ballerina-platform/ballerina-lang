@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaOpenRecordRefBindingPatternImpl extends ASTWrapperPsiElement implements BallerinaOpenRecordRefBindingPattern {
+public class BallerinaErrorFieldMatchPatternsImpl extends ASTWrapperPsiElement implements BallerinaErrorFieldMatchPatterns {
 
-  public BallerinaOpenRecordRefBindingPatternImpl(@NotNull ASTNode node) {
+  public BallerinaErrorFieldMatchPatternsImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitOpenRecordRefBindingPattern(this);
+    visitor.visitErrorFieldMatchPatterns(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -44,20 +44,14 @@ public class BallerinaOpenRecordRefBindingPatternImpl extends ASTWrapperPsiEleme
 
   @Override
   @NotNull
-  public BallerinaEntryRefBindingPattern getEntryRefBindingPattern() {
-    return findNotNullChildByClass(BallerinaEntryRefBindingPattern.class);
+  public List<BallerinaErrorDetailBindingPattern> getErrorDetailBindingPatternList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaErrorDetailBindingPattern.class);
   }
 
   @Override
-  @NotNull
-  public PsiElement getLeftBrace() {
-    return findNotNullChildByType(LEFT_BRACE);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getRightBrace() {
-    return findNotNullChildByType(RIGHT_BRACE);
+  @Nullable
+  public BallerinaRestMatchPattern getRestMatchPattern() {
+    return findChildByClass(BallerinaRestMatchPattern.class);
   }
 
 }
