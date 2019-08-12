@@ -1153,31 +1153,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 checkSefReferences(varRefExpr.pos, env, varSym);
                 varRefExpr.symbol = varSym;
                 actualType = varSym.type;
-                BLangInvokableNode encInvokable = env.enclInvokable;
-                if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA) &&
-                        !(symbol.owner instanceof BPackageSymbol) &&
-                        !isFunctionArgument(varSym, encInvokable.requiredParams)) {
-                    SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
-                    BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv,
-                            symbol.name, SymTag.VARIABLE);
-                    if (resolvedSymbol != symTable.notFoundSymbol && !encInvokable.flagSet.contains(Flag.ATTACHED)) {
-                        resolvedSymbol.closure = true;
-                        ((BLangFunction) encInvokable).closureVarSymbols.add(
-                                new ClosureVarSymbol(resolvedSymbol, varRefExpr.pos));
-                    }
-                }
-                if (env.node.getKind() == NodeKind.ARROW_EXPR && !(symbol.owner instanceof BPackageSymbol)) {
-                    if (!isFunctionArgument(varSym, ((BLangArrowFunction) env.node).params)) {
-                        SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
-                        BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
-                                SymTag.VARIABLE);
-                        if (resolvedSymbol != symTable.notFoundSymbol) {
-                            resolvedSymbol.closure = true;
-                            ((BLangArrowFunction) env.node).closureVarSymbols.add(
-                                    new ClosureVarSymbol(resolvedSymbol, varRefExpr.pos));
-                        }
-                    }
-                }
+                markAndRegisterClosureVariable(symbol, varRefExpr.pos);
             } else if ((symbol.tag & SymTag.TYPE) == SymTag.TYPE) {
                 actualType = new BTypedescType(symbol.type, null);
                 varRefExpr.symbol = symbol;
@@ -2738,6 +2714,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         if (isFunctionPointer(funcSymbol)) {
             iExpr.functionPointerInvocation = true;
+            markAndRegisterClosureVariable(funcSymbol, iExpr.pos);
         }
         if (Symbols.isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX);
@@ -2749,6 +2726,31 @@ public class TypeChecker extends BLangNodeVisitor {
         // This is used in the code generation phase.
         iExpr.symbol = funcSymbol;
         checkInvocationParamAndReturnType(iExpr);
+    }
+
+    private void markAndRegisterClosureVariable(BSymbol symbol, DiagnosticPos pos) {
+        BLangInvokableNode encInvokable = env.enclInvokable;
+        if (symbol.owner instanceof BPackageSymbol) {
+            return;
+        }
+        if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA)
+                && !isFunctionArgument(symbol, encInvokable.requiredParams)) {
+            SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+            BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name, SymTag.VARIABLE);
+            if (resolvedSymbol != symTable.notFoundSymbol && !encInvokable.flagSet.contains(Flag.ATTACHED)) {
+                resolvedSymbol.closure = true;
+                ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
+            }
+        }
+        if (env.node.getKind() == NodeKind.ARROW_EXPR
+                && !isFunctionArgument(symbol, ((BLangArrowFunction) env.node).params)) {
+            SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+            BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name, SymTag.VARIABLE);
+            if (resolvedSymbol != symTable.notFoundSymbol) {
+                resolvedSymbol.closure = true;
+                ((BLangArrowFunction) env.node).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
+            }
+        }
     }
 
     private boolean isNotFunction(BSymbol funcSymbol) {
@@ -3109,7 +3111,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 case NAMED_ARGS_EXPR:
                     BVarSymbol varSymbol = params.get(((BLangNamedArgsExpression) expr).name.value);
                     if (!env.enclPkg.packageID.equals(iExpr.symbol.pkgID)
-                            && !Symbols.isFlagOn(varSymbol.flags, Flags.PUBLIC)) {
+                            && (varSymbol != null && !Symbols.isFlagOn(varSymbol.flags, Flags.PUBLIC))) {
                         // can not provide a named arg, if the arg is not public and the caller is not from same package
                         dlog.error(expr.pos, DiagnosticCode.NON_PUBLIC_ARG_ACCESSED_WITH_NAMED_ARG,
                                 ((BLangNamedArgsExpression) expr).name.value, iExpr.toString());

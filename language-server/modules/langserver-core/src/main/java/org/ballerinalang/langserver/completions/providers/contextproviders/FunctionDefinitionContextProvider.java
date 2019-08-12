@@ -142,7 +142,7 @@ public class FunctionDefinitionContextProvider extends LSCompletionProvider {
                     String insertText = label + " {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
                             + CommonUtil.LINE_SEPARATOR + "}";
                     completionItems.add(BFunctionCompletionItemBuilder.build(attachedFunc.symbol, label,
-                            insertText));
+                            insertText, context));
                 });
         
         return completionItems;
