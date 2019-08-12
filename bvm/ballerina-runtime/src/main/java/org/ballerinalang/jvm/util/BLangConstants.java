@@ -72,7 +72,7 @@ public class BLangConstants {
     public static final String USER_REPO_SRC_DIRNAME = "src";
     public static final String USER_REPO_OBJ_DIRNAME = "obj";
     public static final String USER_REPO_METADATA_DIRNAME = "metadata";
-    public static final String BAL_MAX_POOL_SIZE_ENV = "BAL_MAX_POOL_SIZE";
+    public static final String BAL_MAX_POOL_SIZE_ENV = "BALLERINA_MAX_POOL_SIZE";
 
     public static final String BALLERINA_BUILTIN_PKG_PREFIX = "ballerina";
 
