@@ -68,7 +68,7 @@ public class SendingEntityBody implements SenderState {
     private List<HttpContent> contentList = new ArrayList<>();
 
     SendingEntityBody(SenderReqRespStateManager senderReqRespStateManager, TargetChannel targetChannel,
-                             boolean headersWritten, HttpResponseFuture httpInboundResponseFuture, String httpVersion) {
+                      boolean headersWritten, HttpResponseFuture httpInboundResponseFuture, String httpVersion) {
         this.senderReqRespStateManager = senderReqRespStateManager;
         this.targetChannel = targetChannel;
         this.headersWritten = headersWritten;
@@ -114,7 +114,7 @@ public class SendingEntityBody implements SenderState {
         // If this method is called, it is an application error. Inbound response is receiving before the completion
         // of request body write.
         targetHandler.getOutboundRequestMsg().setIoException(new IOException(INBOUND_RESPONSE_ALREADY_RECEIVED));
-        senderReqRespStateManager.senderState = new ReceivingHeaders(senderReqRespStateManager);
+        senderReqRespStateManager.state = new ReceivingHeaders(senderReqRespStateManager);
         senderReqRespStateManager.readInboundResponseHeaders(targetHandler, httpInboundResponse);
     }
 
@@ -154,7 +154,7 @@ public class SendingEntityBody implements SenderState {
                 }
                 httpInboundResponseFuture.notifyHttpListener(throwable);
             } else {
-                senderReqRespStateManager.senderState = new RequestCompleted(senderReqRespStateManager);
+                senderReqRespStateManager.state = new RequestCompleted(senderReqRespStateManager);
             }
         });
     }

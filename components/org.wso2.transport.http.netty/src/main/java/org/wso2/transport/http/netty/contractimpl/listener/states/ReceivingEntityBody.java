@@ -91,7 +91,7 @@ public class ReceivingEntityBody implements ListenerState {
                     }
                     inboundRequestMsg.setLastHttpContentArrived();
                     sourceHandler.resetInboundRequestMsg();
-                    listenerReqRespStateManager.listenerState
+                    listenerReqRespStateManager.state
                             = new EntityBodyReceived(listenerReqRespStateManager, sourceHandler, httpVersion);
                 }
             } catch (RuntimeException ex) {

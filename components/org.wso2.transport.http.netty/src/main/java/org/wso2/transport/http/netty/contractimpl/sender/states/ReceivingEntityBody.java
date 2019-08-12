@@ -76,7 +76,7 @@ public class ReceivingEntityBody implements SenderState {
             inboundResponseMsg.setLastHttpContentArrived();
             targetHandler.resetInboundMsg();
             targetHandler.getTargetChannel().getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
-            senderReqRespStateManager.senderState = new EntityBodyReceived();
+            senderReqRespStateManager.state = new EntityBodyReceived();
 
             if (!isKeepAlive(targetHandler.getKeepAliveConfig(), targetHandler.getOutboundRequestMsg())) {
                 targetHandler.closeChannel(ctx);

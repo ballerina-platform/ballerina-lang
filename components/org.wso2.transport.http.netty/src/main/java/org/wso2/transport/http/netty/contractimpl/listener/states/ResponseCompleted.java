@@ -51,7 +51,7 @@ public class ResponseCompleted implements ListenerState {
 
     @Override
     public void readInboundRequestHeaders(HttpCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
-        listenerReqRespStateManager.listenerState = new ReceivingHeaders(listenerReqRespStateManager, sourceHandler);
+        listenerReqRespStateManager.state = new ReceivingHeaders(listenerReqRespStateManager, sourceHandler);
         listenerReqRespStateManager.readInboundRequestHeaders(inboundRequestMsg, inboundRequestHeaders);
     }
 

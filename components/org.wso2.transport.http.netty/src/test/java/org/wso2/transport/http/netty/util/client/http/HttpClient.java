@@ -107,7 +107,7 @@ public class HttpClient {
         try {
             latch.await();
         } catch (InterruptedException e) {
-            LOG.warn("Operation goT interrupted before receiving the response");
+            LOG.warn("Operation got interrupted before receiving the response");
         }
         return this.responseHandler.getHttpFullResponse();
     }
@@ -158,7 +158,7 @@ public class HttpClient {
         try {
             latch.await();
         } catch (InterruptedException e) {
-            LOG.warn("Operation go interrupted before receiving the response");
+            LOG.warn("Operation got interrupted before receiving the response");
         }
         return this.responseHandler.getHttpFullResponses();
     }
@@ -169,7 +169,7 @@ public class HttpClient {
                 return false;
             }
         } catch (InterruptedException e) {
-            LOG.warn("Operation go interrupted before receiving the response");
+            LOG.warn("Operation got interrupted before receiving the response");
             return false;
         }
         return true;

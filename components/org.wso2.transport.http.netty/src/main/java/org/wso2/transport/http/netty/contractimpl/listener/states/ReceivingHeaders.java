@@ -70,7 +70,7 @@ public class ReceivingHeaders implements ListenerState {
         this.httpVersion = Float.parseFloat(inboundRequestMsg.getHttpVersion());
         boolean continueRequest = is100ContinueRequest(inboundRequestMsg);
         if (continueRequest) {
-            listenerReqRespStateManager.listenerState =
+            listenerReqRespStateManager.state =
                     new Expect100ContinueHeaderReceived(listenerReqRespStateManager, sourceHandler,
                                                         inboundRequestMsg, httpVersion);
         }
@@ -106,7 +106,7 @@ public class ReceivingHeaders implements ListenerState {
 
     @Override
     public void readInboundRequestBody(Object inboundRequestEntityBody) throws ServerConnectorException {
-        listenerReqRespStateManager.listenerState
+        listenerReqRespStateManager.state
                 = new ReceivingEntityBody(listenerReqRespStateManager, inboundRequestMsg, sourceHandler, httpVersion);
         listenerReqRespStateManager.readInboundRequestBody(inboundRequestEntityBody);
     }

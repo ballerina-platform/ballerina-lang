@@ -281,7 +281,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                     SenderReqRespStateManager senderReqRespStateManager =
                             new SenderReqRespStateManager(targetNettyChannel);
                     senderReqRespStateManager.configIdleTimeoutTrigger(socketIdleTimeout);
-                    senderReqRespStateManager.senderState =
+                    senderReqRespStateManager.state =
                             new SendingHeaders(senderReqRespStateManager, targetChannel, httpVersion,
                                                chunkConfig, httpResponseFuture);
                     targetChannel.senderReqRespStateManager = senderReqRespStateManager;

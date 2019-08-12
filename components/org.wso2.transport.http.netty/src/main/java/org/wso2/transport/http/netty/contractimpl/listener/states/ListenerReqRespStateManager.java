@@ -32,31 +32,31 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
  */
 public class ListenerReqRespStateManager {
 
-    public ListenerState listenerState;
+    public ListenerState state;
 
     public void readInboundRequestHeaders(HttpCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
-        listenerState.readInboundRequestHeaders(inboundRequestMsg, inboundRequestHeaders);
+        state.readInboundRequestHeaders(inboundRequestMsg, inboundRequestHeaders);
     }
 
     public void readInboundRequestBody(Object inboundRequestEntityBody) throws ServerConnectorException {
-        listenerState.readInboundRequestBody(inboundRequestEntityBody);
+        state.readInboundRequestBody(inboundRequestEntityBody);
     }
 
     public void writeOutboundResponseHeaders(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        listenerState.writeOutboundResponseHeaders(outboundResponseMsg, httpContent);
+        state.writeOutboundResponseHeaders(outboundResponseMsg, httpContent);
     }
 
     public void writeOutboundResponseBody(HttpOutboundRespListener outboundResponseListener,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        listenerState.writeOutboundResponseBody(outboundResponseListener, outboundResponseMsg, httpContent);
+        state.writeOutboundResponseBody(outboundResponseListener, outboundResponseMsg, httpContent);
     }
 
     public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture) {
-        listenerState.handleAbruptChannelClosure(serverConnectorFuture);
+        state.handleAbruptChannelClosure(serverConnectorFuture);
     }
 
     public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
                                                             ChannelHandlerContext ctx) {
-        return listenerState.handleIdleTimeoutConnectionClosure(serverConnectorFuture, ctx);
+        return state.handleIdleTimeoutConnectionClosure(serverConnectorFuture, ctx);
     }
 }

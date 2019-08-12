@@ -48,7 +48,8 @@ import static org.wso2.transport.http.netty.contract.Constants
         .IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST_BODY;
 
 /**
- * This class tests for http 1.1 when KeepAlivConfig is set to NEVER.
+ * This class tests server-connector timeout implementation. In this case, it tests if the server-connector returns
+ * the correct response when server-connector time-out while reading the entity body of inbound request.
  */
 public class ServerConnectorTimeoutWhileReadingBodyTestCase {
 

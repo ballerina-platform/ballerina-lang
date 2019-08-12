@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class SenderReqRespStateManager {
 
-    public SenderState senderState;
+    public SenderState state;
 
     private final Channel nettyTargetChannel;
 
@@ -46,31 +46,31 @@ public class SenderReqRespStateManager {
     }
 
     public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
-        senderState.writeOutboundRequestHeaders(httpOutboundRequest, httpContent);
+        state.writeOutboundRequestHeaders(httpOutboundRequest, httpContent);
     }
 
     public void writeOutboundRequestEntity(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
-        senderState.writeOutboundRequestEntity(httpOutboundRequest, httpContent);
+        state.writeOutboundRequestEntity(httpOutboundRequest, httpContent);
     }
 
     public void readInboundResponseHeaders(TargetHandler targetHandler, HttpResponse httpInboundResponse) {
-        senderState.readInboundResponseHeaders(targetHandler, httpInboundResponse);
+        state.readInboundResponseHeaders(targetHandler, httpInboundResponse);
     }
 
     public void readInboundResponseEntityBody(ChannelHandlerContext ctx, HttpContent httpContent,
                                               HttpCarbonMessage inboundResponseMsg) throws Exception {
-        senderState.readInboundResponseEntityBody(ctx, httpContent, inboundResponseMsg);
+        state.readInboundResponseEntityBody(ctx, httpContent, inboundResponseMsg);
     }
 
     public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
-        senderState.handleAbruptChannelClosure(httpResponseFuture);
+        state.handleAbruptChannelClosure(httpResponseFuture);
     }
 
     public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
         nettyTargetChannel.pipeline().remove(Constants.IDLE_STATE_HANDLER);
         nettyTargetChannel.close();
 
-        senderState.handleIdleTimeoutConnectionClosure(httpResponseFuture, channelID);
+        state.handleIdleTimeoutConnectionClosure(httpResponseFuture, channelID);
     }
 
     public void configIdleTimeoutTrigger(int socketIdleTimeout) {

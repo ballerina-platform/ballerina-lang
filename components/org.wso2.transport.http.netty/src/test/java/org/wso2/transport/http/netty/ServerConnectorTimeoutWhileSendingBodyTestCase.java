@@ -48,7 +48,8 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
 /**
- * This class tests for http 1.1 when KeepAlivConfig is set to NEVER.
+ * This class tests server-connector timeout implementation. In this case it tests if the server-connector returns the
+ * correct response if it time-out while sending entity body of outbound response.
  */
 public class ServerConnectorTimeoutWhileSendingBodyTestCase {
 
