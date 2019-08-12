@@ -49,10 +49,14 @@ public type Listener object {
         self.sendSubscriptionRequests();
     }
 
-    public function __stop() returns error? {
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
+    public function __immediateStop() returns error? {
         http:Listener? sListener = self.serviceEndpoint;
         if (sListener is http:Listener) {
-            return sListener.__stop();
+            return sListener.__immediateStop();
         }
         return ();
     }

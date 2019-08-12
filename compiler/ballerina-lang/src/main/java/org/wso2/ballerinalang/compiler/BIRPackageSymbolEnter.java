@@ -336,6 +336,7 @@ public class BIRPackageSymbolEnter {
         skipPosition(dataInStream); // Position details are skipped
         // Consider attached functions.. remove the first variable
         String funcName = getStringCPEntryValue(dataInStream);
+        String workerName = getStringCPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
 
         BInvokableType funcType = (BInvokableType) readBType(dataInStream);
