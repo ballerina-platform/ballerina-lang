@@ -27,6 +27,7 @@ import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.request.ClassPrepareRequest;
+import com.sun.jdi.request.DuplicateRequestException;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
 import com.sun.tools.jdi.ObjectReferenceImpl;
@@ -438,11 +439,15 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 .filter(t -> t.uniqueID() == args.getThreadId())
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Cannot find thread"));
-        StepRequest request = debuggee.eventRequestManager().createStepRequest(thread,
-                StepRequest.STEP_LINE, StepRequest.STEP_OVER);
+        try {
+            StepRequest request = debuggee.eventRequestManager().createStepRequest(thread,
+                    StepRequest.STEP_LINE, StepRequest.STEP_OVER);
 
-        request.addCountFilter(1); // next step only
-        request.enable();
+            request.addCountFilter(1); // next step only
+            request.enable();
+        } catch (DuplicateRequestException ignored) {
+
+        }
         debuggee.resume();
         return CompletableFuture.completedFuture(null);
     }
@@ -503,7 +508,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     @Override
-    public CompletableFuture<SetFunctionBreakpointsResponse> setFunctionBreakpoints(SetFunctionBreakpointsArguments args) {
+    public CompletableFuture<SetFunctionBreakpointsResponse> setFunctionBreakpoints(
+            SetFunctionBreakpointsArguments args) {
         return CompletableFuture.completedFuture(null);
     }
 
