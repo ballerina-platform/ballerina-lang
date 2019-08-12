@@ -81,10 +81,14 @@ function getAuthTokenForJWTAuth(JwtIssuerConfig jwtIssuerConfig) returns string|
             string? principalUsername = principal?.username;
             if (principalUsername is string) {
                 username = principalUsername;
+            } else {
+                return prepareError("Failed to generate auth token since username is not provided at issuer config and
+                the username is not defined at runtime:Principal record.");
             }
+        } else {
+            return prepareError("Failed to generate auth token since username is not provided at issuer config and
+            the runtime:Principal record is also not defined at the invocation context.");
         }
-        return prepareError("Failed to generate auth token since username is not provided at issuer config and
-        the Principal record is also not defined at the invocation context.");
     }
 
     JwtPayload payload = {
