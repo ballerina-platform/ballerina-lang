@@ -104,6 +104,6 @@ public class BLangConstants {
     // ballerina environment properties.
     public static final String UTIL_LOGGING_CONFIG_CLASS_PROPERTY = "java.util.logging.config.class";
     public static final String UTIL_LOGGING_MANAGER_CLASS_PROPERTY = "java.util.logging.manager";
-    public static final String UTIL_LOGGING_CONFIG_CLASS_VALUE = "java.util.logging.config.class";
+    public static final String UTIL_LOGGING_CONFIG_CLASS_VALUE = "org.ballerinalang.logging.util.LogConfigReader";
     public static final String UTIL_LOGGING_MANAGER_CLASS_VALUE = "org.ballerinalang.logging.BLogManager";
 }
