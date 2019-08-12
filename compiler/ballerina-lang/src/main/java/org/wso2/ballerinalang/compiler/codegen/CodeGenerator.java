@@ -918,10 +918,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangStreamLiteral streamLiteral) {
         streamLiteral.regIndex = calcAndGetExprRegIndex(streamLiteral);
         Operand typeCPIndex = getTypeCPIndex(streamLiteral.type);
-        StringCPEntry nameCPEntry =
-                new StringCPEntry(addUTF8CPEntry(currentPkgInfo, streamLiteral.streamName), streamLiteral.streamName);
-        Operand nameCPIndex = getOperand(currentPkgInfo.addCPEntry(nameCPEntry));
-        emit(InstructionCodes.NEWSTREAM, streamLiteral.regIndex, typeCPIndex, nameCPIndex);
+        emit(InstructionCodes.NEWSTREAM, streamLiteral.regIndex, typeCPIndex);
     }
 
     @Override
