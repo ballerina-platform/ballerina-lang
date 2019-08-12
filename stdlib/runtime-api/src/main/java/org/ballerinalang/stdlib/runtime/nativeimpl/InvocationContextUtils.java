@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.runtime.nativeimpl;
 
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 
@@ -35,14 +34,14 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_RUNTIME_PKG;
  */
 public class InvocationContextUtils {
 
-    public static final String INVOCATION_CONTEXT_PROPERTY = "InvocationContext";
-    public static final String STRUCT_TYPE_INVOCATION_CONTEXT = "InvocationContext";
-    public static final String STRUCT_TYPE_AUTHENTICATION_CONTEXT = "AuthenticationContext";
-    public static final String STRUCT_TYPE_PRINCIPAL = "Principal";
+    private static final String INVOCATION_CONTEXT_PROPERTY = "InvocationContext";
+    private static final String STRUCT_TYPE_INVOCATION_CONTEXT = "InvocationContext";
+    private static final String INVOCATION_ID_KEY = "id";
+    private static final String INVOCATION_ATTRIBUTES = "attributes";
 
-    public static InvocationContext getInvocationContext(Strand strand) {
-        InvocationContext invocationContext = (InvocationContext) strand.getProperty(InvocationContextUtils
-                .INVOCATION_CONTEXT_PROPERTY);
+    public static MapValue<String, Object> getInvocationContextRecord(Strand strand) {
+        MapValue<String, Object> invocationContext =
+                (MapValue<String, Object>) strand.getProperty(InvocationContextUtils.INVOCATION_CONTEXT_PROPERTY);
         if (invocationContext == null) {
             invocationContext = initInvocationContext(strand);
             strand.setProperty(InvocationContextUtils.INVOCATION_CONTEXT_PROPERTY, invocationContext);
@@ -50,44 +49,12 @@ public class InvocationContextUtils {
         return invocationContext;
     }
 
-    public static MapValue<String, Object> getInvocationContextRecord(Strand strand) {
-        return getInvocationContext(strand).getInvocationContextRecord();
-    }
-
-    private static InvocationContext initInvocationContext(Strand strand) {
-        MapValue<String, Object> userPrincipalRecord = createUserPrincipal();
-        UserPrincipal userPrincipal = new UserPrincipal(userPrincipalRecord);
-        MapValue<String, Object> authContextRecord = createAuthenticationContext();
-        AuthenticationContext authenticationContext = new AuthenticationContext(authContextRecord);
-        MapValue<String, Object> invocationContextRecord = createInvocationContext(userPrincipalRecord,
-                                                                                   authContextRecord);
-        return new InvocationContext(invocationContextRecord, userPrincipal, authenticationContext);
-    }
-
-    private static MapValue<String, Object> createInvocationContext(MapValue<String, Object> userPrincipal,
-                                                                    MapValue<String, Object> authContext) {
-        MapValue<String, Object> invocationContextInfo = BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG,
-                                                                               STRUCT_TYPE_INVOCATION_CONTEXT);
+    private static MapValue<String, Object> initInvocationContext(Strand strand) {
+        MapValue<String, Object> invocationContextInfo = BallerinaValues
+                .createRecordValue(BALLERINA_RUNTIME_PKG, STRUCT_TYPE_INVOCATION_CONTEXT);
         UUID invocationId = UUID.randomUUID();
-        return BallerinaValues.createRecord(invocationContextInfo, invocationId.toString(), userPrincipal,
-                                            authContext, new MapValueImpl());
-    }
-
-    private static MapValue<String, Object> createAuthenticationContext() {
-        MapValue<String, Object> authContextInfo = BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG,
-                                                                           STRUCT_TYPE_AUTHENTICATION_CONTEXT);
-        String scheme = "";
-        String authToken = "";
-        return BallerinaValues.createRecord(authContextInfo, scheme, authToken);
-    }
-
-    private static MapValue<String, Object> createUserPrincipal() {
-        MapValue<String, Object> authContextInfo = BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG,
-                                                                                     STRUCT_TYPE_PRINCIPAL);
-        String userId = "";
-        String username = "";
-        MapValue<String, String> claims = new MapValueImpl<>();
-        ArrayValue scopes = new ArrayValue(org.ballerinalang.jvm.types.BTypes.typeString);
-        return BallerinaValues.createRecord(authContextInfo, userId, username, claims, scopes);
+        invocationContextInfo.put(INVOCATION_ID_KEY, invocationId.toString());
+        invocationContextInfo.put(INVOCATION_ATTRIBUTES, new MapValueImpl());
+        return invocationContextInfo;
     }
 }
