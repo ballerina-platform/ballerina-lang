@@ -290,9 +290,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             validateAnnotationAttachmentCount(funcNode.externalAnnAttachments);
         }
 
-        funcNode.requiredParams.forEach(p -> this.analyzeDef(p, funcEnv));
+        for (BLangSimpleVariable param : funcNode.requiredParams) {
+            symbolEnter.defineExistingVarSymbolInEnv(param.symbol, funcNode.clonedEnv);
+            this.analyzeDef(param, funcNode.clonedEnv);
+        }
         if (funcNode.restParam != null) {
-            this.analyzeDef(funcNode.restParam, funcEnv);
+            symbolEnter.defineExistingVarSymbolInEnv(funcNode.restParam.symbol, funcNode.clonedEnv);
+            this.analyzeDef(funcNode.restParam, funcNode.clonedEnv);
         }
 
         validateObjectAttachedFunction(funcNode);

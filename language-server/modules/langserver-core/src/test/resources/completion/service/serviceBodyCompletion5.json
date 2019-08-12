@@ -2064,6 +2064,34 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "SERVICE_NAME",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Constant for the service name reference."
+        }
+      },
+      "sortText": "221",
+      "insertText": "SERVICE_NAME",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RESOURCE_NAME",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Constant for the resource name reference."
+        }
+      },
+      "sortText": "221",
+      "insertText": "RESOURCE_NAME",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "CONNECTION_CLOSURE_ERROR",
       "kind": "Variable",
       "detail": "string",
@@ -2404,25 +2432,25 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Http1Settings",
+      "label": "ClientHttp1Settings",
       "kind": "Class",
       "detail": "Record",
       "documentation": {
         "left": "Provides settings related to HTTP/1.x protocol.\n"
       },
       "sortText": "221",
-      "insertText": "Http1Settings",
+      "insertText": "ClientHttp1Settings",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Http2Settings",
+      "label": "ClientHttp2Settings",
       "kind": "Class",
       "detail": "Record",
       "documentation": {
         "left": "Provides settings related to HTTP/2 protocol.\n"
       },
       "sortText": "221",
-      "insertText": "Http2Settings",
+      "insertText": "ClientHttp2Settings",
       "insertTextFormat": "Snippet"
     },
     {
@@ -2437,14 +2465,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "SecureSocket",
+      "label": "ClientSecureSocket",
       "kind": "Class",
       "detail": "Record",
       "documentation": {
         "left": "Provides configurations for facilitating secure communication with a remote HTTP endpoint.\n"
       },
       "sortText": "221",
-      "insertText": "SecureSocket",
+      "insertText": "ClientSecureSocket",
       "insertTextFormat": "Snippet"
     },
     {
@@ -2602,14 +2630,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ServiceOcspStapling",
+      "label": "ListenerOcspStapling",
       "kind": "Class",
       "detail": "Record",
       "documentation": {
         "left": "A record for providing configurations for certificate revocation status checks.\n"
       },
       "sortText": "221",
-      "insertText": "ServiceOcspStapling",
+      "insertText": "ListenerOcspStapling",
       "insertTextFormat": "Snippet"
     },
     {
@@ -3297,36 +3325,25 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "RequestLimits",
-      "kind": "Class",
-      "detail": "Record",
-      "documentation": {
-        "left": "Configures limits for requests. If these limits are violated, the request is rejected.\n"
-      },
-      "sortText": "221",
-      "insertText": "RequestLimits",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ServiceEndpointConfiguration",
+      "label": "ListenerConfiguration",
       "kind": "Class",
       "detail": "Record",
       "documentation": {
         "left": "Provides a set of configurations for HTTP service endpoints.\n"
       },
       "sortText": "221",
-      "insertText": "ServiceEndpointConfiguration",
+      "insertText": "ListenerConfiguration",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ServiceHttp1Settings",
+      "label": "ListenerHttp1Settings",
       "kind": "Class",
       "detail": "Record",
       "documentation": {
         "left": "Provides settings related to HTTP/1.x protocol.\n"
       },
       "sortText": "221",
-      "insertText": "ServiceHttp1Settings",
+      "insertText": "ListenerHttp1Settings",
       "insertTextFormat": "Snippet"
     },
     {
@@ -3341,14 +3358,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ServiceSecureSocket",
+      "label": "ListenerSecureSocket",
       "kind": "Class",
       "detail": "Record",
       "documentation": {
         "left": "Configures the SSL/TLS options to be used for HTTP service.\n"
       },
       "sortText": "221",
-      "insertText": "ServiceSecureSocket",
+      "insertText": "ListenerSecureSocket",
       "insertTextFormat": "Snippet"
     },
     {

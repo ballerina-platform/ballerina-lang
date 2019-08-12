@@ -24,6 +24,7 @@ import { BallerinaExtension } from '../core';
 import { WebViewRPCHandler, getCommonWebViewOptions } from '../utils';
 import { join } from "path";
 import { DidChangeConfigurationParams } from 'vscode-languageclient';
+import { TM_EVENT_OPEN_DIAGRAM, CMP_DIAGRAM_VIEW } from '../telemetry';
 
 const DEBOUNCE_WAIT = 500;
 
@@ -96,10 +97,12 @@ function showDiagramEditor(context: ExtensionContext, langClient: ExtendedLangCl
 }
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
-    let context = <ExtensionContext> ballerinaExtInstance.context;
-	let langClient = <ExtendedLangClient> ballerinaExtInstance.langClient;
+	const reporter = ballerinaExtInstance.telemetryReporter;
+    const context = <ExtensionContext> ballerinaExtInstance.context;
+	const langClient = <ExtendedLangClient> ballerinaExtInstance.langClient;
 
 	const diagramRenderDisposable = commands.registerCommand('ballerina.showDiagram', () => {
+		reporter.sendTelemetryEvent(TM_EVENT_OPEN_DIAGRAM, { component: CMP_DIAGRAM_VIEW });
 		return ballerinaExtInstance.onReady()
 		.then(() => {
 			const { experimental } = langClient.initializeResult!.capabilities;
@@ -117,6 +120,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 			} else {
 				ballerinaExtInstance.showPluginActivationError();
 			}
+			reporter.sendTelemetryException(e, { component: CMP_DIAGRAM_VIEW });
 		});
 	});
 

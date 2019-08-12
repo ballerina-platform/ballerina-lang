@@ -49,6 +49,12 @@ public class BallerinaListRefBindingPatternImpl extends ASTWrapperPsiElement imp
   }
 
   @Override
+  @Nullable
+  public BallerinaListRefRestPattern getListRefRestPattern() {
+    return findChildByClass(BallerinaListRefRestPattern.class);
+  }
+
+  @Override
   @NotNull
   public PsiElement getLeftBracket() {
     return findNotNullChildByType(LEFT_BRACKET);

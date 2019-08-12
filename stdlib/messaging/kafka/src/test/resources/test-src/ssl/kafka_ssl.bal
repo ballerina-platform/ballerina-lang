@@ -15,22 +15,23 @@
 // under the License.
 
 import ballerina/encoding;
+import ballerina/filepath;
 import ballerina/kafka;
 
 string topic = "test-topic-ssl";
 
 kafka:ProducerConfig producerConfigs = {
-    bootstrapServers: "localhost:9094",
+    bootstrapServers: "localhost:9104",
     clientId:"ssl-producer",
     acks:"all",
     noRetries:3,
     secureSocket: {
         keyStore:{
-            location:"<FILE_PATH>/kafka.client.keystore.jks",
+            location:"<FILE_PATH>" + filepath:getPathSeparator() + "kafka.client.keystore.jks",
             password:"test1234"
         },
         trustStore: {
-            location:"<FILE_PATH>/kafka.client.truststore.jks",
+            location:"<FILE_PATH>" + filepath:getPathSeparator() + "kafka.client.truststore.jks",
             password:"test1234"
         },
         protocol: {
@@ -45,7 +46,7 @@ kafka:ProducerConfig producerConfigs = {
 kafka:Producer kafkaProducer = new(producerConfigs);
 
 kafka:ProducerConfig producerNegativeConfigs = {
-    bootstrapServers: "localhost:9094",
+    bootstrapServers: "localhost:9104",
     clientId:"ssl-producer-negative",
     acks:"all",
     maxBlock: 1000,
@@ -55,18 +56,18 @@ kafka:ProducerConfig producerNegativeConfigs = {
 kafka:Producer negativeProducer = new (producerNegativeConfigs);
 
 kafka:ConsumerConfig consumerConfig = {
-    bootstrapServers:"localhost:9094",
+    bootstrapServers:"localhost:9104",
     groupId:"test-group",
     clientId: "ssl-consumer",
     offsetReset:"earliest",
     topics:["test-topic-ssl"],
     secureSocket: {
         keyStore:{
-            location:"<FILE_PATH>/kafka.client.keystore.jks",
+            location:"<FILE_PATH>" + filepath:getPathSeparator() + "kafka.client.keystore.jks",
             password:"test1234"
         },
         trustStore: {
-            location:"<FILE_PATH>/kafka.client.truststore.jks",
+            location:"<FILE_PATH>" + filepath:getPathSeparator() + "kafka.client.truststore.jks",
             password:"test1234"
         },
         protocol: {
@@ -99,7 +100,9 @@ function funcKafkaPollWithSSL() returns string|error {
         if (results.length() == 1) {
             var kafkaRecord = results[0];
             byte[] serializedMsg = kafkaRecord.value;
-            return encoding:byteArrayToString(serializedMsg, "UTF-8");
+            return encoding:byteArrayToString(serializedMsg, "utf-8");
+        } else if (results.length() > 1) {
+            return "More than one message received";
         } else {
             return "";
         }

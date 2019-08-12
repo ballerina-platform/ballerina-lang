@@ -908,9 +908,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineObjectAttachedInvokableSymbolParams(BLangInvokableNode invokableNode, SymbolEnv invokableEnv) {
         // visit required params of the function
-        invokableNode.requiredParams.forEach(varNode -> {
-            visitObjectAttachedFunctionParam(varNode, invokableEnv);
-        });
+        invokableNode.clonedEnv = invokableEnv.shallowClone();
+        invokableNode.requiredParams.forEach(varNode -> visitObjectAttachedFunctionParam(varNode, invokableEnv));
 
         if (invokableNode.returnTypeNode != null) {
             invokableNode.returnTypeNode.type = symResolver.resolveTypeNode(invokableNode.returnTypeNode, env);
@@ -1375,7 +1374,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                              SymbolEnv invokableEnv) {
         boolean foundDefaultableParam = false;
         List<BVarSymbol> paramSymbols = new ArrayList<>();
-
+        invokableNode.clonedEnv = invokableEnv.shallowClone();
         for (BLangSimpleVariable varNode : invokableNode.requiredParams) {
             defineNode(varNode, invokableEnv);
             if (varNode.expr != null) {
@@ -1476,6 +1475,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         enclScope.define(varSymbol.name, varSymbol);
         return varSymbol;
+    }
+
+    public void defineExistingVarSymbolInEnv(BVarSymbol varSymbol, SymbolEnv env) {
+        if (!symResolver.checkForUniqueSymbol(env, varSymbol, SymTag.VARIABLE_NAME)) {
+            varSymbol.type = symTable.semanticError;
+        }
+        env.scope.define(varSymbol.name, varSymbol);
     }
 
     public BVarSymbol createVarSymbol(Set<Flag> flagSet, BType varType, Name varName, SymbolEnv env) {

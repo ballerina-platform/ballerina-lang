@@ -590,6 +590,14 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
+    public void testTaintedStatusPropagationThroughListConstructor() {
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/list-ctor-negative.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 2);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 't'", 20, 20);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'a'", 21, 20);
+    }
+
+    @Test
     public void testGlobalFunctionPointerAsyncInvocation() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/taintchecking/propagation/global-func-pointer-async-invocation.bal");

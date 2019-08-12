@@ -34,15 +34,15 @@ import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompiler;
-import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
@@ -106,6 +106,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Function;
@@ -115,6 +116,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
+import static org.ballerinalang.langserver.common.utils.CommonUtil.logError;
 import static org.ballerinalang.langserver.common.utils.FunctionGenerator.generateTypeDefinition;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 import static org.ballerinalang.langserver.util.references.ReferencesUtil.getReferenceAtCursor;
@@ -150,18 +152,16 @@ public class CommandUtil {
      * Get the command for generate test class.
      *
      * @param topLevelNodeType top level node
-     * @param document          {@link LSDocument}
-     * @param params           Code action parameters
-     * @param documentManager  Document manager
-     * @param lsCompiler       LS Compiler
-     * @return {@link Command}  Test Generation command
-     * @throws LSCompilerException LS Compiler Exception
+     * @param docUri Document URI
+     * @param params Code action parameters
+     * @param documentManager Document manager
+     * @return {@link Command} Test Generation command
+     * @throws CompilationFailedException thrown when compilation failed
      */
-    public static List<CodeAction> getTestGenerationCommand(String topLevelNodeType, LSDocument document,
+    public static List<CodeAction> getTestGenerationCommand(String topLevelNodeType, String docUri,
                                                             CodeActionParams params,
-                                                            WorkspaceDocumentManager documentManager,
-                                                            LSCompiler lsCompiler) throws LSCompilerException {
-        String docUri = document.getURIString();
+                                                            WorkspaceDocumentManager documentManager)
+            throws CompilationFailedException {
         LSServiceOperationContext context = new LSServiceOperationContext();
         List<CodeAction> actions = new ArrayList<>();
         List<Object> args = new ArrayList<>();
@@ -172,7 +172,7 @@ public class CommandUtil {
 
         boolean isService = CommonKeys.SERVICE_KEYWORD_KEY.equals(topLevelNodeType);
         boolean isFunction = CommonKeys.FUNCTION_KEYWORD_KEY.equals(topLevelNodeType);
-        if ((isService || isFunction) && !isTopLevelNode(document, documentManager, lsCompiler, context, position)) {
+        if ((isService || isFunction) && !isTopLevelNode(docUri, documentManager, context, position)) {
             return actions;
         }
 
@@ -190,11 +190,11 @@ public class CommandUtil {
         return actions;
     }
 
-    private static boolean isTopLevelNode(LSDocument document, WorkspaceDocumentManager documentManager,
-                                          LSCompiler lsCompiler, LSServiceOperationContext context, Position position)
-            throws LSCompilerException {
-        Pair<BLangNode, Object> bLangNode = getBLangNode(position.getLine(), position.getCharacter(), document,
-                                                         documentManager, lsCompiler, context);
+    private static boolean isTopLevelNode(String uri, WorkspaceDocumentManager docManager,
+                                          LSServiceOperationContext context, Position position)
+            throws CompilationFailedException {
+        Pair<BLangNode, Object> bLangNode = getBLangNode(position.getLine(), position.getCharacter(), uri, docManager,
+                context);
 
         // Only supported for 'public' functions
         if (bLangNode.getLeft() instanceof BLangFunction &&
@@ -261,10 +261,9 @@ public class CommandUtil {
             Matcher matcher = CommandConstants.UNDEFINED_FUNCTION_PATTERN.matcher(diagnosticMessage);
             String functionName = (matcher.find() && matcher.groupCount() > 0) ? matcher.group(1) + "(...)" : "";
             WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
-            LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
             try {
-                BLangInvocation node = getFunctionInvocationNode(line, column, document, docManager, lsCompiler,
-                                                                 context);
+                BLangInvocation node = getFunctionInvocationNode(line, column, document.getURIString(), docManager,
+                        context);
                 if (node != null && node.pkgAlias.value.isEmpty()) {
                     boolean isWithinProject = (node.expr == null);
                     if (node.expr != null) {
@@ -283,7 +282,7 @@ public class CommandUtil {
                         actions.add(action);
                     }
                 }
-            } catch (LSCompilerException e) {
+            } catch (CompilationFailedException e) {
                 // ignore
             }
         } else if (isVariableAssignmentRequired(diagnosticMessage)) {
@@ -326,7 +325,7 @@ public class CommandUtil {
                         actions.add(action);
                     }
                 }
-            } catch (LSCompilerException | WorkspaceDocumentException | IOException e) {
+            } catch (CompilationFailedException | WorkspaceDocumentException | IOException e) {
                 // ignore
             }
         } else if (isUnresolvedPackage(diagnosticMessage)) {
@@ -350,10 +349,8 @@ public class CommandUtil {
             if (matcher.find() && matcher.groupCount() > 1) {
                 String foundType = matcher.group(2);
                 WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
-                LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
                 try {
-                    BLangFunction func = CommandUtil.getFunctionNode(line, column, document, documentManager,
-                                                                     lsCompiler, context);
+                    BLangFunction func = CommandUtil.getFunctionNode(line, column, document, documentManager, context);
                     if (func != null && !BLangConstants.MAIN_FUNCTION_NAME.equals(func.name.value)) {
                         BLangStatement statement = CommandUtil.getStatementByLocation(func.getBody().getStatements(),
                                                                                       line + 1, column + 1);
@@ -395,7 +392,7 @@ public class CommandUtil {
                             actions.add(action);
                         }
                     }
-                } catch (LSCompilerException e) {
+                } catch (CompilationFailedException e) {
                     // ignore
                 }
             }
@@ -574,20 +571,20 @@ public class CommandUtil {
     /**
      * Clears diagnostics of the client by sending an text edit event.
      *
-     * @param client            Language Server client
-     * @param lsCompiler        Language Server Compiler instance
-     * @param diagnosticsHelper diagnostics helper
-     * @param documentUri       Current text document URI
+     * @param client Language Server client
+     * @param diagHelper diagnostics helper
+     * @param documentUri Current text document URI
      */
-    public static void clearDiagnostics(LanguageClient client, LSCompiler lsCompiler,
-                                        DiagnosticsHelper diagnosticsHelper, String documentUri) {
+    public static void clearDiagnostics(LanguageClient client, DiagnosticsHelper diagHelper, String documentUri) {
         LSServiceOperationContext lsContext = new LSServiceOperationContext();
         lsContext.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
         WorkspaceDocumentManager docManager = lsContext.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         try {
-            diagnosticsHelper.compileAndSendDiagnostics(client, lsCompiler, lsContext, docManager);
-        } catch (LSCompilerException e) {
-            // Ignore
+            diagHelper.compileAndSendDiagnostics(client, lsContext, docManager);
+        } catch (CompilationFailedException e) {
+            String msg = "Computing 'diagnostics' failed!";
+            TextDocumentIdentifier identifier = new TextDocumentIdentifier(documentUri);
+            logError(msg, e, client, identifier, (Position) null);
         }
     }
 
@@ -634,13 +631,14 @@ public class CommandUtil {
         return applyWorkspaceEditParams;
     }
 
-    public static BLangObjectTypeNode getObjectNode(int line, int column, LSDocument document,
-                                                    WorkspaceDocumentManager documentManager, LSCompiler lsCompiler,
-                                                    LSContext context) throws LSCompilerException {
-        Pair<BLangNode, Object> bLangNode = getBLangNode(line, column, document, documentManager, lsCompiler, context);
+    public static BLangObjectTypeNode getObjectNode(int line, int column, String uri,
+                                                    WorkspaceDocumentManager documentManager, LSContext context)
+            throws CompilationFailedException {
+        Pair<BLangNode, Object> bLangNode = getBLangNode(line, column, uri, documentManager, context);
         if (bLangNode.getLeft() instanceof BLangObjectTypeNode) {
             return (BLangObjectTypeNode) bLangNode.getLeft();
-        } else if (bLangNode.getRight() instanceof BLangObjectTypeNode) {
+        }
+        if (bLangNode.getRight() instanceof BLangObjectTypeNode) {
             return (BLangObjectTypeNode) bLangNode.getRight();
         } else {
             BLangNode parent = bLangNode.getLeft().parent;
@@ -654,11 +652,10 @@ public class CommandUtil {
         }
     }
 
-    public static BLangInvocation getFunctionInvocationNode(int line, int column, LSDocument document,
-                                                            WorkspaceDocumentManager documentManager,
-                                                            LSCompiler lsCompiler,
-                                                            LSContext context) throws LSCompilerException {
-        Pair<BLangNode, Object> bLangNode = getBLangNode(line, column, document, documentManager, lsCompiler, context);
+    public static BLangInvocation getFunctionInvocationNode(int line, int column, String uri,
+                                                            WorkspaceDocumentManager documentManager, LSContext context)
+            throws CompilationFailedException {
+        Pair<BLangNode, Object> bLangNode = getBLangNode(line, column, uri, documentManager, context);
         if (bLangNode.getLeft() instanceof BLangInvocation) {
             return (BLangInvocation) bLangNode.getLeft();
         } else if (bLangNode.getRight() instanceof BLangInvocation) {
@@ -676,8 +673,8 @@ public class CommandUtil {
     }
 
     private static BLangFunction getFunctionNode(int line, int column, LSDocument document,
-                                                 WorkspaceDocumentManager docManager,
-                                                 LSCompiler lsCompiler, LSContext context) throws LSCompilerException {
+                                                 WorkspaceDocumentManager docManager,  LSContext context)
+            throws CompilationFailedException {
         String uri = document.getURIString();
         Position position = new Position();
         position.setLine(line);
@@ -685,16 +682,10 @@ public class CommandUtil {
         context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
         TextDocumentIdentifier identifier = new TextDocumentIdentifier(uri);
         context.put(DocumentServiceKeys.POSITION_KEY, new TextDocumentPositionParams(identifier, position));
-        List<BLangPackage> bLangPackages = lsCompiler.getBLangPackages(context, docManager, false,
-                                                                       LSCustomErrorStrategy.class, true, false);
+        LSModuleCompiler.getBLangPackages(context, docManager, false, LSCustomErrorStrategy.class, true, false);
 
         // Get the current package.
-        BLangPackage currentPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages, document);
-
-        if (currentPackage == null) {
-            return null;
-        }
-        context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, currentPackage);
+        BLangPackage currentPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
 
         // If package is testable package process as tests
         // else process normally
@@ -812,22 +803,20 @@ public class CommandUtil {
         return null;
     }
 
-    public static Pair<BLangNode, Object> getBLangNode(int line, int column, LSDocument document,
-                                                       WorkspaceDocumentManager documentManager, LSCompiler lsCompiler,
-                                                       LSContext context) throws LSCompilerException {
+    public static Pair<BLangNode, Object> getBLangNode(int line, int column, String uri,
+                                                       WorkspaceDocumentManager documentManager, LSContext context)
+            throws CompilationFailedException {
         Position position = new Position();
         position.setLine(line);
         position.setCharacter(column + 1);
-        String uri = document.getURIString();
         context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
         TextDocumentIdentifier identifier = new TextDocumentIdentifier(uri);
         context.put(DocumentServiceKeys.POSITION_KEY, new TextDocumentPositionParams(identifier, position));
-        List<BLangPackage> bLangPackages = lsCompiler.getBLangPackages(context, documentManager, true,
+        List<BLangPackage> bLangPackages = LSModuleCompiler.getBLangPackages(context, documentManager, true,
                                                                        LSCustomErrorStrategy.class, true, false);
         context.put(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY, bLangPackages);
         // Get the current package.
-        BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages, document);
-        context.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, currentBLangPackage);
+        BLangPackage currentBLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         // Run the position calculator for the current package.
         PositionTreeVisitor positionTreeVisitor = new PositionTreeVisitor(context);
         currentBLangPackage.accept(positionTreeVisitor);
@@ -907,9 +896,11 @@ public class CommandUtil {
 
     private static String getContentOfRange(WorkspaceDocumentManager documentManager, String uri, Range range)
             throws WorkspaceDocumentException, IOException {
-        LSDocument document = new LSDocument(uri);
-        Path filePath = document.getPath();
-        Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath);
+        Optional<Path> filePath = CommonUtil.getPathFromURI(uri);
+        if (!filePath.isPresent()) {
+            return "";
+        }
+        Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath.get());
         String fileContent = documentManager.getFileContent(compilationPath);
 
         BufferedReader reader = new BufferedReader(new StringReader(fileContent));
