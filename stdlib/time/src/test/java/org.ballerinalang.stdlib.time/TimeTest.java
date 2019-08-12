@@ -85,7 +85,8 @@ public class TimeTest {
     @Test(description = "Test parsing a given time string to time.")
     public void testParseTimeWithTimePartOnly() {
         BValue[] returns = BRunUtil.invoke(result, "testParseTimeWithTimePartOnly");
-        Assert.assertEquals((returns[0]).stringValue(), "09:46:22");
+        Assert.assertTrue(((BInteger) returns[0]).intValue() > 0);
+        Assert.assertEquals((returns[1]).stringValue(), "09:46:22");
     }
 
 
