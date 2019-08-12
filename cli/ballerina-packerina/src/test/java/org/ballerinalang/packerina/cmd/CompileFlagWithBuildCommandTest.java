@@ -71,7 +71,7 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
     @Test(description = "Compile non .bal file")
     public void testNonBalFileCompile() throws IOException {
         Path nonBalFilePath = this.testResources.resolve("non-bal-file");
-        BuildCommand buildCommand = new BuildCommand(nonBalFilePath, printStream, printStream, false);
+        BuildCommand buildCommand = new BuildCommand(nonBalFilePath, printStream, printStream, false, true);
         new CommandLine(buildCommand).parse("-c", "hello_world.txt");
         buildCommand.execute();
     
@@ -87,7 +87,7 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
     public void testCompileBalFile() throws IOException {
         Path validBalFilePath = this.testResources.resolve("valid-bal-file");
         // set valid source root
-        BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false);
+        BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, true);
         // name of the file as argument
         new CommandLine(buildCommand).parse("-c", "hello_world.bal");
         buildCommand.execute();
@@ -101,7 +101,7 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
     public void testCompileBalFileWithAbsolutePath() throws IOException {
         Path validBalFilePath = this.testResources.resolve("valid-bal-file");
         // set an invalid source root
-        BuildCommand buildCommand = new BuildCommand(this.testResources, printStream, printStream, false);
+        BuildCommand buildCommand = new BuildCommand(this.testResources, printStream, printStream, false, true);
         // give absolute path as arg
         new CommandLine(buildCommand).parse("-c",
                 validBalFilePath.resolve("hello_world.bal").toAbsolutePath().toString());
@@ -115,7 +115,7 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
     @Test(description = "Compile a valid ballerina file with toml")
     public void testCompileBalFileWithToml() throws IOException {
         Path sourceRoot = this.testResources.resolve("single-bal-file-with-toml");
-        BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false);
+        BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false, true);
         new CommandLine(buildCommand).parse("-c", "hello_world.bal");
         buildCommand.execute();
     
@@ -127,7 +127,7 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
     @Test(description = "Compile a ballerina project with no modules.")
     public void testCompileBalProjWithNoModules() throws IOException {
         Path sourceRoot = this.testResources.resolve("project-with-no-modules");
-        BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false);
+        BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false, true);
         new CommandLine(buildCommand).parse();
     
         String exMsg = executeAndGetException(buildCommand);
@@ -139,7 +139,7 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
     @Test(description = "Compile a ballerina project with non existing module.")
     public void testCompileBalProjectWithInvalidModule() throws IOException {
         Path sourceRoot = this.testResources.resolve("project-with-no-modules");
-        BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false);
+        BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false, true);
         new CommandLine(buildCommand).parse("-c", "xyz");
         buildCommand.execute();
         String buildLog = readOutput(true);
@@ -153,7 +153,7 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
     @Test(description = "Compile a ballerina project with non existing module.")
     public void testCompileBalProjectToml() throws IOException {
         Path sourceRoot = this.testResources.resolve("ballerina-toml");
-        BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false);
+        BuildCommand buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false, true);
         new CommandLine(buildCommand).parse("-c", "foo");
         
         buildCommand.execute();
@@ -170,7 +170,7 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
         
         String tomlContent = "";
         Files.write(sourceRoot.resolve("Ballerina.toml"), tomlContent.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
-        buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false);
+        buildCommand = new BuildCommand(sourceRoot, printStream, printStream, false, true);
         String exMsg = executeAndGetException(buildCommand);
         Assert.assertEquals(exMsg, "invalid Ballerina.toml file: organization name and the version of the project " +
                                    "is missing. example: \n" +
@@ -209,7 +209,7 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
         // Compile the project
         String[] compileArgs = {"-c"};
         BuildCommand buildCommand = new BuildCommand(this.testResources.resolve("valid-project"), printStream,
-                printStream, false);
+                printStream, false, true);
         new CommandLine(buildCommand).parse(compileArgs);
         buildCommand.execute();
 

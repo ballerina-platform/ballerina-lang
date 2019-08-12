@@ -41,6 +41,16 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_TM
  * Copy module jars to target/tmp.
  */
 public class CopyModuleJarTask implements Task {
+
+    private boolean skipCopyLibsFromDist = false;
+
+    public CopyModuleJarTask(boolean skipCopyLibsFromDist) {
+        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+    }
+
+    public CopyModuleJarTask() {
+    }
+    
     @Override
     public void execute(BuildContext buildContext) {
 
@@ -56,24 +66,11 @@ public class CopyModuleJarTask implements Task {
         } catch (IOException e) {
             throw createLauncherException("unable to create tmp directory in target :" + e.getMessage());
         }
-        // Copy ballerina runtime all jar
-        copyRuntimeAllJar(balHomePath, tmpDir);
         // Copy module jar
         List<BLangPackage> moduleBirMap = buildContext.getModules();
         copyModuleJar(buildContext, moduleBirMap, tmpDir);
         // Copy imported jars.
         copyImportedJars(buildContext, moduleBirMap, sourceRootPath, tmpDir, balHomePath);
-    }
-
-    private void copyRuntimeAllJar(String balHomePath, Path jarTarget) {
-        String ballerinaVersion = System.getProperty("ballerina.version");
-        String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
-        Path runtimeAllJar = Paths.get(balHomePath, "bre", "lib", runtimeJarName);
-        try {
-            Files.copy(runtimeAllJar, Paths.get(jarTarget.toString(), runtimeJarName));
-        } catch (IOException e) {
-            throw createLauncherException("unable to copy the ballerina runtime all jar :" + e.getMessage());
-        }
     }
 
     private void copyModuleJar(BuildContext buildContext, List<BLangPackage> moduleBirMap, Path tmpDir) {
@@ -129,6 +126,9 @@ public class CopyModuleJarTask implements Task {
 
         // If jar cannot be found in cache, read from distribution.
         if (importJar == null || !Files.exists(importJar)) {
+            if (skipCopyLibsFromDist) {
+                return;
+            }
             importJar = Paths.get(balHomePath, "bre", "lib", id.name.value + BLANG_COMPILED_JAR_EXT);
         }
         try {

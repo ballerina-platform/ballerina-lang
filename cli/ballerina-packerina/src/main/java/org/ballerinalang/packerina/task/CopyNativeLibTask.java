@@ -43,6 +43,7 @@ import java.util.jar.JarFile;
 import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_TMP_DIRECTORY;
 
@@ -50,13 +51,23 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_TM
  * Copy native libraries to target/tmp.
  */
 public class CopyNativeLibTask implements Task {
+
+    private boolean skipCopyLibsFromDist = false;
+
+    public CopyNativeLibTask(boolean skipCopyLibsFromDist) {
+        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+    }
+
+    public CopyNativeLibTask() {
+    }
+    
     @Override
     public void execute(BuildContext buildContext) {
 
         Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
         Path tmpDir = targetDir.resolve(TARGET_TMP_DIRECTORY);
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
-        Path balHomePath = buildContext.get(BuildContextField.HOME_REPO);
+        String balHomePath = buildContext.get(BuildContextField.HOME_REPO).toString();
         // Create target/tmp folder
         try {
             if (!tmpDir.toFile().exists()) {
@@ -66,7 +77,11 @@ public class CopyNativeLibTask implements Task {
             throw createLauncherException("unable to copy the native library: " + e.getMessage());
         }
         List<BLangPackage> moduleBirMap = buildContext.getModules();
-        copyImportedJars(buildContext, moduleBirMap, sourceRootPath, tmpDir, balHomePath.toString());
+        // Copy ballerina runtime all jar
+        if (!skipCopyLibsFromDist) {
+            copyRuntimeAllJar(balHomePath, tmpDir);
+        }
+        copyImportedJars(buildContext, moduleBirMap, sourceRootPath, tmpDir, balHomePath);
         if (buildContext.getSourceType() == SINGLE_BAL_FILE) {
             return;
         }
@@ -74,6 +89,18 @@ public class CopyNativeLibTask implements Task {
         for (BLangPackage module : moduleBirMap) {
             Path baloAbsolutePath = buildContext.getBaloFromTarget(module.packageID);
             copyLibsFromBalo(baloAbsolutePath.toString(), tmpDir.toString());
+        }
+    }
+
+
+    private void copyRuntimeAllJar(String balHomePath, Path jarTarget) {
+        String ballerinaVersion = System.getProperty("ballerina.version");
+        String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
+        Path runtimeAllJar = Paths.get(balHomePath, "bre", "lib", runtimeJarName);
+        try {
+            Files.copy(runtimeAllJar, Paths.get(jarTarget.toString(), runtimeJarName));
+        } catch (IOException e) {
+            throw createLauncherException("unable to copy the ballerina runtime all jar :" + e.getMessage());
         }
     }
 
@@ -161,7 +188,9 @@ public class CopyNativeLibTask implements Task {
         if (!id.version.value.equals("")) {
             version = id.version.value;
         }
-
+        if (skipCopyLibsFromDist) {
+            return;
+        }
         File tomlfile = Paths.get(balHomePath, "bir-cache", id.orgName.value, id.name.value,
                                   version, "Ballerina.toml").toFile();
 
