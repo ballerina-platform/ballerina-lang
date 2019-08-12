@@ -626,7 +626,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefSymbol.markdownDocumentation = getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);
         typeDefSymbol.name = names.fromIdNode(typeDefinition.getName());
         typeDefSymbol.pkgID = env.enclPkg.packageID;
+
         typeDefSymbol.flags |= Flags.asMask(typeDefinition.flagSet);
+        typeDefSymbol.flags &= getAccessModifierMask(typeDefinition.flagSet, typeDefinition.typeNode);
+        definedType.flags = typeDefSymbol.flags;
+
         if (typeDefinition.annAttachments.stream()
                 .anyMatch(attachment -> attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value))) {
             // TODO : Clean this. Not a nice way to handle this.
@@ -644,6 +648,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE) {
             // constructors are only defined for named types.
             defineErrorConstructorSymbol(typeDefinition.name.pos, typeDefSymbol);
+        }
+    }
+
+    private int getAccessModifierMask(Set<Flag> flagSet, BLangType typeNode) {
+        boolean isAnonType =
+                typeNode instanceof BLangStructureTypeNode && ((BLangStructureTypeNode) typeNode).isAnonymous;
+        if (flagSet.contains(Flag.PUBLIC) || isAnonType) {
+            return Integer.MAX_VALUE;
+        } else {
+            return ~Flags.PUBLIC;
         }
     }
 
