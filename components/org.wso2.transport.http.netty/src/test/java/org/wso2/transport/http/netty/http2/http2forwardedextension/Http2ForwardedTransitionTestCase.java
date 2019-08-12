@@ -60,7 +60,7 @@ public class Http2ForwardedTransitionTestCase extends Http2ForwardedTestUtil {
             assertNull(response.getHeader(Constants.X_FORWARDED_FOR));
 
         } catch (Exception e) {
-            TestUtil.handleException("Exception occurred while running postTest", e);
+            TestUtil.handleException("Exception occurred while running forwarded transition single header test", e);
         }
     }
 
@@ -80,7 +80,7 @@ public class Http2ForwardedTransitionTestCase extends Http2ForwardedTestUtil {
             assertNull(response.getHeader(Constants.X_FORWARDED_PROTO));
 
         } catch (Exception e) {
-            TestUtil.handleException("Exception occurred while running postTest", e);
+            TestUtil.handleException("Exception occurred while running forwarded transition multiple header test", e);
         }
     }
 }

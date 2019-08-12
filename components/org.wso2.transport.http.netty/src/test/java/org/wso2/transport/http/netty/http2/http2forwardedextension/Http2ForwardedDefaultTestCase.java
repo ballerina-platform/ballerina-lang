@@ -19,12 +19,10 @@
 package org.wso2.transport.http.netty.http2.http2forwardedextension;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
-import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.util.TestUtil;
 
@@ -60,7 +58,7 @@ public class Http2ForwardedDefaultTestCase extends Http2ForwardedTestUtil {
             assertEquals(response.getHeader(Constants.X_FORWARDED_FOR), "192.0.2.43, 203.0.113.60");
 
         } catch (Exception e) {
-            TestUtil.handleException("Exception occurred while running postTest", e);
+            TestUtil.handleException("Exception occurred while running forwarded default single header test", e);
         }
     }
 
@@ -86,12 +84,7 @@ public class Http2ForwardedDefaultTestCase extends Http2ForwardedTestUtil {
             assertNull(response.getHeader(Constants.X_FORWARDED_PROTO));
 
         } catch (Exception e) {
-            TestUtil.handleException("Exception occurred while running postTest", e);
+            TestUtil.handleException("Exception occurred while running forwarded default multiple header test", e);
         }
-    }
-
-    @AfterClass
-    public void cleanUp() throws ServerConnectorException {
-
     }
 }

@@ -18,19 +18,14 @@
 
 package org.wso2.transport.http.netty.contractimpl.sender.http2;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.contract.config.ForwardedExtensionConfig;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpResponseFuture;
-import org.wso2.transport.http.netty.contractimpl.sender.ForwardedHeaderUpdater;
 import org.wso2.transport.http.netty.message.BackPressureObservable;
 import org.wso2.transport.http.netty.message.DefaultBackPressureObservable;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
-import java.net.InetSocketAddress;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -57,9 +52,6 @@ public class OutboundMsgHolder {
     private boolean firstContentWritten;
     private AtomicBoolean streamWritable = new AtomicBoolean(true);
     private final BackPressureObservable backPressureObservable = new DefaultBackPressureObservable();
-
-    private static final Logger LOG = LoggerFactory.getLogger(OutboundMsgHolder.class);
-
 
     public OutboundMsgHolder(HttpCarbonMessage httpOutboundRequest) {
         this.requestCarbonMessage = httpOutboundRequest;
@@ -241,28 +233,5 @@ public class OutboundMsgHolder {
 
     public BackPressureObservable getBackPressureObservable() {
         return backPressureObservable;
-    }
-
-    public void setForwardedExtension(ForwardedExtensionConfig forwardedConfig) {
-        if (forwardedConfig == ForwardedExtensionConfig.DISABLE) {
-            return;
-        }
-        String localAddress = ((InetSocketAddress) http2ClientChannel.getChannel().localAddress()).getAddress()
-                .getHostAddress();
-        ForwardedHeaderUpdater headerUpdater = new ForwardedHeaderUpdater(requestCarbonMessage, localAddress);
-        if (headerUpdater.isForwardedHeaderRequired()) {
-            headerUpdater.setForwardedHeader();
-            return;
-        }
-        if (headerUpdater.isXForwardedHeaderRequired()) {
-            if (forwardedConfig == ForwardedExtensionConfig.ENABLE) {
-                headerUpdater.setDefactoForwardedHeaders();
-                return;
-            }
-            headerUpdater.transformAndSetForwardedHeader();
-            return;
-        }
-        LOG.warn("Both Forwarded and X-Forwarded-- headers are present. Hence updating only the forwarded header");
-        headerUpdater.setForwardedHeader();
     }
 }

@@ -360,7 +360,6 @@ public class TestUtil {
         }
     }
 
-
     public static DefaultHttpHeaders getForwardedHeaderSet1() {
         DefaultHttpHeaders headers = new DefaultHttpHeaders();
         headers.set(Constants.FORWARDED, "by=203.0.113.60;proto=http;host=example.com");

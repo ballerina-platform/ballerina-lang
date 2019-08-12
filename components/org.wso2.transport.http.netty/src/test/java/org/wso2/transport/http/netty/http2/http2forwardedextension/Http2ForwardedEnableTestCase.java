@@ -54,7 +54,7 @@ public class Http2ForwardedEnableTestCase extends Http2ForwardedTestUtil {
             assertEquals(response.getHeader(Constants.FORWARDED),
                     "for=192.0.2.43, for=203.0.113.60; by=127.0.0.1; host=example.com; proto=http");
         } catch (Exception e) {
-            TestUtil.handleException("Exception occurred while running postTest", e);
+            TestUtil.handleException("Exception occurred while running forwarded enable single header test", e);
         }
     }
 
@@ -67,7 +67,7 @@ public class Http2ForwardedEnableTestCase extends Http2ForwardedTestUtil {
             assertEquals(response.getHeader(Constants.X_FORWARDED_FOR), "123.34.24.67");
 
         } catch (Exception e) {
-            TestUtil.handleException("Exception occurred while running postTest", e);
+            TestUtil.handleException("Exception occurred while running forwarded enable multiple header test", e);
         }
     }
 }
