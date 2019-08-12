@@ -204,6 +204,18 @@ const int COMPUTE_MAXS = 1;
 const int COMPUTE_FRAMES = 2;
 final int V1_8 = 0 << 16 | 52;
 
+// Possible values for the type operand of the NEWARRAY instruction.
+// See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-6.html#jvms-6.5.newarray.
+int T_BOOLEAN = 4;
+int T_CHAR = 5;
+int T_FLOAT = 6;
+int T_DOUBLE = 7;
+int T_BYTE = 8;
+int T_SHORT = 9;
+int T_INT = 10;
+int T_LONG = 11;
+
+
 // jvm runtime values related classes
 const string MAP_VALUE = "org/ballerinalang/jvm/values/MapValue";
 const string MAP_VALUE_IMPL = "org/ballerinalang/jvm/values/MapValueImpl";
@@ -244,6 +256,7 @@ const string STRAND_STATE = "org/ballerinalang/jvm/scheduling/State";
 const string FUNCTION_POINTER = "org/ballerinalang/jvm/values/FPValue";
 const string FUNCTION = "java/util/function/Function";
 const string CONSUMER = "java/util/function/Consumer";
+const string EXCEPTION = "java/lang/Exception";
 
 const string STRING_BUILDER = "java/lang/StringBuilder";
 const string COMPARABLE = "java/lang/Comparable";
@@ -263,6 +276,9 @@ const string RUNTIME_UTILS = "org/ballerinalang/jvm/util/RuntimeUtils";
 const string ARGUMENT_PARSER = "org/ballerinalang/jvm/util/ArgumentParser";
 const string LAUNCH_UTILS = "org/ballerinalang/jvm/launch/LaunchUtils";
 const string MATH_UTILS = "org/ballerinalang/jvm/MathUtils";
+const string BAL_ERROR_REASONS = "org/ballerinalang/jvm/util/exceptions/BallerinaErrorReasons";
+const string RUNTIME_ERRORS = "org/ballerinalang/jvm/util/exceptions/RuntimeErrors";
+const string BLANG_EXCEPTION_HELPER = "org/ballerinalang/jvm/util/exceptions/BLangExceptionHelper";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";

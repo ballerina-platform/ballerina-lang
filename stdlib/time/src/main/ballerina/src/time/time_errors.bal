@@ -16,6 +16,7 @@
 
 type Detail record {
     string message;
+    error cause?;
 };
 
 public const TIME_ERROR_REASON = "{ballerina/time}TimeError";

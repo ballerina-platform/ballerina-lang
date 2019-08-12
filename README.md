@@ -1,30 +1,24 @@
-# Ballerina
-  [![Jenkins Build Status](https://wso2.org/jenkins/view/All%20Builds/job/ballerina-platform/job/ballerina/badge/icon)](https://wso2.org/jenkins/view/All%20Builds/job/ballerina-platform/job/ballerina/)
-  [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/97xlytm8di5l0pmb/branch/master?svg=true)](https://ci.appveyor.com/project/WSO2/ballerina-lang/branch/master)
+  [![Build Status](https://travis-ci.com/ballerina-platform/ballerina-lang.svg?branch=master)](https://travis-ci.com/ballerina-platform/ballerina-lang)
   [![GitHub (pre-)release](https://img.shields.io/github/release/ballerina-platform/ballerina-lang/all.svg)](https://github.com/ballerina-platform/ballerina-lang/releases)
   [![GitHub (Pre-)Release Date](https://img.shields.io/github/release-date-pre/ballerina-platform/ballerina-lang.svg)](https://github.com/ballerina-platform/ballerina-lang/releases)
   [![GitHub last commit](https://img.shields.io/github/last-commit/ballerina-platform/ballerina-lang.svg)](https://github.com/ballerina-platform/ballerina-lang/commits/master)
-    [![codecov](https://codecov.io/gh/ballerina-platform/ballerina-lang/branch/master/graph/badge.svg)](https://codecov.io/gh/ballerina-platform/ballerina-lang)
   [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Ballerina is a compiled, type safe, concurrent programming language designed to make it simple to write microservices that integrate APIs.
+# The Ballerina Programming Language
 
-#### Integration Syntax
-A compiled, transactional, statically and strongly typed programming language with textual and graphical syntaxes. Ballerina incorporates fundamental concepts of distributed system integration and offers a type safe, concurrent environment to implement microservices.
+Ballerina is a programming language for network distributed applications. 
 
-#### Networked Type System
-A type system that embraces network payload variability with primitive, object, union, and tuple types.
+#### Providing and consuming services
+It has inherently concurrent first-class language constructs for providing and consuming services.
 
-#### Concurrency
-An execution model composed of lightweight parallel worker units that are non-blocking where no function can lock an executing thread manifesting sequence concurrency. 
- 
-## Table of contents
+#### Sequence diagrams
+Sequence diagram based graphical view shows the most fundamental aspect of the semantics of a network distributed application.
 
-- [Getting started](#getting-started)
-- [Download and install](#download-and-install)
-- [Contributing to Ballerina](#contributing-to-ballerina)
-- [License](#license)
-- [Useful links](#useful-links)
+#### Structural typing
+It allows for looser coupling between distributed components and eliminates the friction of data binding.
+
+#### Metadata
+Extensible metadata enables easy integration of Ballerina programs with cloud platforms. 
 
 ## Getting started
 
@@ -40,8 +34,6 @@ You can use one of the following options to try out Ballerina.
 ### Download the binary
 
 You can download the Ballerina distribution at http://ballerina.io.
-
->**Tip:** You can use several [tools and IDEs](https://ballerina.io/learn/tools-ides/) to create, document, and test Ballerina code.
 
 ### Install from source
 
@@ -61,23 +53,17 @@ Alternatively, you can install Ballerina from the source using the following ins
     ```bash
     git clone --recursive https://github.com/ballerina-platform/ballerina-lang
     ```
-
-    If you download the sources, you need to update the git submodules using the following command.
     
+2. Build project with Gradle. Use following command on Unix/macOS:
     ```bash
-    git submodule update --init 
-    ```
-2. Build project with gradle.
-  Use following command on Unix/macOS:
-   ```
-   ./gradlew build
-   ```
-  or the following command on Windows:
-    ```
+    ./gradlew build
+    ```  
+    or the following command on Windows:
+    ```bash
     gradlew build
     ```
 
-3. Extract the Ballerina distribution created at `distribution/zip/ballerina-tools/build/ballerina-tools-<version>-SNAPSHOT.zip`.
+3. Extract the Ballerina distribution created at `distribution/zip/jballerina-tools/build/extracted-distributions/ballerina-<version>-SNAPSHOT.zip`.
 
 ## Contributing to Ballerina
 

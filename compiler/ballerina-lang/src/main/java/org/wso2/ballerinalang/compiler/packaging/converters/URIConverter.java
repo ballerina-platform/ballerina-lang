@@ -38,6 +38,9 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static org.wso2.ballerinalang.programfile.ProgramFileConstants.IMPLEMENTATION_VERSION;
+import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
+
 /**
  * Provide functions need to covert a patten to steam of by paths, by downloading them as url.
  */
@@ -115,23 +118,28 @@ public class URIConverter implements Converter<URI> {
             String supportedVersionRange = "";
             String nightlyBuild = String.valueOf(RepoUtils.getBallerinaVersion().contains("SNAPSHOT"));
             EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
-            Optional<RuntimeException> execute = executor.executeMainFunction("module_pull",
-                    remoteURI.toString(), modulePathInBaloCache.toString(), modulePath, proxy.getHost(),
-                    proxy.getPort(), proxy.getUserName(), proxy.getPassword(), RepoUtils.getTerminalWidth(),
-                    supportedVersionRange, String.valueOf(isBuild), nightlyBuild);
-            // Check if error has occurred or not.
-            if (execute.isPresent()) {
-                String errorMessage = execute.get().getMessage();
-                if (!errorMessage.trim().equals("")) {
-                    errStream.println(errorMessage);
+            RuntimeException runtimeException = null;
+            for (String supportedPlatform : SUPPORTED_PLATFORMS) {
+                Optional<RuntimeException> execute = executor.executeMainFunction("module_pull",
+                        remoteURI.toString(), modulePathInBaloCache.toString(), modulePath, proxy.getHost(),
+                        proxy.getPort(), proxy.getUserName(), proxy.getPassword(), RepoUtils.getTerminalWidth(),
+                        supportedVersionRange, String.valueOf(isBuild), nightlyBuild, IMPLEMENTATION_VERSION,
+                        supportedPlatform);
+                // Check if error has occurred or not.
+                if (execute.isPresent()) {
+                    runtimeException = execute.get();
+                } else {
+                    Patten patten = binaryRepo.calculate(moduleID);
+                    return patten.convertToSources(binaryRepo.getConverterInstance(), moduleID);
                 }
-                return Stream.of();
-            } else {
-                Patten patten = binaryRepo.calculate(moduleID);
-                return patten.convertToSources(binaryRepo.getConverterInstance(), moduleID);
             }
+    
+            throw runtimeException;
         } catch (Exception e) {
-            errStream.println(e.getMessage());
+            String errorMessage = e.getMessage();
+            if (!"".equals(errorMessage.trim())) {
+                errStream.println(errorMessage);
+            }
         }
         return Stream.of();
     }

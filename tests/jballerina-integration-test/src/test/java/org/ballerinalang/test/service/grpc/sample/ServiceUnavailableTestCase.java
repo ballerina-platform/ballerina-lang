@@ -46,13 +46,12 @@ public class ServiceUnavailableTestCase extends GrpcBaseTest {
 
     @Test(description = "Test invoking unavailable service. Connector error is expected with connection refused.")
     public void testUnavailableServiceInvoke() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "16_unavailable_service_client" +
-                ".bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients",
+                "16_unavailable_service_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-        BString request = new BString("WSO2");
-        final String expectedMsg = "Error from Connector: {ballerina/grpc}UNAVAILABLE - Connection refused:";
+        final String expectedMsg = "Error from Connector: {ballerina/grpc}UnavailableError - Connection refused:";
 
-        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient", new BValue[]{request});
+        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient", new Object[]{"WSO2"});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         Assert.assertTrue(responses[0].stringValue().contains(expectedMsg));
@@ -61,13 +60,13 @@ public class ServiceUnavailableTestCase extends GrpcBaseTest {
     @Test(description = "Test invoking service with slow response. Connector error is expected with Idle timeout " +
             "triggered.")
     public void testClientSocketTimeout() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "14_grpc_client_socket_timeout" +
-                ".bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients",
+                "14_grpc_client_socket_timeout.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
-        final String expectedMsg = "Error from Connector: {ballerina/grpc}UNAVAILABLE - Idle timeout triggered before" +
-                " initiating inbound response";
+        final String expectedMsg = "Error from Connector: {ballerina/grpc}UnavailableError - Idle timeout triggered " +
+                "before initiating inbound response";
 
-        BValue[] responses = BRunUtil.invoke(result, "testClientSocketTimeout", new BValue[]{});
+        BValue[] responses = BRunUtil.invoke(result, "testClientSocketTimeout", new Object[]{});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         Assert.assertEquals(responses[0].stringValue(), expectedMsg);

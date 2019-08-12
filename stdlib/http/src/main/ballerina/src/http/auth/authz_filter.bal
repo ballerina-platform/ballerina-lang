@@ -71,8 +71,8 @@ function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterCo
             var canProcessResponse = authzHandler.canProcess(request);
             if (canProcessResponse is boolean && canProcessResponse) {
                 if(principal is runtime:Principal) {
-                    authorized = authzHandler.process(principal.username, context.serviceName, context.resourceName,
-                                                      request.method, scopes);
+                    authorized = authzHandler.process(principal.username, context.getServiceName(),
+                                            context.getResourceName(), request.method, scopes);
                 } else {
                     authorized = false;
                 }
@@ -88,8 +88,8 @@ function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterCo
             var canProcessResponse = authzHandler.canProcess(request);
             if (canProcessResponse is boolean && canProcessResponse) {
                 if(principal is runtime:Principal) {
-                    authorized = authzHandler.process(principal.username, context.serviceName, context.resourceName,
-                                                      request.method, scopes);
+                    authorized = authzHandler.process(principal.username, context.getServiceName(),
+                                                context.getResourceName(), request.method, scopes);
                 } else {
                     authorized = false;
                 }

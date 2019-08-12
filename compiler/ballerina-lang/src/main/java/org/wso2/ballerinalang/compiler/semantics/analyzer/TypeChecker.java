@@ -56,7 +56,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -150,7 +149,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -2866,12 +2864,27 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean checkErrorReasonArg(BLangInvocation iExpr, BErrorType ctorType) {
+        // User defined error
+        if (iExpr.type != symTable.errorType) {
+            if (ctorType.reasonType.getKind() != TypeKind.FINITE) {
+                dlog.error(iExpr.pos, DiagnosticCode.INDIRECT_ERROR_CTOR_NOT_ALLOWED_ON_NON_CONST_REASON,
+                        iExpr.type);
+                return false;
+            } else {
+                BFiniteType reasonType = (BFiniteType) ctorType.reasonType;
+                if (reasonType.valueSpace.size() > 1) {
+                    dlog.error(iExpr.pos, DiagnosticCode.INDIRECT_ERROR_CTOR_NOT_ALLOWED_ON_NON_CONST_REASON,
+                            iExpr.type);
+                    return false;
+                }
+            }
+        }
         if (iExpr.argExprs.isEmpty()) {
             return false;
         }
 
-        BLangExpression firstErrorArg = iExpr.argExprs.get(0);
         // if present, error reason should be the first and only positional argument to error constructor.
+        BLangExpression firstErrorArg = iExpr.argExprs.get(0);
         if (firstErrorArg.getKind() != NodeKind.NAMED_ARGS_EXPR) {
             checkExpr(firstErrorArg, env, ctorType.reasonType, DiagnosticCode.INVALID_ERROR_REASON_TYPE);
             return true;
@@ -3855,29 +3868,6 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             actualType = symTable.xmlType;
             fieldAccessExpr.originalType = actualType;
-        } else if (varRefType.tag == TypeTags.STREAM || varRefType.tag == TypeTags.TABLE) {
-
-            BType constraint =  (fieldAccessExpr.expr.type.tag == TypeTags.STREAM ?
-                                                    ((BStreamType) fieldAccessExpr.expr.type).constraint :
-                                                    ((BTableType) fieldAccessExpr.expr.type).constraint);
-
-            if (constraint.tag != TypeTags.RECORD) {
-                dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS, varRefType);
-                return symTable.semanticError;
-            }
-
-            Optional<BField> fieldType =
-                    ((BRecordType) constraint).fields.stream().filter(field -> field.name.value.equals(fieldName.value))
-                            .findFirst();
-
-            if (fieldType.isPresent()) {
-                actualType = fieldType.get().type;
-            } else {
-                dlog.error(fieldAccessExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, fieldName,
-                           varRefType.tsymbol.type.getKind().typeName(), varRefType);
-                return symTable.semanticError;
-            }
-
         } else if (varRefType.tag != TypeTags.SEMANTIC_ERROR) {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS, varRefType);
         }

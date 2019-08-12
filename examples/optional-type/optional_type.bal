@@ -1,50 +1,38 @@
 import ballerina/io;
 
-//This function (optionally) returns a `string` value. In this example, `string?` is equivalent to `string|()`.
+// This function (optionally) returns a `string` value. In this example, `string?` is equivalent to `string|()`.
 function getValue(string key) returns string? {
-    // In Ballerina, the `nil` type that is provided as `()` contains a single value named `nil`. This is used
+    if (key == "string") {
+        return "hello world";
+    }
+
+    // In Ballerina, the `nil` type that is provided as `()` contains a single value named "nil". This is used
     // to represent the absence of any other value.
-    // The `nil` value is written as `()`.
-    // `null` is syntactic sugar for `nil` that is to be used with JSON values because JSON uses `null`.
+    // The "nil" value is written as `()`.
+    // `null` is syntactic sugar for "nil" that is to be used with JSON values because JSON uses `null`.
+    // "return ();" here is the same as "return;". Not having a return statement at the end is also the same as
+    // explicitly returning `()`.
     return ();
 }
 
-type Address record {
-    string line01;
-    string line02;
-    string city;
-    string state;
-    string zipcode;
-};
-
-// In this example, the `addr` and `guardian` fields may or may not contain values. Also, either all the fields must be assigned with
-// default values (e.g., `string name = ""`) or be initialized before being used.
-type Person record {
-    string name;
-    int age;
-    Address? addr;
-    Person? guardian;
-};
-
 public function main() {
-    Person p = { name: "Paul", age: 40, addr: (), guardian:() };
-    io:println(p);
+    // It is optional for `getValue()` to return a value of type `string`. Thus, the value could be either
+    // of type `string` or of type `()` and needs to be handled explicitly.
+    // The statement `string s = getValue("string");` produces a compilation error.
+    string? s = getValue("string");
 
-    // It is optional for the `addr` field to have a value. Therefore, it needs to be handled explicitly.
-    // The statement `Address addr = p.addr` produces a compilation error.
-    // The below example demonstrates how you can operate on the `Address` record if a value is available.
-    Address? addr = p.addr;
-    io:println(addr);
+    // The type test can then be used to check if the value is in fact a `string` and operate on it.
+    if (s is string) {
+        io:println("Length of the string: ", s.length());
+    } else {
+        io:println("s is ()");
+    }
 
-    Address myAddr = {
-        line01: "No. 61",
-        line02: "Brandon street",
-        city: "Santa Clara",
-        state: "CA",
-        zipcode: "95134"
-    };
-    p.addr = myAddr;
-
-    addr = p.addr;
-    io:println(addr);
+    // A value of type `string` or `()` can be assigned to `s`.
+    s = ();
+    if (s is string) {
+        io:println("Length of the string: ", s.length());
+    } else {
+        io:println("s is ()");
+    }
 }

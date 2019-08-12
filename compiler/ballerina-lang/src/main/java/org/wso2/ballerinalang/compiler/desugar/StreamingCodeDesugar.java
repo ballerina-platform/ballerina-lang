@@ -31,7 +31,6 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeChecker;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -51,7 +50,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -180,7 +178,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private final SymbolEnter symbolEnter;
-    private final TypeChecker typeChecker;
     private final Desugar desugar;
     private final Names names;
     private final Types types;
@@ -210,7 +207,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
         this.types = Types.getInstance(context);
-        this.typeChecker = TypeChecker.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.preSelectDesuagr = StreamsPreSelectDesuagr.getInstance(context);
@@ -1228,16 +1224,15 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         List<BLangExpression> args = new ArrayList<>();
         args.add(ASTBuilderUtil.createLiteral(streamingInput.pos, symTable.intType, 1L));
 
-        BLangIdentifier lengthIdentifier = ASTBuilderUtil.createIdentifier(streamingInput.pos,
-                LENGTH_WINDOW_METHOD_NAME);
-        BLangIdentifier pkgAlias = ASTBuilderUtil.createIdentifier(streamingInput.pos, Names
-                .STREAMS_MODULE.value);
-        BLangInvocation lengthInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
-        lengthInvocation.pos = streamingInput.pos;
-        lengthInvocation.name = lengthIdentifier;
-        lengthInvocation.builtinMethodInvocation = false;
+        BInvokableSymbol windowSymbol = (BInvokableSymbol) symResolver.
+                resolvePkgSymbol(streamingInput.pos, env, Names.STREAMS_MODULE).
+                scope.lookup(new Name(LENGTH_WINDOW_METHOD_NAME)).symbol;
+
+        BLangInvocation lengthInvocation = ASTBuilderUtil.createInvocationExprForMethod(streamingInput.pos,
+                windowSymbol, args, symResolver);
+        lengthInvocation.pkgAlias = ASTBuilderUtil.createIdentifier(streamingInput.pos, Names.STREAMS_MODULE.value);
+        lengthInvocation.type = windowSymbol.retType;
         lengthInvocation.argExprs = args;
-        lengthInvocation.pkgAlias = pkgAlias;
 
         BLangWindow window = (BLangWindow) TreeBuilder.createWindowClauseNode();
         window.pos = streamingInput.pos;
@@ -1259,10 +1254,10 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangListConstructorExpr windowParamArrExpr =
                 (BLangListConstructorExpr) TreeBuilder.createListConstructorExpressionNode();
         windowParamArrExpr.exprs = new ArrayList<>();
-        windowParamArrExpr.type = symTable.anyType;
+        windowParamArrExpr.type = new BArrayType(symTable.anyType);
         windowParamArrExpr.exprs.addAll(invocation.argExprs);
-        invocation.argExprs.clear();
-        invocation.argExprs.add(windowParamArrExpr);
+        invocation.argExprs = Lists.of(windowParamArrExpr);
+        invocation.requiredArgs = invocation.argExprs;
 
         convertFieldAccessArgsToStringLiteral(invocation);
 
@@ -1293,7 +1288,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 BLangNamedArgsExpression nextProcPointer =
                         ASTBuilderUtil.createNamedArg(NEXT_PROCESS_POINTER_ARG_NAME, nextProcessMethodAccess);
 
-                typeChecker.checkExpr(invocation, env);
+                invocation.type = windowInvokableType;
 
                 //these should be added after type-checking
                 invocation.argExprs.add(nextProcPointer);

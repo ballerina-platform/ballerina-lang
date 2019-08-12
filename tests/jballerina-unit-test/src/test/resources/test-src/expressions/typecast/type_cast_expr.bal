@@ -21,6 +21,7 @@ type MyErrorTwo error<ERR_REASON, ErrorDetails>;
 
 type ErrorDetails record {
    string message;
+   error cause?;
 };
 
 type Employee record {

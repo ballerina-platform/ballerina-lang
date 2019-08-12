@@ -36,7 +36,7 @@ public function testBidiStreaming() returns string {
     string response = "";
     // Executing unary non-blocking call registering server message listener.
     var res = chatEp->chat(ChatMessageListener);
-    if (res is error) {
+    if (res is grpc:Error) {
         string msg = io:sprintf(ERROR_MSG_FORMAT, res.reason(), <string> res.detail()["message"]);
         io:println(msg);
     } else {
@@ -44,8 +44,8 @@ public function testBidiStreaming() returns string {
     }
     runtime:sleep(1000);
     ChatMessage mes1 = {name:"Sam", message:"Hi"};
-    error? connErr = ep->send(mes1);
-    if (connErr is error) {
+    grpc:Error? connErr = ep->send(mes1);
+    if (connErr is grpc:Error) {
         return io:sprintf(ERROR_MSG_FORMAT, connErr.reason(), <string> connErr.detail()["message"]);
     }
     if (!isValidResponse("Sam: Hi")) {
@@ -56,7 +56,7 @@ public function testBidiStreaming() returns string {
 
     ChatMessage mes2 = {name:"Sam", message:"GM"};
     connErr = ep->send(mes2);
-    if (connErr is error) {
+    if (connErr is grpc:Error) {
         return io:sprintf(ERROR_MSG_FORMAT, connErr.reason(), <string> connErr.detail()["message"]);
     }
     if (!isValidResponse("Sam: GM")) {
@@ -101,20 +101,23 @@ service ChatMessageListener = service {
 // Non-blocking client endpoint
 public type ChatClient client object {
 
+    *grpc:AbstractClientEndpoint;
+
     private grpc:Client grpcClient;
 
     function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
-        error? result = c.initStub("non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
-        if (result is error) {
-            panic result;
+        grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+        if (result is grpc:Error) {
+            error err = result;
+            panic err;
         } else {
             self.grpcClient = c;
         }
     }
 
-    remote function chat(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|error) {
+    remote function chat(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|grpc:Error) {
         return self.grpcClient->streamingExecute("Chat/chat", msgListener, headers);
     }
 };

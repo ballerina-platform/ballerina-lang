@@ -6,7 +6,7 @@ import ballerina/observe;
 //Create a gauge as a global varaible in the service with optional field description,
 //and default statistics configurations = { timeWindow: 600000, buckets: 5,
 // percentiles: [0.33, 0.5, 0.66, 0.99] }.
-observe:Gauge globalGauge = new("global_gauge", desc = "Global gauge defined");
+observe:Gauge globalGauge = new("global_gauge", "Global gauge defined");
 
 // Make sure you start the service with `--observe`, or metrics enabled.
 @http:ServiceConfig {
@@ -20,7 +20,7 @@ service onlineStoreService on new http:Listener(9090) {
     resource function makeOrder(http:Caller caller, http:Request req) {
         io:println("------------------------------------------");
         //Incrementing the global gauge defined by 15.0.
-        globalGauge.increment(amount = 15.0);
+        globalGauge.increment(15.0);
         //Log the current state of global gauge.
         printGauge(globalGauge);
 
@@ -30,19 +30,19 @@ service onlineStoreService on new http:Listener(9090) {
         //Increment the local gauge by default value 1.0.
         localGauge.increment();
         //Increment the value of the gauge by 20.
-        localGauge.increment(amount = 20.0);
+        localGauge.increment(20.0);
         //Decrement the local gauge by default value 1.0.
         localGauge.decrement();
         //Decrement the value of the gauge by 20.
-        localGauge.decrement(amount = 10.0);
+        localGauge.decrement(10.0);
         //Log the current state of local gauge.
         printGauge(localGauge);
 
 
         //Create a gauge with optional fields description, and tags defined.
         observe:Gauge registeredGaugeWithTags = new("registered_gauge_with_tags",
-            desc = "RegisteredGauge",
-            tags = { property: "gaugeProperty", gaugeType: "RegisterType" });
+            "RegisteredGauge",
+            { property: "gaugeProperty", gaugeType: "RegisterType" });
 
         //Register the gauge instance, therefore it is stored in the global registry and can be reported to the
         //metrics server such as Prometheus. Additionally, this operation will register to the global registry for the
@@ -67,8 +67,7 @@ service onlineStoreService on new http:Listener(9090) {
         //Create a gauge with statistics disabled by passing empty statistics config array.
         observe:StatisticConfig[] statsConfigs = [];
         observe:Gauge gaugeWithNoStats = new("gauge_with_no_stats",
-            desc = "Some description",
-            statisticConfig = statsConfigs);
+                                        "Some description", (), statsConfigs);
         gaugeWithNoStats.setValue(100);
         printGauge(gaugeWithNoStats);
 
@@ -78,7 +77,7 @@ service onlineStoreService on new http:Listener(9090) {
                     percentiles: [0.33, 0.5, 0.9, 0.99], buckets: 3 };
         statsConfigs[0] = config;
         observe:Gauge gaugeWithCustomStats = new("gauge_with_custom_stats",
-                desc = "Some description", statisticConfig = statsConfigs);
+                                        "Some description", (), statsConfigs);
         int i = 1;
         while (i < 6) {
             gaugeWithCustomStats.setValue(100.0 * i);
@@ -106,8 +105,12 @@ service onlineStoreService on new http:Listener(9090) {
 function printGauge(observe:Gauge gauge) {
     //Get the statistics snapshot of the gauge.
     io:print("Gauge - " + gauge.name + " Snapshot: ");
-    io:println(gauge.getSnapshot());
+    observe:Snapshot[]? snapshots = gauge.getSnapshot();
+    json|error snapshotAsAJson = json.constructFrom(snapshots);
+    if snapshotAsAJson is json {
+        io:println(snapshotAsAJson.toJsonString());
+    }
     //Get the current value of the gauge.
-    io:println("Gauge - " + gauge.name + " Current Value: "
-                                    + gauge.getValue());
+    io:println("Gauge - ", gauge.name, " Current Value: "
+        , gauge.getValue());
 }

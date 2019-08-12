@@ -23,7 +23,7 @@ public function main() {
     } else {
         string errCause = <string>response.detail().message;
         io:println("Error occurred with Subscription Request: " +
-                                            <string>response.detail().message);
+                                            <string>response.detail()?.message);
     }
 
     // Waits for the initial notification before unsubscribing.
@@ -42,6 +42,6 @@ public function main() {
                     "] for Topic [" + response.topic + "]");
     } else {
         io:println("Error occurred with Unsubscription Request: " +
-                                            <string>response.detail().message);
+                                            <string>response.detail()?.message);
     }
 }

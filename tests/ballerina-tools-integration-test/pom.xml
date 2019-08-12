@@ -230,7 +230,6 @@
                                                         <fileset dir="${basedir}/../../stdlib/http/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/internal/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/io/target/classes" />
-                                                        <fileset dir="${basedir}/../../stdlib/jms/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/log-api/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/math/target/classes" />
                                                         <fileset dir="${basedir}/../../stdlib/mime/target/classes" />
@@ -272,7 +271,6 @@
                                                         <fileset dir="${basedir}/../../stdlib/http/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/internal/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/io/src/main/java" />
-                                                        <fileset dir="${basedir}/../../stdlib/jms/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/log-api/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/math/src/main/java" />
                                                         <fileset dir="${basedir}/../../stdlib/mime/src/main/java" />
