@@ -144,17 +144,29 @@ public class ToolUtil {
         }
     }
 
-    public static void install(PrintStream printStream, String distribution) {
+    public static boolean use(PrintStream printStream, String distribution) {
         try {
             File installFile = new File(OSUtils.getDistributionsPath() + File.separator + distribution);
             if (installFile.exists()) {
                 if (distribution.equals(getCurrentBallerinaVersion())) {
                     printStream.println(distribution + " is already in use ");
+                    return true;
                 } else {
                     setCurrentBallerinaVersion(distribution);
-                    printStream.println(distribution + " is installed ");
+                    printStream.println("Using " + distribution);
+                    return true;
                 }
-            } else {
+            }
+        } catch (IOException e) {
+            printStream.println("Cannot use " + distribution);
+        }
+
+        return false;
+    }
+
+    public static void install(PrintStream printStream, String distribution) {
+        try {
+            if (!use(printStream, distribution)) {
                 SSLContext sc = SSLContext.getInstance("SSL");
                 sc.init(null, trustAllCerts, new java.security.SecureRandom());
                 HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
