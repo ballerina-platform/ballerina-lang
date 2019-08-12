@@ -21,7 +21,6 @@ package org.ballerinalang.test.packaging;
 import org.awaitility.Duration;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
-import org.ballerinalang.test.context.BalServer;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.testng.Assert;
@@ -129,7 +128,6 @@ public class LockFileTestCase extends BaseTest {
                 new LogLeecher[]{module1PushLeecher, module2PushLeecher}, testProj1Path.toString());
         module1PushLeecher.waitForText(5000);
         module2PushLeecher.waitForText(5000);
-        renewBalClient();
     }
     
     @Test(description = "Test pushing a package to central", dependsOnMethods = "testBuildAndPushTestProject1")
@@ -220,7 +218,6 @@ public class LockFileTestCase extends BaseTest {
                 new LogLeecher[]{module1PushLeecher, module2PushLeecher}, testProj1Path.toString());
         module1PushLeecher.waitForText(5000);
         module2PushLeecher.waitForText(5000);
-        renewBalClient();
     }
     
     @Test(description = "Test searching a package from central", dependsOnMethods = "testModifyProj1AndPush")
@@ -229,12 +226,12 @@ public class LockFileTestCase extends BaseTest {
         String fooBaloFileName = "foo-"
                                  + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
                                  + ProgramFileConstants.ANY_PLATFORM + "-"
-                                 + "1.0.0"
+                                 + "9.9.9"
                                  + BLANG_COMPILED_PKG_BINARY_EXT;
         String fooBuildMsg = "Created target" + File.separator + "balo" + File.separator + fooBaloFileName;
         LogLeecher fooBuildLeecher = new LogLeecher(fooBuildMsg);
         balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{}, new LogLeecher[]{fooBuildLeecher},
-                testProj1Path.toString());
+                testProj2Path.toString());
         fooBuildLeecher.waitForText(10000);
     
         Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
@@ -242,9 +239,10 @@ public class LockFileTestCase extends BaseTest {
     
         // Run and see output
         String msg = "Test me\nHello john!";
+        LogLeecher fooRunLeecher = new LogLeecher(msg);
         balClient.runMain("run", new String[] {"foo"}, envVariables, new String[0],
-                new LogLeecher[]{new LogLeecher(msg)}, testProj2Path.toString());
-        renewBalClient();
+                new LogLeecher[]{fooRunLeecher}, testProj2Path.toString());
+        fooRunLeecher.waitForText(10000);
     }
     
     @Test(description = "Test push all packages in project to central", dependsOnMethods = "testRebuildTestProj2")
@@ -257,12 +255,12 @@ public class LockFileTestCase extends BaseTest {
         String fooBaloFileName = "foo-"
                                  + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
                                  + ProgramFileConstants.ANY_PLATFORM + "-"
-                                 + "1.0.0"
+                                 + "9.9.9"
                                  + BLANG_COMPILED_PKG_BINARY_EXT;
         String fooBuildMsg = "Created target" + File.separator + "balo" + File.separator + fooBaloFileName;
         LogLeecher fooBuildLeecher = new LogLeecher(fooBuildMsg);
         balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{}, new LogLeecher[]{fooBuildLeecher},
-                testProj1Path.toString());
+                testProj2Path.toString());
         fooBuildLeecher.waitForText(10000);
     
         lockFilePath = testProj2Path.resolve("Ballerina.lock");
@@ -270,8 +268,10 @@ public class LockFileTestCase extends BaseTest {
     
         // Run and see output
         String msg = "Test me\nHello world john!";
+        LogLeecher fooRunLeecher = new LogLeecher(msg);
         balClient.runMain("run", new String[] {"foo"}, envVariables, new String[0],
-                new LogLeecher[]{new LogLeecher(msg)}, testProj2Path.toString());
+                new LogLeecher[]{fooRunLeecher}, testProj2Path.toString());
+        fooRunLeecher.waitForText(10000);
     }
     
     /**
@@ -296,12 +296,6 @@ public class LockFileTestCase extends BaseTest {
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
-    }
-    
-    private void renewBalClient() throws BallerinaTestException {
-        balServer.cleanup();
-        balServer = new BalServer();
-        balClient =  new BMainInstance(balServer);
     }
     
     @AfterClass

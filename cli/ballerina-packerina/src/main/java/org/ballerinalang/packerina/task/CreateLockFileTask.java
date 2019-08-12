@@ -33,10 +33,8 @@ public class CreateLockFileTask implements Task {
     public void execute(BuildContext buildContext) {
         CompilerContext compilerContext = buildContext.get(BuildContextField.COMPILER_CONTEXT);
         LockFileWriter lockFileWriter = LockFileWriter.getInstance(compilerContext);
-        lockFileWriter.writeLockFile(ManifestProcessor.getInstance(compilerContext).getManifest());
+        lockFileWriter.writeLockFile(ManifestProcessor.getInstance(compilerContext).getManifest(),
+                buildContext.getModules(), buildContext.getLockFilePath());
     
-        for (BLangPackage module : buildContext.getModules()) {
-            lockFileWriter.addEntryPkg(module.symbol);
-        }
     }
 }

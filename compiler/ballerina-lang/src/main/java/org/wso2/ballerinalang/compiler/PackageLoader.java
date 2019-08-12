@@ -31,6 +31,7 @@ import org.ballerinalang.repository.PackageEntity.Kind;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.spi.SystemPackageRepositoryProvider;
 import org.ballerinalang.toml.model.Dependency;
+import org.ballerinalang.toml.model.LockFileImport;
 import org.ballerinalang.toml.model.LockFile;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.LockFileProcessor;
@@ -42,10 +43,10 @@ import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder.RepoNode;
 import org.wso2.ballerinalang.compiler.packaging.Resolution;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
-import org.wso2.ballerinalang.compiler.packaging.repo.HomeBaloRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.BinaryRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.BirRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.HomeBaloRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProgramingSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.RemoteRepo;
@@ -279,30 +280,22 @@ public class PackageLoader {
             }
         } else {
             // Read from lock file
-            if (enclPackageId != null) { // Not a top level package or bal
-                String enclPkgAlias = enclPackageId.orgName.value + "/" + enclPackageId.name.value;
-
-                Optional<LockFilePackage> lockFilePackage = lockFile.getPackageList()
+            if (enclPackageId != null) {
+                // Not a top level package or bal
+                Optional<LockFileImport> foundBaseImport = lockFile.getImports()
                                                                     .stream()
-                                                                    .filter(pkg -> {
-                                                                        String org = pkg.getOrg();
-                                                                        if (org.isEmpty()) {
-                                                                            org = manifest.getProject().getOrgName();
-                                                                        }
-                                                                        String alias = org + "/" + pkg.getName();
-                                                                        return alias.equals(enclPkgAlias);
-                                                                    })
+                                                                    .filter(baseImport ->
+                                                    enclPackageId.orgName.value.equals(baseImport.getOrgName()) &&
+                                                    enclPackageId.name.value.equals(baseImport.getName()))
                                                                     .findFirst();
-                if (lockFilePackage.isPresent()) {
-                    Optional<LockFilePackage> dependency = lockFilePackage.get().getDependencies()
+                if (foundBaseImport.isPresent()) {
+                    Optional<LockFileImport> foundNestedImport = foundBaseImport.get().getImports()
                                                                           .stream()
-                                                                          .filter(pkg -> {
-                                                                              String alias = pkg.getOrg() + "/"
-                                                                                      + pkg.getName();
-                                                                              return alias.equals(pkgAlias);
-                                                                          })
+                                                                          .filter(nestedImport ->
+                                                              pkgId.orgName.value.equals(nestedImport.getOrgName()) &&
+                                                              pkgId.name.value.equals(nestedImport.getName()))
                                                                           .findFirst();
-                    dependency.ifPresent(dependencyPkg -> pkgId.version = new Name(dependencyPkg.getVersion()));
+                    foundNestedImport.ifPresent(dependencyPkg -> pkgId.version = new Name(dependencyPkg.getVersion()));
                 }
             }
         }

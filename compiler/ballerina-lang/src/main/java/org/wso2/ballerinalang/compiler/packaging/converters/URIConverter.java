@@ -25,6 +25,7 @@ import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.repo.HomeBaloRepo;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 import org.wso2.ballerinalang.util.TomlParserUtils;
@@ -128,9 +129,7 @@ public class URIConverter implements Converter<URI> {
                     runtimeException = execute.get();
                 } else {
                     Patten patten = homeBaloRepo.calculate(moduleID);
-                    if (patten != Patten.NULL) {
-                        return patten.convertToSources(homeBaloRepo.getConverterInstance(), moduleID);
-                    }
+                    return patten.convertToSources(homeBaloRepo.getConverterInstance(), moduleID);
                 }
             }
     
