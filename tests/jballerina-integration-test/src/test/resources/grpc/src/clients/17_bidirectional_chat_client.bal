@@ -60,7 +60,6 @@ public function testBidiStreaming() returns string {
 
     // Once all messages are sent, client send complete message to notify the server, I’m done.
     checkpanic ep->complete();
-    runtime:sleep(3000);
     return "Success: received valid responses from server";
 }
 

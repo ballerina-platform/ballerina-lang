@@ -17,7 +17,7 @@
 import ballerina/http;
 import ballerina/log;
 
-http:ServiceEndpointConfiguration helloWorldEPConfig = {
+http:ListenerConfiguration helloWorldEPConfig = {
     secureSocket: {
         trustStore: {
             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
