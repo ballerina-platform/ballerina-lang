@@ -67,8 +67,12 @@ dependencies {
     // Other Runtime Libs
     dist project(':ballerina-runtime')
     dist project(':ballerina-core')
+    dist project(':ballerina-config')
     dist project(':ballerina-utils')
     dist project(':ballerina-logging')
+    
+    // Third party jars
+    dist 'org.slf4j:slf4j-jdk14:1.7.22'
 }
 
 jar {

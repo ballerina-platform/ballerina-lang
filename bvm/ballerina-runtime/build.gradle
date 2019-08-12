@@ -40,7 +40,6 @@ dependencies {
     dist 'io.opentracing:opentracing-api:0.31.0'
     dist 'io.opentracing:opentracing-util:0.31.0'
     dist 'org.awaitility:awaitility:3.1.6'
-    dist project(':ballerina-config')
 }
 
 jar {
