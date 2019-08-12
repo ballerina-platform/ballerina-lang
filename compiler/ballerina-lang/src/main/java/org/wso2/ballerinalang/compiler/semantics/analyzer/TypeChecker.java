@@ -529,6 +529,11 @@ public class TypeChecker extends BLangNodeVisitor {
         if (expType.tag == symTable.semanticError.tag) {
             return;
         }
+        if (expType.getKind() != TypeKind.TABLE) {
+            dlog.error(tableLiteral.pos, DiagnosticCode.CANNOT_INFER_TABLE_TYPE);
+            resultType = symTable.semanticError;
+            return;
+        }
         BType tableConstraint = ((BTableType) expType).getConstraint();
         if (tableConstraint.tag == TypeTags.NONE) {
             dlog.error(tableLiteral.pos, DiagnosticCode.TABLE_CANNOT_BE_CREATED_WITHOUT_CONSTRAINT);
