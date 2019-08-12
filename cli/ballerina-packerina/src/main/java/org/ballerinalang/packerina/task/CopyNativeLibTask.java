@@ -18,11 +18,9 @@
 
 package org.ballerinalang.packerina.task;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -38,6 +36,8 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+
 /**
  *  Copy native libraries to target/tmp.
  */
@@ -52,8 +52,7 @@ public class CopyNativeLibTask implements Task {
         try {
             Files.createDirectory(tmpDir);
         } catch (IOException e) {
-            throw new BallerinaException("unable to copy the native libary :" +
-                    e.getMessage());
+            throw createLauncherException("unable to copy the native library: " + e.getMessage());
         }
         List<BLangPackage> moduleBirMap = buildContext.getModules();
         // Iterate through the imports and copy dependencies.
@@ -113,7 +112,7 @@ public class CopyNativeLibTask implements Task {
                 }
             }
         } catch (IOException e) {
-            throw new BLangCompilerException("Unable to copy native jar :" + e.getMessage());
+            throw createLauncherException("unable to copy native jar: " + e.getMessage());
         }
     }
 

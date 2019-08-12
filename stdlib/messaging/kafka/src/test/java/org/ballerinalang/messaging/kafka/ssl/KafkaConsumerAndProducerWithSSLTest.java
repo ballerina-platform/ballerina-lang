@@ -146,6 +146,9 @@ public class KafkaConsumerAndProducerWithSSLTest {
             while ((line = br.readLine()) != null) {
                 if (line.contains(searchValue)) {
                     line = line.replace(searchValue, newValue);
+                    // This is to fix windows tests, which are failing because '\' is identifies as escape character.
+                    // As RegEx and String both considers '\' as an escape character, we have to escape them both.
+                    line = line.replaceAll("\\\\", "\\\\\\\\");
                 }
                 lines.add(line);
             }
@@ -170,11 +173,12 @@ public class KafkaConsumerAndProducerWithSSLTest {
         prop.put("listeners", "SSL://localhost:9104");
         prop.put("security.inter.broker.protocol", "SSL");
         prop.put("ssl.client.auth", "required");
-        prop.put("ssl.keystore.location", resourceDir + "/" + keystoresAndTruststores + "/kafka.server.keystore.jks");
+        prop.put("ssl.keystore.location", resourceDir + File.separator + keystoresAndTruststores + File.separator +
+                "kafka.server.keystore.jks");
         prop.put("ssl.keystore.password", "test1234");
         prop.put("ssl.key.password", "test1234");
-        prop.put("ssl.truststore.location", resourceDir + "/" + keystoresAndTruststores
-                + "/kafka.server.truststore.jks");
+        prop.put("ssl.truststore.location", resourceDir + File.separator + keystoresAndTruststores + File.separator
+                + "kafka.server.truststore.jks");
         prop.put("ssl.truststore.password", "test1234");
 
         return prop;
