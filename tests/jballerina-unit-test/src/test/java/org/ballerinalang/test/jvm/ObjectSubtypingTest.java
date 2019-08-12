@@ -39,7 +39,7 @@ import static org.testng.Assert.assertEquals;
 public class ObjectSubtypingTest {
     private CompileResult compileResult;
 
-    @BeforeClass
+    //@BeforeClass
     public void setup() {
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "subtyping");
         compileResult = BCompileUtil.compile("test-src/jvm/objects_subtyping.bal");
@@ -107,10 +107,10 @@ public class ObjectSubtypingTest {
         validateError(result, i++, "uninitialized field 'intField2'", 18, 61);
         validateError(result, i++,
                 "incompatible types: expected '(object { int intField1; int intField2; }|record {| null...; |}|4)', " +
-                        "found 'object { int intField; string stringField; function objFunc () returns (); }'", 22, 17);
+                        "found 'testObj'", 22, 17);
         validateError(result, i++,
                 "incompatible types: expected '(object { int intField1; int intField2; }|string|boolean|1)', " +
-                        "found 'object { int intField; string stringField; function objFunc () returns (); }'", 23, 19);
+                        "found 'testObj'", 23, 19);
         assertEquals(result.getErrorCount(), i);
     }
 }
