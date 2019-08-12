@@ -129,8 +129,9 @@ public class SendingHeaders implements SenderState {
 
     @Override
     public void handleConnectionClose(OutboundMsgHolder outboundMsgHolder) {
-        //TODO: Check whether explicit notification is needed.
-        LOG.error(REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS);
+        outboundMsgHolder.getResponseFuture().notifyHttpListener(new EndpointTimeOutException(
+                REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS,
+                HttpResponseStatus.GATEWAY_TIMEOUT.code()));
     }
 
     private void writeHeaders(ChannelHandlerContext ctx, HttpContent msg) throws Http2Exception {

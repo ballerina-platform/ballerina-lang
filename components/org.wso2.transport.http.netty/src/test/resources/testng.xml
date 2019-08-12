@@ -108,6 +108,7 @@
             <class name="org.wso2.transport.http.netty.http2.servertimeout.TimeoutAfterRequestReceived"/>
 <!--            <class name="org.wso2.transport.http.netty.http2.servertimeout.TimeoutDuringResponseDataWrite"/>-->
 <!--            <class name="org.wso2.transport.http.netty.http2.servertimeout.TimeoutDuringResponseDataWrite2"/>-->
+            <class name="org.wso2.transport.http.netty.http2.clientchannelclose.RemoteChannelCloseWithSSLError"/>
         </classes>
     </test>
     <test name="Transport Security Tests" parallel="false">

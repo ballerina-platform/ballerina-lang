@@ -126,11 +126,9 @@ public class SendingEntityBody implements SenderState {
 
     @Override
     public void handleConnectionClose(OutboundMsgHolder outboundMsgHolder) {
-//        outboundMsgHolder.getResponseFuture().notifyHttpListener(new EndpointTimeOutException(
-//                REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY,
-//                HttpResponseStatus.GATEWAY_TIMEOUT.code()));
-        //TODO:Check whether the explicit notification is needed.
-        LOG.error(REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY);
+        outboundMsgHolder.getResponseFuture().notifyHttpListener(new EndpointTimeOutException(
+                REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY,
+                HttpResponseStatus.GATEWAY_TIMEOUT.code()));
     }
 
     private void writeContent(ChannelHandlerContext ctx, HttpContent msg) throws Http2Exception {

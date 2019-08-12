@@ -114,7 +114,7 @@ public class EntityBodyReceived implements SenderState {
     @Override
     public void handleConnectionClose(OutboundMsgHolder outboundMsgHolder) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Channel is closed once the response is received");
+            LOG.debug("Channel is closed");
         }
     }
 }
