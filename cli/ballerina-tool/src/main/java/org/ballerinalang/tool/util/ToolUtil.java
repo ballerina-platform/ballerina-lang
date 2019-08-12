@@ -69,9 +69,9 @@ public class ToolUtil {
     };
 
     /**
-     * List SDKs in the local and remote
+     * List SDKs in the local and remote.
      * @param outStream stream outputs need to be printed
-     * @param isRemote
+     * @param isRemote option to list distributions in the central
      */
     public static void listSDKs(PrintStream outStream, boolean isRemote) {
         try {
@@ -253,11 +253,13 @@ public class ToolUtil {
 
     private static void removeDirectory(File file) {
         File[] contents = file.listFiles();
+        if (contents != null) {
             for (File f : contents) {
                 if (!Files.isSymbolicLink(f.toPath())) {
                     removeDirectory(f);
                 }
             }
+        }
         file.delete();
     }
 
