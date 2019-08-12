@@ -48,10 +48,15 @@ public function main(string... args) {
         i = i + 1;
     }
 
-    writeJarFile(generateJarBinary(pathToEntryBir, mapPath, dumpBir), targetPath);
+    var jarFile = generateJarBinary(pathToEntryBir, mapPath, dumpBir);
+    if (jarFile is error) {
+        jvm:systemExit(1);
+    } else {
+        writeJarFile(jarFile, targetPath);
+    }
 }
 
-function generateJarBinary(string pathToEntryBir, string mapPath, boolean dumpBir) returns JarFile {
+function generateJarBinary(string pathToEntryBir, string mapPath, boolean dumpBir) returns JarFile | error {
     if (mapPath != "") {
         externalMapCache = readMap(mapPath);
     }
@@ -67,9 +72,8 @@ function generateJarBinary(string pathToEntryBir, string mapPath, boolean dumpBi
     }
 
     JarFile jarFile = {};
-    generatePackage(createModuleId(entryMod.org.value, entryMod.name.value, entryMod.versionValue.value),
-                    <@untainted> jarFile, true);
-
+    check generatePackage(createModuleId(entryMod.org.value, entryMod.name.value,
+                                        entryMod.versionValue.value), <@untainted> jarFile, true);
     return jarFile;
 }
 

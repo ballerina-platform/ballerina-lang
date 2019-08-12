@@ -40,6 +40,8 @@ map<bir:Package> compiledPkgCache = {};
 
 map<string> externalMapCache = {};
 
+map<bir:ModuleID> dependentModules = {};
+
 string currentClass = "";
 
 function lookupFullQualifiedClassName(string key) returns string {
@@ -106,6 +108,14 @@ function lookupGlobalVarClassName(string key) returns string {
     }
 }
 
+function generateDependencyList(bir:ModuleID moduleId, @tainted JarFile jarFile) returns error? {
+    check generatePackage(moduleId, jarFile, false);
+    string pkgName = getPackageName(moduleId.org, moduleId.name);
+    if (!dependentModules.hasKey(pkgName)) {
+        dependentModules[pkgName] = moduleId;
+    }
+}
+
 public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile, boolean isEntry) returns error? {
     string orgName = moduleId.org;
     string moduleName = moduleId.name;
@@ -113,23 +123,26 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
 
     [bir:Package, boolean] [ module, isFromCache ] = lookupModule(moduleId);
 
-    if (!isEntry && isFromCache) {
-        return;
+    if (isEntry || !isFromCache) {
+        addBuiltinImports(moduleId, module);
     }
-
-    addBuiltinImports(moduleId, module);
 
     // generate imported modules recursively
     foreach var mod in module.importModules {
-        check generatePackage(importModuleToModuleId(mod), jarFile, false);
+        check generateDependencyList(importModuleToModuleId(mod), jarFile);
     }
 
+    if(!isEntry && isFromCache) {
+        return;
+    }
     typeOwnerClass = getModuleLevelClassName(<@untainted> orgName, <@untainted> moduleName, MODULE_INIT_CLASS_NAME);
     map<JavaClass> jvmClassMap = check generateClassNameMappings(module, pkgName, typeOwnerClass, <@untainted> lambdas);
 
     if (!isEntry) {
         return;
     }
+    // enrich current package with package initializers
+    enrichPkgWithInitializers(jvmClassMap, typeOwnerClass, module, dependentModules);
 
     // generate the shutdown listener class. 
     generateShutdownSignalListener(module, typeOwnerClass, jarFile.pkgEntries);
@@ -176,6 +189,7 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
             }
             generateStaticInitializer(module.globalVars, cw, moduleClass, serviceEPAvailable);
             generateCreateTypesMethod(cw, module.typeDefs);
+            generateModuleInitializer(cw, module, pkgName);
         } else {
             cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
             generateDefaultConstructor(cw, OBJECT);
@@ -384,21 +398,28 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
         // Generate init class. Init function should be the first function of the package, hence check first 
         // function.
         bir:Function initFunc = <bir:Function>functions[0];
-        string functionName = cleanupFunctionName(initFunc.name.value);
+        string functionName = initFunc.name.value;
         JavaClass class = { sourceFileName:initFunc.pos.sourceFileName, moduleClass:initClass };
         class.functions[0] = initFunc;
+        addInitAndTypeInitInstructions(module, initFunc);
         jvmClassMap[initClass] = class;
-        birFunctionMap[pkgName + functionName] = getFunctionWrapper(getFunction(initFunc), orgName, moduleName,
+        birFunctionMap[pkgName + functionName] = getFunctionWrapper(initFunc, orgName, moduleName,
                                                                     versionValue, initClass);
         count += 1;
 
         // Add start function
         bir:Function startFunc = <bir:Function>functions[1];
+        functionName = startFunc.name.value;
+        birFunctionMap[pkgName + functionName] = getFunctionWrapper(startFunc, orgName, moduleName,
+                                                                    versionValue, initClass);
         class.functions[1] = startFunc;
         count += 1;
 
         // Add stop function
         bir:Function stopFunc = <bir:Function>functions[2];
+        functionName = stopFunc.name.value;
+        birFunctionMap[pkgName + functionName] = getFunctionWrapper(stopFunc, orgName, moduleName,
+                                                                    versionValue, initClass);
         class.functions[2] = stopFunc;
         count += 1;
 

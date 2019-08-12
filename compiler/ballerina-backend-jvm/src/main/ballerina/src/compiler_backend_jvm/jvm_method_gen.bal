@@ -81,21 +81,6 @@ function genJMethodForBFunc(bir:Function func,
         mv.visitLabel(<jvm:Label>tryStart);
     }
 
-    if (isModuleInitFunction(module, func)) {
-        // invoke all init functions
-        generateInitFunctionInvocation(module, mv);
-        generateUserDefinedTypes(mv);
-
-        mv.visitTypeInsn(NEW, typeOwnerClass);
-        mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, "<init>", "()V", false);
-        mv.visitVarInsn(ASTORE, 1);
-        mv.visitLdcInsn(currentPackageName == "" ? "." : cleanupPackageName(currentPackageName));
-        mv.visitVarInsn(ALOAD, 1);
-        mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", VALUE_CREATOR), "addValueCreator",
-                           io:sprintf("(L%s;L%s;)V", STRING_VALUE, VALUE_CREATOR), false);
-    }
-
     jvm:Label methodStartLabel = new;
     mv.visitLabel(methodStartLabel);
 
@@ -1287,7 +1272,7 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
     mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(IZ)V", false);
 
     if (hasInitFunction(pkg)) {
-        string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
+        string initFuncName = MODULE_INIT;
         mv.visitInsn(DUP);
         mv.visitIntInsn(BIPUSH, 1);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
@@ -1401,7 +1386,7 @@ function registerShutdownListener(jvm:MethodVisitor mv, string initClass) {
 function scheduleStartMethod(jvm:MethodVisitor mv, bir:Package pkg, string initClass, boolean serviceEPAvailable,
     ErrorHandlerGenerator errorGen, BalToJVMIndexMap indexMap) {
     // schedule the start method
-    string startFuncName = cleanupFunctionName(getModuleStartFuncName(pkg));
+    string startFuncName = MODULE_START;
     string startLambdaName = io:sprintf("$lambda$%s$", startFuncName);
 
     mv.visitIntInsn(BIPUSH, 1);
@@ -1550,11 +1535,11 @@ function generateLambdaForPackageInits(jvm:ClassWriter cw, bir:Package pkg,
                                string mainClass, string initClass) {
     //need to generate lambda for package Init as well, if exist
     if (hasInitFunction(pkg)) {
-        string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
+        string initFuncName = MODULE_INIT;
         generateLambdaForFunction(cw, initFuncName, initClass);
 
         // generate another lambda for start function as well
-        string startFuncName = cleanupFunctionName(getModuleStartFuncName(pkg));
+        string startFuncName = MODULE_START;
         generateLambdaForFunction(cw, startFuncName, initClass);
 
         string stopFuncName = cleanupFunctionName(getModuleStopFuncName(pkg));
@@ -1672,31 +1657,92 @@ function getModuleStopFuncName(bir:Package module) returns string {
     return calculateModuleSpecialFuncName(packageToModuleId(module), "<stop>");
 }
 
-function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
-    foreach var mod in pkg.importModules {
-        var id = importModuleToModuleId(mod);
-        string initFuncName = cleanupFunctionName(calculateModuleInitFuncName(id));
-        string startFuncName = cleanupFunctionName(calculateModuleStartFuncName(id));
+function addInitAndTypeInitInstructions(bir:Package pkg, bir:Function func) {
+    bir:BasicBlock?[] basicBlocks = [];
+    int bbId = 0;
+    bir:BasicBlock nextBB = {id: getNextBBId(bbId), instructions: []};
+    bbId += 1;
+    basicBlocks[basicBlocks.length()] = nextBB;
 
-        // skip the init function invocation is its already generated
-        // by some other package
-        if (isInitInvoked(initFuncName)) {
-            continue;
-        }
+    bir:ModuleID modID = packageToModuleId(pkg);
 
-        string moduleClassName = getModuleLevelClassName(id.org, id.name, MODULE_INIT_CLASS_NAME);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
-                "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
+    bir:BasicBlock typeOwnerCreateBB = {id: getNextBBId(bbId), instructions: []};
+    bbId += 1;
+    basicBlocks[basicBlocks.length()] = typeOwnerCreateBB;
 
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESTATIC, moduleClassName, startFuncName,
-                "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
+    bir:Call createTypesCallTerm = {pos:{}, args:[], kind:bir:TERMINATOR_CALL, lhsOp:(), pkgID:modID,
+                        name:{value:CURRENT_MODULE_INIT}, isVirtual:false, thenBB:typeOwnerCreateBB};
+    nextBB.terminator = createTypesCallTerm;
 
-        generatedInitFuncs[generatedInitFuncs.length()] = initFuncName;
+    if (func.basicBlocks.length() == 0) {
+        bir:Return ret = {pos:{sLine:999}, kind:bir:TERMINATOR_RETURN};
+        typeOwnerCreateBB.terminator = ret;
+        func.basicBlocks = basicBlocks;
+        return;
     }
+
+    bir:GOTO gotoNext = {pos:{}, kind:bir:TERMINATOR_GOTO, targetBB:<bir:BasicBlock>func.basicBlocks[0]};
+    typeOwnerCreateBB.terminator = gotoNext;
+
+    foreach var basicBB in func.basicBlocks {
+        basicBlocks[basicBlocks.length()] = basicBB;
+    }
+    func.basicBlocks = basicBlocks;
 }
 
+function enrichPkgWithInitializers(map<JavaClass> jvmClassMap, string typeOwnerClass,
+                                        bir:Package pkg, map<bir:ModuleID> imprtMods) {
+    JavaClass javaClass = <JavaClass>jvmClassMap[typeOwnerClass];
+    javaClass.functions[javaClass.functions.length()] = generateDepModInit(imprtMods, pkg, MODULE_INIT, "<init>");
+    javaClass.functions[javaClass.functions.length()] = generateDepModInit(imprtMods, pkg, MODULE_START, "<start>");
+    javaClass.functions[javaClass.functions.length()] = generateDepModInit(imprtMods, pkg, MODULE_STOP, "<stop>");
+
+}
+
+function generateDepModInit(map<bir:ModuleID> imprtMods, bir:Package pkg, string funcName,
+                                string initName) returns bir:Function {
+    bir:BasicBlock?[] basicBlocks = [];
+    int bbId = 0;
+    bir:BasicBlock nextBB = {id: getNextBBId(bbId), instructions: []};
+    bbId += 1;
+    basicBlocks[basicBlocks.length()] = nextBB;
+    foreach var [k, id] in imprtMods.entries() {
+        string initFuncName = calculateModuleSpecialFuncName(id, initName);
+
+        bir:BasicBlock initNextBB = {id: getNextBBId(bbId), instructions: []};
+        bbId += 1;
+        basicBlocks[basicBlocks.length()] = initNextBB;
+        bir:Call initCallTerm = {pos:{}, args:[], kind:bir:TERMINATOR_CALL, lhsOp:(), pkgID:id,
+                            name:{value:initFuncName}, isVirtual:false, thenBB:initNextBB};
+        nextBB.terminator = initCallTerm;
+
+        nextBB = initNextBB;
+    }
+
+    bir:ModuleID currentModId = packageToModuleId(pkg);
+    string currentInitFuncName = calculateModuleSpecialFuncName(currentModId, initName);
+
+    bir:BasicBlock currentInitNextBB = {id: getNextBBId(bbId), instructions: []};
+    bbId += 1;
+    basicBlocks[basicBlocks.length()] = currentInitNextBB;
+    bir:Call currentInitCallTerm = {pos:{}, args:[], kind:bir:TERMINATOR_CALL, lhsOp:(), pkgID:currentModId,
+                        name:{value:currentInitFuncName}, isVirtual:false, thenBB:currentInitNextBB};
+    nextBB.terminator = currentInitCallTerm;
+
+    nextBB = currentInitNextBB;
+
+    bir:Return ret = {pos:{}, kind:bir:TERMINATOR_RETURN};
+    nextBB.terminator = ret;
+    bir:Function modInitFunc = {pos:{}, basicBlocks:basicBlocks, localVars:[{name:{value:"%0"}}],
+                            name:{value:funcName}, typeValue:{retType:"()"},
+                            workerChannels:[], receiver:(), restParamExist:false};
+    return modInitFunc;
+}
+
+function getNextBBId(int nextId) returns bir:Name {
+    string bbIdPrefix = "genBB";
+    return {value:bbIdPrefix + nextId.toString()};
+}
 
 function generateParamCast(int paramIndex, bir:BType targetType, jvm:MethodVisitor mv) {
     // load BValue array
@@ -2118,8 +2164,38 @@ function findBIRFunction(bir:Package|bir:TypeDef|bir:Function src, string name) 
                     return func;
                 }
             }
-        } 
+        }
     }
 
     return ();
+}
+
+function generateModuleInitializer(jvm:ClassWriter cw, bir:Package module, string currentPackageName) {
+    string orgName = module.org.value;
+    string moduleName = module.name.value;
+    string versionValue = module.versionValue.value;
+    string pkgName = getPackageName(orgName, moduleName);
+    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CURRENT_MODULE_INIT, io:sprintf("(L%s;)V", STRAND), (), ());
+    mv.visitCode();
+
+    mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, "$createTypes", "()V", false);
+    mv.visitTypeInsn(NEW, typeOwnerClass);
+    mv.visitInsn(DUP);
+    mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, "<init>", "()V", false);
+    mv.visitVarInsn(ASTORE, 1);
+    mv.visitLdcInsn(currentPackageName == "" ? "." : cleanupPackageName(currentPackageName));
+    mv.visitVarInsn(ALOAD, 1);
+    mv.visitMethodInsn(INVOKESTATIC, io:sprintf("%s", VALUE_CREATOR), "addValueCreator",
+                       io:sprintf("(L%s;L%s;)V", STRING_VALUE, VALUE_CREATOR), false);
+
+    mv.visitInsn(RETURN);
+    mv.visitMaxs(0,0);
+    mv.visitEnd();
+
+    //Adding this java method to the function map because this is getting called from a bir instruction.
+    bir:Function func = {pos:{}, basicBlocks:[], localVars:[],
+                            name:{value:CURRENT_MODULE_INIT}, typeValue:{retType:"()"},
+                            workerChannels:[], receiver:(), restParamExist:false};
+    birFunctionMap[pkgName + CURRENT_MODULE_INIT] = getFunctionWrapper(func, orgName, moduleName,
+                                                                    versionValue, typeOwnerClass);
 }
