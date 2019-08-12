@@ -21,18 +21,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaXmlDoubleQuotedString extends PsiElement {
+public interface BallerinaErrorFieldMatchPatterns extends PsiElement {
 
   @NotNull
-  List<BallerinaExpression> getExpressionList();
-
-  @NotNull
-  PsiElement getDoubleQuote();
-
-  @NotNull
-  PsiElement getDoubleQuoteEnd();
+  List<BallerinaErrorDetailBindingPattern> getErrorDetailBindingPatternList();
 
   @Nullable
-  PsiElement getXmlDoubleQuotedStringSequence();
+  BallerinaRestMatchPattern getRestMatchPattern();
 
 }

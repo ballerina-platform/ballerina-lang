@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaXmlItemImpl extends ASTWrapperPsiElement implements BallerinaXmlItem {
+public class BallerinaListRefRestPatternImpl extends ASTWrapperPsiElement implements BallerinaListRefRestPattern {
 
-  public BallerinaXmlItemImpl(@NotNull ASTNode node) {
+  public BallerinaListRefRestPatternImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitXmlItem(this);
+    visitor.visitListRefRestPattern(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -44,32 +44,14 @@ public class BallerinaXmlItemImpl extends ASTWrapperPsiElement implements Baller
 
   @Override
   @Nullable
-  public BallerinaComment getComment() {
-    return findChildByClass(BallerinaComment.class);
+  public BallerinaVariableReference getVariableReference() {
+    return findChildByClass(BallerinaVariableReference.class);
   }
 
   @Override
-  @Nullable
-  public BallerinaElement getElement() {
-    return findChildByClass(BallerinaElement.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaProcIns getProcIns() {
-    return findChildByClass(BallerinaProcIns.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaXmlText getXmlText() {
-    return findChildByClass(BallerinaXmlText.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getCdata() {
-    return findChildByType(CDATA);
+  @NotNull
+  public PsiElement getEllipsis() {
+    return findNotNullChildByType(ELLIPSIS);
   }
 
 }

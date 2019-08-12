@@ -575,4 +575,12 @@ public class TaintedStatusPropagationTest {
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'p'", 33, 16);
         BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'p'", 39, 16);
     }
+
+    @Test
+    public void testTaintedStatusPropagationThroughListConstructor() {
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/list-ctor-negative.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 2);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 't'", 20, 20);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'a'", 21, 20);
+    }
 }
