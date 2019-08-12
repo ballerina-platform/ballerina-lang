@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.PrintStream;
+import java.net.URI;
 import java.util.Optional;
 
 /**
@@ -37,14 +38,14 @@ public class SearchUtils {
     /**
      * Search for modules in central.
      *
-     * @param argument arguments passed
+     * @param query search keyword.
      */
-    public static void searchInCentral(String argument) {
-        String query = "?q=" + argument;
+    public static void searchInCentral(String query) {
         EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
         Proxy proxy = TomlParserUtils.readSettings().getProxy();
+        String urlWithModulePath = URI.create(RepoUtils.getRemoteRepoURL()).resolve("/modules/").toString();
         Optional<RuntimeException> executionResult = executor.executeMainFunction("module_search",
-                RepoUtils.getRemoteRepoURL(), query, proxy.getHost(), proxy.getPort(), proxy.getUserName(),
+                urlWithModulePath, query, proxy.getHost(), proxy.getPort(), proxy.getUserName(),
                 proxy.getPassword(), RepoUtils.getTerminalWidth());
         executionResult.ifPresent(e -> ERROR_STREAM.println(e.getMessage()));
     }

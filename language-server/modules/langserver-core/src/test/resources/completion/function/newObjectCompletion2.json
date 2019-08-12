@@ -1132,6 +1132,14 @@
       "sortText": "130",
       "insertText": "new();",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ObjectName()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "130",
+      "insertText": "ObjectName();",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

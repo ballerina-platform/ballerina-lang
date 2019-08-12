@@ -18,9 +18,10 @@
 
 package org.ballerinalang.packerina.task;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
@@ -36,6 +37,9 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
+import java.util.Optional;
+
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
 /**
  * Task for creating the executable jar file.
@@ -44,12 +48,30 @@ public class CreateExecutableTask implements Task {
     
     @Override
     public void execute(BuildContext buildContext) {
+        Optional<BLangPackage> modulesWithEntryPoints = buildContext.getModules().stream()
+                .filter(m -> m.symbol.entryPointExists)
+                .findAny();
         
-        buildContext.out().println("Generating executables");
-        
-        for (BLangPackage module : buildContext.getModules()) {
-            if (module.symbol.entryPointExists) {
-                assembleExecutable(buildContext, module);
+        if (modulesWithEntryPoints.isPresent()) {
+            buildContext.out().println("Generating executables");
+            for (BLangPackage module : buildContext.getModules()) {
+                if (module.symbol.entryPointExists) {
+                    assembleExecutable(buildContext, module);
+                }
+            }
+        } else {
+            switch (buildContext.getSourceType()) {
+                case SINGLE_BAL_FILE:
+                    SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
+                    throw createLauncherException("no entry points found in '" + singleFileContext.getBalFile() + "'.");
+                case SINGLE_MODULE:
+                    SingleModuleContext singleModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
+                    throw createLauncherException("no entry points found in '" + singleModuleContext.getModuleName() +
+                                                  "'.");
+                case ALL_MODULES:
+                    throw createLauncherException("no entry points found in any of the modules.");
+                default:
+                    throw createLauncherException("unknown source type found when creating executable.");
             }
         }
     }
@@ -77,7 +99,7 @@ public class CreateExecutableTask implements Task {
             // Executable is created at give location.
             // If no entry point is found we do nothing.
         } catch (IOException | NullPointerException e) {
-            throw new BLangCompilerException("Unable to create the executable :" + e.getMessage());
+            throw createLauncherException("unable to create the executable: " + e.getMessage());
         }
     }
 
@@ -113,9 +135,7 @@ public class CreateExecutableTask implements Task {
         }
         
         @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
-                throws IOException {
-            
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
             Path targetPath = toPath.resolve(fromPath.relativize(dir).toString());
             if (!Files.exists(targetPath)) {
                 Files.createDirectory(targetPath);
@@ -124,8 +144,7 @@ public class CreateExecutableTask implements Task {
         }
         
         @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                throws IOException {
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             Path toFile = toPath.resolve(fromPath.relativize(file).toString());
             if (!Files.exists(toFile)) {
                 Files.copy(file, toFile, copyOption);

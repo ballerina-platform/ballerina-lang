@@ -321,6 +321,7 @@ const string SET_DETAIL_TYPE_METHOD = "setDetailType";
 // exception classes
 const string BLANG_RUNTIME_EXCEPTION = "org/ballerinalang/jvm/util/exceptions/BLangRuntimeException";
 const string THROWABLE = "java/lang/Throwable";
+const string HANDLE_THROWABLE_METHOD = "handleRuntimeThrowable";
 
 // code generation related constants.
 const string MODULE_INIT_CLASS_NAME = "___init";

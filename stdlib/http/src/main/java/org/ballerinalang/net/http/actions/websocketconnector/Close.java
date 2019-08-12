@@ -52,31 +52,26 @@ public class Close {
 
     public static Object externClose(Strand strand, ObjectValue wsConnection, long statusCode, String reason,
                                      long timeoutInSecs) {
-        //TODO : NonBlockingCallback is temporary fix to handle non blocking call
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         try {
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             CountDownLatch countDownLatch = new CountDownLatch(1);
             ChannelFuture closeFuture =
-                    initiateConnectionClosure(strand, callback, (int) statusCode, reason, connectionInfo,
-                            countDownLatch);
+                    initiateConnectionClosure(callback, (int) statusCode, reason, connectionInfo, countDownLatch);
             waitForTimeout(callback, (int) timeoutInSecs, countDownLatch);
             closeFuture.channel().close().addListener(future -> {
                 WebSocketUtil.setListenerOpenField(connectionInfo);
                 callback.notifySuccess();
             });
         } catch (Exception e) {
-            //TODO remove this call back
             callback.setReturnValues(createWebSocketError(WsConnectionError, e.getMessage()));
             callback.notifySuccess();
         }
         return null;
     }
 
-    private static ChannelFuture initiateConnectionClosure(Strand strand,
-                                                           NonBlockingCallback callback,
-                                                           int statusCode, String reason,
+    private static ChannelFuture initiateConnectionClosure(NonBlockingCallback callback, int statusCode, String reason,
                                                            WebSocketOpenConnectionInfo connectionInfo,
                                                            CountDownLatch latch)
             throws IllegalAccessException {
@@ -90,12 +85,8 @@ public class Close {
         return closeFuture.addListener(future -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
-                strand.setReturnValues(createWebSocketError(WsConnectionClosureError, cause.getMessage()));
-                //TODO remove this call back
                 callback.setReturnValues(createWebSocketError(WsConnectionClosureError, cause.getMessage()));
             } else {
-                strand.setReturnValues(null);
-                //TODO remove this call back
                 callback.setReturnValues(null);
             }
             latch.countDown();
@@ -113,14 +104,12 @@ public class Close {
                     String errMsg = String.format(
                             "Could not receive a WebSocket close frame from remote endpoint within %d seconds",
                             timeoutInSecs);
-                    //TODO remove this call back
                     callback.setReturnValues(createWebSocketError(WsConnectionClosureError, errMsg));
                 }
             }
         } catch (InterruptedException err) {
-            //TODO remove this call back
             callback.setReturnValues(createWebSocketError(WsConnectionClosureError,
-                    "Connection interrupted while closing the connection"));
+                                                          "Connection interrupted while closing the connection"));
             Thread.currentThread().interrupt();
         }
     }

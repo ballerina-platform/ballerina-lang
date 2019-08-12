@@ -206,8 +206,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
             LSServiceOperationContext context = new LSServiceOperationContext();
             Hover hover;
             try {
-                List<BLangPackage> modules = ReferencesUtil.getPreparedModules(fileUri, documentManager,
-                        position.getPosition(), context, false);
+                List<BLangPackage> modules = ReferencesUtil.compileModulesAndFindReferences(fileUri, documentManager,
+                                                                                            position.getPosition(),
+                                                                                            context, false);
                 hover = ReferencesUtil.getHover(modules, context, position.getPosition());
             } catch (Throwable e) {
                 // Note: Not catching UserErrorException separately to avoid flooding error msgs popups
@@ -297,8 +298,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
             String fileUri = position.getTextDocument().getUri();
             LSServiceOperationContext context = new LSServiceOperationContext();
             try {
-                List<BLangPackage> modules = ReferencesUtil.getPreparedModules(fileUri, documentManager,
-                        position.getPosition(), context, true);
+                List<BLangPackage> modules = ReferencesUtil.compileModulesAndFindReferences(fileUri, documentManager,
+                                                                                            position.getPosition(),
+                                                                                            context, true);
                 return ReferencesUtil.getDefinition(modules, context, position.getPosition());
             } catch (UserErrorException e) {
                 notifyUser(e, languageServer.getClient());
@@ -317,8 +319,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
             String fileUri = params.getTextDocument().getUri();
             LSServiceOperationContext context = new LSServiceOperationContext();
             try {
-                List<BLangPackage> modules = ReferencesUtil.getPreparedModules(fileUri, documentManager,
-                        params.getPosition(), context, true);
+                List<BLangPackage> modules = ReferencesUtil.compileModulesAndFindReferences(fileUri, documentManager,
+                                                                                            params.getPosition(),
+                                                                                            context, true);
                 boolean includeDeclaration = params.getContext().isIncludeDeclaration();
                 return ReferencesUtil.getReferences(modules, context, params.getPosition(), includeDeclaration);
             } catch (UserErrorException e) {
@@ -555,8 +558,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
             LSServiceOperationContext context = new LSServiceOperationContext();
             Position position = params.getPosition();
             try {
-                List<BLangPackage> modules = ReferencesUtil.getPreparedModules(fileUri, documentManager,
-                        position, context, true);
+                List<BLangPackage> modules = ReferencesUtil.compileModulesAndFindReferences(fileUri, documentManager,
+                                                                                            position, context, true);
                 return ReferencesUtil.getRenameWorkspaceEdits(modules, context, params.getNewName(), position);
             } catch (UserErrorException e) {
                 notifyUser(e, languageServer.getClient());
