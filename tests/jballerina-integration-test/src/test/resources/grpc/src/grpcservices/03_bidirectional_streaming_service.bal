@@ -19,7 +19,19 @@ import ballerina/io;
 import ballerina/runtime;
 
 // Server endpoint configuration
-listener grpc:Listener ep3 = new (9093);
+listener grpc:Listener ep3 = new (9093, {
+      host: "localhost",
+      secureSocket: {
+          trustStore: {
+              path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+              password: "ballerina"
+          },
+          keyStore: {
+              path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+              password: "ballerina"
+          }
+      }
+  });
 
 @grpc:ServiceConfig {name:"chat",
     clientStreaming:true,

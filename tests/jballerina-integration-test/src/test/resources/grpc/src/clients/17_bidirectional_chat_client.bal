@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -23,35 +23,34 @@ string responseMsg = "";
 const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 const string RESP_MSG_FORMAT = "Failed: Invalid Response, expected %s, but received %s";
 
-// Enable when you need to test locally.
-//public function main() {
-//    string resp = testBidiStreaming();
-//    io:println(resp);
-//}
-
 public function testBidiStreaming() returns string {
-    grpc:StreamingClient ep = new;
-    ChatClient chatEp = new ("https://localhost:9093", {
+
+    //Client endpoint configuration.
+    ChatClient chatEp = new("https://localhost:9107",
+    { 
         secureSocket: {
             trustStore:{
                 path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
                 password:"ballerina"
             }
         }
-    });
-    // Executing unary non-blocking call registering server message listener.
+    }
+    );
+
+    grpc:StreamingClient ep;
+    // Executes unary non-blocking call registering server message listener.
     var res = chatEp->chat(ChatMessageListener);
     if (res is grpc:Error) {
-        string msg = io:sprintf(ERROR_MSG_FORMAT, res.reason(), <string> res.detail()["message"]);
-        io:println(msg);
+        return io:sprintf(ERROR_MSG_FORMAT, res.reason(), <string> res.detail()["message"]);
     } else {
         ep = res;
     }
     runtime:sleep(1000);
-    ChatMessage mes1 = {name:"Sam", message:"Hi"};
-    grpc:Error? connErr = ep->send(mes1);
-    if (connErr is grpc:Error) {
-        return io:sprintf(ERROR_MSG_FORMAT, connErr.reason(), <string> connErr.detail()["message"]);
+    // Produces a message to the specified subject.
+    ChatMessage mes = {name: "Sam", message: "Hi"};
+    grpc:Error? result = ep->send(mes);
+    if (result is grpc:Error) {
+        return io:sprintf(ERROR_MSG_FORMAT, result.reason(), <string> result.detail()["message"]);
     }
     if (!isValidResponse("Sam: Hi")) {
         return io:sprintf(RESP_MSG_FORMAT, "Sam: Hi", responseMsg);
@@ -59,16 +58,9 @@ public function testBidiStreaming() returns string {
         responseMsg = "";
     }
 
-    ChatMessage mes2 = {name:"Sam", message:"GM"};
-    connErr = ep->send(mes2);
-    if (connErr is grpc:Error) {
-        return io:sprintf(ERROR_MSG_FORMAT, connErr.reason(), <string> connErr.detail()["message"]);
-    }
-    if (!isValidResponse("Sam: GM")) {
-        return io:sprintf(RESP_MSG_FORMAT, "Sam: GM", responseMsg);
-    }
-
+    // Once all messages are sent, client send complete message to notify the server, I’m done.
     checkpanic ep->complete();
+    runtime:sleep(3000);
     return "Success: received valid responses from server";
 }
 
@@ -85,23 +77,26 @@ function isValidResponse(string expectedMsg) returns boolean {
     return responseMsg == expectedMsg;
 }
 
+
 service ChatMessageListener = service {
 
-    function onMessage(string message) {
+    // Resource registered to receive server messages.
+    resource function onMessage(string message) {
         responseMsg = <@untainted> message;
         io:println("Response received from server: " + responseMsg);
     }
 
-    function onError(error err) {
+    // Resource registered to receive server error messages.
+    resource function onError(error err) {
         responseMsg = io:sprintf(ERROR_MSG_FORMAT, err.reason(), <string> err.detail()["message"]);
         io:println(responseMsg);
     }
 
+    // Resource registered to receive server completed message.
     resource function onComplete() {
         io:println("Server Complete Sending Responses.");
     }
 };
-
 
 // Non-blocking client endpoint
 public type ChatClient client object {

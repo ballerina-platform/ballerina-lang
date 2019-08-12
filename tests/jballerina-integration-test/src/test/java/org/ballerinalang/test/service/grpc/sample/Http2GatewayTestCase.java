@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -31,10 +31,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Test class for gRPC client streaming service with non-blocking client.
+ * Test class for gRPC Http2 gateway service with bidirectional streaming service.
  */
 @Test(groups = "grpc-test")
-public class BidiStreamingTestCase extends GrpcBaseTest {
+public class Http2GatewayTestCase extends GrpcBaseTest {
 
     @BeforeClass
     private void setup() throws Exception {
@@ -46,7 +46,7 @@ public class BidiStreamingTestCase extends GrpcBaseTest {
     public void testBidiStreamingClient() {
 
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients",
-                "03_bidirectional_streaming_client.bal");
+                "17_bidirectional_chat_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
 
         BValue[] responses = BRunUtil.invoke(result, "testBidiStreaming", new Object[][]{});
