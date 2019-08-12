@@ -528,7 +528,7 @@ public class Main {
             }
 
             if (pullCommands == null) {
-                throw LauncherUtils.createUsageExceptionWithHelp("provide distribution");
+                throw LauncherUtils.createUsageExceptionWithHelp("distribution is not provided");
             } else if (pullCommands.size() == 1) {
                 ToolUtil.install(outStream, pullCommands.get(0));
                 return;
@@ -586,7 +586,7 @@ public class Main {
             }
 
             if (useCommands == null) {
-                throw LauncherUtils.createUsageExceptionWithHelp("provide distribution");
+                throw LauncherUtils.createUsageExceptionWithHelp("distribution is not provided");
             } else if (useCommands.size() == 1) {
                 ToolUtil.use(outStream, useCommands.get(0));
                 return;
@@ -700,7 +700,7 @@ public class Main {
             }
 
             if (removeCommands == null) {
-                throw LauncherUtils.createUsageExceptionWithHelp("provide distribution");
+                throw LauncherUtils.createUsageExceptionWithHelp("distribution is not provided");
             } else if (removeCommands.size() == 1) {
                 ToolUtil.remove(outStream, removeCommands.get(0));
                 return;
