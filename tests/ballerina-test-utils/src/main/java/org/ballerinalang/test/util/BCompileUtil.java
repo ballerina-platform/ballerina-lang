@@ -165,10 +165,8 @@ public class BCompileUtil {
         final Scheduler scheduler = new Scheduler(false);
         runOnSchedule(initClazz, bLangPackage.initFunction.name, scheduler);
         runOnSchedule(initClazz, bLangPackage.startFunction.name, scheduler);
-        if (temp) {
-            scheduler.immortal = true;
-            new Thread(scheduler::start).start();
-        }
+        scheduler.immortal = true;
+        new Thread(scheduler::start).start();
     }
 
     private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler) {
