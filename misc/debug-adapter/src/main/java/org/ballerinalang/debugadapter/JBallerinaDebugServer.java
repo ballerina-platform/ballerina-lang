@@ -41,6 +41,8 @@ import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
 import org.eclipse.lsp4j.debug.ContinueArguments;
 import org.eclipse.lsp4j.debug.ContinueResponse;
 import org.eclipse.lsp4j.debug.DisconnectArguments;
+import org.eclipse.lsp4j.debug.EvaluateArguments;
+import org.eclipse.lsp4j.debug.EvaluateResponse;
 import org.eclipse.lsp4j.debug.InitializeRequestArguments;
 import org.eclipse.lsp4j.debug.NextArguments;
 import org.eclipse.lsp4j.debug.OutputEventArguments;
@@ -50,6 +52,8 @@ import org.eclipse.lsp4j.debug.ScopesResponse;
 import org.eclipse.lsp4j.debug.SetBreakpointsArguments;
 import org.eclipse.lsp4j.debug.SetBreakpointsResponse;
 import org.eclipse.lsp4j.debug.SetExceptionBreakpointsArguments;
+import org.eclipse.lsp4j.debug.SetFunctionBreakpointsArguments;
+import org.eclipse.lsp4j.debug.SetFunctionBreakpointsResponse;
 import org.eclipse.lsp4j.debug.Source;
 import org.eclipse.lsp4j.debug.SourceArguments;
 import org.eclipse.lsp4j.debug.SourceBreakpoint;
@@ -490,7 +494,16 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Void> setExceptionBreakpoints(SetExceptionBreakpointsArguments args) {
+        return CompletableFuture.completedFuture(null);
+    }
 
+    @Override
+    public CompletableFuture<EvaluateResponse> evaluate(EvaluateArguments args) {
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public CompletableFuture<SetFunctionBreakpointsResponse> setFunctionBreakpoints(SetFunctionBreakpointsArguments args) {
         return CompletableFuture.completedFuture(null);
     }
 
