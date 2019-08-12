@@ -24,7 +24,8 @@ kafka:ProducerConfig producerConfigs = {
     clientId: "commit-consumer-offsets-producer",
     acks: kafka:ACKS_ALL,
     transactionalId: "comit-consumer-offset-test-producer",
-    retryCount: 3
+    retryCount: 3,
+    enableIdempotence: true
 };
 
 kafka:Producer kafkaProducer = new(producerConfigs);

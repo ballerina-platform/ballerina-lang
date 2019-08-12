@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/kafka;
-import ballerina/transactions;
 
 string topic = "abort-transaction-topic";
 
@@ -24,28 +23,14 @@ kafka:ProducerConfig producerConfigs = {
     clientId:"abort-transaction-producer",
     acks: kafka:ACKS_ALL,
     retryCount:3,
-    transactionalId:"abort-transaction-test-producer",
-    enableIdempotence: true
+    transactionalId:"abort-transaction-test-producer-without-idempotence"
 };
 
-function funcKafkaTransactionSendTest() returns boolean {
-    string msg = "Hello World Transaction";
-    byte[] serializedMsg = msg.toBytes();
-    var result = kafkaAdvancedTransactionalProduce(serializedMsg);
-    return !(result is error);
+function funcKafkaCreateProducer() returns error? {
+    error? err = trap createKafkaProducer();
+    return err;
 }
 
-function kafkaAdvancedTransactionalProduce(byte[] msg) returns error? {
-    kafka:Producer kafkaProducer = new(producerConfigs);
-    error? returnValue = ();
-    error err = error("custom error");
-    transaction {
-        var result = kafkaProducer->send(msg, topic, (), 0, ());
-        result = kafkaProducer->send(msg, topic, (), 0, ());
-    } committed {
-        returnValue = ();
-    } aborted {
-        return err;
-    }
-    return returnValue;
+function createKafkaProducer() {
+    kafka:Producer producer = new(producerConfigs);
 }
