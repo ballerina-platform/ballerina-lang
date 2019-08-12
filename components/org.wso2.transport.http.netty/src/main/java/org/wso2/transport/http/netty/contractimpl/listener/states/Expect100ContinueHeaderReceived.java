@@ -75,8 +75,8 @@ public class Expect100ContinueHeaderReceived implements ListenerState {
     @Override
     public void readInboundRequestBody(Object inboundRequestEntityBody) throws ServerConnectorException {
         // Client may send request body without/after waiting for the 100-continue response.
-        listenerReqRespStateManager.listenerState = new ReceivingEntityBody(listenerReqRespStateManager,
-                                                                       inboundRequestMsg, sourceHandler, httpVersion);
+        listenerReqRespStateManager.state = new ReceivingEntityBody(listenerReqRespStateManager,
+                                                                    inboundRequestMsg, sourceHandler, httpVersion);
         listenerReqRespStateManager.readInboundRequestBody(inboundRequestEntityBody);
     }
 
@@ -89,10 +89,10 @@ public class Expect100ContinueHeaderReceived implements ListenerState {
     public void writeOutboundResponseBody(HttpOutboundRespListener outboundResponseListener,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
         if (outboundResponseMsg.getHttpStatusCode() == HttpResponseStatus.CONTINUE.code()) {
-            listenerReqRespStateManager.listenerState =
+            listenerReqRespStateManager.state =
                     new Response100ContinueSent(listenerReqRespStateManager, sourceHandler, outboundResponseListener);
         } else {
-            listenerReqRespStateManager.listenerState =
+            listenerReqRespStateManager.state =
                     new EntityBodyReceived(listenerReqRespStateManager, sourceHandler, httpVersion);
         }
         listenerReqRespStateManager.writeOutboundResponseBody(outboundResponseListener, outboundResponseMsg,

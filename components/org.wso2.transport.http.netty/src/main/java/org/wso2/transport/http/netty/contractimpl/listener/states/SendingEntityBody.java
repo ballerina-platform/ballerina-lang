@@ -209,7 +209,7 @@ public class SendingEntityBody implements ListenerState {
             } else {
                 outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
             }
-            listenerReqRespStateManager.listenerState
+            listenerReqRespStateManager.state
                     = new ResponseCompleted(listenerReqRespStateManager, sourceHandler, inboundRequestMsg);
             resetOutboundListenerState();
         });

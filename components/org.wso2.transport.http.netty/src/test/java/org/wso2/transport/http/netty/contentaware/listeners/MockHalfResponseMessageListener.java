@@ -40,7 +40,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * A Message processor which echos the incoming message.
+ * This class implements a MockHalfResponseMessageListener. MockHalfResponseMessageListener is responsible for
+ * reading the inbound response and sending back a half response.
  */
 public class MockHalfResponseMessageListener implements HttpConnectorListener {
     private static final Logger LOG = LoggerFactory.getLogger(MockHalfResponseMessageListener.class);

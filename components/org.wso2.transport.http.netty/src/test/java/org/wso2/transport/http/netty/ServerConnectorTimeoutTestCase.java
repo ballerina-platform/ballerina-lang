@@ -48,7 +48,8 @@ import static org.wso2.transport.http.netty.contract.Constants
         .IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
 
 /**
- * This class tests for http 1.1 when KeepAlivConfig is set to NEVER.
+ * This class test server-connector timeout implementation. In this case, it tests if server-connector returns
+ * the write response when it times out after request is received.
  */
 public class ServerConnectorTimeoutTestCase {
 

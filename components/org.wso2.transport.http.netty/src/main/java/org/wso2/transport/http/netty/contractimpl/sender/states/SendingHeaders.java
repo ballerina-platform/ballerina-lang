@@ -104,7 +104,7 @@ public class SendingHeaders implements SenderState {
         // If this method is called, it is an application error. Inbound response is receiving before the completion
         // of request header write.
         targetHandler.getOutboundRequestMsg().setIoException(new IOException(INBOUND_RESPONSE_ALREADY_RECEIVED));
-        senderReqRespStateManager.senderState = new ReceivingHeaders(senderReqRespStateManager);
+        senderReqRespStateManager.state = new ReceivingHeaders(senderReqRespStateManager);
         senderReqRespStateManager.readInboundResponseHeaders(targetHandler, httpInboundResponse);
     }
 
@@ -128,7 +128,7 @@ public class SendingHeaders implements SenderState {
 
     private void writeRequestBody(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent,
                                   boolean headersWritten) {
-        senderReqRespStateManager.senderState =
+        senderReqRespStateManager.state =
                 new SendingEntityBody(senderReqRespStateManager, targetChannel, headersWritten,
                                       httpInboundResponseFuture, httpVersion);
         senderReqRespStateManager.writeOutboundRequestEntity(outboundResponseMsg, httpContent);

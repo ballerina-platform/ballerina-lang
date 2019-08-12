@@ -146,7 +146,7 @@ public class StateUtil {
 
         // It is an application error. Therefore connection needs to be closed once the response is sent.
         outboundResponseListener.setKeepAliveConfig(KeepAliveConfig.NEVER);
-        listenerReqRespStateManager.listenerState
+        listenerReqRespStateManager.state
                 = new SendingHeaders(listenerReqRespStateManager, outboundResponseListener);
         listenerReqRespStateManager.writeOutboundResponseHeaders(outboundResponseMsg, httpContent);
     }

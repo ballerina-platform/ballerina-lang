@@ -30,7 +30,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * A Message processor which echos the incoming message.
+ * A class implements a DumbMessageListener. DumbMessageListener is responsible for just reading the inbound request
+ * payload and doing nothing.
  */
 public class DumbMessageListener implements HttpConnectorListener {
     private static final Logger LOG = LoggerFactory.getLogger(DumbMessageListener.class);

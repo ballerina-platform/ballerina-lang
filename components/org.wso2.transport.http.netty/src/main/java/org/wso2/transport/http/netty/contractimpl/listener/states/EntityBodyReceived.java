@@ -76,7 +76,7 @@ public class EntityBodyReceived implements ListenerState {
     @Override
     public void writeOutboundResponseBody(HttpOutboundRespListener outboundResponseListener,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        listenerReqRespStateManager.listenerState
+        listenerReqRespStateManager.state
                 = new SendingHeaders(listenerReqRespStateManager, outboundResponseListener);
         listenerReqRespStateManager.writeOutboundResponseHeaders(outboundResponseMsg, httpContent);
     }
