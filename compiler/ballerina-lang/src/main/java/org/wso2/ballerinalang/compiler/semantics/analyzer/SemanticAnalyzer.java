@@ -970,7 +970,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             analyzeNode(var, env);
         }
 
-        if (ignoredCount == varNode.memberVariables.size()) {
+        if (!varNode.memberVariables.isEmpty() && ignoredCount == varNode.memberVariables.size()
+                && varNode.restVariable == null) {
             dlog.error(varNode.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
             return false;
         }
@@ -1118,7 +1119,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             value.accept(this);
         }
 
-        if (ignoredCount == recordVar.variableList.size() && recordVar.restParam == null) {
+        if (!recordVar.variableList.isEmpty() && ignoredCount == recordVar.variableList.size()
+                && recordVar.restParam == null) {
             dlog.error(recordVar.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
             return false;
         }
