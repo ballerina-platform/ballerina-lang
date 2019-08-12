@@ -33,9 +33,11 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -240,7 +242,7 @@ public class ToolUtil {
             } else {
                 File directory = new File(OSUtils.getDistributionsPath() + File.separator + version);
                 if (directory.exists()) {
-                    removeDirectory(directory);
+                    deleteFiles(directory.toPath(), outStream, version);
                     outStream.println(version + " deleted successfully");
                 } else {
                     outStream.println(version + " does not exist");
@@ -251,16 +253,27 @@ public class ToolUtil {
         }
     }
 
-    private static void removeDirectory(File file) {
-        File[] contents = file.listFiles();
-        if (contents != null) {
-            for (File f : contents) {
-                if (!Files.isSymbolicLink(f.toPath())) {
-                    removeDirectory(f);
-                }
-            }
+    /**
+     * Delete files inside directories.
+     *
+     * @param dirPath directory path
+     * @param outStream output stream
+*      @param version deleting version
+     * @throws IOException throw an exception if an issue occurs
+     */
+    public static void deleteFiles(Path dirPath, PrintStream outStream, String version) throws IOException {
+        if (dirPath == null) {
+            return;
         }
-        file.delete();
+        Files.walk(dirPath)
+                .sorted(Comparator.reverseOrder())
+                .forEach(path -> {
+                    try {
+                        Files.delete(path);
+                    } catch (IOException e) {
+                        outStream.println(version + " cannot remove");
+                    }
+                });
     }
 
     private static MapValue getDistributions() throws IOException, KeyManagementException, NoSuchAlgorithmException {
