@@ -70,21 +70,21 @@ public class Scheduler {
     private AtomicInteger totalStrands = new AtomicInteger();
     /**
      * By default number of threads = (Available logical Processors * 2).
-     * This can be changed by setting the BAL_MAX_POOL_SIZE system variable.
+     * This can be changed by setting the BALLERINA_MAX_POOL_SIZE system variable.
      */
     private int numThreads;
     private Semaphore mainBlockSem;
 
     public Scheduler(boolean immortal) {
         try {
-            String poolSizeConf = System.getenv(BLangConstants.BAL_MAX_POOL_SIZE_ENV);
+            String poolSizeConf = System.getenv(BLangConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR);
             this.numThreads = poolSizeConf == null ?
                     Runtime.getRuntime().availableProcessors() * 2 : Integer.parseInt(poolSizeConf);
         } catch (Throwable t) {
             // Log and continue with default
             this.numThreads = Runtime.getRuntime().availableProcessors() * 2;
             logger.error("Error occurred in scheduler while reading system variable:" +
-                    BLangConstants.BAL_MAX_POOL_SIZE_ENV, t);
+                    BLangConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR, t);
         }
         this.immortal = immortal;
     }
