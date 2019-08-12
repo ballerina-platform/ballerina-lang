@@ -25,18 +25,23 @@ public type WebhookListenerConfiguration record {
     string host = "";
 };
 
-public type MockActionEvent record {
+public type MockActionEvent record {|
     string action;
-};
+|};
 
-public type MockDomainEvent record {
+public type MockDomainEvent record {|
     string domain;
-};
+|};
 
 @websub:SubscriberServiceConfig {
     path:"/key"
 }
 service keyWebhook on new WebhookServerForPayload(23585) {
+    resource function onIntentVerification(websub:Caller caller, websub:IntentVerificationRequest verRequest) {
+        io:println("Intent verification request received");
+        checkpanic caller->accepted();
+    }
+
     resource function onCreated(websub:Notification notification, MockActionEvent event) {
         io:println("Created Notification Received, action: ", event.action);
     }
