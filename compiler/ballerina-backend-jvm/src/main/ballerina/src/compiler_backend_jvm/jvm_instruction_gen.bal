@@ -613,7 +613,7 @@ type InstructionGenerator object {
     function generateStreamNewIns(bir:NewStream streamNewIns) {
         self.mv.visitTypeInsn(NEW, STREAM_VALUE);
         self.mv.visitInsn(DUP);
-        loadType(self.mv, streamNewIns.typeValue);
+        loadType(self.mv, streamNewIns.streamType);
         self.mv.visitMethodInsn(INVOKESPECIAL, STREAM_VALUE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
         self.storeToVar(streamNewIns.lhsOp.variableDcl);
     }

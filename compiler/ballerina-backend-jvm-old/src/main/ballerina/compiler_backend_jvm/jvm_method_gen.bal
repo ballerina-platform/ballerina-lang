@@ -638,13 +638,11 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             } else if (inst is bir:NewMap) {
                 instGen.generateMapNewIns(inst);
             } else if (inst is bir:NewTypeDesc) {
-                 if (inst.kind == bir:INS_KIND_NEW_TYPEDESC) {
-                    instGen.generateNewTypedescIns(inst);
-                 } else if (inst.kind == bir:INS_KIND_NEW_STREAM) {
-                    instGen.generateStreamNewIns(inst);
-                 }
+                instGen.generateNewTypedescIns(inst);
             } else if (inst is bir:NewTable) {
                 instGen.generateTableNewIns(inst);
+            } else if (inst is bir:NewStream) {
+                instGen.generateStreamNewIns(inst);
             } else if (inst is bir:NewError) {
                 instGen.generateNewErrorIns(inst);
             } else if (inst is bir:NewInstance) {

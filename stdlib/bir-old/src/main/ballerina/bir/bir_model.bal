@@ -495,7 +495,7 @@ public type NewStream record {|
     DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
-    BType typeValue;
+    BType streamType;
 |};
 
 public type NewInstance record {|
