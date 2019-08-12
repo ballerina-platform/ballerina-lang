@@ -22,8 +22,8 @@ string topic = "abort-transaction-topic";
 kafka:ProducerConfig producerConfigs = {
     bootstrapServers:"localhost:14112, localhost:14113, localhost:14114",
     clientId:"abort-transaction-producer",
-    acks:"all",
-    noRetries:3,
+    acks: kafka:ACKS_ALL,
+    retryCount:3,
     transactionalId:"abort-transaction-test-producer"
 };
 

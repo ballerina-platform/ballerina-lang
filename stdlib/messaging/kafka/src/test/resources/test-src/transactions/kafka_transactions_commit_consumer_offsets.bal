@@ -22,9 +22,9 @@ string topic = "commit-consumer-offsets-topic";
 kafka:ProducerConfig producerConfigs = {
     bootstrapServers: "localhost:14112, localhost:14113, localhost:14114",
     clientId: "commit-consumer-offsets-producer",
-    acks: "all",
+    acks: kafka:ACKS_ALL,
     transactionalId: "comit-consumer-offset-test-producer",
-    noRetries: 3
+    retryCount: 3
 };
 
 kafka:Producer kafkaProducer = new(producerConfigs);

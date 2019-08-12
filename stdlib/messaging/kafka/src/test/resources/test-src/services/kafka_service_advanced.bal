@@ -32,8 +32,8 @@ listener kafka:Consumer kafkaConsumer = new(consumerConfigs);
 kafka:ProducerConfig producerConfigs = {
     bootstrapServers: "localhost:14110",
     clientId: "advanced-service-producer",
-    acks: "all",
-    noRetries: 3
+    acks: kafka:ACKS_ALL,
+    retryCount: 3
 };
 
 kafka:Producer kafkaProducer = new(producerConfigs);

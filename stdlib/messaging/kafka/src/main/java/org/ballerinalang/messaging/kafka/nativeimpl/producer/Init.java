@@ -69,6 +69,9 @@ public class Init {
             producerObject.addNativeData(NATIVE_PRODUCER_CONFIG, producerProperties);
 
             if (Objects.nonNull(producerProperties.get(ProducerConfig.TRANSACTIONAL_ID_CONFIG))) {
+                if (!((boolean) producerProperties.get(ProducerConfig.ENABLE_IDEMPOTENCE_DOC))) {
+                    throw new IllegalArgumentException("Idempotence must be enabled to enable transactional producer");
+                }
                 KafkaTransactionContext transactionContext = createKafkaTransactionContext(producerObject);
                 producerObject.addNativeData(TRANSACTION_CONTEXT, transactionContext);
             }

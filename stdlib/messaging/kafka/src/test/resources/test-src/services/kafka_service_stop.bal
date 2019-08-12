@@ -40,8 +40,8 @@ service kafkaTestService on kafkaConsumer {
 kafka:ProducerConfig producerConfigs = {
     bootstrapServers: "localhost:14110",
     clientId: "service-producer",
-    acks: "all",
-    noRetries: 3
+    acks: kafka:ACKS_ALL,
+    retryCount: 3
 };
 
 kafka:Producer kafkaProducer = new(producerConfigs);

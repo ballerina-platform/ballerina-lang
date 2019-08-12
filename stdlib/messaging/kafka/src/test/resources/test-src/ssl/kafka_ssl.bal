@@ -23,8 +23,8 @@ string topic = "test-topic-ssl";
 kafka:ProducerConfig producerConfigs = {
     bootstrapServers: "localhost:14111",
     clientId:"ssl-producer",
-    acks:"all",
-    noRetries:3,
+    acks: kafka:ACKS_ALL,
+    retryCount:3,
     secureSocket: {
         keyStore:{
             location:"<FILE_PATH>" + filepath:getPathSeparator() + "kafka.client.keystore.jks",
@@ -48,9 +48,9 @@ kafka:Producer kafkaProducer = new(producerConfigs);
 kafka:ProducerConfig producerNegativeConfigs = {
     bootstrapServers: "localhost:14111",
     clientId:"ssl-producer-negative",
-    acks:"all",
+    acks: kafka:ACKS_ALL,
     maxBlock: 1000,
-    noRetries:3
+    retryCount:3
 };
 
 kafka:Producer negativeProducer = new (producerNegativeConfigs);
