@@ -26,7 +26,6 @@ import org.wso2.ballerinalang.compiler.packaging.converters.ZipConverter;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -60,43 +59,86 @@ public class HomeBaloRepo implements Repo<Path> {
     
     @Override
     public Patten calculate(PackageID moduleID) {
-        String orgName = moduleID.getOrgName().getValue();
-        String pkgName = moduleID.getName().getValue();
-        Patten.Part version;
-        String versionStr = moduleID.getPackageVersion().getValue();
-        if (versionStr.isEmpty()) {
-            version = LATEST_VERSION_DIR;
-        } else {
-            version = path(versionStr);
-        }
-        List<String> supportedPlatforms = Arrays.asList(SUPPORTED_PLATFORMS);
-        supportedPlatforms.add("any");
-        for (String platform : supportedPlatforms) {
-            Path baloFileParentPath = this.repoLocation.resolve(orgName).resolve(pkgName).resolve(versionStr);
-            String baloFileName = version != LATEST_VERSION_DIR ?
-                                  pkgName + "-" + IMPLEMENTATION_VERSION + "-" + platform + "-" + version + ".balo" :
-                                  getLatestBaloFile(baloFileParentPath, pkgName, IMPLEMENTATION_VERSION, platform);
-            Path baloFilePath = baloFileParentPath
-                    .resolve(baloFileName);
-            if (Files.exists(baloFilePath)) {
-                return new Patten(path(orgName, pkgName),
-                        version,
-                        path(baloFileName, ProjectDirConstants.SOURCE_DIR_NAME, pkgName),
-                        Patten.WILDCARD_SOURCE);
-            }
-        }
+        try {
+            String orgName = moduleID.getOrgName().getValue();
+            String pkgName = moduleID.getName().getValue();
+            Patten.Part version;
+            String versionStr = moduleID.getPackageVersion().getValue();
     
-        return Patten.NULL;
+            List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
+            supportedPlatforms.add("any");
+    
+            for (String platform : supportedPlatforms) {
+                if (versionStr.isEmpty()) {
+                    getLatestBaloFile(this.repoLocation.resolve(orgName).resolve(pkgName), pkgName, platform)
+                } else {
+                    String baloFileName = pkgName + "-" + IMPLEMENTATION_VERSION + "-" + platform + "-" + versionStr + ".balo";
+                    Path baloFilePath = this.repoLocation.resolve(orgName).resolve(pkgName).resolve(versionStr).resolve(baloFileName);
+                    if (Files.exists(baloFilePath)) {
+                        return new Patten(path(orgName, pkgName),
+                                path(versionStr),
+                                path(baloFileName, ProjectDirConstants.SOURCE_DIR_NAME, pkgName),
+                                Patten.WILDCARD_SOURCE);
+                    }
+                }
+                
+                
+                Path baloFileParentPath = this.repoLocation.resolve(orgName).resolve(pkgName).resolve(versionStr);
+                String baloFileName = version != LATEST_VERSION_DIR ? baloFileName :
+                                      getLatestBaloFile(baloFileParentPath, pkgName, platform);
+                Path baloFilePath = baloFileParentPath
+                        .resolve(baloFileName);
+                if (Files.exists(baloFilePath)) {
+                    return new Patten(path(orgName, pkgName),
+                            version,
+                            path(baloFileName, ProjectDirConstants.SOURCE_DIR_NAME, pkgName),
+                            Patten.WILDCARD_SOURCE);
+                }
+            }
+            
+            return Patten.NULL;
+            
+            if (versionStr.isEmpty()) {
+                version = LATEST_VERSION_DIR;
+            } else {
+                version = path(versionStr);
+            }
+    
+            if (Files.notExists(this.repoLocation.resolve(orgName).resolve(pkgName))) {
+                return Patten.NULL;
+            }
+    
+            List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
+            supportedPlatforms.add("any");
+            for (String platform : supportedPlatforms) {
+                Path baloFileParentPath = this.repoLocation.resolve(orgName).resolve(pkgName).resolve(versionStr);
+                String baloFileName = version != LATEST_VERSION_DIR ?
+                                      pkgName + "-" + IMPLEMENTATION_VERSION + "-" + platform + "-" + versionStr +
+                                      ".balo" :
+                                      getLatestBaloFile(baloFileParentPath, pkgName, platform);
+                Path baloFilePath = baloFileParentPath
+                        .resolve(baloFileName);
+                if (Files.exists(baloFilePath)) {
+                    return new Patten(path(orgName, pkgName),
+                            version,
+                            path(baloFileName, ProjectDirConstants.SOURCE_DIR_NAME, pkgName),
+                            Patten.WILDCARD_SOURCE);
+                }
+            }
+        
+            return Patten.NULL;
+        } catch (IOException e) {
+            return Patten.NULL;
+        }
     }
     
-    private String getLatestBaloFile(Path baloFileParentPath, String pkgName, String implementationVersion,
-                                     String platform) throws IOException {
+    private String getLatestBaloFile(Path baloFileParentPath, String pkgName, String platform) throws IOException {
         String glob = "glob:" + pkgName + "-" + IMPLEMENTATION_VERSION + "-" + platform + "-*.balo";
         final PathMatcher baloMatcher = FileSystems.getDefault().getPathMatcher(glob);
         List<Path> matchedBalos = new LinkedList<>();
         Files.walkFileTree(baloFileParentPath, new SimpleFileVisitor<Path>() {
             @Override
-            public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
+            public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) {
                 if (baloMatcher.matches(path)) {
                     matchedBalos.add(path);
                 }
@@ -104,7 +146,7 @@ public class HomeBaloRepo implements Repo<Path> {
             }
         
             @Override
-            public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+            public FileVisitResult visitFileFailed(Path file, IOException exc) {
                 return FileVisitResult.CONTINUE;
             }
         });
@@ -118,22 +160,8 @@ public class HomeBaloRepo implements Repo<Path> {
                         .map(SortablePath::getPath)
                         .findFirst();
     
-        if (latestBaloFile.isPresent())
-        return latestBaloFile.get()
-    }
-    
-    private List<String> extractVersions(List<Path> matchedBalos) {
-        matchedBalos.replaceAll();
-    }
-    
-    private BigInteger semVerToBigInt(String version) {
-        int[] versionArray = Arrays.stream(version.split("\\.")).mapToInt(Integer::parseInt).toArray();
-        BigInteger sum = BigInteger.valueOf(versionArray[0]);
-        sum = sum.shiftLeft(Integer.SIZE);
-        sum = sum.add(BigInteger.valueOf(versionArray[1]));
-        sum = sum.shiftLeft(Integer.SIZE);
-        sum = sum.add(BigInteger.valueOf(versionArray[2]));
-        return sum;
+        // there will always be a file
+        return latestBaloFile.get().getFileName().toString();
     }
     
     @Override
