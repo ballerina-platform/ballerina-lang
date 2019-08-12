@@ -30,7 +30,7 @@ public class BallerinaCliCommands {
     public static final String RUN = "run";
     public static final String ENCRYPT = "encrypt";
     public static final String UPDATE = "update";
-    public static final String SDK = "sdk";
+    public static final String DIST = "dist";
     public static final String LIST = "list";
     public static final String INSTALL = "install";
     public static final String REMOVE = "remove";

@@ -34,20 +34,39 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
 /**
  * Ballerina tool utilities.
  */
 public class ToolUtil {
-    //private static final String STAGING_URL = "https://api.staging-central.ballerina.io/update-tool";
+    private static final String STAGING_URL = "https://api.staging-central.ballerina.io/update-tool";
     private static final String BALLERINA_CONFIG = "ballerina-version";
     private static final String BALLERINA_TOOLS_CONFIG = "ballerina-tools-version";
 
-    private static final String STAGING_URL = "http://localhost:3030/update-tool";
+    private static TrustManager[] trustAllCerts = new TrustManager[]{
+            new X509TrustManager() {
+                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+                public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+                    //No need to implement.
+                }
+                public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+                    //No need to implement.
+                }
+            }
+    };
 
     public static void listSDKs(PrintStream outStream, boolean isRemote) {
         try {
@@ -69,7 +88,7 @@ public class ToolUtil {
                     }
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | KeyManagementException | NoSuchAlgorithmException e) {
             outStream.println("Ballerina Update service is not available");
         }
     }
@@ -136,6 +155,10 @@ public class ToolUtil {
                     printStream.println(distribution + " is installed ");
                 }
             } else {
+                SSLContext sc = SSLContext.getInstance("SSL");
+                sc.init(null, trustAllCerts, new java.security.SecureRandom());
+                HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
                 String distributionType = distribution.split("-")[0];
                 String distributionVersion = distribution.replace(distributionType + "-", "");
                 URL url = new URL(STAGING_URL + "/distributions/" + distributionVersion);
@@ -155,7 +178,7 @@ public class ToolUtil {
                     printStream.println(distribution + " is not found ");
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | KeyManagementException | NoSuchAlgorithmException e) {
             printStream.println("Cannot connect to the central server");
         }
     }
@@ -223,7 +246,12 @@ public class ToolUtil {
         file.delete();
     }
 
-    private static MapValue getDistributions() throws IOException {
+    private static MapValue getDistributions() throws IOException, KeyManagementException, NoSuchAlgorithmException {
+
+        SSLContext sc = SSLContext.getInstance("SSL");
+        sc.init(null, trustAllCerts, new java.security.SecureRandom());
+        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
         MapValue distributions;
         URL url = new URL(STAGING_URL + "/distributions");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();

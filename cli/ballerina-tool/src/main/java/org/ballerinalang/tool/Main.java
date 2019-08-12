@@ -104,31 +104,31 @@ public class Main {
             cmdParser.addSubcommand(BallerinaCliCommands.ENCRYPT, encryptCmd);
             encryptCmd.setParentCmdParser(cmdParser);
 
-            //SDK Command
-            SDKCmd sdkCmd = new SDKCmd();
-            CommandLine sdkCmdParser = new CommandLine(sdkCmd);
-            sdkCmd.setParentCmdParser(sdkCmdParser);
+            //DistCmd Command
+            DistCmd distCmd = new DistCmd();
+            CommandLine distCmdParser = new CommandLine(distCmd);
+            distCmd.setParentCmdParser(distCmdParser);
 
             ListCmd listCmd = new ListCmd();
-            sdkCmdParser.addSubcommand(BallerinaCliCommands.LIST, listCmd);
-            listCmd.setParentCmdParser(sdkCmdParser);
+            distCmdParser.addSubcommand(BallerinaCliCommands.LIST, listCmd);
+            listCmd.setParentCmdParser(distCmdParser);
 
             InstallCmd installCmd = new InstallCmd();
-            sdkCmdParser.addSubcommand(BallerinaCliCommands.INSTALL, installCmd);
-            installCmd.setParentCmdParser(sdkCmdParser);
+            distCmdParser.addSubcommand(BallerinaCliCommands.INSTALL, installCmd);
+            installCmd.setParentCmdParser(distCmdParser);
 
             UpdateCmd updateCmd = new UpdateCmd();
-            sdkCmdParser.addSubcommand(BallerinaCliCommands.UPDATE, updateCmd);
-            updateCmd.setParentCmdParser(sdkCmdParser);
+            distCmdParser.addSubcommand(BallerinaCliCommands.UPDATE, updateCmd);
+            updateCmd.setParentCmdParser(distCmdParser);
 
             RemoveCmd removeCmd = new RemoveCmd();
-            sdkCmdParser.addSubcommand(BallerinaCliCommands.REMOVE, removeCmd);
-            removeCmd.setParentCmdParser(sdkCmdParser);
+            distCmdParser.addSubcommand(BallerinaCliCommands.REMOVE, removeCmd);
+            removeCmd.setParentCmdParser(distCmdParser);
 
-            sdkCmdParser.setCommandName("sdk");
-            sdkCmdParser.setPosixClusteredShortOptionsAllowed(false);
+            distCmdParser.setCommandName("dist");
+            distCmdParser.setPosixClusteredShortOptionsAllowed(false);
 
-            cmdParser.addSubcommand(BallerinaCliCommands.SDK, sdkCmdParser);
+            cmdParser.addSubcommand(BallerinaCliCommands.DIST, distCmdParser);
 
             cmdParser.setCommandName("ballerina");
             cmdParser.setPosixClusteredShortOptionsAllowed(false);
@@ -407,8 +407,8 @@ public class Main {
      *
      * @since 1.0
      */
-    @CommandLine.Command(name = "sdk", description = "List Ballerina SDKs")
-    private static class SDKCmd implements BLauncherCmd {
+    @CommandLine.Command(name = "dist", description = "Ballerina distribution commands")
+    private static class DistCmd implements BLauncherCmd {
 
         @CommandLine.Option(names = { "--help", "-h", "?" }, hidden = true, description = "for more information")
         private boolean helpFlag;
@@ -420,12 +420,12 @@ public class Main {
                 return;
             }
 
-            printUsageInfo(BallerinaCliCommands.SDK);
+            printUsageInfo(BallerinaCliCommands.DIST);
         }
 
         @Override
         public String getName() {
-            return BallerinaCliCommands.SDK;
+            return BallerinaCliCommands.DIST;
         }
 
         @Override
@@ -447,7 +447,7 @@ public class Main {
      *
      * @since 1.0
      */
-    @CommandLine.Command(name = "list", description = "List Ballerina SDKs")
+    @CommandLine.Command(name = "list", description = "List Ballerina Distributions")
     private static class ListCmd implements BLauncherCmd {
 
         @CommandLine.Parameters(description = "Command name")
