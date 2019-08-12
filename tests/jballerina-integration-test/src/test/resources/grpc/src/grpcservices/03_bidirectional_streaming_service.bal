@@ -21,7 +21,7 @@ import ballerina/runtime;
 // Server endpoint configuration
 listener grpc:Listener ep3 = new (9093);
 
-map<grpc:Caller> consMap = {};
+map<grpc:Caller> constMap = {};
 boolean initialized = false;
 
 @grpc:ServiceConfig {name:"chat",
@@ -35,10 +35,10 @@ service Chat on ep3 {
 
     resource function onOpen(grpc:Caller caller) {
         io:println(string `${caller.getId()} connected to chat`);
-        consMap[caller.getId().toString()] = caller;
+        constMap[caller.getId().toString()] = caller;
         io:println("Client registration completed. Connection map status");
-        io:println("Map length: " + consMap.length().toString());
-        io:println(consMap);
+        io:println("Map length: " + constMap.length().toString());
+        io:println(constMap);
         initialized = true;
     }
 
@@ -56,9 +56,9 @@ service Chat on ep3 {
             waitCount += 1;
         }
         io:println("Starting message broadcast. Connection map status");
-        io:println("Map length: " + consMap.length().toString());
-        io:println(consMap);
-        foreach var [callerId, connection] in consMap.entries() {
+        io:println("Map length: " + constMap.length().toString());
+        io:println(constMap);
+        foreach var [callerId, connection] in constMap.entries() {
             conn = connection;
             grpc:Error? err = conn->send(msg);
             if (err is grpc:Error) {
@@ -79,11 +79,11 @@ service Chat on ep3 {
         grpc:Caller conn;
         string msg = string `${caller.getId()} left the chat`;
         io:println(msg);
-        var v = consMap.remove(caller.getId().toString());
+        var v = constMap.remove(caller.getId().toString());
         io:println("Starting client left broadcast. Connection map status");
-        io:println("Map length: " + consMap.length().toString());
-        io:println(consMap);
-        foreach var [callerId, connection] in consMap.entries() {
+        io:println("Map length: " + constMap.length().toString());
+        io:println(constMap);
+        foreach var [callerId, connection] in constMap.entries() {
             conn = connection;
             grpc:Error? err = conn->send(msg);
             if (err is grpc:Error) {
