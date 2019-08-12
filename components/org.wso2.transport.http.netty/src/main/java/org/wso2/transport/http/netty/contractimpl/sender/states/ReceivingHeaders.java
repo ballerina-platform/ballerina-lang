@@ -25,7 +25,7 @@ import io.netty.handler.codec.http2.Http2CodecUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.common.states.SenderReqRespStateManager;
 import org.wso2.transport.http.netty.contractimpl.sender.TargetHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -44,11 +44,11 @@ public class ReceivingHeaders implements SenderState {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReceivingHeaders.class);
 
-    private final MessageStateContext messageStateContext;
+    private final SenderReqRespStateManager senderReqRespStateManager;
     private TargetHandler targetHandler;
 
-    ReceivingHeaders(MessageStateContext messageStateContext) {
-        this.messageStateContext = messageStateContext;
+    ReceivingHeaders(SenderReqRespStateManager senderReqRespStateManager) {
+        this.senderReqRespStateManager = senderReqRespStateManager;
     }
 
     @Override
@@ -86,8 +86,8 @@ public class ReceivingHeaders implements SenderState {
     @Override
     public void readInboundResponseEntityBody(ChannelHandlerContext ctx, HttpContent httpContent,
                                               HttpCarbonMessage inboundResponseMsg) throws Exception {
-        messageStateContext.setSenderState(new ReceivingEntityBody(messageStateContext, targetHandler));
-        messageStateContext.getSenderState().readInboundResponseEntityBody(ctx, httpContent, inboundResponseMsg);
+        senderReqRespStateManager.state = new ReceivingEntityBody(senderReqRespStateManager, targetHandler);
+        senderReqRespStateManager.readInboundResponseEntityBody(ctx, httpContent, inboundResponseMsg);
     }
 
     @Override

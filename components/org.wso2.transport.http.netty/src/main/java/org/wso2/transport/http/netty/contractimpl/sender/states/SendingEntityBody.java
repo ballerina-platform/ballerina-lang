@@ -29,7 +29,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.exceptions.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.exceptions.EndpointTimeOutException;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
-import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.common.states.SenderReqRespStateManager;
 import org.wso2.transport.http.netty.contractimpl.sender.TargetHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
@@ -57,7 +57,8 @@ public class SendingEntityBody implements SenderState {
 
     private static final Logger LOG = LoggerFactory.getLogger(SendingEntityBody.class);
 
-    private final MessageStateContext messageStateContext;
+    private final SenderReqRespStateManager senderReqRespStateManager;
+
     private final boolean headersWritten;
     private final HandlerExecutor handlerExecutor;
     private final TargetChannel targetChannel;
@@ -66,14 +67,14 @@ public class SendingEntityBody implements SenderState {
     private long contentLength = 0;
     private List<HttpContent> contentList = new ArrayList<>();
 
-    SendingEntityBody(MessageStateContext messageStateContext, TargetChannel targetChannel,
-                             boolean headersWritten, HttpResponseFuture httpInboundResponseFuture) {
-        this.messageStateContext = messageStateContext;
+    SendingEntityBody(SenderReqRespStateManager senderReqRespStateManager, TargetChannel targetChannel,
+                      boolean headersWritten, HttpResponseFuture httpInboundResponseFuture, String httpVersion) {
+        this.senderReqRespStateManager = senderReqRespStateManager;
         this.targetChannel = targetChannel;
         this.headersWritten = headersWritten;
         this.handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
         this.httpInboundResponseFuture = httpInboundResponseFuture;
-        this.httpVersion = targetChannel.getHttpVersion();
+        this.httpVersion = httpVersion;
     }
 
     @Override
@@ -113,8 +114,8 @@ public class SendingEntityBody implements SenderState {
         // If this method is called, it is an application error. Inbound response is receiving before the completion
         // of request body write.
         targetHandler.getOutboundRequestMsg().setIoException(new IOException(INBOUND_RESPONSE_ALREADY_RECEIVED));
-        messageStateContext.setSenderState(new ReceivingHeaders(messageStateContext));
-        messageStateContext.getSenderState().readInboundResponseHeaders(targetHandler, httpInboundResponse);
+        senderReqRespStateManager.state = new ReceivingHeaders(senderReqRespStateManager);
+        senderReqRespStateManager.readInboundResponseHeaders(targetHandler, httpInboundResponse);
     }
 
     @Override
@@ -153,7 +154,7 @@ public class SendingEntityBody implements SenderState {
                 }
                 httpInboundResponseFuture.notifyHttpListener(throwable);
             } else {
-                messageStateContext.setSenderState(new RequestCompleted(messageStateContext));
+                senderReqRespStateManager.state = new RequestCompleted(senderReqRespStateManager);
             }
         });
     }

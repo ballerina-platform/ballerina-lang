@@ -16,12 +16,15 @@
 package org.wso2.transport.http.netty.contractimpl.common;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.base64.Base64;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
@@ -44,18 +47,26 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import io.netty.util.AsciiString;
+import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.config.ChunkConfig;
+import org.wso2.transport.http.netty.contract.config.ForwardedExtensionConfig;
 import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
+import org.wso2.transport.http.netty.contract.config.ProxyServerConfiguration;
+import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.exceptions.ConfigurationException;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.contractimpl.common.ssl.SSLHandlerFactory;
+import org.wso2.transport.http.netty.contractimpl.listener.HttpTraceLoggingHandler;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
+import org.wso2.transport.http.netty.contractimpl.listener.http2.Http2SourceHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.CertificateValidationHandler;
+import org.wso2.transport.http.netty.contractimpl.sender.ForwardedHeaderUpdater;
 import org.wso2.transport.http.netty.contractimpl.sender.OCSPStaplingHandler;
 import org.wso2.transport.http.netty.message.DefaultBackPressureListener;
 import org.wso2.transport.http.netty.message.DefaultListener;
@@ -94,6 +105,9 @@ import static org.wso2.transport.http.netty.contract.Constants.PROTOCOL;
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
 import static org.wso2.transport.http.netty.contract.Constants.TO;
 import static org.wso2.transport.http.netty.contract.Constants.URL_AUTHORITY;
+import static org.wso2.transport.http.netty.contract.config.KeepAliveConfig.ALWAYS;
+import static org.wso2.transport.http.netty.contract.config.KeepAliveConfig.AUTO;
+import static org.wso2.transport.http.netty.contract.config.KeepAliveConfig.NEVER;
 
 /**
  * Includes utility methods for creating http requests and responses and their related properties.
@@ -826,7 +840,7 @@ public class Util {
      */
     public static boolean isKeepAliveConnection(KeepAliveConfig keepAliveConfig, String requestConnectionHeader,
                                                 String httpVersion) {
-        if (keepAliveConfig == null || keepAliveConfig == KeepAliveConfig.AUTO) {
+        if (keepAliveConfig == null || keepAliveConfig == AUTO) {
             if (Float.valueOf(httpVersion) <= Constants.HTTP_1_0) {
                 return requestConnectionHeader != null && requestConnectionHeader
                         .equalsIgnoreCase(Constants.CONNECTION_KEEP_ALIVE);
@@ -835,7 +849,7 @@ public class Util {
                         .equalsIgnoreCase(Constants.CONNECTION_CLOSE);
             }
         } else {
-            return keepAliveConfig == KeepAliveConfig.ALWAYS;
+            return keepAliveConfig == ALWAYS;
         }
     }
 
@@ -935,5 +949,85 @@ public class Util {
 
     public static ScheduledFuture<?> schedule(ChannelHandlerContext ctx, Runnable task, long delay) {
         return ctx.executor().schedule(task, delay, TimeUnit.NANOSECONDS);
+    }
+
+    public static void setCorrelationIdForLogging(ChannelPipeline pipeline, ChannelInboundHandlerAdapter srcHandler) {
+        if (srcHandler != null && pipeline.get(Constants.HTTP_TRACE_LOG_HANDLER) != null) {
+            HttpTraceLoggingHandler loggingHandler = (HttpTraceLoggingHandler)
+                    pipeline.get(Constants.HTTP_TRACE_LOG_HANDLER);
+            if (srcHandler instanceof SourceHandler) {
+                SourceHandler h1SourceHandler = (SourceHandler) srcHandler;
+                loggingHandler.setCorrelatedSourceId(
+                        h1SourceHandler.getInboundChannelContext().channel().id().asShortText());
+            } else if (srcHandler instanceof Http2SourceHandler) {
+                Http2SourceHandler h2SourceHandler = (Http2SourceHandler) srcHandler;
+                loggingHandler.setCorrelatedSourceId(
+                        h2SourceHandler.getInboundChannelContext().channel().id().asShortText());
+            }
+        }
+    }
+
+    public static void handleOutboundConnectionHeader(SenderConfiguration senderConfiguration,
+                                                HttpCarbonMessage httpOutboundRequest) {
+        switch (senderConfiguration.getKeepAliveConfig()) {
+            case AUTO:
+                if (Float.valueOf(senderConfiguration.getHttpVersion()) >= Constants.HTTP_1_1) {
+                    httpOutboundRequest
+                            .setHeader(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_KEEP_ALIVE);
+                } else {
+                    httpOutboundRequest.setHeader(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_CLOSE);
+                }
+                break;
+            case ALWAYS:
+                httpOutboundRequest.setHeader(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_KEEP_ALIVE);
+                break;
+            case NEVER:
+                httpOutboundRequest.setHeader(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_CLOSE);
+                break;
+            default:
+                //Do nothing
+                break;
+        }
+        // Add proxy-authorization header if proxy is enabled and scheme is http
+        ProxyServerConfiguration proxyConfig = senderConfiguration.getProxyServerConfiguration();
+        if (senderConfiguration.getScheme().equals(HTTP_SCHEME) &&
+                proxyConfig != null && proxyConfig.getProxyUsername() != null &&
+                proxyConfig.getProxyPassword() != null) {
+            setProxyAuthorizationHeader(proxyConfig, httpOutboundRequest);
+        }
+    }
+
+    private static void setProxyAuthorizationHeader(ProxyServerConfiguration proxyConfig,
+                                                    HttpCarbonMessage httpOutboundRequest) {
+        ByteBuf authz = Unpooled.copiedBuffer(
+                proxyConfig.getProxyUsername() + COLON + proxyConfig.getProxyPassword(), CharsetUtil.UTF_8);
+        ByteBuf authzBase64 = Base64.encode(authz, false);
+        CharSequence authorization = new AsciiString("Basic " + authzBase64.toString(CharsetUtil.US_ASCII));
+        httpOutboundRequest.setHeader(HttpHeaderNames.PROXY_AUTHORIZATION.toString(), authorization);
+        authz.release();
+        authzBase64.release();
+    }
+
+    public static void setForwardedExtension(ForwardedExtensionConfig forwardedConfig,
+                                             String localAddress, HttpCarbonMessage httpOutboundRequest) {
+        if (forwardedConfig == ForwardedExtensionConfig.DISABLE) {
+            return;
+        }
+
+        ForwardedHeaderUpdater headerUpdater = new ForwardedHeaderUpdater(httpOutboundRequest, localAddress);
+        if (headerUpdater.isForwardedHeaderRequired()) {
+            headerUpdater.setForwardedHeader();
+            return;
+        }
+        if (headerUpdater.isXForwardedHeaderRequired()) {
+            if (forwardedConfig == ForwardedExtensionConfig.ENABLE) {
+                headerUpdater.setDefactoForwardedHeaders();
+                return;
+            }
+            headerUpdater.transformAndSetForwardedHeader();
+            return;
+        }
+        LOG.warn("Both Forwarded and X-Forwarded-- headers are present. Hence updating only the forwarded header");
+        headerUpdater.setForwardedHeader();
     }
 }

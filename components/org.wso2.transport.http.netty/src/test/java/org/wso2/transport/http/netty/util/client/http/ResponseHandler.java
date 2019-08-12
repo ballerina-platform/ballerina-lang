@@ -97,6 +97,9 @@ public class ResponseHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         this.waitForConnectionClosureLatch.countDown();
+        if (this.latch.getCount() >= 1) {
+            this.latch.countDown();
+        }
     }
 
     public void setLatch(CountDownLatch latch) {
