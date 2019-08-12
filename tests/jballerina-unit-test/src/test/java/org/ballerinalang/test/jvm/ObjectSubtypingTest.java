@@ -39,7 +39,7 @@ import static org.testng.Assert.assertEquals;
 public class ObjectSubtypingTest {
     private CompileResult compileResult;
 
-    //@BeforeClass
+    @BeforeClass
     public void setup() {
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "subtyping");
         compileResult = BCompileUtil.compile("test-src/jvm/objects_subtyping.bal");
