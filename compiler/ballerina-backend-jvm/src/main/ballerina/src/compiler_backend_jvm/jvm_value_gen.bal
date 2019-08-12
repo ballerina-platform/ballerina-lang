@@ -102,7 +102,7 @@ public type ObjectGenerator object {
     }
 
     private function createObjectMethods(jvm:ClassWriter cw, bir:Function?[] attachedFuncs, boolean isService,
-                                                                                                string className) {
+                                        string className) {
         foreach var func in attachedFuncs {
             if (func is bir:Function) {
                 if !isExternFunc(func) {
@@ -480,7 +480,7 @@ function getTypeValueClassName(bir:Package|bir:ModuleID module, string typeName)
         packageName = getPackageName(module.org, module.name);
     }
 
-    return "value$" + packageName + cleanupTypeName(typeName);
+    return packageName + "$value$" + cleanupTypeName(typeName);
 }
 
 function createLabelsForEqualCheck(jvm:MethodVisitor mv, int nameRegIndex, NamedNode?[] nodes,

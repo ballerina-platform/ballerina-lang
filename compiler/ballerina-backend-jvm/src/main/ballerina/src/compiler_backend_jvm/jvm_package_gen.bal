@@ -470,9 +470,9 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
                 string lookupKey = typeName + "." + functionName;
 
                 if (!isExternFunc(currentFunc)) {
-                    var result = pkgName + cleanupTypeName(typeName);
+                    string className = getTypeValueClassName(module, typeName);
                     birFunctionMap[pkgName + lookupKey] = getFunctionWrapper(currentFunc, orgName, moduleName,
-                                                                        versionValue, result);
+                                                                        versionValue, className);
                     continue;
                 }
 

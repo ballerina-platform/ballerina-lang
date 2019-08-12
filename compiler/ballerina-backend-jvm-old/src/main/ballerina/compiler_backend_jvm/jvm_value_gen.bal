@@ -468,7 +468,7 @@ function getTypeValueClassName(bir:Package|bir:ModuleID module, string typeName)
         packageName = getPackageName(module.org, module.name);
     }
 
-    return "value$" + packageName + cleanupTypeName(typeName);
+    return packageName + "$value$" + cleanupTypeName(typeName);
 }
 
 function createLabelsForEqualCheck(jvm:MethodVisitor mv, int nameRegIndex, NamedNode?[] nodes,

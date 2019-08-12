@@ -435,13 +435,13 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
                 string lookupKey = bType.name.value + "." + functionName;
 
                 if (!isExternFunc(currentFunc)) {
-                    var result = pkgName + cleanupTypeName(bType.name.value);
+                    string className = getTypeValueClassName(module, bType.name.value);
                     birFunctionMap[pkgName + lookupKey] = getFunctionWrapper(currentFunc, orgName, moduleName,
-                                                                        versionValue, result);
+                                                                        versionValue, className);
                     continue;
                 }
 
-                var jClassName = lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
+                string? jClassName = lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
                 if (jClassName is string) {
                     birFunctionMap[pkgName + lookupKey] = createOldStyleExternalFunctionWrapper(currentFunc, orgName,
                                                                moduleName, versionValue, jClassName, jClassName);
