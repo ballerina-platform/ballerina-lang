@@ -155,6 +155,6 @@ target = "java"
     [[platform.libraries]]
     artafactId = "handlebars"
     version = "4.1.2"
-    path = "./lib/handlebars-4.1.2.jar"
+    path = "./lib/handlebars-4.0.6.jar"
     groupId = "com.github.jknack"
     modules = ["grpc"]
