@@ -54,7 +54,7 @@ type User object {
 
 service ser = service {
 
-    string name = "";
+
 
     resource function res(string name) {
         xmlns "http://sample.com/wso2/a6" as ns;

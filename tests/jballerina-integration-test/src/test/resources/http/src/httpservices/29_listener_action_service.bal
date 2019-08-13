@@ -18,10 +18,10 @@ import ballerina/http;
 
 listener http:Listener echoEP  = new(9229);
 
+string globalLvlStr = "sample value";
+
 @http:ServiceConfig {basePath:"/listener"}
 service echo on echoEP {
-
-    string serviceLevelStringVar = "sample value";
 
     @http:ResourceConfig {
         methods:["GET"],
@@ -29,10 +29,10 @@ service echo on echoEP {
     }
     resource function echo(http:Caller caller, http:Request req) {
         http:Response res = new;
-        res.setTextPayload(<@untainted> self.serviceLevelStringVar);
+        res.setTextPayload(<@untainted> globalLvlStr);
         checkpanic caller->respond(res);
-        self.serviceLevelStringVar = "respond";
-        io:println("Service Level Variable : " + self.serviceLevelStringVar);
+        globalLvlStr = "respond";
+        io:println("Service Level Variable : " + globalLvlStr);
     }
 
     @http:ResourceConfig {
@@ -42,8 +42,8 @@ service echo on echoEP {
     resource function round1(http:Caller caller, http:Request req) {
         http:Response res = new;
         checkpanic caller->redirect(res, http:REDIRECT_PERMANENT_REDIRECT_308, ["/redirect1/round2"]);
-        self.serviceLevelStringVar = "redirect";
-        io:println("Service Level Variable : " + self.serviceLevelStringVar);
+        globalLvlStr = "redirect";
+        io:println("Service Level Variable : " + globalLvlStr);
     }
 
 }

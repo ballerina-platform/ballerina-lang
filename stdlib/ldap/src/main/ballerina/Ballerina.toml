@@ -6,8 +6,8 @@ version = "0.0.0"
 target = "java"
 
     [[platform.libraries]]
-    artafactId = "commons-lang3"
-    version = "3.8.1"
-    path = "./lib/commons-lang3-3.8.1.jar"
-    groupId = "org.apache.commons"
+    artafactId = "ldap"
+    version = "@project.version@"
+    path = "./lib/ballerina-ldap-@project.version@.jar"
+    groupId = "ballerina"
     modules = ["ldap"]

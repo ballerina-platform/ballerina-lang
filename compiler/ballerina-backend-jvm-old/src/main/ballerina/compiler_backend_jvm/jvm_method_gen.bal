@@ -1559,7 +1559,12 @@ function generateLambdaForPackageInits(jvm:ClassWriter cw, bir:Package pkg,
         mv.visitInsn(ICONST_0);
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND);
-        mv.visitMethodInsn(INVOKESTATIC, initClass, initFuncName, io:sprintf("(L%s;)V", STRAND), false);
+
+        if (pkg.org.value == BALLERINA && pkg.name.value == BUILT_IN_PACKAGE_NAME) {
+            mv.visitMethodInsn(INVOKESTATIC, initClass, initFuncName, io:sprintf("(L%s;)V", STRAND), false);
+        } else {
+            mv.visitMethodInsn(INVOKESTATIC, initClass, initFuncName, io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
+        }
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(0,0);
@@ -1577,7 +1582,11 @@ function generateLambdaForPackageInits(jvm:ClassWriter cw, bir:Package pkg,
         mv.visitInsn(ICONST_0);
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND);
-        mv.visitMethodInsn(INVOKESTATIC, initClass, startFuncName, io:sprintf("(L%s;)V", STRAND), false);
+        if (pkg.org.value == BALLERINA && pkg.name.value == BUILT_IN_PACKAGE_NAME) {
+            mv.visitMethodInsn(INVOKESTATIC, initClass, startFuncName, io:sprintf("(L%s;)V", STRAND), false);
+        } else {
+            mv.visitMethodInsn(INVOKESTATIC, initClass, startFuncName, io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
+        }
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(0,0);
@@ -1687,12 +1696,22 @@ function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
 
         string moduleClassName = getModuleLevelClassName(id.org, id.name, MODULE_INIT_CLASS_NAME);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
-                "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
+        if (mod.modOrg.value == BALLERINA && mod.modName.value == BUILT_IN_PACKAGE_NAME) {
+            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
+                            "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
+        } else {
+            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
+                            io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
+        }
 
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESTATIC, moduleClassName, startFuncName,
-                "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
+        if (mod.modOrg.value == BALLERINA && mod.modName.value == BUILT_IN_PACKAGE_NAME) {
+            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, startFuncName,
+                            "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
+        } else {
+            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, startFuncName,
+                            io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
+        }
 
         generatedInitFuncs[generatedInitFuncs.length()] = initFuncName;
     }

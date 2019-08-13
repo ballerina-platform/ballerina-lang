@@ -6,14 +6,6 @@
   "source": "service/source/serviceVariableAndFieldsCompletion1.bal",
   "items": [
     {
-      "label": "testVal",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "120",
-      "insertText": "testVal",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "sayHello(http:Caller caller, http:Request request)",
       "kind": "Function",
       "detail": "Function",
