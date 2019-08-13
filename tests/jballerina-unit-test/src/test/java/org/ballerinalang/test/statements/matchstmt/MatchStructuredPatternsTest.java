@@ -99,6 +99,7 @@ public class MatchStructuredPatternsTest {
                 invalidTuplePattern + "expecting a tuple type but found 'ClosedFoo' in type definition", 63, 20);
         BAssertUtil.validateError(resultNegative, ++i,
                 invalidRecordPattern + "unknown field 'f' in record type 'ClosedFoo'", 65, 20);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 66, 13);
         BAssertUtil.validateError(resultNegative, ++i, "pattern will always be matched", 75, 9);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
@@ -106,7 +107,7 @@ public class MatchStructuredPatternsTest {
 
     @Test(description = "Test pattern will not be matched 2")
     public void testUnreachablePatterns() {
-        Assert.assertEquals(resultNegative2.getErrorCount(), 27);
+        Assert.assertEquals(resultNegative2.getErrorCount(), 29);
         int i = -1;
         String unreachablePattern = "unreachable pattern: " +
                 "preceding patterns are too general or the pattern ordering is not correct";
@@ -114,6 +115,8 @@ public class MatchStructuredPatternsTest {
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 34, 12);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 46, 13);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 47, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 50, 13);
+        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 60, 13);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 61, 13);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 67, 13);
         BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 72, 13);

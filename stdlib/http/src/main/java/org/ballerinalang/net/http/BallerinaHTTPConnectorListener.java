@@ -100,9 +100,8 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
                 isInterruptible, httpResource.isTransactionAnnotated());
         Object[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, inboundMessage, endpointConfig);
 
-        ObserverContext observerContext;
         if (ObserveUtils.isObservabilityEnabled()) {
-            observerContext = new ObserverContext();
+            ObserverContext observerContext = new ObserverContext();
             observerContext.setConnectorName(SERVER_CONNECTOR_HTTP);
             Map<String, String> httpHeaders = new HashMap<>();
             inboundMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));

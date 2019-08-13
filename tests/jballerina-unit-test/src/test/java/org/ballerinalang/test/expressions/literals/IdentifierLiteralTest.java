@@ -215,12 +215,10 @@ public class IdentifierLiteralTest {
                 "/identifier-literal-wrong-character-negative.bal");
         Assert.assertEquals(resultNeg.getErrorCount(), 5);
         BAssertUtil.validateError(resultNeg, 0, "invalid token 'var'", 3, 20);
-        BAssertUtil.validateError(resultNeg, 1, "invalid token '\" = \"'", 3, 23);
+        BAssertUtil.validateError(resultNeg, 1, "extraneous input '\" = \"'", 3, 23);
         BAssertUtil.validateError(resultNeg, 2, "token recognition error at: '\";\\n    return 'global\\ '", 3, 31);
-        BAssertUtil.validateError(resultNeg, 3, "mismatched input 'dfs'. expecting {'is', ';', '?', '+', '-', '*', " +
-                "'/', '%', '==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '...', '|', '?:', " +
-                "'->>', '..<', '.@'}", 3, 28);
-        BAssertUtil.validateError(resultNeg, 4, "token recognition error at: '\\'", 4, 22);
+        BAssertUtil.validateError(resultNeg, 3, "token recognition error at: '\\'", 4, 22);
+        BAssertUtil.validateError(resultNeg, 4, "missing token '=' before 'v'", 4, 21);
     }
 
     @Test

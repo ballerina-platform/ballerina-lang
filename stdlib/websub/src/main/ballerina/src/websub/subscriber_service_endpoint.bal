@@ -30,11 +30,11 @@ public type Listener object {
 
     *lang:AbstractListener;
 
-    public SubscriberServiceEndpointConfiguration? config = ();
+    public SubscriberListenerConfiguration? config = ();
 
     private http:Listener? serviceEndpoint = ();
 
-    public function __init(int port, SubscriberServiceEndpointConfiguration? config = ()) {
+    public function __init(int port, SubscriberListenerConfiguration? config = ()) {
         self.init(port, config);
     }
 
@@ -49,10 +49,14 @@ public type Listener object {
         self.sendSubscriptionRequests();
     }
 
-    public function __stop() returns error? {
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
+    public function __immediateStop() returns error? {
         http:Listener? sListener = self.serviceEndpoint;
         if (sListener is http:Listener) {
-            return sListener.__stop();
+            return sListener.__immediateStop();
         }
         return ();
     }
@@ -60,11 +64,11 @@ public type Listener object {
     # Gets called when the endpoint is being initialized during module initialization.
     #
     # + sseEpConfig - The Subscriber Service Endpoint Configuration of the endpoint
-    function init(int port, SubscriberServiceEndpointConfiguration? sseEpConfig = ()) {
+    function init(int port, SubscriberListenerConfiguration? sseEpConfig = ()) {
         self.config = sseEpConfig;
-        http:ServiceEndpointConfiguration? serviceConfig = ();
-        if (sseEpConfig is SubscriberServiceEndpointConfiguration) {
-            http:ServiceEndpointConfiguration httpServiceConfig = {
+        http:ListenerConfiguration? serviceConfig = ();
+        if (sseEpConfig is SubscriberListenerConfiguration) {
+            http:ListenerConfiguration httpServiceConfig = {
                 host: sseEpConfig.host,
                 secureSocket: sseEpConfig.httpServiceSecureSocket
             };
@@ -167,9 +171,9 @@ public type Listener object {
 # + host - The host name/IP of the endpoint
 # + httpServiceSecureSocket - The SSL configurations for the service endpoint
 # + extensionConfig - The extension configuration to introduce custom subscriber services (webhooks)
-public type SubscriberServiceEndpointConfiguration record {|
+public type SubscriberListenerConfiguration record {|
     string host = "";
-    http:ServiceSecureSocket? httpServiceSecureSocket = ();
+    http:ListenerSecureSocket? httpServiceSecureSocket = ();
     ExtensionConfig? extensionConfig = ();
 |};
 
@@ -192,7 +196,7 @@ public type ExtensionConfig record {|
     //    "watch" : ("onWatch", WatchEvent),
     //    "create" : ("onCreate", CreateEvent)
     //  };
-    map<[string, typedesc<any>]>? headerResourceMap = ();
+    map<[string, typedesc<record{| json...; |}>]>? headerResourceMap = ();
 
     // e.g.,
     //  payloadKeyResourceMap = {
@@ -201,7 +205,7 @@ public type ExtensionConfig record {|
     //        "branch.deleted":  ("onBranchDelete", BranchDeletedEvent)
     //    }
     //  };
-    map<map<[string, typedesc<any>]>>? payloadKeyResourceMap = ();
+    map<map<[string, typedesc<record{| json...; |}>]>>? payloadKeyResourceMap = ();
 
     // e.g.,
     //  headerAndPayloadKeyResourceMap = {
@@ -213,7 +217,7 @@ public type ExtensionConfig record {|
     //        }
     //    }
     //  };
-    map<map<map<[string, typedesc<any>]>>>? headerAndPayloadKeyResourceMap = ();
+    map<map<map<[string, typedesc<record{| json...; |}>]>>>? headerAndPayloadKeyResourceMap = ();
 |};
 
 # The function called to discover hub and topic URLs defined by a resource URL.
