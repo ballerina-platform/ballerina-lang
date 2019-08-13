@@ -22,14 +22,10 @@ function generateMethod(bir:Function birFunc,
                             bir:BType? attachedType = (),
                             boolean isService = false,
                             string className = "") {
-    boolean isRemote = false;
-    if ((birFunc.flags & bir:REMOTE) == bir:REMOTE) {
-        isRemote = true;
-    }
     if (isExternFunc(birFunc)) {
-        genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType = attachedType, isRemote = isRemote);
+        genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType = attachedType);
     } else {
-        genJMethodForBFunc(birFunc, cw, birModule, isService, isRemote, className, attachedType = attachedType);
+        genJMethodForBFunc(birFunc, cw, birModule, isService, className, attachedType = attachedType);
     }
 }
 
@@ -37,7 +33,6 @@ function genJMethodForBFunc(bir:Function func,
                            jvm:ClassWriter cw,
                            bir:Package module,
                            boolean isService,
-                           boolean isRemote,
                            string className,
                            bir:BType? attachedType = ()) {
     string currentPackageName = getPackageName(module.org.value, module.name.value);
@@ -69,23 +64,20 @@ function genJMethodForBFunc(bir:Function func,
     }
 
     jvm:MethodVisitor mv = cw.visitMethod(access, funcName, desc, (), ());
-    InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
+    InstructionGenerator instGen = new(mv, indexMap, module);
     ErrorHandlerGenerator errorGen = new(mv, indexMap, currentPackageName);
     LabelGenerator labelGen = new();
 
     mv.visitCode();
 
     jvm:Label? tryStart = ();
-    jvm:Label? tryEnd = ();
-    jvm:Label? tryHandler = ();
-
     boolean isObserved = false;
-    if ((isService || isRemote) && funcName != "__init") {
+    boolean isWorker = (func.flags & bir:WORKER) == bir:WORKER;
+    boolean isRemote = (func.flags & bir:REMOTE) == bir:REMOTE;
+    if ((isService || isRemote || isWorker) && funcName != "__init") {
         // create try catch block to start and stop observability.
         isObserved = true;
         tryStart = labelGen.getLabel("try-start");
-        tryEnd = labelGen.getLabel("try-end");
-        tryHandler = labelGen.getLabel("try-handler");
         mv.visitLabel(<jvm:Label>tryStart);
     }
 
@@ -273,10 +265,55 @@ function genJMethodForBFunc(bir:Function func,
     mv.visitVarInsn(ALOAD, frameVarIndex);
     mv.visitInsn(AASTORE);
 
-    termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, func);
-
     jvm:Label methodEndLabel = new;
+    // generate the try catch finally to stop observing if an error occurs.
+    if (isObserved) {
+        jvm:Label tryEnd = labelGen.getLabel("try-end");
+        jvm:Label tryCatch = labelGen.getLabel("try-handler");
+        // visitTryCatchBlock visited at the end since order of the error table matters.
+        mv.visitTryCatchBlock(<jvm:Label>tryStart, tryEnd, tryCatch, ERROR_VALUE);
+        jvm:Label tryFinally = labelGen.getLabel("try-finally");
+        mv.visitTryCatchBlock(<jvm:Label>tryStart, tryEnd, tryFinally, ());
+        jvm:Label tryCatchFinally = labelGen.getLabel("try-catch-finally");
+        mv.visitTryCatchBlock(tryCatch, tryCatchFinally, tryFinally, ());
+
+        bir:VariableDcl catchVarDcl = { typeValue: "any", name: { value: "$_catch_$" } };
+        int catchVarIndex = indexMap.getIndex(catchVarDcl);
+        bir:VariableDcl throwableVarDcl = { typeValue: "any", name: { value: "$_throwable_$" } };
+        int throwableVarIndex = indexMap.getIndex(throwableVarDcl);
+
+        // Try-To-Finally
+        mv.visitLabel(tryEnd);
+        // emitStopObservationInvocation(mv, localVarOffset);
+        jvm:Label tryBlock1 = labelGen.getLabel("try-block-1");
+        mv.visitLabel(tryBlock1);
+        mv.visitJumpInsn(GOTO, methodEndLabel);
+
+        // Catch Block
+        mv.visitLabel(tryCatch);
+        mv.visitVarInsn(ASTORE, catchVarIndex);
+        jvm:Label tryBlock2 = labelGen.getLabel("try-block-2");
+        mv.visitLabel(tryBlock2);
+        emitReportErrorInvocation(mv, localVarOffset, catchVarIndex);
+        mv.visitLabel(tryCatchFinally);
+        emitStopObservationInvocation(mv, localVarOffset);
+        jvm:Label tryBlock3 = labelGen.getLabel("try-block-3");
+        mv.visitLabel(tryBlock3);
+        // re-throw caught error value
+        mv.visitVarInsn(ALOAD, catchVarIndex);
+        mv.visitInsn(ATHROW);
+
+        // Finally Block
+        mv.visitLabel(tryFinally);
+        mv.visitVarInsn(ASTORE, throwableVarIndex);
+        emitStopObservationInvocation(mv, localVarOffset);
+        jvm:Label tryBlock4 = labelGen.getLabel("try-block-4");
+        mv.visitLabel(tryBlock4);
+        mv.visitVarInsn(ALOAD, throwableVarIndex);
+        mv.visitInsn(ATHROW);
+    }
     mv.visitLabel(methodEndLabel);
+    termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, func);
 
     // Create Local Variable Table
     k = localVarOffset;
@@ -307,27 +344,6 @@ function genJMethodForBFunc(bir:Function func,
         k = k + 1;
     }
 
-    // generate the try finally to stop observing if an error occurs.
-    if (isObserved) {
-        // visiting at the end since order matters in error table
-        mv.visitTryCatchBlock(<jvm:Label>tryStart, <jvm:Label>tryEnd, <jvm:Label>tryHandler, ());
-        mv.visitLabel(<jvm:Label>tryEnd);
-        bir:VariableDcl throwableVarDcl = { typeValue: "string", name: { value: "$_throwable_$" } };
-        int throwableVarIndex = indexMap.getIndex(throwableVarDcl);
-        emitStopObservationInvocation(mv, localVarOffset);
-
-        jvm:Label l3 = new();
-        mv.visitLabel(l3);
-        mv.visitLabel(<jvm:Label>tryHandler);
-        mv.visitVarInsn(ASTORE, throwableVarIndex);
-        mv.visitVarInsn(ALOAD, localVarOffset);
-        emitStopObservationInvocation(mv, localVarOffset);
-
-        jvm:Label l5 = new();
-        mv.visitLabel(l5);
-        mv.visitVarInsn(ALOAD, throwableVarIndex);
-        mv.visitInsn(ATHROW);
-    }
     mv.visitMaxs(200, 400);
     mv.visitEnd();
 }
@@ -1252,6 +1268,8 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
 
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", (), ());
 
+    // set system properties
+    setSystemProperties(mv);
     // start all listeners
     startListeners(mv, serviceEPAvailable);
 
@@ -1286,7 +1304,7 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
         mv.visitInsn(ACONST_NULL);
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_CONSUMER_METHOD,
             io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
-        errorGen.printStackTraceFromFutureValue(mv);
+        errorGen.printStackTraceFromFutureValue(mv, indexMap);
         mv.visitInsn(POP);
     }
 
@@ -1314,7 +1332,7 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
         mv.visitIntInsn(BIPUSH, 100);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
         mv.visitFieldInsn(PUTFIELD, STRAND, "frames", io:sprintf("[L%s;", OBJECT));
-        errorGen.printStackTraceFromFutureValue(mv);
+        errorGen.printStackTraceFromFutureValue(mv, indexMap);
         mv.visitInsn(POP);
 
         // At this point we are done executing all the functions including asyncs
@@ -1352,7 +1370,7 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
     }
 
     if (hasInitFunction(pkg)) {
-        scheduleStartMethod(mv, pkg, initClass, serviceEPAvailable, errorGen);
+        scheduleStartMethod(mv, pkg, initClass, serviceEPAvailable, errorGen, indexMap);
     }
 
     // stop all listeners
@@ -1361,6 +1379,10 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
     mv.visitInsn(RETURN);
     mv.visitMaxs(0, 0);
     mv.visitEnd();
+}
+
+function setSystemProperties(jvm:MethodVisitor mv) {
+    mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "setSystemProperties", "()V", false);
 }
 
 function startListeners(jvm:MethodVisitor mv, boolean isServiceEPAvailable) {
@@ -1383,7 +1405,7 @@ function registerShutdownListener(jvm:MethodVisitor mv, string initClass) {
 }
 
 function scheduleStartMethod(jvm:MethodVisitor mv, bir:Package pkg, string initClass, boolean serviceEPAvailable,
-    ErrorHandlerGenerator errorGen) {
+    ErrorHandlerGenerator errorGen, BalToJVMIndexMap indexMap) {
     // schedule the start method
     string startFuncName = cleanupFunctionName(getModuleStartFuncName(pkg));
     string startLambdaName = io:sprintf("$lambda$%s$", startFuncName);
@@ -1412,7 +1434,7 @@ function scheduleStartMethod(jvm:MethodVisitor mv, bir:Package pkg, string initC
     mv.visitIntInsn(BIPUSH, 100);
     mv.visitTypeInsn(ANEWARRAY, OBJECT);
     mv.visitFieldInsn(PUTFIELD, STRAND, "frames", io:sprintf("[L%s;", OBJECT));
-    errorGen.printStackTraceFromFutureValue(mv);
+    errorGen.printStackTraceFromFutureValue(mv, indexMap);
     mv.visitInsn(POP);
 }
 
@@ -1534,20 +1556,23 @@ function generateLambdaForPackageInits(jvm:ClassWriter cw, bir:Package pkg,
                                string mainClass, string initClass) {
     //need to generate lambda for package Init as well, if exist
     if (hasInitFunction(pkg)) {
+        boolean voidReturn = pkg.org.value == BALLERINA && pkg.name.value == BUILT_IN_PACKAGE_NAME;
+
         string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
-        generateLambdaForFunction(cw, initFuncName, initClass);
+        generateLambdaForModuleFunction(cw, initFuncName, initClass, voidReturn);
 
         // generate another lambda for start function as well
         string startFuncName = cleanupFunctionName(getModuleStartFuncName(pkg));
-        generateLambdaForFunction(cw, startFuncName, initClass);
+        generateLambdaForModuleFunction(cw, startFuncName, initClass, voidReturn);
 
         string stopFuncName = cleanupFunctionName(getModuleStopFuncName(pkg));
-        generateLambdaForFunction(cw, stopFuncName, initClass);
+        generateLambdaForModuleFunction(cw, stopFuncName, initClass);
     }
 }
 
-function generateLambdaForFunction(jvm:ClassWriter cw, string funcName, string initClass) {
-    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, 
+function generateLambdaForModuleFunction(jvm:ClassWriter cw, string funcName, string initClass,
+                                         boolean voidReturn = true) {
+    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC,
                         io:sprintf("$lambda$%s$", funcName),
                         io:sprintf("([L%s;)V", OBJECT), (), ());
     mv.visitCode();
@@ -1557,7 +1582,12 @@ function generateLambdaForFunction(jvm:ClassWriter cw, string funcName, string i
     mv.visitInsn(ICONST_0);
     mv.visitInsn(AALOAD);
     mv.visitTypeInsn(CHECKCAST, STRAND);
-    mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, io:sprintf("(L%s;)V", STRAND), false);
+
+    if (voidReturn) {
+        mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, io:sprintf("(L%s;)V", STRAND), false);
+    } else {
+        mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
+    }
 
     mv.visitInsn(RETURN);
     mv.visitMaxs(0,0);
@@ -1670,12 +1700,22 @@ function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
 
         string moduleClassName = getModuleLevelClassName(id.org, id.name, MODULE_INIT_CLASS_NAME);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
-                "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
+        if (mod.modOrg.value == BALLERINA && mod.modName.value == BUILT_IN_PACKAGE_NAME) {
+            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
+                            "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
+        } else {
+            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
+                            io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
+        }
 
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESTATIC, moduleClassName, startFuncName,
-                "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
+        if (mod.modOrg.value == BALLERINA && mod.modName.value == BUILT_IN_PACKAGE_NAME) {
+            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, startFuncName,
+                            "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
+        } else {
+            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, startFuncName,
+                            io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
+        }
 
         generatedInitFuncs[generatedInitFuncs.length()] = initFuncName;
     }
@@ -1804,7 +1844,10 @@ function generateFrameClassForFunction (string pkgName, bir:Function? func, map<
     fv.visitEnd();
 
     cw.visitEnd();
-    pkgEntries[frameClassName + ".class"] = cw.toByteArray();
+
+    // panic if there are errors in the frame class. These cannot be logged, since
+    // frame classes are internal implementation details.
+    pkgEntries[frameClassName + ".class"] = checkpanic cw.toByteArray();
 }
 
 function getFrameClassName(string pkgName, string funcName, bir:BType? attachedType) returns string {
@@ -2052,4 +2095,55 @@ function stringArrayContains(string[] array, string item) returns boolean {
         }
     }
     return false;
+}
+
+function logCompileError(error compileError, bir:Package|bir:TypeDef|bir:Function src, bir:Package currentModule) {
+    string reason = compileError.reason();
+    map<anydata|error> detail = compileError.detail();
+    error err;
+    bir:DiagnosticPos pos;
+    string name;
+    if (reason == ERROR_REASON_METHOD_TOO_LARGE) {
+        name = <string> detail.get("name");
+        err = error(io:sprintf("method is too large: '%s'", name));
+        bir:Function? func = findBIRFunction(src, name);
+        if (func is ()) {
+            panic compileError;
+        } else {
+            pos = func.pos;
+        }
+    } else if (reason == ERROR_REASON_CLASS_TOO_LARGE) {
+        name = <string> detail.get("name");
+        err = error(io:sprintf("file is too large: '%s'", name));
+        pos = {};
+    } else {
+        panic compileError;
+    }
+
+    logError(err, pos, currentModule);
+    string pkgName = getPackageName(currentModule.org.value, currentModule.name.value);
+    functionGenErrors[pkgName + name] = err;
+}
+
+function findBIRFunction(bir:Package|bir:TypeDef|bir:Function src, string name) returns bir:Function? {
+    if (src is bir:Function) {
+        return src;
+    } else if (src is bir:Package) {
+        foreach var func in src.functions {
+            if (func is bir:Function && cleanupFunctionName(func.name.value) == name) {
+                return func;
+            }
+        }
+    } else {
+        bir:Function?[]? attachedFuncs = src.attachedFuncs;
+        if (attachedFuncs is bir:Function?[]) {
+            foreach var func in attachedFuncs {
+                if (func is bir:Function && cleanupFunctionName(func.name.value) == name) {
+                    return func;
+                }
+            }
+        } 
+    }
+
+    return ();
 }

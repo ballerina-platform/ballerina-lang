@@ -22,14 +22,10 @@ function generateMethod(bir:Function birFunc,
                             bir:BType? attachedType = (),
                             boolean isService = false,
                             string className = "") {
-    boolean isRemote = false;
-    if ((birFunc.flags & bir:REMOTE) == bir:REMOTE) {
-        isRemote = true;
-    }
     if (isExternFunc(birFunc)) {
-        genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType = attachedType, isRemote = isRemote);
+        genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType = attachedType);
     } else {
-        genJMethodForBFunc(birFunc, cw, birModule, isService, isRemote, className, attachedType = attachedType);
+        genJMethodForBFunc(birFunc, cw, birModule, isService, className, attachedType = attachedType);
     }
 }
 
@@ -37,7 +33,6 @@ function genJMethodForBFunc(bir:Function func,
                            jvm:ClassWriter cw,
                            bir:Package module,
                            boolean isService,
-                           boolean isRemote,
                            string className,
                            bir:BType? attachedType = ()) {
     string currentPackageName = getPackageName(module.org.value, module.name.value);
@@ -69,23 +64,20 @@ function genJMethodForBFunc(bir:Function func,
     }
 
     jvm:MethodVisitor mv = cw.visitMethod(access, funcName, desc, (), ());
-    InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
+    InstructionGenerator instGen = new(mv, indexMap, module);
     ErrorHandlerGenerator errorGen = new(mv, indexMap, currentPackageName);
     LabelGenerator labelGen = new();
 
     mv.visitCode();
 
     jvm:Label? tryStart = ();
-    jvm:Label? tryEnd = ();
-    jvm:Label? tryHandler = ();
-
     boolean isObserved = false;
-    if ((isService || isRemote) && funcName != "__init") {
+    boolean isWorker = (func.flags & bir:WORKER) == bir:WORKER;
+    boolean isRemote = (func.flags & bir:REMOTE) == bir:REMOTE;
+    if ((isService || isRemote || isWorker) && funcName != "__init") {
         // create try catch block to start and stop observability.
         isObserved = true;
         tryStart = labelGen.getLabel("try-start");
-        tryEnd = labelGen.getLabel("try-end");
-        tryHandler = labelGen.getLabel("try-handler");
         mv.visitLabel(<jvm:Label>tryStart);
     }
 
@@ -274,10 +266,55 @@ function genJMethodForBFunc(bir:Function func,
     mv.visitVarInsn(ALOAD, frameVarIndex);
     mv.visitInsn(AASTORE);
 
-    termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, func);
-
     jvm:Label methodEndLabel = new;
+    // generate the try catch finally to stop observing if an error occurs.
+    if (isObserved) {
+        jvm:Label tryEnd = labelGen.getLabel("try-end");
+        jvm:Label tryCatch = labelGen.getLabel("try-handler");
+        // visitTryCatchBlock visited at the end since order of the error table matters.
+        mv.visitTryCatchBlock(<jvm:Label>tryStart, tryEnd, tryCatch, ERROR_VALUE);
+        jvm:Label tryFinally = labelGen.getLabel("try-finally");
+        mv.visitTryCatchBlock(<jvm:Label>tryStart, tryEnd, tryFinally, ());
+        jvm:Label tryCatchFinally = labelGen.getLabel("try-catch-finally");
+        mv.visitTryCatchBlock(tryCatch, tryCatchFinally, tryFinally, ());
+
+        bir:VariableDcl catchVarDcl = { typeValue: "any", name: { value: "$_catch_$" } };
+        int catchVarIndex = indexMap.getIndex(catchVarDcl);
+        bir:VariableDcl throwableVarDcl = { typeValue: "any", name: { value: "$_throwable_$" } };
+        int throwableVarIndex = indexMap.getIndex(throwableVarDcl);
+
+        // Try-To-Finally
+        mv.visitLabel(tryEnd);
+        // emitStopObservationInvocation(mv, localVarOffset);
+        jvm:Label tryBlock1 = labelGen.getLabel("try-block-1");
+        mv.visitLabel(tryBlock1);
+        mv.visitJumpInsn(GOTO, methodEndLabel);
+
+        // Catch Block
+        mv.visitLabel(tryCatch);
+        mv.visitVarInsn(ASTORE, catchVarIndex);
+        jvm:Label tryBlock2 = labelGen.getLabel("try-block-2");
+        mv.visitLabel(tryBlock2);
+        emitReportErrorInvocation(mv, localVarOffset, catchVarIndex);
+        mv.visitLabel(tryCatchFinally);
+        emitStopObservationInvocation(mv, localVarOffset);
+        jvm:Label tryBlock3 = labelGen.getLabel("try-block-3");
+        mv.visitLabel(tryBlock3);
+        // re-throw caught error value
+        mv.visitVarInsn(ALOAD, catchVarIndex);
+        mv.visitInsn(ATHROW);
+
+        // Finally Block
+        mv.visitLabel(tryFinally);
+        mv.visitVarInsn(ASTORE, throwableVarIndex);
+        emitStopObservationInvocation(mv, localVarOffset);
+        jvm:Label tryBlock4 = labelGen.getLabel("try-block-4");
+        mv.visitLabel(tryBlock4);
+        mv.visitVarInsn(ALOAD, throwableVarIndex);
+        mv.visitInsn(ATHROW);
+    }
     mv.visitLabel(methodEndLabel);
+    termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, func);
 
     // Create Local Variable Table
     k = localVarOffset;
@@ -308,27 +345,6 @@ function genJMethodForBFunc(bir:Function func,
         k = k + 1;
     }
 
-    // generate the try finally to stop observing if an error occurs.
-    if (isObserved) {
-        // visiting at the end since order matters in error table
-        mv.visitTryCatchBlock(<jvm:Label>tryStart, <jvm:Label>tryEnd, <jvm:Label>tryHandler, ());
-        mv.visitLabel(<jvm:Label>tryEnd);
-        bir:VariableDcl throwableVarDcl = { typeValue: "string", name: { value: "$_throwable_$" } };
-        int throwableVarIndex = indexMap.getIndex(throwableVarDcl);
-        emitStopObservationInvocation(mv, localVarOffset);
-
-        jvm:Label l3 = new();
-        mv.visitLabel(l3);
-        mv.visitLabel(<jvm:Label>tryHandler);
-        mv.visitVarInsn(ASTORE, throwableVarIndex);
-        mv.visitVarInsn(ALOAD, localVarOffset);
-        emitStopObservationInvocation(mv, localVarOffset);
-
-        jvm:Label l5 = new();
-        mv.visitLabel(l5);
-        mv.visitVarInsn(ALOAD, throwableVarIndex);
-        mv.visitInsn(ATHROW);
-    }
     mv.visitMaxs(200, 400);
     mv.visitEnd();
 }
@@ -1543,7 +1559,12 @@ function generateLambdaForPackageInits(jvm:ClassWriter cw, bir:Package pkg,
         mv.visitInsn(ICONST_0);
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND);
-        mv.visitMethodInsn(INVOKESTATIC, initClass, initFuncName, io:sprintf("(L%s;)V", STRAND), false);
+
+        if (pkg.org.value == BALLERINA && pkg.name.value == BUILT_IN_PACKAGE_NAME) {
+            mv.visitMethodInsn(INVOKESTATIC, initClass, initFuncName, io:sprintf("(L%s;)V", STRAND), false);
+        } else {
+            mv.visitMethodInsn(INVOKESTATIC, initClass, initFuncName, io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
+        }
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(0,0);
@@ -1561,7 +1582,11 @@ function generateLambdaForPackageInits(jvm:ClassWriter cw, bir:Package pkg,
         mv.visitInsn(ICONST_0);
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND);
-        mv.visitMethodInsn(INVOKESTATIC, initClass, startFuncName, io:sprintf("(L%s;)V", STRAND), false);
+        if (pkg.org.value == BALLERINA && pkg.name.value == BUILT_IN_PACKAGE_NAME) {
+            mv.visitMethodInsn(INVOKESTATIC, initClass, startFuncName, io:sprintf("(L%s;)V", STRAND), false);
+        } else {
+            mv.visitMethodInsn(INVOKESTATIC, initClass, startFuncName, io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
+        }
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(0,0);
@@ -1671,12 +1696,22 @@ function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
 
         string moduleClassName = getModuleLevelClassName(id.org, id.name, MODULE_INIT_CLASS_NAME);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
-                "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
+        if (mod.modOrg.value == BALLERINA && mod.modName.value == BUILT_IN_PACKAGE_NAME) {
+            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
+                            "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
+        } else {
+            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
+                            io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
+        }
 
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESTATIC, moduleClassName, startFuncName,
-                "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
+        if (mod.modOrg.value == BALLERINA && mod.modName.value == BUILT_IN_PACKAGE_NAME) {
+            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, startFuncName,
+                            "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
+        } else {
+            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, startFuncName,
+                            io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
+        }
 
         generatedInitFuncs[generatedInitFuncs.length()] = initFuncName;
     }

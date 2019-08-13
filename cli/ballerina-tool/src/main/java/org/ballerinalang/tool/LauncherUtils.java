@@ -89,7 +89,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SIDDHI_RUNTIME_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
-import static org.ballerinalang.compiler.CompilerOptionName.STANDALONE_FILE;
+import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_TYPE;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_TARGET;
 import static org.ballerinalang.util.BLangConstants.BLANG_EXEC_FILE_SUFFIX;
@@ -435,7 +435,7 @@ public class LauncherUtils {
 
         if (RepoUtils.isBallerinaStandaloneFile(fullPath)) {
             options.put(PROJECT_DIR, fullPath.getParent().toString());
-            options.put(STANDALONE_FILE, fullPath.getFileName().toString());
+            options.put(SOURCE_TYPE, "SINGLE_BAL_FILE");
         } else {
             options.put(PROJECT_DIR, sourceRootPath.toString());
         }

@@ -167,8 +167,16 @@ public class SymbolResolver extends BLangNodeVisitor {
             return false;
         }
 
-        //if a symbol is found, then check whether it is unique
-        return isUniqueSymbol(pos, symbol, foundSym);
+        // if a symbol is found, then check whether it is unique
+        return isSameSymbol(pos, symbol, foundSym);
+    }
+
+    public boolean checkForUniqueSymbol(SymbolEnv env, BSymbol symbol, int expSymTag) {
+        BSymbol foundSym = lookupSymbol(env, symbol.name, expSymTag);
+        if (foundSym == symTable.notFoundSymbol) {
+            return true;
+        }
+        return isSameSymbol(symbol, foundSym);
     }
 
     /**
@@ -192,7 +200,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         //if a symbol is found, then check whether it is unique
-        return isUniqueSymbol(pos, symbol, foundSym);
+        return isSameSymbol(pos, symbol, foundSym);
     }
 
     /**
@@ -204,32 +212,60 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @param foundSym symbol that is found from the scope.
      * @return true if the symbol is unique, false otherwise.
      */
-    private boolean isUniqueSymbol(DiagnosticPos pos, BSymbol symbol, BSymbol foundSym) {
+    private boolean isSameSymbol(DiagnosticPos pos, BSymbol symbol, BSymbol foundSym) {
         // It is allowed to have a error constructor symbol with the same name as a type def.
         if (symbol.tag == SymTag.CONSTRUCTOR && foundSym.tag == SymTag.ERROR) {
             return true;
         }
 
-        //check for symbols defined at root package level.
-        if (symTable.rootPkgSymbol.pkgID.equals(foundSym.pkgID) &&
-                (foundSym.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
+        if (isSymbolDefinedInRootPkgLvl(foundSym)) {
             dlog.error(pos, DiagnosticCode.REDECLARED_BUILTIN_SYMBOL, symbol.name);
             return false;
         }
-        //check whether the given symbol owner is same as found symbol's owner
-        if ((foundSym.tag & SymTag.TYPE) == SymTag.TYPE || foundSym.owner == symbol.owner) {
-            //found symbol is a type symbol.
-            dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
-            return false;
-        }
 
-        if (Symbols.isFlagOn(Flags.LAMBDA, symbol.flags) &&
-                ((foundSym.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE)) {
+        if (!isSymbolOwnersSame(symbol, foundSym)) {
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * This method will check whether the symbol being defined is unique comparing it with the found symbol
+     * from the scope.
+     *
+     * @param symbol   symbol that is being defined.
+     * @param foundSym symbol that is found from the scope.
+     * @return true if the symbol is unique, false otherwise.
+     */
+    private boolean isSameSymbol(BSymbol symbol, BSymbol foundSym) {
+        // It is allowed to have a error constructor symbol with the same name as a type def.
+        if (symbol.tag == SymTag.CONSTRUCTOR && foundSym.tag == SymTag.ERROR) {
+            return true;
+        }
+
+        if (isSymbolDefinedInRootPkgLvl(foundSym)) {
+            return false;
+        }
+
+        return isSymbolOwnersSame(symbol, foundSym);
+    }
+
+
+    private boolean isSymbolOwnersSame(BSymbol symbol, BSymbol foundSym) {
+        // check whether the given symbol owner is same as found symbol's owner
+        if ((foundSym.tag & SymTag.TYPE) == SymTag.TYPE || foundSym.owner == symbol.owner) {
+            return false;
+        }
+
+        return !Symbols.isFlagOn(Flags.LAMBDA, symbol.flags) ||
+                ((foundSym.owner.tag & SymTag.INVOKABLE) != SymTag.INVOKABLE);
+    }
+
+    private boolean isSymbolDefinedInRootPkgLvl(BSymbol foundSym) {
+        return symTable.rootPkgSymbol.pkgID.equals(foundSym.pkgID) &&
+                (foundSym.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME;
     }
 
     /**
@@ -898,6 +934,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null);
             symTable.defineOperators(); // Define all operators e.g. binary, unary, cast and conversion
             symTable.pureType = BUnionType.create(null, symTable.anydataType, symTable.errorType);
+            symTable.errorOrNilType = BUnionType.create(null, symTable.errorType, symTable.nilType);
             return;
         }
         throw new IllegalStateException("built-in error not found ?");

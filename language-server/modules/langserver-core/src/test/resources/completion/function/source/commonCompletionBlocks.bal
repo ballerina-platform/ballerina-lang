@@ -41,9 +41,9 @@ public function main(string... args) {
 }
 
 service sampleService on new http:Listener(8080) {
-    int serviceVar1 = 124;
 
-    string serviceVar2 = "Test String";
+
+
 
     resource function sampleResource(http:Caller caller, http:Request request) {
         worker w1 {

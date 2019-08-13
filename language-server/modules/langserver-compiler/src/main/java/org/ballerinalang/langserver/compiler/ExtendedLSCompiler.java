@@ -23,6 +23,8 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentExceptio
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProgramDirectory;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -30,6 +32,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +50,10 @@ import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
  * 
  * @since 1.0.0
  */
-public class ExtendedLSCompiler {
+public class ExtendedLSCompiler extends LSModuleCompiler {
+
+    private static final Logger logger = LoggerFactory.getLogger(ExtendedLSCompiler.class);
+    
     private static final ExtendedWorkspaceDocumentManagerImpl docManager =
             ExtendedWorkspaceDocumentManagerImpl.getInstance();
     /**
@@ -104,14 +110,14 @@ public class ExtendedLSCompiler {
         options.put(PRESERVE_WHITESPACE, Boolean.valueOf(true).toString());
         options.put(TEST_ENABLED, String.valueOf(true));
         options.put(SKIP_TESTS, String.valueOf(false));
-        BLangPackage bLangPackage = null;
+        BLangDiagnosticLog.getInstance(context).errorCount = 0;
+        Compiler compiler = Compiler.getInstance(context);
         try {
-            BLangDiagnosticLog.getInstance(context).errorCount = 0;
-            Compiler compiler = Compiler.getInstance(context);
-            bLangPackage = compiler.compile(packageName);
-        } catch (RuntimeException e) {
-            throw new CompilationFailedException("Compilation failed!", e);
+            compiler.setOutStream(new LSCompilerUtil.EmptyPrintStream());
+        } catch (UnsupportedEncodingException e) {
+            logger.error("Unable to create the empty stream.");
         }
+        BLangPackage bLangPackage = compileSafe(compiler, parent.toString(), packageName);
         BallerinaFile bfile;
         if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
             List<Diagnostic> diagnostics = ((CollectDiagnosticListener) context.get(DiagnosticListener.class))

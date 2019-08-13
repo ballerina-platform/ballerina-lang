@@ -37,6 +37,7 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-tool')
     implementation project(':testerina:testerina-core')
+    implementation project(':toml-parser')
     implementation 'com.moandjiezana.toml:toml4j'
     implementation 'info.picocli:picocli'
     testCompile 'org.testng:testng'

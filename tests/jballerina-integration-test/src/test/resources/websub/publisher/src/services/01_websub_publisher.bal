@@ -66,7 +66,8 @@ service publisher on publisherServiceEP {
 
         if (subscriber != "skip_subscriber_check") {
             checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber + "/websub");
-            checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber + "/websubTwo");
+            checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber +
+                    "/subscriberWithNoPathInAnnot");
             checkSubscriberAvailability(WEBSUB_TOPIC_ONE, "http://localhost:" + subscriber + "/websubThree?topic=" +
                     WEBSUB_TOPIC_ONE + "&fooVal=barVal");
         }
@@ -88,8 +89,7 @@ service publisher on publisherServiceEP {
         if (req.hasHeader("x-topic")) {
             string topicName = req.getHeader("x-topic");
             websub:SubscriberDetails[] details = webSubHub.getSubscribers(topicName);
-            json j = <json> typedesc<json>.constructFrom(details[0]);
-            var err = caller->respond(j);
+            var err = caller->respond(details.toString());
             if (err is error) {
                 log:printError("Error responding on topicInfo request", err);
             }
