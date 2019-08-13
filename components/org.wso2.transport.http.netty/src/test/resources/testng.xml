@@ -84,6 +84,7 @@
             <class name="org.wso2.transport.http.netty.forwardedextension.ForwardedDefaultTestCase" />
 
             <class name="org.wso2.transport.http.netty.method.head.HeadRequestTestCase"/>
+            <class name="org.wso2.transport.http.netty.message.GetFullMessageTestCase" />
         </classes>
     </test>
     <test name="WebSocket Tests" parallel="false">
