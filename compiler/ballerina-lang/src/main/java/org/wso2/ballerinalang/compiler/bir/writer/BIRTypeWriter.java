@@ -328,7 +328,7 @@ public class BIRTypeWriter implements TypeVisitor {
         //TODO cleanup, there cannot be objects without attached function list and symbol kind other than object
         if (tSymbol.kind == SymbolKind.OBJECT) {
             Map<Boolean, List<BAttachedFunction>> partitions = ((BObjectTypeSymbol) tSymbol).attachedFuncs.stream()
-                    .collect(Collectors.partitioningBy(n -> n.funcName.equals(Names.OBJECT_INIT_SUFFIX)));
+                    .collect(Collectors.partitioningBy(n -> n.funcName.equals(Names.USER_DEFINED_INIT_SUFFIX)));
             attachedFuncs = partitions.get(false);
             List<BAttachedFunction> constructor = partitions.get(true);
             if (constructor.size() != 0) {

@@ -58,4 +58,11 @@ public class LangLibTypedescTest {
         Assert.assertEquals(array.getRefValue(1).getType().toString(), "map<json>");
         Assert.assertEquals(array.getRefValue(1).stringValue(), "{\"name\":\"bob\", \"age\":4}");
     }
+
+    @Test
+    public void testOptionalFieldToMandotoryField() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testOptionalFieldToMandotoryField");
+        Assert.assertEquals(returns[0].stringValue(),
+                "{ballerina}ConversionError {message:\"'CRec' value cannot be converted to 'BRec'\"}");
+    }
 }

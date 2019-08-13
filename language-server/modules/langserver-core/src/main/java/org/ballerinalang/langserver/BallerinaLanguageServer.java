@@ -41,7 +41,6 @@ import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceSe
 import org.ballerinalang.langserver.extensions.ballerina.traces.Listener;
 import org.ballerinalang.langserver.extensions.ballerina.traces.ProviderOptions;
 import org.ballerinalang.langserver.index.LSIndexImpl;
-import org.eclipse.lsp4j.CodeLensOptions;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.ExecuteCommandOptions;
 import org.eclipse.lsp4j.InitializeParams;
@@ -123,7 +122,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Incremental);
         res.getCapabilities().setSignatureHelpProvider(signatureHelpOptions);
         res.getCapabilities().setHoverProvider(true);
-        res.getCapabilities().setDocumentSymbolProvider(true);
+//        res.getCapabilities().setDocumentSymbolProvider(true);
         res.getCapabilities().setDefinitionProvider(true);
         res.getCapabilities().setReferencesProvider(true);
         res.getCapabilities().setCodeActionProvider(true);
@@ -132,7 +131,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         res.getCapabilities().setRenameProvider(true);
         res.getCapabilities().setWorkspaceSymbolProvider(true);
         res.getCapabilities().setImplementationProvider(true);
-        res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
+//        res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
 
         TextDocumentClientCapabilities textDocCapabilities = params.getCapabilities().getTextDocument();
         ((BallerinaTextDocumentService) this.textService).setClientCapabilities(textDocCapabilities);

@@ -367,9 +367,18 @@ public class Scheduler {
 
     private FutureValue createFuture(Strand parent, CallableUnitCallback callback, Map<String, Object> properties) {
         Strand newStrand = new Strand(this, parent, properties);
+        if (parent != null) {
+            newStrand.observerContext = parent.observerContext;
+        }
         FutureValue future = new FutureValue(newStrand, callback);
         future.strand.frames = new Object[100];
         return future;
+    }
+
+    public void poison() {
+        for (int i = 0; i < numThreads; i++) {
+            runnableList.add(POISON_PILL);
+        }
     }
 }
 

@@ -64,6 +64,7 @@ intellij {
 task downloadPsiViewerPlugin(type: Download) {
     src 'https://plugins.jetbrains.com/plugin/download?updateId=31087'
     dest new File("${buildDir}/tmp/plugins/", 'PsiViewer.jar')
+    onlyIfNewer true
 }
 
 apply plugin: "jacoco"
@@ -77,7 +78,7 @@ task copyPsiViewerPluginToSandBox(type: Copy) {
     into "${buildDir}/idea-sandbox/plugins/"
 }
 
-//copyPsiViewerPluginToSandBox.dependsOn downloadPsiViewerPlugin
+copyPsiViewerPluginToSandBox.dependsOn downloadPsiViewerPlugin
 copyPsiViewerPluginToSandBox.mustRunAfter prepareSandbox
 runIde.dependsOn copyPsiViewerPluginToSandBox
 

@@ -417,7 +417,6 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeByte(newStream.kind.getValue());
         writeType(newStream.type);
         newStream.lhsOp.accept(this);
-        newStream.nameOp.accept(this);
     }
 
     // Operands
