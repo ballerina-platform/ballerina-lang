@@ -298,13 +298,14 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CompileTask()) // compile the modules
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the balos for modules(projects only)
                 .addTask(new CreateBirTask())   // create the bir
-                .addTask(new CopyNativeLibTask(), isSingleFileBuild)    // copy the native libs(projects only)
+                .addTask(new CopyNativeLibTask())    // copy the native libs(projects only)
                 .addTask(new CreateJarTask(false))  // create the jar
                 .addTask(new CopyModuleJarTask())
                 .addTask(new CreateExecutableTask())  // create the executable .jar file
                 .addTask(new RunExecutableTask(programArgs, this.runtimeParams, this.configFilePath, this.observeFlag))
                 .build();
     
+        
         taskExecutor.executeTasks(buildContext);
     }
     

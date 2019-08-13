@@ -230,7 +230,7 @@ public class WorkerTest {
         Assert.assertEquals("error: err from panic", ((BError) returns[0]).getReason());
     }
 
-    @Test
+    @Test(groups = "brokenOnJBallerina")
     public void sameStrandMultipleInvocation() {
         for (int i = 0; i < 20; i++) {
             sameStrandMultipleInvocationTest();

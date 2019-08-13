@@ -78,6 +78,7 @@ dependencies {
     implementation project(':ballerina-auth')
     implementation project(':ballerina-internal')
     implementation project(':ballerina-utils')
+    implementation project(':ballerina-config')
     implementation project(':ballerina-runtime')
 }
 

@@ -6,8 +6,8 @@ version = "0.0.0"
 target = "java"
 
     [[platform.libraries]]
-    artafactId = "slf4j-api"
-    version = "1.7.26"
-    path = "./lib/slf4j-api-1.7.26.jar"
-    groupId = "org.slf4j"
+    artafactId = "runtime-api"
+    version = "@project.version@"
+    path = "./lib/ballerina-runtime-api-@project.version@.jar"
+    groupId = "ballerina"
     modules = ["runtime-api"]

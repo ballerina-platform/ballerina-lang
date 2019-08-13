@@ -133,6 +133,7 @@ public type PackageParser object {
         map<VariableDcl> localVarMap = {};
         DiagnosticPos pos = parseDiagnosticPos(self.reader);
         var name = self.reader.readStringCpRef();
+        var workerName = self.reader.readStringCpRef();
         int flags = self.reader.readInt32();
         var sig = self.parseInvokableType();
 
@@ -165,6 +166,7 @@ public type PackageParser object {
             return <@untainted Function> {
                 pos: pos,
                 name: { value: name },
+                workerName: { value: workerName },
                 flags: flags,
                 localVars: [],
                 basicBlocks: [],
@@ -239,6 +241,7 @@ public type PackageParser object {
         return <@untainted Function> {
             pos: pos,
             name: { value: name },
+            workerName: { value: workerName },
             flags: flags,
             localVars: dcls,
             basicBlocks: basicBlocks,

@@ -41,6 +41,9 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -69,8 +72,15 @@ public class LSCompilerUtil {
 
     private static final Pattern untitledFilePattern =
             Pattern.compile(".*[/\\\\]temp[/\\\\](.*)[/\\\\]untitled.bal");
-    
+
+    private static EmptyPrintStream emptyPrintStream;
+
     static {
+        try {
+            emptyPrintStream = new EmptyPrintStream();
+        } catch (IOException e) {
+            logger.error("Unable to create the empty stream.");
+        }
         String experimental = System.getProperty("experimental");
         EXPERIMENTAL_FEATURES_ENABLED = Boolean.parseBoolean(experimental);
         // Here we will create a tmp directory as the untitled project repo.
@@ -229,7 +239,9 @@ public class LSCompilerUtil {
                                 CustomErrorStrategyFactory.getCustomErrorStrategy(customErrorStrategy, context));
         }
         BLangDiagnosticLog.getInstance(compilerContext).errorCount = 0;
-        return Compiler.getInstance(compilerContext);
+        Compiler compiler = Compiler.getInstance(compilerContext);
+        compiler.setOutStream(emptyPrintStream);
+        return compiler;
     }
 
      /** Get compiler for the given context.
@@ -378,5 +390,14 @@ public class LSCompilerUtil {
             return new Manifest();
         }
     }
-}
 
+    static class EmptyPrintStream extends PrintStream {
+        EmptyPrintStream() throws UnsupportedEncodingException {
+            super(new OutputStream() {
+                @Override
+                public void write(int b) {
+                }
+            }, true, "UTF-8");
+        }
+    }
+}

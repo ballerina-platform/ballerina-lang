@@ -69,7 +69,7 @@ public class BallerinaServerAgent {
 
     private static final int DEFAULT_AGENT_PORT = -1;
 
-    private static final int SCHEDULER_LINE_NUM = 279;
+    private static final int SCHEDULER_LINE_NUM = 295;
 
     private static long timeout = DEFAULT_EXIT_TIMEOUT;
     private static int exitStatus = DEFAULT_EXIT_STATUS;
