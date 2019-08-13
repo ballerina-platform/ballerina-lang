@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.ballerinalang.openapi;
 
 import com.github.jknack.handlebars.Context;
@@ -76,7 +75,7 @@ public class CodeGenerator {
      *                       <li>mock</li>
      *                       <li>client</li>
      *                       </ul>
-     * @param executionPath Command execution path
+     * @param executionPath  Command execution path
      * @param definitionPath Input Open Api Definition file path
      * @param serviceName    Output Service Name
      * @param outPath        Destination file path to save generated source files. If not provided
@@ -84,7 +83,7 @@ public class CodeGenerator {
      * @throws IOException               when file operations fail
      * @throws BallerinaOpenApiException when code generator fails
      */
-    public void generate(GenType type, String executionPath, String definitionPath, String serviceName, String outPath)
+    private void generate(GenType type, String executionPath, String definitionPath, String serviceName, String outPath)
             throws IOException, BallerinaOpenApiException {
 
         if (!CodegenUtils.isBallerinaProject(Paths.get(outPath))) {
@@ -126,23 +125,36 @@ public class CodeGenerator {
     /**
      * Generates ballerina source for provided Open API Definition in {@code definitionPath}.
      * Generated source will be written to a ballerina module at {@code outPath}
-     * <p>Method can be user for generating Ballerina mock services and clients</p>
+     * Method can be user for generating Ballerina clients.
      *
-     * @param gt Output type. Following types are supported
-     *      <ul>
-     *          <li>mock</li>
-     *          <li>client</li>
-     *      </ul>
-     * @param executionPath Command execution path
+     * @param executionPath  Command execution path
      * @param definitionPath Input Open Api Definition file path
-     * @param outPath Destination file path to save generated source files. If not provided
-     *      {@code definitionPath} will be used as the default destination path
-     * @throws IOException when file operations fail
+     * @param outPath        Destination file path to save generated source files. If not provided
+     *                       {@code definitionPath} will be used as the default destination path
+     * @throws IOException               when file operations fail
      * @throws BallerinaOpenApiException when code generator fails
      */
-    public void generate(GenType gt, String executionPath, String definitionPath, String outPath)
+    public void generateClient(String executionPath, String definitionPath, String outPath)
             throws IOException, BallerinaOpenApiException {
-        generate(gt, executionPath, definitionPath, null , outPath);
+        generate(GenType.GEN_CLIENT, executionPath, definitionPath, null, outPath);
+    }
+
+    /**
+     * Generates ballerina source for provided Open API Definition in {@code definitionPath}.
+     * Generated source will be written to a ballerina module at {@code outPath}
+     * Method can be user for generating Ballerina clients.
+     *
+     * @param executionPath  Command execution path
+     * @param definitionPath Input Open Api Definition file path
+     * @param serviceName    service name for the generated service
+     * @param outPath        Destination file path to save generated source files. If not provided
+     *                       {@code definitionPath} will be used as the default destination path
+     * @throws IOException               when file operations fail
+     * @throws BallerinaOpenApiException when code generator fails
+     */
+    public void generateService(String executionPath, String definitionPath, String serviceName, String outPath)
+            throws IOException, BallerinaOpenApiException {
+        generate(GenType.GEN_SERVICE, executionPath, definitionPath, serviceName, outPath);
     }
 
     /**
@@ -213,9 +225,9 @@ public class CodeGenerator {
      * @param outPath      Destination path for writing the resulting source file
      * @throws IOException when file operations fail
      * @deprecated This method is now deprecated.
-     *              Use {@link #generateBalSource(GeneratorConstants.GenType, String, String) generate}
+     * Use {@link #generateBalSource(GeneratorConstants.GenType, String, String) generate}
      * and implement a file write functionality your self, if you need to customize file writing steps.
-     * Otherwise use {@link #generate(GeneratorConstants.GenType, String, String, String) generate}
+     * Otherwise use {@link #generate(GeneratorConstants.GenType, String, String, String, String) generate}
      * to directly write generated source to a ballerina module.
      */
     @Deprecated
