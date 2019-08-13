@@ -201,7 +201,7 @@ public class RunExecutableTask implements Task {
         } catch (IllegalAccessException | IllegalArgumentException e) {
             throw createLauncherException("invoking main method failed due to " + e.getMessage());
         } catch (InvocationTargetException | NoSuchFieldException e) {
-            throw createLauncherException("invoking main method failed due to " + e.getCause());
+            throw createLauncherException("invoking main method failed due to ", e.getCause());
         }
         
     }
@@ -231,7 +231,7 @@ public class RunExecutableTask implements Task {
         } catch (IllegalAccessException | IllegalArgumentException e) {
             throw createLauncherException("invoking main method failed due to " + e.getMessage());
         } catch (InvocationTargetException | NoSuchFieldException e) {
-            throw createLauncherException("invoking main method failed due to " + e.getCause());
+            throw createLauncherException("invoking main method failed due to ", e.getCause());
         }
     }
     

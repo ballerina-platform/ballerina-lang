@@ -24,6 +24,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
@@ -168,6 +169,18 @@ public class LauncherUtils {
     public static BLauncherException createLauncherException(String errorMsg) {
         BLauncherException launcherException = new BLauncherException();
         launcherException.addMessage("error: " + errorMsg);
+        return launcherException;
+    }
+
+    public static BLauncherException createLauncherException(String errorPrefix, Throwable cause) {
+        String message;
+        if (cause instanceof ErrorValue) {
+            message = ((ErrorValue) cause).getPrintableStackTrace();
+        } else {
+            message = cause.toString();
+        }
+        BLauncherException launcherException = new BLauncherException();
+        launcherException.addMessage("error: " + errorPrefix + message);
         return launcherException;
     }
 

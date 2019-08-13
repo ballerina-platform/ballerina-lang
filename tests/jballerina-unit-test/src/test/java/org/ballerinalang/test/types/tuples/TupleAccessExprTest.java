@@ -77,10 +77,10 @@ public class TupleAccessExprTest {
         Assert.assertEquals(returns[0].stringValue(), "true");
     }
 
-    @Test(enabled = false, description = "Test accessing a tuple with an invalid index passed as a dynamic index",
+    @Test(description = "Test accessing a tuple with an invalid index passed as a dynamic index",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IndexOutOfRange \\{\"message\":\"" +
-                    "tuple index out of range: index: -1, size: 3.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IndexOutOfRange message=tuple index out of" +
+                    " range: index: -1, size: 3.*")
     public void tupleInvalidIndexAsFunction() {
         BValue[] args = {new BString("-1")};
         BRunUtil.invoke(compileResult, "tupleIndexAsFunction", args);
@@ -101,34 +101,34 @@ public class TupleAccessExprTest {
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
     }
 
-    @Test(enabled = false, description = "Test index out of bounds due to a dynamic index",
+    @Test(description = "Test index out of bounds due to a dynamic index",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IndexOutOfRange \\{\"message\":\"" +
-                    "tuple index out of range: index: 2, size: 2.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IndexOutOfRange message=tuple index out of " +
+                    "range: index: 2, size: 2.*")
     public void tupleIndexOutOfBoundTest1() {
         BRunUtil.invoke(compileResult, "tupleIndexOutOfBoundTest1");
     }
 
-    @Test(enabled = false, description = "Test index out of bounds due to a dynamic index",
+    @Test(description = "Test index out of bounds due to a dynamic index",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IndexOutOfRange \\{\"message\":\"" +
-                    "tuple index out of range: index: -1, size: 2.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IndexOutOfRange message=tuple index out of" +
+                    " range: index: -1, size: 2.*")
     public void tupleIndexOutOfBoundTest2() {
         BRunUtil.invoke(compileResult, "tupleIndexOutOfBoundTest2");
     }
 
-    @Test(enabled = false, description = "Test index out of bounds due to a dynamic index",
+    @Test(description = "Test index out of bounds due to a dynamic index",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IndexOutOfRange \\{\"message\":\"" +
-                    "tuple index out of range: index: 2, size: 2.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IndexOutOfRange message=tuple index out of" +
+                    " range: index: 2, size: 2.*")
     public void tupleIndexOutOfBoundTest3() {
         BRunUtil.invoke(compileResult, "tupleIndexOutOfBoundTest3");
     }
 
-    @Test(enabled = false, description = "Test index out of bounds due to a dynamic index",
+    @Test(description = "Test index out of bounds due to a dynamic index",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IndexOutOfRange \\{\"message\":\"" +
-                    "tuple index out of range: index: -1, size: 2.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IndexOutOfRange message=tuple index out of" +
+                    " range: index: -1, size: 2.*")
     public void tupleIndexOutOfBoundTest4() {
         BRunUtil.invoke(compileResult, "tupleIndexOutOfBoundTest4");
     }
@@ -153,10 +153,10 @@ public class TupleAccessExprTest {
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 6.6);
     }
 
-    @Test(enabled = false, description = "Test invalid type inserted to tuple due to a dynamic index",
+    @Test(description = "Test invalid type inserted to tuple due to a dynamic index",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InherentTypeViolation \\{\"message\":\"" +
-                    "incompatible types: expected 'string', found 'boolean'.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InherentTypeViolation message=incompatible" +
+                    " types: expected 'string', found 'boolean'.*")
     public void testInvalidInsertionToTuple() {
         BRunUtil.invoke(compileResult, "testInvalidInsertionToTuple");
     }
@@ -182,18 +182,18 @@ public class TupleAccessExprTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(enabled = false, description = "Test invalid type inserted to tuple due to a dynamic index",
+    @Test(description = "Test invalid type inserted to tuple due to a dynamic index",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IndexOutOfRange \\{\"message\":\"" +
-                    "tuple index out of range: index: 4, size: 4.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IndexOutOfRange message=tuple index out of " +
+                    "range: index: 4, size: 4.*")
     public void testTupleAccessUsingFiniteTypeNegative() {
         BRunUtil.invoke(compileResult, "testTupleAccessUsingFiniteTypeNegative");
     }
 
-    @Test(enabled = false, description = "Test invalid tuple access using a dynamic index",
+    @Test(description = "Test invalid tuple access using a dynamic index",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IndexOutOfRange \\{\"message\":\"" +
-                    "tuple index out of range: index: 6, size: 4.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IndexOutOfRange message=tuple index out of" +
+                    " range: index: 6, size: 4.*")
     public void testTupleAccessUsingUnionWithFiniteTypesNegative() {
         BRunUtil.invoke(compileResult, "testTupleAccessUsingUnionWithFiniteTypesNegative");
     }
