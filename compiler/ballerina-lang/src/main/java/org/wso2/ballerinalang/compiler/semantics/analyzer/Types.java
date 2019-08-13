@@ -670,6 +670,10 @@ public class Types {
             return isTupleTypeAssignableToArrayType((BTupleType) source, (BArrayType) target, unresolvedTypes);
         }
 
+        if (source.tag == TypeTags.ARRAY && target.tag == TypeTags.TUPLE) {
+            return isArrayTypeAssignableToTupleType((BArrayType) source, (BTupleType) target, unresolvedTypes);
+        }
+
         if (source.tag == TypeTags.TUPLE || target.tag == TypeTags.TUPLE) {
             return isTupleTypeAssignable(source, target, unresolvedTypes);
         }
@@ -701,63 +705,71 @@ public class Types {
     }
 
     private boolean isTupleTypeAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
-        if (source.tag == TypeTags.TUPLE && target.tag == TypeTags.TUPLE) {
-            BTupleType lhsTupleType = (BTupleType) target;
-            BTupleType rhsTupleType = (BTupleType) source;
-
-            if (lhsTupleType.restType == null && rhsTupleType.restType != null) {
-                return false;
-            }
-
-            if (lhsTupleType.restType == null && lhsTupleType.tupleTypes.size() != rhsTupleType.tupleTypes.size()) {
-                return false;
-            }
-
-            if (lhsTupleType.restType != null && rhsTupleType.restType != null) {
-                if (!isAssignable(rhsTupleType.restType, lhsTupleType.restType, unresolvedTypes)) {
-                    return false;
-                }
-            }
-
-            for (int i = 0; i < rhsTupleType.tupleTypes.size(); i++) {
-                BType lhsType = (lhsTupleType.tupleTypes.size() > i)
-                        ? lhsTupleType.tupleTypes.get(i) : lhsTupleType.restType;
-                if (!isAssignable(rhsTupleType.tupleTypes.get(i), lhsType, unresolvedTypes)) {
-                    return false;
-                }
-            }
-            return true;
-        } else if (source.tag == TypeTags.ARRAY && target.tag == TypeTags.TUPLE) {
-            BTupleType lhsType = (BTupleType) target;
-            BArrayType rhsType = (BArrayType) source;
-            Set<BType> tupleTypes = new HashSet<>(lhsType.tupleTypes);
-            if (lhsType.restType != null) {
-                tupleTypes.add(lhsType.restType);
-            }
-
-            if (!tupleTypes.isEmpty()) {
-                for (BType lType : tupleTypes) {
-                    if (!isAssignable(rhsType.eType, lType, unresolvedTypes)) {
-                        return false;
-                    }
-                }
-            } else {
-                return false;
-            }
-            return true;
-        } else {
+        if (source.tag != TypeTags.TUPLE || target.tag != TypeTags.TUPLE) {
             return false;
         }
+
+        BTupleType lhsTupleType = (BTupleType) target;
+        BTupleType rhsTupleType = (BTupleType) source;
+
+        if (lhsTupleType.restType == null && rhsTupleType.restType != null) {
+            return false;
+        }
+
+        if (lhsTupleType.restType == null && lhsTupleType.tupleTypes.size() != rhsTupleType.tupleTypes.size()) {
+            return false;
+        }
+
+        if (lhsTupleType.restType != null && rhsTupleType.restType != null) {
+            if (!isAssignable(rhsTupleType.restType, lhsTupleType.restType, unresolvedTypes)) {
+                return false;
+            }
+        }
+
+        for (int i = 0; i < rhsTupleType.tupleTypes.size(); i++) {
+            BType lhsType = (lhsTupleType.tupleTypes.size() > i)
+                    ? lhsTupleType.tupleTypes.get(i) : lhsTupleType.restType;
+            if (!isAssignable(rhsTupleType.tupleTypes.get(i), lhsType, unresolvedTypes)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean isTupleTypeAssignableToArrayType(BTupleType source, BArrayType target,
                                                      List<TypePair> unresolvedTypes) {
+        if (source.restType == null && target.state == BArrayState.UNSEALED) {
+            return false;
+        }
+
+        if (source.restType == null && target.size > -1 && source.tupleTypes.size() != target.size) {
+            return false;
+        }
+
         List<BType> sourceTypes = new ArrayList<>(source.tupleTypes);
         if (source.restType != null) {
             sourceTypes.add(source.restType);
         }
         return sourceTypes.stream()
                 .allMatch(tupleElemType -> isAssignable(tupleElemType, target.eType, unresolvedTypes));
+    }
+
+    private boolean isArrayTypeAssignableToTupleType(BArrayType source, BTupleType target,
+                                                     List<TypePair> unresolvedTypes) {
+        if (target.restType == null && source.state == BArrayState.UNSEALED) {
+            return false;
+        }
+
+        if (target.restType == null && source.size > -1 && target.tupleTypes.size() != source.size) {
+            return false;
+        }
+
+        List<BType> targetTypes = new ArrayList<>(target.tupleTypes);
+        if (target.restType != null) {
+            targetTypes.add(target.restType);
+        }
+        return targetTypes.stream()
+                .allMatch(tupleElemType -> isAssignable(source.eType, tupleElemType, unresolvedTypes));
     }
 
     public boolean isArrayTypesAssignable(BType source, BType target, List<TypePair> unresolvedTypes) {
