@@ -34,6 +34,8 @@ import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.ExitedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -52,6 +54,7 @@ import static org.ballerinalang.debugadapter.PackageUtils.findProjectRoot;
  */
 public class EventBus {
     private final Context context;
+    private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
     private Breakpoint[] breakpointsList = new Breakpoint[0];
     private Map<Long, ThreadReference> threadsMap = new HashMap<>();
     AtomicInteger nextVariableReference = new AtomicInteger();
@@ -141,6 +144,7 @@ public class EventBus {
                         }
                     }
                 } catch (InterruptedException e) {
+                    LOGGER.error(e.getMessage(), e);
                 }
             }
         }

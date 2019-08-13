@@ -1556,20 +1556,23 @@ function generateLambdaForPackageInits(jvm:ClassWriter cw, bir:Package pkg,
                                string mainClass, string initClass) {
     //need to generate lambda for package Init as well, if exist
     if (hasInitFunction(pkg)) {
+        boolean voidReturn = pkg.org.value == BALLERINA && pkg.name.value == BUILT_IN_PACKAGE_NAME;
+
         string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
-        generateLambdaForFunction(cw, initFuncName, initClass);
+        generateLambdaForModuleFunction(cw, initFuncName, initClass, voidReturn);
 
         // generate another lambda for start function as well
         string startFuncName = cleanupFunctionName(getModuleStartFuncName(pkg));
-        generateLambdaForFunction(cw, startFuncName, initClass);
+        generateLambdaForModuleFunction(cw, startFuncName, initClass, voidReturn);
 
         string stopFuncName = cleanupFunctionName(getModuleStopFuncName(pkg));
-        generateLambdaForFunction(cw, stopFuncName, initClass);
+        generateLambdaForModuleFunction(cw, stopFuncName, initClass);
     }
 }
 
-function generateLambdaForFunction(jvm:ClassWriter cw, string funcName, string initClass) {
-    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, 
+function generateLambdaForModuleFunction(jvm:ClassWriter cw, string funcName, string initClass,
+                                         boolean voidReturn = true) {
+    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC,
                         io:sprintf("$lambda$%s$", funcName),
                         io:sprintf("([L%s;)V", OBJECT), (), ());
     mv.visitCode();
@@ -1579,7 +1582,12 @@ function generateLambdaForFunction(jvm:ClassWriter cw, string funcName, string i
     mv.visitInsn(ICONST_0);
     mv.visitInsn(AALOAD);
     mv.visitTypeInsn(CHECKCAST, STRAND);
-    mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, io:sprintf("(L%s;)V", STRAND), false);
+
+    if (voidReturn) {
+        mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, io:sprintf("(L%s;)V", STRAND), false);
+    } else {
+        mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
+    }
 
     mv.visitInsn(RETURN);
     mv.visitMaxs(0,0);
@@ -1692,12 +1700,22 @@ function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
 
         string moduleClassName = getModuleLevelClassName(id.org, id.name, MODULE_INIT_CLASS_NAME);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
-                "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
+        if (mod.modOrg.value == BALLERINA && mod.modName.value == BUILT_IN_PACKAGE_NAME) {
+            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
+                            "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
+        } else {
+            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
+                            io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
+        }
 
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESTATIC, moduleClassName, startFuncName,
-                "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
+        if (mod.modOrg.value == BALLERINA && mod.modName.value == BUILT_IN_PACKAGE_NAME) {
+            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, startFuncName,
+                            "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
+        } else {
+            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, startFuncName,
+                            io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
+        }
 
         generatedInitFuncs[generatedInitFuncs.length()] = initFuncName;
     }
