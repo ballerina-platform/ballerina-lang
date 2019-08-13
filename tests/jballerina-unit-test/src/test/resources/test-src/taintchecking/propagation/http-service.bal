@@ -1,4 +1,5 @@
 import ballerina/http;
+import ballerina/log;
 
 listener http:Listener helloWorldEP = new(9090);
 
@@ -19,12 +20,10 @@ service sample on helloWorldEP {
         var req = request.getJsonPayload();
         if (req is json) {
             response.setJsonPayload(req);
-            seq(req);
         } else {
              log:printError("Invalid JSON!");
         }
         var result = caller->respond(response);
-        seq(result);
         if (result is error) {
             log:printError("Error sending response", err = result);
         }
@@ -32,10 +31,6 @@ service sample on helloWorldEP {
 }
 
 public function secureFunction (@untainted any secureIn, any insecureIn) {
-
-}
-
-function seq(@untainted any|error a) {
 
 }
 
