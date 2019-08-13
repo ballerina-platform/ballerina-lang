@@ -388,7 +388,7 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
 
         invocationExpr.argExprs.forEach(argExpr -> analyzeNode(argExpr, env));
         BLangExpression expr = invocationExpr.expr;
-        if (expr.getKind() == NodeKind.INVOCATION &&
+        if (expr != null && expr.getKind() == NodeKind.INVOCATION &&
             ((BLangInvocation) expr).symbol.type.getReturnType().tsymbol == aggregatorTypeSymbol) {
 
             Name funcName = names.fromIdNode(invocationExpr.name);
