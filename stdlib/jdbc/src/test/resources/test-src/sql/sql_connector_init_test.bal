@@ -91,7 +91,7 @@ function testConnectorWithDefaultPropertiesForListedDB() returns @tainted json {
     return j;
 }
 
-function testConnectorWithWorkers() returns (json) {
+function testConnectorWithWorkers() returns @tainted json {
     jdbc:Client testDB = new({
         url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",

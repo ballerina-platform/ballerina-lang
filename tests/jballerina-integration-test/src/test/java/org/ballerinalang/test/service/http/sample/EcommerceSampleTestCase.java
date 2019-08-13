@@ -38,7 +38,7 @@ public class EcommerceSampleTestCase extends HttpBaseTest {
 
     private final int servicePort = 9095;
 
-    @Test(description = "Test resource GET products in E-Commerce sample", groups = {"broken"})
+    @Test(description = "Test resource GET products in E-Commerce sample")
     public void testGetProducts() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
                 "ecommerceservice/products/123001"));
@@ -46,7 +46,7 @@ public class EcommerceSampleTestCase extends HttpBaseTest {
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString()),
                 TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
         Assert.assertEquals(response.getData(),
-                "{\"Product\":{\"ID\":\"123001\",\"Name\":\"ABC_2\",\"Description\":\"Sample product.\"}}",
+                "{\"Product\":{\"ID\":\"123001\", \"Name\":\"ABC_2\", \"Description\":\"Sample product.\"}}",
                 "Message content mismatched");
     }
 

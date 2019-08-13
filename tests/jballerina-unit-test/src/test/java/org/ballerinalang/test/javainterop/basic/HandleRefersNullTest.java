@@ -28,7 +28,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for ballerina/java functions related to Java null.
+ * Test cases for ballerinax/java functions related to Java null.
  *
  * @since 1.0.0
  */
@@ -41,14 +41,14 @@ public class HandleRefersNullTest {
         result = BCompileUtil.compile("test-src/javainterop/basic/handle_null_test.bal");
     }
 
-    @Test(description = "Test java:createNull method in ballerina/java")
+    @Test(description = "Test java:createNull method in ballerinax/java")
     public void testCreateNullHandle() {
         BValue[] returns = BRunUtil.invoke(result, "testCreateNullHandle");
         Assert.assertEquals(returns.length, 1);
         Assert.assertNull(((BHandleValue) returns[0]).getValue());
     }
 
-    @Test(description = "Test java:isNull method in ballerina/java")
+    @Test(description = "Test java:isNull method in ballerinax/java")
     public void testIsNull() {
         BValue[] args = new BValue[1];
         args[0] = new BHandleValue(null);

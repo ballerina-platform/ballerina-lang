@@ -1,0 +1,4 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command.
+$ ballerina run access_mutate_java_fields.bal
+25.132741228718345

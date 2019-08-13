@@ -21,6 +21,7 @@ import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
 import org.ballerinalang.debugadapter.DebuggerAttachingVM;
+import org.ballerinalang.debugadapter.terminator.OSUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +45,9 @@ public abstract class LauncherImpl {
         String ballerinaHome = args.get("ballerina.home").toString();
         String debuggeePort = args.get("debuggeePort").toString();
         String ballerinaExec = ballerinaHome + File.separator + "bin" + File.separator + "ballerina";
+        if (OSUtils.WINDOWS.equals(OSUtils.getOperatingSystem())) {
+            ballerinaExec = ballerinaExec + ".bat";
+        }
 
         // TODO: validate file path
         ArrayList<String> command = new ArrayList<String>();
@@ -53,9 +57,9 @@ public abstract class LauncherImpl {
             command.add("test");
         } else {
             command.add("run");
+            command.add("--debug");
+            command.add(debuggeePort);
         }
-        command.add("--debug");
-        command.add(debuggeePort);
         ArrayList<String> commandOptions = (ArrayList<String>) args.get("commandOptions");
         commandOptions = commandOptions == null ? new ArrayList<>() : commandOptions;
         command.addAll(commandOptions);
@@ -63,7 +67,7 @@ public abstract class LauncherImpl {
         command.add("--experimental");
 
         boolean networkLogs = args.get("networkLogs") != null && (boolean) args.get("networkLogs");
-        if (networkLogs) {
+        if (networkLogs && !debugTests) {
             Double networkLogsPort = (Double) args.get("networkLogsPort");
             command.add("-e");
             command.add("b7a.http.tracelog.host=localhost");

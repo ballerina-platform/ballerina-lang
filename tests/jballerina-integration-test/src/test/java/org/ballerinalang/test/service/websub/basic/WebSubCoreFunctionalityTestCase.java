@@ -118,6 +118,10 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources" +
                                                 File.separator + "websub" + File.separator + "subscriber" +
                                                 File.separator + "test_subscriber.bal").getAbsolutePath();
+    
+        String sourceRoot = new File("src" + File.separator + "test" + File.separator + "resources" +
+                                        File.separator + "websub" + File.separator + "subscriber").getAbsolutePath();
+        
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecher);
         webSubSubscriber.addLogLeecher(explicitIntentVerificationLogLeecher);
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherThree);
@@ -131,7 +135,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         webSubSubscriber.addLogLeecher(intentVerificationDenialLogLeecher);
 
         String[] subscriberArgs = {"-e", "test.hub.url=" + hubUrl};
-        webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{WEBSUB_PORT});
+        webSubSubscriber.startServer(sourceRoot, subscriberBal, subscriberArgs, new int[]{WEBSUB_PORT});
     }
 
     @Test
@@ -178,9 +182,13 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                                           "websub" + File.separator + "subscriber" + File.separator +
                                           "test_unsubscription_client.bal").getAbsolutePath();
+    
+        String sourceRoot = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
+                                  "websub" + File.separator + "subscriber").getAbsolutePath();
+        
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
-                subscriptionChanger.runMain(balFile);
+                subscriptionChanger.runMain(sourceRoot, balFile);
             } catch (BallerinaTestException e) {
                 //ignored since any errors here would be reflected as test failures
             }
@@ -209,7 +217,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
                                                                   "&hub.topic=http://two.websub.topic.com" +
                                                                   "&hub.callback=http://localhost:23181/websub",
                                                   headers);
-        Assert.assertTrue(response != null);
+        Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 202, "Remote topic registration unsuccessful "
                 + "to allow registering subscription");
     }
@@ -225,8 +233,8 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         headers.put("X-Hub-Signature", "SHA256=incorrect583e9dc7eaf63aede0abac8e15212e06320bb021c433a20f27d553");
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         HttpResponse response = HttpClientRequest.doPost(
-                webSubSubscriber.getServiceURLHttp(23181, "websubTwo"), "{\"dummy\":\"body\"}",
-                headers);
+                webSubSubscriber.getServiceURLHttp(23181, "subscriberWithNoPathInAnnot"),
+                "{\"dummy\":\"body\"}", headers);
         Assert.assertEquals(response.getResponseCode(), 404);
         Assert.assertEquals(response.getData(), "validation failed for notification");
     }
@@ -236,7 +244,7 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         HttpResponse response = HttpClientRequest.doPost(
-                webSubSubscriber.getServiceURLHttp(23181, "websubTwo"), "{\"dummy\":\"body\"}",
+                webSubSubscriber.getServiceURLHttp(23181, "websubThree"), "{\"dummy\":\"body\"}",
                 headers);
         Assert.assertEquals(response.getResponseCode(), 404);
         Assert.assertEquals(response.getData(), "validation failed for notification");
@@ -250,7 +258,11 @@ public class WebSubCoreFunctionalityTestCase extends WebSubBaseTest {
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertTrue(response.getData().contains("{\"callback\":\"http://localhost:23181/websub"));
+        Assert.assertTrue(response.getData().contains("callback=http://localhost:23181/websub") &&
+                                  response.getData().contains("callback=http://localhost:23181" +
+                                                                      "/subscriberWithNoPathInAnnot") &&
+                                  response.getData().contains("callback=http://localhost:23181/websubThree?topic=http" +
+                                                                      "://one.websub.topic.com&fooVal=barVal"));
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndExplicitIntentVerification")

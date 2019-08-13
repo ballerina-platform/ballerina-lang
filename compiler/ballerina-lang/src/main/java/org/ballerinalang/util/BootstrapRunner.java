@@ -7,10 +7,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -30,7 +34,7 @@ public class BootstrapRunner {
     private static PrintStream errorStream = System.err;
 
     public static void generateJarBinary(String entryBir, String jarOutputPath,
-                                         boolean dumpBir, String... birCachePaths) {
+                                          boolean dumpBir, String... birCachePaths) {
         String bootstrapHome = System.getProperty("ballerina.bootstrap.home");
         if (bootstrapHome == null) {
             generateJarBinaryViaCompiledBackend(entryBir, jarOutputPath, dumpBir, birCachePaths);
@@ -91,8 +95,27 @@ public class BootstrapRunner {
         }
     }
 
-
     public static void generateJarBinaryViaCompiledBackend(String entryBir, String jarOutputPath,
+                                                           boolean dumpBir, String... birCachePaths) {
+        List<String> commands = new ArrayList<>();
+        commands.add(entryBir);
+        commands.add(getMapPath());
+        commands.add(jarOutputPath);
+        commands.add(dumpBir ? "true" : "false"); // dump bir
+        commands.addAll(Arrays.asList(birCachePaths));
+        try {
+            Class<?> backendMain = Class.forName("ballerina.compiler_backend_jvm.___init");
+            Method backendMainMethod = backendMain.getMethod("main", String[].class);
+            Object[] params = new Object[]{commands.toArray(new String[0])};
+            backendMainMethod.invoke(null, params);
+        } catch (InvocationTargetException e) {
+            throw new BLangCompilerException(e.getTargetException().getMessage());
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException e) {
+            throw new BLangCompilerException("could not invoke compiler backend", e);
+        }
+    }
+
+    public static void generateJarBinaryViaCompiledBackend(Path tmpDir, String entryBir, String jarOutputPath,
                                                            boolean dumpBir, String... birCachePaths) {
         List<String> commands = new ArrayList<>();
         commands.add(entryBir);
@@ -100,17 +123,44 @@ public class BootstrapRunner {
         commands.add(jarOutputPath);
         commands.add(dumpBir ? "true" : "false"); // dump bir
         commands.addAll(Arrays.asList(birCachePaths));
-
         try {
+
+             //Load all Jars from target/tmp
+            if (Files.exists(tmpDir)) {
+                File file = new File(tmpDir.toString());
+                loadAllJarsInTarget(file);
+            }
+
             Class<?> backendMain = Class.forName("ballerina.compiler_backend_jvm.___init");
             Method backendMainMethod = backendMain.getMethod("main", String[].class);
             Object[] params = new Object[]{commands.toArray(new String[0])};
             backendMainMethod.invoke(null, params);
         } catch (InvocationTargetException e) {
-            throw new BLangCompilerException(((InvocationTargetException) e).getTargetException().getMessage());
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException e) {
-            throw new BLangCompilerException("could not invoke compiler backend", e);
+            Throwable target = e.getTargetException();
+            throw new RuntimeException(target.getMessage(), target);
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | MalformedURLException e) {
+            throw new RuntimeException("could not invoke compiler backend", e);
         }
+    }
+
+    private static void loadAllJarsInTarget(final File targetFolder) throws MalformedURLException,
+            NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        for (final File file : targetFolder.listFiles()) {
+            if (file.isDirectory()) {
+                loadAllJarsInTarget(file);
+            } else {
+                URL url = file.toURI().toURL();
+                URLClassLoader classLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+                Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+                method.setAccessible(true);
+                method.invoke(classLoader, url);
+            }
+        }
+    }
+
+    private static String getMapPath() {
+        String ballerinaNativeMap = System.getenv("BALLERINA_NATIVE_MAP");
+        return ballerinaNativeMap == null ? "" : ballerinaNativeMap;
     }
 
     public static void writeNonEntryPkgs(List<BPackageSymbol> imports, Path birCache, Path importsBirCache,

@@ -42,7 +42,7 @@ public class CodegenUtils {
      */
     public static boolean isBallerinaProject(Path path) {
         boolean isProject = false;
-        Path cachePath = path.resolve(".ballerina");
+        Path cachePath = path.resolve("Ballerina.toml");
 
         // .ballerina cache path should exist in ballerina project directory
         if (Files.exists(cachePath)) {

@@ -127,6 +127,10 @@ public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
                                                 File.separator + "websub" + File.separator + "subscriber" +
                                                 File.separator + "test_different_content_type_subscribers.bal")
                 .getAbsolutePath();
+    
+        String sourceRoot = new File("src" + File.separator + "test" + File.separator + "resources" +
+                                        File.separator + "websub" + File.separator + "subscriber").getAbsolutePath();
+        
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherOne);
         webSubSubscriber.addLogLeecher(intentVerificationLogLeecherTwo);
         webSubSubscriber.addLogLeecher(internalHubXmlNotificationLogLeecherOne);
@@ -144,7 +148,7 @@ public class WebSubContentTypeSupportTestCase extends WebSubBaseTest {
         webSubSubscriber.addLogLeecher(remoteHubJsonNotificationLogLeecherTwo);
 
         String[] subscriberArgs = {};
-        webSubSubscriber.startServer(subscriberBal, subscriberArgs, new int[]{WEBSUB_PORT});
+        webSubSubscriber.startServer(sourceRoot, subscriberBal, subscriberArgs, new int[]{WEBSUB_PORT});
     }
 
     @Test

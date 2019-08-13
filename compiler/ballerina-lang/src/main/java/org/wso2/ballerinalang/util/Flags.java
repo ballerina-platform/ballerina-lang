@@ -50,6 +50,7 @@ public class Flags {
     public static final int LAMBDA = LISTENER << 1;
     public static final int TYPE_PARAM = LAMBDA << 1;
     public static final int LANG_LIB = TYPE_PARAM << 1;
+    public static final int WORKER = LANG_LIB << 1;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -123,6 +124,9 @@ public class Flags {
                     break;
                 case LANG_LIB:
                     mask |= LANG_LIB;
+                    break;
+                case WORKER:
+                    mask |= WORKER;
                     break;
             }
         }

@@ -20,11 +20,12 @@ import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
@@ -50,11 +51,9 @@ import java.util.concurrent.CompletableFuture;
  */
 public class BallerinaProjectServiceImpl implements BallerinaProjectService {
     private final WorkspaceDocumentManager documentManager;
-    private final LSCompiler lsCompiler;
 
     public BallerinaProjectServiceImpl(LSGlobalContext globalContext) {
         this.documentManager = globalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
-        this.lsCompiler = new LSCompiler(documentManager);
     }
 
     @Override
@@ -65,12 +64,12 @@ public class BallerinaProjectServiceImpl implements BallerinaProjectService {
         try {
             LSContext astContext = new LSServiceOperationContext();
             astContext.put(DocumentServiceKeys.SOURCE_ROOT_KEY, sourceRoot);
-            List<BLangPackage> modules = lsCompiler.getBLangModules(astContext, this.documentManager, true,
+            List<BLangPackage> modules = LSModuleCompiler.getBLangModules(astContext, this.documentManager, true,
                     LSCustomErrorStrategy.class);
             JsonObject jsonModulesInfo = getJsonReply(astContext, modules);
             reply.setModules(jsonModulesInfo);
             reply.setParseSuccess(true);
-        } catch (JSONGenerationException | URISyntaxException e) {
+        } catch (CompilationFailedException | JSONGenerationException | URISyntaxException e) {
             reply.setParseSuccess(false);
         }
         return CompletableFuture.supplyAsync(() -> reply);

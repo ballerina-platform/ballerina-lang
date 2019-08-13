@@ -6,11 +6,6 @@ type Person record {
     string country;
 };
 
-type Employee record {|
-    string name;
-    int age;
-|};
-
 type Country record {
     string name;
     Capital capital;
@@ -49,28 +44,17 @@ public function main() {
     // The type of `vOtherDetails` will be `map<anydata|error>`.
     io:println("Other Details: ", vOtherDetails);
 
-    // The `{|` and `|}` delimiters specify that there should not be any other fields other than `name` and `age`. Hence,
-    // `Employee` should be a closed record.
-    Employee {| name: empName, age: empAge |} = getEmployee();
-    io:println("Name: ", empName);
-    io:println("Age: ", empAge);
-
     // Binding patterns are recursive in nature. `capital`, which is a field of the type `Capital` in `Country` can also be
     // destructured as follows:
-    var { name: countryName, capital: {| name: capitalName |} } = getCountry();
+    var { name: countryName, capital: { name: capitalName } } = getCountry();
     io:println("Country Name: ", countryName);
     io:println("Capital Name: ", capitalName);
 }
 
 function getPerson() returns Person {
     Person person = { name: "Peter", age: 28, country: "Sri Lanka",
-                      occupation: "Software Engineer" };
+                      "occupation": "Software Engineer" };
     return person;
-}
-
-function getEmployee() returns Employee {
-    Employee employee = { name: "John", age: 26 };
-    return employee;
 }
 
 function getCountry() returns Country {

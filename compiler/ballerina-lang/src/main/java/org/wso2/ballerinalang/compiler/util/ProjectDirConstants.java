@@ -27,7 +27,8 @@ public class ProjectDirConstants {
 
     private ProjectDirConstants() {
     }
-
+    
+   
     public static final String BLANG_SOURCE_EXT = ".bal";
     public static final String BLANG_COMPILED_PROG_EXT = ".balx";
     public static final String BLANG_COMPILED_PKG_BINARY_EXT = ".balo";
@@ -45,6 +46,7 @@ public class ProjectDirConstants {
     public static final String BIN_DIR_NAME = "bin";
     public static final String TARGET_DIR_NAME = "target";
     public static final String TARGET_BALO_DIRECTORY = "balo";
+    public static final String TARGET_TMP_DIRECTORY = "tmp";
 
     public static final String RESOURCE_DIR_NAME = "resources";
     public static final String TEST_DIR_NAME = "tests";
@@ -91,4 +93,6 @@ public class ProjectDirConstants {
     public static final String JAR_CACHE_DIR_NAME = "jar_cache";
 
     public static final String EXEC_SUFFIX = "-executable";
+
+    public static final String BLANG_PKG_DEFAULT_VERSION = "0.0.0";
 }

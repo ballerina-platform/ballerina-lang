@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/reflect;
+import ballerina/runtime;
 
 # Representation of the Authentication filter.
 #

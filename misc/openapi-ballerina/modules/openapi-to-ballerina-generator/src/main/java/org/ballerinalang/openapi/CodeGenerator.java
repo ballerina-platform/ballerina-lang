@@ -51,6 +51,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.ballerinalang.openapi.model.GenSrcFile.GenFileType;
 import static org.ballerinalang.openapi.utils.GeneratorConstants.GenType.GEN_CLIENT;
@@ -176,7 +178,8 @@ public class CodeGenerator {
         openApi.setModuleName(srcPackage);
         openApi.setServers(api);
         openApi.setTags(api.getTags());
-        openApi.setDefinitionPath(definitionPath);
+        openApi.setDefinitionPath(definitionPath.replaceAll(Pattern.quote("\\"),
+                Matcher.quoteReplacement("\\\\")));
 
         // modelPackage is not in use at the moment. All models will be written into same package as other src files.
         // Therefore value set to modelPackage is ignored here

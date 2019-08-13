@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSPr
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProjectDirectory;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
+import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
@@ -40,6 +41,9 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -68,8 +72,15 @@ public class LSCompilerUtil {
 
     private static final Pattern untitledFilePattern =
             Pattern.compile(".*[/\\\\]temp[/\\\\](.*)[/\\\\]untitled.bal");
-    
+
+    private static EmptyPrintStream emptyPrintStream;
+
     static {
+        try {
+            emptyPrintStream = new EmptyPrintStream();
+        } catch (IOException e) {
+            logger.error("Unable to create the empty stream.");
+        }
         String experimental = System.getProperty("experimental");
         EXPERIMENTAL_FEATURES_ENABLED = Boolean.parseBoolean(experimental);
         // Here we will create a tmp directory as the untitled project repo.
@@ -228,7 +239,9 @@ public class LSCompilerUtil {
                                 CustomErrorStrategyFactory.getCustomErrorStrategy(customErrorStrategy, context));
         }
         BLangDiagnosticLog.getInstance(compilerContext).errorCount = 0;
-        return Compiler.getInstance(compilerContext);
+        Compiler compiler = Compiler.getInstance(compilerContext);
+        compiler.setOutStream(emptyPrintStream);
+        return compiler;
     }
 
      /** Get compiler for the given context.
@@ -372,10 +385,19 @@ public class LSCompilerUtil {
     static Manifest getManifest(Path projectDirPath) {
         Path tomlFilePath = projectDirPath.resolve((ProjectDirConstants.MANIFEST_FILE_NAME));
         try {
-            return ManifestProcessor.parseTomlContentFromFile(tomlFilePath.toString());
-        } catch (IOException e) {
+            return ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
+        } catch (IOException | TomlException e) {
             return new Manifest();
         }
     }
-}
 
+    static class EmptyPrintStream extends PrintStream {
+        EmptyPrintStream() throws UnsupportedEncodingException {
+            super(new OutputStream() {
+                @Override
+                public void write(int b) {
+                }
+            }, true, "UTF-8");
+        }
+    }
+}
