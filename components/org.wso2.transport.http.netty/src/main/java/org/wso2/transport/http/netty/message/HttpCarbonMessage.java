@@ -38,7 +38,7 @@ import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorExceptio
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
-import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.listener.states.ListenerReqRespStateManager;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -60,7 +60,7 @@ public class HttpCarbonMessage {
     private final DefaultHttpResponseFuture httpOutboundRespStatusFuture = new DefaultHttpResponseFuture();
     private final Observable contentObservable = new DefaultObservable();
     private IOException ioException;
-    private MessageStateContext httpMessageStateContext;
+    public ListenerReqRespStateManager listenerReqRespStateManager;
     private Http2MessageStateContext http2MessageStateContext;
     private FullHttpMessageFuture fullHttpMessageFuture;
 
@@ -170,10 +170,12 @@ public class HttpCarbonMessage {
      * Count the message length till the given message length and returns.
      * If the message length is shorter than the given length it returns with the
      * available message size. This method is blocking function. Hence, use with care.
+     *
      * @param maxLength is the maximum length to count
      * @return counted length
+     * @throws IllegalStateException if illegal state occurs in the absence of content
      */
-    public long countMessageLengthTill(long maxLength) {
+    public long countMessageLengthTill(long maxLength) throws IllegalStateException {
         return this.blockingEntityCollector.countMessageLengthTill(maxLength);
     }
 
@@ -181,6 +183,7 @@ public class HttpCarbonMessage {
      * Return the length of entire payload. This is a blocking method.
      * @return the length.
      */
+    @Deprecated
     public long getFullMessageLength() {
         return blockingEntityCollector.getFullMessageLength();
     }
@@ -447,14 +450,6 @@ public class HttpCarbonMessage {
 
     public synchronized void setIoException(IOException ioException) {
         this.ioException = ioException;
-    }
-
-    public MessageStateContext getMessageStateContext() {
-        return httpMessageStateContext;
-    }
-
-    public void setMessageStateContext(MessageStateContext messageStateContext) {
-        this.httpMessageStateContext = messageStateContext;
     }
 
     public Http2MessageStateContext getHttp2MessageStateContext() {

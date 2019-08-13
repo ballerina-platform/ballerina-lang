@@ -169,6 +169,10 @@ public class SslConfiguration {
         sslConfig.setHandshakeTimeOut(handshakeTimeOut);
     }
 
+    public void disableSsl() {
+        sslConfig.disableSsl();
+    }
+
     public SSLConfig getClientSSLConfig() {
         if (scheme == null || !scheme.equalsIgnoreCase(HTTPS_SCHEME)) {
             return null;
@@ -236,6 +240,9 @@ public class SslConfiguration {
     }
 
     private SSLConfig getSSLConfigForSender() {
+        if (sslConfig.isDisableSsl()) {
+            return sslConfig;
+        }
         if ((sslConfig.getTrustStore() == null || sslConfig.getTrustStorePass() == null) && (
                 sslConfig.getClientTrustCertificates() == null)) {
             throw new IllegalArgumentException("TrustStoreFile or TrustStorePassword not defined for HTTPS/WS scheme");
@@ -253,6 +260,7 @@ public class SslConfiguration {
         sslConfig.setSSLProtocol(sslProtocol);
         String tlsStoreType = sslConfig.getTLSStoreType() != null ? sslConfig.getTLSStoreType() : JKS;
         sslConfig.setTLSStoreType(tlsStoreType);
+
         if (parameters != null) {
             for (Parameter parameter : parameters) {
                 switch (parameter.getName()) {

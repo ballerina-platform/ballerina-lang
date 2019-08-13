@@ -78,8 +78,8 @@ public class Http2Util {
      * @param withPriorKnowledge a boolean indicating whether the prior knowledge support is expected
      * @return HttpClientConnector
      */
-    public static HttpClientConnector getTestClient(HttpWsConnectorFactory httpWsConnectorFactory,
-                                                    boolean withPriorKnowledge) {
+    public static HttpClientConnector getTestHttp2Client(HttpWsConnectorFactory httpWsConnectorFactory,
+                                                         boolean withPriorKnowledge) {
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
         SenderConfiguration senderConfiguration = HttpConnectorUtil.getSenderConfiguration(transportsConfiguration,
                                                                                            Constants.HTTP_SCHEME);
@@ -91,6 +91,15 @@ public class Http2Util {
             HttpConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
     }
 
+    public static HttpClientConnector getTestHttp1Client(HttpWsConnectorFactory httpWsConnectorFactory) {
+        TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
+        SenderConfiguration h1SenderConfiguration = HttpConnectorUtil.getSenderConfiguration(transportsConfiguration,
+                                                                                             Constants.HTTP_SCHEME);
+        h1SenderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_1_1));
+        return httpWsConnectorFactory.createHttpClientConnector(
+                HttpConnectorUtil.getTransportProperties(transportsConfiguration), h1SenderConfiguration);
+    }
+
     public static void assertResult(String response1, String response2, String response3, String response4) {
         assertNotEquals(response1, response2,
                         "Client uses two different pools, hence response 1 and 2 should not be equal");
@@ -98,5 +107,19 @@ public class Http2Util {
                         "Client uses two different pools, hence response 3 and 4 should not be equal");
         assertEquals(response1, response3, "Client uses the same pool, hence response 1 and 3 should be equal");
         assertEquals(response2, response4, "Client uses the same pool, hence response 2 and 4 should be equal");
+    }
+
+    public static HttpClientConnector getHttp2Client(HttpWsConnectorFactory connectorFactory, boolean priorOn,
+                                               int socketIdleTimeout) {
+        TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
+        SenderConfiguration senderConfiguration = HttpConnectorUtil.getSenderConfiguration(transportsConfiguration,
+                                                                                           Constants.HTTP_SCHEME);
+        senderConfiguration.setSocketIdleTimeout(socketIdleTimeout);
+        senderConfiguration.setHttpVersion(Constants.HTTP_2_0);
+        if (priorOn) {
+            senderConfiguration.setForceHttp2(true);
+        }
+        return connectorFactory.createHttpClientConnector(
+                HttpConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
     }
 }

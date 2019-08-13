@@ -90,6 +90,14 @@ public interface ListenerState {
     void writeOutboundPromise(Http2OutboundRespListener http2OutboundRespListener, Http2PushPromise pushPromise)
             throws Http2Exception;
 
+    /**
+     * Handles the stream timeout.
+     *
+     * @param serverConnectorFuture     the sever connector future
+     * @param ctx                       the channel handler context
+     * @param http2OutboundRespListener the http/2 outbound response listener
+     * @param streamId                  the stream id
+     */
     void handleStreamTimeout(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
                              Http2OutboundRespListener http2OutboundRespListener, int streamId);
 }

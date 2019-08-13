@@ -22,11 +22,14 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contract.exceptions.ClientConnectorException;
+import org.wso2.transport.http.netty.contract.exceptions.EndpointTimeOutException;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
-import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.common.states.SenderReqRespStateManager;
 import org.wso2.transport.http.netty.contractimpl.sender.TargetHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
@@ -54,7 +57,8 @@ public class SendingEntityBody implements SenderState {
 
     private static final Logger LOG = LoggerFactory.getLogger(SendingEntityBody.class);
 
-    private final MessageStateContext messageStateContext;
+    private final SenderReqRespStateManager senderReqRespStateManager;
+
     private final boolean headersWritten;
     private final HandlerExecutor handlerExecutor;
     private final TargetChannel targetChannel;
@@ -63,14 +67,14 @@ public class SendingEntityBody implements SenderState {
     private long contentLength = 0;
     private List<HttpContent> contentList = new ArrayList<>();
 
-    SendingEntityBody(MessageStateContext messageStateContext, TargetChannel targetChannel,
-                             boolean headersWritten, HttpResponseFuture httpInboundResponseFuture) {
-        this.messageStateContext = messageStateContext;
+    SendingEntityBody(SenderReqRespStateManager senderReqRespStateManager, TargetChannel targetChannel,
+                      boolean headersWritten, HttpResponseFuture httpInboundResponseFuture, String httpVersion) {
+        this.senderReqRespStateManager = senderReqRespStateManager;
         this.targetChannel = targetChannel;
         this.headersWritten = headersWritten;
         this.handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
         this.httpInboundResponseFuture = httpInboundResponseFuture;
-        this.httpVersion = targetChannel.getHttpVersion();
+        this.httpVersion = httpVersion;
     }
 
     @Override
@@ -110,8 +114,8 @@ public class SendingEntityBody implements SenderState {
         // If this method is called, it is an application error. Inbound response is receiving before the completion
         // of request body write.
         targetHandler.getOutboundRequestMsg().setIoException(new IOException(INBOUND_RESPONSE_ALREADY_RECEIVED));
-        messageStateContext.setSenderState(new ReceivingHeaders(messageStateContext));
-        messageStateContext.getSenderState().readInboundResponseHeaders(targetHandler, httpInboundResponse);
+        senderReqRespStateManager.state = new ReceivingHeaders(senderReqRespStateManager);
+        senderReqRespStateManager.readInboundResponseHeaders(targetHandler, httpInboundResponse);
     }
 
     @Override
@@ -122,13 +126,17 @@ public class SendingEntityBody implements SenderState {
 
     @Override
     public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
-        // HttpResponseFuture will be notified asynchronously via writeOutboundRequestEntity method.
-        LOG.error(REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY);
+        httpResponseFuture
+                .notifyHttpListener(new ClientConnectorException(targetChannel.getChannel().id().asShortText(),
+                REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY));
+        LOG.error("Error in HTTP client: {}", REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY);
     }
 
     @Override
     public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
-        // HttpResponseFuture will be notified asynchronously via writeOutboundRequestEntity method.
+        httpResponseFuture.notifyHttpListener(
+                new EndpointTimeOutException(channelID, IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_BODY,
+                                             HttpResponseStatus.INTERNAL_SERVER_ERROR.code()));
         LOG.error("Error in HTTP client: {}", IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_BODY);
     }
 
@@ -146,7 +154,7 @@ public class SendingEntityBody implements SenderState {
                 }
                 httpInboundResponseFuture.notifyHttpListener(throwable);
             } else {
-                messageStateContext.setSenderState(new RequestCompleted(messageStateContext));
+                senderReqRespStateManager.state = new RequestCompleted(senderReqRespStateManager);
             }
         });
     }

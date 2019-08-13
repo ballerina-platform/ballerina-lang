@@ -46,7 +46,7 @@ import java.util.concurrent.Executors;
 public class Http2ServerWaitDuringDataWrite implements HttpConnectorListener {
     private static final Logger LOG = LoggerFactory.getLogger(Http2ServerWaitDuringDataWrite.class);
     private long waitTimeInMillis;
-    private ExecutorService executor = Executors.newSingleThreadExecutor();
+    private ExecutorService executor = Executors.newScheduledThreadPool(2);
 
     public Http2ServerWaitDuringDataWrite(long waitTimeInMillis) {
         this.waitTimeInMillis = waitTimeInMillis;

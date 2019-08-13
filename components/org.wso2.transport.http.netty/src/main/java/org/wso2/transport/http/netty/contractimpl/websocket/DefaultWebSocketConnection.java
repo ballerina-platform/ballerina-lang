@@ -15,7 +15,7 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketFrameType;
-import org.wso2.transport.http.netty.contractimpl.listener.MessageQueueHandler;
+import org.wso2.transport.http.netty.contractimpl.listener.WebSocketMessageQueueHandler;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -31,7 +31,7 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
     private final WebSocketInboundFrameHandler frameHandler;
     private final boolean secure;
     private final InetSocketAddress localAddress;
-    private MessageQueueHandler messageQueueHandler;
+    private WebSocketMessageQueueHandler webSocketMessageQueueHandler;
     private WebSocketFrameType continuationFrameType;
     private boolean closeFrameSent;
     private int closeInitiatedStatusCode;
@@ -39,12 +39,12 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
     private String negotiatedSubProtocol;
 
     public DefaultWebSocketConnection(ChannelHandlerContext ctx, WebSocketInboundFrameHandler frameHandler,
-                                      MessageQueueHandler messageQueueHandler, boolean secure,
+                                      WebSocketMessageQueueHandler webSocketMessageQueueHandler, boolean secure,
                                       String negotiatedSubProtocol) {
         this.ctx = ctx;
         this.id = WebSocketUtil.getChannelId(ctx);
         this.frameHandler = frameHandler;
-        this.messageQueueHandler = messageQueueHandler;
+        this.webSocketMessageQueueHandler = webSocketMessageQueueHandler;
         this.secure = secure;
         this.localAddress = (InetSocketAddress) ctx.channel().localAddress();
         this.negotiatedSubProtocol = negotiatedSubProtocol;
@@ -82,7 +82,7 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
 
     @Override
     public void readNextFrame() {
-        messageQueueHandler.readNextFrame();
+        webSocketMessageQueueHandler.readNextFrame();
     }
 
     @Override
@@ -99,7 +99,8 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
         ctx.channel().config().setAutoRead(false);
         ChannelPipeline pipeline = ctx.pipeline();
         if (pipeline.get(MESSAGE_QUEUE_HANDLER) == null) {
-            ctx.pipeline().addBefore(Constants.WEBSOCKET_FRAME_HANDLER, MESSAGE_QUEUE_HANDLER, messageQueueHandler);
+            ctx.pipeline().addBefore(Constants.WEBSOCKET_FRAME_HANDLER, MESSAGE_QUEUE_HANDLER,
+                                     webSocketMessageQueueHandler);
         }
     }
 

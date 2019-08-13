@@ -18,6 +18,7 @@
 
 package org.wso2.transport.http.netty.websocket.client;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -106,6 +107,29 @@ public class WebSocketClientHandshakeFunctionalityTestCase {
         Assert.assertEquals(throwable.getMessage(), "Invalid subprotocol. Actual: null. Expected one of: xmlx,jsonx");
     }
 
+    @Test(description = "Test the case when the compression is enabled")
+    public void testCompressionEnabled() throws InterruptedException {
+        WebSocketClientConnectorConfig configuration = new WebSocketClientConnectorConfig(WEBSOCKET_REMOTE_SERVER_URL);
+        configuration.setWebSocketCompressionEnabled(true);
+        HandshakeResult result = connectAndGetHandshakeResult(configuration);
+        HttpCarbonResponse response = result.getHandshakeResponse();
+        Assert.assertNotNull(response);
+        String compressionHeader = response.getHeader(HttpHeaderNames.SEC_WEBSOCKET_EXTENSIONS.toString());
+        Assert.assertNotNull(compressionHeader);
+        Assert.assertEquals(compressionHeader, "permessage-deflate");
+    }
+
+    @Test(description = "Test the case when the compression is disabled")
+    public void testCompressionDisabled() throws InterruptedException {
+        WebSocketClientConnectorConfig configuration = new WebSocketClientConnectorConfig(WEBSOCKET_REMOTE_SERVER_URL);
+        configuration.setWebSocketCompressionEnabled(false);
+        HandshakeResult result = connectAndGetHandshakeResult(configuration);
+        HttpCarbonResponse response = result.getHandshakeResponse();
+        Assert.assertNotNull(response);
+        String compressionHeader = response.getHeader(HttpHeaderNames.SEC_WEBSOCKET_EXTENSIONS.toString());
+        Assert.assertNull(compressionHeader);
+    }
+
     @Test(description = "Test the sub protocol negotiation with the remote server with 0 length of sub protocols")
     public void testConnectToServerWithoutSubProtocols() throws InterruptedException {
         WebSocketClientConnectorConfig configuration = new WebSocketClientConnectorConfig(WEBSOCKET_REMOTE_SERVER_URL);
@@ -179,7 +203,7 @@ public class WebSocketClientHandshakeFunctionalityTestCase {
         }
         Assert.assertNull(textReceived);
 
-        for (String testMsg: testMsgArray) {
+        for (String testMsg : testMsgArray) {
             Assert.assertEquals(readNextTextMsg(connectorListener, webSocketConnection), testMsg);
         }
     }
@@ -244,7 +268,7 @@ public class WebSocketClientHandshakeFunctionalityTestCase {
 
     private String[] sendTextMessages(WebSocketConnection webSocketConnection, int noOfMsgs)
             throws InterruptedException {
-        String testMsgArray[] = new String[noOfMsgs];
+        String[] testMsgArray = new String[noOfMsgs];
         for (int i = 0; i < noOfMsgs; i++) {
             String testMsg = "Test Message " + i;
             testMsgArray[i] = testMsg;
@@ -280,7 +304,7 @@ public class WebSocketClientHandshakeFunctionalityTestCase {
         });
         handshakeFutureLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, TimeUnit.SECONDS);
         return new HandshakeResult(connectionAtomicReference.get(), handshakeResponseAtomicReference.get(),
-                throwableAtomicReference.get(), connectorListener);
+                                   throwableAtomicReference.get(), connectorListener);
     }
 
     private static class HandshakeResult {

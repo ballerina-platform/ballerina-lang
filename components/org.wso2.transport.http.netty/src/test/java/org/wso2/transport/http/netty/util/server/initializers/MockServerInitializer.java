@@ -68,31 +68,41 @@ public class MockServerInitializer extends HttpServerInitializer {
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
             if (stringContent != null) {
-                ByteBuf content = Unpooled.wrappedBuffer(stringContent.getBytes("UTF-8"));
                 if (msg instanceof HttpRequest) {
                     req = (HttpRequest) msg;
                 } else if (msg instanceof LastHttpContent) {
                     if (HttpUtil.is100ContinueExpected(req)) {
                         ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, CONTINUE));
                     }
-                    boolean keepAlive = HttpUtil.isKeepAlive(req);
-                    HttpResponseStatus httpResponseStatus = new HttpResponseStatus(responseStatusCode,
-                            HttpResponseStatus.valueOf(responseStatusCode).reasonPhrase());
-                    FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, httpResponseStatus, content);
-                    response.headers().set(CONTENT_TYPE, contentType);
-                    response.headers().set(CONTENT_LENGTH, content.readableBytes());
 
-                    if (!keepAlive) {
-                        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-                        LOG.debug("Writing response with data to client-connector");
-                        LOG.debug("Closing the client-connector connection");
-                    } else {
-                        response.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-                        ctx.writeAndFlush(response);
-                        LOG.debug("Writing response with data to client-connector");
-                    }
+                    ByteBuf content = Unpooled.wrappedBuffer(stringContent.getBytes("UTF-8"));
+                    respond(ctx, content);
                 }
             }
+        }
+
+        private void respond(ChannelHandlerContext ctx, ByteBuf content) {
+            FullHttpResponse response = getFullHttpResponse(content);
+
+            boolean keepAlive = HttpUtil.isKeepAlive(req);
+            if (!keepAlive) {
+                ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+                LOG.debug("Writing response with data to client-connector");
+                LOG.debug("Closing the client-connector connection");
+            } else {
+                response.headers().set(CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+                ctx.writeAndFlush(response);
+                LOG.debug("Writing response with data to client-connector");
+            }
+        }
+
+        private FullHttpResponse getFullHttpResponse(ByteBuf content) {
+            HttpResponseStatus httpResponseStatus = new HttpResponseStatus(responseStatusCode,
+                                                  HttpResponseStatus.valueOf(responseStatusCode).reasonPhrase());
+            FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, httpResponseStatus, content);
+            response.headers().set(CONTENT_TYPE, contentType);
+            response.headers().set(CONTENT_LENGTH, content.readableBytes());
+            return response;
         }
     }
 }

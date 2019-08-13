@@ -110,7 +110,7 @@ public class SendingEntityBody implements ListenerState {
             Http2Exception {
         // In bidirectional streaming case, while sending the request data frames, server response data frames can
         // receive. In order to handle it. we need to change the states depending on the action.
-        http2MessageStateContext.setListenerState(new ReceivingEntityBody(http2MessageStateContext, Boolean.TRUE));
+        http2MessageStateContext.setListenerState(new ReceivingEntityBody(http2MessageStateContext));
         http2MessageStateContext.getListenerState().readInboundRequestBody(http2SourceHandler, dataFrame);
     }
 

@@ -89,4 +89,12 @@ public interface SenderState {
      */
     void readInboundPromise(ChannelHandlerContext ctx, Http2PushPromise http2PushPromise,
                             OutboundMsgHolder outboundMsgHolder);
+
+    /**
+     * Handles stream timeout.
+     *
+     * @param outboundMsgHolder the outbound message holder
+     * @param serverPush        indicates the response type
+     */
+    void handleStreamTimeout(OutboundMsgHolder outboundMsgHolder, boolean serverPush);
 }
