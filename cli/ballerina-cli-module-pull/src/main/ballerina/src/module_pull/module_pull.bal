@@ -210,7 +210,7 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
                     } else {
                         if (nightlyBuild) {
                             // If its a nightly build tag the file as a module from nightly
-                            string nightlyBuildMetafile = checkpanic filepath:build(baloCache, "nightly.build");
+                            string nightlyBuildMetafile = checkpanic filepath:build(baloCacheWithModulePath, "nightly.build");
                             if (!system:exists(<@untainted> nightlyBuildMetafile)) {
                                 string|error createdNightlyBuildFile = system:createFile(<@untainted> nightlyBuildMetafile);
                                 if (createdNightlyBuildFile is error) {

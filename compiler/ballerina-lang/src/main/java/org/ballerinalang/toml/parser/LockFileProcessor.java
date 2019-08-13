@@ -18,21 +18,14 @@
 package org.ballerinalang.toml.parser;
 
 import com.moandjiezana.toml.Toml;
-import org.antlr.v4.runtime.ANTLRFileStream;
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import org.ballerinalang.toml.antlr4.TomlProcessor;
 import org.ballerinalang.toml.model.LockFile;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 
 /**
- * LockFile Processor which processes the toml file parsed and populate the LockFile POJO.
+ * LockFile Processor which processes the toml file parsed and populate a {@link LockFile}.
  *
  * @since 0.973.1
  */

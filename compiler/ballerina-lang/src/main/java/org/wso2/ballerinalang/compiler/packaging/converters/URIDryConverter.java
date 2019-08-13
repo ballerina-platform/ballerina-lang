@@ -21,7 +21,6 @@ package org.wso2.ballerinalang.compiler.packaging.converters;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.IOException;
@@ -37,6 +36,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -46,10 +46,12 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.IMPLEMENTA
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
 /**
- *  Checks if theres a latest version in central. If there is then the version of the module is updated with that
- *  version.
+ *  Checks if there is a latest version in central if version is not mentioned. If there is then the version of the
+ *  module is updated with that version.
  */
 public class URIDryConverter extends URIConverter {
+    private List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
+    private Proxy proxy;
     
     private static TrustManager[] trustAllCerts = new TrustManager[]{
             new X509TrustManager() {
@@ -66,31 +68,34 @@ public class URIDryConverter extends URIConverter {
     };
     
     public URIDryConverter(URI base) {
-        super(base);
+        this(base, false);
     }
     
     public URIDryConverter(URI base, boolean isBuild) {
         super(base, isBuild);
+        try {
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            supportedPlatforms.add("any");
+            proxy = getProxy();
+        } catch (NoSuchAlgorithmException | KeyManagementException e) {
+            // ignore errors
+        }
     }
     
     public Stream<CompilerInput> finalize(URI remoteURI, PackageID moduleID) {
         try {
+            // only continue if module version is not set. a module version may be set through Ballerina.toml or
+            // Ballerina.lock already.
             if ("".equals(moduleID.version.value) || "*".equals(moduleID.version.value)) {
-                SSLContext sc = SSLContext.getInstance("SSL");
-                sc.init(null, trustAllCerts, new java.security.SecureRandom());
-                HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-                // get platforms supported
-                List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
-                // add any platform to the end of supported platforms list
-                supportedPlatforms.add("any");
-                Proxy proxy = getProxy();
                 for (String supportedPlatform : supportedPlatforms) {
                     HttpURLConnection conn;
                     // set proxy if exists.
-                    if (null == proxy) {
+                    if (null == this.proxy) {
                         conn = (HttpURLConnection) remoteURI.toURL().openConnection();
                     } else {
-                        conn = (HttpURLConnection) remoteURI.toURL().openConnection(proxy);
+                        conn = (HttpURLConnection) remoteURI.toURL().openConnection(this.proxy);
                     }
                     conn.setInstanceFollowRedirects(false);
                     conn.setRequestMethod("GET");
@@ -99,6 +104,7 @@ public class URIDryConverter extends URIConverter {
 //                    conn.setRequestProperty("Ballerina-Language-Specification-Version", IMPLEMENTATION_VERSION);
                     conn.setRequestProperty("Ballerina-Language-Specficiation-Version", IMPLEMENTATION_VERSION);
                     if (conn.getResponseCode() == 302) {
+                        // get the version from the 'Location' header.
                         String location = conn.getHeaderField("Location");
                         String version = location.split("/")[location.split("/").length - 3];
                         // update version
@@ -109,13 +115,18 @@ public class URIDryConverter extends URIConverter {
                     Authenticator.setDefault(null);
                 }
             }
-        } catch (NoSuchAlgorithmException | KeyManagementException | IOException e) {
+        } catch (IOException e) {
             // ignore error and don't set the version.
         }
     
         return Stream.empty();
     }
     
+    /**
+     * Get proxy for http connection.
+     *
+     * @return The proxy object.
+     */
     private Proxy getProxy() {
         org.ballerinalang.toml.model.Proxy proxy = TomlParserUtils.readSettings().getProxy();
         if (!"".equals(proxy.getHost())) {

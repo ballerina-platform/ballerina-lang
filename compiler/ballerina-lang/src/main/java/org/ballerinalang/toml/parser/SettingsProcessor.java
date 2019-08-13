@@ -18,12 +18,6 @@
 package org.ballerinalang.toml.parser;
 
 import com.moandjiezana.toml.Toml;
-import org.antlr.v4.runtime.ANTLRFileStream;
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import org.ballerinalang.toml.antlr4.TomlProcessor;
-import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Settings;
 
 import java.io.FileInputStream;
@@ -32,40 +26,29 @@ import java.io.InputStream;
 import java.nio.file.Path;
 
 /**
- * SettingHeaders Processor which processes the settings toml file parsed and populate the SettingHeaders POJO.
+ * SettingHeaders Processor which processes the settings toml file parsed and populate a {@link Settings}.
  *
  * @since 0.964
  */
 public class SettingsProcessor {
     
     /**
-     * Get the char stream of the content from file.
+     * Get a {@link Settings} object by giving the path to the settings toml file.
      *
-     * @param settingsPath path of the toml file
-     * @return charstream object
-     * @throws IOException exception if the file cannot be found
+     * @param settingsPath Path of the Settings.toml file.
+     * @return The settings object.
+     * @throws IOException Exception if the file cannot be found
      */
     public static Settings parseTomlContentFromFile(Path settingsPath) throws IOException {
         InputStream settingsInputStream = new FileInputStream(settingsPath.toFile());
         return getSettings(settingsInputStream);
     }
-
+    
     /**
-     * Get the char stream from string content.
+     * Get the settings config object by an input stream.
      *
-     * @param content toml file content as a string
-     * @return charstream object
-     */
-    public static Settings parseTomlContentFromString(String content) {
-        Toml toml = new Toml().read(content);
-        return toml.to(Settings.class);
-    }
-
-    /**
-     * Get the settings config object by passing the settings toml file.
-     *
-     * @param inputStream toml file content as a char stream
-     * @return settings object
+     * @param inputStream Settings.toml file's input stream.
+     * @return The Settings object
      */
     private static Settings getSettings(InputStream inputStream) {
         Toml toml = new Toml().read(inputStream);
