@@ -23,8 +23,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.config.ForwardedExtensionConfig;
-import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+import org.wso2.transport.http.netty.util.Http2Util;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -32,15 +32,7 @@ import static org.testng.AssertJUnit.assertEquals;
 public class Http2ForwardedEnableTestCase extends Http2ForwardedTestUtil {
     @BeforeClass
     public void setUp() throws InterruptedException {
-        super.setUp(getSenderConfigs());
-    }
-
-    private SenderConfiguration getSenderConfigs() {
-        SenderConfiguration senderConfiguration = new SenderConfiguration();
-        senderConfiguration.setHttpVersion("2.0");
-        senderConfiguration.setForceHttp2(true);
-        senderConfiguration.setForwardedExtensionConfig(ForwardedExtensionConfig.ENABLE);
-        return senderConfiguration;
+        super.setUp(Http2Util.getForwardSenderConfigs(ForwardedExtensionConfig.ENABLE, true));
     }
 
     @Test

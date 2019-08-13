@@ -19,6 +19,8 @@
 package org.wso2.transport.http.netty.http2.http2forwardedextension;
 
 import io.netty.handler.codec.http.HttpHeaders;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.Constants;
@@ -34,9 +36,7 @@ import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
-import org.wso2.transport.http.netty.util.server.HttpServer;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -44,8 +44,10 @@ import java.util.concurrent.TimeUnit;
 public class Http2ForwardedTestUtil {
 
     protected HttpClientConnector clientConnector;
-    protected HttpServer httpServer;
+    protected ServerConnector serverConnector;
     protected SenderConfiguration senderConfiguration;
+    private static final Logger LOG = LoggerFactory.getLogger(Http2ForwardedTestUtil.class);
+
 
     public void setUp(SenderConfiguration senderConfiguration) throws InterruptedException {
         this.senderConfiguration = senderConfiguration;
@@ -54,7 +56,7 @@ public class Http2ForwardedTestUtil {
         listenerConfiguration.setScheme(Constants.HTTP_SCHEME);
         listenerConfiguration.setVersion(Constants.HTTP_2_0);
         HttpWsConnectorFactory connectorFactory = new DefaultHttpWsConnectorFactory();
-        ServerConnector serverConnector = connectorFactory
+        serverConnector = connectorFactory
                 .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
         ServerConnectorFuture future = serverConnector.start();
         future.setHttpConnectorListener(new EchoMessageListener());
@@ -85,6 +87,6 @@ public class Http2ForwardedTestUtil {
 
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
-        TestUtil.cleanUp(Collections.emptyList() , httpServer);
+        serverConnector.stop();
     }
 }

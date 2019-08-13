@@ -114,6 +114,10 @@
             <class name="org.wso2.transport.http.netty.http2.TestExhaustedStreamIdForClient"/>
             <class name="org.wso2.transport.http.netty.http2.servertimeout.TimeoutDuringRequestReceive"/>
             <class name="org.wso2.transport.http.netty.http2.servertimeout.TimeoutAfterRequestReceived"/>
+            <class name="org.wso2.transport.http.netty.http2.http2forwardedextension.Http2ForwardedDefaultTestCase"/>
+            <class name="org.wso2.transport.http.netty.http2.http2forwardedextension.Http2ForwardedEnableTestCase"/>
+            <class name="org.wso2.transport.http.netty.http2.http2forwardedextension.Http2ForwardedTransitionTestCase"/>
+            <class name="org.wso2.transport.http.netty.http2.http2forwardedextension.Http2ForwardedEnableWithoutForceHttp2"/>
 <!--            <class name="org.wso2.transport.http.netty.http2.servertimeout.TimeoutDuringResponseDataWrite"/>-->
 <!--            <class name="org.wso2.transport.http.netty.http2.servertimeout.TimeoutDuringResponseDataWrite2"/>-->
         </classes>
