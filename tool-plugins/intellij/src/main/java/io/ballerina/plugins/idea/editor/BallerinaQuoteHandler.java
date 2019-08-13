@@ -26,7 +26,7 @@ import io.ballerina.plugins.idea.psi.BallerinaTypes;
 public class BallerinaQuoteHandler extends SimpleTokenSetQuoteHandler {
 
     public BallerinaQuoteHandler() {
-        super(BallerinaTypes.DOUBLE_QUOTE, BallerinaTypes.BACKTICK, //Needed to identify start tokens
+        super(BallerinaTypes.BACKTICK, //Needed to identify start tokens
                 BallerinaTypes.QUOTED_STRING_LITERAL); //Need to identify ending tokens
     }
 

@@ -56,7 +56,7 @@ function testBasicErrorVariableWithRecordDetails() {
     FooError err2 = error("Error One", message = "Something Wrong", fatal = true);
 
     string res1;
-    map<any> rec; // expected 'map', found 'Foo'
+    map<any|error> rec; // expected 'map', found 'Foo'
     string res2;
     boolean message; // 'boolean', found 'string'
     any fatal;
@@ -112,4 +112,25 @@ function testBasicErrorVariableWithIndexBasedRef() returns map<anydata|error> {
     error (results["res2"]["reason"], message = results["detail"]["message"], fatal = results["detail"]["fatal"]) = err1;
 
     return results;
+}
+
+const FILE_OPN = "FILE-OPEN";
+type FileOpenErrorDetail record {|
+    string message;
+    error cause?;
+    string targetFileName;
+    int errorCode;
+    int flags?;
+|};
+type FileOpenError error<FILE_OPN, FileOpenErrorDetail>;
+
+function testIndirectErrorRefMandatoryFields() {
+    FileOpenError e = FileOpenError(message="file open failed",
+                                targetFileName="/usr/bhah/a.log",
+                                errorCode=45221,
+                                flags=128);
+    string reason2;
+    string messageX;
+    map<any> rest2;
+    error(reason=reason2, message=messageX, ...rest2) = e;
 }

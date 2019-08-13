@@ -513,7 +513,7 @@ public type WebSubHub object {
     # + return - `boolean` indicating whether the internal Ballerina Hub was stopped
     public function stop() returns boolean {
         // TODO: return error
-        var stopResult = self.hubHttpListener.__stop();
+        var stopResult = self.hubHttpListener.__immediateStop();
         return stopHubService(self.hubUrl) && !(stopResult is error);
     }
 
