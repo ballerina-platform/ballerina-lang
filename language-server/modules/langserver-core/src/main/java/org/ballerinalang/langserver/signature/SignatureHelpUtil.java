@@ -26,9 +26,9 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
-import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionKeys;
@@ -103,10 +103,10 @@ public class SignatureHelpUtil {
      *
      * @param serviceContext    Text Document service context instance for the signature help operation
      * @return A {@link Pair} of function path and parameter count
-     * @throws LSCompilerException when compilation fails
+     * @throws CompilationFailedException when compilation fails
      */
     public static Pair<Optional<String>, Integer> getFunctionInvocationDetails(LSServiceOperationContext serviceContext)
-            throws LSCompilerException {
+            throws CompilationFailedException {
         int paramIndex = 0;
         int cursorTokenIndex = serviceContext.get(SourcePruneKeys.CURSOR_TOKEN_INDEX_KEY);
 
@@ -159,6 +159,7 @@ public class SignatureHelpUtil {
                     break;
                 }
             }
+            paramIndex += StringUtils.countMatches(funcInvocation, ',');
             Collections.reverse(collected);
             List<String> flatTokensText = collected.stream().map(Token::getText).collect(Collectors.toList());
             funcInvocation = String.join("", flatTokensText) + ")";
@@ -246,7 +247,7 @@ public class SignatureHelpUtil {
     }
 
     private static Optional<String> parseAndGetFunctionInvocationPath(String subRule, LSServiceOperationContext context)
-            throws LSCompilerException {
+            throws CompilationFailedException {
         Optional<BLangPackage> bLangPackage = ExtendedLSCompiler.compileContent(subRule, CompilerPhase.CODE_ANALYZE)
                 .getBLangPackage();
 

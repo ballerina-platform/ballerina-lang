@@ -101,8 +101,7 @@ public type FuncBodyParser object {
             var bType = self.reader.readTypeCpRef();
             kind = INS_KIND_NEW_STREAM;
             var lhsOp = self.parseVarRef();
-            var nameOp = self.parseVarRef();
-            NewStream newStream = { pos: pos, kind: kind, lhsOp: lhsOp, nameOp: nameOp, typeValue: bType };
+            NewStream newStream = { pos: pos, kind: kind, lhsOp: lhsOp, streamType: bType };
             return newStream;
         } else if (kindTag == INS_NEW_TABLE) {
             return self.parseNewTableInstruction(pos);
@@ -316,6 +315,13 @@ public type FuncBodyParser object {
             var rhsOp = self.parseVarRef();
             FieldAccess xmlAttrLoad = {pos:pos, kind:kind, lhsOp:lhsOp, keyOp:keyOp, rhsOp:rhsOp};
             return xmlAttrLoad;
+        } else if (kindTag == INS_STRING_LOAD) {
+            kind = INS_KIND_STRING_LOAD;
+            var lhsOp = self.parseVarRef();
+            var keyOp = self.parseVarRef();
+            var rhsOp = self.parseVarRef();
+            FieldAccess stringLoad = { pos: pos, kind: kind, lhsOp: lhsOp, keyOp: keyOp, rhsOp: rhsOp };
+            return stringLoad;
         }
         return ();
     }
@@ -358,6 +364,7 @@ public type FuncBodyParser object {
         var lhsOp = self.parseVarRef();
         var pkgId = self.reader.readModuleIDCpRef();
         var name = self.reader.readStringCpRef();
+        var retType = self.reader.readTypeCpRef();
 
         var mapCount = self.reader.readInt32();
         VarRef?[] maps = [];
@@ -375,7 +382,8 @@ public type FuncBodyParser object {
             params[i] = dcl;
             i += 1;
         }
-        FPLoad fpLoad = {pos:pos, kind:INS_KIND_FP_LOAD, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, params:params, closureMaps:maps};
+        FPLoad fpLoad = {pos:pos, kind:INS_KIND_FP_LOAD, lhsOp:lhsOp, pkgID:pkgId, name:{ value: name }, params:params, 
+            closureMaps:maps, retType:retType};
         return fpLoad;
     }
 
@@ -597,7 +605,7 @@ public type FuncBodyParser object {
                 j += 1;
             }
 
-            Unlock unlockIns = {pos:pos, kind:kind, globleVars:globleVars,
+            Unlock unlockIns = {pos:pos, kind:kind, globleVars:globleVars, 
                 localLocks:localLocks, unlockBB:self.parseBBRef()};
             return unlockIns;
         }
@@ -707,7 +715,7 @@ public type FuncBodyParser object {
             }
 
             var possibleDcl = self.globalVarMap[varName];
-            if (possibleDcl is VariableDcl) {
+            if (possibleDcl is GlobalVariableDcl) {
                 return possibleDcl;
             } else {
                 error err = error("global var missing " + varName);

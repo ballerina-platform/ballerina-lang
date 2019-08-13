@@ -17,11 +17,14 @@ package org.ballerinalang.langserver.compiler;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.ExtendedWorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProgramDirectory;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -29,6 +32,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +50,10 @@ import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
  * 
  * @since 1.0.0
  */
-public class ExtendedLSCompiler {
+public class ExtendedLSCompiler extends LSModuleCompiler {
+
+    private static final Logger logger = LoggerFactory.getLogger(ExtendedLSCompiler.class);
+    
     private static final ExtendedWorkspaceDocumentManagerImpl docManager =
             ExtendedWorkspaceDocumentManagerImpl.getInstance();
     /**
@@ -55,9 +62,9 @@ public class ExtendedLSCompiler {
      * @param content content to be compiled
      * @param phase   {@link CompilerPhase} for the compiler
      * @return {@link BallerinaFile} containing the compiled package
-     * @throws LSCompilerException when compiler error occurred
+     * @throws CompilationFailedException when compiler error occurred
      */
-    public static BallerinaFile compileContent(String content, CompilerPhase phase) throws LSCompilerException {
+    public static BallerinaFile compileContent(String content, CompilerPhase phase) throws CompilationFailedException {
         java.nio.file.Path filePath = LSCompilerUtil.createTempFile(LSCompilerUtil.UNTITLED_BAL);
         Optional<Lock> exModeLock = docManager.enableExplicitMode(filePath);
         Optional<Lock> fileLock = docManager.lockFile(filePath);
@@ -67,7 +74,7 @@ public class ExtendedLSCompiler {
             docManager.closeFile(filePath);
             return bFile;
         } catch (WorkspaceDocumentException e) {
-            throw new LSCompilerException("Error occurred while compiling file:" + filePath.toString(), e);
+            throw new CompilationFailedException("Error occurred while compiling file:" + filePath.toString(), e);
         } finally {
             docManager.disableExplicitMode(exModeLock.orElse(null));
             fileLock.ifPresent(Lock::unlock);
@@ -80,8 +87,10 @@ public class ExtendedLSCompiler {
      * @param filePath file {@link Path} of the file
      * @param compilerPhase    {@link CompilerPhase} for the compiler
      * @return {@link BallerinaFile} containing compiled package
+     * @throws CompilationFailedException when compiler error occurred
      */
-    public static BallerinaFile compileFile(Path filePath, CompilerPhase compilerPhase) {
+    public static BallerinaFile compileFile(Path filePath, CompilerPhase compilerPhase)
+            throws CompilationFailedException {
         LSContextManager contextManager = LSContextManager.getInstance();
         Path path = filePath.getFileName();
         Path parent = filePath.getParent();
@@ -101,14 +110,14 @@ public class ExtendedLSCompiler {
         options.put(PRESERVE_WHITESPACE, Boolean.valueOf(true).toString());
         options.put(TEST_ENABLED, String.valueOf(true));
         options.put(SKIP_TESTS, String.valueOf(false));
-        BLangPackage bLangPackage = null;
+        BLangDiagnosticLog.getInstance(context).errorCount = 0;
+        Compiler compiler = Compiler.getInstance(context);
         try {
-            BLangDiagnosticLog.getInstance(context).errorCount = 0;
-            Compiler compiler = Compiler.getInstance(context);
-            bLangPackage = compiler.compile(packageName);
-        } catch (RuntimeException e) {
-            // Ignore.
+            compiler.setOutStream(new LSCompilerUtil.EmptyPrintStream());
+        } catch (UnsupportedEncodingException e) {
+            logger.error("Unable to create the empty stream.");
         }
+        BLangPackage bLangPackage = compileSafe(compiler, parent.toString(), packageName);
         BallerinaFile bfile;
         if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
             List<Diagnostic> diagnostics = ((CollectDiagnosticListener) context.get(DiagnosticListener.class))
@@ -118,28 +127,5 @@ public class ExtendedLSCompiler {
             bfile = new BallerinaFile(bLangPackage, new ArrayList<>(), false, context);
         }
         return bfile;
-    }
-
-    /**
-     * Updates content and compile file.
-     *
-     * @param content         content need to be updated
-     * @param filePath        file {@link Path} of the file
-     * @param phase           {@link CompilerPhase} for the compiler
-     * @return {@link BallerinaFile} containing compiled package
-     * @throws LSCompilerException when compiler error occurred
-     */
-    public static BallerinaFile updateAndCompileFile(Path filePath, String content, CompilerPhase phase)
-            throws LSCompilerException {
-        Optional<Lock> lock = docManager.lockFile(filePath);
-        try {
-            docManager.updateFile(filePath, content);
-            return compileFile(filePath, phase);
-        } catch (WorkspaceDocumentException e) {
-            throw new LSCompilerException(
-                    "Error occurred while compiling the content in file path: " + filePath.toString(), e);
-        } finally {
-            lock.ifPresent(Lock::unlock);
-        }
     }
 }

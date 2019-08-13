@@ -38,12 +38,11 @@ import java.util.Map;
  * @since 0.990.4
  */
 public class ErrorVariableReferenceTest {
-    private CompileResult result, resultNegative;
+    private CompileResult result;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/expressions/varref/error_variable_reference.bal");
-        resultNegative = BCompileUtil.compile("test-src/expressions/varref/error_variable_reference_negative.bal");
     }
 
     @Test(description = "Test simple error var def with string and map")
@@ -172,19 +171,47 @@ public class ErrorVariableReferenceTest {
         Assert.assertEquals(returns[0].stringValue(), "the reason");
     }
 
+    @Test(description = "Test simple indirect error ref pattern")
+    public void testIndirectErrorRefBindingPattern() {
+        BValue[] returns = BRunUtil.invoke(result, "testIndirectErrorRefBindingPattern");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns[0].stringValue(), "msg");
+        Assert.assertNull(returns[1]);
+    }
+
+    @Test(description = "Test simple indirect error ref pattern with mandatory detail fields")
+    public void testIndirectErrorRefMandatoryFields() {
+        BValue[] returns = BRunUtil.invoke(result, "testIndirectErrorRefMandatoryFields");
+        int i = 0;
+        Assert.assertEquals(returns[i++].stringValue(), "file open failed");
+        Assert.assertEquals(returns[i++].stringValue(), "/usr/bhah/a.log");
+        Assert.assertEquals(returns[i++].stringValue(), "45221");
+        Assert.assertEquals(returns[i++].stringValue(), "128");
+        Assert.assertEquals(returns[i++].stringValue(), "FILE-OPEN");
+        Assert.assertEquals(returns[i++].stringValue(), "{\"message\":\"file open failed\", " +
+                "\"targetFileName\":\"/usr/bhah/a.log\", \"errorCode\":45221, \"flags\":128, \"cause\":c {}}");
+        Assert.assertEquals(returns[i++].stringValue(), "FILE-OPEN");
+        Assert.assertEquals(returns[i++].stringValue(), "file open failed");
+        Assert.assertEquals(returns[i++].stringValue(), "{\"targetFileName\":\"/usr/bhah/a.log\", " +
+                "\"errorCode\":45221, \"flags\":128, \"cause\":c {}}");
+    }
+
     @Test
-    public void testNegativeRecordVariables() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 12);
+    public void testNegativeErrorVariables() {
+        CompileResult resultNegative = BCompileUtil.compile(
+                "test-src/expressions/varref/error_variable_reference_negative.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 13);
         int i = -1;
         String incompatibleTypes = "incompatible types: ";
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'boolean', found 'string'", 31, 12);
         BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'map<int>', found 'map<string>'", 31, 26);
+                incompatibleTypes + "expected 'map<int>', found 'map<(string|error)>'", 31, 26);
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'string', found 'string?'", 32, 43);
         BAssertUtil.validateError(resultNegative, ++i,
-                                  incompatibleTypes + "expected 'map<string>', found 'map<(string|boolean)>'", 41, 25);
+                                  incompatibleTypes + "expected 'map<string>', found 'map<(string|error|boolean)>'",
+                41, 25);
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'string', found '(string|boolean)?'", 42, 43);
         BAssertUtil.validateError(resultNegative, ++i,
@@ -201,5 +228,7 @@ public class ErrorVariableReferenceTest {
                                   "error binding pattern does not support index based assignment", 112, 39);
         BAssertUtil.validateError(resultNegative, ++i,
                                   "error binding pattern does not support index based assignment", 112, 79);
+        BAssertUtil.validateError(resultNegative, ++i,
+                                  "incompatible types: expected 'map', found 'map<(error|string|int)>'", 135, 48);
     }
 }

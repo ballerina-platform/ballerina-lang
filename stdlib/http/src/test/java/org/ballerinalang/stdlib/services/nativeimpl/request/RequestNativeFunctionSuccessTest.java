@@ -70,7 +70,6 @@ import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichEntityWithDef
 import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichTestEntity;
 import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichTestEntityHeaders;
 import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createEntityObject;
-import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createMediaTypeObject;
 import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createRequestObject;
 
 /**
@@ -176,26 +175,6 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertEquals(payload.length(), ((BString) returnVals[0]).intValue());
     }
 
-    @Test(description = "Test GetContentLength function within a service. Enable this once this method is back in " +
-            "http package", enabled = false)
-    public void testServiceGetContentLength() {
-        String key = "lang";
-        String value = "ballerina";
-        String path = "/hello/getContentLength";
-        String jsonString = "{\"" + key + "\":\"" + value + "\"}";
-        int length = jsonString.length();
-        HTTPTestRequest inRequestMsg =
-                MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, jsonString);
-        inRequestMsg.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(length));
-
-        HttpCarbonMessage response = Services.invoke(TEST_PORT, inRequestMsg);
-
-        Assert.assertNotNull(response, "Response message not found");
-        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertTrue(bJson instanceof BMap);
-        Assert.assertEquals(((BMap) bJson).get("value").stringValue(), String.valueOf(length));
-    }
-
     @Test
     public void testGetHeader() {
         ObjectValue inRequest = createRequestObject();
@@ -203,8 +182,7 @@ public class RequestNativeFunctionSuccessTest {
         inRequestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
 
         ObjectValue entity = createEntityObject();
-        ObjectValue mediaType = createMediaTypeObject();
-        HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg);
+        HttpUtil.populateInboundRequest(inRequest, entity, inRequestMsg);
 
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetHeader",
                                               new Object[]{ inRequest, HttpHeaderNames.CONTENT_TYPE.toString() });
@@ -234,8 +212,7 @@ public class RequestNativeFunctionSuccessTest {
         headers.add("test-header", TEXT_PLAIN);
 
         ObjectValue entity = createEntityObject();
-        ObjectValue mediaType = createMediaTypeObject();
-        HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg);
+        HttpUtil.populateInboundRequest(inRequest, entity, inRequestMsg);
 
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetHeaders",
                                               new Object[]{ inRequest, "test-header" });

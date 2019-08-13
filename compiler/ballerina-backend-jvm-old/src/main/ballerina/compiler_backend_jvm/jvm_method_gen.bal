@@ -22,14 +22,10 @@ function generateMethod(bir:Function birFunc,
                             bir:BType? attachedType = (),
                             boolean isService = false,
                             string className = "") {
-    boolean isRemote = false;
-    if ((birFunc.flags & bir:REMOTE) == bir:REMOTE) {
-        isRemote = true;
-    }
     if (isExternFunc(birFunc)) {
-        genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType = attachedType, isRemote = isRemote);
+        genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType = attachedType);
     } else {
-        genJMethodForBFunc(birFunc, cw, birModule, isService, isRemote, className, attachedType = attachedType);
+        genJMethodForBFunc(birFunc, cw, birModule, isService, className, attachedType = attachedType);
     }
 }
 
@@ -37,12 +33,11 @@ function genJMethodForBFunc(bir:Function func,
                            jvm:ClassWriter cw,
                            bir:Package module,
                            boolean isService,
-                           boolean isRemote,
                            string className,
                            bir:BType? attachedType = ()) {
     string currentPackageName = getPackageName(module.org.value, module.name.value);
     BalToJVMIndexMap indexMap = new;
-    string funcName = cleanupFunctionName(untaint func.name.value);
+    string funcName = cleanupFunctionName(<@untainted> func.name.value);
     int returnVarRefIndex = -1;
 
     bir:VariableDcl stranVar = { typeValue: "string", // should be record
@@ -51,7 +46,7 @@ function genJMethodForBFunc(bir:Function func,
     _ = indexMap.getIndex(stranVar);
 
     // generate method desc
-    string desc = getMethodDesc(func.typeValue.paramTypes, func.typeValue.retType);
+    string desc = getMethodDesc(func.typeValue.paramTypes, <bir:BType?> func.typeValue.retType);
     int access = ACC_PUBLIC;
     int localVarOffset;
     if !(attachedType is ()) {
@@ -69,23 +64,20 @@ function genJMethodForBFunc(bir:Function func,
     }
 
     jvm:MethodVisitor mv = cw.visitMethod(access, funcName, desc, (), ());
-    InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
+    InstructionGenerator instGen = new(mv, indexMap, module);
     ErrorHandlerGenerator errorGen = new(mv, indexMap, currentPackageName);
     LabelGenerator labelGen = new();
 
     mv.visitCode();
 
     jvm:Label? tryStart = ();
-    jvm:Label? tryEnd = ();
-    jvm:Label? tryHandler = ();
-
     boolean isObserved = false;
-    if ((isService || isRemote) && funcName != "__init") {
-         // create try catch block to start and stop observability.
+    boolean isWorker = (func.flags & bir:WORKER) == bir:WORKER;
+    boolean isRemote = (func.flags & bir:REMOTE) == bir:REMOTE;
+    if ((isService || isRemote || isWorker) && funcName != "__init") {
+        // create try catch block to start and stop observability.
         isObserved = true;
         tryStart = labelGen.getLabel("try-start");
-        tryEnd = labelGen.getLabel("try-end");
-        tryHandler = labelGen.getLabel("try-handler");
         mv.visitLabel(<jvm:Label>tryStart);
     }
 
@@ -134,6 +126,7 @@ function genJMethodForBFunc(bir:Function func,
         }
         k += 1;
     }
+
     bir:VariableDcl stateVar = { typeValue: "string", //should  be javaInt
                                  name: { value: "state" },
                                  kind: "TEMP" };
@@ -151,7 +144,7 @@ function genJMethodForBFunc(bir:Function func,
 
     bir:VariableDcl varDcl = getVariableDcl(localVars[0]);
     returnVarRefIndex = indexMap.getIndex(varDcl);
-    bir:BType returnType = func.typeValue.retType;
+    bir:BType returnType = <bir:BType> func.typeValue.retType;
     genDefaultValue(mv, returnType, returnVarRefIndex);
 
     // uncomment to test yield
@@ -273,10 +266,55 @@ function genJMethodForBFunc(bir:Function func,
     mv.visitVarInsn(ALOAD, frameVarIndex);
     mv.visitInsn(AASTORE);
 
-    termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, func);
-
     jvm:Label methodEndLabel = new;
+    // generate the try catch finally to stop observing if an error occurs.
+    if (isObserved) {
+        jvm:Label tryEnd = labelGen.getLabel("try-end");
+        jvm:Label tryCatch = labelGen.getLabel("try-handler");
+        // visitTryCatchBlock visited at the end since order of the error table matters.
+        mv.visitTryCatchBlock(<jvm:Label>tryStart, tryEnd, tryCatch, ERROR_VALUE);
+        jvm:Label tryFinally = labelGen.getLabel("try-finally");
+        mv.visitTryCatchBlock(<jvm:Label>tryStart, tryEnd, tryFinally, ());
+        jvm:Label tryCatchFinally = labelGen.getLabel("try-catch-finally");
+        mv.visitTryCatchBlock(tryCatch, tryCatchFinally, tryFinally, ());
+
+        bir:VariableDcl catchVarDcl = { typeValue: "any", name: { value: "$_catch_$" } };
+        int catchVarIndex = indexMap.getIndex(catchVarDcl);
+        bir:VariableDcl throwableVarDcl = { typeValue: "any", name: { value: "$_throwable_$" } };
+        int throwableVarIndex = indexMap.getIndex(throwableVarDcl);
+
+        // Try-To-Finally
+        mv.visitLabel(tryEnd);
+        // emitStopObservationInvocation(mv, localVarOffset);
+        jvm:Label tryBlock1 = labelGen.getLabel("try-block-1");
+        mv.visitLabel(tryBlock1);
+        mv.visitJumpInsn(GOTO, methodEndLabel);
+
+        // Catch Block
+        mv.visitLabel(tryCatch);
+        mv.visitVarInsn(ASTORE, catchVarIndex);
+        jvm:Label tryBlock2 = labelGen.getLabel("try-block-2");
+        mv.visitLabel(tryBlock2);
+        emitReportErrorInvocation(mv, localVarOffset, catchVarIndex);
+        mv.visitLabel(tryCatchFinally);
+        emitStopObservationInvocation(mv, localVarOffset);
+        jvm:Label tryBlock3 = labelGen.getLabel("try-block-3");
+        mv.visitLabel(tryBlock3);
+        // re-throw caught error value
+        mv.visitVarInsn(ALOAD, catchVarIndex);
+        mv.visitInsn(ATHROW);
+
+        // Finally Block
+        mv.visitLabel(tryFinally);
+        mv.visitVarInsn(ASTORE, throwableVarIndex);
+        emitStopObservationInvocation(mv, localVarOffset);
+        jvm:Label tryBlock4 = labelGen.getLabel("try-block-4");
+        mv.visitLabel(tryBlock4);
+        mv.visitVarInsn(ALOAD, throwableVarIndex);
+        mv.visitInsn(ATHROW);
+    }
     mv.visitLabel(methodEndLabel);
+    termGen.genReturnTerm({pos:{}, kind:"RETURN"}, returnVarRefIndex, func);
 
     // Create Local Variable Table
     k = localVarOffset;
@@ -284,41 +322,36 @@ function genJMethodForBFunc(bir:Function func,
         bir:VariableDcl localVar = getVariableDcl(localVars[k]);
         jvm:Label startLabel = methodStartLabel;
         jvm:Label endLabel = methodEndLabel;
-        if ((localVar.kind is bir:LocalVarKind || localVar is bir:FunctionParam)
-            && !(localVar.meta["name"] is () || localVar.meta.name == "")) {
+        var tmpBoolParam = localVar.typeValue is bir:BTypeBoolean && isSynVar(localVar);
+        if (!tmpBoolParam && (localVar.kind is bir:LocalVarKind || localVar.kind is bir:ArgVarKind)) {
+            // local vars have visible range information
             if (localVar.kind is bir:LocalVarKind) {
-                startLabel = labelGen.getLabel(funcName + localVar.meta.startBBID + "ins" + localVar.meta.insOffset);
-                endLabel = labelGen.getLabel(funcName + localVar.meta.endBBID + "beforeTerm");
+                string startBBID = localVar.meta.startBBID;
+                string endBBID = localVar.meta.endBBID;
+                int insOffset = localVar.meta.insOffset;
+                if (startBBID != "") {
+                    startLabel = labelGen.getLabel(funcName + startBBID + "ins" + insOffset);
+                }
+                if (endBBID != "") {
+                    endLabel = labelGen.getLabel(funcName + endBBID + "beforeTerm");
+                }
             }
-            mv.visitLocalVariable(localVar.meta.name, getJVMTypeSign(localVar.typeValue),
-                                            startLabel, endLabel, indexMap.getIndex(localVar));
+            string metaVarName = localVar.meta.name;
+            if (metaVarName != "") {
+                mv.visitLocalVariable(metaVarName, getJVMTypeSign(localVar.typeValue),
+                                startLabel, endLabel, indexMap.getIndex(localVar));
+            }
         }
         k = k + 1;
     }
 
-    // generate the try finally to stop observing if an error occurs.
-    if (isObserved) {
-        // visiting at the end since order matters in error table
-        mv.visitTryCatchBlock(<jvm:Label>tryStart, <jvm:Label>tryEnd, <jvm:Label>tryHandler, ());
-        mv.visitLabel(<jvm:Label>tryEnd);
-        bir:VariableDcl throwableVarDcl = { typeValue: "string", name: { value: "$_throwable_$" } };
-        int throwableVarIndex = indexMap.getIndex(throwableVarDcl);
-        emitStopObservationInvocation(mv, localVarOffset);
-
-        jvm:Label l3 = new();
-        mv.visitLabel(l3);
-        mv.visitLabel(<jvm:Label>tryHandler);
-        mv.visitVarInsn(ASTORE, throwableVarIndex);
-        mv.visitVarInsn(ALOAD, localVarOffset);
-        emitStopObservationInvocation(mv, localVarOffset);
-
-        jvm:Label l5 = new();
-        mv.visitLabel(l5);
-        mv.visitVarInsn(ALOAD, throwableVarIndex);
-        mv.visitInsn(ATHROW);
-    }
     mv.visitMaxs(200, 400);
     mv.visitEnd();
+}
+
+function isSynVar(bir:VariableDcl localVar) returns boolean {
+    var name = localVar.name.value;
+    return name.length() >= 4 && name.substring(0, 4) == "%syn";
 }
 
 function geerateFrameClassFieldLoad(int localVarOffset, bir:VariableDcl?[] localVars, jvm:MethodVisitor mv,
@@ -540,6 +573,8 @@ function getJVMTypeSign(bir:BType bType) returns string {
         jvmType = io:sprintf("L%s;", FUTURE_VALUE);
     } else if (bType is bir:BInvokableType) {
         jvmType = io:sprintf("L%s;", FUNCTION_POINTER);
+    } else if (bType is bir:BTypeHandle) {
+        jvmType = io:sprintf("L%s;", HANDLE_VALUE);
     } else if (bType is bir:BTypeDesc) {
         jvmType = io:sprintf("L%s;", TYPEDESC_VALUE);
     }   else if (bType is bir:BTypeNil
@@ -561,7 +596,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             bir:Package module, string currentPackageName, bir:BType? attachedType, boolean isObserved = false,
             boolean isService = false, string className = "") {
     int j = 0;
-    string funcName = cleanupFunctionName(untaint func.name.value);
+    string funcName = cleanupFunctionName(<@untainted> func.name.value);
 
     // process error entries
     bir:ErrorEntry?[] errorEntries = func.errorEntries;
@@ -583,12 +618,12 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
         jvm:Label bbLabel = labelGen.getLabel(funcName + bb.id.value);
         mv.visitLabel(bbLabel);
 
-        // generate instructions
-        if (isObserved && funcName != "__init" && j == 0) {
+        if (isObserved && j == 0) {
             string observationStartMethod = isService ? "startResourceObservation" : "startCallableObservation";
             emitStartObservationInvocation(mv, localVarOffset, className, funcName, observationStartMethod);
         }
 
+        // generate instructions
         int m = 0;
         int insCount = bb.instructions.length();
         boolean isTrapped = currentEE is bir:ErrorEntry  && currentEE.trapBB.id.value == currentBBName;
@@ -660,6 +695,8 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
                     instGen.generateObjectStoreIns(inst);
                 } else if (inst.kind == bir:INS_KIND_OBJECT_LOAD) {
                     instGen.generateObjectLoadIns(inst);
+                } else if (inst.kind == bir:INS_KIND_STRING_LOAD) {
+                    instGen.generateStringLoadIns(inst);
                 } else if (inst.kind == bir:INS_KIND_XML_ATTRIBUTE_STORE) {
                     instGen.generateXMLAttrStoreIns(inst);
                 } else if (inst.kind == bir:INS_KIND_XML_ATTRIBUTE_LOAD) {
@@ -790,8 +827,11 @@ function generateLambdaMethod(bir:AsyncCall|bir:FPLoad ins, jvm:ClassWriter cw, 
     bir:BType returnType = bir:TYPE_NIL;
     if (lhsType is bir:BFutureType) {
         returnType = lhsType.returnType;
-    } else if (lhsType is bir:BInvokableType) { 
-        returnType = lhsType.retType;
+    } else if (ins is bir:FPLoad) {
+        returnType = ins.retType;
+        if (returnType is bir:BInvokableType) {
+            returnType = <bir:BType> returnType.retType;
+        }
     } else {
         error err = error( "JVM generation is not supported for async return type " +
                                         io:sprintf("%s", lhsType));
@@ -1206,7 +1246,7 @@ function getMainFunc(bir:Function?[] funcs) returns bir:Function? {
     bir:Function? userMainFunc = ();
     foreach var func in funcs {
         if (func is bir:Function && func.name.value == "main") {
-            userMainFunc = untaint func;
+            userMainFunc = <@untainted> func;
             break;
         }
     }
@@ -1247,10 +1287,9 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
 
     mv.visitTypeInsn(NEW, SCHEDULER);
     mv.visitInsn(DUP);
-    mv.visitInsn(ICONST_4);
 
     mv.visitInsn(ICONST_0);
-    mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(IZ)V", false);
+    mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(Z)V", false);
 
     if (hasInitFunction(pkg)) {
         string initFuncName = cleanupFunctionName(getModuleInitFuncName(pkg));
@@ -1398,7 +1437,7 @@ function scheduleStartMethod(jvm:MethodVisitor mv, bir:Package pkg, string initC
 function generateLambdaForMain(bir:Function userMainFunc, jvm:ClassWriter cw, bir:Package pkg,
                                string mainClass, string initClass) {
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
-    bir:BType returnType = userMainFunc.typeValue.retType;
+    bir:BType returnType = <bir:BType> userMainFunc.typeValue.retType;
     boolean isVoidFunc = returnType is bir:BTypeNil;
     
     jvm:MethodVisitor mv;
@@ -1474,12 +1513,11 @@ function loadCLIArgsForMain(jvm:MethodVisitor mv, bir:FunctionParam?[] params, b
         if (param is bir:FunctionParam) {
             if (param.hasDefaultExpr) {
                 mv.visitInsn(ICONST_1);
-                mv.visitLdcInsn(defaultableNames[defaultableIndex]);
-                defaultableIndex += 1;
             } else {
                 mv.visitInsn(ICONST_0);
-                mv.visitLdcInsn(param.name.value);
             }
+            mv.visitLdcInsn(defaultableNames[defaultableIndex]);
+            defaultableIndex += 1;
             // var varIndex = indexMap.getIndex(param);
             loadType(mv, param.typeValue);
         }
@@ -1520,7 +1558,12 @@ function generateLambdaForPackageInits(jvm:ClassWriter cw, bir:Package pkg,
         mv.visitInsn(ICONST_0);
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND);
-        mv.visitMethodInsn(INVOKESTATIC, initClass, initFuncName, io:sprintf("(L%s;)V", STRAND), false);
+
+        if (pkg.org.value == BALLERINA && pkg.name.value == BUILT_IN_PACKAGE_NAME) {
+            mv.visitMethodInsn(INVOKESTATIC, initClass, initFuncName, io:sprintf("(L%s;)V", STRAND), false);
+        } else {
+            mv.visitMethodInsn(INVOKESTATIC, initClass, initFuncName, io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
+        }
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(0,0);
@@ -1538,7 +1581,11 @@ function generateLambdaForPackageInits(jvm:ClassWriter cw, bir:Package pkg,
         mv.visitInsn(ICONST_0);
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND);
-        mv.visitMethodInsn(INVOKESTATIC, initClass, startFuncName, io:sprintf("(L%s;)V", STRAND), false);
+        if (pkg.org.value == BALLERINA && pkg.name.value == BUILT_IN_PACKAGE_NAME) {
+            mv.visitMethodInsn(INVOKESTATIC, initClass, startFuncName, io:sprintf("(L%s;)V", STRAND), false);
+        } else {
+            mv.visitMethodInsn(INVOKESTATIC, initClass, startFuncName, io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
+        }
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(0,0);
@@ -1611,9 +1658,9 @@ function calculateModuleSpecialFuncName(bir:ModuleID id, string funcSuffix) retu
     string versionValue = id.modVersion;
 
     string funcName;
-    if (moduleName.equalsIgnoreCase(".")) {
+    if (moduleName == ".") {
        funcName = ".." + funcSuffix;
-    } else if ("".equalsIgnoreCase(versionValue)) {
+    } else if (versionValue == "") {
        funcName = moduleName + "." + funcSuffix;
     } else {
         funcName = moduleName + ":" + versionValue + "." + funcSuffix;
@@ -1648,12 +1695,22 @@ function generateInitFunctionInvocation(bir:Package pkg, jvm:MethodVisitor mv) {
 
         string moduleClassName = getModuleLevelClassName(id.org, id.name, MODULE_INIT_CLASS_NAME);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
-                "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
+        if (mod.modOrg.value == BALLERINA && mod.modName.value == BUILT_IN_PACKAGE_NAME) {
+            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
+                            "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
+        } else {
+            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, initFuncName,
+                            io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
+        }
 
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESTATIC, moduleClassName, startFuncName,
-                "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
+        if (mod.modOrg.value == BALLERINA && mod.modName.value == BUILT_IN_PACKAGE_NAME) {
+            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, startFuncName,
+                            "(Lorg/ballerinalang/jvm/scheduling/Strand;)V", false);
+        } else {
+            mv.visitMethodInsn(INVOKESTATIC, moduleClassName, startFuncName,
+                            io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
+        }
 
         generatedInitFuncs[generatedInitFuncs.length()] = initFuncName;
     }
@@ -1742,7 +1799,7 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
         if (attachedFuncs is bir:Function?[]) {
             bir:BType? attachedType;
             if (typeDef.typeValue is bir:BRecordType) {
-                // Only attach function of a record is the record init. That should be
+                // Only attach function of records is the record init. That should be
                 // generated as a static function.
                 attachedType = ();
             } else {
@@ -1757,14 +1814,14 @@ function generateFrameClasses(bir:Package pkg, map<byte[]> pkgEntries) {
 
 function generateFrameClassForFunction (string pkgName, bir:Function? func, map<byte[]> pkgEntries,
                                         bir:BType? attachedType = ()) {
-    bir:Function currentFunc = getFunction(untaint func);
+    bir:Function currentFunc = getFunction(<@untainted> func);
     if (isExternFunc(currentFunc)) {
         return;
     }
     string frameClassName = getFrameClassName(pkgName, currentFunc.name.value, attachedType);
     jvm:ClassWriter cw = new(COMPUTE_FRAMES);
     cw.visitSource(currentFunc.pos.sourceFileName);
-    currentClass = untaint frameClassName;
+    currentClass = <@untainted> frameClassName;
     cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameClassName, (), OBJECT, ());
     generateDefaultConstructor(cw, OBJECT);
 

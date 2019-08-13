@@ -139,7 +139,13 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"completionWithTupleVariableDef.json", "function"},
                 {"completionWithinComments.json", "function"},
                 {"completionWithinLiterals.json", "function"},
-                {"typeofKWSuggestion.json", "function"},
+                {"assignmentStmt1.json", "function"},
+                {"assignmentStmt2.json", "function"},
+                {"assignmentStmt3.json", "function"},
+                {"assignmentStmt4.json", "function"},
+                {"assignmentStmt5.json", "function"},
+                {"assignmentStmt6.json", "function"},
+                {"typeofKWSuggestion.json", "function"}
         };
     }
 }

@@ -282,7 +282,7 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
     }
 
     private static boolean isWhiteSpaceOrComment(IElementType rawLookup) {
-        return rawLookup == TokenType.WHITE_SPACE || rawLookup == BallerinaTypes.COMMENT;
+        return rawLookup == TokenType.WHITE_SPACE || rawLookup == BallerinaTypes.LINE_COMMENT;
     }
 
     public static boolean isNotAResourceDefinition(PsiBuilder builder, int level) {

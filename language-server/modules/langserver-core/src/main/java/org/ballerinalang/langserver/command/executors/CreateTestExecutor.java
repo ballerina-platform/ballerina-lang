@@ -30,10 +30,10 @@ import org.ballerinalang.langserver.command.testgen.TestGenerator;
 import org.ballerinalang.langserver.command.testgen.TestGeneratorException;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.CreateFile;
@@ -167,7 +167,7 @@ public class CreateTestExecutor implements LSCommandExecutor {
         BLangPackage builtSourceFile;
         try {
             builtSourceFile = LSModuleCompiler.getBLangPackage(context, docManager, false, null, false);
-        } catch (LSCompilerException e) {
+        } catch (CompilationFailedException e) {
             throw new LSCommandExecutorException("Couldn't compile the source", e);
         }
 
@@ -232,7 +232,7 @@ public class CreateTestExecutor implements LSCommandExecutor {
                 }
             }
             return editParams;
-        } catch (TestGeneratorException | LSCompilerException e) {
+        } catch (TestGeneratorException | CompilationFailedException e) {
             String message = "Test generation failed!: " + e.getMessage();
             if (client != null) {
                 client.showMessage(new MessageParams(MessageType.Error, message));

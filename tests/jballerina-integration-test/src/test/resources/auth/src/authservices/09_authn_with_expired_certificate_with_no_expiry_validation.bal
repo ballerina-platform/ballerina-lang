@@ -19,13 +19,7 @@ import ballerina/jwt;
 
 jwt:InboundJwtAuthProvider jwtAuthProvider09 = new({
     issuer:"ballerina",
-    audience: "ballerina.io",
-    certificateAlias: "cert",
-    validateCertificate: false,
-    trustStore: {
-        path: "../../../src/test/resources/auth/testtruststore.p12",
-        password: "ballerina"
-    }
+    audience: "ballerina.io"
 });
 
 http:BearerAuthHandler jwtAuthHandler09 = new(jwtAuthProvider09);
@@ -48,6 +42,6 @@ listener http:Listener listener09 = new(20010, {
 service echo09 on listener09 {
 
     resource function test(http:Caller caller, http:Request req) {
-        checkpanic caller -> respond(());
+        checkpanic caller->respond();
     }
 }

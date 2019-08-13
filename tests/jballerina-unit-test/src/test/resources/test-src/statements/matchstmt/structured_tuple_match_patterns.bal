@@ -309,3 +309,33 @@ function foo7(any x) returns string {
     }
 }
 
+
+function testStructuredMatchPatternWithEmptyTuple() returns string[] {
+    int[] arr = [];
+    string[] result = [];
+    result[result.length()] = foo8(arr);
+
+    arr[arr.length()] = 1;
+    result[result.length()] = foo8(arr);
+
+    arr[arr.length()] = 2;
+    result[result.length()] = foo8(arr);
+
+    arr[arr.length()] = 3;
+    result[result.length()] = foo8(arr);
+
+    arr[arr.length()] = 4;
+    result[result.length()] = foo8(arr);
+
+    return result;
+}
+
+function foo8(any x) returns string {
+    match x {
+        var [] => {return "Matched with empty array";}
+        var [i] => {return io:sprintf("Matched with i: %s", i);}
+        var [i, j] => {return io:sprintf("Matched with i: %s, j: %s", i, j);}
+        var [i, j, k] => {return io:sprintf("Matched with i: %s, j: %s, k: %s", i, j, k);}
+        var s => {return "Matched with default";}
+    }
+}
