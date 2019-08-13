@@ -90,6 +90,12 @@ export const visitor: Visitor = {
         currentState.statement = undefined;
     },
 
+    beginVisitWaitExpr() {
+        if (currentState.statement) {
+            currentState.statement.viewState.hidden = false;
+        }
+    },
+
     beginVisitInvocation(node: Invocation) {
         const currentStatement = currentState.statement;
         const { currentBlock } = currentState;

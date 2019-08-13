@@ -58,6 +58,8 @@ public class Scheduler {
 
     private static final BlockingQueue<String> DEBUG_LOG;
 
+    private static final ThreadLocal<StrandHolder> strandHolder = ThreadLocal.withInitial(StrandHolder::new);
+
     static {
         if (DEBUG) {
             DEBUG_LOG = new LinkedBlockingDeque<>();
@@ -73,6 +75,14 @@ public class Scheduler {
     public Scheduler(int numThreads, boolean immortal) {
         this.numThreads = numThreads;
         this.immortal = immortal;
+    }
+
+    public static Strand getStrand() {
+        Strand strand = strandHolder.get().strand;
+        if (strand == null) {
+            throw new IllegalStateException("strand is not accessible form non-strand-worker threads");
+        }
+        return strand;
     }
 
     public FutureValue scheduleFunction(Object[] params, FPValue<?, ?> fp, Strand parent) {
@@ -195,11 +205,14 @@ public class Scheduler {
                 if (DEBUG) {
                     debugLog(item + " executing");
                 }
+                strandHolder.get().strand = item.future.strand;
                 result = item.execute();
             } catch (Throwable e) {
                 panic = e;
                 notifyChannels(item, panic);
                 logger.error("Strand died", e);
+            } finally {
+                strandHolder.get().strand = null;
             }
 
             switch (item.getState()) {
@@ -282,7 +295,7 @@ public class Scheduler {
                         assert runnableList.size() == 0;
 
                         // server agent start code will be inserted in above line during tests.
-                        // It depends on this line number 279.
+                        // It depends on this line number 295.
                         // update the linenumber @BallerinaServerAgent#SCHEDULER_LINE_NUM if modified
                         if (DEBUG) {
                             debugLog("+++++++++ all work completed ++++++++");
@@ -373,6 +386,12 @@ public class Scheduler {
         FutureValue future = new FutureValue(newStrand, callback);
         future.strand.frames = new Object[100];
         return future;
+    }
+
+    public void poison() {
+        for (int i = 0; i < numThreads; i++) {
+            runnableList.add(POISON_PILL);
+        }
     }
 }
 
