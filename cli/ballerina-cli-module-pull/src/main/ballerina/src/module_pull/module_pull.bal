@@ -331,7 +331,7 @@ function copy(int baloSize, io:ReadableByteChannel src, io:WritableByteChannel d
         int intTotalCount = <int>totalCount;
         string size = "[" + bar + ">" + spaces + "] " + intTotalCount.toString() + "/" + baloSize.toString();
         string msg = truncateString(modulePath + toAndFrom, terminalWidth - size.length());
-        io:print("\r" + logFormatter.formatLog(rightPad(msg, rightpadLength) + size));
+        io:print("\r" + logFormatter.formatLog(<@untainted> (rightPad(msg, rightpadLength) + size)));
     }
     io:println("\r" + logFormatter.formatLog(rightPad(modulePath + toAndFrom, terminalWidth)));
     return;

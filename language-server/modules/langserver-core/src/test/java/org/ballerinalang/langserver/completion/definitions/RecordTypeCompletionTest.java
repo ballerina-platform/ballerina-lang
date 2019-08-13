@@ -36,7 +36,7 @@ public class RecordTypeCompletionTest extends CompletionTest {
     public Object[][] dataProvider() {
         log.info("Test textDocument/completion for Record Type Scope");
         return new Object[][] {
-                {"recordTest1.json", "record"},
+//                {"recordTest1.json", "record"},
                 {"recordTest2.json", "record"},
                 {"recordTest3.json", "record"},
                 {"recordTest4.json", "record"},

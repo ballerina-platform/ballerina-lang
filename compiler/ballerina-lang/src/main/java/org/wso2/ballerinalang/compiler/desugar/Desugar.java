@@ -353,7 +353,7 @@ public class Desugar extends BLangNodeVisitor {
 
                 if (objectTypeNode.initFunction == null) {
                     objectTypeNode.initFunction = createInitFunctionForStructureType(objectTypeNode, env,
-                                                                                     Names.OBJECT_INIT_SUFFIX);
+                                                                                     Names.USER_DEFINED_INIT_SUFFIX);
                 }
 
                 // Add init function to the attached function list
@@ -378,21 +378,59 @@ public class Desugar extends BLangNodeVisitor {
      */
     private void createPackageInitFunctions(BLangPackage pkgNode, SymbolEnv env) {
         String alias = pkgNode.symbol.pkgID.toString();
-        pkgNode.initFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias, Names.INIT_FUNCTION_SUFFIX);
+        pkgNode.initFunction = ASTBuilderUtil.createInitFunctionWithErrorOrNilReturn(pkgNode.pos, alias,
+                                                                                     Names.INIT_FUNCTION_SUFFIX,
+                                                                                     symTable);
         // Add package level namespace declarations to the init function
         pkgNode.xmlnsList.forEach(xmlns -> {
             pkgNode.initFunction.body.addStatement(createNamespaceDeclrStatement(xmlns));
         });
-        pkgNode.startFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias, Names.START_FUNCTION_SUFFIX);
-        pkgNode.stopFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias, Names.STOP_FUNCTION_SUFFIX);
+        pkgNode.startFunction = ASTBuilderUtil.createInitFunctionWithErrorOrNilReturn(pkgNode.pos, alias,
+                                                                                      Names.START_FUNCTION_SUFFIX,
+                                                                                      symTable);
+        pkgNode.stopFunction = ASTBuilderUtil.createInitFunctionWithNilReturn(pkgNode.pos, alias,
+                                                                              Names.STOP_FUNCTION_SUFFIX);
         // Create invokable symbol for init function
         createInvokableSymbol(pkgNode.initFunction, env);
         // Create invokable symbol for start function
         createInvokableSymbol(pkgNode.startFunction, env);
-        addInitReturnStatement(pkgNode.startFunction.body);
         // Create invokable symbol for stop function
         createInvokableSymbol(pkgNode.stopFunction, env);
-        addInitReturnStatement(pkgNode.stopFunction.body);
+    }
+
+    private void addUserDefinedModuleInitInvocationAndReturn(BLangPackage pkgNode) {
+        Optional<BLangFunction> userDefInitOptional = pkgNode.functions.stream()
+                .filter(bLangFunction -> !bLangFunction.attachedFunction &&
+                            bLangFunction.name.value.equals(Names.USER_DEFINED_INIT_SUFFIX.value))
+                .findFirst();
+
+        if (!userDefInitOptional.isPresent()) {
+            addNilReturnStatement(pkgNode.initFunction.body);
+            return;
+        }
+
+        BLangFunction userDefInit = userDefInitOptional.get();
+
+        BLangInvocation userDefInitInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
+        userDefInitInvocation.pos = pkgNode.initFunction.pos;
+        BLangIdentifier name = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        name.setLiteral(false);
+        name.setValue(userDefInit.name.value);
+        userDefInitInvocation.name = name;
+        userDefInitInvocation.symbol = userDefInit.symbol;
+
+        BLangIdentifier pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        pkgAlias.setLiteral(false);
+        pkgAlias.setValue(pkgNode.packageID.name.value);
+        userDefInitInvocation.pkgAlias = pkgAlias;
+
+        userDefInitInvocation.type = userDefInit.returnTypeNode.type;
+        userDefInitInvocation.requiredArgs = Collections.emptyList();
+
+        BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
+        returnStmt.pos = pkgNode.initFunction.pos;
+        returnStmt.expr = userDefInitInvocation;
+        pkgNode.initFunction.body.stmts.add(returnStmt);
     }
 
     /**
@@ -402,11 +440,13 @@ public class Desugar extends BLangNodeVisitor {
      * @param env           Symbol environment
      */
     private void createInvokableSymbol(BLangFunction bLangFunction, SymbolEnv env) {
-        BInvokableType invokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
+        BType returnType = bLangFunction.returnTypeNode.type == null ?
+                symResolver.resolveTypeNode(bLangFunction.returnTypeNode, env) : bLangFunction.returnTypeNode.type;
+
+        BInvokableType invokableType = new BInvokableType(new ArrayList<>(), returnType, null);
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(bLangFunction.flagSet),
                 new Name(bLangFunction.name.value), env.enclPkg.packageID, invokableType, env.enclPkg.symbol, true);
-        functionSymbol.retType = bLangFunction.returnTypeNode.type == null ?
-                symResolver.resolveTypeNode(bLangFunction.returnTypeNode, env) : bLangFunction.returnTypeNode.type;
+        functionSymbol.retType = returnType;
         // Add parameters
         for (BLangVariable param : bLangFunction.requiredParams) {
             functionSymbol.params.add(param.symbol);
@@ -417,11 +457,11 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     /**
-     * Add init return statments.
+     * Add nil return statement.
      *
      * @param bLangBlockStmt block statement node
      */
-    private void addInitReturnStatement(BLangBlockStmt bLangBlockStmt) {
+    private void addNilReturnStatement(BLangBlockStmt bLangBlockStmt) {
         BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(bLangBlockStmt.pos, symTable.nilType);
         bLangBlockStmt.addStatement(returnStmt);
     }
@@ -480,6 +520,10 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));
 
         annotationDesugar.rewritePackageAnnotations(pkgNode, env);
+
+        // Add invocation for user specified module init function (`__init()`) if present and return.
+        addUserDefinedModuleInitInvocationAndReturn(pkgNode);
+
         //Sort type definitions with precedence
         pkgNode.typeDefinitions.sort(Comparator.comparing(t -> t.precedence));
 
@@ -492,6 +536,9 @@ public class Desugar extends BLangNodeVisitor {
 
         serviceDesugar.rewriteListeners(pkgNode.globalVars, env);
         serviceDesugar.rewriteServiceAttachments(serviceAttachments, env);
+
+        addNilReturnStatement(pkgNode.startFunction.body);
+        addNilReturnStatement(pkgNode.stopFunction.body);
 
         pkgNode.initFunction = splitInitFunction(pkgNode, env);
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
@@ -3240,7 +3287,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangTypeInit typeInitExpr) {
         switch (typeInitExpr.type.tag) {
             case TypeTags.STREAM:
-                result = getInitExpr(typeInitExpr.type, typeInitExpr);
+                result = new BLangStreamLiteral(typeInitExpr.pos, typeInitExpr.type);
                 break;
             default:
                 if (typeInitExpr.type.tag == TypeTags.OBJECT && typeInitExpr.initInvocation.symbol == null) {
@@ -3266,7 +3313,7 @@ public class Desugar extends BLangNodeVisitor {
         if (typeInitExpr.initInvocation.type.tag == TypeTags.NIL) {
             BLangExpressionStmt initInvExpr = ASTBuilderUtil.createExpressionStmt(typeInitExpr.pos, blockStmt);
             initInvExpr.expr = typeInitExpr.initInvocation;
-            typeInitExpr.initInvocation.name.value = Names.OBJECT_INIT_SUFFIX.value;
+            typeInitExpr.initInvocation.name.value = Names.USER_DEFINED_INIT_SUFFIX.value;
             BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, objVarRef);
             stmtExpr.type = objVarRef.symbol.type;
             return stmtExpr;
@@ -6128,7 +6175,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangFunction createInitFunctionForStructureType(BLangStructureTypeNode structureTypeNode, SymbolEnv env,
                                                              Name suffix) {
         BLangFunction initFunction = ASTBuilderUtil
-                .createInitFunction(structureTypeNode.pos, Names.EMPTY.value, suffix);
+                .createInitFunctionWithNilReturn(structureTypeNode.pos, Names.EMPTY.value, suffix);
 
         // Create the receiver
         initFunction.receiver = ASTBuilderUtil.createReceiver(structureTypeNode.pos, structureTypeNode.type);
@@ -6142,9 +6189,8 @@ public class Desugar extends BLangNodeVisitor {
         initFunction.flagSet.add(Flag.ATTACHED);
 
         // Create function symbol
-        Name funcSymbolName = names.fromString(Symbols.getAttachedFuncSymbolName(structureTypeNode.type.tsymbol.
-                                                                                         name.value, Names
-                                                                                         .OBJECT_INIT_SUFFIX.value));
+        Name funcSymbolName = names.fromString(Symbols.getAttachedFuncSymbolName(
+                structureTypeNode.type.tsymbol.name.value, Names.USER_DEFINED_INIT_SUFFIX.value));
         initFunction.symbol = Symbols
                 .createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, env.enclPkg.symbol.pkgID,
                                       initFunction.type, structureTypeNode.symbol.scope.owner,
@@ -6168,27 +6214,6 @@ public class Desugar extends BLangNodeVisitor {
                                                            (BInvokableType) initFunction.type);
         structureTypeNode.initFunction = initFunction;
         return rewrite(initFunction, env);
-    }
-
-    private BLangExpression getInitExpr(BType type, BLangTypeInit typeInitExpr) {
-        String identifier;
-        switch (typeInitExpr.parent.getKind()) {
-            case ASSIGNMENT:
-                identifier = ((BLangSimpleVarRef) ((BLangAssignment) typeInitExpr.parent).varRef).symbol.name.value;
-                break;
-            case VARIABLE:
-                identifier = ((BLangSimpleVariable) typeInitExpr.parent).name.value;
-                break;
-            default:
-                return null;
-                // shouldn't reach here - todo need to fix as param
-        }
-        switch (type.tag) {
-            case TypeTags.STREAM:
-                return new BLangStreamLiteral(typeInitExpr.pos, type, identifier);
-            default:
-                return null;
-        }
     }
 
     private void visitBinaryLogicalExpr(BLangBinaryExpr binaryExpr) {
@@ -6331,10 +6356,17 @@ public class Desugar extends BLangNodeVisitor {
 
         for (int j = 0; j < generatedFunctions.size() - 1; j++) {
             BLangFunction thisFunction = generatedFunctions.get(j);
+
+            BLangCheckedExpr checkedExpr =
+                    ASTBuilderUtil.createCheckExpr(initFunction.pos,
+                                                   createInvocationNode(generatedFunctions.get(j + 1).name.value,
+                                                                        new ArrayList<>(), symTable.errorOrNilType),
+                                                   symTable.nilType);
+            checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
+
             BLangExpressionStmt expressionStmt = ASTBuilderUtil.createExpressionStmt(thisFunction.pos,
                     thisFunction.body);
-            expressionStmt.expr = createInvocationNode(generatedFunctions.get(j + 1).name.value, new ArrayList<>(),
-                    symTable.nilType);
+            expressionStmt.expr = checkedExpr;
             expressionStmt.expr.pos = initFunction.pos;
 
             if (j > 0) { // skip init func
@@ -6362,8 +6394,10 @@ public class Desugar extends BLangNodeVisitor {
      */
     private BLangFunction createIntermediateInitFunction(BLangPackage pkgNode, SymbolEnv env, int iteration) {
         String alias = pkgNode.symbol.pkgID.toString();
-        BLangFunction initFunction = ASTBuilderUtil.createInitFunction(pkgNode.pos, alias,
-                new Name(Names.INIT_FUNCTION_SUFFIX.value + iteration));
+        BLangFunction initFunction = ASTBuilderUtil
+                .createInitFunctionWithErrorOrNilReturn(pkgNode.pos, alias,
+                                                        new Name(Names.INIT_FUNCTION_SUFFIX.value + iteration),
+                                                        symTable);
         // Create invokable symbol for init function
         createInvokableSymbol(initFunction, env);
         return initFunction;

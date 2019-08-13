@@ -18,19 +18,19 @@
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-public type Type any|error;
+type Type any|error;
 
 # A type parameter that is a subtype of `any|error`.
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-public type Type1 any|error;
+type Type1 any|error;
 
 # A type parameter that is a subtype of `anydata|error`.
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-public type PureType anydata|error;
+type PureType anydata|error;
 
 type MapIterator object {
 

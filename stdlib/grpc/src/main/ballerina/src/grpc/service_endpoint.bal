@@ -33,10 +33,14 @@ public type Listener object {
         return self.start();
     }
 
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
     # Stops the registered service.
     #
     # + return - Returns an error if encounters an error while stopping the server, returns nil otherwise.
-    public function __stop() returns error? {
+    public function __immediateStop() returns error? {
         return self.stop();
     }
 

@@ -24,7 +24,6 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-config')
-    implementation 'org.slf4j:slf4j-api'
     implementation 'io.netty:netty-transport'
     implementation 'io.netty:netty-codec'
     implementation 'io.netty:netty-buffer'

@@ -290,9 +290,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             validateAnnotationAttachmentCount(funcNode.externalAnnAttachments);
         }
 
-        funcNode.requiredParams.forEach(p -> this.analyzeDef(p, funcEnv));
+        for (BLangSimpleVariable param : funcNode.requiredParams) {
+            symbolEnter.defineExistingVarSymbolInEnv(param.symbol, funcNode.clonedEnv);
+            this.analyzeDef(param, funcNode.clonedEnv);
+        }
         if (funcNode.restParam != null) {
-            this.analyzeDef(funcNode.restParam, funcEnv);
+            symbolEnter.defineExistingVarSymbolInEnv(funcNode.restParam.symbol, funcNode.clonedEnv);
+            this.analyzeDef(funcNode.restParam, funcNode.clonedEnv);
         }
 
         validateObjectAttachedFunction(funcNode);
@@ -970,7 +974,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             analyzeNode(var, env);
         }
 
-        if (ignoredCount == varNode.memberVariables.size()) {
+        if (!varNode.memberVariables.isEmpty() && ignoredCount == varNode.memberVariables.size()
+                && varNode.restVariable == null) {
             dlog.error(varNode.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
             return false;
         }
@@ -1118,7 +1123,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             value.accept(this);
         }
 
-        if (ignoredCount == recordVar.variableList.size() && recordVar.restParam == null) {
+        if (!recordVar.variableList.isEmpty() && ignoredCount == recordVar.variableList.size()
+                && recordVar.restParam == null) {
             dlog.error(recordVar.pos, DiagnosticCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
             return false;
         }
@@ -1720,6 +1726,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BRecordType rhsDetailType = (BRecordType) rhsErrorType.detailType;
         Map<String, BField> fields = rhsDetailType.fields.stream()
                 .collect(Collectors.toMap(field -> field.name.value, field -> field));
+
+        BType wideType = interpolateWideType(rhsDetailType, lhsRef.detail);
         for (BLangNamedArgsExpression detailItem : lhsRef.detail) {
             BField matchedDetailItem = fields.get(detailItem.name.value);
             BType matchedType;
@@ -1741,14 +1749,30 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             checkErrorDetailRefItem(detailItem.pos, rhsPos, detailItem, matchedType);
         }
         if (lhsRef.restVar != null && !isIgnoreVar(lhsRef)) {
-            BMapType expRestType = new BMapType(TypeTags.MAP, rhsDetailType.restFieldType, null);
+            BMapType expRestType = new BMapType(TypeTags.MAP, wideType, null);
             if (lhsRef.restVar.type.tag != TypeTags.MAP
-                    || !types.isAssignable(rhsDetailType.restFieldType, ((BMapType) lhsRef.restVar.type).constraint)) {
+                    || !types.isAssignable(wideType, ((BMapType) lhsRef.restVar.type).constraint)) {
                 dlog.error(lhsRef.restVar.pos, DiagnosticCode.INCOMPATIBLE_TYPES, lhsRef.restVar.type, expRestType);
                 return;
             }
             typeChecker.checkExpr(lhsRef.restVar, env);
         }
+    }
+
+    private BType interpolateWideType(BRecordType rhsDetailType, List<BLangNamedArgsExpression> detailType) {
+        Set<String> extractedKeys = detailType.stream().map(detail -> detail.name.value).collect(Collectors.toSet());
+
+        BUnionType wideType = BUnionType.create(null);
+        for (BField field : rhsDetailType.fields) {
+            // avoid fields extracted from binding pattern
+            if (!extractedKeys.contains(field.name.value)) {
+                wideType.add(field.type);
+            }
+        }
+        if (!rhsDetailType.sealed) {
+            wideType.add(rhsDetailType.restFieldType);
+        }
+        return wideType;
     }
 
     private boolean isIgnoreVar(BLangErrorVarRef lhsRef) {

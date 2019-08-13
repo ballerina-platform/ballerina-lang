@@ -18,7 +18,7 @@
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-public type RowType map<anydata|error>;
+type RowType map<anydata|error>;
 
 # Returns the number of members in `tbl`.
 public function length(table<map<anydata|error>> tbl) returns int = external;
