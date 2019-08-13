@@ -36,8 +36,8 @@ import static org.ballerinalang.openapi.OpenApiMesseges.SOURCE_DIRECTORY_EXCEPTI
 public class OpenApiGenServiceCmd implements BLauncherCmd {
     private static final String CMD_NAME = "openapi";
 
-    private static final PrintStream outStream = System.err;
-    private String executionPath = System.getProperty("user.dir");
+    private PrintStream outStream;
+    private String executionPath;
 
     @CommandLine.Parameters(index = "0", split = ":")
     private List<String> moduleArgs;

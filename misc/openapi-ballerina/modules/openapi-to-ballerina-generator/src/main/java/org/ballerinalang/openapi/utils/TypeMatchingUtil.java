@@ -22,6 +22,7 @@ import org.ballerinalang.openapi.typemodel.OpenApiRequestBodyType;
 import org.ballerinalang.openapi.typemodel.OpenApiResponseType;
 import org.ballerinalang.openapi.typemodel.OpenApiSchemaType;
 import org.ballerinalang.openapi.typemodel.OpenApiType;
+import org.ballerinalang.tool.LauncherUtils;
 
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
@@ -38,6 +39,8 @@ import java.util.Map;
 public class TypeMatchingUtil {
 
     private static final PrintStream outStream = System.err;
+    private static String resourceName = "";
+    private static int count = 0;
 
     public static OpenApiType traveseOpenApiTypes(OpenAPI api) {
         Iterator<Map.Entry<String, PathItem>> pathItemIterator = api.getPaths().entrySet().iterator();
@@ -55,7 +58,7 @@ public class TypeMatchingUtil {
                 OpenApiPathType path = new OpenApiPathType();
 
                 path.setPathName(next.getKey());
-                path.setOperations(traveseOperations(pathObj.readOperationsMap()));
+                path.setOperations(traveseOperations(pathObj.readOperationsMap(), next.getKey()));
 
                 pathList.add(path);
             }
@@ -214,7 +217,8 @@ public class TypeMatchingUtil {
     }
 
 
-    public static List<OpenApiOperationType> traveseOperations(Map<PathItem.HttpMethod, Operation> operations) {
+    public static List<OpenApiOperationType> traveseOperations(Map<PathItem.HttpMethod, Operation> operations,
+                                                               String path) {
         Iterator<Map.Entry<PathItem.HttpMethod, Operation>> operationIterator = operations.entrySet().iterator();
         List<OpenApiOperationType> operationTypes = new ArrayList<>();
 
@@ -226,6 +230,12 @@ public class TypeMatchingUtil {
             if (nextOp.getValue().getOperationId() != null) {
                 operation.setOperationName(nextOp.getValue().getOperationId()
                         .replace(" ", "_").toLowerCase(Locale.ENGLISH));
+            } else {
+                String resName = "resource_" + "_" + nextOp.getKey().toString().toLowerCase() + path.replaceAll("/","_")
+                        .replaceAll("[{}]", "");
+                operation.setOperationName(resName);
+                outStream.println("warning : `" + resName + "` is used as the resource name since the " +
+                        "operation id is missing for " + path  + " "+ nextOp.getKey());
             }
 
             if (nextOp.getValue().getParameters() != null && !nextOp.getValue().getParameters().isEmpty()) {
