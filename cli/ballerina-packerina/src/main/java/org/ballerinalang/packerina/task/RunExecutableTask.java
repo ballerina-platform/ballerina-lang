@@ -20,7 +20,6 @@ package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;

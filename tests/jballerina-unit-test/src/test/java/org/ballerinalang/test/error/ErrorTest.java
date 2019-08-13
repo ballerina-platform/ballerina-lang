@@ -334,6 +334,6 @@ public class ErrorTest {
         Assert.assertEquals(message,
                 "error: array index out of range: index: 4, size: 2 \n\t" +
                         "at ballerina.lang_array:slice(array.bal:124)\n\t" +
-                        "   error_test:testStackTraceInNative(error_test.bal:282)");
+                        "   error_test:testStackTraceInNative(error_test.bal:286)");
     }
 }
