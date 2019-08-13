@@ -124,7 +124,13 @@ public class BasicTupleTest {
 
     @Test(description = "Test tuple to array assignment")
     public void testTupleToArrayAssignment() {
-        BValue[] returns = BRunUtil.invoke(result, "testTupleToArrayAssignment", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testTupleToArrayAssignment1", new BValue[]{});
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(returns[0].stringValue(), "a");
+        Assert.assertEquals(returns[1].stringValue(), "b");
+        Assert.assertEquals(returns[2].stringValue(), "c");
+
+        returns = BRunUtil.invoke(result, "testTupleToArrayAssignment2", new BValue[]{});
         Assert.assertEquals(returns.length, 3);
         Assert.assertEquals(returns[0].stringValue(), "a");
         Assert.assertEquals(returns[1].stringValue(), "b");
@@ -145,6 +151,10 @@ public class BasicTupleTest {
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(returns[0].stringValue(), "a");
         Assert.assertEquals(returns[1].stringValue(), "[\"b\", \"c\"]");
+
+        returns = BRunUtil.invoke(result, "testArrayToTupleAssignment4", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "[\"a\", \"b\", \"c\"]");
     }
 
     @Test(description = "Test negative scenarios of assigning tuple literals")
