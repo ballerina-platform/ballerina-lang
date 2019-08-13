@@ -17,14 +17,19 @@
  */
 package org.ballerinalang.toml.parser;
 
+import com.moandjiezana.toml.Toml;
 import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.ballerinalang.toml.antlr4.TomlProcessor;
+import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Settings;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
 
 /**
  * SettingHeaders Processor which processes the settings toml file parsed and populate the SettingHeaders POJO.
@@ -32,17 +37,17 @@ import java.io.IOException;
  * @since 0.964
  */
 public class SettingsProcessor {
-
+    
     /**
      * Get the char stream of the content from file.
      *
-     * @param fileName path of the toml file
+     * @param settingsPath path of the toml file
      * @return charstream object
      * @throws IOException exception if the file cannot be found
      */
-    public static Settings parseTomlContentFromFile(String fileName) throws IOException {
-        ANTLRFileStream in = new ANTLRFileStream(fileName);
-        return getSettings(in);
+    public static Settings parseTomlContentFromFile(Path settingsPath) throws IOException {
+        InputStream settingsInputStream = new FileInputStream(settingsPath.toFile());
+        return getSettings(settingsInputStream);
     }
 
     /**
@@ -52,21 +57,18 @@ public class SettingsProcessor {
      * @return charstream object
      */
     public static Settings parseTomlContentFromString(String content) {
-        ANTLRInputStream in = new ANTLRInputStream(content);
-        return getSettings(in);
+        Toml toml = new Toml().read(content);
+        return toml.to(Settings.class);
     }
 
     /**
      * Get the settings config object by passing the settings toml file.
      *
-     * @param charStream toml file content as a char stream
+     * @param inputStream toml file content as a char stream
      * @return settings object
      */
-    private static Settings getSettings(CharStream charStream) {
-        Settings settings = new Settings();
-        ParseTreeWalker walker = new ParseTreeWalker();
-        walker.walk(new SettingsBuildListener(settings), TomlProcessor.parseTomlContent(charStream,
-                "~/.ballerina/Settings.toml"));
-        return settings;
+    private static Settings getSettings(InputStream inputStream) {
+        Toml toml = new Toml().read(inputStream);
+        return toml.to(Settings.class);
     }
 }

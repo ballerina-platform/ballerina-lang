@@ -156,14 +156,13 @@ public class LockFileTestCase extends BaseTest {
     
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
-                .await().atMost(60, SECONDS).until(() -> {
+                .await().atMost(120, SECONDS).until(() -> {
             balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{}, new
                     LogLeecher[]{fooBuildLeecher}, testProj2Path.toString());
             Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
             return Files.exists(lockFilePath);
         });
         
-    
         // Run and see output
         String msg = "Test me\nHello john!";
         balClient.runMain("run", new String[] {"foo"}, envVariables, new String[0],
@@ -237,8 +236,9 @@ public class LockFileTestCase extends BaseTest {
         Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
         Assert.assertTrue(Files.exists(lockFilePath));
     
+        
         // Run and see output
-        String msg = "Test me\nHello john!";
+        String msg = "Hello john!";
         LogLeecher fooRunLeecher = new LogLeecher(msg);
         balClient.runMain("run", new String[] {"foo"}, envVariables, new String[0],
                 new LogLeecher[]{fooRunLeecher}, testProj2Path.toString());
@@ -246,7 +246,7 @@ public class LockFileTestCase extends BaseTest {
     }
     
     @Test(description = "Test push all packages in project to central", dependsOnMethods = "testRebuildTestProj2")
-    public void testRebuildTestProj2WithLockRemoved() throws Exception {
+    public void testRebuildTestProj2WithLockRemovedAndOffline() throws IOException, BallerinaTestException {
         // Delete Ballerina.toml
         Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
         Files.delete(lockFilePath);
@@ -259,15 +259,57 @@ public class LockFileTestCase extends BaseTest {
                                  + BLANG_COMPILED_PKG_BINARY_EXT;
         String fooBuildMsg = "Created target" + File.separator + "balo" + File.separator + fooBaloFileName;
         LogLeecher fooBuildLeecher = new LogLeecher(fooBuildMsg);
-        balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{}, new LogLeecher[]{fooBuildLeecher},
-                testProj2Path.toString());
-        fooBuildLeecher.waitForText(10000);
+        given().with().pollInterval(Duration.TEN_SECONDS).and()
+                .with().pollDelay(Duration.FIVE_SECONDS)
+                .await().atMost(120, SECONDS).until(() -> {
+            balClient.runMain("build", new String[]{"-c", "--off-line"}, envVariables, new String[]{}, new
+                    LogLeecher[]{fooBuildLeecher}, testProj2Path.toString());
+            fooBuildLeecher.waitForText(10000);
+            return Files.exists(testProj2Path.resolve("Ballerina.lock"));
+        });
+        
+        
+        lockFilePath = testProj2Path.resolve("Ballerina.lock");
+        Assert.assertTrue(Files.exists(lockFilePath));
+        
+        // Run and see output
+        String msg = "Hello john!";
+        LogLeecher fooRunLeecher = new LogLeecher(msg);
+        balClient.runMain("run", new String[] {"foo"}, envVariables, new String[0],
+                new LogLeecher[]{fooRunLeecher}, testProj2Path.toString());
+        fooRunLeecher.waitForText(10000);
+    }
     
+    @Test(description = "Test push all packages in project to central",
+          dependsOnMethods = "testRebuildTestProj2WithLockRemovedAndOffline")
+    public void testRebuildTestProj2WithLockRemoved() throws IOException, BallerinaTestException {
+        // Delete Ballerina.toml
+        Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
+        Files.delete(lockFilePath);
+        
+        // Build module
+        String fooBaloFileName = "foo-"
+                                 + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                                 + ProgramFileConstants.ANY_PLATFORM + "-"
+                                 + "9.9.9"
+                                 + BLANG_COMPILED_PKG_BINARY_EXT;
+        String fooBuildMsg = "Created target" + File.separator + "balo" + File.separator + fooBaloFileName;
+        LogLeecher fooBuildLeecher = new LogLeecher(fooBuildMsg);
+        given().with().pollInterval(Duration.TEN_SECONDS).and()
+                .with().pollDelay(Duration.FIVE_SECONDS)
+                .await().atMost(120, SECONDS).until(() -> {
+            balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{}, new
+                    LogLeecher[]{fooBuildLeecher}, testProj2Path.toString());
+            fooBuildLeecher.waitForText(10000);
+            return Files.exists(testProj2Path.resolve("Ballerina.lock"));
+        });
+    
+        
         lockFilePath = testProj2Path.resolve("Ballerina.lock");
         Assert.assertTrue(Files.exists(lockFilePath));
     
         // Run and see output
-        String msg = "Test me\nHello world john!";
+        String msg = "Hello world john!";
         LogLeecher fooRunLeecher = new LogLeecher(msg);
         balClient.runMain("run", new String[] {"foo"}, envVariables, new String[0],
                 new LogLeecher[]{fooRunLeecher}, testProj2Path.toString());
@@ -302,8 +344,6 @@ public class LockFileTestCase extends BaseTest {
     private void cleanup() throws Exception {
         deleteFiles(tempHomeDirectory);
         deleteFiles(tempProjectsDirectory);
-        deleteFiles(testProj1Path);
-        deleteFiles(testProj2Path);
         balServer.cleanup();
     }
 }

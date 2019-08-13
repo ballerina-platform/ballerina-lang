@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder.RepoNode;
 import org.wso2.ballerinalang.compiler.packaging.Resolution;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
+import org.wso2.ballerinalang.compiler.packaging.converters.URIDryConverter;
 import org.wso2.ballerinalang.compiler.packaging.repo.BinaryRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.BirRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
@@ -176,6 +177,7 @@ public class PackageLoader {
         Repo systemBirRepo = new BirRepo(Paths.get(ballerinaHome));
         Repo systemZipRepo = new BinaryRepo(RepoUtils.getLibDir(), compilerPhase);
         Repo remoteRepo = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()));
+        Repo remoteDryRepo = new RemoteRepo(new URIDryConverter(URI.create(RepoUtils.getRemoteRepoURL())));
         Repo homeBaloCache = new HomeBaloRepo(balHomeDir);
         Repo homeCacheRepo = new CacheRepo(balHomeDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, compilerPhase);
         Repo homeRepo = shouldReadBalo ? new BinaryRepo(balHomeDir, compilerPhase) : new ZipRepo(balHomeDir);
@@ -202,6 +204,15 @@ public class PackageLoader {
                                                     node(systemBirRepo,
                                                         node(secondarySystemRepo))))))));
         }
+        
+        // If lock file is not there, fist check in central.
+        if (!this.offline &&
+            RepoUtils.isBallerinaProject(sourceRoot) &&
+            (null == this.lockFile || this.lockFile.getImports().size() == 0)) {
+            
+            homeCacheNode = node(remoteDryRepo, homeCacheNode);
+        }
+        
         RepoNode nonLocalRepos = node(projectRepo,
                                       node(projectCacheRepo, homeCacheNode),
                                       node(homeRepo, homeCacheNode));

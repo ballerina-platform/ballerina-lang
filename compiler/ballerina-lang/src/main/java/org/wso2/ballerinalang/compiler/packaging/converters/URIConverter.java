@@ -25,7 +25,6 @@ import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.repo.HomeBaloRepo;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 import org.wso2.ballerinalang.util.TomlParserUtils;
@@ -113,6 +112,7 @@ public class URIConverter implements Converter<URI> {
         try {
             String modulePath = orgName + "/" + moduleName;
             Proxy proxy = TomlParserUtils.readSettings().getProxy();
+            String proxyPortAsString = proxy.getPort() == 0 ? "" : Integer.toString(proxy.getPort());
 
             String supportedVersionRange = "";
             String nightlyBuild = String.valueOf(RepoUtils.getBallerinaVersion().contains("SNAPSHOT"));
@@ -121,7 +121,7 @@ public class URIConverter implements Converter<URI> {
             for (String supportedPlatform : SUPPORTED_PLATFORMS) {
                 Optional<RuntimeException> execute = executor.executeMainFunction("module_pull",
                         remoteURI.toString(), modulePathInBaloCache.toString(), modulePath, proxy.getHost(),
-                        proxy.getPort(), proxy.getUserName(), proxy.getPassword(), RepoUtils.getTerminalWidth(),
+                        proxyPortAsString, proxy.getUserName(), proxy.getPassword(), RepoUtils.getTerminalWidth(),
                         supportedVersionRange, String.valueOf(isBuild), nightlyBuild, IMPLEMENTATION_VERSION,
                         supportedPlatform);
                 // Check if error has occurred or not.
@@ -136,7 +136,7 @@ public class URIConverter implements Converter<URI> {
             throw runtimeException;
         } catch (Exception e) {
             String errorMessage = e.getMessage();
-            if (!"".equals(errorMessage.trim())) {
+            if (null != errorMessage && !"".equals(errorMessage.trim())) {
                 errStream.println(errorMessage);
             }
         }

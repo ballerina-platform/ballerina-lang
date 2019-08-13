@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -103,10 +104,7 @@ public class LockFileWriter {
      * @return import package list
      */
     private List<BPackageSymbol> getImportPackages(BPackageSymbol packageNode) {
-        return packageNode.imports.stream()
-                                  .filter(pkg -> !pkg.pkgID.orgName.value.equals(LockFileConstants.BALLERINA))
-                                  .filter(pkg -> !pkg.pkgID.orgName.value.equals(LockFileConstants.BALLERINAX))
-                                  .collect(Collectors.toList());
+        return new ArrayList<>(packageNode.imports);
     }
 
     /**
