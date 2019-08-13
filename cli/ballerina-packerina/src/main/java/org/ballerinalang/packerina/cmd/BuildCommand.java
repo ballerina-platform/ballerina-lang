@@ -171,7 +171,8 @@ public class BuildCommand implements BLauncherCmd {
         }
     
         // validation and decide source root and source full path
-        this.sourceRootPath = null != this.sourceRoot ? Paths.get(this.sourceRoot) : this.sourceRootPath;
+        this.sourceRootPath = null != this.sourceRoot ?
+                Paths.get(this.sourceRoot).toAbsolutePath() : this.sourceRootPath;
         Path sourcePath = null;
         Path targetPath;
         
