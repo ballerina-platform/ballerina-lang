@@ -49,7 +49,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
     @Override
     public Optional<RuntimeException> executeMainFunction(String moduleName, String[] args) {
         try {
-            final Scheduler scheduler = new Scheduler(4, false);
+            final Scheduler scheduler = new Scheduler(false);
             runInitOnSchedule(moduleName, scheduler);
             runMainOnSchedule(moduleName, scheduler, args);
             scheduler.immortal = true;
@@ -66,7 +66,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
     @Override
     public Optional<RuntimeException> executeService(String moduleName) {
         try {
-            final Scheduler scheduler = new Scheduler(4, false);
+            final Scheduler scheduler = new Scheduler(false);
             runInitOnSchedule(moduleName, scheduler);
             runStartOnSchedule(moduleName, scheduler);
             scheduler.immortal = true;

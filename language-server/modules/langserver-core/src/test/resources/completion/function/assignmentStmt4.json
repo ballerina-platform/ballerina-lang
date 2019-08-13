@@ -1,34 +1,10 @@
 {
   "position": {
-    "line": 9,
-    "character": 25
+    "line": 4,
+    "character": 21
   },
-  "source": "service/source/serviceBodyCompletion3.bal",
+  "source": "function/source/assignmentStmt4.bal",
   "items": [
-    {
-      "label": "testString",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "120",
-      "insertText": "testString",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "myService1",
-      "kind": "Unit",
-      "detail": "myService1",
-      "sortText": "120",
-      "insertText": "myService1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ep1",
-      "kind": "Variable",
-      "detail": "http:Listener",
-      "sortText": "120",
-      "insertText": "ep1",
-      "insertTextFormat": "Snippet"
-    },
     {
       "label": "http",
       "kind": "Module",
@@ -1096,44 +1072,22 @@
       ]
     },
     {
-      "label": "check",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "210",
-      "insertText": "check ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "wait",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "210",
-      "insertText": "wait ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "untaint",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "210",
-      "insertText": "untiant ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "but",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "200",
-      "insertText": "but {\n\t${1}\n};",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "trap",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "110",
-      "insertText": "trap ",
-      "insertTextFormat": "Snippet"
+      "label": "TestObject(int field1, int field2)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "130",
+      "insertText": "TestObject(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }

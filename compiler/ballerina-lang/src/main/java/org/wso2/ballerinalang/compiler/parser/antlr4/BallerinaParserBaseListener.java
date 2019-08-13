@@ -112,18 +112,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterServiceBodyMember(BallerinaParser.ServiceBodyMemberContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitServiceBodyMember(BallerinaParser.ServiceBodyMemberContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterCallableUnitBody(BallerinaParser.CallableUnitBodyContext ctx) { }
 	/**
 	 * {@inheritDoc}

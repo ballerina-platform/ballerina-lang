@@ -56,11 +56,11 @@ public class CacheExpiryTest {
             BValue[] cacheSizes = BRunUtil.invoke(compileResult, "getCacheSize");
             return ((BInteger) cacheSizes[0]).intValue() == 4;
         });
-        await().atMost(20, TimeUnit.SECONDS).until(() -> {
+        await().atMost(25, TimeUnit.SECONDS).until(() -> {
             BValue[] cacheSizes = BRunUtil.invoke(compileResult, "getCacheSize");
             return ((BInteger) cacheSizes[0]).intValue() < 4;
         });
-        await().atMost(30, TimeUnit.SECONDS).until(() -> {
+        await().atMost(35, TimeUnit.SECONDS).until(() -> {
             BValue[] cacheSizes = BRunUtil.invoke(compileResult, "getCacheSize");
             return ((BInteger) cacheSizes[0]).intValue() == 0;
         });
