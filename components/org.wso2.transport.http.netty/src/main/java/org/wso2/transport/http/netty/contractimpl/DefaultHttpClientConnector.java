@@ -181,10 +181,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
 
                 if (activeHttp2ClientChannel != null) {
                     outboundMsgHolder.setHttp2ClientChannel(activeHttp2ClientChannel);
-                    String localAddress = ((InetSocketAddress) outboundMsgHolder.getHttp2ClientChannel().getChannel()
-                            .localAddress()).getAddress().getHostAddress();
-                    Util.setForwardedExtension(senderConfiguration.getForwardedExtensionConfig(), localAddress,
-                            outboundMsgHolder.getRequest());
+                    setHttp2ForwardedExtension(outboundMsgHolder);
                     new RequestWriteStarter(outboundMsgHolder, activeHttp2ClientChannel).startWritingContent();
                     httpResponseFuture = outboundMsgHolder.getResponseFuture();
                     httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
@@ -255,10 +252,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                     freshHttp2ClientChannel.addDataEventListener(
                             Constants.IDLE_STATE_HANDLER,
                             new Http2ClientTimeoutHandler(socketIdleTimeout, freshHttp2ClientChannel));
-                    String localAddress = ((InetSocketAddress) outboundMsgHolder.getHttp2ClientChannel().getChannel()
-                            .localAddress()).getAddress().getHostAddress();
-                    Util.setForwardedExtension(senderConfiguration.getForwardedExtensionConfig(), localAddress,
-                            outboundMsgHolder.getRequest());
+                    setHttp2ForwardedExtension(outboundMsgHolder);
                     new RequestWriteStarter(outboundMsgHolder, freshHttp2ClientChannel).startWritingContent();
                     httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                 }
@@ -309,6 +303,13 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
             return notifyListenerAndGetErrorResponseFuture(failedCause);
         }
         return httpResponseFuture;
+    }
+
+    private void setHttp2ForwardedExtension(OutboundMsgHolder outboundMsgHolder) {
+        String localAddress = ((InetSocketAddress) outboundMsgHolder.getHttp2ClientChannel().getChannel()
+                .localAddress()).getAddress().getHostAddress();
+        Util.setForwardedExtension(this.forwardedExtensionConfig, localAddress,
+                outboundMsgHolder.getRequest());
     }
 
     private HttpResponseFuture notifyListenerAndGetErrorResponseFuture(Exception failedCause) {
