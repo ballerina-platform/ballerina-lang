@@ -180,6 +180,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
+import static org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchBindingPatternClause;
 import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
@@ -515,6 +516,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (!matchStmt.getPatternClauses().isEmpty()) {
+            analyzeEmptyMatchPatterns(matchStmt);
             analyzeMatchedPatterns(matchStmt, staticLastPattern, structuredLastPattern);
         }
     }
@@ -531,7 +533,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
             this.checkStatementExecutionValidity(matchStmt);
             boolean matchStmtReturns = true;
-            for (BLangMatch.BLangMatchBindingPatternClause patternClause : matchStmt.getPatternClauses()) {
+            for (BLangMatchBindingPatternClause patternClause : matchStmt.getPatternClauses()) {
                 analyzeNode(patternClause.body, env);
                 matchStmtReturns = matchStmtReturns && this.statementReturns;
                 this.resetStatementReturns();
@@ -546,6 +548,56 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         return analyseStructuredBindingPatterns(matchStmt.getStructuredPatternClauses());
+    }
+
+    /**
+     * This method is used to check structured `var []`, `var {}` & static `[]`, `{}` match pattern.
+     *
+     * @param matchStmt the match statement containing structured & static match patterns.
+     */
+    private void analyzeEmptyMatchPatterns(BLangMatch matchStmt) {
+        List<BLangMatchBindingPatternClause> emptyLists = new ArrayList<>();
+        List<BLangMatchBindingPatternClause> emptyRecords = new ArrayList<>();
+        for (BLangMatchBindingPatternClause pattern : matchStmt.patternClauses) {
+            if (pattern.getKind() == NodeKind.MATCH_STATIC_PATTERN_CLAUSE) {
+                BLangMatchStaticBindingPatternClause staticPattern = (BLangMatchStaticBindingPatternClause) pattern;
+                if (staticPattern.literal.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
+                    BLangListConstructorExpr listLiteral = (BLangListConstructorExpr) staticPattern.literal;
+                    if (listLiteral.exprs.isEmpty()) {
+                        emptyLists.add(pattern);
+                    }
+                } else if (staticPattern.literal.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+                    BLangRecordLiteral recordLiteral = (BLangRecordLiteral) staticPattern.literal;
+                    if (recordLiteral.keyValuePairs.isEmpty()) {
+                        emptyRecords.add(pattern);
+                    }
+                }
+            } else if (pattern.getKind() == NodeKind.MATCH_STRUCTURED_PATTERN_CLAUSE) {
+                BLangMatchStructuredBindingPatternClause structuredPattern
+                        = (BLangMatchStructuredBindingPatternClause) pattern;
+                if (structuredPattern.bindingPatternVariable.getKind() == NodeKind.TUPLE_VARIABLE) {
+                    BLangTupleVariable tupleVariable = (BLangTupleVariable) structuredPattern.bindingPatternVariable;
+                    if (tupleVariable.memberVariables.isEmpty() && tupleVariable.restVariable == null) {
+                        emptyLists.add(pattern);
+                    }
+                } else if (structuredPattern.bindingPatternVariable.getKind() == NodeKind.RECORD_VARIABLE) {
+                    BLangRecordVariable recordVariable = (BLangRecordVariable) structuredPattern.bindingPatternVariable;
+                    if (recordVariable.variableList.isEmpty() && recordVariable.restParam == null) {
+                        emptyRecords.add(pattern);
+                    }
+                }
+            }
+        }
+        if (emptyLists.size() > 1) {
+            for (int i = 1; i < emptyLists.size(); i++) {
+                dlog.error(emptyLists.get(i).pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
+            }
+        }
+        if (emptyRecords.size() > 1) {
+            for (int i = 1; i < emptyRecords.size(); i++) {
+                dlog.error(emptyRecords.get(i).pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN);
+            }
+        }
     }
 
     /**
@@ -796,7 +848,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                             keyValue -> keyValue.valueBindingPattern
                     ));
 
-            if (precedingRecVar.variableList.size() != recVar.variableList.size()) {
+            if (precedingRecVar.variableList.size() > recVar.variableList.size()) {
                 return false;
             }
 
@@ -1574,12 +1626,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeInit cIExpr) {
-        if (cIExpr.type.tag == TypeTags.STREAM && (cIExpr.parent == null ||
-                (cIExpr.parent.getKind() != NodeKind.ASSIGNMENT && cIExpr.parent.getKind() != NodeKind.VARIABLE))) {
-            // stream initialization is only allowed as an assignment or variable definition
-            dlog.error(cIExpr.pos, DiagnosticCode.STREAM_INIT_NOT_ALLOWED_HERE);
-            return;
-        }
         analyzeExprs(cIExpr.argsExpr);
         analyzeExpr(cIExpr.initInvocation);
     }

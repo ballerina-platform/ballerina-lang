@@ -118,3 +118,11 @@ function testDefaultExprEvaluation() {
 function getFloat() returns float {
     return 25.0;
 }
+
+function testForwardReferencingParams1(int x, int y = z, int z = 12) { } // undefined symbol 'z'
+function testForwardReferencingParams2(float y = z * 2, float z = getFloat()) { } // undefined symbol 'z'
+
+type Foo object {
+    function testForwardReferencingParams1(int x, int y = z, int z = 12) { } // undefined symbol 'z'
+    function testForwardReferencingParams2(float y = z * 2, float z = getFloat()) { } // undefined symbol 'z'
+};

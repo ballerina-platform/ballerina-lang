@@ -111,8 +111,8 @@ public class PushUtils {
                                             ProjectDirConstants.TARGET_BALO_DIRECTORY);
 
         if (Files.notExists(baloOutputDir)) {
-            throw createLauncherException("Couldn't locate the module artifact(balo) to be pushed. Run 'jballerina " +
-                                          "compile' to compile and generate a module artifact(balo).");
+            throw createLauncherException("cannot find balo file for the module: " + moduleName + ". Run " +
+                                          "'ballerina build -c <module_name>' to compile and generate the balo.");
         } else {
             try {
                 Optional<Path> moduleBaloFile = Files.list(baloOutputDir)
@@ -140,9 +140,9 @@ public class PushUtils {
                         }
                     }
                 } else {
-                    throw createLauncherException("Couldn't locate the module artifact(balo) to be pushed. " +
-                                                  "Run 'jballerina compile' to compile and generate a module " +
-                                                  "artifact(balo).");
+                    throw createLauncherException("cannot find balo file for the module: " + moduleName + ". Run " +
+                                                  "'ballerina build -c <module_name>' to compile and generate the " +
+                                                  "balo.");
                 }
             } catch (IOException e) {
                 throw createLauncherException("File error occurred in finding balo file for the module '" + moduleName +

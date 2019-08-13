@@ -27,6 +27,12 @@ public interface BallerinaRecordKey extends PsiElement {
   BallerinaExpression getExpression();
 
   @Nullable
+  PsiElement getLeftBracket();
+
+  @Nullable
+  PsiElement getRightBracket();
+
+  @Nullable
   PsiElement getIdentifier();
 
 }

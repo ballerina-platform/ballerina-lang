@@ -140,7 +140,11 @@ public type Consumer client object {
         return self.start();
     }
 
-    public function __stop() returns error? {
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
+    public function __immediateStop() returns error? {
         return self.stop();
     }
 

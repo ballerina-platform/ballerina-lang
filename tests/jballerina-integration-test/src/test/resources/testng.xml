@@ -268,4 +268,13 @@
             <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
         </classes>
     </test>
+
+    <test name="ballerina-packerina-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <classes>
+            <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>
+<!--            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>-->
+            <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>
+        </classes>
+    </test>
 </suite>

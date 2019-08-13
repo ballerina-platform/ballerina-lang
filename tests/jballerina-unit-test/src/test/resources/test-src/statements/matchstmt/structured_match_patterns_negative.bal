@@ -63,7 +63,7 @@ function testTupleInvalidPattern() returns string {
         var [a, b, [d, e]] => return "A"; // invalid tuple variable;
         var [a, b, {s}] => return "A";
         var [a, b, {s, i, f}] => return "A"; // invalid record binding pattern;
-        var [a, b, {s, i}] => return "A";
+        var [a, b, {s, i}] => return "A"; // unreachable
         var [a, b, c] => return "A";
     }
     return "Default";

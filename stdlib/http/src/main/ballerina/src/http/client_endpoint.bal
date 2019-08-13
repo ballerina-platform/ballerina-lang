@@ -212,7 +212,7 @@ public type Client client object {
 # + secureSocket - Configurations for secure communication with the remote HTTP endpoint
 public type TargetService record {|
     string url = "";
-    SecureSocket? secureSocket = ();
+    ClientSecureSocket? secureSocket = ();
 |};
 
 # Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.
@@ -233,14 +233,14 @@ public type TargetService record {|
 # + retryConfig - Configurations associated with Retry
 public type ClientEndpointConfig record {|
     string httpVersion = HTTP_1_1;
-    Http1Settings http1Settings = {};
-    Http2Settings http2Settings = {};
+    ClientHttp1Settings http1Settings = {};
+    ClientHttp2Settings http2Settings = {};
     int timeoutInMillis = 60000;
     string forwarded = "disable";
     FollowRedirects? followRedirects = ();
     ProxyConfig? proxy = ();
     PoolConfiguration? poolConfig = ();
-    SecureSocket? secureSocket = ();
+    ClientSecureSocket? secureSocket = ();
     CacheConfig cache = {};
     Compression compression = COMPRESSION_AUTO;
     OutboundAuthConfig? auth = ();
@@ -252,7 +252,7 @@ public type ClientEndpointConfig record {|
 #
 # + keepAlive - Specifies whether to reuse a connection for multiple requests
 # + chunking - The chunking behaviour of the request
-public type Http1Settings record {|
+public type ClientHttp1Settings record {|
     KeepAlive keepAlive = KEEPALIVE_AUTO;
     Chunking chunking = CHUNKING_AUTO;
 |};
@@ -262,7 +262,7 @@ function createSimpleHttpClient(HttpClient caller, PoolConfiguration globalPoolC
 # Provides settings related to HTTP/2 protocol.
 #
 # + http2PriorKnowledge - Configuration to enable HTTP/2 prior knowledge
-public type Http2Settings record {|
+public type ClientHttp2Settings record {|
     boolean http2PriorKnowledge = false;
 |};
 
@@ -299,7 +299,7 @@ public type RetryConfig record {|
 # + ocspStapling - Enable/disable OCSP stapling
 # + handshakeTimeoutInSeconds - SSL handshake time out
 # + sessionTimeoutInSeconds - SSL session time out
-public type SecureSocket record {|
+public type ClientSecureSocket record {|
     boolean disable = false;
     crypto:TrustStore? trustStore = ();
     crypto:KeyStore? keyStore = ();
