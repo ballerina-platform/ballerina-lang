@@ -65,34 +65,39 @@ public function main(string... args) {
     string url = <@untainted> args[0];
     string modulePathInBaloCache = args[1]; // <user.home>.ballerina/balo_cache/<org-name>/<module-name>/<version>/ . if no version given then uses "*".
     string modulePath = <@untainted> args[2]; // <org-name>/<module-name>
-    string versionRange = args[3];
-    string langSpecVersion = args[4];
-    string platform = args[5];
-    string strPort = args[6];
-    string host = "";
-    string proxyUsername = "";
-    string proxyPassword = "";
-    string terminalWidth = "100";
-    isBuild = true;
-    boolean nightlyBuild = true;
-
-    io:println(url);
-    io:println(modulePathInBaloCache);
-    io:println(modulePath);
-    io:println(versionRange);
-    io:println(langSpecVersion);
-    io:println(platform);
+    string host = args[3];
+    string strPort = args[4];
+    string proxyUsername = args[5];
+    string proxyPassword = args[6];
+    string terminalWidth = args[7];
+    string versionRange = args[8];
+    isBuild = <@untainted> args[9] == "true";
+    boolean nightlyBuild = <@untainted> args[10] == "true";
+    string langSpecVersion = args[11];
+    string platform = args[12];
 
     if (isBuild) {
         logFormatter = new BuildLogFormatter();
     }
 
-
-    http:Client|error result = trap defineEndpointWithProxy(url);
-    if (result is error) {
-        panic createError("failed to resolve host :  with port ");
+    if (host != "" && strPort != "") {
+        // validate port
+        int|error port = lint:fromString(strPort);
+        if (port is error) {
+            panic createError("invalid port : " + strPort);
+        } else {
+            http:Client|error result = trap defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
+            if (result is error) {
+                panic createError("failed to resolve host : " + host + " with port " + port.toString());
+            } else {
+                httpEndpoint = result;
+                return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, platform, langSpecVersion, <@untainted> terminalWidth, nightlyBuild);
+            }
+        }
+    } else if (host != "" || strPort != "") {
+        panic createError("both host and port should be provided to enable proxy");
     } else {
-        httpEndpoint = result;
+        httpEndpoint = defineEndpointWithoutProxy(url);
         return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, platform, langSpecVersion, <@untainted> terminalWidth, nightlyBuild);
     }
 }
@@ -178,7 +183,7 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
 
                 string baloPath = checkpanic filepath:build(baloCacheWithModulePath, baloFile);
                 if (system:exists(<@untainted> baloPath)) {
-                    panic createError("module already exists in the home repository");
+                    panic createError("module already exists in the home repository: " + baloPath);
                 }
 
                 string|error createBaloFile = system:createDir(<@untainted> baloCacheWithModulePath, true);
@@ -224,8 +229,12 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
 # This function defines an endpoint with proxy configurations.
 #
 # + url - URL to be invoked
+# + hostname - Host name of the proxy
+# + port - Port of the proxy
+# + username - Username of the proxy
+# + password - Password of the proxy
 # + return - Endpoint defined
-public function defineEndpointWithProxy(string url) returns http:Client {
+public function defineEndpointWithProxy(string url, string hostname, int port, string username, string password) returns http:Client {
     http:Client httpEndpointWithProxy = new(url, {
         secureSocket:{
             trustStore:{
@@ -235,7 +244,8 @@ public function defineEndpointWithProxy(string url) returns http:Client {
             verifyHostname: false,
             shareSession: true
         },
-        followRedirects: { enabled: true, maxCount: 5 }
+        followRedirects: { enabled: true, maxCount: 5 },
+        proxy : getProxyConfigurations(hostname, port, username, password)
     });
     return <@untainted> httpEndpointWithProxy;
 }
@@ -321,7 +331,7 @@ function copy(int baloSize, io:ReadableByteChannel src, io:WritableByteChannel d
         int intTotalCount = <int>totalCount;
         string size = "[" + bar + ">" + spaces + "] " + intTotalCount.toString() + "/" + baloSize.toString();
         string msg = truncateString(modulePath + toAndFrom, terminalWidth - size.length());
-        io:print("\r" + logFormatter.formatLog(rightPad(msg, rightpadLength) + size));
+        io:print("\r" + logFormatter.formatLog(<@untainted> (rightPad(msg, rightpadLength) + size)));
     }
     io:println("\r" + logFormatter.formatLog(rightPad(modulePath + toAndFrom, terminalWidth)));
     return;

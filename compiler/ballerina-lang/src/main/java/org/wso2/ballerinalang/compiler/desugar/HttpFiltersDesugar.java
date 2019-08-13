@@ -128,7 +128,7 @@ public class HttpFiltersDesugar {
     private static final int FILTER_CONTEXT_FIELD_INDEX = 1;
     private static final int ENDPOINT_CONFIG_INDEX = 0;
 
-    private static final int FILTERS_CONFIG_INDEX = 5;
+    private static final int FILTERS_CONFIG_INDEX = 4;
     private static final CompilerContext.Key<HttpFiltersDesugar> HTTP_FILTERS_DESUGAR_KEY =
             new CompilerContext.Key<>();
 

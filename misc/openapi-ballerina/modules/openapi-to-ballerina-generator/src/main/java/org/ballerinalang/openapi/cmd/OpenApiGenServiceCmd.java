@@ -2,7 +2,6 @@ package org.ballerinalang.openapi.cmd;
 
 import org.ballerinalang.openapi.CodeGenerator;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
-import org.ballerinalang.openapi.utils.GeneratorConstants;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
@@ -23,7 +22,7 @@ import java.util.List;
 
 /**
  * This class will implement the "openapi" sub-command "gen-service" for Ballerina OpenApi tool.
- *
+ * <p>
  * Ex: ballerina openapi gen-service moduleName:serivceName [-c: copy-contract] [-o: outputFile]
  */
 @CommandLine.Command(name = "gen-service")
@@ -31,6 +30,7 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
     private static final String CMD_NAME = "openapi";
 
     private static final PrintStream outStream = System.err;
+    private String executionPath = System.getProperty("user.dir");
 
     @CommandLine.Parameters(index = "0", split = ":")
     private List<String> moduleArgs;
@@ -138,8 +138,7 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
         generator.setSrcPackage(moduleArgs.get(0));
 
         try {
-            generator.generate(GeneratorConstants.GenType.valueOf("GEN_SERVICE"),
-                    resourcePath.toString(), moduleArgs.get(1), output);
+            generator.generateService(executionPath, resourcePath.toString(), moduleArgs.get(1), output);
         } catch (IOException | BallerinaOpenApiException e) {
             throw LauncherUtils.createLauncherException(
                     "Error occurred when generating service for openapi contract at " + argList.get(0)

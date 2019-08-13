@@ -69,7 +69,17 @@ public class LangLibValueTest {
         assertEquals(arr.get("anArray").stringValue(), "[\"hello\", \"world\"]");
         assertEquals(arr.get("anObject").stringValue(),
                 "{\"name\":\"anObject\", \"value\":10, \"sub\":{\"subName\":\"subObject\", \"subValue\":10}}");
-        assertEquals(arr.size(), 6);
+        assertEquals(arr.get("anotherMap").stringValue(),
+                     "{\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\", " +
+                     "\"intVal\":2324, \"boolVal\":true, \"floatVal\":45.4, " +
+                     "\"nestedMap\":{\"xx\":\"XXStr\", \"n\":343, \"nilVal\":null}}");
+        assertEquals(arr.get("aStringMap").stringValue(),
+                     "{\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\"}");
+        assertEquals(arr.get("aArr").stringValue(),
+                     "[{\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\", \"intVal\":2324, " +
+                     "\"boolVal\":true, \"floatVal\":45.4, \"nestedMap\":{\"xx\":\"XXStr\", \"n\":343, " +
+                     "\"nilVal\":null}}, {\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\"}]");
+        assertEquals(arr.size(), 9);
     }
 
     @Test

@@ -19,7 +19,11 @@ public type ABC object {
         panic e;
     }
 
-    public function __stop() returns error? {
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
+    public function __immediateStop() returns error? {
         return ();
     }
 

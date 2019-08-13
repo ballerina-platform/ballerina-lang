@@ -147,6 +147,13 @@ public class BasicTupleTest {
         Assert.assertEquals(returns[1].stringValue(), "[\"b\", \"c\"]");
     }
 
+    @Test(description = "Test union expected type for list constructor")
+    public void testAmbiguousTupleExpectedType() {
+        BValue[] returns = BRunUtil.invoke(result, "testAmbiguousTupleExpectedType");
+        Assert.assertEquals(returns[0].stringValue(), "[\"y\", \"a\", 1]");
+        Assert.assertEquals(returns[1].stringValue(), "[\"y\", \"str\"]");
+    }
+
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
         Assert.assertEquals(resultNegative.getErrorCount(), 21);

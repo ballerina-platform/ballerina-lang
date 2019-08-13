@@ -46,6 +46,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BIR_EXT;
@@ -80,6 +81,8 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
             out = new EmptyPrintStream();
             err = new EmptyPrintStream();
             if (Files.exists(sourceRootPath)) {
+                // set home repo
+                this.put(BuildContextField.HOME_REPO, Paths.get(System.getProperty(BALLERINA_HOME)));
                 // set source root
                 this.put(BuildContextField.SOURCE_ROOT, sourceRootPath);
                 
@@ -234,11 +237,13 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                 throw new BLangCompilerException("invalid source type found: '" + source + "' at: " + sourceRootPath);
             }
         }
-    
-        // set source type as string in compiler context
+        
         CompilerContext compilerContext = this.get(BuildContextField.COMPILER_CONTEXT);
-        CompilerOptions options = CompilerOptions.getInstance(compilerContext);
-        options.put(CompilerOptionName.SOURCE_TYPE, this.srcType.toString());
+        if (compilerContext != null) {
+            // set source type as string in compiler context
+            CompilerOptions options = CompilerOptions.getInstance(compilerContext);
+            options.put(CompilerOptionName.SOURCE_TYPE, this.srcType.toString());
+        }
     }
     
     public SourceType getSourceType() {
@@ -402,7 +407,9 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                             .resolve(moduleID.orgName.value)
                             .resolve(moduleID.name.value)
                             .resolve(moduleID.version.value));
-                    return moduleBirCacheDir.resolve(moduleID.name.value + BLANG_COMPILED_JAR_EXT);
+                    return moduleBirCacheDir.resolve(moduleID.orgName.value + "-" + 
+                                                             moduleID.name.value + "-" +
+                                                             moduleID.version.value + BLANG_COMPILED_JAR_EXT);
                 default:
                     throw new BLangCompilerException("unknown source type found: " + this.getSourceType());
             }
