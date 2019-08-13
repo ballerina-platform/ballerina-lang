@@ -180,6 +180,15 @@ public class HttpCarbonMessage {
     }
 
     /**
+     * Return the length of entire payload. This is a blocking method.
+     * @return the length.
+     */
+    @Deprecated
+    public long getFullMessageLength() {
+        return blockingEntityCollector.getFullMessageLength();
+    }
+
+    /**
      * @deprecated
      * @param msgBody the message body.
      */

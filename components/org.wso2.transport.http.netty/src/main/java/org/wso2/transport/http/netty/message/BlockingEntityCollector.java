@@ -107,6 +107,33 @@ public class BlockingEntityCollector implements EntityCollector {
         return null;
     }
 
+    public long getFullMessageLength() {
+        long size = 0;
+        try {
+            readWriteLock.lock();
+            List<HttpContent> contentList = new ArrayList<>();
+            while (state == EntityBodyState.CONSUMABLE || state == EntityBodyState.EXPECTING) {
+                waitForEntity();
+                HttpContent httpContent = httpContentQueue.poll(soTimeOut, MILLISECONDS);
+                size += httpContent.content().readableBytes();
+                contentList.add(httpContent);
+                if ((httpContent instanceof LastHttpContent)) {
+                    state = EntityBodyState.CONSUMED;
+                }
+            }
+            httpContentQueue.addAll(contentList);
+            state = EntityBodyState.CONSUMABLE;
+        } catch (InterruptedException e) {
+            LOG.warn("Error while getting full message length", e);
+        } catch (Exception e) {
+            LOG.error("Error while retrieving http content length", e);
+        } finally {
+            readWriteLock.unlock();
+        }
+
+        return size;
+    }
+
     public long countMessageLengthTill(long maxSize) throws IllegalStateException {
         long size = 0;
         try {
