@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -123,8 +124,9 @@ public class ServiceProtoBuilder extends AbstractTransportCompilerPlugin {
             if (validReturnType && ServiceDefinitionValidator.validate(serviceNode, dlog)) {
                 Optional<BLangConstant> rootDescriptor = Optional.empty();
                 Optional<BLangFunction> descriptorMapFunc = Optional.empty();
-                if (serviceNode.parent.getKind() == NodeKind.PACKAGE) {
-                    BLangPackage packageNode = (BLangPackage) serviceNode.parent;
+                BLangNode serviceParentNode = serviceNode.parent;
+                if (serviceParentNode instanceof BLangPackage) {
+                    BLangPackage packageNode = (BLangPackage) serviceParentNode;
                     rootDescriptor = ((ArrayList) packageNode.constants).stream().filter(
                             var -> ROOT_DESCRIPTOR.equals(((BLangConstant) var).getName().getValue())).findFirst();
                     descriptorMapFunc = ((ArrayList) packageNode.functions).stream().filter(

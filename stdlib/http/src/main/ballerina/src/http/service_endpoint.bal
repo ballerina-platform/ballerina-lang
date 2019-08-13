@@ -30,14 +30,18 @@ public type Listener object {
     *lang:AbstractListener;
 
     private int port = 0;
-    private ServiceEndpointConfiguration config = {};
+    private ListenerConfiguration config = {};
     private string instanceId;
 
     public function __start() returns error? {
         return self.start();
     }
 
-    public function __stop() returns error? {
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
+    public function __immediateStop() returns error? {
         return self.stop();
     }
 
@@ -45,7 +49,7 @@ public type Listener object {
         return self.register(s, name);
     }
 
-    public function __init(int port, public ServiceEndpointConfiguration? config = ()) {
+    public function __init(int port, public ListenerConfiguration? config = ()) {
         self.instanceId = system:uuid();
         self.config = config ?: {};
         self.port = port;
@@ -55,12 +59,12 @@ public type Listener object {
     # Gets invoked during module initialization to initialize the endpoint.
     #
     # + c - Configurations for HTTP service endpoints
-    public function init(ServiceEndpointConfiguration c) {
+    public function init(ListenerConfiguration c) {
         self.config = c;
         var auth = self.config["auth"];
         if (auth is ListenerAuth) {
             var secureSocket = self.config.secureSocket;
-            if (secureSocket is ServiceSecureSocket) {
+            if (secureSocket is ListenerSecureSocket) {
                 addAuthFilters(self.config);
             } else {
                 error err = error("Secure sockets have not been cofigured in order to enable auth providers.");
@@ -115,21 +119,6 @@ public type Local record {|
     int port = 0;
 |};
 
-# Configures limits for requests. If these limits are violated, the request is rejected.
-#
-# + maxUriLength - Maximum allowed length for a URI. Exceeding this limit will result in a
-#                  `414 - URI Too Long` response.
-# + maxHeaderSize - Maximum allowed size for headers. Exceeding this limit will result in a
-#                   `413 - Payload Too Large` response.
-# + maxEntityBodySize - Maximum allowed size for the entity body. By default it is set to -1 which means there
-#                       is no restriction `maxEntityBodySize`, On the Exceeding this limit will result in a
-#                       `413 - Payload Too Large` response.
-public type RequestLimits record {|
-    int maxUriLength = 4096;
-    int maxHeaderSize = 8192;
-    int maxEntityBodySize = -1;
-|};
-
 # Provides a set of configurations for HTTP service endpoints.
 #
 # + host - The host name/IP of the endpoint
@@ -137,7 +126,6 @@ public type RequestLimits record {|
 # + secureSocket - The SSL configurations for the service endpoint. This needs to be configured in order to
 #                  communicate through HTTPS.
 # + httpVersion - Highest HTTP version supported by the endpoint
-# + requestLimits - Configures the parameters for request validation
 # + filters - If any pre-processing needs to be done to the request before dispatching the request to the
 #             resource, filters can applied
 # + timeoutInMillis - Period of time in milliseconds that a connection waits for a read/write operation. Use value 0 to
@@ -145,12 +133,11 @@ public type RequestLimits record {|
 # + auth - Listener authenticaton configurations
 # + server - The server name which should appear as a response header
 # + webSocketCompressionEnabled - Enable support for compression in WebSocket
-public type ServiceEndpointConfiguration record {|
+public type ListenerConfiguration record {|
     string host = "0.0.0.0";
-    ServiceHttp1Settings http1Settings = {};
-    ServiceSecureSocket? secureSocket = ();
+    ListenerHttp1Settings http1Settings = {};
+    ListenerSecureSocket? secureSocket = ();
     string httpVersion = "1.1";
-    RequestLimits requestLimits = {};
     //TODO: update as a optional field
     (RequestFilter | ResponseFilter)[] filters = [];
     int timeoutInMillis = DEFAULT_LISTENER_TIMEOUT;
@@ -166,9 +153,19 @@ public type ServiceEndpointConfiguration record {|
 # + maxPipelinedRequests - Defines the maximum number of requests that can be processed at a given time on a single
 #                          connection. By default 10 requests can be pipelined on a single cinnection and user can
 #                          change this limit appropriately.
-public type ServiceHttp1Settings record {|
+# + maxUriLength - Maximum allowed length for a URI. Exceeding this limit will result in a
+#                  `414 - URI Too Long` response.
+# + maxHeaderSize - Maximum allowed size for headers. Exceeding this limit will result in a
+#                   `413 - Payload Too Large` response.
+# + maxEntityBodySize - Maximum allowed size for the entity body. By default it is set to -1 which means there
+#                       is no restriction `maxEntityBodySize`, On the Exceeding this limit will result in a
+#                       `413 - Payload Too Large` response.
+public type ListenerHttp1Settings record {|
     KeepAlive keepAlive = KEEPALIVE_AUTO;
     int maxPipelinedRequests = MAX_PIPELINED_REQUESTS;
+    int maxUriLength = 4096;
+    int maxHeaderSize = 8192;
+    int maxEntityBodySize = -1;
 |};
 
 # Authentication configurations for the listener.
@@ -207,7 +204,7 @@ public type ListenerAuth record {|
 # + handshakeTimeoutInSeconds - SSL handshake time out
 # + sessionTimeoutInSeconds - SSL session time out
 # + ocspStapling - Enable/disable OCSP stapling
-public type ServiceSecureSocket record {|
+public type ListenerSecureSocket record {|
     crypto:TrustStore? trustStore = ();
     crypto:KeyStore? keyStore = ();
     string certFile = "";
@@ -225,7 +222,7 @@ public type ServiceSecureSocket record {|
     boolean shareSession = true;
     int? handshakeTimeoutInSeconds = ();
     int? sessionTimeoutInSeconds = ();
-    ServiceOcspStapling? ocspStapling = ();
+    ListenerOcspStapling? ocspStapling = ();
 |};
 
 # Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.
@@ -260,7 +257,7 @@ public const RESOURCE_NAME = "RESOURCE_NAME";
 # Adds authentication and authorization filters.
 #
 # + config - `ServiceEndpointConfiguration` instance
-function addAuthFilters(ServiceEndpointConfiguration config) {
+function addAuthFilters(ListenerConfiguration config) {
     // Add authentication and authorization filters as the first two filters if there are no any filters specified OR
     // the auth filter position is specified as 0. If there are any filters specified, the authentication and
     // authorization filters should be added into the position specified.
@@ -313,7 +310,45 @@ type AttributeFilter object {
     }
 };
 
-function addAttributeFilter(ServiceEndpointConfiguration config) {
+function addAttributeFilter(ListenerConfiguration config) {
     AttributeFilter attributeFilter = new;
     config.filters.unshift(attributeFilter);
 }
+
+//////////////////////////////////
+/// WebSocket Service Endpoint ///
+//////////////////////////////////
+# Represents a WebSocket service endpoint.
+// public type WebSocketListener Listener;
+public type WebSocketListener object {
+
+    *lang:AbstractListener;
+
+    private Listener httpEndpoint;
+
+    public function __start() returns error? {
+        return self.httpEndpoint.start();
+    }
+
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
+    public function __immediateStop() returns error? {
+        return self.httpEndpoint.stop();
+    }
+
+    public function __attach(service s, string? name = ()) returns error? {
+        return self.httpEndpoint.register(s, name);
+    }
+
+
+    # Gets invoked during module initialization to initialize the endpoint.
+    #
+    # + port - The port of the endpoint
+    # + config - The `ServiceEndpointConfiguration` of the endpoint
+    public function __init(int port, ListenerConfiguration? config = ()) {
+        self.httpEndpoint = new(port, config);
+    }
+
+};

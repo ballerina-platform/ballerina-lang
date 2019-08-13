@@ -30,9 +30,12 @@ import org.ballerinalang.langserver.completions.builder.BFunctionCompletionItemB
 import org.ballerinalang.langserver.completions.builder.BTypeCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.BVariableCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.spi.LSCompletionProvider;
+import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
+import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.ballerinalang.langserver.completions.util.sorters.MatchContextItemSorter;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -71,7 +74,11 @@ public class MatchStatementContextProvider extends LSCompletionProvider {
         List<Integer> defaultTokenTypes = defaultTokens.stream().map(CommonToken::getType).collect(Collectors.toList());
         List<SymbolInfo> visibleSymbols = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         int delimiter = ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
-        if (delimiter > -1) {
+        if (delimiter == BallerinaParser.COLON) {
+            Either<List<CompletionItem>, List<SymbolInfo>> moduleContent = 
+                    SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(ctx);
+            return this.getCompletionItemList(moduleContent, ctx);
+        } else if (delimiter > -1) {
             String varName = defaultTokens.get(defaultTokenTypes.indexOf(delimiter) - 1).getText();
             List<SymbolInfo> filteredList = FilterUtils.filterVariableEntriesOnDelimiter(ctx, varName, delimiter
                     , defaultTokens, defaultTokenTypes.lastIndexOf(delimiter));

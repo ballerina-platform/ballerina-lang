@@ -19,7 +19,7 @@
 package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -40,15 +40,11 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.EXTENSION_C
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.EXTENSION_CONFIG_TOPIC_HEADER;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.EXTENSION_CONFIG_TOPIC_IDENTIFIER;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.LISTENER_SERVICE_ENDPOINT_CONFIG;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SERVICE_CONFIG_EXTENSION_CONFIG;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.TOPIC_ID_HEADER;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.TOPIC_ID_HEADER_AND_PAYLOAD;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.TOPIC_ID_PAYLOAD_KEY;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_HTTP_ENDPOINT;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_INTENT_VERIFICATION_REQUEST;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_NOTIFICATION_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_LISTENER;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY;
@@ -118,9 +114,9 @@ public class InitWebSubSubscriberServiceEndpoint {
                     throw new BallerinaConnectorException("Resource map not specified to dispatch by payload");
                 }
             }
-            HashMap<String, String[]> resourceDetails = buildResourceDetailsMap(topicIdentifier, headerResourceMap,
-                                                                                payloadKeyResourceMap,
-                                                                                headerAndPayloadKeyResourceMap);
+            HashMap<String, BRecordType> resourceDetails = buildResourceDetailsMap(topicIdentifier, headerResourceMap,
+                                                                                   payloadKeyResourceMap,
+                                                                                   headerAndPayloadKeyResourceMap);
             webSubServicesRegistry = new WebSubServicesRegistry(new WebSocketServicesRegistry(), topicIdentifier,
                                                                 topicHeader, headerResourceMap, payloadKeyResourceMap,
                                                                 headerAndPayloadKeyResourceMap, resourceDetails);
@@ -129,20 +125,15 @@ public class InitWebSubSubscriberServiceEndpoint {
         serviceEndpoint.addNativeData(WEBSUB_SERVICE_REGISTRY, webSubServicesRegistry);
     }
 
-    private static HashMap<String, String[]> buildResourceDetailsMap(String topicIdentifier,
-                                                                     MapValue<String, Object> headerResourceMap,
-                                                                     MapValue<String, MapValue<String, Object>>
-                                                                             payloadKeyResourceMap,
-                                                                     MapValue<String, MapValue<String,
-                                                                             MapValue<String, Object>>>
-                                                                             headerAndPayloadKeyResourceMap) {
-        //Map with resource details where the key is the resource name and the value is the param
-        HashMap<String, String[]> resourceDetails = new HashMap<>();
-        resourceDetails.put(RESOURCE_NAME_ON_INTENT_VERIFICATION,
-                            new String[]{WEBSUB_PACKAGE, WEBSUB_INTENT_VERIFICATION_REQUEST});
-        resourceDetails.put(RESOURCE_NAME_ON_NOTIFICATION,
-                            new String[]{WEBSUB_PACKAGE, WEBSUB_NOTIFICATION_REQUEST});
-
+    private static HashMap<String, BRecordType> buildResourceDetailsMap(String topicIdentifier,
+                                                                        MapValue<String, Object> headerResourceMap,
+                                                                        MapValue<String, MapValue<String, Object>>
+                                                                                payloadKeyResourceMap,
+                                                                        MapValue<String, MapValue<String,
+                                                                                MapValue<String, Object>>>
+                                                                                headerAndPayloadKeyResourceMap) {
+        // Map with resource details where the key is the resource name and the value is the param
+        HashMap<String, BRecordType> resourceDetails = new HashMap<>();
         if (topicIdentifier != null) {
             switch (topicIdentifier) {
                 case TOPIC_ID_HEADER:
@@ -166,13 +157,13 @@ public class InitWebSubSubscriberServiceEndpoint {
     }
 
     private static void populateResourceDetailsByHeader(MapValue<String, Object> headerResourceMap,
-                                                        HashMap<String, String[]> resourceDetails) {
+                                                        HashMap<String, BRecordType> resourceDetails) {
         headerResourceMap.values().forEach(value -> populateResourceDetails(resourceDetails, (ArrayValue) value));
     }
 
     private static void populateResourceDetailsByPayload(
             MapValue<String, MapValue<String, Object>> payloadKeyResourceMap,
-            HashMap<String, String[]> resourceDetails) {
+            HashMap<String, BRecordType> resourceDetails) {
         payloadKeyResourceMap.values().forEach(mapByKey -> {
             mapByKey.values().forEach(value -> populateResourceDetails(resourceDetails, (ArrayValue) value));
         });
@@ -180,7 +171,7 @@ public class InitWebSubSubscriberServiceEndpoint {
 
     private static void populateResourceDetailsByHeaderAndPayload(
             MapValue<String, MapValue<String, MapValue<String, Object>>> headerAndPayloadKeyResourceMap,
-            HashMap<String, String[]> resourceDetails) {
+            HashMap<String, BRecordType> resourceDetails) {
         headerAndPayloadKeyResourceMap.values().forEach(mapByHeader -> {
             mapByHeader.values().forEach(mapByKey -> {
                 mapByKey.values().forEach(value -> populateResourceDetails(resourceDetails, (ArrayValue) value));
@@ -188,10 +179,10 @@ public class InitWebSubSubscriberServiceEndpoint {
         });
     }
 
-    private static void populateResourceDetails(HashMap<String, String[]> resourceDetails,
+    private static void populateResourceDetails(HashMap<String, BRecordType> resourceDetails,
                                                 ArrayValue resourceDetailTuple) {
         String resourceName = resourceDetailTuple.getRefValue(0).toString();
-        BType paramType = ((TypedescValue) resourceDetailTuple.getRefValue(1)).getDescribingType();
-        resourceDetails.put(resourceName, new String[]{paramType.getPackage().getName(), paramType.getName()});
+        resourceDetails.put(resourceName,
+                            (BRecordType) ((TypedescValue) resourceDetailTuple.getRefValue(1)).getDescribingType());
     }
 }

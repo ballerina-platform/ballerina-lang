@@ -140,6 +140,7 @@ import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_CODE;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_DETAIL_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_MESSAGE;
+import static org.ballerinalang.net.http.HttpConstants.LISTENER_CONFIGURATION;
 import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_HANDSHAKE_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
 import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
@@ -157,7 +158,6 @@ import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_REASON_PHRASE_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIELD;
-import static org.ballerinalang.net.http.HttpConstants.SERVER_ENDPOINT_CONFIG;
 import static org.ballerinalang.net.http.HttpConstants.SERVER_NAME;
 import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION;
 import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_SSL_VERIFY_CLIENT;
@@ -1451,17 +1451,17 @@ public class HttpUtil {
         String host = endpointConfig.getStringValue(HttpConstants.ENDPOINT_CONFIG_HOST);
         MapValue sslConfig = endpointConfig.getMapValue(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         String httpVersion = endpointConfig.getStringValue(HttpConstants.ENDPOINT_CONFIG_VERSION);
-        MapValue requestLimits = endpointConfig.getMapValue(HttpConstants.ENDPOINT_REQUEST_LIMITS);
+        MapValue<String, Object> http1Settings = null;
         long idleTimeout = endpointConfig.getIntValue(HttpConstants.ENDPOINT_CONFIG_TIMEOUT);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         if (HTTP_1_1_VERSION.equals(httpVersion)) {
-            MapValue<String, Object> http1Settings = (MapValue<String, Object>) endpointConfig.get(
-                    HttpConstants.HTTP1_SETTINGS);
-            listenerConfiguration.setPipeliningLimit(http1Settings.getIntValue(
-                    HttpConstants.PIPELINING_REQUEST_LIMIT));
+            http1Settings = (MapValue<String, Object>) endpointConfig.get(HttpConstants.HTTP1_SETTINGS);
+            listenerConfiguration.setPipeliningLimit(http1Settings.getIntValue(HttpConstants.PIPELINING_REQUEST_LIMIT));
             String keepAlive = http1Settings.getStringValue(HttpConstants.ENDPOINT_CONFIG_KEEP_ALIVE);
             listenerConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAlive));
+            // Set Request validation limits.
+            setRequestSizeValidationConfig(http1Settings, listenerConfiguration);
         }
 
         if (host == null || host.trim().isEmpty()) {
@@ -1476,11 +1476,6 @@ public class HttpUtil {
         }
         listenerConfiguration.setPort(Math.toIntExact(port));
 
-        // Set Request validation limits.
-        if (requestLimits != null) {
-            setRequestSizeValidationConfig(requestLimits, listenerConfiguration);
-        }
-
         if (idleTimeout < 0) {
             throw new BallerinaConnectorException("Idle timeout cannot be negative. If you want to disable the " +
                     "timeout please use value 0");
@@ -1492,7 +1487,7 @@ public class HttpUtil {
             listenerConfiguration.setVersion(httpVersion);
         }
 
-        if (endpointConfig.getType().getName().equalsIgnoreCase(SERVER_ENDPOINT_CONFIG)) {
+        if (endpointConfig.getType().getName().equalsIgnoreCase(LISTENER_CONFIGURATION)) {
             String serverName = endpointConfig.getStringValue(SERVER_NAME);
             listenerConfiguration.setServerHeader(serverName != null ? serverName : getServerName());
         } else {
@@ -1512,11 +1507,11 @@ public class HttpUtil {
         return listenerConfiguration;
     }
 
-    private static void setRequestSizeValidationConfig(MapValue requestLimits,
+    private static void setRequestSizeValidationConfig(MapValue http1Settings,
                                                      ListenerConfiguration listenerConfiguration) {
-        long maxUriLength = requestLimits.getIntValue(HttpConstants.REQUEST_LIMITS_MAXIMUM_URL_LENGTH);
-        long maxHeaderSize = requestLimits.getIntValue(HttpConstants.REQUEST_LIMITS_MAXIMUM_HEADER_SIZE);
-        long maxEntityBodySize = requestLimits.getIntValue(HttpConstants.REQUEST_LIMITS_MAXIMUM_ENTITY_BODY_SIZE);
+        long maxUriLength = http1Settings.getIntValue(HttpConstants.REQUEST_LIMITS_MAXIMUM_URL_LENGTH);
+        long maxHeaderSize = http1Settings.getIntValue(HttpConstants.REQUEST_LIMITS_MAXIMUM_HEADER_SIZE);
+        long maxEntityBodySize = http1Settings.getIntValue(HttpConstants.REQUEST_LIMITS_MAXIMUM_ENTITY_BODY_SIZE);
         RequestSizeValidationConfig requestSizeValidationConfig = listenerConfiguration
                 .getRequestSizeValidationConfig();
 

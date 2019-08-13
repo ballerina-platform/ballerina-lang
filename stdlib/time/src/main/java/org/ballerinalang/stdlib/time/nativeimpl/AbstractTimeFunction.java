@@ -70,7 +70,7 @@ public abstract class AbstractTimeFunction {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
             TemporalAccessor temporalAccessor = formatter.parse(dateValue);
             //Initialize with default values
-            int year = 0;
+            int year = 1970;
             int month = 1;
             int day = 1;
             int hour = 0;

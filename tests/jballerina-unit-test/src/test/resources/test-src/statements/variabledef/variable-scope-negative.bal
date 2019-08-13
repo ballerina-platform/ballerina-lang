@@ -34,8 +34,8 @@ function testVariableWhileScope() {
     int sum = b;
 }
 
+
 service myService = service {
-    int a = 20;
 
     resource function myResource1(string s) {
         string res = "abc";

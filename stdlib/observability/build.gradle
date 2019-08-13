@@ -30,6 +30,7 @@ dependencies {
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-utils')
     implementation project(':ballerina-runtime-api')
+    implementation project(':ballerina-config')
     implementation project(':ballerina-runtime')
     implementation project(':metrics-extensions:ballerina-metrics-extension')
     implementation 'io.opentracing:opentracing-api'

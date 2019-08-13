@@ -119,6 +119,6 @@ public class HTTPHeaderServerTestCase extends HttpBaseTest {
                 "idle/timeout500"));
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.SERVER.toString()), "Mysql");
-        Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
+        Assert.assertEquals(response.getResponseCode(), 408, "Response code mismatched");
     }
 }

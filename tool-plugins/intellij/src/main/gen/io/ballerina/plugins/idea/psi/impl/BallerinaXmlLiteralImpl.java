@@ -43,15 +43,15 @@ public class BallerinaXmlLiteralImpl extends ASTWrapperPsiElement implements Bal
   }
 
   @Override
-  @Nullable
-  public BallerinaXmlItem getXmlItem() {
-    return findChildByClass(BallerinaXmlItem.class);
+  @NotNull
+  public BallerinaXmlAllowedText getXmlAllowedText() {
+    return findNotNullChildByClass(BallerinaXmlAllowedText.class);
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getXmlLiteralEnd() {
-    return findChildByType(XML_LITERAL_END);
+    return findNotNullChildByType(XML_LITERAL_END);
   }
 
   @Override

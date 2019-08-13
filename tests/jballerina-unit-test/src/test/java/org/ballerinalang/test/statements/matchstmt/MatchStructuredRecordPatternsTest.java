@@ -210,4 +210,21 @@ public class MatchStructuredRecordPatternsTest {
         Assert.assertEquals(results.getString(++i), msg + "closed pattern");
         Assert.assertEquals(results.getString(++i), msg + "opened pattern");
     }
+
+    @Test(description = "Test structured pattern match with empty record")
+    public void testStructuredMatchPatternWithEmptyRecord() {
+        BValue[] returns = BRunUtil.invoke(result, "testStructuredMatchPatternWithEmptyRecord", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BValueArray.class);
+        BValueArray results = (BValueArray) returns[0];
+
+        int i = -1;
+        String msg = "Matched with ";
+        Assert.assertEquals(results.getString(++i), msg + "empty record");
+        Assert.assertEquals(results.getString(++i), msg + "a: 1");
+        Assert.assertEquals(results.getString(++i), msg + "a: 1, b: 2");
+        Assert.assertEquals(results.getString(++i), msg + "a: 1, b: 2, c: 3");
+        Assert.assertEquals(results.getString(++i), msg + "a: 1, b: 2, c: 3");
+    }
+
 }
