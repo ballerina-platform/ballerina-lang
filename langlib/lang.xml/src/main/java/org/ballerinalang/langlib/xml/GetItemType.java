@@ -60,7 +60,7 @@ public class GetItemType extends BlockingNativeCallableUnit {
         ctx.setReturnValues(result);
     }
 
-    public static String getItemType(Strand strand, XMLValue<?> xml) {
+    public static Object getItemType(Strand strand, XMLValue<?> xml) {
         try {
             return xml.getItemType();
         } catch (Throwable e) {

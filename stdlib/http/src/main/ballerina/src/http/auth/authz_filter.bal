@@ -69,7 +69,7 @@ function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterCo
     if (principal is runtime:Principal) {
         var canProcessResponse = authzHandler.canProcess(request);
         if (canProcessResponse is boolean && canProcessResponse) {
-            authorized = authzHandler.process(principal.username, context.getServiceName(),
+            authorized = authzHandler.process(principal?.username ?: "", context.getServiceName(),
                                               context.getResourceName(), request.method, scopes);
         } else {
             authorized = canProcessResponse;
@@ -90,7 +90,7 @@ function isAuthzSuccessful(Caller caller, boolean|AuthorizationError authorized)
     response.statusCode = 403;
     if (authorized is boolean) {
         if (!authorized) {
-            response.setTextPayload("Authorization failure");
+            response.setTextPayload("Authorization failure.");
             var err = caller->respond(response);
             if (err is error) {
                 panic <error> err;

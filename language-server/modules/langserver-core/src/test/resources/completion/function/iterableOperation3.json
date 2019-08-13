@@ -446,13 +446,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getItemType()(string)",
+      "label": "getItemType()((element|sequence|text|comment|pi))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml_  \n  \nGet the type of a XML as a string. If the XML is singleton, type can be one of 'element', 'text', 'comment' or 'pi'.\nReturns an empty string if the XML is not a singleton.\n  \n  \n  \n**Returns** `string`   \n- Type of the XML as a string  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml_  \n  \nGet the type of a XML as a string. If the XML is singleton, type can be one of 'element', 'text', 'comment' or 'pi'.\nReturns an empty string if the XML is not a singleton.\n  \n  \n  \n**Returns** `(element|sequence|text|comment|pi)`   \n- Type of the XML as a string  \n  \n"
         }
       },
       "sortText": "130",

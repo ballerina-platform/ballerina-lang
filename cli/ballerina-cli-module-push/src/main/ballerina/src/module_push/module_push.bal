@@ -81,7 +81,7 @@ public function main(string... args) {
             http:Client|error result = trap defineEndpointWithProxy(urlWithModulePath, proxyHost, proxyPort, proxyUsername, proxyPassword);
             if (result is http:Client) {
                 httpEndpoint = result;
-                pushPackage(httpEndpoint, accessToken, organization, urlWithModulePath, pathToBalo, outputLog);
+                pushPackage(httpEndpoint, accessToken, organization, urlWithModulePath, <@untainted>pathToBalo, outputLog);
             } else {
                 panic createError("failed to resolve host : " + proxyHost + " with port " + proxyPortAsString);
             }
@@ -92,7 +92,7 @@ public function main(string... args) {
         panic createError("both host and port should be provided to enable proxy");
     } else {
         httpEndpoint = defineEndpointWithoutProxy(urlWithModulePath);
-        return <@untainted> pushPackage(httpEndpoint, accessToken, organization, urlWithModulePath, pathToBalo, outputLog);
+        return <@untainted> pushPackage(httpEndpoint, accessToken, organization, urlWithModulePath, <@untainted>pathToBalo, outputLog);
     }
 }
 

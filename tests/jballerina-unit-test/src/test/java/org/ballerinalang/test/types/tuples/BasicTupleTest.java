@@ -201,8 +201,8 @@ public class BasicTupleTest {
     public void testNegativesOfTupleType() {
         int i = 11;
         BAssertUtil.validateError(resultNegative, i++, "tuple and expression size does not match", 103, 30);
-        BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '-1'", 108, 14);
-        BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '3'", 109, 14);
+        BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '-1'", 108, 16);
+        BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '3'", 109, 16);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'string'", 111, 16);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'string'", 117, 24);
         BAssertUtil.validateError(resultNegative, i++,
@@ -221,6 +221,6 @@ public class BasicTupleTest {
                                   "incompatible types: expected 'int', found '(0|1|2|S1|S2)'", 146, 19);
         BAssertUtil.validateError(resultNegative, i++,
                                   "invalid list index expression: value space '(3|4|5|6)' out of range", 147, 19);
-        BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '-1'", 154, 13);
+        BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '-1'", 154, 19);
     }
 }
