@@ -17,32 +17,31 @@
 package org.ballerinalang.nativeimpl.jvm.tests;
 
 import org.ballerinalang.jvm.BRuntime;
-
-import java.util.concurrent.CompletableFuture;
+import org.ballerinalang.jvm.values.ObjectValue;
 
 /**
  * This class is used for Java interoperability tests.
  * <p>
- * Returns a number after a delay.
+ * Schedule a ballerina function to run multiple times.
  *
  * @since 1.0.0
  */
-public class AsyncInterop {
+public class Timer {
 
-    public static int countSlowly() {
-        CompletableFuture<Object> future = BRuntime.markAsync();
+    public static void startTimer(int interval, int count, ObjectValue object) {
+        BRuntime runtime = BRuntime.getCurrentRuntime();
 
         new Thread(() -> {
-            sleep();
-            future.complete(42);
+            for (int i = 0; i <= count; i++) {
+                sleep(interval);
+                runtime.invokeMethod(object, "exec");
+            }
         }).start();
-
-        return -1;
     }
 
-    private static void sleep() {
+    private static void sleep(int millis) {
         try {
-            Thread.sleep(1000);
+            Thread.sleep(millis);
         } catch (InterruptedException e) {
             assert false;
         }
