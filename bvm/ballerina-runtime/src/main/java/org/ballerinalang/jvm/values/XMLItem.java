@@ -53,8 +53,6 @@ import java.util.Set;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamWriter;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
 
@@ -540,19 +538,7 @@ public final class XMLItem extends XMLValue<OMNode> {
     @Override
     public void serialize(OutputStream outputStream) {
         try {
-            XMLOutputFactory factory = XMLOutputFactory.newInstance();
-            factory.setProperty(XMLOutputFactory.IS_REPAIRING_NAMESPACES, true);
-            XMLStreamWriter writer = factory.createXMLStreamWriter(outputStream);
-
-            if (this.nodeType == XMLNodeType.ELEMENT) {
-                OMNamespace defaultNs = ((OMElement) this.omNode).getDefaultNamespace();
-                if (defaultNs != null) {
-                    writer.setDefaultNamespace(defaultNs.getNamespaceURI());
-                }
-            }
-
-            this.omNode.serializeAndConsume(writer);
-            writer.flush();
+            this.omNode.serializeAndConsume(outputStream);
         } catch (Throwable t) {
             handleXmlException("error occurred during writing the message to the output stream: ", t);
         }
