@@ -20,6 +20,13 @@ function emitStopObservationInvocation(jvm:MethodVisitor mv, int strandIndex) {
         io:sprintf("(L%s;)V", STRAND), false);
 }
 
+function emitReportErrorInvocation(jvm:MethodVisitor mv, int strandIndex, int errorIndex) {
+    mv.visitVarInsn(ALOAD, strandIndex);
+    mv.visitVarInsn(ALOAD, errorIndex);
+    mv.visitMethodInsn(INVOKESTATIC, "org/ballerinalang/jvm/observability/ObserveUtils", "reportError",
+        io:sprintf("(L%s;L%s;)V", STRAND, ERROR_VALUE), false);
+}
+
 function emitStartObservationInvocation(jvm:MethodVisitor mv, int strandIndex, string serviceOrConnectorName,
                                         string resourceOrActionName, string observationStartMethod) {
     mv.visitVarInsn(ALOAD, strandIndex);
@@ -27,4 +34,11 @@ function emitStartObservationInvocation(jvm:MethodVisitor mv, int strandIndex, s
     mv.visitLdcInsn(resourceOrActionName);
     mv.visitMethodInsn(INVOKESTATIC, "org/ballerinalang/jvm/observability/ObserveUtils", observationStartMethod,
         io:sprintf("(L%s;L%s;L%s;)V", STRAND, STRING_VALUE, STRING_VALUE), false);
+}
+
+function getFullQualifiedRemoteFunctionName(string moduleOrg, string moduleName, string funcName) returns string {
+    if moduleName == "" {
+        return funcName;
+    }
+    return moduleOrg + "/" + moduleName + "/" + funcName;
 }

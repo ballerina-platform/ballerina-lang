@@ -70,18 +70,20 @@ type ErrorHandlerGenerator object {
         self.mv.visitLabel(jumpLabel);
     }
 
-    function printStackTraceFromFutureValue(jvm:MethodVisitor mv) {
+    function printStackTraceFromFutureValue(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap) {
         mv.visitInsn(DUP);
         mv.visitInsn(DUP);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
         mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", io:sprintf("L%s;", SCHEDULER)); 
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, "()V", false);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, io:sprintf("L%s;", THROWABLE));
+
+        // handle any runtime errors
         jvm:Label labelIf = new;
         mv.visitJumpInsn(IFNULL, labelIf);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, io:sprintf("L%s;", THROWABLE));
-        mv.visitInsn(ATHROW);
-
+        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_THROWABLE_METHOD, io:sprintf("(L%s;)V", THROWABLE),
+                            false);
         mv.visitInsn(RETURN);
         mv.visitLabel(labelIf);
     }

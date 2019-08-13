@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/reflect;
+import ballerina/runtime;
 
 # Representation of the Authentication filter.
 #
@@ -106,7 +107,7 @@ function isAuthnSuccessful(Caller caller, boolean|AuthenticationError authentica
     response.statusCode = 401;
     if (authenticated is boolean) {
         if (!authenticated) {
-            response.setTextPayload("Authentication failure");
+            response.setTextPayload("Authentication failure.");
             var err = caller->respond(response);
             if (err is error) {
                 panic <error> err;

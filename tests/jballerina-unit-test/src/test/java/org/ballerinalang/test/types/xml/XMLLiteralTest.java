@@ -453,4 +453,11 @@ public class XMLLiteralTest {
         Assert.assertEquals(new String(baos.toByteArray()),
                 "<foo xmlns=\"http://wso2.com/\" xmlns:ns1=\"http://ballerina.com/b\">hello</foo>");
     }
+
+    @Test
+    public void testXMLToString() {
+        XMLValue<?> xml = XMLFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY data \"Example\" >]><foo>&data;</foo>");
+        Assert.assertEquals(xml.toString(), "<foo>Example</foo>");
+    }
 }

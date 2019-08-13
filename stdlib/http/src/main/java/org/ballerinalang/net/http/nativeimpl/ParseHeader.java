@@ -28,7 +28,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpErrorType;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.util.exceptions.BLangNullReferenceException;
 
 import java.util.Arrays;
 
@@ -58,27 +57,28 @@ public class ParseHeader {
 
     public static Object parseHeader(Strand strand, String headerValue) {
         String errMsg;
-        try {
-            if (headerValue == null) {
-                throw new BLangNullReferenceException(PARSER_ERROR + "header value cannot be null");
-            }
-            if (headerValue.contains(COMMA)) {
-                headerValue = headerValue.substring(0, headerValue.indexOf(COMMA));
-            }
+        if (headerValue != null) {
+            try {
 
-            // Set value and param map
-            String value = headerValue.trim();
-            if (headerValue.contains(SEMICOLON)) {
-                value = HeaderUtil.getHeaderValue(value);
+                if (headerValue.contains(COMMA)) {
+                    headerValue = headerValue.substring(0, headerValue.indexOf(COMMA));
+                }
+
+                // Set value and param map
+                String value = headerValue.trim();
+                if (headerValue.contains(SEMICOLON)) {
+                    value = HeaderUtil.getHeaderValue(value);
+                }
+                ArrayValue contentTuple = new ArrayValue(parseHeaderTupleType);
+                contentTuple.add(0, (Object) value);
+                contentTuple.add(1, HeaderUtil.getParamMap(headerValue));
+                return contentTuple;
+
+            } catch (BallerinaException ex) {
+                errMsg = PARSER_ERROR + ex.getMessage();
             }
-            ArrayValue contentTuple = new ArrayValue(parseHeaderTupleType);
-            contentTuple.add(0, (Object) value);
-            contentTuple.add(1, HeaderUtil.getParamMap(headerValue));
-            return contentTuple;
-        } catch (BLangNullReferenceException ex) {
-            errMsg = ex.getMessage();
-        } catch (BallerinaException ex) {
-            errMsg = PARSER_ERROR + ex.getMessage();
+        } else {
+            errMsg = PARSER_ERROR + "header value cannot be null";
         }
 
         // set parse error

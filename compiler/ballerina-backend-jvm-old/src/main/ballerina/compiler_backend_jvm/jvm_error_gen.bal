@@ -38,7 +38,7 @@ type ErrorHandlerGenerator object {
         self.mv.visitLabel(startLabel);
     }
 
-    function generateTryInsForTrap(bir:ErrorEntry currentEE, string[] errorVarNames, jvm:Label endLabel, 
+    function generateTryInsForTrap(bir:ErrorEntry currentEE, string[] errorVarNames, jvm:Label endLabel,
                                    jvm:Label handlerLabel, jvm:Label jumpLabel) {
         var varDcl = <bir:VariableDcl>currentEE.errorOp.variableDcl;
         int lhsIndex = self.getJVMIndexOfVarRef(varDcl);
@@ -70,7 +70,7 @@ type ErrorHandlerGenerator object {
         self.mv.visitLabel(jumpLabel);
     }
 
-    function printStackTraceFromFutureValue(jvm:MethodVisitor mv) {
+    function printStackTraceFromFutureValue(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap) {
         mv.visitInsn(DUP);
         mv.visitInsn(DUP);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
@@ -80,7 +80,25 @@ type ErrorHandlerGenerator object {
         jvm:Label labelIf = new;
         mv.visitJumpInsn(IFNULL, labelIf);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, io:sprintf("L%s;", THROWABLE));
+        bir:VariableDcl runtimePanicVar = {
+                                            typeValue: "any",
+                                            name: { value: "runtimePanicVar" },
+                                            kind: "ARG"
+                                          };
+        int runtimePanicVarIndex = indexMap.getIndex(runtimePanicVar);
+        mv.visitVarInsn(ASTORE, runtimePanicVarIndex);
+        mv.visitVarInsn(ALOAD, runtimePanicVarIndex);
+        mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
+        jvm:Label runtimePanicErrorLabel = new;
+        mv.visitJumpInsn(IFNE, runtimePanicErrorLabel);
+        mv.visitVarInsn(ALOAD, runtimePanicVarIndex);
+        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_THROWABLE_METHOD, io:sprintf("(L%s;)V", THROWABLE),
+                            false);
+        mv.visitInsn(RETURN);
+        mv.visitLabel(runtimePanicErrorLabel);
+        mv.visitVarInsn(ALOAD, runtimePanicVarIndex);
         mv.visitInsn(ATHROW);
+
         mv.visitInsn(RETURN);
         mv.visitLabel(labelIf);
     }

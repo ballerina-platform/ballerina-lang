@@ -18,14 +18,16 @@
 
 package org.ballerinalang.packerina.task;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
 /**
  * Create the target directory.
@@ -41,9 +43,15 @@ public class CreateTargetDirTask implements Task {
             }
             // We create a home repo if home repo path not exists
             Path homeRepo = RepoUtils.createAndGetHomeReposPath();
+            Path baloCache = homeRepo.resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME);
+            Path birCache = homeRepo.resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME);
+            Path jarCache = homeRepo.resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
             Files.createDirectories(homeRepo);
+            Files.createDirectories(baloCache);
+            Files.createDirectories(birCache);
+            Files.createDirectories(jarCache);
         } catch (IOException e) {
-            throw new BLangCompilerException("error occurred in creating target directory: " + targetDir);
+            throw createLauncherException("unable to create target directory: " + targetDir);
         }
     }
 }

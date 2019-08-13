@@ -32,13 +32,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+
 /**
  * TesterinaFunction entity class.
  */
 public class TesterinaFunction {
 
     private String name;
-    private Type type;
+    public Scheduler scheduler;
+    public boolean immortal = false;
 
     public BLangFunction getbFunction() {
         return bFunction;
@@ -51,61 +53,18 @@ public class TesterinaFunction {
     // Annotation info
     private List<String> groups = new ArrayList<>();
 
-    static final String PREFIX_TEST = "TEST";
-    static final String PREFIX_UTIL = "UTIL";
-    static final String PREFIX_BEFORETEST = "BEFORETEST";
-    static final String PREFIX_AFTERTEST = "AFTERTEST";
-    static final String PREFIX_MOCK = "MOCK";
-    static final String INIT_SUFFIX = ".<INIT>";
-    static final String TEST_INIT_SUFFIX = ".<TESTINIT>";
-
-    /**
-     * Prefixes for the test function names.
-     */
-    public enum Type {
-        TEST(PREFIX_TEST), BEFORE_TEST(PREFIX_BEFORETEST), AFTER_TEST(PREFIX_AFTERTEST), MOCK(PREFIX_MOCK), INIT
-                (INIT_SUFFIX), UTIL(PREFIX_UTIL), TEST_INIT(TEST_INIT_SUFFIX);
-
-        String prefix;
-
-        Type(String prefix) {
-            this.prefix = prefix;
-        }
-
-        @Override
-        public String toString() {
-            return prefix;
-        }
-    }
-
-    public TesterinaFunction(Class<?> programFile, BLangFunction bFunction, Type type) {
+    public TesterinaFunction(Class<?> programFile, BLangFunction bFunction) {
         this.name = bFunction.getName().getValue();
-        this.type = type;
         this.bFunction = bFunction;
         this.programFile = programFile;
     }
 
     public BValue[] invoke() throws BallerinaException {
-        final Scheduler scheduler = new Scheduler(4, false);
-        runOnSchedule(programFile, bFunction.name, scheduler);
-        return new BValue[0];
-    }
-
-    /**
-     * Invoke package stop functions.
-     *
-     * @throws BallerinaException exception is thrown
-     */
-    public void invokeStopFunctions() throws BallerinaException {
-        /*for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            BVMExecutor.executeFunction(programFile, info.getStopFunctionInfo());
+        if (scheduler == null) {
+            throw new AssertionError("Scheduler is not initialized in " + bFunction.name);
         }
-
-        for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            if (info.getTestStopFunctionInfo() != null) {
-                BVMExecutor.executeFunction(programFile, info.getTestStopFunctionInfo());
-            }
-        }*/
+        runOnSchedule(programFile, bFunction.name, scheduler, immortal);
+        return new BValue[0];
     }
 
     /*public BValue[] invoke(BValue[] args) {
@@ -119,14 +78,6 @@ public class TesterinaFunction {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Type getType() {
-        return type;
-    }
-
-    public void setType(Type type) {
-        this.type = type;
     }
 
     public List<String> getGroups() {
@@ -146,11 +97,10 @@ public class TesterinaFunction {
     }
 
 
-    private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler1) {
+    private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler, boolean immortal) {
         String funcName = cleanupFunctionName(name);
         try {
             final Method method = initClazz.getDeclaredMethod(funcName, Strand.class);
-            Scheduler scheduler = scheduler1;
             //TODO fix following method invoke to scheduler.schedule()
             Function<Object[], Object> func = objects -> {
                 try {
@@ -164,26 +114,26 @@ public class TesterinaFunction {
                 }
             };
             final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null);
-            scheduler.start();
+            scheduler.immortal = true;
+            Thread imortalThread = new Thread(() -> {
+                scheduler.start();
+            }, "module-starts");
+            imortalThread.setDaemon(true);
+            imortalThread.start();
+            // wait till we get a result.
+            while (!out.isDone) {
+                Thread.sleep(50);
+                imortalThread.interrupt();
+            }
             final Throwable t = out.panic;
             final Object result = out.result;
             if (result instanceof ErrorValue) {
                 throw new BallerinaException((ErrorValue) result);
             }
             if (t != null) {
-                if (t instanceof org.ballerinalang.jvm.util.exceptions.BLangRuntimeException) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
-                }
-                if (t instanceof org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
-                }
-                if (t instanceof ErrorValue) {
-                    throw new org.ballerinalang.util.exceptions.BLangRuntimeException(
-                            "error: " + ((ErrorValue) t).getPrintableStackTrace());
-                }
-                throw (RuntimeException) t;
+                throw new BallerinaException("Error while invoking function '" + funcName + "'", t.getMessage());
             }
-        } catch (NoSuchMethodException e) {
+        } catch (NoSuchMethodException | InterruptedException e) {
             throw new BallerinaException("Error while invoking function '" + funcName + "'", e);
         }
     }

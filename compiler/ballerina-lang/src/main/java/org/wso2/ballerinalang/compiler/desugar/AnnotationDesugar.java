@@ -141,9 +141,6 @@ public class AnnotationDesugar {
         defineTypeAnnotations(pkgNode, env, initFunction);
         defineServiceAnnotations(pkgNode, env, initFunction);
         defineFunctionAnnotations(pkgNode, env, initFunction);
-
-        BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(pkgNode.pos, symTable.nilType);
-        pkgNode.initFunction.body.stmts.add(returnStmt);
     }
 
     private void defineTypeAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {

@@ -332,7 +332,10 @@ public class BallerinaSdkUtils {
             Stream<String> stream = Files.lines(Paths.get(filePath), StandardCharsets.UTF_8);
             StringBuilder contentBuilder = new StringBuilder();
             stream.forEach(s -> contentBuilder.append(s).append("\n"));
-            return contentBuilder.toString().trim();
+            String balHomePath = contentBuilder.toString().trim();
+            // Removes "/bin" from the path since we only need the ballerina home root.
+            balHomePath = !Strings.isNullOrEmpty(balHomePath) ? balHomePath.replace("/bin", "") : "";
+            return balHomePath;
         } catch (Exception ignored) {
             return "";
         }
@@ -497,8 +500,8 @@ public class BallerinaSdkUtils {
     @Messages.YesNoResult
     public static void showRestartDialog(Project project) {
         ApplicationManager.getApplication().invokeLater(() -> {
-            ProjectManagerEx.getInstanceEx().canClose(project);
-            String action = ProjectManagerEx.getInstanceEx().canClose(project) ? "Reload Project" : "Restart IDE";
+            String action = project != null && ProjectManagerEx.getInstanceEx().canClose(project) ?
+                    "Reload Project" : "Restart IDE";
             String message = "Project/IDE reloading action is required to apply changes. Do you wish to continue?";
             if (Messages.showYesNoDialog(message, "Apply Changes", action, "Postpone",
                     Messages.getQuestionIcon()) == Messages.YES) {

@@ -24,10 +24,8 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompiler;
-import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
-import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Position;
@@ -96,14 +94,11 @@ public class CreateVariableExecutor implements LSCommandExecutor {
             throw new LSCommandExecutorException("Invalid parameters received for the create variable command!");
         }
 
-        LSDocument document = new LSDocument(documentUri);
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
-        LSCompiler lsCompiler = context.get(ExecuteCommandKeys.LS_COMPILER_KEY);
-
-        BLangInvocation functionNode = null;
+        BLangInvocation functionNode;
         try {
-            functionNode = getFunctionInvocationNode(sLine, sCol, document, documentManager, lsCompiler, context);
-        } catch (LSCompilerException e) {
+            functionNode = getFunctionInvocationNode(sLine, sCol, documentUri, documentManager, context);
+        } catch (CompilationFailedException e) {
             throw new LSCommandExecutorException("Error while compiling the source!");
         }
         if (functionNode == null) {

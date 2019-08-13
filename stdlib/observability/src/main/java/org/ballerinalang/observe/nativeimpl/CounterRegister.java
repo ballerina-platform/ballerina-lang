@@ -17,14 +17,11 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.observability.metrics.Counter;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
@@ -42,15 +39,7 @@ import org.ballerinalang.natives.annotations.Receiver;
                 structPackage = ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH),
         isPublic = true
 )
-public class CounterRegister extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        BMap bStruct = (BMap) context.getRefArgument(0);
-        Counter counter = (Counter) bStruct.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
-        Counter registeredCounter = counter.register();
-        bStruct.addNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY, registeredCounter);
-    }
+public class CounterRegister {
 
     public static Object register(Strand strand, ObjectValue counterObj) {
         try {

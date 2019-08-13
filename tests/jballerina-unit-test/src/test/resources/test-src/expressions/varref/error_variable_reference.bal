@@ -26,13 +26,13 @@ type CMA error <string, record {| string message?; error cause?; anydata...; |}>
 const ERROR1 = "Some Error One";
 const ERROR2 = "Some Error Two";
 
-function testBasicErrorVariableWithMapDetails() returns [string, string, string, string, map<string>, string?,
-                                                            string?, string?, map<any>, any, any, any] {
+function testBasicErrorVariableWithMapDetails() returns [string, string, string, string, map<string|error>, string?,
+                                                            string?, string?, map<any|error>, any, any, any] {
     SMS err1 = error("Error One", message = "Msg One", detail = "Detail Msg");
     SMA err2 = error("Error Two", message = "Msg Two", fatal = true );
 
     string reason11;
-    map<string> detail11;
+    map<string|error> detail11;
     string reason12;
     string? message12;
     string? detail12;
@@ -42,7 +42,7 @@ function testBasicErrorVariableWithMapDetails() returns [string, string, string,
     error (reason12, message = message12, detail = detail12, extra = extra12) = err1;
 
     string reason21;
-    map<any> detail21;
+    map<any|error> detail21;
     string reason22;
     any message22;
     any detail22;
@@ -55,13 +55,13 @@ function testBasicErrorVariableWithMapDetails() returns [string, string, string,
     detail22, extra22];
 }
 
-function testBasicErrorVariableWithConstAndMap() returns [string, string, string, string, map<string>, string?, string?,
-                                                             string?, map<any>, any, any, any] {
+function testBasicErrorVariableWithConstAndMap() returns [string, string, string, string, map<string|error>, string?, string?,
+                                                             string?, map<any|error>, any, any, any] {
     CMS err3 = error(ERROR1, message = "Msg Three", detail = "Detail Msg");
     CMA err4 = error(ERROR2, message = "Msg Four", fatal = true);
 
     string reason31;
-    map<string> detail31;
+    map<string|error> detail31;
     string reason32;
     string? message32;
     string? detail32;
@@ -71,7 +71,7 @@ function testBasicErrorVariableWithConstAndMap() returns [string, string, string
     error (reason32, message = message32, detail = detail32, extra = extra32) = err3;
 
     string reason41;
-    map<any> detail41;
+    map<any|error> detail41;
     string reason42;
     any message42;
     any detail42;
@@ -181,25 +181,25 @@ function testErrorInRecordWithDestructure2() returns [int, string, anydata|error
     return [x, reason, message, extra];
 }
 
-function testErrorWithRestParam() returns map<string> {
+function testErrorWithRestParam() returns map<string|error> {
     error<string, record {| string message?; error cause?; string...; |}> errWithMap
                                                     = error("Error", message = "Fatal", fatal = "true");
 
     string reason;
     string? message;
-    map<string> detailMap;
+    map<string|error> detailMap;
     error(reason, message = message, ...detailMap) = errWithMap;
     detailMap["extra"] = "extra";
 
     return detailMap;
 }
 
-function testErrorWithUnderscore() returns [string, map<string>] {
+function testErrorWithUnderscore() returns [string, map<string|error>] {
     error<string, record {| string message?; error cause?; string...; |}> errWithMap
                                                         = error("Error", message = "Fatal", fatal = "true");
 
     string reason;
-    map<string> detail;
+    map<string|error> detail;
 
     error(reason, ... _) = errWithMap;
     error(_, ... detail) = errWithMap;
@@ -214,4 +214,56 @@ function testDefaultErrorRefBindingPattern() returns string {
     string reason;
     error(reason, ... _) = e;
     return reason;
+}
+
+function testIndirectErrorRefBindingPattern() returns [string?, any|error] {
+    SampleError e = error("the reason", message="msg");
+    string? message;
+    any|error other;
+    map<anydata|error> rest;
+    SampleError(message=message, other=other, ...rest) = e;
+    return [message, other];
+}
+
+const FILE_OPN = "FILE-OPEN";
+type FileOpenErrorDetail record {|
+    string message;
+    error cause?;
+    string targetFileName;
+    int errorCode;
+    int flags?;
+|};
+type FileOpenError error<FILE_OPN, FileOpenErrorDetail>;
+
+function testIndirectErrorRefMandatoryFields() returns
+        [string, string, int, int?,
+            string, map<anydata|error>,
+            string, string, map<string|int|error>] {
+    FileOpenError e = FileOpenError(message="file open failed",
+                                targetFileName="/usr/bhah/a.log",
+                                errorCode=45221,
+                                flags=128,
+                                cause=error("c"));
+    string message;
+    string fileName;
+    int errorCode;
+    int? flags;
+    FileOpenError(message=message,
+                    targetFileName=fileName,
+                    errorCode=errorCode,
+                    flags=flags) = e;
+
+    error upcast = e;
+    string reason;
+    map<anydata|error> rest;
+    error(reason=reason, ...rest) = upcast;
+
+    string reason2;
+    string messageX;
+    map<string|int|error> rest2;
+    error(reason=reason2, message=messageX, ...rest2) = e;
+
+    return [message, fileName, errorCode, flags,
+                reason, rest,
+                reason2, messageX, rest2];
 }

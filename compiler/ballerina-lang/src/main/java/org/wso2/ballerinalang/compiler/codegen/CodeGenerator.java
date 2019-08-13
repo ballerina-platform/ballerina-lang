@@ -356,14 +356,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public ProgramFile generateBALX(BLangPackage pkgNode) {
-        ProgramFile programFile = new ProgramFile();
-
-        // Add all the packages to the program file structure.
-        addPackageInfo(pkgNode.symbol, programFile);
-        programFile.entryPkgCPIndex = addPackageRefCPEntry(programFile, pkgNode.symbol.pkgID);
-        // TODO Remove the following line..
-        setEntryPoints(programFile, pkgNode);
-        return programFile;
+        throw new UnsupportedOperationException("BVM is deprecated");
     }
 
     public BLangPackage generateBALO(BLangPackage pkgNode) {
@@ -918,10 +911,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangStreamLiteral streamLiteral) {
         streamLiteral.regIndex = calcAndGetExprRegIndex(streamLiteral);
         Operand typeCPIndex = getTypeCPIndex(streamLiteral.type);
-        StringCPEntry nameCPEntry =
-                new StringCPEntry(addUTF8CPEntry(currentPkgInfo, streamLiteral.streamName), streamLiteral.streamName);
-        Operand nameCPIndex = getOperand(currentPkgInfo.addCPEntry(nameCPEntry));
-        emit(InstructionCodes.NEWSTREAM, streamLiteral.regIndex, typeCPIndex, nameCPIndex);
+        emit(InstructionCodes.NEWSTREAM, streamLiteral.regIndex, typeCPIndex);
     }
 
     @Override

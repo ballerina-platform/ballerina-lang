@@ -45,6 +45,7 @@ public enum DiagnosticCode {
     TYPE_NOT_ALLOWED_WITH_PRIMARYKEY("type.not.allowed.with.primarykey"),
     FIELD_NOT_ALLOWED_WITH_TABLE_COLUMN("field.not.allowed.with.table.column"),
     TABLE_CANNOT_BE_CREATED_WITHOUT_CONSTRAINT("table.cannot.be.created.without.constraint"),
+    CANNOT_INFER_TABLE_TYPE("cannot.infer.table.type"),
     TABLE_KEY_EXPECTED("table.key.expected"),
     OBJECT_TYPE_NOT_ALLOWED("object.type.not.allowed"),
     UNDEFINED_STRUCTURE_FIELD_WITH_TYPE("undefined.field.in.structure.with.type"), // TODO: remove Maryam
@@ -114,6 +115,9 @@ public enum DiagnosticCode {
     MAIN_SHOULD_BE_PUBLIC("main.should.be.public"),
     MAIN_PARAMS_SHOULD_BE_ANYDATA("main.params.should.be.anydata"),
     MAIN_RETURN_SHOULD_BE_ERROR_OR_NIL("main.return.should.be.error.or.nil"),
+    MODULE_INIT_CANNOT_BE_PUBLIC("module.init.cannot.be.public"),
+    MODULE_INIT_CANNOT_HAVE_PARAMS("module.init.cannot.have.params"),
+    MODULE_INIT_RETURN_SHOULD_BE_ERROR_OR_NIL("module.init.return.should.be.error.or.nil"),
     ATLEAST_ONE_WORKER_MUST_RETURN("atleast.one.worker.must.return"),
     FORK_JOIN_WORKER_CANNOT_RETURN("fork.join.worker.cannot.return"),
     FORK_JOIN_INVALID_WORKER_COUNT("fork.join.invalid.worker.count"),

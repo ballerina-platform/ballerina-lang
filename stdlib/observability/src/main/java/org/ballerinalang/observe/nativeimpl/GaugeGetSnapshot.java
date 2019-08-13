@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.observability.metrics.Gauge;
 import org.ballerinalang.jvm.observability.metrics.Snapshot;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -44,16 +42,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         isPublic = true,
         returnType = @ReturnType(type = TypeKind.ARRAY)
 )
-public class GaugeGetSnapshot extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-//        BMap bStruct = (BMap) context.getRefArgument(0);
-//        Gauge gauge = (Gauge) bStruct.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
-//        Snapshot[] snapshots = gauge.getSnapshots();
-//        BValueArray bSnapshots = Utils.createBSnapshots(snapshots, context);
-//        context.setReturnValues(bSnapshots);
-    }
+public class GaugeGetSnapshot {
 
     public static Object getSnapshot(Strand strand, ObjectValue guageObj) {
         Gauge gauge = (Gauge) guageObj.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);

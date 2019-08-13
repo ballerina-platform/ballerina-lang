@@ -18,8 +18,6 @@
 
 package org.ballerinalang.net.websub.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -46,11 +44,7 @@ import static org.ballerinalang.stdlib.io.utils.IOConstants.BYTE_CHANNEL_NAME;
         args = {@Argument(name = "byteChannel", type = TypeKind.OBJECT)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE)}
 )
-public class ConstructByteArray extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class ConstructByteArray {
 
     public static ArrayValue constructByteArray(Strand strand, ObjectValue byteChannel) {
         Channel channel = (Channel) byteChannel.getNativeData(BYTE_CHANNEL_NAME);

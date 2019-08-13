@@ -57,7 +57,7 @@ public class WriteTextRecord {
                 IOConstants.TXT_RECORD_CHANNEL_NAME);
         EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
         DelimitedRecordWriteEvent recordWriteEvent = new DelimitedRecordWriteEvent(delimitedRecordChannel, content,
-                                                                                   eventContext, true);
+                                                                                   eventContext);
         Register register = EventRegister.getFactory().register(recordWriteEvent, WriteTextRecord::writeTextResponse);
         eventContext.setRegister(register);
         register.submit();
@@ -76,6 +76,8 @@ public class WriteTextRecord {
         Throwable error = eventContext.getError();
         if (null != error) {
             callback.setReturnValues(IOUtils.createError(error.getMessage()));
+        } else {
+            callback.setReturnValues(null);
         }
         callback.notifySuccess();
         return result;

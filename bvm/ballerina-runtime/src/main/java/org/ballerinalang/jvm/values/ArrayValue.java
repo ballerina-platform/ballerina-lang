@@ -850,7 +850,7 @@ public class ArrayValue implements RefValue, CollectionValue {
         this.elementType = type;
     }
 
-    private String getJSONString() {
+    public String getJSONString() {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         JSONGenerator gen = new JSONGenerator(byteOut);
         try {

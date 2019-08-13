@@ -22,6 +22,7 @@ import { render } from './renderer';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { ballerinaExtInstance, BallerinaExtension } from '../core';
 import { WebViewRPCHandler, WebViewMethod, getCommonWebViewOptions } from '../utils';
+import { TM_EVENT_OPEN_EXAMPLES, CMP_EXAMPLES_VIEW } from '../telemetry';
 
 let examplesPanel: WebviewPanel | undefined;
 
@@ -67,9 +68,11 @@ function showExamples(context: ExtensionContext, langClient: ExtendedLangClient)
 }
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
-    let context = <ExtensionContext> ballerinaExtInstance.context;
-    let langClient = <ExtendedLangClient> ballerinaExtInstance.langClient;
+    const reporter = ballerinaExtInstance.telemetryReporter;
+    const context = <ExtensionContext> ballerinaExtInstance.context;
+    const langClient = <ExtendedLangClient> ballerinaExtInstance.langClient;
     const examplesListRenderer = commands.registerCommand('ballerina.showExamples', () => {
+        reporter.sendTelemetryEvent(TM_EVENT_OPEN_EXAMPLES, { component: CMP_EXAMPLES_VIEW });
         ballerinaExtInstance.onReady()
         .then(() => {
             const { experimental } = langClient.initializeResult!.capabilities;
@@ -87,7 +90,8 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 				ballerinaExtInstance.showMessageInvalidBallerinaHome();
 			} else {
 				ballerinaExtInstance.showPluginActivationError();
-			}
+            }
+            reporter.sendTelemetryException(e, { component: CMP_EXAMPLES_VIEW });
 		});
     });
     

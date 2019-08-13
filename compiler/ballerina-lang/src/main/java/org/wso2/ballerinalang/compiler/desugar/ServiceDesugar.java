@@ -26,8 +26,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -37,14 +35,12 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -62,7 +58,7 @@ public class ServiceDesugar {
     private static final CompilerContext.Key<ServiceDesugar> SERVICE_DESUGAR_KEY = new CompilerContext.Key<>();
 
     private static final String START_METHOD = "__start";
-    private static final String STOP_METHOD = "__stop";
+    private static final String IMMEDIATE_STOP = "__immediateStop";
     private static final String ATTACH_METHOD = "__attach";
     private static final String LISTENER = "$LISTENER";
 
@@ -95,7 +91,7 @@ public class ServiceDesugar {
 
     private void rewriteListener(BLangSimpleVariable variable, SymbolEnv env) {
         rewriteListenerLifeCycleFunction(env.enclPkg.startFunction, variable, env, START_METHOD);
-        rewriteListenerLifeCycleFunction(env.enclPkg.stopFunction, variable, env, STOP_METHOD);
+        rewriteListenerLifeCycleFunction(env.enclPkg.stopFunction, variable, env, IMMEDIATE_STOP);
     }
 
     private void rewriteListenerLifeCycleFunction(BLangFunction lifeCycleFunction, BLangSimpleVariable variable,
@@ -188,21 +184,12 @@ public class ServiceDesugar {
                 ASTBuilderUtil.createInvocationExprForMethod(pos, methodRefSymbol, args, symResolver);
         methodInvocation.expr = varRef;
 
-        BLangExpression rhsExpr = methodInvocation;
-        // Add optional check.
-        if (((BInvokableType) methodRefSymbol.type).retType.tag == TypeTags.UNION
-                && ((BUnionType) ((BInvokableType) methodRefSymbol.type).retType).getMemberTypes().stream()
-                .anyMatch(type -> type.tag == TypeTags.ERROR)) {
-            final BLangCheckedExpr checkExpr = ASTBuilderUtil.createCheckExpr(pos, methodInvocation, symTable.anyType);
-            checkExpr.equivalentErrorTypeList.add(symTable.errorType);
-            rhsExpr = checkExpr;
-        }
+        BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckExpr(pos, methodInvocation, symTable.nilType);
+        checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
 
-        // Create assignment statement.
-        BLangVariableReference ignoreVarRef = ASTBuilderUtil.createIgnoreVariableRef(pos, symTable);
-        final BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(pos, ignoreVarRef, rhsExpr, false);
-
-        ASTBuilderUtil.appendStatement(assignmentStmt, body);
+        BLangExpressionStmt expressionStmt = ASTBuilderUtil.createExpressionStmt(pos, body);
+        expressionStmt.expr = checkedExpr;
+        expressionStmt.expr.pos = pos;
     }
 
     void engageCustomServiceDesugar(BLangService service, SymbolEnv env) {

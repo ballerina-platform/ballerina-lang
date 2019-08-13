@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Stack;
 
 /**
- * Base class for both In memory H2 table sql query builder and the Siddhi query builder.
+ * Base class for In memory H2 table sql query builder.
  */
 public abstract class SqlQueryBuilder extends BLangNodeVisitor {
 
@@ -53,7 +53,7 @@ public abstract class SqlQueryBuilder extends BLangNodeVisitor {
     StringBuilder selectExpr;
     StringBuilder groupByClause;
     StringBuilder havingClause;
-    StringBuilder orderByVariableClause;
+    private StringBuilder orderByVariableClause;
 
     Stack<String> exprStack = new Stack<>();
 

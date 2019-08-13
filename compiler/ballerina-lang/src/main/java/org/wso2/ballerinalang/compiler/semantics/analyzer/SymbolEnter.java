@@ -648,11 +648,13 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void defineErrorConstructorSymbol(DiagnosticPos pos, BTypeSymbol typeDefSymbol) {
+        BErrorType errorType = (BErrorType) typeDefSymbol.type;
         BConstructorSymbol symbol = new BConstructorSymbol(SymTag.CONSTRUCTOR,
-                typeDefSymbol.flags, typeDefSymbol.name, typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner);
+                typeDefSymbol.flags, typeDefSymbol.name, typeDefSymbol.pkgID, errorType, typeDefSymbol.owner);
+        errorType.ctorSymbol = symbol;
         symbol.kind = SymbolKind.ERROR_CONSTRUCTOR;
         symbol.scope = new Scope(symbol);
-        symbol.retType = typeDefSymbol.type;
+        symbol.retType = errorType;
         if (symResolver.checkForUniqueSymbol(pos, env, symbol, symbol.tag)) {
             env.scope.define(symbol.name, symbol);
         }
@@ -908,9 +910,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineObjectAttachedInvokableSymbolParams(BLangInvokableNode invokableNode, SymbolEnv invokableEnv) {
         // visit required params of the function
-        invokableNode.requiredParams.forEach(varNode -> {
-            visitObjectAttachedFunctionParam(varNode, invokableEnv);
-        });
+        invokableNode.clonedEnv = invokableEnv.shallowClone();
+        invokableNode.requiredParams.forEach(varNode -> visitObjectAttachedFunctionParam(varNode, invokableEnv));
 
         if (invokableNode.returnTypeNode != null) {
             invokableNode.returnTypeNode.type = symResolver.resolveTypeNode(invokableNode.returnTypeNode, env);
@@ -1375,7 +1376,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                              SymbolEnv invokableEnv) {
         boolean foundDefaultableParam = false;
         List<BVarSymbol> paramSymbols = new ArrayList<>();
-
+        invokableNode.clonedEnv = invokableEnv.shallowClone();
         for (BLangSimpleVariable varNode : invokableNode.requiredParams) {
             defineNode(varNode, invokableEnv);
             if (varNode.expr != null) {
@@ -1478,6 +1479,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         return varSymbol;
     }
 
+    public void defineExistingVarSymbolInEnv(BVarSymbol varSymbol, SymbolEnv env) {
+        if (!symResolver.checkForUniqueSymbol(env, varSymbol, SymTag.VARIABLE_NAME)) {
+            varSymbol.type = symTable.semanticError;
+        }
+        env.scope.define(varSymbol.name, varSymbol);
+    }
+
     public BVarSymbol createVarSymbol(Set<Flag> flagSet, BType varType, Name varName, SymbolEnv env) {
         return createVarSymbol(Flags.asMask(flagSet), varType, varName, env);
     }
@@ -1514,7 +1522,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineRecordInitFunction(BLangTypeDefinition typeDef, SymbolEnv conEnv) {
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
-        recordTypeNode.initFunction = ASTBuilderUtil.createInitFunction(typeDef.pos, "", Names.INIT_FUNCTION_SUFFIX);
+        recordTypeNode.initFunction = ASTBuilderUtil.createInitFunctionWithNilReturn(typeDef.pos, "",
+                                                                                     Names.INIT_FUNCTION_SUFFIX);
 
         recordTypeNode.initFunction.receiver = createReceiver(typeDef.pos, typeDef.name);
         recordTypeNode.initFunction.attachedFunction = true;
