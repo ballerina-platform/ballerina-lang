@@ -622,8 +622,8 @@ public class CommonUtil {
         List<String> attachedFunctions = ((BObjectTypeSymbol) bSymbol).attachedFuncs.stream()
                 .map(function -> function.funcName.getValue())
                 .collect(Collectors.toList());
-        return attachedFunctions.contains("__start") && attachedFunctions.contains("__stop")
-                && attachedFunctions.contains("__attach");
+        return attachedFunctions.contains("__start") && attachedFunctions.contains("__immediateStop")
+                && attachedFunctions.contains("__immediateStop") && attachedFunctions.contains("__attach");
     }
 
     /**
