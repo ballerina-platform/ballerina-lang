@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.service.grpc.tool;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.protobuf.cmd.GrpcCmd;
 import org.ballerinalang.protobuf.cmd.OSDetector;
 import org.ballerinalang.protobuf.utils.BalFileGenerationUtils;
@@ -35,6 +36,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.TMP_DIRECTORY_PATH;
+import static org.testng.Assert.assertEquals;
 
 /**
  * Protobuf to bal generation function testcase.
@@ -56,24 +58,51 @@ public class StubGeneratorTestCase {
     @Test
     public void testUnaryHelloWorld() throws IllegalAccessException, ClassNotFoundException, InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorld.proto", "helloWorld_pb.bal");
-        Assert.assertEquals(compileResult.getDiagnostics().length, 0);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7);
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11);
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
+        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
+    }
+
+    @Test(description = "Test service stub generation for service definition with dependency")
+    public void testUnaryHelloWorldWithDependency() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getStubCompileResult("helloWorldWithDependency.proto",
+                "helloWorldWithDependency_pb.bal");
+        assertEquals(compileResult.getDiagnostics().length, 12);
+        assertEquals(compileResult.getDiagnostics()[0].toString(),
+                "ERROR: .::helloWorldWithDependency_pb.bal:23:27:: unknown type 'HelloRequest'");
+        assertEquals(compileResult.getDiagnostics()[1].toString(),
+                "ERROR: .::helloWorldWithDependency_pb.bal:23:83:: unknown type 'HelloResponse'");
+        assertEquals(compileResult.getDiagnostics()[5].toString(),
+                "ERROR: .::helloWorldWithDependency_pb.bal:37:25:: unknown type 'ByeRequest'");
+        assertEquals(compileResult.getDiagnostics()[6].toString(),
+                "ERROR: .::helloWorldWithDependency_pb.bal:37:79:: unknown type 'ByeResponse'");
+    }
+
+    @Test(description = "Test service stub generation for service definition with invalid dependency",
+            expectedExceptions = BLangCompilerException.class,
+            expectedExceptionsMessageRegExp = "cannot find file 'helloWorldWithInvalidDependency_pb.bal'")
+    public void testUnaryHelloWorldWithInvalidDependency() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getStubCompileResult("helloWorldWithInvalidDependency.proto",
+                "helloWorldWithInvalidDependency_pb.bal");
+        assertEquals(compileResult.getDiagnostics().length, 1);
     }
 
     @Test(description = "Test service stub generation tool for package service")
     public void testUnaryHelloWorldWithPackage() throws IllegalAccessException,
             ClassNotFoundException, InstantiationException {
-        CompileResult compileResult = getStubCompileResult("helloWorldWithPackage.proto", "helloWorld_pb.bal");
-        Assert.assertEquals(compileResult.getDiagnostics().length, 0);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
+        CompileResult compileResult = getStubCompileResult("helloWorldWithPackage.proto",
+                "helloWorldWithPackage_pb.bal");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7);
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11);
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
+        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
     }
 
     @Test(description = "Test service stub generation tool command without specifying output directory path")
@@ -87,12 +116,12 @@ public class StubGeneratorTestCase {
             grpcCmd1.execute();
             Path sourceFileRoot = Paths.get("temp", "helloWorld_pb.bal");
             CompileResult compileResult = BCompileUtil.compile(sourceFileRoot.toAbsolutePath().toString());
-            Assert.assertEquals(compileResult.getDiagnostics().length, 0);
-            Assert.assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7);
-            Assert.assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11);
-            Assert.assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
-            Assert.assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
-            Assert.assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
+            assertEquals(compileResult.getDiagnostics().length, 0);
+            assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7);
+            assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11);
+            assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
+            assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
+            assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
         } finally {
             if (Paths.get("temp", "helloWorld_pb.bal").toFile().exists()) {
                 BalFileGenerationUtils.delete(Paths.get("temp").toFile());
@@ -105,12 +134,12 @@ public class StubGeneratorTestCase {
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldClientStreaming.proto",
                 "helloWorldClientStreaming_pb.bal");
-        Assert.assertEquals(compileResult.getDiagnostics().length, 0);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 4);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 5);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 4);
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 5);
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
+        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
     }
 
     @Test
@@ -118,24 +147,24 @@ public class StubGeneratorTestCase {
             ClassNotFoundException, InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldServerStreaming.proto",
                 "helloWorldServerStreaming_pb.bal");
-        Assert.assertEquals(compileResult.getDiagnostics().length, 0);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 4);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 5);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 4);
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 5);
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
+        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
     }
 
     @Test
     public void testStandardDataTypes() throws IllegalAccessException, ClassNotFoundException, InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldString.proto",
                 "helloWorldString_pb.bal");
-        Assert.assertEquals(compileResult.getDiagnostics().length, 0);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 3);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 5);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 3);
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 5);
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
+        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
     }
 
     @Test
@@ -151,12 +180,12 @@ public class StubGeneratorTestCase {
         grpcCmd1.execute();
         Path sourceFileRoot = Paths.get(TMP_DIRECTORY_PATH, "grpc", "client", "helloWorld_pb.bal");
         CompileResult compileResult = BCompileUtil.compile(sourceFileRoot.toString());
-        Assert.assertEquals(compileResult.getDiagnostics().length, 0);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7);
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11);
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
+        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
     }
 
     @Test
@@ -196,12 +225,12 @@ public class StubGeneratorTestCase {
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("oneof_field_service.proto",
                 "oneof_field_service_pb.bal");
-        Assert.assertEquals(compileResult.getDiagnostics().length, 0);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 30);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 30);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
-        Assert.assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 30);
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 30);
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
+        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
     }
 
     private CompileResult getStubCompileResult(String protoFilename, String outputFilename)
