@@ -133,7 +133,7 @@ public class IdleTimeoutResponseTestCase extends HttpBaseTest {
                 "content-length: 64\r\n" +
                 "content-type: text/plain\r\n" +
                 "connection: close\r\n" +
-                "server: Mysql\n";
+                "server: Mysql";
         readAndAssertResponse(clientSocket, expected);
     }
 
@@ -232,7 +232,7 @@ public class IdleTimeoutResponseTestCase extends HttpBaseTest {
         String response = inboundContent.toString().trim();
         //Ignore the server header
         int newLineIndex = response.lastIndexOf("\r\n");
-        Assert.assertEquals(response.substring(0, newLineIndex), expected.trim());
+        Assert.assertEquals(response.substring(0, newLineIndex).trim(), expected.trim());
     }
 
     @Test(description = "Tests if 500 response is returned when the server times out. In this case a sleep is " +
