@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.test;
 
 
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -64,5 +65,20 @@ public class LangLibTypedescTest {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testOptionalFieldToMandotoryField");
         Assert.assertEquals(returns[0].stringValue(),
                 "{ballerina}ConversionError {message:\"'CRec' value cannot be converted to 'BRec'\"}");
+    }
+
+    @Test
+    public void testAmbiguousTargetType() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testAmbiguousTargetType");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testConstructFromForNil() {
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testConstructFromForNilPositive");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+
+        returns = BRunUtil.invokeFunction(compileResult, "testConstructFromForNilNegative");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 }

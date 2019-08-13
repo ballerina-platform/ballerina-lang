@@ -82,6 +82,15 @@ public class BallerinaErrors {
                                                     TypeChecker.getType(inputValue), targetType));
     }
 
+    public static ErrorValue createConversionError(Object inputValue, BType targetType, String detailMessage) {
+        return createError(BallerinaErrorReasons.CONVERSION_ERROR,
+                           BLangExceptionHelper
+                                   .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
+                                                            .INCOMPATIBLE_CONVERT_OPERATION,
+                                                    TypeChecker.getType(inputValue), targetType).concat(
+                                                            ": ".concat(detailMessage)));
+    }
+
     public static ErrorValue createTypeCastError(Object sourceVal, BType targetType) {
         throw createError(BallerinaErrorReasons.TYPE_CAST_ERROR,
                           BLangExceptionHelper.getErrorMessage(RuntimeErrors.TYPE_CAST_ERROR,

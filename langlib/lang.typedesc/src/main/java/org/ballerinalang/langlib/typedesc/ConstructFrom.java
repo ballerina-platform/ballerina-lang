@@ -25,11 +25,12 @@ import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypedescType;
+import org.ballerinalang.jvm.types.BUnionType;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -37,7 +38,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * Extern function lang.typedesc:constructFrom.
@@ -58,10 +58,12 @@ import java.util.function.Predicate;
 )
 public class ConstructFrom {
 
+    private static final String AMBIGUOUS_TARGET = "ambiguous target type";
+
     public static Object constructFrom(Strand strand, TypedescValue t, Object v) {
         BType describingType = t.getDescribingType();
         // typedesc<json>.constructFrom like usage
-        if (describingType.getTag() == org.ballerinalang.jvm.types.TypeTags.TYPEDESC_TAG) {
+        if (describingType.getTag() == TypeTags.TYPEDESC_TAG) {
             return convert(((BTypedescType) t.getDescribingType()).getConstraint(), v);
         }
         // json.constructFrom like usage
@@ -69,63 +71,74 @@ public class ConstructFrom {
     }
 
     public static Object convert(BType convertType, Object inputValue) {
-        RefValue convertedValue;
-        org.ballerinalang.jvm.types.BType targetType;
-        if (convertType.getTag() == org.ballerinalang.jvm.types.TypeTags.UNION_TAG) {
-            List<BType> memberTypes
-                    = new ArrayList<>(((org.ballerinalang.jvm.types.BUnionType) convertType).getMemberTypes());
-            targetType = new org.ballerinalang.jvm.types.BUnionType(memberTypes);
-
-            Predicate<BType> errorPredicate = e -> e.getTag() == TypeTags.ERROR_TAG;
-            ((org.ballerinalang.jvm.types.BUnionType) targetType).getMemberTypes().removeIf(errorPredicate);
-
-            if (((org.ballerinalang.jvm.types.BUnionType) targetType).getMemberTypes().size() == 1) {
-                targetType = ((org.ballerinalang.jvm.types.BUnionType) convertType).getMemberTypes().get(0);
-            }
-        } else {
-            targetType = convertType;
-        }
-
         if (inputValue == null) {
-            if (targetType.getTag() == TypeTags.JSON_TAG) {
+            if (convertType.isNilable()) {
                 return null;
             }
             return BallerinaErrors
                     .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR,
-                            org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper
-                                    .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
-                                            .CANNOT_CONVERT_NULL, convertType));
+                                 org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper
+                                         .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
+                                                                  .CANNOT_CONVERT_NIL, convertType));
         }
 
-        org.ballerinalang.jvm.types.BType inputValType = TypeChecker.getType(inputValue);
-        if (TypeChecker.checkIsLikeType(inputValue, targetType)) {
+        BType inputValType = TypeChecker.getType(inputValue);
 
-            // if input value is a value-type, return as is.
-            if (inputValType.getTag() <= TypeTags.BOOLEAN_TAG) {
-                return inputValue;
+        List<BType> convertibleTypes = getConvertibleTypes(inputValue, convertType);
+
+        if (convertibleTypes.size() == 0) {
+            // This would not work when the target is a union, but this is OK since table to JSON/XML conversion
+            // uses this method temporarily.
+            if (inputValType.getTag() == TypeTags.TABLE_TAG) {
+                switch (convertType.getTag()) {
+                    case TypeTags.JSON_TAG:
+                        return JSONUtils.toJSON((TableValue) inputValue);
+                    case TypeTags.XML_TAG:
+                        return XMLFactory.tableToXML((TableValue) inputValue);
+                    default:
+                        break;
+                }
             }
 
-            try {
-                RefValue refValue = (RefValue) inputValue;
-                convertedValue = (RefValue) refValue.copy(new HashMap<>());
-                convertedValue.stamp(targetType, new ArrayList<>());
-                return convertedValue;
-            } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
-                throw BallerinaErrors.createError(
-                        org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR, e.getDetail());
-            }
+            return BallerinaErrors.createConversionError(inputValue, convertType);
+        } else if (convertibleTypes.size() > 1) {
+            return BallerinaErrors.createConversionError(inputValue, convertType, AMBIGUOUS_TARGET);
         }
 
-        if (inputValType.getTag() == TypeTags.TABLE_TAG) {
-            switch (targetType.getTag()) {
-                case TypeTags.JSON_TAG:
-                    return JSONUtils.toJSON((TableValue) inputValue);
-                case TypeTags.XML_TAG:
-                    return XMLFactory.tableToXML((TableValue) inputValue);
-                default:
-                    break;
-            }
+        // if input value is a value-type, return as is.
+        if (inputValType.getTag() < TypeTags.JSON_TAG) {
+            return inputValue;
         }
-        return BallerinaErrors.createConversionError(inputValue, targetType);
+
+        try {
+            RefValue refValue = (RefValue) inputValue;
+            RefValue convertedValue = (RefValue) refValue.copy(new HashMap<>());
+            convertedValue.stamp(convertibleTypes.get(0), new ArrayList<>());
+            return convertedValue;
+        } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
+            return BallerinaErrors.createError(
+                    org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR, e.getDetail());
+        }
+    }
+
+    private static List<BType> getConvertibleTypes(Object inputValue, BType targetType) {
+        List<BType> convertibleTypes = new ArrayList<>();
+
+        int targetTypeTag = targetType.getTag();
+
+        switch (targetTypeTag) {
+            case TypeTags.UNION_TAG:
+                for (BType memType : ((BUnionType) targetType).getMemberTypes()) {
+                    convertibleTypes.addAll(getConvertibleTypes(inputValue, memType));
+                }
+                break;
+            case TypeTags.RECORD_TYPE_TAG:
+                // TODO: 8/13/19 impl against def value
+            default:
+                if (TypeChecker.checkIsLikeType(inputValue, targetType)) {
+                    convertibleTypes.add(targetType);
+                }
+        }
+        return convertibleTypes;
     }
 }

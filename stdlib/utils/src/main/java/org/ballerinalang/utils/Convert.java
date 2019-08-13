@@ -138,7 +138,7 @@ public class Convert extends BlockingNativeCallableUnit {
                     .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR,
                                  org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper
                                          .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
-                                                                  .CANNOT_CONVERT_NULL, convertType));
+                                                                  .CANNOT_CONVERT_NIL, convertType));
         }
 
         org.ballerinalang.jvm.types.BType inputValType = TypeChecker.getType(inputValue);
