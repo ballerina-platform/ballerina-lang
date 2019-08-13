@@ -50,8 +50,7 @@ public class PackageInitTest {
             System.setOut(new PrintStream(outputStream));
             CompileResult result = BCompileUtil.compile("test-src/packagetest", "c");
             BRunUtil.invoke(result, "getA1", new BValueType[0]);
-            String EXPECTED_OUTPUT = "PackageA";
-            int count = countOccurences(outputStream.toString().replace("\r", ""), EXPECTED_OUTPUT);
+            int count = countOccurences(outputStream.toString().replace("\r", ""), "PackageA");
             Assert.assertEquals(count, 1);
         } finally {
             System.setOut(original);
