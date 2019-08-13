@@ -622,8 +622,8 @@ public class CommonUtil {
         List<String> attachedFunctions = ((BObjectTypeSymbol) bSymbol).attachedFuncs.stream()
                 .map(function -> function.funcName.getValue())
                 .collect(Collectors.toList());
-        return attachedFunctions.contains("__start") && attachedFunctions.contains("__stop")
-                && attachedFunctions.contains("__attach");
+        return attachedFunctions.contains("__start") && attachedFunctions.contains("__immediateStop")
+                && attachedFunctions.contains("__immediateStop") && attachedFunctions.contains("__attach");
     }
 
     /**
@@ -1009,7 +1009,7 @@ public class CommonUtil {
      */
     public static String getPlainTextSnippet(String snippet) {
         return snippet
-                .replaceAll("(\\$\\{\\d+:)([a-zA-Z]*:*[a-zA-Z]*)(\\})", "$2")
+                .replaceAll("\\$\\{\\d+:([^\\{^\\}]*)\\}", "$2")
                 .replaceAll("(\\$\\{\\d+\\})", "");
     }
 

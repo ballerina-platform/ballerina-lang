@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
@@ -41,7 +41,7 @@ public class GetItemType {
 
     private static final String OPERATION = "get xml item type";
 
-    public static String getItemType(Strand strand, XMLValue<?> xml) {
+    public static Object getItemType(Strand strand, XMLValue<?> xml) {
         try {
             return xml.getItemType();
         } catch (Throwable e) {

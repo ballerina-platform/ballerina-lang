@@ -44,7 +44,6 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath
 /**
  * Tests for ballerina kafka subscribeToPattern function.
  */
-@Test(singleThreaded = true)
 public class KafkaConsumerSubscribeToPatternTest {
     private CompileResult result;
     private static File dataDir;
@@ -120,7 +119,7 @@ public class KafkaConsumerSubscribeToPatternTest {
             throw new IllegalStateException();
         }
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-subscribe-to-pattern-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(2186, 9099);
+        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(14006, 14106);
         return kafkaCluster;
     }
 }

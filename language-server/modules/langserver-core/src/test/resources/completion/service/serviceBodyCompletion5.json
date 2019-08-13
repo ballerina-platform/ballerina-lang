@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 3,
-    "character": 23
+    "line": 8,
+    "character": 9
   },
-  "source": "function/source/completionWithinInvocationArgs3.bal",
+  "source": "service/source/serviceBodyCompletion5.bal",
   "items": [
     {
       "label": "AUTH_HEADER",
@@ -15,7 +15,7 @@
           "value": "Authorization header name."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "AUTH_HEADER",
       "insertTextFormat": "Snippet"
     },
@@ -29,7 +29,7 @@
           "value": "Indicates that the authentication credentials should be sent via the Authentication Header"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "AUTH_HEADER_BEARER",
       "insertTextFormat": "Snippet"
     },
@@ -43,7 +43,7 @@
           "value": "Indicates that the Authentication credentials should be sent via the body of the POST request."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "POST_BODY_BEARER",
       "insertTextFormat": "Snippet"
     },
@@ -57,7 +57,7 @@
           "value": "Indicates that the authentication credentials should not be sent"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "NO_BEARER",
       "insertTextFormat": "Snippet"
     },
@@ -71,7 +71,7 @@
           "value": "Indicates the status code."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_CODE",
       "insertTextFormat": "Snippet"
     },
@@ -85,7 +85,7 @@
           "value": "Forces the cache to validate a cached response with the origin server before serving."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "NO_CACHE",
       "insertTextFormat": "Snippet"
     },
@@ -99,7 +99,7 @@
           "value": "Instructs the cache to not store a response in non-volatile storage."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "NO_STORE",
       "insertTextFormat": "Snippet"
     },
@@ -113,7 +113,7 @@
           "value": "Instructs intermediaries not to transform the payload."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "NO_TRANSFORM",
       "insertTextFormat": "Snippet"
     },
@@ -127,7 +127,7 @@
           "value": "When used in requests, `max-age` implies that clients are not willing to accept responses whose age is greater\nthan `max-age`. When used in responses, the response is to be considered stale after the specified\nnumber of seconds."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "MAX_AGE",
       "insertTextFormat": "Snippet"
     },
@@ -141,7 +141,7 @@
           "value": "Indicates that the client is willing to accept responses which have exceeded their freshness lifetime by no more\nthan the specified number of seconds."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "MAX_STALE",
       "insertTextFormat": "Snippet"
     },
@@ -155,7 +155,7 @@
           "value": "Indicates that the client is only accepting responses whose freshness lifetime \u003e\u003d current age + min-fresh."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "MIN_FRESH",
       "insertTextFormat": "Snippet"
     },
@@ -169,7 +169,7 @@
           "value": "Indicates that the client is only willing to accept a cached response. A cached response is served subject to\nother constraints posed by the request."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ONLY_IF_CACHED",
       "insertTextFormat": "Snippet"
     },
@@ -183,7 +183,7 @@
           "value": "Indicates that once the response has become stale, it should not be reused for subsequent requests without\nvalidating with the origin server."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "MUST_REVALIDATE",
       "insertTextFormat": "Snippet"
     },
@@ -197,7 +197,7 @@
           "value": "Indicates that any cache may store the response."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "PUBLIC",
       "insertTextFormat": "Snippet"
     },
@@ -211,7 +211,7 @@
           "value": "Indicates that the response is intended for a single user and should not be stored by shared caches."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "PRIVATE",
       "insertTextFormat": "Snippet"
     },
@@ -225,7 +225,7 @@
           "value": "Has the same semantics as `must-revalidate`, except that this does not apply to private caches."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "PROXY_REVALIDATE",
       "insertTextFormat": "Snippet"
     },
@@ -239,7 +239,7 @@
           "value": "In shared caches, `s-maxage` overrides the `max-age` or `expires` header field."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "S_MAX_AGE",
       "insertTextFormat": "Snippet"
     },
@@ -253,7 +253,7 @@
           "value": "Setting this as the `max-stale` directives indicates that the `max-stale` directive does not specify a limit."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "MAX_STALE_ANY_AGE",
       "insertTextFormat": "Snippet"
     },
@@ -267,7 +267,7 @@
           "value": "This is a more restricted mode of RFC 7234. Setting this as the caching policy restricts caching to instances\nwhere the `cache-control` header and either the `etag` or `last-modified` header are present."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "CACHE_CONTROL_AND_VALIDATORS",
       "insertTextFormat": "Snippet"
     },
@@ -281,7 +281,7 @@
           "value": "Caching behaviour is as specified by the RFC 7234 specification."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "RFC_7234",
       "insertTextFormat": "Snippet"
     },
@@ -295,7 +295,7 @@
           "value": "Constant for the http error code"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "HTTP_ERROR_CODE",
       "insertTextFormat": "Snippet"
     },
@@ -309,7 +309,7 @@
           "value": "Represents multipart primary type"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "MULTIPART_AS_PRIMARY_TYPE",
       "insertTextFormat": "Snippet"
     },
@@ -323,7 +323,7 @@
           "value": "Constant for the HTTP FORWARD method"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "HTTP_FORWARD",
       "insertTextFormat": "Snippet"
     },
@@ -337,7 +337,7 @@
           "value": "Constant for the HTTP GET method"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "HTTP_GET",
       "insertTextFormat": "Snippet"
     },
@@ -351,7 +351,7 @@
           "value": "Constant for the HTTP POST method"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "HTTP_POST",
       "insertTextFormat": "Snippet"
     },
@@ -365,7 +365,7 @@
           "value": "Constant for the HTTP DELETE method"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "HTTP_DELETE",
       "insertTextFormat": "Snippet"
     },
@@ -379,7 +379,7 @@
           "value": "Constant for the HTTP OPTIONS method"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "HTTP_OPTIONS",
       "insertTextFormat": "Snippet"
     },
@@ -393,7 +393,7 @@
           "value": "Constant for the HTTP PUT method"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "HTTP_PUT",
       "insertTextFormat": "Snippet"
     },
@@ -407,7 +407,7 @@
           "value": "Constant for the HTTP PATCH method"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "HTTP_PATCH",
       "insertTextFormat": "Snippet"
     },
@@ -421,7 +421,7 @@
           "value": "Constant for the HTTP HEAD method"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "HTTP_HEAD",
       "insertTextFormat": "Snippet"
     },
@@ -435,7 +435,7 @@
           "value": "constant for the HTTP SUBMIT method"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "HTTP_SUBMIT",
       "insertTextFormat": "Snippet"
     },
@@ -449,7 +449,7 @@
           "value": "Constant for the identify not an HTTP Operation"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "HTTP_NONE",
       "insertTextFormat": "Snippet"
     },
@@ -463,7 +463,7 @@
           "value": "If the payload is less than 8KB, content-length header is set in the outbound request/response,\notherwise chunking header is set in the outbound request/response.}"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "CHUNKING_AUTO",
       "insertTextFormat": "Snippet"
     },
@@ -477,7 +477,7 @@
           "value": "Always set chunking header in the response."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "CHUNKING_ALWAYS",
       "insertTextFormat": "Snippet"
     },
@@ -491,7 +491,7 @@
           "value": "Never set the chunking header even if the payload is larger than 8KB in the outbound request/response."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "CHUNKING_NEVER",
       "insertTextFormat": "Snippet"
     },
@@ -505,7 +505,7 @@
           "value": "When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the\noutbound request/response accept-encoding/content-encoding option."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "COMPRESSION_AUTO",
       "insertTextFormat": "Snippet"
     },
@@ -519,7 +519,7 @@
           "value": "Always set accept-encoding/content-encoding in outbound request/response."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "COMPRESSION_ALWAYS",
       "insertTextFormat": "Snippet"
     },
@@ -533,7 +533,7 @@
           "value": "Never set accept-encoding/content-encoding header in outbound request/response."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "COMPRESSION_NEVER",
       "insertTextFormat": "Snippet"
     },
@@ -547,7 +547,7 @@
           "value": "Represents the HTTP redirect status code `300 - Multiple Choices`."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "REDIRECT_MULTIPLE_CHOICES_300",
       "insertTextFormat": "Snippet"
     },
@@ -561,7 +561,7 @@
           "value": "Represents the HTTP redirect status code `301 - Moved Permanently`."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "REDIRECT_MOVED_PERMANENTLY_301",
       "insertTextFormat": "Snippet"
     },
@@ -575,7 +575,7 @@
           "value": "Represents the HTTP redirect status code `302 - Found`."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "REDIRECT_FOUND_302",
       "insertTextFormat": "Snippet"
     },
@@ -589,7 +589,7 @@
           "value": "Represents the HTTP redirect status code `303 - See Other`."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "REDIRECT_SEE_OTHER_303",
       "insertTextFormat": "Snippet"
     },
@@ -603,7 +603,7 @@
           "value": "Represents the HTTP redirect status code `304 - Not Modified`."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "REDIRECT_NOT_MODIFIED_304",
       "insertTextFormat": "Snippet"
     },
@@ -617,7 +617,7 @@
           "value": "Represents the HTTP redirect status code `305 - Use Proxy`."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "REDIRECT_USE_PROXY_305",
       "insertTextFormat": "Snippet"
     },
@@ -631,7 +631,7 @@
           "value": "Represents the HTTP redirect status code `307 - Temporary Redirect`."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "REDIRECT_TEMPORARY_REDIRECT_307",
       "insertTextFormat": "Snippet"
     },
@@ -645,7 +645,7 @@
           "value": "Represents the HTTP redirect status code `308 - Permanent Redirect`."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "REDIRECT_PERMANENT_REDIRECT_308",
       "insertTextFormat": "Snippet"
     },
@@ -659,7 +659,7 @@
           "value": "Resiliency errors"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "FAILOVER_ALL_ENDPOINTS_FAILED",
       "insertTextFormat": "Snippet"
     },
@@ -673,7 +673,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "FAILOVER_ENDPOINT_ACTION_FAILED",
       "insertTextFormat": "Snippet"
     },
@@ -687,7 +687,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "UPSTREAM_SERVICE_UNAVAILABLE",
       "insertTextFormat": "Snippet"
     },
@@ -701,7 +701,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ALL_LOAD_BALANCE_ENDPOINTS_FAILED",
       "insertTextFormat": "Snippet"
     },
@@ -715,7 +715,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ALL_RETRY_ATTEMPTS_FAILED",
       "insertTextFormat": "Snippet"
     },
@@ -729,7 +729,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "IDLE_TIMEOUT_TRIGGERED",
       "insertTextFormat": "Snippet"
     },
@@ -743,7 +743,7 @@
           "value": "Security errors"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "AUTHN_FAILED",
       "insertTextFormat": "Snippet"
     },
@@ -757,7 +757,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "AUTHZ_FAILED",
       "insertTextFormat": "Snippet"
     },
@@ -771,7 +771,7 @@
           "value": "Outbound request errors in client"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "INIT_OUTBOUND_REQUEST_FAILED",
       "insertTextFormat": "Snippet"
     },
@@ -785,7 +785,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "WRITING_OUTBOUND_REQUEST_HEADERS_FAILED",
       "insertTextFormat": "Snippet"
     },
@@ -799,7 +799,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "WRITING_OUTBOUND_REQUEST_BODY_FAILED",
       "insertTextFormat": "Snippet"
     },
@@ -813,7 +813,7 @@
           "value": "Inbound response errors in client"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "INIT_INBOUND_RESPONSE_FAILED",
       "insertTextFormat": "Snippet"
     },
@@ -827,7 +827,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "READING_INBOUND_RESPONSE_HEADERS_FAILED",
       "insertTextFormat": "Snippet"
     },
@@ -841,7 +841,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "READING_INBOUND_RESPONSE_BODY_FAILED",
       "insertTextFormat": "Snippet"
     },
@@ -855,7 +855,7 @@
           "value": "Inbound request errors in listener"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "INIT_INBOUND_REQUEST_FAILED",
       "insertTextFormat": "Snippet"
     },
@@ -869,7 +869,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "READING_INBOUND_REQUEST_HEADERS_FAILED",
       "insertTextFormat": "Snippet"
     },
@@ -883,7 +883,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "READING_INBOUND_REQUEST_BODY_FAILED",
       "insertTextFormat": "Snippet"
     },
@@ -897,7 +897,7 @@
           "value": "Outbound response errors in listener"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "INIT_OUTBOUND_RESPONSE_FAILED",
       "insertTextFormat": "Snippet"
     },
@@ -911,7 +911,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "WRITING_OUTBOUND_RESPONSE_HEADERS_FAILED",
       "insertTextFormat": "Snippet"
     },
@@ -925,7 +925,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "WRITING_OUTBOUND_RESPONSE_BODY_FAILED",
       "insertTextFormat": "Snippet"
     },
@@ -939,7 +939,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "INITIATING_100_CONTINUE_RESPONSE_FAILED",
       "insertTextFormat": "Snippet"
     },
@@ -953,7 +953,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "WRITING_100_CONTINUE_RESPONSE_FAILED",
       "insertTextFormat": "Snippet"
     },
@@ -967,7 +967,7 @@
           "value": "Generic errors (mostly to wrap errors from other modules)"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "GENERIC_CLIENT_ERROR",
       "insertTextFormat": "Snippet"
     },
@@ -981,7 +981,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "GENERIC_LISTENER_ERROR",
       "insertTextFormat": "Snippet"
     },
@@ -995,7 +995,7 @@
           "value": "Other client-related errors"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "UNSUPPORTED_ACTION",
       "insertTextFormat": "Snippet"
     },
@@ -1009,7 +1009,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "HTTP2_CLIENT_ERROR",
       "insertTextFormat": "Snippet"
     },
@@ -1023,7 +1023,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "MAXIMUM_WAIT_TIME_EXCEEDED",
       "insertTextFormat": "Snippet"
     },
@@ -1037,7 +1037,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "SSL_ERROR",
       "insertTextFormat": "Snippet"
     },
@@ -1051,7 +1051,7 @@
           "value": "HTTP header key `age`. Gives the current age of a cached HTTP response. "
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "AGE",
       "insertTextFormat": "Snippet"
     },
@@ -1065,7 +1065,7 @@
           "value": "HTTP header key `authorization` "
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "AUTHORIZATION",
       "insertTextFormat": "Snippet"
     },
@@ -1079,7 +1079,7 @@
           "value": "HTTP header key `cache-control`. Specifies the cache control directives required for the function of HTTP caches."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "CACHE_CONTROL",
       "insertTextFormat": "Snippet"
     },
@@ -1093,7 +1093,7 @@
           "value": "HTTP header key `content-length`. Specifies the size of the response body in bytes. "
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "CONTENT_LENGTH",
       "insertTextFormat": "Snippet"
     },
@@ -1107,7 +1107,7 @@
           "value": "HTTP header key `content-type`. Specifies the type of the message payload. "
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "CONTENT_TYPE",
       "insertTextFormat": "Snippet"
     },
@@ -1121,7 +1121,7 @@
           "value": "HTTP header key `date`. The timestamp at the time the response was generated/received. "
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "DATE",
       "insertTextFormat": "Snippet"
     },
@@ -1135,7 +1135,7 @@
           "value": "HTTP header key `etag`. A finger print for a resource which is used by HTTP caches to identify whether a\nresource representation has changed."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ETAG",
       "insertTextFormat": "Snippet"
     },
@@ -1149,7 +1149,7 @@
           "value": "HTTP header key `expect`. Specifies expectations to be fulfilled by the server. "
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "EXPECT",
       "insertTextFormat": "Snippet"
     },
@@ -1163,7 +1163,7 @@
           "value": "HTTP header key `expires`. Specifies the time at which the response becomes stale. "
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "EXPIRES",
       "insertTextFormat": "Snippet"
     },
@@ -1177,7 +1177,7 @@
           "value": "HTTP header key `if-match` "
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "IF_MATCH",
       "insertTextFormat": "Snippet"
     },
@@ -1191,7 +1191,7 @@
           "value": "HTTP header key `if-modified-since`. Used when validating (with the origin server) whether a cached response\nis still valid. If the representation of the resource has modified since the timestamp in this field, a\n304 response is returned."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "IF_MODIFIED_SINCE",
       "insertTextFormat": "Snippet"
     },
@@ -1205,7 +1205,7 @@
           "value": "HTTP header key `if-none-match`. Used when validating (with the origin server) whether a cached response is\nstill valid. If the ETag provided in this field matches the representation of the requested resource, a\n304 response is returned."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "IF_NONE_MATCH",
       "insertTextFormat": "Snippet"
     },
@@ -1219,7 +1219,7 @@
           "value": "HTTP header key `if-range` "
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "IF_RANGE",
       "insertTextFormat": "Snippet"
     },
@@ -1233,7 +1233,7 @@
           "value": "HTTP header key `if-unmodified-since` "
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "IF_UNMODIFIED_SINCE",
       "insertTextFormat": "Snippet"
     },
@@ -1247,7 +1247,7 @@
           "value": "HTTP header key `last-modified`. The time at which the resource was last modified. "
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "LAST_MODIFIED",
       "insertTextFormat": "Snippet"
     },
@@ -1261,7 +1261,7 @@
           "value": "HTTP header key `location`. Indicates the URL to redirect a request to. "
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "LOCATION",
       "insertTextFormat": "Snippet"
     },
@@ -1275,7 +1275,7 @@
           "value": "HTTP header key `pragma`. Used in dealing with HTTP 1.0 caches which do not understand the `cache-control` header."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "PRAGMA",
       "insertTextFormat": "Snippet"
     },
@@ -1289,7 +1289,7 @@
           "value": "HTTP header key `server`. Specifies the details of the origin server."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "SERVER",
       "insertTextFormat": "Snippet"
     },
@@ -1303,7 +1303,7 @@
           "value": "HTTP header key `warning`. Specifies warnings generated when serving stale responses from HTTP caches. "
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "WARNING",
       "insertTextFormat": "Snippet"
     },
@@ -1317,7 +1317,7 @@
           "value": "HTTP header key `transfer-encoding`. Specifies what type of transformation has been applied to entity body. "
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "TRANSFER_ENCODING",
       "insertTextFormat": "Snippet"
     },
@@ -1331,7 +1331,7 @@
           "value": "HTTP header key `connection`. Allows the sender to specify options that are desired for that particular connection."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "CONNECTION",
       "insertTextFormat": "Snippet"
     },
@@ -1345,7 +1345,7 @@
           "value": "HTTP header key `upgrade`. Allows the client to specify what additional communication protocols it supports and\nwould like to use, if the server finds it appropriate to switch protocols."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "UPGRADE",
       "insertTextFormat": "Snippet"
     },
@@ -1359,7 +1359,7 @@
           "value": "Mutual SSL handshake is successful."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "PASSED",
       "insertTextFormat": "Snippet"
     },
@@ -1373,7 +1373,7 @@
           "value": "Mutual SSL handshake has failed."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "FAILED",
       "insertTextFormat": "Snippet"
     },
@@ -1387,7 +1387,7 @@
           "value": "Not a mutual ssl connection."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "NONE",
       "insertTextFormat": "Snippet"
     },
@@ -1401,7 +1401,7 @@
           "value": "Represents the open state of the circuit. When the Circuit Breaker is in `OPEN` state, requests will fail\nimmediately."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "CB_OPEN_STATE",
       "insertTextFormat": "Snippet"
     },
@@ -1415,7 +1415,7 @@
           "value": "Represents the half-open state of the circuit. When the Circuit Breaker is in `HALF_OPEN` state, a trial request\nwill be sent to the upstream service. If it fails, the circuit will trip again and move to the `OPEN` state. If not,\nit will move to the `CLOSED` state."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "CB_HALF_OPEN_STATE",
       "insertTextFormat": "Snippet"
     },
@@ -1429,7 +1429,7 @@
           "value": "Represents the closed state of the circuit. When the Circuit Breaker is in `CLOSED` state, all requests will be\nallowed to go through to the upstream service. If the failures exceed the configured threhold values, the circuit\nwill trip and move to the `OPEN` state."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "CB_CLOSED_STATE",
       "insertTextFormat": "Snippet"
     },
@@ -1443,7 +1443,7 @@
           "value": "The HTTP response status code: 100 Continue"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_CONTINUE",
       "insertTextFormat": "Snippet"
     },
@@ -1457,7 +1457,7 @@
           "value": "The HTTP response status code: 101 Switching Protocols"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_SWITCHING_PROTOCOLS",
       "insertTextFormat": "Snippet"
     },
@@ -1471,7 +1471,7 @@
           "value": "The HTTP response status code: 200 OK"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_OK",
       "insertTextFormat": "Snippet"
     },
@@ -1485,7 +1485,7 @@
           "value": "The HTTP response status code: 201 Created"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_CREATED",
       "insertTextFormat": "Snippet"
     },
@@ -1499,7 +1499,7 @@
           "value": "The HTTP response status code: 202 Accepted"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_ACCEPTED",
       "insertTextFormat": "Snippet"
     },
@@ -1513,7 +1513,7 @@
           "value": "The HTTP response status code: 203 Non Authoritative Information"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_NON_AUTHORITATIVE_INFORMATION",
       "insertTextFormat": "Snippet"
     },
@@ -1527,7 +1527,7 @@
           "value": "The HTTP response status code: 204 No Content"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_NO_CONTENT",
       "insertTextFormat": "Snippet"
     },
@@ -1541,7 +1541,7 @@
           "value": "The HTTP response status code: 205 Reset Content"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_RESET_CONTENT",
       "insertTextFormat": "Snippet"
     },
@@ -1555,7 +1555,7 @@
           "value": "The HTTP response status code: 206 Partial Content"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_PARTIAL_CONTENT",
       "insertTextFormat": "Snippet"
     },
@@ -1569,7 +1569,7 @@
           "value": "The HTTP response status code: 300 Multiple Choices"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_MULTIPLE_CHOICES",
       "insertTextFormat": "Snippet"
     },
@@ -1583,7 +1583,7 @@
           "value": "The HTTP response status code: 301 Moved Permanently"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_MOVED_PERMANENTLY",
       "insertTextFormat": "Snippet"
     },
@@ -1597,7 +1597,7 @@
           "value": "The HTTP response status code: 302 Found"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_FOUND",
       "insertTextFormat": "Snippet"
     },
@@ -1611,7 +1611,7 @@
           "value": "The HTTP response status code: 303 See Other"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_SEE_OTHER",
       "insertTextFormat": "Snippet"
     },
@@ -1625,7 +1625,7 @@
           "value": "The HTTP response status code: 304 Not Modified"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_NOT_MODIFIED",
       "insertTextFormat": "Snippet"
     },
@@ -1639,7 +1639,7 @@
           "value": "The HTTP response status code: 305 Use Proxy"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_USE_PROXY",
       "insertTextFormat": "Snippet"
     },
@@ -1653,7 +1653,7 @@
           "value": "The HTTP response status code: 307 Temporary Redirect"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_TEMPORARY_REDIRECT",
       "insertTextFormat": "Snippet"
     },
@@ -1667,7 +1667,7 @@
           "value": "The HTTP response status code: 308 Permanent Redirect"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_PERMANENT_REDIRECT",
       "insertTextFormat": "Snippet"
     },
@@ -1681,7 +1681,7 @@
           "value": "The HTTP response status code: 400 Bad Request"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_BAD_REQUEST",
       "insertTextFormat": "Snippet"
     },
@@ -1695,7 +1695,7 @@
           "value": "The HTTP response status code: 401 Unauthorized"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_UNAUTHORIZED",
       "insertTextFormat": "Snippet"
     },
@@ -1709,7 +1709,7 @@
           "value": "The HTTP response status code: 402 Payment Required"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_PAYMENT_REQUIRED",
       "insertTextFormat": "Snippet"
     },
@@ -1723,7 +1723,7 @@
           "value": "The HTTP response status code: 403 Forbidden"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_FORBIDDEN",
       "insertTextFormat": "Snippet"
     },
@@ -1737,7 +1737,7 @@
           "value": "The HTTP response status code: 404 Not Found"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_NOT_FOUND",
       "insertTextFormat": "Snippet"
     },
@@ -1751,7 +1751,7 @@
           "value": "The HTTP response status code: 405 Method Not Allowed"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_METHOD_NOT_ALLOWED",
       "insertTextFormat": "Snippet"
     },
@@ -1765,7 +1765,7 @@
           "value": "The HTTP response status code: 406 Not Acceptable"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_NOT_ACCEPTABLE",
       "insertTextFormat": "Snippet"
     },
@@ -1779,7 +1779,7 @@
           "value": "The HTTP response status code: 407 Proxy Authentication Required"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_PROXY_AUTHENTICATION_REQUIRED",
       "insertTextFormat": "Snippet"
     },
@@ -1793,7 +1793,7 @@
           "value": "The HTTP response status code: 408 Request Timeout"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_REQUEST_TIMEOUT",
       "insertTextFormat": "Snippet"
     },
@@ -1807,7 +1807,7 @@
           "value": "The HTTP response status code: 409 Conflict"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_CONFLICT",
       "insertTextFormat": "Snippet"
     },
@@ -1821,7 +1821,7 @@
           "value": "The HTTP response status code: 410 Gone"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_GONE",
       "insertTextFormat": "Snippet"
     },
@@ -1835,7 +1835,7 @@
           "value": "The HTTP response status code: 411 Length Required"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_LENGTH_REQUIRED",
       "insertTextFormat": "Snippet"
     },
@@ -1849,7 +1849,7 @@
           "value": "The HTTP response status code: 412 Precondition Failed"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_PRECONDITION_FAILED",
       "insertTextFormat": "Snippet"
     },
@@ -1863,7 +1863,7 @@
           "value": "The HTTP response status code: 413 Payload Too Large"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_PAYLOAD_TOO_LARGE",
       "insertTextFormat": "Snippet"
     },
@@ -1877,7 +1877,7 @@
           "value": "The HTTP response status code: 414 URI Too Long"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_URI_TOO_LONG",
       "insertTextFormat": "Snippet"
     },
@@ -1891,7 +1891,7 @@
           "value": "The HTTP response status code: 415 Unsupported Media Type"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_UNSUPPORTED_MEDIA_TYPE",
       "insertTextFormat": "Snippet"
     },
@@ -1905,7 +1905,7 @@
           "value": "The HTTP response status code: 416 Range Not Satisfiable"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_RANGE_NOT_SATISFIABLE",
       "insertTextFormat": "Snippet"
     },
@@ -1919,7 +1919,7 @@
           "value": "The HTTP response status code: 417 Expectation Failed"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_EXPECTATION_FAILED",
       "insertTextFormat": "Snippet"
     },
@@ -1933,7 +1933,7 @@
           "value": "The HTTP response status code: 426 Upgrade Required"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_UPGRADE_REQUIRED",
       "insertTextFormat": "Snippet"
     },
@@ -1947,7 +1947,7 @@
           "value": "The HTTP response status code: 500 Internal Server Error"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_INTERNAL_SERVER_ERROR",
       "insertTextFormat": "Snippet"
     },
@@ -1961,7 +1961,7 @@
           "value": "The HTTP response status code: 501 Not Implemented"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_NOT_IMPLEMENTED",
       "insertTextFormat": "Snippet"
     },
@@ -1975,7 +1975,7 @@
           "value": "The HTTP response status code: 502 Bad Gateway"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_BAD_GATEWAY",
       "insertTextFormat": "Snippet"
     },
@@ -1989,7 +1989,7 @@
           "value": "The HTTP response status code: 503 Service Unavailable"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_SERVICE_UNAVAILABLE",
       "insertTextFormat": "Snippet"
     },
@@ -2003,7 +2003,7 @@
           "value": "The HTTP response status code: 504 Gateway Timeout"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_GATEWAY_TIMEOUT",
       "insertTextFormat": "Snippet"
     },
@@ -2017,7 +2017,7 @@
           "value": "The HTTP response status code: 505 HTTP Version Not Supported"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "STATUS_HTTP_VERSION_NOT_SUPPORTED",
       "insertTextFormat": "Snippet"
     },
@@ -2031,7 +2031,7 @@
           "value": "Decides to keep the connection alive or not based on the `connection` header of the client request }"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "KEEPALIVE_AUTO",
       "insertTextFormat": "Snippet"
     },
@@ -2045,7 +2045,7 @@
           "value": "Keeps the connection alive irrespective of the `connection` header value }"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "KEEPALIVE_ALWAYS",
       "insertTextFormat": "Snippet"
     },
@@ -2059,7 +2059,7 @@
           "value": "Closes the connection irrespective of the `connection` header value }"
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "KEEPALIVE_NEVER",
       "insertTextFormat": "Snippet"
     },
@@ -2073,7 +2073,7 @@
           "value": "Constant for the service name reference."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "SERVICE_NAME",
       "insertTextFormat": "Snippet"
     },
@@ -2087,7 +2087,7 @@
           "value": "Constant for the resource name reference."
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "RESOURCE_NAME",
       "insertTextFormat": "Snippet"
     },
@@ -2101,7 +2101,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "CONNECTION_CLOSURE_ERROR",
       "insertTextFormat": "Snippet"
     },
@@ -2115,7 +2115,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "INVALID_HANDSHAKE_ERROR",
       "insertTextFormat": "Snippet"
     },
@@ -2129,7 +2129,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "PAYLOAD_TOO_BIG_ERROR",
       "insertTextFormat": "Snippet"
     },
@@ -2143,7 +2143,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "PROTOCOL_ERROR",
       "insertTextFormat": "Snippet"
     },
@@ -2157,7 +2157,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "CONNECTION_ERROR",
       "insertTextFormat": "Snippet"
     },
@@ -2171,7 +2171,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "INVALID_CONTINUATION_FRAME_ERROR",
       "insertTextFormat": "Snippet"
     },
@@ -2185,7 +2185,7 @@
           "value": ""
         }
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "GENERIC_ERROR",
       "insertTextFormat": "Snippet"
     },
@@ -2196,7 +2196,7 @@
       "documentation": {
         "left": "Contains the configurations for an HTTP service.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "HttpServiceConfig",
       "insertTextFormat": "Snippet"
     },
@@ -2207,7 +2207,7 @@
       "documentation": {
         "left": "Configurations for CORS support.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "CorsConfig",
       "insertTextFormat": "Snippet"
     },
@@ -2218,7 +2218,7 @@
       "documentation": {
         "left": "Configurations for service versioning.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "Versioning",
       "insertTextFormat": "Snippet"
     },
@@ -2229,7 +2229,7 @@
       "documentation": {
         "left": "Configurations for a WebSocket service.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "WSServiceConfig",
       "insertTextFormat": "Snippet"
     },
@@ -2240,7 +2240,7 @@
       "documentation": {
         "left": "Configuration for an HTTP resource.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "HttpResourceConfig",
       "insertTextFormat": "Snippet"
     },
@@ -2251,7 +2251,7 @@
       "documentation": {
         "left": "Resource configuration to upgrade from HTTP to WebSocket.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "WebSocketUpgradeConfig",
       "insertTextFormat": "Snippet"
     },
@@ -2262,7 +2262,7 @@
       "documentation": {
         "left": "Configures the authentication scheme for a service or a resource.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ServiceResourceAuth",
       "insertTextFormat": "Snippet"
     },
@@ -2273,7 +2273,7 @@
       "documentation": {
         "left": "Representation of the Authentication filter.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "AuthnFilter",
       "insertTextFormat": "Snippet"
     },
@@ -2284,7 +2284,7 @@
       "documentation": {
         "left": "Representation of the Authorization filter\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "AuthzFilter",
       "insertTextFormat": "Snippet"
     },
@@ -2295,7 +2295,7 @@
       "documentation": {
         "left": "Representation of Authorization Handler for HTTP.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "AuthzHandler",
       "insertTextFormat": "Snippet"
     },
@@ -2306,7 +2306,7 @@
       "documentation": {
         "left": "The representation of an inbound authentication handler for HTTP traffic."
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "InboundAuthHandler",
       "insertTextFormat": "Snippet"
     },
@@ -2317,7 +2317,7 @@
       "documentation": {
         "left": "The representation of an outbound authentication handler for HTTP traffic."
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "OutboundAuthHandler",
       "insertTextFormat": "Snippet"
     },
@@ -2328,7 +2328,7 @@
       "documentation": {
         "left": "Specifies how to send the authentication credentials when exchanging tokens."
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "CredentialBearer",
       "insertTextFormat": "Snippet"
     },
@@ -2339,7 +2339,7 @@
       "documentation": {
         "left": "Configures cache control directives for a `Request`.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "RequestCacheControl",
       "insertTextFormat": "Snippet"
     },
@@ -2350,7 +2350,7 @@
       "documentation": {
         "left": "Configures cache control directives for a `Response`.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ResponseCacheControl",
       "insertTextFormat": "Snippet"
     },
@@ -2361,7 +2361,7 @@
       "documentation": {
         "left": "Implements a cache for storing HTTP responses. This cache complies with the caching policy set when configuring\nHTTP caching in the HTTP client endpoint.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "HttpCache",
       "insertTextFormat": "Snippet"
     },
@@ -2372,7 +2372,7 @@
       "documentation": {
         "left": "Used for configuring the caching behaviour. Setting the `policy` field in the `CacheConfig` record allows\nthe user to control the caching behaviour."
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "CachingPolicy",
       "insertTextFormat": "Snippet"
     },
@@ -2383,7 +2383,7 @@
       "documentation": {
         "left": "Provides a set of configurations for controlling the caching behaviour of the endpoint.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "CacheConfig",
       "insertTextFormat": "Snippet"
     },
@@ -2394,7 +2394,7 @@
       "documentation": {
         "left": "An HTTP caching client implementation which takes an `HttpActions` instance and wraps it with an HTTP caching layer.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "HttpCachingClient",
       "insertTextFormat": "Snippet"
     },
@@ -2405,7 +2405,7 @@
       "documentation": {
         "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "Client",
       "insertTextFormat": "Snippet"
     },
@@ -2416,7 +2416,7 @@
       "documentation": {
         "left": "Represents a single service and its related configurations.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "TargetService",
       "insertTextFormat": "Snippet"
     },
@@ -2427,7 +2427,7 @@
       "documentation": {
         "left": "Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ClientEndpointConfig",
       "insertTextFormat": "Snippet"
     },
@@ -2438,7 +2438,7 @@
       "documentation": {
         "left": "Provides settings related to HTTP/1.x protocol.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ClientHttp1Settings",
       "insertTextFormat": "Snippet"
     },
@@ -2449,7 +2449,7 @@
       "documentation": {
         "left": "Provides settings related to HTTP/2 protocol.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ClientHttp2Settings",
       "insertTextFormat": "Snippet"
     },
@@ -2460,7 +2460,7 @@
       "documentation": {
         "left": "Provides configurations for controlling the retrying behavior in failure scenarios.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "RetryConfig",
       "insertTextFormat": "Snippet"
     },
@@ -2471,7 +2471,7 @@
       "documentation": {
         "left": "Provides configurations for facilitating secure communication with a remote HTTP endpoint.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ClientSecureSocket",
       "insertTextFormat": "Snippet"
     },
@@ -2482,7 +2482,7 @@
       "documentation": {
         "left": "Provides configurations for controlling the endpoint\u0027s behaviour in response to HTTP redirect related responses.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "FollowRedirects",
       "insertTextFormat": "Snippet"
     },
@@ -2493,7 +2493,7 @@
       "documentation": {
         "left": "Proxy server configurations to be used with the HTTP client endpoint.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ProxyConfig",
       "insertTextFormat": "Snippet"
     },
@@ -2504,7 +2504,7 @@
       "documentation": {
         "left": "The `OutboundAuthConfig` record can be used to configure the authentication mechanism used by the HTTP endpoint.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "OutboundAuthConfig",
       "insertTextFormat": "Snippet"
     },
@@ -2515,7 +2515,7 @@
       "documentation": {
         "left": "Represents a \u0027future\u0027 that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "HttpFuture",
       "insertTextFormat": "Snippet"
     },
@@ -2526,7 +2526,7 @@
       "documentation": {
         "left": "Represents an HTTP/2 `PUSH_PROMISE` frame.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "PushPromise",
       "insertTextFormat": "Snippet"
     },
@@ -2537,7 +2537,7 @@
       "documentation": {
         "left": "Provides the HTTP actions for interacting with an HTTP server. Apart from the standard HTTP methods, `forward()`\nand `execute()` functions are provided. More complex and specific endpoint types can be created by wrapping this\ngeneric HTTP actions implementation.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "HttpClient",
       "insertTextFormat": "Snippet"
     },
@@ -2548,7 +2548,7 @@
       "documentation": {
         "left": "Defines a timeout error occurred during service invocation.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "HttpTimeoutError",
       "insertTextFormat": "Snippet"
     },
@@ -2559,7 +2559,7 @@
       "documentation": {
         "left": "Configurations for managing HTTP client connection pool.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "PoolConfiguration",
       "insertTextFormat": "Snippet"
     },
@@ -2570,7 +2570,7 @@
       "documentation": {
         "left": "Defines the supported HTTP protocols.\n\n`HTTP_1_0`: HTTP/1.0 protocol\n`HTTP_1_1`: HTTP/1.1 protocol\n`HTTP_2_0`: HTTP/2.0 protocol"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "HttpVersion",
       "insertTextFormat": "Snippet"
     },
@@ -2581,7 +2581,7 @@
       "documentation": {
         "left": "Defines the possible values for the chunking configuration in HTTP services and clients.\n\n`AUTO`: If the payload is less than 8KB, content-length header is set in the outbound request/response,\n        otherwise chunking header is set in the outbound request/response\n`ALWAYS`: Always set chunking header in the response\n`NEVER`: Never set the chunking header even if the payload is larger than 8KB in the outbound request/response"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "Chunking",
       "insertTextFormat": "Snippet"
     },
@@ -2592,7 +2592,7 @@
       "documentation": {
         "left": "Options to compress using gzip or deflate.\n\n`AUTO`: When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the\n        outbound request/response accept-encoding/content-encoding option\n`ALWAYS`: Always set accept-encoding/content-encoding in outbound request/response\n`NEVER`: Never set accept-encoding/content-encoding header in outbound request/response"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "Compression",
       "insertTextFormat": "Snippet"
     },
@@ -2603,7 +2603,7 @@
       "documentation": {
         "left": "Defines the HTTP operations related to circuit breaker, failover and load balancer.\n\n`FORWARD`: Forward the specified payload\n`GET`: Request a resource\n`POST`: Create a new resource\n`DELETE`: Deletes the specified resource\n`OPTIONS`: Request communication options available\n`PUT`: Replace the target resource\n`PATCH`: Apply partial modification to the resource\n`HEAD`: Identical to `GET` but no resource body should be returned\n`SUBMIT`: Submits a http request and returns an HttpFuture object\n`NONE`: No operation should be performed"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "HttpOperation",
       "insertTextFormat": "Snippet"
     },
@@ -2614,7 +2614,7 @@
       "documentation": {
         "left": "A record for configuring SSL/TLS protocol and version to be used.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "Protocols",
       "insertTextFormat": "Snippet"
     },
@@ -2625,7 +2625,7 @@
       "documentation": {
         "left": "A record for providing configurations for certificate revocation status checks.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ValidateCert",
       "insertTextFormat": "Snippet"
     },
@@ -2636,7 +2636,7 @@
       "documentation": {
         "left": "A record for providing configurations for certificate revocation status checks.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ListenerOcspStapling",
       "insertTextFormat": "Snippet"
     },
@@ -2647,7 +2647,7 @@
       "documentation": {
         "left": "A record for providing configurations for content compression.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "CompressionConfig",
       "insertTextFormat": "Snippet"
     },
@@ -2658,7 +2658,7 @@
       "documentation": {
         "left": "The caller actions for responding to client requests.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "Caller",
       "insertTextFormat": "Snippet"
     },
@@ -2669,7 +2669,7 @@
       "documentation": {
         "left": "Defines the HTTP redirect codes as a type."
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "RedirectCode",
       "insertTextFormat": "Snippet"
     },
@@ -2680,7 +2680,7 @@
       "documentation": {
         "left": "Holds the details of an HTTP error\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "Detail",
       "insertTextFormat": "Snippet"
     },
@@ -2688,7 +2688,7 @@
       "label": "FailoverAllEndpointsFailedError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "FailoverAllEndpointsFailedError",
       "insertTextFormat": "Snippet"
     },
@@ -2696,7 +2696,7 @@
       "label": "FailoverActionFailedError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "FailoverActionFailedError",
       "insertTextFormat": "Snippet"
     },
@@ -2704,7 +2704,7 @@
       "label": "UpstreamServiceUnavailableError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "UpstreamServiceUnavailableError",
       "insertTextFormat": "Snippet"
     },
@@ -2712,7 +2712,7 @@
       "label": "AllLoadBalanceEndpointsFailedError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "AllLoadBalanceEndpointsFailedError",
       "insertTextFormat": "Snippet"
     },
@@ -2720,7 +2720,7 @@
       "label": "AllRetryAttemptsFailed",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "AllRetryAttemptsFailed",
       "insertTextFormat": "Snippet"
     },
@@ -2728,7 +2728,7 @@
       "label": "IdleTimeoutError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "IdleTimeoutError",
       "insertTextFormat": "Snippet"
     },
@@ -2736,7 +2736,7 @@
       "label": "AuthenticationError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "AuthenticationError",
       "insertTextFormat": "Snippet"
     },
@@ -2744,7 +2744,7 @@
       "label": "AuthorizationError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "AuthorizationError",
       "insertTextFormat": "Snippet"
     },
@@ -2752,7 +2752,7 @@
       "label": "InitializingOutboundRequestError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "InitializingOutboundRequestError",
       "insertTextFormat": "Snippet"
     },
@@ -2760,7 +2760,7 @@
       "label": "WritingOutboundRequestHeadersError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "WritingOutboundRequestHeadersError",
       "insertTextFormat": "Snippet"
     },
@@ -2768,7 +2768,7 @@
       "label": "WritingOutboundRequestBodyError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "WritingOutboundRequestBodyError",
       "insertTextFormat": "Snippet"
     },
@@ -2776,7 +2776,7 @@
       "label": "InitializingInboundResponseError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "InitializingInboundResponseError",
       "insertTextFormat": "Snippet"
     },
@@ -2784,7 +2784,7 @@
       "label": "ReadingInboundResponseHeadersError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ReadingInboundResponseHeadersError",
       "insertTextFormat": "Snippet"
     },
@@ -2792,7 +2792,7 @@
       "label": "ReadingInboundResponseBodyError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ReadingInboundResponseBodyError",
       "insertTextFormat": "Snippet"
     },
@@ -2800,7 +2800,7 @@
       "label": "InitializingInboundRequestError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "InitializingInboundRequestError",
       "insertTextFormat": "Snippet"
     },
@@ -2808,7 +2808,7 @@
       "label": "ReadingInboundRequestHeadersError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ReadingInboundRequestHeadersError",
       "insertTextFormat": "Snippet"
     },
@@ -2816,7 +2816,7 @@
       "label": "ReadingInboundRequestBodyError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ReadingInboundRequestBodyError",
       "insertTextFormat": "Snippet"
     },
@@ -2824,7 +2824,7 @@
       "label": "InitializingOutboundResponseError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "InitializingOutboundResponseError",
       "insertTextFormat": "Snippet"
     },
@@ -2832,7 +2832,7 @@
       "label": "WritingOutboundResponseHeadersError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "WritingOutboundResponseHeadersError",
       "insertTextFormat": "Snippet"
     },
@@ -2840,7 +2840,7 @@
       "label": "WritingOutboundResponseBodyError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "WritingOutboundResponseBodyError",
       "insertTextFormat": "Snippet"
     },
@@ -2848,7 +2848,7 @@
       "label": "Initiating100ContinueResponseError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "Initiating100ContinueResponseError",
       "insertTextFormat": "Snippet"
     },
@@ -2856,7 +2856,7 @@
       "label": "Writing100ContinueResponseError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "Writing100ContinueResponseError",
       "insertTextFormat": "Snippet"
     },
@@ -2864,7 +2864,7 @@
       "label": "GenericClientError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "GenericClientError",
       "insertTextFormat": "Snippet"
     },
@@ -2872,7 +2872,7 @@
       "label": "GenericListenerError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "GenericListenerError",
       "insertTextFormat": "Snippet"
     },
@@ -2880,7 +2880,7 @@
       "label": "UnsupportedActionError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "UnsupportedActionError",
       "insertTextFormat": "Snippet"
     },
@@ -2888,7 +2888,7 @@
       "label": "Http2ClientError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "Http2ClientError",
       "insertTextFormat": "Snippet"
     },
@@ -2896,7 +2896,7 @@
       "label": "MaximumWaitTimeExceededError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "MaximumWaitTimeExceededError",
       "insertTextFormat": "Snippet"
     },
@@ -2904,7 +2904,7 @@
       "label": "SslError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "SslError",
       "insertTextFormat": "Snippet"
     },
@@ -2915,7 +2915,7 @@
       "documentation": {
         "left": "Ballerina Http Union Errors"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ResiliencyError",
       "insertTextFormat": "Snippet"
     },
@@ -2923,7 +2923,7 @@
       "label": "ClientAuthError",
       "kind": "Enum",
       "detail": "Union",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ClientAuthError",
       "insertTextFormat": "Snippet"
     },
@@ -2931,7 +2931,7 @@
       "label": "OutboundRequestError",
       "kind": "Enum",
       "detail": "Union",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "OutboundRequestError",
       "insertTextFormat": "Snippet"
     },
@@ -2939,7 +2939,7 @@
       "label": "InboundResponseError",
       "kind": "Enum",
       "detail": "Union",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "InboundResponseError",
       "insertTextFormat": "Snippet"
     },
@@ -2947,7 +2947,7 @@
       "label": "InboundRequestError",
       "kind": "Enum",
       "detail": "Union",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "InboundRequestError",
       "insertTextFormat": "Snippet"
     },
@@ -2955,7 +2955,7 @@
       "label": "OutboundResponseError",
       "kind": "Enum",
       "detail": "Union",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "OutboundResponseError",
       "insertTextFormat": "Snippet"
     },
@@ -2963,7 +2963,7 @@
       "label": "ClientError",
       "kind": "Enum",
       "detail": "Union",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ClientError",
       "insertTextFormat": "Snippet"
     },
@@ -2971,7 +2971,7 @@
       "label": "ListenerError",
       "kind": "Enum",
       "detail": "Union",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ListenerError",
       "insertTextFormat": "Snippet"
     },
@@ -2982,7 +2982,7 @@
       "documentation": {
         "left": "Abstract Representation of a HTTP Request Filter.\nThis filter will be applied before the request is dispatched to the relevant resource.\nAny RequestFilter implementation should be structurally similar to or implement the RequestFilter object."
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "RequestFilter",
       "insertTextFormat": "Snippet"
     },
@@ -2993,7 +2993,7 @@
       "documentation": {
         "left": "Abstract Representation of a HTTP Response Filter.\nThis filter will be applied in the response path.\nAny ResponseFilter implementation should be structurally similar to or implement the ResponseFilter object."
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ResponseFilter",
       "insertTextFormat": "Snippet"
     },
@@ -3004,7 +3004,7 @@
       "documentation": {
         "left": "Representation of request filter Context.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "FilterContext",
       "insertTextFormat": "Snippet"
     },
@@ -3015,7 +3015,7 @@
       "documentation": {
         "left": "Represents an HTTP request.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "Request",
       "insertTextFormat": "Snippet"
     },
@@ -3026,7 +3026,7 @@
       "documentation": {
         "left": "A record for providing mutual ssl handshake results.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "MutualSslHandshake",
       "insertTextFormat": "Snippet"
     },
@@ -3037,7 +3037,7 @@
       "documentation": {
         "left": "Defines the possible values for the mutual ssl status.\n\n`passed`: Mutual SSL handshake is successful.\n`failed`: Mutual SSL handshake has failed."
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "MutualSslStatus",
       "insertTextFormat": "Snippet"
     },
@@ -3048,7 +3048,7 @@
       "documentation": {
         "left": "Represents an HTTP response.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "Response",
       "insertTextFormat": "Snippet"
     },
@@ -3059,7 +3059,7 @@
       "documentation": {
         "left": "Provides secure HTTP remote functions for interacting with HTTP endpoints. This will make use of the authentication\nschemes configured in the HTTP client endpoint to secure the HTTP requests.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "HttpSecureClient",
       "insertTextFormat": "Snippet"
     },
@@ -3070,7 +3070,7 @@
       "documentation": {
         "left": "Mock server endpoint which does not open a listening port."
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "MockListener",
       "insertTextFormat": "Snippet"
     },
@@ -3081,7 +3081,7 @@
       "documentation": {
         "left": "Provides redirect functionality for HTTP client remote functions.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "RedirectClient",
       "insertTextFormat": "Snippet"
     },
@@ -3092,7 +3092,7 @@
       "documentation": {
         "left": "Provides a set of configurations for controlling the failover behaviour of the endpoint.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "FailoverConfig",
       "insertTextFormat": "Snippet"
     },
@@ -3103,7 +3103,7 @@
       "documentation": {
         "left": "Inferred failover configurations passed into the failover client.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "FailoverInferredConfig",
       "insertTextFormat": "Snippet"
     },
@@ -3114,7 +3114,7 @@
       "documentation": {
         "left": "An HTTP client endpoint which provides failover support over multiple HTTP clients.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "FailoverClient",
       "insertTextFormat": "Snippet"
     },
@@ -3125,7 +3125,7 @@
       "documentation": {
         "left": "Provides a set of HTTP related configurations and failover related configurations.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "FailoverClientEndpointConfiguration",
       "insertTextFormat": "Snippet"
     },
@@ -3136,7 +3136,7 @@
       "documentation": {
         "left": "A finite type for modeling the states of the Circuit Breaker. The Circuit Breaker starts in the `CLOSED` state.\nIf any failure thresholds are exceeded during execution, the circuit trips and goes to the `OPEN` state. After\nthe specified timeout period expires, the circuit goes to the `HALF_OPEN` state. If the trial request sent while\nin the `HALF_OPEN` state succeeds, the circuit goes back to the `CLOSED` state."
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "CircuitState",
       "insertTextFormat": "Snippet"
     },
@@ -3147,7 +3147,7 @@
       "documentation": {
         "left": "Maintains the health of the Circuit Breaker.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "CircuitHealth",
       "insertTextFormat": "Snippet"
     },
@@ -3158,7 +3158,7 @@
       "documentation": {
         "left": "Provides a set of configurations for controlling the behaviour of the Circuit Breaker.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "CircuitBreakerConfig",
       "insertTextFormat": "Snippet"
     },
@@ -3169,7 +3169,7 @@
       "documentation": {
         "left": "Represents a rolling window in the Circuit Breaker.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "RollingWindow",
       "insertTextFormat": "Snippet"
     },
@@ -3180,7 +3180,7 @@
       "documentation": {
         "left": "Represents a discrete sub-part of the time window (Bucket).\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "Bucket",
       "insertTextFormat": "Snippet"
     },
@@ -3191,7 +3191,7 @@
       "documentation": {
         "left": "Derived set of configurations from the `CircuitBreakerConfig`.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "CircuitBreakerInferredConfig",
       "insertTextFormat": "Snippet"
     },
@@ -3202,7 +3202,7 @@
       "documentation": {
         "left": "A Circuit Breaker implementation which can be used to gracefully handle network failures.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "CircuitBreakerClient",
       "insertTextFormat": "Snippet"
     },
@@ -3213,7 +3213,7 @@
       "documentation": {
         "left": "\nLoadBalancerRule provides a required interfaces to implement different algorithms.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "LoadBalancerRule",
       "insertTextFormat": "Snippet"
     },
@@ -3224,7 +3224,7 @@
       "documentation": {
         "left": "Derived set of configurations from the `RetryConfig`.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "RetryInferredConfig",
       "insertTextFormat": "Snippet"
     },
@@ -3235,7 +3235,7 @@
       "documentation": {
         "left": "Provides the HTTP remote functions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client\nto provide retrying over HTTP requests.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "RetryClient",
       "insertTextFormat": "Snippet"
     },
@@ -3246,7 +3246,7 @@
       "documentation": {
         "left": "Implementation of round robin load balancing strategy.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "LoadBalancerRounRobinRule",
       "insertTextFormat": "Snippet"
     },
@@ -3257,7 +3257,7 @@
       "documentation": {
         "left": "LoadBalanceClient endpoint provides load balancing functionality over multiple HTTP clients.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "LoadBalanceClient",
       "insertTextFormat": "Snippet"
     },
@@ -3268,7 +3268,7 @@
       "documentation": {
         "left": "Represents an error occurred in an remote function of the Load Balance connector.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "LoadBalanceActionErrorData",
       "insertTextFormat": "Snippet"
     },
@@ -3276,7 +3276,7 @@
       "label": "LoadBalanceActionError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "LoadBalanceActionError",
       "insertTextFormat": "Snippet"
     },
@@ -3287,7 +3287,7 @@
       "documentation": {
         "left": "The configurations related to the load balance client endpoint.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "LoadBalanceClientEndpointConfiguration",
       "insertTextFormat": "Snippet"
     },
@@ -3298,7 +3298,7 @@
       "documentation": {
         "left": "This is used for creating HTTP server endpoints. An HTTP server endpoint is capable of responding to\nremote callers. The `Listener` is responsible for initializing the endpoint using the provided configurations."
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "Listener",
       "insertTextFormat": "Snippet"
     },
@@ -3309,7 +3309,7 @@
       "documentation": {
         "left": "Presents a read-only view of the remote address.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "Remote",
       "insertTextFormat": "Snippet"
     },
@@ -3320,7 +3320,7 @@
       "documentation": {
         "left": "Presents a read-only view of the local address.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "Local",
       "insertTextFormat": "Snippet"
     },
@@ -3331,7 +3331,7 @@
       "documentation": {
         "left": "Provides a set of configurations for HTTP service endpoints.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ListenerConfiguration",
       "insertTextFormat": "Snippet"
     },
@@ -3342,7 +3342,7 @@
       "documentation": {
         "left": "Provides settings related to HTTP/1.x protocol.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ListenerHttp1Settings",
       "insertTextFormat": "Snippet"
     },
@@ -3353,7 +3353,7 @@
       "documentation": {
         "left": "Authentication configurations for the listener.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ListenerAuth",
       "insertTextFormat": "Snippet"
     },
@@ -3364,7 +3364,7 @@
       "documentation": {
         "left": "Configures the SSL/TLS options to be used for HTTP service.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ListenerSecureSocket",
       "insertTextFormat": "Snippet"
     },
@@ -3375,7 +3375,7 @@
       "documentation": {
         "left": "Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "AuthCacheConfig",
       "insertTextFormat": "Snippet"
     },
@@ -3386,7 +3386,7 @@
       "documentation": {
         "left": "Defines the possible values for the keep-alive configuration in service and client endpoints."
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "KeepAlive",
       "insertTextFormat": "Snippet"
     },
@@ -3397,7 +3397,7 @@
       "documentation": {
         "left": "Represents a WebSocket service endpoint."
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "WebSocketListener",
       "insertTextFormat": "Snippet"
     },
@@ -3405,7 +3405,7 @@
       "label": "WsConnectionClosureError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "WsConnectionClosureError",
       "insertTextFormat": "Snippet"
     },
@@ -3413,7 +3413,7 @@
       "label": "WsInvalidHandshakeError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "WsInvalidHandshakeError",
       "insertTextFormat": "Snippet"
     },
@@ -3421,7 +3421,7 @@
       "label": "WsPayloadTooBigError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "WsPayloadTooBigError",
       "insertTextFormat": "Snippet"
     },
@@ -3429,7 +3429,7 @@
       "label": "WsProtocolError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "WsProtocolError",
       "insertTextFormat": "Snippet"
     },
@@ -3437,7 +3437,7 @@
       "label": "WsConnectionError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "WsConnectionError",
       "insertTextFormat": "Snippet"
     },
@@ -3445,7 +3445,7 @@
       "label": "WsInvalidContinuationFrameError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "WsInvalidContinuationFrameError",
       "insertTextFormat": "Snippet"
     },
@@ -3453,7 +3453,7 @@
       "label": "WsGenericError",
       "kind": "Keyword",
       "detail": "Error",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "WsGenericError",
       "insertTextFormat": "Snippet"
     },
@@ -3461,7 +3461,7 @@
       "label": "WebSocketError",
       "kind": "Enum",
       "detail": "Union",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "WebSocketError",
       "insertTextFormat": "Snippet"
     },
@@ -3472,7 +3472,7 @@
       "documentation": {
         "left": "Represents a WebSocket caller."
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "WebSocketCaller",
       "insertTextFormat": "Snippet"
     },
@@ -3483,7 +3483,7 @@
       "documentation": {
         "left": "Represents a WebSocket client endpoint."
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "WebSocketClient",
       "insertTextFormat": "Snippet"
     },
@@ -3494,7 +3494,7 @@
       "documentation": {
         "left": "Configuration for the WebSocket client endpoint.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "WebSocketClientConfiguration",
       "insertTextFormat": "Snippet"
     },
@@ -3505,7 +3505,7 @@
       "documentation": {
         "left": "Defines the Basic Auth header handler for inbound and outbound HTTP traffic.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "BasicAuthHandler",
       "insertTextFormat": "Snippet"
     },
@@ -3516,7 +3516,7 @@
       "documentation": {
         "left": "Representation of the Bearer Auth header handler for both inbound and outbound HTTP traffic.\n"
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "BearerAuthHandler",
       "insertTextFormat": "Snippet"
     },
@@ -3527,7 +3527,7 @@
       "documentation": {
         "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "RequestMessage",
       "insertTextFormat": "Snippet"
     },
@@ -3538,7 +3538,7 @@
       "documentation": {
         "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
       },
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "ResponseMessage",
       "insertTextFormat": "Snippet"
     },
@@ -3546,7 +3546,7 @@
       "label": "HttpResponse",
       "kind": "Enum",
       "detail": "Union",
-      "sortText": "120",
+      "sortText": "221",
       "insertText": "HttpResponse",
       "insertTextFormat": "Snippet"
     },
@@ -3560,7 +3560,7 @@
           "value": "**Package:** _ballerina/http_  \n  \nExtracts the Authorization header value from the request.\n  \n**Params**  \n- `http:Request` req: Request instance  \n  \n**Returns** `string`   \n- Value of the Authorization header  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "131",
       "insertText": "extractAuthorizationHeaderValue(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -3578,7 +3578,7 @@
           "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of caching HTTP responses.\n  \n**Params**  \n- `string` url: The URL of the HTTP endpoint to connect to  \n- `http:ClientEndpointConfig` config: The configurations for the client endpoint associated with the caching client  \n- `http:CacheConfig` cacheConfig: The configurations for the HTTP cache to be used with the caching client  \n  \n**Returns** `(http:HttpClient|error)`   \n- An `HttpCachingClient` instance which wraps the base `Client` with a caching layer  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "131",
       "insertText": "createHttpCachingClient(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -3596,7 +3596,7 @@
           "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n**Params**  \n- `string` headerValue: The header value  \n  \n**Returns** `([string,map\u003cany\u003e]|error)`   \n- Returns a tuple containing the value and its parameter map  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "131",
       "insertText": "parseHeader(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -3614,7 +3614,7 @@
           "value": "**Package:** _ballerina/http_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP remote function provider.  \n**Params**  \n- `string` path: Resource path  \n- `http:Request` outRequest: A Request struct  \n- `(FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|SUBMIT|NONE)` requestAction: `HttpOperation` related to the request  \n- `http:HttpClient` httpClient: HTTP client which uses to call the relevant functions  \n- `string` verb: HTTP verb used for submit method(Defaultable)  \n- `string` verb: HTTP verb used for submit method  \n  \n**Returns** `(http:Response|http:HttpFuture|error)`   \n- The response for the request or an `http:ClientError` if failed to establish communication with the upstream server  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "131",
       "insertText": "invokeEndpoint(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -3632,7 +3632,7 @@
           "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of securing HTTP requests with authentication.\n  \n**Params**  \n- `string` url: Base URL  \n- `http:ClientEndpointConfig` config: Client endpoint configurations  \n  \n**Returns** `(http:HttpClient|error)`   \n- Created secure HTTP client  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "131",
       "insertText": "createHttpSecureClient(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -3650,7 +3650,7 @@
           "value": "**Package:** _ballerina/http_  \n  \nEncodes the given URL.\n  \n**Params**  \n- `string` url: URL to be encoded  \n- `string` charset: Charactor set that URL to be encoded in  \n  \n**Returns** `(string|error)`   \n- The `string` Value of the encoded url or an `ClientError` that occurred during encoding  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "131",
       "insertText": "encode(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -3668,7 +3668,7 @@
           "value": "**Package:** _ballerina/http_  \n  \nDecodes the given URL.\n  \n**Params**  \n- `string` url: URL to be decoded  \n- `string` charset: Character set from which the URL is decoded  \n  \n**Returns** `(string|error)`   \n- The `string` Value of the decoded url or an `ClientError` that occurred during decoding  \n  \n"
         }
       },
-      "sortText": "130",
+      "sortText": "131",
       "insertText": "decode(${1})",
       "insertTextFormat": "Snippet",
       "command": {
