@@ -1010,7 +1010,7 @@ public class CommonUtil {
      */
     public static String getPlainTextSnippet(String snippet) {
         return snippet
-                .replaceAll("\\$\\{\\d+:([^\\{^\\}]*)\\}", "$2")
+                .replaceAll("\\$\\{\\d+:([^\\{^\\}]*)\\}", "$1")
                 .replaceAll("(\\$\\{\\d+\\})", "");
     }
 
