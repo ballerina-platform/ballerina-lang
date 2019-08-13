@@ -35,3 +35,10 @@ function emitStartObservationInvocation(jvm:MethodVisitor mv, int strandIndex, s
     mv.visitMethodInsn(INVOKESTATIC, "org/ballerinalang/jvm/observability/ObserveUtils", observationStartMethod,
         io:sprintf("(L%s;L%s;L%s;)V", STRAND, STRING_VALUE, STRING_VALUE), false);
 }
+
+function getFullQualifiedRemoteFunctionName(string moduleOrg, string moduleName, string funcName) returns string {
+    if moduleName == "" {
+        return funcName;
+    }
+    return moduleOrg + "/" + moduleName + "/" + funcName;
+}

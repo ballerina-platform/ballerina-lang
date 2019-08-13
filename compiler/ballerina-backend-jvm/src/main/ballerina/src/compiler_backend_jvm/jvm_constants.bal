@@ -327,6 +327,10 @@ const string HANDLE_THROWABLE_METHOD = "handleRuntimeThrowable";
 
 // code generation related constants.
 const string MODULE_INIT_CLASS_NAME = "___init";
+const string CURRENT_MODULE_INIT = "$currentModuleInit";
+const string MODULE_INIT = "$moduleInit";
+const string MODULE_START = "$moduleStart";
+const string MODULE_STOP = "$moduleStop";
 const string BAL_EXTENSION = ".bal";
 const string WINDOWS_PATH_SEPERATOR = "\\";
 const string UNIX_PATH_SEPERATOR = "/";

@@ -544,6 +544,13 @@ public abstract class LSCompletionProvider {
             return symbol instanceof BObjectTypeSymbol && symbol.getName().getValue().equals(typeName);
         }).findAny().map(scopeEntry -> scopeEntry.symbol);
     }
+    
+    protected List<SymbolInfo> getSymbolByName(String name, LSContext context) {
+        List<SymbolInfo> symbolInfos = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        return symbolInfos.parallelStream()
+                .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol.getName().getValue().equals(name))
+                .collect(Collectors.toList());
+    }
 
     // Private Methods
 

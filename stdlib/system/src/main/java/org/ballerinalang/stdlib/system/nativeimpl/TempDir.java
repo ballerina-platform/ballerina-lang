@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
@@ -36,13 +34,9 @@ import org.ballerinalang.stdlib.system.utils.SystemUtils;
         functionName = "tempDir",
         isPublic = true
 )
-public class TempDir extends BlockingNativeCallableUnit {
+public class TempDir {
 
     private static final String TEMP_DIR_PROPERTY_KEY = "java.io.tmpdir";
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static String tempDir(Strand strand) {
         return SystemUtils.getSystemProperty(TEMP_DIR_PROPERTY_KEY);

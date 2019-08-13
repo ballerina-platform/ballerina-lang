@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.stdlib.time.nativeimpl;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -31,10 +30,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         functionName = "nanoTime"
 )
 public class NanoTime extends AbstractTimeFunction {
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static long nanoTime(Strand strand) {
         return System.nanoTime();

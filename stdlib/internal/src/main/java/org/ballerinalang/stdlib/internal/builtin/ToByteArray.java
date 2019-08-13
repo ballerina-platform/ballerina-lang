@@ -18,13 +18,13 @@
 package org.ballerinalang.stdlib.internal.builtin;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.UnsupportedEncodingException;
 

@@ -73,7 +73,7 @@ service failoverDemoService03 on failoverEP03 {
         path: "/typical"
     }
     resource function invokeAllFailureEndpoint03(http:Caller caller, http:Request request) {
-        var backendRes = foBackendEP03->forward("/", request);
+        var backendRes = foBackendEP03->forward("/", <@untainted> request);
         if (backendRes is http:Response) {
             var responseToCaller = caller->respond(backendRes);
             if (responseToCaller is error) {
@@ -96,7 +96,7 @@ service failoverDemoService03 on failoverEP03 {
         path: "/failures"
     }
     resource function invokeAllFailureEndpoint(http:Caller caller, http:Request request) {
-        var backendRes = foBackendFailureEP03->forward("/", request);
+        var backendRes = foBackendFailureEP03->forward("/", <@untainted> request);
         if (backendRes is http:Response) {
             var responseToCaller = caller->respond(backendRes);
             if (responseToCaller is error) {
@@ -119,7 +119,7 @@ service failoverDemoService03 on failoverEP03 {
         path: "/failurecodes"
     }
     resource function invokeAllFailureStatusCodesEndpoint(http:Caller caller, http:Request request) {
-        var backendRes = foStatusCodesEP03->forward("/", request);
+        var backendRes = foStatusCodesEP03->forward("/", <@untainted> request);
         if (backendRes is http:Response) {
             var responseToCaller = caller->respond(backendRes);
             if (responseToCaller is error) {
@@ -143,7 +143,7 @@ service failoverDemoService03 on failoverEP03 {
     }
     resource function failoverStartIndex(http:Caller caller, http:Request request) {
         string startIndex = foBackendEP03.succeededEndpointIndex.toString();
-        var backendRes = foBackendEP03->forward("/", request);
+        var backendRes = foBackendEP03->forward("/", <@untainted> request);
         if (backendRes is http:Response) {
             string responseMessage = "Failover start index is : " + startIndex;
             var responseToCaller = caller->respond(responseMessage);

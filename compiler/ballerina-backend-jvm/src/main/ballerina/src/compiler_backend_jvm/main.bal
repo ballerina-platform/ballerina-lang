@@ -32,7 +32,6 @@ public type JavaClass record {|
     bir:Function?[] functions = [];
 |};
 
-bir:BIRContext currentBIRContext = new;
 string[] birCacheDirs = [];
 
 public function main(string... args) {
@@ -110,5 +109,3 @@ function writeJarFile(JarFile jarFile, string targetPath) {
 }
 
 function writeExecutableJarToFile(JarFile jarFile, string targetPath) = external;
-
-function createBIRContext(string sourceDir, string pathToCompilerBackend, string libDir) returns bir:BIRContext = external;

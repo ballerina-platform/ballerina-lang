@@ -18,8 +18,6 @@
 
 package org.ballerinalang.net.websub.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -47,11 +45,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERV
         args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
         isPublic = true
 )
-public class RegisterWebSubSubscriberService extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class RegisterWebSubSubscriberService {
 
     public static void registerWebSubSubscriberService(Strand strand, ObjectValue subscriberServiceEndpoint,
                                                        ObjectValue service) {

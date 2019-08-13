@@ -48,7 +48,6 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.produceToKa
  * Test cases for ballerina.net.kafka consumer ( with manual commit enabled ) manual offset commit
  * using commit() native function.
  */
-@Test(singleThreaded = true)
 public class KafkaConsumerManualCommitTest {
     private CompileResult result;
     private static File dataDir;
@@ -138,7 +137,7 @@ public class KafkaConsumerManualCommitTest {
             throw new IllegalStateException();
         }
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-manual-commit-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(2182, 9095);
+        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(14002, 14102);
         return kafkaCluster;
     }
 }

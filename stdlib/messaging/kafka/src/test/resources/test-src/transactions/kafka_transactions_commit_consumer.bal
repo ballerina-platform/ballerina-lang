@@ -20,17 +20,18 @@ import ballerina/transactions;
 string topic = "commit-consumer-test-topic";
 
 kafka:ProducerConfig producerConfigs = {
-    bootstrapServers: "localhost:9144, localhost:9145, localhost:9146",
+    bootstrapServers: "localhost:14112, localhost:14113, localhost:14114",
     clientId: "commit-producer",
-    acks: "all",
+    acks: kafka:ACKS_ALL,
     transactionalId: "comit-consumer-test-producer",
-    noRetries: 3
+    retryCount: 3,
+    enableIdempotence: true
 };
 
 kafka:Producer kafkaProducer = new(producerConfigs);
 
 kafka:ConsumerConfig consumerConfigs = {
-    bootstrapServers: "localhost:9144, localhost:9145, localhost:9146",
+    bootstrapServers: "localhost:14112, localhost:14113, localhost:14114",
     groupId: "commit-consumer-test-group",
     offsetReset: "earliest",
     topics: [topic]
