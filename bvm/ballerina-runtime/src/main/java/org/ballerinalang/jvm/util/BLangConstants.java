@@ -106,4 +106,17 @@ public class BLangConstants {
     public static final String UTIL_LOGGING_MANAGER_CLASS_PROPERTY = "java.util.logging.manager";
     public static final String UTIL_LOGGING_CONFIG_CLASS_VALUE = "org.ballerinalang.logging.util.LogConfigReader";
     public static final String UTIL_LOGGING_MANAGER_CLASS_VALUE = "org.ballerinalang.logging.BLogManager";
+
+
+    // runtime relates error message constant values
+    public static final String INTERNAL_ERROR_MESSAGE =
+            "ballerina: Oh no, something really went wrong. Bad. Sad.\n" +
+            "\n" +
+            "There should be a file named \"ballerina-internal.log\" in the current directory.\n" +
+            "If you are able to share with us the code that broke Ballerina then\n" +
+            "we would REALLY appreciate if you would report this to us:\n" +
+            "go to https://github.com/ballerina-platform/ballerina-lang/issues and\n" +
+            "create a bug report with both this log file and the sample code.\n" +
+            "\n" +
+            "We thank you for helping make us better dancers.";
 }
