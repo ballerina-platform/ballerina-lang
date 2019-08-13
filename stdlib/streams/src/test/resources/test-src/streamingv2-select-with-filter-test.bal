@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 
 type Teacher record {
     string name;
@@ -75,10 +74,6 @@ function testSelectQuery() {
             }
         }
     }
-}
-
-function getX(int y) returns int {
-    return y;
 }
 
 function printTeachers(TeacherOutput e) {
