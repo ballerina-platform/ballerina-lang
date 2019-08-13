@@ -90,7 +90,7 @@ function isAuthzSuccessful(Caller caller, boolean|AuthorizationError authorized)
     response.statusCode = 403;
     if (authorized is boolean) {
         if (!authorized) {
-            response.setTextPayload("Authorization failure");
+            response.setTextPayload("Authorization failure.");
             var err = caller->respond(response);
             if (err is error) {
                 panic <error> err;
