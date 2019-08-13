@@ -17,12 +17,9 @@
  */
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -37,13 +34,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         args = {@Argument(name = "dt", type = TypeKind.TABLE)},
         isPublic = true
 )
-public class Close extends BlockingNativeCallableUnit {
-
-    public void execute(Context ctx) {
-        BTable table = (BTable) ctx.getRefArgument(0);
-        table.close();
-        ctx.setReturnValues();
-    }
+public class Close {
 
     public static void close(Strand strand, TableValue table) {
         table.close();

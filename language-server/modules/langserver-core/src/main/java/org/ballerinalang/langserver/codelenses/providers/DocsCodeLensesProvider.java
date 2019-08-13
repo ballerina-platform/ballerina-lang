@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.codelenses.providers;
 
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.langserver.client.config.BallerinaClientConfigHolder;
 import org.ballerinalang.langserver.codelenses.CodeLensesProviderKeys;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderException;
@@ -27,7 +28,6 @@ import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.util.BLangConstants;
 import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Position;

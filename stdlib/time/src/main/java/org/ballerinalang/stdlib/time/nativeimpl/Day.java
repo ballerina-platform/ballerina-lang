@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.stdlib.time.nativeimpl;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -32,10 +31,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         functionName = "getDay"
 )
 public class Day extends AbstractTimeFunction {
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static long getDay(Strand strand, MapValue<String, Object> timeRecord) {
         return getDay(timeRecord);

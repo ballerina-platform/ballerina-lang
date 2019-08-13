@@ -33,7 +33,6 @@ dependencies {
     implementation project(':ballerina-config')
     implementation project(':ballerina-logging')
     implementation project(':ballerina-backend-jvm')
-    implementation project(':ballerina-core')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-tool')
     implementation project(':testerina:testerina-core')

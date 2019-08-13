@@ -18,14 +18,10 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -40,24 +36,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
-public class Strip extends BlockingNativeCallableUnit {
+public class Strip {
 
     private static final String OPERATION = "strip xml";
-
-    @Override
-    public void execute(Context ctx) {
-        BValue result = null;
-        try {
-            // Accessing Parameters.
-            BXML value = (BXML) ctx.getRefArgument(0);
-            result = value.strip();
-        } catch (Throwable e) {
-            ErrorHandler.handleXMLException(OPERATION, e);
-        }
-        
-        // Setting output value.
-        ctx.setReturnValues(result);
-    }
 
     public static XMLValue<?> strip(Strand strand, XMLValue<?> xml) {
         try {
