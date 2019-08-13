@@ -43,7 +43,6 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath
 /**
  * Test cases for Kafka Consumer assign() function.
  */
-@Test(singleThreaded = true)
 public class KafkaConsumerAssignTest {
     private CompileResult result;
     private static File dataDir;
@@ -99,7 +98,7 @@ public class KafkaConsumerAssignTest {
             throw new IllegalStateException();
         }
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-assign-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(2181, 9094);
+        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(14001, 14101);
         return kafkaCluster;
     }
 }

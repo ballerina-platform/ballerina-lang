@@ -16,25 +16,21 @@
 
 import ballerina/kafka;
 
-kafka:ConsumerConfig consumerConfig = {
-    bootstrapServers: "localhost:14101",
-    groupId: "test-group",
-    clientId: "assign-consumer",
-    offsetReset: "earliest"
+string topic = "abort-transaction-topic";
+
+kafka:ProducerConfig producerConfigs = {
+    bootstrapServers:"localhost:14112, localhost:14113, localhost:14114",
+    clientId:"abort-transaction-producer",
+    acks: kafka:ACKS_ALL,
+    retryCount:3,
+    transactionalId:"abort-transaction-test-producer-without-idempotence"
 };
 
-kafka:Consumer kafkaConsumer = new(consumerConfig);
-
-function funcKafkaAssign () {
-    kafka:TopicPartition partition = { topic: "test", partition: 1 };
-    kafka:TopicPartition [] partitions = [partition];
-    var assignResult = kafkaConsumer->assign(partitions);
+function funcKafkaCreateProducer() returns error? {
+    error? err = trap createKafkaProducer();
+    return err;
 }
 
-function funcKafkaGetTopicPartitions() returns kafka:TopicPartition[]|error {
-    return kafkaConsumer->getTopicPartitions("test");
-}
-
-function funcKafkaGetAssignment() returns kafka:TopicPartition[]|error {
-    return kafkaConsumer->getAssignment();
+function createKafkaProducer() {
+    kafka:Producer producer = new(producerConfigs);
 }
