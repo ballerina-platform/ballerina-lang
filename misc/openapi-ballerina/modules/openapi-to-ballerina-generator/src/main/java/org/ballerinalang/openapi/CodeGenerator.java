@@ -76,6 +76,7 @@ public class CodeGenerator {
      *                       <li>mock</li>
      *                       <li>client</li>
      *                       </ul>
+     * @param executionPath Command execution path
      * @param definitionPath Input Open Api Definition file path
      * @param serviceName    Output Service Name
      * @param outPath        Destination file path to save generated source files. If not provided
@@ -83,7 +84,7 @@ public class CodeGenerator {
      * @throws IOException               when file operations fail
      * @throws BallerinaOpenApiException when code generator fails
      */
-    public void generate(GenType type, String definitionPath, String serviceName, String outPath)
+    public void generate(GenType type, String executionPath, String definitionPath, String serviceName, String outPath)
             throws IOException, BallerinaOpenApiException {
 
         if (!CodegenUtils.isBallerinaProject(Paths.get(outPath))) {
@@ -93,7 +94,7 @@ public class CodeGenerator {
 
         //Check if the selected path is a ballerina root for service generation
         //TODO check with team for root check
-        Path projectRoot = ProjectDirs.findProjectRoot(Paths.get(System.getProperty("user.dir")));
+        Path projectRoot = ProjectDirs.findProjectRoot(Paths.get(executionPath));
         if (type.equals(GenType.GEN_SERVICE) && projectRoot == null) {
             throw LauncherUtils.createUsageExceptionWithHelp("Ballerina service generation should be done " +
                     "from the project root. If you like to start with a new project use `ballerina init` command to " +
@@ -132,15 +133,16 @@ public class CodeGenerator {
      *          <li>mock</li>
      *          <li>client</li>
      *      </ul>
+     * @param executionPath Command execution path
      * @param definitionPath Input Open Api Definition file path
      * @param outPath Destination file path to save generated source files. If not provided
      *      {@code definitionPath} will be used as the default destination path
      * @throws IOException when file operations fail
      * @throws BallerinaOpenApiException when code generator fails
      */
-    public void generate(GenType gt, String definitionPath, String outPath)
+    public void generate(GenType gt, String executionPath, String definitionPath, String outPath)
             throws IOException, BallerinaOpenApiException {
-        generate(gt, definitionPath, null , outPath);
+        generate(gt, executionPath, definitionPath, null , outPath);
     }
 
     /**
@@ -213,7 +215,7 @@ public class CodeGenerator {
      * @deprecated This method is now deprecated.
      *              Use {@link #generateBalSource(GeneratorConstants.GenType, String, String) generate}
      * and implement a file write functionality your self, if you need to customize file writing steps.
-     * Otherwise use {@link #generate(GeneratorConstants.GenType, String, String) generate}
+     * Otherwise use {@link #generate(GeneratorConstants.GenType, String, String, String) generate}
      * to directly write generated source to a ballerina module.
      */
     @Deprecated
@@ -243,7 +245,7 @@ public class CodeGenerator {
         FileTemplateLoader fileTemplateLoader = new FileTemplateLoader(templatesDirPath);
         cpTemplateLoader.setSuffix(GeneratorConstants.TEMPLATES_SUFFIX);
         fileTemplateLoader.setSuffix(GeneratorConstants.TEMPLATES_SUFFIX);
-        
+
         Handlebars handlebars = new Handlebars().with(cpTemplateLoader, fileTemplateLoader);
         handlebars.registerHelpers(StringHelpers.class);
         handlebars.registerHelper("equals", (object, options) -> {

@@ -21,7 +21,8 @@ import java.util.List;
 public class OpenApiGenClientCmd implements BLauncherCmd {
     private static final String CMD_NAME = "openapi";
 
-    private static final PrintStream outStream = System.err;
+    private PrintStream outStream = System.err;
+    private String executionPath = System.getProperty("user.dir");
 
     @CommandLine.Parameters(index = "0", split = ":")
     private List<String> moduleArgs;
@@ -29,12 +30,21 @@ public class OpenApiGenClientCmd implements BLauncherCmd {
     @CommandLine.Parameters(index = "1..*")
     private List<String> argList;
 
-    @CommandLine.Option(names = { "-o", "--output" }, description = "where to write the generated " +
+    @CommandLine.Option(names = {"-o", "--output"}, description = "where to write the generated " +
             "files (current dir by default)")
     private String output = "";
 
-    @CommandLine.Option(names = { "-h", "--help" }, hidden = true)
+    @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
     private boolean helpFlag;
+
+    public OpenApiGenClientCmd() {
+        this.outStream = System.err;
+    }
+
+    public OpenApiGenClientCmd(PrintStream outStream, String executionPath) {
+        this.outStream = outStream;
+        this.executionPath = executionPath;
+    }
 
     @Override
     public void execute() {
@@ -61,7 +71,7 @@ public class OpenApiGenClientCmd implements BLauncherCmd {
         }
 
         try {
-            generator.generate(GeneratorConstants.GenType.valueOf("GEN_CLIENT"), argList.get(0), output);
+            generator.generate(GeneratorConstants.GenType.valueOf("GEN_CLIENT"), executionPath, argList.get(0), output);
         } catch (IOException | BallerinaOpenApiException e) {
             throw LauncherUtils.createLauncherException(OpenApiMesseges.OPENAPI_CLIENT_EXCEPTION);
         }
@@ -69,7 +79,7 @@ public class OpenApiGenClientCmd implements BLauncherCmd {
 
     @Override
     public String getName() {
-        return null;
+        return CMD_NAME;
     }
 
     @Override
