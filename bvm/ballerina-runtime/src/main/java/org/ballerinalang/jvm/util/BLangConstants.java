@@ -108,7 +108,7 @@ public class BLangConstants {
     public static final String UTIL_LOGGING_MANAGER_CLASS_VALUE = "org.ballerinalang.logging.BLogManager";
 
 
-    // runtime relates error message constant values
+    // runtime related error message constant values
     public static final String INTERNAL_ERROR_MESSAGE =
             "ballerina: Oh no, something really went wrong. Bad. Sad.\n" +
             "\n" +
