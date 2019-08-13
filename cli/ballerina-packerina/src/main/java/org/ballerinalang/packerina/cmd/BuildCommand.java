@@ -76,19 +76,23 @@ public class BuildCommand implements BLauncherCmd {
     private final PrintStream errStream;
     private Path sourceRootPath;
     private boolean exitWhenFinish;
+    private boolean skipCopyLibsFromDist;
 
     public BuildCommand() {
         this.sourceRootPath = Paths.get(System.getProperty("user.dir"));
         this.outStream = System.out;
         this.errStream = System.err;
         this.exitWhenFinish = true;
+        this.skipCopyLibsFromDist = false;
     }
 
-    public BuildCommand(Path userDir, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
+    public BuildCommand(Path userDir, PrintStream outStream, PrintStream errStream, 
+                        boolean exitWhenFinish, boolean skipCopyLibsFromDist) {
         this.sourceRootPath = userDir;
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
+        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
     }
     
     @CommandLine.Option(names = {"--sourceroot"},
@@ -345,9 +349,9 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CompileTask()) // compile the modules
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the balos for modules(projects only)
                 .addTask(new CreateBirTask())   // create the bir
-                .addTask(new CopyNativeLibTask(), isSingleFileBuild)    // copy the native libs(projects only)
+                .addTask(new CopyNativeLibTask(skipCopyLibsFromDist))    // copy the native libs(projects only)
                 .addTask(new CreateJarTask(this.dumpBIR))    // create the jar
-                .addTask(new CopyModuleJarTask())
+                .addTask(new CopyModuleJarTask(skipCopyLibsFromDist))
                 .addTask(new RunTestsTask(configFilePath), this.skipTests || isSingleFileBuild) // run tests
                                                                                                 // (projects only)
                 .addTask(new CreateExecutableTask(), this.compile)  // create the executable .jar file

@@ -45,6 +45,10 @@ public class GlobalVarServiceTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/variabledef/globalvar/global-var-service.bal");
+
+        if (result.getErrorCount() > 0) {
+            throw new IllegalStateException(result.toString());
+        }
     }
 
     @Test(description = "Test defining global variables in services")
@@ -66,7 +70,7 @@ public class GlobalVarServiceTest {
         Assert.assertNotNull(response);
         //Expected Json message : {"serviceVarFloat":99.34323}
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(((BMap) bJson).get("serviceVarFloat").stringValue(), "99.34323");
+        Assert.assertEquals(((BMap) bJson).get("glbVarFloat").stringValue(), "99.34323");
     }
 
     @Test(description = "Test changing global variables in resource level")

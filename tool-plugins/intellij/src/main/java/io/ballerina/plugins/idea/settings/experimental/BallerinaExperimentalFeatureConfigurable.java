@@ -17,7 +17,6 @@
 package io.ballerina.plugins.idea.settings.experimental;
 
 import com.intellij.openapi.options.SearchableConfigurable;
-import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.UIUtil;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
@@ -43,7 +42,7 @@ public class BallerinaExperimentalFeatureConfigurable implements SearchableConfi
     private final BallerinaExperimentalFeatureSettings ballerinaExperimentalFeatureSettings;
     private final boolean myIsDialog;
 
-    public BallerinaExperimentalFeatureConfigurable(@NotNull Project project, boolean dialogMode) {
+    public BallerinaExperimentalFeatureConfigurable(boolean dialogMode) {
         ballerinaExperimentalFeatureSettings = BallerinaExperimentalFeatureSettings.getInstance();
         myIsDialog = dialogMode;
     }

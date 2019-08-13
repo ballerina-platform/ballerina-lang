@@ -24,7 +24,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindowId;
-import io.ballerina.plugins.idea.extensions.editoreventmanager.BallerinaEditorEventManager;
+import io.ballerina.plugins.idea.extensions.client.BallerinaEditorEventManager;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTDidChangeResponse;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTResponse;
 import io.ballerina.plugins.idea.extensions.server.BallerinaEndpoint;

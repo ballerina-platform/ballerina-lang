@@ -330,6 +330,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         this.validateMainFunction(funcNode);
+        this.validateModuleInitFunction(funcNode);
         try {
 
             this.initNewWorkerActionSystem();
@@ -1993,6 +1994,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangCheckedExpr checkedExpr) {
         analyzeExpr(checkedExpr.expr);
         boolean enclInvokableHasErrorReturn = false;
+
+        if (this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
+            // Check at module level.
+            return;
+        }
+
         BType exprType = env.enclInvokable.getReturnTypeNode().type;
         if (exprType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) env.enclInvokable.getReturnTypeNode().type;
@@ -2261,6 +2268,27 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!types.isAssignable(funcNode.returnTypeNode.type,
                                 BUnionType.create(null, symTable.nilType, symTable.errorType))) {
             this.dlog.error(funcNode.returnTypeNode.pos, DiagnosticCode.MAIN_RETURN_SHOULD_BE_ERROR_OR_NIL,
+                            funcNode.returnTypeNode.type);
+        }
+    }
+
+    private void validateModuleInitFunction(BLangFunction funcNode) {
+        if (funcNode.attachedFunction || !Names.USER_DEFINED_INIT_SUFFIX.value.equals(funcNode.name.value)) {
+            return;
+        }
+
+        if (Symbols.isPublic(funcNode.symbol)) {
+            this.dlog.error(funcNode.pos, DiagnosticCode.MODULE_INIT_CANNOT_BE_PUBLIC);
+        }
+
+        if (!funcNode.requiredParams.isEmpty() || funcNode.restParam != null) {
+            this.dlog.error(funcNode.pos, DiagnosticCode.MODULE_INIT_CANNOT_HAVE_PARAMS);
+        }
+
+        if (!funcNode.returnTypeNode.type.isNullable() ||
+                !types.isAssignable(funcNode.returnTypeNode.type,
+                                    BUnionType.create(null, symTable.nilType, symTable.errorType))) {
+            this.dlog.error(funcNode.returnTypeNode.pos, DiagnosticCode.MODULE_INIT_RETURN_SHOULD_BE_ERROR_OR_NIL,
                             funcNode.returnTypeNode.type);
         }
     }
