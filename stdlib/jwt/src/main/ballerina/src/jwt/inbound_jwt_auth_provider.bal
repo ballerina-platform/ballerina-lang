@@ -107,27 +107,25 @@ function addToAuthenticationCache(JwtValidatorConfig jwtValidatorConfig, string 
 }
 
 function setPrincipal(JwtPayload jwtPayload) {
-    runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-    if (principal is runtime:Principal) {
-        string? iss = jwtPayload?.iss;
-        string? sub = jwtPayload?.sub;
-        principal.userId = (iss is () ? "" : iss) + ":" + (sub is () ? "" : sub);
-        // By default set sub as username.
-        principal.username = (sub is () ? "" : sub);
-        map<json>? claims = jwtPayload?.customClaims;
-        if (claims is map<json>) {
-            principal.claims = claims;
-            if (claims.hasKey(SCOPES)) {
-                var scopeString = claims[SCOPES];
-                if (scopeString is string) {
-                    principal.scopes = internal:split(scopeString, " ");
-                }
+    string? iss = jwtPayload?.iss;
+    string? sub = jwtPayload?.sub;
+    string userId = (iss is () ? "" : iss) + ":" + (sub is () ? "" : sub);
+    // By default set sub as username.
+    string username = (sub is () ? "" : sub);
+    auth:setPrincipal(userId, username);
+    map<json>? claims = jwtPayload?.customClaims;
+    if (claims is map<json>) {
+        auth:setPrincipal(claims = claims);
+        if (claims.hasKey(SCOPES)) {
+            var scopeString = claims[SCOPES];
+            if (scopeString is string) {
+                auth:setPrincipal(scopes = internal:split(scopeString, " "));
             }
-            if (claims.hasKey(USERNAME)) {
-                var name = claims[USERNAME];
-                if (name is string) {
-                    principal.username = name;
-                }
+        }
+        if (claims.hasKey(USERNAME)) {
+            var name = claims[USERNAME];
+            if (name is string) {
+                auth:setPrincipal(username = name);
             }
         }
     }

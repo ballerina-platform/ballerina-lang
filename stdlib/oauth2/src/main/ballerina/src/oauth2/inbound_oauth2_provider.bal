@@ -76,7 +76,7 @@ public type InboundOAuth2Provider object {
 
         if (authenticated) {
             auth:setAuthenticationContext("oauth2", credential);
-            setPrincipal(username, scopes);
+            auth:setPrincipal(username, username, getScopes(scopes));
         }
         return authenticated;
     }
@@ -102,11 +102,3 @@ public type IntrospectionServerConfig record {|
     http:ClientEndpointConfig clientConfig = {};
 |};
 
-function setPrincipal(string username, string scopes) {
-    runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-    if (principal is runtime:Principal) {
-        principal.userId = username;
-        principal.username = username;
-        principal.scopes = getScopes(scopes);
-    }
-}
