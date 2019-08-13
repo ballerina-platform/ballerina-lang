@@ -206,10 +206,7 @@ public class PackageLoader {
         }
         
         // If lock file is not there, fist check in central.
-        if (!this.offline &&
-            RepoUtils.isBallerinaProject(sourceRoot) &&
-            (null == this.lockFile || this.lockFile.getImports().size() == 0)) {
-            
+        if (!this.offline && this.hasLockFile(sourceRoot)) {
             homeCacheNode = node(remoteDryRepo, homeCacheNode);
         }
         
@@ -275,7 +272,7 @@ public class PackageLoader {
         String orgName = pkgId.orgName.value;
         String pkgName = pkgId.name.value;
         String pkgAlias = orgName + "/" + pkgName;
-        if (!lockEnabled) {
+        if (!this.hasLockFile(this.sourceDirectory.getPath())) {
             // TODO: make getDependencies return a map
              Optional<Dependency> dependency = manifest.getDependencies()
                                                       .stream()
@@ -509,5 +506,16 @@ public class PackageLoader {
                     .ifPresent(pkgEntry -> compiledPackage.pkgMDEntry = pkgEntry);
         }
         return compiledPackage;
+    }
+    
+    /**
+     * Check if lock file is empty.
+     *
+     * @param sourceRoot The sourceroot of the project.
+     * @return True if lock file is valid, else false.
+     */
+    public boolean hasLockFile(Path sourceRoot) {
+        return RepoUtils.isBallerinaProject(sourceRoot) &&
+               (null == this.lockFile || this.lockFile.getImports().size() > 0);
     }
 }

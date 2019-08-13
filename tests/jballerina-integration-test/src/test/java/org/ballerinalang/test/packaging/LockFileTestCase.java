@@ -323,15 +323,20 @@ public class LockFileTestCase extends BaseTest {
     }
     
     /**
-     * Now delete the Ballerina.lock file. Rebuild and run TestProject2 without the offline flag. This should
+     * Now delete the generated Ballerina.lock file. Rebuild and run TestProject2 without the offline flag. This should
      * pull the latest dependencies(1.2.0) from central and resolve to them. When running "foo" module of TestProject2
      * it should give the output which was modified in {@link #testModifyProj1AndPush}.
      *
+     * @throws IOException When deleting the lock file.
      * @throws BallerinaTestException When running commands.
      */
     @Test(description = "Test rebuilding and running TestProject2 without lock file.",
           dependsOnMethods = "testRebuildTestProj2WithLockRemovedAndOffline")
-    public void testRebuildTestProj2WithLockRemoved() throws BallerinaTestException {
+    public void testRebuildTestProj2WithLockRemoved() throws BallerinaTestException, IOException {
+        // Delete Ballerina.lock
+        Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
+        Files.delete(lockFilePath);
+        
         // Build module
         String fooBaloFileName = "foo-"
                                  + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
@@ -350,7 +355,7 @@ public class LockFileTestCase extends BaseTest {
         });
     
     
-        Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
+        lockFilePath = testProj2Path.resolve("Ballerina.lock");
         Assert.assertTrue(Files.exists(lockFilePath));
     
         // Run and see output
@@ -362,24 +367,65 @@ public class LockFileTestCase extends BaseTest {
     }
     
     /**
-     * Update the Ballerina.toml file by adding the 2 dependencies and set the versions to "1.0.0". This should override
-     * the versions mentioned in Ballerina.lock file and resolve to "1.0.0" version of home balo repo.
+     * Update the Ballerina.toml file by adding the 2 dependencies and set the versions to "1.0.0". But since the
+     * Ballerina.lock is still there, the versions will resolved to "1.2.0" from home balo repo. The Ballerina.lock
+     * file has priority than Ballerina.toml.
      *
      * @throws IOException When updating the Ballerina.toml.
      * @throws BallerinaTestException When running commands.
      */
-    @Test(description = "Test rebuilding and running TestProject2 without lock file.",
+    @Test(description = "Test rebuilding and running TestProject2 with lock file.",
           dependsOnMethods = "testRebuildTestProj2WithLockRemoved")
     public void testRebuildTestProj2WithUpdatedBallerinaToml() throws BallerinaTestException, IOException {
-        Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
-        Assert.assertTrue(Files.exists(lockFilePath));
-        
         // Update the Ballerina.toml file
         Path ballerinaToml = testProj2Path.resolve("Ballerina.toml");
         String tomlDependencies = "\n\n[dependencies]\n" +
                                   "\"" + orgName + "/" + module1Name + "\" = \"1.0.0\"\n" +
                                   "\"" + orgName + "/" + module2Name + "\" = \"1.0.0\"\n";
         Files.write(ballerinaToml, tomlDependencies.getBytes(), StandardOpenOption.APPEND);
+        
+        // Build module
+        String fooBaloFileName = "foo-"
+                                 + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                                 + ProgramFileConstants.ANY_PLATFORM + "-"
+                                 + "9.9.9"
+                                 + BLANG_COMPILED_PKG_BINARY_EXT;
+        String fooBuildMsg = "Created target" + File.separator + "balo" + File.separator + fooBaloFileName;
+        LogLeecher fooBuildLeecher = new LogLeecher(fooBuildMsg);
+        given().with().pollInterval(Duration.TEN_SECONDS).and()
+                .with().pollDelay(Duration.FIVE_SECONDS)
+                .await().atMost(120, SECONDS).until(() -> {
+            balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{}, new
+                    LogLeecher[]{fooBuildLeecher}, testProj2Path.toString());
+            fooBuildLeecher.waitForText(10000);
+            return Files.exists(testProj2Path.resolve("Ballerina.lock"));
+        });
+        
+        Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
+        Assert.assertTrue(Files.exists(lockFilePath));
+        
+        // Run and see output
+        String msg = "Hello world john!";
+        LogLeecher fooRunLeecher = new LogLeecher(msg);
+        balClient.runMain("run", new String[] {"foo"}, envVariables, new String[0],
+                new LogLeecher[]{fooRunLeecher}, testProj2Path.toString());
+        fooRunLeecher.waitForText(10000);
+    }
+    
+    /**
+     * Now delete the Ballerina.lock file. Since version "1.0.0" is mentioned in the Ballerina.toml. It will resolve to
+     * that version from home balo repo.
+     *
+     * @throws IOException When deleting the Ballerina.lock.
+     * @throws BallerinaTestException When running commands.
+     */
+    @Test(description = "Test rebuilding and running TestProject2 without lock file.",
+          dependsOnMethods = "testRebuildTestProj2WithUpdatedBallerinaToml")
+    public void testRebuildTestProj2WithUpdatedBallerinaTomlAndLockRemoved() throws BallerinaTestException,
+            IOException {
+        // Delete Ballerina.lock
+        Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
+        Files.delete(lockFilePath);
         
         // Build module
         String fooBaloFileName = "foo-"
@@ -436,7 +482,7 @@ public class LockFileTestCase extends BaseTest {
     @AfterClass
     private void cleanup() throws Exception {
         deleteFiles(tempHomeDirectory);
-        deleteFiles(tempProjectsDirectory);
+//        deleteFiles(tempProjectsDirectory);
         balServer.cleanup();
     }
 }
