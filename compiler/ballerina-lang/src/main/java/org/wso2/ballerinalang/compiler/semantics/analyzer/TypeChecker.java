@@ -529,6 +529,11 @@ public class TypeChecker extends BLangNodeVisitor {
         if (expType.tag == symTable.semanticError.tag) {
             return;
         }
+        if (expType.getKind() != TypeKind.TABLE) {
+            dlog.error(tableLiteral.pos, DiagnosticCode.CANNOT_INFER_TABLE_TYPE);
+            resultType = symTable.semanticError;
+            return;
+        }
         BType tableConstraint = ((BTableType) expType).getConstraint();
         if (tableConstraint.tag == TypeTags.NONE) {
             dlog.error(tableLiteral.pos, DiagnosticCode.TABLE_CANNOT_BE_CREATED_WITHOUT_CONSTRAINT);
@@ -1236,6 +1241,14 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
+        if (varRefExpr.typeNode != null) {
+            BType bType = symResolver.resolveTypeNode(varRefExpr.typeNode, env);
+            varRefExpr.type = bType;
+            checkIndirectErrorVarRef(varRefExpr);
+            resultType = bType;
+            return;
+        }
+
         if (varRefExpr.reason != null) {
             varRefExpr.reason.lhsVar = true;
             checkExpr(varRefExpr.reason, env);
@@ -1310,6 +1323,17 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType errorDetailType = getCompatibleDetailType(errorRefRestFieldType);
         resultType = new BErrorType(errorTSymbol, varRefExpr.reason.type, errorDetailType);
+    }
+
+    private void checkIndirectErrorVarRef(BLangErrorVarRef varRefExpr) {
+        for (BLangNamedArgsExpression detailItem : varRefExpr.detail) {
+            checkExpr(detailItem.expr, env);
+            checkExpr(detailItem, env, detailItem.expr.type);
+        }
+
+        if (varRefExpr.restVar != null) {
+            checkExpr(varRefExpr.restVar, env);
+        }
     }
 
     private BRecordType getCompatibleDetailType(BType errorRefRestFieldType) {
@@ -2775,27 +2799,37 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void checkErrorConstructorInvocation(BLangInvocation iExpr) {
-        if (!types.isAssignable(expType, symTable.errorType)) {
-            if (expType != symTable.noType) {
+        BType expectedType = this.expType;
+        if (expType.getKind() == TypeKind.UNION && iExpr.symbol.type == symTable.errorType) {
+            BUnionType unionType = (BUnionType) expType;
+            long count = unionType.getMemberTypes().stream()
+                    .filter(member -> types.isAssignable(iExpr.symbol.type, member))
+                    .count();
+            // More than one compatible members found, this is ambiguous.
+            if (count > 1) {
+                dlog.error(iExpr.pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, this.expType);
+                return;
+            }
+        } else if (!types.isAssignable(expectedType, symTable.errorType)) {
+            if (expectedType != symTable.noType) {
                 // Cannot infer error type from error constructor. 'T1|T2|T3 e = error("r", a="b", b="c");
-                dlog.error(iExpr.pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType);
+                dlog.error(iExpr.pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, this.expType);
                 resultType = symTable.semanticError;
                 return;
             } else if ((iExpr.symbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
-                expType = iExpr.type;
+                expectedType = iExpr.type;
             } else {
                 // var e = <error> error("r");
-                expType = symTable.errorType;
+                expectedType = symTable.errorType;
             }
         }
 
-        BErrorType expectedError = getExpectedErrorType(iExpr.pos, expType, iExpr.symbol);
+        BErrorType expectedError = getExpectedErrorType(iExpr.pos, expectedType, iExpr.symbol);
         if (expectedError == null) {
             return;
         }
-        BErrorType ctorType = (BErrorType) expectedError.ctorSymbol.type;
 
-        if (iExpr.argExprs.isEmpty() && checkNoArgErrorCtorInvocation(ctorType, iExpr.pos)) {
+        if (iExpr.argExprs.isEmpty() && checkNoArgErrorCtorInvocation(expectedError, iExpr.pos)) {
             return;
         }
 
@@ -2805,10 +2839,10 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        boolean reasonArgGiven = checkErrorReasonArg(iExpr, ctorType);
+        boolean reasonArgGiven = checkErrorReasonArg(iExpr, expectedError);
 
-        if (ctorType.detailType.tag == TypeTags.RECORD) {
-            BRecordType targetErrorDetailRec = (BRecordType) ctorType.detailType;
+        if (expectedError.detailType.tag == TypeTags.RECORD) {
+            BRecordType targetErrorDetailRec = (BRecordType) expectedError.detailType;
             BRecordType recordType = createErrorDetailRecordType(iExpr, reasonArgGiven, targetErrorDetailRec);
             if (resultType == symTable.semanticError) {
                 return;
@@ -2820,7 +2854,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 return;
             }
         } else {
-            BMapType targetErrorDetailMap = (BMapType) ctorType.detailType;
+            BMapType targetErrorDetailMap = (BMapType) expectedError.detailType;
             List<BLangNamedArgsExpression> providedErrorDetails = getProvidedErrorDetails(iExpr, reasonArgGiven);
             if (providedErrorDetails == null) {
                 // error in provided error details
@@ -2830,11 +2864,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 checkExpr(errorDetailArg, env, targetErrorDetailMap.constraint);
             }
         }
-        setErrorReasonParam(iExpr, reasonArgGiven, ctorType);
+        setErrorReasonParam(iExpr, reasonArgGiven, expectedError);
         setErrorDetailArgsToNamedArgsList(iExpr);
 
         resultType = expectedError;
-        iExpr.symbol = expectedError.ctorSymbol;
+        if (iExpr.symbol == symTable.errorType.tsymbol) {
+            iExpr.symbol = expectedError.ctorSymbol;
+        }
     }
 
     private BErrorType getExpectedErrorType(DiagnosticPos pos, BType expType, BSymbol iExprSymbol) {

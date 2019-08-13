@@ -390,7 +390,7 @@ public type ObjectGenerator object {
         // defualt values of the fields coming from the referenced types.
         foreach (bir:BType? typeRef in typeDef.typeRefs) {
             if (typeRef is bir:BRecordType) {
-                string refTypeClassName = getReferencedTypeValueClassName(typeRef.moduleId, typeRef.name.value);
+                string refTypeClassName = getTypeValueClassName(typeRef.moduleId, typeRef.name.value);
                 mv.visitInsn(DUP2);
                 mv.visitMethodInsn(INVOKESTATIC, refTypeClassName, "$init", io:sprintf("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
             }
@@ -409,7 +409,7 @@ public type ObjectGenerator object {
         } else {
             // record type is the original record-type of this type-label
             bir:BRecordType recordType = <bir:BRecordType> typeDef.typeValue;
-            valueClassName = getReferencedTypeValueClassName(recordType.moduleId, recordType.name.value);
+            valueClassName = getTypeValueClassName(recordType.moduleId, recordType.name.value);
             initFuncName = cleanupFunctionName(recordType.name.value + "__init_");
         }
 
@@ -459,12 +459,15 @@ function createDefaultCase(jvm:MethodVisitor mv, jvm:Label defaultCaseLabel, int
     mv.visitInsn(ATHROW);
 }
 
-function getTypeValueClassName(bir:Package module, string typeName) returns string {
-    return getPackageName(module.org.value, module.name.value) + cleanupTypeName(typeName);
-}
+function getTypeValueClassName(bir:Package|bir:ModuleID module, string typeName) returns string {
+    string packageName;
+    if (module is bir:Package) {
+        packageName = getPackageName(module.org.value, module.name.value);
+    } else {
+        packageName = getPackageName(module.org, module.name);
+    }
 
-function getReferencedTypeValueClassName(bir:ModuleID moduleId, string typeName) returns string {
-    return getPackageName(moduleId.org, moduleId.name) + cleanupTypeName(typeName);
+    return packageName + "$value$" + cleanupTypeName(typeName);
 }
 
 function createLabelsForEqualCheck(jvm:MethodVisitor mv, int nameRegIndex, NamedNode?[] nodes,

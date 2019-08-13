@@ -1,5 +1,5 @@
 NAME
-    Ballerina update - Update to latest SDK version
+    Ballerina update - Update to latest distribution version
 
 SYNOPSIS
     ballerina update
@@ -11,5 +11,5 @@ OPTIONS
      Ballerina update command takes no options.
 
 EXAMPLES
-     Update current SDK to latest.
+     Update current distribution to latest.
      $ ballerina update

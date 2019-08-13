@@ -33,7 +33,7 @@ boolean isSuccess = false;
 service kafkaTestService on kafkaConsumer {
     resource function onMessage(kafka:Consumer consumer, kafka:ConsumerRecord[] records) {
         isSuccess = true;
-        var result = kafkaConsumer.__stop();
+        var result = kafkaConsumer.__immediateStop();
     }
 }
 

@@ -37,7 +37,11 @@ public type Listener object {
         return self.start();
     }
 
-    public function __stop() returns error? {
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
+    public function __immediateStop() returns error? {
         return self.stop();
     }
 
@@ -326,7 +330,11 @@ public type WebSocketListener object {
         return self.httpEndpoint.start();
     }
 
-    public function __stop() returns error? {
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
+    public function __immediateStop() returns error? {
         return self.httpEndpoint.stop();
     }
 
