@@ -19,6 +19,7 @@
 package org.ballerinalang.packerina.cmd;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.packerina.TaskExecutor;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
@@ -34,8 +35,6 @@ import org.ballerinalang.packerina.task.RunExecutableTask;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.BallerinaCliCommands;
 import org.ballerinalang.tool.LauncherUtils;
-import org.ballerinalang.util.BLangConstants;
-import org.ballerinalang.util.VMOptions;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -60,8 +59,8 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SIDDHI_RUNTIME_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
+import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
-import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
@@ -99,9 +98,6 @@ public class RunCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "-e", description = "Ballerina environment parameters.")
     private Map<String, String> runtimeParams = new HashMap<>();
-
-    @CommandLine.Option(names = "-B", description = "Ballerina VM options.")
-    private Map<String, String> vmOptions = new HashMap<>();
 
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
     private boolean experimentalFlag;
@@ -287,8 +283,6 @@ public class RunCommand implements BLauncherCmd {
     
         // create builder context
         BuildContext buildContext = new BuildContext(sourceRootPath, targetPath, sourcePath, compilerContext);
-    
-        VMOptions.getInstance().addOptions(vmOptions);
         
         boolean isSingleFileBuild = buildContext.getSourceType().equals(SINGLE_BAL_FILE);
     
