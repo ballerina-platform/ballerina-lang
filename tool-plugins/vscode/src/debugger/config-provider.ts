@@ -16,6 +16,7 @@ import { ballerinaExtInstance, BallerinaExtension } from '../core/index';
 import { ExtendedLangClient } from '../core/extended-language-client';
 import { BALLERINA_HOME } from '../core/preferences';
 import { isUnix } from "./osUtils";
+import { TM_EVENT_START_DEBUG_SESSION } from '../telemetry';
 
 const debugConfigProvider: DebugConfigurationProvider = {
     resolveDebugConfiguration(folder: WorkspaceFolder, config: DebugConfiguration)
@@ -137,6 +138,7 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
             startScriptPath = path.resolve(ballerinaPath, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.bat");
         }
         getPortPromise({port: 10001, stopPort: 20000}).then((port)=>{
+            ballerinaExtInstance.telemetryReporter.sendTelemetryEvent(TM_EVENT_START_DEBUG_SESSION);
             const serverProcess = child_process.spawn(startScriptPath, [
                 port.toString()
             ]);
