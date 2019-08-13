@@ -39,8 +39,9 @@ import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
 
 public class RuntimeUtils {
 
-    private static final Logger breLog = LoggerFactory.getLogger(RuntimeUtils.class);
     private static PrintStream errStream = System.err;
+
+    private static final Logger breLog = LoggerFactory.getLogger(RuntimeUtils.class);
 
     /**
      * Used to handle rest args passed in to the main method.
@@ -114,12 +115,12 @@ public class RuntimeUtils {
     public static void handleRuntimeErrors(Throwable throwable) {
         if (throwable instanceof ErrorValue) {
             errStream.println("error: " + ((ErrorValue) throwable).getPrintableStackTrace());
-            Runtime.getRuntime().exit(1);
+        } else {
+            // These errors are unhandled errors in JVM, hence logging them to bre log.
+            errStream.println(BLangConstants.INTERNAL_ERROR_MESSAGE);
+            breLog.error(throwable.getMessage(), throwable);
         }
 
-        // These errors are unhandled errors in JVM, hence logging them to bre log.
-        breLog.error(throwable.getMessage(), throwable);
-        // Wrap the errors in a runtime exception to make sure these are logged in internal log.
-        throw new RuntimeException(throwable);
+        Runtime.getRuntime().exit(1);
     }
 }

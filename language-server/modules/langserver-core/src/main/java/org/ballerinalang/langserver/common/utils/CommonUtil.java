@@ -622,8 +622,8 @@ public class CommonUtil {
         List<String> attachedFunctions = ((BObjectTypeSymbol) bSymbol).attachedFuncs.stream()
                 .map(function -> function.funcName.getValue())
                 .collect(Collectors.toList());
-        return attachedFunctions.contains("__start") && attachedFunctions.contains("__stop")
-                && attachedFunctions.contains("__attach");
+        return attachedFunctions.contains("__start") && attachedFunctions.contains("__immediateStop")
+                && attachedFunctions.contains("__immediateStop") && attachedFunctions.contains("__attach");
     }
 
     /**
@@ -974,7 +974,8 @@ public class CommonUtil {
         String relativeFilePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangCompilationUnit filteredCUnit = pkgNode.compUnits.stream()
                 .filter(cUnit ->
-                        cUnit.getPosition().getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(relativeFilePath))
+                                cUnit.getPosition().getSource().cUnitName.replace("/", FILE_SEPARATOR)
+                                        .equals(relativeFilePath))
                 .findAny().orElse(null);
         List<TopLevelNode> topLevelNodes = filteredCUnit == null
                 ? new ArrayList<>()
@@ -1009,7 +1010,7 @@ public class CommonUtil {
      */
     public static String getPlainTextSnippet(String snippet) {
         return snippet
-                .replaceAll("(\\$\\{\\d+:)([a-zA-Z]*:*[a-zA-Z]*)(\\})", "$2")
+                .replaceAll("\\$\\{\\d+:([^\\{^\\}]*)\\}", "$2")
                 .replaceAll("(\\$\\{\\d+\\})", "");
     }
 
@@ -1439,12 +1440,14 @@ public class CommonUtil {
     /**
      * Notify user an error message through LSP protocol.
      *
+     * @param operation          operation name
      * @param error          {@link Throwable}
      * @param languageClient language client
      */
-    public static void notifyUser(UserErrorException error, LanguageClient languageClient) {
+    public static void notifyUser(String operation, UserErrorException error, LanguageClient languageClient) {
         if (languageClient != null) {
-            languageClient.showMessage(new MessageParams(MessageType.Error, error.getMessage()));
+            languageClient.showMessage(
+                    new MessageParams(MessageType.Error, operation + " failed, " + error.getMessage()));
         }
     }
 

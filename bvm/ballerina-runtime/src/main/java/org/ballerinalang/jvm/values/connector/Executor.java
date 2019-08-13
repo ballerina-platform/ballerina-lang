@@ -77,7 +77,7 @@ public class Executor {
 
         //TODO Remove null check once scheduler logic is migrated for WebSocket. Scheduler cannot be null
         if (scheduler == null) {
-            scheduler = new Scheduler(4, false);
+            scheduler = new Scheduler(false);
             scheduler.start();
         }
 

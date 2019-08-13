@@ -258,7 +258,6 @@ public class Desugar extends BLangNodeVisitor {
             new CompilerContext.Key<>();
     private static final String QUERY_TABLE_WITH_JOIN_CLAUSE = "queryTableWithJoinClause";
     private static final String QUERY_TABLE_WITHOUT_JOIN_CLAUSE = "queryTableWithoutJoinClause";
-    private static final String CREATE_FOREVER = "startForever";
     private static final String BASE_64 = "base64";
     private static final String ERROR_REASON_FUNCTION_NAME = "reason";
     private static final String ERROR_DETAIL_FUNCTION_NAME = "detail";
@@ -277,7 +276,6 @@ public class Desugar extends BLangNodeVisitor {
     private InMemoryTableQueryBuilder inMemoryTableQueryBuilder;
     private Types types;
     private Names names;
-    private SiddhiQueryBuilder siddhiQueryBuilder;
     private ServiceDesugar serviceDesugar;
     private BLangNode result;
 
@@ -324,7 +322,6 @@ public class Desugar extends BLangNodeVisitor {
         this.inMemoryTableQueryBuilder = InMemoryTableQueryBuilder.getInstance(context);
         this.types = Types.getInstance(context);
         this.names = Names.getInstance(context);
-        this.siddhiQueryBuilder = SiddhiQueryBuilder.getInstance(context);
         this.names = Names.getInstance(context);
         this.serviceDesugar = ServiceDesugar.getInstance(context);
     }
@@ -794,23 +791,15 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangForever foreverStatement) {
-        if (foreverStatement.isSiddhiRuntimeEnabled()) {
-            siddhiQueryBuilder.visit(foreverStatement);
-            BLangExpressionStmt stmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
-            stmt.expr = createInvocationForForeverBlock(foreverStatement);
-            stmt.pos = foreverStatement.pos;
-            stmt.addWS(foreverStatement.getWS());
-            result = rewrite(stmt, env);
-        } else {
-            result = streamingCodeDesugar.desugar(foreverStatement);
-            result = rewrite(result, env);
+        result = streamingCodeDesugar.desugar(foreverStatement);
+        result = rewrite(result, env);
 
-            // The result will be a block statement. All variable definitions in the block statement are defined in its
-            // scope.
-            ((BLangBlockStmt) result).stmts.stream().filter(stmt -> stmt.getKind() == NodeKind.VARIABLE_DEF)
-                    .map(stmt -> (BLangSimpleVariableDef) stmt).forEach(varDef ->
-                    ((BLangBlockStmt) result).scope.define(varDef.var.symbol.name, varDef.var.symbol));
-        }
+        // The result will be a block statement. All variable definitions in the block statement are defined in its
+        // scope.
+        ((BLangBlockStmt) result).stmts.stream().filter(stmt -> stmt.getKind() == NodeKind.VARIABLE_DEF)
+                .map(stmt -> (BLangSimpleVariableDef) stmt).forEach(varDef ->
+                ((BLangBlockStmt) result).scope.define(varDef.var.symbol.name, varDef.var.symbol));
+
     }
 
     @Override
@@ -2950,19 +2939,6 @@ public class Desugar extends BLangNodeVisitor {
         indexColumnsArrayLiteral.type = new BArrayType(symTable.stringType);
         tableLiteral.indexColumnsArrayLiteral = indexColumnsArrayLiteral;
         result = tableLiteral;
-    }
-
-    private BLangInvocation createInvocationForForeverBlock(BLangForever forever) {
-        List<BLangExpression> args = new ArrayList<>();
-        BLangLiteral streamingQueryLiteral = ASTBuilderUtil.createLiteral(forever.pos, symTable.stringType,
-                forever.getSiddhiQuery());
-        args.add(streamingQueryLiteral);
-        addReferenceVariablesToArgs(args, siddhiQueryBuilder.getInStreamRefs());
-        addReferenceVariablesToArgs(args, siddhiQueryBuilder.getInTableRefs());
-        addReferenceVariablesToArgs(args, siddhiQueryBuilder.getOutStreamRefs());
-        addReferenceVariablesToArgs(args, siddhiQueryBuilder.getOutTableRefs());
-        addFunctionPointersToArgs(args, forever.getStreamingQueryStatements());
-        return createInvocationNode(CREATE_FOREVER, args, symTable.noType);
     }
 
     private void addReferenceVariablesToArgs(List<BLangExpression> args, List<BLangExpression> varRefs) {

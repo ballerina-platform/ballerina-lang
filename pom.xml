@@ -1486,22 +1486,6 @@
                 <type>zip</type>
             </dependency>
 
-            <!-- Siddhi Stream Dependencies -->
-            <dependency>
-                <groupId>org.wso2.orbit.com.lmax</groupId>
-                <artifactId>disruptor</artifactId>
-                <version>${disruptor.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${guava.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.dropwizard.metrics</groupId>
-                <artifactId>metrics-core</artifactId>
-                <version>${metrics.version}</version>
-            </dependency>
             <!-- Compile time dependencies -->
             <dependency>
                 <groupId>org.mvel</groupId>
@@ -1510,26 +1494,6 @@
                 <version>${mvel2.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>siddhi-core</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>siddhi-query-api</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>siddhi-query-compiler</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>siddhi-annotations</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
             <dependency>
                 <groupId>io.ballerina.messaging</groupId>
                 <artifactId>broker-common</artifactId>
@@ -1828,7 +1792,7 @@
                 <module>bvm/ballerina-config</module>
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-runtime</module>
-                <module>bvm/ballerina-streaming</module>
+
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
@@ -1926,7 +1890,7 @@
                 <module>bvm/ballerina-config</module>
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-runtime</module>
-                <module>bvm/ballerina-streaming</module>
+
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
@@ -2018,7 +1982,6 @@
                 <module>bvm/ballerina-config</module>
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-runtime</module>
-                <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
@@ -2118,7 +2081,6 @@
                 <module>bvm/ballerina-config</module>
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-runtime</module>
-                <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
                 <module>cli/ballerina-packerina</module>
@@ -2500,7 +2462,7 @@
         <osgi.api.version>6.0.0</osgi.api.version>
         <equinox.osgi.version>3.11.0.v20160603-1336</equinox.osgi.version>
         <equinox.osgi.services.version>3.5.100.v20160504-1419</equinox.osgi.services.version>
-        <transport.http.version>6.1.1</transport.http.version>
+        <transport.http.version>6.1.9</transport.http.version>
         <carbon.securevault.version>5.0.12</carbon.securevault.version>
         <carbon.utils.version>1.2.1</carbon.utils.version>
         <slf4j.version>1.7.26</slf4j.version>
@@ -2591,9 +2553,6 @@
         <os.maven.plugin.version>1.5.0.Final</os.maven.plugin.version>
 
         <mvel2.version>2.4.4.Final</mvel2.version>
-        <disruptor.version>3.3.2.wso2v2</disruptor.version>
-        <guava.version>23.0</guava.version>
-        <metrics.version>3.1.0</metrics.version>
 
         <!-- Observability -->
         <open.tracing.version>0.31.0</open.tracing.version>
