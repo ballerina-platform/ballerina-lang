@@ -1009,7 +1009,7 @@ public class CommonUtil {
      */
     public static String getPlainTextSnippet(String snippet) {
         return snippet
-                .replaceAll("(\\$\\{\\d+:)([a-zA-Z]*:*[a-zA-Z]*)(\\})", "$2")
+                .replaceAll("\\$\\{\\d+:([^\\{^\\}]*)\\}", "$2")
                 .replaceAll("(\\$\\{\\d+\\})", "");
     }
 
