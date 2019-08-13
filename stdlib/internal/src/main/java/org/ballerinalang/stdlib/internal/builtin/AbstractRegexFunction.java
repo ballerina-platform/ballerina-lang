@@ -18,14 +18,12 @@
 
 package org.ballerinalang.stdlib.internal.builtin;
 
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-
 import java.util.regex.Pattern;
 
 /**
  * Abstract extern function which serves as base class for writing Regex related extern functions.
  */
-public abstract class AbstractRegexFunction extends BlockingNativeCallableUnit {
+public abstract class AbstractRegexFunction {
 
     /**
      * Validate Regex struct in Ballerina. Validate whether the string is in compiled form if not

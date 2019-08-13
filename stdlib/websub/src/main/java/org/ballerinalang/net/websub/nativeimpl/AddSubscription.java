@@ -18,8 +18,6 @@
 
 package org.ballerinalang.net.websub.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -41,11 +39,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SUBSCRIPTIO
         args = {@Argument(name = "subscriptionDetails", type = TypeKind.RECORD)},
         isPublic = true
 )
-public class AddSubscription extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class AddSubscription {
 
     public static void addSubscription(Strand strand, MapValue<String, Object> subscriptionDetails) {
         String topic = subscriptionDetails.getStringValue(SUBSCRIPTION_DETAILS_TOPIC);

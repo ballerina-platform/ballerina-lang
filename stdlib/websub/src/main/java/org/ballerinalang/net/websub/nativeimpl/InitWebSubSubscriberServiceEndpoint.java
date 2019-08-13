@@ -18,8 +18,6 @@
 
 package org.ballerinalang.net.websub.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
@@ -67,11 +65,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERV
         receiver = @Receiver(type = TypeKind.OBJECT, structType = WEBSUB_SERVICE_LISTENER,
                 structPackage = WEBSUB_PACKAGE)
 )
-public class InitWebSubSubscriberServiceEndpoint extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class InitWebSubSubscriberServiceEndpoint {
 
     @SuppressWarnings("unchecked")
     public static void initWebSubSubscriberServiceEndpoint(Strand strand, ObjectValue subscriberServiceEndpoint) {

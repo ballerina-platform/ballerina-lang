@@ -32,7 +32,6 @@ configurations.testRuntimeClasspath {
 
 dependencies {
     baloCreat project(':lib-creator')
-    implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-auth')
@@ -90,6 +89,7 @@ dependencies {
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-http')
+    testCompile project(':ballerina-core')
     testCompile 'org.apache.ws.commons.axiom:axiom-api'
     testCompile 'org.testng:testng'
 }

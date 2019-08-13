@@ -26,7 +26,7 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 
 import java.util.UUID;
 
-import static org.ballerinalang.util.BLangConstants.BALLERINA_RUNTIME_PKG;
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_RUNTIME_PKG;
 
 /**
  * This class contains the common constants and methods required for invocation context processing.
