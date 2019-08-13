@@ -29,6 +29,7 @@ dependencies {
 
     implementation project(':ballerina-lang')
     implementation project(':ballerina-core')
+    implementation project(':ballerina-config')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-internal')
     implementation project(':ballerina-tool')

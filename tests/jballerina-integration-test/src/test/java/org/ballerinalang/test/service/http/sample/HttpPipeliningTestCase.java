@@ -89,7 +89,7 @@ public class HttpPipeliningTestCase extends BaseTest {
                 "message-id: request-three\r\n\r\n";
 
         writePipelinedRequests(clientSocket, pipelinedRequests);
-        String expected = "HTTP/1.1 500 Internal Server Error";
+        String expected = "HTTP/1.1 408 Request Timeout";
         readAndAssertResponse(clientSocket, expected);
     }
 

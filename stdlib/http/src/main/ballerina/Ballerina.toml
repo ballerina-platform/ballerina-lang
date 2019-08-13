@@ -6,9 +6,16 @@ version = "0.0.0"
 target = "java"
 
     [[platform.libraries]]
+    artafactId = "http"
+    version = "@project.version@"
+    path = "./lib/ballerina-http-@project.version@.jar"
+    groupId = "ballerina"
+    modules = ["http"]
+
+    [[platform.libraries]]
     artafactId = "org.wso2.transport.http.netty"
     version = "6.0.294"
-    path = "./lib/org.wso2.transport.http.netty-6.0.294.jar"
+    path = "./lib/org.wso2.transport.http.netty-6.1.9.jar"
     groupId = "org.wso2.transport.http"
     modules = ["http"]
 
@@ -64,7 +71,7 @@ target = "java"
     [[platform.libraries]]
     artafactId = "netty-handler-proxy"
     version = "4.1.34.Final"
-    path = "./lib/io.netty-4.1.34.Final.jar"
+    path = "./lib/netty-handler-proxy-4.1.34.Final.jar"
     groupId = "io.netty"
     modules = ["http"]
 
@@ -106,15 +113,8 @@ target = "java"
     [[platform.libraries]]
     artafactId = "netty-tcnative-boringssl-static"
     version = "2.0.22.Final"
-    path = "./lib/netty-tcnative-boringssl-static-2.0.22.Final.jar"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.23.Final.jar"
     groupId = "io.netty"
-    modules = ["http"]
-
-    [[platform.libraries]]
-    artafactId = "commons-lang3"
-    version = "3.5"
-    path = "./lib/commons-lang3-3.5.jar"
-    groupId = "org.apache.commons"
     modules = ["http"]
 
     [[platform.libraries]]
@@ -125,29 +125,8 @@ target = "java"
     modules = ["http"]
 
     [[platform.libraries]]
-    artafactId = "slf4j-api"
-    version = "1.7.22"
-    path = "./lib/slf4j-api-1.7.22.jar"
-    groupId = "org.slf4j"
-    modules = ["http"]
-
-    [[platform.libraries]]
     artafactId = "org.wso2.carbon.messaging"
     version = "2.3.7"
-    path = "./lib/org.wso2.carbon.messaging-2.2.3.jar"
+    path = "./lib/org.wso2.carbon.messaging-2.3.7.jar"
     groupId = "org.wso2.carbon.messaging"
-    modules = ["http"]
-
-    [[platform.libraries]]
-    artafactId = "org.wso2.carbon.core"
-    version = "5.1.0"
-    path = "./lib/org.wso2.carbon.core-5.1.0.jar"
-    groupId = "org.wso2.carbon"
-    modules = ["http"]
-
-    [[platform.libraries]]
-    artafactId = "org.wso2.carbon.secvault"
-    version = "1.0.0"
-    path = "./lib/org.wso2.securevault-1.0.0-wso2v2.jar"
-    groupId = "org.wso2.carbon.secvault"
     modules = ["http"]

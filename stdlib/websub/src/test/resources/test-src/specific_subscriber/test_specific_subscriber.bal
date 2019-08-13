@@ -19,13 +19,13 @@ import ballerina/io;
 import ballerina/websub;
 import ballerina/'lang\.object as lang;
 
-public type MockActionEvent record {
+public type MockActionEvent record {|
     string action;
-};
+|};
 
-public type MockDomainEvent record {
+public type MockDomainEvent record {|
     string domain;
-};
+|};
 
 public type WebhookServerForPayload object {
 
@@ -63,8 +63,12 @@ public type WebhookServerForPayload object {
         return self.websubListener.__start();
     }
 
-    public function __stop() returns error? {
-        return self.websubListener.__stop();
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
+    public function __immediateStop() returns error? {
+        return self.websubListener.__immediateStop();
     }
 };
 

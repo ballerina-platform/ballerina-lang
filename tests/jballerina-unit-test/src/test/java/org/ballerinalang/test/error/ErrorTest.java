@@ -313,4 +313,10 @@ public class ErrorTest {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "testUnionLhsWithIndirectErrorRhs");
         Assert.assertEquals(((BError) returns[0]).getReason(), "Foo");
     }
+
+    @Test()
+    public void testOptionalErrorReturn() {
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testOptionalErrorReturn");
+        Assert.assertEquals(((BError) returns[0]).stringValue(), "this is broken {message:\"too bad\"}");
+    }
 }

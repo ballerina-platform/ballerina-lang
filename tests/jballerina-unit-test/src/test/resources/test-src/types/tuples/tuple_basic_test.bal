@@ -185,3 +185,18 @@ function testArrayToTupleAssignment4() returns [string, string, string] {
     [string, string, string] y = x;
     return y;
 }
+
+const x = "x";
+const y = "y";
+
+type someType [x, int];
+type anotherType [y, string, int];
+type oneMoreType [y, string];
+
+type someOtherType someType | anotherType | oneMoreType;
+
+function testAmbiguousTupleExpectedType() returns [any, any] {
+    someOtherType st = [y, "a", 1];
+    someOtherType st1 = ["y", "str"];
+    return [st, st1];
+}
