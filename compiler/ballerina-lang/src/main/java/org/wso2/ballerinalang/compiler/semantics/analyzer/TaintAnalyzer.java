@@ -2624,11 +2624,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
         for (int argIndex = 0; argIndex < requiredArgsCount; argIndex++) {
             BLangExpression argExpr = requiredArgs.get(argIndex);
-            TaintedStatus argTaintedStatus = TaintedStatus.UNTAINTED;
+            TaintedStatus argTaintedStatus = TaintedStatus.IGNORED;
             if (!argTaintedStatusList.isEmpty()) {
                 argTaintedStatus = argTaintedStatusList.get(argIndex);
             }
-            updateArgTaintedStatus(argExpr, argTaintedStatus);
+            if (argTaintedStatus == TaintedStatus.TAINTED) {
+                updateArgTaintedStatus(argExpr, argTaintedStatus);
+            }
         }
 
         for (int argIndex = 0; argIndex < namedArgsCount; argIndex++) {
