@@ -20,14 +20,15 @@ import ballerina/transactions;
 string topic = "abort-transaction-topic";
 
 kafka:ProducerConfig producerConfigs = {
-    bootstrapServers:"localhost:9144, localhost:9145, localhost:9146",
+    bootstrapServers:"localhost:14112, localhost:14113, localhost:14114",
     clientId:"abort-transaction-producer",
-    acks:"all",
-    noRetries:3,
-    transactionalId:"abort-transaction-test-producer"
+    acks: kafka:ACKS_ALL,
+    retryCount:3,
+    transactionalId:"abort-transaction-test-producer",
+    enableIdempotence: true
 };
 
-function funcKafkaAbortTransactionTest() returns boolean {
+function funcKafkaTransactionSendTest() returns boolean {
     string msg = "Hello World Transaction";
     byte[] serializedMsg = msg.toBytes();
     var result = kafkaAdvancedTransactionalProduce(serializedMsg);

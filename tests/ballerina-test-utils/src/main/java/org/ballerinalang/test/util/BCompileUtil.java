@@ -162,7 +162,7 @@ public class BCompileUtil {
                                                                bLangPackage.packageID.name.value,
                                                                TestConstant.MODULE_INIT_CLASS_NAME);
         Class<?> initClazz = classLoader.loadClass(initClassName);
-        final Scheduler scheduler = new Scheduler(4, false);
+        final Scheduler scheduler = new Scheduler(false);
         runOnSchedule(initClazz, bLangPackage.initFunction.name, scheduler);
         runOnSchedule(initClazz, bLangPackage.startFunction.name, scheduler);
         if (temp) {
@@ -411,7 +411,6 @@ public class BCompileUtil {
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
-        options.put(CompilerOptionName.SIDDHI_RUNTIME_ENABLED, Boolean.toString(isSiddhiRuntimeEnabled));
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
 
         return compile(context, packageName, compilerPhase, false);
