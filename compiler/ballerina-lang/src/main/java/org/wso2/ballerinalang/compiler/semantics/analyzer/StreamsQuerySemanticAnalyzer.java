@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -389,11 +390,60 @@ public class StreamsQuerySemanticAnalyzer extends BLangNodeVisitor {
                 return;
             }
 
-            if (!checkInvocationExpr(invocationExpr, aggregatorTypeSymbol, windowTypeSymbol, Names.STREAMS_MODULE)) {
-                invocationExpr.argExprs.forEach(argExpr -> analyzeNode(argExpr, env));
-                typeChecker.checkExpr(invocationExpr, env);
+            if (checkInvocationExpr(invocationExpr, aggregatorTypeSymbol, windowTypeSymbol, Names.STREAMS_MODULE)) {
+                return;
             }
+
+            invocationExpr.argExprs.forEach(argExpr -> analyzeNode(argExpr, env));
+            BLangExpression expr = invocationExpr.expr;
+            if (expr.getKind() == NodeKind.INVOCATION &&
+                ((BLangInvocation) expr).symbol.type.getReturnType().tsymbol == aggregatorTypeSymbol) {
+
+                Name funcName = names.fromIdNode(invocationExpr.name);
+                BSymbol moduleSymbol = findLangLibModuleForFunction(funcName);
+
+                if (moduleSymbol != symTable.notFoundSymbol) {
+                    BInvokableSymbol funcSymbol = (BInvokableSymbol) symResolver
+                            .lookupLangLibMethodInModule((BPackageSymbol) moduleSymbol, funcName);
+                    //we know for sure, that expr's type has to be 0th parameter's type
+                    expr.type = funcSymbol.params.get(0).type;
+                }
+
+            }
+
+            typeChecker.checkExpr(invocationExpr, env);
         }
+    }
+
+    private BSymbol findLangLibModuleForFunction(Name name) {
+        BSymbol funcSymbol;
+
+        funcSymbol = symResolver.lookupLangLibMethodInModule(symTable.langIntModuleSymbol, name);
+        if (funcSymbol != symTable.notFoundSymbol) {
+            return symTable.langIntModuleSymbol;
+        }
+
+        funcSymbol = symResolver.lookupLangLibMethodInModule(symTable.langFloatModuleSymbol, name);
+        if (funcSymbol != symTable.notFoundSymbol) {
+            return symTable.langFloatModuleSymbol;
+        }
+
+        funcSymbol = symResolver.lookupLangLibMethodInModule(symTable.langStringModuleSymbol, name);
+        if (funcSymbol != symTable.notFoundSymbol) {
+            return symTable.langStringModuleSymbol;
+        }
+
+        funcSymbol = symResolver.lookupLangLibMethodInModule(symTable.langDecimalModuleSymbol, name);
+        if (funcSymbol != symTable.notFoundSymbol) {
+            return symTable.langDecimalModuleSymbol;
+        }
+
+        funcSymbol = symResolver.lookupLangLibMethodInModule(symTable.langValueModuleSymbol, name);
+        if (funcSymbol != symTable.notFoundSymbol) {
+            return symTable.langValueModuleSymbol;
+        }
+
+        return symTable.notFoundSymbol;
     }
 
     @Override
