@@ -164,8 +164,10 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     }
 
     private void setContentEncoding(HttpCarbonMessage outboundResponseMsg) {
-        String acceptEncoding = inboundRequestMsg.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString());
-        if (acceptEncoding != null) {
+        String contentEncoding = outboundResponseMsg.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString());
+        //This means compression AUTO case; With NEVER(identity) and ALWAYS, content-encoding will always have a value.
+        if (contentEncoding == null) {
+            String acceptEncoding = inboundRequestMsg.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString());
             outboundResponseMsg.setHeader(HttpHeaderNames.CONTENT_ENCODING.toString(), acceptEncoding);
         }
     }
