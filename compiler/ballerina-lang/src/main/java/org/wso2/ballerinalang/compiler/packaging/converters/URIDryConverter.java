@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
@@ -50,13 +51,14 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
  *  module is updated with that version.
  */
 public class URIDryConverter extends URIConverter {
+    private PrintStream errStream = System.err;
     private List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
     private Proxy proxy;
     
     private static TrustManager[] trustAllCerts = new TrustManager[]{
             new X509TrustManager() {
                 public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                    return null;
+                    return new java.security.cert.X509Certificate[]{};
                 }
                 public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
                     //No need to implement.
@@ -101,7 +103,8 @@ public class URIDryConverter extends URIConverter {
                     conn.setRequestMethod("GET");
                     // set implementation version
                     conn.setRequestProperty("Ballerina-Platform", supportedPlatform);
-//                    conn.setRequestProperty("Ballerina-Language-Specification-Version", IMPLEMENTATION_VERSION);
+                    // TODO: conn.setRequestProperty("Ballerina-Language-Specification-Version",
+                    //  IMPLEMENTATION_VERSION);
                     conn.setRequestProperty("Ballerina-Language-Specficiation-Version", IMPLEMENTATION_VERSION);
                     if (conn.getResponseCode() == 302) {
                         // get the version from the 'Location' header.
@@ -110,6 +113,8 @@ public class URIDryConverter extends URIConverter {
                         // update version
                         moduleID.version = new Name(version);
                         return Stream.empty();
+                    } else {
+                        errStream.println("could not connect to remote repository or unexpected response received.");
                     }
                     conn.disconnect();
                     Authenticator.setDefault(null);
@@ -132,16 +137,27 @@ public class URIDryConverter extends URIConverter {
         if (!"".equals(proxy.getHost())) {
             InetSocketAddress proxyInet = new InetSocketAddress(proxy.getHost(), proxy.getPort());
             if (!"".equals(proxy.getUserName()) && "".equals(proxy.getPassword())) {
-                Authenticator authenticator = new Authenticator() {
-                    public PasswordAuthentication getPasswordAuthentication() {
-                        return (new PasswordAuthentication(proxy.getUserName(), proxy.getPassword().toCharArray()));
-                    }
-                };
+                Authenticator authenticator = new RemoteAuthenticator();
                 Authenticator.setDefault(authenticator);
             }
             return new Proxy(Proxy.Type.HTTP, proxyInet);
         }
         
         return null;
+    }
+    
+    /**
+     * Authenticator for the proxy server if provided.
+     */
+    static class RemoteAuthenticator extends Authenticator {
+        org.ballerinalang.toml.model.Proxy proxy;
+        public RemoteAuthenticator() {
+            proxy = TomlParserUtils.readSettings().getProxy();
+        }
+        
+        @Override
+        protected PasswordAuthentication getPasswordAuthentication() {
+            return (new PasswordAuthentication(this.proxy.getUserName(), this.proxy.getPassword().toCharArray()));
+        }
     }
 }
