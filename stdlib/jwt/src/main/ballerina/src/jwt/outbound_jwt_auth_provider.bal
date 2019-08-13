@@ -50,8 +50,7 @@ public type OutboundJwtAuthProvider object {
             }
         }
         if (authToken == EMPTY_STRING) {
-            return auth:prepareError("JWT was not used during inbound authentication.
-            Provide JwtIssuerConfig to issue new token.");
+            return auth:prepareError("JWT was not used during inbound authentication. Provide JwtIssuerConfig to issue new token.");
         }
         return authToken;
     }
@@ -82,12 +81,10 @@ function getAuthTokenForJWTAuth(JwtIssuerConfig jwtIssuerConfig) returns string|
             if (principalUsername is string) {
                 username = principalUsername;
             } else {
-                return prepareError("Failed to generate auth token since username is not provided at issuer config and
-                the username is not defined at runtime:Principal record.");
+                return prepareError("Failed to generate auth token since username is not provided at issuer config and the username is not defined at runtime:Principal record.");
             }
         } else {
-            return prepareError("Failed to generate auth token since username is not provided at issuer config and
-            the runtime:Principal record is also not defined at the invocation context.");
+            return prepareError("Failed to generate auth token since username is not provided at issuer config and the runtime:Principal record is also not defined at the invocation context.");
         }
     }
 

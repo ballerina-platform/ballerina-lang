@@ -68,8 +68,7 @@ public type InboundLdapAuthProvider object {
             }
             return authenticated;
         } else {
-            return auth:prepareError("Failed to authenticate LDAP with username: " + username + " and password: "
-                                     + password, authenticated);
+            return auth:prepareError("Failed to authenticate LDAP with username: " + username + " and password: " + password, authenticated);
         }
     }
 };
