@@ -22,8 +22,11 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.PrintStream;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MAX_VALUE;
 import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
@@ -37,6 +40,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
 public class RuntimeUtils {
 
     private static final Logger breLog = LoggerFactory.getLogger(RuntimeUtils.class);
+    private static PrintStream errStream = System.err;
 
     /**
      * Used to handle rest args passed in to the main method.
@@ -107,8 +111,13 @@ public class RuntimeUtils {
         }
     }
 
-    public static void handleRuntimeThrowable(Throwable throwable) {
-        //These errors are unhandled errors in JVM, hence logging them to bre log.
+    public static void handleRuntimeErrors(Throwable throwable) {
+        if (throwable instanceof ErrorValue) {
+            errStream.println("error: " + ((ErrorValue) throwable).getPrintableStackTrace());
+            Runtime.getRuntime().exit(1);
+        }
+
+        // These errors are unhandled errors in JVM, hence logging them to bre log.
         breLog.error(throwable.getMessage(), throwable);
         // Wrap the errors in a runtime exception to make sure these are logged in internal log.
         throw new RuntimeException(throwable);
