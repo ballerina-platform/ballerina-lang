@@ -149,8 +149,13 @@ function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extF
     // if attached type, strand index is given by selfParamIndex
     int strandIndex = attachedType is () ? strandParamIndex : selfParamIndex;
     if (isRemote) {
+        string serviceOrConnectorName = birModule.versionValue.value;
+        if attachedType is bir:BObjectType {
+            serviceOrConnectorName = getFullQualifiedRemoteFunctionName(
+                attachedType.moduleId.org, attachedType.moduleId.name, birModule.versionValue.value);
+        }
         emitStartObservationInvocation(mv, strandIndex,
-                    birModule.versionValue.value, birFunc.name.value, "startCallableObservation");
+                    serviceOrConnectorName, birFunc.name.value, "startCallableObservation");
     }
 
     string jMethodName = birFunc.name.value;

@@ -23,11 +23,11 @@ function generateMethod(bir:Function birFunc,
                             bir:Package birModule,
                             bir:BType? attachedType = (),
                             boolean isService = false,
-                            string className = "") {
+                            string serviceName = "") {
     if (isExternFunc(birFunc)) {
         genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType = attachedType);
     } else {
-        genJMethodForBFunc(birFunc, cw, birModule, isService, className, attachedType = attachedType);
+        genJMethodForBFunc(birFunc, cw, birModule, isService, serviceName, attachedType = attachedType);
     }
 }
 
@@ -35,7 +35,7 @@ function genJMethodForBFunc(bir:Function func,
                            jvm:ClassWriter cw,
                            bir:Package module,
                            boolean isService,
-                           string className,
+                           string serviceName,
                            bir:BType? attachedType = ()) {
     string currentPackageName = getPackageName(module.org.value, module.name.value);
     BalToJVMIndexMap indexMap = new;
@@ -200,7 +200,7 @@ function genJMethodForBFunc(bir:Function func,
 
     generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex, stateVarIndex,
                             localVarOffset, false, module, currentPackageName, attachedType, isObserved = isObserved,
-                             isService = isService, className = className);
+                             isService = isService, serviceName = serviceName);
 
     string frameName = getFrameClassName(currentPackageName, funcName, attachedType);
     mv.visitLabel(resumeLable);
@@ -580,7 +580,7 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
             ErrorHandlerGenerator errorGen, InstructionGenerator instGen, TerminatorGenerator termGen,
             bir:Function func, int returnVarRefIndex, int stateVarIndex, int localVarOffset, boolean isArg,
             bir:Package module, string currentPackageName, bir:BType? attachedType, boolean isObserved = false,
-            boolean isService = false, string className = "") {
+            boolean isService = false, string serviceName = "") {
     int j = 0;
     string funcName = cleanupFunctionName(<@untainted> func.name.value);
 
@@ -604,9 +604,15 @@ function generateBasicBlocks(jvm:MethodVisitor mv, bir:BasicBlock?[] basicBlocks
         jvm:Label bbLabel = labelGen.getLabel(funcName + bb.id.value);
         mv.visitLabel(bbLabel);
 
+        string serviceOrConnectorName = serviceName;
         if (isObserved && j == 0) {
             string observationStartMethod = isService ? "startResourceObservation" : "startCallableObservation";
-            emitStartObservationInvocation(mv, localVarOffset, className, funcName, observationStartMethod);
+            if !isService && attachedType is bir:BObjectType {
+                // add module org and module name to remote spans.
+                serviceOrConnectorName = getFullQualifiedRemoteFunctionName(
+                                attachedType.moduleId.org, attachedType.moduleId.name, serviceName);
+            }
+            emitStartObservationInvocation(mv, localVarOffset, serviceOrConnectorName, funcName, observationStartMethod);
         }
 
         // generate instructions
