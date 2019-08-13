@@ -1704,8 +1704,13 @@ function addInitAndTypeInitInstructions(bir:Package pkg, bir:Function func) {
 function enrichPkgWithInitializers(map<JavaClass> jvmClassMap, string typeOwnerClass,
                                         bir:Package pkg, map<bir:ModuleID> imprtMods) {
     JavaClass javaClass = <JavaClass>jvmClassMap[typeOwnerClass];
-    javaClass.functions[javaClass.functions.length()] = generateDepModInit(imprtMods, pkg, MODULE_INIT, "<init>");
-    javaClass.functions[javaClass.functions.length()] = generateDepModInit(imprtMods, pkg, MODULE_START, "<start>");
+    bir:Function initFunc = generateDepModInit(imprtMods, pkg, MODULE_INIT, "<init>");
+    javaClass.functions[javaClass.functions.length()] = initFunc;
+    pkg.functions[pkg.functions.length()] = initFunc;
+
+    bir:Function startFunc = generateDepModInit(imprtMods, pkg, MODULE_START, "<start>");
+    javaClass.functions[javaClass.functions.length()] = startFunc;
+    pkg.functions[pkg.functions.length()] = startFunc;
 //    javaClass.functions[javaClass.functions.length()] = generateDepModInit(imprtMods, pkg, MODULE_STOP, "<stop>");
 
 }
