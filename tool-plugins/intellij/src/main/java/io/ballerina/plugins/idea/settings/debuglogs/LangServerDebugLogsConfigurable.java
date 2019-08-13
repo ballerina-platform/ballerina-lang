@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package io.ballerina.plugins.idea.settings.experimental;
+package io.ballerina.plugins.idea.settings.debuglogs;
 
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.UIUtil;
-import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,18 +31,16 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 /**
- * Adds capability of enabling/disabling ballerina experimental feature support.
+ * Adds enabling/disabling language server debug logs in settings.
  */
-public class BallerinaExperimentalFeatureConfigurable implements SearchableConfigurable {
+public class LangServerDebugLogsConfigurable implements SearchableConfigurable {
 
-    private JCheckBox myCbAllowExperimental;
-
-    @NotNull
-    private final BallerinaExperimentalFeatureSettings ballerinaExperimentalFeatureSettings;
+    private JCheckBox myEnableDebugLogsCb;
+    private final LangServerDebugLogsSettings myLangServerDebugLogsSettings;
     private final boolean myIsDialog;
 
-    public BallerinaExperimentalFeatureConfigurable(boolean dialogMode) {
-        ballerinaExperimentalFeatureSettings = BallerinaExperimentalFeatureSettings.getInstance();
+    public LangServerDebugLogsConfigurable(boolean dialogMode) {
+        myLangServerDebugLogsSettings = LangServerDebugLogsSettings.getInstance();
         myIsDialog = dialogMode;
     }
 
@@ -51,8 +48,8 @@ public class BallerinaExperimentalFeatureConfigurable implements SearchableConfi
     @Override
     public JComponent createComponent() {
         FormBuilder builder = FormBuilder.createFormBuilder();
-        myCbAllowExperimental = new JCheckBox("Allow ballerina experimental features");
-        builder.addComponent(myCbAllowExperimental);
+        myEnableDebugLogsCb = new JCheckBox("Enable language server debug logs");
+        builder.addComponent(myEnableDebugLogsCb);
         JPanel result = new JPanel(new BorderLayout());
         result.add(builder.getPanel(), BorderLayout.NORTH);
         if (myIsDialog) {
@@ -63,27 +60,23 @@ public class BallerinaExperimentalFeatureConfigurable implements SearchableConfi
 
     @Override
     public boolean isModified() {
-        return ballerinaExperimentalFeatureSettings.getAllowExperimental() != myCbAllowExperimental.isSelected();
+        return myLangServerDebugLogsSettings.getIsLangServerDebugLogsEnabled() != myEnableDebugLogsCb.isSelected();
     }
 
     @Override
     public void apply() {
-        ballerinaExperimentalFeatureSettings.setAllowExperimental(myCbAllowExperimental.isSelected());
-        // Need to prompt a restart action to clear and re re-spawn language server instance with the changed
-        // configuration.
-        // Todo - Figure out a way to apply changes without restarting IDE.
-        BallerinaSdkUtils.showRestartDialog(null);
+        myLangServerDebugLogsSettings.setIsLangServerDebugLogsEnabled(myEnableDebugLogsCb.isSelected());
     }
 
     @Override
     public void reset() {
-        myCbAllowExperimental.setSelected(ballerinaExperimentalFeatureSettings.getAllowExperimental());
+        myEnableDebugLogsCb.setSelected(myLangServerDebugLogsSettings.getIsLangServerDebugLogsEnabled());
     }
 
     @NotNull
     @Override
     public String getId() {
-        return "ballerina.allow.experimental";
+        return "langserver.debuglogs";
     }
 
     @Nullable
@@ -95,7 +88,7 @@ public class BallerinaExperimentalFeatureConfigurable implements SearchableConfi
     @Nls
     @Override
     public String getDisplayName() {
-        return "Experimental Features";
+        return "Language Server Debug Logs";
     }
 
     @Nullable
@@ -106,7 +99,7 @@ public class BallerinaExperimentalFeatureConfigurable implements SearchableConfi
 
     @Override
     public void disposeUIResources() {
-        UIUtil.dispose(myCbAllowExperimental);
-        myCbAllowExperimental = null;
+        UIUtil.dispose(myEnableDebugLogsCb);
+        myEnableDebugLogsCb = null;
     }
 }
