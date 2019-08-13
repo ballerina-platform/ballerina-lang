@@ -276,3 +276,8 @@ public function testUnionLhsWithIndirectErrorRhs() returns error {
     E x = E1(); // Ok, since it say E1.
     return x;
 }
+
+public function testStackTraceInNative() {
+    string[] array = ["apple", "orange"];
+    _ = array.slice(1, 4);
+}
