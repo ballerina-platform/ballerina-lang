@@ -33,7 +33,7 @@ import org.testng.annotations.Test;
  *
  * @since 1.0.0
  */
-public class WideningPrimitiveConversionInFunctionReturns {
+public class PrimitiveConversionInFunctionReturnsTest {
     private CompileResult result;
 
     @BeforeClass
