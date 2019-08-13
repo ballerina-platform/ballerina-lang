@@ -988,7 +988,7 @@ reservedWord
     ;
 
 
-//Siddhi Streams and Tables related
+//Streams and Tables related
 tableQuery
     :   FROM streamingInput joinStreamingInput?
         selectClause?

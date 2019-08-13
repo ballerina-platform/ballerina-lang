@@ -73,7 +73,7 @@ service failoverDemoService00 on failoverEP00 {
         path: "/typical"
     }
     resource function invokeEndpoint(http:Caller caller, http:Request request) {
-        var backendRes = foBackendEP00->forward("/", request);
+        var backendRes = foBackendEP00->forward("/", <@untainted> request);
         if (backendRes is http:Response) {
             var responseToCaller = caller->respond(backendRes);
             if (responseToCaller is error) {
@@ -96,7 +96,7 @@ service failoverDemoService00 on failoverEP00 {
         path: "/failures"
     }
     resource function invokeAllFailureEndpoint(http:Caller caller, http:Request request) {
-        var backendRes = foBackendFailureEP00->forward("/", request);
+        var backendRes = foBackendFailureEP00->forward("/", <@untainted> request);
         if (backendRes is http:Response) {
             var responseToCaller = caller->respond(backendRes);
             if (responseToCaller is error) {
@@ -119,7 +119,7 @@ service failoverDemoService00 on failoverEP00 {
         path: "/failurecodes"
     }
     resource function invokeAllFailureStatusCodesEndpoint(http:Caller caller, http:Request request) {
-        var backendRes = foStatusCodesEP00->forward("/", request);
+        var backendRes = foStatusCodesEP00->forward("/", <@untainted> request);
         if (backendRes is http:Response) {
             var responseToCaller = caller->respond(backendRes);
             if (responseToCaller is error) {
@@ -143,7 +143,7 @@ service failoverDemoService00 on failoverEP00 {
     }
     resource function failoverStartIndex(http:Caller caller, http:Request request) {
         string startIndex = foBackendEP00.succeededEndpointIndex.toString();
-        var backendRes = foBackendEP00->forward("/", request);
+        var backendRes = foBackendEP00->forward("/", <@untainted> request);
         if (backendRes is http:Response) {
             string responseMessage = "Failover start index is : " + startIndex;
             var responseToCaller = caller->respond(responseMessage);

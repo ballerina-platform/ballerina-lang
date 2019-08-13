@@ -46,8 +46,7 @@ public type OutboundBasicAuthProvider object {
                     return authToken;
                 }
             }
-            return prepareError("Failed to generate basic auth token since credential config is not defined
-            and auth token is not defined in the authentication context at invocation context.");
+            return prepareError("Failed to generate basic auth token since credential config is not defined and auth token is not defined in the authentication context at invocation context.");
         } else {
             return getAuthTokenForBasicAuth(credential);
         }
