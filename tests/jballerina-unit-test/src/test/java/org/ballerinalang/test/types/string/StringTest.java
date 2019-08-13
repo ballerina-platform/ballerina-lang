@@ -31,7 +31,6 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.utils.ByteArrayUtils;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -163,15 +162,6 @@ public class StringTest {
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "<test>name</test>";
         Assert.assertEquals(returns[0].stringValue(), expected);
-    }
-
-    // TODO test this
-    @Test(expectedExceptions = {BLangRuntimeException.class})
-    public void testXmlValueOfNegative() {
-        OMNode omNode = (OMNode) XMLFactory.parse("<test>name</test>").value();
-        BValue[] args = { new BXMLItem(omNode) };
-        BValue[] returns = BRunUtil.invoke(result, "xmlValueOf", args);
-        Assert.assertEquals(returns[0].stringValue(), "<test>name</test>");
     }
 
     @Test
