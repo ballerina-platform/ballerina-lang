@@ -184,9 +184,9 @@ service productmgt on serviceEndpoint5 {
         http:Response res = new;
         var result = json.constructFrom(self.productsMap[prodId]);
         if (result is json) {
-            res.setPayload(result);
+            res.setPayload(<@untainted> result);
         } else {
-            res.setPayload(result.reason());
+            res.setPayload(<@untainted> result.reason());
         }
         checkpanic caller->respond(res);
     }

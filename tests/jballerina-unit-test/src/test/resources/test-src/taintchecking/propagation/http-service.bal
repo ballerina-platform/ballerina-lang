@@ -13,9 +13,29 @@ service sample on helloWorldEP {
         secureFunction(foo, foo);
         secureFunction(bar, bar);
     }
+
+    resource function hi(http:Caller caller, http:Request request) {
+        http:Response response = new;
+        var req = request.getJsonPayload();
+        if (req is json) {
+            response.setJsonPayload(req);
+            seq(req);
+        } else {
+             log:printError("Invalid JSON!");
+        }
+        var result = caller->respond(response);
+        seq(result);
+        if (result is error) {
+            log:printError("Error sending response", err = result);
+        }
+    }
 }
 
 public function secureFunction (@untainted any secureIn, any insecureIn) {
+
+}
+
+function seq(@untainted any|error a) {
 
 }
 

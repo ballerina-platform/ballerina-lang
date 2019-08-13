@@ -29,7 +29,7 @@ service echo on echoEP {
     }
     resource function echo(http:Caller caller, http:Request req) {
         http:Response res = new;
-        res.setTextPayload(self.serviceLevelStringVar);
+        res.setTextPayload(<@untainted> self.serviceLevelStringVar);
         checkpanic caller->respond(res);
         self.serviceLevelStringVar = "respond";
         io:println("Service Level Variable : " + self.serviceLevelStringVar);

@@ -260,7 +260,7 @@ public function main(string... args) {
             http:Client|error result = trap defineEndpointWithProxy(args[0], host, port, args[4], args[5]);
             if (result is http:Client) {
                 httpEndpoint = result;
-                search(httpEndpoint, args[0], query, args[6]);
+                search(httpEndpoint, args[0], <@untainted>query, args[6]);
             } else {
                 io:println("failed to resolve host : " + host + " with port " + port.toString());
                 return;
@@ -273,7 +273,7 @@ public function main(string... args) {
         return;   
     } else {
         httpEndpoint = defineEndpointWithoutProxy(args[0]);
-        search(httpEndpoint, args[0], query, args[6]);
+        search(httpEndpoint, args[0], <@untainted>query, args[6]);
     }
 }
 
