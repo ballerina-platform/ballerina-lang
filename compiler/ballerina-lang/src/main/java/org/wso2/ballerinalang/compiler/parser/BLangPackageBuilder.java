@@ -2194,7 +2194,7 @@ public class BLangPackageBuilder {
         }
 
         BLangObjectTypeNode objectNode = (BLangObjectTypeNode) this.typeNodeStack.peek();
-        if (Names.OBJECT_INIT_SUFFIX.value.equals(function.name.value)) {
+        if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(function.name.value)) {
             function.objInitFunction = true;
             if (objectNode.initFunction == null) {
                 objectNode.initFunction = function;

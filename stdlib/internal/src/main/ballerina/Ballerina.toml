@@ -6,8 +6,8 @@ version = "0.0.0"
 target = "java"
 
     [[platform.libraries]]
-    artafactId = "commons-io"
-    version = "2.6"
-    path = "./lib/commons-io-2.6.jar"
-    groupId = "commons-io"
+    artafactId = "internal"
+    version = "@project.version@"
+    path = "./lib/ballerina-internal-@project.version@.jar"
+    groupId = "ballerina"
     modules = ["internal"]

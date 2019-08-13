@@ -1253,6 +1253,8 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
 
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", (), ());
 
+    // set system properties
+    setSystemProperties(mv);
     // start all listeners
     startListeners(mv, serviceEPAvailable);
 
@@ -1362,6 +1364,10 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
     mv.visitInsn(RETURN);
     mv.visitMaxs(0, 0);
     mv.visitEnd();
+}
+
+function setSystemProperties(jvm:MethodVisitor mv) {
+    mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "setSystemProperties", "()V", false);
 }
 
 function startListeners(jvm:MethodVisitor mv, boolean isServiceEPAvailable) {
@@ -1543,12 +1549,13 @@ function generateLambdaForPackageInits(jvm:ClassWriter cw, bir:Package pkg,
         generateLambdaForFunction(cw, startFuncName, initClass);
 
         string stopFuncName = cleanupFunctionName(getModuleStopFuncName(pkg));
-        generateLambdaForFunction(cw, stopFuncName, initClass);
+        generateLambdaForModuleFunction(cw, stopFuncName, initClass);
     }
 }
 
-function generateLambdaForFunction(jvm:ClassWriter cw, string funcName, string initClass) {
-    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, 
+function generateLambdaForModuleFunction(jvm:ClassWriter cw, string funcName, string initClass,
+                                         boolean voidReturn = true) {
+    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC,
                         io:sprintf("$lambda$%s$", funcName),
                         io:sprintf("([L%s;)V", OBJECT), (), ());
     mv.visitCode();
@@ -1558,7 +1565,12 @@ function generateLambdaForFunction(jvm:ClassWriter cw, string funcName, string i
     mv.visitInsn(ICONST_0);
     mv.visitInsn(AALOAD);
     mv.visitTypeInsn(CHECKCAST, STRAND);
-    mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, io:sprintf("(L%s;)V", STRAND), false);
+
+    if (voidReturn) {
+        mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, io:sprintf("(L%s;)V", STRAND), false);
+    } else {
+        mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
+    }
 
     mv.visitInsn(RETURN);
     mv.visitMaxs(0,0);
