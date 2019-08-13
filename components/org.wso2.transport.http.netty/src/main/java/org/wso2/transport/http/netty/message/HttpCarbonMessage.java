@@ -38,7 +38,7 @@ import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorExceptio
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
-import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.listener.states.ListenerReqRespStateManager;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -60,7 +60,7 @@ public class HttpCarbonMessage {
     private final DefaultHttpResponseFuture httpOutboundRespStatusFuture = new DefaultHttpResponseFuture();
     private final Observable contentObservable = new DefaultObservable();
     private IOException ioException;
-    private MessageStateContext httpMessageStateContext;
+    public ListenerReqRespStateManager listenerReqRespStateManager;
     private Http2MessageStateContext http2MessageStateContext;
     private FullHttpMessageFuture fullHttpMessageFuture;
 
@@ -449,14 +449,6 @@ public class HttpCarbonMessage {
 
     public synchronized void setIoException(IOException ioException) {
         this.ioException = ioException;
-    }
-
-    public MessageStateContext getMessageStateContext() {
-        return httpMessageStateContext;
-    }
-
-    public void setMessageStateContext(MessageStateContext messageStateContext) {
-        this.httpMessageStateContext = messageStateContext;
     }
 
     public Http2MessageStateContext getHttp2MessageStateContext() {

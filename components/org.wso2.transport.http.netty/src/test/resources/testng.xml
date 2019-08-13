@@ -46,6 +46,9 @@
             <class name="org.wso2.transport.http.netty.ServerCloseWhileWritingBodyTestCase" />
             <class name="org.wso2.transport.http.netty.ClientConnectorConnectionRefusedTestCase" />
             <class name="org.wso2.transport.http.netty.ClientConnectorClosureAfterRequestReadTestCase" />
+            <class name="org.wso2.transport.http.netty.ServerConnectorTimeoutTestCase" />
+            <class name="org.wso2.transport.http.netty.ServerConnectorTimeoutWhileReadingBodyTestCase" />
+            <class name="org.wso2.transport.http.netty.ServerConnectorTimeoutWhileSendingBodyTestCase" />
 
             <class name="org.wso2.transport.http.netty.chunkdisable.ChunkAutoServerTestCase" />
             <class name="org.wso2.transport.http.netty.chunkdisable.ChunkEnableServerTestCase" />

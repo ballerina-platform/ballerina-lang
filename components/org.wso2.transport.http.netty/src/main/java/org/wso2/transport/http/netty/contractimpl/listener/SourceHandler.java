@@ -41,7 +41,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
-import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.listener.states.ListenerReqRespStateManager;
 import org.wso2.transport.http.netty.contractimpl.listener.states.ReceivingHeaders;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
@@ -117,8 +117,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             }
             requestSet.put(inboundRequestMsg.hashCode(), inboundRequestMsg);
 
-            MessageStateContext messageStateContext = new MessageStateContext();
-            inboundRequestMsg.setMessageStateContext(messageStateContext);
+            ListenerReqRespStateManager listenerReqRespStateManager = new ListenerReqRespStateManager();
+            inboundRequestMsg.listenerReqRespStateManager = listenerReqRespStateManager;
 
             setRequestProperties();
             //Set the sequence number just before notifying the listener about the request because in case the
@@ -126,11 +126,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             //incorrect sequence number
             setSequenceNumber();
 
-            messageStateContext.setListenerState(new ReceivingHeaders(this, messageStateContext));
-            messageStateContext.getListenerState().readInboundRequestHeaders(inboundRequestMsg, (HttpRequest) msg);
+            listenerReqRespStateManager.state = new ReceivingHeaders(listenerReqRespStateManager, this);
+            listenerReqRespStateManager.readInboundRequestHeaders(inboundRequestMsg, (HttpRequest) msg);
         } else {
             if (inboundRequestMsg != null) {
-                inboundRequestMsg.getMessageStateContext().getListenerState().readInboundRequestBody(msg);
+                inboundRequestMsg.listenerReqRespStateManager.readInboundRequestBody(msg);
             } else {
                 LOG.warn("Inconsistent state detected : inboundRequestMsg is null for channel read event");
             }
@@ -159,7 +159,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     public void channelInactive(ChannelHandlerContext ctx) {
         if (!idleTimeout) {
             if (!requestSet.isEmpty()) {
-                requestSet.forEach((key, inboundMsg) -> inboundMsg.getMessageStateContext().getListenerState()
+                requestSet.forEach((key, inboundMsg) -> inboundMsg.listenerReqRespStateManager
                         .handleAbruptChannelClosure(serverConnectorFuture));
             } else if (connectedState) {
                 notifyErrorListenerAtConnectedState(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST);
@@ -197,7 +197,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
             if (!requestSet.isEmpty()) {
                 requestSet.forEach((key, inboundMsg) -> {
-                    ChannelFuture outboundRespFuture = inboundMsg.getMessageStateContext().getListenerState()
+                    ChannelFuture outboundRespFuture = inboundMsg.listenerReqRespStateManager
                             .handleIdleTimeoutConnectionClosure(serverConnectorFuture, ctx);
                     if (outboundRespFuture == null) {
                         closeChannel(ctx);

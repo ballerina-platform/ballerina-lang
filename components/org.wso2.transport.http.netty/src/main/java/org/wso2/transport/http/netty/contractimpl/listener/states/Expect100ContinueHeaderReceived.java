@@ -36,7 +36,6 @@ import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
-import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -55,14 +54,14 @@ public class Expect100ContinueHeaderReceived implements ListenerState {
 
     private static final Logger LOG = LoggerFactory.getLogger(Expect100ContinueHeaderReceived.class);
 
-    private final MessageStateContext messageStateContext;
+    private final ListenerReqRespStateManager listenerReqRespStateManager;
     private final SourceHandler sourceHandler;
     private final HttpCarbonMessage inboundRequestMsg;
     private final float httpVersion;
 
-    Expect100ContinueHeaderReceived(MessageStateContext messageStateContext, SourceHandler sourceHandler,
-                                    HttpCarbonMessage inboundRequestMsg, float httpVersion) {
-        this.messageStateContext = messageStateContext;
+    Expect100ContinueHeaderReceived(ListenerReqRespStateManager listenerReqRespStateManager,
+                                  SourceHandler sourceHandler, HttpCarbonMessage inboundRequestMsg, float httpVersion) {
+        this.listenerReqRespStateManager = listenerReqRespStateManager;
         this.sourceHandler = sourceHandler;
         this.inboundRequestMsg = inboundRequestMsg;
         this.httpVersion = httpVersion;
@@ -76,9 +75,9 @@ public class Expect100ContinueHeaderReceived implements ListenerState {
     @Override
     public void readInboundRequestBody(Object inboundRequestEntityBody) throws ServerConnectorException {
         // Client may send request body without/after waiting for the 100-continue response.
-        messageStateContext.setListenerState(
-                new ReceivingEntityBody(messageStateContext, inboundRequestMsg, sourceHandler, httpVersion));
-        messageStateContext.getListenerState().readInboundRequestBody(inboundRequestEntityBody);
+        listenerReqRespStateManager.state = new ReceivingEntityBody(listenerReqRespStateManager,
+                                                                    inboundRequestMsg, sourceHandler, httpVersion);
+        listenerReqRespStateManager.readInboundRequestBody(inboundRequestEntityBody);
     }
 
     @Override
@@ -90,13 +89,13 @@ public class Expect100ContinueHeaderReceived implements ListenerState {
     public void writeOutboundResponseBody(HttpOutboundRespListener outboundResponseListener,
                                           HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
         if (outboundResponseMsg.getHttpStatusCode() == HttpResponseStatus.CONTINUE.code()) {
-            messageStateContext.setListenerState(
-                    new Response100ContinueSent(outboundResponseListener, sourceHandler, messageStateContext));
+            listenerReqRespStateManager.state =
+                    new Response100ContinueSent(listenerReqRespStateManager, sourceHandler, outboundResponseListener);
         } else {
-            messageStateContext.setListenerState(
-                    new EntityBodyReceived(messageStateContext, sourceHandler, httpVersion));
+            listenerReqRespStateManager.state =
+                    new EntityBodyReceived(listenerReqRespStateManager, sourceHandler, httpVersion);
         }
-        messageStateContext.getListenerState().writeOutboundResponseBody(outboundResponseListener, outboundResponseMsg,
+        listenerReqRespStateManager.writeOutboundResponseBody(outboundResponseListener, outboundResponseMsg,
                                                                          httpContent);
     }
 

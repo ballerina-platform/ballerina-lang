@@ -20,7 +20,6 @@
 package org.wso2.transport.http.netty.contractimpl;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.HttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -28,9 +27,9 @@ import org.wso2.transport.http.netty.contract.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contractimpl.common.BackPressureHandler;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
-import org.wso2.transport.http.netty.contractimpl.common.states.MessageStateContext;
 import org.wso2.transport.http.netty.contractimpl.listener.RequestDataHolder;
 import org.wso2.transport.http.netty.contractimpl.listener.SourceHandler;
+import org.wso2.transport.http.netty.contractimpl.listener.states.ListenerReqRespStateManager;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
@@ -47,7 +46,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(HttpOutboundRespListener.class);
     private final SourceHandler sourceHandler;
-    private final MessageStateContext messageStateContext;
+    private final ListenerReqRespStateManager listenerReqRespStateManager;
 
     private ChannelHandlerContext sourceContext;
     private RequestDataHolder requestDataHolder;
@@ -66,22 +65,23 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         this.keepAliveConfig = sourceHandler.getKeepAliveConfig();
         this.handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
         this.serverName = sourceHandler.getServerName();
-        this.messageStateContext = requestMsg.getMessageStateContext();
+        this.listenerReqRespStateManager = requestMsg.listenerReqRespStateManager;
     }
 
     @Override
     public void onMessage(HttpCarbonMessage outboundResponseMsg) {
-        BackPressureHandler backpressureHandler = Util.getBackPressureHandler(sourceContext);
-        Util.setBackPressureListener(outboundResponseMsg, backpressureHandler, outboundResponseMsg.getTargetContext());
         if (handlerExecutor != null) {
             handlerExecutor.executeAtSourceResponseReceiving(outboundResponseMsg);
         }
+
+        BackPressureHandler backpressureHandler = Util.getBackPressureHandler(sourceContext);
+        Util.setBackPressureListener(outboundResponseMsg, backpressureHandler, outboundResponseMsg.getTargetContext());
 
         outboundResponseMsg.getHttpContentAsync().setMessageListener(httpContent -> {
             Util.checkUnWritabilityAndNotify(sourceContext, backpressureHandler);
             this.sourceContext.channel().eventLoop().execute(() -> {
                 try {
-                    writeOutboundResponse(outboundResponseMsg, httpContent);
+                    listenerReqRespStateManager.writeOutboundResponseBody(this, outboundResponseMsg, httpContent);
                 } catch (Exception exception) {
                     String errorMsg = "Failed to send the outbound response : "
                             + exception.getMessage().toLowerCase(Locale.ENGLISH);
@@ -102,10 +102,6 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     public void onPushResponse(int promiseId, HttpCarbonMessage httpMessage) {
         inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(new UnsupportedOperationException(
                 "Sending Server Push messages is not supported for HTTP/1.x connections"));
-    }
-
-    private void writeOutboundResponse(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        messageStateContext.getListenerState().writeOutboundResponseBody(this, outboundResponseMsg, httpContent);
     }
 
     // Decides whether to close the connection after sending the response
