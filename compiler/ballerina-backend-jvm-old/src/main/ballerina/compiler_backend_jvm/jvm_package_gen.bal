@@ -390,6 +390,7 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
         string functionName = initFunc.name.value;
         JavaClass class = { sourceFileName:initFunc.pos.sourceFileName, moduleClass:initClass };
         class.functions[0] = initFunc;
+        addInitAndTypeInitInstructions(module, initFunc);
         jvmClassMap[initClass] = class;
         birFunctionMap[pkgName + functionName] = getFunctionWrapper(initFunc, orgName, moduleName,
                                                                     versionValue, initClass);

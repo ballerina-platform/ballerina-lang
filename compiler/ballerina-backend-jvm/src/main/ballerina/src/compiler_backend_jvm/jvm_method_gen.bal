@@ -15,6 +15,8 @@
 // under the License.
 
 string[] generatedInitFuncs = [];
+int nextId = -1;
+int nextVarId = -1;
 
 function generateMethod(bir:Function birFunc,
                             jvm:ClassWriter cw,
@@ -1542,11 +1544,11 @@ function generateLambdaForPackageInits(jvm:ClassWriter cw, bir:Package pkg,
     //need to generate lambda for package Init as well, if exist
     if (hasInitFunction(pkg)) {
         string initFuncName = MODULE_INIT;
-        generateLambdaForFunction(cw, initFuncName, initClass);
+        generateLambdaForModuleFunction(cw, initFuncName, initClass, voidReturn=false);
 
         // generate another lambda for start function as well
         string startFuncName = MODULE_START;
-        generateLambdaForFunction(cw, startFuncName, initClass);
+        generateLambdaForModuleFunction(cw, startFuncName, initClass, voidReturn=false);
 
         string stopFuncName = cleanupFunctionName(getModuleStopFuncName(pkg));
         generateLambdaForModuleFunction(cw, stopFuncName, initClass);
@@ -1671,15 +1673,13 @@ function getModuleStopFuncName(bir:Package module) returns string {
 
 function addInitAndTypeInitInstructions(bir:Package pkg, bir:Function func) {
     bir:BasicBlock?[] basicBlocks = [];
-    int bbId = 0;
-    bir:BasicBlock nextBB = {id: getNextBBId(bbId), instructions: []};
-    bbId += 1;
+    nextId = -1;
+    bir:BasicBlock nextBB = {id: getNextBBId(), instructions: []};
     basicBlocks[basicBlocks.length()] = nextBB;
 
     bir:ModuleID modID = packageToModuleId(pkg);
 
-    bir:BasicBlock typeOwnerCreateBB = {id: getNextBBId(bbId), instructions: []};
-    bbId += 1;
+    bir:BasicBlock typeOwnerCreateBB = {id: getNextBBId(), instructions: []};
     basicBlocks[basicBlocks.length()] = typeOwnerCreateBB;
 
     bir:Call createTypesCallTerm = {pos:{}, args:[], kind:bir:TERMINATOR_CALL, lhsOp:(), pkgID:modID,
@@ -1707,53 +1707,114 @@ function enrichPkgWithInitializers(map<JavaClass> jvmClassMap, string typeOwnerC
     JavaClass javaClass = <JavaClass>jvmClassMap[typeOwnerClass];
     javaClass.functions[javaClass.functions.length()] = generateDepModInit(imprtMods, pkg, MODULE_INIT, "<init>");
     javaClass.functions[javaClass.functions.length()] = generateDepModInit(imprtMods, pkg, MODULE_START, "<start>");
-    javaClass.functions[javaClass.functions.length()] = generateDepModInit(imprtMods, pkg, MODULE_STOP, "<stop>");
+//    javaClass.functions[javaClass.functions.length()] = generateDepModInit(imprtMods, pkg, MODULE_STOP, "<stop>");
 
 }
 
+bir:BAttachedFunction errorRecInitFunc = {name:{value:"$$<init>"}, funcType:{retType:"()"}, flags:0};
+bir:BRecordType detailRec = {name:{value:"detail"}, sealed:false, restFieldType:"()", initFunction:errorRecInitFunc};
+bir:BErrorType errType = {name:{value:"error"}, moduleId:{org:BALLERINA, name:BUILT_IN_PACKAGE_NAME}, 
+                                reasonType:bir:TYPE_STRING, detailType:detailRec};
+bir:BUnionType errUnion = {members:["()", errType]};
+
 function generateDepModInit(map<bir:ModuleID> imprtMods, bir:Package pkg, string funcName,
                                 string initName) returns bir:Function {
-    bir:BasicBlock?[] basicBlocks = [];
-    int bbId = 0;
-    bir:BasicBlock nextBB = {id: getNextBBId(bbId), instructions: []};
-    bbId += 1;
-    basicBlocks[basicBlocks.length()] = nextBB;
+    nextId = -1;
+    nextVarId = -1;
+
+    bir:VariableDcl retVar = {name: {value:"%ret"}, typeValue: errUnion};
+    bir:VarRef retVarRef = {variableDcl:retVar, typeValue:errUnion};
+
+    bir:Function modInitFunc = {pos:{}, basicBlocks:[], localVars:[retVar],
+                            name:{value:funcName}, typeValue:{retType:errUnion},
+                            workerChannels:[], receiver:(), restParamExist:false};
+    _ = addAndGetNextBasicBlock(modInitFunc);
+
     foreach var [k, id] in imprtMods.entries() {
         string initFuncName = calculateModuleSpecialFuncName(id, initName);
-
-        bir:BasicBlock initNextBB = {id: getNextBBId(bbId), instructions: []};
-        bbId += 1;
-        basicBlocks[basicBlocks.length()] = initNextBB;
-        bir:Call initCallTerm = {pos:{}, args:[], kind:bir:TERMINATOR_CALL, lhsOp:(), pkgID:id,
-                            name:{value:initFuncName}, isVirtual:false, thenBB:initNextBB};
-        nextBB.terminator = initCallTerm;
-
-        nextBB = initNextBB;
+        _ = addCheckedInvocation(modInitFunc, id, initFuncName, retVarRef);
     }
 
     bir:ModuleID currentModId = packageToModuleId(pkg);
     string currentInitFuncName = calculateModuleSpecialFuncName(currentModId, initName);
-
-    bir:BasicBlock currentInitNextBB = {id: getNextBBId(bbId), instructions: []};
-    bbId += 1;
-    basicBlocks[basicBlocks.length()] = currentInitNextBB;
-    bir:Call currentInitCallTerm = {pos:{}, args:[], kind:bir:TERMINATOR_CALL, lhsOp:(), pkgID:currentModId,
-                        name:{value:currentInitFuncName}, isVirtual:false, thenBB:currentInitNextBB};
-    nextBB.terminator = currentInitCallTerm;
-
-    nextBB = currentInitNextBB;
+    bir:BasicBlock lastBB = addCheckedInvocation(modInitFunc, currentModId, currentInitFuncName, retVarRef);
 
     bir:Return ret = {pos:{}, kind:bir:TERMINATOR_RETURN};
-    nextBB.terminator = ret;
-    bir:Function modInitFunc = {pos:{}, basicBlocks:basicBlocks, localVars:[{name:{value:"%0"}}],
-                            name:{value:funcName}, typeValue:{retType:"()"},
-                            workerChannels:[], receiver:(), restParamExist:false};
+    lastBB.terminator = ret;
+
     return modInitFunc;
 }
 
-function getNextBBId(int nextId) returns bir:Name {
+function getNextBBId() returns bir:Name {
     string bbIdPrefix = "genBB";
+    nextId += 1;
     return {value:bbIdPrefix + nextId.toString()};
+}
+
+function getNextVarId() returns bir:Name {
+    string varIdPrefix = "%";
+    nextVarId += 1;
+    return {value:varIdPrefix + nextVarId.toString()};
+}
+
+function addCheckedInvocation(bir:Function func, bir:ModuleID modId, string initFuncName,
+                                    bir:VarRef retVar) returns bir:BasicBlock {
+    bir:BasicBlock lastBB = <bir:BasicBlock>func.basicBlocks[func.basicBlocks.length() - 1];
+    bir:BasicBlock nextBB = addAndGetNextBasicBlock(func);
+    // TODO remove once lang.annotation is fixed
+    if (modId.org == BALLERINA && modId.name == BUILT_IN_PACKAGE_NAME) {
+        bir:Call initCallTerm = {pos:{}, args:[], kind:bir:TERMINATOR_CALL, lhsOp:(), pkgID:modId,
+                            name:{value:initFuncName}, isVirtual:false, thenBB:nextBB};
+        lastBB.terminator = initCallTerm;
+        return nextBB;
+    }
+    bir:VariableDcl retStore = addAndGetNextVar(func, errUnion);
+    bir:VarRef retRef = {variableDcl:retStore, typeValue:errUnion};
+    bir:Call initCallTerm = {pos:{}, args:[], kind:bir:TERMINATOR_CALL, lhsOp:retRef, pkgID:modId,
+                        name:{value:initFuncName}, isVirtual:false, thenBB:nextBB};
+    lastBB.terminator = initCallTerm;
+
+    bir:VariableDcl boolVal = addAndGetNextVar(func, bir:TYPE_BOOLEAN);
+    bir:VarRef boolRef = {variableDcl:boolVal, typeValue:bir:TYPE_BOOLEAN};
+
+    bir:TypeTest typeTest = {pos:{}, kind:bir:INS_KIND_TYPE_TEST,
+                                lhsOp:boolRef, rhsOp:retRef, typeValue:errType};
+    nextBB.instructions[nextBB.instructions.length()] = typeTest;
+
+    bir:BasicBlock trueBB = addAndGetNextBasicBlock(func);
+    // bir:VariableDcl errorStore = addAndGetNextVar(func, errorType); 
+    // bir:VarRef errorRef = {variableDcl:errorStore};
+
+    // bir:TypeCast typCast = {pos:{}, kind:bir:INS_KIND_TYPE_CAST, lhsOp:errorRef, 
+    //                             rhsOp:retRef, castType:errorType, checkType:false};
+    // trueBB.instructions[trueBB.instructions.length()] = typeCast;
+    bir:Move moveToRet = {pos:{}, kind:bir:INS_KIND_MOVE, lhsOp:retVar, rhsOp:retRef};
+    trueBB.instructions[trueBB.instructions.length()] = moveToRet;
+    
+    bir:BasicBlock retBB = addAndGetNextBasicBlock(func);
+
+    bir:Return ret = {pos:{}, kind:bir:TERMINATOR_RETURN};
+    retBB.terminator = ret;
+
+    bir:GOTO gotoRet = {pos:{}, kind:bir:TERMINATOR_GOTO, targetBB:retBB};
+    trueBB.terminator = gotoRet;
+
+    bir:BasicBlock falseBB = addAndGetNextBasicBlock(func);
+    bir:Branch branch = {pos:{}, falseBB:falseBB, kind:bir:TERMINATOR_BRANCH, op:boolRef, trueBB:trueBB};
+    nextBB.terminator = branch;
+    return falseBB;
+}
+
+function addAndGetNextBasicBlock(bir:Function func) returns bir:BasicBlock {
+    bir:BasicBlock nextbb = {id: getNextBBId(), instructions: []};
+    func.basicBlocks[func.basicBlocks.length()] = nextbb;
+    return nextbb;
+}
+
+function addAndGetNextVar(bir:Function func, bir:BType typeVal) returns bir:VariableDcl {
+    bir:VariableDcl nextLocalVar = {name: getNextVarId(), typeValue: typeVal};
+    func.localVars[func.localVars.length()] = nextLocalVar;
+    return nextLocalVar;
 }
 
 function generateParamCast(int paramIndex, bir:BType targetType, jvm:MethodVisitor mv) {
