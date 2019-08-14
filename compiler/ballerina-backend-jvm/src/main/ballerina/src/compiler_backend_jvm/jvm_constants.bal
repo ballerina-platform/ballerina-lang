@@ -345,6 +345,7 @@ const string SCHEDULER_START_METHOD =  "start";
 
 // observability related constants
 const string OBSERVER_CONTEXT = "org/ballerinalang/jvm/observability/ObserverContext";
+const string OBSERVE_UTILS = "org/ballerinalang/jvm/observability/ObserveUtils";
 
 // visibility flags
 const int BAL_PUBLIC = 1;
