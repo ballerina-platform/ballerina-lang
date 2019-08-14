@@ -18,11 +18,14 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
@@ -30,10 +33,13 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import static org.ballerinalang.jvm.TypeChecker.checkIsLikeType;
@@ -164,13 +170,59 @@ public class TypeConverter {
                 }
                 break;
             case TypeTags.RECORD_TYPE_TAG:
-                // TODO: 8/13/19 impl against def value
+                if (isConvertibleToRecordType(inputValue, (BRecordType) targetType)) {
+                    convertibleTypes.add(targetType);
+                }
+                break;
             default:
                 if (TypeChecker.checkIsLikeType(inputValue, targetType, true)) {
                     convertibleTypes.add(targetType);
                 }
         }
         return convertibleTypes;
+    }
+
+    private static boolean isConvertibleToRecordType(Object sourceValue, BRecordType targetType) {
+        if (!(sourceValue instanceof MapValueImpl)) {
+            return false;
+        }
+
+        Map<String, BType> targetFieldTypes = new HashMap<>();
+        BType restFieldType = targetType.restFieldType;
+
+        for (BField field : targetType.getFields().values()) {
+            targetFieldTypes.put(field.getFieldName(), field.type);
+        }
+
+        MapValueImpl sourceMapValueImpl = (MapValueImpl) sourceValue;
+        for (Map.Entry targetTypeEntry : targetFieldTypes.entrySet()) {
+            String fieldName = targetTypeEntry.getKey().toString();
+
+            if (!sourceMapValueImpl.containsKey(fieldName)) {
+                BField targetField = targetType.getFields().get(fieldName);
+                if (Flags.isFlagOn(targetField.flags, Flags.REQUIRED)) {
+                    return false;
+                }
+            }
+        }
+
+        for (Object object : sourceMapValueImpl.entrySet()) {
+            Map.Entry valueEntry = (Map.Entry) object;
+            String fieldName = valueEntry.getKey().toString();
+
+            if (targetFieldTypes.containsKey(fieldName)) {
+                if (getConvertibleTypes(valueEntry.getValue(), targetFieldTypes.get(fieldName)).size() != 1) {
+                    return false;
+                }
+            } else if (!targetType.sealed) {
+                if (getConvertibleTypes(valueEntry.getValue(), restFieldType).size() != 1) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+        return true;
     }
 
     static long anyToInt(Object sourceVal, Supplier<ErrorValue> errorFunc) {

@@ -36,7 +36,7 @@ function testOnTypeName() returns [Person|error, json|error] {
 }
 
 type BRec record {
-    int i = 0;
+    int i;
 };
 
 type CRec record {
@@ -146,4 +146,28 @@ function testConstructFromFailureWithAmbiguousNumericConversionTarget() returns 
     (float|decimal|boolean)[]|error j = (float|decimal|boolean)[].constructFrom(i); // two possible conversion types
     return j is error && j.reason() == "{ballerina}ConversionError" &&
             j.detail()?.message == "'int[]' value cannot be converted to 'float|decimal|boolean[]'";
+}
+
+type A record {
+    int i = 4;
+    string s;
+    B b;
+    float f = 2.0;
+};
+
+type B record {
+    string p;
+    string q = "world";
+};
+
+type C record {
+    string s;
+    map<string> b;
+    anydata f;
+};
+
+function testSettingRecordDefaultValuesOnConversion() returns boolean {
+    C c = { f: 34, s: "test", b: { p: "hello" } };
+    A|error d = A.constructFrom(c);
+    return d is A && d.i == 4 && d.s == "test" && d.b.p == "hello" && d.b.q == "world" && d.f == 34.0;
 }

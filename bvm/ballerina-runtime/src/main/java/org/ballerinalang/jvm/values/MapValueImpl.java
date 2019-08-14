@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.TypeChecker;
@@ -26,7 +27,6 @@ import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -504,10 +504,21 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                 }
             }
         } else if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            Map<String, BType> targetTypeField = new HashMap<>();
-            BType restFieldType = ((BRecordType) type).restFieldType;
+            BRecordType recordType = (BRecordType) type;
+            MapValueImpl<String, Object> recordWithDefaults =
+                    (MapValueImpl<String, Object>) BallerinaValues.createRecordValue(recordType.getPackage().toString(),
+                                                                                     recordType.getName());
 
-            for (BField field : ((BStructureType) type).getFields().values()) {
+            for (Map.Entry valueEntry : recordWithDefaults.entrySet()) {
+                Object fieldName = valueEntry.getKey();
+                if (!this.containsKey(fieldName)) {
+                    this.put((K) fieldName, (V) valueEntry.getValue());
+                }
+            }
+
+            BType restFieldType = recordType.restFieldType;
+            Map<String, BType> targetTypeField = new HashMap<>();
+            for (BField field : recordType.getFields().values()) {
                 targetTypeField.put(field.getFieldName(), field.getFieldType());
             }
 

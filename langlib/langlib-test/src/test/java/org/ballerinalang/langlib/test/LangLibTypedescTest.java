@@ -99,7 +99,8 @@ public class LangLibTypedescTest {
             { "testConstructFromWithNumericConversion5" },
             { "testConstructFromWithNumericConversion6" },
             { "testConstructFromSuccessWithMoreThanOneNumericTarget" },
-            { "testConstructFromFailureWithAmbiguousNumericConversionTarget" }
+            { "testConstructFromFailureWithAmbiguousNumericConversionTarget" },
+            { "testSettingRecordDefaultValuesOnConversion" }
         };
     }
 }

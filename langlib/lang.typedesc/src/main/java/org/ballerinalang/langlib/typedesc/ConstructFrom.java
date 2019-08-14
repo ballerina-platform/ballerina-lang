@@ -121,12 +121,13 @@ public class ConstructFrom {
 
         try {
             RefValue refValue = (RefValue) inputValue;
-            RefValue convertedValue = (RefValue) refValue.copy(new HashMap<>());
 
-            if (!targetType.equals(inputValType)) {
-                convertedValue.stamp(targetType, new ArrayList<>());
+            if (targetType.equals(inputValType)) {
+                return refValue.copy(new HashMap<>());
             }
 
+            RefValue convertedValue = (RefValue) refValue.copy(new HashMap<>());
+            convertedValue.stamp(targetType, new ArrayList<>());
             return convertedValue;
         } catch (BallerinaException e) {
             return BallerinaErrors.createError(BallerinaErrorReasons.CONVERSION_ERROR, e.getDetail());
