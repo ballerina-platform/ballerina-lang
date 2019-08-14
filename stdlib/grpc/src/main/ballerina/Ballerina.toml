@@ -6,9 +6,16 @@ version = "0.0.0"
 target = "java"
 
     [[platform.libraries]]
+    artafactId = "grpc"
+    version = "@project.version@"
+    path = "./lib/ballerina-grpc-@project.version@.jar"
+    groupId = "ballerina"
+    modules = ["grpc"]
+
+    [[platform.libraries]]
     artafactId = "org.wso2.transport.http.netty"
     version = "6.0.294"
-    path = "./lib/org.wso2.transport.http.netty-6.0.294.jar"
+    path = "./lib/org.wso2.transport.http.netty-6.1.9.jar"
     groupId = "org.wso2.transport.http"
     modules = ["grpc"]
 
@@ -64,7 +71,7 @@ target = "java"
     [[platform.libraries]]
     artafactId = "netty-handler-proxy"
     version = "4.1.34.Final"
-    path = "./lib/io.netty-4.1.34.Final.jar"
+    path = "./lib/netty-handler-proxy-4.1.34.Final.jar"
     groupId = "io.netty"
     modules = ["grpc"]
 
@@ -106,15 +113,8 @@ target = "java"
     [[platform.libraries]]
     artafactId = "netty-tcnative-boringssl-static"
     version = "2.0.22.Final"
-    path = "./lib/netty-tcnative-boringssl-static-2.0.22.Final.jar"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.23.Final.jar"
     groupId = "io.netty"
-    modules = ["grpc"]
-
-    [[platform.libraries]]
-    artafactId = "commons-lang3"
-    version = "3.5"
-    path = "./lib/commons-lang3-3.5.jar"
-    groupId = "org.apache.commons"
     modules = ["grpc"]
 
     [[platform.libraries]]
@@ -125,16 +125,9 @@ target = "java"
     modules = ["grpc"]
 
     [[platform.libraries]]
-    artafactId = "slf4j-api"
-    version = "1.7.22"
-    path = "./lib/slf4j-api-1.7.22.jar"
-    groupId = "org.slf4j"
-    modules = ["grpc"]
-
-    [[platform.libraries]]
     artafactId = "org.wso2.carbon.messaging"
     version = "2.3.7"
-    path = "./lib/org.wso2.carbon.messaging-2.2.3.jar"
+    path = "./lib/org.wso2.carbon.messaging-2.3.7.jar"
     groupId = "org.wso2.carbon.messaging"
     modules = ["grpc"]
 
@@ -155,13 +148,13 @@ target = "java"
     [[platform.libraries]]
     artafactId = "protobuf-java"
     version = "3.7.0"
-    path = "./lib/protobuf-java-3.7.0.jar"
+    path = "./lib/protobuf-java-3.5.1.jar"
     groupId = "com.google.protobuf"
     modules = ["grpc"]
 
     [[platform.libraries]]
     artafactId = "handlebars"
     version = "4.1.2"
-    path = "./lib/handlebars-4.1.2.jar"
+    path = "./lib/handlebars-4.0.6.jar"
     groupId = "com.github.jknack"
     modules = ["grpc"]

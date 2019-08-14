@@ -21,7 +21,6 @@ package org.ballerinalang.streams;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BStream;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.ArrayList;
@@ -56,14 +55,6 @@ public class StreamSubscriptionManager implements Observer {
             processors.computeIfAbsent(stream.topicName, key -> new ArrayList<>())
                     .add(new DefaultStreamSubscription(stream, functionPointer, this));
         }
-    }
-
-    public void registerMessageProcessor(BStream stream, InputHandler inputHandler) {
-        synchronized (this) {
-            processors.computeIfAbsent(stream.topicName, key -> new ArrayList<>())
-                    .add(new SiddhiStreamSubscription(stream, inputHandler, this));
-        }
-
     }
 
     public void sendMessage(BStream stream, BValue value) {

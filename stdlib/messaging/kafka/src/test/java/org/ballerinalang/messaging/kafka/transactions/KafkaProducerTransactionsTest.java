@@ -21,6 +21,8 @@ package org.ballerinalang.messaging.kafka.transactions;
 import io.debezium.kafka.KafkaCluster;
 import io.debezium.util.Testing;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -62,7 +64,7 @@ public class KafkaProducerTransactionsTest {
         result = BCompileUtil.compile(getFilePath(
                 Paths.get(TEST_SRC, TEST_TRANSACTIONS, "kafka_transactions_send.bal")));
         BValue[] inputBValues = {};
-        BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaAbortTransactionTest", inputBValues);
+        BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaTransactionSendTest", inputBValues);
 
         try {
             await().atMost(5000, TimeUnit.MILLISECONDS).until(() -> {
@@ -122,6 +124,18 @@ public class KafkaProducerTransactionsTest {
         }
     }
 
+    @Test(description = "Test transactional producer with idempotence false")
+    public void testKafkaTransactionalProducerWithoutIdempotenceTest() {
+        String message = "Failed to initialize the producer: configuration enableIdempotence must be set to true to " +
+                "enable transactional producer";
+        result = BCompileUtil.compile(getFilePath(
+                Paths.get(TEST_SRC, TEST_TRANSACTIONS, "transactional_producer_without_idempotence.bal")));
+        BValue[] returnValues = BRunUtil.invoke(result, "funcKafkaCreateProducer");
+        Assert.assertEquals(returnValues.length, 1);
+        Assert.assertTrue(returnValues[0] instanceof BError);
+        Assert.assertEquals(((BMap) ((BError) returnValues[0]).getDetails()).get("message").stringValue(), message);
+    }
+
     @AfterClass
     public void tearDown() {
         if (kafkaCluster != null) {
@@ -140,7 +154,7 @@ public class KafkaProducerTransactionsTest {
             throw new IllegalStateException();
         }
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-transaction-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(2288, 9144);
+        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(14012, 14112);
         return kafkaCluster;
     }
 }

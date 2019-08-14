@@ -362,21 +362,21 @@ function testMatch_1() returns string {
 
 listener http:MockListener echoEP = new(9090);
 
+string x = "x";
+string y = "sample value";
+
 service echo on echoEP {
 
-    private string x;
-    string y = "sample value";
-
     resource function echo_1(http:Caller conn, http:Request request) {
-        string a = self.x;
-        a = self.y;
-        self.x = "init within echo_1";
+        string a = x;
+        a = y;
+        x = "init within echo_1";
     }
 
     resource function echo_2(http:Caller conn, http:Request request) {
-        string a = self.x;
-        a = self.y;
-        self.x = "init within echo_2";
+        string a = x;
+        a = y;
+        x = "init within echo_2";
     }
 }
 
@@ -446,13 +446,13 @@ public type D record {
 
 listener http:MockListener testEP = new(9092);
 
+int a = 0;
+
 service testService on testEP {
 
-    private int a;
-
     resource function resource_1(http:Caller conn, http:Request request) {
-        self.a = 5;
-        int b = self.a;
+        a = 5;
+        int b = a;
         int c;
 
         if (true) {
@@ -465,7 +465,7 @@ service testService on testEP {
     }
 
     resource function resource_2(http:Caller conn, http:Request request) {
-        int b = self.a;
+        int b = a;
     }
 }
 

@@ -137,7 +137,7 @@ public class KafkaConsumerTopicsTest {
             throw new IllegalStateException();
         }
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-get-available-topics-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(2188, 9101);
+        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(14008, 14108);
         return kafkaCluster;
     }
 }

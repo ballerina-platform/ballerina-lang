@@ -39,9 +39,8 @@ public class CompilerUtils {
         }
         return distributedTransactionEnabled;
     }
-    
+
     public static boolean isMainFunction(BLangFunction funcNode) {
         return MAIN_FUNCTION_NAME.equals(funcNode.name.value) && Symbols.isPublic(funcNode.symbol);
     }
-    
 }

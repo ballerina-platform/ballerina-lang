@@ -1,3 +1,13 @@
 [project]
 org-name = "ballerinax"
 version = "0.0.0"
+
+[platform]
+target = "java"
+
+    [[platform.libraries]]
+    artafactId = "java"
+    version = "@project.version@"
+    path = "./lib/ballerina-java-@project.version@.jar"
+    groupId = "ballerina"
+    modules = ["java"]

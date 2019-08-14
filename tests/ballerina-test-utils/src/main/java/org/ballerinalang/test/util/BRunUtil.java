@@ -432,7 +432,7 @@ public class BRunUtil {
                 }
             };
 
-            Scheduler scheduler = new Scheduler(4, false);
+            Scheduler scheduler = new Scheduler(false);
             FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>());
             scheduler.start();
             if (futureValue.panic instanceof RuntimeException) {
@@ -568,7 +568,7 @@ public class BRunUtil {
                 }
             };
 
-            Scheduler scheduler = new Scheduler(4, false);
+            Scheduler scheduler = new Scheduler(false);
             FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>());
             scheduler.start();
             if (futureValue.panic instanceof RuntimeException) {
@@ -940,6 +940,7 @@ public class BRunUtil {
         return getBVMValue(value, new HashMap<>());
     }
 
+    @SuppressWarnings("rawtypes")
     private static BRefType<?> getBVMValue(Object value, Map<String, BRefType> bvmValueMap) {
         String hashCode = String.valueOf(System.identityHashCode(value));
         if (value == null) {

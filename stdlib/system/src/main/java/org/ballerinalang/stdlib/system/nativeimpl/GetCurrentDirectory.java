@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -36,13 +34,9 @@ import org.ballerinalang.stdlib.system.utils.SystemUtils;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class GetCurrentDirectory extends BlockingNativeCallableUnit {
+public class GetCurrentDirectory {
 
     private static final String PROPERTY_NAME = "user.dir";
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static String getCurrentDirectory(Strand strand) {
         return SystemUtils.getSystemProperty(PROPERTY_NAME);

@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.filepath.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.filepath.Constants;
@@ -42,11 +40,8 @@ import java.nio.file.Paths;
         functionName = "resolve",
         isPublic = true
 )
-public class Resolve extends BlockingNativeCallableUnit {
+public class Resolve {
 
-    @Override
-    public void execute(Context context) {
-    }
 
     public static Object resolve(Strand strand, String inputPath) {
         try {

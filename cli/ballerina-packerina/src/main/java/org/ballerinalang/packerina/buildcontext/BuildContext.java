@@ -20,6 +20,7 @@ package org.ballerinalang.packerina.buildcontext;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerOptionName;
+import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.MultiModuleContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
@@ -28,7 +29,6 @@ import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
 import org.ballerinalang.packerina.utils.EmptyPrintStream;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
-import org.ballerinalang.util.BLangConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -46,6 +46,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BIR_EXT;
@@ -80,6 +81,8 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
             out = new EmptyPrintStream();
             err = new EmptyPrintStream();
             if (Files.exists(sourceRootPath)) {
+                // set home repo
+                this.put(BuildContextField.HOME_REPO, Paths.get(System.getProperty(BALLERINA_HOME)));
                 // set source root
                 this.put(BuildContextField.SOURCE_ROOT, sourceRootPath);
                 
@@ -404,7 +407,9 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
                             .resolve(moduleID.orgName.value)
                             .resolve(moduleID.name.value)
                             .resolve(moduleID.version.value));
-                    return moduleBirCacheDir.resolve(moduleID.name.value + BLANG_COMPILED_JAR_EXT);
+                    return moduleBirCacheDir.resolve(moduleID.orgName.value + "-" + 
+                                                             moduleID.name.value + "-" +
+                                                             moduleID.version.value + BLANG_COMPILED_JAR_EXT);
                 default:
                     throw new BLangCompilerException("unknown source type found: " + this.getSourceType());
             }

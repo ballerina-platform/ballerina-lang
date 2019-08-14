@@ -40,7 +40,7 @@ public type AuthzHandler object {
     function canProcess(Request req) returns boolean|AuthorizationError {
         runtime:Principal? principal = runtime:getInvocationContext()?.principal;
         if (principal is runtime:Principal) {
-            if (principal.username.length() == 0) {
+            if (principal?.username is ()) {
                 return prepareAuthorizationError("Username not set in auth context. Unable to authorize.");
             }
             return true;
@@ -62,9 +62,8 @@ public type AuthzHandler object {
         if (principal is runtime:Principal) {
             // first, check in the cache. cache key is <username>-<service>-<resource>-<http method>-<scopes-separated-by-comma>,
             // since different resources can have different scopes
-            string authzCacheKey = principal.userId + "-" + serviceName + "-" + resourceName + "-" + method;
-            string[] authCtxtScopes = principal.scopes;
-            //TODO: Make sure principal.scopes array is sorted and set to invocation context in order to prevent cache-misses that could happen due to ordering
+            string authzCacheKey = (principal?.userId ?: "") + "-" + serviceName + "-" + resourceName + "-" + method;
+            string[] authCtxtScopes = principal?.scopes ?: [];
             if (authCtxtScopes.length() > 0) {
                 authzCacheKey += "-";
                 foreach var authCtxtScope in authCtxtScopes {
