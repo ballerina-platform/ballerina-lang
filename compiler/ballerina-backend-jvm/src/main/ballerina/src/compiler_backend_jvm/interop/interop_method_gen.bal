@@ -781,7 +781,7 @@ function genArrayStore(jvm:MethodVisitor mv, jvm:JType jType) {
 
 function getBTypeFromJType(jvm:JType jType) returns bir:BType {
     int code;
-    if jType is jvm:Int | jvm:Long | jvm:Short{
+    if jType is jvm:Int | jvm:Long | jvm:Short | jvm:Char {
         return bir:TYPE_INT;
     } else if jType is jvm:Double | jvm:Float {
         return bir:TYPE_FLOAT;
@@ -789,8 +789,6 @@ function getBTypeFromJType(jvm:JType jType) returns bir:BType {
         return bir:TYPE_BYTE;
     } else if jType is jvm:Boolean {
         return bir:TYPE_BOOLEAN;
-    } else if jType is jvm:Char {
-        return bir:TYPE_STRING;
     } else if jType is jvm:Void {
         return bir:TYPE_NIL;
     } else {
