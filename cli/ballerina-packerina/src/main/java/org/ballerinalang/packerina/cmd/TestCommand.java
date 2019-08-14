@@ -18,6 +18,7 @@
 package org.ballerinalang.packerina.cmd;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.packerina.TaskExecutor;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
@@ -32,7 +33,6 @@ import org.ballerinalang.packerina.task.CreateTargetDirTask;
 import org.ballerinalang.packerina.task.RunTestsTask;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
-import org.ballerinalang.util.BLangConstants;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -199,7 +199,7 @@ public class TestCommand implements BLauncherCmd {
             }
 
             if (Files.isRegularFile(sourceFullPath) &&
-                    pkgOrSourceFileName.toString().endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX) &&
+                    pkgOrSourceFileName.toString().endsWith(ProjectDirConstants.BLANG_SOURCE_EXT) &&
                     !RepoUtils.isBallerinaProject(sourceRootPath)) {
 
                 // if its a single bal file

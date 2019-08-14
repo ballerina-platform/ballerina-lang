@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -51,13 +49,7 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
                 @Argument(name = "labels", type = ARRAY, elementType = OBJECT)
         }
 )
-public class VisitLookupSwitchInsn extends BlockingNativeCallableUnit {
-
-    @Override
-    @Deprecated
-    public void execute(Context context) {
-        throw new UnsupportedOperationException("BVM Unsupported");
-    }
+public class VisitLookupSwitchInsn {
 
     public static void visitLookupSwitchInsn(Strand strand, ObjectValue oMv, ObjectValue oDefaultLabel,
                                                    ArrayValue oKeys, ArrayValue oLabels) {

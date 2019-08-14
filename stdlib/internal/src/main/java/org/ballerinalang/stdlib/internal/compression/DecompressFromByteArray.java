@@ -15,19 +15,13 @@
  */
 package org.ballerinalang.stdlib.internal.compression;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.internal.Constants;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -53,7 +47,7 @@ import java.util.zip.ZipInputStream;
         returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
-public class DecompressFromByteArray extends BlockingNativeCallableUnit {
+public class DecompressFromByteArray {
     /**
      * File content as byte array defined.
      */
@@ -68,33 +62,8 @@ public class DecompressFromByteArray extends BlockingNativeCallableUnit {
      *
      * @param inputStream file content as an inputstream
      * @param outdir      path of the destination folder
+     * @return ErrorValue when an error occurs with decompressing
      */
-    static void decompress(InputStream inputStream, Path outdir, Context context) throws IOException {
-        ZipInputStream zin;
-        // try {
-        zin = new ZipInputStream(inputStream);
-        ZipEntry entry;
-        String name, dir;
-        while ((entry = zin.getNextEntry()) != null) {
-            name = entry.getName();
-            if (!isDecompressDestinationValid(outdir.resolve(name), outdir)) {
-                context.setReturnValues(CompressionUtils.createCompressionError(context,
-                        "Arbitrary File Write attack attempted via an archive file. File name: " + entry.getName()));
-                break;
-            }
-            if (entry.isDirectory()) {
-                Files.createDirectories(outdir.resolve(name));
-                continue;
-            }
-            dir = getDirectoryPath(name);
-            if (dir != null) {
-                Files.createDirectories(outdir.resolve(dir));
-            }
-            extractFile(zin, outdir, name);
-        }
-        zin.close();
-    }
-
     static ErrorValue decompress(InputStream inputStream, Path outdir) throws IOException {
         ZipInputStream zin;
         ErrorValue error = null;
@@ -174,32 +143,6 @@ public class DecompressFromByteArray extends BlockingNativeCallableUnit {
             return s == -1 ? null : name.substring(0, s);
         }
         return null;
-    }
-
-    @Override
-    public void execute(Context context) {
-        byte[] content = ((BValueArray) context.getRefArgument(SRC_AS_BYTEARRAY_FIELD_INDEX)).getBytes();
-        if (content.length == 0) {
-            context.setReturnValues(CompressionUtils.createCompressionError(context, "Length of the byte " +
-                    "array is empty"));
-        } else {
-            InputStream inputStream = new ByteArrayInputStream(content);
-
-            BMap<String, BValue> destPathStruct = (BMap) context.getRefArgument(DEST_PATH_FIELD_INDEX);
-            Path destPath = (Path) destPathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
-
-            if (!destPath.toFile().exists()) {
-                context.setReturnValues(CompressionUtils.createCompressionError(context,
-                        "Path to place the decompressed file is not available"));
-            } else {
-                try {
-                    decompress(inputStream, destPath, context);
-                } catch (IOException e) {
-                    context.setReturnValues(CompressionUtils.createCompressionError(context,
-                            "Error occurred when decompressing " + e.getMessage()));
-                }
-            }
-        }
     }
 
     public static Object decompressFromByteArray(Strand strand, ArrayValue contents, String destDir) {

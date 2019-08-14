@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
@@ -49,13 +47,7 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
                 @Argument(name = "isInterface", type = BOOLEAN),
         }
 )
-public class VisitMethodInsn extends BlockingNativeCallableUnit {
-
-    @Override
-    @Deprecated
-    public void execute(Context context) {
-        throw new UnsupportedOperationException("BVM Unsupported");
-    }
+public class VisitMethodInsn {
 
     public static void visitMethodInsn(Strand strand, ObjectValue oMv, long opcode, String className, String methodName,
                                        String methodDescriptor, boolean isInterface) {

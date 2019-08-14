@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
@@ -45,13 +43,7 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
                 @Argument(name = "dimension", type = INT)
         }
 )
-public class VisitMultiANewArrayInsn extends BlockingNativeCallableUnit {
-
-    @Override
-    @Deprecated
-    public void execute(Context context) {
-        throw new UnsupportedOperationException("BVM Unsupported");
-    }
+public class VisitMultiANewArrayInsn {
 
     public static void visitMultiANewArrayInsn(Strand strand, ObjectValue oMv, String arrayDescriptor, long dimension) {
         MethodVisitor mv = ASMUtil.getRefArgumentNativeData(oMv);

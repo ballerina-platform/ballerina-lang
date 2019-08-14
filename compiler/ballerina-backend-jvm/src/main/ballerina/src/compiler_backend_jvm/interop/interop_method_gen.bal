@@ -622,6 +622,8 @@ function getSignatureForJType(jvm:RefType|jvm:ArrayType jType) returns string {
 
         if (eType is jvm:RefType) {
             return sig + "L" + getSignatureForJType(eType) + ";";
+        } else if (eType is jvm:Byte) {
+            return sig + "B";
         } else if (eType is jvm:Char) {
             return sig + "C";
         } else if (eType is jvm:Short) {

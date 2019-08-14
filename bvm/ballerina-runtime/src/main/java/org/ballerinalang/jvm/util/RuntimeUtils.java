@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,9 +112,15 @@ public class RuntimeUtils {
         }
     }
 
-    public static void handleRuntimeThrowable(Throwable throwable) {
-        errStream.println(BLangConstants.INTERNAL_ERROR_MESSAGE);
-        breLog.error(throwable.getMessage(), throwable);
+    public static void handleRuntimeErrors(Throwable throwable) {
+        if (throwable instanceof ErrorValue) {
+            errStream.println("error: " + ((ErrorValue) throwable).getPrintableStackTrace());
+        } else {
+            // These errors are unhandled errors in JVM, hence logging them to bre log.
+            errStream.println(BLangConstants.INTERNAL_ERROR_MESSAGE);
+            breLog.error(throwable.getMessage(), throwable);
+        }
+
         Runtime.getRuntime().exit(1);
     }
 }

@@ -16,19 +16,16 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.langlib.string.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 /**
  * Extern function ballerina.model.arrays:substring(string, int, int).
@@ -42,35 +39,7 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Substring extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        String initialString = context.getStringArgument(0);
-
-        long fromLong = context.getIntArgument(0);
-        long toLong = context.getIntArgument(1);
-
-        if (toLong != (int) toLong) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
-                                                           RuntimeErrors.INDEX_NUMBER_TOO_LARGE, toLong);
-        }
-        if (fromLong != (int) fromLong) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
-                                                           RuntimeErrors.INDEX_NUMBER_TOO_LARGE, fromLong);
-        }
-
-        int from = (int) fromLong;
-        int to = (int) toLong;
-
-        if (from < 0 || to > initialString.length()) {
-            throw new BallerinaException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
-                                         "String index out of range. Actual:" + initialString.length() + " requested: "
-                                                 + from + " to " + to);
-        }
-        BString subString = new BString(initialString.substring(from, to));
-        context.setReturnValues(subString);
-    }
+public class Substring {
 
     public static String substring(Strand strand, String value, long startIndex, long endIndex) {
         StringUtils.checkForNull(value);

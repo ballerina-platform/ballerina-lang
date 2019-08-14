@@ -32,3 +32,26 @@ public function newStringWithStringBuilder(handle builder) returns handle = @jav
     paramTypes:["java.lang.StringBuilder"]
 } external;
 
+
+public function testOverloadedMethodsWithByteArrayParams(string strValue) returns string? {
+    handle str = java:fromString(strValue);
+    handle bytes = getBytes(str);
+    sortByteArray(bytes);
+    handle sortedStr = newString(bytes);
+    return java:toString(sortedStr);
+}
+
+function getBytes(handle receiver) returns handle = @java:Method {
+    class: "java.lang.String"
+} external;
+
+function sortByteArray(handle src) = @java:Method {
+    name: "sort",
+    class: "java.util.Arrays",
+    paramTypes: [{class: "byte", dimensions:1}]
+} external;
+
+function newString(handle bytes) returns handle = @java:Constructor {
+    class: "java.lang.String",
+    paramTypes: [{class: "byte", dimensions:1}]
+} external;

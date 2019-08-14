@@ -24,7 +24,6 @@ dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-core')
     implementation project(':lib-creator')
 
     testCompile project(':ballerina-runtime-api')
@@ -33,6 +32,7 @@ dependencies {
     testCompile project(':ballerina-io')
     testCompile project(':ballerina-log-api')
     testCompile project(':ballerina-test-utils')
+    testCompile project(':ballerina-core')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile 'org.testng:testng'
     testCompile 'org.awaitility:awaitility'
