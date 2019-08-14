@@ -39,7 +39,7 @@ public class SenderReqRespStateManager {
 
     public SenderState state;
 
-    private final Channel nettyTargetChannel;
+    public final Channel nettyTargetChannel;
 
     public SenderReqRespStateManager(Channel nettyTargetChannel) {
         this.nettyTargetChannel = nettyTargetChannel;

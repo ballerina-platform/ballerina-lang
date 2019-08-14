@@ -28,18 +28,14 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.exceptions.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.exceptions.EndpointTimeOutException;
-import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.states.SenderReqRespStateManager;
 import org.wso2.transport.http.netty.contractimpl.sender.TargetHandler;
-import org.wso2.transport.http.netty.contractimpl.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.wso2.transport.http.netty.contract.Constants.CLIENT_TO_REMOTE_HOST_CONNECTION_CLOSED;
 import static org.wso2.transport.http.netty.contract.Constants
@@ -48,7 +44,6 @@ import static org.wso2.transport.http.netty.contract.Constants.INBOUND_RESPONSE_
 import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY;
 import static org.wso2.transport.http.netty.contractimpl.common.Util.isLastHttpContent;
 import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.ILLEGAL_STATE_ERROR;
-import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.writeRequestHeaders;
 
 /**
  * State between start and end of outbound request entity body write.
@@ -59,22 +54,14 @@ public class SendingEntityBody implements SenderState {
 
     private final SenderReqRespStateManager senderReqRespStateManager;
 
-    private final boolean headersWritten;
     private final HandlerExecutor handlerExecutor;
-    private final TargetChannel targetChannel;
     private final HttpResponseFuture httpInboundResponseFuture;
-    private final String httpVersion;
-    private long contentLength = 0;
-    private List<HttpContent> contentList = new ArrayList<>();
 
-    SendingEntityBody(SenderReqRespStateManager senderReqRespStateManager, TargetChannel targetChannel,
-                      boolean headersWritten, HttpResponseFuture httpInboundResponseFuture, String httpVersion) {
+    SendingEntityBody(SenderReqRespStateManager senderReqRespStateManager,
+                      HttpResponseFuture httpInboundResponseFuture) {
         this.senderReqRespStateManager = senderReqRespStateManager;
-        this.targetChannel = targetChannel;
-        this.headersWritten = headersWritten;
         this.handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
         this.httpInboundResponseFuture = httpInboundResponseFuture;
-        this.httpVersion = httpVersion;
     }
 
     @Override
@@ -85,27 +72,13 @@ public class SendingEntityBody implements SenderState {
     @Override
     public void writeOutboundRequestEntity(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
         if (isLastHttpContent(httpContent)) {
-            if (!headersWritten) {
-                contentLength += httpContent.content().readableBytes();
-                Util.setupContentLengthRequest(httpOutboundRequest, contentLength);
-                writeRequestHeaders(httpOutboundRequest, httpInboundResponseFuture, httpVersion, targetChannel);
-                for (HttpContent cachedHttpContent : contentList) {
-                    this.targetChannel.getChannel().writeAndFlush(cachedHttpContent);
-                }
-            }
             writeOutboundRequestBody(httpContent);
 
             if (handlerExecutor != null) {
                 handlerExecutor.executeAtTargetRequestSending(httpOutboundRequest);
             }
-
         } else {
-            if (headersWritten) {
-                this.targetChannel.getChannel().writeAndFlush(httpContent);
-            } else {
-                this.contentList.add(httpContent);
-                contentLength += httpContent.content().readableBytes();
-            }
+            senderReqRespStateManager.nettyTargetChannel.writeAndFlush(httpContent);
         }
     }
 
@@ -127,7 +100,8 @@ public class SendingEntityBody implements SenderState {
     @Override
     public void handleAbruptChannelClosure(HttpResponseFuture httpResponseFuture) {
         httpResponseFuture
-                .notifyHttpListener(new ClientConnectorException(targetChannel.getChannel().id().asShortText(),
+                .notifyHttpListener(
+                        new ClientConnectorException(senderReqRespStateManager.nettyTargetChannel.id().asShortText(),
                 REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY));
         LOG.error("Error in HTTP client: {}", REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_BODY);
     }
@@ -141,7 +115,8 @@ public class SendingEntityBody implements SenderState {
     }
 
     private void writeOutboundRequestBody(HttpContent lastHttpContent) {
-        ChannelFuture outboundRequestChannelFuture = targetChannel.getChannel().writeAndFlush(lastHttpContent);
+        ChannelFuture outboundRequestChannelFuture =
+                senderReqRespStateManager.nettyTargetChannel.writeAndFlush(lastHttpContent);
         checkForRequestWriteStatus(outboundRequestChannelFuture);
     }
 
