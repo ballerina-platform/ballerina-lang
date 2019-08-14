@@ -22,7 +22,6 @@ import org.ballerinalang.openapi.typemodel.OpenApiRequestBodyType;
 import org.ballerinalang.openapi.typemodel.OpenApiResponseType;
 import org.ballerinalang.openapi.typemodel.OpenApiSchemaType;
 import org.ballerinalang.openapi.typemodel.OpenApiType;
-import org.ballerinalang.tool.LauncherUtils;
 
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
@@ -32,15 +31,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-
 /**
  * This Class will handle the type matching of a given OpenApi Object.
  */
 public class TypeMatchingUtil {
 
     private static final PrintStream outStream = System.err;
-    private static String resourceName = "";
-    private static int count = 0;
 
     public static OpenApiType traveseOpenApiTypes(OpenAPI api) {
         Iterator<Map.Entry<String, PathItem>> pathItemIterator = api.getPaths().entrySet().iterator();
@@ -231,11 +227,12 @@ public class TypeMatchingUtil {
                 operation.setOperationName(nextOp.getValue().getOperationId()
                         .replace(" ", "_").toLowerCase(Locale.ENGLISH));
             } else {
-                String resName = "resource_" + "_" + nextOp.getKey().toString().toLowerCase() + path.replaceAll("/","_")
+                String resName = "resource_" + "_" + nextOp.getKey().toString().toLowerCase(Locale.ENGLISH)
+                        + path.replaceAll("/", "_")
                         .replaceAll("[{}]", "");
                 operation.setOperationName(resName);
                 outStream.println("warning : `" + resName + "` is used as the resource name since the " +
-                        "operation id is missing for " + path  + " "+ nextOp.getKey());
+                        "operation id is missing for " + path + " " + nextOp.getKey());
             }
 
             if (nextOp.getValue().getParameters() != null && !nextOp.getValue().getParameters().isEmpty()) {
