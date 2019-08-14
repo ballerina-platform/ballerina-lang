@@ -28,7 +28,6 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
@@ -43,13 +42,10 @@ import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.listener.states.ListenerReqRespStateManager;
 import org.wso2.transport.http.netty.contractimpl.listener.states.SendingHeaders;
-import org.wso2.transport.http.netty.contractimpl.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
-
-import static org.wso2.transport.http.netty.contract.Constants.CLIENT_TO_REMOTE_HOST_CONNECTION_CLOSED;
 
 /**
  * Utility functions for states.
@@ -82,26 +78,6 @@ public class StateUtil {
                 httpResponseStatusFuture.notifyHttpListener(throwable);
             }
         });
-    }
-
-    public static void writeRequestHeaders(HttpCarbonMessage httpOutboundRequest,
-                                           HttpResponseFuture httpInboundResponseFuture, String httpVersion,
-                                           TargetChannel targetChannel) {
-        setHttpVersionProperty(httpOutboundRequest, httpVersion);
-        HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
-        targetChannel.setRequestHeaderWritten(true);
-        ChannelFuture outboundHeaderFuture = targetChannel.getChannel().write(httpRequest);
-        notifyIfHeaderWriteFailure(httpInboundResponseFuture, outboundHeaderFuture,
-                                   CLIENT_TO_REMOTE_HOST_CONNECTION_CLOSED);
-    }
-
-    private static void setHttpVersionProperty(HttpCarbonMessage httpOutboundRequest, String httpVersion) {
-        if (Constants.HTTP_2_0.equals(httpVersion)) {
-            // Upgrade request of HTTP/2 should be a HTTP/1.1 request
-            httpOutboundRequest.setHttpVersion(String.valueOf(Constants.HTTP_1_1));
-        } else {
-            httpOutboundRequest.setHttpVersion(httpVersion);
-        }
     }
 
     public static ChannelFuture sendRequestTimeoutResponse(ChannelHandlerContext ctx, HttpResponseStatus status,
