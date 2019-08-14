@@ -105,8 +105,8 @@ public class SendingHeaders implements SenderState {
     }
 
     private void writeRequestHeaders(HttpCarbonMessage httpOutboundRequest,
-                                           HttpResponseFuture httpInboundResponseFuture, String httpVersion,
-                                           TargetChannel targetChannel) {
+                                     HttpResponseFuture httpInboundResponseFuture, String httpVersion,
+                                     TargetChannel targetChannel) {
         setHttpVersionProperty(httpOutboundRequest, httpVersion);
         HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
         targetChannel.setRequestHeaderWritten(true);
