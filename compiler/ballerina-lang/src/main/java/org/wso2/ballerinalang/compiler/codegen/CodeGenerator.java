@@ -356,14 +356,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public ProgramFile generateBALX(BLangPackage pkgNode) {
-        ProgramFile programFile = new ProgramFile();
-
-        // Add all the packages to the program file structure.
-        addPackageInfo(pkgNode.symbol, programFile);
-        programFile.entryPkgCPIndex = addPackageRefCPEntry(programFile, pkgNode.symbol.pkgID);
-        // TODO Remove the following line..
-        setEntryPoints(programFile, pkgNode);
-        return programFile;
+        throw new UnsupportedOperationException("BVM is deprecated");
     }
 
     public BLangPackage generateBALO(BLangPackage pkgNode) {

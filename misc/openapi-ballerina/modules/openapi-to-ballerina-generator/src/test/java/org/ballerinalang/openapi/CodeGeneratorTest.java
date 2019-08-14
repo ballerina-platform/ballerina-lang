@@ -16,11 +16,13 @@
 package org.ballerinalang.openapi;
 
 import org.apache.commons.io.FileUtils;
+import org.ballerinalang.openapi.cmd.OpenAPIBallerinaProject;
+import org.ballerinalang.openapi.cmd.OpenAPICommandTest;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.openapi.model.GenSrcFile;
 import org.ballerinalang.openapi.utils.GeneratorConstants.GenType;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -43,36 +45,52 @@ public class CodeGeneratorTest {
     @BeforeClass
     public void setUp() {
         projectPath = RES_DIR.resolve(Paths.get("expected", "petStore"));
-        if (Files.notExists(projectPath)) {
-            try {
-                Files.createDirectory(projectPath);
-                File file = new File(projectPath.resolve("Ballerina.toml").toString());
-                file.createNewFile();
-                sourceRoot = projectPath.resolve("src");
-                if (Files.notExists(sourceRoot)) {
-                    Files.createDirectory(sourceRoot);
-                }
-            } catch (IOException e) {
-                // Ignore.
-            }
-        }
     }
 
     @Test(description = "Test Ballerina skeleton generation")
     public void generateSkeleton() {
         final String pkgName = "module";
-        final String serviceName = "testService";
+        final String serviceName = "openapi_petstore";
         String definitionPath = RES_DIR + File.separator + "petstore.yaml";
         CodeGenerator generator = new CodeGenerator();
         generator.setSrcPackage(pkgName);
-        Path outFile = sourceRoot.resolve(Paths.get(pkgName, "gen", "openapi_petstore.bal"));
-
         try {
+            OpenAPIBallerinaProject ballerinaProject = OpenAPICommandTest.createBalProject(projectPath.toString(),
+                    pkgName);
+            Path outFile = ballerinaProject.getImplPath().resolve(Paths.get("openapi_petstore.bal"));
             generator.generateService(projectPath.toString(), definitionPath, serviceName,
                     projectPath.toString());
             if (Files.exists(outFile)) {
                 String result = new String(Files.readAllBytes(outFile));
-                Assert.assertTrue(result.contains("listPets (http:Caller outboundEp"));
+                Assert.assertTrue(result.contains("service openapi_petstore on ep0, ep1 {\n" +
+                        "\n" +
+                        "    @http:ResourceConfig {\n" +
+                        "        methods:[\"GET\"],\n" +
+                        "        path:\"/pets\"\n" +
+                        "    }\n" +
+                        "    resource function listpets (http:Caller outboundEp, http:Request Req ) returns error? {\n"
+                        + "\n" +
+                        "    }\n" +
+                        "\n" +
+                        "    @http:ResourceConfig {\n" +
+                        "        methods:[\"POST\"],\n" +
+                        "        path:\"/pets\"\n" +
+                        "    }\n" +
+                        "    resource function resource__post_pets (http:Caller outboundEp, http:Request Req )" +
+                        " returns error? {\n" +
+                        "\n" +
+                        "    }\n" +
+                        "\n" +
+                        "    @http:ResourceConfig {\n" +
+                        "        methods:[\"GET\"],\n" +
+                        "        path:\"/pets/{petId}\"\n" +
+                        "    }\n" +
+                        "    resource function showpetbyid (http:Caller outboundEp, http:Request Req, string petId )" +
+                        " returns error? {\n" +
+                        "\n" +
+                        "    }\n" +
+                        "\n" +
+                        "}"));
             } else {
                 Assert.fail("Service was not generated");
             }
@@ -87,14 +105,11 @@ public class CodeGeneratorTest {
         String definitionPath = RES_DIR + File.separator + "petstore.yaml";
         CodeGenerator generator = new CodeGenerator();
         generator.setSrcPackage(pkgName);
-        Path outFile = projectPath.resolve(Paths.get(pkgName, "gen", "openapi_petstore.bal"));
-
         try {
-            Path cachePath = projectPath.resolve(Paths.get(".ballerina"));
-            if (Files.notExists(cachePath)) {
-                Files.createDirectory(cachePath);
-            }
-
+            OpenAPIBallerinaProject ballerinaProject = OpenAPICommandTest.createBalProject(projectPath.toString(),
+                    pkgName);
+            Path outFile = ballerinaProject.getImplPath().resolve("client")
+                    .resolve(Paths.get("openapi_petstore.bal"));
             generator.generateClient(projectPath.toString(), definitionPath, projectPath.toString());
             if (Files.exists(outFile)) {
                 String result = new String(Files.readAllBytes(outFile));
@@ -141,7 +156,7 @@ public class CodeGeneratorTest {
         };
     }
 
-    @AfterClass
+    @AfterTest
     public void afterTest() {
         try {
             FileUtils.deleteDirectory(projectPath.toFile());

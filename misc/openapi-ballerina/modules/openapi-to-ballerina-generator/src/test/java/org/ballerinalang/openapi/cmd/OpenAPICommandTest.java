@@ -22,10 +22,12 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Comparator;
 
 /**
@@ -73,5 +75,40 @@ public abstract class OpenAPICommandTest {
                 });
         console.close();
         printStream.close();
+    }
+
+    public static OpenAPIBallerinaProject createBalProject(String directory, String moduleName) throws IOException {
+        OpenAPIBallerinaProject openAPIBallerinaProject = new OpenAPIBallerinaProject();
+        Path projectPath = Paths.get(directory);
+        if (Files.notExists(projectPath)) {
+            Files.createDirectory(projectPath);
+        }
+
+        if (Files.notExists(projectPath.resolve("Ballerina.toml"))) {
+            File file = new File(projectPath.resolve("Ballerina.toml").toString());
+            file.createNewFile();
+        }
+        openAPIBallerinaProject.setBalProjectPath(projectPath);
+
+        Path srcPath = projectPath.resolve("src");
+        if (Files.notExists(srcPath)) {
+            Files.createDirectory(srcPath);
+        }
+        openAPIBallerinaProject.setSrcPath(srcPath);
+
+        if (moduleName != null) {
+            Path implPath = srcPath.resolve(moduleName);
+            if (Files.notExists(implPath)) {
+                Files.createDirectory(implPath);
+            }
+            openAPIBallerinaProject.setImplPath(implPath);
+
+            Path resourcePath = implPath.resolve("resources");
+            if (Files.notExists(resourcePath)) {
+                Files.createDirectory(resourcePath);
+            }
+        }
+
+        return openAPIBallerinaProject;
     }
 }

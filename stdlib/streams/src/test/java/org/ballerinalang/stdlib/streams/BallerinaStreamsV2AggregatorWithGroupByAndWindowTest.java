@@ -38,11 +38,14 @@ public class BallerinaStreamsV2AggregatorWithGroupByAndWindowTest {
     private CompileResult result;
     private CompileResult resultWithAlias;
     private CompileResult result2;
+    private CompileResult result3;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/streamingv2-aggregate-with-groupby-and-window-test.bal");
         result2 = BCompileUtil.compile("test-src/streamingv2-aggregate-in-func-with-groupby-and-window-test.bal");
+        result3 = BCompileUtil
+                .compile("test-src/streamingv2-aggregate-with-groupby-and-window-with-langlib-func-test.bal");
         resultWithAlias = BCompileUtil.
                 compile("test-src/alias/streamingv2-aggregate-with-groupby-and-window-test.bal");
     }
@@ -102,5 +105,10 @@ public class BallerinaStreamsV2AggregatorWithGroupByAndWindowTest {
     @Test(description = "Test groupby with windows streaming query with stream alias")
     public void testSelectWithGroupByAndWindowWithAlias() {
         testResult(resultWithAlias);
+    }
+
+    @Test(description = "Test groupby with windows streaming query with Lang lib functions")
+    public void testSelectWithGroupByAndWindowWithLangLibFuncs() {
+        testResult(result3);
     }
 }

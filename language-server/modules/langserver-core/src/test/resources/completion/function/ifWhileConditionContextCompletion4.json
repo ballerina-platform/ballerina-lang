@@ -1051,14 +1051,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "WebSocketClientEndpointConfig",
+      "label": "WebSocketClientConfiguration",
       "kind": "Class",
       "detail": "Record",
       "documentation": {
         "left": "Configuration for the WebSocket client endpoint.\n"
       },
       "sortText": "120",
-      "insertText": "WebSocketClientEndpointConfig",
+      "insertText": "WebSocketClientConfiguration",
       "insertTextFormat": "Snippet"
     },
     {

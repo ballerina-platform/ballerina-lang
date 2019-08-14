@@ -75,14 +75,36 @@ public function prepareError(string message, error? err = ()) returns Error {
     return authError;
 }
 
-# Set the authentication context token and scheme.
+# Set the authentication context values to invocation context.
 #
 # + scheme - Auth scheme (JWT, LDAP, OAuth2, Basic etc.)
 # + authToken - Auth token (credential)
 public function setAuthenticationContext(string scheme, string authToken) {
-    runtime:AuthenticationContext? authenticationContext = runtime:getInvocationContext()?.authenticationContext;
-    if (authenticationContext is runtime:AuthenticationContext) {
-        authenticationContext.scheme = scheme;
-        authenticationContext.authToken = authToken;
+    runtime:InvocationContext invocationContext = runtime:getInvocationContext();
+    invocationContext.authenticationContext = {
+        scheme: scheme,
+        authToken: authToken
+    };
+}
+
+# Set the principal values to invocation context.
+#
+# + userId - User Id of the authenticated user.
+# + username - Username of the authenticated user.
+# + claims - Claims of the authenticated user.
+# + scopes - Authenticated user scopes.
+public function setPrincipal(public string? userId = (), public string? username = (), public string[]? scopes = (), public map<any>? claims = ()) {
+    runtime:InvocationContext invocationContext = runtime:getInvocationContext();
+    if (!(userId is ())) {
+        invocationContext.principal.userId = userId;
+    }
+    if (!(username is ())) {
+        invocationContext.principal.username = username;
+    }
+    if (!(scopes is ())) {
+        invocationContext.principal.scopes = scopes;
+    }
+    if (!(claims is ())) {
+        invocationContext.principal.claims = claims;
     }
 }
