@@ -536,12 +536,38 @@ function getActualType(bir:BUnionType unionType) returns bir:BType? {
 
 // We can improve following logic with a type lattice.
 function performNarrowingPrimitiveConversion(jvm:MethodVisitor mv, BValueType bType, jvm:PrimitiveType jType){
-    if bType is bir:BTypeInt && jType is jvm:Long {
+    if bType is bir:BTypeByte && jType is jvm:Byte {
+        return; // NOP
+    } else if bType is bir:BTypeInt && jType is jvm:Long {
         return; // NOP
     } else if bType is bir:BTypeFloat && jType is jvm:Double {
         return; // NOP
+    } else if bType is bir:BTypeByte {
+        if jType is jvm:Short {
+            mv.visitInsn(I2S);
+        } else if jType is jvm:Char {
+            mv.visitInsn(I2C);
+        } else if jType is jvm:Long {
+            mv.visitInsn(I2L);
+        } else if jType is jvm:Float {
+            mv.visitInsn(I2F);
+        } else if jType is jvm:Double {
+            mv.visitInsn(I2D);
+        }
+        // byte to int is a NOP
+        return;
     } else if bType is bir:BTypeInt {
         // Only possible jvm types are Byte, Short, Char and Int
+        if jType is jvm:Float {
+            mv.visitInsn(L2F);
+            return;
+        }
+
+        if jType is jvm:Double {
+            mv.visitInsn(L2D);
+            return;
+        }
+
         mv.visitInsn(L2I);
         if jType is jvm:Byte {
             mv.visitInsn(I2B);
@@ -787,7 +813,7 @@ function genArrayNew(jvm:MethodVisitor mv, jvm:JType elementType) {
         mv.visitIntInsn(NEWARRAY, T_CHAR);
     } else if elementType is jvm:Float {
         mv.visitIntInsn(NEWARRAY, T_FLOAT);
-    } else if elementType is jvm:RefType|jvm:ArrayType {
+    } else if elementType is jvm:RefType | jvm:ArrayType {
         mv.visitTypeInsn(ANEWARRAY, getSignatureForJType(elementType));
     } else {
         error e = error(io:sprintf("invalid type for var-arg: %s", elementType));
