@@ -206,7 +206,7 @@ public class PackageLoader {
         }
         
         // If lock file is not there, fist check in central.
-        if (!this.offline && this.hasLockFile(sourceRoot)) {
+        if (!this.offline && this.hasLockFile(Paths.get(this.options.get(PROJECT_DIR)))) {
             homeCacheNode = node(remoteDryRepo, homeCacheNode);
         }
         
@@ -272,7 +272,7 @@ public class PackageLoader {
         String orgName = pkgId.orgName.value;
         String pkgName = pkgId.name.value;
         String pkgAlias = orgName + "/" + pkgName;
-        if (!this.hasLockFile(this.sourceDirectory.getPath())) {
+        if (!this.hasLockFile(Paths.get(this.options.get(PROJECT_DIR)))) {
             // TODO: make getDependencies return a map
              Optional<Dependency> dependency = manifest.getDependencies()
                                                       .stream()
