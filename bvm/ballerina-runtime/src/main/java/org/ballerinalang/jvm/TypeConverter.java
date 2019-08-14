@@ -21,6 +21,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
@@ -30,6 +31,9 @@ import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 import static org.ballerinalang.jvm.TypeChecker.checkIsLikeType;
@@ -37,6 +41,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MAX_VALUE;
 import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
 import static org.ballerinalang.jvm.util.BLangConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
 import static org.ballerinalang.jvm.util.BLangConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
+import static org.ballerinalang.jvm.values.DecimalValue.isDecimalWithinIntRange;
 
 /**
  * Provides utils methods for casting, stamping and conversion of values.
@@ -100,6 +105,72 @@ public class TypeConverter {
             default:
                 throw BallerinaErrors.createTypeCastError(inputValue, targetType);
         }
+    }
+
+    static boolean isConvertibleToByte(Object value) {
+        BType inputType = TypeChecker.getType(value);
+        switch (inputType.getTag()) {
+            case TypeTags.BYTE_TAG:
+                return true;
+            case TypeTags.INT_TAG:
+                return isByteLiteral((long) value);
+            case TypeTags.FLOAT_TAG:
+                Double doubleValue = (Double) value;
+                return isFloatWithinIntRange(doubleValue) && isByteLiteral(doubleValue.longValue());
+            case TypeTags.DECIMAL_TAG:
+                return isDecimalWithinIntRange((BigDecimal) value) && isByteLiteral(((BigDecimal) value).longValue());
+            default:
+                return false;
+        }
+    }
+
+    static boolean isConvertibleToInt(Object value) {
+        BType inputType = TypeChecker.getType(value);
+        switch (inputType.getTag()) {
+            case TypeTags.BYTE_TAG:
+            case TypeTags.INT_TAG:
+                return true;
+            case TypeTags.FLOAT_TAG:
+                return isFloatWithinIntRange((double) value);
+            case TypeTags.DECIMAL_TAG:
+                return isDecimalWithinIntRange((BigDecimal) value);
+            default:
+                return false;
+        }
+    }
+
+    static boolean isConvertibleToFloatingPointTypes(Object value) {
+        BType inputType = TypeChecker.getType(value);
+        switch (inputType.getTag()) {
+            case TypeTags.BYTE_TAG:
+            case TypeTags.INT_TAG:
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.DECIMAL_TAG:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public static List<BType> getConvertibleTypes(Object inputValue, BType targetType) {
+        List<BType> convertibleTypes = new ArrayList<>();
+
+        int targetTypeTag = targetType.getTag();
+
+        switch (targetTypeTag) {
+            case TypeTags.UNION_TAG:
+                for (BType memType : ((BUnionType) targetType).getMemberTypes()) {
+                    convertibleTypes.addAll(getConvertibleTypes(inputValue, memType));
+                }
+                break;
+            case TypeTags.RECORD_TYPE_TAG:
+                // TODO: 8/13/19 impl against def value
+            default:
+                if (TypeChecker.checkIsLikeType(inputValue, targetType, true)) {
+                    convertibleTypes.add(targetType);
+                }
+        }
+        return convertibleTypes;
     }
 
     static long anyToInt(Object sourceVal, Supplier<ErrorValue> errorFunc) {

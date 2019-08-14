@@ -58,6 +58,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static org.ballerinalang.jvm.JSONUtils.mergeJson;
+import static org.ballerinalang.jvm.TypeConverter.getConvertibleTypes;
 import static org.ballerinalang.jvm.values.freeze.FreezeUtils.handleInvalidUpdate;
 
 /**
@@ -507,9 +508,13 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             for (Map.Entry valueEntry : this.entrySet()) {
                 String fieldName = valueEntry.getKey().toString();
                 Object value = valueEntry.getValue();
+                BType bType = targetTypeField.getOrDefault(fieldName, restFieldType);
                 if (value instanceof RefValue) {
-                    BType bType = targetTypeField.getOrDefault(fieldName, restFieldType);
                     ((RefValue) value).stamp(bType, unresolvedValues);
+                } else if (!TypeChecker.checkIsType(value, bType)) {
+                    // Has to be a numeric conversion.
+                    this.put((K) fieldName,
+                             (V) TypeConverter.convertValues(getConvertibleTypes(value, bType).get(0), value));
                 }
             }
         } else if (type.getTag() == TypeTags.UNION_TAG) {

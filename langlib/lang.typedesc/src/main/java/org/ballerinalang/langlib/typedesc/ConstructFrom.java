@@ -21,12 +21,16 @@ package org.ballerinalang.langlib.typedesc;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.TypeConverter;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypedescType;
-import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
+import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
@@ -38,6 +42,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static org.ballerinalang.jvm.TypeConverter.getConvertibleTypes;
 
 /**
  * Extern function lang.typedesc:constructFrom.
@@ -76,10 +82,8 @@ public class ConstructFrom {
                 return null;
             }
             return BallerinaErrors
-                    .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR,
-                                 org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper
-                                         .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
-                                                                  .CANNOT_CONVERT_NIL, convertType));
+                    .createError(BallerinaErrorReasons.CONVERSION_ERROR,
+                                 BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, convertType));
         }
 
         BType inputValType = TypeChecker.getType(inputValue);
@@ -105,8 +109,12 @@ public class ConstructFrom {
             return BallerinaErrors.createConversionError(inputValue, convertType, AMBIGUOUS_TARGET);
         }
 
-        // if input value is a value-type, return as is.
         if (inputValType.getTag() < TypeTags.JSON_TAG) {
+            // If input value is a value-type, perform a numeric conversion if required.
+            if (!TypeChecker.checkIsType(inputValue, convertType)) {
+                return TypeConverter.convertValues(convertibleTypes.get(0), inputValue);
+            }
+
             return inputValue;
         }
 
@@ -115,30 +123,8 @@ public class ConstructFrom {
             RefValue convertedValue = (RefValue) refValue.copy(new HashMap<>());
             convertedValue.stamp(convertibleTypes.get(0), new ArrayList<>());
             return convertedValue;
-        } catch (org.ballerinalang.jvm.util.exceptions.BallerinaException e) {
-            return BallerinaErrors.createError(
-                    org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR, e.getDetail());
+        } catch (BallerinaException e) {
+            return BallerinaErrors.createError(BallerinaErrorReasons.CONVERSION_ERROR, e.getDetail());
         }
-    }
-
-    private static List<BType> getConvertibleTypes(Object inputValue, BType targetType) {
-        List<BType> convertibleTypes = new ArrayList<>();
-
-        int targetTypeTag = targetType.getTag();
-
-        switch (targetTypeTag) {
-            case TypeTags.UNION_TAG:
-                for (BType memType : ((BUnionType) targetType).getMemberTypes()) {
-                    convertibleTypes.addAll(getConvertibleTypes(inputValue, memType));
-                }
-                break;
-            case TypeTags.RECORD_TYPE_TAG:
-                // TODO: 8/13/19 impl against def value
-            default:
-                if (TypeChecker.checkIsLikeType(inputValue, targetType)) {
-                    convertibleTypes.add(targetType);
-                }
-        }
-        return convertibleTypes;
     }
 }
