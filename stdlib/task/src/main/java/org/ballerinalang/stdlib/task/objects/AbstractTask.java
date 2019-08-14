@@ -22,8 +22,8 @@ import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.utils.TaskIdGenerator;
 import org.quartz.JobDataMap;
 import org.quartz.JobKey;
-import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
+import org.quartz.TriggerKey;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,19 +37,20 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.TASK_OBJECT;
  */
 public abstract class AbstractTask implements Task {
 
-    protected String id = TaskIdGenerator.generate();
+    protected String id;
+    private TriggerKey triggerKey;
     private HashMap<String, ServiceInformation> serviceMap;
     Map<String, JobKey> quartzJobs = new HashMap<>();
     long maxRuns;
-    Scheduler scheduler;
 
     /**
      * Constructor to create a task without a limited (maximum) number of runs.
      */
     AbstractTask() throws SchedulingException {
+        this.id = TaskIdGenerator.generate();
+        this.triggerKey = new TriggerKey(this.id);
         this.serviceMap = new HashMap<>();
         this.maxRuns = -1;
-        this.scheduler = TaskManager.getInstance().getScheduler();
     }
 
     /**
@@ -58,10 +59,11 @@ public abstract class AbstractTask implements Task {
      * @param maxRuns Maximum number of runs allowed.
      */
     AbstractTask(long maxRuns) throws SchedulingException {
+        this.id = TaskIdGenerator.generate();
+        this.triggerKey = new TriggerKey(this.id);
         validateMaxRuns(maxRuns);
         this.serviceMap = new HashMap<>();
         this.maxRuns = maxRuns;
-        this.scheduler = TaskManager.getInstance().getScheduler();
     }
 
     /**
@@ -127,7 +129,7 @@ public abstract class AbstractTask implements Task {
     public void stop() throws SchedulingException {
         try {
             JobKey jobKey = quartzJobs.get(this.getId());
-            this.scheduler.deleteJob(jobKey);
+            TaskManager.getInstance().getScheduler().deleteJob(jobKey);
         } catch (SchedulerException e) {
             throw new SchedulingException("Failed to stop the task.", e);
         }
@@ -138,7 +140,7 @@ public abstract class AbstractTask implements Task {
      */
     public void pause() throws SchedulingException {
         try {
-            this.scheduler.pauseAll();
+            TaskManager.getInstance().getScheduler().pauseTrigger(triggerKey);
         } catch (SchedulerException e) {
             throw new SchedulingException("Cannot pause the task.", e);
         }
@@ -149,7 +151,7 @@ public abstract class AbstractTask implements Task {
      */
     public void resume() throws SchedulingException {
         try {
-            this.scheduler.resumeAll();
+            TaskManager.getInstance().getScheduler().resumeTrigger(triggerKey);
         } catch (SchedulerException e) {
             throw new SchedulingException("Cannot resume the task.", e);
         }
