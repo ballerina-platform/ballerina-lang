@@ -16,7 +16,18 @@
 
 package org.ballerinalang.debugadapter;
 
+import com.sun.jdi.ArrayReference;
+import com.sun.jdi.Field;
+import com.sun.jdi.IntegerValue;
 import com.sun.jdi.LocalVariable;
+import com.sun.jdi.Value;
+import com.sun.tools.jdi.ObjectReferenceImpl;
+
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * Variable utils.
@@ -76,5 +87,38 @@ public class VariableUtils {
         }
 
         return balType;
+    }
+
+    public static Map<String, Value> getChildVariables(ObjectReferenceImpl variable) {
+        List<Field> fields = variable.referenceType().allFields();
+
+        Field arrayValueField = variable
+                .getValues(fields).entrySet().stream()
+                .filter(fieldValueEntry ->
+                        fieldValueEntry.getValue() != null
+                                && fieldValueEntry.getKey().toString().endsWith("Values"))
+                .map(fieldValueEntry -> fieldValueEntry.getKey())
+                .collect(Collectors.toList()).get(0);
+        Field arraySizeField = variable
+                .getValues(fields).entrySet().stream()
+                .filter(fieldValueEntry ->
+                        fieldValueEntry.getValue() != null
+                                && fieldValueEntry.getKey().toString().endsWith("ArrayValue.size"))
+                .map(fieldValueEntry -> fieldValueEntry.getKey())
+                .collect(Collectors.toList()).get(0);
+        int arraySize = ((IntegerValue) variable.getValue(arraySizeField)).value();
+
+        List<Value> valueList = ((ArrayReference) variable
+                .getValue(arrayValueField)).getValues();
+        // List length is 100 by default. Create a sub list with actual array size
+        List<Value> valueSubList = valueList.subList(0, arraySize);
+
+        Map<String, Value> values = new TreeMap<>();
+        AtomicInteger nextVarIndex = new AtomicInteger(0);
+        valueSubList.stream().forEach(item -> {
+            int varIndex = nextVarIndex.getAndIncrement();
+            values.put("[" + varIndex + "]", valueSubList.get(varIndex));
+        });
+        return values;
     }
 }

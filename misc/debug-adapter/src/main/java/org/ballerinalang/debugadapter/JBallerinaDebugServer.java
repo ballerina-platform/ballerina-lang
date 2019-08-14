@@ -17,11 +17,9 @@
 package org.ballerinalang.debugadapter;
 
 import com.sun.jdi.AbsentInformationException;
-import com.sun.jdi.ArrayReference;
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.Field;
 import com.sun.jdi.IncompatibleThreadStateException;
-import com.sun.jdi.LocalVariable;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
@@ -321,19 +319,27 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         if (stackFrame == null) {
             Map<String, Value> values = childVariables.get(args.getVariablesReference());
             dapVariables = values.entrySet().stream().map(entry -> {
-                Variable variable = new Variable();
                 Value value = entry.getValue();
-                String valueStr = (value == null) ? "null" : value.toString();
-                variable.setValue(valueStr);
-                variable.setName(entry.getKey());
-                return variable;
+                String varTypeStr = (value == null) ? "null" : value.type().name();
+                String name = entry.getKey();
+
+                return getVariable(value, varTypeStr, name);
             }).toArray(Variable[]::new);
         } else {
             try {
                 dapVariables = stackFrame.getValues(stackFrame.visibleVariables())
                         .entrySet()
                         .stream()
-                        .map(localVariableValueEntry -> getVariable(localVariableValueEntry)).toArray(Variable[]::new);
+                        .map(localVariableValueEntry -> {
+                            String varType;
+                            try {
+                                varType = localVariableValueEntry.getKey().type().name();
+                            } catch (ClassNotLoadedException e) {
+                                varType = localVariableValueEntry.getKey().toString();
+                            }
+                            return getVariable(localVariableValueEntry.getValue(),
+                                    varType, localVariableValueEntry.getKey().name());
+                        }).toArray(Variable[]::new);
             } catch (AbsentInformationException ignored) {
             }
         }
@@ -342,53 +348,50 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         return CompletableFuture.completedFuture(variablesResponse);
     }
 
-    private Variable getVariable(Map.Entry<LocalVariable, Value> localVariableValueEntry) {
-        LocalVariable key = localVariableValueEntry.getKey();
-        Value value = localVariableValueEntry.getValue();
-        String varType = null;
-        try {
-            varType = key.type().name();
-        } catch (ClassNotLoadedException ignored) {
-        }
-        Variable dapVariable = new Variable();
+    private Variable getVariable(Value value, String varType, String varName) {
 
-        dapVariable.setName(key.name());
+        Variable dapVariable = new Variable();
+        dapVariable.setName(varName);
 
         if ("org.ballerinalang.jvm.values.ArrayValue".equalsIgnoreCase(varType)) {
-            List<Field> fields = ((ObjectReferenceImpl) value).referenceType().allFields();
-            String stringValue;
+            String stringValue = value.toString();
             long variableReference = (long) nextVarReference.getAndIncrement();
-
-            Field arrayValue = ((ObjectReferenceImpl) value)
-                    .getValues(fields).entrySet().stream()
-                    .filter(fieldValueEntry ->
-                            fieldValueEntry.getValue() != null
-                                    && fieldValueEntry.getKey().toString().endsWith("Values"))
-                    .map(fieldValueEntry -> fieldValueEntry.getKey())
-                    .collect(Collectors.toList()).get(0);
-            List<Value> valueList = ((ArrayReference) ((ObjectReferenceImpl) value).getValue(arrayValue)).getValues();
-            stringValue = valueList.toString();
-            Map<String, Value> values = new HashMap<>();
-            AtomicInteger nextVarIndex = new AtomicInteger(0);
-            valueList.stream().forEach(item -> {
-                int varIndex = nextVarIndex.getAndIncrement();
-                values.put("[" + varIndex + "]", valueList.get(varIndex));
-            });
-            childVariables.put(variableReference,
-                    values);
+            Map<String, Value> values = VariableUtils.getChildVariables((ObjectReferenceImpl) value);
+            this.childVariables.put(variableReference, values);
             dapVariable.setVariablesReference(variableReference);
 
             dapVariable.setType(varType);
             dapVariable.setValue(stringValue);
             return dapVariable;
         } else if ("java.lang.Object".equalsIgnoreCase(varType)) {
-            // json
-            // TODO : fix for json
-//            List<Field> fields = ((ObjectReferenceImpl) value).referenceType().allFields();
-//            Map<Field, Value> childValues = ((ObjectReferenceImpl) value).getValues(fields);
+            // JSONs
+            if ("org.ballerinalang.jvm.values.ArrayValue".equalsIgnoreCase(value.type().name())) {
+                // JSON array
+                String stringValue = value.toString();
+                long variableReference = (long) nextVarReference.getAndIncrement();
+                Map<String, Value> values = VariableUtils.getChildVariables((ObjectReferenceImpl) value);
+                this.childVariables.put(variableReference, values);
+                dapVariable.setVariablesReference(variableReference);
 
-//            List<Field> childFields = fields.get(1).declaringType().allFields();
-            return dapVariable;
+                dapVariable.setType(varType);
+                dapVariable.setValue(stringValue);
+                return dapVariable;
+            } else {
+                List<Field> fields = ((ObjectReferenceImpl) value).referenceType().allFields();
+//                Map<Field, Value> childValues = ((ObjectReferenceImpl) value).getValues(fields);
+
+                Field valueField = fields.stream().filter(field ->
+                        field.typeName().equals("java.util.HashMap$Node[]")).collect(Collectors.toList()).get(0);
+
+                Value jsonValue = ((ObjectReferenceImpl) value).getValue(valueField);
+                dapVariable.setType(varType);
+                String stringValue = jsonValue == null ? "null" : jsonValue.toString();
+//                Map<String, Value> values = VariableUtils.getChildVariables((ObjectReferenceImpl) jsonValue);
+//                long variableReference = (long) nextVarReference.getAndIncrement();
+//                this.childVariables.put(variableReference, values);
+                dapVariable.setValue(stringValue);
+                return dapVariable;
+            }
         } else if ("org.ballerinalang.jvm.values.ObjectValue".equalsIgnoreCase(varType)) {
             Map<Field, Value> fieldValueMap = ((ObjectReferenceImpl) value)
                     .getValues(((ObjectReferenceImpl) value).referenceType().allFields());
@@ -403,9 +406,15 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             dapVariable.setType(varType);
             dapVariable.setValue("Object");
             return dapVariable;
+        } else if ("java.lang.Long".equalsIgnoreCase(varType) || "java.lang.Boolean".equalsIgnoreCase(varType)) {
+            Field valueField = ((ObjectReferenceImpl) value).referenceType().allFields().stream().filter(
+                    field -> "value".equals(field.name())).collect(Collectors.toList()).get(0);
+            Value longValue = ((ObjectReferenceImpl) value).getValue(valueField);
+            dapVariable.setValue(longValue.toString());
+            return dapVariable;
         } else {
             dapVariable.setType(varType);
-            String stringValue = value == null ? "" : value.toString();
+            String stringValue = value == null ? "null" : value.toString();
             dapVariable.setValue(stringValue);
             return dapVariable;
         }
