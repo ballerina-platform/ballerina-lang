@@ -19,15 +19,24 @@ package org.ballerinalang.jvm;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.State;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 /**
  * External API to be used by the interop users to control Ballerina runtime behavior.
  *
  * @since 1.0.0
  */
-public class Runtime {
+public class BRuntime {
+
+    private Scheduler scheduler;
+
+    private BRuntime(Scheduler scheduler) {
+        this.scheduler = scheduler;
+    }
+
     public static CompletableFuture<Object> markAsync() {
         Strand strand = Scheduler.getStrand();
         strand.blockedOnExtern = true;
@@ -35,6 +44,16 @@ public class Runtime {
         CompletableFuture<Object> future = new CompletableFuture<>();
         future.whenComplete(new Unblocker(strand));
         return future;
+    }
+
+    public static BRuntime getCurrentRuntime() {
+        Strand strand = Scheduler.getStrand();
+        return new BRuntime(strand.scheduler);
+    }
+
+    public void invokeMethod(ObjectValue object, String methodName, Object... args) {
+        Consumer func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
+        scheduler.schedule(new Object[1], func, null);
     }
 
     private static class Unblocker implements java.util.function.BiConsumer<Object, Throwable> {
@@ -53,4 +72,5 @@ public class Runtime {
             }
         }
     }
+
 }
