@@ -738,12 +738,8 @@ public class Types {
 
     private boolean isTupleTypeAssignableToArrayType(BTupleType source, BArrayType target,
                                                      List<TypePair> unresolvedTypes) {
-
-        if (source.restType != null && target.state != BArrayState.UNSEALED) {
-            return false;
-        }
-
-        if (target.state != BArrayState.UNSEALED && source.tupleTypes.size() != target.size) {
+        if (target.state != BArrayState.UNSEALED
+                && (source.restType != null || source.tupleTypes.size() != target.size)) {
             return false;
         }
 
@@ -757,11 +753,8 @@ public class Types {
 
     private boolean isArrayTypeAssignableToTupleType(BArrayType source, BTupleType target,
                                                      List<TypePair> unresolvedTypes) {
-        if (target.restType != null && source.state != BArrayState.UNSEALED) {
-            return false;
-        }
-
-        if (source.state != BArrayState.UNSEALED && target.tupleTypes.size() != source.size) {
+        if (source.state != BArrayState.UNSEALED
+                && (target.restType != null || target.tupleTypes.size() != source.size)) {
             return false;
         }
 
