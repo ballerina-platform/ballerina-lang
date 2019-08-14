@@ -21,9 +21,10 @@ import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.AttachingConnector;
 import com.sun.jdi.connect.Connector;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.Map;
 
 /**
@@ -32,7 +33,7 @@ import java.util.Map;
 public class DebuggerAttachingVM {
     private int port;
     private VirtualMachine vm;
-    private PrintStream out = System.out;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DebuggerAttachingVM.class);
 
     public DebuggerAttachingVM(int port) {
         this.port = port;
@@ -51,7 +52,7 @@ public class DebuggerAttachingVM {
         arg.setValue(this.port);
         defaultArgs.put("port", arg);
 
-        out.println("Debugger is attaching to: " + this.port);
+        LOGGER.info("Debugger is attaching to: " + this.port);
         vm = ac.attach(defaultArgs);
         return vm;
     }

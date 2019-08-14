@@ -18,6 +18,7 @@
 package org.ballerinalang.packerina.cmd;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.packerina.TaskExecutor;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
@@ -37,7 +38,6 @@ import org.ballerinalang.packerina.task.RunCompilerPluginTask;
 import org.ballerinalang.packerina.task.RunTestsTask;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
-import org.ballerinalang.util.BLangConstants;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -57,7 +57,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURE
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
-import static org.ballerinalang.compiler.CompilerOptionName.SIDDHI_RUNTIME_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
@@ -140,9 +139,6 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--test-config"}, description = "Path to the configuration file when running tests.")
     private String configFilePath;
 
-    @CommandLine.Option(names = "--siddhi-runtime", description = "Enable siddhi runtime for stream processing.")
-    private boolean siddhiRuntimeFlag;
-
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
@@ -171,7 +167,8 @@ public class BuildCommand implements BLauncherCmd {
         }
     
         // validation and decide source root and source full path
-        this.sourceRootPath = null != this.sourceRoot ? Paths.get(this.sourceRoot) : this.sourceRootPath;
+        this.sourceRootPath = null != this.sourceRoot ?
+                Paths.get(this.sourceRoot).toAbsolutePath() : this.sourceRootPath;
         Path sourcePath = null;
         Path targetPath;
         
@@ -332,8 +329,6 @@ public class BuildCommand implements BLauncherCmd {
         options.put(SKIP_TESTS, Boolean.toString(this.skipTests));
         options.put(TEST_ENABLED, "true");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
-        options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(this.siddhiRuntimeFlag));
-    
         // create builder context
         BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath, compilerContext);
         buildContext.setOut(outStream);

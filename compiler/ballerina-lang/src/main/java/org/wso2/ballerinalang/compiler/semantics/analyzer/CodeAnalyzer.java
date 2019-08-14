@@ -26,18 +26,23 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -325,6 +330,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         this.validateMainFunction(funcNode);
+        this.validateModuleInitFunction(funcNode);
         try {
 
             this.initNewWorkerActionSystem();
@@ -1139,10 +1145,41 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (type == null || type.tsymbol == null) {
             return;
         }
-        BSymbol symbol = type.tsymbol;
-        if (!Symbols.isPublic(symbol)) {
+        BTypeSymbol symbol = type.tsymbol;
+        if (!isExportable(symbol)) {
             dlog.error(pos, DiagnosticCode.ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL, symbol.name);
         }
+    }
+
+    private boolean isExportable(BTypeSymbol symbol) {
+        if (Symbols.isPublic(symbol)) {
+            return true;
+        }
+        BType type = symbol.getType();
+        if (type.tag == SymTag.UNION_TYPE) {
+            return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isExportableType);
+        }
+        return isExportableType(type);
+    }
+
+    private boolean isExportableType(BType type) {
+        if (type.tag == TypeTags.OBJECT) {
+            // All fields and methods need to be public in order for a object to qualify to be exportable
+            // (When not specified to be public)
+            for (BField field : ((BObjectType) type).fields) {
+                if (!Symbols.isPublic(field.symbol)) {
+                    return false;
+                }
+                for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) type.tsymbol).attachedFuncs) {
+                    if (!Symbols.isPublic(attachedFunc.symbol)) {
+                        return false;
+                    }
+                }
+            }
+        } else if (type.tag == TypeTags.TYPEDESC) {
+            return isExportableType(((BTypedescType) type).constraint);
+        }
+        return true;
     }
 
     public void visit(BLangRecordTypeNode recordTypeNode) {
@@ -1957,6 +1994,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangCheckedExpr checkedExpr) {
         analyzeExpr(checkedExpr.expr);
         boolean enclInvokableHasErrorReturn = false;
+
+        if (this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
+            // Check at module level.
+            return;
+        }
+
         BType exprType = env.enclInvokable.getReturnTypeNode().type;
         if (exprType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) env.enclInvokable.getReturnTypeNode().type;
@@ -2225,6 +2268,27 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!types.isAssignable(funcNode.returnTypeNode.type,
                                 BUnionType.create(null, symTable.nilType, symTable.errorType))) {
             this.dlog.error(funcNode.returnTypeNode.pos, DiagnosticCode.MAIN_RETURN_SHOULD_BE_ERROR_OR_NIL,
+                            funcNode.returnTypeNode.type);
+        }
+    }
+
+    private void validateModuleInitFunction(BLangFunction funcNode) {
+        if (funcNode.attachedFunction || !Names.USER_DEFINED_INIT_SUFFIX.value.equals(funcNode.name.value)) {
+            return;
+        }
+
+        if (Symbols.isPublic(funcNode.symbol)) {
+            this.dlog.error(funcNode.pos, DiagnosticCode.MODULE_INIT_CANNOT_BE_PUBLIC);
+        }
+
+        if (!funcNode.requiredParams.isEmpty() || funcNode.restParam != null) {
+            this.dlog.error(funcNode.pos, DiagnosticCode.MODULE_INIT_CANNOT_HAVE_PARAMS);
+        }
+
+        if (!funcNode.returnTypeNode.type.isNullable() ||
+                !types.isAssignable(funcNode.returnTypeNode.type,
+                                    BUnionType.create(null, symTable.nilType, symTable.errorType))) {
+            this.dlog.error(funcNode.returnTypeNode.pos, DiagnosticCode.MODULE_INIT_RETURN_SHOULD_BE_ERROR_OR_NIL,
                             funcNode.returnTypeNode.type);
         }
     }

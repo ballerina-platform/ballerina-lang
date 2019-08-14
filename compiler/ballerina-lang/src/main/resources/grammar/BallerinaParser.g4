@@ -44,12 +44,7 @@ serviceDefinition
     ;
 
 serviceBody
-    :   LEFT_BRACE serviceBodyMember* RIGHT_BRACE
-    ;
-
-serviceBodyMember
-    :   objectFieldDefinition
-    |   objectFunctionDefinition
+    :   LEFT_BRACE objectFunctionDefinition* RIGHT_BRACE
     ;
 
 callableUnitBody
@@ -993,7 +988,7 @@ reservedWord
     ;
 
 
-//Siddhi Streams and Tables related
+//Streams and Tables related
 tableQuery
     :   FROM streamingInput joinStreamingInput?
         selectClause?

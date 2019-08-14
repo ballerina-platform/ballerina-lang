@@ -4085,7 +4085,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             if (actualType == symTable.semanticError) {
                 if (indexExpr.type.tag == TypeTags.INT && isConst(indexExpr)) {
-                    dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.LIST_INDEX_OUT_OF_RANGE,
+                    dlog.error(indexBasedAccessExpr.indexExpr.pos, DiagnosticCode.LIST_INDEX_OUT_OF_RANGE,
                                getConstIndex(indexExpr));
                     return actualType;
                 }
