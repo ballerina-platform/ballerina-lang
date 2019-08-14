@@ -185,7 +185,6 @@ public final class Constants {
     public static final String WSS_SCHEME = "wss";
     public static final String WEBSOCKET_UPGRADE = "websocket";
     public static final String WEBSOCKET_FRAME_HANDLER = "WEBSOCKET_FRAME_HANDLER";
-    public static final String WEBSOCKET_EXCEPTION_HANDLER = "WEBSOCKET_EXCEPTION_HANDLER";
     public static final String MESSAGE_QUEUE_HANDLER = "MESSAGE_QUEUE_HANDLER";
     public static final int WEBSOCKET_STATUS_CODE_NORMAL_CLOSURE = 1000;
     public static final int WEBSOCKET_STATUS_CODE_GOING_AWAY = 1001;
@@ -245,6 +244,7 @@ public final class Constants {
     public static final String HTTP_ACCESS_LOG_HANDLER = "http-access-logger";
     public static final String WEBSOCKET_SERVER_HANDSHAKE_HANDLER = "websocket-server-handshake-handler";
     public static final String WEBSOCKET_CLIENT_HANDSHAKE_HANDLER = "websocket-client-handshake-handler";
+    public static final String HTTP_EXCEPTION_HANDLER = "HttpExceptionHandler";
 
     public static final AttributeKey<Integer> REDIRECT_COUNT = AttributeKey.valueOf("REDIRECT_COUNT");
     public static final AttributeKey<String> RESOLVED_REQUESTED_URI_ATTR = AttributeKey

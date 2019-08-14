@@ -48,10 +48,10 @@ import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
 import java.net.InetSocketAddress;
+import javax.net.ssl.SSLException;
 
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_OBJECT_AGGREGATOR;
 import static org.wso2.transport.http.netty.contract.Constants.WEBSOCKET_COMPRESSION_HANDLER;
-import static org.wso2.transport.http.netty.contract.Constants.WEBSOCKET_EXCEPTION_HANDLER;
 
 /**
  * WebSocket handshake handler for carbon transports.
@@ -122,7 +122,6 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
                                               ctx.fireChannelInactive();
                                           }
                                       });
-                    pipeline.addLast(WEBSOCKET_EXCEPTION_HANDLER, new WebSocketExceptionHandler());
                     decoderCtx.fireChannelRead(msg);
                 } else {
                     // According to spec since client must send a request with "GET" method, if method is not "GET"
@@ -139,9 +138,12 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        ctx.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR))
-                .addListener(ChannelFutureListener.CLOSE);
-        LOG.error("Error during WebSocket server handshake", cause);
+        if (cause instanceof SSLException) {
+            ctx.writeAndFlush(new DefaultFullHttpResponse(
+                    HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR))
+                    .addListener(ChannelFutureListener.CLOSE);
+            LOG.error("Error during WebSocket server handshake", cause);
+        }
     }
 
     /**

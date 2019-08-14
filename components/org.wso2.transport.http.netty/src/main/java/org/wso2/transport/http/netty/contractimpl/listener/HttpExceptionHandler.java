@@ -28,13 +28,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A class responsible for handling exceptions occurred in inbound pipeline. This should be placed at the tail
+ * A class responsible for handling exceptions occurred in HTTP inbound pipeline. This should be placed at the tail
  * of the pipeline. When engaged channel handlers have not implemented exceptionCaught method, this class
  * handles them generally.
  */
-public class WebSocketExceptionHandler extends ChannelInboundHandlerAdapter {
+public class HttpExceptionHandler extends ChannelInboundHandlerAdapter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WebSocketExceptionHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpExceptionHandler.class);
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
@@ -43,6 +43,6 @@ public class WebSocketExceptionHandler extends ChannelInboundHandlerAdapter {
                     HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR))
                     .addListener(ChannelFutureListener.CLOSE);
         }
-        LOG.error("Exception occurred in inbound channel pipeline : {}", cause.getMessage());
+        LOG.error("Exception occurred in HTTP inbound channel pipeline : {}", cause.getMessage());
     }
 }
