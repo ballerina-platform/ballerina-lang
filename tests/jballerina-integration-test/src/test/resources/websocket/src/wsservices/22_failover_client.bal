@@ -27,8 +27,7 @@ service on new http:WebSocketListener(21027) {
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketFailoverClient wsClientEp = new({ callbackService:
             failoverClientCallbackService, readyOnConnect: false, targetUrls:
-            ["ws://localhost:8080/websocket", "ws://localhost:15100/websocket",
-            "ws://localhost:15200/websocket"]});
+            ["ws://localhost:15100/websocket", "ws://localhost:15200/websocket"]});
         wsEp.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
         wsClientEp.setAttribute(ASSOCIATED_CONNECTION, wsEp);
         var returnVal = wsClientEp->ready();
@@ -39,7 +38,6 @@ service on new http:WebSocketListener(21027) {
 
     resource function onText(http:WebSocketCaller wsEp, string text) {
         http:WebSocketFailoverClient clientEp = getAssociatedClientEndpoint1(wsEp);
-        io:println(clientEp.isOpen());
         var returnVal = clientEp->pushText(text);
         if (returnVal is http:WebSocketError) {
             panic <error> returnVal;

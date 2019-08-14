@@ -67,6 +67,8 @@ public class RetryClientTest extends WebSocketTestCommons {
         remoteServer.stop();
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         client.shutDown();
+        CountDownLatch countDownLatch1 = new CountDownLatch(1);
+        countDownLatch1.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
     }
 
     @Test(description = "Tests sending and receiving of binary frames in WebSocket")
@@ -87,6 +89,8 @@ public class RetryClientTest extends WebSocketTestCommons {
         Assert.assertEquals(client.getBufferReceived(), bufferSent);
         client.shutDown();
         remoteServer.stop();
+        CountDownLatch countDownLatch1 = new CountDownLatch(1);
+        countDownLatch1.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
     }
 
     @Test(description = "Tests sending and receiving of binary frames in WebSocket")
@@ -115,5 +119,7 @@ public class RetryClientTest extends WebSocketTestCommons {
         Assert.assertEquals(client.getBufferReceived(), bufferSent);
         client.shutDown();
         remoteServer.stop();
+        CountDownLatch countDownLatch2 = new CountDownLatch(1);
+        countDownLatch2.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
     }
 }

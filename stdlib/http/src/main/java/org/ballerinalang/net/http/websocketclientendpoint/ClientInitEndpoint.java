@@ -31,8 +31,10 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 
+import static org.ballerinalang.net.http.WebSocketConstants.CONNECTOR_FACTORY;
 import static org.ballerinalang.net.http.WebSocketConstants.RETRY_CONFIG;
 import static org.ballerinalang.net.http.WebSocketUtil.getWebSocketService;
+import static org.ballerinalang.net.http.WebSocketUtil.hasRetryConfig;
 import static org.ballerinalang.net.http.WebSocketUtil.initialiseWebSocketConnection;
 import static org.ballerinalang.net.http.WebSocketUtil.populateRetryConnectorConfig;
 
@@ -64,9 +66,15 @@ public class ClientInitEndpoint extends BlockingNativeCallableUnit {
         MapValue<String, Object> clientEndpointConfig = (MapValue<String, Object>) webSocketClient.getMapValue(
                 HttpConstants.CLIENT_ENDPOINT_CONFIG);
         HttpWsConnectorFactory connectorFactory = HttpUtil.createHttpWsConnectionFactory();
-        RetryConnectorConfig retryConnectorConfig = new RetryConnectorConfig();
-        populateRetryConnectorConfig(clientEndpointConfig, retryConnectorConfig, connectorFactory, null);
-        webSocketClient.addNativeData(RETRY_CONFIG, retryConnectorConfig);
+        if (hasRetryConfig(webSocketClient)) {
+            @SuppressWarnings(WebSocketConstants.UNCHECKED)
+            MapValue<String, Object> retryConfig = (MapValue<String, Object>) clientEndpointConfig.getMapValue(
+                    RETRY_CONFIG);
+            RetryContext retryConnectorConfig = new RetryContext();
+            populateRetryConnectorConfig(retryConfig, retryConnectorConfig);
+            webSocketClient.addNativeData(RETRY_CONFIG, retryConnectorConfig);
+        }
+        webSocketClient.addNativeData(CONNECTOR_FACTORY, connectorFactory);
 
         String remoteUrl = webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG);
         initialiseWebSocketConnection(remoteUrl, webSocketClient, getWebSocketService(clientEndpointConfig, strand));

@@ -33,12 +33,12 @@ import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.exception.WebSocketException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
+import static org.ballerinalang.net.http.WebSocketConstants.CONNECTOR_FACTORY;
 import static org.ballerinalang.net.http.WebSocketConstants.FAILOVER_CONFIG;
 import static org.ballerinalang.net.http.WebSocketConstants.RETRY_CONFIG;
 import static org.ballerinalang.net.http.WebSocketConstants.TARGET_URLS;
@@ -78,6 +78,8 @@ public class FailoverClientInitEndpoint extends BlockingNativeCallableUnit {
         ArrayValue targets = clientEndpointConfig.getArrayValue(TARGET_URLS);
         ArrayList<String> newTargetUrls = new ArrayList<>();
         int index = 0;
+        // check whether url has valid format or not
+        // if It isn't in the valid format, remove that from the url set
         for (int i = 0; i < targets.size(); i++) {
             URI uri = new URI(targets.get(i).toString());
             String scheme = uri.getScheme();
@@ -93,17 +95,22 @@ public class FailoverClientInitEndpoint extends BlockingNativeCallableUnit {
         if (newTargetUrls.size() == 0) {
             throw new WebSocketException("TargetUrls should have atleast one valid URL.");
         }
-        HttpWsConnectorFactory connectorFactory = HttpUtil.createHttpWsConnectionFactory();
-        FailoverClientConnectorConfig failoverClientConnectorConfig = new FailoverClientConnectorConfig();
-        populateFailoverConnectorConfig(clientEndpointConfig, failoverClientConnectorConfig, connectorFactory,
-                newTargetUrls);
-        webSocketClient.addNativeData(FAILOVER_CONFIG, failoverClientConnectorConfig);
+        // Create the connector factory and set it as the native data
+        webSocketClient.addNativeData(CONNECTOR_FACTORY, HttpUtil.createHttpWsConnectionFactory());
         if (clientEndpointConfig.get(RETRY_CONFIG) != null) {
-            RetryConnectorConfig retryConnectorConfig = new RetryConnectorConfig();
-            populateRetryConnectorConfig(clientEndpointConfig, retryConnectorConfig, null,
-                    newTargetUrls);
+            @SuppressWarnings(WebSocketConstants.UNCHECKED)
+            MapValue<String, Object> retryConfig = (MapValue<String, Object>) clientEndpointConfig.
+                    get(RETRY_CONFIG);
+            // Set the retry config values
+            RetryContext retryConnectorConfig = new RetryContext();
+            populateRetryConnectorConfig(retryConfig, retryConnectorConfig);
             webSocketClient.addNativeData(RETRY_CONFIG, retryConnectorConfig);
         }
+        // Set the failover config values
+        FailoverContext failoverClientConnectorConfig = new FailoverContext();
+        populateFailoverConnectorConfig(clientEndpointConfig, failoverClientConnectorConfig, newTargetUrls);
+        webSocketClient.addNativeData(FAILOVER_CONFIG, failoverClientConnectorConfig);
+        // Call the function with first url in the target url set
         initialiseWebSocketConnection(newTargetUrls.get(0), webSocketClient,
                 getWebSocketService(clientEndpointConfig, strand));
     }

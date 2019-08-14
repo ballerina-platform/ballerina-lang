@@ -73,7 +73,7 @@ public class WebSocketTestClient {
 
     private Channel channel = null;
     private WebSocketTestClientHandler webSocketHandler;
-    private final URI uri;
+    private URI uri;
     private EventLoopGroup group;
     private boolean first = true;
     private boolean sslEnabled;
