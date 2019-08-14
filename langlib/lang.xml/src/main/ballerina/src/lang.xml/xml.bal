@@ -22,7 +22,7 @@ public const XML_SEQUENCE = "sequence";
 public const XML_TEXT = "text"; 
 public const XML_COMMENT = "comment"; 
 public const XML_PI = "pi"; 
-type XMLType XML_ELEMENT | XML_SEQUENCE | XML_TEXT | XML_COMMENT | XML_PI;
+public type XMLType XML_ELEMENT | XML_SEQUENCE | XML_TEXT | XML_COMMENT | XML_PI;
 
 type XMLIterator object {
 
