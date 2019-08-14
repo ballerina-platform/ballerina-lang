@@ -109,10 +109,11 @@ public class ConstructFrom {
             return BallerinaErrors.createConversionError(inputValue, convertType, AMBIGUOUS_TARGET);
         }
 
+        BType targetType = convertibleTypes.get(0);
         if (inputValType.getTag() < TypeTags.JSON_TAG) {
             // If input value is a value-type, perform a numeric conversion if required.
             if (!TypeChecker.checkIsType(inputValue, convertType)) {
-                return TypeConverter.convertValues(convertibleTypes.get(0), inputValue);
+                return TypeConverter.convertValues(targetType, inputValue);
             }
 
             return inputValue;
@@ -121,7 +122,11 @@ public class ConstructFrom {
         try {
             RefValue refValue = (RefValue) inputValue;
             RefValue convertedValue = (RefValue) refValue.copy(new HashMap<>());
-            convertedValue.stamp(convertibleTypes.get(0), new ArrayList<>());
+
+            if (!targetType.equals(inputValType)) {
+                convertedValue.stamp(targetType, new ArrayList<>());
+            }
+
             return convertedValue;
         } catch (BallerinaException e) {
             return BallerinaErrors.createError(BallerinaErrorReasons.CONVERSION_ERROR, e.getDetail());

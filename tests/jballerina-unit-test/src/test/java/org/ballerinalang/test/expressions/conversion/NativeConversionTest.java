@@ -389,7 +389,7 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a JSON integer array to string array",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*cannot convert 'null' value to type 'StringArray'.*")
+            expectedExceptionsMessageRegExp = ".*cannot convert '\\(\\)' to type 'StringArray'.*")
     public void testNullJsonToArray() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNullJsonToArray");
         Assert.assertNull(returns[0]);
@@ -412,8 +412,7 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a null JSON to struct",
           expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*cannot convert " +
-                  "'null' value to type 'Person'.*")
+          expectedExceptionsMessageRegExp = ".*cannot convert '\\(\\)' to type 'Person'.*")
     public void testNullJsonToStruct() {
         BRunUtil.invoke(compileResult, "testNullJsonToStruct");
     }

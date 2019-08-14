@@ -207,7 +207,7 @@ function testMapWithMissingOptionalFieldsToStruct () returns Person|error {
 }
 
 function testMapWithIncompatibleArrayToStruct () returns Person {
-    float[] marks = [87.0, 94.0, 72.0];
+    string[] marks = ["87.0", "94.0", "72.0"];
     Person parent = {
                         name:"Parent",
                         age:50,
@@ -781,7 +781,7 @@ function testJsonToMapConstrainedFail() returns map<any> {
     json j1 = {
         a: {
             x: 5,
-            y: 10.5
+            y: "non-convertible"
         }
     };
     map<T1> m = {};
