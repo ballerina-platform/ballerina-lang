@@ -40,6 +40,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -163,8 +164,8 @@ public class BCompileUtil {
                                                                TestConstant.MODULE_INIT_CLASS_NAME);
         Class<?> initClazz = classLoader.loadClass(initClassName);
         final Scheduler scheduler = new Scheduler(false);
-        runOnSchedule(initClazz, bLangPackage.initFunction.name, scheduler);
-        runOnSchedule(initClazz, bLangPackage.startFunction.name, scheduler);
+        runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleInit"), scheduler);
+        runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleStart"), scheduler);
         if (temp) {
             scheduler.immortal = true;
             new Thread(scheduler::start).start();
@@ -411,7 +412,6 @@ public class BCompileUtil {
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
-        options.put(CompilerOptionName.SIDDHI_RUNTIME_ENABLED, Boolean.toString(isSiddhiRuntimeEnabled));
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
 
         return compile(context, packageName, compilerPhase, false);

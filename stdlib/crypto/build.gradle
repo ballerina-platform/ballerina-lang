@@ -26,7 +26,6 @@ dependencies {
 
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-core')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-time')
     implementation project(':ballerina-system')
@@ -37,6 +36,7 @@ dependencies {
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-reflect')
+    testCompile project(':ballerina-core')
 }
 
 configurations.all {

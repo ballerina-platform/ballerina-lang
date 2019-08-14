@@ -18,20 +18,13 @@
 
 package org.ballerinalang.utils;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
-
-import static org.ballerinalang.bre.bvm.BLangVMErrors.NULL_REF_EXCEPTION;
 
 /**
  * Returns an integer representing the number of items that a ref value contains, where the meaning of item depends on
@@ -46,16 +39,7 @@ import static org.ballerinalang.bre.bvm.BLangVMErrors.NULL_REF_EXCEPTION;
         args = {@Argument(name = "value", type = TypeKind.ANYDATA)},
         returnType = { @ReturnType(type = TypeKind.INT) }
 )
-public class Length extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context ctx) {
-        BValue refRegVal = ctx.getNullableRefArgument(0);
-        if (refRegVal == null) {
-            throw new BLangRuntimeException(NULL_REF_EXCEPTION);
-        }
-        ctx.setReturnValues(new BInteger(refRegVal.size()));
-    }
+public class Length {
 
     public static long length(Strand strand, Object value) {
         if (value instanceof String) {

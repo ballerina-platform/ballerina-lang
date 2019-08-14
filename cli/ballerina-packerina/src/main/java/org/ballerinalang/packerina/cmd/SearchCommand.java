@@ -24,8 +24,8 @@ import picocli.CommandLine;
 import java.io.PrintStream;
 import java.util.List;
 
+import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.packerina.cmd.Constants.SEARCH_COMMAND;
-import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.tool.LauncherUtils.createUsageExceptionWithHelp;
 
 /**

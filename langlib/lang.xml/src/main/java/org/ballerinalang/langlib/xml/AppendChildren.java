@@ -18,13 +18,10 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -40,23 +37,9 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         args = {@Argument(name = "children", type = TypeKind.XML)},
         isPublic = true
 )
-public class AppendChildren extends BlockingNativeCallableUnit {
+public class AppendChildren {
 
     private static final String OPERATION = "add children to xml element";
-
-    @Override
-    public void execute(Context ctx) {
-        try {
-            BXML<?> xml = (BXML<?>) ctx.getRefArgument(0);
-            BXML<?> children = (BXML<?>) ctx.getRefArgument(1);
-            xml.addChildren(children);
-        } catch (Throwable e) {
-            ErrorHandler.handleXMLException(OPERATION, e);
-        }
-
-        // Setting output value.
-        ctx.setReturnValues();
-    }
 
     public static void appendChildren(Strand strand, XMLValue<?> xml, XMLValue<?> children) {
         try {

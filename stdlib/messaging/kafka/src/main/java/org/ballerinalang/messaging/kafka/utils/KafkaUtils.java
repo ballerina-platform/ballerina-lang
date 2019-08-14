@@ -23,6 +23,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.config.SslConfigs;
@@ -98,6 +99,8 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KEYMANAGER_
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KEYSTORE_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.KEYSTORE_TYPE_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.LOCATION_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_PRODUCER;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_PRODUCER_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.OFFSET_STRUCT_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PASSWORD_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_ACKS_CONFIG;
@@ -396,7 +399,7 @@ public class KafkaUtils {
                 properties, PRODUCER_TRANSACTION_TIMEOUT_CONFIG);
 
         addBooleanParamIfPresent(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, configurations,
-                properties, PRODUCER_ENABLE_IDEMPOTENCE_CONFIG, false);
+                properties, PRODUCER_ENABLE_IDEMPOTENCE_CONFIG);
         if (Objects.nonNull(configurations.get(SECURE_SOCKET))) {
             processSSLProperties(configurations, properties);
         }
@@ -444,6 +447,14 @@ public class KafkaUtils {
         if (value != defaultValue) {
             configParams.put(paramName, value);
         }
+    }
+
+    private static void addBooleanParamIfPresent(String paramName,
+                                                 MapValue<String, Object> configs,
+                                                 Properties configParams,
+                                                 String key) {
+        boolean value = (boolean) configs.get(key);
+        configParams.put(paramName, value);
     }
 
     public static void processDefaultConsumerProperties(Properties configParams) {
@@ -660,5 +671,11 @@ public class KafkaUtils {
             return (int) consumerProperties.get(ConsumerConfig.DEFAULT_API_TIMEOUT_MS_CONFIG);
         }
         return DURATION_UNDEFINED_VALUE;
+    }
+
+    public static void createKafkaProducer(Properties producerProperties, ObjectValue producerObject) {
+        KafkaProducer<byte[], byte[]> kafkaProducer = new KafkaProducer<>(producerProperties);
+        producerObject.addNativeData(NATIVE_PRODUCER, kafkaProducer);
+        producerObject.addNativeData(NATIVE_PRODUCER_CONFIG, producerProperties);
     }
 }

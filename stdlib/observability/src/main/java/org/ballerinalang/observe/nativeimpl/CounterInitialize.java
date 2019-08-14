@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.observability.metrics.Counter;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
@@ -39,16 +37,7 @@ import org.ballerinalang.natives.annotations.Receiver;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = ObserveNativeImplConstants.COUNTER,
                 structPackage = ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH)
 )
-public class CounterInitialize extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-//        BMap<String, BValue> bStruct = (BMap<String, BValue>) context.getRefArgument(0);
-//        Counter counter = Counter.builder(bStruct.get(ObserveNativeImplConstants.NAME_FIELD).stringValue())
-//                .description(bStruct.get(ObserveNativeImplConstants.DESCRIPTION_FIELD).stringValue())
-//                .tags(Utils.toStringMap((BMap) bStruct.get(ObserveNativeImplConstants.TAGS_FIELD)))
-//                .build();
-//        bStruct.addNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY, counter);
-    }
+public class CounterInitialize {
 
     public static void initialize(Strand strand, ObjectValue counterObj) {
         Counter counter = Counter.builder((String) counterObj.get(ObserveNativeImplConstants.NAME_FIELD))
