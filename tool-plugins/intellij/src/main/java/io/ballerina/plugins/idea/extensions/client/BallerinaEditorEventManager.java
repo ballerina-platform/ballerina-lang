@@ -15,8 +15,15 @@
  */
 package io.ballerina.plugins.idea.extensions.client;
 
+import com.google.common.base.Strings;
 import com.google.gson.JsonObject;
+import com.intellij.codeInsight.completion.InsertionContext;
+import com.intellij.codeInsight.lookup.AutoCompletionPolicy;
+import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.editor.Caret;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.openapi.editor.ScrollType;
@@ -24,6 +31,7 @@ import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.event.EditorMouseListener;
 import com.intellij.openapi.editor.event.EditorMouseMotionListener;
+import com.intellij.openapi.util.TextRange;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTDidChange;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTDidChangeResponse;
 import io.ballerina.plugins.idea.extensions.server.BallerinaASTRequest;
@@ -31,22 +39,42 @@ import io.ballerina.plugins.idea.extensions.server.BallerinaASTResponse;
 import io.ballerina.plugins.idea.extensions.server.BallerinaEndpointsResponse;
 import io.ballerina.plugins.idea.extensions.server.ModulesRequest;
 import io.ballerina.plugins.idea.extensions.server.ModulesResponse;
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.lsp4j.Command;
+import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionItemKind;
+import org.eclipse.lsp4j.CompletionList;
+import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.JsonRpcException;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.jetbrains.annotations.Nullable;
 import org.wso2.lsp4intellij.client.languageserver.ServerOptions;
 import org.wso2.lsp4intellij.client.languageserver.requestmanager.RequestManager;
 import org.wso2.lsp4intellij.client.languageserver.wrapper.LanguageServerWrapper;
+import org.wso2.lsp4intellij.contributors.icon.LSPIconProvider;
 import org.wso2.lsp4intellij.editor.EditorEventManager;
+import org.wso2.lsp4intellij.requests.Timeouts;
 import org.wso2.lsp4intellij.utils.ApplicationUtils;
 import org.wso2.lsp4intellij.utils.DocumentUtils;
+import org.wso2.lsp4intellij.utils.GUIUtils;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import javax.swing.Icon;
+
+import static org.wso2.lsp4intellij.requests.Timeout.getTimeout;
+import static org.wso2.lsp4intellij.requests.Timeouts.COMPLETION;
+import static org.wso2.lsp4intellij.utils.ApplicationUtils.computableReadAction;
 
 /**
  * Editor event manager extension for Ballerina language.
@@ -150,6 +178,146 @@ public class BallerinaEditorEventManager extends EditorEventManager {
         return null;
     }
 
+    @Override
+    public Iterable<? extends LookupElement> completion(Position pos) {
+        List<LookupElement> lookupItems = new ArrayList<>();
+        CompletableFuture<Either<List<CompletionItem>, CompletionList>> request = getRequestManager()
+                .completion(new CompletionParams(getIdentifier(), pos));
+        if (request == null) {
+            return lookupItems;
+        }
+
+        try {
+            Either<List<CompletionItem>, CompletionList> res = request
+                    .get(getTimeout(COMPLETION), TimeUnit.MILLISECONDS);
+            wrapper.notifySuccess(Timeouts.COMPLETION);
+            if (res == null) {
+                return lookupItems;
+            }
+            if (res.getLeft() != null) {
+                for (CompletionItem item : res.getLeft()) {
+                    LookupElement lookupElement = createLookupItem(item, pos);
+                    if (lookupElement != null) {
+                        lookupItems.add(lookupElement);
+                    }
+                }
+            } else if (res.getRight() != null) {
+                for (CompletionItem item : res.getRight().getItems()) {
+                    LookupElement lookupElement = createLookupItem(item, pos);
+                    if (lookupElement != null) {
+                        lookupItems.add(lookupElement);
+                    }
+                }
+            }
+        } catch (TimeoutException | InterruptedException e) {
+            LOG.warn(e);
+            wrapper.notifyFailure(Timeouts.COMPLETION);
+        } catch (JsonRpcException | ExecutionException e) {
+            LOG.warn(e);
+            wrapper.crashed(e);
+        } finally {
+            return lookupItems;
+        }
+    }
+
+
+    public LookupElement createLookupItem(CompletionItem item, Position position) {
+        Command command = item.getCommand();
+        String detail = item.getDetail();
+        String insertText = item.getInsertText();
+        CompletionItemKind kind = item.getKind();
+        String label = item.getLabel();
+        TextEdit textEdit = item.getTextEdit();
+        List<TextEdit> addTextEdits = item.getAdditionalTextEdits();
+        String presentableText = !Strings.isNullOrEmpty(label) ? label : (insertText != null) ? insertText : "";
+        String tailText = (detail != null) ? detail : "";
+        LSPIconProvider iconProvider = GUIUtils.getIconProviderFor(wrapper.getServerDefinition());
+        Icon icon = iconProvider.getCompletionIcon(kind);
+        LookupElementBuilder lookupElementBuilder;
+
+        String lookupString = null;
+        if (textEdit != null) {
+            lookupString = textEdit.getNewText();
+        } else if (!Strings.isNullOrEmpty(insertText)) {
+            lookupString = insertText;
+
+        } else if (!Strings.isNullOrEmpty(label)) {
+            lookupString = label;
+        }
+        if (Strings.isNullOrEmpty(lookupString)) {
+            return null;
+        }
+
+        // Fixes IDEA internal assertion failure in windows.
+        lookupString = lookupString.replace(DocumentUtils.WIN_SEPARATOR, DocumentUtils.LINUX_SEPARATOR);
+
+        if (lookupString.contains(DocumentUtils.LINUX_SEPARATOR)) {
+            lookupString = insertIndents(lookupString, position);
+        }
+        lookupElementBuilder = LookupElementBuilder.create(lookupString);
+
+        if (textEdit != null) {
+            if (addTextEdits != null) {
+                lookupElementBuilder = setInsertHandler(lookupElementBuilder, addTextEdits, command, label);
+            }
+        } else if (addTextEdits != null) {
+            lookupElementBuilder = setInsertHandler(lookupElementBuilder, addTextEdits, command, label);
+        } else if (command != null) {
+            if (command.getCommand().equals("editor.action.triggerParameterHints")) {
+                // This is a vscode internal command to trigger signature help after completion. This needs to be done
+                // manually since intellij language client does not have that support.
+                String finalLookupString = lookupString;
+                lookupElementBuilder = lookupElementBuilder
+                        .withInsertHandler((InsertionContext context, LookupElement lookupElement) -> {
+                            context.commitDocument();
+                            Caret currentCaret = context.getEditor().getCaretModel().getCurrentCaret();
+                            currentCaret.moveCaretRelatively(finalLookupString.lastIndexOf(")") -
+                                    finalLookupString.length(), 0, false, false);
+                            signatureHelp();
+                        });
+            } else {
+                lookupElementBuilder = lookupElementBuilder
+                        .withInsertHandler((InsertionContext context, LookupElement lookupElement) -> {
+                            context.commitDocument();
+                            executeCommands(Collections.singletonList(command));
+                        });
+            }
+        }
+
+        if (kind == CompletionItemKind.Keyword) {
+            lookupElementBuilder = lookupElementBuilder.withBoldness(true);
+        }
+
+        return lookupElementBuilder.withPresentableText(presentableText).withTypeText(tailText, true).withIcon(icon)
+                .withAutoCompletionPolicy(AutoCompletionPolicy.SETTINGS_DEPENDENT);
+    }
+
+    private String insertIndents(String lookupString, Position position) {
+        return computableReadAction(() -> {
+            try {
+                Document doc = editor.getDocument();
+                int lineStartOff = doc.getLineStartOffset(position.getLine());
+                int lineEndOff = doc.getLineEndOffset(position.getLine());
+                String line = doc.getText(new TextRange(lineStartOff, lineEndOff));
+                String trimmed = line.trim();
+
+                int startOffsetInLine;
+                if (trimmed.isEmpty()) {
+                    startOffsetInLine = line.length();
+                } else {
+                    startOffsetInLine = line.indexOf(trimmed);
+                }
+
+                int tabs = startOffsetInLine / 4;
+                int spaces = startOffsetInLine % 4;
+                return lookupString.replaceAll(DocumentUtils.LINUX_SEPARATOR, DocumentUtils.LINUX_SEPARATOR +
+                        StringUtils.repeat("\t", tabs) + StringUtils.repeat(" ", spaces));
+            } catch (Exception e) {
+                LOG.warn("Error occurred when processing completion lookup string");
+                return lookupString;
+            }
+        });
+    }
 
     @Override
     public void documentChanged(DocumentEvent event) {
