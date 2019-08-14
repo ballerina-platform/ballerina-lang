@@ -1042,15 +1042,34 @@ public class TypeChecker {
         }
 
         ArrayValue source = (ArrayValue) sourceValue;
+        BType targetTypeElementType = targetType.getElementType();
         if (BTypes.isValueType(source.elementType)) {
-            return checkIsType(source.elementType, targetType.getElementType(), new ArrayList<>()) ||
-                    (isNumericType(source.elementType) && isNumericType(targetType.getElementType()));
+            boolean isType = checkIsType(source.elementType, targetTypeElementType, new ArrayList<>());
+
+            if (isType || !allowNumericConversion || !isNumericType(source.elementType)) {
+                return isType;
+            }
+
+            if (isNumericType(targetTypeElementType)) {
+                return true;
+            }
+
+            if (targetTypeElementType.getTag() != TypeTags.UNION_TAG) {
+                return false;
+            }
+
+            List<BType> targetNumericTypes = new ArrayList<>();
+            for (BType memType : ((BUnionType) targetTypeElementType).getMemberTypes()) {
+                if (isNumericType(memType) && !targetNumericTypes.contains(memType)) {
+                    targetNumericTypes.add(memType);
+                }
+            }
+            return targetNumericTypes.size() == 1;
         }
 
-        BType arrayElementType = targetType.getElementType();
         Object[] arrayValues = source.getValues();
         for (int i = 0; i < ((ArrayValue) sourceValue).size(); i++) {
-            if (!checkIsLikeType(arrayValues[i], arrayElementType, unresolvedValues, allowNumericConversion)) {
+            if (!checkIsLikeType(arrayValues[i], targetTypeElementType, unresolvedValues, allowNumericConversion)) {
                 return false;
             }
         }

@@ -492,9 +492,15 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             type = TypeConverter.resolveMatchingTypeForUnion(this, type);
             this.stamp(type, unresolvedValues);
         } else if (type.getTag() == TypeTags.MAP_TAG) {
-            for (Object value : this.values()) {
+            for (Map.Entry valueEntry : this.entrySet()) {
+                Object value = valueEntry.getValue();
+                BType constraintType = ((BMapType) type).getConstrainedType();
                 if (value instanceof RefValue) {
-                    ((RefValue) value).stamp(((BMapType) type).getConstrainedType(), unresolvedValues);
+                    ((RefValue) value).stamp(constraintType, unresolvedValues);
+                } else if (!TypeChecker.checkIsType(value, constraintType)) {
+                    // Has to be a numeric conversion.
+                    this.put((K) valueEntry.getKey(),
+                             (V) TypeConverter.convertValues(getConvertibleTypes(value, constraintType).get(0), value));
                 }
             }
         } else if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {

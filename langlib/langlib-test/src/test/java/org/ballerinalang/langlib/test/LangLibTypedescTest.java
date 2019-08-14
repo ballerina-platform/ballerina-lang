@@ -27,6 +27,7 @@ import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -80,5 +81,25 @@ public class LangLibTypedescTest {
 
         returns = BRunUtil.invokeFunction(compileResult, "testConstructFromForNilNegative");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(dataProvider = "constructFromWithNumericConversionFunctions")
+    public void testConstructFromWithNumericConversion(String function) {
+        BValue[] returns = BRunUtil.invoke(compileResult, function);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @DataProvider(name = "constructFromWithNumericConversionFunctions")
+    public Object[][] mergeJsonFunctions() {
+        return new Object[][] {
+            { "testConstructFromWithNumericConversion1" },
+            { "testConstructFromWithNumericConversion2" },
+            { "testConstructFromWithNumericConversion3" },
+            { "testConstructFromWithNumericConversion4" },
+            { "testConstructFromWithNumericConversion5" },
+            { "testConstructFromWithNumericConversion6" },
+            { "testConstructFromSuccessWithMoreThanOneNumericTarget" },
+            { "testConstructFromFailureWithAmbiguousNumericConversionTarget" }
+        };
     }
 }
