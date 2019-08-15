@@ -82,7 +82,6 @@ commons-collections-3.2.2.jar                                                   
 commons-io-2.6.jar                                                              bundle         apache2   3729
 commons-lang3-3.8.1.jar                                                         bundle         apache2   3823
 commons-logging-1.2.jar                                                         bundle         apache2   1702
-commons-pool-1.5.6.wso2v1.jar                                                   bundle         apache2   5589
 docerina-0.991.0.jar                                                            jar            apache2   3927
 docker-extension-0.991.0.jar                                                    jar            apache2   3837
 geronimo-activation_1.1_spec-1.1.jar                                            bundle         apache2   2103
