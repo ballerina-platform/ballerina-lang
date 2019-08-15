@@ -37,6 +37,8 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import static org.wso2.transport.http.netty.util.TestUtil.HTTP_SCHEME;
+
 /**
  * A utility class which generates HTTP/2.0 requests.
  */
@@ -44,7 +46,7 @@ public class MessageGenerator {
     public static HttpCarbonMessage generateRequest(HttpMethod httpMethod, String payload) {
         HttpCarbonMessage httpCarbonMessage = new HttpCarbonRequest(new DefaultHttpRequest(
                 new HttpVersion(Constants.DEFAULT_VERSION_HTTP_1_1, true), httpMethod,
-                "http://" + TestUtil.TEST_HOST + ":" + TestUtil.HTTP_SERVER_PORT));
+                HTTP_SCHEME + TestUtil.TEST_HOST + ":" + TestUtil.HTTP_SERVER_PORT));
         return getHttpCarbonMessage(httpMethod, payload, httpCarbonMessage, TestUtil.HTTP_SERVER_PORT, true);
     }
 
@@ -58,7 +60,7 @@ public class MessageGenerator {
     public static HttpCarbonMessage generateDelayedRequest(HttpMethod httpMethod) {
         HttpCarbonMessage httpCarbonMessage = new HttpCarbonRequest(new DefaultHttpRequest(
                 new HttpVersion(Constants.DEFAULT_VERSION_HTTP_1_1, true), httpMethod,
-                "http://" + TestUtil.TEST_HOST + ":" + TestUtil.HTTP_SERVER_PORT));
+                HTTP_SCHEME + TestUtil.TEST_HOST + ":" + TestUtil.HTTP_SERVER_PORT));
         return getHttpCarbonMessage(httpMethod, null, httpCarbonMessage, TestUtil.HTTP_SERVER_PORT, false);
     }
 

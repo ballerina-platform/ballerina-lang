@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contractimpl.common.HttpRoute;
+import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -242,10 +243,26 @@ public class Http2ClientChannel {
      * Destroys the Http2 client channel.
      */
     void destroy() {
+        handleConnectionClose();
         this.connection.removeListener(streamCloseListener);
         inFlightMessages.clear();
         promisedMessages.clear();
         http2ConnectionManager.removeClientChannel(httpRoute, this);
+    }
+
+    /**
+     * Notify all the streams in the closed channel.
+     */
+    private void handleConnectionClose() {
+        if (!inFlightMessages.isEmpty()) {
+            inFlightMessages.values().forEach(outBoundMsgHolder -> {
+                Http2MessageStateContext messageStateContext =
+                        outBoundMsgHolder.getRequest().getHttp2MessageStateContext();
+                if (messageStateContext != null) {
+                    messageStateContext.getSenderState().handleConnectionClose(outBoundMsgHolder);
+                }
+            });
+        }
     }
 
     /**

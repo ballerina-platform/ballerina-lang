@@ -270,4 +270,12 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
     private Http2MessageStateContext getHttp2MessageContext(OutboundMsgHolder outboundMsgHolder) {
         return outboundMsgHolder.getRequest().getHttp2MessageStateContext();
     }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Channel is inactive");
+        }
+        http2ClientChannel.destroy();
+    }
 }

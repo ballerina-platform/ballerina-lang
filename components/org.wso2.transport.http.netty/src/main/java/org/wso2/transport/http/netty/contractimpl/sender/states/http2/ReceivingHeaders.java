@@ -53,7 +53,9 @@ import static org.wso2.transport.http.netty.contract.Constants.HTTP_VERSION_2_0;
 import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_HEADERS;
 import static org.wso2.transport.http.netty.contract.Constants.INBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.contract.Constants.POOLED_BYTE_BUFFER_FACTORY;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.releaseContent;
+import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.handleIncompleteInboundMessage;
 
 /**
  * State between start and end of inbound response headers read.
@@ -124,6 +126,12 @@ public class ReceivingHeaders implements SenderState {
                     IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_HEADERS,
                     HttpResponseStatus.GATEWAY_TIMEOUT.code()));
         }
+    }
+
+    @Override
+    public void handleConnectionClose(OutboundMsgHolder outboundMsgHolder) {
+        handleIncompleteInboundMessage(outboundMsgHolder.getResponse(),
+                                       REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_HEADERS);
     }
 
     private void onHeadersRead(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame,
