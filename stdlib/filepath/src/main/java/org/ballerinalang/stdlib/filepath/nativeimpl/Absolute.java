@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.filepath.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.filepath.Constants;
@@ -39,11 +37,7 @@ import java.nio.file.InvalidPathException;
         functionName = "absolute",
         isPublic = true
 )
-public class Absolute extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class Absolute {
 
     public static Object absolute(Strand strand, String inputPath) {
         try {

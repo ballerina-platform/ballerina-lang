@@ -15,12 +15,9 @@
  */
 package org.ballerinalang.langlib.future;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BFuture;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -33,13 +30,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         args = {@Argument(name = "f", type = TypeKind.FUTURE)},
         isPublic = true
 )
-public class Cancel extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        BFuture future = (BFuture) context.getRefArgument(0);
-        future.cancel();
-    }
+public class Cancel {
 
     public static void cancel(Strand strand, FutureValue futureValue) {
         futureValue.cancel();

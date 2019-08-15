@@ -42,6 +42,6 @@ listener http:Listener listener09 = new(20010, {
 service echo09 on listener09 {
 
     resource function test(http:Caller caller, http:Request req) {
-        checkpanic caller -> respond(());
+        checkpanic caller->respond();
     }
 }

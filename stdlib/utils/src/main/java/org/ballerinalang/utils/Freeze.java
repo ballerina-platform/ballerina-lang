@@ -18,24 +18,15 @@
 
 package org.ballerinalang.utils;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.BVM;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BLangFreezeException;
-import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
  * Performs freezing a given value.
@@ -47,43 +38,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
         functionName = "freeze",
         args = {@Argument(name = "value", type = TypeKind.ANYDATA)},
         returnType = { @ReturnType(type = TypeKind.ANYDATA), @ReturnType(type = TypeKind.ERROR) })
-public class Freeze extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context ctx) {
-        BValue value = ctx.getNullableRefArgument(0);
-        if (value == null) {
-            // assuming we reach here because the value is nil (()), the frozen value would also be nil.
-            return;
-        } else if (value.getType().getTag() == TypeTags.ERROR) {
-            // If the value is of type error, return an error indicating an error cannot be frozen.
-            // Freeze is only allowed on errors if they are part of a structure.
-            ctx.setReturnValues(BLangVMErrors.createError(ctx.getStrand(), BallerinaErrorReasons.FREEZE_ERROR,
-                                                          "'freeze()' not allowed on 'error'"));
-            return;
-        }
-
-        BVM.FreezeStatus freezeStatus = new BVM.FreezeStatus(BVM.FreezeStatus.State.MID_FREEZE);
-        try {
-            value.attemptFreeze(freezeStatus);
-
-            // if freeze is successful, set the status as frozen and the value itself as the return value
-            freezeStatus.setFrozen();
-            ctx.setReturnValues(value);
-        } catch (BLangFreezeException e) {
-            // if freeze is unsuccessful due to an invalid value, set the frozen status of the value and its
-            // constituents to false, and return an error
-            freezeStatus.setUnfrozen();
-            ctx.setReturnValues(BLangVMErrors.createError(ctx.getStrand(), BallerinaErrorReasons.FREEZE_ERROR,
-                    e.getMessage()));
-        } catch (BallerinaException e) {
-            // if freeze is unsuccessful due to concurrent freeze attempts, set the frozen status of the value
-            // and its constituents to false, and panic
-            freezeStatus.setUnfrozen();
-            ctx.setError(BLangVMErrors.createError(ctx.getStrand(), e.getMessage(), e.getDetail()));
-            BVM.handleError(ctx.getStrand());
-        }
-    }
+public class Freeze {
 
     public static Object freeze(Strand strand, Object value) {
 

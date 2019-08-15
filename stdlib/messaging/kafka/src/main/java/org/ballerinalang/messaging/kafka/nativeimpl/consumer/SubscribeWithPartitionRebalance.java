@@ -22,6 +22,7 @@ import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -70,7 +71,7 @@ public class SubscribeWithPartitionRebalance {
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         KafkaConsumer<byte[], byte[]> kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         ArrayList<String> topicsList = getStringListFromStringArrayValue(topics);
-        ConsumerRebalanceListener consumer = new KafkaRebalanceListener(onPartitionsRevoked,
+        ConsumerRebalanceListener consumer = new KafkaRebalanceListener(strand, strand.scheduler, onPartitionsRevoked,
                 onPartitionsAssigned, consumerObject);
 
         try {
@@ -91,13 +92,19 @@ public class SubscribeWithPartitionRebalance {
      */
     static class KafkaRebalanceListener implements ConsumerRebalanceListener {
 
+        private Strand strand;
+        private Scheduler scheduler;
         private FPValue onPartitionsRevoked;
         private FPValue onPartitionsAssigned;
         private ObjectValue consumer;
 
-        KafkaRebalanceListener(FPValue onPartitionsRevoked,
+        KafkaRebalanceListener(Strand strand,
+                               Scheduler scheduler,
+                               FPValue onPartitionsRevoked,
                                FPValue onPartitionsAssigned,
                                ObjectValue consumer) {
+            this.strand = strand;
+            this.scheduler = scheduler;
             this.onPartitionsRevoked = onPartitionsRevoked;
             this.onPartitionsAssigned = onPartitionsAssigned;
             this.consumer = consumer;
@@ -108,8 +115,8 @@ public class SubscribeWithPartitionRebalance {
          */
         @Override
         public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
-            Object[] inputArgs = {consumer, getPartitionsArray(partitions)};
-            this.onPartitionsRevoked.apply(inputArgs);
+            Object[] inputArgs = {null, consumer, true, getPartitionsArray(partitions), true};
+            this.scheduler.schedule(inputArgs, onPartitionsRevoked.getConsumer(), strand);
         }
 
         /**
@@ -117,8 +124,8 @@ public class SubscribeWithPartitionRebalance {
          */
         @Override
         public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
-            Object[] inputArgs = {consumer, getPartitionsArray(partitions)};
-            this.onPartitionsAssigned.apply(inputArgs);
+            Object[] inputArgs = {null, consumer, true, getPartitionsArray(partitions), true};
+            this.scheduler.schedule(inputArgs, onPartitionsAssigned.getConsumer(), strand);
         }
 
         private ArrayValue getPartitionsArray(Collection<TopicPartition> partitions) {

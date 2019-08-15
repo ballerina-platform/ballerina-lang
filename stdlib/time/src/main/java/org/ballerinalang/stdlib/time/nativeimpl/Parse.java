@@ -18,7 +18,6 @@
 
 package org.ballerinalang.stdlib.time.nativeimpl;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -41,10 +40,6 @@ import java.time.temporal.TemporalAccessor;
         functionName = "parse"
 )
 public class Parse extends AbstractTimeFunction {
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static Object parse(Strand strand, String dateString, Object pattern) {
         try {

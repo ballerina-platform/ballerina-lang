@@ -18,8 +18,6 @@
  */
 package org.ballerinalang.compiler.backend.jvm;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -51,16 +49,10 @@ import static org.ballerinalang.model.types.TypeKind.STRING;
         }
 )
 @SuppressWarnings("unchecked")
-public class WriteExecutableJarFile extends BlockingNativeCallableUnit {
+public class WriteExecutableJarFile {
 
     private static final String PKG_ENTRIES = "pkgEntries";
     private static final String MANIFEST_ENTRIES = "manifestEntries";
-
-    @Override
-    @Deprecated
-    public void execute(Context context) {
-        throw new UnsupportedOperationException("BVM not supported");
-    }
 
     public static void writeExecutableJarToFile(Strand strand, MapValue oJarFile, String targetPath) {
         try {

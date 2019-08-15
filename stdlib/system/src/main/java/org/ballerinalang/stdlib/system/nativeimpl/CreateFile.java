@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
@@ -44,13 +42,9 @@ import java.nio.file.Paths;
         functionName = "createFile",
         isPublic = true
 )
-public class CreateFile extends BlockingNativeCallableUnit {
+public class CreateFile {
 
     private static final Logger log = LoggerFactory.getLogger(CreateFile.class);
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static Object createFile(Strand strand, String path) {
         try {

@@ -31,6 +31,7 @@ import com.sun.jdi.request.DuplicateRequestException;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
 import com.sun.tools.jdi.ObjectReferenceImpl;
+import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.debugadapter.launchrequest.Launch;
 import org.ballerinalang.debugadapter.launchrequest.LaunchFactory;
 import org.ballerinalang.debugadapter.terminator.OSUtils;
@@ -72,6 +73,8 @@ import org.eclipse.lsp4j.debug.VariablesArguments;
 import org.eclipse.lsp4j.debug.VariablesResponse;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
 import java.io.BufferedReader;
@@ -98,6 +101,7 @@ import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
  */
 public class JBallerinaDebugServer implements IDebugProtocolServer {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
     private IDebugProtocolClient client;
     private VirtualMachine debuggee;
     private int systemExit = 1;
@@ -277,7 +281,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     }).toArray(StackFrame[]::new);
             stackTraceResponse.setStackFrames(filteredStackFrames);
         } catch (IncompatibleThreadStateException e) {
-
+            LOGGER.error(e.getMessage(), e);
         }
         return CompletableFuture.completedFuture(stackTraceResponse);
     }
@@ -452,7 +456,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
             request.addCountFilter(1); // next step only
             request.enable();
-        } catch (DuplicateRequestException ignored) {
+        } catch (DuplicateRequestException e) {
 
         }
         debuggee.resume();
@@ -466,13 +470,17 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 .filter(t -> t.uniqueID() == args.getThreadId())
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Cannot find thread"));
-        StepRequest request = debuggee.eventRequestManager().createStepRequest(thread,
-                StepRequest.STEP_LINE, StepRequest.STEP_INTO);
+        try {
+            StepRequest request = debuggee.eventRequestManager().createStepRequest(thread,
+                    StepRequest.STEP_LINE, StepRequest.STEP_INTO);
 
-        request.addCountFilter(1); // next step only
-        request.enable();
+            request.addCountFilter(1); // next step only
+            request.enable();
+        } catch (DuplicateRequestException e) {
+
+        }
         debuggee.resume();
-        return null;
+        return CompletableFuture.completedFuture(null);
     }
 
     @Override
@@ -488,7 +496,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         request.addCountFilter(1); // next step only
         request.enable();
         debuggee.resume();
-        return null;
+        return CompletableFuture.completedFuture(null);
     }
 
     private void sendOutput(String output, String category) {
@@ -537,22 +545,13 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     private void exit(boolean terminateDebuggee) {
+        LOGGER.info("Debugger terminated");
         if (terminateDebuggee) {
             new TerminatorFactory().getTerminator(OSUtils.getOperatingSystem()).terminate();
         }
 
-        if (launchedErrorStream != null) {
-            try {
-                launchedErrorStream.close();
-            } catch (IOException e) {
-            }
-        }
-        if (launchedStdoutStream != null) {
-            try {
-                launchedStdoutStream.close();
-            } catch (IOException e) {
-            }
-        }
+        IOUtils.closeQuietly(launchedErrorStream);
+        IOUtils.closeQuietly(launchedStdoutStream);
         if (launchedProcess != null) {
             launchedProcess.destroy();
         }

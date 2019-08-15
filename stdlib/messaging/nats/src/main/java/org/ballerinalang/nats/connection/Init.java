@@ -23,12 +23,12 @@ import io.nats.client.ErrorListener;
 import io.nats.client.Nats;
 import io.nats.client.Options;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.nats.Utils;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -151,7 +151,7 @@ public class Init {
         } catch (IOException | InterruptedException e) {
             String errorMsg = "Error while setting up a connection. " +
                     (e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
-            throw new BallerinaConnectorException(errorMsg);
+            throw Utils.createNatsError(errorMsg);
         }
     }
 
@@ -174,7 +174,7 @@ public class Init {
                         keyStore.load(keyFileInputStream, keyPassphrase);
                     }
                 } else {
-                    throw new BallerinaConnectorException(ERROR_SETTING_UP_SECURED_CONNECTION +
+                    throw Utils.createNatsError(ERROR_SETTING_UP_SECURED_CONNECTION +
                             "Keystore path doesn't exist.");
                 }
                 keyManagerFactory =
@@ -193,8 +193,7 @@ public class Init {
                         trustStore.load(trustFileInputStream, trustPassphrase);
                     }
                 } else {
-                    throw new BallerinaConnectorException(ERROR_SETTING_UP_SECURED_CONNECTION +
-                            "Truststore path doesn't exist.");
+                    throw Utils.createNatsError(ERROR_SETTING_UP_SECURED_CONNECTION + "Truststore path doesn't exist.");
                 }
                 trustManagerFactory =
                         TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
@@ -207,26 +206,22 @@ public class Init {
                     trustManagerFactory != null ? trustManagerFactory.getTrustManagers() : null, null);
             return sslContext;
         } catch (FileNotFoundException e) {
-            throw new BallerinaConnectorException(ERROR_SETTING_UP_SECURED_CONNECTION +
-                    "File not found error, " + e.getMessage());
+            throw Utils
+                    .createNatsError(ERROR_SETTING_UP_SECURED_CONNECTION + "File not found error, " + e.getMessage());
         } catch (CertificateException e) {
-            throw new BallerinaConnectorException(ERROR_SETTING_UP_SECURED_CONNECTION +
-                    "Certificate error, " + e.getMessage());
+            throw Utils.createNatsError(ERROR_SETTING_UP_SECURED_CONNECTION + "Certificate error, " + e.getMessage());
         } catch (NoSuchAlgorithmException e) {
-            throw new BallerinaConnectorException(ERROR_SETTING_UP_SECURED_CONNECTION +
-                    "Algorithm error, " + e.getMessage());
+            throw Utils.createNatsError(ERROR_SETTING_UP_SECURED_CONNECTION + "Algorithm error, " + e.getMessage());
         } catch (IOException e) {
-            throw new BallerinaConnectorException(ERROR_SETTING_UP_SECURED_CONNECTION +
-                    "IO error, " + e.getMessage());
+            throw Utils.createNatsError(ERROR_SETTING_UP_SECURED_CONNECTION + "IO error, " + e.getMessage());
         } catch (KeyStoreException e) {
-            throw new BallerinaConnectorException(ERROR_SETTING_UP_SECURED_CONNECTION +
-                    "Keystore error, " + e.getMessage());
+            throw Utils.createNatsError(ERROR_SETTING_UP_SECURED_CONNECTION + "Keystore error, " + e.getMessage());
         } catch (UnrecoverableKeyException e) {
-            throw new BallerinaConnectorException(ERROR_SETTING_UP_SECURED_CONNECTION +
-                    "The key in the keystore cannot be recovered.");
+            throw Utils.createNatsError(
+                    ERROR_SETTING_UP_SECURED_CONNECTION + "The key in the keystore cannot be recovered.");
         } catch (KeyManagementException e) {
-            throw new BallerinaConnectorException(ERROR_SETTING_UP_SECURED_CONNECTION +
-                    "Key management error, " + e.getMessage());
+            throw Utils
+                    .createNatsError(ERROR_SETTING_UP_SECURED_CONNECTION + "Key management error, " + e.getMessage());
         }
     }
 }

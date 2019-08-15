@@ -129,7 +129,7 @@ public class KafkaConsumerPauseTest {
             throw new IllegalStateException();
         }
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-pause-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(2183, 9096);
+        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(14003, 14103);
         return kafkaCluster;
     }
 }

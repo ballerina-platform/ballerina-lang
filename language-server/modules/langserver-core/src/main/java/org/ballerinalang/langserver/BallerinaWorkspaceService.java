@@ -108,7 +108,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                     ((BLangCompilationUnit) compilationUnit[1]).accept(visitor);
                 });
             } catch (UserErrorException e) {
-                notifyUser(e, languageServer.getClient());
+                notifyUser("Workspace Symbols", e, languageServer.getClient());
             } catch (Throwable e) {
                 String msg = "Operation 'workspace/symbol' failed!";
                 logError(msg, e, languageServer.getClient(), null, (Position) null);
@@ -154,7 +154,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                     return executor.get().execute(executeCommandContext);
                 }
             } catch (UserErrorException e) {
-                notifyUser(e, languageServer.getClient());
+                notifyUser("Execute Command", e, languageServer.getClient());
             } catch (Throwable e) {
                 String msg = "Operation 'workspace/executeCommand' failed!";
                 logError(msg, e, languageServer.getClient(), null, (Position) null);

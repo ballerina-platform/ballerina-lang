@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
@@ -51,13 +49,7 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
                 @Argument(name = "exceptionType", type = UNION)
         }
 )
-public class VisitTryCatchBlock extends BlockingNativeCallableUnit {
-
-    @Override
-    @Deprecated
-    public void execute(Context context) {
-        throw new UnsupportedOperationException("BVM Unsupported");
-    }
+public class VisitTryCatchBlock {
 
     public static void visitTryCatchBlock(Strand strand, ObjectValue oMv, ObjectValue oStartLabel,
                                           ObjectValue oEndLabel, ObjectValue oHandlerLabel, Object exceptionType) {

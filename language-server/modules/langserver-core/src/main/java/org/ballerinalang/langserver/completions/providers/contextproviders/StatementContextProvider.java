@@ -63,6 +63,10 @@ public class StatementContextProvider extends LSCompletionProvider {
         Boolean inWorkerReturn = context.get(CompletionKeys.IN_WORKER_RETURN_CONTEXT_KEY);
         int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
 
+        if (parserRuleContext != null && this.getProvider(parserRuleContext.getClass()) != null) {
+            return this.getProvider(parserRuleContext.getClass()).getCompletions(context);
+        }
+
         if (invocationOrDelimiterTokenType > -1) {
             /*
             Action invocation context
@@ -71,9 +75,6 @@ public class StatementContextProvider extends LSCompletionProvider {
         }
         if (inWorkerReturn != null && inWorkerReturn) {
             return this.getProvider(BallerinaParser.WorkerDeclarationContext.class).getCompletions(context);
-        }
-        if (parserRuleContext != null && this.getProvider(parserRuleContext.getClass()) != null) {
-            return this.getProvider(parserRuleContext.getClass()).getCompletions(context);
         }
 
         // Add the visible static completion items
