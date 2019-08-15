@@ -18,7 +18,10 @@
 
 package org.ballerinalang.stdlib.io.records;
 
-import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.stdlib.io.MockByteChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
@@ -91,7 +94,7 @@ public class AsyncReadWriteTest {
         future = eventManager.publish(event);
         eventResult = future.get();
         Throwable error = ((EventContext) eventResult.getContext()).getError();
-        Assert.assertTrue(IOConstants.IO_EOF.equals(error.getMessage()));
+        Assert.assertEquals(error.getMessage(), IOConstants.IO_EOF);
 
         recordChannel.close();
     }
@@ -105,16 +108,17 @@ public class AsyncReadWriteTest {
         DelimitedRecordChannel recordChannel = new DelimitedRecordChannel(characterChannel, "\n", ",");
 
         String[] recordOne = {"Foo", "Bar", "911"};
-        BValueArray recordOneArr = new BValueArray(recordOne);
-
-        DelimitedRecordWriteEvent recordWriteEvent = new DelimitedRecordWriteEvent(recordChannel, recordOneArr);
+        ArrayValue recordOneArr = new ArrayValue(recordOne);
+        EventContext eventContext = new EventContext(new NonBlockingCallback(new Strand(new Scheduler(true))));
+        DelimitedRecordWriteEvent recordWriteEvent = new DelimitedRecordWriteEvent(recordChannel, recordOneArr,
+                eventContext);
         Future<EventResult> future = eventManager.publish(recordWriteEvent);
         future.get();
 
         String[] recordTwo = {"Jim", "Com", "119"};
-        BValueArray recordTwoArr = new BValueArray(recordTwo);
+        ArrayValue recordTwoArr = new ArrayValue(recordTwo);
 
-        recordWriteEvent = new DelimitedRecordWriteEvent(recordChannel, recordTwoArr);
+        recordWriteEvent = new DelimitedRecordWriteEvent(recordChannel, recordTwoArr, eventContext);
         future = eventManager.publish(recordWriteEvent);
         future.get();
 
