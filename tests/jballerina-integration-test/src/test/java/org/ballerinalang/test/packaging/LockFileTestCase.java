@@ -118,8 +118,8 @@ public class LockFileTestCase extends BaseTest {
                                      + ProgramFileConstants.ANY_PLATFORM + "-"
                                      + "1.0.0"
                                      + BLANG_COMPILED_PKG_BINARY_EXT;
-        String module1BuildMsg = "Created target" + File.separator + "balo" + File.separator + module1BaloFileName;
-        String module2BuildMsg = "Created target" + File.separator + "balo" + File.separator + module2BaloFileName;
+        String module1BuildMsg = "target" + File.separator + "balo" + File.separator + module1BaloFileName;
+        String module2BuildMsg = "target" + File.separator + "balo" + File.separator + module2BaloFileName;
         LogLeecher module1BuildLeecher = new LogLeecher(module1BuildMsg);
         LogLeecher module2BuildLeecher = new LogLeecher(module2BuildMsg);
         balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{},
@@ -168,7 +168,7 @@ public class LockFileTestCase extends BaseTest {
                                  + ProgramFileConstants.ANY_PLATFORM + "-"
                                  + "1.0.0"
                                  + BLANG_COMPILED_PKG_BINARY_EXT;
-        String fooBuildMsg = "Created target" + File.separator + "balo" + File.separator + fooBaloFileName;
+        String fooBuildMsg = "target" + File.separator + "balo" + File.separator + fooBaloFileName;
         LogLeecher fooBuildLeecher = new LogLeecher(fooBuildMsg);
     
         given().with().pollInterval(Duration.TEN_SECONDS).and()
@@ -224,8 +224,8 @@ public class LockFileTestCase extends BaseTest {
                                      + ProgramFileConstants.ANY_PLATFORM + "-"
                                      + "1.2.0"
                                      + BLANG_COMPILED_PKG_BINARY_EXT;
-        String module1BuildMsg = "Created target" + File.separator + "balo" + File.separator + module1BaloFileName;
-        String module2BuildMsg = "Created target" + File.separator + "balo" + File.separator + module2BaloFileName;
+        String module1BuildMsg = "target" + File.separator + "balo" + File.separator + module1BaloFileName;
+        String module2BuildMsg = "target" + File.separator + "balo" + File.separator + module2BaloFileName;
         LogLeecher module1BuildLeecher = new LogLeecher(module1BuildMsg);
         LogLeecher module2BuildLeecher = new LogLeecher(module2BuildMsg);
         balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{},
@@ -260,7 +260,7 @@ public class LockFileTestCase extends BaseTest {
                                  + ProgramFileConstants.ANY_PLATFORM + "-"
                                  + "9.9.9"
                                  + BLANG_COMPILED_PKG_BINARY_EXT;
-        String fooBuildMsg = "Created target" + File.separator + "balo" + File.separator + fooBaloFileName;
+        String fooBuildMsg = "target" + File.separator + "balo" + File.separator + fooBaloFileName;
         LogLeecher fooBuildLeecher = new LogLeecher(fooBuildMsg);
         balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{}, new LogLeecher[]{fooBuildLeecher},
                 testProj2Path.toString());
@@ -299,7 +299,7 @@ public class LockFileTestCase extends BaseTest {
                                  + ProgramFileConstants.ANY_PLATFORM + "-"
                                  + "9.9.9"
                                  + BLANG_COMPILED_PKG_BINARY_EXT;
-        String fooBuildMsg = "Created target" + File.separator + "balo" + File.separator + fooBaloFileName;
+        String fooBuildMsg = "target" + File.separator + "balo" + File.separator + fooBaloFileName;
         LogLeecher fooBuildLeecher = new LogLeecher(fooBuildMsg);
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
@@ -343,7 +343,7 @@ public class LockFileTestCase extends BaseTest {
                                  + ProgramFileConstants.ANY_PLATFORM + "-"
                                  + "9.9.9"
                                  + BLANG_COMPILED_PKG_BINARY_EXT;
-        String fooBuildMsg = "Created target" + File.separator + "balo" + File.separator + fooBaloFileName;
+        String fooBuildMsg = "target" + File.separator + "balo" + File.separator + fooBaloFileName;
         LogLeecher fooBuildLeecher = new LogLeecher(fooBuildMsg);
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
@@ -390,7 +390,7 @@ public class LockFileTestCase extends BaseTest {
                                  + ProgramFileConstants.ANY_PLATFORM + "-"
                                  + "9.9.9"
                                  + BLANG_COMPILED_PKG_BINARY_EXT;
-        String fooBuildMsg = "Created target" + File.separator + "balo" + File.separator + fooBaloFileName;
+        String fooBuildMsg = "target" + File.separator + "balo" + File.separator + fooBaloFileName;
         LogLeecher fooBuildLeecher = new LogLeecher(fooBuildMsg);
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
@@ -433,7 +433,7 @@ public class LockFileTestCase extends BaseTest {
                                  + ProgramFileConstants.ANY_PLATFORM + "-"
                                  + "9.9.9"
                                  + BLANG_COMPILED_PKG_BINARY_EXT;
-        String fooBuildMsg = "Created target" + File.separator + "balo" + File.separator + fooBaloFileName;
+        String fooBuildMsg = "target" + File.separator + "balo" + File.separator + fooBaloFileName;
         LogLeecher fooBuildLeecher = new LogLeecher(fooBuildMsg);
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
@@ -467,8 +467,7 @@ public class LockFileTestCase extends BaseTest {
     }
     
     public  void copyFolder(Path src, Path dest) throws IOException {
-        Files.walk(src)
-                .forEach(source -> copy(source, dest.resolve(src.relativize(source))));
+        Files.walk(src).forEach(source -> copy(source, dest.resolve(src.relativize(source))));
     }
     
     private void copy(Path source, Path dest) {
@@ -481,8 +480,7 @@ public class LockFileTestCase extends BaseTest {
     
     @AfterClass
     private void cleanup() throws Exception {
-        deleteFiles(tempHomeDirectory);
-//        deleteFiles(tempProjectsDirectory);
-        balServer.cleanup();
+        deleteFiles(this.tempHomeDirectory);
+        deleteFiles(this.tempProjectsDirectory);
     }
 }
