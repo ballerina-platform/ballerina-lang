@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.stdlib.time.nativeimpl;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -32,10 +31,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         functionName = "createTime"
 )
 public class CreateTime extends AbstractTimeFunction {
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static Object createTime(Strand strand, long years, long months, long dates, long hours, long minutes,
                                     long seconds, long milliSeconds, String zoneId) {

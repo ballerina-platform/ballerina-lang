@@ -116,7 +116,7 @@ public class RabbitMQResourceValidator {
 
     private static boolean validateArrayType(BType paramType) {
         return paramType.tag != TypeTags.ARRAY || (paramType instanceof BArrayType &&
-                ((BArrayType) paramType).getElementType().tag != org.ballerinalang.model.types.TypeTags.BYTE_TAG);
+                ((BArrayType) paramType).getElementType().tag != org.ballerinalang.jvm.types.TypeTags.BYTE_TAG);
     }
 
     private RabbitMQResourceValidator() {

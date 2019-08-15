@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.stdlib.reflect.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -32,13 +30,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         orgName = "ballerina", packageName = "reflect",
         functionName = "getServiceAnnotationsExternal"
 )
-public class GetServiceAnnotationsExternal extends BlockingNativeCallableUnit {
+public class GetServiceAnnotationsExternal {
     public static Object getServiceAnnotationsExternal(Strand strand, ObjectValue service, String annot) {
         return service.getType().getAnnotation(annot);
-    }
-
-    @Override
-    public void execute(Context context) {
-
     }
 }

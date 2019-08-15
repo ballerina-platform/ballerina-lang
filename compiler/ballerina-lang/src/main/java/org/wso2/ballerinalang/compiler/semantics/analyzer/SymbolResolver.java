@@ -855,7 +855,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return lookupMemberSymbol(pos, pkgSymbol.scope, env, name, expSymTag);
     }
 
-    private BSymbol lookupLangLibMethodInModule(BPackageSymbol moduleSymbol, Name name) {
+    public BSymbol lookupLangLibMethodInModule(BPackageSymbol moduleSymbol, Name name) {
 
         // What we get here is T.Name, this should convert to
         ScopeEntry entry = moduleSymbol.scope.lookup(name);
@@ -934,6 +934,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null);
             symTable.defineOperators(); // Define all operators e.g. binary, unary, cast and conversion
             symTable.pureType = BUnionType.create(null, symTable.anydataType, symTable.errorType);
+            symTable.errorOrNilType = BUnionType.create(null, symTable.errorType, symTable.nilType);
             return;
         }
         throw new IllegalStateException("built-in error not found ?");

@@ -17,8 +17,6 @@
  **/
 package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
@@ -58,13 +56,7 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.STRING_DESC;
                 @Argument(name = "closureMapCount", type = INT)
         }
 )
-public class VisitInvokeDynamicInsn extends BlockingNativeCallableUnit {
-
-    @Override
-    @Deprecated
-    public void execute(Context context) {
-        throw new UnsupportedOperationException("BVM Unsupported");
-    }
+public class VisitInvokeDynamicInsn {
 
     public static void visitInvokeDynamicInsn(Strand strand, ObjectValue oMv, String className, String lambdaName,
                                     boolean isVoid, long mapsCount) {

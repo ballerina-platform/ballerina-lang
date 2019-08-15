@@ -323,7 +323,7 @@ public class FilterUtils {
                         .filter(entry -> {
                             if (symbolType.tag == TypeTags.RECORD && (invocationToken == BallerinaParser.DOT
                                     || invocationToken == BallerinaParser.NOT)) {
-                                return !org.ballerinalang.model.util.Flags.isFlagOn(entry.getValue().symbol.flags,
+                                return !org.ballerinalang.jvm.util.Flags.isFlagOn(entry.getValue().symbol.flags,
                                         Flags.OPTIONAL);
                             }
                             return true;
