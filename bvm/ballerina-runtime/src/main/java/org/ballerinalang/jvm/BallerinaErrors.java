@@ -35,6 +35,8 @@ import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_RUNTIME_PKG;
 import static org.ballerinalang.jvm.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.INIT_FUNCTION_SUFFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 
 /**
  * Util Class for handling Error in Ballerina VM.
@@ -75,20 +77,16 @@ public class BallerinaErrors {
     }
 
     public static ErrorValue createConversionError(Object inputValue, BType targetType) {
-        return createError(BallerinaErrorReasons.CONVERSION_ERROR,
-                           BLangExceptionHelper
-                                   .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
-                                                            .INCOMPATIBLE_CONVERT_OPERATION,
-                                                    TypeChecker.getType(inputValue), targetType));
+        return createError(CONVERSION_ERROR,
+                           BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
+                                                                TypeChecker.getType(inputValue), targetType));
     }
 
     public static ErrorValue createConversionError(Object inputValue, BType targetType, String detailMessage) {
-        return createError(BallerinaErrorReasons.CONVERSION_ERROR,
-                           BLangExceptionHelper
-                                   .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
-                                                            .INCOMPATIBLE_CONVERT_OPERATION,
-                                                    TypeChecker.getType(inputValue), targetType).concat(
-                                                            ": ".concat(detailMessage)));
+        return createError(CONVERSION_ERROR,
+                           BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
+                                                                TypeChecker.getType(inputValue), targetType)
+                                   .concat(": ".concat(detailMessage)));
     }
 
     public static ErrorValue createTypeCastError(Object sourceVal, BType targetType) {

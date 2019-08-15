@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BMapType;
@@ -159,6 +160,11 @@ public class TypeConverter {
     }
 
     public static List<BType> getConvertibleTypes(Object inputValue, BType targetType) {
+        return getConvertibleTypes(inputValue, targetType, new ArrayList<>());
+    }
+
+    public static List<BType> getConvertibleTypes(Object inputValue, BType targetType,
+                                                  List<TypeValuePair> unresolvedValues) {
         List<BType> convertibleTypes = new ArrayList<>();
 
         int targetTypeTag = targetType.getTag();
@@ -166,11 +172,11 @@ public class TypeConverter {
         switch (targetTypeTag) {
             case TypeTags.UNION_TAG:
                 for (BType memType : ((BUnionType) targetType).getMemberTypes()) {
-                    convertibleTypes.addAll(getConvertibleTypes(inputValue, memType));
+                    convertibleTypes.addAll(getConvertibleTypes(inputValue, memType, unresolvedValues));
                 }
                 break;
             case TypeTags.RECORD_TYPE_TAG:
-                if (isConvertibleToRecordType(inputValue, (BRecordType) targetType)) {
+                if (isConvertibleToRecordType(inputValue, (BRecordType) targetType, unresolvedValues)) {
                     convertibleTypes.add(targetType);
                 }
                 break;
@@ -182,10 +188,17 @@ public class TypeConverter {
         return convertibleTypes;
     }
 
-    private static boolean isConvertibleToRecordType(Object sourceValue, BRecordType targetType) {
+    private static boolean isConvertibleToRecordType(Object sourceValue, BRecordType targetType,
+                                                     List<TypeValuePair> unresolvedValues) {
         if (!(sourceValue instanceof MapValueImpl)) {
             return false;
         }
+
+        TypeValuePair typeValuePair = new TypeValuePair(sourceValue, targetType);
+        if (unresolvedValues.contains(typeValuePair)) {
+            return true;
+        }
+        unresolvedValues.add(typeValuePair);
 
         Map<String, BType> targetFieldTypes = new HashMap<>();
         BType restFieldType = targetType.restFieldType;
@@ -211,11 +224,12 @@ public class TypeConverter {
             String fieldName = valueEntry.getKey().toString();
 
             if (targetFieldTypes.containsKey(fieldName)) {
-                if (getConvertibleTypes(valueEntry.getValue(), targetFieldTypes.get(fieldName)).size() != 1) {
+                if (getConvertibleTypes(valueEntry.getValue(), targetFieldTypes.get(fieldName),
+                                        unresolvedValues).size() != 1) {
                     return false;
                 }
             } else if (!targetType.sealed) {
-                if (getConvertibleTypes(valueEntry.getValue(), restFieldType).size() != 1) {
+                if (getConvertibleTypes(valueEntry.getValue(), restFieldType, unresolvedValues).size() != 1) {
                     return false;
                 }
             } else {
