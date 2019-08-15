@@ -168,14 +168,20 @@ public class SQLDataIterator extends TableIterator {
                             handleDateValue(bStruct, fieldName, date, fieldType);
                             break;
                         case Types.TIME:
+                            Time timeTz = rs.getTime(index, utcCalendar);
+                            handleDateValue(bStruct, fieldName, timeTz, fieldType);
+                            break;
                         case Types.TIME_WITH_TIMEZONE:
-                            Time time = rs.getTime(index, utcCalendar);
+                            Time time = rs.getTime(index);
                             handleDateValue(bStruct, fieldName, time, fieldType);
                             break;
                         case Types.TIMESTAMP:
-                        case Types.TIMESTAMP_WITH_TIMEZONE:
                             Timestamp timestamp = rs.getTimestamp(index, utcCalendar);
                             handleDateValue(bStruct, fieldName, timestamp, fieldType);
+                            break;
+                        case Types.TIMESTAMP_WITH_TIMEZONE:
+                            Timestamp timestampTz = rs.getTimestamp(index);
+                            handleDateValue(bStruct, fieldName, timestampTz, fieldType);
                             break;
                         case Types.ROWID:
                             sValue = new String(rs.getRowId(index).getBytes(), StandardCharsets.UTF_8);

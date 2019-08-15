@@ -57,8 +57,10 @@ public final class Constants {
         public static final String NCLOB = "NCLOB";
         public static final String DATE = "DATE";
         public static final String TIME = "TIME";
+        public static final String TIMETZ = "TIMETZ";
         public static final String DATETIME = "DATETIME";
         public static final String TIMESTAMP = "TIMESTAMP";
+        public static final String TIMESTAMPTZ = "TIMESTAMPTZ";
         public static final String ARRAY = "ARRAY";
         public static final String STRUCT = "STRUCT";
         public static final String REFCURSOR = "REFCURSOR";

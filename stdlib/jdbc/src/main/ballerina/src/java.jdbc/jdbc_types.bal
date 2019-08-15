@@ -142,8 +142,10 @@ public function getGlobalPoolConfigContainer() returns GlobalPoolConfigContainer
 #
 # `DATE` - Date consisting of day, month, and year
 # `TIME` - Time consisting of hours, minutes, and seconds
+# `TIMETZ` - Time consisting of hours, minutes, and seconds with time zone
 # `DATETIME` - Both DATE and TIME with additional a nanosecond field
 # `TIMESTAMP` - Both DATE and TIME with additional a nanosecond field
+# `TIMESTAMPTZ` - Both DATE, TIME and TIMEZONE with additional a nanosecond field
 #
 # `ARRAY` - Composite data value that consists of zero or more elements of a specified data type
 # `STRUCT` - User defined structured type, consists of one or more attributes
@@ -151,7 +153,7 @@ public function getGlobalPoolConfigContainer() returns GlobalPoolConfigContainer
 public type SQLType TYPE_VARCHAR|TYPE_CHAR|TYPE_LONGVARCHAR|TYPE_NCHAR|TYPE_LONGNVARCHAR|TYPE_NVARCHAR|TYPE_BIT|
 TYPE_BOOLEAN|TYPE_TINYINT|TYPE_SMALLINT|TYPE_INTEGER|TYPE_BIGINT|TYPE_NUMERIC|TYPE_DECIMAL|TYPE_REAL|TYPE_FLOAT|
 TYPE_DOUBLE|TYPE_BINARY|TYPE_BLOB|TYPE_LONGVARBINARY|TYPE_VARBINARY|TYPE_CLOB|TYPE_NCLOB|TYPE_DATE|TYPE_TIME|
-TYPE_DATETIME|TYPE_TIMESTAMP|TYPE_ARRAY|TYPE_STRUCT|TYPE_REFCURSOR;
+TYPE_TIMETZ|TYPE_DATETIME|TYPE_TIMESTAMP|TYPE_TIMESTAMPTZ|TYPE_ARRAY|TYPE_STRUCT|TYPE_REFCURSOR;
 
 public const TYPE_VARCHAR = "VARCHAR";
 public const TYPE_CHAR = "CHAR";
@@ -178,8 +180,10 @@ public const TYPE_CLOB = "CLOB";
 public const TYPE_NCLOB = "NCLOB";
 public const TYPE_DATE = "DATE";
 public const TYPE_TIME = "TIME";
+public const TYPE_TIMETZ = "TIMETZ";
 public const TYPE_DATETIME = "DATETIME";
 public const TYPE_TIMESTAMP = "TIMESTAMP";
+public const TYPE_TIMESTAMPTZ = "TIMESTAMPTZ";
 public const TYPE_ARRAY = "ARRAY";
 public const TYPE_STRUCT = "STRUCT";
 public const TYPE_REFCURSOR = "REFCURSOR";

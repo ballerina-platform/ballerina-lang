@@ -319,9 +319,19 @@ public class CallStatement extends AbstractSQLStatement {
                     paramValue.put(PARAMETER_VALUE_FIELD, SQLDatasourceUtils.getString(value));
                 }
                 break;
+                case Constants.SQLDataTypes.TIMESTAMPTZ: {
+                    Timestamp value = stmt.getTimestamp(index + 1);
+                    paramValue.put(PARAMETER_VALUE_FIELD, SQLDatasourceUtils.getString(value));
+                }
+                break;
                 case Constants.SQLDataTypes.TIMESTAMP:
                 case Constants.SQLDataTypes.DATETIME: {
                     Timestamp value = stmt.getTimestamp(index + 1, utcCalendar);
+                    paramValue.put(PARAMETER_VALUE_FIELD, SQLDatasourceUtils.getString(value));
+                }
+                break;
+                case Constants.SQLDataTypes.TIMETZ: {
+                    Time value = stmt.getTime(index + 1);
                     paramValue.put(PARAMETER_VALUE_FIELD, SQLDatasourceUtils.getString(value));
                 }
                 break;

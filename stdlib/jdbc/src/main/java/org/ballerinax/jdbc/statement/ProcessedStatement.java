@@ -216,9 +216,15 @@ class ProcessedStatement {
             case Constants.SQLDataTypes.DATE:
                 setDateValue(stmt, value, index, direction);
                 break;
+            case Constants.SQLDataTypes.TIMESTAMPTZ:
+                setTimeStampValue(stmt, value, index, direction, null);
+                break;
             case Constants.SQLDataTypes.TIMESTAMP:
             case Constants.SQLDataTypes.DATETIME:
                 setTimeStampValue(stmt, value, index, direction, utcCalendar);
+                break;
+            case Constants.SQLDataTypes.TIMETZ:
+                setTimeValue(stmt, value, index, direction, null);
                 break;
             case Constants.SQLDataTypes.TIME:
                 setTimeValue(stmt, value, index, direction, utcCalendar);
