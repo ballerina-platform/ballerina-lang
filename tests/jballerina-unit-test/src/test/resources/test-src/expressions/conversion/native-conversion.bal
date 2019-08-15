@@ -294,7 +294,20 @@ function testJsonToStructWithMissingOptionalFields () returns Person {
     }
 }
 
-function testJsonToStructWithMissingRequiredFields () returns Person {
+type PersonWithChildren record {|
+    string name = "";
+    int age = 0;
+    Person? parent = ();
+    json info?;
+    map<anydata>? address?;
+    int[]? marks?;
+    anydata a = ();
+    float score = 0.0;
+    boolean alive = false;
+    Person[]? children;
+|};
+
+function testJsonToStructWithMissingRequiredFields () returns PersonWithChildren {
     json j = {name:"Child",
                  parent:(),
                  age:25,
@@ -305,8 +318,8 @@ function testJsonToStructWithMissingRequiredFields () returns Person {
                  score:5.67
              };
 
-    var p = Person.constructFrom(j);
-    if (p is Person) {
+    var p = PersonWithChildren.constructFrom(j);
+    if (p is PersonWithChildren) {
         return p;
     } else {
         panic p;

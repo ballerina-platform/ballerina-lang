@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.TypeConverter;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
@@ -74,6 +75,10 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     private static final long serialVersionUID = 1L;
     private BType type;
+
+    private static final String PERIOD = ".";
+    private static final String UNDERSCORE = "_";
+    private static final String SLASH = "/";
 
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private final Lock readLock = lock.readLock();
@@ -505,11 +510,9 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             }
         } else if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
             BRecordType recordType = (BRecordType) type;
-            MapValueImpl<String, Object> recordWithDefaults =
-                    (MapValueImpl<String, Object>) BallerinaValues.createRecordValue(
-                            recordType.getPackage().toString().equals(".") ? "." :
-                                    recordType.getPackage().getOrg() + "/" + recordType.getPackage().getName(),
-                            recordType.getName());
+            MapValueImpl<String, Object> recordWithDefaults = (MapValueImpl<String, Object>)
+                    BallerinaValues.createRecordValue(getPackageForValueCreator(recordType.getPackage()),
+                                                      recordType.getName());
 
             for (Map.Entry valueEntry : recordWithDefaults.entrySet()) {
                 Object fieldName = valueEntry.getKey();
@@ -555,6 +558,16 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
         this.type = type;
         unresolvedValues.remove(typeValuePair);
+    }
+
+    private String getPackageForValueCreator(BPackage bPackage) {
+        if (PERIOD.equals(bPackage.toString())) {
+            return PERIOD;
+        }
+
+        String org = bPackage.org;
+        String name = bPackage.name;
+        return org.replace(PERIOD, UNDERSCORE).concat(SLASH).concat(name.replace(PERIOD, UNDERSCORE));
     }
 
     /**

@@ -289,7 +289,7 @@ public class NativeConversionTest {
     @Test(description = "Test converting a incompatible JSON to a struct",
           expectedExceptions = { BLangRuntimeException.class },
           expectedExceptionsMessageRegExp = ".*'map<json>'" +
-                  " value cannot be converted to 'Person'.*")
+                  " value cannot be converted to 'PersonWithChildren'.*")
     public void testJsonToStructWithMissingRequiredFields() {
         BRunUtil.invoke(compileResult, "testJsonToStructWithMissingRequiredFields");
     }
