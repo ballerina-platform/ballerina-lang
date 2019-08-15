@@ -152,7 +152,7 @@ public class KafkaProducerTest {
             throw new IllegalStateException();
         }
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-producer-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(2189, 9102);
+        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(14009, 14109);
         return kafkaCluster;
     }
 

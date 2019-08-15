@@ -26,8 +26,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 /**
- * The {@link StreamSubscription} is the base abstract class for {@link DefaultStreamSubscription} and
- * {@link SiddhiStreamSubscription}.
+ * The {@link StreamSubscription} is the base abstract class for {@link DefaultStreamSubscription}.
  *
  * @since 0.995.0
  */

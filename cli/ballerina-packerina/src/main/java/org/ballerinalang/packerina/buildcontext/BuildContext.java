@@ -20,6 +20,7 @@ package org.ballerinalang.packerina.buildcontext;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerOptionName;
+import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.MultiModuleContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
@@ -28,7 +29,6 @@ import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
 import org.ballerinalang.packerina.utils.EmptyPrintStream;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
-import org.ballerinalang.util.BLangConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;

@@ -18,18 +18,13 @@
 
 package org.ballerinalang.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.persistence.Serializer;
 
 /**
  * ballerina.model.streams:deserialize(string str).
@@ -43,12 +38,7 @@ import org.ballerinalang.persistence.Serializer;
         returnType = {@ReturnType(type = TypeKind.MAP)},
         isPublic = true
 )
-public class Deserialize extends BlockingNativeCallableUnit {
-    public void execute(Context ctx) {
-        String serializedStr = ctx.getStringArgument(0);
-        BMap<String, BValue> bStruct = Serializer.getJsonSerializer().deserialize(serializedStr, BMap.class);
-        ctx.setReturnValues(bStruct);
-    }
+public class Deserialize {
 
     public static MapValue deserialize(Strand strand, Object object, String str) {
         return new MapValueImpl();

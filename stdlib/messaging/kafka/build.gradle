@@ -31,7 +31,6 @@ configurations.all {
 dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-core')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-encoding')
     implementation project(':ballerina-filepath')
@@ -62,6 +61,7 @@ dependencies {
     testCompile project(':ballerina-crypto')
     testCompile project(':ballerina-mime')
     testCompile project(':ballerina-filepath')
+    testCompile project(':ballerina-core')
 
     // Transitive
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')

@@ -58,8 +58,8 @@ public const OAEPwithSHA512andMGF1 = "OAEPwithSHA512andMGF1";
 # + path - Path to the key store file
 # + password - Key store password
 public type KeyStore record {|
-    string path = "";
-    string password = "";
+    string path;
+    string password;
 |};
 
 # Record for providing trust store related configurations.
@@ -67,8 +67,8 @@ public type KeyStore record {|
 # + path - Path to the key store file
 # + password - Key store password
 public type TrustStore record {|
-    string path = "";
-    string password = "";
+    string path;
+    string password;
 |};
 
 # Private key used in cryptographic operations.
@@ -261,20 +261,19 @@ public function verifyRsaSha512Signature(byte[] data, byte[] signature, PublicKe
 
 # Read a private key from the provided PKCS#12 archive file.
 #
-# + keyStore - Key store configuration
+# + keyStore - Key store or Trust store configuration
 # + keyAlias - Key alias
 # + keyPassword - Key password
 # + return - Reference to the private key or `Error` if private key was unreadable
-public function decodePrivateKey(KeyStore? keyStore = (), string? keyAlias = (), string? keyPassword = ())
+public function decodePrivateKey(KeyStore|TrustStore keyStore, string keyAlias, string keyPassword)
                                  returns PrivateKey|Error = external;
 
 # Read a public key from the provided PKCS#12 archive file.
 #
-# + keyStore - Key store configuration
+# + keyStore - Key store or Trust store configuration
 # + keyAlias - Key alias
 # + return - Reference to the public key or `Error` if private key was unreadable
-public function decodePublicKey(KeyStore? keyStore = (), string? keyAlias = ())
-                                returns PublicKey|Error = external;
+public function decodePublicKey(KeyStore|TrustStore keyStore, string keyAlias) returns PublicKey|Error = external;
 
 # Returns RSA encrypted value for the given data.
 #

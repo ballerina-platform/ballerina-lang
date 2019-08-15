@@ -18,28 +18,16 @@
 
 package org.ballerinalang.utils;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.BVM;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BTypeDescValue;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,54 +46,7 @@ import java.util.function.Predicate;
                 @Argument(name = "value", type = TypeKind.ANY)},
         returnType = { @ReturnType(type = TypeKind.ANYDATA), @ReturnType(type = TypeKind.ERROR) }
 )
-public class Stamp extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context ctx) {
-        BType stampType = ((BTypeDescValue) ctx.getNullableRefArgument(0)).value();
-        BType targetType;
-        if (stampType.getTag() == TypeTags.UNION_TAG) {
-            List<BType> memberTypes = new ArrayList<>(((BUnionType) stampType).getMemberTypes());
-            targetType = new BUnionType(memberTypes);
-
-            Predicate<BType> errorPredicate = e -> e.getTag() == TypeTags.ERROR_TAG;
-            ((BUnionType) targetType).getMemberTypes().removeIf(errorPredicate);
-
-            if (((BUnionType) targetType).getMemberTypes().size() == 1) {
-                targetType = ((BUnionType) stampType).getMemberTypes().get(0);
-            }
-        } else {
-            targetType = stampType;
-        }
-        BValue valueToBeStamped = ctx.getNullableRefArgument(1);
-        if (valueToBeStamped == null) {
-            if (targetType.getTag() == TypeTags.JSON_TAG) {
-                ctx.setReturnValues((BValue) null);
-                return;
-            }
-            ctx.setReturnValues(BLangVMErrors.createError(ctx.getStrand(), BallerinaErrorReasons.STAMP_ERROR,
-                                                          BLangExceptionHelper.getErrorMessage(
-                                                                  RuntimeErrors.CANNOT_STAMP_NULL,
-                                                                  stampType)));
-            return;
-        }
-        if (!BVM.checkIsLikeType(valueToBeStamped, targetType)) {
-            ctx.setReturnValues(BLangVMErrors.createError(ctx.getStrand(),
-                                                          BallerinaErrorReasons.STAMP_ERROR,
-                                                          BLangExceptionHelper.getErrorMessage(
-                                                                  RuntimeErrors.INCOMPATIBLE_STAMP_OPERATION,
-                                                                  valueToBeStamped.getType(), targetType)));
-            return;
-        }
-        try {
-            valueToBeStamped.stamp(targetType, new ArrayList<>());
-        } catch (BallerinaException e) {
-            ctx.setReturnValues(BLangVMErrors.createError(ctx.getStrand(), BallerinaErrorReasons.STAMP_ERROR,
-                                                          e.getDetail()));
-            return;
-        }
-        ctx.setReturnValues(valueToBeStamped);
-    }
+public class Stamp {
 
     public static Object stamp(Strand strand, TypedescValue typedescValue, Object valueToBeStamped) {
         org.ballerinalang.jvm.types.BType stampType = typedescValue.getDescribingType();

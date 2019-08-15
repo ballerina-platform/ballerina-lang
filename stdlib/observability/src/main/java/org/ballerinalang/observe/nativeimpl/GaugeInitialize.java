@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.observability.metrics.Gauge;
 import org.ballerinalang.jvm.observability.metrics.StatisticConfig;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -43,37 +41,7 @@ import java.time.Duration;
         receiver = @Receiver(type = TypeKind.OBJECT, structType = ObserveNativeImplConstants.GAUGE,
                 structPackage = ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH)
 )
-public class GaugeInitialize extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-//        BMap<String, BValue> bStruct = (BMap<String, BValue>) context.getRefArgument(0);
-//        BValueArray summaryConfigs = (BValueArray) bStruct.
-//                get(ObserveNativeImplConstants.STATISTICS_CONFIG_FIELD);
-//        Gauge.Builder gaugeBuilder = Gauge.builder(bStruct.get(ObserveNativeImplConstants.NAME_FIELD).stringValue())
-//                .description(bStruct.get(ObserveNativeImplConstants.DESCRIPTION_FIELD).stringValue())
-//                .tags(Utils.toStringMap((BMap) bStruct.get(ObserveNativeImplConstants.TAGS_FIELD)));
-//        if (summaryConfigs != null && summaryConfigs.size() > 0) {
-//            for (int i = 0; i < summaryConfigs.size(); i++) {
-//                BMap summaryConfigStruct = (BMap) summaryConfigs.getBValue(i);
-//                StatisticConfig.Builder statisticBuilder = StatisticConfig.builder()
-//                        .expiry(Duration.ofMillis(((BInteger) summaryConfigStruct
-//                                .get(ObserveNativeImplConstants.EXPIRY_FIELD)).intValue()))
-//                        .buckets(((BInteger) summaryConfigStruct
-//                                .get(ObserveNativeImplConstants.BUCKETS_FIELD)).intValue());
-//                BValueArray bFloatArray = (BValueArray) summaryConfigStruct.
-//                        get(ObserveNativeImplConstants.PERCENTILES_FIELD);
-//                double[] percentiles = new double[(int) bFloatArray.size()];
-//                for (int j = 0; j < bFloatArray.size(); j++) {
-//                    percentiles[j] = bFloatArray.getFloat(j);
-//                }
-//                statisticBuilder.percentiles(percentiles);
-//                StatisticConfig config = statisticBuilder.build();
-//                gaugeBuilder.summarize(config);
-//            }
-//        }
-//        Gauge gauge = gaugeBuilder.build();
-//        bStruct.addNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY, gauge);
-    }
+public class GaugeInitialize {
 
     public static void initialize(Strand strand, ObjectValue guage) {
         ArrayValue summaryConfigs = (ArrayValue) guage.get(ObserveNativeImplConstants.STATISTICS_CONFIG_FIELD);

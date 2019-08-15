@@ -18,12 +18,11 @@
 
 package org.ballerinalang.stdlib.socket.tcp;
 
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 
 /**
- * This will hold the {@link SocketService} and the {@link CallableUnitCallback}.
+ * This will hold the {@link SocketService}.
  *
  * @since 0.985.0
  */

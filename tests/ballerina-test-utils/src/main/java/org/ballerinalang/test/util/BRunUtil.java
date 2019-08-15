@@ -940,6 +940,7 @@ public class BRunUtil {
         return getBVMValue(value, new HashMap<>());
     }
 
+    @SuppressWarnings("rawtypes")
     private static BRefType<?> getBVMValue(Object value, Map<String, BRefType> bvmValueMap) {
         String hashCode = String.valueOf(System.identityHashCode(value));
         if (value == null) {

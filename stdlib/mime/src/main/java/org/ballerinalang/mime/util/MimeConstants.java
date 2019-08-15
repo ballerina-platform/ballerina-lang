@@ -18,7 +18,7 @@
 
 package org.ballerinalang.mime.util;
 
-import static org.ballerinalang.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
 
 /**
  * Constants related to MIME.
