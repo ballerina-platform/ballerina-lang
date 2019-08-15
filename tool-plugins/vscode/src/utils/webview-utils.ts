@@ -25,7 +25,7 @@ export function getCommonWebViewOptions(): Partial<WebviewOptions & WebviewPanel
 }
 
 export function getVSCodeResourceURI(filePath: string): string {
-    return Uri.file(filePath).with({ scheme: 'vscode-resource' }).toString();
+    return 'vscode-resource:' + filePath;
 }
 
 export interface WebViewOptions {
@@ -92,10 +92,10 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
 }
 
 export function getDistributionComposerURI(): string {
-    return getVSCodeResourceURI(getDistributionPath());
+    return getVSCodeResourceURI(getDistributionComposerPath());
 }
 
-function getDistributionPath(): string {
+function getDistributionComposerPath(): string {
     return join(ballerinaExtInstance.ballerinaHome, 'lib', 'tools', 'composer-library');
 }
 
@@ -107,7 +107,7 @@ export function getComposerPath(): string {
 
 export function getComposerJSFiles(isAPIEditor: boolean = false): string[] {
     return [
-        join(getDistributionComposerURI(), 'codepoints.js'),
+        join(getComposerPath(), 'codepoints.js'),
         join(getComposerPath(), isAPIEditor ? 'apiEditor.js' : 'composer.js'),
         process.env.COMPOSER_DEBUG === "true" ? 'http://localhost:8097' : '' // For React Dev Tools
     ];
@@ -116,7 +116,7 @@ export function getComposerJSFiles(isAPIEditor: boolean = false): string[] {
 export function getComposerCSSFiles(): string[] {
     return [
         join(getComposerPath(), 'themes', 'ballerina-default.min.css'),
-        join(getDistributionComposerURI(), 'font', 'font-ballerina.css')
+        join(getComposerPath(), 'font', 'font-ballerina.css')
     ];
 }
 
