@@ -102,12 +102,12 @@ import static org.wso2.transport.http.netty.contract.Constants.IS_PROXY_ENABLED;
 import static org.wso2.transport.http.netty.contract.Constants.MUTUAL_SSL_HANDSHAKE_RESULT;
 import static org.wso2.transport.http.netty.contract.Constants.OK_200;
 import static org.wso2.transport.http.netty.contract.Constants.PROTOCOL;
-import static org.wso2.transport.http.netty.contract.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
+import static org.wso2.transport.http.netty.contract.Constants
+        .REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
 import static org.wso2.transport.http.netty.contract.Constants.TO;
 import static org.wso2.transport.http.netty.contract.Constants.URL_AUTHORITY;
 import static org.wso2.transport.http.netty.contract.config.KeepAliveConfig.ALWAYS;
 import static org.wso2.transport.http.netty.contract.config.KeepAliveConfig.AUTO;
-import static org.wso2.transport.http.netty.contract.config.KeepAliveConfig.NEVER;
 
 /**
  * Includes utility methods for creating http requests and responses and their related properties.

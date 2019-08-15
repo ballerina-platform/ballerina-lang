@@ -23,21 +23,29 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contractimpl.common.states.SenderReqRespStateManager;
 import org.wso2.transport.http.netty.contractimpl.sender.TargetHandler;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.ILLEGAL_STATE_ERROR;
 
 /**
- * State of successfully read response.
+ * State of handling request with expect-continue.
  */
 public class EntityBodyReceived implements SenderState {
 
     private static final Logger LOG = LoggerFactory.getLogger(EntityBodyReceived.class);
 
+    private final SenderReqRespStateManager senderReqRespStateManager;
+
+    EntityBodyReceived(SenderReqRespStateManager senderReqRespStateManager) {
+        this.senderReqRespStateManager =  senderReqRespStateManager;
+    }
+
     @Override
-    public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
+    public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest) {
         LOG.warn("writeOutboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
@@ -66,7 +74,8 @@ public class EntityBodyReceived implements SenderState {
 
     @Override
     public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
+        senderReqRespStateManager.nettyTargetChannel.pipeline().remove(Constants.IDLE_STATE_HANDLER);
+        senderReqRespStateManager.nettyTargetChannel.close();
         LOG.debug("Closing the channel once response is received");
-
     }
 }

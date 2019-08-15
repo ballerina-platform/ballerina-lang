@@ -53,7 +53,7 @@ public class ReceivingEntityBody implements SenderState {
     }
 
     @Override
-    public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
+    public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest) {
         LOG.warn("writeOutboundRequestHeaders {}", ILLEGAL_STATE_ERROR);
     }
 
@@ -76,7 +76,7 @@ public class ReceivingEntityBody implements SenderState {
             inboundResponseMsg.setLastHttpContentArrived();
             targetHandler.resetInboundMsg();
             targetHandler.getTargetChannel().getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
-            senderReqRespStateManager.state = new EntityBodyReceived();
+            senderReqRespStateManager.state = new EntityBodyReceived(senderReqRespStateManager);
 
             if (!isKeepAlive(targetHandler.getKeepAliveConfig(), targetHandler.getOutboundRequestMsg())) {
                 targetHandler.closeChannel(ctx);
@@ -93,6 +93,8 @@ public class ReceivingEntityBody implements SenderState {
 
     @Override
     public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
+        senderReqRespStateManager.nettyTargetChannel.pipeline().remove(Constants.IDLE_STATE_HANDLER);
+        senderReqRespStateManager.nettyTargetChannel.close();
         handleIncompleteInboundMessage(targetHandler.getInboundResponseMsg(),
                                         IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE_BODY);
     }
