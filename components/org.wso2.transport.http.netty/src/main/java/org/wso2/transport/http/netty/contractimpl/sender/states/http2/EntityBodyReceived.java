@@ -110,4 +110,11 @@ public class EntityBodyReceived implements SenderState {
     public void handleStreamTimeout(OutboundMsgHolder outboundMsgHolder, boolean serverPush) {
         LOG.warn("handleStreamTimeout {}", ILLEGAL_STATE_ERROR);
     }
+
+    @Override
+    public void handleConnectionClose(OutboundMsgHolder outboundMsgHolder) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Channel is closed");
+        }
+    }
 }
