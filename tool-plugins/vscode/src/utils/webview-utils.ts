@@ -25,7 +25,7 @@ export function getCommonWebViewOptions(): Partial<WebviewOptions & WebviewPanel
 }
 
 export function getVSCodeResourceURI(filePath: string): string {
-    return Uri.file(filePath).with({ scheme: 'vscode-resource' }).toString();
+    return Uri.file(filePath).with({ scheme: 'vscode-resource' }).toString(true);
 }
 
 export interface WebViewOptions {
