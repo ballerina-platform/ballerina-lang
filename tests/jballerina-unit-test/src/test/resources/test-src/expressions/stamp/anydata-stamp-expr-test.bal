@@ -104,9 +104,9 @@ function stampAnydataToAnydata() returns anydata|error {
     return returnValue;
 }
 
-function stampAnydataMapToUnion() returns map<anydata>|json|xml|error {
+function stampAnydataMapToUnion() returns json|xml|error {
     map<anydata> anydataMap = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
 
-    map<anydata>|json|xml|error mapValue = map<anydata>|json|xml.constructFrom(anydataMap);
+    json|xml|error mapValue = json|xml.constructFrom(anydataMap);
     return mapValue;
 }
