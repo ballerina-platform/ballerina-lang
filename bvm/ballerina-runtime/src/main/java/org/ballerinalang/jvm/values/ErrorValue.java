@@ -77,7 +77,6 @@ public class ErrorValue extends RuntimeException implements RefValue {
 
     @Override
     public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
-
     }
 
     @Override
