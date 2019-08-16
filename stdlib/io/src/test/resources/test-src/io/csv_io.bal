@@ -31,6 +31,28 @@ type PerDiem record {
     string? department;
 };
 
+type CommonApp record {
+   string appId;
+   string createdDt;
+   string exportDt;
+   string firstName;
+   string middleName;
+   string lastName;
+   string gender;
+   string birthDate;
+   string address1;
+   string address2;
+   string city;
+   string state;
+   string zip;
+   string country;
+   string email;
+   string phoneNumber;
+   string hispLatino;
+   string citizenship;
+   string schoolLookup;
+};
+
 io:ReadableCSVChannel? rch = ();
 io:WritableCSVChannel? wch = ();
 
@@ -132,10 +154,26 @@ function getTableWithNill(string filePath) returns @tainted [string, string]|err
                 dep = dep + (rec.department ?: "-1");
             }
             error? closeResult = rCsvChannel.close();
-        }
-        else {
+        } else {
             return tblResult;
         }
     }
     return [name, dep];
+}
+
+function getTableWithHeader(string filePath) returns @tainted string[]|error {
+    var rCsvChannel = io:openReadableCsvFile(filePath, skipHeaders = 0);
+    string[] keys = [];
+    if (rCsvChannel is io:ReadableCSVChannel) {
+        var tblResult = rCsvChannel.getTable(CommonApp);
+        if (tblResult is table<CommonApp>) {
+            foreach var rec in tblResult {
+                keys.push(rec.appId);
+            }
+            error? closeResult = rCsvChannel.close();
+        } else {
+            return tblResult;
+        }
+    }
+    return keys;
 }
