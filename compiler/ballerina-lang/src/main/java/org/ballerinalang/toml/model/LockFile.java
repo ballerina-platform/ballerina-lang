@@ -17,11 +17,8 @@
  */
 package org.ballerinalang.toml.model;
 
-import org.wso2.ballerinalang.compiler.LockFilePackage;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Defines the LockFile object which is created using the Ballerina.lock file configs.
@@ -29,130 +26,49 @@ import java.util.stream.Collectors;
  * @since 0.973.1
  */
 public class LockFile {
-    private String name = "";
+    private String org_name = "";
     private String version = "";
-    private String lockfileversion = "";
-    private String ballerinaversion = "";
-    private List<String> packages = new ArrayList<>();
-    private List<LockFilePackage> packageList = new ArrayList<>();
-
-
-    /**
-     * Get the package list.
-     *
-     * @return package list
-     */
-    public List<LockFilePackage> getPackageList() {
-        return packageList;
+    private String lockfile_version = "";
+    private String ballerina_version = "";
+    private Set<LockFileImport> imports = new HashSet<>();
+    
+    public String getOrgName() {
+        return org_name;
     }
-
-    /**
-     * Add a package to the package list.
-     *
-     * @param lockFilePackage package object
-     */
-    public void addPackage(LockFilePackage lockFilePackage) {
-        this.packageList.add(lockFilePackage);
-        packageList = removeDuplicates(packageList);
+    
+    public void setOrgName(String orgName) {
+        this.org_name = orgName;
     }
-
-    /**
-     * Get lock file version.
-     *
-     * @return lock file version
-     */
-    public String getLockfileversion() {
-        return lockfileversion;
-    }
-
-    /**
-     * Set lock file version.
-     *
-     * @param lockfileversion lock file version
-     */
-    public void setLockfileversion(String lockfileversion) {
-        this.lockfileversion = lockfileversion;
-    }
-
-    /**
-     * Get packages of the project.
-     *
-     * @return packages packages of the project
-     */
-    public List<String> getPackages() {
-        return packages;
-    }
-
-    /**
-     * Set packages of the project.
-     *
-     * @param packages packages of the project
-     */
-    public void setPackages(List<String> packages) {
-        this.packages = packages;
-    }
-
-    /**
-     * Get the project name.
-     *
-     * @return project name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Set the project name.
-     *
-     * @param name project name
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * Get project version.
-     *
-     * @return project version
-     */
+    
     public String getVersion() {
         return version;
     }
-
-    /**
-     * Set project version.
-     *
-     * @param version version of the project.
-     */
+    
     public void setVersion(String version) {
         this.version = version;
     }
-
-    /**
-     * Get the ballerina version.
-     *
-     * @return ballerina version
-     */
+    
+    public String getLockfileVersion() {
+        return lockfile_version;
+    }
+    
+    public void setLockfileVersion(String lockfileVersion) {
+        this.lockfile_version = lockfileVersion;
+    }
+    
     public String getBallerinaVersion() {
-        return ballerinaversion;
+        return ballerina_version;
     }
-
-    /**
-     * Set the ballerina version.
-     *
-     * @param ballerinaversion ballerina version
-     */
-    public void setBallerinaVersion(String ballerinaversion) {
-        this.ballerinaversion = ballerinaversion;
+    
+    public void setBallerinaVersion(String ballerinaVersion) {
+        this.ballerina_version = ballerinaVersion;
     }
-
-    /**
-     * Remove duplicates from packages list.
-     *
-     * @param list list of elements
-     * @return packages list without duplicates
-     */
-    private List<LockFilePackage> removeDuplicates(List<LockFilePackage> list) {
-        return list.stream().distinct().collect(Collectors.toList());
+    
+    public Set<LockFileImport> getImports() {
+        return imports;
+    }
+    
+    public void setImports(Set<LockFileImport> imports) {
+        this.imports = imports;
     }
 }
