@@ -270,7 +270,7 @@ public function receiveWithTrapForDefault() returns error|int {
    }
 
    error|int  j = trap <- w1;
-   return wait w1;
+   return j;
 }
 
 public function receiveDefaultWithCheckAndTrap() returns error|int {
