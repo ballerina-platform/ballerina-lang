@@ -1644,6 +1644,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         funcNode.symbol.flags |= Flags.RESOURCE;
 
+        if (Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PRIVATE) ||
+                Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PUBLIC)) {
+            this.dlog.error(funcNode.pos, DiagnosticCode.RESOURCE_FUNCTION_WITH_ACCESS_MODIFIER);
+        }
+
         if (!Symbols.isFlagOn(objectSymbol.flags, Flags.SERVICE)) {
             this.dlog.error(funcNode.pos, DiagnosticCode.RESOURCE_FUNCTION_IN_NON_SERVICE_OBJECT);
         }
