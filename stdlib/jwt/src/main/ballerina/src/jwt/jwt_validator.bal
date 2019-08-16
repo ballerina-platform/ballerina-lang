@@ -86,8 +86,8 @@ function getJwtComponents(string jwtToken) returns string[]|Error {
 
 public function decodeJwt(string jwtToken) returns @tainted ([JwtHeader, JwtPayload]|Error) {
     string[] encodedJwtComponents = check getJwtComponents(jwtToken);
-    map<json> headerJson = {};
-    map<json> payloadJson = {};
+    map<json> headerJson;
+    map<json> payloadJson;
     var decodedJwtComponents = getDecodedJwtComponents(encodedJwtComponents);
     if (decodedJwtComponents is [map<json>, map<json>]) {
         [headerJson, payloadJson] = decodedJwtComponents;
@@ -101,8 +101,8 @@ public function decodeJwt(string jwtToken) returns @tainted ([JwtHeader, JwtPayl
 }
 
 function getDecodedJwtComponents(string[] encodedJwtComponents) returns @tainted ([map<json>, map<json>]|Error) {
-    string jwtHeader = "";
-    string jwtPayload = "";
+    string jwtHeader;
+    string jwtPayload;
 
     var decodeResult = encoding:decodeBase64Url(encodedJwtComponents[0]);
     if (decodeResult is byte[]) {
@@ -118,8 +118,8 @@ function getDecodedJwtComponents(string[] encodedJwtComponents) returns @tainted
         return prepareError("Base64 url decode failed for JWT payload.", decodeResult);
     }
 
-    json jwtHeaderJson = {};
-    json jwtPayloadJson = {};
+    json jwtHeaderJson;
+    json jwtPayloadJson;
 
     io:StringReader reader = new(jwtHeader);
     var jsonHeader = reader.readJson();
@@ -163,7 +163,6 @@ function parseHeader(map<json> jwtHeaderJson) returns JwtHeader {
 }
 
 function parsePayload(map<json> jwtPayloadJson) returns JwtPayload|Error {
-    string[] aud = [];
     JwtPayload jwtPayload = {};
     map<json> customClaims = {};
     string[] keys = jwtPayloadJson.keys();
