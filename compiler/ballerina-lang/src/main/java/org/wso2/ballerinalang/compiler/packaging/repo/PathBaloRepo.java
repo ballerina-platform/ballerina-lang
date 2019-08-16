@@ -82,20 +82,13 @@ public class PathBaloRepo implements Repo<Path> {
         // if balo file does not exists
         if (Files.notExists(baloPath)) {
             throw new BLangCompilerException("balo file for dependency [" + dep.getModuleID() + "] does not exists: " +
-                                             dep.getMetadata().getPath().toAbsolutePath());
+                                             dep.getMetadata().getPath().toAbsolutePath().normalize());
         }
     
         // if balo file is not a file
         if (!Files.isRegularFile(baloPath)) {
             throw new BLangCompilerException("balo file for dependency [" + dep.getModuleID() + "] is not a file: " +
-                                             dep.getMetadata().getPath().toAbsolutePath());
-        }
-    
-        // if balo file does not have balo extension
-        if (!baloPath.toString().endsWith(BLANG_COMPILED_PKG_BINARY_EXT)) {
-            throw new BLangCompilerException("balo file for dependency [" + dep.getModuleID() + "] does not have '" +
-                                             BLANG_COMPILED_PKG_BINARY_EXT + "': " +
-                                             dep.getMetadata().getPath().toAbsolutePath());
+                                             dep.getMetadata().getPath().toAbsolutePath().normalize());
         }
         
         // update version of the dependency
