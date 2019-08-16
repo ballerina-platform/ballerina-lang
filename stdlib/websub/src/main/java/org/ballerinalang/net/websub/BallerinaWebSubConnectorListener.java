@@ -271,12 +271,10 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
     private MapValue createCustomNotification(HttpCarbonMessage inboundRequest, AttachedFunction resource,
                                               ObjectValue httpRequest) {
         BRecordType recordType = webSubServicesRegistry.getResourceDetails().get(resource.getName());
-        MapValue<String, Object> customNotification =
-                BallerinaValues.createRecordValue(recordType.getPackage().getName(), recordType.getName());
         MapValue<String, ?> jsonBody = getJsonBody(httpRequest);
         inboundRequest.setProperty(ENTITY_ACCESSED_REQUEST, httpRequest);
         if (jsonBody != null) {
-            return JSONUtils.convertJSONToRecord(jsonBody, (BStructureType) customNotification.getType());
+            return JSONUtils.convertJSONToRecord(jsonBody, recordType);
         } else {
             throw new BallerinaException("JSON payload: null. Cannot create custom notification record: "
                                                  + recordType.getQualifiedName());
