@@ -18,20 +18,27 @@
 
 package org.wso2.transport.http.netty.contractimpl.sender.states;
 
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.config.ChunkConfig;
+import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.states.SenderReqRespStateManager;
 import org.wso2.transport.http.netty.contractimpl.sender.TargetHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import static org.wso2.transport.http.netty.contract.Constants.CLIENT_TO_REMOTE_HOST_CONNECTION_CLOSED;
 import static org.wso2.transport.http.netty.contract.Constants
         .IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS;
 import static org.wso2.transport.http.netty.contract.Constants.INBOUND_RESPONSE_ALREADY_RECEIVED;
@@ -44,7 +51,7 @@ import static org.wso2.transport.http.netty.contractimpl.common.Util.setupChunke
 import static org.wso2.transport.http.netty.contractimpl.common.Util.setupContentLengthRequest;
 import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.ILLEGAL_STATE_ERROR;
 import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.checkChunkingCompatibility;
-import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.writeRequestHeaders;
+import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.notifyIfHeaderWriteFailure;
 
 /**
  * State between start and end of outbound request header write.
@@ -58,6 +65,9 @@ public class SendingHeaders implements SenderState {
     private final TargetChannel targetChannel;
     private final SenderReqRespStateManager senderReqRespStateManager;
     private final HttpResponseFuture httpInboundResponseFuture;
+
+    private long contentLength = 0;
+    private List<HttpContent> contentList = new ArrayList<>();
 
     public SendingHeaders(SenderReqRespStateManager senderReqRespStateManager,
                           TargetChannel targetChannel, String httpVersion,
@@ -76,22 +86,57 @@ public class SendingHeaders implements SenderState {
                 if (chunkConfig == ChunkConfig.ALWAYS && checkChunkingCompatibility(httpVersion, chunkConfig)) {
                     setupChunkedRequest(httpOutboundRequest);
                 } else {
-                    long contentLength = httpContent.content().readableBytes();
+                    contentLength += httpContent.content().readableBytes();
                     setupContentLengthRequest(httpOutboundRequest, contentLength);
                 }
             }
             writeRequestHeaders(httpOutboundRequest, httpInboundResponseFuture, httpVersion, targetChannel);
-            writeRequestBody(httpOutboundRequest, httpContent, true);
+            writeRequestBody(httpOutboundRequest, httpContent);
         } else {
             if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO) &&
                     checkChunkingCompatibility(httpVersion, chunkConfig)) {
                 setupChunkedRequest(httpOutboundRequest);
                 writeRequestHeaders(httpOutboundRequest, httpInboundResponseFuture, httpVersion, targetChannel);
-                writeRequestBody(httpOutboundRequest, httpContent, true);
+                writeRequestBody(httpOutboundRequest, httpContent);
                 return;
             }
-            writeRequestBody(httpOutboundRequest, httpContent, false);
+            waitForCompleteBody(httpContent);
         }
+    }
+
+    private void writeRequestHeaders(HttpCarbonMessage httpOutboundRequest,
+                                     HttpResponseFuture httpInboundResponseFuture, String httpVersion,
+                                     TargetChannel targetChannel) {
+        setHttpVersionProperty(httpOutboundRequest, httpVersion);
+        HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
+        targetChannel.setRequestHeaderWritten(true);
+        ChannelFuture outboundHeaderFuture = senderReqRespStateManager.nettyTargetChannel.write(httpRequest);
+        notifyIfHeaderWriteFailure(httpInboundResponseFuture, outboundHeaderFuture,
+                                   CLIENT_TO_REMOTE_HOST_CONNECTION_CLOSED);
+    }
+
+    private void setHttpVersionProperty(HttpCarbonMessage httpOutboundRequest, String httpVersion) {
+        if (Constants.HTTP_2_0.equals(httpVersion)) {
+            // Upgrade request of HTTP/2 should be a HTTP/1.1 request
+            httpOutboundRequest.setHttpVersion(String.valueOf(Constants.HTTP_1_1));
+        } else {
+            httpOutboundRequest.setHttpVersion(httpVersion);
+        }
+    }
+
+    private void writeRequestBody(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
+        senderReqRespStateManager.state =
+                new SendingEntityBody(senderReqRespStateManager, httpInboundResponseFuture);
+
+        for (HttpContent cachedHttpContent : contentList) {
+            senderReqRespStateManager.writeOutboundRequestEntity(httpOutboundRequest, cachedHttpContent);
+        }
+        senderReqRespStateManager.writeOutboundRequestEntity(httpOutboundRequest, httpContent);
+    }
+
+    private void waitForCompleteBody(HttpContent httpContent) {
+        contentList.add(httpContent);
+        contentLength += httpContent.content().readableBytes();
     }
 
     @Override
@@ -124,13 +169,5 @@ public class SendingHeaders implements SenderState {
     public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
         // HttpResponseFuture will be notified asynchronously via writeOutboundRequestHeaders method.
         LOG.error("Error in HTTP client: {}", IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS);
-    }
-
-    private void writeRequestBody(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent,
-                                  boolean headersWritten) {
-        senderReqRespStateManager.state =
-                new SendingEntityBody(senderReqRespStateManager, targetChannel, headersWritten,
-                                      httpInboundResponseFuture, httpVersion);
-        senderReqRespStateManager.writeOutboundRequestEntity(outboundResponseMsg, httpContent);
     }
 }

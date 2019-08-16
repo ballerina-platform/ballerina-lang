@@ -48,6 +48,7 @@ import java.io.IOException;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_SCHEME;
 import static org.wso2.transport.http.netty.contract.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS;
 import static org.wso2.transport.http.netty.contract.Constants.INBOUND_RESPONSE_ALREADY_RECEIVED;
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.initiateStream;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.writeHttp2Headers;
 
@@ -124,6 +125,13 @@ public class SendingHeaders implements SenderState {
                     IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS,
                     HttpResponseStatus.GATEWAY_TIMEOUT.code()));
         }
+    }
+
+    @Override
+    public void handleConnectionClose(OutboundMsgHolder outboundMsgHolder) {
+        outboundMsgHolder.getResponseFuture().notifyHttpListener(new EndpointTimeOutException(
+                REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS,
+                HttpResponseStatus.GATEWAY_TIMEOUT.code()));
     }
 
     private void writeHeaders(ChannelHandlerContext ctx, HttpContent msg) throws Http2Exception {

@@ -22,6 +22,7 @@ package org.wso2.transport.http.netty.util;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
+import org.wso2.transport.http.netty.contract.config.ForwardedExtensionConfig;
 import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contract.config.Parameter;
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
@@ -69,6 +70,15 @@ public class Http2Util {
         senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
         senderConfiguration.setHttpVersion(httpVersion);
         senderConfiguration.setScheme(HTTPS_SCHEME);
+        return senderConfiguration;
+    }
+
+    public static SenderConfiguration getForwardSenderConfigs(ForwardedExtensionConfig extensionConfig,
+            boolean forceHttp) {
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
+        senderConfiguration.setHttpVersion("2.0");
+        senderConfiguration.setForceHttp2(forceHttp);
+        senderConfiguration.setForwardedExtensionConfig(extensionConfig);
         return senderConfiguration;
     }
 

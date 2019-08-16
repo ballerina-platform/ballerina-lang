@@ -35,7 +35,9 @@ import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import static org.wso2.transport.http.netty.contract.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.releaseContent;
+import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.handleIncompleteInboundMessage;
 
 /**
  * State between start and end of inbound response entity body read.
@@ -106,6 +108,12 @@ public class ReceivingEntityBody implements SenderState {
     public void handleStreamTimeout(OutboundMsgHolder outboundMsgHolder, boolean serverPush) {
         //This is handled by {@link Http2ClientTimeoutHandler#handleIncompleteResponse(OutboundMsgHolder, boolean)}
         // method.
+    }
+
+    @Override
+    public void handleConnectionClose(OutboundMsgHolder outboundMsgHolder) {
+        handleIncompleteInboundMessage(outboundMsgHolder.getResponse(),
+                                       REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY);
     }
 
     private void onDataRead(Http2DataFrame http2DataFrame, OutboundMsgHolder outboundMsgHolder, boolean serverPush,

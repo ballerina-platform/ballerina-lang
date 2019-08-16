@@ -51,6 +51,7 @@ import java.util.HashMap;
 import static org.testng.Assert.assertNotNull;
 import static org.wso2.transport.http.netty.util.Http2Util.assertResult;
 import static org.wso2.transport.http.netty.util.Http2Util.getTestHttp2Client;
+import static org.wso2.transport.http.netty.util.TestUtil.HTTP_SCHEME;
 import static org.wso2.transport.http.netty.util.TestUtil.SERVER_CONNECTOR_PORT;
 
 /**
@@ -109,7 +110,7 @@ public class H2ConnectionPoolWithPriorKnowledge {
 
     private String getResponse(HttpClientConnector client1) {
         HttpCarbonMessage httpCarbonMessage = MessageGenerator.generateRequest(HttpMethod.GET, null,
-                                                                               SERVER_CONNECTOR_PORT, "http://");
+                                                                               SERVER_CONNECTOR_PORT, HTTP_SCHEME);
         HttpCarbonMessage response = new MessageSender(client1).sendMessage(httpCarbonMessage);
         assertNotNull(response);
         return TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
