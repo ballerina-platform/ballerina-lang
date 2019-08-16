@@ -102,7 +102,7 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JwtKeyStoreConfig
     return prepareError("Failed to issue JWT since signing algorithm is not specified.");
 }
 
-function buildHeaderString(JwtHeader header) returns string|Error {
+public function buildHeaderString(JwtHeader header) returns string|Error {
     map<json> headerJson = {};
     if (!validateMandatoryJwtHeaderFields(header)) {
         return prepareError("Mandatory field signing algorithm (alg) is empty.");
@@ -138,7 +138,7 @@ function buildHeaderString(JwtHeader header) returns string|Error {
     return encodedPayload;
 }
 
-function buildPayloadString(JwtPayload payload) returns string|Error {
+public function buildPayloadString(JwtPayload payload) returns string|Error {
     map<json> payloadJson = {};
     string? sub = payload?.sub;
     if (sub is string) {

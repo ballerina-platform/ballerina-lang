@@ -60,25 +60,11 @@ public type CachedJwt record {|
 # + config - JWT validator config record
 # + return - If JWT token is valied return the JWT payload. An `Error` if token validation fails.
 public function validateJwt(string jwtToken, JwtValidatorConfig config) returns @tainted (JwtPayload|Error) {
-    string[] encodedJWTComponents = [];
-    var jwtComponents = getJWTComponents(jwtToken);
-    if (jwtComponents is string[]) {
-        encodedJWTComponents = jwtComponents;
-    } else {
-        return jwtComponents;
-    }
+    JwtHeader header;
+    JwtPayload payload;
+    [header, payload]  = check decodeJwt(jwtToken);
 
-    string[] aud = [];
-    JwtHeader header = {};
-    JwtPayload payload = {};
-    var decodedJwt = parseJWT(encodedJWTComponents);
-    if (decodedJwt is [JwtHeader, JwtPayload]) {
-        [header, payload] = decodedJwt;
-    } else {
-        return decodedJwt;
-    }
-
-    var jwtValidity = validateJwtRecords(encodedJWTComponents, header, payload, config);
+    var jwtValidity = validateJwtRecords(jwtToken, header, payload, config);
     if (jwtValidity is Error) {
         return jwtValidity;
     } else {
@@ -90,7 +76,7 @@ public function validateJwt(string jwtToken, JwtValidatorConfig config) returns 
     }
 }
 
-function getJWTComponents(string jwtToken) returns string[]|Error {
+function getJwtComponents(string jwtToken) returns string[]|Error {
     string[] jwtComponents = internal:split(jwtToken, "\\.");
     if (jwtComponents.length() < 2 || jwtComponents.length() > 3) {
         return prepareError("Invalid JWT token.");
@@ -98,14 +84,15 @@ function getJWTComponents(string jwtToken) returns string[]|Error {
     return jwtComponents;
 }
 
-function parseJWT(string[] encodedJWTComponents) returns @tainted ([JwtHeader, JwtPayload]|Error) {
+public function decodeJwt(string jwtToken) returns @tainted ([JwtHeader, JwtPayload]|Error) {
+    string[] encodedJwtComponents = check getJwtComponents(jwtToken);
     map<json> headerJson = {};
     map<json> payloadJson = {};
-    var decodedJWTComponents = getDecodedJWTComponents(encodedJWTComponents);
-    if (decodedJWTComponents is [map<json>, map<json>]) {
-        [headerJson, payloadJson] = decodedJWTComponents;
+    var decodedJwtComponents = getDecodedJwtComponents(encodedJwtComponents);
+    if (decodedJwtComponents is [map<json>, map<json>]) {
+        [headerJson, payloadJson] = decodedJwtComponents;
     } else {
-        return decodedJWTComponents;
+        return decodedJwtComponents;
     }
 
     JwtHeader jwtHeader = parseHeader(headerJson);
@@ -113,18 +100,18 @@ function parseJWT(string[] encodedJWTComponents) returns @tainted ([JwtHeader, J
     return [jwtHeader, jwtPayload];
 }
 
-function getDecodedJWTComponents(string[] encodedJWTComponents) returns @tainted ([map<json>, map<json>]|Error) {
+function getDecodedJwtComponents(string[] encodedJwtComponents) returns @tainted ([map<json>, map<json>]|Error) {
     string jwtHeader = "";
     string jwtPayload = "";
 
-    var decodeResult = encoding:decodeBase64Url(encodedJWTComponents[0]);
+    var decodeResult = encoding:decodeBase64Url(encodedJwtComponents[0]);
     if (decodeResult is byte[]) {
         jwtHeader = encoding:byteArrayToString(decodeResult);
     } else {
         return prepareError("Base64 url decode failed for JWT header.", decodeResult);
     }
 
-    decodeResult = encoding:decodeBase64Url(encodedJWTComponents[1]);
+    decodeResult = encoding:decodeBase64Url(encodedJwtComponents[1]);
     if (decodeResult is byte[]) {
         jwtPayload = encoding:byteArrayToString(decodeResult);
     } else {
@@ -221,7 +208,7 @@ function parsePayload(map<json> jwtPayloadJson) returns JwtPayload|Error {
     return jwtPayload;
 }
 
-function validateJwtRecords(string[] encodedJWTComponents, JwtHeader jwtHeader, JwtPayload jwtPayload,
+function validateJwtRecords(string jwtToken, JwtHeader jwtHeader, JwtPayload jwtPayload,
                             JwtValidatorConfig config) returns boolean|Error {
     if (!validateMandatoryJwtHeaderFields(jwtHeader)) {
         return prepareError("Mandatory field signing algorithm(alg) is empty in the given JWT.");
@@ -231,7 +218,7 @@ function validateJwtRecords(string[] encodedJWTComponents, JwtHeader jwtHeader, 
         if (!check validateCertificate(trustStoreConfig)) {
             return prepareError("Public key certificate validity period has passed.");
         }
-        var signatureValidationResult = validateSignature(encodedJWTComponents, jwtHeader, trustStoreConfig);
+        var signatureValidationResult = validateSignature(jwtToken, jwtHeader, trustStoreConfig);
         if (signatureValidationResult is Error) {
             return signatureValidationResult;
         }
@@ -297,7 +284,7 @@ function validateCertificate(JwtTrustStoreConfig trustStoreConfig) returns boole
     }
 }
 
-function validateSignature(string[] encodedJWTComponents, JwtHeader jwtHeader, JwtTrustStoreConfig trustStoreConfig)
+function validateSignature(string jwtToken, JwtHeader jwtHeader, JwtTrustStoreConfig trustStoreConfig)
                            returns boolean|Error {
     JwtSigningAlgorithm? alg = jwtHeader?.alg;
     if (alg is ()) {
@@ -306,11 +293,12 @@ function validateSignature(string[] encodedJWTComponents, JwtHeader jwtHeader, J
     if (alg == NONE) {
         return prepareError("Not a valid JWS. Signature algorithm is NONE.");
     } else {
-        if (encodedJWTComponents.length() == 2) {
+        string[] encodedJwtComponents = check getJwtComponents(jwtToken);
+        if (encodedJwtComponents.length() == 2) {
             return prepareError("Not a valid JWS. Signature is required.");
         } else {
-            string assertion = encodedJWTComponents[0] + "." + encodedJWTComponents[1];
-            var signPart = encoding:decodeBase64Url(encodedJWTComponents[2]);
+            string assertion = encodedJwtComponents[0] + "." + encodedJwtComponents[1];
+            var signPart = encoding:decodeBase64Url(encodedJwtComponents[2]);
             if (signPart is byte[]) {
                 var publicKey = crypto:decodePublicKey(trustStoreConfig.trustStore , trustStoreConfig.certificateAlias);
                 if (publicKey is crypto:PublicKey) {
