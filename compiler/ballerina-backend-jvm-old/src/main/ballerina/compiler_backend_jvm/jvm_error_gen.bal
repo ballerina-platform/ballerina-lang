@@ -124,10 +124,6 @@ type DiagnosticLogger object {
     function printErrors() {
         foreach DiagnosticLog log in self.errors {
             string fileName = log.pos.sourceFileName;
-            int sLine = log.pos.sLine;
-            int eLine = log.pos.eLine;
-            int sCol = log.pos.sCol;
-            int eCol = log.pos.eCol;
             string orgName = log.module.org.value;
             string moduleName = log.module.name.value;
 
@@ -138,7 +134,7 @@ type DiagnosticLogger object {
                 pkgIdStr = orgName + ":" + moduleName;
             }
 
-            string positionStr = io:sprintf("%s:%s:%s:%s", pkgIdStr, fileName, sLine, sCol);
+            string positionStr = io:sprintf("%s:%s:%s:%s", pkgIdStr, fileName, log.pos.sLine, log.pos.sCol);
             string errorStr = io:sprintf("error: %s: %s %s", positionStr, log.err.reason(), log.err.detail());
             io:println(errorStr);
         }
