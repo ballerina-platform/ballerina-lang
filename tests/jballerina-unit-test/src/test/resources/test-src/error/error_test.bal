@@ -280,3 +280,8 @@ public function testUnionLhsWithIndirectErrorRhs() returns error {
 public function testOptionalErrorReturn() returns error? {
     return error("this is broken", message = "too bad");
 }
+
+public function testStackTraceInNative() {
+    string[] array = ["apple", "orange"];
+    _ = array.slice(1, 4);
+}

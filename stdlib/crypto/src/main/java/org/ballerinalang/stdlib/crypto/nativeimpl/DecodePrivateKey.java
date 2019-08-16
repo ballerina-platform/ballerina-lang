@@ -47,16 +47,10 @@ import java.security.cert.CertificateException;
 public class DecodePrivateKey {
 
     @SuppressWarnings("unchecked")
-    public static Object decodePrivateKey(Strand strand, Object keyStoreValue, Object keyAliasValue, Object password) {
+    public static Object decodePrivateKey(Strand strand, Object keyStoreValue, String keyAlias, String keyPassword) {
         MapValue<String, Object> keyStore = (MapValue<String, Object>) keyStoreValue;
-        String keyAlias = String.valueOf(keyAliasValue);
-        String keyPassword = String.valueOf(password);
 
         PrivateKey privateKey;
-        // TODO: Add support for reading key from a provided string or directly using PEM encoded file.
-        if (keyStore == null) {
-            throw CryptoUtils.createError("Key store information is required");
-        }
 
         File keyStoreFile = new File(CryptoUtils.substituteVariables(
                 keyStore.get(Constants.KEY_STORE_RECORD_PATH_FIELD).toString()));

@@ -61,7 +61,7 @@ public type ObjectGenerator object {
 
         bir:Function?[]? attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs is bir:Function?[]) {
-            self.createObjectMethods(cw, attachedFuncs, isService, className);
+            self.createObjectMethods(cw, attachedFuncs, isService, className, typeDef.name.value);
         }
 
         self.createObjectInit(cw, fields, className);
@@ -96,13 +96,13 @@ public type ObjectGenerator object {
     }
 
     private function createObjectMethods(jvm:ClassWriter cw, bir:Function?[] attachedFuncs, boolean isService,
-                                                                                                string className) {
+                                         string className, string typeName) {
         foreach var func in attachedFuncs {
             if (func is bir:Function) {
                 if !isExternFunc(func) {
                     addDefaultableBooleanVarsToSignature(func);
                 }
-                generateMethod(func, cw, self.module, attachedType = self.currentObjectType, isService = isService, className = className);
+                generateMethod(func, cw, self.module, attachedType = self.currentObjectType, isService = isService, serviceName = typeName);
             }
         }
     }
@@ -361,10 +361,9 @@ public type ObjectGenerator object {
         mv.visitInsn(DUP);
         mv.visitTypeInsn(NEW, SCHEDULER);
         mv.visitInsn(DUP);
-        mv.visitInsn(ICONST_4);
         //TODO remove this and load the strand from ALOAD
         mv.visitInsn(ICONST_0);
-        mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(IZ)V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(Z)V", false);
         mv.visitMethodInsn(INVOKESPECIAL, STRAND, "<init>", io:sprintf("(L%s;)V", SCHEDULER) , false);
 
         // Invoke the init-functions of referenced types. This is done to initialize the 

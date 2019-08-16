@@ -17,13 +17,10 @@
  */
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.observability.metrics.Gauge;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -45,15 +42,7 @@ import org.ballerinalang.natives.annotations.Receiver;
         },
         isPublic = true
 )
-public class GaugeIncrement extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        BMap bStruct = (BMap) context.getRefArgument(0);
-        float amount = (float) context.getFloatArgument(0);
-        Gauge gauge = (Gauge) bStruct.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
-        gauge.increment(amount);
-    }
+public class GaugeIncrement {
 
     public static void increment(Strand strand, ObjectValue guage, double amount) {
         Gauge gauge = (Gauge) guage.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);

@@ -361,9 +361,10 @@ public class TaintedStatusPropagationTest {
     @Test
     public void testHttpService() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/http-service.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 2);
-        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 13, 24);
-        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 14, 24);
+        Assert.assertEquals(result.getDiagnostics().length, 3);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 14, 24);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 15, 24);
+        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'payload'", 22, 37);
     }
 
     @Test

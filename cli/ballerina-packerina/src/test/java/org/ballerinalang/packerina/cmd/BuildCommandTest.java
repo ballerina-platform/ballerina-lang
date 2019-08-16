@@ -323,7 +323,8 @@ public class BuildCommandTest extends CommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog, "Compiling source\n" +
                                       "\tbar/foo:1.2.0\n" +
-                                      "Created target/balo/foo-2019r3-any-1.2.0.balo\n" +
+                                      "\nCreating balos\n" +
+                                      "\ttarget/balo/foo-2019r3-any-1.2.0.balo\n" +
                                       "\n" +
                                       "Running tests\n" +
                                       "    bar/foo:1.2.0\n" +

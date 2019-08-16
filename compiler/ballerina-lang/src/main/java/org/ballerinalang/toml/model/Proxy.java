@@ -24,8 +24,8 @@ package org.ballerinalang.toml.model;
  */
 public class Proxy {
     private String host = "";
-    private String port = "";
-    private String userName = "";
+    private int port;
+    private String username = "";
     private String password = "";
 
     /**
@@ -51,7 +51,7 @@ public class Proxy {
      *
      * @return port proxy server
      */
-    public String getPort() {
+    public int getPort() {
         return port;
     }
 
@@ -60,7 +60,7 @@ public class Proxy {
      *
      * @param port port of the proxy
      */
-    public void setPort(String port) {
+    public void setPort(int port) {
         this.port = port;
     }
 
@@ -70,7 +70,7 @@ public class Proxy {
      * @return username username of the proxy server
      */
     public String getUserName() {
-        return userName;
+        return username;
     }
 
     /**
@@ -79,7 +79,7 @@ public class Proxy {
      * @param userName username of the proxy server
      */
     public void setUserName(String userName) {
-        this.userName = userName;
+        this.username = userName;
     }
 
     /**

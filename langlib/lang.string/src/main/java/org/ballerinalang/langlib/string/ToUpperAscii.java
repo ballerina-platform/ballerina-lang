@@ -18,12 +18,9 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.langlib.string.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -42,14 +39,7 @@ import java.util.Locale;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class ToUpperAscii extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        String param1 = context.getStringArgument(0);
-        BString upperCaseString = new BString(param1.toUpperCase(Locale.getDefault()));
-        context.setReturnValues(upperCaseString);
-    }
+public class ToUpperAscii {
 
     public static String toUpperAscii(Strand strand, String value) {
         StringUtils.checkForNull(value);

@@ -27,7 +27,6 @@ import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -76,7 +75,7 @@ public class GetByteArray extends AbstractGetPayloadHandler {
                         }
                     }
                 }
-                return result != null ? result : new BValueArray(new byte[0]);
+                return result != null ? result : new ArrayValue(new byte[0]);
             }
 
             Object transportMessage = entityObj.getNativeData(TRANSPORT_MESSAGE);

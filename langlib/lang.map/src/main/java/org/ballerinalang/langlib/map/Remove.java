@@ -18,21 +18,14 @@
 
 package org.ballerinalang.langlib.map;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BLangFreezeException;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
 
@@ -46,17 +39,7 @@ import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
         returnType = {@ReturnType(type = TypeKind.ANY)},
         isPublic = true
 )
-public class Remove extends BlockingNativeCallableUnit {
-
-    public void execute(Context ctx) {
-        BMap<String, BValue> map = (BMap<String, BValue>) ctx.getRefArgument(0);
-        try {
-            boolean isRemoved = map.remove(ctx.getStringArgument(0));
-            ctx.setReturnValues(new BBoolean(isRemoved));
-        } catch (BLangFreezeException e) {
-            throw new BallerinaException(e.getMessage(), "Failed to remove element from map: " + e.getDetail());
-        }
-    }
+public class Remove {
 
     public static Object remove(Strand strand, MapValue<?, ?> m, String k) {
         checkIsMapOnlyOperation(m.getType(), "remove()");

@@ -19,12 +19,13 @@ import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.LastHttpContent;
-import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
+import org.ballerinalang.jvm.runtime.BLangThreadFactory;
 import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.nio.charset.Charset;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CONTENT_ENCODING;
 import static org.ballerinalang.net.grpc.GrpcConstants.DEFAULT_MAX_MESSAGE_SIZE;
@@ -45,6 +46,9 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
     private boolean headersReceived;
     private ClientInboundStateListener stateListener;
 
+    private ExecutorService workerExecutor = Executors.newFixedThreadPool(10,
+            new BLangThreadFactory(new ThreadGroup("grpc-worker"), "grpc-worker-thread-pool"));
+
     ClientConnectorListener(ClientCall.ClientStreamListener streamListener) {
         this.stateListener = new ClientInboundStateListener(DEFAULT_MAX_MESSAGE_SIZE, streamListener);
     }
@@ -60,8 +64,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
             stateListener.inboundHeadersReceived(inboundMessage.getHeaders());
         }
 
-        final Executor wrappedExecutor = ThreadPoolFactory.getInstance().getWorkerExecutor();
-        wrappedExecutor.execute(() -> {
+        workerExecutor.execute(() -> {
             try {
                 HttpContent httpContent = inboundMessage.getHttpCarbonMessage().getHttpContent();
                 while (true) {

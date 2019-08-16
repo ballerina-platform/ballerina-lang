@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -38,13 +36,7 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
         functionName = "visitCode",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = METHOD_VISITOR, structPackage = JVM_PKG_PATH)
 )
-public class VisitCode extends BlockingNativeCallableUnit {
-
-    @Override
-    @Deprecated
-    public void execute(Context context) {
-        throw new UnsupportedOperationException("BVM Unsupported");
-    }
+public class VisitCode {
 
     public static void visitCode(Strand strand, ObjectValue oMv) {
         MethodVisitor mv = ASMUtil.getRefArgumentNativeData(oMv);

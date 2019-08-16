@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
@@ -51,13 +49,10 @@ import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
         functionName = "copy",
         isPublic = true
 )
-public class Copy extends BlockingNativeCallableUnit {
+public class Copy {
 
     private static final Logger log = LoggerFactory.getLogger(Copy.class);
 
-    @Override
-    public void execute(Context context) {
-    }
 
     public static Object copy(Strand strand, String sourcePath, String destinationPath, boolean replaceExisting) {
         Path srcPath = Paths.get(sourcePath);
