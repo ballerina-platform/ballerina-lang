@@ -44,7 +44,7 @@ function testPauseResume() {
     if (result is error) {
         return;
     }
-    runtime:sleep(5000);
+    runtime:sleep(10000);
     result = timer1.resume();
     if (result is error) {
         return;

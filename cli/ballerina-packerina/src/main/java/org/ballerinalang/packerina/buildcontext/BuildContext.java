@@ -445,4 +445,9 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
             throw new BLangCompilerException("error creating bir_cache dir for module(s): " + this.executableDir);
         }
     }
+    
+    public Path getLockFilePath() {
+        Path sourceRootPath = this.get(BuildContextField.SOURCE_ROOT);
+        return sourceRootPath.resolve(ProjectDirConstants.LOCK_FILE_NAME);
+    }
 }
