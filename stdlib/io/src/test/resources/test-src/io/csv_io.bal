@@ -154,8 +154,7 @@ function getTableWithNill(string filePath) returns @tainted [string, string]|err
                 dep = dep + (rec.department ?: "-1");
             }
             error? closeResult = rCsvChannel.close();
-        }
-        else {
+        } else {
             return tblResult;
         }
     }
@@ -172,8 +171,7 @@ function getTableWithHeader(string filePath) returns @tainted string[]|error {
                 keys.push(rec.appId);
             }
             error? closeResult = rCsvChannel.close();
-        }
-        else {
+        } else {
             return tblResult;
         }
     }
