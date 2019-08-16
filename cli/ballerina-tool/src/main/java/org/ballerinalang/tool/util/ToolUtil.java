@@ -100,17 +100,6 @@ public class ToolUtil {
         }
     }
 
-
-    /**
-     * Provide the path of currently configured Ballerina Distribution.
-     * @return Used Ballerina distribution path
-     */
-    public static String getCurrentDist() throws IOException {
-        String currentBallerinaVersion = getCurrentBallerinaVersion();
-        return OSUtils.getDistributionsPath() + File.separator + currentBallerinaVersion;
-//      return System.getProperty("ballerina.home");
-    }
-
     /**
      * Provides used Ballerina version.
      * @return Used Ballerina version

@@ -193,15 +193,13 @@ public class Main {
     }
 
     private static void printBallerinaDistPath() {
-        try {
-            outStream.print(ToolUtil.getCurrentDist() + "\n");
-        } catch (Throwable ignore) {
-            // Exception is ignored
+        String balHome = System.getProperty("ballerina.home");
+        if (balHome != null) {
+            outStream.print(balHome + "\n");
+        } else {
             throw LauncherUtils.createUsageExceptionWithHelp("home info not available");
         }
     }
-
-
 
     private static String getMessageForInternalErrors() {
         String errorMsg;
