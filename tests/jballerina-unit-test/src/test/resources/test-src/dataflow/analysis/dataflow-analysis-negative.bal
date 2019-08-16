@@ -352,9 +352,9 @@ function testMatch_1() returns string {
     any x = 6;
     string val;
     match x {
-        6 => val = "int";
-        "" => val = "string";
-        var y => val = "any";
+        6 => {val = "int";}
+        "" => {val = "string";}
+        var y => {val = "any";}
     }
 
     return val;

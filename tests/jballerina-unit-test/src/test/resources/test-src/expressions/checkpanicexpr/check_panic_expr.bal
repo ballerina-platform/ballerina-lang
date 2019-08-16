@@ -16,12 +16,12 @@
 
 function testBasicCheckpanic(int testNumber) returns int|float {
     match testNumber {
-        1 => int i = checkpanic getGenericError();
-        2 => int i = checkpanic getGenericErrorWithDetail();
-        3 => int|boolean i = checkpanic getGenericErrorWithMultiUnion();
-        4 => return checkpanic getFloat();
-        5 => int i = checkpanic returnBallerinaPanicedError();
-        6 => int i = checkpanic getCustomError();
+        1 => {int i = checkpanic getGenericError();}
+        2 => {int i = checkpanic getGenericErrorWithDetail();}
+        3 => {int|boolean i = checkpanic getGenericErrorWithMultiUnion();}
+        4 => {return checkpanic getFloat();}
+        5 => {int i = checkpanic returnBallerinaPanicedError();}
+        6 => {int i = checkpanic getCustomError();}
     }
     return 0.0;
 }

@@ -121,8 +121,8 @@ function testReturningInMatch() returns string? {
     int x = 10;
 
     match x {
-        2|4|6|8 => return "even";
-        1|3|5|7|9 => return "odd";
+        2|4|6|8 => {return "even";}
+        1|3|5|7|9 => {return "odd";}
     }
 }
 

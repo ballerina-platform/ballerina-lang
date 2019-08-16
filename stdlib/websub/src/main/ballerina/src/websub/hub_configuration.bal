@@ -70,8 +70,12 @@ function getSignatureMethod(SignatureMethod? signatureMethod) returns string {
     string signaturemethodAsConfig = config:getAsString("b7a.websub.hub.signaturemethod");
     if (signaturemethodAsConfig == "") {
         match signatureMethod {
-            "SHA256" => return "SHA256";
-            "SHA1" => return "SHA1";
+            "SHA256" => {
+                return "SHA256";
+            }
+            "SHA1" => {
+                return "SHA1";
+            }
         }
     } else {
         if (internal:equalsIgnoreCase(signaturemethodAsConfig, SHA1)) {

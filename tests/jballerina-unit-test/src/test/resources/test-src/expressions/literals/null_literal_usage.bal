@@ -89,8 +89,8 @@ function testNullWithMatch() returns string {
     anydata ad = j;
 
     match j {
-        0 => return "0";
-        null => return "null";
+        0 => {return "0";}
+        null => {return "null";}
     }
 
     return "";

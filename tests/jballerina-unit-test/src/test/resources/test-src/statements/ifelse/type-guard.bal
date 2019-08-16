@@ -424,8 +424,8 @@ function testTypeGuardsWithErrorInmatch() returns string {
     error e = error("some error");
     any|error x = e;
     match x {
-        var p if p is error => return string `${p.reason()}`;
-        var p => return "Internal server error";
+        var p if p is error => {return string `${p.reason()}`;}
+        var p => {return "Internal server error";}
     }
 }
 
@@ -583,8 +583,8 @@ function testFiniteTypeAsBroaderTypes_4() returns boolean {
 function finiteTypeAsBroaderTypesHelper(FooBarOneTwoTrue f) returns string {
     if (f is string) {
         match f {
-            "foo" => return "string: foo";
-            "bar" => return "string: bar";
+            "foo" => {return "string: foo";}
+            "bar" => {return "string: bar";}
         }
         return "expected foo or bar!";
     } else {
@@ -631,8 +631,8 @@ function finiteTypeAsBroaderTypesAndFiniteTypeHelper(FooBarOneTwoTrue f) returns
     if (f is string) {
         FooBar fb = f;
         match fb {
-            "foo" => return "string: foo";
-            "bar" => return "string: bar";
+            "foo" => {return "string: foo";}
+            "bar" => {return "string: bar";}
         }
         return "expected foo or bar!";
     } else {

@@ -179,6 +179,6 @@ function testConvertRecordToMapWithCyclicValueReferences() returns map<anydata>|
 
 function basicMatch(any a) {
     match a {
-            var {var1, var2, var3} => io:println("Matched");
+            var {var1, var2, var3} => {io:println("Matched");}
     }
 }
