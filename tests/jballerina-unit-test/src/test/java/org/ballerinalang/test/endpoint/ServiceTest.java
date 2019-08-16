@@ -70,8 +70,10 @@ public class ServiceTest {
         BAssertUtil.validateError(compileResult, errIdx++, "invalid listener attachment", 19, 18);
         BAssertUtil.validateError(compileResult, errIdx++, "redeclared symbol 'MyService$$service$2.foo'", 30, 14);
         BAssertUtil.validateError(compileResult, errIdx++, "undefined symbol 'invalidVar'", 58, 12);
-        BAssertUtil.validateError(compileResult, errIdx++, "a resource function cannot have an access modifier", 64, 5);
-        BAssertUtil.validateError(compileResult, errIdx++, "a resource function cannot have an access modifier", 68, 5);
+        BAssertUtil.validateError(compileResult, errIdx++,
+                                  "a resource function cannot have an explicit visibility qualifier", 64, 5);
+        BAssertUtil.validateError(compileResult, errIdx++,
+                                  "a resource function cannot have an explicit visibility qualifier", 68, 5);
         Assert.assertEquals(compileResult.getErrorCount(), errIdx);
     }
 
