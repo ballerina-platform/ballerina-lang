@@ -39,6 +39,7 @@ import org.wso2.transport.http.netty.util.client.http2.nettyclient.HttpResponseH
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
 
 /**
  * Test HTTP/2 response body compression.
@@ -84,17 +85,25 @@ public class ResponseBodyCompressionTestCase {
 
         streamId = streamId + 2;
         responseHandler = h2ClientWithoutDecompressor.sendPostRequest(PAYLOAD, streamId, "deflate;q=1.0, gzip;q=0.8");
-        assertCompressedResults(Constants.ENCODING_DEFLATE, responseHandler.getFullResponse(streamId),
+        assertCompressedResults("deflate;q=1.0, gzip;q=0.8", responseHandler.getFullResponse(streamId),
                                 responseHandler.getResponsePayload(streamId));
 
-        
-
+        streamId = streamId + 2;
+        responseHandler = h2ClientWithoutDecompressor.sendPostRequest(PAYLOAD, streamId, null);
+        assertNoCompressedResults(responseHandler.getFullResponse(streamId),
+                                  responseHandler.getResponsePayload(streamId));
 
     }
 
     private void assertCompressedResults(String expectedEncoding, FullHttpResponse response, String responsePayload) {
         assertEquals(expectedEncoding, response.headers().get(HttpHeaderNames.CONTENT_ENCODING));
         assertNotNull(responsePayload);
+    }
+
+    private void assertNoCompressedResults(FullHttpResponse response, String responsePayload) {
+        assertNull(response.headers().get(HttpHeaderNames.CONTENT_ENCODING));
+        assertNotNull(responsePayload);
+        assertEquals(PAYLOAD, responsePayload);
     }
 
     @AfterClass

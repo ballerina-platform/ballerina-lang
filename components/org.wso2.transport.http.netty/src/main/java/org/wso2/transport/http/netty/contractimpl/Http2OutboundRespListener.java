@@ -22,7 +22,6 @@ package org.wso2.transport.http.netty.contractimpl;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2Error;
@@ -171,8 +170,6 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
             String acceptEncoding = inboundRequestMsg.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString());
             if (acceptEncoding != null) {
                 outboundResponseMsg.setHeader(HttpHeaderNames.CONTENT_ENCODING.toString(), acceptEncoding);
-            } else {
-                outboundResponseMsg.setHeader(HttpHeaderNames.CONTENT_ENCODING.toString(), HttpHeaderValues.IDENTITY);
             }
         }
     }

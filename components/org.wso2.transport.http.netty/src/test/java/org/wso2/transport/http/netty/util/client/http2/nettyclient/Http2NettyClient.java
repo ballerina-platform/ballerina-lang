@@ -1,16 +1,19 @@
 /*
- * Copyright 2014 The Netty Project
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * The Netty Project licenses this file to you under the Apache License, version 2.0 (the
- * "License"); you may not use this file except in compliance with the License. You may obtain a
- * copy of the License at:
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.wso2.transport.http.netty.util.client.http2.nettyclient;
 
@@ -23,7 +26,6 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpScheme;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.util.AsciiString;
@@ -82,19 +84,23 @@ public final class Http2NettyClient {
                                                              wrappedBuffer(payload.getBytes(CharsetUtil.UTF_8)));
         request.headers().add(HttpHeaderNames.HOST, hostName);
         request.headers().add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), HttpScheme.HTTP.name());
-        request.headers().add(HttpHeaderNames.ACCEPT_ENCODING, acceptEncoding);
+        if (acceptEncoding != null) {
+            request.headers().add(HttpHeaderNames.ACCEPT_ENCODING, acceptEncoding);
+        }
         responseHandler.put(streamId, channel.write(request), channel.newPromise());
         flushChannel();
         return responseHandler;
 
     }
 
-    public HttpResponseHandler sendGetRequest(int streamId) {
+    public HttpResponseHandler sendGetRequest(int streamId, String acceptEncoding) {
         LOG.debug("Sending GET request...");
         FullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, GET, "/dummy");
         request.headers().add(HttpHeaderNames.HOST, HOST);
         request.headers().add(HttpConversionUtil.ExtensionHeaderNames.SCHEME.text(), HttpScheme.HTTP.name());
-        request.headers().add(HttpHeaderNames.ACCEPT_ENCODING, HttpHeaderValues.GZIP);
+        if (acceptEncoding != null) {
+            request.headers().add(HttpHeaderNames.ACCEPT_ENCODING, acceptEncoding);
+        }
         responseHandler.put(streamId, channel.write(request), channel.newPromise());
         flushChannel();
         return responseHandler;
@@ -103,7 +109,7 @@ public final class Http2NettyClient {
     private void flushChannel() {
         channel.flush();
         responseHandler.awaitResponses(5, TimeUnit.SECONDS);
-        System.out.println("Finished HTTP/2 request(s)");
+        LOG.debug("Finished HTTP/2 request(s)");
     }
 
     public void closeChannel() {
