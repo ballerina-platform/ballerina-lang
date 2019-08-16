@@ -148,7 +148,7 @@ public class SendingHeaders implements SenderState {
 
     private void writeRequestBody(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
         String expectHeader = httpOutboundRequest.getHeader(HttpHeaderNames.EXPECT.toString());
-        if (expectHeader != null && !expectHeader.isEmpty() && expectHeader.equalsIgnoreCase(HEADER_VAL_100_CONTINUE)) {
+        if (expectHeader != null && expectHeader.equalsIgnoreCase(HEADER_VAL_100_CONTINUE)) {
             senderReqRespStateManager.state =
                     new Sending100Continue(senderReqRespStateManager, httpInboundResponseFuture);
             senderReqRespStateManager.nettyTargetChannel.flush();
