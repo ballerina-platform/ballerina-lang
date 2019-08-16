@@ -17,11 +17,9 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -55,11 +53,6 @@ public class TypedescValue implements RefValue {
     @Override
     public BType getType() {
         return type;
-    }
-
-    @Override
-    public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
-
     }
 
     @Override
