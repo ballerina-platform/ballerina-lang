@@ -46,7 +46,7 @@ import static org.awaitility.Awaitility.given;
  *
  * @since 1.0
  */
-@Test(groups = "websub-test") // not necessary, introduced as a workaround to get @BeforeGroup to run before other tests
+@Test(groups = "websub-test") // not necessary
 public class WebSubServiceExtensionProjectTestCase extends WebSubBaseTest {
     private BServerInstance webSubSubscriber;
 
