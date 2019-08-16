@@ -251,7 +251,7 @@
 
     <test name="ballerina-data-streaming-tests" parallel="false">
         <classes>
-<!--            <class name="org.ballerinalang.test.data.streaming.TableDataStreamingTestCase"/>-->
+            <class name="org.ballerinalang.test.data.streaming.TableDataStreamingTestCase"/>
         </classes>
     </test>
     <test name="ballerina-socket-tests" parallel="false">
@@ -276,6 +276,7 @@
             <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>
 <!--            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>-->
             <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>
+            <class name="org.ballerinalang.test.packaging.LockFileTestCase"/>
         </classes>
     </test>
 </suite>

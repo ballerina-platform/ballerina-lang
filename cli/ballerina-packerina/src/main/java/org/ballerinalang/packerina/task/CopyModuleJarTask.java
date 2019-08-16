@@ -112,8 +112,10 @@ public class CopyModuleJarTask implements Task {
 
     private void copyImportedJar(BuildContext buildContext, BPackageSymbol importz,
                                  Path project, Path tmpDir, String balHomePath) {
-        // Get the jar paths
         PackageID id = importz.pkgID;
+        String moduleJarName = id.orgName.value + "-" + id.name.value + "-" + id.version.value +
+                BLANG_COMPILED_JAR_EXT;
+        // Get the jar paths
         Path importJar;
         // Look if it is a project module.
         if (ProjectDirs.isModuleExist(project, id.name.value)) {
@@ -129,11 +131,15 @@ public class CopyModuleJarTask implements Task {
             if (skipCopyLibsFromDist) {
                 return;
             }
-            importJar = Paths.get(balHomePath, "bre", "lib", id.name.value + BLANG_COMPILED_JAR_EXT);
+            importJar = Paths.get(balHomePath, "bre", "lib", moduleJarName);
+
+            // todo following is a temporarty fix the proper fix is to version jars inside distribution.
+            if (Files.notExists(importJar)) {
+                importJar = Paths.get(balHomePath, "bre", "lib", id.name.value + BLANG_COMPILED_JAR_EXT);
+            }
         }
         try {
-            Path jarTarget = tmpDir.resolve(id.orgName.value + "-" + id.name.value + "-" + id.version.value + 
-                    BLANG_COMPILED_JAR_EXT);
+            Path jarTarget = tmpDir.resolve(moduleJarName);
             Files.copy(importJar, jarTarget, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             throw createLauncherException("unable to find the imported jar from the distribution: " + e.getMessage());
