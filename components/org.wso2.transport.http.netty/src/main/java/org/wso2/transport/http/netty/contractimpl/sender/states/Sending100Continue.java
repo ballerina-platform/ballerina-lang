@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.exceptions.ClientConnectorException;
+import org.wso2.transport.http.netty.contractimpl.common.Util;
 import org.wso2.transport.http.netty.contractimpl.common.states.SenderReqRespStateManager;
 import org.wso2.transport.http.netty.contractimpl.sender.TargetHandler;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -39,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.wso2.transport.http.netty.contract.Constants
         .REMOTE_SERVER_CLOSED_BEFORE_READING_100_CONTINUE_RESPONSE;
+import static org.wso2.transport.http.netty.contractimpl.common.Util.safelyRemoveHandlers;
 
 /**
  * This class implements SenderStates. The responsibility of this class is to handle requests with
@@ -66,9 +68,7 @@ public class Sending100Continue implements SenderState {
     private void configIdleTimeoutTrigger(int socketIdleTimeout) {
         ChannelPipeline pipeline = senderReqRespStateManager.nettyTargetChannel.pipeline();
         IdleStateHandler idleStateHandler = new IdleStateHandler(0, 0, socketIdleTimeout, TimeUnit.MILLISECONDS);
-        if (pipeline.get(Constants.IDLE_STATE_HANDLER) != null) {
-            pipeline.remove(Constants.IDLE_STATE_HANDLER);
-        }
+        safelyRemoveHandlers(pipeline, Constants.IDLE_STATE_HANDLER);
         if (pipeline.get(Constants.TARGET_HANDLER) == null) {
             pipeline.addLast(Constants.IDLE_STATE_HANDLER, idleStateHandler);
         } else {
@@ -103,10 +103,8 @@ public class Sending100Continue implements SenderState {
                 for (HttpContent cachedHttpContent : contentList) {
                     cachedHttpContent.release();
                 }
-
-                HttpCarbonMessage inboundResponseMsg = targetHandler.getInboundResponseMsg();
-                inboundResponseMsg.setTargetContext(targetHandler.getContext());
-                targetHandler.getHttpResponseFuture().notifyHttpListener(inboundResponseMsg);
+                senderReqRespStateManager.state = new ReceivingHeaders(senderReqRespStateManager);
+                senderReqRespStateManager.readInboundResponseHeaders(targetHandler, httpInboundResponse);
             } else {
                 LOG.error("Cannot notify the response to client as there is no associated responseFuture");
             }
