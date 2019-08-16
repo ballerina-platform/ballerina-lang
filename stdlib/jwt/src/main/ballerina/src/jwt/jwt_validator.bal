@@ -54,7 +54,7 @@ public type CachedJwt record {|
     int expiryTime;
 |};
 
-# Validity given JWT string.
+# Validite given JWT string.
 #
 # + jwtToken - JWT token that need to validate
 # + config - JWT validator config record
@@ -84,6 +84,10 @@ function getJwtComponents(string jwtToken) returns string[]|Error {
     return jwtComponents;
 }
 
+# Decode the given JWT string.
+#
+# + jwtToken - JWT token that need to decode
+# + return - The JWT header and payload tuple or an `Error` if token decode fails.
 public function decodeJwt(string jwtToken) returns @tainted ([JwtHeader, JwtPayload]|Error) {
     string[] encodedJwtComponents = check getJwtComponents(jwtToken);
     map<json> headerJson;
