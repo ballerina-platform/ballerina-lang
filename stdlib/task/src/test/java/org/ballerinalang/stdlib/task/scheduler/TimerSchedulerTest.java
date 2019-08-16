@@ -40,9 +40,9 @@ import static org.awaitility.Awaitility.await;
 @Test
 public class TimerSchedulerTest {
 
-    @Test(description = "Test service parameter passing")
+    @Test(description = "Test service parameter passing", enabled = false)
     public void testSimpleTimerScheduler() {
-        CompileResult compileResult = BCompileUtil.compile("scheduler/timer/simple_timer.bal");
+        CompileResult compileResult = BCompileUtil.compile(false,  "scheduler/timer/simple_timer.bal");
         BRunUtil.invoke(compileResult, "main");
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] count = BRunUtil.invoke(compileResult, "getCount");
@@ -52,9 +52,9 @@ public class TimerSchedulerTest {
         });
     }
 
-    @Test(description = "Test service parameter passing")
+    @Test(description = "Test service parameter passing", enabled = false)
     public void testTimerAttachment() {
-        CompileResult compileResult = BCompileUtil.compile("scheduler/timer/timer_attachment.bal");
+        CompileResult compileResult = BCompileUtil.compile(true, "scheduler/timer/timer_attachment.bal");
         BRunUtil.invoke(compileResult, "attachTimer");
         String expectedResult = "Sam is 5 years old";
         try {
@@ -72,9 +72,9 @@ public class TimerSchedulerTest {
         }
     }
 
-    @Test(description = "Tests for pause and resume functions of the timer")
+    @Test(description = "Tests for pause and resume functions of the timer", enabled = false)
     public void testPauseResume() {
-        CompileResult compileResult = BCompileUtil.compile("scheduler/timer/pause_resume.bal");
+        CompileResult compileResult = BCompileUtil.compile(true, "scheduler/timer/pause_resume.bal");
         BRunUtil.invoke(compileResult, "testPauseResume");
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] count1 = BRunUtil.invoke(compileResult, "getCount1");
@@ -87,9 +87,9 @@ public class TimerSchedulerTest {
         });
     }
 
-    @Test(description = "Tests a timer scheduler cancel functionality")
+    @Test(description = "Tests a timer scheduler cancel functionality", enabled = false)
     public void testListenerTimerStop() {
-        CompileResult compileResult = BCompileUtil.compile("scheduler/timer/timer_stop.bal");
+        CompileResult compileResult = BCompileUtil.compile(true, "scheduler/timer/timer_stop.bal");
         await().atLeast(4000, TimeUnit.MILLISECONDS).atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BRunUtil.invoke(compileResult, "triggerTimer");
             BValue[] count = BRunUtil.invoke(compileResult, "getCount");
@@ -99,9 +99,9 @@ public class TimerSchedulerTest {
         });
     }
 
-    @Test(description = "Tests a timer scheduler which runs for a limited number of times")
+    @Test(description = "Tests a timer scheduler which runs for a limited number of times", enabled = false)
     public void testLimitedNumberOfRuns() {
-        CompileResult compileResult = BCompileUtil.compile("scheduler/timer/limited_number_of_runs.bal");
+        CompileResult compileResult = BCompileUtil.compile(true, "scheduler/timer/limited_number_of_runs.bal");
 
         BRunUtil.invoke(compileResult, "triggerTimer");
         BValue[] count = BRunUtil.invoke(compileResult, "getCount");
@@ -110,9 +110,9 @@ public class TimerSchedulerTest {
         Assert.assertEquals(((BInteger) count[0]).intValue(), 3);
     }
 
-    @Test(description = "Tests a timer scheduler with zero delay")
+    @Test(description = "Tests a timer scheduler with zero delay", enabled = false)
     public void testZeroDelay() {
-        CompileResult compileResult = BCompileUtil.compile("scheduler/timer/zero_delay.bal");
+        CompileResult compileResult = BCompileUtil.compile(true, "scheduler/timer/zero_delay.bal");
         BRunUtil.invoke(compileResult, "triggerTimer");
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] count = BRunUtil.invoke(compileResult, "getCount");
@@ -126,10 +126,11 @@ public class TimerSchedulerTest {
     @Test(
             description = "Tests a timer scheduler with zero interval",
             expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*Timer scheduling interval should be a positive integer.*"
+            expectedExceptionsMessageRegExp = ".*Timer scheduling interval should be a positive integer.*",
+            enabled = false
     )
     public void testZeroInterval() {
-        CompileResult compileResult = BCompileUtil.compile("scheduler/timer/zero_interval.bal");
+        CompileResult compileResult = BCompileUtil.compile(true, "scheduler/timer/zero_interval.bal");
         BRunUtil.invoke(compileResult, "triggerTimer");
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] count = BRunUtil.invoke(compileResult, "getCount");
@@ -139,7 +140,7 @@ public class TimerSchedulerTest {
         });
     }
 
-    @Test(description = "Tests a timer scheduler with multiple services attached")
+    @Test(description = "Tests a timer scheduler with multiple services attached", enabled = false)
     public void testMultipleServices() {
         CompileResult compileResult = BCompileUtil.compile("scheduler/timer/multiple_services.bal");
         BRunUtil.invoke(compileResult, "triggerTimer");

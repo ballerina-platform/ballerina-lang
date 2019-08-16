@@ -37,7 +37,7 @@ import static org.awaitility.Awaitility.await;
  */
 @Test
 public class AppointmentSchedulerTest {
-    @Test(description = "Tests the functionality of initiating a Task Timer Listener.")
+    @Test(description = "Tests the functionality of initiating a Task Timer Listener.", enabled = false)
     public void testDynamicService() {
         CompileResult compileResult = BCompileUtil.compile("scheduler/appointment/simple_appointment.bal");
         BValue[] inputs = {new BString("0/2 * * * * ?")};
@@ -49,7 +49,7 @@ public class AppointmentSchedulerTest {
         });
     }
 
-    @Test(description = "Tests the functionality of initiating a Task Timer Listener.")
+    @Test(description = "Tests the functionality of initiating a Task Timer Listener.", enabled = false)
     public void testLimitedNoOfTimes() {
         CompileResult compileResult = BCompileUtil.compile("scheduler/appointment/limited_number_of_times.bal");
         BValue[] inputs = {new BString("* * * * * ? *")};
@@ -61,7 +61,7 @@ public class AppointmentSchedulerTest {
         });
     }
 
-    @Test(description = "Tests an appointment scheduler with multiple services attached")
+    @Test(description = "Tests an appointment scheduler with multiple services attached", enabled = false)
     public void testMultipleServices() {
         CompileResult compileResult = BCompileUtil.compile("scheduler/appointment/multiple_services.bal");
         BRunUtil.invoke(compileResult, "triggerAppointment");

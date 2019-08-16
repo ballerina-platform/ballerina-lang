@@ -22,6 +22,10 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.Test;
 
+import java.nio.file.Paths;
+
+import static org.ballerinalang.stdlib.task.utils.TaskTestUtils.getFilePath;
+
 /**
  * Tests for Ballerina Task Service validation.
  */
@@ -35,7 +39,7 @@ public class ListenerServiceValidationTest {
                     + "Task service should include only one resource.*"
     )
     public void testMoreThanTwoResourceFunctions() {
-        BCompileUtil.compile("service-validation/more_than_one_resource.bal");
+        BCompileUtil.compile(getFilePath(Paths.get("service-validation", "more_than_one_resource.bal")));
     }
 
     @Test(
@@ -45,7 +49,7 @@ public class ListenerServiceValidationTest {
                     + "Task service should include only one resource.*"
     )
     public void testNoResourceFunctions() {
-        BCompileUtil.compile("service-validation/no_resource_functions.bal");
+        BCompileUtil.compile(getFilePath(Paths.get("service-validation", "no_resource_functions.bal")));
     }
 
     @Test(
@@ -55,6 +59,6 @@ public class ListenerServiceValidationTest {
                     ".*Invalid resource function found: timerStart. Expected: 'onTrigger'.*"
     )
     public void testInvalidResourceName() {
-        BCompileUtil.compile("service-validation/invalid_resource.bal");
+        BCompileUtil.compile(getFilePath(Paths.get("service-validation", "invalid_resource.bal")));
     }
 }
