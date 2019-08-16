@@ -25,3 +25,4 @@ license = ["MIT", "Apache-2.0"]
 # The <module-name> in the table specifier must be fully qualified.
 [dependencies]
 "wso2/twitter" = "2.3.4"
+"wso2/github" = { path = "path/to/github.balo", version = "1.2.3"}

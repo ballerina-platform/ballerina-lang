@@ -54,7 +54,7 @@ public class Manifest {
                 .map(entry -> {
                     Dependency dependency = new Dependency();
                     // get rid of the double quotes
-                    dependency.setModuleName(entry.getKey());
+                    dependency.setModuleID(entry.getKey());
                     dependency.setMetadata(convertObjectToDependencyMetadata(entry.getValue()));
                     return dependency;
                 })
