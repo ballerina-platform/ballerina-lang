@@ -32,6 +32,9 @@ public type ABC object {
     public function __attach(service s, string? name = ()) returns error? {
         return ();
     }
+
+    public function __detach(service s) returns error? {
+    }
 };
 
 function test1 (){

@@ -130,6 +130,9 @@ type Listener object {
     public function __attach(service s, string? name = ()) returns error? {
     }
 
+    public function __detach(service s) returns error? {
+    }
+
     public function __start() returns error? {
     }
 

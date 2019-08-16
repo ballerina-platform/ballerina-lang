@@ -34,6 +34,9 @@ public type ABC object {
     public function __attach(service s, string? name = ()) returns error? {
         attachCount += 1;
     }
+
+    public function __detach(service s) returns error? {
+    }
 };
 
 public type PQR object {
@@ -57,6 +60,9 @@ public type PQR object {
 
     public function __attach(service s, string? name = ()) returns error? {
         attachCount += 1;
+    }
+
+    public function __detach(service s) returns error? {
     }
 };
 
