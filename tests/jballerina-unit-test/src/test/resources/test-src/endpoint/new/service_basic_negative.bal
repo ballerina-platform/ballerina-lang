@@ -1,3 +1,5 @@
+import ballerina/lang.'object;
+
 listener ABC ex = new;
 
 service name1 on ex {
@@ -15,7 +17,6 @@ service name1 on ex {
 string xx = "some test";
 
 service name1 on xx {
-    string id;
 
     resource function foo(string b) {
     }
@@ -32,7 +33,7 @@ service MyService on ex {
 
 public type ABC object {
 
-    *AbstractListener;
+    *'object:AbstractListener;
 
     public function __start() returns error?{
         return;
@@ -53,5 +54,15 @@ public type ABC object {
 
 service on invalidVar {
     resource function foo(string b) {
+    }
+}
+
+service ser2 on ex {
+    private resource function foo() {
+
+    }
+
+    public resource function bar() {
+
     }
 }

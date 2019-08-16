@@ -1,3 +1,5 @@
+import ballerina/lang.'object;
+
 listener ABC ep = new;
 
 int startCount = 0;
@@ -15,7 +17,7 @@ service on ep, new PQR("pqr") {
 
 public type ABC object {
 
-    *AbstractListener;
+    *'object:AbstractListener;
 
     public function __start() returns error? {
         startCount += 1;
@@ -36,7 +38,7 @@ public type ABC object {
 
 public type PQR object {
 
-    *AbstractListener;
+    *'object:AbstractListener;
 
     public function __init(string name){
     }

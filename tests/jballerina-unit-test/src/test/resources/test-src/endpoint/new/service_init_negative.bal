@@ -1,3 +1,5 @@
+import ballerina/lang.'object;
+
 listener ABC ep = new;
 
 service on ep {
@@ -12,7 +14,7 @@ service on ep {
 
 public type ABC object {
 
-    *AbstractListener;
+    *'object:AbstractListener;
 
     public function __start() returns error?{
         error e = error("startError");
