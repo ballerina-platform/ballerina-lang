@@ -77,6 +77,7 @@ public class ResponseBodyCompressionTestCase {
                                                                       HttpHeaderValues.GZIP.toString());
         assertCompressedResults(Constants.ENCODING_GZIP, responseHandler.getFullResponse(streamId),
                                 responseHandler.getResponsePayload(streamId));
+
         streamId = streamId + 2;
         responseHandler = h2ClientWithoutDecompressor.sendPostRequest(PAYLOAD, streamId,
                                                                       HttpHeaderValues.DEFLATE.toString());
@@ -90,8 +91,8 @@ public class ResponseBodyCompressionTestCase {
 
         streamId = streamId + 2;
         responseHandler = h2ClientWithoutDecompressor.sendPostRequest(PAYLOAD, streamId, null);
-        assertNoCompressedResults(responseHandler.getFullResponse(streamId),
-                                  responseHandler.getResponsePayload(streamId));
+        assertPlainResults(responseHandler.getFullResponse(streamId),
+                           responseHandler.getResponsePayload(streamId));
 
     }
 
@@ -100,7 +101,7 @@ public class ResponseBodyCompressionTestCase {
         assertNotNull(responsePayload);
     }
 
-    private void assertNoCompressedResults(FullHttpResponse response, String responsePayload) {
+    private void assertPlainResults(FullHttpResponse response, String responsePayload) {
         assertNull(response.headers().get(HttpHeaderNames.CONTENT_ENCODING));
         assertNotNull(responsePayload);
         assertEquals(PAYLOAD, responsePayload);
