@@ -35,9 +35,9 @@ import java.util.Optional;
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_RUNTIME_PKG;
 import static org.ballerinalang.jvm.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.INIT_FUNCTION_SUFFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 import static org.ballerinalang.jvm.util.BLangConstants.START_FUNCTION_SUFFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.STOP_FUNCTION_SUFFIX;
-import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 
 /**
  * Util Class for handling Error in Ballerina VM.
