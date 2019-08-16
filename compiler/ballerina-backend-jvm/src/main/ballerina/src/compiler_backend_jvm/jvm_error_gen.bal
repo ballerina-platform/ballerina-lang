@@ -92,3 +92,46 @@ type ErrorHandlerGenerator object {
         return self.indexMap.getIndex(varDcl);
     }
 };
+
+type DiagnosticLogger object {
+    DiagnosticLog[] errors = [];
+    int size = 0;
+
+    function logError(error err, bir:DiagnosticPos pos, bir:Package module) {
+        self.errors[self.size] = {err:err, pos:pos, module:module};
+        self.size += 1;
+    }
+
+    function getErrorCount() returns int {
+        return self.size;
+    }
+
+    function printErrors() {
+        foreach DiagnosticLog log in self.errors {
+            string fileName = log.pos.sourceFileName;
+            int sLine = log.pos.sLine;
+            int eLine = log.pos.eLine;
+            int sCol = log.pos.sCol;
+            int eCol = log.pos.eCol;
+            string orgName = log.module.org.value;
+            string moduleName = log.module.name.value;
+
+            string pkgIdStr;
+            if (moduleName == "." && orgName == "$anon") {
+                pkgIdStr = ".";
+            } else {
+                pkgIdStr = orgName + ":" + moduleName;
+            }
+
+            string positionStr = io:sprintf("%s:%s:%s:%s", pkgIdStr, fileName, sLine, sCol);
+            string errorStr = io:sprintf("error: %s: %s %s", positionStr, log.err.reason(), log.err.detail());
+            io:println(errorStr);
+        }
+    }
+};
+
+type DiagnosticLog record {|
+    error err;
+    bir:DiagnosticPos pos;
+    bir:Package module;
+|};
