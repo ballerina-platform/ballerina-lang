@@ -41,7 +41,7 @@ public class TomlParserUtils {
     public static Settings readSettings() {
         Path settingsFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.SETTINGS_FILE_NAME);
         try {
-            return SettingsProcessor.parseTomlContentFromFile(settingsFilePath.toString());
+            return SettingsProcessor.parseTomlContentFromFile(settingsFilePath);
         } catch (IOException e) {
             return new Settings();
         }

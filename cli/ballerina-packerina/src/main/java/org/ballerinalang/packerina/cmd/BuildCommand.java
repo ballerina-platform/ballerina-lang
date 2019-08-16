@@ -352,7 +352,8 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateExecutableTask(), this.compile)  // create the executable .jar file
                 .addTask(new CopyExecutableTask(outputPath), !isSingleFileBuild)    // copy executable
                 .addTask(new PrintExecutablePathTask(), this.compile)   // print the location of the executable
-                .addTask(new CreateLockFileTask(), isSingleFileBuild)   // create a lock file(projects only)
+                .addTask(new CreateLockFileTask(), Files.exists(buildContext.getLockFilePath()) || isSingleFileBuild)
+                                                // create a lock file if it does not exists(projects only)
                 .addTask(new CreateDocsTask(), isSingleFileBuild)   // generate API docs(projects only)
                 .addTask(new RunCompilerPluginTask(), this.compile) // run compiler plugins
                 .addTask(new CleanTargetDirTask(), !isSingleFileBuild)  // clean the target dir(single bals only)
