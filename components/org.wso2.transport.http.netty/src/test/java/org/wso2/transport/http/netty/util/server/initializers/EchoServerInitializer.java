@@ -40,8 +40,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpHeaderNames.TRANSFER_ENCODING;
-import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 /**
  * An initializer class for HTTP Server
@@ -67,10 +65,6 @@ public class EchoServerInitializer extends HttpServerInitializer {
         public void channelRead(ChannelHandlerContext ctx, Object msg) {
             if (msg instanceof HttpRequest) {
                 HttpRequest req = (HttpRequest) msg;
-
-                if (HttpUtil.is100ContinueExpected(req)) {
-                    ctx.write(new DefaultHttpResponse(HTTP_1_1, CONTINUE));
-                }
 
                 createHttpResponse(req);
                 setContentType(req);

@@ -20,9 +20,12 @@ package org.wso2.transport.http.netty.contractimpl.sender.states;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.Constants;
@@ -37,8 +40,10 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.wso2.transport.http.netty.contract.Constants.CLIENT_TO_REMOTE_HOST_CONNECTION_CLOSED;
+import static org.wso2.transport.http.netty.contract.Constants.HEADER_VAL_100_CONTINUE;
 import static org.wso2.transport.http.netty.contract.Constants
         .IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS;
 import static org.wso2.transport.http.netty.contract.Constants.INBOUND_RESPONSE_ALREADY_RECEIVED;
@@ -77,10 +82,27 @@ public class SendingHeaders implements SenderState {
         this.httpVersion = httpVersion;
         this.chunkConfig = chunkConfig;
         this.httpInboundResponseFuture = httpInboundResponseFuture;
+        configIdleTimeoutTrigger(senderReqRespStateManager.socketTimeout);
+    }
+
+    private void configIdleTimeoutTrigger(int socketIdleTimeout) {
+        ChannelPipeline pipeline = senderReqRespStateManager.nettyTargetChannel.pipeline();
+        IdleStateHandler idleStateHandler = new IdleStateHandler(0, 0, socketIdleTimeout, TimeUnit.MILLISECONDS);
+        if (pipeline.get(Constants.TARGET_HANDLER) == null) {
+            pipeline.addLast(Constants.IDLE_STATE_HANDLER, idleStateHandler);
+        } else {
+            pipeline.addBefore(Constants.TARGET_HANDLER, Constants.IDLE_STATE_HANDLER, idleStateHandler);
+        }
     }
 
     @Override
-    public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
+    public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest) {
+        // We don't really do anything here because we only start sending headers when there is some content
+        // to be written.
+    }
+
+    @Override
+    public void writeOutboundRequestEntity(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
         if (isLastHttpContent(httpContent)) {
             if (checkContentLengthAndTransferEncodingHeaderAllowance(httpOutboundRequest)) {
                 if (chunkConfig == ChunkConfig.ALWAYS && checkChunkingCompatibility(httpVersion, chunkConfig)) {
@@ -125,8 +147,15 @@ public class SendingHeaders implements SenderState {
     }
 
     private void writeRequestBody(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
-        senderReqRespStateManager.state =
-                new SendingEntityBody(senderReqRespStateManager, httpInboundResponseFuture);
+        String expectHeader = httpOutboundRequest.getHeader(HttpHeaderNames.EXPECT.toString());
+        if (expectHeader != null && expectHeader.equalsIgnoreCase(HEADER_VAL_100_CONTINUE)) {
+            senderReqRespStateManager.state =
+                    new Sending100Continue(senderReqRespStateManager, httpInboundResponseFuture);
+            senderReqRespStateManager.nettyTargetChannel.flush();
+        } else {
+            senderReqRespStateManager.state =
+                    new SendingEntityBody(senderReqRespStateManager, httpInboundResponseFuture);
+        }
 
         for (HttpContent cachedHttpContent : contentList) {
             senderReqRespStateManager.writeOutboundRequestEntity(httpOutboundRequest, cachedHttpContent);
@@ -137,11 +166,6 @@ public class SendingHeaders implements SenderState {
     private void waitForCompleteBody(HttpContent httpContent) {
         contentList.add(httpContent);
         contentLength += httpContent.content().readableBytes();
-    }
-
-    @Override
-    public void writeOutboundRequestEntity(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
-        writeOutboundRequestHeaders(httpOutboundRequest, httpContent);
     }
 
     @Override
@@ -168,6 +192,8 @@ public class SendingHeaders implements SenderState {
     @Override
     public void handleIdleTimeoutConnectionClosure(HttpResponseFuture httpResponseFuture, String channelID) {
         // HttpResponseFuture will be notified asynchronously via writeOutboundRequestHeaders method.
+        senderReqRespStateManager.nettyTargetChannel.pipeline().remove(Constants.IDLE_STATE_HANDLER);
+        senderReqRespStateManager.nettyTargetChannel.close();
         LOG.error("Error in HTTP client: {}", IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST_HEADERS);
     }
 }
