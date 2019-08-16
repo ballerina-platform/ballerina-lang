@@ -118,6 +118,7 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
                 debugLog(`${data}`);
             });
         }).then(()=>{
+            ballerinaExtInstance.telemetryReporter.sendTelemetryEvent(TM_EVENT_START_DEBUG_SESSION);
             return new DebugAdapterServer(port);
         });
     }
