@@ -1932,6 +1932,9 @@ public class BLangPackageBuilder {
 
     void addConstant(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
                      boolean isPublic, boolean isTypeAvailable) {
+        if (identifier.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
+            identifier = StringEscapeUtils.unescapeJava(identifier).substring(1);
+        }
         BLangConstant constantNode = (BLangConstant) this.generateConstantNode(pos, ws, identifier, identifierPos,
                 isTypeAvailable);
         attachAnnotations(constantNode);
