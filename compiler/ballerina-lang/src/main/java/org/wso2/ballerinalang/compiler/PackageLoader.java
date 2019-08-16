@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.packaging.repo.BinaryRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.BirRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.HomeBaloRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.PathBaloRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProgramingSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.RemoteRepo;
@@ -145,8 +146,8 @@ public class PackageLoader {
         this.offline = Boolean.parseBoolean(options.get(OFFLINE));
         this.testEnabled = Boolean.parseBoolean(options.get(TEST_ENABLED));
         this.lockEnabled = Boolean.parseBoolean(options.get(LOCK_ENABLED));
-        this.repos = genRepoHierarchy(Paths.get(options.get(PROJECT_DIR)));
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
+        this.repos = genRepoHierarchy(Paths.get(options.get(PROJECT_DIR)));
         this.lockFile = LockFileProcessor.getInstance(context, this.lockEnabled).getLockFile();
     }
     
@@ -173,6 +174,7 @@ public class PackageLoader {
         Repo systemZipRepo = new BinaryRepo(RepoUtils.getLibDir(), compilerPhase);
         Repo remoteRepo = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()));
         Repo remoteDryRepo = new RemoteRepo(new URIDryConverter(URI.create(RepoUtils.getRemoteRepoURL())));
+        Repo pathBaloRepo = new PathBaloRepo(this.manifest);
         Repo homeBaloCache = new HomeBaloRepo(balHomeDir);
         Repo homeCacheRepo = new CacheRepo(balHomeDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, compilerPhase);
         Repo homeRepo = shouldReadBalo ? new BinaryRepo(balHomeDir, compilerPhase) : new ZipRepo(balHomeDir);
@@ -185,19 +187,21 @@ public class PackageLoader {
         RepoNode homeCacheNode;
 
         if (offline) {
-            homeCacheNode = node(homeBaloCache,
-                                node(homeCacheRepo,
-                                    node(systemBirRepo,
-                                        node(systemZipRepo))));
+            homeCacheNode = node(pathBaloRepo,
+                                node(homeBaloCache,
+                                    node(homeCacheRepo,
+                                        node(systemBirRepo,
+                                            node(systemZipRepo)))));
         } else {
-            homeCacheNode = node(homeBaloCache,
-                                node(homeCacheRepo,
-                                    node (systemBirRepo,
-                                        node(systemZipRepo,
-                                            node(remoteRepo,
-                                                node(homeBaloCache,
-                                                    node(systemBirRepo,
-                                                        node(secondarySystemRepo))))))));
+            homeCacheNode = node(pathBaloRepo,
+                                node(homeBaloCache,
+                                    node(homeCacheRepo,
+                                        node (systemBirRepo,
+                                            node(systemZipRepo,
+                                                node(remoteRepo,
+                                                    node(homeBaloCache,
+                                                        node(systemBirRepo,
+                                                            node(secondarySystemRepo)))))))));
         }
         
         // If lock file is not there, fist check in central.
@@ -271,7 +275,7 @@ public class PackageLoader {
             // TODO: make getDependencies return a map
              Optional<Dependency> dependency = manifest.getDependencies()
                                                       .stream()
-                                                      .filter(d -> d.getModuleName().equals(pkgAlias))
+                                                      .filter(d -> d.getModuleID().equals(pkgAlias))
                                                       .findFirst();
             if (dependency.isPresent()) {
                 if (pkgId.version.value.isEmpty()) {

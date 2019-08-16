@@ -197,7 +197,7 @@ public class ManifestProcessor {
                 if (metadataMap.keySet().contains("path") &&  metadataMap.get("path") instanceof String) {
                     metadata.setPath((String) metadataMap.get("path"));
         
-                    Path dependencyBaloPath = Paths.get(metadata.getPath());
+                    Path dependencyBaloPath = metadata.getPath();
                     if (!Files.exists(dependencyBaloPath)) {
                         throw new TomlException("invalid Ballerina.toml file: balo file for dependency [" +
                                                          dependency.getKey() + "] does not exists: " +

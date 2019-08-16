@@ -43,8 +43,8 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
  */
 public class HomeBaloRepo implements Repo<Path> {
     private Path repoLocation;
-    ZipConverter zipConverter;
-    List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
+    private ZipConverter zipConverter;
+    private List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
     
     public HomeBaloRepo(Path repo) {
         this.repoLocation = repo.resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME);
@@ -136,6 +136,6 @@ public class HomeBaloRepo implements Repo<Path> {
     
     @Override
     public String toString() {
-        return "{t:'BaloRepo', c:'" + this.zipConverter + "'}";
+        return "{t:'HomeBaloRepo', c:'" + this.zipConverter + "'}";
     }
 }

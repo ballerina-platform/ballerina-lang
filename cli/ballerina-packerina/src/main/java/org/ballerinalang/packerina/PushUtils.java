@@ -18,6 +18,7 @@
 package org.ballerinalang.packerina;
 
 import org.ballerinalang.spi.EmbeddedExecutor;
+import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.toml.model.Settings;
@@ -104,6 +105,26 @@ public class PushUtils {
                                           "alphanumerics, underscores and periods are allowed in a module name and " +
                                           "the maximum length is 256 characters");
         }
+        
+        if (!RepoUtils.validatePkg(moduleName)) {
+            throw createLauncherException("invalid module name provided \'" + moduleName + "\'. Only " +
+                                          "alphanumerics, underscores and periods are allowed in a module name and " +
+                                          "the maximum length is 256 characters");
+        }
+    
+        // check if there are any dependencies with balo path
+        List<String> dependenciesWithBaloPath =
+                manifest.getDependencies().stream()
+                        .filter(dep -> dep.getMetadata().getPath() != null)
+                        .map(Dependency::getModuleID)
+                        .collect(Collectors.toList());
+    
+        if (dependenciesWithBaloPath.size() > 0) {
+            throw createLauncherException("dependencies cannot be given by path when pushing module(s) to remote. " +
+                                          "check dependencies in Ballerina.toml: [" +
+                                          String.join(", ", dependenciesWithBaloPath) + "]");
+        }
+        
         String version = manifest.getProject().getVersion();
 
         // Get balo output path

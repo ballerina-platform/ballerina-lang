@@ -50,7 +50,7 @@ public class TomlFileToManifestTest {
 
         Assert.assertEquals(manifest.getDependencies().size(), 1);
         
-        Assert.assertEquals(manifest.getDependencies().get(0).getModuleName(), "wso2/twitter");
+        Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "wso2/twitter");
         Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getVersion(), "2.3.4");
     }
 }
