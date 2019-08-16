@@ -21,133 +21,206 @@
 // The module 'assert' provides assertion methods from node
 
 import assert = require('assert');
-import * as Path from 'path';
-import * as http from 'http';
+import * as path from 'path';
+import * as child_process from "child_process";
+// import * as http from 'http';
 
 import { DebugClientEx } from './debugClient';
 
 import { getBallerinaHome } from '../test-util';
-const ballerinaHome = getBallerinaHome();
 
-suite.skip('Ballerina Debug Adapter', () => {
+function isUnix(): boolean {
+	let platform = process.platform;
+	return platform === "linux"
+		|| platform === "darwin"
+		|| platform === "freebsd"
+		|| platform === "openbsd";
+}
+// const ballerinaHome = getBallerinaHome();
 
-    const PROJECT_ROOT = Path.join(__dirname, '../../../');
+suite('Ballerina Debug Adapter', () => {
 
-    const DEBUG_ADAPTER = Path.join(PROJECT_ROOT, 'out/src/debugger/start.js');
-    const DATA_ROOT = Path.join(PROJECT_ROOT, 'test/data/');
+    const PROJECT_ROOT = path.join(__dirname, '../../../');
 
-    let dc: DebugClientEx;
+    // const DEBUG_ADAPTER = Path.join(PROJECT_ROOT, 'out/src/debugger/index.js');
+    const DATA_ROOT = path.join(PROJECT_ROOT, 'test/data/');
 
-    setup(() => {
-        dc = new DebugClientEx('node', DEBUG_ADAPTER, 'ballerina', { cwd: PROJECT_ROOT });
-        dc.defaultTimeout = 15000;
-        return dc.start();
+    let dc: DebugClientEx; 
+    let serverProcess: any;
+    const ballerinaHome = getBallerinaHome();
+    const DEBUG_PORT = 4711;
+    setup(function () {
+        this.timeout(60000)
+        let startScriptPath = path.resolve(ballerinaHome, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.sh");
+        // Ensure that start script can be executed
+        if (isUnix()) {
+            child_process.exec("chmod +x " + startScriptPath);
+        } else {
+            startScriptPath = path.resolve(ballerinaHome, "lib", "tools", "debug-adapter", "launcher", "debug-adapter-launcher.bat");
+        }
+
+        serverProcess = child_process.spawn(startScriptPath, [
+            DEBUG_PORT.toString()
+        ]);
+        dc = new DebugClientEx("", "", 'ballerina', { cwd: PROJECT_ROOT });
+        dc.defaultTimeout = 60000;
+
+        return new Promise((resolve)=>{
+            // resolve();
+            serverProcess.stdout.on('data', (data:any) => {
+                if (data.toString().includes('Debug server started')) {
+                    resolve();
+                }
+            });
+            serverProcess.stderr.on('data', (data:any) => {
+                console.error(`${data}`);
+            });
+        }).then(()=>{
+            return dc.start(DEBUG_PORT);
+        });
     });
 
-    teardown(() => {
-        return dc.stop();
+    teardown(function(){
+        this.timeout(60000);
+        dc.terminateRequest({}).then(()=>{
+            if (serverProcess) {
+                serverProcess.kill();
+            }
+        });
+        return new Promise((resolve)=>{
+            serverProcess.on('close', (code: any) => {
+                resolve();
+                console.log(`child process exited with code ${code}`);
+            });
+        });
     });
 
     suite('vscode debugger integration tests', () => {
-        test('Initialize request', () => {
+        test('Initialize request', function() {
             return dc.initializeRequest().then((response) => {
                 response.body = response.body || {};
                 assert.equal(response.body.supportsConfigurationDoneRequest, true);
             });
-        });
+        }).timeout(15000);
 
         test('launch request', () => {
-            const PROGRAM = Path.join(DATA_ROOT, 'hello_world.bal');
-            dc.launch({
-                script: PROGRAM,
-                "ballerina.home": ballerinaHome,
-                request: "launch",
-                name: "Ballerina Debug",
-            });
-            return dc.waitForEvent("initialized", 10000);
+            const PROGRAM = path.join(DATA_ROOT, 'hello_world.bal');
+            return Promise.all([
+                dc.launch({
+                    script: PROGRAM,
+                    "ballerina.home": ballerinaHome,
+                    request: "launch",
+                    name: "Ballerina Debug",
+                    "debugServer": DEBUG_PORT,
+                    "debuggeePort": "5010" 
+                }),
+                dc.waitForEvent("initialized", 10000)
+            ])
+
         }).timeout(10000);
 
-        test('should stop on a breakpoint, main function', () => {
-            const PROGRAM = Path.join(DATA_ROOT, 'hello_world.bal');
-
-            const launchArgs = {
-                script: PROGRAM,
-                "ballerina.home": ballerinaHome,
-                request: "launch",
-                name: "Ballerina Debug",
-            };
-
-            return dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_world.bal', line: 4 });
-        }).timeout(10000);
-
-        test('should stop on a breakpoint, hello world service', function() {
-            const PROGRAM = Path.join(DATA_ROOT, 'hello_world_service.bal');
-
-            const launchArgs = {
-                script: PROGRAM,
-                "ballerina.home": ballerinaHome,
-                request: "launch",
-                name: "Ballerina Debug",
-            };
-
-            dc.on('output', (res) => {
-                if (res.body.output.indexOf("started HTTP/WS") > -1) {
-                    http.get('http://0.0.0.0:9090/hello/sayHello');
-                }
-            });
-
-            return dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_world_service.bal', line: 12 });
-        }).timeout(15000);
-
-        test('should stop on a breakpoint, hello world service - package', function() {
-            const PROGRAM = Path.join(DATA_ROOT, 'helloPackage', 'hello', 'hello_service.bal');
-
-            const launchArgs = {
-                script: PROGRAM,
-                "ballerina.home": ballerinaHome,
-                request: "launch",
-                name: "Ballerina Debug",
-            };
-
-            dc.on('output', (res) => {
-                if (res.body.output.indexOf("started HTTP/WS") > -1) {
-                    http.get('http://0.0.0.0:9090/hello/sayHello');
-                }
-            });
-            return dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_service.bal', line: 13 });
-        }).timeout(15000);
-
-        test('step In, hello world service - package', function() {
+        test('should stop on a breakpoint, main function', function () {
             this.skip();
-            const PROGRAM = Path.join(DATA_ROOT, 'helloPackage', 'hello', 'hello_service.bal');
+            // Doesnt work on travis
+            const PROGRAM = path.join(DATA_ROOT, 'hello_world.bal');
+
             const launchArgs = {
                 script: PROGRAM,
                 "ballerina.home": ballerinaHome,
                 request: "launch",
                 name: "Ballerina Debug",
+                "debugServer": DEBUG_PORT,
+                "debuggeePort": "5010"
             };
-
-            dc.on('output', (res) => {
-                if (res.body.output.indexOf("started HTTP/WS") > -1) {
-                    http.get('http://0.0.0.0:9090/hello/sayHello');
-                }
-            });
-            dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_service.bal', line: 13 });
-
-            return dc.waitForEvent('stopped', 12000).then((event) => {
-                const threadId: any = event.body.threadId;
-                return dc.stepInRequest({
-                    threadId: threadId
-                });
-            }).then(() => {
-                return dc.waitForEvent('stopped', 12000).then(event => {
+            return Promise.all([
+                dc.launch(launchArgs),
+                dc.setBreakpointsRequest({
+                    lines: [4],
+                    breakpoints: [{ line: 4 }],
+                    source: { path: PROGRAM, name: "hello_world.bal"},
+                }),
+                dc.waitForEvent('stopped', 80000).then(async event=>{
                     assert.equal(event.body.reason, "breakpoint");
-                    return dc.stackTraceRequest({
+                    const response = await dc.stackTraceRequest({
                         threadId: event.body.threadId,
                     });
-                });
-            });
-        }).timeout(15000);
+                    const frame: any = response.body.stackFrames[0];
+                    if (typeof PROGRAM === 'string') {
+                        dc.assertPath(frame.source.path, PROGRAM, 'stopped location: path mismatch');
+                    }
+                    return response;
+                })
+            ]);
+        }).timeout(100000);
+
+        // test('should stop on a breakpoint, hello world service', function() {
+        //     const PROGRAM = Path.join(DATA_ROOT, 'hello_world_service.bal');
+
+        //     const launchArgs = {
+        //         script: PROGRAM,
+        //         "ballerina.home": ballerinaHome,
+        //         request: "launch",
+        //         name: "Ballerina Debug",
+        //     };
+
+        //     dc.on('output', (res) => {
+        //         if (res.body.output.indexOf("started HTTP/WS") > -1) {
+        //             http.get('http://0.0.0.0:9090/hello/sayHello');
+        //         }
+        //     });
+
+        //     return dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_world_service.bal', line: 12 });
+        // }).timeout(15000);
+
+        // test('should stop on a breakpoint, hello world service - package', function() {
+        //     const PROGRAM = Path.join(DATA_ROOT, 'helloPackage', 'hello', 'hello_service.bal');
+
+        //     const launchArgs = {
+        //         script: PROGRAM,
+        //         "ballerina.home": ballerinaHome,
+        //         request: "launch",
+        //         name: "Ballerina Debug",
+        //     };
+
+        //     dc.on('output', (res) => {
+        //         if (res.body.output.indexOf("started HTTP/WS") > -1) {
+        //             http.get('http://0.0.0.0:9090/hello/sayHello');
+        //         }
+        //     });
+        //     return dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_service.bal', line: 13 });
+        // }).timeout(15000);
+
+        // test('step In, hello world service - package', function() {
+        //     this.skip();
+        //     const PROGRAM = Path.join(DATA_ROOT, 'helloPackage', 'hello', 'hello_service.bal');
+        //     const launchArgs = {
+        //         script: PROGRAM,
+        //         "ballerina.home": ballerinaHome,
+        //         request: "launch",
+        //         name: "Ballerina Debug",
+        //     };
+
+        //     dc.on('output', (res) => {
+        //         if (res.body.output.indexOf("started HTTP/WS") > -1) {
+        //             http.get('http://0.0.0.0:9090/hello/sayHello');
+        //         }
+        //     });
+        //     dc.hitBreakpoint(launchArgs, { path: PROGRAM, name: 'hello_service.bal', line: 13 });
+
+        //     return dc.waitForEvent('stopped', 12000).then((event) => {
+        //         const threadId: any = event.body.threadId;
+        //         return dc.stepInRequest({
+        //             threadId: threadId
+        //         });
+        //     }).then(() => {
+        //         return dc.waitForEvent('stopped', 12000).then(event => {
+        //             assert.equal(event.body.reason, "breakpoint");
+        //             return dc.stackTraceRequest({
+        //                 threadId: event.body.threadId,
+        //             });
+        //         });
+        //     });
+        // }).timeout(15000);
     });
 
 });
