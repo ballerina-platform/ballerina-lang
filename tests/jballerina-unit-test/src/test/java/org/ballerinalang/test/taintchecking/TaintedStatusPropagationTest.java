@@ -593,6 +593,6 @@ public class TaintedStatusPropagationTest {
     public void testTaintednessPropagationIntoTypeGuardNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/into-type-guard-negative.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'arg'", 5, 13);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'arg'", 21, 13);
     }
 }
