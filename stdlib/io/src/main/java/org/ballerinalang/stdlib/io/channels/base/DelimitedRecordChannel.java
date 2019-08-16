@@ -192,6 +192,13 @@ public class DelimitedRecordChannel implements IOChannel {
                 }
             } else {
                 readRecordFromChannel();
+                if (channel.hasReachedEnd()) {
+                    delimitedRecord = persistentCharSequence.toString().
+                            split(getRecordSeparatorForReading(), numberOfSplits);
+                    record = (delimitedRecord.length == numberOfSplits) ?
+                            processIdentifiedRecord(delimitedRecord) :
+                            readFinalRecord();
+                }
             }
         } while (record == null && !channel.hasReachedEnd());
 

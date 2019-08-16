@@ -218,7 +218,7 @@ public class AnydataStampInbuiltFunctionTest {
         Assert.assertEquals(mapValue.size(), 5);
 
         Assert.assertEquals(mapValue.getType().getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getClass(), BAnydataType.class);
+        Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getClass(), BJSONType.class);
 
         Assert.assertEquals(mapValue.get("name").stringValue(), "Raja");
         Assert.assertEquals(mapValue.get("name").getType().getClass(), BStringType.class);

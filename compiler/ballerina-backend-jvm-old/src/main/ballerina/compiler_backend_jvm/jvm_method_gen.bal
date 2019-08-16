@@ -2226,9 +2226,7 @@ function logCompileError(error compileError, bir:Package|bir:TypeDef|bir:Functio
         panic compileError;
     }
 
-    logError(err, pos, currentModule);
-    string pkgName = getPackageName(currentModule.org.value, currentModule.name.value);
-    functionGenErrors[pkgName + name] = err;
+    dlogger.logError(err, pos, currentModule);
 }
 
 function findBIRFunction(bir:Package|bir:TypeDef|bir:Function src, string name) returns bir:Function? {
