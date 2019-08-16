@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/cache;
-import ballerina/internal;
 
 # Implements a cache for storing HTTP responses. This cache complies with the caching policy set when configuring
 # HTTP caching in the HTTP client endpoint.
@@ -130,7 +129,7 @@ public type HttpCache object {
         }
 
         foreach var cachedResp in cachedResponses {
-            if (cachedResp.getHeader(ETAG) == etag && !internal:hasPrefix(etag, WEAK_VALIDATOR_TAG)) {
+            if (cachedResp.getHeader(ETAG) == etag && !etag.startsWith(WEAK_VALIDATOR_TAG)) {
                 matchingResponses[i] = cachedResp;
                 i = i + 1;
             }
@@ -184,8 +183,8 @@ function addEntry(cache:Cache cache, string key, Response inboundResponse) {
 }
 
 function weakValidatorEquals(string etag1, string etag2) returns boolean {
-    string validatorPortion1 = internal:hasPrefix(etag1, WEAK_VALIDATOR_TAG) ? etag1.substring(2, etag1.length()) : etag1;
-    string validatorPortion2 = internal:hasPrefix(etag2, WEAK_VALIDATOR_TAG) ? etag2.substring(2, etag2.length()) : etag2;
+    string validatorPortion1 = etag1.startsWith(WEAK_VALIDATOR_TAG) ? etag1.substring(2, etag1.length()) : etag1;
+    string validatorPortion2 = etag2.startsWith(WEAK_VALIDATOR_TAG) ? etag2.substring(2, etag2.length()) : etag2;
 
     return validatorPortion1 == validatorPortion2;
 }
