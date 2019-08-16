@@ -61,7 +61,6 @@ public class CreateFile {
             return SystemUtils.getBallerinaError(SystemConstants.PERMISSION_ERROR, msg);
         } catch (NoSuchFileException e) {
             String msg = "The file does not exist in path " + path;
-            log.error(msg, e);
             return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, msg);
         } catch (IOException e) {
             String msg = "IO error occurred while creating the file " + path;
