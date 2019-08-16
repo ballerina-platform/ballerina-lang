@@ -3,8 +3,8 @@
 This module provides the functionality required to access and manipulate data stored in any type of relational database 
 that is accessible via Java Database Connectivity (JDBC).
 
-**Prerequisite:** Please copy the JDBC driver corresponding to the database you are trying to interact with, 
-to `${BALLERINA_HOME}/bre/lib`.
+**Prerequisite:** Please add the JDBC driver corresponding to the database you are trying to interact with, 
+as a native library dependency in your Ballerina project.
 
 ### Client
 
