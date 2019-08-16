@@ -51,7 +51,7 @@ public type grpcMutualSslServiceBlockingClient client object {
 
     private grpc:Client grpcClient;
 
-    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+    public function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
         grpc:Error? result = c.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
@@ -63,7 +63,7 @@ public type grpcMutualSslServiceBlockingClient client object {
         }
     }
 
-    remote function hello (string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
+    public remote function hello (string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
 
         var unionResp = check self.grpcClient->blockingExecute("grpcservices.grpcMutualSslService/hello", req, headers);
         grpc:Headers resHeaders = new;
@@ -79,7 +79,7 @@ public type grpcMutualSslServiceClient client object {
 
     private grpc:Client grpcClient;
 
-    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+    public function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
         grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
@@ -91,7 +91,7 @@ public type grpcMutualSslServiceClient client object {
         }
     }
 
-    remote function hello (string req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+    public remote function hello (string req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
 
         return self.grpcClient->nonBlockingExecute("grpcservices.grpcMutualSslService/hello", req, msgListener, headers);
     }
