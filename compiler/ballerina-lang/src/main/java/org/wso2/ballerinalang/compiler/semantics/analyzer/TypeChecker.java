@@ -2800,6 +2800,17 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkErrorConstructorInvocation(BLangInvocation iExpr) {
         BType expectedType = this.expType;
+
+        if (expType.getKind() == TypeKind.UNION) {
+            BType[] errorMembers = ((BUnionType) expectedType).getMemberTypes()
+                    .stream()
+                    .filter(memberType -> types.isAssignable(memberType, symTable.errorType))
+                    .toArray(BType[]::new);
+            if (errorMembers.length > 0) {
+                expectedType = BUnionType.create(null, errorMembers);
+            }
+        }
+
         if (expType.getKind() == TypeKind.UNION && iExpr.symbol.type == symTable.errorType) {
             BUnionType unionType = (BUnionType) expType;
             long count = unionType.getMemberTypes().stream()
