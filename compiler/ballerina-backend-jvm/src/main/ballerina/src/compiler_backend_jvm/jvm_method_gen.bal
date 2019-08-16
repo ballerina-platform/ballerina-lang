@@ -1273,6 +1273,12 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
     string pkgName = getPackageName(pkg.org.value, pkg.name.value);
     ErrorHandlerGenerator errorGen = new(mv, indexMap, pkgName);
 
+    // add main string[] args param first
+    bir:VariableDcl argsVar = { typeValue: "any",
+                                    name: { value: "argsdummy" },
+                                    kind: "ARG" };
+    _ = indexMap.getIndex(argsVar);
+    
     boolean isVoidFunction = userMainFunc is bir:Function && userMainFunc.typeValue?.retType is bir:BTypeNil;
 
     mv.visitTypeInsn(NEW, SCHEDULER);
