@@ -85,7 +85,7 @@ public class RunCommand implements BLauncherCmd {
     private boolean helpFlag;
 
     @CommandLine.Option(names = {"--off-line"}, description = "Builds offline without downloading the dependencies and " +
-                                                              "then executes.")
+                                                              "then executes the Ballerina program.")
     private boolean offline;
 
     @CommandLine.Option(names = "--debug", hidden = true)
@@ -94,7 +94,7 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--config", "-c"}, description = "The path to the Ballerina configuration file.")
     private String configFilePath;
 
-    @CommandLine.Option(names = "--observe", description = "Enables observability with the default configs.")
+    @CommandLine.Option(names = "--observe", description = "Enable observability with the default configurations.")
     private boolean observeFlag;
 
     @CommandLine.Option(names = "-e", description = "Ballerina environment parameters.")

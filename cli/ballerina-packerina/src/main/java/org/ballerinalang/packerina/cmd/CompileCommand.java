@@ -211,9 +211,9 @@ public class CompileCommand implements BLauncherCmd {
         
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         } else {
-            throw LauncherUtils.createLauncherException("This is an invalid Ballerina source path. It should either be a module " +
+            throw LauncherUtils.createLauncherException("Invalid Ballerina source path. Either a module " +
                                                         "name in a Ballerina project or a file with a \'" +
-                                                        BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension.");
+                                                        BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension is expected.");
         }
     
         // normalize paths

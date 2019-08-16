@@ -1,12 +1,12 @@
 NAME
-    Ballerina add - Add a Ballerina module in a project
+    Ballerina add - Adds a Ballerina module to a project.
 
 SYNOPSIS
     ballerina add <module-name> [-t|--template <template-name>]
 
 DESCRIPTION
     Ballerina add command will initialize a new Ballerina module
-    inside the Project. The command should be run inside a Ballerina
+    inside a Ballerina Project. The command should be run from inside a Ballerina
     project.
 
     You can also select different templates for the module.
@@ -22,8 +22,8 @@ OPTIONS
 
 
 EXAMPLES
-    Add a module with a main
+    Add a module with a main:
     $ ballerina add mainmodule
 
-    Add a module with a service
+    Add a module with a service:
     $ ballerina add myservice --template service

@@ -34,7 +34,7 @@ import static org.ballerinalang.packerina.cmd.Constants.INIT_COMMAND;
 /**
  * Init command for creating a ballerina project.
  */
-@CommandLine.Command(name = INIT_COMMAND, description = "Creates an Init Ballerina project.")
+@CommandLine.Command(name = INIT_COMMAND, description = "Initializes Ballerina project.")
 public class InitCommand implements BLauncherCmd {
 
     private Path userDir;
@@ -91,7 +91,7 @@ public class InitCommand implements BLauncherCmd {
             errStream.println("error: Error occurred while initializing project: " + e.getMessage());
             return;
         }
-        errStream.println("Ballerina project initialised. ");
+        errStream.println("Ballerina project initialized. ");
         errStream.println();
         errStream.println("Next:");
         errStream.println("    Use `ballerina create` to create a Ballerina module.");

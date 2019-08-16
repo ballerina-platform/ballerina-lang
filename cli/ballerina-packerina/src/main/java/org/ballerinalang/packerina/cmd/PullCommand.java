@@ -66,7 +66,7 @@ public class PullCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.size() == 0) {
-            throw LauncherUtils.createUsageExceptionWithHelp("The Module is not provided.");
+            throw LauncherUtils.createUsageExceptionWithHelp("Please provide a module.");
         }
 
         if (argList.size() > 1) {

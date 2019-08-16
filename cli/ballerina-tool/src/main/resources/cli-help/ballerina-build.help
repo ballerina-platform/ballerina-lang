@@ -1,5 +1,5 @@
 NAME
-    Ballerina build - Builds Ballerina module(s) and generates executable
+    Ballerina build - Builds a Ballerina module(s) and generates executable
     outputs.
 
 SYNOPSIS
@@ -7,10 +7,10 @@ SYNOPSIS
                     [<bal-file | module-name>]
 
 DESCRIPTION
-    Builds Ballerina module(s)/file and produces an executable jar file(s).
+    Builds a Ballerina module(s)/file and produces an executable .jar file(s).
 
-    Building a Ballerina project or a specific module in a project the
-    executable .jar files will be created in <project-root>/target/bin directory.
+    Building a Ballerina project or a specific module in a project creates the
+    executable .jar files in the <project-root>/target/bin directory.
 
     Building a single Ballerina file will create an executable .jar file in the
     current directory. The name of the executable file will be
@@ -22,29 +22,29 @@ DESCRIPTION
 
 OPTIONS
     -o <output>
-        Writes output to the given file. The provided output
-        filename may or may not contain the ‘.jar’ extension.
+        Writes the output to the given file. The provided output
+        file name may or may not contain the ‘.jar’ extension.
 
     --off-line
-        Builds offline without downloading dependencies.
+        Builds offline without downloading the dependencies.
 
     --skip-tests
         Skips test compilation and execution.
 
     --skip-lock
-        Skip using the lock file to resolve dependencies.
+        Skips using the lock file to resolve dependencies.
 
 EXAMPLES
-    Build hello source program
+    Build the hello source program:
     $ ballerina build hello.bal
     This will generate a hello-executable.jar file.
 
-    Build hello module
+    Build hello module:
     $ ballerina build hello
     This will generate a hello-executable.jar output file and place
-    within <project-root>/target/bin directory.
+    it within the <project-root>/target/bin directory.
 
-    Build all the modules that have entry points in a project in to executables.
+    Build all the modules that have entry points in a project in to executables:
     $ ballerina build
-    This will generate executable jar files and place them within
-    <project-root>/target/bin directory.
+    This will generate executable .jar files and place them within
+    the <project-root>/target/bin directory.

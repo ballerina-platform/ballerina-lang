@@ -173,7 +173,7 @@ public class BuildCommand implements BLauncherCmd {
             //// check if output flag is set
             if (null != this.output) {
                 CommandUtil.printError(this.errStream,
-                        "The '-o' and '--output' flag is only supported for building a single Ballerina file.",
+                        "The '-o' and '--output' flags are only supported when building a single Ballerina file.",
                         "ballerina build <bal-file> -o foo.jar",
                         true);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -218,7 +218,7 @@ public class BuildCommand implements BLauncherCmd {
                 //// check if the given file exists.
                 if (Files.notExists(sourcePath)) {
                     CommandUtil.printError(this.errStream,
-                            "'" + sourcePath + "' This Ballerina file does not exist.",
+                            "The Ballerina file '" + sourcePath + "' does not exist.",
                             null,
                             false);
                     CommandUtil.exitError(this.exitWhenFinish);
@@ -250,7 +250,7 @@ public class BuildCommand implements BLauncherCmd {
             //// output flag cannot be set for projects
             if (null != this.output) {
                 CommandUtil.printError(this.errStream,
-                        "The '-o' and '--output' flag is only supported for building a single Ballerina file.",
+                        "The '-o' and '--output' flags are supported only when building a single Ballerina file.",
                         null,
                         false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -300,8 +300,8 @@ public class BuildCommand implements BLauncherCmd {
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
         } else {
             CommandUtil.printError(this.errStream,
-                    "An invalid Ballerina source path. It should either be a module name in a Ballerina project or a " +
-                    "file with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension.",
+                    "Invalid Ballerina source path. Either a module name in a Ballerina project or a " +
+                    "file with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension is expected.",
                     "ballerina build [<bal-file> | <module-name>]",
                     true);
             CommandUtil.exitError(this.exitWhenFinish);

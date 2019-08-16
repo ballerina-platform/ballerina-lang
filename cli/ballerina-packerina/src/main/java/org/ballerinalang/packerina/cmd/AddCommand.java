@@ -51,7 +51,7 @@ import static org.ballerinalang.packerina.cmd.Constants.ADD_COMMAND;
 /**
  * New command for adding a new module.
  */
-@CommandLine.Command(name = ADD_COMMAND, description = "Adds a new module to a Ballerina project.")
+@CommandLine.Command(name = ADD_COMMAND, description = "Add a new module to a Ballerina project.")
 public class AddCommand implements BLauncherCmd {
 
     private Path userDir;
@@ -171,7 +171,7 @@ public class AddCommand implements BLauncherCmd {
         // Check if the template exists
         if (!getTemplates().contains(template)) {
             CommandUtil.printError(errStream,
-                    "Template is not found. Use `ballerina add --list` to view the available templates.",
+                    "Cannot find this template. Use `ballerina add --list` to view the available templates.",
                     null,
                     false);
             return;

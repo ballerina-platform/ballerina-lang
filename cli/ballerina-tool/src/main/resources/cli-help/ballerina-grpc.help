@@ -1,18 +1,29 @@
 NAME
-    Ballerina grpc - Generate Ballerina gRPC client stub
+    Ballerina grpc - Generates a Ballerina gRPC client/server stub.
 
 SYNOPSIS
-    ballerina grpc --input <proto-file-path> [--output <path>]
+    ballerina grpc --input <proto-file-path> [--output <path>] [--mode <client-or-server>]
         
 DESCRIPTION
-     Generates the Ballerina gRPC client stub for gRPC service for a given gRPC protoc definition.
+     Generates the Ballerina gRPC client stub for a gRPC service (for a given gRPC protocol buffer definition).
 
 OPTIONS
      --input <proto-file-path>
-         Input .proto file.
+         Path of the input .proto file.
 
      --output <path>
-         Generated Ballerina source files location.
+         Location of the generated Ballerina source files. If not specified, output will be written to `temp` directory in current location.
+
+     --mode <client-or-server>
+         Set mode (client or server) to generate sample codes. If not specified, only the stub file is generated.
 
 EXAMPLES
-     $ ballerina grpc --input chat.proto
+     
+     Generate the Ballerina gRPC stub file for the given .proto file.
+     $ ballerina grpc --input chat.proto --output stub
+
+     Generate the Ballerina gRPC stub file and client sample code for the given .proto file.
+     $ ballerina grpc --input chat.proto --output client --mode client 
+
+    Generate the Ballerina gRPC stub file and service sample code for the given .proto file.
+     $ ballerina grpc --input chat.proto --output service --mode service    
