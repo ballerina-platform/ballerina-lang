@@ -608,6 +608,7 @@ public class BTestRunner {
             tReport.addPackageReport(packageName);
 
             // Initialize the test suite.
+            // This will init and start the test module.
             suite.start();
 
             suite.getBeforeSuiteFunctions().forEach(test -> {
