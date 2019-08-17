@@ -55,7 +55,7 @@ public class ReadDir {
 
         if (!inputFile.exists()) {
             return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR, "" +
-                    "File doesn't exist in path " + path);
+                    "File not found: " + path);
         }
 
         if (!inputFile.isDirectory()) {

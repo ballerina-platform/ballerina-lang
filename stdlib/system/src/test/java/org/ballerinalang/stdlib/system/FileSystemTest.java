@@ -167,7 +167,7 @@ public class FileSystemTest {
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
         assertEquals(error.getReason(), SystemConstants.INVALID_OPERATION_ERROR);
-        assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File doesn't exist in path "));
+        assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File not found: "));
     }
 
     @Test(description = "Test for retrieving file info from system")
@@ -188,7 +188,7 @@ public class FileSystemTest {
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
         assertEquals(error.getReason(), SystemConstants.INVALID_OPERATION_ERROR);
-        assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File doesn't exist in path "));
+        assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File not found: "));
     }
 
     @Test(description = "Test for retrieving files inside directory")
@@ -221,7 +221,7 @@ public class FileSystemTest {
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
         assertEquals(error.getReason(), SystemConstants.INVALID_OPERATION_ERROR);
-        assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File doesn't exist in path"));
+        assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File not found: "));
     }
 
     @Test(description = "Test for reading file info from non existence directory")
@@ -359,7 +359,7 @@ public class FileSystemTest {
             BError error = (BError) returns[0];
             assertEquals(error.getReason(), SystemConstants.INVALID_OPERATION_ERROR);
             assertTrue(((BMap) error.getDetails()).get("message").stringValue()
-                    .contains("File doesn't exist in path "));
+                    .contains("File not found: "));
         } finally {
             Files.deleteIfExists(tempDestPath);
         }
