@@ -105,7 +105,7 @@ public class Appointment extends AbstractTask {
      * @param jobData     Map containing the details of the job.
      * @throws SchedulerException if scheduling is failed.
      */
-    private void scheduleAppointment(JobDataMap jobData) throws SchedulerException {
+    private void scheduleAppointment(JobDataMap jobData) throws SchedulerException, SchedulingException {
         String triggerId = this.getId();
         JobDetail job = newJob(TaskJob.class).usingJobData(jobData).withIdentity(triggerId).build();
         CronTrigger trigger = newTrigger()
@@ -121,7 +121,7 @@ public class Appointment extends AbstractTask {
             trigger = trigger.getTriggerBuilder().endAt(endDate).build();
 
         }
-        scheduler.scheduleJob(job, trigger);
+        TaskManager.getInstance().getScheduler().scheduleJob(job, trigger);
         quartzJobs.put(triggerId, job.getKey());
     }
 

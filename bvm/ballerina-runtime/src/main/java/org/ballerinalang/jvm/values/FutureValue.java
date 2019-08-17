@@ -17,13 +17,11 @@
   */
  package org.ballerinalang.jvm.values;
 
- import org.ballerinalang.jvm.commons.TypeValuePair;
  import org.ballerinalang.jvm.scheduling.Strand;
  import org.ballerinalang.jvm.types.BType;
  import org.ballerinalang.jvm.types.BTypes;
  import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 
- import java.util.List;
  import java.util.Map;
  import java.util.StringJoiner;
 
@@ -65,11 +63,6 @@
      @Override
      public BType getType() {
          return BTypes.typeFuture;
-     }
-
-     @Override
-     public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
-
      }
 
      @Override

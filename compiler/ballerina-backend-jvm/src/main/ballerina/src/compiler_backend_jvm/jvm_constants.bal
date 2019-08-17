@@ -323,7 +323,7 @@ const string ERROR_REASON_CLASS_TOO_LARGE = "ClassTooLarge";
 // exception classes
 const string BLANG_RUNTIME_EXCEPTION = "org/ballerinalang/jvm/util/exceptions/BLangRuntimeException";
 const string THROWABLE = "java/lang/Throwable";
-const string HANDLE_THROWABLE_METHOD = "handleRuntimeThrowable";
+const string HANDLE_THROWABLE_METHOD = "handleRuntimeErrors";
 
 // code generation related constants.
 const string MODULE_INIT_CLASS_NAME = "___init";
@@ -345,6 +345,7 @@ const string SCHEDULER_START_METHOD =  "start";
 
 // observability related constants
 const string OBSERVER_CONTEXT = "org/ballerinalang/jvm/observability/ObserverContext";
+const string OBSERVE_UTILS = "org/ballerinalang/jvm/observability/ObserveUtils";
 
 // visibility flags
 const int BAL_PUBLIC = 1;

@@ -8,7 +8,7 @@ public type HelloWorldBlockingClient client object {
 
     private grpc:Client grpcClient;
 
-    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+    public function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // Initialize client endpoint.
         grpc:Client c = new(url, config);
         grpc:Error? result = c.initStub(self, "blocking", ROOT_DESCRIPTOR,
@@ -22,7 +22,7 @@ public type HelloWorldBlockingClient client object {
     }
 
 
-    remote function hello(string req, grpc:Headers? headers = ())
+    public remote function hello(string req, grpc:Headers? headers = ())
                                         returns ([string, grpc:Headers]|grpc:Error) {
 
         var payload = check self.grpcClient->blockingExecute(
@@ -42,7 +42,7 @@ public type HelloWorldClient client object {
 
     private grpc:Client grpcClient;
 
-    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+    public function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
         grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR,
@@ -56,7 +56,7 @@ public type HelloWorldClient client object {
     }
 
 
-    remote function hello(string req, service msgListener,
+    public remote function hello(string req, service msgListener,
                                     grpc:Headers? headers = ()) returns (grpc:Error?) {
         return self.grpcClient->nonBlockingExecute("service.HelloWorld/hello",
                                             req, msgListener, headers);
