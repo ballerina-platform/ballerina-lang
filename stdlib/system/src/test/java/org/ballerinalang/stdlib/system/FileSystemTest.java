@@ -198,6 +198,20 @@ public class FileSystemTest {
         assertTrue(returns[0].getType() instanceof BObjectType);
     }
 
+    @Test(description = "Test for retrieving files inside directory specifying the depth level - 0")
+    public void testReadDirWithMaxDepth() {
+        BValue[] args = {new BString(srcDirPath.toString()), new BInteger(0)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testReadDirWithMaxDepth", args);
+        assertTrue(returns[0].getType() instanceof BObjectType);
+    }
+
+    @Test(description = "Test for retrieving files inside directory specifying the depth level - 1")
+    public void testReadDirWithMaxDepth1() {
+        BValue[] args = {new BString(srcDirPath.toString()), new BInteger(1)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testReadDirWithMaxDepth", args);
+        assertTrue(returns[0].getType() instanceof BObjectType);
+    }
+
     @Test(description = "Test for reading file info from non existence directory")
     public void testReadNonExistDirectory() throws IOException {
         Path filepath = tempDirPath.resolve("dest-dir");
