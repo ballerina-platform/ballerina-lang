@@ -37,7 +37,7 @@ public class LdapConstants {
     public static final String CONNECTION_NAME = "connectionName";
     public static final String CONNECTION_PASSWORD = "connectionPassword";
     public static final String CONNECTION_POOLING_ENABLED = "connectionPoolingEnabled";
-    public static final String CONNECTION_TIME_OUT = "ldapConnectionTimeout";
+    public static final String CONNECTION_TIME_OUT_IN_MILLIS = "connectionTimeoutInMillis";
     public static final String READ_TIME_OUT_IN_MILLIS = "readTimeoutInMillis";
     public static final String RETRY_ATTEMPTS = "retryAttempts";
 

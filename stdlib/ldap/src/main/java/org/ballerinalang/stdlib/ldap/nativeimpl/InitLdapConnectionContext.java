@@ -91,7 +91,7 @@ public class InitLdapConnectionContext {
         commonLdapConfiguration.setConnectionPoolingEnabled(
                 authProviderConfig.getBooleanValue(LdapConstants.CONNECTION_POOLING_ENABLED));
         commonLdapConfiguration.setLdapConnectionTimeout(
-                authProviderConfig.getIntValue(LdapConstants.CONNECTION_TIME_OUT).intValue());
+                authProviderConfig.getIntValue(LdapConstants.CONNECTION_TIME_OUT_IN_MILLIS).intValue());
         commonLdapConfiguration.setReadTimeoutInMillis(
                 authProviderConfig.getIntValue(LdapConstants.READ_TIME_OUT_IN_MILLIS).intValue());
         commonLdapConfiguration.setRetryAttempts(
