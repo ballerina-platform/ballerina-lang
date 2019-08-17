@@ -57,6 +57,9 @@ public class SystemConstants {
     static final String ERROR_DETAILS = "Detail";
     static final String ERROR_MESSAGE = "message";
 
+    // System constant fields
+    public static final int DEFAULT_MAX_DEPTH = -1;
+
     private SystemConstants() {
     }
 }
