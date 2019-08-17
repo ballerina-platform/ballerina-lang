@@ -18,10 +18,12 @@
 package org.ballerinalang.packerina;
 
 import org.ballerinalang.spi.EmbeddedExecutor;
+import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.toml.model.Settings;
+import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
@@ -70,110 +72,97 @@ public class PushUtils {
      * @return status of the module pushed
      */
     public static boolean pushPackages(String moduleName, Path prjDirPath) {
-        // Check if the Ballerina.toml exists
-        if (Files.notExists(prjDirPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME))) {
-            throw createLauncherException("Couldn't locate Ballerina.toml in the project directory. Run " +
-                                                     "'ballerina new <project-name>' to create a project with" +
-                                                     " a Ballerina.toml");
-        }
-        Manifest manifest = TomlParserUtils.getManifest(prjDirPath);
-        if (manifest.getProject().getOrgName().isEmpty()) {
-            throw createLauncherException("An org-name is required when pushing. This is not specified in " +
-                                                     "Ballerina.toml inside the project");
-        }
-
-        if (manifest.getProject().getVersion().isEmpty()) {
-            throw createLauncherException("A module version is required when pushing. This is not specified " +
-                                                     "in Ballerina.toml inside the project");
-        }
-
-        String orgName = manifest.getProject().getOrgName();
-        // Validate the org-name
-        if (!RepoUtils.validateOrg(orgName)) {
-            throw createLauncherException("invalid organization name provided \'" + orgName + "\'. Only " +
-                                          "lowercase alphanumerics and underscores are allowed in an organization " +
-                                          "name and the maximum length is 256 characters");
-        }
-        if (RepoUtils.isReservedOrgName(orgName)) {
-            throw createLauncherException("invalid organization name provided \'" + orgName + "\'. 'ballerina' and " +
-                    "'ballerinax' are reserved organization names that are used by Ballerina");
-        }
-
-        // Validate the module-name
-        if (!RepoUtils.validatePkg(moduleName)) {
-            throw createLauncherException("invalid module name provided \'" + moduleName + "\'. Only " +
-                                          "alphanumerics, underscores and periods are allowed in a module name and " +
-                                          "the maximum length is 256 characters");
-        }
+        try {
+            // Get balo output path
+            Path baloOutputDir = Paths.get(prjDirPath.toString(), ProjectDirConstants.TARGET_DIR_NAME,
+                    ProjectDirConstants.TARGET_BALO_DIRECTORY);
         
-        if (!RepoUtils.validatePkg(moduleName)) {
-            throw createLauncherException("invalid module name provided \'" + moduleName + "\'. Only " +
-                                          "alphanumerics, underscores and periods are allowed in a module name and " +
-                                          "the maximum length is 256 characters");
-        }
-    
-        // check if there are any dependencies with balo path
-        List<String> dependenciesWithBaloPath =
-                manifest.getDependencies().stream()
-                        .filter(dep -> dep.getMetadata().getPath() != null)
-                        .map(Dependency::getModuleID)
-                        .collect(Collectors.toList());
-    
-        if (dependenciesWithBaloPath.size() > 0) {
-            throw createLauncherException("dependencies cannot be given by path when pushing module(s) to remote. " +
-                                          "check dependencies in Ballerina.toml: [" +
-                                          String.join(", ", dependenciesWithBaloPath) + "]");
-        }
-        
-        String version = manifest.getProject().getVersion();
-
-        // Get balo output path
-        Path baloOutputDir = Paths.get(prjDirPath.toString(), ProjectDirConstants.TARGET_DIR_NAME,
-                                            ProjectDirConstants.TARGET_BALO_DIRECTORY);
-
-        if (Files.notExists(baloOutputDir)) {
-            throw createLauncherException("cannot find balo file for the module: " + moduleName + ". Run " +
-                                          "'ballerina build -c <module_name>' to compile and generate the balo.");
-        } else {
-            try {
-                Optional<Path> moduleBaloFile = Files.list(baloOutputDir)
-                        .filter(baloFile -> null != baloFile.getFileName() &&
-                                            baloFile.getFileName().toString().startsWith(moduleName + "-"))
-                        .findFirst();
-                
-                if (moduleBaloFile.isPresent()) {
-                    // Get access token
-                    String accessToken = checkAccessToken();
-                    Proxy proxy = settings.getProxy();
-                    String proxyPortAsString = proxy.getPort() == 0 ? "" : Integer.toString(proxy.getPort());
-                    
-                    // Push module to central
-                    String urlWithModulePath = URI.create(RepoUtils.getRemoteRepoURL()).resolve("/modules/").toString();
-                    String outputLogMessage = orgName + "/" + moduleName + ":" + version + " [project repo -> central]";
-        
-                    Optional<RuntimeException> execute = executor.executeMainFunction("module_push", urlWithModulePath,
-                            proxy.getHost(), proxyPortAsString, proxy.getUserName(), proxy.getPassword(), accessToken,
-                            orgName, moduleBaloFile.get().toAbsolutePath().toString(),
-                            outputLogMessage);
-                    if (execute.isPresent()) {
-                        String errorMessage = execute.get().getMessage();
-                        if (!errorMessage.trim().equals("")) {
-                            SYS_ERR.println(errorMessage);
-                            return false;
-                        }
-                    }
-                } else {
-                    throw createLauncherException("cannot find balo file for the module: " + moduleName + ". Run " +
-                                                  "'ballerina build -c <module_name>' to compile and generate the " +
-                                                  "balo.");
-                }
-            } catch (IOException e) {
-                throw createLauncherException("File error occurred in finding balo file for the module '" + moduleName +
-                                              "'");
+            if (Files.notExists(baloOutputDir)) {
+                throw createLauncherException("cannot find balo file for the module: " + moduleName + ". Run " +
+                                              "'ballerina build -c <module_name>' to compile and generate the balo.");
             }
-    
-            return true;
+        
+            Optional<Path> moduleBaloFile = Files.list(baloOutputDir)
+                    .filter(baloFile -> null != baloFile.getFileName() &&
+                                        baloFile.getFileName().toString().startsWith(moduleName + "-"))
+                    .findFirst();
+        
+            if (!moduleBaloFile.isPresent()) {
+                throw createLauncherException("cannot find balo file for the module: " + moduleName + ". Run " +
+                                              "'ballerina build -c <module_name>' to compile and generate the balo.");
+            }
+        
+            // get the manifest from balo file
+            Path baloFilePath = moduleBaloFile.get();
+            String manifestFromBalo = RepoUtils.getManifestFromBalo(baloFilePath.toAbsolutePath().toString());
+            Manifest manifest = ManifestProcessor.parseTomlContentFromString(manifestFromBalo);
+            String orgName = manifest.getProject().getOrgName();
+            
+            // Validate the org-name
+            if (!RepoUtils.validateOrg(manifest.getProject().getOrgName())) {
+                throw createLauncherException("invalid organization name provided \'" + manifest.getProject().getOrgName() +
+                                              "\'. Only lowercase alphanumerics and underscores are allowed in an " +
+                                              "organization name and the maximum length is 256 characters");
+            }
+        
+            // Validate the module-name
+            if (!RepoUtils.validatePkg(moduleName)) {
+                throw createLauncherException("invalid module name provided \'" + moduleName + "\'. Only " +
+                                              "alphanumerics, underscores and periods are allowed in a module name and " +
+                                              "the maximum length is 256 characters");
+            }
+        
+            if (!RepoUtils.validatePkg(moduleName)) {
+                throw createLauncherException("invalid module name provided \'" + moduleName + "\'. Only " +
+                                              "alphanumerics, underscores and periods are allowed in a module name and " +
+                                              "the maximum length is 256 characters");
+            }
+        
+            // check if there are any dependencies with balo path
+            List<String> dependenciesWithBaloPath =
+                    manifest.getDependencies().stream()
+                            .filter(dep -> dep.getMetadata().getPath() != null)
+                            .map(Dependency::getModuleID)
+                            .collect(Collectors.toList());
+        
+            if (dependenciesWithBaloPath.size() > 0) {
+                throw createLauncherException("dependencies cannot be given by path when pushing module(s) to remote. " +
+                                              "check dependencies in Ballerina.toml: [" +
+                                              String.join(", ", dependenciesWithBaloPath) + "]");
+            }
+        
+            String version = manifest.getProject().getVersion();
+        
+            // Get access token
+            String accessToken = checkAccessToken();
+            Proxy proxy = settings.getProxy();
+            String proxyPortAsString = proxy.getPort() == 0 ? "" : Integer.toString(proxy.getPort());
+        
+            // Push module to central
+            String urlWithModulePath = URI.create(RepoUtils.getRemoteRepoURL()).resolve("/modules/").toString();
+            String outputLogMessage = orgName + "/" + moduleName + ":" + version + " [project repo -> central]";
+        
+            Optional<RuntimeException> execute = executor.executeMainFunction("module_push", urlWithModulePath,
+                    proxy.getHost(), proxyPortAsString, proxy.getUserName(), proxy.getPassword(), accessToken,
+                    orgName, moduleBaloFile.get().toAbsolutePath().toString(),
+                    outputLogMessage);
+            if (execute.isPresent()) {
+                String errorMessage = execute.get().getMessage();
+                if (null != errorMessage && !errorMessage.trim().equals("")) {
+                    SYS_ERR.println(errorMessage);
+                    return false;
+                }
+            } else {
+                return true;
+            }
+        } catch (IOException e) {
+            throw createLauncherException("file error occurred in finding balo file for the module '" + moduleName +
+                                          "'");
+        } catch (TomlException e) {
+            throw createLauncherException(e.getMessage());
         }
+    
+        return false;
     }
 
     /**
@@ -246,53 +235,6 @@ public class PushUtils {
     }
 
     /**
-     * Install the module artifact to the home repository.
-     *
-     * @param packageID          packageID of the module
-     * @param pkgPathFromPrjtDir module path from the project directory
-     */
-//    private static void installToHomeRepo(PackageID packageID, Path pkgPathFromPrjtDir) {
-//        Path targetDirectoryPath = Paths.get(BALLERINA_HOME_PATH.toString(),
-//                                             ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME,
-//                                             packageID.orgName.getValue(),
-//                                             packageID.name.getValue(),
-//                                             packageID.version.getValue(),
-//                                             packageID.name.getValue() + ".zip");
-//        if (Files.exists(targetDirectoryPath)) {
-//            throw createLauncherException("Ballerina module exists in the home repository");
-//        } else {
-//            try {
-//                Files.createDirectories(targetDirectoryPath);
-//                Files.copy(pkgPathFromPrjtDir, targetDirectoryPath, StandardCopyOption.REPLACE_EXISTING);
-//                SYS_OUT.println(packageID.orgName.getValue() + "/" + packageID.name.getValue() + ":" +
-//                                          packageID.version.getValue() + " [project repo -> home repo]");
-//            } catch (IOException e) {
-//                throw createLauncherException("Error occurred when creating directories in the home repository");
-//            }
-//        }
-//    }
-
-//    /**
-//     * Get URI of the module from the remote repo.
-//     *
-//     * @param packageID packageID object
-//     * @return full URI path of the module relative to the remote repo
-//     */
-//    private static String resolvePkgPathInRemoteRepo(PackageID packageID) {
-//        Repo<URI> remoteRepo = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()));
-//        Patten patten = remoteRepo.calculate(packageID);
-//        if (patten == Patten.NULL) {
-//            throw createLauncherException("Couldn't find module " + packageID.toString());
-//        }
-//        Converter<URI> converter = remoteRepo.getConverterInstance();
-//        List<URI> uris = patten.convert(converter, packageID).collect(Collectors.toList());
-//        if (uris.isEmpty()) {
-//            throw createLauncherException("Couldn't find module " + packageID.toString());
-//        }
-//        return uris.get(0).toString();
-//    }
-
-    /**
      * Read the access token generated for the CLI.
      *
      * @return access token for generated for the CLI
@@ -310,64 +252,6 @@ public class PushUtils {
         }
         return "";
     }
-
-    /**
-     * Reads the content of Module.md inside the archived balo.
-     *
-     * @param archivedFilePath balo file path of the module
-     * @return content of Module.md as a string
-     */
-//    private static String getModuleMDFileContent(String archivedFilePath, String packageName) {
-//        ZipFile zipFile = null;
-//        try {
-//            zipFile = new ZipFile(archivedFilePath);
-//            Enumeration<? extends ZipEntry> entries = zipFile.entries();
-//
-//            while (entries.hasMoreElements()) {
-//                ZipEntry entry = entries.nextElement();
-//                if (entry.getName().equalsIgnoreCase(packageName + "/" + "Module.md")) {
-//                    InputStream stream = zipFile.getInputStream(entry);
-//                    Scanner scanner = new Scanner(stream, "UTF-8").useDelimiter("\\A");
-//                    return scanner.hasNext() ? scanner.next() : "";
-//                }
-//            }
-//        } catch (IOException ignore) {
-//        } finally {
-//            try {
-//                if (zipFile != null) {
-//                    zipFile.close();
-//                }
-//            } catch (IOException ignore) {
-//            }
-//        }
-//        return null;
-//    }
-
-    /**
-     * Read summary of the module from Module.md file.
-     *
-     * @param mdFileContent full content of Module.md
-     * @return summary of the module
-     */
-//    private static String readSummary(String mdFileContent) {
-//        if (mdFileContent.isEmpty()) {
-//            throw createLauncherException("Module.md in the artifact is empty");
-//        }
-//
-//        Optional<String> result = Arrays.stream(mdFileContent.split("\n"))
-//                                        .filter(line -> !line.isEmpty() && !line.startsWith("#"))
-//                                        .findFirst();
-//
-//        if (!result.isPresent()) {
-//            throw createLauncherException("Cannot find module summary");
-//        }
-//
-//        String firstLine = result.get();
-//        if (firstLine.length() > 50) {
-//            throw createLauncherException("Summary of the module exceeds 50 characters");
-//        }
-//        return firstLine;
-//    }
 
     /**
      * Push all modules to central.
