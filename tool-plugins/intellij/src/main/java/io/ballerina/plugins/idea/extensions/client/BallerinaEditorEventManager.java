@@ -209,10 +209,9 @@ public class BallerinaEditorEventManager extends EditorEventManager {
                     }
                 }
             }
-        } catch (TimeoutException | InterruptedException e) {
-            LOG.warn(e);
-            wrapper.notifyFailure(Timeouts.COMPLETION);
-        } catch (JsonRpcException | ExecutionException e) {
+        } catch (InterruptedException ignored) {
+            // can be ignored
+        } catch (TimeoutException | JsonRpcException | ExecutionException e) {
             LOG.warn(e);
             wrapper.crashed(e);
         } finally {
@@ -298,7 +297,7 @@ public class BallerinaEditorEventManager extends EditorEventManager {
                 Document doc = editor.getDocument();
                 int lineStartOff = doc.getLineStartOffset(position.getLine());
                 int lineEndOff = doc.getLineEndOffset(position.getLine());
-                String line = doc.getText(new TextRange(lineStartOff, lineEndOff));
+                String line = doc.getText(new TextRange(lineStartOff, lineEndOff)).replace("\t", "    ");
                 String trimmed = line.trim();
 
                 int startOffsetInLine;
