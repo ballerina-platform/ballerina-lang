@@ -54,7 +54,7 @@ public type CachedJwt record {|
     int expiryTime;
 |};
 
-# Validite given JWT string.
+# Validate the given JWT string.
 #
 # + jwtToken - JWT token that need to validate
 # + config - JWT validator config record

@@ -104,7 +104,7 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JwtKeyStoreConfig
 
 # Build the header string from `JwtHeader` record.
 #
-# + header - JWT header record to be build as string
+# + header - JWT header record to be built as string
 # + return - The header string or an `Error` if string build fails
 public function buildHeaderString(JwtHeader header) returns string|Error {
     map<json> headerJson = {};
@@ -144,7 +144,7 @@ public function buildHeaderString(JwtHeader header) returns string|Error {
 
 # Build the payload string from `JwtPayload` record.
 #
-# + payload - JWT payload record to be build as string
+# + payload - JWT payload record to be built as string
 # + return - The payload string or an `Error` if string build fails
 public function buildPayloadString(JwtPayload payload) returns string|Error {
     map<json> payloadJson = {};
