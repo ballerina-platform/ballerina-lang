@@ -45,7 +45,7 @@ public type HelloWorldBlockingClient client object {
 
     private grpc:Client grpcClient;
 
-    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+    public function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
         grpc:Error? result = c.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
@@ -57,7 +57,7 @@ public type HelloWorldBlockingClient client object {
         }
     }
 
-    remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
+    public remote function hello(string req, grpc:Headers? headers = ()) returns ([string, grpc:Headers]|grpc:Error) {
         var payload = check self.grpcClient->blockingExecute("HelloWorld13/hello", req, headers);
         grpc:Headers resHeaders = new;
         any result = ();
@@ -73,7 +73,7 @@ public type HelloWorldClient client object {
 
     private grpc:Client grpcClient;
 
-    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+    public function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
         grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
@@ -85,7 +85,7 @@ public type HelloWorldClient client object {
         }
     }
 
-    remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+    public remote function hello(string req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
         return self.grpcClient->nonBlockingExecute("HelloWorld13/hello", req, msgListener, headers);
     }
 
