@@ -40,13 +40,12 @@ public class TesterinaFunction {
 
     private String name;
     public Scheduler scheduler;
-    public boolean immortal = false;
 
     public BLangFunction getbFunction() {
         return bFunction;
     }
 
-    private BLangFunction bFunction;
+    public BLangFunction bFunction;
     private Class<?> programFile;
     private boolean runTest = true;
 
@@ -63,7 +62,7 @@ public class TesterinaFunction {
         if (scheduler == null) {
             throw new AssertionError("Scheduler is not initialized in " + bFunction.name);
         }
-        runOnSchedule(programFile, bFunction.name, scheduler, immortal);
+        runOnSchedule(programFile, bFunction.name, scheduler);
         return new BValue[0];
     }
 
@@ -97,7 +96,7 @@ public class TesterinaFunction {
     }
 
 
-    private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler, boolean immortal) {
+    private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler) {
         String funcName = cleanupFunctionName(name);
         try {
             final Method method = initClazz.getDeclaredMethod(funcName, Strand.class);
@@ -107,24 +106,13 @@ public class TesterinaFunction {
                     return method.invoke(null, objects[0]);
                 } catch (InvocationTargetException e) {
                     //throw new BallerinaException(e);
-
                     return e.getTargetException();
                 } catch (IllegalAccessException e) {
                     throw new BallerinaException("Error while invoking function '" + funcName + "'", e);
                 }
             };
             final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null);
-            scheduler.immortal = true;
-            Thread imortalThread = new Thread(() -> {
-                scheduler.start();
-            }, "module-starts");
-            imortalThread.setDaemon(true);
-            imortalThread.start();
-            // wait till we get a result.
-            while (!out.isDone) {
-                Thread.sleep(50);
-                imortalThread.interrupt();
-            }
+            scheduler.start();
             final Throwable t = out.panic;
             final Object result = out.result;
             if (result instanceof ErrorValue) {
@@ -133,7 +121,7 @@ public class TesterinaFunction {
             if (t != null) {
                 throw new BallerinaException("Error while invoking function '" + funcName + "'", t.getMessage());
             }
-        } catch (NoSuchMethodException | InterruptedException e) {
+        } catch (NoSuchMethodException e) {
             throw new BallerinaException("Error while invoking function '" + funcName + "'", e);
         }
     }
