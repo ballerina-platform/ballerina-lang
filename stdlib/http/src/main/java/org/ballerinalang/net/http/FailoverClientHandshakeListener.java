@@ -29,7 +29,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
@@ -50,7 +49,6 @@ public class FailoverClientHandshakeListener extends WebSocketClientHandshakeLis
     private final ObjectValue webSocketClient;
     private CountDownLatch countDownLatch;
     private static final Logger logger = LoggerFactory.getLogger(FailoverClientHandshakeListener.class);
-    private static final PrintStream console = System.out;
 
     FailoverClientHandshakeListener(ObjectValue webSocketClient, WebSocketService wsService,
                                     WebSocketClientConnectorListener clientConnectorListener, boolean readyOnConnect,
@@ -114,7 +112,6 @@ public class FailoverClientHandshakeListener extends WebSocketClientHandshakeLis
         webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
         countDownLatch.countDown();
         if (throwable instanceof IOException || throwable instanceof BlockingOperationException) {
-            console.println("HAndonError" + throwable.getMessage());
             doAction(connectionInfo, throwable, null);
         } else {
             logger.info("A connection has some issue that needs to fix.");
