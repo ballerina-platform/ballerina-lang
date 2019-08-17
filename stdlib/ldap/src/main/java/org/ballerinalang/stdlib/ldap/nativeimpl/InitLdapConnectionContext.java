@@ -115,8 +115,8 @@ public class InitLdapConnectionContext {
             ldapConnectionRecord.addNativeData(LdapConstants.ENDPOINT_INSTANCE_ID, instanceId);
             return ldapConnectionRecord;
         } catch (KeyStoreException | KeyManagementException | NoSuchAlgorithmException
-                | CertificateException | NamingException | IOException e) {
-            return LdapUtils.createError(e.getMessage());
+                | CertificateException | NamingException | IOException | IllegalArgumentException e) {
+            return LdapUtils.createError(e.getCause().getMessage());
         } finally {
             if (sslConfig != null) {
                 LdapUtils.removeServiceName();
