@@ -26,7 +26,7 @@ import java.nio.file.Paths;
  * @since 0.964
  */
 public class DependencyMetadata {
-    private String version = "*";
+    private String version;
     private String path;
 
     /**
