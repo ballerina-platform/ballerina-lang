@@ -1081,9 +1081,9 @@ public class ArrayValue implements RefValue, CollectionValue {
     }
 
     private void checkFixedLength(long length) {
-        if (this.maxArraySize != this.SYSTEM_ARRAY_MAX && length != this.maxArraySize) {
+        if (((BArrayType) this.arrayType).getState() == ArrayState.CLOSED_SEALED) {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
-                    RuntimeErrors.ILLEGAL_ARRAY_SIZE);
+                    RuntimeErrors.ILLEGAL_ARRAY_SIZE, length);
         }
     }
 
