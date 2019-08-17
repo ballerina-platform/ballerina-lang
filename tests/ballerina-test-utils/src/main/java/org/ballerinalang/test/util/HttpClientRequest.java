@@ -231,7 +231,7 @@ public class HttpClientRequest {
         conn.setReadTimeout(readTimeout);
         conn.setConnectTimeout(15000);
         conn.setDoInput(true);
-        conn.setUseCaches(false);
+        conn.setUseCaches(true);
         conn.setAllowUserInteraction(false);
         return conn;
     }
