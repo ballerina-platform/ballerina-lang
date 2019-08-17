@@ -100,7 +100,7 @@ public type InboundLdapAuthProvider object {
 # + ldapConnectionTimeout - Timeout in making the initial LDAP connection
 # + readTimeoutInMillis - The value of this property is the read timeout in milliseconds for LDAP operations
 # + retryAttempts - Retry the authentication request if a timeout happened
-# + secureClientSocket - The SSL configurations for the ldap client socket. This needs to be configured in order to
+# + secureSocket - The SSL configurations for the ldap client socket. This needs to be configured in order to
 #                  communicate through ldaps.
 public type LdapConnectionConfig record {|
     string domainName;
@@ -123,16 +123,16 @@ public type LdapConnectionConfig record {|
     int ldapConnectionTimeout = 5000;
     int readTimeoutInMillis = 60000;
     int retryAttempts = 0;
-    SecureClientSocket? secureClientSocket = ();
+    SecureSocket secureSocket?;
 |};
 
 # Configures the SSL/TLS options to be used for LDAP communication.
 #
 # + trustStore - Configures the trust store to be used
 # + trustedCertFile - A file containing a list of certificates or a single certificate that the client trusts
-public type SecureClientSocket record {|
-    crypto:TrustStore? trustStore = ();
-    string trustedCertFile = "";
+public type SecureSocket record {|
+    crypto:TrustStore trustStore?;
+    string trustedCertFile?;
 |};
 
 public type LdapConnection record {|
