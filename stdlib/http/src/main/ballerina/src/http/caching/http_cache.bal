@@ -63,23 +63,15 @@ public type HttpCache object {
         }
     }
 
-    private function isNonCacheableResponse(RequestCacheControl? reqCacheControl,
-                                       ResponseCacheControl? respCacheControl) returns boolean {
-        if (respCacheControl is ResponseCacheControl) {
-            if (respCacheControl.noStore || (self.isShared && respCacheControl.isPrivate)) {
+    // TODO: Need to consider https://tools.ietf.org/html/rfc7234#section-3.2 as well here
+    private function isNonCacheableResponse(RequestCacheControl? reqCC, ResponseCacheControl? resCC) returns boolean {
+        if (resCC is ResponseCacheControl) {
+            if (resCC.noStore || (self.isShared && resCC.isPrivate)) {
                 return true;
             }
         }
 
-        if (reqCacheControl is RequestCacheControl) {
-            if (reqCacheControl.noStore) {
-                return true;
-            }
-        }
-
-        // TODO: Need to consider https://tools.ietf.org/html/rfc7234#section-3.2 as well here
-
-        return false;
+        return (reqCC is RequestCacheControl) && reqCC.noStore;
     }
 
     // Based on https://tools.ietf.org/html/rfc7234#page-6
@@ -94,11 +86,7 @@ public type HttpCache object {
             }
         }
 
-        if (allowedByCacheControl || inboundResp.hasHeader(EXPIRES) || isCacheableStatusCode(inboundResp.statusCode)) {
-            return true;
-        }
-
-        return false;
+        return allowedByCacheControl || inboundResp.hasHeader(EXPIRES) || isCacheableStatusCode(inboundResp.statusCode);
     }
 
     function hasKey(string key) returns boolean {
