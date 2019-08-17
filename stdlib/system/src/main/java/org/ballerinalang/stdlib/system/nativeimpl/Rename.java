@@ -48,7 +48,7 @@ public class Rename {
 
         if (Files.notExists(oldFilePath)) {
             return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR,
-                    "File doesn't exist in path " + oldFilePath.toAbsolutePath());
+                    "File not found: " + oldFilePath.toAbsolutePath());
         }
 
         try {
