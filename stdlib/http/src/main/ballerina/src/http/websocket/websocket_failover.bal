@@ -31,12 +31,12 @@ public type WebSocketFailoverClient client object {
     private map<any> attributes = {};
 
     private WebSocketConnector conn = new;
-    private WebSocketFailoverClientEndpointConfig config = {};
+    private WebSocketFailoverClientEndpointConfiguration config = {};
 
     # Failover caller actions which provides failover capabilities to an webSocket client endpoint.
     #
     # + config - The configurations of the client endpoint associated with this `failover` instance
-    public function __init(public WebSocketFailoverClientEndpointConfig? config = ()) {
+    public function __init(public WebSocketFailoverClientEndpointConfiguration? config = ()) {
         self.config = config ?: {};
         self.init();
     }
@@ -177,16 +177,18 @@ public type WebSocketFailoverClient client object {
 #                  If this is not set or is negative  or zero the default frame size of 65536 will be used.
 # + targetUrls - The set of urls which are used to connect the server.
 # + failoverInterval - The maximum number of milliseconds to delay a failover attempt.
+# + webSocketCompressionEnabled - Enable support for compression in WebSocket
 # + retryConfig - Configurations related to retry
-public type WebSocketFailoverClientEndpointConfig record {|
+public type WebSocketFailoverClientEndpointConfiguration record {|
     service? callbackService = ();
     string[] subProtocols = [];
     map<string> customHeaders = {};
     int idleTimeoutInSeconds = -1;
     boolean readyOnConnect = true;
-    SecureSocket? secureSocket = ();
+    ClientSecureSocket? secureSocket = ();
     int maxFrameSize = 0;
     string[] targetUrls = [];
     int failoverInterval = 1000;
+    boolean webSocketCompressionEnabled = true;
     WebSocketRetryConfig retryConfig?;
 |};

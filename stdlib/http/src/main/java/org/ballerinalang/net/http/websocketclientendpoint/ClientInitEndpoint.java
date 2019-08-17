@@ -18,8 +18,6 @@
 
 package org.ballerinalang.net.http.websocketclientendpoint;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -52,14 +50,9 @@ import static org.ballerinalang.net.http.WebSocketUtil.populateRetryConnectorCon
                 type = TypeKind.OBJECT,
                 structType = WebSocketConstants.WEBSOCKET_CLIENT,
                 structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
-        ),
-        isPublic = true
+        )
 )
-public class ClientInitEndpoint extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class ClientInitEndpoint {
 
     public static void initEndpoint(Strand strand, ObjectValue webSocketClient) {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)

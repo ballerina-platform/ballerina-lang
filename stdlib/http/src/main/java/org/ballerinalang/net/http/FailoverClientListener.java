@@ -19,6 +19,8 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
@@ -36,6 +38,7 @@ import static org.ballerinalang.net.http.WebSocketUtil.setCloseMessage;
 public class FailoverClientListener extends WebSocketClientConnectorListener {
 
     private WebSocketOpenConnectionInfo connectionInfo;
+    private static final Logger logger = LoggerFactory.getLogger(FailoverClientListener.class);
     private static final PrintStream console = System.out;
 
     public void setConnectionInfo(WebSocketOpenConnectionInfo connectionInfo) {
@@ -47,10 +50,11 @@ public class FailoverClientListener extends WebSocketClientConnectorListener {
         ObjectValue webSocketClient = connectionInfo.getWebSocketEndpoint();
         int statusCode = webSocketCloseMessage.getCloseCode();
         if (statusCode == STATUS_CODE_ABNORMAL_CLOSURE) {
+            console.println("Onmessage" + statusCode);
             doAction(connectionInfo, null, webSocketCloseMessage);
         } else {
             if (hasRetryConfig(webSocketClient)) {
-                console.println("Couldn't connect to the server because the connected server " +
+                logger.info("Couldn't connect to the server because the connected server " +
                         "has sent the close request to the client.");
             }
             setCloseMessage(connectionInfo, webSocketCloseMessage);
@@ -59,10 +63,11 @@ public class FailoverClientListener extends WebSocketClientConnectorListener {
 
     @Override
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
-        if (throwable instanceof IOException || throwable.getMessage().contains("Unexpected error")) {
+        if (throwable instanceof IOException) {
+            console.println("onError" + throwable.getMessage());
             doAction(connectionInfo, throwable, null);
         } else {
-            console.println("Unable do the retry because the connection has some issue that needs to fix.");
+            logger.info("Unable do the retry because the connection has some issue that needs to fix.");
             WebSocketDispatcher.dispatchError(connectionInfo, throwable);
         }
     }

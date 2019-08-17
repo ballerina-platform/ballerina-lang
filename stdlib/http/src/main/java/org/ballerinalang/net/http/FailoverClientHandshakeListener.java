@@ -18,10 +18,13 @@
 
 package org.ballerinalang.net.http;
 
+import io.netty.util.concurrent.BlockingOperationException;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.websocketclientendpoint.FailoverContext;
 import org.ballerinalang.net.http.websocketclientendpoint.RetryContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
@@ -34,11 +37,7 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.WebSocketConstants.CONNECTED_TO;
 import static org.ballerinalang.net.http.WebSocketConstants.FAILOVER_CONFIG;
 import static org.ballerinalang.net.http.WebSocketConstants.RETRY_CONFIG;
-import static org.ballerinalang.net.http.WebSocketConstants.STATEMENT_FOR_FAILOVDER_RECONNECT;
-import static org.ballerinalang.net.http.WebSocketConstants.STATEMENT_FOR_FAILOVER;
 import static org.ballerinalang.net.http.WebSocketUtil.doAction;
-import static org.ballerinalang.net.http.WebSocketUtil.doFailover;
-import static org.ballerinalang.net.http.WebSocketUtil.doFailoverAndRetry;
 import static org.ballerinalang.net.http.WebSocketUtil.hasRetryConfig;
 
 /**
@@ -50,6 +49,7 @@ public class FailoverClientHandshakeListener extends WebSocketClientHandshakeLis
     private final boolean readyOnConnect;
     private final ObjectValue webSocketClient;
     private CountDownLatch countDownLatch;
+    private static final Logger logger = LoggerFactory.getLogger(FailoverClientHandshakeListener.class);
     private static final PrintStream console = System.out;
 
     FailoverClientHandshakeListener(ObjectValue webSocketClient, WebSocketService wsService,
@@ -88,16 +88,17 @@ public class FailoverClientHandshakeListener extends WebSocketClientHandshakeLis
         // Following these are created for future connection
         // Check whether the config has retry config or not
         // It has retry config, set these variable to default variable
+        FailoverContext failoverContext = ((FailoverContext) webSocketClient.getNativeData(FAILOVER_CONFIG));
         if (hasRetryConfig(webSocketClient)) {
             ((RetryContext) webSocketClient.getNativeData(RETRY_CONFIG)).setReconnectAttempts(0);
-            ((FailoverContext) webSocketClient.getNativeData(FAILOVER_CONFIG)).setFinishedFailover(false);
+            failoverContext.setFinishedFailover(false);
         }
         ArrayList targets = failoverConfig.getTargetUrls();
         int currentIndex = failoverConfig.getCurrentIndex();
-        console.println(CONNECTED_TO + targets.get(currentIndex).toString());
+        logger.info(CONNECTED_TO + targets.get(currentIndex).toString());
         // Set failover context variable's value
-        ((FailoverContext) webSocketClient.getNativeData(FAILOVER_CONFIG)).setInitialIndex(currentIndex);
-        ((FailoverContext) webSocketClient.getNativeData(FAILOVER_CONFIG)).setConnectionMade();
+        failoverContext.setInitialIndex(currentIndex);
+        failoverContext.setConnectionMade();
         countDownLatch.countDown();
     }
 
@@ -112,10 +113,11 @@ public class FailoverClientHandshakeListener extends WebSocketClientHandshakeLis
                 wsService, null, webSocketClient);
         webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
         countDownLatch.countDown();
-        if (throwable instanceof IOException) {
+        if (throwable instanceof IOException || throwable instanceof BlockingOperationException) {
+            console.println("HAndonError" + throwable.getMessage());
             doAction(connectionInfo, throwable, null);
         } else {
-            console.println("A connection has some issue that needs to fix.");
+            logger.info("A connection has some issue that needs to fix.");
             WebSocketDispatcher.dispatchError(connectionInfo, throwable);
         }
     }

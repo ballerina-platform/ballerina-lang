@@ -18,14 +18,16 @@
 
 package org.ballerinalang.net.http;
 
+import io.netty.util.concurrent.BlockingOperationException;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.websocketclientendpoint.RetryContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.concurrent.CountDownLatch;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
@@ -45,7 +47,7 @@ public class ClientHandshakeListener extends WebSocketClientHandshakeListener {
     private final boolean readyOnConnect;
     private final ObjectValue webSocketClient;
     private CountDownLatch countDownLatch;
-    private static final PrintStream console = System.out;
+    private static final Logger logger = LoggerFactory.getLogger(ClientHandshakeListener.class);
 
     public ClientHandshakeListener(ObjectValue webSocketClient, WebSocketService wsService,
                                    WebSocketClientConnectorListener clientConnectorListener, boolean readyOnConnect,
@@ -75,11 +77,11 @@ public class ClientHandshakeListener extends WebSocketClientHandshakeListener {
                 webSocketConnection.readNextFrame();
             }
             WebSocketUtil.populateEndpoint(webSocketConnection, webSocketClient);
-            console.println(CONNECTED_TO + webSocketClient.getStringValue(WebSocketConstants.
+            logger.info(CONNECTED_TO + webSocketClient.getStringValue(WebSocketConstants.
                     CLIENT_URL_CONFIG));
         } else {
             RetryContext retryConfig = (RetryContext) webSocketClient.getNativeData(RETRY_CONFIG);
-            console.println(CONNECTED_TO + webSocketClient.getStringValue(WebSocketConstants.
+            logger.info(CONNECTED_TO + webSocketClient.getStringValue(WebSocketConstants.
                     CLIENT_URL_CONFIG));
             if (retryConfig.getConnectionState()) {
                 webSocketClient.set(WebSocketConstants.LISTENER_ID_FIELD, webSocketConnection.getChannelId());
@@ -89,8 +91,8 @@ public class ClientHandshakeListener extends WebSocketClientHandshakeListener {
             if (retryConfig.getConnectionState() || readyOnConnect) {
                 webSocketConnection.readNextFrame();
             }
-            ((RetryContext) webSocketClient.getNativeData(RETRY_CONFIG)).setConnectionState();
-            ((RetryContext) webSocketClient.getNativeData(RETRY_CONFIG)).setReconnectAttempts(0);
+            retryConfig.setConnectionState();
+            retryConfig.setReconnectAttempts(0);
         }
         countDownLatch.countDown();
     }
@@ -106,18 +108,18 @@ public class ClientHandshakeListener extends WebSocketClientHandshakeListener {
                 wsService, null, webSocketClient);
         webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
         countDownLatch.countDown();
-        if (throwable instanceof IOException) {
+        if (throwable instanceof IOException || throwable instanceof BlockingOperationException) {
             if (hasRetryConfig(webSocketClient)) {
                 if (!doReconnect(connectionInfo)) {
                     WebSocketDispatcher.dispatchError(connectionInfo, throwable);
-                    console.println(STATEMENT_FOR_RECONNECT +
+                    logger.info(STATEMENT_FOR_RECONNECT +
                             webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG));
                 }
             } else {
                 WebSocketDispatcher.dispatchError(connectionInfo, throwable);
             }
         } else {
-            console.println("A connection has some issue that needs to fix.");
+            logger.info("A connection has some issue that needs to fix.");
             WebSocketDispatcher.dispatchError(connectionInfo, throwable);
         }
     }

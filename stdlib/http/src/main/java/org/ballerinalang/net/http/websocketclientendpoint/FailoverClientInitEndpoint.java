@@ -18,8 +18,6 @@
 
 package org.ballerinalang.net.http.websocketclientendpoint;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -43,7 +41,7 @@ import static org.ballerinalang.net.http.WebSocketConstants.FAILOVER_CONFIG;
 import static org.ballerinalang.net.http.WebSocketConstants.RETRY_CONFIG;
 import static org.ballerinalang.net.http.WebSocketConstants.TARGET_URLS;
 import static org.ballerinalang.net.http.WebSocketUtil.getWebSocketService;
-import static org.ballerinalang.net.http.WebSocketUtil.initialiseWebSocketConnection;
+import static org.ballerinalang.net.http.WebSocketUtil.initialiseWebSocketFailoverConnection;
 import static org.ballerinalang.net.http.WebSocketUtil.populateFailoverConnectorConfig;
 import static org.ballerinalang.net.http.WebSocketUtil.populateRetryConnectorConfig;
 
@@ -59,17 +57,11 @@ import static org.ballerinalang.net.http.WebSocketUtil.populateRetryConnectorCon
                 type = TypeKind.OBJECT,
                 structType = WebSocketConstants.FAILOVER_WEBSOCKET_CLIENT,
                 structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
-        ),
-        isPublic = true
+        )
 )
-
-public class FailoverClientInitEndpoint extends BlockingNativeCallableUnit {
+public class FailoverClientInitEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(FailoverClientInitEndpoint.class);
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static void init(Strand strand, ObjectValue webSocketClient) throws URISyntaxException {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
@@ -111,7 +103,7 @@ public class FailoverClientInitEndpoint extends BlockingNativeCallableUnit {
         populateFailoverConnectorConfig(clientEndpointConfig, failoverClientConnectorConfig, newTargetUrls);
         webSocketClient.addNativeData(FAILOVER_CONFIG, failoverClientConnectorConfig);
         // Call the function with first url in the target url set
-        initialiseWebSocketConnection(newTargetUrls.get(0), webSocketClient,
+        initialiseWebSocketFailoverConnection(newTargetUrls.get(0), webSocketClient,
                 getWebSocketService(clientEndpointConfig, strand));
     }
 }
