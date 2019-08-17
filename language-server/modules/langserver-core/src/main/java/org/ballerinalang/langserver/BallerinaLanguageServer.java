@@ -119,17 +119,17 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         completionOptions.setTriggerCharacters(Arrays.asList(":", ".", ">", "@"));
 
         res.getCapabilities().setCompletionProvider(completionOptions);
-        res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Incremental);
+        res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
         res.getCapabilities().setSignatureHelpProvider(signatureHelpOptions);
         res.getCapabilities().setHoverProvider(true);
 //        res.getCapabilities().setDocumentSymbolProvider(true);
-        res.getCapabilities().setDefinitionProvider(true);
-        res.getCapabilities().setReferencesProvider(true);
-        res.getCapabilities().setCodeActionProvider(true);
+//        res.getCapabilities().setDefinitionProvider(true);
+//        res.getCapabilities().setReferencesProvider(true);
+//        res.getCapabilities().setCodeActionProvider(true);
         res.getCapabilities().setExecuteCommandProvider(executeCommandOptions);
         res.getCapabilities().setDocumentFormattingProvider(true);
-        res.getCapabilities().setRenameProvider(true);
-        res.getCapabilities().setWorkspaceSymbolProvider(true);
+//        res.getCapabilities().setRenameProvider(true);
+//        res.getCapabilities().setWorkspaceSymbolProvider(true);
         res.getCapabilities().setImplementationProvider(true);
 //        res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
 

@@ -651,16 +651,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
             // Update content
             List<TextDocumentContentChangeEvent> changes = params.getContentChanges();
             for (TextDocumentContentChangeEvent changeEvent : changes) {
-                Range changesRange = changeEvent.getRange();
-                documentManager.updateFileRange(compilationPath, changesRange, changeEvent.getText());
+                documentManager.updateFile(compilationPath, changeEvent.getText());
             }
-            // Update code lenses only if in incremental synchronization mode (if the language client is using
-            // incremental synchronization, range of content changes should not be null).
-            // Todo - Revisit after adding codelens support for full sync mode.
-            if (changes.get(changes.size() - 1).getRange() != null) {
-                List<CodeLens> lenses = documentManager.getCodeLenses(compilationPath);
-                CodeLensUtil.updateCachedCodeLenses(lenses, changes);
-            }
+            
             // Schedule diagnostics
             LanguageClient client = this.languageServer.getClient();
             this.diagPushDebouncer.call(compilationPath, () -> {
