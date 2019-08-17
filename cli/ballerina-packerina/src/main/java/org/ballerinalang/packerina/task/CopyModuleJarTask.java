@@ -118,7 +118,7 @@ public class CopyModuleJarTask implements Task {
         // Get the jar paths
         Path importJar;
         // Look if it is a project module.
-        if (ProjectDirs.isModuleExist(project, id.name.value)) {
+        if (ProjectDirs.isModuleExist(project, id.name.value) || buildContext.getImportPathDependency(id).isPresent()) {
             // If so fetch from project balo cache
             importJar = buildContext.getJarPathFromTargetCache(id);
         } else {

@@ -22,6 +22,7 @@ import com.moandjiezana.toml.Toml;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.toml.model.Dependency;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
@@ -37,6 +38,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -143,11 +145,15 @@ public class CopyNativeLibTask implements Task {
     private static Path findImportBaloPath(BuildContext buildContext, BPackageSymbol importz, Path project) {
         // Get the jar paths
         PackageID id = importz.pkgID;
-
+    
+    
+        Optional<Dependency> importPathDependency = buildContext.getImportPathDependency(id);
         // Look if it is a project module.
         if (ProjectDirs.isModuleExist(project, id.name.value)) {
             // If so fetch from project balo cache
             return buildContext.getBaloFromTarget(id);
+        } if (importPathDependency.isPresent()) {
+            return importPathDependency.get().getMetadata().getPath();
         } else {
             // If not fetch from home balo cache.
             return buildContext.getBaloFromHomeCache(id);

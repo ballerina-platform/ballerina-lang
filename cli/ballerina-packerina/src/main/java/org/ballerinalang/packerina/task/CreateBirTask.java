@@ -60,7 +60,7 @@ public class CreateBirTask implements Task {
             return;
         }
         // Look if it is a project module.
-        if (ProjectDirs.isModuleExist(project, id.name.value)) {
+        if (ProjectDirs.isModuleExist(project, id.name.value) || buildContext.getImportPathDependency(id).isPresent()) {
             // If so fetch from project bir cache
             importBir = buildContext.getBirPathFromTargetCache(id);
         } else {
