@@ -18,6 +18,7 @@
 
 package org.wso2.transport.http.netty.compression;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -56,6 +57,9 @@ public class ServerRespCompressionTestCase {
 
     protected ServerConnector serverConnector;
     protected ListenerConfiguration listenerConfiguration;
+    private FullHttpRequest httpRequest;
+    private FullHttpResponse httpResponse;
+    private HttpClient httpClient;
 
     ServerRespCompressionTestCase() {
         this.listenerConfiguration = new ListenerConfiguration();
@@ -63,6 +67,39 @@ public class ServerRespCompressionTestCase {
 
     @BeforeClass
     public void setUp() {
+        givenServerConnectorWithCompressionAuto();
+    }
+
+    @Test
+    public void testChunkingRespCompression() {
+        whenLargeReqWithAcceptGzipIsSent();
+        thenRespShouldContainHeaderValue(Constants.ENCODING_GZIP);
+
+        whenLargeReqWithAcceptDeflateIsSent();
+        thenRespShouldContainHeaderValue(Constants.ENCODING_DEFLATE);
+
+        whenLargeReqWithAcceptDeflateFirstIsSent();
+        thenRespShouldContainHeaderValue(Constants.ENCODING_DEFLATE);
+    }
+
+    @Test
+    public void testContentLengthRespCompression() {
+        whenSmallReqWithAcceptDeflateIsSent();
+        thenRespShouldContainHeaderValue(Constants.ENCODING_DEFLATE);
+    }
+
+    @Test
+    public void testRespNonCompression() {
+        whenReqWithoutAcceptEncodingIsSent();
+        assertNull(httpResponse.headers().get(HttpHeaderNames.CONTENT_ENCODING));
+    }
+
+    @AfterClass
+    public void cleanUp() throws ServerConnectorException {
+        serverConnector.stop();
+    }
+
+    private void givenServerConnectorWithCompressionAuto() {
         listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
         listenerConfiguration.setServerHeader(TestUtil.TEST_SERVER);
         ServerBootstrapConfiguration serverBootstrapConfig = new ServerBootstrapConfiguration(new HashMap<>());
@@ -79,51 +116,50 @@ public class ServerRespCompressionTestCase {
         }
     }
 
-    @Test
-    public void serverConnectorRespCompressionTest() {
-        try {
-            HttpClient httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
-
-            FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1,
-                    HttpMethod.POST, "/", Unpooled.wrappedBuffer(TestUtil.largeEntity.getBytes()));
-            httpRequest.headers().set(HttpHeaderNames.ACCEPT_ENCODING, Constants.ENCODING_GZIP);
-            FullHttpResponse httpResponse = httpClient.sendRequest(httpRequest);
-            assertEquals(Constants.ENCODING_GZIP, httpResponse.headers().get(HttpHeaderNames.CONTENT_ENCODING));
-
-            httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
-            httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1,
-                    HttpMethod.POST, "/", Unpooled.wrappedBuffer(TestUtil.largeEntity.getBytes()));
-            httpRequest.headers().set(HttpHeaderNames.ACCEPT_ENCODING, Constants.ENCODING_DEFLATE);
-            httpResponse = httpClient.sendRequest(httpRequest);
-            assertEquals(Constants.ENCODING_DEFLATE, httpResponse.headers().get(HttpHeaderNames.CONTENT_ENCODING));
-
-            httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
-            httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1,
-                    HttpMethod.POST, "/", Unpooled.wrappedBuffer(TestUtil.largeEntity.getBytes()));
-            httpRequest.headers().set(HttpHeaderNames.ACCEPT_ENCODING, "deflate;q=1.0, gzip;q=0.8");
-            httpResponse = httpClient.sendRequest(httpRequest);
-            assertEquals(Constants.ENCODING_DEFLATE, httpResponse.headers().get(HttpHeaderNames.CONTENT_ENCODING));
-
-            httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
-            httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1,
-                    HttpMethod.POST, "/", Unpooled.wrappedBuffer(TestUtil.smallEntity.getBytes()));
-            httpRequest.headers().set(HttpHeaderNames.ACCEPT_ENCODING, Constants.ENCODING_DEFLATE);
-            httpResponse = httpClient.sendRequest(httpRequest);
-            assertEquals(Constants.ENCODING_DEFLATE, httpResponse.headers().get(HttpHeaderNames.CONTENT_ENCODING));
-
-            httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
-            httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1,
-                    HttpMethod.POST, "/", Unpooled.wrappedBuffer(TestUtil.smallEntity.getBytes()));
-            httpResponse = httpClient.sendRequest(httpRequest);
-            assertNull(httpResponse.headers().get(HttpHeaderNames.CONTENT_ENCODING));
-
-        } catch (Exception e) {
-            TestUtil.handleException("IOException occurred while running serverConnectorRespCompressionTest", e);
-        }
+    private void whenReqWithoutAcceptEncodingIsSent() {
+        httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
+        httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1,
+                                                 HttpMethod.POST, "/", getContent(TestUtil.smallEntity));
+        httpResponse = httpClient.sendRequest(httpRequest);
     }
 
-    @AfterClass
-    public void cleanUp() throws ServerConnectorException {
-        serverConnector.stop();
+    private void whenSmallReqWithAcceptDeflateIsSent() {
+        httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
+        httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1,
+                                                 HttpMethod.POST, "/", getContent(TestUtil.smallEntity));
+        httpRequest.headers().set(HttpHeaderNames.ACCEPT_ENCODING, Constants.ENCODING_DEFLATE);
+        httpResponse = httpClient.sendRequest(httpRequest);
+    }
+
+    private void whenLargeReqWithAcceptDeflateFirstIsSent() {
+        httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
+        httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1,
+                                                 HttpMethod.POST, "/", getContent(TestUtil.largeEntity));
+        httpRequest.headers().set(HttpHeaderNames.ACCEPT_ENCODING, "deflate;q=1.0, gzip;q=0.8");
+        httpResponse = httpClient.sendRequest(httpRequest);
+    }
+
+    private void whenLargeReqWithAcceptDeflateIsSent() {
+        httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
+        httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1,
+                                                 HttpMethod.POST, "/", getContent(TestUtil.largeEntity));
+        httpRequest.headers().set(HttpHeaderNames.ACCEPT_ENCODING, Constants.ENCODING_DEFLATE);
+        httpResponse = httpClient.sendRequest(httpRequest);
+    }
+
+    private void thenRespShouldContainHeaderValue(String headerValue) {
+        assertEquals(headerValue, httpResponse.headers().get(HttpHeaderNames.CONTENT_ENCODING));
+    }
+
+    private void whenLargeReqWithAcceptGzipIsSent() {
+        httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
+        httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1,
+                                                 HttpMethod.POST, "/", getContent(TestUtil.largeEntity));
+        httpRequest.headers().set(HttpHeaderNames.ACCEPT_ENCODING, Constants.ENCODING_GZIP);
+        httpResponse = httpClient.sendRequest(httpRequest);
+    }
+
+    private ByteBuf getContent(String content) {
+        return Unpooled.wrappedBuffer(content.getBytes());
     }
 }
