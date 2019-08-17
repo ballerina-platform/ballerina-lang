@@ -56,6 +56,7 @@ public type Function record {|
     ErrorEntry?[] errorEntries = [];
     VariableDcl?[] localVars = [];
     Name name = {};
+    Name workerName = {};
     BInvokableType typeValue = {};
     int flags = PRIVATE;
     ChannelDetail[] workerChannels;
@@ -218,6 +219,7 @@ public const int PRIVATE = 1024;
 public const int OPTIONAL = 8192;
 public const int REMOTE = 65536;
 public const SERVICE = 524288;
+public const WORKER = 16777216;
 
 
 //TODO try to make below details meta
@@ -327,35 +329,55 @@ public const TYPE_XML = "xml";
 public type BXMLType TYPE_XML;
 
 const HANDLE_TYPE_NAME = "handle";
+const SERVICE_TYPE_NAME = "service";
+const RECORD_TYPE_NAME = "record";
+const MAP_TYPE_NAME = "map";
+const STREAM_TYPE_NAME = "stream";
+const ARRAY_TYPE_NAME = "array";
+const TABLE_TYPE_NAME = "table";
+const ERROR_TYPE_NAME = "error";
+const OBJECT_TYPE_NAME = "object";
+const UNION_TYPE_NAME = "union";
+const TUPLE_TYPE_NAME = "tuple";
+const FUTURE_TYPE_NAME = "future";
+const FINITE_TYPE_NAME = "finite";
+const TYPEDESC_TYPE_NAME = "typedesc";
 
 public type BServiceType record {|
+    SERVICE_TYPE_NAME typeName = SERVICE_TYPE_NAME;
     BObjectType oType;
 |};
 
 public type BArrayType record {|
+    ARRAY_TYPE_NAME typeName = ARRAY_TYPE_NAME;
     ArrayState state;
     int size;
     BType eType;
 |};
 
 public type BTypeDesc record {|
+    TYPEDESC_TYPE_NAME typeName = TYPEDESC_TYPE_NAME;
     BType typeConstraint;
 |};
 
 public type BMapType record {|
+    MAP_TYPE_NAME typeName = MAP_TYPE_NAME;
     BType constraint;
 |};
 
 public type BTableType record {|
+    TABLE_TYPE_NAME typeName = TABLE_TYPE_NAME;
     BType tConstraint;
 |};
 
 public type BStreamType record {|
+    STREAM_TYPE_NAME typeName = STREAM_TYPE_NAME;
     BType sConstraint;
 |};
 
 
 public type BErrorType record {|
+    ERROR_TYPE_NAME typeName = ERROR_TYPE_NAME;
     ModuleID moduleId = {};
     Name name = {};
     BType reasonType;
@@ -363,6 +385,7 @@ public type BErrorType record {|
 |};
 
 public type BRecordType record {|
+    RECORD_TYPE_NAME typeName = RECORD_TYPE_NAME;
     ModuleID moduleId = {};
     Name name = {};
     boolean sealed;
@@ -372,6 +395,7 @@ public type BRecordType record {|
 |};
 
 public type BObjectType record {|
+    OBJECT_TYPE_NAME typeName = OBJECT_TYPE_NAME;
     ModuleID moduleId = {};
     Name name = {};
     boolean isAbstract = false;
@@ -410,19 +434,23 @@ public type BObjectField record {
 };
 
 public type BUnionType record {|
-   BType?[]  members;
+    UNION_TYPE_NAME typeName = UNION_TYPE_NAME;
+    BType?[]  members;
 |};
 
 public type BTupleType record {|
-   BType?[]  tupleTypes;
-   BType?  restType = ();
+    TUPLE_TYPE_NAME typeName = TUPLE_TYPE_NAME;
+    BType?[]  tupleTypes;
+    BType?  restType = ();
 |};
 
 public type BFutureType record {|
+    FUTURE_TYPE_NAME typeName = FUTURE_TYPE_NAME;
     BType returnType;
 |};
 
 public type BFiniteType record {|
+    FINITE_TYPE_NAME typeName = FINITE_TYPE_NAME;
     Name name = {};
     int flags;
     [(int | string | boolean | float | byte| () | Decimal), BType] [] values;
@@ -497,8 +525,7 @@ public type NewStream record {|
     DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
-    VarRef nameOp;
-    BType typeValue;
+    BType streamType;
 |};
 
 public type NewInstance record {|
@@ -533,6 +560,7 @@ public type FPLoad record {|
     Name name;
     VariableDcl?[] params;
     VarRef?[] closureMaps;
+    BType retType;
 |};
 
 public type FieldAccess record {|

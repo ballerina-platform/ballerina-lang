@@ -26,12 +26,12 @@ public type WebSocketClient client object {
 
     private WebSocketConnector conn = new;
     private string url = "";
-    private WebSocketClientEndpointConfig config = {};
+    private WebSocketClientConfiguration config = {};
 
     # Initializes the client when called.
     #
-    # + c - The `WebSocketClientEndpointConfig` of the endpoint
-    public function __init(string url, public WebSocketClientEndpointConfig? config = ()) {
+    # + c - The `WebSocketClientConfiguration` of the endpoint
+    public function __init(string url, public WebSocketClientConfiguration? config = ()) {
         self.url = url;
         self.config = config ?: {};
         self.initEndpoint();
@@ -45,7 +45,7 @@ public type WebSocketClient client object {
     # + data - Data to be sent, if byte[] it is converted to a UTF-8 string for sending
     # + finalFrame - Set to `true` if this is a final frame of a (long) message
     # + return  - `error` if an error occurs when sending
-    public remote function pushText(string|json|xml|boolean|int|float|byte|byte[] data,
+    public remote function pushText(string|json|xml|boolean|int|float|byte|byte[] data, 
     public boolean finalFrame = true) returns WebSocketError? {
         return self.conn.pushText(data, finalFrame);
     }
@@ -173,15 +173,17 @@ public type WebSocketClient client object {
 # + secureSocket - SSL/TLS related options
 # + maxFrameSize - The maximum payload size of a WebSocket frame in bytes.
 #                  If this is not set or is negative  or zero the default frame size of 65536 will be used.
+# + webSocketCompressionEnabled - Enable support for compression in WebSocket
 # + retryConfig - Configurations related to retry
-public type WebSocketClientEndpointConfig record {|
+public type WebSocketClientConfiguration record {|
     service? callbackService = ();
     string[] subProtocols = [];
     map<string> customHeaders = {};
     int idleTimeoutInSeconds = -1;
     boolean readyOnConnect = true;
-    SecureSocket? secureSocket = ();
+    ClientSecureSocket? secureSocket = ();
     int maxFrameSize = 0;
+    boolean webSocketCompressionEnabled = true;
     WebSocketRetryConfig retryConfig?;
 |};
 

@@ -155,7 +155,7 @@ public class GetTable {
                             } else if (members.get(1).getTag() == TypeTags.NULL_TAG) {
                                 populateRecord(members.get(0).getTag(), struct, fieldName, value);
                             } else {
-                                throw new BallerinaException("fix");
+                                throw new BallerinaException("Unsupported nillable field for value: " + value);
                             }
                             break;
                         default:

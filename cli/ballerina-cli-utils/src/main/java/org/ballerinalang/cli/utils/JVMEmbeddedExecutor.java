@@ -49,7 +49,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
     @Override
     public Optional<RuntimeException> executeMainFunction(String moduleName, String[] args) {
         try {
-            final Scheduler scheduler = new Scheduler(4, false);
+            final Scheduler scheduler = new Scheduler(false);
             runInitOnSchedule(moduleName, scheduler);
             runMainOnSchedule(moduleName, scheduler, args);
             scheduler.immortal = true;
@@ -66,7 +66,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
     @Override
     public Optional<RuntimeException> executeService(String moduleName) {
         try {
-            final Scheduler scheduler = new Scheduler(4, false);
+            final Scheduler scheduler = new Scheduler(false);
             runInitOnSchedule(moduleName, scheduler);
             runStartOnSchedule(moduleName, scheduler);
             scheduler.immortal = true;
@@ -87,7 +87,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
     private void runStartOnSchedule(String moduleName, Scheduler scheduler) throws RuntimeException {
         try {
             Class<?> initClazz = Class.forName("ballerina." + moduleName + ".___init");
-            final Method initMethod = initClazz.getDeclaredMethod("ballerina_" + moduleName + "__start_", Strand.class);
+            final Method initMethod = initClazz.getDeclaredMethod("$moduleStart", Strand.class);
             //TODO fix following method invoke to scheduler.schedule()
             Function<Object[], Object> func = objects -> {
                 try {
@@ -183,7 +183,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
     private static void runInitOnSchedule(String moduleName, Scheduler scheduler) throws RuntimeException {
         try {
             Class<?> initClazz = Class.forName("ballerina." + moduleName + ".___init");
-            final Method initMethod = initClazz.getDeclaredMethod("ballerina_" + moduleName + "__init_", Strand.class);
+            final Method initMethod = initClazz.getDeclaredMethod("$moduleInit", Strand.class);
             //TODO fix following method invoke to scheduler.schedule()
             Function<Object[], Object> func = objects -> {
                 try {

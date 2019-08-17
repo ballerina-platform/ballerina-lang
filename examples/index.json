@@ -414,10 +414,6 @@
                 "url": "fork-variable-access"
             },
             {
-                "name": "Async",
-                "url": "async"
-            },
-            {
                 "name": "Lock",
                 "url": "locks"
             }
@@ -454,6 +450,41 @@
             {
                 "name": "JSON to CSV Transform",
                 "url": "json-csv"
+            }
+        ]
+    },
+    {
+        "title": "Java Interoperability",
+        "column": 2,
+        "category": "Language concepts",
+        "samples": [
+            {
+                "name": "Create Java Objects",
+                "url": "create-java-objects"
+            },
+            {
+                "name": "Invoke Java Methods",
+                "url": "invoke-java-methods"
+            },
+            {
+                "name": "Access/Mutate Java Fields",
+                "url": "access-mutate-java-fields"
+            },
+            {
+                "name": "Java Arrays",
+                "url": "java-arrays"
+            },
+            {
+                "name": "Java Varargs",
+                "url": "java-varargs"
+            },
+            {
+                "name": "Overloaded Methods/Constructors",
+                "url": "overloaded-methods-constructors"
+            },
+            {
+                "name": "Java Exceptions",
+                "url": "java-exceptions"
             }
         ]
     },

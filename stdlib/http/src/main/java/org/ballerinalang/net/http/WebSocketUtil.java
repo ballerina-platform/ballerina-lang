@@ -32,6 +32,7 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
+import org.ballerinalang.net.http.actions.httpclient.AbstractHTTPAction;
 import org.ballerinalang.net.http.exception.WebSocketException;
 import org.ballerinalang.net.http.websocketclientendpoint.FailoverContext;
 import org.ballerinalang.net.http.websocketclientendpoint.RetryContext;
@@ -76,13 +77,13 @@ import static org.ballerinalang.net.http.WebSocketConstants.STATEMENT_FOR_FAILOV
 import static org.ballerinalang.net.http.WebSocketConstants.STATEMENT_FOR_FAILOVER;
 import static org.ballerinalang.net.http.WebSocketConstants.WEBSOCKET_ERROR_DETAILS;
 
+
 /**
  * Utility class for WebSocket.
  */
 public class WebSocketUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketUtil.class);
-    private static final PrintStream console = System.out;
+    private static final Logger logger = LoggerFactory.getLogger(AbstractHTTPAction.class);
 
     static MapValue getServiceConfigAnnotation(ObjectValue service) {
         return (MapValue) service.getType().getAnnotation(HttpConstants.PROTOCOL_PACKAGE_HTTP,
@@ -187,6 +188,8 @@ public class WebSocketUtil {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
                 //TODO Temp fix to get return values. Remove
+                callback.setReturnValues(createWebSocketError(cause.getMessage()));
+
                 String message = cause.getMessage();
                 if (cause.getMessage() == null) {
                     message = "Error occurred when accessing the webSocket connection.";

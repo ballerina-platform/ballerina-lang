@@ -17,20 +17,21 @@
  */
 package org.ballerinalang.testerina.core.entity;
 
-import org.ballerinalang.bre.bvm.BVMExecutor;
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.testerina.core.TesterinaRegistry;
-import org.ballerinalang.testerina.util.TesterinaUtils;
-import org.ballerinalang.util.LaunchListener;
-import org.ballerinalang.util.codegen.FunctionInfo;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ServiceLoader;
+import java.util.function.Function;
+
 
 /**
  * TesterinaFunction entity class.
@@ -38,101 +39,38 @@ import java.util.ServiceLoader;
 public class TesterinaFunction {
 
     private String name;
-    private Type type;
+    public Scheduler scheduler;
+    public boolean immortal = false;
 
-    public FunctionInfo getbFunction() {
+    public BLangFunction getbFunction() {
         return bFunction;
     }
 
-    private FunctionInfo bFunction;
-    private ProgramFile programFile;
+    private BLangFunction bFunction;
+    private Class<?> programFile;
     private boolean runTest = true;
 
     // Annotation info
     private List<String> groups = new ArrayList<>();
 
-    static final String PREFIX_TEST = "TEST";
-    static final String PREFIX_UTIL = "UTIL";
-    static final String PREFIX_BEFORETEST = "BEFORETEST";
-    static final String PREFIX_AFTERTEST = "AFTERTEST";
-    static final String PREFIX_MOCK = "MOCK";
-    static final String INIT_SUFFIX = ".<INIT>";
-    static final String TEST_INIT_SUFFIX = ".<TESTINIT>";
-
-    /**
-     * Prefixes for the test function names.
-     */
-    public enum Type {
-        TEST(PREFIX_TEST), BEFORE_TEST(PREFIX_BEFORETEST), AFTER_TEST(PREFIX_AFTERTEST), MOCK(PREFIX_MOCK), INIT
-                (INIT_SUFFIX), UTIL(PREFIX_UTIL), TEST_INIT(TEST_INIT_SUFFIX);
-
-        String prefix;
-
-        Type(String prefix) {
-            this.prefix = prefix;
-        }
-
-        @Override public String toString() {
-            return prefix;
-        }
-    }
-
-    public TesterinaFunction(ProgramFile programFile, FunctionInfo bFunction, Type type) {
-        this.name = bFunction.getName();
-        this.type = type;
+    public TesterinaFunction(Class<?> programFile, BLangFunction bFunction) {
+        this.name = bFunction.getName().getValue();
         this.bFunction = bFunction;
         this.programFile = programFile;
     }
 
     public BValue[] invoke() throws BallerinaException {
-        if (this.type == Type.TEST_INIT) {
-            // Load launcher listeners
-            ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
-            listeners.forEach(listener -> listener.beforeRunProgram(true));
-
-            // Invoke init functions
-            TesterinaUtils.invokePackageInitFunctions(programFile);
-            TesterinaUtils.invokePackageTestInitFunctions(programFile);
-
-            //  Invoke start functions
-            TesterinaUtils.invokePackageStartFunctions(programFile);
-            TesterinaUtils.invokePackageTestStartFunctions(programFile);
-
-            listeners.forEach(listener -> listener.afterRunProgram(true));
-
-            TesterinaRegistry.getInstance().addInitializedPackage(programFile.getEntryPkgName());
-            return new BValue[]{};
-        } else {
-            return invoke(new BValue[]{});
+        if (scheduler == null) {
+            throw new AssertionError("Scheduler is not initialized in " + bFunction.name);
         }
+        runOnSchedule(programFile, bFunction.name, scheduler, immortal);
+        return new BValue[0];
     }
 
-    /**
-     * Invoke package stop functions.
-     *
-     * @throws BallerinaException exception is thrown
-     */
-    public void invokeStopFunctions() throws BallerinaException {
-        for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            BVMExecutor.executeFunction(programFile, info.getStopFunctionInfo());
-        }
-
-        for (PackageInfo info : programFile.getPackageInfoEntries()) {
-            if (info.getTestStopFunctionInfo() != null) {
-                BVMExecutor.executeFunction(programFile, info.getTestStopFunctionInfo());
-            }
-        }
-    }
-
-    /**
-     * Invokes a ballerina test function, in blocking mode.
-     *
-     * @param args function arguments
-     * @return a BValue array
-     */
-    public BValue[] invoke(BValue[] args) {
-        return BVMExecutor.executeFunction(programFile, bFunction, args);
-    }
+    /*public BValue[] invoke(BValue[] args) {
+        // return BVMExecutor.executeFunction(programFile, bFunction, args);
+        return new BValue[0];
+    }*/
 
     public String getName() {
         return name;
@@ -140,14 +78,6 @@ public class TesterinaFunction {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Type getType() {
-        return type;
-    }
-
-    public void setType(Type type) {
-        this.type = type;
     }
 
     public List<String> getGroups() {
@@ -166,11 +96,50 @@ public class TesterinaFunction {
         this.runTest = false;
     }
 
-    private static void initDebugger(ProgramFile programFile, Debugger debugger) {
-        programFile.setDebugger(debugger);
-        if (debugger.isDebugEnabled()) {
-            debugger.init();
-            debugger.waitTillDebuggeeResponds();
+
+    private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler, boolean immortal) {
+        String funcName = cleanupFunctionName(name);
+        try {
+            final Method method = initClazz.getDeclaredMethod(funcName, Strand.class);
+            //TODO fix following method invoke to scheduler.schedule()
+            Function<Object[], Object> func = objects -> {
+                try {
+                    return method.invoke(null, objects[0]);
+                } catch (InvocationTargetException e) {
+                    //throw new BallerinaException(e);
+
+                    return e.getTargetException();
+                } catch (IllegalAccessException e) {
+                    throw new BallerinaException("Error while invoking function '" + funcName + "'", e);
+                }
+            };
+            final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null);
+            scheduler.immortal = true;
+            Thread imortalThread = new Thread(() -> {
+                scheduler.start();
+            }, "module-starts");
+            imortalThread.setDaemon(true);
+            imortalThread.start();
+            // wait till we get a result.
+            while (!out.isDone) {
+                Thread.sleep(50);
+                imortalThread.interrupt();
+            }
+            final Throwable t = out.panic;
+            final Object result = out.result;
+            if (result instanceof ErrorValue) {
+                throw new BallerinaException((ErrorValue) result);
+            }
+            if (t != null) {
+                throw new BallerinaException("Error while invoking function '" + funcName + "'", t.getMessage());
+            }
+        } catch (NoSuchMethodException | InterruptedException e) {
+            throw new BallerinaException("Error while invoking function '" + funcName + "'", e);
         }
     }
+
+    private static String cleanupFunctionName(BLangIdentifier name) {
+        return name.value.replaceAll("[.:/<>]", "_");
+    }
+
 }

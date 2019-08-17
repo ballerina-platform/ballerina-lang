@@ -1,3 +1,13 @@
 [project]
 org-name = "ballerina"
 version = "0.0.0"
+
+[platform]
+target = "java"
+
+    [[platform.libraries]]
+    artafactId = "builtin"
+    version = "@project.version@"
+    path = "./lib/ballerina-builtin-@project.version@.jar"
+    groupId = "ballerina"
+    modules = ["builtin"]

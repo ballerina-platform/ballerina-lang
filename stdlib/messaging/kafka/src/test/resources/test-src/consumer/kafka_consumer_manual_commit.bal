@@ -19,7 +19,7 @@ import ballerina/kafka;
 const TOPIC = "test";
 
 kafka:ConsumerConfig consumerConfigs = {
-    bootstrapServers: "localhost:9095",
+    bootstrapServers: "localhost:14102",
     groupId: "abcd",
     clientId: "manual-commit-consumer",
     offsetReset: "earliest",

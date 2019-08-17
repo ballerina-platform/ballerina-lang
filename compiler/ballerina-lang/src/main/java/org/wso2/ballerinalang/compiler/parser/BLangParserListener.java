@@ -68,7 +68,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     private String pkgVersion;
     private boolean isInErrorState = false;
     private boolean enableExperimentalFeatures;
-    private boolean isSiddhiRuntimeEnabled;
 
     BLangParserListener(CompilerContext context, CompilationUnitNode compUnit, BDiagnosticSource diagnosticSource) {
         this.pkgBuilder = new BLangPackageBuilder(context, compUnit);
@@ -76,8 +75,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.enableExperimentalFeatures = Boolean.parseBoolean(
                 CompilerOptions.getInstance(context).get(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED));
-        this.isSiddhiRuntimeEnabled = Boolean.parseBoolean(
-                CompilerOptions.getInstance(context).get(CompilerOptionName.SIDDHI_RUNTIME_ENABLED));
     }
 
     @Override
@@ -438,7 +435,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
+        // When ObjectBody's parent's parent is not a FiniteTypeUnit then this is an anonymous object.
+        // It's bit difficult to differentiate between Object type definition and an anonymous object
+        // within a union type since parent lineage is similar in both cases.
+        // Only difference is that in object type definition, object body's parent's parent does not have siblings.
+        boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext)
+                || (ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext
+                    && ctx.parent.parent.parent instanceof BallerinaParser.FiniteTypeContext
+                    && ctx.parent.parent.parent.getChildCount() > 1);
 
         boolean isFieldAnalyseRequired =
                 (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
@@ -892,6 +896,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
+
+        // Error binding pattern using indirect error constructor.
+        if (ctx.typeName() != null) {
+            if (ctx.errorFieldBindingPatterns().errorRestBindingPattern() != null) {
+                String restIdName = ctx.errorFieldBindingPatterns().errorRestBindingPattern().Identifier().getText();
+                DiagnosticPos restPos = getCurrentPos(ctx.errorFieldBindingPatterns().errorRestBindingPattern());
+                this.pkgBuilder.addErrorVariable(getCurrentPos(ctx), getWS(ctx), restIdName, restPos);
+            } else {
+                this.pkgBuilder.addErrorVariable(getCurrentPos(ctx), getWS(ctx), null, null);
+            }
+            return;
+        }
         String reasonIdentifier = ctx.Identifier().getText();
         DiagnosticPos currentPos = getCurrentPos(ctx);
 
@@ -991,8 +1007,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean restPatternAvailable = ctx.errorRefRestPattern() != null;
 
+        boolean indirectErrorRefPattern = ctx.typeName() != null;
+
         this.pkgBuilder.addErrorVariableReference(getCurrentPos(ctx), getWS(ctx),
-                numNamedArgs, reasonRefAvailable, restPatternAvailable);
+                numNamedArgs, reasonRefAvailable, restPatternAvailable, indirectErrorRefPattern);
     }
 
     @Override
@@ -3246,7 +3264,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startForeverNode(getCurrentPos(ctx), isSiddhiRuntimeEnabled);
+        this.pkgBuilder.startForeverNode(getCurrentPos(ctx));
     }
 
     @Override

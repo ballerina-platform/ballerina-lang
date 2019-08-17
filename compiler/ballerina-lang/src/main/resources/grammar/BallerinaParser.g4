@@ -44,12 +44,7 @@ serviceDefinition
     ;
 
 serviceBody
-    :   LEFT_BRACE serviceBodyMember* RIGHT_BRACE
-    ;
-
-serviceBodyMember
-    :   objectFieldDefinition
-    |   objectFunctionDefinition
+    :   LEFT_BRACE objectFunctionDefinition* RIGHT_BRACE
     ;
 
 callableUnitBody
@@ -439,6 +434,12 @@ structuredBindingPattern
 
 errorBindingPattern
     :   TYPE_ERROR LEFT_PARENTHESIS Identifier (COMMA errorDetailBindingPattern)* (COMMA errorRestBindingPattern)? RIGHT_PARENTHESIS
+    |   typeName LEFT_PARENTHESIS errorFieldBindingPatterns RIGHT_PARENTHESIS
+    ;
+
+errorFieldBindingPatterns
+    :   errorDetailBindingPattern (COMMA errorDetailBindingPattern)* (COMMA errorRestBindingPattern)?
+    |   errorRestBindingPattern
     ;
 
 errorMatchPattern
@@ -519,6 +520,7 @@ recordRefBindingPattern
 
 errorRefBindingPattern
     :   TYPE_ERROR LEFT_PARENTHESIS ((variableReference (COMMA errorNamedArgRefPattern)*) | errorNamedArgRefPattern+) (COMMA errorRefRestPattern)? RIGHT_PARENTHESIS
+    |   typeName LEFT_PARENTHESIS errorNamedArgRefPattern (COMMA errorNamedArgRefPattern)*  (COMMA errorRefRestPattern)? RIGHT_PARENTHESIS
     ;
 
 errorNamedArgRefPattern
@@ -986,7 +988,7 @@ reservedWord
     ;
 
 
-//Siddhi Streams and Tables related
+//Streams and Tables related
 tableQuery
     :   FROM streamingInput joinStreamingInput?
         selectClause?

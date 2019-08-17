@@ -216,7 +216,7 @@ public class JSONStampInbuiltFunctionTest {
 
         BValue[] results = BRunUtil.invoke(compileResult, "stampJSONToUnion");
         Assert.assertEquals(results.length, 1);
-        Assert.assertEquals(results[0].getType().getClass(), BJSONType.class);
+        Assert.assertEquals(results[0].getType().getClass(), BMapType.class);
     }
 
     @Test
@@ -287,6 +287,6 @@ public class JSONStampInbuiltFunctionTest {
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "cannot convert 'null' value to type 'StringArray'");
+                            "cannot convert '()' to type 'StringArray'");
     }
 }

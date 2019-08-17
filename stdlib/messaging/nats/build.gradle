@@ -38,7 +38,6 @@ configurations {
 dependencies {
     baloCreat project(':lib-creator')
 
-    implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-io')
     implementation project(':ballerina-lang:annotations')

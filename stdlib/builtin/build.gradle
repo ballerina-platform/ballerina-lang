@@ -18,11 +18,9 @@
 apply from: "$rootDir/gradle/balNativeLibProject.gradle"
 
 dependencies {
-    implementation project(':ballerina-core')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
     baloCreat project(':lib-creator')
-    implementation project(':ballerina-streaming:siddhi-core')
     implementation 'org.slf4j:slf4j-api'
 
 }

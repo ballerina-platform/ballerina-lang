@@ -168,8 +168,22 @@ public class SQLActionsTest {
     @Test(groups = CONNECTOR_TEST)
     public void testINParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testINParameters");
-        BInteger retValue = (BInteger) returns[0];
-        Assert.assertEquals(retValue.intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+    }
+
+    @Test(groups = CONNECTOR_TEST)
+    public void testINParametersForBool() {
+        BValue[] returns = BRunUtil.invoke(result, "testINParametersForBool");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
+    @Test(groups = CONNECTOR_TEST)
+    public void testInvalidParametersForBool() {
+        BValue[] returns = BRunUtil.invoke(result, "testInvalidParametersForBool");
+        Assert.assertTrue(returns[0].stringValue().contains("{ballerinax/java.jdbc}ApplicationError"));
+        Assert.assertTrue(returns[0].stringValue().contains("Invalid integer value \"91\" specified for boolean"));
     }
 
     @Test(groups = CONNECTOR_TEST)
@@ -183,6 +197,7 @@ public class SQLActionsTest {
         Assert.assertEquals(((BDecimal) returns[6]).decimalValue(), new BigDecimal("1234.567"));
         Assert.assertEquals(((BDecimal) returns[7]).decimalValue(), new BigDecimal("1234.567"));
         Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D, DELTA);
+        Assert.assertEquals(((BInteger) returns[9]).intValue(), 127);
     }
 
     @Test(groups = CONNECTOR_TEST)
@@ -196,6 +211,7 @@ public class SQLActionsTest {
         Assert.assertEquals(((BDecimal) returns[6]).decimalValue(), new BigDecimal("1234.567"));
         Assert.assertEquals(((BDecimal) returns[7]).decimalValue(), new BigDecimal("1234.567"));
         Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D, DELTA);
+        Assert.assertEquals(((BInteger) returns[9]).intValue(), -128);
     }
 
     @Test(groups = CONNECTOR_TEST)

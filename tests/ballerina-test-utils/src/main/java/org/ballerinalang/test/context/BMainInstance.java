@@ -104,20 +104,20 @@ public class BMainInstance implements BMain {
         if (balFile == null || balFile.isEmpty()) {
             throw new IllegalArgumentException("Invalid ballerina program file name provided, name - " + balFile);
         }
-
+    
         if (args == null) {
             args = new String[]{};
         }
-
+    
         if (envProperties == null) {
             envProperties = new HashMap<>();
         }
-
+    
         String[] newArgs = ArrayUtils.addAll(flags, balFile);
         newArgs = ArrayUtils.addAll(newArgs, args);
-
+    
         addJavaAgents(envProperties);
-
+    
         runMain("run", newArgs, envProperties, clientArgs, leechers, balServer.getServerHome());
     }
 

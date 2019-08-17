@@ -29,12 +29,11 @@ type ExternalFunctionWrapper JInteropFunctionWrapper | OldStyleExternalFunctionW
 function genJMethodForBExternalFunc(bir:Function birFunc,
                                       jvm:ClassWriter cw,
                                       bir:Package birModule,
-                                      bir:BType? attachedType = (),
-                                      boolean isRemote = false) {
+                                      bir:BType? attachedType = ()) {
     var extFuncWrapper = getExternalFunctionWrapper(birModule, birFunc, attachedType = attachedType);
 
     if extFuncWrapper is OldStyleExternalFunctionWrapper {
-        genJMethodForBExternalFuncOldStyle(extFuncWrapper, cw, birModule, attachedType = attachedType, isRemote = isRemote);
+        genJMethodForBExternalFuncOldStyle(extFuncWrapper, cw, birModule, attachedType = attachedType);
     } else {
         genJMethodForBExternalFuncInterop(extFuncWrapper, cw, birModule);
     }
@@ -43,8 +42,7 @@ function genJMethodForBExternalFunc(bir:Function birFunc,
 function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extFuncWrapper,
                                             jvm:ClassWriter cw,
                                             bir:Package birModule,
-                                            bir:BType? attachedType = (),
-                                            boolean isRemote = false) {
+                                            bir:BType? attachedType = ()) {
 
     var currentPackageName = getPackageName(birModule.org.value, birModule.name.value);
 
@@ -67,7 +65,7 @@ function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extF
     }
 
     jvm:MethodVisitor mv = cw.visitMethod(access, birFunc.name.value, desc, (), ());
-    InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
+    InstructionGenerator instGen = new(mv, indexMap, birModule);
     ErrorHandlerGenerator errorGen = new(mv, indexMap, currentPackageName);
     LabelGenerator labelGen = new();
     TerminatorGenerator termGen = new(mv, indexMap, labelGen, errorGen, birModule);
@@ -76,6 +74,7 @@ function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extF
     jvm:Label? tryStart = ();
     jvm:Label? tryEnd = ();
     jvm:Label? tryHandler = ();
+    boolean isRemote = (birFunc.flags & bir:REMOTE) == bir:REMOTE;
     if (isRemote) {
         tryStart = labelGen.getLabel("try-start");
         tryEnd = labelGen.getLabel("try-end");
@@ -150,6 +149,11 @@ function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extF
     // if attached type, strand index is given by selfParamIndex
     int strandIndex = attachedType is () ? strandParamIndex : selfParamIndex;
     if (isRemote) {
+        string serviceOrConnectorName = birModule.versionValue.value;
+        if attachedType is bir:BObjectType {
+            serviceOrConnectorName = getFullQualifiedRemoteFunctionName(
+                attachedType.moduleId.org, attachedType.moduleId.name, birModule.versionValue.value);
+        }
         emitStartObservationInvocation(mv, strandIndex,
                     birModule.versionValue.value, birFunc.name.value, "startCallableObservation");
     }
@@ -220,8 +224,8 @@ function getExternalFunctionWrapper(bir:Package birModule, bir:Function birFunc,
     }
 }
 
-function createExternalFunctionWrapper(bir:Function birFunc, string orgName ,string moduleName,
-                                       string versionValue,  string  birModuleClassName) returns BIRFunctionWrapper {
+function createExternalFunctionWrapper(bir:Function birFunc, string orgName ,string moduleName, string versionValue,
+                                        string  birModuleClassName) returns BIRFunctionWrapper | error {
     BIRFunctionWrapper birFuncWrapper;
     jvm:InteropValidationRequest? jInteropValidationReq = getInteropAnnotValue(birFunc);
     if (jInteropValidationReq is ()) {
@@ -241,7 +245,7 @@ function createExternalFunctionWrapper(bir:Function birFunc, string orgName ,str
             panic err;
         }
     } else {
-        birFuncWrapper = createJInteropFunctionWrapper(jInteropValidationReq, birFunc, orgName, moduleName,
+        birFuncWrapper = check createJInteropFunctionWrapper(jInteropValidationReq, birFunc, orgName, moduleName,
                                 versionValue, birModuleClassName);
     }
 

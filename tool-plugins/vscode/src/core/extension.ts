@@ -36,6 +36,10 @@ import { ExtendedLangClient } from './extended-language-client';
 import { info, getOutputChannel } from '../utils/index';
 import { AssertionError } from "assert";
 import { OVERRIDE_BALLERINA_HOME, BALLERINA_HOME, ALLOW_EXPERIMENTAL, ENABLE_DEBUG_LOG } from "./preferences";
+import TelemetryReporter from "vscode-extension-telemetry";
+import { createTelemetryReporter, TM_EVENT_ERROR_INVALID_BAL_HOME_CONFIGURED, TM_EVENT_ERROR_INVALID_BAL_HOME_DETECTED, TM_EVENT_OLD_BAL_HOME, TM_EVENT_OLD_BAL_PLUGIN } from "../telemetry";
+
+export const EXTENSION_ID = 'ballerina.ballerina';
 
 export interface ConstructIdentifier {
     moduleName: string;
@@ -44,6 +48,7 @@ export interface ConstructIdentifier {
 }
 
 export class BallerinaExtension {
+    public telemetryReporter: TelemetryReporter;
     public ballerinaHome: string;
     public extension: Extension<any>;
     private clientOptions: LanguageClientOptions;
@@ -58,12 +63,13 @@ export class BallerinaExtension {
         this.ballerinaHome = '';
         this.webviewPanels = {};
         // Load the extension
-        this.extension = extensions.getExtension('ballerina.ballerina')!;
+        this.extension = extensions.getExtension(EXTENSION_ID)!;
         this.clientOptions = {
             documentSelector: [{ scheme: 'file', language: 'ballerina' }],
             outputChannel: getOutputChannel(),
             revealOutputChannelOn: RevealOutputChannelOn.Never,
         };
+        this.telemetryReporter = createTelemetryReporter(this);
     }
 
     setContext(context: ExtensionContext) {
@@ -85,6 +91,7 @@ export class BallerinaExtension {
                     // Ballerina home in setting is invalid show message and quit.
                     // Prompt to correct the home. // TODO add auto detection.
                     this.showMessageInvalidBallerinaHome();
+                    this.telemetryReporter.sendTelemetryEvent(TM_EVENT_ERROR_INVALID_BAL_HOME_CONFIGURED);
                     return Promise.resolve();
                 }
             } else {
@@ -95,6 +102,7 @@ export class BallerinaExtension {
                 if (!this.ballerinaHome) {
                     this.showMessageInstallBallerina();
                     info("Unable to auto detect Ballerina home.");
+                    this.telemetryReporter.sendTelemetryEvent(TM_EVENT_ERROR_INVALID_BAL_HOME_DETECTED);
                     return Promise.resolve();
                 }
             }
@@ -130,13 +138,17 @@ export class BallerinaExtension {
                     this.context!.subscriptions.push(disposable);
                 });
             }).catch(e => {
-                info(`Error when checking ballerina version. Got ${e}`);
+                const msg = 'Error when checking ballerina version.';
+                info(`${msg} Error: ${e}`);
+                this.telemetryReporter.sendTelemetryException(e, { error: msg });
             });
 
         } catch (ex) {
-            info("Error while activating plugin: " + (ex.message ? ex.message : ex));
+            const msg = "Error while activating plugin.";
+            info(msg + " Error: " + (ex.message ? ex.message : ex));
             // If any failure occurs while initializing show an error message
             this.showPluginActivationError();
+            this.telemetryReporter.sendTelemetryException(ex, { error: msg });
             return Promise.resolve();
         }
     }
@@ -239,12 +251,14 @@ export class BallerinaExtension {
         if (versionCheck > 0) {
             // Plugin version is greater
             this.showMessageOldBallerina();
+            this.telemetryReporter.sendTelemetryEvent(TM_EVENT_OLD_BAL_HOME);
             return;
         }
 
         if (versionCheck < 0) {
             // Ballerina version is greater
             this.showMessageOldPlugin();
+            this.telemetryReporter.sendTelemetryEvent(TM_EVENT_OLD_BAL_PLUGIN);
         }
     }
 
@@ -435,6 +449,14 @@ export class BallerinaExtension {
 
     public getWebviewPanels() {
         return this.webviewPanels;
+    }
+
+    public getID(): string {
+        return this.extension.id;
+    }
+
+    public getVersion(): string {
+        return this.extension.packageJSON.version;
     }
 }
 

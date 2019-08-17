@@ -29,7 +29,7 @@ public type OutboundBasicAuthProvider object {
     # Provides authentication based on the provided Basic Auth configuration.
     #
     # + credential - The credential configurations.
-    public function __init(Credential? credential) {
+    public function __init(Credential? credential = ()) {
         self.credential = credential;
     }
 
@@ -41,11 +41,12 @@ public type OutboundBasicAuthProvider object {
         if (credential is ()) {
             runtime:AuthenticationContext? authContext = runtime:getInvocationContext()?.authenticationContext;
             if (authContext is runtime:AuthenticationContext) {
-                return authContext.authToken;
-            } else {
-                return prepareError("Failed to generate basic auth token since credential config is not defined
-                and auth token is not defined in the authentication context at invocation context.");
+                string? authToken = authContext?.authToken;
+                if (authToken is string) {
+                    return authToken;
+                }
             }
+            return prepareError("Failed to generate basic auth token since credential config is not defined and auth token is not defined in the authentication context at invocation context.");
         } else {
             return getAuthTokenForBasicAuth(credential);
         }

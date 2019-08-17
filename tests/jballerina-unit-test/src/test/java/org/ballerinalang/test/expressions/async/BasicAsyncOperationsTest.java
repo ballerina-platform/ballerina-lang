@@ -79,14 +79,14 @@ public class BasicAsyncOperationsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: future is already cancelled.*")
+            expectedExceptionsMessageRegExp = ".*{error}FutureAlreadyCancelled.*")
     public void testAsyncNonNativeBasic7() {
         BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic7", new BValue[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: future is already cancelled.*")
+            expectedExceptionsMessageRegExp = ".*{error}FutureAlreadyCancelled.*")
     public void testAsyncNonNativeBasic8() {
         BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic8", new BValue[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
@@ -99,14 +99,14 @@ public class BasicAsyncOperationsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: future is already cancelled.*")
+            expectedExceptionsMessageRegExp = ".*{error}FutureAlreadyCancelled.*")
     public void testAsyncNonNativeBasic10() {
         BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic10", new BValue[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: future is already cancelled.*")
+            expectedExceptionsMessageRegExp = ".*{error}FutureAlreadyCancelled.*")
     public void testAsyncNonNativeBasic11() {
         BValue[] returns = BRunUtil.invoke(result, "testAsyncNonNativeBasic11", new BValue[0]);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
@@ -116,6 +116,30 @@ public class BasicAsyncOperationsTest {
     public void testAsyncObjectAttachedFunctions() {
         BValue[] returns = BRunUtil.invoke(result, "testAsyncObjectAttachedFunctions");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+    }
+
+    @Test
+    public void testAsyncInvWithoutDefaultParams() {
+        BValue[] returns = BRunUtil.invoke(result, "testAsyncInvWithoutDefaultParams");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+    }
+
+    @Test
+    public void testAsyncInvWithDefaultParams() {
+        BValue[] returns = BRunUtil.invoke(result, "testAsyncInvWithDefaultParams");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 45);
+    }
+
+    @Test
+    public void testAttachedAsyncInvWithoutDefaultParams() {
+        BValue[] returns = BRunUtil.invoke(result, "testAttachedAsyncInvWithoutDefaultParams");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 40);
+    }
+
+    @Test
+    public void testAttachedAsyncInvWithDefaultParams() {
+        BValue[] returns = BRunUtil.invoke(result, "testAttachedAsyncInvWithDefaultParams");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 9);
     }
 
     @Test (description = "Test negative issues with future")

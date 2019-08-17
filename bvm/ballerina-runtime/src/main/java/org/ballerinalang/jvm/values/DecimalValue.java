@@ -149,7 +149,7 @@ public class DecimalValue {
         return Math.round(value.doubleValue());
     }
 
-    private static boolean isDecimalWithinIntRange(BigDecimal decimalValue) {
+    public static boolean isDecimalWithinIntRange(BigDecimal decimalValue) {
         return decimalValue.compareTo(BLangConstants.BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX) < 0 &&
                decimalValue.compareTo(BLangConstants.BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN) > 0;
     }

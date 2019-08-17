@@ -35,6 +35,8 @@ import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_RUNTIME_PKG;
 import static org.ballerinalang.jvm.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.INIT_FUNCTION_SUFFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 
 /**
  * Util Class for handling Error in Ballerina VM.
@@ -46,6 +48,8 @@ public class BallerinaErrors {
     public static final String ERROR_MESSAGE_FIELD = "message";
     public static final String NULL_REF_EXCEPTION = "NullReferenceException";
     public static final String CALL_STACK_ELEMENT = "CallStackElement";
+    public static final String ERROR_CAUSE_FIELD = "cause";
+    public static final String ERROR_STACK_TRACE = "stackTrace";
 
     public static final String ERROR_PRINT_PREFIX = "error: ";
 
@@ -73,11 +77,16 @@ public class BallerinaErrors {
     }
 
     public static ErrorValue createConversionError(Object inputValue, BType targetType) {
-        return createError(BallerinaErrorReasons.CONVERSION_ERROR,
-                           BLangExceptionHelper
-                                   .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
-                                                            .INCOMPATIBLE_CONVERT_OPERATION,
-                                                    TypeChecker.getType(inputValue), targetType));
+        return createError(CONVERSION_ERROR,
+                           BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
+                                                                TypeChecker.getType(inputValue), targetType));
+    }
+
+    public static ErrorValue createConversionError(Object inputValue, BType targetType, String detailMessage) {
+        return createError(CONVERSION_ERROR,
+                           BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
+                                                                TypeChecker.getType(inputValue), targetType)
+                                   .concat(": ".concat(detailMessage)));
     }
 
     public static ErrorValue createTypeCastError(Object sourceVal, BType targetType) {
@@ -113,6 +122,23 @@ public class BallerinaErrors {
 
     public static ErrorValue createUsageError(String errorMsg) {
         return createError("ballerina: " + errorMsg);
+    }
+
+    /**
+     * Create ballerian error using java exception for interop.
+     * @param e java exception
+     * @return ballerina error
+     */
+    public static ErrorValue createInteropError(Throwable e) {
+        MapValueImpl<String, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
+        if (e.getMessage() != null) {
+            detailMap.put(ERROR_MESSAGE_FIELD, e.getMessage());
+        }
+        if (e.getCause() != null) {
+            detailMap.put(ERROR_CAUSE_FIELD, createError(e.getCause().getClass().getName(), e.getCause().getMessage()));
+        }
+
+        return createError(e.getClass().getName(), detailMap);
     }
 
     public static Object handleResourceError(Object returnValue) {
@@ -158,7 +184,7 @@ public class BallerinaErrors {
             return null;
         }
 
-        if (!fileName.equals(pkgName.concat(BLANG_SRC_FILE_SUFFIX))) {
+        if (!fileName.endsWith(BLANG_SRC_FILE_SUFFIX)) {
             // Remove java sources for bal stacktrace if they are not extern functions.
             return null;
         }

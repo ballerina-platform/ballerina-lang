@@ -19,7 +19,6 @@ public function main(string operation, int initialValue = 0, int... values)
         }
         io:println("Result: ", value);
     } else {
-        io:println("Error: Unknown Operation");
         error unknownOpError = error("unknown operation");
         return unknownOpError;
     }

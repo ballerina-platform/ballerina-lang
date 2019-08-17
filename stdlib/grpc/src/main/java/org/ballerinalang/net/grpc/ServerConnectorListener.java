@@ -18,17 +18,18 @@ package org.ballerinalang.net.grpc;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.LastHttpContent;
+import org.ballerinalang.jvm.runtime.BLangThreadFactory;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.DEFAULT_MAX_MESSAGE_SIZE;
 import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_MESSAGE_KEY;
@@ -50,6 +51,9 @@ public class ServerConnectorListener implements HttpConnectorListener {
 
         this.servicesRegistry = servicesRegistry;
     }
+
+    private ExecutorService workerExecutor = Executors.newFixedThreadPool(10,
+            new BLangThreadFactory(new ThreadGroup("grpc-worker"), "grpc-worker-thread-pool"));
 
     @Override
     public void onMessage(HttpCarbonMessage inboundMessage) {
@@ -86,8 +90,7 @@ public class ServerConnectorListener implements HttpConnectorListener {
             return;
         }
 
-        final Executor wrappedExecutor = ThreadPoolFactory.getInstance().getWorkerExecutor();
-        wrappedExecutor.execute(() -> {
+        workerExecutor.execute(() -> {
             ServerCall.ServerStreamListener listener;
             try {
                 listener = startCall(inboundMessage, outboundMessage, method);

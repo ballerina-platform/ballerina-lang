@@ -24,6 +24,8 @@ import com.intellij.openapi.options.UnnamedConfigurable;
 import com.intellij.openapi.project.Project;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionConfigurable;
+import io.ballerina.plugins.idea.settings.debuglogs.LangServerDebugLogsConfigurable;
+import io.ballerina.plugins.idea.settings.experimental.BallerinaExperimentalFeatureConfigurable;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,7 +37,6 @@ public class BallerinaConfigurableProvider extends ConfigurableProvider {
 
     @NotNull
     private final Project myProject;
-    private BallerinaCompositeConfigurable myProjectConfigurable;
 
     public BallerinaConfigurableProvider(@NotNull Project project) {
         myProject = project;
@@ -47,14 +48,18 @@ public class BallerinaConfigurableProvider extends ConfigurableProvider {
         //        Configurable projectSettingsConfigurable = new BallerinaProjectSettingsConfigurable(myProject);
         Configurable librariesConfigurable = new BallerinaLibrariesConfigurableProvider(myProject).createConfigurable();
         Configurable sdkConfigurable = BallerinaSdkService.getInstance(myProject).createSdkConfigurable();
-        Configurable langServerAutoDetectionConfigurable = new BallerinaAutoDetectionConfigurable(myProject, false);
-        BallerinaCompositeConfigurable configurableWithSDK = new BallerinaCompositeConfigurable(sdkConfigurable,
-                librariesConfigurable);
-        BallerinaCompositeConfigurable configurableWithoutSDK = new BallerinaCompositeConfigurable(
-                librariesConfigurable, langServerAutoDetectionConfigurable);
+        Configurable autoDetectionConfigurable = new BallerinaAutoDetectionConfigurable(myProject, false);
+        Configurable experimentalFeatureConfigurable = new BallerinaExperimentalFeatureConfigurable(false);
+        Configurable lsDebugLogConfigurable = new LangServerDebugLogsConfigurable(false);
 
-        myProjectConfigurable = sdkConfigurable != null ? configurableWithSDK : configurableWithoutSDK;
-        return myProjectConfigurable;
+        BallerinaCompositeConfigurable configurableWithSDK = new BallerinaCompositeConfigurable(sdkConfigurable,
+                librariesConfigurable, autoDetectionConfigurable, experimentalFeatureConfigurable,
+                lsDebugLogConfigurable);
+        BallerinaCompositeConfigurable configurableWithoutSDK = new BallerinaCompositeConfigurable(
+                librariesConfigurable, autoDetectionConfigurable, experimentalFeatureConfigurable,
+                lsDebugLogConfigurable);
+
+        return sdkConfigurable != null ? configurableWithSDK : configurableWithoutSDK;
     }
 
     private static class BallerinaCompositeConfigurable extends SearchableConfigurable.Parent.Abstract {

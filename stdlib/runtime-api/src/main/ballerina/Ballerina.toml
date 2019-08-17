@@ -1,3 +1,13 @@
 [project]
 org-name = "ballerina"
 version = "0.0.0"
+
+[platform]
+target = "java"
+
+    [[platform.libraries]]
+    artafactId = "runtime-api"
+    version = "@project.version@"
+    path = "./lib/ballerina-runtime-api-@project.version@.jar"
+    groupId = "ballerina"
+    modules = ["runtime-api"]
