@@ -18,8 +18,6 @@
 package org.ballerinalang.stdlib.ldap.util;
 
 import org.ballerinalang.stdlib.ldap.LdapConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,8 +41,6 @@ import javax.net.ssl.TrustManagerFactory;
  * @since 0.983.0
  */
 public class SslUtils {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SslUtils.class.getSimpleName());
 
     /**
      * Creates an SSLContext based on provided trust certificate chain file path.
@@ -96,18 +92,12 @@ public class SslUtils {
     private static KeyStore getKeyStore(String fileName) throws IOException, CertificateException,
             KeyStoreException, NoSuchAlgorithmException {
         KeyStore keyStore;
-        InputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(LdapUtils.substituteVariables(fileName));
+        try (InputStream inputStream = new FileInputStream(LdapUtils.substituteVariables(fileName))) {
             CertificateFactory cf = CertificateFactory.getInstance(LdapConstants.X_509);
             Certificate ca = cf.generateCertificate(inputStream);
             keyStore = KeyStore.getInstance(LdapConstants.PKCS_STORE_TYPE);
             keyStore.load(null, null);
             keyStore.setCertificateEntry(LdapConstants.CERTIFICATE_ALIAS, ca);
-        } finally {
-            if (inputStream != null) {
-                inputStream.close();
-            }
         }
         return keyStore;
     }

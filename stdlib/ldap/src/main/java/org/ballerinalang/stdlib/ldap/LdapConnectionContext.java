@@ -44,46 +44,28 @@ public class LdapConnectionContext {
     private Hashtable environment;
 
     public LdapConnectionContext(CommonLdapConfiguration ldapConfiguration) {
-
         String connectionURL = ldapConfiguration.getConnectionURL();
         String connectionName = ldapConfiguration.getConnectionName();
         String connectionPassword = ldapConfiguration.getConnectionPassword();
         environment = new Hashtable();
         environment.put(INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         environment.put(SECURITY_AUTHENTICATION, "simple");
+        environment.put(SECURITY_PRINCIPAL, connectionName);
+        environment.put(SECURITY_CREDENTIALS, connectionPassword);
+        environment.put(javax.naming.Context.PROVIDER_URL, connectionURL);
 
-        if (connectionName != null) {
-            environment.put(SECURITY_PRINCIPAL, connectionName);
-        }
-
-        if (connectionPassword != null) {
-            environment.put(SECURITY_CREDENTIALS, connectionPassword);
-        }
-
-        if (connectionURL != null) {
-            environment.put(javax.naming.Context.PROVIDER_URL, connectionURL);
-        }
-
-        boolean isLDAPConnectionPoolingEnabled = ldapConfiguration.isConnectionPoolingEnabled();
-        environment.put("com.sun.jndi.ldap.connect.pool", isLDAPConnectionPoolingEnabled ? "true" : "false");
+        boolean isLdapConnectionPoolingEnabled = ldapConfiguration.isConnectionPoolingEnabled();
+        environment.put("com.sun.jndi.ldap.connect.pool", isLdapConnectionPoolingEnabled ? "true" : "false");
 
         if (LdapUtils.isLdapsUrl(connectionURL)) {
             environment.put(SECURITY_PROTOCOL, LdapConstants.SSL);
             environment.put("java.naming.ldap.factory.socket", LdapSslSocketFactory.class.getName());
         }
 
-        // Set connect timeout if provided in configuration. Otherwise set default value
-        String connectTimeout = String.valueOf(ldapConfiguration.getLdapConnectionTimeout());
+        String connectTimeoutInMillis = String.valueOf(ldapConfiguration.getLdapConnectionTimeout());
         String readTimeoutInMillis = String.valueOf(ldapConfiguration.getReadTimeoutInMillis());
-        if (!connectTimeout.trim().isEmpty()) {
-            environment.put("com.sun.jndi.ldap.connect.timeout", connectTimeout);
-        } else {
-            environment.put("com.sun.jndi.ldap.connect.timeout", LdapConstants.DEFAULT_CONNECTION_TIME_OUT);
-        }
-
-        if (!LdapUtils.isNullOrEmptyAfterTrim(readTimeoutInMillis)) {
-            environment.put("com.sun.jndi.ldap.read.timeout", readTimeoutInMillis);
-        }
+        environment.put("com.sun.jndi.ldap.connect.timeout", connectTimeoutInMillis);
+        environment.put("com.sun.jndi.ldap.read.timeout", readTimeoutInMillis);
     }
 
     /**
@@ -106,8 +88,7 @@ public class LdapConnectionContext {
      */
     public LdapContext getContextWithCredentials(String userDN, byte[] password) throws NamingException {
         // Create a temp env for this particular authentication session by copying the original env
-        Hashtable<String, Object> tempEnv = new Hashtable<>();
-        tempEnv.putAll(environment);
+        Hashtable<String, Object> tempEnv = new Hashtable<>(environment);
         // Replace connection name and password with the passed credentials to this method
         tempEnv.put(SECURITY_PRINCIPAL, userDN);
         tempEnv.put(SECURITY_CREDENTIALS, password);
@@ -115,9 +96,7 @@ public class LdapConnectionContext {
     }
 
     private LdapContext getContextForEnvironmentVariables(Hashtable<?, ?> environment) throws NamingException {
-        Hashtable<Object, Object> tempEnv = new Hashtable<>();
-        tempEnv.putAll(environment);
-        LdapContext context = new InitialLdapContext(tempEnv, null);
-        return context;
+        Hashtable<Object, Object> tempEnv = new Hashtable<>(environment);
+        return new InitialLdapContext(tempEnv, null);
     }
 }

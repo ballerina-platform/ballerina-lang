@@ -43,21 +43,19 @@ class SslTrustConfig {
         return trustStore;
     }
 
-    public SslTrustConfig setTrustStoreFile(File trustStore) {
+    public void setTrustStoreFile(File trustStore) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Using trust store {}", trustStore);
         }
         this.trustStore = trustStore;
-        return this;
     }
 
     public String getTrustStorePass() {
         return trustStorePass;
     }
 
-    public SslTrustConfig setTrustStorePass(String trustStorePass) {
+    public void setTrustStorePass(String trustStorePass) {
         this.trustStorePass = trustStorePass;
-        return this;
     }
 
     public void setSSLProtocol(String sslProtocol) {

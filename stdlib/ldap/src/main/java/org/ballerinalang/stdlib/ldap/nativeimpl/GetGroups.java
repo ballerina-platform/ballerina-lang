@@ -85,8 +85,8 @@ public class GetGroups {
             throw BallerinaErrors.createError("UserName value is null.");
         }
 
-        SearchControls searchCtls = new SearchControls();
-        searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         // Load normal roles with the user
         String searchFilter = ldapAuthConfig.getGroupNameListFilter();
         String roleNameProperty = ldapAuthConfig.getGroupNameAttribute();
@@ -112,14 +112,14 @@ public class GetGroups {
         }
 
         searchFilter = "(&" + searchFilter + "(" + membershipProperty + "=" + membershipValue + "))";
-        String[] returnedAtts = {roleNameProperty};
-        searchCtls.setReturningAttributes(returnedAtts);
+        String[] returnedAttributes = {roleNameProperty};
+        searchControls.setReturningAttributes(returnedAttributes);
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Reading roles with the membershipProperty Property: " + membershipProperty);
         }
 
-        List<String> list = getListOfNames(searchBase, searchFilter, searchCtls, roleNameProperty,
+        List<String> list = getListOfNames(searchBase, searchFilter, searchControls, roleNameProperty,
                                            ldapConnectionContext);
         return list.toArray(new String[list.size()]);
     }

@@ -97,7 +97,7 @@ public type InboundLdapAuthProvider object {
 # + membershipAttribute - Define the attribute that contains the distinguished names (DN) of user objects that are in a group
 # + userRolesCacheEnabled -  To indicate whether to cache the role list of a user
 # + connectionPoolingEnabled - Define whether LDAP connection pooling is enabled
-# + ldapConnectionTimeout - Timeout in making the initial LDAP connection
+# + connectionTimeoutInMillis - Timeout in making the initial LDAP connection in milliseconds
 # + readTimeoutInMillis - The value of this property is the read timeout in milliseconds for LDAP operations
 # + retryAttempts - Retry the authentication request if a timeout happened
 # + secureSocket - The SSL configurations for the ldap client socket. This needs to be configured in order to
@@ -120,7 +120,7 @@ public type LdapConnectionConfig record {|
     string membershipAttribute;
     boolean userRolesCacheEnabled = false;
     boolean connectionPoolingEnabled = true;
-    int ldapConnectionTimeout = 5000;
+    int connectionTimeoutInMillis = 5000;
     int readTimeoutInMillis = 60000;
     int retryAttempts = 0;
     SecureSocket secureSocket?;

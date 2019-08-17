@@ -48,16 +48,6 @@ public class LdapUtils {
     private static final ThreadLocal<String> socketFactoryName = new ThreadLocal<>();
 
     /**
-     * Checks whether a given string is null or empty after the trim.
-     *
-     * @param str String which needs to be check for null or empty
-     * @return true if the string is null or empty else false
-     */
-    public static boolean isNullOrEmptyAfterTrim(String str) {
-        return str == null || str.trim().isEmpty();
-    }
-
-    /**
      * This is to search user and retrieve ldap name directly from ldap.
      *
      * @param username          Given username
