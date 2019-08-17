@@ -69,7 +69,7 @@ function testJoinQuery() {
                         stockWithPriceStream.publish(e);
                     }
                 }
-    }
+
                 from stockStream window length(1)
                 join unidirectional twitterStream window length(1)
                 on stockStream.symbol == twitterStream.company
@@ -225,6 +225,7 @@ function testJoinQuery() {
                         foreach var e in emp {
                             stockWithPriceStream.publish(e);
                         }
+                    }
                     }
 
 }
