@@ -80,7 +80,8 @@ public class CreateJarTask implements Task {
             // If the module is part of the project write it to project jar cache check if file exist
             // If not write it to home jar cache
             // skip ballerina and ballerinax
-            if (ProjectDirs.isModuleExist(sourceRoot, id.name.value)) {
+            if (ProjectDirs.isModuleExist(sourceRoot, id.name.value)  ||
+                                                                buildContext.getImportPathDependency(id).isPresent()) {
                 jarFilePath = buildContext.getJarPathFromTargetCache(id);
                 birFilePath = buildContext.getBirPathFromTargetCache(id);
             } else {
