@@ -60,5 +60,8 @@ public function main() {
     
     // Copy file ot directory to new path.
     error? results = system:copy(“/A/B/C”, “/A/B/D”, replaceExisting = true);
+
+    // Execute an OS command as a subprocess
+    system:Process|system:Error proc = check system:exec("ls", {}, "/", "-la");
 }
 ```

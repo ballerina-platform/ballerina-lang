@@ -3,8 +3,8 @@ NAME
     outputs.
 
 SYNOPSIS
-    ballerina build [-o <output>] [--off-line] [--skip-tests] [--skip-lock]
-                    [<bal-file | module-name>]
+    ballerina build [-o <output>] [--sourceroot] [--off-line] [--skip-tests]
+                    [--skip-lock] [<bal-file | module-name>]
 
 DESCRIPTION
     Builds Ballerina module(s)/file and produces an executable jar file(s).
@@ -24,6 +24,11 @@ OPTIONS
     -o <output>
         Writes output to the given file. The provided output
         filename may or may not contain the ‘.jar’ extension.
+
+    --sourceroot <path>
+        Provides the path to be taken as the root of the source.
+        Source will be looked up relative to the given source root
+        path.
 
     --off-line
         Builds offline without downloading dependencies.

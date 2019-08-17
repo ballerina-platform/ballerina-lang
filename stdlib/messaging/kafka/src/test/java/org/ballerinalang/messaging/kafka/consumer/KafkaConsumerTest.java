@@ -141,7 +141,7 @@ public class KafkaConsumerTest {
             throw new IllegalStateException();
         }
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(2187, 9100);
+        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(14007, 14107);
         return kafkaCluster;
     }
 

@@ -17,12 +17,9 @@
  */
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -39,12 +36,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.ANY)},
         isPublic = true
 )
-public class GetNext extends BlockingNativeCallableUnit {
-
-    public void execute(Context context) {
-        BTable table = (BTable) context.getRefArgument(0);
-        context.setReturnValues(table.getNext());
-    }
+public class GetNext {
 
     public static Object getNext(Strand strand, TableValue table) {
         return table.getNext();

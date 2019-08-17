@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
@@ -30,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -44,13 +43,9 @@ import java.nio.file.Paths;
         functionName = "createFile",
         isPublic = true
 )
-public class CreateFile extends BlockingNativeCallableUnit {
+public class CreateFile {
 
     private static final Logger log = LoggerFactory.getLogger(CreateFile.class);
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static Object createFile(Strand strand, String path) {
         try {
@@ -64,12 +59,17 @@ public class CreateFile extends BlockingNativeCallableUnit {
             String msg = "Permission denied. Failed to create the file: " + path;
             log.error(msg, e);
             return SystemUtils.getBallerinaError(SystemConstants.PERMISSION_ERROR, msg);
+        } catch (NoSuchFileException e) {
+            String msg = "The file does not exist in path " + path;
+            return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, msg);
         } catch (IOException e) {
-            log.error("IO error while creating the file " + path, e);
-            return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, e);
+            String msg = "IO error occurred while creating the file " + path;
+            log.error(msg, e);
+            return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, msg);
         } catch (Exception e) {
-            log.error("Error while creating the file " + path, e);
-            return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, e);
+            String msg = "Error occurred while creating the file " + path;
+            log.error(msg, e);
+            return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, msg);
         }
     }
 }

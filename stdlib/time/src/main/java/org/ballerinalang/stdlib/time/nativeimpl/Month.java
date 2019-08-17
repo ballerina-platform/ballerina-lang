@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.stdlib.time.nativeimpl;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -32,10 +31,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         functionName = "getMonth"
 )
 public class Month extends AbstractTimeFunction {
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static long getMonth(Strand strand, MapValue<String, Object> timeRecord) {
         return getMonth(timeRecord);

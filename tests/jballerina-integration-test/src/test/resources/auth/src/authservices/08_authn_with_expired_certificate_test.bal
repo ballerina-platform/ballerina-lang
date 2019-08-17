@@ -22,10 +22,12 @@ import ballerina/jwt;
 jwt:InboundJwtAuthProvider jwtAuthProvider08 = new({
     issuer:"ballerina",
     audience: "ballerina.io",
-    certificateAlias: "cert",
-    trustStore: {
-        path: "../../../src/test/resources/auth/testtruststore.p12",
-        password: "ballerina"
+    trustStoreConfig: {
+        certificateAlias: "cert",
+        trustStore: {
+            path: "../../../src/test/resources/auth/testtruststore.p12",
+            password: "ballerina"
+        }
     }
 });
 
@@ -49,6 +51,6 @@ listener http:Listener listener08 = new(20009, {
 service echo08 on listener08 {
 
     resource function test(http:Caller caller, http:Request req) {
-        checkpanic caller -> respond(());
+        checkpanic caller->respond();
     }
 }

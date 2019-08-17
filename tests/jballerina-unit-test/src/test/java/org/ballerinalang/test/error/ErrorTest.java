@@ -313,4 +313,27 @@ public class ErrorTest {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "testUnionLhsWithIndirectErrorRhs");
         Assert.assertEquals(((BError) returns[0]).getReason(), "Foo");
     }
+
+    @Test()
+    public void testOptionalErrorReturn() {
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testOptionalErrorReturn");
+        Assert.assertEquals(((BError) returns[0]).stringValue(), "this is broken {message:\"too bad\"}");
+    }
+
+    @Test
+    public void testStackTraceInNative() {
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(errorTestResult, "testStackTraceInNative");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+
+        Assert.assertNotNull(expectedException);
+        String message = ((BLangRuntimeException) expectedException).getMessage();
+        Assert.assertEquals(message,
+                "error: array index out of range: index: 4, size: 2 \n\t" +
+                        "at ballerina.lang_array:slice(array.bal:124)\n\t" +
+                        "   error_test:testStackTraceInNative(error_test.bal:286)");
+    }
 }

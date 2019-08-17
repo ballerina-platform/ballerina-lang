@@ -317,13 +317,20 @@ const string TYPES_ERROR =  "typeError";
 const string PANIC_FIELD =  "panic";
 const string PRINT_STACK_TRACE_METHOD = "printStackTrace";
 const string SET_DETAIL_TYPE_METHOD = "setDetailType";
+const string ERROR_REASON_METHOD_TOO_LARGE = "MethodTooLarge";
+const string ERROR_REASON_CLASS_TOO_LARGE = "ClassTooLarge";
 
 // exception classes
 const string BLANG_RUNTIME_EXCEPTION = "org/ballerinalang/jvm/util/exceptions/BLangRuntimeException";
 const string THROWABLE = "java/lang/Throwable";
+const string HANDLE_THROWABLE_METHOD = "handleRuntimeErrors";
 
 // code generation related constants.
 const string MODULE_INIT_CLASS_NAME = "___init";
+const string CURRENT_MODULE_INIT = "$currentModuleInit";
+const string MODULE_INIT = "$moduleInit";
+const string MODULE_START = "$moduleStart";
+const string MODULE_STOP = "$moduleStop";
 const string BAL_EXTENSION = ".bal";
 const string WINDOWS_PATH_SEPERATOR = "\\";
 const string UNIX_PATH_SEPERATOR = "/";
@@ -338,6 +345,7 @@ const string SCHEDULER_START_METHOD =  "start";
 
 // observability related constants
 const string OBSERVER_CONTEXT = "org/ballerinalang/jvm/observability/ObserverContext";
+const string OBSERVE_UTILS = "org/ballerinalang/jvm/observability/ObserveUtils";
 
 // visibility flags
 const int BAL_PUBLIC = 1;

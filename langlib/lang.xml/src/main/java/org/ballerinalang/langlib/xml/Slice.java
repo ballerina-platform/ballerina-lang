@@ -18,14 +18,10 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -42,26 +38,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
                 @Argument(name = "endIndex", type = TypeKind.INT) },
         returnType = { @ReturnType(type = TypeKind.XML) }, isPublic = true
 )
-public class Slice extends BlockingNativeCallableUnit {
+public class Slice {
 
     private static final String OPERATION = "slice xml";
-
-    @Override
-    public void execute(Context ctx) {
-        BValue result = null;
-        try {
-            // Accessing Parameters.
-            BXML value = (BXML) ctx.getRefArgument(0);
-            long startIndex = ctx.getIntArgument(0);
-            long endIndex = ctx.getIntArgument(1);
-            result = value.slice(startIndex, endIndex);
-        } catch (Throwable e) {
-            ErrorHandler.handleXMLException(OPERATION, e);
-        }
-        
-        // Setting output value.
-        ctx.setReturnValues(result);
-    }
 
     public static XMLValue<?> slice(Strand strand, XMLValue<?> xml, long startIndex, long endIndex) {
         try {

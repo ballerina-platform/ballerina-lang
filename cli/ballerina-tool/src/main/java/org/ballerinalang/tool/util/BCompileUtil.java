@@ -274,7 +274,6 @@ public class BCompileUtil {
         options.put(PROJECT_DIR, sourceRoot);
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
-        options.put(CompilerOptionName.SIDDHI_RUNTIME_ENABLED, Boolean.toString(isSiddhiRuntimeEnabled));
         options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
 
         return compile(context, packageName, compilerPhase, false);

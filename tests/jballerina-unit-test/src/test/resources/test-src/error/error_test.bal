@@ -45,13 +45,13 @@ function errorTrapTest(int i) returns string|error {
     return val;
 }
 
-type TrxError error<string, TrxErrorData>;
-
 type TrxErrorData record {|
     string message = "";
     error cause?;
     string data = "";
 |};
+
+type TrxError error<string, TrxErrorData>;
 
 type TrxErrorData2 record {|
     string message = "";
@@ -275,4 +275,13 @@ type E E1|E2;
 public function testUnionLhsWithIndirectErrorRhs() returns error {
     E x = E1(); // Ok, since it say E1.
     return x;
+}
+
+public function testOptionalErrorReturn() returns error? {
+    return error("this is broken", message = "too bad");
+}
+
+public function testStackTraceInNative() {
+    string[] array = ["apple", "orange"];
+    _ = array.slice(1, 4);
 }

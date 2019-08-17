@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.io.events;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 
 import java.util.HashMap;
@@ -30,13 +28,8 @@ import java.util.Map;
  */
 public class EventContext {
     /**
-     * Holds the context which will be used to set the relevant results.
-     */
-    private Context context;
-    /**
      * Callback which will be triggered upon completion.
      */
-    private CallableUnitCallback callback;
     private NonBlockingCallback nonBlockingCallback;
     /**
      * Represents any error which will be thrown.
@@ -54,26 +47,12 @@ public class EventContext {
     public EventContext() {
     }
 
-    public EventContext(Context context) {
-        this.context = context;
-    }
-
-    //TODO: Remove after migration
-    public EventContext(Context context, CallableUnitCallback callback) {
-        this.context = context;
-        this.callback = callback;
-    }
-
     public EventContext(NonBlockingCallback callback) {
         this.nonBlockingCallback = callback;
     }
 
     public void setRegister(Register register) {
         this.register = register;
-    }
-
-    public CallableUnitCallback getCallback() {
-        return callback;
     }
 
     public NonBlockingCallback getNonBlockingCallback() {
@@ -84,20 +63,12 @@ public class EventContext {
         return register;
     }
 
-    public Context getContext() {
-        return context;
-    }
-
     public Throwable getError() {
         return error;
     }
 
     public void setError(Throwable error) {
         this.error = error;
-    }
-
-    public void setContext(Context context) {
-        this.context = context;
     }
 
     public Map<String, Object> getProperties() {

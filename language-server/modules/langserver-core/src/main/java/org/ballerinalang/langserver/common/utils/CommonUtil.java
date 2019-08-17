@@ -24,6 +24,7 @@ import org.antlr.v4.runtime.TokenStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -45,7 +46,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.types.ConstrainedType;
-import org.ballerinalang.util.BLangConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
@@ -127,10 +127,11 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.jvm.util.BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
-import static org.ballerinalang.util.BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX;
 
 /**
  * Common utils to be reuse in language server implementation.
@@ -145,6 +146,8 @@ public class CommonUtil {
     public static final String FILE_SEPARATOR = File.separator;
 
     public static final String LINE_SEPARATOR_SPLIT = "\\r?\\n";
+
+    public static final Pattern MD_NEW_LINE_PATTERN = Pattern.compile("\\s\\s\\r\\n?|\\s\\s\\n|\\r\\n?|\\n");
 
     public static final boolean LS_DEBUG_ENABLED;
 
@@ -619,8 +622,8 @@ public class CommonUtil {
         List<String> attachedFunctions = ((BObjectTypeSymbol) bSymbol).attachedFuncs.stream()
                 .map(function -> function.funcName.getValue())
                 .collect(Collectors.toList());
-        return attachedFunctions.contains("__start") && attachedFunctions.contains("__stop")
-                && attachedFunctions.contains("__attach");
+        return attachedFunctions.contains("__start") && attachedFunctions.contains("__immediateStop")
+                && attachedFunctions.contains("__immediateStop") && attachedFunctions.contains("__attach");
     }
 
     /**
@@ -971,7 +974,8 @@ public class CommonUtil {
         String relativeFilePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangCompilationUnit filteredCUnit = pkgNode.compUnits.stream()
                 .filter(cUnit ->
-                        cUnit.getPosition().getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(relativeFilePath))
+                                cUnit.getPosition().getSource().cUnitName.replace("/", FILE_SEPARATOR)
+                                        .equals(relativeFilePath))
                 .findAny().orElse(null);
         List<TopLevelNode> topLevelNodes = filteredCUnit == null
                 ? new ArrayList<>()
@@ -1006,7 +1010,7 @@ public class CommonUtil {
      */
     public static String getPlainTextSnippet(String snippet) {
         return snippet
-                .replaceAll("(\\$\\{\\d+:)([a-zA-Z]*:*[a-zA-Z]*)(\\})", "$2")
+                .replaceAll("\\$\\{\\d+:([^\\{^\\}]*)\\}", "$1")
                 .replaceAll("(\\$\\{\\d+\\})", "");
     }
 
@@ -1436,12 +1440,14 @@ public class CommonUtil {
     /**
      * Notify user an error message through LSP protocol.
      *
+     * @param operation          operation name
      * @param error          {@link Throwable}
      * @param languageClient language client
      */
-    public static void notifyUser(UserErrorException error, LanguageClient languageClient) {
+    public static void notifyUser(String operation, UserErrorException error, LanguageClient languageClient) {
         if (languageClient != null) {
-            languageClient.showMessage(new MessageParams(MessageType.Error, error.getMessage()));
+            languageClient.showMessage(
+                    new MessageParams(MessageType.Error, operation + " failed, " + error.getMessage()));
         }
     }
 

@@ -3,6 +3,9 @@
 This module provides the functionality required to access and manipulate data stored in any type of relational database 
 that is accessible via Java Database Connectivity (JDBC).
 
+**Prerequisite:** Please add the JDBC driver corresponding to the database you are trying to interact with, 
+as a native library dependency in your Ballerina project.
+
 ### Client
 
 To access a database, you must first create a `Client` object. A sample for creating a JDBC client can be found below.

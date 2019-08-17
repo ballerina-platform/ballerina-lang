@@ -39,6 +39,7 @@ import java.util.List;
 /**
  * Test cases for bir type gen.
  */
+//TODO rewrite this test (manu)
 public class TypeGenTest {
 
     public static final String EXPECTED_PREFIX = "// expected: ";

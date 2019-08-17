@@ -32,7 +32,6 @@ public type JavaClass record {|
     bir:Function?[] functions = [];
 |};
 
-bir:BIRContext currentBIRContext = new;
 string[] birCacheDirs = [];
 
 public function main(string... args) {
@@ -49,21 +48,22 @@ public function main(string... args) {
     }
 
     var jarFile = generateJarBinary(pathToEntryBir, mapPath, dumpBir);
-    if (jarFile is error) {
+    if (dlogger.getErrorCount() > 0) {
+        dlogger.printErrors();
         jvm:systemExit(1);
-    } else {
-        writeJarFile(jarFile, targetPath);
+        return;
     }
+
+    writeJarFile(jarFile, targetPath);
 }
 
-function generateJarBinary(string pathToEntryBir, string mapPath, boolean dumpBir) returns JarFile | error {
+function generateJarBinary(string pathToEntryBir, string mapPath, boolean dumpBir) returns JarFile {
     if (mapPath != "") {
         externalMapCache = readMap(mapPath);
     }
 
     byte[] moduleBytes = readFileFully(pathToEntryBir);
     bir:Package entryMod = bir:populateBIRModuleFromBinary(moduleBytes, false);
-
     compiledPkgCache[entryMod.org.value + entryMod.name.value] = entryMod;
 
     if (dumpBir) {
@@ -72,7 +72,7 @@ function generateJarBinary(string pathToEntryBir, string mapPath, boolean dumpBi
     }
 
     JarFile jarFile = {};
-    check generatePackage(createModuleId(entryMod.org.value, entryMod.name.value,
+    generatePackage(createModuleId(entryMod.org.value, entryMod.name.value,
                                         entryMod.versionValue.value), <@untainted> jarFile, true);
     return jarFile;
 }
@@ -110,5 +110,3 @@ function writeJarFile(JarFile jarFile, string targetPath) {
 }
 
 function writeExecutableJarToFile(JarFile jarFile, string targetPath) = external;
-
-function createBIRContext(string sourceDir, string pathToCompilerBackend, string libDir) returns bir:BIRContext = external;

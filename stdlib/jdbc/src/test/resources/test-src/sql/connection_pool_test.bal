@@ -523,7 +523,7 @@ function testLocalSharedConnectionPoolCreateClientAfterShutdown() returns @taint
     return [result1, result2, result3, result4];
 }
 
-function testLocalSharedConnectionPoolStopInitInterleave() returns int|string {
+function testLocalSharedConnectionPoolStopInitInterleave() returns @tainted int|string {
     jdbc:PoolOptions poolOptions = { maximumPoolSize: 2, connectionTimeoutInMillis: 1000, validationTimeoutInMillis: 1000 };
 
     worker w1 {

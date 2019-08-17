@@ -17,16 +17,10 @@
  **/
 package org.ballerinalang.utils;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.CollectionValue;
 import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BCollection;
-import org.ballerinalang.model.values.BIterator;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -41,24 +35,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         functionName = "iterate",
         args = {@Argument(name = "value", type = TypeKind.ANY)},
         returnType = {@ReturnType(type = TypeKind.ANY)})
-public class Iterate extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        BValue collection = context.getNullableRefArgument(0);
-
-        if (collection == null) {
-            context.setReturnValues(BLangVMErrors.createNullRefException(context.getStrand()));
-            return;
-        }
-        if (!(collection instanceof BCollection)) {
-            // Value is a value-type JSON.
-            context.setReturnValues(new JSONIterator());
-            return;
-        }
-
-        context.setReturnValues(((BCollection) collection).newIterator());
-    }
+public class Iterate {
 
     public static Object iterate(Strand strand, Object collection) {
         if (collection == null) {
@@ -86,21 +63,6 @@ public class Iterate extends BlockingNativeCallableUnit {
 
         @Override
         public Object next() {
-            return null;
-        }
-    }
-
-    /**
-     * Iterator for Json types.
-     */
-    public static class JSONIterator implements BIterator {
-        @Override
-        public boolean hasNext() {
-            return false;
-        }
-
-        @Override
-        public BValue getNext() {
             return null;
         }
     }

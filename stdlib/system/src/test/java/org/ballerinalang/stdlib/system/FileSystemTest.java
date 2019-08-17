@@ -59,9 +59,11 @@ public class FileSystemTest {
     private Path srcFilePath = Paths.get("src", "test", "resources", "data-files", "src-file.txt");
     private Path destFilePath = Paths.get("src", "test", "resources", "data-files", "dest-file.txt");
     private Path srcDirPath = Paths.get("src", "test", "resources", "data-files", "src-dir");
+    private Path errorSrcDirPath = Paths.get("src", "test", "resources", "data-files", "src-dir", "error");
     private Path tempDirPath;
     private Path tempSourcePath;
     private Path tempDestPath;
+    private Path errorPath;
     private static final Logger log = LoggerFactory.getLogger(FileSystemTest.class);
 
     @BeforeClass
@@ -73,6 +75,7 @@ public class FileSystemTest {
         }
         tempSourcePath = tempDirPath.resolve("src-file.txt");
         tempDestPath = tempDirPath.resolve("dest-file.txt");
+        errorPath = errorSrcDirPath.resolve("no-file.txt");
     }
 
     @Test(description = "Test for retrieving temporary directory")
@@ -243,6 +246,21 @@ public class FileSystemTest {
             BValue[] returns = BRunUtil.invoke(compileResult, "testCreateFile", args);
             assertTrue(returns[0] instanceof BString);
             assertTrue(Files.exists(tempDestPath));
+        } finally {
+            Files.deleteIfExists(tempDestPath);
+        }
+    }
+
+    @Test(description = "Test attempting to access a file that does not exist")
+    public void testCreateNonExistingFile() throws IOException {
+        try {
+            BValue[] args = {new BString(errorPath.toString())};
+            BValue[] returns = BRunUtil.invoke(compileResult, "testCreateNonExistingFile", args);
+            assertTrue(returns[0] instanceof BError);
+            BError error = (BError) returns[0];
+            assertEquals(error.getReason(), SystemConstants.FILE_SYSTEM_ERROR);
+            assertTrue(((BMap) error.getDetails()).get("message").stringValue()
+                    .contains("The file does not exist in path "));
         } finally {
             Files.deleteIfExists(tempDestPath);
         }

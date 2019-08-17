@@ -194,6 +194,8 @@ public class BIRBinaryWriter {
         insWriter.writePosition(birFunction.pos);
         // Function name CP Index
         buf.writeInt(addStringCPEntry(birFunction.name.value));
+        // Function worker name CP Index
+        buf.writeInt(addStringCPEntry(birFunction.workerName.value));
         // Flags
         buf.writeInt(birFunction.flags);
 

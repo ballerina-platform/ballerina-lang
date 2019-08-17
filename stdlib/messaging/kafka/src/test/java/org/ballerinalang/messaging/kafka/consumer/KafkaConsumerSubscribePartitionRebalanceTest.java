@@ -34,10 +34,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
+import static org.awaitility.Awaitility.await;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.produceToKafkaCluster;
 
 /**
  * Tests for ballerina Kafka subscribeWithPartitionRebalance function.
@@ -55,7 +58,7 @@ public class KafkaConsumerSubscribePartitionRebalanceTest {
                 .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(1).startup();
     }
 
-    @Test(description = "Test functionality of subscribeWithPartitionRebalance() function", enabled = false)
+    @Test(description = "Test functionality of subscribeWithPartitionRebalance() function")
     public void testKafkaConsumerSubscribeWithPartitionRebalance() {
         CompileResult result = BCompileUtil.compile(true, getFilePath(
                 Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_subscribe_with_partition_rebalance.bal")));
@@ -74,19 +77,20 @@ public class KafkaConsumerSubscribePartitionRebalanceTest {
         kafkaCluster.createTopic("rebalance-topic-1", 3, 1);
         kafkaCluster.createTopic("rebalance-topic-2", 2, 1);
 
-        BRunUtil.invoke(result, "funcKafkaTestSubscribeWithPartitionRebalance");
-        returnBValuesRevoked = BRunUtil.invoke(result, "funcKafkaGetRebalanceInvokedPartitionsCount");
-        Assert.assertEquals(returnBValuesRevoked.length, 1);
-        Assert.assertTrue(returnBValuesRevoked[0] instanceof BInteger);
-        revokedPartitionCount = ((BInteger) returnBValuesRevoked[0]).intValue();
+        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
+            produceToKafkaCluster(kafkaCluster, "test", "test-message");
+            BValue[] revoked = BRunUtil.invoke(result, "funcKafkaGetRebalanceInvokedPartitionsCount");
+            Assert.assertEquals(revoked.length, 1);
+            Assert.assertTrue(revoked[0] instanceof BInteger);
+            long revokedCount = ((BInteger) revoked[0]).intValue();
 
-        returnBValuesAssigned = BRunUtil.invoke(result, "funcKafkaGetRebalanceAssignedPartitionsCount");
-        Assert.assertEquals(returnBValuesAssigned.length, 1);
-        Assert.assertTrue(returnBValuesAssigned[0] instanceof BInteger);
-        assignedPartitionCount = ((BInteger) returnBValuesAssigned[0]).intValue();
+            BValue[] assigned = BRunUtil.invoke(result, "funcKafkaGetRebalanceAssignedPartitionsCount");
+            Assert.assertEquals(assigned.length, 1);
+            Assert.assertTrue(assigned[0] instanceof BInteger);
+            long assignedCount = ((BInteger) assigned[0]).intValue();
 
-        Assert.assertEquals(revokedPartitionCount, 0);
-        Assert.assertEquals(assignedPartitionCount, 5);
+            return (revokedCount == 1 && assignedCount == 5);
+        });
     }
 
     @AfterClass
@@ -107,7 +111,7 @@ public class KafkaConsumerSubscribePartitionRebalanceTest {
             throw new IllegalStateException();
         }
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-subscribe-to-pattern-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(2185, 9098);
+        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(14005, 14105);
         return kafkaCluster;
     }
 }

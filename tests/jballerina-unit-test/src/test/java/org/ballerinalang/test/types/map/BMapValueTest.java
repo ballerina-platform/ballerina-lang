@@ -17,12 +17,14 @@
  */
 package org.ballerinalang.test.types.map;
 
+import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -196,15 +198,14 @@ public class BMapValueTest {
         Assert.assertEquals(compileResult.getDiagnostics()[0].getMessage(),
                             "operator '+' not defined for 'any' and 'int'");
     }
-    
+
     @Test(description = "Testing convert map values to string")
     public void testBMapToString() {
-        BMap<String, BRefType> map = new BMap<>();
+        MapValue<String, Object> map = new MapValueImpl<>();
         map.put(new String("key1"), new BInteger(1));
         map.put(new String("key2"), new BString("foo"));
-        map.put(new String("key3"), new BXMLItem("<bar>hello</bar>"));
-        
-        Assert.assertEquals(map.stringValue(), "{\"key1\":1, \"key2\":\"foo\", \"key3\":<bar>hello</bar>}");
+        map.put(new String("key3"), XMLFactory.parse("<bar>hello</bar>"));
+        Assert.assertEquals(map.stringValue(), "key1=1 key2=foo key3=<bar>hello</bar>");
     }
 
     @Test(dependsOnMethods = "testGrammar")

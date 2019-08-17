@@ -24,17 +24,20 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLItem;
-import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeConstants;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
 import org.ballerinalang.stdlib.utils.ResponseReader;
@@ -54,6 +57,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -61,16 +65,18 @@ import java.nio.file.Paths;
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_FORM;
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_XML;
+import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
+import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
 import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichEntityWithDefaultMsg;
 import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichTestEntity;
 import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichTestEntityHeaders;
 import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createEntityObject;
-import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createMediaTypeObject;
 import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createRequestObject;
 
 /**
@@ -183,8 +189,7 @@ public class RequestNativeFunctionSuccessTest {
         inRequestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
 
         ObjectValue entity = createEntityObject();
-        ObjectValue mediaType = createMediaTypeObject();
-        HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg);
+        HttpUtil.populateInboundRequest(inRequest, entity, inRequestMsg);
 
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetHeader",
                                               new Object[]{ inRequest, HttpHeaderNames.CONTENT_TYPE.toString() });
@@ -214,8 +219,7 @@ public class RequestNativeFunctionSuccessTest {
         headers.add("test-header", TEXT_PLAIN);
 
         ObjectValue entity = createEntityObject();
-        ObjectValue mediaType = createMediaTypeObject();
-        HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg);
+        HttpUtil.populateInboundRequest(inRequest, entity, inRequestMsg);
 
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetHeaders",
                                               new Object[]{ inRequest, "test-header" });
@@ -639,10 +643,59 @@ public class RequestNativeFunctionSuccessTest {
          * String returnJsonValue = new String(Files.readAllBytes(Paths.get(returnFileStruct.getStringField(0))),
          * UTF_8);
          */
-        BValue bJson = EntityBodyHandler.constructJsonDataSource(entity);
+        BValue bJson = constructJsonDataSource(entity);
         Assert.assertTrue(bJson instanceof BMap);
         Assert.assertEquals(((BMap) bJson).get("name").stringValue(), "wso2", "Payload is not set properly");
 
+    }
+
+    /**
+     * Construct JsonDataSource from the underneath byte channel which is associated with the entity object.
+     *
+     * @param entityObj Represent an entity object
+     * @return BJSON data source which is kept in memory
+     */
+    private static BRefType<?> constructJsonDataSource(BMap<String, BValue> entityObj) {
+        try {
+            Channel byteChannel = getByteChannel(entityObj);
+            if (byteChannel == null) {
+                return null;
+            }
+            BRefType<?> jsonData = constructJsonDataSource(entityObj, byteChannel.getInputStream());
+            byteChannel.close();
+            return jsonData;
+        } catch (IOException e) {
+            throw new BallerinaIOException("Error occurred while closing connection", e);
+        }
+    }
+
+    private static Channel getByteChannel(BMap<String, BValue> entityObj) {
+        return entityObj.getNativeData(ENTITY_BYTE_CHANNEL) != null ? (Channel) entityObj.getNativeData
+                (ENTITY_BYTE_CHANNEL) : null;
+    }
+
+    private static BRefType<?> constructJsonDataSource(BMap<String, BValue> entity, InputStream inputStream) {
+        BRefType<?> jsonData;
+        String contentTypeValue = getHeaderValue(entity, HttpHeaderNames.CONTENT_TYPE.toString());
+        if (isNotNullAndEmpty(contentTypeValue)) {
+            String charsetValue = MimeUtil.getContentTypeBParamValue(contentTypeValue, CHARSET);
+            if (isNotNullAndEmpty(charsetValue)) {
+                jsonData = JsonParser.parse(inputStream, charsetValue);
+            } else {
+                jsonData = JsonParser.parse(inputStream);
+            }
+        } else {
+            jsonData = JsonParser.parse(inputStream);
+        }
+        return jsonData;
+    }
+
+    private static String getHeaderValue(BMap<String, BValue> bodyPart, String headerName) {
+        if (bodyPart.getNativeData(ENTITY_HEADERS) != null) {
+            HttpHeaders httpHeaders = (HttpHeaders) bodyPart.getNativeData(ENTITY_HEADERS);
+            return httpHeaders.get(headerName);
+        }
+        return null;
     }
 
     @Test

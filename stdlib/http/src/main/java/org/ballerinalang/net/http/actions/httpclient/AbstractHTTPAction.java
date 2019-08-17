@@ -35,7 +35,6 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
-import org.ballerinalang.model.InterruptibleNativeCallableUnit;
 import org.ballerinalang.net.http.CompressionConfigState;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
@@ -59,19 +58,19 @@ import java.net.URL;
 import java.util.Optional;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.ACCEPT_ENCODING;
+import static org.ballerinalang.jvm.runtime.RuntimeConstants.BALLERINA_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 import static org.ballerinalang.net.http.HttpUtil.getCompressionState;
-import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 import static org.wso2.transport.http.netty.contract.Constants.ENCODING_DEFLATE;
 import static org.wso2.transport.http.netty.contract.Constants.ENCODING_GZIP;
 
 /**
  * {@code AbstractHTTPAction} is the base class for all HTTP Connector Actions.
  */
-public abstract class AbstractHTTPAction implements InterruptibleNativeCallableUnit {
+public abstract class AbstractHTTPAction {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTTPAction.class);
 
@@ -79,16 +78,6 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
 
     static {
         CACHE_BALLERINA_VERSION = System.getProperty(BALLERINA_VERSION);
-    }
-
-    @Override
-    public boolean persistBeforeOperation() {
-        return false;
-    }
-
-    @Override
-    public boolean persistAfterOperation() {
-        return false;
     }
 
     protected static HttpCarbonMessage createOutboundRequestMsg(String serviceUri, MapValue config, String path,

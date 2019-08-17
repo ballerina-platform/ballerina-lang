@@ -25,7 +25,8 @@ configurations {
 
 dependencies {
     implementation 'org.ow2.asm:asm'
-    implementation project(':ballerina-core')
+    implementation 'org.ow2.asm:asm-util'
+    implementation 'org.ow2.asm:asm-tree'
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
 

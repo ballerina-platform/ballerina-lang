@@ -15,39 +15,30 @@
 // under the License.
 
 import ballerina/kafka;
+import ballerina/io;
 
 string topic1 = "rebalance-topic-1";
 string topic2 = "rebalance-topic-2";
 string[] topics = [topic1, topic2];
 
 kafka:ConsumerConfig consumerConfigs = {
-    bootstrapServers: "localhost:9098",
+    bootstrapServers: "localhost:14105",
     groupId: "test-group",
     clientId: "seek-consumer",
     offsetReset: "earliest",
     topics: ["test"]
 };
 
-kafka:Consumer kafkaConsumer = new(consumerConfigs);
+listener kafka:Consumer kafkaConsumer = new(consumerConfigs);
 
-function funcKafkaTestSubscribeWithPartitionRebalance() {
-    function(kafka:Consumer consumer, kafka:TopicPartition[] partitions) onAssigned = funcKafkaOnPartitionsAssigned;
-    function(kafka:Consumer consumer, kafka:TopicPartition[] partitions) onRevoked = funcKafkaOnPartitionsRevoke;
+kafka:Consumer simpleConsumer = new(consumerConfigs);
 
-    var result = kafkaConsumer->subscribeWithPartitionRebalance(topics, onRevoked, onAssigned);
-}
+service KafkaService on kafkaConsumer {
+    resource function onMessage(kafka:Consumer consumer, kafka:ConsumerRecord[] records) {
+        function(kafka:Consumer consumer, kafka:TopicPartition[] partitions) onAssigned = funcKafkaOnPartitionsAssigned;
+        function(kafka:Consumer consumer, kafka:TopicPartition[] partitions) onRevoked = funcKafkaOnPartitionsRevoke;
 
-function funcKafkaTestGetSubscribedTopicCount() returns int|error {
-    string[] subscribedTopics = check kafkaConsumer->getSubscription();
-    return (subscribedTopics.length());
-}
-
-function funcKafkaGetAvailableTopicsCount() returns int|error {
-    var result = kafkaConsumer->getAvailableTopics(duration = 100);
-    if (result is error) {
-        return result;
-    } else {
-        return result.length();
+        var result = kafkaConsumer->subscribeWithPartitionRebalance(topics, onRevoked, onAssigned);
     }
 }
 
@@ -63,11 +54,9 @@ function funcKafkaOnPartitionsAssigned(kafka:Consumer kafkaConsumer, kafka:Topic
 }
 
 function funcKafkaGetRebalanceInvokedPartitionsCount() returns int {
-    var result = kafkaConsumer->poll(1000);
     return rebalnceInvokedPartitions;
 }
 
 function funcKafkaGetRebalanceAssignedPartitionsCount() returns int {
-    var result = kafkaConsumer->poll(1000);
     return rebalnceAssignedPartitions;
 }

@@ -23,6 +23,7 @@ import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BHandleValue;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.jvm.tests.InstanceMethods;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -53,7 +54,6 @@ public class InstanceMethodTest {
         args[0] = new BHandleValue(testIns);
 
         BValue[] returns = BRunUtil.invoke(result, "testAcceptNothingAndReturnNothing", args);
-        // TODO ....... WHY NULL return HERERRRRR......?????*^#&*^#*&$^#*&^
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertNull(returns[0]);
@@ -161,7 +161,6 @@ public class InstanceMethodTest {
         BValue[] args = new BValue[1];
         args[0] = new BHandleValue(testIns);
         BValue[] returns = BRunUtil.invoke(result, "testInteropFunctionWithDifferentName", args);
-        // TODO ....... WHY NULL return HERERRRRR......?????*^#&*^#*&$^#*&^
         Assert.assertEquals(returns.length, 1);
         Assert.assertNull(returns[0]);
         Assert.assertEquals(testIns.getCounter(), new Integer(1));
@@ -212,5 +211,40 @@ public class InstanceMethodTest {
         BValue[] returns = BRunUtil.invoke(result, "testAcceptTwoParamsAndReturnSomething", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BHandleValue) returns[0]).getValue(), 50);
+    }
+
+    @Test(description = "Test content of a exception return")
+    public void testErrorDetail() {
+        InstanceMethods testIns = new InstanceMethods();
+        BValue[] args = new BValue[1];
+        args[0] = new BHandleValue(testIns);
+
+        BValue[] returns = BRunUtil.invoke(result, "errorDetail", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].getType().getName(), "error");
+        Assert.assertEquals(((BError) returns[0]).getReason(),
+                "org.ballerinalang.nativeimpl.jvm.tests.JavaInteropTestCheckedException");
+        Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get("message").stringValue(),
+                "Custom error");
+        BError cause = (BError) ((BMap) ((BError) returns[0]).getDetails()).get("cause");
+        Assert.assertEquals(cause.getType().getName(), "error");
+        Assert.assertEquals(cause.getReason(), "java.lang.Throwable");
+        Assert.assertEquals(((BMap) cause.getDetails()).get("message").stringValue(), "Interop Throwable");
+    }
+
+    @Test(description = "Test content of a exception return")
+    public void testUncheckedErrorDetail() {
+        InstanceMethods testIns = new InstanceMethods();
+        BValue[] args = new BValue[1];
+        args[0] = new BHandleValue(testIns);
+
+        try {
+            BRunUtil.invoke(result, "uncheckedErrorDetail", args);
+            Assert.fail("Unchecked exception not thrown");
+        } catch (Throwable e) {
+            Assert.assertTrue(e.getMessage().contains("error: java.lang.RuntimeException"));
+            Assert.assertTrue(e.getMessage().contains("message=Unchecked Exception"));
+            Assert.assertTrue(e.getMessage().contains("cause=error java.lang.Throwable message=Unchecked cause"));
+        }
     }
 }
