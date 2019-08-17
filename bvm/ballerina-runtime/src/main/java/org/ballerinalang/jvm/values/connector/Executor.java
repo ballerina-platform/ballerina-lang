@@ -48,23 +48,6 @@ public class Executor {
      * This method will execute Ballerina resource in non-blocking manner. It will use Ballerina worker-pool for the
      * execution and will return the connector thread immediately.
      *
-     * @param service      to be executed.
-     * @param resourceName to be executed.
-     * @param callback     to be executed when execution completes.
-     * @param properties   to be passed to context.
-     * @param args         required for the resource.
-     */
-    @Deprecated
-    public static void submit(ObjectValue service, String resourceName, CallableUnitCallback callback,
-                              Map<String, Object> properties, Object... args) {
-        submit(null, service, resourceName, callback, properties, args);
-    }
-
-
-    /**
-     * This method will execute Ballerina resource in non-blocking manner. It will use Ballerina worker-pool for the
-     * execution and will return the connector thread immediately.
-     *
      * @param scheduler    available scheduler.
      * @param service      to be executed.
      * @param resourceName to be executed.
@@ -74,12 +57,6 @@ public class Executor {
      */
     public static void submit(Scheduler scheduler, ObjectValue service, String resourceName,
                               CallableUnitCallback callback, Map<String, Object> properties, Object... args) {
-
-        //TODO Remove null check once scheduler logic is migrated for WebSocket. Scheduler cannot be null
-        if (scheduler == null) {
-            scheduler = new Scheduler(false);
-            scheduler.start();
-        }
 
         Function<Object[], Object> func = objects -> {
             Strand strand = (Strand) objects[0];
