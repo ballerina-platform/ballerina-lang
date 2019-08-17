@@ -84,7 +84,7 @@ public class LdapConnectionContext {
      * @param userDN   user DN
      * @param password user password
      * @return returns the LdapContext instance if credentials are valid
-     * @throws NamingException    in case of an exception, when obtaining the LDAP context
+     * @throws NamingException in case of an exception, when obtaining the LDAP context
      */
     public LdapContext getContextWithCredentials(String userDN, byte[] password) throws NamingException {
         // Create a temp env for this particular authentication session by copying the original env

@@ -120,13 +120,13 @@ public class GetGroups {
         }
 
         List<String> list = getListOfNames(searchBase, searchFilter, searchControls, roleNameProperty,
-                                           ldapConnectionContext);
+                ldapConnectionContext);
         return list.toArray(new String[list.size()]);
     }
 
-    private static List<String> getListOfNames(List<String> searchBases, String searchFilter, SearchControls searchCtls,
-                                               String property, DirContext ldapConnectionContext)
-            throws NamingException {
+    private static List<String> getListOfNames(List<String> searchBases, String searchFilter,
+                                               SearchControls searchControls, String property,
+                                               DirContext ldapConnectionContext) throws NamingException {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Result for searchBase: " + searchBases + " searchFilter: " + searchFilter +
                     " property:" + property + " appendDN: false");
@@ -138,7 +138,7 @@ public class GetGroups {
             // handle multiple search bases
             for (String searchBase : searchBases) {
                 answer = ldapConnectionContext.search(LdapUtils.escapeDNForSearch(searchBase),
-                        searchFilter, searchCtls);
+                        searchFilter, searchControls);
                 while (answer.hasMoreElements()) {
                     SearchResult searchResult = answer.next();
                     if (searchResult.getAttributes() == null) {
@@ -172,8 +172,8 @@ public class GetGroups {
     /**
      * Takes the corresponding name for a given username from LDAP.
      *
-     * @param userName Given username
-     * @param ldapConfiguration LDAP user store configurations
+     * @param userName              Given username
+     * @param ldapConfiguration     LDAP user store configurations
      * @param ldapConnectionContext connection context
      * @return Associated name for the given username
      */

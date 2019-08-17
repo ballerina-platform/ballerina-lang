@@ -48,10 +48,10 @@ public class SslUtils {
      * @param filePath Path to the certificate file.
      * @return SSLContext created from the given certificate file.
      * @throws NoSuchAlgorithmException When the particular cryptographic algorithm is not available in the environment.
-     * @throws KeyStoreException When an exception occurs during the keystore creation process.
-     * @throws KeyManagementException  When an exception occurs dealing with key management.
-     * @throws IOException To signal that an I/O exception of some sort has occurred.
-     * @throws CertificateException To indicate one of a variety of certificate problems.
+     * @throws KeyStoreException        When an exception occurs during the keystore creation process.
+     * @throws KeyManagementException   When an exception occurs dealing with key management.
+     * @throws IOException              To signal that an I/O exception of some sort has occurred.
+     * @throws CertificateException     To indicate one of a variety of certificate problems.
      */
     public static SSLContext getSslContextForCertificateFile(String filePath) throws NoSuchAlgorithmException,
             KeyStoreException, KeyManagementException, IOException, CertificateException {
@@ -71,9 +71,9 @@ public class SslUtils {
      * @param trustStorePassword Trust store password.
      * @return SSLContext created from the given trust store and password.
      * @throws NoSuchAlgorithmException When the particular cryptographic algorithm is not available in the environment.
-     * @throws KeyStoreException When an exception occurs during the keystore creation process.
-     * @throws KeyManagementException  When an exception occurs dealing with key management.
-     * @throws IOException To signal that an I/O exception of some sort has occurred.
+     * @throws KeyStoreException        When an exception occurs during the keystore creation process.
+     * @throws KeyManagementException   When an exception occurs dealing with key management.
+     * @throws IOException              To signal that an I/O exception of some sort has occurred.
      */
     public static SSLContext createClientSslContext(String trustStoreFilePath, String trustStorePassword) throws
             NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException {

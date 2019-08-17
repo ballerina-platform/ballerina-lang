@@ -76,5 +76,4 @@ public class LdapConstants {
     public static final String CERTIFICATE_ALIAS = "ca";
 
     public static final String LDAP_ERROR_CODE = "{ballerina/ldap}Error";
-
 }

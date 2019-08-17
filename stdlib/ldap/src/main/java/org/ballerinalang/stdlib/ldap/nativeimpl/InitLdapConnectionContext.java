@@ -125,9 +125,8 @@ public class InitLdapConnectionContext {
     }
 
     private static void setSslConfig(MapValue sslConfig, CommonLdapConfiguration commonLdapConfiguration,
-                                     String instanceId)
-                              throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException,
-                                     CertificateException {
+                                     String instanceId) throws IOException, NoSuchAlgorithmException, KeyStoreException,
+            KeyManagementException, CertificateException {
         MapValue<?, ?> trustStore = sslConfig.getMapValue(LdapConstants.AUTH_STORE_CONFIG_TRUST_STORE);
         String trustCerts = sslConfig.containsKey(LdapConstants.AUTH_STORE_CONFIG_TRUST_CERTIFICATES) ?
                 sslConfig.getStringValue(LdapConstants.AUTH_STORE_CONFIG_TRUST_CERTIFICATES) : null;

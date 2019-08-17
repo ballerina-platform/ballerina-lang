@@ -52,12 +52,12 @@ public class LdapUtils {
      *
      * @param username          Given username
      * @param ldapConfiguration LDAP user store configurations
-     * @param dirContext  Directory naming context
+     * @param dirContext        Directory naming context
      * @return Associated name for the given username
      * @throws NamingException if there is any exception occurs during the process
      */
     public static String getNameInSpaceForUsernameFromLDAP(String username, CommonLdapConfiguration ldapConfiguration,
-                                  DirContext dirContext) throws NamingException {
+                                                           DirContext dirContext) throws NamingException {
         String userSearchFilter = ldapConfiguration.getUserNameSearchFilter();
         userSearchFilter = userSearchFilter.replace("?", LdapUtils.escapeSpecialCharactersForFilter(username));
         String searchBase = ldapConfiguration.getUserSearchBase();
@@ -67,15 +67,15 @@ public class LdapUtils {
     /**
      * Searches the corresponding name for a given username from LDAP.
      *
-     * @param username         Given username
-     * @param searchBase       LDAP search base
-     * @param searchFilter     LDAP search filter
-     * @param dirContext Directory naming context
+     * @param username     Given username
+     * @param searchBase   LDAP search base
+     * @param searchFilter LDAP search filter
+     * @param dirContext   Directory naming context
      * @return Associated name for the given username
      * @throws NamingException if there is any exception occurs during the process
      */
     private static String getNameInSpaceForUserName(String username, String searchBase,
-                          String searchFilter, DirContext dirContext) throws NamingException {
+                                                    String searchFilter, DirContext dirContext) throws NamingException {
         if (username == null) {
             throw BallerinaErrors.createError("Username value is null.");
         }
