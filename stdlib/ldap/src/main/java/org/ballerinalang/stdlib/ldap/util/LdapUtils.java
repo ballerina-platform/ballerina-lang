@@ -23,7 +23,6 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.stdlib.ldap.CommonLdapConfiguration;
 import org.ballerinalang.stdlib.ldap.LdapConstants;
-import org.ballerinalang.stdlib.ldap.UserStoreException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -61,37 +60,34 @@ public class LdapUtils {
     /**
      * This is to search user and retrieve ldap name directly from ldap.
      *
-     * @param userName          Given username
+     * @param username          Given username
      * @param ldapConfiguration LDAP user store configurations
      * @param dirContext  Directory naming context
      * @return Associated name for the given username
-     * @throws UserStoreException if there is any exception occurs during the process
      * @throws NamingException if there is any exception occurs during the process
      */
-    public static String getNameInSpaceForUsernameFromLDAP(String userName, CommonLdapConfiguration ldapConfiguration,
-                                  DirContext dirContext) throws UserStoreException, NamingException {
+    public static String getNameInSpaceForUsernameFromLDAP(String username, CommonLdapConfiguration ldapConfiguration,
+                                  DirContext dirContext) throws NamingException {
         String userSearchFilter = ldapConfiguration.getUserNameSearchFilter();
-        userSearchFilter = userSearchFilter.replace("?", LdapUtils.escapeSpecialCharactersForFilter(userName));
+        userSearchFilter = userSearchFilter.replace("?", LdapUtils.escapeSpecialCharactersForFilter(username));
         String searchBase = ldapConfiguration.getUserSearchBase();
-        return LdapUtils.getNameInSpaceForUserName(userName, searchBase, userSearchFilter, dirContext);
+        return LdapUtils.getNameInSpaceForUserName(username, searchBase, userSearchFilter, dirContext);
     }
 
     /**
      * Searches the corresponding name for a given username from LDAP.
      *
-     * @param userName         Given username
+     * @param username         Given username
      * @param searchBase       LDAP search base
      * @param searchFilter     LDAP search filter
      * @param dirContext Directory naming context
      * @return Associated name for the given username
-     * @throws UserStoreException if there is any exception occurs during the process
      * @throws NamingException if there is any exception occurs during the process
      */
-    public static String getNameInSpaceForUserName(String userName, String searchBase,
-                          String searchFilter, DirContext dirContext) throws UserStoreException, NamingException {
-
-        if (userName == null) {
-            throw new UserStoreException("userName value is null.");
+    private static String getNameInSpaceForUserName(String username, String searchBase,
+                          String searchFilter, DirContext dirContext) throws NamingException {
+        if (username == null) {
+            throw BallerinaErrors.createError("Username value is null.");
         }
         String userDN = null;
         NamingEnumeration<SearchResult> answer = null;
@@ -113,7 +109,7 @@ public class LdapUtils {
                 }
             }
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Name in space for " + userName + " is " + userDN);
+                LOG.debug("Name in space for " + username + " is " + userDN);
             }
         } finally {
             LdapUtils.closeNamingEnumeration(answer);
@@ -163,7 +159,7 @@ public class LdapUtils {
      * @param dnPartial String to replace special characters of
      * @return String by replacing the special characters
      */
-    public static String escapeSpecialCharactersForFilter(String dnPartial) {
+    private static String escapeSpecialCharactersForFilter(String dnPartial) {
         dnPartial = dnPartial.replace("\\*", "*");
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < dnPartial.length(); i++) {
@@ -217,7 +213,7 @@ public class LdapUtils {
         StringBuffer sb = new StringBuffer();
         do {
             String sysPropKey = matcher.group(1);
-            String sysPropValue = getSystemVariableValue(sysPropKey, null);
+            String sysPropValue = getSystemVariableValue(sysPropKey);
             if (sysPropValue == null || sysPropValue.length() == 0) {
                 throw new RuntimeException("System property " + sysPropKey + " is not specified");
             }
@@ -235,19 +231,16 @@ public class LdapUtils {
      * precedence.
      *
      * @param variableName System/environment variable name
-     * @param defaultValue default value to be returned if the specified system variable is not specified.
      * @return value of the system/environment variable
      */
-    private static String getSystemVariableValue(String variableName, String defaultValue) {
-        String value;
+    private static String getSystemVariableValue(String variableName) {
         if (System.getProperty(variableName) != null) {
-            value = System.getProperty(variableName);
+            return System.getProperty(variableName);
         } else if (System.getenv(variableName) != null) {
-            value = System.getenv(variableName);
+            return System.getenv(variableName);
         } else {
-            value = defaultValue;
+            return null;
         }
-        return value;
     }
 
     /**

@@ -26,7 +26,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.ldap.CommonLdapConfiguration;
 import org.ballerinalang.stdlib.ldap.LdapConnectionContext;
 import org.ballerinalang.stdlib.ldap.LdapConstants;
-import org.ballerinalang.stdlib.ldap.UserStoreException;
 import org.ballerinalang.stdlib.ldap.util.LdapUtils;
 
 import java.nio.charset.Charset;
@@ -77,9 +76,6 @@ public class Authenticate {
             return false;
         } catch (NamingException e) {
             LOG.error("Cannot bind user: " + userName, e);
-            return LdapUtils.createError(e.getMessage());
-        } catch (UserStoreException e) {
-            LOG.error(e.getMessage(), e);
             return LdapUtils.createError(e.getMessage());
         } finally {
             LdapUtils.removeServiceName();

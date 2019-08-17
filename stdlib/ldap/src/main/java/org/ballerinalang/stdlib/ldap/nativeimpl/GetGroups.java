@@ -28,7 +28,6 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.ldap.CommonLdapConfiguration;
 import org.ballerinalang.stdlib.ldap.LdapConstants;
-import org.ballerinalang.stdlib.ldap.UserStoreException;
 import org.ballerinalang.stdlib.ldap.util.LdapUtils;
 
 import java.util.ArrayList;
@@ -65,7 +64,7 @@ public class GetGroups {
                     LdapConstants.LDAP_CONFIGURATION);
             String[] externalRoles = doGetGroupsListOfUser(userName, ldapConfiguration, ldapConnectionContext);
             return new ArrayValue(externalRoles);
-        } catch (UserStoreException | NamingException | ErrorValue e) {
+        } catch (NamingException | ErrorValue e) {
             return LdapUtils.createError(e.getMessage());
         } finally {
             LdapUtils.removeServiceName();
@@ -73,8 +72,7 @@ public class GetGroups {
     }
 
     private static String[] doGetGroupsListOfUser(String userName, CommonLdapConfiguration ldapAuthConfig,
-                                                  DirContext ldapConnectionContext)
-                                           throws UserStoreException, NamingException {
+                                                  DirContext ldapConnectionContext) throws NamingException {
         // Get the effective search base
         List<String> searchBase = ldapAuthConfig.getGroupSearchBase();
         return getLDAPGroupsListOfUser(userName, searchBase, ldapAuthConfig, ldapConnectionContext);
@@ -82,8 +80,7 @@ public class GetGroups {
 
     private static String[] getLDAPGroupsListOfUser(String userName, List<String> searchBase,
                                                     CommonLdapConfiguration ldapAuthConfig,
-                                                    DirContext ldapConnectionContext)
-                                             throws UserStoreException, NamingException {
+                                                    DirContext ldapConnectionContext) throws NamingException {
         if (userName == null) {
             throw BallerinaErrors.createError("UserName value is null.");
         }
@@ -179,11 +176,9 @@ public class GetGroups {
      * @param ldapConfiguration LDAP user store configurations
      * @param ldapConnectionContext connection context
      * @return Associated name for the given username
-     * @throws UserStoreException if there is any exception occurs during the process
      */
     private static String getNameInSpaceForUserName(String userName, CommonLdapConfiguration ldapConfiguration,
-                                                    DirContext ldapConnectionContext)
-            throws UserStoreException, NamingException {
+                                                    DirContext ldapConnectionContext) throws NamingException {
         return LdapUtils.getNameInSpaceForUsernameFromLDAP(userName, ldapConfiguration, ldapConnectionContext);
     }
 
