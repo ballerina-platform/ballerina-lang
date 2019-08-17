@@ -51,9 +51,6 @@ function testJoinQuery() {
                        stockWithPriceStream.publish(e);
                 }
                    }
-    }
-
-    forever {
             from stockStream window length(1)
                join twitterStream  window  length ( 1 )
                   on stockStream.symbol==twitterStream.company
@@ -63,9 +60,6 @@ function testJoinQuery() {
                     stockWithPriceStream.publish(e);
                 }
             }
-        }
-
-        forever {
                 from stockStream window length(1)
                 unidirectional join twitterStream window length(1)
                 on stockStream.symbol == twitterStream.company
@@ -75,9 +69,7 @@ function testJoinQuery() {
                         stockWithPriceStream.publish(e);
                     }
                 }
-            }
-
-            forever {
+    }
                 from stockStream window length(1)
                 join unidirectional twitterStream window length(1)
                 on stockStream.symbol == twitterStream.company
@@ -87,9 +79,6 @@ function testJoinQuery() {
                         stockWithPriceStream.publish(e);
                     }
                 }
-            }
-
-            forever {
                 from stockStream window length(1)
                 left outer join twitterStream window length(1)
                 on stockStream.symbol == twitterStream.company
@@ -99,9 +88,7 @@ function testJoinQuery() {
                         stockWithPriceStream.publish(e);
                     }
                 }
-            }
 
-            forever {
                 from stockStream window length(1)
                 right outer join twitterStream window length(1)
                 on stockStream.symbol == twitterStream.company
@@ -111,9 +98,7 @@ function testJoinQuery() {
                         stockWithPriceStream.publish(e);
                     }
                 }
-            }
 
-            forever {
                 from stockStream window length(1)
                 full outer join twitterStream window length(1)
                 on stockStream.symbol == twitterStream.company
@@ -123,9 +108,7 @@ function testJoinQuery() {
                         stockWithPriceStream.publish(e);
                     }
                 }
-            }
 
-            forever {
                 from stockStream window length(1)
                 outer join twitterStream window length(1)
                 on stockStream.symbol == twitterStream.company
@@ -135,9 +118,7 @@ function testJoinQuery() {
                         stockWithPriceStream.publish(e);
                     }
                 }
-            }
 
-            forever {
                 from stockStream window length(1)
                 inner join twitterStream window length(1)
                 on stockStream.symbol == twitterStream.company
@@ -147,10 +128,8 @@ function testJoinQuery() {
                         stockWithPriceStream.publish(e);
                     }
                 }
-            }
 
             // Unidirectional added first
-                forever {
                     from stockStream window length(1)
                     unidirectional left outer join twitterStream window length(1)
                     on stockStream.symbol == twitterStream.company
@@ -160,9 +139,6 @@ function testJoinQuery() {
                             stockWithPriceStream.publish(e);
                         }
                     }
-                }
-
-                forever {
                     from stockStream window length(1)
                     unidirectional right outer join twitterStream window length(1)
                     on stockStream.symbol == twitterStream.company
@@ -172,9 +148,6 @@ function testJoinQuery() {
                             stockWithPriceStream.publish(e);
                         }
                     }
-                }
-
-                forever {
                     from stockStream window length(1)
                     unidirectional full outer join twitterStream window length(1)
                     on stockStream.symbol == twitterStream.company
@@ -184,9 +157,6 @@ function testJoinQuery() {
                             stockWithPriceStream.publish(e);
                         }
                     }
-                }
-
-                forever {
                     from stockStream window length(1)
                 unidirectional  outer join twitterStream  window   length(1)
                     on stockStream.symbol == twitterStream.company
@@ -196,9 +166,6 @@ function testJoinQuery() {
                             stockWithPriceStream.publish(e);
                         }
                     }
-                }
-
-                forever {
                     from stockStream window length(1)
                     unidirectional inner join  twitterStream window length(1)
                     on stockStream.symbol == twitterStream.company
@@ -208,10 +175,8 @@ function testJoinQuery() {
                             stockWithPriceStream.publish(e);
                         }
                     }
-                }
 
                 // Unidirectional added after join type.
-                forever {
                     from  stockStream  window length(1)
                     left  outer   join unidirectional twitterStream window length(1)
                     on stockStream.symbol == twitterStream.company
@@ -221,9 +186,7 @@ function testJoinQuery() {
                             stockWithPriceStream.publish(e);
                         }
                     }
-                }
 
-                forever {
                     from stockStream  window   length(1)
                        right  outer  join  unidirectional  twitterStream   window   length(1)
                     on  stockStream.symbol  ==  twitterStream.company
@@ -233,9 +196,7 @@ function testJoinQuery() {
                             stockWithPriceStream.publish(e);
                         }
                     }
-                }
 
-                forever {
                     from   stockStream   window  length(1)
                     full outer join unidirectional twitterStream  window  length(1)
                     on stockStream.symbol == twitterStream.company
@@ -245,9 +206,7 @@ function testJoinQuery() {
                             stockWithPriceStream.publish(e);
                         }
                     }
-                }
 
-                forever {
                     from stockStream   window  length(1)
                     outer join unidirectional twitterStream   window  length(1)
                     on stockStream.symbol == twitterStream.company
@@ -257,9 +216,7 @@ function testJoinQuery() {
                             stockWithPriceStream.publish(e);
                         }
                     }
-                }
 
-                forever {
                     from stockStream window length(1)
                     inner join unidirectional twitterStream window length(1)
                     on stockStream.symbol == twitterStream.company
@@ -269,7 +226,7 @@ function testJoinQuery() {
                             stockWithPriceStream.publish(e);
                         }
                     }
-                }
+
 }
 
 function testSelectQuery() {
@@ -281,9 +238,7 @@ function testSelectQuery() {
                 outputStream.publish(t);
             }
         }
-    }
 
-    forever {
             from inputStream   where   inputStream.age > 25
             select inputStream.name, inputStream.age, count() as count
             group by getGroupByField(inputStream.age)
@@ -292,9 +247,7 @@ function testSelectQuery() {
                     outputStream.publish(t);
                 }
             }
-        }
 
-        forever {
                 from inputStream
                 select inputStream.name, inputStream.age
                 having age > getMaxAge() && age > 25
@@ -303,9 +256,7 @@ function testSelectQuery() {
                         outputStream.publish(t);
                     }
                 }
-            }
 
-            forever {
                     from inputStream   where  inputStream.age > 25 window length(5)
                     select inputStream.name, inputStream.age, sum (inputStream.age) as sumAge, count ()  as  count
                     group by inputStream.name =>(TeacherOutput [] teachers){
@@ -313,7 +264,8 @@ function testSelectQuery() {
                             outputStream.publish(t);
                         }
                }
-                   }
+    }
+
 }
 
 function orderBy() {
@@ -325,9 +277,7 @@ function orderBy() {
                 outputStream.publish(t);
             }
         }
-    }
 
-    forever {
         from inputStream window lengthBatch(10)
         select inputStream.name, inputStream.age
 order by inputStream.age ascending
@@ -336,9 +286,7 @@ order by inputStream.age ascending
                 outputStream.publish(t);
             }
         }
-    }
 
-    forever {
         from inputStream window lengthBatch(10)
         select inputStream.name, inputStream.age
              order  by  inputStream.age  ascending, inputStream.name
@@ -347,9 +295,7 @@ order by inputStream.age ascending
                 outputStream.publish(t);
             }
         }
-    }
 
-    forever {
         from inputStream window lengthBatch(10)
         select inputStream.name, inputStream.age
              order  by  inputStream.age , inputStream.name  descending
@@ -358,9 +304,7 @@ order by inputStream.age ascending
                 outputStream.publish(t);
             }
         }
-    }
 
-    forever {
         from inputStream window lengthBatch(10)
         select inputStream.name, inputStream.age
            order  by  inputStream.age  ascending , inputStream.name  descending
@@ -381,9 +325,7 @@ function outputRate() {
                 employeeStream8.publish(e);
             }
         }
-    }
 
-    forever {
         from teacherStream9
         select name, age, status
              output  first  every  3  events
@@ -392,9 +334,7 @@ function outputRate() {
                 employeeStream8.publish(e);
              }
         }
-       }
 
-    forever {
             from teacherStream9
             select name, age, status
   output   snapshot   every    3   events
@@ -403,5 +343,5 @@ function outputRate() {
                     employeeStream8.publish(e);
                 }
             }
-        }
+    }
 }
