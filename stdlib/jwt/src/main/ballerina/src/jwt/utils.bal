@@ -19,6 +19,9 @@ import ballerina/log;
 const string EMPTY_STRING = "";
 const string WHITE_SPACE = " ";
 
+const string SCOPE = "scope";
+const string USERNAME = "name";
+
 # Log and prepare `error` as a `Error`.
 #
 # + message - Error message
