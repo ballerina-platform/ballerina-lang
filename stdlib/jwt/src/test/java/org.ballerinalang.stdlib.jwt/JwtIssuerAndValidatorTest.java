@@ -131,6 +131,19 @@ public class JwtIssuerAndValidatorTest {
         Assert.assertTrue(payload.endsWith("\"}"));
     }
 
+    @Test(priority = 1, description = "Test case for issuing JWT token with scopes")
+    public void testIssueJwtWithScopes() {
+        BValue[] inputBValues = {new BString(keyStorePath)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIssueJwtWithScopes", inputBValues);
+        Assert.assertTrue(returns[0] instanceof BString);
+        String[] parts = returns[0].stringValue().split("\\.");
+        String header = new String(Base64.getUrlDecoder().decode(parts[0]), StandardCharsets.UTF_8);
+        String payload = new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
+        Assert.assertEquals("{\"alg\":\"RS256\", \"typ\":\"JWT\"}", header);
+        Assert.assertTrue(payload.startsWith("{\"sub\":\"John\", \"iss\":\"wso2\", \""));
+        Assert.assertTrue(payload.endsWith("\", \"scope\": \"test-scope\"}"));
+    }
+
     @Test(priority = 2, description = "Test case for validating JWT token")
     public void testCompleteValidator() {
         BValue[] inputBValues = {new BString(jwtToken), new BString(trustStorePath)};
