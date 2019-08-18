@@ -206,6 +206,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
             LSServiceOperationContext context = new LSServiceOperationContext();
             Hover hover;
             try {
+                context.put(DocumentServiceKeys.IS_CACHE_SUPPORTED, true);
+                context.put(DocumentServiceKeys.IS_CACHE_OUTDATED_SUPPORTED, true);
                 List<BLangPackage> modules = ReferencesUtil.compileModulesAndFindReferences(fileUri, documentManager,
                                                                                             position.getPosition(),
                                                                                             context, false);
@@ -587,10 +589,14 @@ class BallerinaTextDocumentService implements TextDocumentService {
             context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
 
             try {
-                BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager, false,
-                                                                             GotoImplementationCustomErrorStrategy.class, false);
-                implementationLocations.addAll(GotoImplementationUtil.getImplementationLocation(bLangPackage, context,
-                                                                                                position.getPosition(), lsDocument.getProjectRoot()));
+                BLangPackage bLangPackage =
+                        LSModuleCompiler.getBLangPackage(context, documentManager, false,
+                                                         GotoImplementationCustomErrorStrategy.class, false);
+                List<Location> locations = GotoImplementationUtil.getImplementationLocation(bLangPackage, context,
+                                                                                            position.getPosition(),
+                                                                                            lsDocument
+                                                                                                    .getProjectRoot());
+                implementationLocations.addAll(locations);
             } catch (UserErrorException e) {
                 notifyUser("Goto Implementation", e, languageServer.getClient());
                 return null;
