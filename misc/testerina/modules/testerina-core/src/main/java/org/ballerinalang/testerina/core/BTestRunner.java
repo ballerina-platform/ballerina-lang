@@ -21,11 +21,11 @@ package org.ballerinalang.testerina.core;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
+import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BStringType;
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.model.values.BIterator;
-import org.ballerinalang.model.values.BNewArray;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.testerina.core.entity.Test;
 import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.testerina.core.entity.TesterinaFunction;
@@ -75,14 +75,14 @@ public class BTestRunner {
     private TesterinaReport tReport;
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
     private List<String> sourcePackages = new ArrayList<>();
-    
+
     /**
      * Create Test Runner instance.
      */
     public BTestRunner() {
         this(System.out, System.err);
     }
-    
+
     /**
      * Create Test Runner with given loggers.
      *
@@ -94,7 +94,7 @@ public class BTestRunner {
         this.errStream = errStream;
         tReport = new TesterinaReport(this.outStream);
     }
-    
+
     public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups) {
         runTest(sourceRoot, sourceFilePaths, groups, Boolean.TRUE);
     }
@@ -666,7 +666,7 @@ public class BTestRunner {
 
                     // Check whether the this test depends on any failed or skipped functions
                     if (!shouldSkip.get() && !shouldSkipTest.get()) {
-                        BValue[] valueSets = null;
+                        Object valueSets = null;
                         if (test.getDataProviderFunction() != null) {
                             valueSets = test.getDataProviderFunction().invoke();
                         }
@@ -677,9 +677,10 @@ public class BTestRunner {
                                     .get(), null);
                             tReport.addFunctionResult(packageName, functionResult);
                         } else {
-                            List<BValue[]> argList = extractArguments(valueSets);
+                            Class[] argTypes = extractArgumentTypes(valueSets);
+                            List<Object[]> argList = extractArguments(valueSets);
                             argList.forEach(arg -> {
-                                //test.getTestFunction().invoke(arg);
+                                test.getTestFunction().invoke(argTypes, arg);
                                 TesterinaResult result = new TesterinaResult(test.getTestFunction().getName(), true,
                                         shouldSkip.get(), null);
                                 tReport.addFunctionResult(packageName, result);
@@ -758,6 +759,8 @@ public class BTestRunner {
             } catch (ClassCastException castException) {
                 //do nothing this is to avoid spot bug
             }
+        } else {
+            throw new BallerinaException(e);
         }
         return message;
     }
@@ -772,30 +775,76 @@ public class BTestRunner {
      * @param valueSets user provided value sets
      * @return a list of function arguments
      */
-    private List<BValue[]> extractArguments(BValue[] valueSets) {
-        List<BValue[]> argsList = new ArrayList<>();
+    private List<Object[]> extractArguments(Object valueSets) {
+        List<Object[]> argsList = new ArrayList<>();
 
-        for (BValue value : valueSets) {
-            if (value instanceof BValueArray) {
-                BValueArray array = (BValueArray) value;
-                for (BIterator it = array.newIterator(); it.hasNext(); ) {
-                    BValue vals = it.getNext();
-                    if (vals instanceof BNewArray) {
-                        BNewArray bNewArray = (BNewArray) vals;
-                        BValue[] args = new BValue[(int) bNewArray.size()];
-                        for (int j = 0; j < bNewArray.size(); j++) {
-                            args[j] = bNewArray.getBValue(j);
-                        }
-                        argsList.add(args);
-                    } else {
-                        // cannot happen due to validations done at annotation processor
-                    }
+        if (valueSets instanceof ArrayValue) {
+            ArrayValue arrayValue = (ArrayValue) valueSets;
+            if (arrayValue.elementType instanceof BArrayType) {
+                // Ok we have an array of an array
+                for (int i = 0; i < arrayValue.size(); i++) {
+                    // Iterate array elements and set parameters
+                    setTestFunctionParams(argsList, (ArrayValue) arrayValue.get(i));
                 }
             } else {
-                argsList.add(new BValue[]{value});
+                // Iterate array elements and set parameters
+                setTestFunctionParams(argsList, arrayValue);
             }
+        } else {
+            // we do nothing data provider should always return an array.
         }
         return argsList;
+    }
+
+    private static Class[] extractArgumentTypes(Object valueSets) {
+        List<Class> typeList = new ArrayList<>();
+        typeList.add(Strand.class);
+        if (valueSets instanceof ArrayValue) {
+            ArrayValue arrayValue = (ArrayValue) valueSets;
+            if (arrayValue.elementType instanceof BArrayType) {
+                // Ok we have an array of an array
+                // Get the first entry
+                // Iterate elements and get class types.
+                setTestFunctionSignature(typeList, (ArrayValue) arrayValue.get(0));
+            } else {
+                // Iterate elements and get class types.
+                setTestFunctionSignature(typeList, arrayValue);
+            }
+        } else {
+            // we do nothing data provider should always return an array.
+        }
+        Class[] typeListArray = new Class[typeList.size()];
+        typeList.toArray(typeListArray);
+        return typeListArray;
+    }
+
+    private static void setTestFunctionSignature(List<Class> typeList, ArrayValue arrayValue) {
+        Class type;
+        if (arrayValue.elementType instanceof BStringType) {
+            type = String.class;
+        } else {
+            // default case
+            type = Object.class;
+        }
+        for (int i = 0; i < arrayValue.size(); i++) {
+            // Add the param type.
+            typeList.add(type);
+            // This is in jvm function signature to tel if args is passed or not.
+            typeList.add(Boolean.TYPE);
+        }
+    }
+
+    private static void setTestFunctionParams(List<Object[]> valueList, ArrayValue arrayValue) {
+        List<Object> params = new ArrayList<>();
+        // Add a place holder to Strand
+        params.add(new Object());
+        for (int i = 0; i < arrayValue.size(); i++) {
+            // Add the param type.
+            params.add(arrayValue.get(i));
+            // This is in jvm function signature to tel if args is passed or not.
+            params.add(Boolean.TRUE);
+        }
+        valueList.add(params.toArray());
     }
 
     /**

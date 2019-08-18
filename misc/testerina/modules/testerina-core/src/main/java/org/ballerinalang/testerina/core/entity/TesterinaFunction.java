@@ -21,7 +21,6 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -58,18 +57,19 @@ public class TesterinaFunction {
         this.programFile = programFile;
     }
 
-    public BValue[] invoke() throws BallerinaException {
+    public Object invoke() throws BallerinaException {
         if (scheduler == null) {
             throw new AssertionError("Scheduler is not initialized in " + bFunction.name);
         }
-        runOnSchedule(programFile, bFunction.name, scheduler);
-        return new BValue[0];
+        return runOnSchedule(programFile, bFunction.name, scheduler, new Class[]{Strand.class}, new Object[1]);
     }
 
-    /*public BValue[] invoke(BValue[] args) {
-        // return BVMExecutor.executeFunction(programFile, bFunction, args);
-        return new BValue[0];
-    }*/
+    public Object invoke(Class[] types, Object[] args) {
+        if (scheduler == null) {
+            throw new AssertionError("Scheduler is not initialized in " + bFunction.name);
+        }
+        return runOnSchedule(programFile, bFunction.name, scheduler, types, args);
+    }
 
     public String getName() {
         return name;
@@ -95,15 +95,15 @@ public class TesterinaFunction {
         this.runTest = false;
     }
 
-
-    private static void runOnSchedule(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler) {
+    private static Object runOnSchedule(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler,
+                                        Class[] paramTypes, Object[] params) {
         String funcName = cleanupFunctionName(name);
         try {
-            final Method method = initClazz.getDeclaredMethod(funcName, Strand.class);
+            final Method method = initClazz.getDeclaredMethod(funcName, paramTypes);
             //TODO fix following method invoke to scheduler.schedule()
             Function<Object[], Object> func = objects -> {
                 try {
-                    return method.invoke(null, objects[0]);
+                    return method.invoke(null, objects);
                 } catch (InvocationTargetException e) {
                     //throw new BallerinaException(e);
                     return e.getTargetException();
@@ -111,7 +111,7 @@ public class TesterinaFunction {
                     throw new BallerinaException("Error while invoking function '" + funcName + "'", e);
                 }
             };
-            final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null);
+            final FutureValue out = scheduler.schedule(params, func, null, null, null);
             scheduler.start();
             final Throwable t = out.panic;
             final Object result = out.result;
@@ -121,6 +121,7 @@ public class TesterinaFunction {
             if (t != null) {
                 throw new BallerinaException("Error while invoking function '" + funcName + "'", t.getMessage());
             }
+            return out.result;
         } catch (NoSuchMethodException e) {
             throw new BallerinaException("Error while invoking function '" + funcName + "'", e);
         }
