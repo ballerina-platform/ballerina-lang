@@ -138,7 +138,7 @@ public class CommandUtil {
      * @return {@link List}    List of commands for the line
      */
     public static List<CodeAction> getCommandForNodeType(String topLevelNodeType, String docUri,
-                                                                          int line) {
+                                                         int line) {
         List<CodeAction> actions = new ArrayList<>();
         if (CommonKeys.OBJECT_KEYWORD_KEY.equals(topLevelNodeType)) {
             actions.add(getInitializerGenerationCommand(docUri, line));
@@ -194,7 +194,7 @@ public class CommandUtil {
                                           LSServiceOperationContext context, Position position)
             throws CompilationFailedException {
         Pair<BLangNode, Object> bLangNode = getBLangNode(position.getLine(), position.getCharacter(), uri, docManager,
-                context);
+                                                         context);
 
         // Only supported for 'public' functions
         if (bLangNode.getLeft() instanceof BLangFunction &&
@@ -263,7 +263,7 @@ public class CommandUtil {
             WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
             try {
                 BLangInvocation node = getFunctionInvocationNode(line, column, document.getURIString(), docManager,
-                        context);
+                                                                 context);
                 if (node != null && node.pkgAlias.value.isEmpty()) {
                     boolean isWithinProject = (node.expr == null);
                     if (node.expr != null) {
@@ -580,7 +580,7 @@ public class CommandUtil {
         lsContext.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
         WorkspaceDocumentManager docManager = lsContext.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         try {
-            diagHelper.compileAndSendDiagnostics(client, lsContext, new LSDocument(documentUri), docManager);
+            diagHelper.compileAndSendDiagnostics(client, lsContext, docManager);
         } catch (CompilationFailedException e) {
             String msg = "Computing 'diagnostics' failed!";
             TextDocumentIdentifier identifier = new TextDocumentIdentifier(documentUri);
@@ -813,7 +813,7 @@ public class CommandUtil {
         TextDocumentIdentifier identifier = new TextDocumentIdentifier(uri);
         context.put(DocumentServiceKeys.POSITION_KEY, new TextDocumentPositionParams(identifier, position));
         List<BLangPackage> bLangPackages = LSModuleCompiler.getBLangPackages(context, documentManager, true,
-                                                                       LSCustomErrorStrategy.class, true, false);
+                                                                             LSCustomErrorStrategy.class, true, false);
         context.put(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY, bLangPackages);
         // Get the current package.
         BLangPackage currentBLangPackage = context.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
