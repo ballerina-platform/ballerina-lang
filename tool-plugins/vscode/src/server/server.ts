@@ -53,7 +53,7 @@ export function getServerOptions(ballerinaHome: string, experimental: boolean, d
             str.push('trace');
             opt.env.TRACE_LOG = traceLogsEnabled;
         }
-        log('Language Server ' + str.join(',') +' logs enabled.');
+        log('Language Server ' + str.join(', ') +' logs enabled.');
     }
     if (process.env.LS_CUSTOM_CLASSPATH) {
         args.push('--classpath', process.env.LS_CUSTOM_CLASSPATH);
