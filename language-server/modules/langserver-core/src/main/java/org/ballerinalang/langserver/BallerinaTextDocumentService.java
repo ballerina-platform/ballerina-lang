@@ -150,7 +150,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams position) {
         final List<CompletionItem> completions = new ArrayList<>();
         return CompletableFuture.supplyAsync(() -> {
-            LSServiceOperationContext context = new LSServiceOperationContext();
+            LSServiceOperationContext context = new LSServiceOperationContext(LSContextOperation.TXT_COMPLETION);
             String fileUri = position.getTextDocument().getUri();
             Optional<Path> completionPath = CommonUtil.getPathFromURI(fileUri);
             if (!completionPath.isPresent()) {
@@ -203,7 +203,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<Hover> hover(TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = position.getTextDocument().getUri();
-            LSServiceOperationContext context = new LSServiceOperationContext();
+            LSServiceOperationContext context = new LSServiceOperationContext(LSContextOperation.TXT_HOVER);
             Hover hover;
             try {
                 context.put(DocumentServiceKeys.IS_CACHE_SUPPORTED, true);
@@ -236,7 +236,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Path compilationPath = getUntitledFilePath(sigFilePath.toString()).orElse(sigFilePath.get());
             Optional<Lock> lock = documentManager.lockFile(compilationPath);
 
-            LSServiceOperationContext context = new LSServiceOperationContext();
+            LSServiceOperationContext context = new LSServiceOperationContext(LSContextOperation.TXT_SIGNATURE);
             context.put(DocumentServiceKeys.POSITION_KEY, position);
             context.put(DocumentServiceKeys.FILE_URI_KEY, uri);
             context.put(SignatureKeys.SIGNATURE_HELP_CAPABILITIES_KEY, clientCapabilities.getSignatureHelp());
@@ -298,7 +298,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<List<? extends Location>> definition(TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = position.getTextDocument().getUri();
-            LSServiceOperationContext context = new LSServiceOperationContext();
+            LSServiceOperationContext context = new LSServiceOperationContext(LSContextOperation.TXT_DEFINITION);
             try {
                 List<BLangPackage> modules = ReferencesUtil.compileModulesAndFindReferences(fileUri, documentManager,
                                                                                             position.getPosition(),
@@ -319,7 +319,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = params.getTextDocument().getUri();
-            LSServiceOperationContext context = new LSServiceOperationContext();
+            LSServiceOperationContext context = new LSServiceOperationContext(LSContextOperation.TXT_REFERENCES);
             try {
                 List<BLangPackage> modules = ReferencesUtil.compileModulesAndFindReferences(fileUri, documentManager,
                                                                                             params.getPosition(),
@@ -356,17 +356,17 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Path compilationPath = getUntitledFilePath(docSymbolFilePath.toString()).orElse(docSymbolFilePath.get());
             Optional<Lock> lock = documentManager.lockFile(compilationPath);
             try {
-                LSServiceOperationContext symbolsContext = new LSServiceOperationContext();
-                symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
-                symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
-                BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(symbolsContext, documentManager, false,
+                LSServiceOperationContext context = new LSServiceOperationContext(LSContextOperation.TXT_DOC_SYMBOL);
+                context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+                context.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
+                BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager, false,
                                                                              LSCustomErrorStrategy.class, false);
                 Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
                         .filter(cUnit -> (fileUri.endsWith(cUnit.getName())))
                         .findFirst();
 
                 documentCUnit.ifPresent(cUnit -> {
-                    SymbolFindingVisitor visitor = new SymbolFindingVisitor(symbolsContext);
+                    SymbolFindingVisitor visitor = new SymbolFindingVisitor(context);
                     cUnit.accept(visitor);
                 });
 
@@ -396,6 +396,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
             }
             Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
             Optional<Lock> lock = documentManager.lockFile(compilationPath);
+            LSContext context = new LSServiceOperationContext(LSContextOperation.TXT_CODE_ACTION);
+            context.put(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY, documentManager);
             try {
                 LSDocument document = documentManager.getLSDocument(filePath.get());
                 int line = params.getRange().getStart().getLine();
@@ -417,14 +419,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     Test generation suggested only when no code diagnosis exists, inside a bal project,
                     inside a module, not inside /tests folder
                      */
-                    actions.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params,
-                                                                        documentManager));
+                    actions.addAll(CommandUtil.getTestGenerationCommand(topLevelNodeType, fileUri, params, context));
                 }
 
                 // Add commands base on node diagnostics
                 if (!diagnostics.isEmpty()) {
-                    LSContext context = new LSServiceOperationContext();
-                    context.put(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY, documentManager);
                     diagnostics.forEach(diagnostic -> {
                         int sLine = diagnostic.getRange().getStart().getLine();
                         int sCol = diagnostic.getRange().getStart().getCharacter();
@@ -513,7 +512,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Path compilationPath = getUntitledFilePath(formattingFilePath.toString()).orElse(formattingFilePath.get());
             Optional<Lock> lock = documentManager.lockFile(compilationPath);
             try {
-                LSServiceOperationContext formatCtx = new LSServiceOperationContext();
+                LSServiceOperationContext formatCtx = new LSServiceOperationContext(LSContextOperation.TXT_FORMATTING);
                 formatCtx.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
 
                 // Build the given ast.
@@ -557,7 +556,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = params.getTextDocument().getUri();
-            LSServiceOperationContext context = new LSServiceOperationContext();
+            LSServiceOperationContext context = new LSServiceOperationContext(LSContextOperation.TXT_RENAME);
             Position position = params.getPosition();
             try {
                 List<BLangPackage> modules = ReferencesUtil.compileModulesAndFindReferences(fileUri, documentManager,
@@ -579,7 +578,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = position.getTextDocument().getUri();
             List<Location> implementationLocations = new ArrayList<>();
-            LSServiceOperationContext context = new LSServiceOperationContext();
+            LSServiceOperationContext context = new LSServiceOperationContext(LSContextOperation.TXT_IMPL);
             LSDocument lsDocument = new LSDocument(fileUri);
             Path implementationPath = lsDocument.getPath();
             Path compilationPath = getUntitledFilePath(implementationPath.toString()).orElse(implementationPath);
@@ -627,7 +626,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 documentManager.openFile(Paths.get(new URL(docUri).toURI()), content);
                 LanguageClient client = this.languageServer.getClient();
-                LSServiceOperationContext context = new LSServiceOperationContext();
+                LSServiceOperationContext context = new LSServiceOperationContext(LSContextOperation.TXT_DID_OPEN);
                 context.put(DocumentServiceKeys.FILE_URI_KEY, docUri);
                 diagnosticsHelper.compileAndSendDiagnostics(client, context, documentManager);
             } catch (CompilationFailedException e) {
@@ -666,10 +665,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 // Need to lock since debouncer triggers later
                 Optional<Lock> nLock = documentManager.lockFile(compilationPath);
                 try {
-                    LSServiceOperationContext context = new LSServiceOperationContext();
+                    LSServiceOperationContext ctx = new LSServiceOperationContext(LSContextOperation.TXT_DID_CHANGE);
                     String fileURI = params.getTextDocument().getUri();
-                    context.put(DocumentServiceKeys.FILE_URI_KEY, fileURI);
-                    diagnosticsHelper.compileAndSendDiagnostics(client, context, documentManager);
+                    ctx.put(DocumentServiceKeys.FILE_URI_KEY, fileURI);
+                    diagnosticsHelper.compileAndSendDiagnostics(client, ctx, documentManager);
                 } catch (CompilationFailedException e) {
                     String msg = "Computing 'diagnostics' failed!";
                     logError(msg, e, params.getTextDocument(), (Position) null);

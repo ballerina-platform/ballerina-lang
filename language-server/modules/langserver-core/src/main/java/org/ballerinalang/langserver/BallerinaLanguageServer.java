@@ -86,7 +86,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     public BallerinaLanguageServer(WorkspaceDocumentManager documentManager) {
         this.lsIndex = initLSIndex();
 
-        LSGlobalContext lsGlobalContext = new LSGlobalContext();
+        LSGlobalContext lsGlobalContext = new LSGlobalContext(LSContextOperation.LS_INIT);
         lsGlobalContext.put(LSGlobalContextKeys.LANGUAGE_SERVER_KEY, this);
         lsGlobalContext.put(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY, documentManager);
         lsGlobalContext.put(LSGlobalContextKeys.DIAGNOSTIC_HELPER_KEY, new DiagnosticsHelper());

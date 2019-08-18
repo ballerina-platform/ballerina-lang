@@ -29,6 +29,8 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * Use this class to send notifications and log messages to the client.
+ *
+ * @since 1.0.0
  */
 public class LSClientLogger {
     private static LanguageClient languageClient = null;
@@ -40,6 +42,8 @@ public class LSClientLogger {
      * Initializes the client logger.
      *
      * @param languageClient {@link LanguageClient}
+     * @param lsDebugEnabled LS Debug Enabled
+     * @param lsTraceEnabled LS Trace Enabled
      */
     public static void init(LanguageClient languageClient, boolean lsDebugEnabled, boolean lsTraceEnabled) {
         LSClientLogger.debugEnabled = lsDebugEnabled;

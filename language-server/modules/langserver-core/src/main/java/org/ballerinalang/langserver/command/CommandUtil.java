@@ -39,7 +39,6 @@ import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
@@ -154,15 +153,13 @@ public class CommandUtil {
      * @param topLevelNodeType top level node
      * @param docUri Document URI
      * @param params Code action parameters
-     * @param documentManager Document manager
+     * @param context {@link LSContext}
      * @return {@link Command} Test Generation command
      * @throws CompilationFailedException thrown when compilation failed
      */
     public static List<CodeAction> getTestGenerationCommand(String topLevelNodeType, String docUri,
-                                                            CodeActionParams params,
-                                                            WorkspaceDocumentManager documentManager)
+                                                            CodeActionParams params, LSContext context)
             throws CompilationFailedException {
-        LSServiceOperationContext context = new LSServiceOperationContext();
         List<CodeAction> actions = new ArrayList<>();
         List<Object> args = new ArrayList<>();
         args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, docUri));
@@ -172,6 +169,7 @@ public class CommandUtil {
 
         boolean isService = CommonKeys.SERVICE_KEYWORD_KEY.equals(topLevelNodeType);
         boolean isFunction = CommonKeys.FUNCTION_KEYWORD_KEY.equals(topLevelNodeType);
+        WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         if ((isService || isFunction) && !isTopLevelNode(docUri, documentManager, context, position)) {
             return actions;
         }
@@ -190,8 +188,8 @@ public class CommandUtil {
         return actions;
     }
 
-    private static boolean isTopLevelNode(String uri, WorkspaceDocumentManager docManager,
-                                          LSServiceOperationContext context, Position position)
+    private static boolean isTopLevelNode(String uri, WorkspaceDocumentManager docManager, LSContext context,
+                                          Position position)
             throws CompilationFailedException {
         Pair<BLangNode, Object> bLangNode = getBLangNode(position.getLine(), position.getCharacter(), uri, docManager,
                                                          context);
@@ -574,13 +572,14 @@ public class CommandUtil {
      * @param client Language Server client
      * @param diagHelper diagnostics helper
      * @param documentUri Current text document URI
+     * @param context   {@link LSContext}
      */
-    public static void clearDiagnostics(LanguageClient client, DiagnosticsHelper diagHelper, String documentUri) {
-        LSServiceOperationContext lsContext = new LSServiceOperationContext();
-        lsContext.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
-        WorkspaceDocumentManager docManager = lsContext.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+    public static void clearDiagnostics(LanguageClient client, DiagnosticsHelper diagHelper, String documentUri,
+                                        LSContext context) {
+        context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
+        WorkspaceDocumentManager docManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         try {
-            diagHelper.compileAndSendDiagnostics(client, lsContext, docManager);
+            diagHelper.compileAndSendDiagnostics(client, context, docManager);
         } catch (CompilationFailedException e) {
             String msg = "Computing 'diagnostics' failed!";
             TextDocumentIdentifier identifier = new TextDocumentIdentifier(documentUri);

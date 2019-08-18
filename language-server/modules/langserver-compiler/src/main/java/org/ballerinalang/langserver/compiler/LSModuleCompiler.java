@@ -209,8 +209,9 @@ public class LSModuleCompiler {
                     if (LSClientLogger.isTraceEnabled()) {
                         long endTime = System.nanoTime();
                         long eTime = TimeUnit.MILLISECONDS.convert(endTime - startTime, TimeUnit.NANOSECONDS);
-                        LSClientLogger.logTrace(
-                                "Project: '" + projectRoot + "', served through cache within " + eTime + "ms");
+                        LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" +
+                                                        projectRoot + "'}, served through cache within " + eTime +
+                                                        "ms");
                     }
                     // Cache hit
                     return cacheEntry.get().getLeft();
@@ -221,8 +222,8 @@ public class LSModuleCompiler {
             if (LSClientLogger.isTraceEnabled()) {
                 long endTime = System.nanoTime();
                 long eTime = TimeUnit.MILLISECONDS.convert(endTime - startTime, TimeUnit.NANOSECONDS);
-                LSClientLogger.logTrace(
-                        "Project: '" + projectRoot + "', served through compilation within " + eTime + "ms");
+                LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" +
+                                                projectRoot + "'}, compilation took " + eTime + "ms");
             }
             return bLangPackage;
         } catch (RuntimeException e) {
@@ -236,7 +237,8 @@ public class LSModuleCompiler {
             if (compilationCounter > MAX_COMPILATION_COUNT) {
                 LSContextManager.getInstance().removeCompilerContext(projectRoot);
                 compilationCounter = 0;
-                LSClientLogger.logTrace("Project: '" + projectRoot + "', Reinitialized CompilationContext");
+                LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" +
+                                                projectRoot + "'}, Reinitialized CompilationContext");
             }
             compilationCounter++; // Not needed to be atomic since the if-check is a range
         }
@@ -271,8 +273,9 @@ public class LSModuleCompiler {
                     if (LSClientLogger.isTraceEnabled()) {
                         long endTime = System.nanoTime();
                         long eTime = TimeUnit.MILLISECONDS.convert(endTime - startTime, TimeUnit.NANOSECONDS);
-                        LSClientLogger.logTrace(
-                                "Project: '" + projectRoot + "', served through cache within " + eTime + "ms");
+                        LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" +
+                                                        projectRoot + "'}, served through cache within " + eTime +
+                                                        "ms");
                     }
                     // Cache hit
                     return cacheEntry.get().getRight();
@@ -283,8 +286,8 @@ public class LSModuleCompiler {
             if (LSClientLogger.isTraceEnabled()) {
                 long endTime = System.nanoTime();
                 long eTime = TimeUnit.MILLISECONDS.convert(endTime - startTime, TimeUnit.NANOSECONDS);
-                LSClientLogger.logTrace(
-                        "Project: '" + projectRoot + "', served through compilation within " + eTime + "ms");
+                LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" +
+                                                projectRoot + "'}, compilation took " + eTime + "ms");
             }
             return bLangPackages;
         } catch (RuntimeException e) {
@@ -298,7 +301,8 @@ public class LSModuleCompiler {
             if (compilationCounter > MAX_COMPILATION_COUNT) {
                 LSContextManager.getInstance().removeCompilerContext(projectRoot);
                 compilationCounter = 0;
-                LSClientLogger.logTrace("Project: '" + projectRoot + "', Reinitialized CompilationContext");
+                LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" +
+                                                projectRoot + "'}, Reinitialized CompilationContext");
             }
             compilationCounter++; // Not needed to be atomic since the if-check is a range
         }

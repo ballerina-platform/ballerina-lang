@@ -40,6 +40,8 @@ import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
  * <p>
  * This Cache heavily depends on the LSP protocol for the cache eviction such that didChange, didOpen and didClose
  * clears the related entries from the cache.
+ *
+ * @since 1.0.0
  */
 public class LSCompilerCache {
     private static final long MAX_CACHE_COUNT = 10L;
