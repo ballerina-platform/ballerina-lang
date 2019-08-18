@@ -48,9 +48,10 @@ public class UndefinedOutputAttrTest {
 
         BAssertUtil.validateError(result, 1, "undefined stream attribute 'unknownField' found in select clause", 64,
                                   56);
-        BAssertUtil.validateError(result, 2, "fields defined in select clause, incompatible with output fields " +
-                "in type 'Teacher', expected '[name, age, status, batch, school]' but found '[school, batch, " +
-                                             "unknownOutputField, age, status]'", 66, 9);
+        BAssertUtil.validateError(result, 2, "fields defined in select clause, incompatible with " +
+                "output fields in type 'Teacher', expected '[name(string), age(int), status(string), batch(string), " +
+                "school(string)]' but found '[school(string), batch(string), unknownOutputField(string), age(other), " +
+                "status(string)]'", 66, 9);
 
     }
 }

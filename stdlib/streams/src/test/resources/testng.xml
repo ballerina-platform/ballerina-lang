@@ -28,7 +28,7 @@
             </run>
         </groups>
         <packages>
-            <package name="org.ballerinalang.stdlib.streams"/>
+            <package name="org.ballerinalang.stdlib.streams.*"/>
         </packages>
     </test>
 </suite>
