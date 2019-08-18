@@ -84,17 +84,17 @@ public class WorkspaceTest {
     }
     
     private void openDocuments() throws IOException {
-        Path projectPath = FileUtils.RES_DIR.resolve("workspace").resolve("project");
-        TestUtil.openDocument(this.serviceEndpoint, projectPath.resolve("src").resolve("pkg1").resolve("pkg1Source.bal"));
-        TestUtil.openDocument(this.serviceEndpoint, projectPath.resolve("src").resolve("pkg2").resolve("pkg2Source.bal"));
-        TestUtil.openDocument(this.serviceEndpoint, projectPath.resolve("src").resolve("pkg3").resolve("pkg3Source.bal"));
+        Path sourcerootPath = FileUtils.RES_DIR.resolve("workspace").resolve("project").resolve("src");
+        TestUtil.openDocument(this.serviceEndpoint, sourcerootPath.resolve("pkg1").resolve("pkg1Source.bal"));
+        TestUtil.openDocument(this.serviceEndpoint, sourcerootPath.resolve("pkg2").resolve("pkg2Source.bal"));
+        TestUtil.openDocument(this.serviceEndpoint, sourcerootPath.resolve("pkg3").resolve("pkg3Source.bal"));
     }
     
     private void closeDocuments() throws IOException {
-        Path projectPath = FileUtils.RES_DIR.resolve("workspace").resolve("project");
-        TestUtil.closeDocument(this.serviceEndpoint, projectPath.resolve("src").resolve("pkg1").resolve("pkg1Source.bal"));
-        TestUtil.closeDocument(this.serviceEndpoint, projectPath.resolve("src").resolve("pkg2").resolve("pkg2Source.bal"));
-        TestUtil.closeDocument(this.serviceEndpoint, projectPath.resolve("src").resolve("pkg3").resolve("pkg3Source.bal"));
+        Path sourceRootPath = FileUtils.RES_DIR.resolve("workspace").resolve("project").resolve("src");
+        TestUtil.closeDocument(this.serviceEndpoint, sourceRootPath.resolve("pkg1").resolve("pkg1Source.bal"));
+        TestUtil.closeDocument(this.serviceEndpoint, sourceRootPath.resolve("pkg2").resolve("pkg2Source.bal"));
+        TestUtil.closeDocument(this.serviceEndpoint, sourceRootPath.resolve("pkg3").resolve("pkg3Source.bal"));
     }
     
     @AfterClass
