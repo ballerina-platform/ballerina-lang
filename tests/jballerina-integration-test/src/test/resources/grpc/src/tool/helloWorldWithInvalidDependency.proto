@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -15,23 +15,13 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 syntax = "proto3";
-package service;
 
-service helloWorldWithPackage {
-		rpc hello(HelloRequest) returns (HelloResponse);
-		rpc bye(ByeRequest) returns (ByeResponse);
-}
-message HelloRequest {
-	string name = 1;
-}
-message HelloResponse {
-	string message = 1;
-}
-message ByeRequest {
-	string greet = 1;
-}
-message ByeResponse {
-	string say = 1;
-}
+import "message";
+import "lib/";
 
+service helloWorldWithInvalidDependency {
+    rpc hello(HelloRequest) returns (HelloResponse);
+    rpc bye(ByeRequest) returns (ByeResponse);
+}
