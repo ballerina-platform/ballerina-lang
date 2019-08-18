@@ -52,6 +52,7 @@ import javax.net.ssl.SSLException;
 
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_OBJECT_AGGREGATOR;
 import static org.wso2.transport.http.netty.contract.Constants.WEBSOCKET_COMPRESSION_HANDLER;
+import static org.wso2.transport.http.netty.contractimpl.common.Util.safelyRemoveHandlers;
 
 /**
  * WebSocket handshake handler for carbon transports.
@@ -87,7 +88,7 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
                     if (pipeline.get(Constants.BACK_PRESSURE_HANDLER) != null) {
                         pipeline.remove(Constants.BACK_PRESSURE_HANDLER);
                     }
-                    pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
+                    safelyRemoveHandlers(pipeline, Constants.HTTP_SOURCE_HANDLER, Constants.HTTP_EXCEPTION_HANDLER);
                     ChannelHandlerContext decoderCtx = pipeline.context(HttpRequestDecoder.class);
                     pipeline.addAfter(decoderCtx.name(), HTTP_OBJECT_AGGREGATOR,
                                       new HttpObjectAggregator(Constants.WEBSOCKET_REQUEST_SIZE));
@@ -138,7 +139,7 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        if (cause instanceof SSLException) {
+        if (cause instanceof SSLException || cause instanceof WebSocketConnectorException) {
             ctx.writeAndFlush(new DefaultFullHttpResponse(
                     HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR))
                     .addListener(ChannelFutureListener.CLOSE);
