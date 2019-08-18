@@ -7,7 +7,7 @@ var decimalValue = 100.0d;
 
 var booleanValue = true;
 
-var byteValue = trap <byte>2;
+var byteValue = <byte>2;
 
 var floatValue = 2.0;
 
@@ -27,8 +27,8 @@ function testGetBoolean() returns boolean {
     return booleanValue;
 }
 
-function testGetByte() returns byte|error {
-    return check byteValue;
+function testGetByte() returns byte {
+    return byteValue;
 }
 
 function testGetFloat() returns float {

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.system.utils;
 
-import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
+import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
  * Constants for system package functions.
@@ -56,6 +56,9 @@ public class SystemConstants {
     public static final String PROCESS_EXEC_ERROR = "{ballerina/system}ProcessExecError";
     static final String ERROR_DETAILS = "Detail";
     static final String ERROR_MESSAGE = "message";
+
+    // System constant fields
+    public static final int DEFAULT_MAX_DEPTH = -1;
 
     private SystemConstants() {
     }

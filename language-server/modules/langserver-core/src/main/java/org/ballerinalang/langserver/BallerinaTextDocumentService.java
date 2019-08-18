@@ -280,7 +280,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 signatureHelp.setSignatures(signatures);
                 return signatureHelp;
             } catch (UserErrorException e) {
-                notifyUser(e, languageServer.getClient());
+                notifyUser("Signature Help", e, languageServer.getClient());
                 return new SignatureHelp();
             } catch (Throwable e) {
                 String msg = "Operation 'text/signature' failed!";
@@ -303,7 +303,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                                                                                             context, true);
                 return ReferencesUtil.getDefinition(modules, context, position.getPosition());
             } catch (UserErrorException e) {
-                notifyUser(e, languageServer.getClient());
+                notifyUser("Goto Definition", e, languageServer.getClient());
                 return new ArrayList<>();
             } catch (Throwable e) {
                 String msg = "Operation 'text/definition' failed!";
@@ -325,7 +325,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 boolean includeDeclaration = params.getContext().isIncludeDeclaration();
                 return ReferencesUtil.getReferences(modules, context, params.getPosition(), includeDeclaration);
             } catch (UserErrorException e) {
-                notifyUser(e, languageServer.getClient());
+                notifyUser("Find References", e, languageServer.getClient());
                 return new ArrayList<>();
             } catch (Throwable e) {
                 String msg = "Operation 'text/references' failed!";
@@ -370,7 +370,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
                 return symbols;
             } catch (UserErrorException e) {
-                notifyUser(e, languageServer.getClient());
+                notifyUser("Document Symbols", e, languageServer.getClient());
                 return symbols;
             } catch (Throwable e) {
                 String msg = "Operation 'text/documentSymbol' failed!";
@@ -440,7 +440,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     actions.addAll(getCommandForNodeType(topLevelNodeType, fileUri, line));
                 }
             } catch (UserErrorException e) {
-                notifyUser(e, languageServer.getClient());
+                notifyUser("Code Action", e, languageServer.getClient());
             } catch (Throwable e) {
                 String msg = "Operation 'text/codeAction' failed!";
                 Range range = params.getRange();
@@ -478,7 +478,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 documentManager.setCodeLenses(compilationPath, lenses);
                 return lenses;
             } catch (UserErrorException e) {
-                notifyUser(e, languageServer.getClient());
+                notifyUser("Code Lens", e, languageServer.getClient());
                 // Source compilation failed, serve from cache
                 return documentManager.getCodeLenses(compilationPath);
             } catch (Throwable e) {
@@ -539,7 +539,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 textEdit = new TextEdit(range, textEditContent);
                 return Collections.singletonList(textEdit);
             } catch (UserErrorException e) {
-                notifyUser(e, languageServer.getClient());
+                notifyUser("Formatting", e, languageServer.getClient());
                 return Collections.singletonList(textEdit);
             } catch (Throwable e) {
                 String msg = "Operation 'text/formatting' failed!";
@@ -562,7 +562,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                                                                                             position, context, true);
                 return ReferencesUtil.getRenameWorkspaceEdits(modules, context, params.getNewName(), position);
             } catch (UserErrorException e) {
-                notifyUser(e, languageServer.getClient());
+                notifyUser("Rename", e, languageServer.getClient());
                 return null;
             } catch (Throwable e) {
                 String msg = "Operation 'text/rename' failed!";
@@ -592,7 +592,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 implementationLocations.addAll(GotoImplementationUtil.getImplementationLocation(bLangPackage, context,
                         position.getPosition(), lsDocument.getProjectRoot()));
             } catch (UserErrorException e) {
-                notifyUser(e, languageServer.getClient());
+                notifyUser("Goto Implementation", e, languageServer.getClient());
                 return null;
             } catch (Throwable e) {
                 String msg = "Operation 'text/implementation' failed!";
@@ -628,8 +628,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 String msg = "Computing 'diagnostics' failed!";
                 TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
                 logError(msg, e, languageServer.getClient(), identifier, (Position) null);
-            } catch (UserErrorException e) {
-                notifyUser(e, languageServer.getClient());
             } catch (Throwable e) {
                 String msg = "Operation 'text/didOpen' failed!";
                 TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
@@ -653,16 +651,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
             // Update content
             List<TextDocumentContentChangeEvent> changes = params.getContentChanges();
             for (TextDocumentContentChangeEvent changeEvent : changes) {
-                Range changesRange = changeEvent.getRange();
-                documentManager.updateFileRange(compilationPath, changesRange, changeEvent.getText());
+                documentManager.updateFile(compilationPath, changeEvent.getText());
             }
-            // Update code lenses only if in incremental synchronization mode (if the language client is using
-            // incremental synchronization, range of content changes should not be null).
-            // Todo - Revisit after adding codelens support for full sync mode.
-            if (changes.get(changes.size() - 1).getRange() != null) {
-                List<CodeLens> lenses = documentManager.getCodeLenses(compilationPath);
-                CodeLensUtil.updateCachedCodeLenses(lenses, changes);
-            }
+            
             // Schedule diagnostics
             LanguageClient client = this.languageServer.getClient();
             this.diagPushDebouncer.call(compilationPath, () -> {
@@ -680,8 +671,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     nLock.ifPresent(Lock::unlock);
                 }
             });
-        } catch (UserErrorException e) {
-            notifyUser(e, languageServer.getClient());
         } catch (Throwable e) {
             String msg = "Operation 'text/didChange' failed!";
             logError(msg, e, languageServer.getClient(), params.getTextDocument(), (Position) null);
@@ -701,8 +690,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
         try {
             Path compilationPath = getUntitledFilePath(closedPath.toString()).orElse(closedPath.get());
             this.documentManager.closeFile(compilationPath);
-        } catch (UserErrorException e) {
-            notifyUser(e, languageServer.getClient());
         } catch (Throwable e) {
             String msg = "Operation 'text/didClose' failed!";
             logError(msg, e, languageServer.getClient(), params.getTextDocument(), (Position) null);

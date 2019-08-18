@@ -169,12 +169,12 @@ service OrderMgtService on serviceEndpoint5 {
     }
 }
 
+map<anydata> productsMap = populateSampleProducts();
+
 @http:ServiceConfig {
     basePath:"/productsservice"
 }
 service productmgt on serviceEndpoint5 {
-
-    map<anydata> productsMap = populateSampleProducts();
 
     @http:ResourceConfig {
         methods:["GET"],
@@ -182,11 +182,11 @@ service productmgt on serviceEndpoint5 {
     }
     resource function product(http:Caller caller, http:Request req, string prodId) {
         http:Response res = new;
-        var result = json.constructFrom(self.productsMap[prodId]);
+        var result = json.constructFrom(productsMap[prodId]);
         if (result is json) {
-            res.setPayload(result);
+            res.setPayload(<@untainted> result);
         } else {
-            res.setPayload(result.reason());
+            res.setPayload(<@untainted> result.reason());
         }
         checkpanic caller->respond(res);
     }
@@ -199,7 +199,7 @@ service productmgt on serviceEndpoint5 {
         var jsonReq = req.getJsonPayload();
         if (jsonReq is json) {
             string productId = jsonReq.Product.ID.toString();
-            self.productsMap[productId] = jsonReq;
+            productsMap[productId] = jsonReq;
             json payload = {"Status":"Product is successfully added."};
 
             http:Response res = new;

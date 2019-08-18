@@ -18,8 +18,6 @@
 
 package org.ballerinalang.net.websub.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
@@ -71,13 +69,9 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERV
                 structPackage = WEBSUB_PACKAGE),
         returnType = {@ReturnType(type = TypeKind.ARRAY)}
 )
-public class RetrieveSubscriptionParameters extends BlockingNativeCallableUnit {
+public class RetrieveSubscriptionParameters {
 
     private static final String LOCALHOST = "localhost";
-
-    @Override
-    public void execute(Context context) {
-    }
 
     @SuppressWarnings("unchecked")
     public static ArrayValue retrieveSubscriptionParameters(Strand strand, ObjectValue subscriberServiceEndpoint) {

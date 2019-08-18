@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
@@ -44,13 +42,10 @@ import java.nio.file.Paths;
         functionName = "createDir",
         isPublic = true
 )
-public class CreateDir extends BlockingNativeCallableUnit {
+public class CreateDir {
 
     private static final Logger log = LoggerFactory.getLogger(CreateDir.class);
 
-    @Override
-    public void execute(Context context) {
-    }
 
     public static Object createDir(Strand strand, String dir, boolean parentDirs) {
         try {

@@ -626,7 +626,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefSymbol.markdownDocumentation = getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);
         typeDefSymbol.name = names.fromIdNode(typeDefinition.getName());
         typeDefSymbol.pkgID = env.enclPkg.packageID;
+
         typeDefSymbol.flags |= Flags.asMask(typeDefinition.flagSet);
+        // Reset public flag when set on a non public type.
+        typeDefSymbol.flags &= getPublicFlagResetingMask(typeDefinition.flagSet, typeDefinition.typeNode);
+        definedType.flags = typeDefSymbol.flags;
+
         if (typeDefinition.annAttachments.stream()
                 .anyMatch(attachment -> attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value))) {
             // TODO : Clean this. Not a nice way to handle this.
@@ -644,6 +649,20 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE) {
             // constructors are only defined for named types.
             defineErrorConstructorSymbol(typeDefinition.name.pos, typeDefSymbol);
+        }
+    }
+
+    // If this type is defined to a public type or this is a anonymous type, return int with all bits set to 1,
+    // so that we can bitwise and it with any flag and the original flag will not change.
+    // If the type is not a public type then return a mask where public flag is set to zero and all others are set
+    // to 1 so that we can perform bitwise and operation to remove the public flag from given flag.
+    private int getPublicFlagResetingMask(Set<Flag> flagSet, BLangType typeNode) {
+        boolean isAnonType =
+                typeNode instanceof BLangStructureTypeNode && ((BLangStructureTypeNode) typeNode).isAnonymous;
+        if (flagSet.contains(Flag.PUBLIC) || isAnonType) {
+            return Integer.MAX_VALUE;
+        } else {
+            return ~Flags.PUBLIC;
         }
     }
 
@@ -1522,7 +1541,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineRecordInitFunction(BLangTypeDefinition typeDef, SymbolEnv conEnv) {
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
-        recordTypeNode.initFunction = ASTBuilderUtil.createInitFunction(typeDef.pos, "", Names.INIT_FUNCTION_SUFFIX);
+        recordTypeNode.initFunction = ASTBuilderUtil.createInitFunctionWithNilReturn(typeDef.pos, "",
+                                                                                     Names.INIT_FUNCTION_SUFFIX);
 
         recordTypeNode.initFunction.receiver = createReceiver(typeDef.pos, typeDef.name);
         recordTypeNode.initFunction.attachedFunction = true;

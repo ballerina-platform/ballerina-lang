@@ -45,7 +45,6 @@ public class StaticMethodTest {
     public void testAcceptNothingAndReturnNothing() {
         BValue[] returns = BRunUtil.invoke(result, "testAcceptNothingAndReturnNothing");
 
-        // TODO ....... WHY NULL r  eturn HERERRRRR......?????*^#&*^#*&$^#*&^
 
 
         Assert.assertEquals(returns.length, 1);
@@ -56,7 +55,6 @@ public class StaticMethodTest {
     public void testInteropFunctionWithDifferentName() {
         BValue[] returns = BRunUtil.invoke(result, "testInteropFunctionWithDifferentName");
 
-        // TODO ....... WHY NULL return HERERRRRR......?????*^#&*^#*&$^#*&^
 
 
         Assert.assertEquals(returns.length, 1);

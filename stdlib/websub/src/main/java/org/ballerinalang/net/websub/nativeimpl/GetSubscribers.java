@@ -18,8 +18,6 @@
 
 package org.ballerinalang.net.websub.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -57,13 +55,9 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACK
                                  structType = SUBSCRIPTION_DETAILS, structPackage = WEBSUB_PACKAGE),
         isPublic = true
 )
-public class GetSubscribers extends BlockingNativeCallableUnit {
+public class GetSubscribers {
 
     private static final Logger log = LoggerFactory.getLogger(GetSubscribers.class);
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static ArrayValue getSubscribers(Strand strand, ObjectValue webSubHub, String topic) {
         ArrayValue subscriberDetailArray = null;

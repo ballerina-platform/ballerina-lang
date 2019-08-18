@@ -19,6 +19,8 @@ package org.ballerinalang.debugadapter.launcher;
 import org.ballerinalang.debugadapter.JBallerinaDebugServer;
 import org.eclipse.lsp4j.debug.launch.DSPLauncher;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -33,6 +35,7 @@ import java.net.UnknownHostException;
  */
 public class Launcher {
     private static final int DEFAULT_PORT = 4711;
+    private static final Logger LOGGER = LoggerFactory.getLogger(Launcher.class);
     public static void main(String[] args) {
         ServerSocket server;
         DataOutputStream os;
@@ -56,7 +59,9 @@ public class Launcher {
             serverLauncher.startListening();
 
         } catch (UnknownHostException e) {
+            LOGGER.error(e.getMessage(), e);
         } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
         }
     }
 

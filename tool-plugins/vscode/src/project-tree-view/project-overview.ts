@@ -32,20 +32,7 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
         this.langClient = balExt.langClient;
 
         vscode.window.onDidChangeActiveTextEditor((activatedTextEditor) => {
-            if (!activatedTextEditor) {
-                setTimeout(() => {
-                    // The active state is only updated in the next event loop. We need a setTimeout
-                    if (balExt.getWebviewPanels()["overview"].active) {
-                        // keep the tree view as is
-                        return;
-                    }
-
-                    this.refresh();
-                }, 0);
-                return;
-            }
-
-            if (activatedTextEditor.document.languageId !== "ballerina") {
+            if (!activatedTextEditor || activatedTextEditor.document.languageId !== "ballerina") {
                 this.refresh();
                 return;
             }
@@ -65,10 +52,19 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
     }
 
     private refresh(document?: vscode.TextDocument): void {
-		this.currentFilePath = document ? document.fileName: undefined;
-        this.sourceRoot = this.currentFilePath? this.getSourceRoot(this.currentFilePath, path.parse(this.currentFilePath).root) : undefined;
-
-        this._onDidChangeTreeData.fire();
+        setTimeout(() => {
+            // The active state of the webview changes only in the next event loop cycle
+            // so we check it inside a setTimeout
+            const overviewPanel = this.ballerinaExtInstance.getWebviewPanels()["overview"];
+            if (overviewPanel && overviewPanel.active) {
+                return;
+            }
+    
+            this.currentFilePath = document ? document.fileName: undefined;
+            this.sourceRoot = this.currentFilePath? this.getSourceRoot(this.currentFilePath, path.parse(this.currentFilePath).root) : undefined;
+    
+            this._onDidChangeTreeData.fire();
+        }, 0);
 	}
 
     getTreeItem(element: ProjectTreeElement): vscode.TreeItem | Thenable<vscode.TreeItem> {

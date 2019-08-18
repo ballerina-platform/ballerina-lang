@@ -19,7 +19,7 @@ import ballerina/kafka;
 string topic = "advanced-service-test";
 
 kafka:ConsumerConfig consumerConfigs = {
-    bootstrapServers: "localhost:9103",
+    bootstrapServers: "localhost:14110",
     groupId: "advanced-service-test-group",
     clientId: "advanced-service-consumer",
     offsetReset: "earliest",
@@ -30,10 +30,10 @@ kafka:ConsumerConfig consumerConfigs = {
 listener kafka:Consumer kafkaConsumer = new(consumerConfigs);
 
 kafka:ProducerConfig producerConfigs = {
-    bootstrapServers: "localhost:9103",
+    bootstrapServers: "localhost:14110",
     clientId: "advanced-service-producer",
-    acks: "all",
-    noRetries: 3
+    acks: kafka:ACKS_ALL,
+    retryCount: 3
 };
 
 kafka:Producer kafkaProducer = new(producerConfigs);

@@ -23,6 +23,14 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
 
+import java.util.Properties;
+
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.QUARTZ_MISFIRE_THRESHOLD;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.QUARTZ_MISFIRE_THRESHOLD_VALUE;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.QUARTZ_THREAD_COUNT;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.QUARTZ_THREAD_COUNT_VALUE;
+
+
 /**
  * Task manager to handle schedulers in ballerina tasks.
  */
@@ -44,11 +52,19 @@ public class TaskManager {
             if (this.scheduler != null && this.scheduler.isStarted()) {
                 return this.scheduler;
             }
-            this.scheduler = StdSchedulerFactory.getDefaultScheduler();
+            StdSchedulerFactory stdSchedulerFactory = new StdSchedulerFactory(createSchedulerProperties());
+            this.scheduler = stdSchedulerFactory.getScheduler();
             this.scheduler.start();
         } catch (SchedulerException e) {
             throw new SchedulingException("Cannot start the Task Listener/Scheduler.", e);
         }
         return this.scheduler;
+    }
+
+    private Properties createSchedulerProperties() {
+        Properties properties = new Properties();
+        properties.setProperty(QUARTZ_MISFIRE_THRESHOLD, QUARTZ_MISFIRE_THRESHOLD_VALUE);
+        properties.setProperty(QUARTZ_THREAD_COUNT, QUARTZ_THREAD_COUNT_VALUE);
+        return properties;
     }
 }

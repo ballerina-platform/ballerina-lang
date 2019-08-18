@@ -99,7 +99,7 @@ public class ManifestProcessor {
      */
     public static Manifest parseTomlContentFromString(String content) throws TomlException {
         try {
-        Toml toml = new Toml().read(content);
+            Toml toml = new Toml().read(content);
             if (toml.isEmpty()) {
                 throw new TomlException("invalid Ballerina.toml file: organization name and the version of the " +
                                         "project is missing. example: \n" +

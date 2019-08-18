@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.nativeimpl.jvm.classwriter;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -45,13 +43,7 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
                 @Argument(name = "fileName", type = STRING)
         }
 )
-public class VisitSource extends BlockingNativeCallableUnit {
-
-    @Override
-    @Deprecated
-    public void execute(Context context) {
-        throw new UnsupportedOperationException("BVM Unsupported");
-    }
+public class VisitSource {
 
     public static void visitSource(Strand strand, ObjectValue oCw, String fileName) {
         ClassWriter cw = ASMUtil.getRefArgumentNativeData(oCw);

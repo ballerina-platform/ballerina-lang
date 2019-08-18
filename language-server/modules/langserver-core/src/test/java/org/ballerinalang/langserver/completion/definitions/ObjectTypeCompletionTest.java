@@ -36,11 +36,16 @@ public class ObjectTypeCompletionTest extends CompletionTest {
     public Object[][] dataProvider() {
         log.info("Test textDocument/completion for Object Type Scope");
         return new Object[][] {
-//                {"objectTest1.json", "object"},
+                {"objectTest1.json", "object"},
                 {"objectTest2.json", "object"},
                 {"objectTest3.json", "object"},
                 {"objectTest4.json", "object"},
-//                {"objectTest5.json", "object"},
+                {"objectTest5.json", "object"},
+                {"objectTest6.json", "object"},
+                {"objectTest7.json", "object"},
+                {"objectTest8.json", "object"},
+                {"objectTest10.json", "object"},
+                {"objectTest11.json", "object"},
         };
     }
 }

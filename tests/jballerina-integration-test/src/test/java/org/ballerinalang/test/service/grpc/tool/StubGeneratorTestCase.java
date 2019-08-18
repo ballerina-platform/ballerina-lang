@@ -18,6 +18,7 @@
 package org.ballerinalang.test.service.grpc.tool;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.protobuf.cmd.GrpcCmd;
 import org.ballerinalang.protobuf.cmd.OSDetector;
 import org.ballerinalang.protobuf.utils.BalFileGenerationUtils;
@@ -28,6 +29,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.File;
@@ -37,6 +39,7 @@ import java.nio.file.Paths;
 
 import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.TMP_DIRECTORY_PATH;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Protobuf to bal generation function testcase.
@@ -61,6 +64,7 @@ public class StubGeneratorTestCase {
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7);
         assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11);
+        validatePublicAttachedFunctions(compileResult);
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
         assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
         assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
@@ -100,6 +104,7 @@ public class StubGeneratorTestCase {
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7);
         assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11);
+        validatePublicAttachedFunctions(compileResult);
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
         assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
         assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
@@ -119,6 +124,7 @@ public class StubGeneratorTestCase {
             assertEquals(compileResult.getDiagnostics().length, 0);
             assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7);
             assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11);
+            validatePublicAttachedFunctions(compileResult);
             assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
             assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
             assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
@@ -183,6 +189,7 @@ public class StubGeneratorTestCase {
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7);
         assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11);
+        validatePublicAttachedFunctions(compileResult);
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
         assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
         assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
@@ -201,7 +208,7 @@ public class StubGeneratorTestCase {
         grpcCommand.setMode("service");
         grpcCommand.execute();
         Path sampleServiceFile = Paths.get(TMP_DIRECTORY_PATH, "grpc", "service", "helloWorld_sample_service.bal");
-        Assert.assertTrue(Files.exists(sampleServiceFile));
+        assertTrue(Files.exists(sampleServiceFile));
     }
 
     @Test
@@ -217,7 +224,7 @@ public class StubGeneratorTestCase {
         grpcCommand.setMode("client");
         grpcCommand.execute();
         Path sampleServiceFile = Paths.get(TMP_DIRECTORY_PATH, "grpc", "client", "helloWorld_sample_client.bal");
-        Assert.assertTrue(Files.exists(sampleServiceFile));
+        assertTrue(Files.exists(sampleServiceFile));
     }
 
     @Test(description = "Test case for oneof field record generation")
@@ -228,9 +235,19 @@ public class StubGeneratorTestCase {
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 30);
         assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 30);
+        validatePublicAttachedFunctions(compileResult);
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
         assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
         assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
+    }
+
+    private void validatePublicAttachedFunctions(CompileResult compileResult) {
+        for (BLangFunction function : ((BLangPackage) compileResult.getAST()).functions) {
+            if (function.attachedFunction) {
+                assertTrue(function.getFlags().contains(Flag.PUBLIC), "Attached function " + function.getName() + "is" +
+                        " not public");
+            }
+        }
     }
 
     private CompileResult getStubCompileResult(String protoFilename, String outputFilename)

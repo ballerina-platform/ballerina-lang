@@ -66,6 +66,7 @@
             <class name="org.ballerinalang.test.service.http.sample.MultipleHTTPClientsTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPHeaderServerTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.KeepAliveTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HTTPCachingTestCase"/>
         </classes>
     </test>
 
@@ -95,6 +96,7 @@
             <class name="org.ballerinalang.test.service.http2.ClientUpgradeWithLargePayload"/>
             <class name="org.ballerinalang.test.service.http2.HTTP2ClientActionsTestCase"/>
             <class name="org.ballerinalang.test.service.http2.Http2MutualSslTestCase"/>
+            <class name="org.ballerinalang.test.service.http2.Http2ForwardHeaderTest"/>
         </classes>
     </test>
 
@@ -251,7 +253,7 @@
 
     <test name="ballerina-data-streaming-tests" parallel="false">
         <classes>
-<!--            <class name="org.ballerinalang.test.data.streaming.TableDataStreamingTestCase"/>-->
+            <class name="org.ballerinalang.test.data.streaming.TableDataStreamingTestCase"/>
         </classes>
     </test>
     <test name="ballerina-socket-tests" parallel="false">
@@ -276,6 +278,7 @@
             <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>
 <!--            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>-->
             <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>
+            <class name="org.ballerinalang.test.packaging.LockFileTestCase"/>
         </classes>
     </test>
 </suite>

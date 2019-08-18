@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
+import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.TypeChecker;
@@ -25,8 +26,8 @@ import org.ballerinalang.jvm.TypeConverter;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -58,6 +59,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static org.ballerinalang.jvm.JSONUtils.mergeJson;
+import static org.ballerinalang.jvm.TypeConverter.getConvertibleTypes;
 import static org.ballerinalang.jvm.values.freeze.FreezeUtils.handleInvalidUpdate;
 
 /**
@@ -73,6 +75,10 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     private static final long serialVersionUID = 1L;
     private BType type;
+
+    private static final String PERIOD = ".";
+    private static final String UNDERSCORE = "_";
+    private static final String SLASH = "/";
 
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private final Lock readLock = lock.readLock();
@@ -491,25 +497,46 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             type = TypeConverter.resolveMatchingTypeForUnion(this, type);
             this.stamp(type, unresolvedValues);
         } else if (type.getTag() == TypeTags.MAP_TAG) {
-            for (Object value : this.values()) {
+            for (Map.Entry valueEntry : this.entrySet()) {
+                Object value = valueEntry.getValue();
+                BType constraintType = ((BMapType) type).getConstrainedType();
                 if (value instanceof RefValue) {
-                    ((RefValue) value).stamp(((BMapType) type).getConstrainedType(), unresolvedValues);
+                    ((RefValue) value).stamp(constraintType, unresolvedValues);
+                } else if (!TypeChecker.checkIsType(value, constraintType)) {
+                    // Has to be a numeric conversion.
+                    this.put((K) valueEntry.getKey(),
+                             (V) TypeConverter.convertValues(getConvertibleTypes(value, constraintType).get(0), value));
                 }
             }
         } else if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            Map<String, BType> targetTypeField = new HashMap<>();
-            BType restFieldType = ((BRecordType) type).restFieldType;
+            BRecordType recordType = (BRecordType) type;
+            MapValueImpl<String, Object> recordWithDefaults = (MapValueImpl<String, Object>)
+                    BallerinaValues.createRecordValue(getPackageForValueCreator(recordType.getPackage()),
+                                                      recordType.getName());
 
-            for (BField field : ((BStructureType) type).getFields().values()) {
+            for (Map.Entry valueEntry : recordWithDefaults.entrySet()) {
+                Object fieldName = valueEntry.getKey();
+                if (!this.containsKey(fieldName)) {
+                    this.put((K) fieldName, (V) valueEntry.getValue());
+                }
+            }
+
+            BType restFieldType = recordType.restFieldType;
+            Map<String, BType> targetTypeField = new HashMap<>();
+            for (BField field : recordType.getFields().values()) {
                 targetTypeField.put(field.getFieldName(), field.getFieldType());
             }
 
             for (Map.Entry valueEntry : this.entrySet()) {
                 String fieldName = valueEntry.getKey().toString();
                 Object value = valueEntry.getValue();
+                BType bType = targetTypeField.getOrDefault(fieldName, restFieldType);
                 if (value instanceof RefValue) {
-                    BType bType = targetTypeField.getOrDefault(fieldName, restFieldType);
                     ((RefValue) value).stamp(bType, unresolvedValues);
+                } else if (!TypeChecker.checkIsType(value, bType)) {
+                    // Has to be a numeric conversion.
+                    this.put((K) fieldName,
+                             (V) TypeConverter.convertValues(getConvertibleTypes(value, bType).get(0), value));
                 }
             }
         } else if (type.getTag() == TypeTags.UNION_TAG) {
@@ -531,6 +558,16 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
         this.type = type;
         unresolvedValues.remove(typeValuePair);
+    }
+
+    private String getPackageForValueCreator(BPackage bPackage) {
+        if (PERIOD.equals(bPackage.toString())) {
+            return PERIOD;
+        }
+
+        String org = bPackage.org;
+        String name = bPackage.name;
+        return org.replace(PERIOD, UNDERSCORE).concat(SLASH).concat(name.replace(PERIOD, UNDERSCORE));
     }
 
     /**

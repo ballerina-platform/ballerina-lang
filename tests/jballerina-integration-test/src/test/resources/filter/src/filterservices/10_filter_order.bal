@@ -104,7 +104,7 @@ service FilterOrder on filterOrderListener {
         var payload = req.getTextPayload();
         http:Response res = new;
         if (payload is string) {
-            res.setPayload(payload);
+            res.setPayload(<@untainted> payload);
         }
         checkpanic caller->respond(res);
     }

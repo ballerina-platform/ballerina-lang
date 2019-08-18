@@ -20,7 +20,7 @@ import ballerina/io;
 string topic = "service-test";
 
 kafka:ConsumerConfig consumerConfigs = {
-    bootstrapServers: "localhost:9103",
+    bootstrapServers: "localhost:14110",
     groupId: "service-test-group",
     clientId: "service-consumer",
     offsetReset: "earliest",

@@ -20,6 +20,7 @@ package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
@@ -28,7 +29,6 @@ import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContex
 import org.ballerinalang.tool.util.BFileUtil;
 import org.ballerinalang.util.BootstrapRunner;
 import org.ballerinalang.util.JBallerinaInMemoryClassLoader;
-import org.ballerinalang.util.observability.ObservabilityConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
@@ -50,8 +50,8 @@ import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import java.util.logging.LogManager;
 
+import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
-import static org.ballerinalang.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.JAVA_MAIN;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.MAIN_CLASS_MANIFEST_ENTRY;
@@ -201,7 +201,7 @@ public class RunExecutableTask implements Task {
         } catch (IllegalAccessException | IllegalArgumentException e) {
             throw createLauncherException("invoking main method failed due to " + e.getMessage());
         } catch (InvocationTargetException | NoSuchFieldException e) {
-            throw createLauncherException("invoking main method failed due to " + e.getCause());
+            throw createLauncherException("invoking main method failed due to ", e.getCause());
         }
         
     }
@@ -231,7 +231,7 @@ public class RunExecutableTask implements Task {
         } catch (IllegalAccessException | IllegalArgumentException e) {
             throw createLauncherException("invoking main method failed due to " + e.getMessage());
         } catch (InvocationTargetException | NoSuchFieldException e) {
-            throw createLauncherException("invoking main method failed due to " + e.getCause());
+            throw createLauncherException("invoking main method failed due to ", e.getCause());
         }
     }
     

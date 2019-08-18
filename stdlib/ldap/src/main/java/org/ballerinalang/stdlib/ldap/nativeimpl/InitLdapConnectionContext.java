@@ -54,8 +54,8 @@ import javax.net.ssl.SSLContext;
         functionName = "initLdapConnectionContext", isPublic = true)
 public class InitLdapConnectionContext {
 
-    public static MapValue<String, Object> initLdapConnectionContext(Strand strand, MapValue<?, ?> authProviderConfig,
-                                                                     String instanceId) {
+    public static Object initLdapConnectionContext(Strand strand, MapValue<?, ?> authProviderConfig,
+                                                   String instanceId) {
         CommonLdapConfiguration commonLdapConfiguration = new CommonLdapConfiguration();
 
         commonLdapConfiguration.setDomainName(authProviderConfig.getStringValue(LdapConstants.DOMAIN_NAME));
@@ -116,7 +116,7 @@ public class InitLdapConnectionContext {
             return ldapConnectionRecord;
         } catch (KeyStoreException | KeyManagementException | NoSuchAlgorithmException
                 | CertificateException | NamingException | IOException e) {
-            throw LdapUtils.createError(e.getMessage());
+            return LdapUtils.createError(e.getMessage());
         } finally {
             if (sslConfig != null) {
                 LdapUtils.removeServiceName();

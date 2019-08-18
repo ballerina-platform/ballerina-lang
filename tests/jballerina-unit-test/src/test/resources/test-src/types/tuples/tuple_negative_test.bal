@@ -44,6 +44,18 @@ function testTupleToArrayAssignmentNegative() returns int[] {
     return y;
 }
 
+function testTupleToArrayAssignmentNegative1() returns string[] {
+    [string...] x = ["a", "b", "c"];
+    string[2] y = x;
+    return y;
+}
+
+function testTupleToArrayAssignmentNegative2() returns string[] {
+    [string, string] x = ["a", "b"];
+    string[3] y = x;
+    return y;
+}
+
 function testArrayToTupleAssignmentNegative() returns [int...] {
     string[] x = ["a", "b", "c"];
     [int...] y = x;
@@ -51,8 +63,26 @@ function testArrayToTupleAssignmentNegative() returns [int...] {
 }
 
 function testArrayToTupleAssignmentNegative2() returns [int, string...] {
-    (int|string)[] x = [1, "b", "c"];
+    (int|string)[] x = [1, "b", "c", 2];
     [int, string...] y = x;
+    return y;
+}
+
+function testArrayToTupleAssignmentNegative3() returns [int, int] {
+    int[3] x = [1, 2, 3];
+    [int, int] y = x;
+    return y;
+}
+
+function testArrayToTupleAssignmentNegative4() returns [int, int, int] {
+    int[2] x = [1, 2];
+    [int, int, int] y = x;
+    return y;
+}
+
+function testArrayToTupleAssignmentNegative5() returns [int...] {
+    int[2] x = [1, 2];
+    [int...] y = x;
     return y;
 }
 
