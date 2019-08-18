@@ -38,6 +38,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.prepareCompilerContext;
@@ -194,22 +195,35 @@ public class LSModuleCompiler {
             throws CompilationFailedException {
         LSCompilerCache.Key key = new LSCompilerCache.Key(projectRoot, context);
         try {
+            long startTime = 0L;
+            if (LSClientLogger.isTraceEnabled()) {
+                startTime = System.nanoTime();
+            }
             boolean isCacheSupported = context.get(DocumentServiceKeys.IS_CACHE_SUPPORTED) != null &&
                     context.get(DocumentServiceKeys.IS_CACHE_SUPPORTED);
             boolean isOutdatedSupported = context.get(DocumentServiceKeys.IS_CACHE_OUTDATED_SUPPORTED) != null &&
                     context.get(DocumentServiceKeys.IS_CACHE_OUTDATED_SUPPORTED);
             if (isCacheSupported) {
                 LSCompilerCache.CacheEntry cacheEntry = LSCompilerCache.get(key, context);
-                if (cacheEntry != null && isOutdatedSupported) {
-                    // Cache hit, Outdated supported
-                    return cacheEntry.get().getLeft();
-                } else if (cacheEntry != null && !cacheEntry.isOutdated()) {
-                    // Cache hit, Outdated NOT supported
+                if (cacheEntry != null && (isOutdatedSupported || !cacheEntry.isOutdated())) {
+                    if (LSClientLogger.isTraceEnabled()) {
+                        long endTime = System.nanoTime();
+                        long eTime = TimeUnit.MILLISECONDS.convert(endTime - startTime, TimeUnit.NANOSECONDS);
+                        LSClientLogger.logTrace(
+                                "Project: '" + projectRoot + "', served through cache within " + eTime + "ms");
+                    }
+                    // Cache hit
                     return cacheEntry.get().getLeft();
                 }
             }
             BLangPackage bLangPackage = compiler.compile(pkgName);
             LSCompilerCache.put(key, Either.forLeft(bLangPackage), context);
+            if (LSClientLogger.isTraceEnabled()) {
+                long endTime = System.nanoTime();
+                long eTime = TimeUnit.MILLISECONDS.convert(endTime - startTime, TimeUnit.NANOSECONDS);
+                LSClientLogger.logTrace(
+                        "Project: '" + projectRoot + "', served through compilation within " + eTime + "ms");
+            }
             return bLangPackage;
         } catch (RuntimeException e) {
             // NOTE: Remove current CompilerContext to try out a fresh CompilerContext next time
@@ -222,6 +236,7 @@ public class LSModuleCompiler {
             if (compilationCounter > MAX_COMPILATION_COUNT) {
                 LSContextManager.getInstance().removeCompilerContext(projectRoot);
                 compilationCounter = 0;
+                LSClientLogger.logTrace("Project: '" + projectRoot + "', Reinitialized CompilationContext");
             }
             compilationCounter++; // Not needed to be atomic since the if-check is a range
         }
@@ -242,22 +257,35 @@ public class LSModuleCompiler {
             throws CompilationFailedException {
         LSCompilerCache.Key key = new LSCompilerCache.Key(projectRoot, context);
         try {
+            long startTime = 0L;
+            if (LSClientLogger.isTraceEnabled()) {
+                startTime = System.nanoTime();
+            }
             boolean isCacheSupported = context.get(DocumentServiceKeys.IS_CACHE_SUPPORTED) != null &&
                     context.get(DocumentServiceKeys.IS_CACHE_SUPPORTED);
             boolean isOutdatedSupported = context.get(DocumentServiceKeys.IS_CACHE_OUTDATED_SUPPORTED) != null &&
                     context.get(DocumentServiceKeys.IS_CACHE_OUTDATED_SUPPORTED);
             if (isCacheSupported) {
                 LSCompilerCache.CacheEntry cacheEntry = LSCompilerCache.get(key, context);
-                if (cacheEntry != null && isOutdatedSupported) {
-                    // Cache hit, Outdated supported
-                    return cacheEntry.get().getRight();
-                } else if (cacheEntry != null && !cacheEntry.isOutdated()) {
-                    // Cache hit, Outdated NOT supported
+                if (cacheEntry != null && (isOutdatedSupported || !cacheEntry.isOutdated())) {
+                    if (LSClientLogger.isTraceEnabled()) {
+                        long endTime = System.nanoTime();
+                        long eTime = TimeUnit.MILLISECONDS.convert(endTime - startTime, TimeUnit.NANOSECONDS);
+                        LSClientLogger.logTrace(
+                                "Project: '" + projectRoot + "', served through cache within " + eTime + "ms");
+                    }
+                    // Cache hit
                     return cacheEntry.get().getRight();
                 }
             }
             List<BLangPackage> bLangPackages = compiler.compilePackages(isBuild);
             LSCompilerCache.put(key, Either.forRight(bLangPackages), context);
+            if (LSClientLogger.isTraceEnabled()) {
+                long endTime = System.nanoTime();
+                long eTime = TimeUnit.MILLISECONDS.convert(endTime - startTime, TimeUnit.NANOSECONDS);
+                LSClientLogger.logTrace(
+                        "Project: '" + projectRoot + "', served through compilation within " + eTime + "ms");
+            }
             return bLangPackages;
         } catch (RuntimeException e) {
             // NOTE: Remove current CompilerContext to try out a fresh CompilerContext next time
@@ -270,6 +298,7 @@ public class LSModuleCompiler {
             if (compilationCounter > MAX_COMPILATION_COUNT) {
                 LSContextManager.getInstance().removeCompilerContext(projectRoot);
                 compilationCounter = 0;
+                LSClientLogger.logTrace("Project: '" + projectRoot + "', Reinitialized CompilationContext");
             }
             compilationCounter++; // Not needed to be atomic since the if-check is a range
         }
