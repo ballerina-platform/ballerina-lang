@@ -23,6 +23,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -117,6 +118,8 @@ public class SymbolResolver extends BLangNodeVisitor {
     private SymbolEnv env;
     private BType resultType;
     private DiagnosticCode diagCode;
+    private SymbolEnter symbolEnter;
+    private BLangAnonymousModelHelper anonymousModelHelper;
 
     public static SymbolResolver getInstance(CompilerContext context) {
         SymbolResolver symbolResolver = context.get(SYMBOL_RESOLVER_KEY);
@@ -134,6 +137,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.types = Types.getInstance(context);
+        this.symbolEnter = SymbolEnter.getInstance(context);
+        this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
 
     public boolean checkForUniqueSymbol(DiagnosticPos pos, SymbolEnv env, BSymbol symbol, int expSymTag) {
@@ -871,6 +876,14 @@ public class SymbolResolver extends BLangNodeVisitor {
             BRecordType recordType = new BRecordType(recordSymbol);
             recordSymbol.type = recordType;
             recordTypeNode.symbol = recordSymbol;
+
+            if (env.node.getKind() != NodeKind.PACKAGE) {
+                recordSymbol.name = names.fromString(
+                        anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
+                symbolEnter.defineSymbol(recordTypeNode.pos, recordTypeNode.symbol, env);
+                symbolEnter.defineNode(recordTypeNode, env);
+            }
+
             resultType = recordType;
         } else {
             resultType = recordTypeNode.symbol.type;
@@ -1030,7 +1043,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     public void visit(BLangFunctionTypeNode functionTypeNode) {
         resultType = createInvokableType(functionTypeNode.getParams(), functionTypeNode.restParam,
                 functionTypeNode.returnTypeNode, Flags.asMask(functionTypeNode.flagSet), env);
-    } 
+    }
 
     public BInvokableType createInvokableType(List<? extends BLangVariable> paramVars, BLangVariable restVariable,
                                BLangType retTypeVar, int flags, SymbolEnv env) {

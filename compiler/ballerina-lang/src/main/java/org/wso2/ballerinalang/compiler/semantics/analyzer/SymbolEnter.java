@@ -1037,6 +1037,61 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
+    @Override
+    public void visit(BLangRecordTypeNode recordTypeNode) {
+        SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
+        defineAnonRecordInitFunction(recordTypeNode, env);
+        defineRecordTypeNode(recordTypeNode, typeDefEnv);
+    }
+
+    private void defineRecordTypeNode(BLangRecordTypeNode recordTypeNode, SymbolEnv env) {
+        BRecordType recordType = (BRecordType) recordTypeNode.symbol.type;
+
+        // Resolve and add the fields of the referenced types to this object.
+        resolveReferencedFields(recordTypeNode, env);
+
+        // Define all the fields
+        recordType.fields =
+                Stream.concat(recordTypeNode.fields.stream(), recordTypeNode.referencedFields.stream())
+                        .peek(field -> defineNode(field, env))
+                        .filter(field -> field.symbol.type != symTable.semanticError) // filter out erroneous fields
+                        .map(field -> new BField(names.fromIdNode(field.name), field.pos, field.symbol))
+                        .collect(Collectors.toList());
+
+        recordType.sealed = recordTypeNode.sealed;
+        if (recordTypeNode.sealed && recordTypeNode.restFieldType != null) {
+            dlog.error(recordTypeNode.restFieldType.pos, DiagnosticCode.REST_FIELD_NOT_ALLOWED_IN_SEALED_RECORDS);
+            return;
+        }
+
+        if (recordTypeNode.restFieldType == null) {
+            if (recordTypeNode.sealed) {
+                recordType.restFieldType = symTable.noType;
+                return;
+            }
+            recordType.restFieldType = symTable.anydataType;
+            return;
+        }
+
+        recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType, env);
+    }
+
+    /**
+     * Checks whether the given expression type is allowed as an expression in a constant.
+     *
+     * @param expression the expression which needs to be checked
+     * @return {@code true} if the given expression is allowed, {@code false} otherwise.
+     */
+    boolean isValidConstantExpression(BLangExpression expression) {
+        switch (expression.getKind()) {
+            case LITERAL:
+            case NUMERIC_LITERAL:
+            case RECORD_LITERAL_EXPR:
+                return true;
+        }
+        return false;
+    }
+
     // Private methods
 
     private void populateLangLibInSymTable(BPackageSymbol packageSymbol) {
@@ -1505,6 +1560,19 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineNode(recordTypeNode.initFunction, conEnv);
     }
 
+    private void defineAnonRecordInitFunction(BLangRecordTypeNode recordTypeNode, SymbolEnv conEnv) {
+        recordTypeNode.initFunction = ASTBuilderUtil.createInitFunction(recordTypeNode.pos, "",
+                                                                        Names.INIT_FUNCTION_SUFFIX);
+
+        recordTypeNode.initFunction.receiver = createAnonRecordInitReceiver(recordTypeNode);
+        recordTypeNode.initFunction.attachedFunction = true;
+        recordTypeNode.initFunction.flagSet.add(Flag.ATTACHED);
+
+        // Adding record level variables to the init function is done at desugar phase
+
+        defineNode(recordTypeNode.initFunction, conEnv);
+    }
+
     private void defineAttachedFunctions(BLangFunction funcNode, BInvokableSymbol funcSymbol,
                                          SymbolEnv invokableEnv, boolean isValidAttachedFunc) {
         BTypeSymbol typeSymbol = funcNode.receiver.type.tsymbol;
@@ -1614,6 +1682,15 @@ public class SymbolEnter extends BLangNodeVisitor {
         structTypeNode.pkgAlias = new BLangIdentifier();
         structTypeNode.typeName = name;
         receiver.setTypeNode(structTypeNode);
+        return receiver;
+    }
+
+    private BLangSimpleVariable createAnonRecordInitReceiver(BLangRecordTypeNode node) {
+        BLangSimpleVariable receiver = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+        receiver.pos = node.pos;
+        IdentifierNode identifier = createIdentifier(Names.SELF.getValue());
+        receiver.setName(identifier);
+        receiver.setTypeNode(node);
         return receiver;
     }
 

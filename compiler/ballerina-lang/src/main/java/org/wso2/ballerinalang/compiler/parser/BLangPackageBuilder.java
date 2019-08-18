@@ -448,7 +448,7 @@ public class BLangPackageBuilder {
         recordTypeNode.sealed = isExclusiveTypeDesc && !hasRestField;
         recordTypeNode.restFieldType = restFieldType;
 
-        if (!isAnonymous) {
+        if (!isAnonymous || !this.blockNodeStack.isEmpty()) {
             addType(recordTypeNode);
             return;
         }
@@ -472,6 +472,7 @@ public class BLangPackageBuilder {
         recordTypeNode.pos = pos;
         recordTypeNode.addWS(ws);
         recordTypeNode.isAnonymous = isAnonymous;
+        recordTypeNode.isLocal = !this.blockNodeStack.isEmpty();
         this.varListStack.pop().forEach(variableNode -> {
             recordTypeNode.addField((SimpleVariableNode) variableNode);
         });
