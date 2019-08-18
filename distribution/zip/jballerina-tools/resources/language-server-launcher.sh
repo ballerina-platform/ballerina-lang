@@ -164,6 +164,7 @@ $JAVACMD \
 	$JAVA_DEBUG \
 	-Dballerina.home=$BALLERINA_HOME \
 	-Dballerina.debugLog=$DEBUG_LOG \
+	-Dballerina.traceLog=$TRACE_LOG \
 	-Dexperimental=$ALLOW_EXPERIMETAL \
 	-cp "$CLASSPATHS" \
 	 org.ballerinalang.langserver.launchers.stdio.Main
