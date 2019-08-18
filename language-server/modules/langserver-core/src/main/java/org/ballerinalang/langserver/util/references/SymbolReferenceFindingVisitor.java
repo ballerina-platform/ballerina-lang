@@ -645,7 +645,9 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
                 // Action invocation or lambda invocation. . token is added to the invocationExpr ws list
                 sCol += this.getCharLengthBeforeToken(".", new ArrayList<>(invocationExpr.expr.getWS())) + 1;
                 // Remove the first element which is . if the expr is not null
-                wsList.remove(0);
+                if (wsList.get(0).getPrevious().equals(".")) {
+                    wsList.remove(0);
+                }
             }
             sCol += this.getCharLengthBeforeToken(this.tokenName, wsList);
             int eCol = sCol + this.tokenName.length();
