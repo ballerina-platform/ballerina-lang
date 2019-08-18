@@ -229,9 +229,8 @@ public class LdapUtils {
         }
         if (System.getenv(variableName) != null) {
             return System.getenv(variableName);
-        } else {
-            return null;
         }
+        return null;
     }
 
     /**
