@@ -96,3 +96,19 @@ function testIndirectErrorDestructuring() {
     RNError e2 = RNError(message="Msg", fatal=false, other="k");
     RNStrError e3 = RNStrError(message="Msg", fatal=false, other="k");
 }
+
+type TrxErrorData2 record {|
+    string message = "";
+    error cause?;
+    map<string> data = {};
+|};
+
+const string reasonA = "ErrNo-1";
+type UserDefErrorTwoA error<reasonA, TrxErrorData2>;
+
+public function errorReasonInference() returns [error, error] {
+    UserDefErrorTwoA er1 = error();
+    map<string> data = {"arg1":"arg1-1", "arg2":"arg2-2"};
+    UserDefErrorTwoA er2 = error(message = "message", data = data);
+    return [er1, er2];
+}

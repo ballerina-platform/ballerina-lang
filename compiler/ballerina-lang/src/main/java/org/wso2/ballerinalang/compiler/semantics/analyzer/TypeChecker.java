@@ -2926,6 +2926,8 @@ public class TypeChecker extends BLangNodeVisitor {
         if (firstErrorArg.getKind() != NodeKind.NAMED_ARGS_EXPR) {
             checkExpr(firstErrorArg, env, ctorType.reasonType, DiagnosticCode.INVALID_ERROR_REASON_TYPE);
             return true;
+        } else if (iExpr.type == symTable.errorType) {
+            dlog.error(iExpr.pos, DiagnosticCode.DIRECT_ERROR_CTOR_REASON_NOT_PROVIDED);
         }
         return false;
     }

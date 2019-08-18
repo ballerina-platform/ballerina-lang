@@ -227,13 +227,6 @@ public function insertMemberToMap(map<any|error> mapVal, string index, any|error
 const string reasonA = "ErrNo-1";
 type UserDefErrorTwoA error<reasonA, TrxErrorData2>;
 
-public function errorReasonInference() returns [error, error] {
-    UserDefErrorTwoA er1 = error();
-    map<string> data = {"arg1":"arg1-1", "arg2":"arg2-2"};
-    UserDefErrorTwoA er2 = error(message = "message", data = data);
-    return [er1, er2];
-}
-
 const string reasonB = "ErrorNo-2";
 type UserDefErrorTwoB error<reasonA|reasonB, TrxErrorData>;
 public function errorReasonSubType() returns [error, error, error, error] {
