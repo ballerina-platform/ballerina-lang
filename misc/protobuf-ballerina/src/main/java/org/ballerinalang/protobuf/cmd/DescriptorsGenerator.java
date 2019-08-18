@@ -59,11 +59,11 @@ public class DescriptorsGenerator {
                     dependentFilePath = dependentFilePath.replaceAll("/", "\\\\");
                 }
                 Path protoFilePath = Paths.get(dependentFilePath).getFileName();
-                String protoFilename = protoFilePath != null ? protoFilePath.toString() : null;
-                if (protoFilename == null) {
+                if (protoFilePath == null) {
                     throw new CodeGeneratorException("Error occurred while reading proto descriptor. Dependent " +
                             "filepath is not defined properly. Filepath: " + dependentFilePath);
                 }
+                String protoFilename = protoFilePath.toString();
                 String descFilename = protoFilename.endsWith(PROTO_SUFFIX) ? protoFilename.replace(PROTO_SUFFIX,
                         DESC_SUFFIX) : null;
                 if (descFilename == null) {

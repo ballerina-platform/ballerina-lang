@@ -62,12 +62,17 @@ public class StubGeneratorTestCase {
     public void testUnaryHelloWorld() throws IllegalAccessException, ClassNotFoundException, InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorld.proto", "helloWorld_pb.bal");
         assertEquals(compileResult.getDiagnostics().length, 0);
-        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7);
-        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11);
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11,
+                "Expected functions not found in compile results.");
         validatePublicAttachedFunctions(compileResult);
-        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
-        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1,
+                "Expected constants not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2,
+                "Expected imports not found in compile results.");
     }
 
     @Test(description = "Test service stub generation for service definition with dependency")
@@ -102,12 +107,17 @@ public class StubGeneratorTestCase {
         CompileResult compileResult = getStubCompileResult("helloWorldWithPackage.proto",
                 "helloWorldWithPackage_pb.bal");
         assertEquals(compileResult.getDiagnostics().length, 0);
-        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7);
-        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11);
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11,
+                "Expected functions not found in compile results.");
         validatePublicAttachedFunctions(compileResult);
-        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
-        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1,
+                "Expected constants not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2,
+                "Expected imports not found in compile results.");
     }
 
     @Test(description = "Test service stub generation tool command without specifying output directory path")
@@ -122,12 +132,17 @@ public class StubGeneratorTestCase {
             Path sourceFileRoot = Paths.get("temp", "helloWorld_pb.bal");
             CompileResult compileResult = BCompileUtil.compile(sourceFileRoot.toAbsolutePath().toString());
             assertEquals(compileResult.getDiagnostics().length, 0);
-            assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7);
-            assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11);
+            assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
+                    "Expected type definitions not found in compile results.");
+            assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11,
+                    "Expected functions not found in compile results.");
             validatePublicAttachedFunctions(compileResult);
-            assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
-            assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
-            assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
+            assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1,
+                    "Expected global variables not found in compile results.");
+            assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1,
+                    "Expected constants not found in compile results.");
+            assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2,
+                    "Expected imports not found in compile results.");
         } finally {
             if (Paths.get("temp", "helloWorld_pb.bal").toFile().exists()) {
                 BalFileGenerationUtils.delete(Paths.get("temp").toFile());
@@ -141,11 +156,16 @@ public class StubGeneratorTestCase {
         CompileResult compileResult = getStubCompileResult("helloWorldClientStreaming.proto",
                 "helloWorldClientStreaming_pb.bal");
         assertEquals(compileResult.getDiagnostics().length, 0);
-        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 4);
-        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 5);
-        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
-        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 4,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 5,
+                "Expected functions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1,
+                "Expected constants not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2,
+                "Expected imports not found in compile results.");
     }
 
     @Test
@@ -154,11 +174,16 @@ public class StubGeneratorTestCase {
         CompileResult compileResult = getStubCompileResult("helloWorldServerStreaming.proto",
                 "helloWorldServerStreaming_pb.bal");
         assertEquals(compileResult.getDiagnostics().length, 0);
-        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 4);
-        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 5);
-        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
-        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 4,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 5,
+                "Expected functions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1,
+                "Expected constants not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2,
+                "Expected imports not found in compile results.");
     }
 
     @Test
@@ -166,11 +191,16 @@ public class StubGeneratorTestCase {
         CompileResult compileResult = getStubCompileResult("helloWorldString.proto",
                 "helloWorldString_pb.bal");
         assertEquals(compileResult.getDiagnostics().length, 0);
-        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 3);
-        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 5);
-        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
-        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 3,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 5,
+                "Expected functions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1,
+                "Expected constants not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2,
+                "Expected imports not found in compile results.");
     }
 
     @Test
@@ -187,12 +217,17 @@ public class StubGeneratorTestCase {
         Path sourceFileRoot = Paths.get(TMP_DIRECTORY_PATH, "grpc", "client", "helloWorld_pb.bal");
         CompileResult compileResult = BCompileUtil.compile(sourceFileRoot.toString());
         assertEquals(compileResult.getDiagnostics().length, 0);
-        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7);
-        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11);
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 11,
+                "Expected functions not found in compile results.");
         validatePublicAttachedFunctions(compileResult);
-        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
-        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1,
+                "Expected constants not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2,
+                "Expected imports not found in compile results.");
     }
 
     @Test
@@ -233,12 +268,17 @@ public class StubGeneratorTestCase {
         CompileResult compileResult = getStubCompileResult("oneof_field_service.proto",
                 "oneof_field_service_pb.bal");
         assertEquals(compileResult.getDiagnostics().length, 0);
-        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 30);
-        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 30);
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 30,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 30,
+                "Expected functions not found in compile results.");
         validatePublicAttachedFunctions(compileResult);
-        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1);
-        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1);
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2);
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1,
+                "Expected constants not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 2,
+                "Expected imports not found in compile results.");
     }
 
     private void validatePublicAttachedFunctions(CompileResult compileResult) {
