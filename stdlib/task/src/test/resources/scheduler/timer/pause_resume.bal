@@ -22,37 +22,43 @@ task:TimerConfiguration configuration = {
     initialDelayInMillis: 1000
 };
 
-boolean isPaused = false;
-boolean isResumed = false;
+int counter1 = 0;
+int counter2 = 0;
 
-function testAttach() {
-    task:Scheduler timer = new(configuration);
-    checkpanic timer.attach(timerService);
-    checkpanic timer.start();
-    var result = timer.pause();
+function getCount1() returns int {
+    return counter1;
+}
+
+function getCount2() returns int {
+    return counter2;
+}
+
+function testPauseResume() {
+    task:Scheduler timer1 = new(configuration);
+    task:Scheduler timer2 = new(configuration);
+    checkpanic timer1.attach(timerService1);
+    checkpanic timer2.attach(timerService2);
+    checkpanic timer1.start();
+    checkpanic timer2.start();
+    var result = timer1.pause();
     if (result is error) {
         return;
-    } else {
-        isPaused = true;
     }
-    result = timer.resume();
+    runtime:sleep(10000);
+    result = timer1.resume();
     if (result is error) {
         return;
-    } else {
-        isResumed = true;
     }
 }
 
-function getIsPaused() returns boolean {
-    return isPaused;
-}
-
-function getIsResumed() returns boolean {
-    return isResumed;
-}
-
-service timerService = service {
+service timerService1 = service {
     resource function onTrigger() {
-        // Do nothing
+        counter1 = counter1 + 1;
+    }
+};
+
+service timerService2 = service {
+    resource function onTrigger() {
+        counter2 = counter2 + 1;
     }
 };

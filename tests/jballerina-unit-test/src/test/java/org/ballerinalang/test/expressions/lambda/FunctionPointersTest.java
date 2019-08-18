@@ -35,7 +35,7 @@ import org.testng.annotations.Test;
  */
 public class FunctionPointersTest {
 
-    private CompileResult fpProgram, privateFPProgram, globalProgram, structProgram;
+    private CompileResult fpProgram, privateFPProgram, globalProgram, structProgram, closureFPProgram;
 
     @BeforeClass
     public void setup() {
@@ -44,6 +44,8 @@ public class FunctionPointersTest {
                 "private-function-pointers");
         globalProgram = BCompileUtil.compile("test-src/expressions/lambda/global-function-pointers.bal");
         structProgram = BCompileUtil.compile("test-src/expressions/lambda/struct-function-pointers.bal");
+        closureFPProgram =
+                BCompileUtil.compile("test-src/expressions/lambda/function-pointer-with-closure.bal");
     }
 
     @Test
@@ -240,9 +242,9 @@ public class FunctionPointersTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: 'function \\(Student\\) returns \\(int\\)' cannot be cast to 'function \\(Person\\) " +
-                    "returns \\(int\\)'\"\\}.*", enabled = false)
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError message=incompatible types: " +
+                    "'function \\(Student\\) returns \\(int\\)' cannot be cast to 'function \\(Person\\)" +
+                    " returns \\(int\\)'.*")
     public void testAnyToFuncPointerConversion_2() {
         BRunUtil.invoke(fpProgram, "testAnyToFuncPointerConversion_2");
     }
@@ -256,5 +258,23 @@ public class FunctionPointersTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "test1");
+    }
+
+    @Test
+    public void testFunctionPointerWithAClosure() {
+        BValue[] returns = BRunUtil.invoke(closureFPProgram, "testArrayFunctionInfer");
+        Assert.assertEquals(returns[0].stringValue(), "abccde");
+    }
+
+    @Test
+    public void testInvoke() {
+        BValue[] returns = BRunUtil.invoke(closureFPProgram, "invokeApplyFunction");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 6);
+    }
+
+    @Test(description = "Test function pointers with subtyping")
+    public void testSubTypingWithAny() {
+        BValue[] returns = BRunUtil.invoke(fpProgram, "testSubTypingWithAny");
+        Assert.assertEquals(returns[0].stringValue(), "12");
     }
 }

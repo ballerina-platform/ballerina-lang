@@ -92,8 +92,9 @@ public function getFileInfo(@untainted string path) returns FileInfo|Error = ext
 # Reads the directory and returns a list of files and directories # inside the specified directory
 #
 # + path - String value of directory path.
+# + maxDepth - The maximum number of directory levels to visit. -1 to indicate that all levels should be visited.
 # + return - Returns FileInfo array or an `Error` if there is an error while changing the mode.
-public function readDir(@untainted string path) returns FileInfo[]|Error = external;
+public function readDir(@untainted string path, int maxDepth = -1) returns FileInfo[]|Error = external;
 
 # Copy file/directory in old path to new path.
 # If new path already exists, this replaces the file.
@@ -104,3 +105,15 @@ public function readDir(@untainted string path) returns FileInfo[]|Error = exter
 # + return - Returns an `Error` if failed to rename.
 public function copy(@untainted string sourcePath, @untainted string destinationPath,
 boolean replaceExisting = false) returns Error? = external;
+
+# Executes an operating system command as a subprocess of the current process.
+#
+# + command - The name of the command to be executed
+# + env - Environment variables to be set to the process
+# + dir - The current working directory to be set to the process
+# + args - Command arguments to be passed in
+# + return - Returns a `Process` object in success, or an `Error` if a failure occurs
+public function exec(@untainted string command, @untainted map<string> env = {}, 
+                     @untainted string? dir = (), @untainted string... args) 
+                     returns Process|Error = external;
+

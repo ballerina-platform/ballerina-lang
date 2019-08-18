@@ -43,7 +43,6 @@ import java.util.Locale;
 import java.util.Set;
 
 import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.TMP_DIRECTORY_PATH;
-import static org.ballerinalang.protobuf.BalGenerationConstants.BUILD_COMMAND_NAME;
 import static org.ballerinalang.protobuf.BalGenerationConstants.COMPONENT_IDENTIFIER;
 import static org.ballerinalang.protobuf.BalGenerationConstants.EMPTY_STRING;
 import static org.ballerinalang.protobuf.BalGenerationConstants.META_LOCATION;
@@ -60,7 +59,7 @@ import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.grantPermi
 
 /**
  * Class to implement "grpc" command for ballerina.
- * Ex: ballerina grpc  --proto_path (proto-file-path)  --exe_path (protoc-executor-path)
+ * Ex: ballerina grpc  --input (proto-file-path)  --output (output-directory-path)
  */
 @CommandLine.Command(
         name = "grpc",
@@ -72,11 +71,11 @@ public class GrpcCmd implements BLauncherCmd {
     private static final PrintStream outStream = System.out;
     
     private CommandLine parentCmdParser;
-    
-    @CommandLine.Option(names = {"--input"},
-            description = "Input .proto file",
-            required = true
-    )
+
+    @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
+    private boolean helpFlag;
+
+    @CommandLine.Option(names = {"--input"}, description = "Input .proto file")
     private String protoPath;
 
     @CommandLine.Option(names = {"--mode"},
@@ -92,15 +91,16 @@ public class GrpcCmd implements BLauncherCmd {
     private String protocExePath;
     
     private String protocVersion = "3.4.0";
-    
-    @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
-    private boolean helpFlag;
-    
-    @CommandLine.Option(names = "--debug", hidden = true)
-    private String debugPort;
 
     @Override
     public void execute() {
+        //Help flag check
+        if (helpFlag) {
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(getName());
+            outStream.println(commandUsageInfo);
+            return;
+        }
+
         // check input protobuf file path
         if (protoPath == null || !protoPath.toLowerCase(Locale.ENGLISH).endsWith(PROTO_SUFFIX)) {
             String errorMessage = "Invalid proto file path. Please input valid proto file location.";
@@ -114,11 +114,6 @@ public class GrpcCmd implements BLauncherCmd {
             return;
         }
 
-        if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND_NAME);
-            outStream.println(commandUsageInfo);
-            return;
-        }
         // download protoc executor.
         try {
             downloadProtocexe();

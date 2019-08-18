@@ -39,6 +39,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.clauses.GroupByNode;
 import org.ballerinalang.model.tree.clauses.HavingNode;
@@ -366,7 +367,6 @@ public class BLangPackageBuilder {
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
     private SymbolTable symTable;
-
     private BLangDiagnosticLog dlog;
 
     private static final String IDENTIFIER_LITERAL_PREFIX = "'";
@@ -743,10 +743,7 @@ public class BLangPackageBuilder {
             BLangUserDefinedType errorType = (BLangUserDefinedType) this.typeNodeStack.pop();
             errorVariable.typeNode = errorType;
 
-            errorVariable.reason = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-            BLangIdentifier ignore = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-            ignore.value = Names.IGNORE.value;
-            errorVariable.reason.name = ignore;
+            errorVariable.reason = createIgnoreVar();
         }
         this.errorMatchPatternWS.push(ws);
     }
@@ -779,8 +776,29 @@ public class BLangPackageBuilder {
         }
     }
 
-    void addErrorVariableReference(DiagnosticPos pos, Set<Whitespace> ws, int numNamedArgs, boolean reasonRefAvailable,
-                                   boolean restPatternAvailable) {
+    public void addErrorVariable(DiagnosticPos currentPos, Set<Whitespace> ws, String restIdName,
+                                 DiagnosticPos restPos) {
+        BLangErrorVariable errorVariable = (BLangErrorVariable) varStack.peek();
+        errorVariable.pos = currentPos;
+        errorVariable.addWS(ws);
+
+        BLangType typeNode = (BLangType) this.typeNodeStack.pop();
+        errorVariable.typeNode = typeNode;
+
+        errorVariable.reason = (BLangSimpleVariable)
+                generateBasicVarNodeWithoutType(currentPos, null, "$reason$", currentPos, false);
+
+        if (restIdName != null) {
+            errorVariable.restDetail = (BLangSimpleVariable)
+                    generateBasicVarNodeWithoutType(currentPos, null, restIdName, restPos, false);
+        }
+    }
+
+    void addErrorVariableReference(DiagnosticPos pos, Set<Whitespace> ws,
+                                   int numNamedArgs,
+                                   boolean reasonRefAvailable,
+                                   boolean restPatternAvailable,
+                                   boolean indirectErrorRefPattern) {
         BLangErrorVarRef errorVarRef = (BLangErrorVarRef) TreeBuilder.createErrorVariableReferenceNode();
         errorVarRef.pos = pos;
         errorVarRef.addWS(ws);
@@ -802,9 +820,17 @@ public class BLangPackageBuilder {
         } else {
             int lastItemIndex = namedArgs.size() - 1;
             BLangNamedArgsExpression reason = namedArgs.get(lastItemIndex);
-            namedArgs.remove(lastItemIndex);
             if (reason.name.value.equals("reason")) {
+                namedArgs.remove(lastItemIndex);
                 errorVarRef.reason = (BLangVariableReference) reason.expr;
+            } else if (indirectErrorRefPattern) {
+                // Indirect error ref pattern does not allow reason var ref, hence ignore it.
+                BLangSimpleVarRef ignoreVarRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+                BLangIdentifier ignore = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+                ignore.value = Names.IGNORE.value;
+                ignoreVarRef.variableName = ignore;
+                errorVarRef.reason = ignoreVarRef;
+                errorVarRef.typeNode = (BLangType) this.typeNodeStack.pop();
             } else {
                 dlog.error(pos, DiagnosticCode.INVALID_ERROR_DESTRUCTURING_NO_REASON_GIVEN);
             }
@@ -822,15 +848,17 @@ public class BLangPackageBuilder {
         if (!this.varStack.empty()) {
             if (bindingVarName != null) {
                 BLangErrorVariable errorVariable = (BLangErrorVariable) this.varStack.peek();
-                BLangSimpleVariable simpleVariableNode = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-                simpleVariableNode.name = (BLangIdentifier) this.createIdentifier(bindingVarName);
-                simpleVariableNode.pos = pos;
-                if (this.bindingPatternIdentifierWS.size() > 0) {
-                    simpleVariableNode.addWS(this.bindingPatternIdentifierWS.pop());
-                }
                 BLangErrorVariable.BLangErrorDetailEntry detailEntry =
-                        new BLangErrorVariable.BLangErrorDetailEntry(bLangIdentifier, simpleVariableNode);
+                        createErrorDetailEntry(pos, bindingVarName, bLangIdentifier);
                 errorVariable.detail.add(detailEntry);
+            } else if (this.varStack.size() == 1) {
+                BLangVariable var = this.varStack.pop();
+                BLangErrorVariable errorVariable = new BLangErrorVariable();
+                errorVariable.reason = createIgnoreVar();
+                errorVariable.typeNode = (BLangType) typeNodeStack.pop();
+                errorVariable.detail.add(new BLangErrorVariable.BLangErrorDetailEntry(bLangIdentifier, var));
+                varStack.push(errorVariable);
+
             } else if (this.varStack.size() > 1) {
                 BLangVariable var = this.varStack.pop();
                 BLangVariable detailVar = this.varStack.peek();
@@ -839,7 +867,35 @@ public class BLangPackageBuilder {
                     errorVariable.detail.add(new BLangErrorVariable.BLangErrorDetailEntry(bLangIdentifier, var));
                 }
             }
+        } else {
+            BLangErrorVariable errorVariable = new BLangErrorVariable();
+            errorVariable.typeNode = (BLangType) typeNodeStack.pop();
+
+            // var stack is empty, on inner binding pattern available here such as NERR(foo={item1, itema2});
+            BLangErrorVariable.BLangErrorDetailEntry detailEntry =
+                    createErrorDetailEntry(pos, bindingVarName, bLangIdentifier);
+            errorVariable.detail.add(detailEntry);
+            varStack.push(errorVariable);
         }
+    }
+
+    private BLangSimpleVariable createIgnoreVar() {
+        BLangSimpleVariable ignoredVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+        BLangIdentifier ignore = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        ignore.value = Names.IGNORE.value;
+        ignoredVar.name = ignore;
+        return ignoredVar;
+    }
+
+    private BLangErrorVariable.BLangErrorDetailEntry createErrorDetailEntry(DiagnosticPos pos, String bindingVarName,
+                                                                            BLangIdentifier bLangIdentifier) {
+        BLangSimpleVariable simpleVariableNode = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+        simpleVariableNode.name = (BLangIdentifier) this.createIdentifier(bindingVarName);
+        simpleVariableNode.pos = pos;
+        if (this.bindingPatternIdentifierWS.size() > 0) {
+            simpleVariableNode.addWS(this.bindingPatternIdentifierWS.pop());
+        }
+        return new BLangErrorVariable.BLangErrorDetailEntry(bLangIdentifier, simpleVariableNode);
     }
 
     void addTupleVariable(DiagnosticPos pos, Set<Whitespace> ws, int members, boolean restBindingAvailable) {
@@ -1797,6 +1853,17 @@ public class BLangPackageBuilder {
                                      String version,
                                      String alias) {
 
+        BLangImportPackage importDcl = getImportPackage(pos, ws, orgName, nameComps, version, alias);
+        this.compUnit.addTopLevelNode(importDcl);
+        if (this.imports.contains(importDcl)) {
+            this.dlog.warning(pos, DiagnosticCode.REDECLARED_IMPORT_MODULE, importDcl.getQualifiedPackageName());
+        } else {
+            this.imports.add(importDcl);
+        }
+    }
+
+    private BLangImportPackage getImportPackage(DiagnosticPos pos, Set<Whitespace> ws, String orgName,
+                                                List<String> nameComps, String version, String alias) {
         List<BLangIdentifier> pkgNameComps = new ArrayList<>();
         nameComps.forEach(e -> pkgNameComps.add((BLangIdentifier) this.createIdentifier(e)));
         BLangIdentifier versionNode = (BLangIdentifier) this.createIdentifier(version);
@@ -1811,12 +1878,7 @@ public class BLangPackageBuilder {
         importDcl.version = versionNode;
         importDcl.orgName = (BLangIdentifier) this.createIdentifier(orgName);
         importDcl.alias = aliasNode;
-        this.compUnit.addTopLevelNode(importDcl);
-        if (this.imports.contains(importDcl)) {
-            this.dlog.warning(pos, DiagnosticCode.REDECLARED_IMPORT_MODULE, importDcl.getQualifiedPackageName());
-        } else {
-            this.imports.add(importDcl);
-        }
+        return importDcl;
     }
 
     private VariableNode generateBasicVarNodeWithoutType(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
@@ -2138,7 +2200,7 @@ public class BLangPackageBuilder {
         }
 
         BLangObjectTypeNode objectNode = (BLangObjectTypeNode) this.typeNodeStack.peek();
-        if (Names.OBJECT_INIT_SUFFIX.value.equals(function.name.value)) {
+        if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(function.name.value)) {
             function.objInitFunction = true;
             if (objectNode.initFunction == null) {
                 objectNode.initFunction = function;
@@ -3706,8 +3768,8 @@ public class BLangPackageBuilder {
         }
     }
 
-    void startForeverNode(DiagnosticPos pos, boolean isSiddhiRuntimeEnabled) {
-        ForeverNode foreverNode = TreeBuilder.createForeverNode(isSiddhiRuntimeEnabled);
+    void startForeverNode(DiagnosticPos pos) {
+        ForeverNode foreverNode = TreeBuilder.createForeverNode();
         ((BLangForever) foreverNode).pos = pos;
         this.foreverNodeStack.push(foreverNode);
     }
@@ -3729,10 +3791,14 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(foreverNode);
 
         // implicit import of streams module, user doesn't want to import explicitly
-        if (!foreverNode.isSiddhiRuntimeEnabled()) {
-            List<String> nameComps = getPackageNameComps(Names.STREAMS_MODULE.value);
-            addImportPackageDeclaration(pos, null, Names.STREAMS_ORG.value, nameComps, null,
-                    nameComps.get(nameComps.size() - 1));
+
+        List<String> nameComps = getPackageNameComps(Names.STREAMS_MODULE.value);
+        BLangImportPackage importDcl = getImportPackage(pos, null, Names.STREAMS_ORG.value, nameComps, null,
+                nameComps.get(nameComps.size() - 1));
+        if (!this.imports.contains(importDcl)) {
+            List<TopLevelNode> topLevelNodes = this.compUnit.getTopLevelNodes();
+            topLevelNodes.add(0, importDcl);
+            this.imports.add(importDcl);
         }
     }
 

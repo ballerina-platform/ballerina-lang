@@ -18,8 +18,6 @@
 
 package org.ballerinalang.net.websub.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -38,11 +36,7 @@ import org.ballerinalang.net.websub.hub.Hub;
                 @Argument(name = "callback", type = TypeKind.STRING)},
         isPublic = true
 )
-public class RemoveSubscription extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class RemoveSubscription {
 
     public static void removeSubscription(Strand strand, String topic, String callback) {
         Hub.getInstance().unregisterSubscription(strand, topic, callback);

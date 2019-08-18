@@ -18,6 +18,7 @@
 
 package org.ballerinalang.net.websub;
 
+import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
@@ -47,7 +48,7 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
     private MapValue<String, Object> headerResourceMap;
     private MapValue<String, MapValue<String, Object>> payloadKeyResourceMap;
     private MapValue<String, MapValue<String, MapValue<String, Object>>> headerAndPayloadKeyResourceMap;
-    private HashMap<String, String[]> resourceDetails;
+    private HashMap<String, BRecordType> resourceDetails;
 
     public WebSubServicesRegistry(WebSocketServicesRegistry webSocketServicesRegistry) {
         super(webSocketServicesRegistry);
@@ -59,7 +60,7 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
                                   MapValue<String, MapValue<String, Object>> payloadKeyResourceMap,
                                   MapValue<String, MapValue<String, MapValue<String, Object>>>
                                           headerAndPayloadKeyResourceMap,
-                                  HashMap<String, String[]> resourceDetails) {
+                                  HashMap<String, BRecordType> resourceDetails) {
         super(webSocketServicesRegistry);
         this.topicIdentifier = topicIdentifier;
         this.topicHeader = topicHeader;
@@ -105,7 +106,7 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
         return headerAndPayloadKeyResourceMap;
     }
 
-    HashMap<String, String[]> getResourceDetails() {
+    HashMap<String, BRecordType> getResourceDetails() {
         return resourceDetails;
     }
 

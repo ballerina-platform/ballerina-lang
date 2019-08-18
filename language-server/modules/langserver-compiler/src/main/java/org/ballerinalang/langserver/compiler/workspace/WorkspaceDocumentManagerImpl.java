@@ -21,9 +21,6 @@ import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProjectDirectory;
 import org.eclipse.lsp4j.CodeLens;
-import org.eclipse.lsp4j.Range;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -45,8 +42,6 @@ import java.util.stream.Collectors;
  * in tool's workspace.
  */
 public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
-
-    private static final Logger logger = LoggerFactory.getLogger(WorkspaceDocumentManagerImpl.class);
 
     private volatile Map<Path, DocumentPair> documentList = new ConcurrentHashMap<>();
 
@@ -93,18 +88,6 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
     public void updateFile(Path filePath, String updatedContent) throws WorkspaceDocumentException {
         if (isFileOpen(filePath)) {
             documentList.get(filePath).getDocument().ifPresent(document -> document.setContent(updatedContent));
-        } else {
-            throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void updateFileRange(Path filePath, Range range, String updatedContent) throws WorkspaceDocumentException {
-        if (isFileOpen(filePath)) {
-            documentList.get(filePath).getDocument().ifPresent(document -> document.setContent(range, updatedContent));
         } else {
             throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
         }
@@ -167,6 +150,16 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
             return documentList.get(filePath).getDocument().map(WorkspaceDocument::getCodeLenses).orElse(null);
         }
         return new ArrayList<>();
+    }
+
+    @Override
+    public LSDocument getLSDocument(Path filePath) throws WorkspaceDocumentException {
+        DocumentPair documentPair = documentList.get(filePath);
+        if (isFileOpen(filePath) && documentPair != null && documentPair.getDocument().isPresent()) {
+            return documentPair.getDocument().get().getLSDocument();
+        }
+        throw new WorkspaceDocumentException("Cannot find LSDocument for the give file path: ["
+                + filePath.toString() + "]");
     }
 
     /**

@@ -52,11 +52,11 @@ public class TimerSchedulerTest {
         });
     }
 
-    @Test(description = "Test service parameter passing", enabled = false)
+    @Test(description = "Test service parameter passing")
     public void testTimerAttachment() {
-        CompileResult compileResult = BCompileUtil.compile("scheduler/timer/service_parameter.bal");
+        CompileResult compileResult = BCompileUtil.compile("scheduler/timer/timer_attachment.bal");
         BRunUtil.invoke(compileResult, "attachTimer");
-        String expectedResult = "Sam is 10 years old";
+        String expectedResult = "Sam is 5 years old";
         try {
             await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
                 BValue[] result = BRunUtil.invoke(compileResult, "getResult");
@@ -75,15 +75,15 @@ public class TimerSchedulerTest {
     @Test(description = "Tests for pause and resume functions of the timer")
     public void testPauseResume() {
         CompileResult compileResult = BCompileUtil.compile("scheduler/timer/pause_resume.bal");
-        BRunUtil.invoke(compileResult, "testAttach");
+        BRunUtil.invoke(compileResult, "testPauseResume");
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-            BValue[] isPaused = BRunUtil.invoke(compileResult, "getIsPaused");
-            BValue[] isResumed = BRunUtil.invoke(compileResult, "getIsResumed");
-            Assert.assertEquals(isPaused.length, 1);
-            Assert.assertTrue(isPaused[0] instanceof BBoolean);
-            Assert.assertEquals(isResumed.length, 1);
-            Assert.assertTrue(isResumed[0] instanceof BBoolean);
-            return (((BBoolean) isPaused[0]).booleanValue() && ((BBoolean) isResumed[0]).booleanValue());
+            BValue[] count1 = BRunUtil.invoke(compileResult, "getCount1");
+            BValue[] count2 = BRunUtil.invoke(compileResult, "getCount2");
+            Assert.assertEquals(count1.length, 1);
+            Assert.assertTrue(count1[0] instanceof BInteger);
+            Assert.assertEquals(count2.length, 1);
+            Assert.assertTrue(count2[0] instanceof BInteger);
+            return ((((BInteger) count2[0]).intValue() - ((BInteger) count1[0]).intValue()) > 4);
         });
     }
 

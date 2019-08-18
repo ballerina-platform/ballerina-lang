@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static io.ballerina.transactions.RegisterLocalParticipant.STRUCT_TYPE_TRANSACTION_CONTEXT;
-import static org.ballerinalang.util.BLangConstants.BALLERINA_TRANSACTION_PKG;
+import static org.ballerinalang.jvm.transactions.TransactionConstants.TRANSACTION_PACKAGE_PATH;
 
 /**
  * Checks whether transactions is a nested transaction.
@@ -63,7 +63,7 @@ public class RegisterRemoteParticipant {
         // Register committed and aborted function handler if exists.
         transactionResourceManager.registerParticipation(transactionLocalContext.getGlobalTransactionId(),
                                                          transactionBlockId, fpCommitted, fpAborted, strand);
-        MapValue<String, Object> trxContext = BallerinaValues.createRecordValue(BALLERINA_TRANSACTION_PKG,
+        MapValue<String, Object> trxContext = BallerinaValues.createRecordValue(TRANSACTION_PACKAGE_PATH,
                                                                                 STRUCT_TYPE_TRANSACTION_CONTEXT);
         Object[] trxContextData = new Object[] {
                 TransactionConstants.DEFAULT_CONTEXT_VERSION, transactionLocalContext.getGlobalTransactionId(),

@@ -18,14 +18,10 @@
 
 package org.ballerinalang.langlib.xml;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -40,24 +36,9 @@ import java.util.HashMap;
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
-public class Copy extends BlockingNativeCallableUnit {
+public class Copy {
 
-private static final String OPERATION = "copy xml";
-
-    @Override
-    public void execute(Context ctx) {
-        BValue result = null;
-        try {
-            // Accessing Parameters.
-            BXML value = (BXML) ctx.getRefArgument(0);
-            result = value.copy(new HashMap<>());
-        } catch (Throwable e) {
-            ErrorHandler.handleXMLException(OPERATION, e);
-        }
-
-        // Setting output value.
-        ctx.setReturnValues(result);
-    }
+    private static final String OPERATION = "copy xml";
 
     public static XMLValue<?> copy(Strand strand, XMLValue<?> xml) {
         try {

@@ -32,16 +32,17 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Properties;
+import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_CONSUMER;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
 
 /**
  * Tests for ballerina kafka subscribeToPattern function.
  */
-@Test(singleThreaded = true)
 public class KafkaConsumerSubscribeToPatternTest {
     private CompileResult result;
     private static File dataDir;
@@ -49,14 +50,14 @@ public class KafkaConsumerSubscribeToPatternTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        Properties prop = new Properties();
         kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true)
-                .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(1).startup();
+                .deleteDataUponShutdown(true).addBrokers(1).startup();
     }
 
     @Test(description = "Test functionality of getAvailableTopics() function")
     public void testKafkaConsumerSubscribeToPattern () {
-        result = BCompileUtil.compile(getFilePath("test-src/consumer/kafka_consumer_subscribe_to_pattern.bal"));
+        result = BCompileUtil.compile(getFilePath(
+                Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_subscribe_to_pattern.bal")));
         try {
             await().atMost(5000, TimeUnit.MILLISECONDS).until(() -> {
                 BValue[] returnBValuesAll = BRunUtil.invoke(result, "funcKafkaGetAvailableTopicsCount");
@@ -116,7 +117,7 @@ public class KafkaConsumerSubscribeToPatternTest {
             throw new IllegalStateException();
         }
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-subscribe-to-pattern-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(2186, 9099);
+        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(14006, 14106);
         return kafkaCluster;
     }
 }

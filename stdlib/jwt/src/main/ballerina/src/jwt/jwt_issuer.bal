@@ -17,7 +17,24 @@
 import ballerina/crypto;
 import ballerina/encoding;
 
-# Represents JWT issuer configurations.
+# Represents authentication provider configurations that supports generating JWT for client interactions.
+#
+# + username - JWT token username
+# + issuer - JWT token issuer
+# + audience - JWT token audience
+# + expTimeInSeconds - Expiry time in seconds
+# + keyStoreConfig - JWT key store configurations
+# + signingAlg - Signing algorithm
+public type JwtIssuerConfig record {|
+    string username?;
+    string issuer;
+    string[] audience;
+    int expTimeInSeconds = 300;
+    JwtKeyStoreConfig keyStoreConfig;
+    JwtSigningAlgorithm signingAlg = RS256;
+|};
+
+# Represents JWT key store configurations.
 #
 # + keyStore - Keystore to be used in JWT signing
 # + keyAlias - Signing key alias
@@ -148,6 +165,10 @@ function buildPayloadString(JwtPayload payload) returns string|Error {
         payloadJson[AUD] = aud;
     } else if (aud is string[]) {
         payloadJson[AUD] = aud;
+    }
+    int? nbf = payload?.nbf;
+    if (nbf is int) {
+        payloadJson[NBF] = nbf;
     }
     var customClaims = payload?.customClaims;
     if (customClaims is map<json>) {

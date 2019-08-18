@@ -37,7 +37,7 @@ public class LdapConstants {
     public static final String CONNECTION_NAME = "connectionName";
     public static final String CONNECTION_PASSWORD = "connectionPassword";
     public static final String CONNECTION_POOLING_ENABLED = "connectionPoolingEnabled";
-    public static final String CONNECTION_TIME_OUT = "ldapConnectionTimeout";
+    public static final String CONNECTION_TIME_OUT_IN_MILLIS = "connectionTimeoutInMillis";
     public static final String READ_TIME_OUT_IN_MILLIS = "readTimeoutInMillis";
     public static final String RETRY_ATTEMPTS = "retryAttempts";
 
@@ -73,10 +73,7 @@ public class LdapConstants {
     public static final String SSL = "ssl";
     public static final String PKCS_STORE_TYPE = "PKCS12";
     public static final String X_509 = "X.509";
-    public static final String DEFAULT_CONNECTION_TIME_OUT = "5000";
-    public static final String UTF_8_CHARSET = "UTF-8";
     public static final String CERTIFICATE_ALIAS = "ca";
 
     public static final String LDAP_ERROR_CODE = "{ballerina/ldap}Error";
-
 }

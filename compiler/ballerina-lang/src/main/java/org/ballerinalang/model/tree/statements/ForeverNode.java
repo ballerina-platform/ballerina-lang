@@ -34,8 +34,5 @@ public interface ForeverNode extends ExpressionStatementNode {
     List<? extends SimpleVariableNode> getParameters();
 
     void addParameter(SimpleVariableNode param);
-
-    boolean isSiddhiRuntimeEnabled();
-
 }
 

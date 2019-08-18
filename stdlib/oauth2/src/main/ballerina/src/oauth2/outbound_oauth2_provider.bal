@@ -53,11 +53,12 @@ public type OutboundOAuth2Provider object {
         if (oauth2ProviderConfig is ()) {
             runtime:AuthenticationContext? authContext = runtime:getInvocationContext()?.authenticationContext;
             if (authContext is runtime:AuthenticationContext) {
-                return authContext.authToken;
-            } else {
-                return auth:prepareError("Failed to generate OAuth2 token since OAuth2 provider config is not defined
-                and auth token is not defined in the authentication context at invocation context.");
+                string? authToken = authContext?.authToken;
+                if (authToken is string) {
+                    return authToken;
+                }
             }
+            return auth:prepareError("Failed to generate OAuth2 token since OAuth2 provider config is not defined and auth token is not defined in the authentication context at invocation context.");
         } else {
             var authToken = getAuthTokenForOAuth2(oauth2ProviderConfig, self.tokenCache, false);
             if (authToken is string) {

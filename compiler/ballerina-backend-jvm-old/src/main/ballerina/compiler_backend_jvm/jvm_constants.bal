@@ -204,6 +204,18 @@ const int COMPUTE_MAXS = 1;
 const int COMPUTE_FRAMES = 2;
 final int V1_8 = 0 << 16 | 52;
 
+// Possible values for the type operand of the NEWARRAY instruction.
+// See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-6.html#jvms-6.5.newarray.
+int T_BOOLEAN = 4;
+int T_CHAR = 5;
+int T_FLOAT = 6;
+int T_DOUBLE = 7;
+int T_BYTE = 8;
+int T_SHORT = 9;
+int T_INT = 10;
+int T_LONG = 11;
+
+
 // jvm runtime values related classes
 const string MAP_VALUE = "org/ballerinalang/jvm/values/MapValue";
 const string MAP_VALUE_IMPL = "org/ballerinalang/jvm/values/MapValueImpl";
@@ -226,42 +238,7 @@ const string FUTURE_VALUE = "org/ballerinalang/jvm/values/FutureValue";
 const string TYPEDESC_VALUE = "org/ballerinalang/jvm/values/TypedescValue";
 const string HANDLE_VALUE = "org/ballerinalang/jvm/values/HandleValue";
 const string LOCK_VALUE = "org/ballerinalang/jvm/BLock";
-
-const string OBJECT = "java/lang/Object";
-const string MATH = "java/lang/Math";
-const string MAP = "java/util/Map";
-const string LINKED_HASH_MAP = "java/util/LinkedHashMap";
-const string ARRAY_LIST = "java/util/ArrayList";
-const string LIST = "java/util/List";
-const string TYPE_CHECKER = "org/ballerinalang/jvm/TypeChecker";
-const string SCHEDULER = "org/ballerinalang/jvm/scheduling/Scheduler";
-const string JSON_UTILS = "org/ballerinalang/jvm/JSONUtils";
-const string STRAND = "org/ballerinalang/jvm/scheduling/Strand";
-const string TYPE_CONVERTER = "org/ballerinalang/jvm/TypeConverter";
-const string LIST_UTILS = "org/ballerinalang/jvm/Lists";
-const string STRAND_STATE = "org/ballerinalang/jvm/scheduling/State";
-
 const string FUNCTION_POINTER = "org/ballerinalang/jvm/values/FPValue";
-const string FUNCTION = "java/util/function/Function";
-const string CONSUMER = "java/util/function/Consumer";
-
-const string STRING_BUILDER = "java/lang/StringBuilder";
-const string COMPARABLE = "java/lang/Comparable";
-const string VALUE_CREATOR = "org/ballerinalang/jvm/values/ValueCreator";
-const string XML_FACTORY = "org/ballerinalang/jvm/XMLFactory";
-const string SET = "java/util/Set";
-const string LINKED_HASH_SET = "java/util/LinkedHashSet";
-const string WD_CHANNELS = "org/ballerinalang/jvm/scheduling/WDChannels";
-const string WORKER_DATA_CHANNEL = "org/ballerinalang/jvm/scheduling/WorkerDataChannel";
-const string CHANNEL_DETAILS = "org/ballerinalang/jvm/values/ChannelDetails";
-const string WORKER_UTILS = "org/ballerinalang/jvm/scheduling/WorkerUtils";
-const string LONG_STREAM = "java/util/stream/LongStream";
-const string MAP_UTILS = "org/ballerinalang/jvm/MapUtils";
-const string BAL_ERRORS = "org/ballerinalang/jvm/BallerinaErrors";
-const string RUNTIME_UTILS = "org/ballerinalang/jvm/util/RuntimeUtils";
-const string ARGUMENT_PARSER = "org/ballerinalang/jvm/util/ArgumentParser";
-const string LAUNCH_UTILS = "org/ballerinalang/jvm/launch/LaunchUtils";
-const string MATH_UTILS = "org/ballerinalang/jvm/MathUtils";
 
 // types related classes
 const string BTYPE = "org/ballerinalang/jvm/types/BType";
@@ -284,6 +261,49 @@ const string FINITE_TYPE = "org/ballerinalang/jvm/types/BFiniteType";
 const string FUTURE_TYPE = "org/ballerinalang/jvm/types/BFutureType";
 const string PACKAGE_TYPE = "org/ballerinalang/jvm/types/BPackage";
 
+// other jvm-specific classes
+const string TYPE_CHECKER = "org/ballerinalang/jvm/TypeChecker";
+const string SCHEDULER = "org/ballerinalang/jvm/scheduling/Scheduler";
+const string JSON_UTILS = "org/ballerinalang/jvm/JSONUtils";
+const string STRAND = "org/ballerinalang/jvm/scheduling/Strand";
+const string TYPE_CONVERTER = "org/ballerinalang/jvm/TypeConverter";
+const string LIST_UTILS = "org/ballerinalang/jvm/Lists";
+const string STRAND_STATE = "org/ballerinalang/jvm/scheduling/State";
+const string VALUE_CREATOR = "org/ballerinalang/jvm/values/ValueCreator";
+const string XML_FACTORY = "org/ballerinalang/jvm/XMLFactory";
+const string WD_CHANNELS = "org/ballerinalang/jvm/scheduling/WDChannels";
+const string WORKER_DATA_CHANNEL = "org/ballerinalang/jvm/scheduling/WorkerDataChannel";
+const string CHANNEL_DETAILS = "org/ballerinalang/jvm/values/ChannelDetails";
+const string WORKER_UTILS = "org/ballerinalang/jvm/scheduling/WorkerUtils";
+const string MAP_UTILS = "org/ballerinalang/jvm/MapUtils";
+const string STRING_UTILS = "org/ballerinalang/jvm/StringUtils";
+const string BAL_ERRORS = "org/ballerinalang/jvm/BallerinaErrors";
+const string RUNTIME_UTILS = "org/ballerinalang/jvm/util/RuntimeUtils";
+const string ARGUMENT_PARSER = "org/ballerinalang/jvm/util/ArgumentParser";
+const string LAUNCH_UTILS = "org/ballerinalang/jvm/launch/LaunchUtils";
+const string MATH_UTILS = "org/ballerinalang/jvm/MathUtils";
+const string BAL_ERROR_REASONS = "org/ballerinalang/jvm/util/exceptions/BallerinaErrorReasons";
+const string RUNTIME_ERRORS = "org/ballerinalang/jvm/util/exceptions/RuntimeErrors";
+const string BLANG_EXCEPTION_HELPER = "org/ballerinalang/jvm/util/exceptions/BLangExceptionHelper";
+
+// other java classes
+const string OBJECT = "java/lang/Object";
+const string MATH = "java/lang/Math";
+const string MAP = "java/util/Map";
+const string LINKED_HASH_MAP = "java/util/LinkedHashMap";
+const string ARRAY_LIST = "java/util/ArrayList";
+const string LIST = "java/util/List";
+const string SET = "java/util/Set";
+const string LINKED_HASH_SET = "java/util/LinkedHashSet";
+const string STRING_BUILDER = "java/lang/StringBuilder";
+const string COMPARABLE = "java/lang/Comparable";
+const string FUNCTION = "java/util/function/Function";
+const string CONSUMER = "java/util/function/Consumer";
+const string EXCEPTION = "java/lang/Exception";
+const string LONG_STREAM = "java/util/stream/LongStream";
+const string JAVA_THREAD = "java/lang/Thread";
+const string JAVA_RUNTIME = "java/lang/Runtime";
+
 // service objects, annotation processing related classes
 const string ANNOTATION_UTILS = "org/ballerinalang/jvm/AnnotationUtils";
 const string ANNOTATION_MAP_NAME = "$annotation_data";
@@ -297,13 +317,20 @@ const string TYPES_ERROR =  "typeError";
 const string PANIC_FIELD =  "panic";
 const string PRINT_STACK_TRACE_METHOD = "printStackTrace";
 const string SET_DETAIL_TYPE_METHOD = "setDetailType";
+const string ERROR_REASON_METHOD_TOO_LARGE = "MethodTooLarge";
+const string ERROR_REASON_CLASS_TOO_LARGE = "ClassTooLarge";
 
 // exception classes
 const string BLANG_RUNTIME_EXCEPTION = "org/ballerinalang/jvm/util/exceptions/BLangRuntimeException";
 const string THROWABLE = "java/lang/Throwable";
+const string HANDLE_THROWABLE_METHOD = "handleRuntimeThrowable";
 
 // code generation related constants.
 const string MODULE_INIT_CLASS_NAME = "___init";
+const string CURRENT_MODULE_INIT = "$currentModuleInit";
+const string MODULE_INIT = "$moduleInit";
+const string MODULE_START = "$moduleStart";
+const string MODULE_STOP = "$moduleStop";
 const string BAL_EXTENSION = ".bal";
 const string WINDOWS_PATH_SEPERATOR = "\\";
 const string UNIX_PATH_SEPERATOR = "/";
@@ -318,6 +345,7 @@ const string SCHEDULER_START_METHOD =  "start";
 
 // observability related constants
 const string OBSERVER_CONTEXT = "org/ballerinalang/jvm/observability/ObserverContext";
+const string OBSERVE_UTILS = "org/ballerinalang/jvm/observability/ObserveUtils";
 
 // visibility flags
 const int BAL_PUBLIC = 1;

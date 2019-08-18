@@ -96,7 +96,7 @@ public class WebSocketResourceValidator {
                 secondParamTypeTag != TypeTags.XML && secondParamTypeTag != TypeTags.RECORD &&
                 (secondParamTypeTag != TypeTags.ARRAY || (secondParamType instanceof BArrayType &&
                         ((BArrayType) secondParamType).getElementType().tag !=
-                                org.ballerinalang.model.types.TypeTags.BYTE_TAG))) {
+                                org.ballerinalang.jvm.types.TypeTags.BYTE_TAG))) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
                     + resource.getName().getValue() + RESOURCE_IN_SERVICE +
                     ": The second parameter should be a string, json, xml, byte[] or a record type");

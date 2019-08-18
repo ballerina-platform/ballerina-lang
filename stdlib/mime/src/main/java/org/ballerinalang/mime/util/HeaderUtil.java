@@ -26,10 +26,6 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.jvnet.mimepull.Header;
 
 import java.util.Arrays;
@@ -52,24 +48,6 @@ import static org.ballerinalang.mime.util.MimeConstants.SEMICOLON;
  * @since 0.963.0
  */
 public class HeaderUtil {
-
-    /**
-     * Given a header value, get it's parameters.
-     *
-     * @param headerValue Header value as a string
-     * @return Parameter map
-     */
-    //TODO Remove after migration : implemented using bvm values/types
-    public static BMap<String, BValue> getParamBMap(String headerValue) {
-        BMap<String, BValue> paramMap = null;
-        if (headerValue.contains(SEMICOLON)) {
-            extractValue(headerValue);
-            List<String> paramList = Arrays.stream(headerValue.substring(headerValue.indexOf(SEMICOLON) + 1)
-                    .split(SEMICOLON)).map(String::trim).collect(Collectors.toList());
-            paramMap = validateParams(paramList) ? getHeaderParamBMap(paramList) : null;
-        }
-        return paramMap;
-    }
 
     /**
      * Given a header value, get it's parameters.
@@ -125,30 +103,6 @@ public class HeaderUtil {
      * @param paramList List of parameters
      * @return Ballerina map
      */
-    //TODO Remove after migration : implemented using bvm values/types
-    private static BMap<String, BValue> getHeaderParamBMap(List<String> paramList) {
-        BMap<String, BValue> paramMap = new BMap<>();
-        for (String param : paramList) {
-            if (param.contains("=")) {
-                String[] keyValuePair = param.split("=", 2);
-                if (keyValuePair.length != 2 || keyValuePair[0].isEmpty() || keyValuePair[1].isEmpty()) {
-                    throw new BallerinaException("invalid header parameter: " + param);
-                }
-                paramMap.put(keyValuePair[0].trim(), new BString(keyValuePair[1].trim()));
-            } else {
-                //handle when parameter value is optional
-                paramMap.put(param.trim(), null);
-            }
-        }
-        return paramMap;
-    }
-
-    /**
-     * Given a list of string parameter list, create ballerina specific header parameter map.
-     *
-     * @param paramList List of parameters
-     * @return Ballerina map
-     */
     private static MapValue<String, String> getHeaderParamMap(List<String> paramList) {
         MapValue<String, String> paramMap = getEmptyMap();
         for (String param : paramList) {
@@ -193,53 +147,12 @@ public class HeaderUtil {
      * @param headerName Represent an http header name
      * @return a header value for the given header name
      */
-    public static String getHeaderValue(BMap<String, BValue> bodyPart, String headerName) {
-        if (bodyPart.getNativeData(ENTITY_HEADERS) != null) {
-            HttpHeaders httpHeaders = (HttpHeaders) bodyPart.getNativeData(ENTITY_HEADERS);
-            return httpHeaders.get(headerName);
-        }
-        return null;
-    }
-
-    /**
-     * Extract the header value from a body part for a given header name.
-     *
-     * @param bodyPart   Represent a ballerina body part
-     * @param headerName Represent an http header name
-     * @return a header value for the given header name
-     */
     public static String getHeaderValue(ObjectValue bodyPart, String headerName) {
         if (bodyPart.getNativeData(ENTITY_HEADERS) != null) {
             HttpHeaders httpHeaders = (HttpHeaders) bodyPart.getNativeData(ENTITY_HEADERS);
             return httpHeaders.get(headerName);
         }
         return null;
-    }
-
-    /**
-     * Get the header value intact with parameters.
-     *
-     * @param headerValue Header value as a string
-     * @param map         Represent a parameter map
-     * @return Header value along with it's parameters as a string
-     */
-    public static String appendHeaderParams(StringBuilder headerValue, BMap map) {
-        int index = 0;
-        if (map != null && !map.isEmpty()) {
-            String[] keys = (String[]) map.keys();
-            if (keys.length != 0) {
-                for (String key : keys) {
-                    BString paramValue = (BString) map.get(key);
-                    if (index == keys.length - 1) {
-                        headerValue.append(key).append(ASSIGNMENT).append(paramValue.toString());
-                    } else {
-                        headerValue.append(key).append(ASSIGNMENT).append(paramValue.toString()).append(SEMICOLON);
-                        index = index + 1;
-                    }
-                }
-            }
-        }
-        return headerValue.toString();
     }
 
     /**
@@ -278,35 +191,9 @@ public class HeaderUtil {
      * @param contentType Represent the value of Content-Type header including parameters
      * @return A ballerina string that has the boundary parameter value
      */
-    public static BString extractBoundaryBParameter(String contentType) {
-        BMap<String, BValue> paramMap = HeaderUtil.getParamBMap(contentType);
-        if (paramMap != null) {
-            return paramMap.get(BOUNDARY) != null ? (BString) paramMap.get(BOUNDARY) : null;
-        }
-        return null;
-    }
-
-    /**
-     * Given a Content-Type, extract the boundary parameter value out of it.
-     *
-     * @param contentType Represent the value of Content-Type header including parameters
-     * @return A ballerina string that has the boundary parameter value
-     */
     public static String extractBoundaryParameter(String contentType) {
         MapValue paramMap = HeaderUtil.getParamMap(contentType);
         return paramMap.get(BOUNDARY) != null ? (String) paramMap.get(BOUNDARY) : null;
-    }
-
-    public static void setHeaderToEntity(BMap<String, BValue> entity, String key, String value) {
-        HttpHeaders httpHeaders;
-        if (entity.getNativeData(ENTITY_HEADERS) != null) {
-            httpHeaders = (HttpHeaders) entity.getNativeData(ENTITY_HEADERS);
-
-        } else {
-            httpHeaders = new DefaultHttpHeaders();
-            entity.addNativeData(ENTITY_HEADERS, httpHeaders);
-        }
-        httpHeaders.set(key, value);
     }
 
     public static void setHeaderToEntity(ObjectValue entity, String key, String value) {
@@ -319,14 +206,6 @@ public class HeaderUtil {
             entity.addNativeData(ENTITY_HEADERS, httpHeaders);
         }
         httpHeaders.set(key, value);
-    }
-
-    public static String getBaseType(BMap<String, BValue> entityStruct) throws MimeTypeParseException {
-        String contentType = HeaderUtil.getHeaderValue(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString());
-        if (contentType != null) {
-            return new MimeType(contentType).getBaseType();
-        }
-        return null;
     }
 
     public static String getBaseType(ObjectValue entityStruct) throws MimeTypeParseException {
