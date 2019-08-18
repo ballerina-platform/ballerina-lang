@@ -51,10 +51,10 @@ public class JwtIssuerAndValidatorTest {
 
     @BeforeClass
     public void setup() {
-        keyStorePath = Paths.get("src", "test", "resources", "datafiles", 
+        keyStorePath = Paths.get("src", "test", "resources", "datafiles",
                 "keystore", "ballerinaKeystore.p12").toAbsolutePath().toString();
-        trustStorePath = Paths.get("src", "test", "resources", "datafiles", 
-            "keystore", "ballerinaTruststore.p12").toAbsolutePath().toString();
+        trustStorePath = Paths.get("src", "test", "resources", "datafiles",
+                "keystore", "ballerinaTruststore.p12").toAbsolutePath().toString();
         resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         Path sourceRoot = Paths.get(resourceRoot, "test-src");
         compileResult = BCompileUtil.compile(sourceRoot.resolve("jwt-issuer-and-validator-test.bal").toString());
