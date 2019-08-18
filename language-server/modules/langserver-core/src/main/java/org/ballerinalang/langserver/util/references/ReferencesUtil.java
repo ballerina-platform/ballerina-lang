@@ -62,27 +62,21 @@ public class ReferencesUtil {
     /**
      * Compile modules and find references for this position.
      *
-     * @param fileUri        file uri
-     * @param docManager     {@link WorkspaceDocumentManager}
-     * @param position       current cursor {@link Position}
-     * @param context        {@link LSContext}
-     * @param compileProject if `True`, compiles the all modules
-     * @return list of {@link BLangPackage}
+     * @param fileUri    file uri
+     * @param docManager {@link WorkspaceDocumentManager}
+     * @param position   current cursor {@link Position}
+     * @param context    {@link LSContext}
      * @throws WorkspaceDocumentException when couldn't find file for uri
-     * @throws CompilationFailedException when compilation failed
      */
-    public static List<BLangPackage> compileModulesAndFindReferences(String fileUri,
-                                                                     WorkspaceDocumentManager docManager,
-                                                                     Position position, LSContext context,
-                                                                     boolean compileProject)
-            throws WorkspaceDocumentException, CompilationFailedException {
+    public static void findReferences(String fileUri, WorkspaceDocumentManager docManager, Position position,
+                                      LSContext context)
+            throws WorkspaceDocumentException {
         Optional<Path> defFilePath = CommonUtil.getPathFromURI(fileUri);
         if (!defFilePath.isPresent()) {
-            return new ArrayList<>();
+            return;
         }
         Path compilationPath = getUntitledFilePath(defFilePath.toString()).orElse(defFilePath.get());
         Optional<Lock> lock = docManager.lockFile(compilationPath);
-        Class errStrategy = LSCustomErrorStrategy.class;
         try {
             context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
             context.put(NodeContextKeys.REFERENCES_KEY, new SymbolReferencesModel());
@@ -94,8 +88,6 @@ public class ReferencesUtil {
             if (context.get(NodeContextKeys.NODE_NAME_KEY) == null) {
                 throw new IllegalStateException("Couldn't find a valid identifier token at cursor!");
             }
-
-            return LSModuleCompiler.getBLangPackages(context, docManager, true, errStrategy, compileProject, false);
         } finally {
             lock.ifPresent(Lock::unlock);
         }
@@ -142,9 +134,10 @@ public class ReferencesUtil {
                                                                        Position position)
             throws WorkspaceDocumentException, CompilationFailedException {
         WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
-        List<BLangPackage> modules = ReferencesUtil.compileModulesAndFindReferences(document.getURIString(),
-                                                                                    documentManager,
-                                                                                    position, context, true);
+        ReferencesUtil.findReferences(document.getURIString(), documentManager, position, context);
+        List<BLangPackage> modules = LSModuleCompiler.getBLangPackages(context, documentManager, true,
+                                                                       LSCustomErrorStrategy.class, true,
+                                                                       false);
         prepareReferences(modules, context, position);
         SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
         Optional<SymbolReferencesModel.Reference> symbolAtCursor = referencesModel.getReferenceAtCursor();

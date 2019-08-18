@@ -580,7 +580,7 @@ public class CommandUtil {
         lsContext.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
         WorkspaceDocumentManager docManager = lsContext.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         try {
-            diagHelper.compileAndSendDiagnostics(client, lsContext, docManager);
+            diagHelper.compileAndSendDiagnostics(client, lsContext, new LSDocument(documentUri), docManager);
         } catch (CompilationFailedException e) {
             String msg = "Computing 'diagnostics' failed!";
             TextDocumentIdentifier identifier = new TextDocumentIdentifier(documentUri);

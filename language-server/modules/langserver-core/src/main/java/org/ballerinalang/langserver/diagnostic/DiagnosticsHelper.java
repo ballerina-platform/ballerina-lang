@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.hover.util.HoverCacheHolder;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -29,6 +30,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Path;
@@ -61,13 +63,14 @@ public class DiagnosticsHelper {
      * @param docManager LS Document manager
      * @throws CompilationFailedException throws a LS compiler exception
      */
-    public synchronized void compileAndSendDiagnostics(LanguageClient client, LSContext context,
+    public synchronized void compileAndSendDiagnostics(LanguageClient client, LSContext context, LSDocument lsDocument,
                                                        WorkspaceDocumentManager docManager) throws
                                                                                             CompilationFailedException {
         // Compile diagnostics
         List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics = new ArrayList<>();
-        LSDocument lsDocument = new LSDocument(context.get(DocumentServiceKeys.FILE_URI_KEY));
-        LSModuleCompiler.getBLangPackages(context, docManager, true, null, true, true);
+        List<BLangPackage> bLangPckgs = LSModuleCompiler.getBLangPackages(context, docManager, true, null, true, true);
+        HoverCacheHolder.put(lsDocument, bLangPckgs);
+
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         if (compilerContext.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
              diagnostics = ((CollectDiagnosticListener) compilerContext.get(DiagnosticListener.class)).getDiagnostics();

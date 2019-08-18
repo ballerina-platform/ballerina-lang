@@ -39,6 +39,7 @@ import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
+import org.ballerinalang.langserver.hover.util.HoverCacheHolder;
 import org.ballerinalang.langserver.implementation.GotoImplementationCustomErrorStrategy;
 import org.ballerinalang.langserver.implementation.GotoImplementationUtil;
 import org.ballerinalang.langserver.index.LSIndexImpl;
@@ -91,8 +92,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -206,9 +205,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
             LSServiceOperationContext context = new LSServiceOperationContext();
             Hover hover;
             try {
-                List<BLangPackage> modules = ReferencesUtil.compileModulesAndFindReferences(fileUri, documentManager,
-                                                                                            position.getPosition(),
-                                                                                            context, false);
+                ReferencesUtil.findReferences(fileUri, documentManager, position.getPosition(), context);
+                LSDocument lsDocument = new LSDocument(fileUri);
+                List<BLangPackage> modules = HoverCacheHolder.get(lsDocument);
+                if (modules == null) {
+                    modules = LSModuleCompiler.getBLangPackages(context, documentManager, true,
+                                                                LSCustomErrorStrategy.class, false, false);
+                }
                 hover = ReferencesUtil.getHover(modules, context, position.getPosition());
             } catch (Throwable e) {
                 // Note: Not catching UserErrorException separately to avoid flooding error msgs popups
@@ -298,9 +301,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
             String fileUri = position.getTextDocument().getUri();
             LSServiceOperationContext context = new LSServiceOperationContext();
             try {
-                List<BLangPackage> modules = ReferencesUtil.compileModulesAndFindReferences(fileUri, documentManager,
-                                                                                            position.getPosition(),
-                                                                                            context, true);
+                ReferencesUtil.findReferences(fileUri, documentManager, position.getPosition(), context);
+                List<BLangPackage> modules = LSModuleCompiler.getBLangPackages(context, documentManager, true,
+                                                                               LSCustomErrorStrategy.class, true,
+                                                                               false);
                 return ReferencesUtil.getDefinition(modules, context, position.getPosition());
             } catch (UserErrorException e) {
                 notifyUser("Goto Definition", e, languageServer.getClient());
@@ -319,9 +323,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
             String fileUri = params.getTextDocument().getUri();
             LSServiceOperationContext context = new LSServiceOperationContext();
             try {
-                List<BLangPackage> modules = ReferencesUtil.compileModulesAndFindReferences(fileUri, documentManager,
-                                                                                            params.getPosition(),
-                                                                                            context, true);
+                ReferencesUtil.findReferences(fileUri, documentManager, params.getPosition(), context);
+                List<BLangPackage> modules = LSModuleCompiler.getBLangPackages(context, documentManager, true,
+                                                                               LSCustomErrorStrategy.class, true,
+                                                                               false);
                 boolean includeDeclaration = params.getContext().isIncludeDeclaration();
                 return ReferencesUtil.getReferences(modules, context, params.getPosition(), includeDeclaration);
             } catch (UserErrorException e) {
@@ -558,8 +563,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
             LSServiceOperationContext context = new LSServiceOperationContext();
             Position position = params.getPosition();
             try {
-                List<BLangPackage> modules = ReferencesUtil.compileModulesAndFindReferences(fileUri, documentManager,
-                                                                                            position, context, true);
+                ReferencesUtil.findReferences(fileUri, documentManager, position, context);
+                List<BLangPackage> modules = LSModuleCompiler.getBLangPackages(context, documentManager, true,
+                                                                               LSCustomErrorStrategy.class, true,
+                                                                               false);
                 return ReferencesUtil.getRenameWorkspaceEdits(modules, context, params.getNewName(), position);
             } catch (UserErrorException e) {
                 notifyUser("Rename", e, languageServer.getClient());
@@ -608,33 +615,31 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public void didOpen(DidOpenTextDocumentParams params) {
         String docUri = params.getTextDocument().getUri();
-        Path compilationPath;
-        try {
-            compilationPath = Paths.get(new URL(docUri).toURI());
-        } catch (URISyntaxException | MalformedURLException e) {
-            compilationPath = null;
+        Optional<Path> openedPath = CommonUtil.getPathFromURI(docUri);
+        if (!openedPath.isPresent()) {
+            return;
         }
-        if (compilationPath != null) {
+        Path compilationPath = getUntitledFilePath(openedPath.toString()).orElse(openedPath.get());
+        Optional<Lock> lock = documentManager.lockFile(compilationPath);
+        LSDocument lsDocument = new LSDocument(docUri);
+        try {
             String content = params.getTextDocument().getText();
-            // TODO: check the untitled file path issue
-            Optional<Lock> lock = documentManager.lockFile(compilationPath);
-            try {
-                documentManager.openFile(Paths.get(new URL(docUri).toURI()), content);
-                LanguageClient client = this.languageServer.getClient();
-                LSServiceOperationContext context = new LSServiceOperationContext();
-                context.put(DocumentServiceKeys.FILE_URI_KEY, docUri);
-                diagnosticsHelper.compileAndSendDiagnostics(client, context, documentManager);
-            } catch (CompilationFailedException e) {
-                String msg = "Computing 'diagnostics' failed!";
-                TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
-                logError(msg, e, languageServer.getClient(), identifier, (Position) null);
-            } catch (Throwable e) {
-                String msg = "Operation 'text/didOpen' failed!";
-                TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
-                logError(msg, e, languageServer.getClient(), identifier, (Position) null);
-            } finally {
-                lock.ifPresent(Lock::unlock);
-            }
+            documentManager.openFile(Paths.get(new URL(docUri).toURI()), content);
+            LanguageClient client = this.languageServer.getClient();
+            LSServiceOperationContext context = new LSServiceOperationContext();
+            context.put(DocumentServiceKeys.FILE_URI_KEY, docUri);
+            diagnosticsHelper.compileAndSendDiagnostics(client, context, lsDocument, documentManager);
+        } catch (CompilationFailedException e) {
+            HoverCacheHolder.put(lsDocument, null);
+            String msg = "Computing 'diagnostics' failed!";
+            TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
+            logError(msg, e, languageServer.getClient(), identifier, (Position) null);
+        } catch (Throwable e) {
+            String msg = "Operation 'text/didOpen' failed!";
+            TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
+            logError(msg, e, languageServer.getClient(), identifier, (Position) null);
+        } finally {
+            lock.ifPresent(Lock::unlock);
         }
     }
 
@@ -659,12 +664,14 @@ class BallerinaTextDocumentService implements TextDocumentService {
             this.diagPushDebouncer.call(compilationPath, () -> {
                 // Need to lock since debouncer triggers later
                 Optional<Lock> nLock = documentManager.lockFile(compilationPath);
+                LSDocument lsDocument = new LSDocument(fileUri);
                 try {
                     LSServiceOperationContext context = new LSServiceOperationContext();
                     String fileURI = params.getTextDocument().getUri();
                     context.put(DocumentServiceKeys.FILE_URI_KEY, fileURI);
-                    diagnosticsHelper.compileAndSendDiagnostics(client, context, documentManager);
+                    diagnosticsHelper.compileAndSendDiagnostics(client, context, lsDocument, documentManager);
                 } catch (CompilationFailedException e) {
+                    HoverCacheHolder.put(lsDocument, null);
                     String msg = "Computing 'diagnostics' failed!";
                     logError(msg, e, client, params.getTextDocument(), (Position) null);
                 } finally {
