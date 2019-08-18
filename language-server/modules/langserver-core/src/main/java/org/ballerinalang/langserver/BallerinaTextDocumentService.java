@@ -108,8 +108,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.command.CommandUtil.getCommandForNodeType;
-import static org.ballerinalang.langserver.common.utils.CommonUtil.logError;
-import static org.ballerinalang.langserver.common.utils.CommonUtil.notifyUser;
+import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
+import static org.ballerinalang.langserver.compiler.LSClientLogger.notifyUser;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 import static org.ballerinalang.langserver.signature.SignatureHelpUtil.getFuncSymbolInfo;
 import static org.ballerinalang.langserver.signature.SignatureHelpUtil.getFunctionInvocationDetails;
@@ -186,7 +186,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             } catch (Throwable e) {
                 // Note: Not catching UserErrorException separately to avoid flooding error msgs popups
                 String msg = "Operation 'text/completion' failed!";
-                logError(msg, e, languageServer.getClient(), position.getTextDocument(), position.getPosition());
+                logError(msg, e, position.getTextDocument(), position.getPosition());
             } finally {
                 lock.ifPresent(Lock::unlock);
             }
@@ -215,7 +215,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             } catch (Throwable e) {
                 // Note: Not catching UserErrorException separately to avoid flooding error msgs popups
                 String msg = "Operation 'text/hover' failed!";
-                logError(msg, e, languageServer.getClient(), position.getTextDocument(), position.getPosition());
+                logError(msg, e, position.getTextDocument(), position.getPosition());
                 hover = new Hover();
                 List<Either<String, MarkedString>> contents = new ArrayList<>();
                 contents.add(Either.forLeft(""));
@@ -282,11 +282,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 signatureHelp.setSignatures(signatures);
                 return signatureHelp;
             } catch (UserErrorException e) {
-                notifyUser("Signature Help", e, languageServer.getClient());
+                notifyUser("Signature Help", e);
                 return new SignatureHelp();
             } catch (Throwable e) {
                 String msg = "Operation 'text/signature' failed!";
-                logError(msg, e, languageServer.getClient(), position.getTextDocument(), position.getPosition());
+                logError(msg, e, position.getTextDocument(), position.getPosition());
                 return new SignatureHelp();
             } finally {
                 lock.ifPresent(Lock::unlock);
@@ -305,11 +305,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
                                                                                             context, true);
                 return ReferencesUtil.getDefinition(modules, context, position.getPosition());
             } catch (UserErrorException e) {
-                notifyUser("Goto Definition", e, languageServer.getClient());
+                notifyUser("Goto Definition", e);
                 return new ArrayList<>();
             } catch (Throwable e) {
                 String msg = "Operation 'text/definition' failed!";
-                logError(msg, e, languageServer.getClient(), position.getTextDocument(), position.getPosition());
+                logError(msg, e, position.getTextDocument(), position.getPosition());
                 return new ArrayList<>();
             }
         });
@@ -327,11 +327,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 boolean includeDeclaration = params.getContext().isIncludeDeclaration();
                 return ReferencesUtil.getReferences(modules, context, params.getPosition(), includeDeclaration);
             } catch (UserErrorException e) {
-                notifyUser("Find References", e, languageServer.getClient());
+                notifyUser("Find References", e);
                 return new ArrayList<>();
             } catch (Throwable e) {
                 String msg = "Operation 'text/references' failed!";
-                logError(msg, e, languageServer.getClient(), params.getTextDocument(), params.getPosition());
+                logError(msg, e, params.getTextDocument(), params.getPosition());
                 return new ArrayList<>();
             }
         });
@@ -372,11 +372,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
                 return symbols;
             } catch (UserErrorException e) {
-                notifyUser("Document Symbols", e, languageServer.getClient());
+                notifyUser("Document Symbols", e);
                 return symbols;
             } catch (Throwable e) {
                 String msg = "Operation 'text/documentSymbol' failed!";
-                logError(msg, e, languageServer.getClient(), params.getTextDocument(), (Position) null);
+                logError(msg, e, params.getTextDocument(), (Position) null);
                 return symbols;
             } finally {
                 lock.ifPresent(Lock::unlock);
@@ -442,11 +442,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     actions.addAll(getCommandForNodeType(topLevelNodeType, fileUri, line));
                 }
             } catch (UserErrorException e) {
-                notifyUser("Code Action", e, languageServer.getClient());
+                notifyUser("Code Action", e);
             } catch (Throwable e) {
                 String msg = "Operation 'text/codeAction' failed!";
                 Range range = params.getRange();
-                logError(msg, e, languageServer.getClient(), params.getTextDocument(), range.getStart(),
+                logError(msg, e, params.getTextDocument(), range.getStart(),
                          range.getEnd());
             } finally {
                 lock.ifPresent(Lock::unlock);
@@ -480,12 +480,12 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 documentManager.setCodeLenses(compilationPath, lenses);
                 return lenses;
             } catch (UserErrorException e) {
-                notifyUser("Code Lens", e, languageServer.getClient());
+                notifyUser("Code Lens", e);
                 // Source compilation failed, serve from cache
                 return documentManager.getCodeLenses(compilationPath);
             } catch (Throwable e) {
                 String msg = "Operation 'text/codeLens' failed!";
-                logError(msg, e, languageServer.getClient(), params.getTextDocument(), (Position) null);
+                logError(msg, e, params.getTextDocument(), (Position) null);
                 // Source compilation failed, serve from cache
                 return documentManager.getCodeLenses(compilationPath);
             } finally {
@@ -541,11 +541,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 textEdit = new TextEdit(range, textEditContent);
                 return Collections.singletonList(textEdit);
             } catch (UserErrorException e) {
-                notifyUser("Formatting", e, languageServer.getClient());
+                notifyUser("Formatting", e);
                 return Collections.singletonList(textEdit);
             } catch (Throwable e) {
                 String msg = "Operation 'text/formatting' failed!";
-                logError(msg, e, languageServer.getClient(), params.getTextDocument(), (Position) null);
+                logError(msg, e, params.getTextDocument(), (Position) null);
                 return Collections.singletonList(textEdit);
             } finally {
                 lock.ifPresent(Lock::unlock);
@@ -564,11 +564,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
                                                                                             position, context, true);
                 return ReferencesUtil.getRenameWorkspaceEdits(modules, context, params.getNewName(), position);
             } catch (UserErrorException e) {
-                notifyUser("Rename", e, languageServer.getClient());
+                notifyUser("Rename", e);
                 return null;
             } catch (Throwable e) {
                 String msg = "Operation 'text/rename' failed!";
-                logError(msg, e, languageServer.getClient(), params.getTextDocument(), params.getPosition());
+                logError(msg, e, params.getTextDocument(), params.getPosition());
                 return null;
             }
         });
@@ -598,11 +598,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
                                                                                                     .getProjectRoot());
                 implementationLocations.addAll(locations);
             } catch (UserErrorException e) {
-                notifyUser("Goto Implementation", e, languageServer.getClient());
+                notifyUser("Goto Implementation", e);
                 return null;
             } catch (Throwable e) {
                 String msg = "Operation 'text/implementation' failed!";
-                logError(msg, e, languageServer.getClient(), position.getTextDocument(), position.getPosition());
+                logError(msg, e, position.getTextDocument(), position.getPosition());
             } finally {
                 lock.ifPresent(Lock::unlock);
             }
@@ -633,11 +633,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
             } catch (CompilationFailedException e) {
                 String msg = "Computing 'diagnostics' failed!";
                 TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
-                logError(msg, e, languageServer.getClient(), identifier, (Position) null);
+                logError(msg, e, identifier, (Position) null);
             } catch (Throwable e) {
                 String msg = "Operation 'text/didOpen' failed!";
                 TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
-                logError(msg, e, languageServer.getClient(), identifier, (Position) null);
+                logError(msg, e, identifier, (Position) null);
             } finally {
                 lock.ifPresent(Lock::unlock);
             }
@@ -672,14 +672,14 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     diagnosticsHelper.compileAndSendDiagnostics(client, context, documentManager);
                 } catch (CompilationFailedException e) {
                     String msg = "Computing 'diagnostics' failed!";
-                    logError(msg, e, client, params.getTextDocument(), (Position) null);
+                    logError(msg, e, params.getTextDocument(), (Position) null);
                 } finally {
                     nLock.ifPresent(Lock::unlock);
                 }
             });
         } catch (Throwable e) {
             String msg = "Operation 'text/didChange' failed!";
-            logError(msg, e, languageServer.getClient(), params.getTextDocument(), (Position) null);
+            logError(msg, e, params.getTextDocument(), (Position) null);
         } finally {
             lock.ifPresent(Lock::unlock);
         }
@@ -698,7 +698,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             this.documentManager.closeFile(compilationPath);
         } catch (Throwable e) {
             String msg = "Operation 'text/didClose' failed!";
-            logError(msg, e, languageServer.getClient(), params.getTextDocument(), (Position) null);
+            logError(msg, e, params.getTextDocument(), (Position) null);
         }
     }
 

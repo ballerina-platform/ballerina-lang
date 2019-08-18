@@ -116,8 +116,8 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
-import static org.ballerinalang.langserver.common.utils.CommonUtil.logError;
 import static org.ballerinalang.langserver.common.utils.FunctionGenerator.generateTypeDefinition;
+import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 import static org.ballerinalang.langserver.util.references.ReferencesUtil.getReferenceAtCursor;
 
@@ -584,7 +584,7 @@ public class CommandUtil {
         } catch (CompilationFailedException e) {
             String msg = "Computing 'diagnostics' failed!";
             TextDocumentIdentifier identifier = new TextDocumentIdentifier(documentUri);
-            logError(msg, e, client, identifier, (Position) null);
+            logError(msg, e, identifier, (Position) null);
         }
     }
 

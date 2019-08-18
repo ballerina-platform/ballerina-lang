@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.client.ExtendedLanguageClientAware;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderFactory;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvider;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.completions.LSCompletionProviderFactory;
@@ -199,6 +200,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     @Override
     public void connect(ExtendedLanguageClient languageClient) {
         this.client = languageClient;
+        LSClientLogger.init(this.client, CommonUtil.LS_DEBUG_ENABLED, CommonUtil.LS_TRACE_ENABLED);
     }
 
     public BallerinaSymbolService getBallerinaSymbolService() {

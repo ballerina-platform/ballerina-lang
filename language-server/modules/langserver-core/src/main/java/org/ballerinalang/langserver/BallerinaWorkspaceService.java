@@ -54,8 +54,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.langserver.common.utils.CommonUtil.logError;
-import static org.ballerinalang.langserver.common.utils.CommonUtil.notifyUser;
+import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
+import static org.ballerinalang.langserver.compiler.LSClientLogger.notifyUser;
 
 /**
  * Workspace service implementation for Ballerina.
@@ -108,10 +108,10 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                     ((BLangCompilationUnit) compilationUnit[1]).accept(visitor);
                 });
             } catch (UserErrorException e) {
-                notifyUser("Workspace Symbols", e, languageServer.getClient());
+                notifyUser("Workspace Symbols", e);
             } catch (Throwable e) {
                 String msg = "Operation 'workspace/symbol' failed!";
-                logError(msg, e, languageServer.getClient(), null, (Position) null);
+                logError(msg, e, null, (Position) null);
             }
             // Here we should extract only the Symbol information only.
             // TODO: Need to find a decoupled way to manage both with the same Symbol finding visitor
@@ -154,14 +154,13 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                     return executor.get().execute(executeCommandContext);
                 }
             } catch (UserErrorException e) {
-                notifyUser("Execute Command", e, languageServer.getClient());
+                notifyUser("Execute Command", e);
             } catch (Throwable e) {
                 String msg = "Operation 'workspace/executeCommand' failed!";
-                logError(msg, e, languageServer.getClient(), null, (Position) null);
+                logError(msg, e, null, (Position) null);
             }
             logError("Operation 'workspace/executeCommand' failed!",
-                     new LSCommandExecutorException("No command executor found for '" + params.getCommand() + "'"),
-                     languageServer.getClient(), null, (Position) null);
+                     new LSCommandExecutorException("No command executor found for '" + params.getCommand() + "'"), null, (Position) null);
             return false;
         });
     }
