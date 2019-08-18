@@ -226,7 +226,8 @@ public class LdapUtils {
     private static String getSystemVariableValue(String variableName) {
         if (System.getProperty(variableName) != null) {
             return System.getProperty(variableName);
-        } else if (System.getenv(variableName) != null) {
+        }
+        if (System.getenv(variableName) != null) {
             return System.getenv(variableName);
         } else {
             return null;
