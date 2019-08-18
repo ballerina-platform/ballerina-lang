@@ -251,7 +251,7 @@ public type WebhookServerForHeaderAndPayload object {
     }
 
     public function __detach(service s) returns error? {
-        return self.websubListener._detach(s);
+        return self.websubListener.__detach(s);
     }
 
     public function __start() returns error? {
