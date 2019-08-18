@@ -226,11 +226,12 @@ public class LSModuleCompiler {
 //            LSContextManager.getInstance().removeCompilerContext(projectRoot);
             throw new CompilationFailedException("Compilation failed!", e);
         } finally {
-            // TODO: Remove this fix once compiler slowness solved
+            // TODO: Remove this fix once proper compiler fix is introduced
             if (compilationCounter > MAX_COMPILATION_COUNT) {
                 LSContextManager.getInstance().removeCompilerContext(projectRoot);
                 compilationCounter = 0;
             }
+            compilationCounter++; // Not needed to be atomic since the if-check is a range
         }
     }
 
