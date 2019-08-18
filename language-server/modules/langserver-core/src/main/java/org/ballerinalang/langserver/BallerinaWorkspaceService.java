@@ -160,7 +160,8 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                 logError(msg, e, null, (Position) null);
             }
             logError("Operation 'workspace/executeCommand' failed!",
-                     new LSCommandExecutorException("No command executor found for '" + params.getCommand() + "'"), null, (Position) null);
+                     new LSCommandExecutorException("No command executor found for '" + params.getCommand() + "'"),
+                     null, (Position) null);
             return false;
         });
     }
