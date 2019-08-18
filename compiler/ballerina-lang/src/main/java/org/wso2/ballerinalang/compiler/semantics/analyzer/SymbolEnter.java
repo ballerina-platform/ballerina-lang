@@ -1561,8 +1561,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void defineAnonRecordInitFunction(BLangRecordTypeNode recordTypeNode, SymbolEnv conEnv) {
-        recordTypeNode.initFunction = ASTBuilderUtil.createInitFunction(recordTypeNode.pos, "",
-                                                                        Names.INIT_FUNCTION_SUFFIX);
+        recordTypeNode.initFunction = ASTBuilderUtil.createInitFunctionWithNilReturn(recordTypeNode.pos, "",
+                                                                                     Names.INIT_FUNCTION_SUFFIX);
 
         recordTypeNode.initFunction.receiver = createAnonRecordInitReceiver(recordTypeNode);
         recordTypeNode.initFunction.attachedFunction = true;
