@@ -97,6 +97,16 @@ function getAuthTokenForJWTAuth(JwtIssuerConfig jwtIssuerConfig) returns string|
         jti: system:uuid(),
         aud: jwtIssuerConfig.audience
     };
+
+    string[]? scopes = jwtIssuerConfig?.scopes;
+    string flattenedScopes = "";
+    if (scopes is string[]) {
+        scopes.forEach(function(string scope) {
+            flattenedScopes += " " + scope;
+        });
+    }
+    payload.customClaims = { SCOPE: flattenedScopes };
+
      // TODO: cache the token per-user per-client and reuse it
     return issueJwt(header, payload, jwtIssuerConfig.keyStoreConfig);
 }
