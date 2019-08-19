@@ -18,6 +18,7 @@
 package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -38,7 +39,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class GetNext {
 
-    public static Object getNext(Strand strand, TableValue table) {
+    public static MapValue<String, Object> getNext(Strand strand, TableValue table) {
         return table.getNext();
     }
 }
