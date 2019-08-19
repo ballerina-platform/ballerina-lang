@@ -650,4 +650,12 @@ public class TypeTestExprTest {
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[3]).booleanValue());
     }
+
+    @Test
+    public void testFuture() {
+        BValue[] returns = BRunUtil.invoke(result, "testFutureTrue");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        returns = BRunUtil.invoke(result, "testFutureFalse");
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
 }

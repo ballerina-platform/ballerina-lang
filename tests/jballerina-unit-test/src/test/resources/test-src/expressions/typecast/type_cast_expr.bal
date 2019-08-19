@@ -371,18 +371,18 @@ function testFunctionCastNegative() {
     function (string) returns string f1 = <function (string) returns string> a;
 }
 
-//function testFutureCastPositive() returns boolean {
-//    future<int> s1 = start testFutureFunc();
-//    any a = s1;
-//    future<int> s2 = <future<int>> a;
-//    return s1 === s2;
-//}
-//
-//function testFutureCastNegative() {
-//    future<int> s1 = start testFutureFunc();
-//    any a = s1;
-//    future<json> s2 = <future<json>> a;
-//}
+function testFutureCastPositive() returns boolean {
+    future<int> s1 = start testFutureFunc();
+    any a = s1;
+    future<int> s2 = <future<int>> a;
+    return s1 === s2;
+}
+
+function testFutureCastNegative() {
+    future<int> s1 = start testFutureFunc();
+    any a = s1;
+    future<json> s2 = <future<json>> a;
+}
 
 function testObjectCastPositive() returns boolean {
     EmployeeObject e = new("Em Zee");
