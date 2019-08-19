@@ -257,11 +257,19 @@ public class PackageLoader {
                                             RepoHierarchy encPkgRepoHierarchy) {
         updateModuleIDVersion(pkgId, enclPackageId);
         Resolution resolution = resolveModuleByPath(pkgId);
-        if (resolution == Resolution.NOT_FOUND) {
+        // if a resolution is found by dependency path
+        if (resolution != Resolution.NOT_FOUND) {
+            // update repo hierarchy of the resolution back to normal.
+            if (null != encPkgRepoHierarchy) {
+                resolution.resolvedBy = encPkgRepoHierarchy;
+            } else {
+                resolution.resolvedBy = this.repos;
+            }
+        } else {
             if (null != encPkgRepoHierarchy) {
                 resolution = encPkgRepoHierarchy.resolve(pkgId);
             } else {
-                resolution = repos.resolve(pkgId);
+                resolution = this.repos.resolve(pkgId);
             }
         }
     

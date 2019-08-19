@@ -23,6 +23,7 @@ import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
+import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -39,6 +40,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.IMPLEMENTATION_VERSION;
@@ -147,7 +149,12 @@ public class PushUtils {
                     outputLogMessage);
             if (execute.isPresent()) {
                 String errorMessage = execute.get().getMessage();
-                if (null != errorMessage && !errorMessage.trim().equals("")) {
+                if (null != errorMessage && !"".equals(errorMessage.trim())) {
+                    // removing the error stack
+                    if (errorMessage.contains("\n\tat")) {
+                        errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));
+                    }
+    
                     SYS_ERR.println(errorMessage);
                     return false;
                 }
