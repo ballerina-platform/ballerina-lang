@@ -1738,6 +1738,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 } else {
                     matchedType = BUnionType.create(null, symTable.nilType, rhsDetailType.restFieldType);
                 }
+            } else if (Symbols.isOptional(matchedDetailItem.symbol)) {
+                matchedType = BUnionType.create(null, symTable.nilType, matchedDetailItem.type);
             } else {
                 matchedType = matchedDetailItem.type;
             }
