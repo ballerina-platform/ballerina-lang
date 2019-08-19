@@ -46,7 +46,8 @@ public class AliasNotDefinedForInvocationsTest {
         BAssertUtil.validateError(result, 0,
                 "alias not defined for expression in select clause", 81, 84);
         BAssertUtil.validateError(result, 1,
-                "fields defined in select clause, incompatible with output fields in type" +
-                " 'TeacherOutput', expected '[name, age, sumAge, count]' but found '[sumAge, name, age]'", 83, 9);
+                "fields defined in select clause, incompatible with output fields in type " +
+                "'TeacherOutput', expected '[name(string), age(int), sumAge(int), count(int)]' but found " +
+                "'[sumAge(null), name(string), age(int)]'", 83, 9);
     }
 }

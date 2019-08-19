@@ -63,7 +63,7 @@ public class LSDocument {
                 this.ownerModule = this.getModuleNameForDocument(this.projectRoot, path.toString());
                 this.ownerModulePath = Paths.get(projectRoot).resolve("src").resolve(ownerModule);
             }
-        } catch (URISyntaxException | MalformedURLException e) {
+        } catch (Exception e) {
             // Ignore
         }
     }

@@ -97,10 +97,10 @@ public type InboundLdapAuthProvider object {
 # + membershipAttribute - Define the attribute that contains the distinguished names (DN) of user objects that are in a group
 # + userRolesCacheEnabled -  To indicate whether to cache the role list of a user
 # + connectionPoolingEnabled - Define whether LDAP connection pooling is enabled
-# + ldapConnectionTimeout - Timeout in making the initial LDAP connection
+# + connectionTimeoutInMillis - Timeout in making the initial LDAP connection in milliseconds
 # + readTimeoutInMillis - The value of this property is the read timeout in milliseconds for LDAP operations
 # + retryAttempts - Retry the authentication request if a timeout happened
-# + secureClientSocket - The SSL configurations for the ldap client socket. This needs to be configured in order to
+# + secureSocket - The SSL configurations for the ldap client socket. This needs to be configured in order to
 #                  communicate through ldaps.
 public type LdapConnectionConfig record {|
     string domainName;
@@ -120,19 +120,19 @@ public type LdapConnectionConfig record {|
     string membershipAttribute;
     boolean userRolesCacheEnabled = false;
     boolean connectionPoolingEnabled = true;
-    int ldapConnectionTimeout = 5000;
+    int connectionTimeoutInMillis = 5000;
     int readTimeoutInMillis = 60000;
     int retryAttempts = 0;
-    SecureClientSocket? secureClientSocket = ();
+    SecureSocket secureSocket?;
 |};
 
 # Configures the SSL/TLS options to be used for LDAP communication.
 #
 # + trustStore - Configures the trust store to be used
 # + trustedCertFile - A file containing a list of certificates or a single certificate that the client trusts
-public type SecureClientSocket record {|
-    crypto:TrustStore? trustStore = ();
-    string trustedCertFile = "";
+public type SecureSocket record {|
+    crypto:TrustStore trustStore?;
+    string trustedCertFile?;
 |};
 
 public type LdapConnection record {|

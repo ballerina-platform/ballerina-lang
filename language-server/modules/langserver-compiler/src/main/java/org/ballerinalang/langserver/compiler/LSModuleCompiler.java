@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.compiler.workspace.repository.WorkspacePacka
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.toml.model.Manifest;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -37,6 +38,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.prepareCompilerContext;
@@ -45,6 +47,8 @@ import static org.ballerinalang.langserver.compiler.LSCompilerUtil.prepareCompil
  * Language server compiler implementation for Ballerina.
  */
 public class LSModuleCompiler {
+    private static final int MAX_COMPILATION_COUNT = 200;
+    private static volatile int compilationCounter = 0;
 
     protected LSModuleCompiler() {
     }
@@ -88,7 +92,7 @@ public class LSModuleCompiler {
 
         CompilerContext compilerContext = prepareCompilerContext(pkgRepo, sourceRoot, preserveWS, docManager);
         Compiler compiler = LSCompilerUtil.getCompiler(context, "", compilerContext, errStrategy);
-        return compilePackagesSafe(compiler, sourceRoot, false);
+        return compilePackagesSafe(compiler, sourceRoot, false, context);
     }
 
     /**
@@ -151,7 +155,7 @@ public class LSModuleCompiler {
                 LSPackageCache.getInstance(compilerContext).invalidateProjectModules(sourceDoc.getProjectModules());
             }
             Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext, errStrategy);
-            List<BLangPackage> projectPackages = compilePackagesSafe(compiler, projectRoot, false);
+            List<BLangPackage> projectPackages = compilePackagesSafe(compiler, projectRoot, false, context);
             packages.addAll(projectPackages);
             Optional<BLangPackage> currentPkg = projectPackages.stream().filter(bLangPackage -> {
                 String name = bLangPackage.packageID.nameComps.stream()
@@ -162,7 +166,7 @@ public class LSModuleCompiler {
             LSPackageCache.getInstance(compilerContext).invalidate(currentPkg.get().packageID);
         } else {
             Compiler compiler = LSCompilerUtil.getCompiler(context, relativeFilePath, compilerContext, errStrategy);
-            BLangPackage bLangPackage = compileSafe(compiler, projectRoot, pkgName);
+            BLangPackage bLangPackage = compileSafe(compiler, projectRoot, pkgName, context);
             LSPackageCache.getInstance(compilerContext).invalidate(bLangPackage.packageID);
             packages.add(bLangPackage);
         }
@@ -183,18 +187,60 @@ public class LSModuleCompiler {
      * @param compiler    {@link Compiler}
      * @param projectRoot project root
      * @param pkgName     package name or file name
+     * @param context   {@link LSContext}
      * @return {@link BLangPackage}
      * @throws CompilationFailedException thrown when compilation failed
      */
-    protected static BLangPackage compileSafe(Compiler compiler, String projectRoot, String pkgName)
+    protected static BLangPackage compileSafe(Compiler compiler, String projectRoot, String pkgName, LSContext context)
             throws CompilationFailedException {
+        LSCompilerCache.Key key = new LSCompilerCache.Key(projectRoot, context);
         try {
-            return compiler.compile(pkgName);
+            long startTime = 0L;
+            if (LSClientLogger.isTraceEnabled()) {
+                startTime = System.nanoTime();
+            }
+            boolean isCacheSupported = context.get(DocumentServiceKeys.IS_CACHE_SUPPORTED) != null &&
+                    context.get(DocumentServiceKeys.IS_CACHE_SUPPORTED);
+            boolean isOutdatedSupported = context.get(DocumentServiceKeys.IS_CACHE_OUTDATED_SUPPORTED) != null &&
+                    context.get(DocumentServiceKeys.IS_CACHE_OUTDATED_SUPPORTED);
+            if (isCacheSupported) {
+                LSCompilerCache.CacheEntry cacheEntry = LSCompilerCache.get(key, context);
+                if (cacheEntry != null && (isOutdatedSupported || !cacheEntry.isOutdated())) {
+                    if (LSClientLogger.isTraceEnabled()) {
+                        long endTime = System.nanoTime();
+                        long eTime = TimeUnit.MILLISECONDS.convert(endTime - startTime, TimeUnit.NANOSECONDS);
+                        LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" +
+                                                        projectRoot + "'}, served through cache within " + eTime +
+                                                        "ms");
+                    }
+                    // Cache hit
+                    return cacheEntry.get().getLeft();
+                }
+            }
+            BLangPackage bLangPackage = compiler.compile(pkgName);
+            LSCompilerCache.put(key, Either.forLeft(bLangPackage), context);
+            if (LSClientLogger.isTraceEnabled()) {
+                long endTime = System.nanoTime();
+                long eTime = TimeUnit.MILLISECONDS.convert(endTime - startTime, TimeUnit.NANOSECONDS);
+                LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" +
+                                                projectRoot + "'}, compilation took " + eTime + "ms");
+            }
+            return bLangPackage;
         } catch (RuntimeException e) {
             // NOTE: Remove current CompilerContext to try out a fresh CompilerContext next time
             // to avoid issues of reusing it.
 //            LSContextManager.getInstance().removeCompilerContext(projectRoot);
+            LSCompilerCache.markOutDated(key);
             throw new CompilationFailedException("Compilation failed!", e);
+        } finally {
+            // TODO: Remove this fix once proper compiler fix is introduced
+            if (compilationCounter > MAX_COMPILATION_COUNT) {
+                LSContextManager.getInstance().removeCompilerContext(projectRoot);
+                compilationCounter = 0;
+                LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" +
+                                                projectRoot + "'}, Reinitialized CompilationContext");
+            }
+            compilationCounter++; // Not needed to be atomic since the if-check is a range
         }
     }
 
@@ -204,18 +250,61 @@ public class LSModuleCompiler {
      * @param compiler    {@link Compiler}
      * @param projectRoot project root
      * @param isBuild     if `True` builds all packages
+     * @param context   {@link LSContext}
      * @return a list of {@link BLangPackage}
      * @throws CompilationFailedException thrown when compilation failed
      */
-    protected static List<BLangPackage> compilePackagesSafe(Compiler compiler, String projectRoot, boolean isBuild)
+    protected static List<BLangPackage> compilePackagesSafe(Compiler compiler, String projectRoot, boolean isBuild,
+                                                            LSContext context)
             throws CompilationFailedException {
+        LSCompilerCache.Key key = new LSCompilerCache.Key(projectRoot, context);
         try {
-            return compiler.compilePackages(isBuild);
+            long startTime = 0L;
+            if (LSClientLogger.isTraceEnabled()) {
+                startTime = System.nanoTime();
+            }
+            boolean isCacheSupported = context.get(DocumentServiceKeys.IS_CACHE_SUPPORTED) != null &&
+                    context.get(DocumentServiceKeys.IS_CACHE_SUPPORTED);
+            boolean isOutdatedSupported = context.get(DocumentServiceKeys.IS_CACHE_OUTDATED_SUPPORTED) != null &&
+                    context.get(DocumentServiceKeys.IS_CACHE_OUTDATED_SUPPORTED);
+            if (isCacheSupported) {
+                LSCompilerCache.CacheEntry cacheEntry = LSCompilerCache.get(key, context);
+                if (cacheEntry != null && (isOutdatedSupported || !cacheEntry.isOutdated())) {
+                    if (LSClientLogger.isTraceEnabled()) {
+                        long endTime = System.nanoTime();
+                        long eTime = TimeUnit.MILLISECONDS.convert(endTime - startTime, TimeUnit.NANOSECONDS);
+                        LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" +
+                                                        projectRoot + "'}, served through cache within " + eTime +
+                                                        "ms");
+                    }
+                    // Cache hit
+                    return cacheEntry.get().getRight();
+                }
+            }
+            List<BLangPackage> bLangPackages = compiler.compilePackages(isBuild);
+            LSCompilerCache.put(key, Either.forRight(bLangPackages), context);
+            if (LSClientLogger.isTraceEnabled()) {
+                long endTime = System.nanoTime();
+                long eTime = TimeUnit.MILLISECONDS.convert(endTime - startTime, TimeUnit.NANOSECONDS);
+                LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" +
+                                                projectRoot + "'}, compilation took " + eTime + "ms");
+            }
+            return bLangPackages;
         } catch (RuntimeException e) {
             // NOTE: Remove current CompilerContext to try out a fresh CompilerContext next time
             // to avoid issues of reusing it.
 //            LSContextManager.getInstance().removeCompilerContext(projectRoot);
+            LSCompilerCache.markOutDated(key);
             throw new CompilationFailedException("Compilation failed!", e);
+        } finally {
+            // TODO: Remove this fix once proper compiler fix is introduced
+            if (compilationCounter > MAX_COMPILATION_COUNT) {
+                LSContextManager.getInstance().removeCompilerContext(projectRoot);
+                compilationCounter = 0;
+                LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" +
+                                                projectRoot + "'}, Reinitialized CompilationContext");
+            }
+            compilationCounter++; // Not needed to be atomic since the if-check is a range
         }
     }
 

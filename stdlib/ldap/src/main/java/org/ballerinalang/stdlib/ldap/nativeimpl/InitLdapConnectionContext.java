@@ -18,7 +18,6 @@
 
 package org.ballerinalang.stdlib.ldap.nativeimpl;
 
-import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
@@ -92,13 +91,14 @@ public class InitLdapConnectionContext {
         commonLdapConfiguration.setConnectionPoolingEnabled(
                 authProviderConfig.getBooleanValue(LdapConstants.CONNECTION_POOLING_ENABLED));
         commonLdapConfiguration.setLdapConnectionTimeout(
-                authProviderConfig.getIntValue(LdapConstants.CONNECTION_TIME_OUT).intValue());
+                authProviderConfig.getIntValue(LdapConstants.CONNECTION_TIME_OUT_IN_MILLIS).intValue());
         commonLdapConfiguration.setReadTimeoutInMillis(
                 authProviderConfig.getIntValue(LdapConstants.READ_TIME_OUT_IN_MILLIS).intValue());
         commonLdapConfiguration.setRetryAttempts(
                 authProviderConfig.getIntValue(LdapConstants.RETRY_ATTEMPTS).intValue());
 
-        MapValue<?, ?> sslConfig = authProviderConfig.getMapValue(LdapConstants.SECURE_AUTH_STORE_CONFIG);
+        MapValue<?, ?> sslConfig = authProviderConfig.containsKey(LdapConstants.SECURE_AUTH_STORE_CONFIG) ?
+                authProviderConfig.getMapValue(LdapConstants.SECURE_AUTH_STORE_CONFIG) : null;
         try {
             if (sslConfig != null) {
                 setSslConfig(sslConfig, commonLdapConfiguration, instanceId);
@@ -115,8 +115,8 @@ public class InitLdapConnectionContext {
             ldapConnectionRecord.addNativeData(LdapConstants.ENDPOINT_INSTANCE_ID, instanceId);
             return ldapConnectionRecord;
         } catch (KeyStoreException | KeyManagementException | NoSuchAlgorithmException
-                | CertificateException | NamingException | IOException e) {
-            return LdapUtils.createError(e.getMessage());
+                | CertificateException | NamingException | IOException | IllegalArgumentException e) {
+            return LdapUtils.createError(e.getCause().getMessage());
         } finally {
             if (sslConfig != null) {
                 LdapUtils.removeServiceName();
@@ -125,30 +125,24 @@ public class InitLdapConnectionContext {
     }
 
     private static void setSslConfig(MapValue sslConfig, CommonLdapConfiguration commonLdapConfiguration,
-                                     String instanceId)
-                              throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException,
-                                     CertificateException {
+                                     String instanceId) throws IOException, NoSuchAlgorithmException, KeyStoreException,
+            KeyManagementException, CertificateException {
         MapValue<?, ?> trustStore = sslConfig.getMapValue(LdapConstants.AUTH_STORE_CONFIG_TRUST_STORE);
-        String trustCerts = sslConfig.getStringValue(LdapConstants.AUTH_STORE_CONFIG_TRUST_CERTIFICATES);
+        String trustCerts = sslConfig.containsKey(LdapConstants.AUTH_STORE_CONFIG_TRUST_CERTIFICATES) ?
+                sslConfig.getStringValue(LdapConstants.AUTH_STORE_CONFIG_TRUST_CERTIFICATES) : null;
 
         if (trustStore != null) {
             String trustStoreFilePath = trustStore.getStringValue(LdapConstants.FILE_PATH);
             String trustStorePassword = trustStore.getStringValue(LdapConstants.PASSWORD);
-
-            if (trustStoreFilePath != null) {
-                File trustStoreFile = new File(LdapUtils.substituteVariables(trustStoreFilePath));
-                if (!trustStoreFile.exists()) {
-                    throw new IllegalArgumentException("trustStore File " + trustStoreFilePath + " not found");
-                }
-                if (trustStorePassword == null) {
-                    throw new IllegalArgumentException("trustStorePass is not defined for HTTPS scheme");
-                }
-                commonLdapConfiguration.setTrustStoreFile(trustStoreFile);
-                commonLdapConfiguration.setTrustStorePass(trustStorePassword);
-                SSLContext sslContext = SslUtils.createClientSslContext(trustStoreFilePath, trustStorePassword);
-                SslContextTrustManager.getInstance().addSSLContext(instanceId, sslContext);
+            File trustStoreFile = new File(LdapUtils.substituteVariables(trustStoreFilePath));
+            if (!trustStoreFile.exists()) {
+                throw new IllegalArgumentException("trustStore File " + trustStoreFilePath + " not found");
             }
-        } else if (StringUtils.isNotBlank(trustCerts)) {
+            commonLdapConfiguration.setTrustStoreFile(trustStoreFile);
+            commonLdapConfiguration.setTrustStorePass(trustStorePassword);
+            SSLContext sslContext = SslUtils.createClientSslContext(trustStoreFilePath, trustStorePassword);
+            SslContextTrustManager.getInstance().addSSLContext(instanceId, sslContext);
+        } else if (trustCerts != null) {
             commonLdapConfiguration.setClientTrustCertificates(trustCerts);
             SSLContext sslContext = SslUtils.getSslContextForCertificateFile(trustCerts);
             SslContextTrustManager.getInstance().addSSLContext(instanceId, sslContext);

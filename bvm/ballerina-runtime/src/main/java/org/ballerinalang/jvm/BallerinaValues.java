@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.ValueCreator;
 
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * The factory utility class that creates runtime values from given package and type names.
@@ -55,15 +56,13 @@ public class BallerinaValues {
      * @return value of the populated record.
      */
     public static MapValue<String, Object> createRecordValue(String pkgName, String recordTypeName,
-            Map<String, Object> valueMap) {
-        ValueCreator valueCreator = ValueCreator.getValueCreator(pkgName);
-        MapValue<String, Object> record = valueCreator.createRecordValue(recordTypeName);
-        BRecordType recordType = (BRecordType) record.getType();
-        MapValue<String, Object> mapValue = new MapValueImpl<>(recordType);
-        for (Map.Entry<String, BField> fieldEntry : recordType.getFields().entrySet()) {
-            mapValue.put(fieldEntry.getKey(), valueMap.get(fieldEntry.getKey()));
+                                                             Map<String, Object> valueMap) {
+        MapValue<String, Object> record = createRecordValue(pkgName, recordTypeName);
+        for (Entry<String, Object> fieldEntry : valueMap.entrySet()) {
+            record.put(fieldEntry.getKey(), fieldEntry.getValue());
         }
-        return mapValue;
+
+        return record;
     }
 
     /**
