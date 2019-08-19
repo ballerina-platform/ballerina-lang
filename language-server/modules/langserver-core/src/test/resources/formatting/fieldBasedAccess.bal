@@ -3,6 +3,16 @@ type TestRecord record {
     string name;
 };
 
+type City record {
+    string name = "";
+    string lat = "";
+    string lng = "";
+};
+
+type Cities record {
+    City[] cities = [];
+};
+
 function name () {
     TestRecord rec = {
         id: 0,
@@ -10,4 +20,16 @@ function name () {
     };
 
 string nameTest = rec.name;
+
+Cities cities = {
+            cities: [{
+                name: "London",
+                lat: "51.5073219",
+                lng: "-0.1276474"
+            }]
+    };
+
+       json|error payload = json . constructFrom ( cities ) ;
+    string  nameTest1  =  rec . name . indexOf ( "mar" ) ;
+      json   |   error     payload1 =  json . constructFrom  (  cities ) . toJsonString ( ) ;
 }
