@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.ldap;
 
-import org.ballerinalang.stdlib.ldap.util.LdapUtils;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -56,12 +54,6 @@ public class SslContextTrustManager {
 
     public void addSSLContext(String key, SSLContext sslContext) {
         SslContextTrustManager.getInstance().getSslContextMap().put(key, sslContext);
-    }
-
-    public void removeSSLContext(String contextId) {
-        if (LdapUtils.isNullOrEmptyAfterTrim(contextId)) {
-            SslContextTrustManager.getInstance().getSslContextMap().remove(contextId);
-        }
     }
 
     public Map<String, SSLContext> getSslContextMap() {
