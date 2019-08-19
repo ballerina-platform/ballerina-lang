@@ -70,7 +70,6 @@ public class Stop {
 
         int clientsCount =
                 ((AtomicInteger) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS)).decrementAndGet();
-        listenerObject.set(Constants.CONNECTION_OBJ, null);
 
         if (clientsCount == 0) {
             // Actual NATS connection is not used in any other clients. So we can close the actual connection.

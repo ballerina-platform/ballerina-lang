@@ -59,9 +59,11 @@ public class FileSystemTest {
     private Path srcFilePath = Paths.get("src", "test", "resources", "data-files", "src-file.txt");
     private Path destFilePath = Paths.get("src", "test", "resources", "data-files", "dest-file.txt");
     private Path srcDirPath = Paths.get("src", "test", "resources", "data-files", "src-dir");
+    private Path errorSrcDirPath = Paths.get("src", "test", "resources", "data-files", "src-dir", "error");
     private Path tempDirPath;
     private Path tempSourcePath;
     private Path tempDestPath;
+    private Path errorPath;
     private static final Logger log = LoggerFactory.getLogger(FileSystemTest.class);
 
     @BeforeClass
@@ -73,6 +75,7 @@ public class FileSystemTest {
         }
         tempSourcePath = tempDirPath.resolve("src-file.txt");
         tempDestPath = tempDirPath.resolve("dest-file.txt");
+        errorPath = errorSrcDirPath.resolve("no-file.txt");
     }
 
     @Test(description = "Test for retrieving temporary directory")
@@ -164,7 +167,7 @@ public class FileSystemTest {
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
         assertEquals(error.getReason(), SystemConstants.INVALID_OPERATION_ERROR);
-        assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File doesn't exist in path "));
+        assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File not found: "));
     }
 
     @Test(description = "Test for retrieving file info from system")
@@ -185,13 +188,27 @@ public class FileSystemTest {
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
         assertEquals(error.getReason(), SystemConstants.INVALID_OPERATION_ERROR);
-        assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File doesn't exist in path "));
+        assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File not found: "));
     }
 
     @Test(description = "Test for retrieving files inside directory")
     public void testReadDir() {
         BValue[] args = {new BString(srcDirPath.toString())};
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadDir", args);
+        assertTrue(returns[0].getType() instanceof BObjectType);
+    }
+
+    @Test(description = "Test for retrieving files inside directory specifying the depth level - 0")
+    public void testReadDirWithMaxDepth() {
+        BValue[] args = {new BString(srcDirPath.toString()), new BInteger(0)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testReadDirWithMaxDepth", args);
+        assertTrue(returns[0].getType() instanceof BObjectType);
+    }
+
+    @Test(description = "Test for retrieving files inside directory specifying the depth level - 1")
+    public void testReadDirWithMaxDepth1() {
+        BValue[] args = {new BString(srcDirPath.toString()), new BInteger(1)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testReadDirWithMaxDepth", args);
         assertTrue(returns[0].getType() instanceof BObjectType);
     }
 
@@ -204,7 +221,7 @@ public class FileSystemTest {
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
         assertEquals(error.getReason(), SystemConstants.INVALID_OPERATION_ERROR);
-        assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File doesn't exist in path"));
+        assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File not found: "));
     }
 
     @Test(description = "Test for reading file info from non existence directory")
@@ -243,6 +260,21 @@ public class FileSystemTest {
             BValue[] returns = BRunUtil.invoke(compileResult, "testCreateFile", args);
             assertTrue(returns[0] instanceof BString);
             assertTrue(Files.exists(tempDestPath));
+        } finally {
+            Files.deleteIfExists(tempDestPath);
+        }
+    }
+
+    @Test(description = "Test attempting to access a file that does not exist")
+    public void testCreateNonExistingFile() throws IOException {
+        try {
+            BValue[] args = {new BString(errorPath.toString())};
+            BValue[] returns = BRunUtil.invoke(compileResult, "testCreateNonExistingFile", args);
+            assertTrue(returns[0] instanceof BError);
+            BError error = (BError) returns[0];
+            assertEquals(error.getReason(), SystemConstants.FILE_SYSTEM_ERROR);
+            assertTrue(((BMap) error.getDetails()).get("message").stringValue()
+                    .contains("The file does not exist in path "));
         } finally {
             Files.deleteIfExists(tempDestPath);
         }
@@ -327,7 +359,7 @@ public class FileSystemTest {
             BError error = (BError) returns[0];
             assertEquals(error.getReason(), SystemConstants.INVALID_OPERATION_ERROR);
             assertTrue(((BMap) error.getDetails()).get("message").stringValue()
-                    .contains("File doesn't exist in path "));
+                    .contains("File not found: "));
         } finally {
             Files.deleteIfExists(tempDestPath);
         }

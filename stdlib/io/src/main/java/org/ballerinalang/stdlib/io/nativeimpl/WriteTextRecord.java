@@ -53,8 +53,8 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 public class WriteTextRecord {
 
     public static Object write(Strand strand, ObjectValue channel, ArrayValue content) {
-        DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel.getNativeData(
-                IOConstants.TXT_RECORD_CHANNEL_NAME);
+        DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel
+                .getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
         EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
         DelimitedRecordWriteEvent recordWriteEvent = new DelimitedRecordWriteEvent(delimitedRecordChannel, content,
                                                                                    eventContext);
