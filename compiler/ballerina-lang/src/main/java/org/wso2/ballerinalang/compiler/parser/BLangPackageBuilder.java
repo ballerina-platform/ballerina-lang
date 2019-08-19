@@ -1938,6 +1938,7 @@ public class BLangPackageBuilder {
 
     void addConstant(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
                      boolean isPublic, boolean isTypeAvailable) {
+        identifier = escapeQuotedIdentifier(identifier);
         BLangConstant constantNode = (BLangConstant) this.generateConstantNode(pos, ws, identifier, identifierPos,
                 isTypeAvailable);
         attachAnnotations(constantNode);
@@ -1981,6 +1982,15 @@ public class BLangPackageBuilder {
             // any of the type def visiting logic in symbol enter.
             constantNode.associatedTypeDefinition = typeDef;
         }
+    }
+
+    // If this is a quoted identifier then unescape it and remove the quote prefix.
+    // Else return original.
+    static String escapeQuotedIdentifier(String identifier) {
+        if (identifier.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
+            identifier = StringEscapeUtils.unescapeJava(identifier).substring(1);
+        }
+        return identifier;
     }
 
     void addGlobalVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
