@@ -220,9 +220,12 @@
         </group>
         <action id="NewBallerinaFile" class="io.ballerina.plugins.idea.actions.BallerinaCreateFileAction"
                 text="Ballerina File" description="Create new Ballerina file">
-            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
+            <add-to-group group-id="NewGroup" anchor="first"/>
         </action>
-
+        <action id="NewBallerinaModule" class="io.ballerina.plugins.idea.actions.BallerinaCreateModuleAction"
+                text="Ballerina Module" description="Create new Ballerina module">
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewBallerinaFile"/>
+        </action>
         <action class="org.wso2.lsp4intellij.actions.LSPReformatAction" id="ReformatCode"
                 use-shortcut-of="ReformatCode"
                 overrides="true" text="Reformat Code"/>
