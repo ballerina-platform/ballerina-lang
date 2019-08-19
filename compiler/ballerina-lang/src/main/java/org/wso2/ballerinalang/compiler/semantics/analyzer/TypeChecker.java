@@ -2811,13 +2811,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 return;
             }
         } else if (!types.isAssignable(expectedType, symTable.errorType)) {
-            if (expectedType != symTable.noType) {
+            if ((iExpr.symbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
+                expectedType = iExpr.type;
+            } else if (expectedType != symTable.noType) {
                 // Cannot infer error type from error constructor. 'T1|T2|T3 e = error("r", a="b", b="c");
                 dlog.error(iExpr.pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, this.expType);
                 resultType = symTable.semanticError;
                 return;
-            } else if ((iExpr.symbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
-                expectedType = iExpr.type;
             } else {
                 // var e = <error> error("r");
                 expectedType = symTable.errorType;

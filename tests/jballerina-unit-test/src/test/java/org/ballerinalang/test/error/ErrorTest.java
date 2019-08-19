@@ -314,6 +314,12 @@ public class ErrorTest {
         Assert.assertEquals(((BError) returns[0]).stringValue(), "this is broken {message:\"too bad\"}");
     }
 
+    @Test()
+    public void testIndirectErrorReturn() {
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testIndirectErrorReturn");
+        Assert.assertEquals(((BError) returns[0]).stringValue(), "Foo {message:\"error msg\"}");
+    }
+
     @Test
     public void testStackTraceInNative() {
         Exception expectedException = null;

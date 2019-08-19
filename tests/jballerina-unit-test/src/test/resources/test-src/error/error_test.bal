@@ -278,3 +278,7 @@ public function testStackTraceInNative() {
     string[] array = ["apple", "orange"];
     _ = array.slice(1, 4);
 }
+
+public function testIndirectErrorReturn() returns E1|E2|string {
+    return E1(message = "error msg");
+}
