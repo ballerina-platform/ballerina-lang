@@ -56,9 +56,9 @@ public type CachedJwt record {|
 
 # Validate the given JWT string.
 #
-# + jwtToken - JWT token that need to validate
+# + jwtToken - JWT token that needs to be validated
 # + config - JWT validator config record
-# + return - If JWT token is valied return the JWT payload. An `Error` if token validation fails.
+# + return - If the JWT token is valid, return the JWT payload. Else, return an`Error` if token validation fails.
 public function validateJwt(string jwtToken, JwtValidatorConfig config) returns @tainted (JwtPayload|Error) {
     JwtHeader header;
     JwtPayload payload;
@@ -86,8 +86,8 @@ function getJwtComponents(string jwtToken) returns string[]|Error {
 
 # Decode the given JWT string.
 #
-# + jwtToken - JWT token that need to decode
-# + return - The JWT header and payload tuple or an `Error` if token decode fails.
+# + jwtToken - JWT token that needs to be decoded
+# + return - The JWT header and payload tuple or an `Error` if token decoding fails.
 public function decodeJwt(string jwtToken) returns @tainted ([JwtHeader, JwtPayload]|Error) {
     string[] encodedJwtComponents = check getJwtComponents(jwtToken);
     map<json> headerJson;

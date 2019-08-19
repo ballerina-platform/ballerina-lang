@@ -102,10 +102,10 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JwtKeyStoreConfig
     return prepareError("Failed to issue JWT since signing algorithm is not specified.");
 }
 
-# Build the header string from `JwtHeader` record.
+# Build the header string from the `JwtHeader` record.
 #
-# + header - JWT header record to be built as string
-# + return - The header string or an `Error` if string build fails
+# + header - JWT header record to be built as a string
+# + return - The header string or an `Error` if building the string fails
 public function buildHeaderString(JwtHeader header) returns string|Error {
     map<json> headerJson = {};
     if (!validateMandatoryJwtHeaderFields(header)) {
@@ -142,10 +142,10 @@ public function buildHeaderString(JwtHeader header) returns string|Error {
     return encodedPayload;
 }
 
-# Build the payload string from `JwtPayload` record.
+# Build the payload string from the `JwtPayload` record.
 #
-# + payload - JWT payload record to be built as string
-# + return - The payload string or an `Error` if string build fails
+# + payload - JWT payload record to be built as a string
+# + return - The payload string or an `Error` if building the string fails
 public function buildPayloadString(JwtPayload payload) returns string|Error {
     map<json> payloadJson = {};
     string? sub = payload?.sub;
