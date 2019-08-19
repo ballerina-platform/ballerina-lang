@@ -84,7 +84,7 @@ public class TaskConstants {
     // Quartz property values
     public static final String QUARTZ_THREAD_COUNT_VALUE = "10";
     // Defines how late the trigger should be to be considered misfired
-    public static final String QUARTZ_MISFIRE_THRESHOLD_VALUE = "1000";
+    public static final String QUARTZ_MISFIRE_THRESHOLD_VALUE = "5000";
     public static final String QUARTZ_THREAD_POOL_CLASS_VALUE = "org.quartz.simpl.SimpleThreadPool";
     public static final String QUARTZ_JOB_STORE_CLASS_VALUE = "org.quartz.simpl.RAMJobStore";
 }

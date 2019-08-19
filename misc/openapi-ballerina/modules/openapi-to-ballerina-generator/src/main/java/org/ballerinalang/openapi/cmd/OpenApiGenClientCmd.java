@@ -35,7 +35,7 @@ import java.util.List;
  */
 @CommandLine.Command(name = "gen-client")
 public class OpenApiGenClientCmd implements BLauncherCmd {
-    private static final String CMD_NAME = "openapi";
+    private static final String CMD_NAME = "openapi-gen-client";
 
     private PrintStream outStream = System.err;
     private String executionPath = System.getProperty("user.dir");

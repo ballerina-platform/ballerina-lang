@@ -20,7 +20,7 @@ import java.util.List;
  */
 @CommandLine.Command(name = "gen-contract")
 public class OpenApiGenContractCmd implements BLauncherCmd {
-    private static final String CMD_NAME = "openapi";
+    private static final String CMD_NAME = "openapi-gen-contract";
 
     private static final PrintStream outStream = System.err;
 

@@ -21,12 +21,12 @@ package org.ballerinalang.nats.basic.consumer;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.nats.Constants;
+import org.ballerinalang.nats.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,7 +77,7 @@ public class Stop {
             try {
                 natsConnection.close();
             } catch (InterruptedException e) {
-                throw new BallerinaConnectorException("Listener interrupted while closing NATS connection");
+                throw Utils.createNatsError("Listener interrupted while closing NATS connection");
             }
         }
     }
