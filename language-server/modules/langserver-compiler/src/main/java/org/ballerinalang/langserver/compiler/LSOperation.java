@@ -18,38 +18,15 @@
 package org.ballerinalang.langserver.compiler;
 
 /**
- * Ballerina Language server context.
- * @since 0.970.0
+ * Ballerina Language server operation.
+ *
+ * @since 1.0.0
  */
-public interface LSContext {
-
-    /**
-     * Add new Context property.
-     * @param key   Property Key
-     * @param value Property value
-     * @param <V>   Key Type
-     */
-    <V> void put(Key<V> key, V value);
-
-    /**
-     * Get property by Key.
-     * @param key   Property Key
-     * @param <V>   Key Type
-     * @return {@link Object}   Property
-     */
-    <V> V get(Key<V> key);
-
+public interface LSOperation {
     /**
      * Returns operation name.
      *
      * @return  operation name
      */
-    LSOperation getOperation();
-
-    /**
-     * @param <K> Property Key
-     * @since 0.95.5
-     */
-    class Key<K> {
-    }
+    String getName();
 }

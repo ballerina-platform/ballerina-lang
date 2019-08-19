@@ -54,8 +54,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.langserver.common.utils.CommonUtil.logError;
-import static org.ballerinalang.langserver.common.utils.CommonUtil.notifyUser;
+import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
+import static org.ballerinalang.langserver.compiler.LSClientLogger.notifyUser;
 
 /**
  * Workspace service implementation for Ballerina.
@@ -78,7 +78,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
     public CompletableFuture<List<? extends SymbolInformation>> symbol(WorkspaceSymbolParams params) {
         return CompletableFuture.supplyAsync(() -> {
             List<Either<SymbolInformation, DocumentSymbol>> symbols = new ArrayList<>();
-            LSServiceOperationContext symbolsContext = new LSServiceOperationContext();
+            LSServiceOperationContext symbolsContext = new LSServiceOperationContext(LSContextOperation.WS_SYMBOL);
             Map<String, Object[]> compUnits = new HashMap<>();
             try {
                 for (Path path : this.workspaceDocumentManager.getAllFilePaths()) {
@@ -108,10 +108,10 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                     ((BLangCompilationUnit) compilationUnit[1]).accept(visitor);
                 });
             } catch (UserErrorException e) {
-                notifyUser("Workspace Symbols", e, languageServer.getClient());
+                notifyUser("Workspace Symbols", e);
             } catch (Throwable e) {
                 String msg = "Operation 'workspace/symbol' failed!";
-                logError(msg, e, languageServer.getClient(), null, (Position) null);
+                logError(msg, e, null, (Position) null);
             }
             // Here we should extract only the Symbol information only.
             // TODO: Need to find a decoupled way to manage both with the same Symbol finding visitor
@@ -141,27 +141,27 @@ public class BallerinaWorkspaceService implements WorkspaceService {
     @Override
     public CompletableFuture<Object> executeCommand(ExecuteCommandParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            LSServiceOperationContext executeCommandContext = new LSServiceOperationContext();
-            executeCommandContext.put(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY, params.getArguments());
-            executeCommandContext.put(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY, this.workspaceDocumentManager);
-            executeCommandContext.put(ExecuteCommandKeys.LANGUAGE_SERVER_KEY, this.languageServer);
-            executeCommandContext.put(ExecuteCommandKeys.DIAGNOSTICS_HELPER_KEY, this.diagnosticsHelper);
+            LSServiceOperationContext executeCmdContext = new LSServiceOperationContext(LSContextOperation.WS_EXEC_CMD);
+            executeCmdContext.put(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY, params.getArguments());
+            executeCmdContext.put(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY, this.workspaceDocumentManager);
+            executeCmdContext.put(ExecuteCommandKeys.LANGUAGE_SERVER_KEY, this.languageServer);
+            executeCmdContext.put(ExecuteCommandKeys.DIAGNOSTICS_HELPER_KEY, this.diagnosticsHelper);
 
             try {
                 Optional<LSCommandExecutor> executor = LSCommandExecutorProvider.getInstance()
                         .getCommandExecutor(params.getCommand());
                 if (executor.isPresent()) {
-                    return executor.get().execute(executeCommandContext);
+                    return executor.get().execute(executeCmdContext);
                 }
             } catch (UserErrorException e) {
-                notifyUser("Execute Command", e, languageServer.getClient());
+                notifyUser("Execute Command", e);
             } catch (Throwable e) {
                 String msg = "Operation 'workspace/executeCommand' failed!";
-                logError(msg, e, languageServer.getClient(), null, (Position) null);
+                logError(msg, e, null, (Position) null);
             }
             logError("Operation 'workspace/executeCommand' failed!",
                      new LSCommandExecutorException("No command executor found for '" + params.getCommand() + "'"),
-                     languageServer.getClient(), null, (Position) null);
+                     null, (Position) null);
             return false;
         });
     }

@@ -51,6 +51,11 @@ public class TypedescValue implements RefValue {
     }
 
     @Override
+    public String toString() {
+        return stringValue();
+    }
+
+    @Override
     public BType getType() {
         return type;
     }
