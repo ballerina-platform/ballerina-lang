@@ -95,7 +95,7 @@ public class NativePackagingTestCase extends BaseTest {
         // Build module
         String module1BaloFileName = module1Name + "-"
                                      + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java-"
-                                     + "1.0.0"
+                                     + "0.7.2"
                                      + BLANG_COMPILED_PKG_BINARY_EXT;
         
         String module1BuildMsg = "target" + File.separator + "balo" + File.separator + module1BaloFileName;
@@ -106,7 +106,7 @@ public class NativePackagingTestCase extends BaseTest {
         
         // Push built modules
         String orgName = "bcintegrationtest";
-        String module1PushMsg = orgName + "/" + module1Name + ":1.0.0 [project repo -> central]";
+        String module1PushMsg = orgName + "/" + module1Name + ":0.7.2 [project repo -> central]";
         LogLeecher module1PushLeecher = new LogLeecher(module1PushMsg);
         balClient.runMain("push", new String[]{}, envVariables, new String[]{},
                 new LogLeecher[]{module1PushLeecher}, testProj1Path.toString());
@@ -124,36 +124,36 @@ public class NativePackagingTestCase extends BaseTest {
     @Test(description = "Test building and running TestProject2", dependsOnMethods = "testBuildAndPushTestProject1")
     public void testBuildTestProject2() throws IOException, BallerinaTestException {
         // Replace module names in source file
-        Path fooSayBal = testProj2Path.resolve("src").resolve("baz").resolve("impl.bal");
-        Stream<String> lines = Files.lines(fooSayBal);
+        Path implBalFile = testProj2Path.resolve("src").resolve("baz").resolve("impl.bal");
+        Stream<String> lines = Files.lines(implBalFile);
         List<String> replaced = lines.map(line -> line.replaceAll("MODULE_1", module1Name))
                 .collect(Collectors.toList());
-        Files.write(fooSayBal, replaced);
+        Files.write(implBalFile, replaced);
         
         // Build module
-        String fooBaloFileName = "foo-"
+        String bazBaloFileName = "baz-"
                                  + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
                                  + ProgramFileConstants.ANY_PLATFORM + "-"
                                  + "1.0.0"
                                  + BLANG_COMPILED_PKG_BINARY_EXT;
-        String fooBuildMsg = "target" + File.separator + "balo" + File.separator + fooBaloFileName;
-        LogLeecher fooBuildLeecher = new LogLeecher(fooBuildMsg);
+        String bazBuildMsg = "target" + File.separator + "balo" + File.separator + bazBaloFileName;
+        LogLeecher bazBuildLeecher = new LogLeecher(bazBuildMsg);
         
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
                 .await().atMost(120, SECONDS).until(() -> {
             balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{}, new
-                    LogLeecher[]{fooBuildLeecher}, testProj2Path.toString());
+                    LogLeecher[]{bazBuildLeecher}, testProj2Path.toString());
             Path lockFilePath = testProj2Path.resolve("Ballerina.lock");
             return Files.exists(lockFilePath);
         });
         
         // Run and see output
         String msg = "dog";
-        LogLeecher fooRunLeecher = new LogLeecher(msg);
+        LogLeecher bazRunLeecher = new LogLeecher(msg);
         balClient.runMain("run", new String[] {"baz"}, envVariables, new String[0],
-                new LogLeecher[]{fooRunLeecher}, testProj2Path.toString());
-        fooRunLeecher.waitForText(10000);
+                new LogLeecher[]{bazRunLeecher}, testProj2Path.toString());
+        bazRunLeecher.waitForText(10000);
     }
     
     /**

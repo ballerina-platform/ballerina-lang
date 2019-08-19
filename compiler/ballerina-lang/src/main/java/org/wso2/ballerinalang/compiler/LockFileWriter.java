@@ -149,7 +149,7 @@ public class LockFileWriter {
         try {
             TomlWriter tomlLockWriter = new TomlWriter();
             String tomlString = tomlLockWriter.write(this.lockFile);
-            Files.write(lockFilePath, tomlString.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+            Files.write(lockFilePath, tomlString.getBytes());
         } catch (IOException ignore) {
             // ignore
         }
