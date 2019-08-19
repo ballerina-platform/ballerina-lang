@@ -122,6 +122,7 @@ public class Scheduler {
      * @param parent   - parent strand that makes the request to schedule another
      * @param callback - to notify any listener when ever the execution of the given function is finished
      * @param properties - request properties which requires for co-relation
+     * @param returnType - return type of the scheduled function
      * @return - Reference to the scheduled task
      */
     public FutureValue schedule(Object[] params, Function function, Strand parent, CallableUnitCallback callback,
