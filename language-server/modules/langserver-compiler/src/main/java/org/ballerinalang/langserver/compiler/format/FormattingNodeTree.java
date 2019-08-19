@@ -3478,8 +3478,14 @@ public class FormattingNodeTree {
                 // Update whitespaces for the key value pair separator , or ;.
                 if (text.equals(Tokens.COMMA) ||
                         currentWS.get(FormattingConstants.TEXT).getAsString().equals(Tokens.SEMICOLON)) {
-                    currentWS.addProperty(FormattingConstants.WS,
-                            FormattingConstants.EMPTY_SPACE);
+                    if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                        currentWS.addProperty(FormattingConstants.WS,
+                                FormattingConstants.EMPTY_SPACE);
+                    } else {
+                        this.preserveHeightForWS(currentWS, indentWithParentIndentation
+                                + FormattingConstants.SPACE_TAB);
+                        lineSeparationAvailable = true;
+                    }
                 }
             }
 
