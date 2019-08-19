@@ -444,7 +444,11 @@ export class BallerinaExtension {
     }
 
     public addWebviewPanel(name: string, panel: WebviewPanel) {
-		this.webviewPanels[name] = panel;
+        this.webviewPanels[name] = panel;
+        
+        panel.onDidDispose(() => {
+            delete this.webviewPanels[name];
+        });
     }
 
     public getWebviewPanels() {
