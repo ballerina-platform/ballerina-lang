@@ -106,8 +106,10 @@ public class LSCompilerCache {
 
     public static void markOutDated(Key key) {
         CacheEntry cacheEntry = packageMap.get(key);
-        cacheEntry.isOutdated = true;
-        packageMap.put(key, cacheEntry);
+        if (cacheEntry != null) {
+            cacheEntry.isOutdated = true;
+            packageMap.put(key, cacheEntry);
+        }
     }
 
     /**
