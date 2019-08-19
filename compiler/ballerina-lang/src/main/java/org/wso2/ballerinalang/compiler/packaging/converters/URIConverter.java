@@ -46,20 +46,24 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
  * Provide functions need to covert a patten to steam of by paths, by downloading them as url.
  */
 public class URIConverter implements Converter<URI> {
+
     private HomeBaloRepo homeBaloRepo;
     private final URI base;
+    protected final Map<PackageID, Manifest> dependencyManifests;
     private boolean isBuild = true;
     private PrintStream errStream = System.err;
 
     public URIConverter(URI base, Map<PackageID, Manifest> dependencyManifests) {
-        this.homeBaloRepo = new HomeBaloRepo(RepoUtils.createAndGetHomeReposPath(), dependencyManifests);
         this.base = URI.create(base.toString() + "/modules/");
+        this.dependencyManifests = dependencyManifests;
+        this.homeBaloRepo = new HomeBaloRepo(this.dependencyManifests);
     }
 
     public URIConverter(URI base, Map<PackageID, Manifest> dependencyManifests, boolean isBuild) {
-        this.homeBaloRepo = new HomeBaloRepo(RepoUtils.createAndGetHomeReposPath(), dependencyManifests);
         this.base = URI.create(base.toString() + "/modules/");
+        this.dependencyManifests = dependencyManifests;
         this.isBuild = isBuild;
+        this.homeBaloRepo = new HomeBaloRepo(this.dependencyManifests);
     }
 
     /**
@@ -104,6 +108,7 @@ public class URIConverter implements Converter<URI> {
     }
 
     public Stream<CompilerInput> finalize(URI remoteURI, PackageID moduleID) {
+        // if path to balo is not given in the manifest file
         String orgName = moduleID.getOrgName().getValue();
         String moduleName = moduleID.getName().getValue();
         Path modulePathInBaloCache = RepoUtils.createAndGetHomeReposPath()
@@ -122,14 +127,14 @@ public class URIConverter implements Converter<URI> {
         String nightlyBuild = String.valueOf(RepoUtils.getBallerinaVersion().contains("SNAPSHOT"));
         EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
-            Optional<RuntimeException> execute = executor.executeMainFunction("module_pull",
+            Optional<RuntimeException> runtimeException = executor.executeMainFunction("module_pull",
                     remoteURI.toString(), modulePathInBaloCache.toString(), modulePath, proxy.getHost(),
                     proxyPortAsString, proxy.getUserName(), proxy.getPassword(), RepoUtils.getTerminalWidth(),
                     supportedVersionRange, String.valueOf(isBuild), nightlyBuild, IMPLEMENTATION_VERSION,
                     supportedPlatform);
             // Check if error has occurred or not.
-            if (execute.isPresent()) {
-                String errorMessage = execute.get().getMessage();
+            if (runtimeException.isPresent()) {
+                String errorMessage = runtimeException.get().getMessage();
                 if (null != errorMessage && !"".equals(errorMessage.trim())) {
                     // removing the error stack
                     if (errorMessage.contains("\n\tat")) {

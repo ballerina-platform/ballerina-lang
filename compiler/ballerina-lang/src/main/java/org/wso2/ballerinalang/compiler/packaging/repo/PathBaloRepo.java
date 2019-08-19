@@ -95,14 +95,22 @@ public class PathBaloRepo implements Repo<Path> {
                                              dep.getMetadata().getPath().toAbsolutePath().normalize());
         }
         
-        // update version of the dependency
-        Matcher semverMatcher = semVerPattern.matcher(dep.getMetadata().getVersion());
-        if (semverMatcher.matches()) {
-            moduleID.version = new Name(dep.getMetadata().getVersion());
+        // update version of the dependency from the current(root) project
+        if (moduleID.version.value.isEmpty() && null != dep.getMetadata().getVersion()) {
+            Matcher semverMatcher = semVerPattern.matcher(dep.getMetadata().getVersion());
+            if (semverMatcher.matches()) {
+                moduleID.version = new Name(dep.getMetadata().getVersion());
+            }
         }
-        
+    
+        Manifest manifestFromBalo = RepoUtils.getManifestFromBalo(baloPath.toAbsolutePath());
+        // if version is not set, then resolve by the balo path's manifest
+        if (moduleID.version.value.isEmpty()) {
+            moduleID.version = new Name(manifestFromBalo.getProject().getVersion());
+        }
+    
         // update dependency manifests map for imports of this moduleID.
-        this.dependencyManifests.put(moduleID, RepoUtils.getManifestFromBalo(baloPath.toAbsolutePath()));
+        this.dependencyManifests.put(moduleID, manifestFromBalo);
     
         // resolve to balo path
         return new Patten(

@@ -59,6 +59,7 @@ public class CreateBirTask implements Task {
         if (id.orgName.value.equals("ballerina") || id.orgName.value.equals("ballerinax")) {
             return;
         }
+        
         // Look if it is a project module.
         if (ProjectDirs.isModuleExist(project, id.name.value) || buildContext.getImportPathDependency(id).isPresent()) {
             // If so fetch from project bir cache
@@ -68,5 +69,10 @@ public class CreateBirTask implements Task {
             importBir = buildContext.getBirPathFromHomeCache(id);
         }
         birWriter.writeBIRToPath(importz.birPackageFile, id, importBir);
+    
+        // write child import bir(s)
+        for (BPackageSymbol importOfImportz : importz.imports) {
+            writeImportBir(buildContext, importOfImportz, project, birWriter);
+        }
     }
 }

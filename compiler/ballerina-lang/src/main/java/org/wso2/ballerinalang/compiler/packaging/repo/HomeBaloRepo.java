@@ -50,15 +50,16 @@ public class HomeBaloRepo implements Repo<Path> {
     private List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
     private Map<PackageID, Manifest> dependencyManifests;
     
-    public HomeBaloRepo(Path repo, Map<PackageID, Manifest> dependencyManifests) {
-        this.repoLocation = repo.resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME);
+    public HomeBaloRepo(Map<PackageID, Manifest> dependencyManifests) {
+        this.repoLocation = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME);
         this.dependencyManifests = dependencyManifests;
-        this.zipConverter = new ZipConverter(repo.resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME));
+        this.zipConverter = new ZipConverter(this.repoLocation);
         supportedPlatforms.add("any");
     }
     
     public Patten calculate(PackageID moduleID) {
         try {
+            // if path to balo is not given in the manifest file
             String orgName = moduleID.getOrgName().getValue();
             String pkgName = moduleID.getName().getValue();
             String versionStr = moduleID.getPackageVersion().getValue();

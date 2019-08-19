@@ -92,7 +92,7 @@ public class CreateJarTask implements Task {
                 BootstrapRunner.generateJarBinaryViaCompiledBackend(tmpDir,
                         birFilePath.toString(), jarFilePath.toString(), this.dumpBir, reps);
             }
-            writeImportJar(tmpDir, bimport.imports, sourceRoot, buildContext);
+            writeImportJar(tmpDir, bimport.imports, sourceRoot, buildContext, reps);
         }
     }
 }
