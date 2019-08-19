@@ -205,7 +205,7 @@ service testService on new http:Listener(9103, { httpVersion: "2.0" }) {
         if (jsonResponse is http:Response) {
             var result = jsonResponse.getJsonPayload();
             if (result is json) {
-                value = value + result.toString();
+                value = value + result.toJsonString();
             } else {
                 error err = result;
                 value = value + err.reason();

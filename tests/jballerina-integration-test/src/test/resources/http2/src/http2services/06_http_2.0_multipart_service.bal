@@ -178,7 +178,7 @@ function handleResponseBodyParts(mime:Entity bodyPart) returns @untainted string
         } else if (mime:APPLICATION_JSON == baseType) {
             var payload = bodyPart.getJson();
             if (payload is json) {
-                return payload.toString();
+                return payload.toJsonString();
             } else {
                 return "error";
             }
