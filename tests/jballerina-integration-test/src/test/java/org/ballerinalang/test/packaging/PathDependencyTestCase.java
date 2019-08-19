@@ -325,6 +325,43 @@ public class PathDependencyTestCase extends BaseTest {
     }
     
     /**
+     * Case5: Build TestProject1. Then build TestProject2 which refer to the balo of TestProject1. Then try to push baz
+     * of TestProject2 to central with balo path dependency
+     *
+     * @throws BallerinaTestException Error when executing the commands.
+     */
+    @Test(description = "Case5: Push with path dependency.")
+    public void testBaloPathCase5() throws BallerinaTestException {
+        Path caseResources = tempTestResources.resolve("case1");
+        // Build bee module of TestProject1
+        String beeModuleBaloFileName = "bee-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-1.2.0"
+                                       + BLANG_COMPILED_PKG_BINARY_EXT;
+        
+        String module1BuildMsg = "target" + File.separator + "balo" + File.separator + beeModuleBaloFileName;
+        LogLeecher beeModuleBuildLeecher = new LogLeecher(module1BuildMsg);
+        balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{},
+                new LogLeecher[]{beeModuleBuildLeecher}, caseResources.resolve("TestProject1").toString());
+        beeModuleBuildLeecher.waitForText(5000);
+        
+        // Build foo module of TestProject2
+        String bazModuleBaloFileName = "baz" + EXEC_SUFFIX + BLANG_COMPILED_JAR_EXT;
+        
+        String bazBuildMsg = "target" + File.separator + "bin" + File.separator + bazModuleBaloFileName;
+        LogLeecher bazModuleBuildLeecher = new LogLeecher(bazBuildMsg);
+        balClient.runMain("build", new String[]{}, envVariables, new String[]{},
+                new LogLeecher[]{bazModuleBuildLeecher}, caseResources.resolve("TestProject2").toString());
+        bazModuleBuildLeecher.waitForText(5000);
+    
+        // Push baz module of TestProject2
+        String bazPushErrMsg = "dependencies cannot be given by path when pushing module(s) to " +
+                               "remote. check dependencies in Ballerina.toml: [foo/baz]";
+        LogLeecher bazPushLeecher = new LogLeecher(bazPushErrMsg);
+        balClient.runMain("push", new String[]{}, envVariables, new String[]{},
+                new LogLeecher[]{bazPushLeecher}, caseResources.resolve("TestProject2").toString());
+        bazPushLeecher.waitForText(5000);
+    }
+    
+    /**
      * Get environment variables and add ballerina_home as a env variable the tmp directory.
      *
      * @return env directory variable array
