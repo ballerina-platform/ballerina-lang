@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.compiler.workspace;
 
 import org.eclipse.lsp4j.CodeLens;
-import org.eclipse.lsp4j.Range;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -65,7 +64,7 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
     @Override
     public void openFile(Path filePath, String content) throws WorkspaceDocumentException {
         // If file is already open; gracefully handle it
-        openOrUpdateFile(filePath, null, content);
+        openOrUpdateFile(filePath, content);
     }
 
     /**
@@ -74,16 +73,7 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
     @Override
     public void updateFile(Path filePath, String updatedContent) throws WorkspaceDocumentException {
         // if file is not already open; gracefully handle it
-        openOrUpdateFile(filePath, null, updatedContent);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void updateFileRange(Path filePath, Range range, String updatedContent) throws WorkspaceDocumentException {
-        // if file is not already open; gracefully handle it
-        openOrUpdateFile(filePath, range, updatedContent);
+        openOrUpdateFile(filePath, updatedContent);
     }
 
     /**
@@ -102,14 +92,14 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
         }
     }
 
-    private void openOrUpdateFile(Path filePath, Range range, String content) throws WorkspaceDocumentException {
+    private void openOrUpdateFile(Path filePath, String content) throws WorkspaceDocumentException {
         if (isExplicitMode && isTempFile(filePath)) {
             // If explicit mode is on and temp file, handle it locally
             tempDocument.setContent(content);
         } else {
             // Or else, call parent class
             if (super.isFileOpen(filePath)) {
-                super.updateFileRange(filePath, range, content);
+                super.updateFile(filePath, content);
             } else {
                 super.openFile(filePath, content);
             }

@@ -28,6 +28,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -56,10 +58,20 @@ public class DescriptorsGenerator {
                 if (isWindows()) {
                     dependentFilePath = dependentFilePath.replaceAll("/", "\\\\");
                 }
+                Path protoFilePath = Paths.get(dependentFilePath).getFileName();
+                if (protoFilePath == null) {
+                    throw new CodeGeneratorException("Error occurred while reading proto descriptor. Dependent " +
+                            "filepath is not defined properly. Filepath: " + dependentFilePath);
+                }
+                String protoFilename = protoFilePath.toString();
+                String descFilename = protoFilename.endsWith(PROTO_SUFFIX) ? protoFilename.replace(PROTO_SUFFIX,
+                        DESC_SUFFIX) : null;
+                if (descFilename == null) {
+                    throw new CodeGeneratorException("Error occurred while reading proto descriptor. Dependent " +
+                            "filepath is not defined properly. Filepath: " + dependentFilePath);
+                }
                 // desc file path: desc_gen/dependencies + <filename>.desc
-                String relativeDescFilepath = BalGenerationConstants.META_DEPENDENCY_LOCATION + dependentFilePath
-                        .substring(dependentFilePath.lastIndexOf(BalGenerationConstants.FILE_SEPARATOR)
-                        ).replace(PROTO_SUFFIX, DESC_SUFFIX);
+                String relativeDescFilepath = BalGenerationConstants.META_DEPENDENCY_LOCATION + descFilename;
 
                 File dependentDescFile = new File(tempDir, relativeDescFilepath);
                 boolean isDirectoryCreated = dependentDescFile.getParentFile().mkdirs();
@@ -70,8 +82,8 @@ public class DescriptorsGenerator {
                 String protoPath;
                 String protoFolderPath;
                 if (!dependentFilePath.contains(GOOGLE_STANDARD_LIB)) {
-                    protoPath = new File(resolveProtoFolderPath(rootProtoPath), dependentFilePath).getAbsolutePath();
                     protoFolderPath = resolveProtoFolderPath(rootProtoPath);
+                    protoPath = new File(protoFolderPath, dependentFilePath).getAbsolutePath();
                 } else {
                     protoPath = new File(tempDir, dependentFilePath).getAbsolutePath();
                     protoFolderPath = tempDir.getAbsolutePath();

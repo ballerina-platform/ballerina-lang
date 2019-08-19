@@ -361,4 +361,10 @@ public class FiniteTypeTest {
         Assert.assertEquals(((BFloat) returns[0]), new BFloat(1.0));
         Assert.assertEquals(((BDecimal) returns[1]), new BDecimal("1.0"));
     }
+
+    @Test(description = "Test finite type where typename is espaed identifier")
+    public void testEscapedTypeName() {
+        BValue[] returns = BRunUtil.invoke(result, "testEscapedTypeName");
+        Assert.assertEquals(returns[0].stringValue(), "-");
+    }
 }

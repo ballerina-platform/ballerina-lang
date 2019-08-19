@@ -279,6 +279,30 @@ public function testStackTraceInNative() {
     _ = array.slice(1, 4);
 }
 
+const C1 = "x";
+const C2 = "y";
+
+type C1E error<C1, record {| string message?; error cause?; |}>;
+type C2E error<C2, record {| string message?; error cause?; int code; |}>;
+
+public function testPanicOnErrorUnion(int i) returns string {
+    var res = testFunc(i);
+    if (res is string) {
+        return res;
+    } else {
+        panic res;
+    }
+}
+
+function testFunc(int i) returns string|E1|E2 { // fails even if one of the errors is `error`
+    if (i == 0) {
+        return "str";
+    } else if (i == 1) {
+        return C1E();
+    }
+    return C2E(code=4);
+}
+
 public function testIndirectErrorReturn() returns E1|E2|string {
     return E1(message = "error msg");
 }

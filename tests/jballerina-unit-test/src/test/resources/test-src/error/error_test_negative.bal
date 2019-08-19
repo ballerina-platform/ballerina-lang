@@ -112,3 +112,8 @@ public function errorReasonInference() returns [error, error] {
     UserDefErrorTwoA er2 = error(message = "message", data = data);
     return [er1, er2];
 }
+
+function panicOnNonErrorMemberUnion() {
+    error|int e = 5;
+    panic e;
+}

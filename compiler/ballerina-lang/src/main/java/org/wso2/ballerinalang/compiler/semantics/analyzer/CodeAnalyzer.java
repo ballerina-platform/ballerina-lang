@@ -1125,6 +1125,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangForever foreverStatement) {
+        this.checkStatementExecutionValidity(foreverStatement);
         this.lastStatement = true;
     }
 

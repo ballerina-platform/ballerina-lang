@@ -32,6 +32,10 @@ function testReadDir(string path) returns system:FileInfo[]|error {
     return system:readDir(path);
 }
 
+function testReadDirWithMaxDepth(string path, int maxDepth) returns system:FileInfo[]|error {
+    return system:readDir(path, maxDepth);
+}
+
 function testGetFileInfo(string path) returns system:FileInfo|error {
     return system:getFileInfo(path);
 }
