@@ -17,6 +17,7 @@
 package org.ballerinalang.debugadapter;
 
 import com.sun.jdi.AbsentInformationException;
+import com.sun.jdi.ArrayReference;
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.Field;
 import com.sun.jdi.IncompatibleThreadStateException;
@@ -86,6 +87,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -159,14 +161,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         }
 
         this.eventBus.setBreakpointsList(breakpoints);
-        if (this.context.getDebuggee() != null) {
-            Arrays.stream(breakpoints).forEach(breakpoint -> {
-                this.context.getDebuggee().allClasses().forEach(referenceType -> {
-                    this.eventBus.addBreakpoint(referenceType, breakpoint);
-                });
-            });
 
-        }
         return CompletableFuture.completedFuture(breakpointsResponse);
     }
 
@@ -249,16 +244,22 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<ThreadsResponse> threads() {
-        try {
-            ThreadsResponse threadsResponse = new ThreadsResponse();
-            Map<Long, ThreadReference> threadsMap = eventBus.getThreadsMap();
-            Thread[] threads = new Thread[threadsMap.size()];
-            threadsMap.values().stream().map(this::toThread).collect(Collectors.toList()).toArray(threads);
-            threadsResponse.setThreads(threads);
+        ThreadsResponse threadsResponse = new ThreadsResponse();
+
+        // Cannot provide threads if event bus is not initialized.
+        if (eventBus == null) {
             return CompletableFuture.completedFuture(threadsResponse);
-        } catch (NullPointerException e) {
-            return CompletableFuture.completedFuture(null);
         }
+
+        Map<Long, ThreadReference> threadsMap = eventBus.getThreadsMap();
+        if (threadsMap == null) {
+            return CompletableFuture.completedFuture(threadsResponse);
+        }
+        Thread[] threads = new Thread[threadsMap.size()];
+        threadsMap.values().stream().map(this::toThread).collect(Collectors.toList()).toArray(threads);
+        threadsResponse.setThreads(threads);
+        return CompletableFuture.completedFuture(threadsResponse);
+
     }
 
     @Override
@@ -363,8 +364,16 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             dapVariable.setType(varType);
             dapVariable.setValue(stringValue);
             return dapVariable;
-        } else if ("java.lang.Object".equalsIgnoreCase(varType)) {
+        } else if ("java.lang.Object".equalsIgnoreCase(varType)
+                || "org.ballerinalang.jvm.values.MapValue".equalsIgnoreCase(varType)
+                || "org.ballerinalang.jvm.values.MapValueImpl".equalsIgnoreCase(varType) // for nested json arrays
+        ) {
             // JSONs
+            dapVariable.setType(varType);
+            if (value == null || value.type() == null || value.type().name() == null) {
+                dapVariable.setValue("null");
+                return dapVariable;
+            }
             if ("org.ballerinalang.jvm.values.ArrayValue".equalsIgnoreCase(value.type().name())) {
                 // JSON array
                 String stringValue = value.toString();
@@ -373,22 +382,36 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 this.childVariables.put(variableReference, values);
                 dapVariable.setVariablesReference(variableReference);
 
-                dapVariable.setType(varType);
                 dapVariable.setValue(stringValue);
                 return dapVariable;
             } else {
                 List<Field> fields = ((ObjectReferenceImpl) value).referenceType().allFields();
-//                Map<Field, Value> childValues = ((ObjectReferenceImpl) value).getValues(fields);
 
                 Field valueField = fields.stream().filter(field ->
                         field.typeName().equals("java.util.HashMap$Node[]")).collect(Collectors.toList()).get(0);
 
                 Value jsonValue = ((ObjectReferenceImpl) value).getValue(valueField);
-                dapVariable.setType(varType);
                 String stringValue = jsonValue == null ? "null" : jsonValue.toString();
-//                Map<String, Value> values = VariableUtils.getChildVariables((ObjectReferenceImpl) jsonValue);
-//                long variableReference = (long) nextVarReference.getAndIncrement();
-//                this.childVariables.put(variableReference, values);
+                if (jsonValue == null) {
+                    dapVariable.setValue(stringValue);
+                    return dapVariable;
+                }
+                Map<String, Value> values = new HashMap<>();
+                ((ArrayReference) jsonValue).getValues().stream().filter(Objects::nonNull).forEach(jsonMap -> {
+                    List<Field> jsonValueFields = ((ObjectReferenceImpl) jsonMap).referenceType().visibleFields();
+                    Field jsonKeyField = jsonValueFields.stream().filter(field ->
+                            field.name().equals("key")).collect(Collectors.toList()).get(0);
+                    Value jsonKey = ((ObjectReferenceImpl) jsonMap).getValue(jsonKeyField);
+
+                    Field jsonValueField = jsonValueFields.stream().filter(field ->
+                            field.name().equals("value")).collect(Collectors.toList()).get(0);
+                    Value jsonValue1 = ((ObjectReferenceImpl) jsonMap).getValue(jsonValueField);
+
+                    values.put(jsonKey.toString(), jsonValue1);
+                });
+                long variableReference = (long) nextVarReference.getAndIncrement();
+                childVariables.put(variableReference, values);
+                dapVariable.setVariablesReference(variableReference);
                 dapVariable.setValue(stringValue);
                 return dapVariable;
             }
@@ -406,7 +429,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             dapVariable.setType(varType);
             dapVariable.setValue("Object");
             return dapVariable;
-        } else if ("java.lang.Long".equalsIgnoreCase(varType) || "java.lang.Boolean".equalsIgnoreCase(varType)) {
+        } else if ("java.lang.Long".equalsIgnoreCase(varType) || "java.lang.Boolean".equalsIgnoreCase(varType)
+         || "java.lang.Double".equalsIgnoreCase(varType)) {
             Field valueField = ((ObjectReferenceImpl) value).referenceType().allFields().stream().filter(
                     field -> "value".equals(field.name())).collect(Collectors.toList()).get(0);
             Value longValue = ((ObjectReferenceImpl) value).getValue(valueField);
@@ -454,13 +478,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Void> next(NextArguments args) {
-        ThreadReference thread = debuggee.allThreads()
-                .stream()
-                .filter(t -> t.uniqueID() == args.getThreadId())
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Cannot find thread"));
+        ThreadReference threadReference = eventBus.getThreadsMap().get(args.getThreadId());
         try {
-            StepRequest request = debuggee.eventRequestManager().createStepRequest(thread,
+            StepRequest request = debuggee.eventRequestManager().createStepRequest(threadReference,
                     StepRequest.STEP_LINE, StepRequest.STEP_OVER);
 
             request.addCountFilter(1); // next step only
@@ -474,11 +494,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Void> stepIn(StepInArguments args) {
-        ThreadReference thread = debuggee.allThreads()
-                .stream()
-                .filter(t -> t.uniqueID() == args.getThreadId())
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Cannot find thread"));
+        ThreadReference thread = eventBus.getThreadsMap().get(args.getThreadId());
         try {
             StepRequest request = debuggee.eventRequestManager().createStepRequest(thread,
                     StepRequest.STEP_LINE, StepRequest.STEP_INTO);
@@ -494,11 +510,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Void> stepOut(StepOutArguments args) {
-        ThreadReference thread = debuggee.allThreads()
-                .stream()
-                .filter(t -> t.uniqueID() == args.getThreadId())
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Cannot find thread"));
+        ThreadReference thread = eventBus.getThreadsMap().get(args.getThreadId());
         StepRequest request = debuggee.eventRequestManager().createStepRequest(thread,
                 StepRequest.STEP_LINE, StepRequest.STEP_OUT);
 
