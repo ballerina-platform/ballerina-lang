@@ -97,6 +97,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"typeGuardSuggestions2.json", "function"},
                 {"typeGuardSuggestions3.json", "function"},
                 {"typeGuardSuggestions4.json", "function"},
+                {"typeGuardSuggestions5.json", "function"},
                 {"typeguardDestruct1.json", "function"},
                 {"completionAfterIf1.json", "function"},
                 {"completionAfterIf2.json", "function"},
@@ -145,7 +146,8 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"assignmentStmt4.json", "function"},
                 {"assignmentStmt5.json", "function"},
                 {"assignmentStmt6.json", "function"},
-                {"typeofKWSuggestion.json", "function"}
+                {"typeofKWSuggestion.json", "function"},
+                {"typeofKWSuggestion2.json", "function"}
         };
     }
 }
