@@ -19,12 +19,10 @@
 
 package org.wso2.transport.http.netty.contractimpl.listener;
 
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -48,11 +46,9 @@ import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
 import java.net.InetSocketAddress;
-import javax.net.ssl.SSLException;
 
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_OBJECT_AGGREGATOR;
 import static org.wso2.transport.http.netty.contract.Constants.WEBSOCKET_COMPRESSION_HANDLER;
-import static org.wso2.transport.http.netty.contractimpl.common.Util.safelyRemoveHandlers;
 
 /**
  * WebSocket handshake handler for carbon transports.
@@ -88,7 +84,7 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
                     if (pipeline.get(Constants.BACK_PRESSURE_HANDLER) != null) {
                         pipeline.remove(Constants.BACK_PRESSURE_HANDLER);
                     }
-                    safelyRemoveHandlers(pipeline, Constants.HTTP_SOURCE_HANDLER, Constants.HTTP_EXCEPTION_HANDLER);
+                    pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
                     ChannelHandlerContext decoderCtx = pipeline.context(HttpRequestDecoder.class);
                     pipeline.addAfter(decoderCtx.name(), HTTP_OBJECT_AGGREGATOR,
                                       new HttpObjectAggregator(Constants.WEBSOCKET_REQUEST_SIZE));
@@ -135,16 +131,6 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
             }
         }
         ctx.fireChannelRead(msg);
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        if (cause instanceof SSLException || cause instanceof WebSocketConnectorException) {
-            ctx.writeAndFlush(new DefaultFullHttpResponse(
-                    HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR))
-                    .addListener(ChannelFutureListener.CLOSE);
-            LOG.error("Error during WebSocket server handshake", cause);
-        }
     }
 
     /**
