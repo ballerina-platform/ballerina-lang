@@ -21,6 +21,7 @@ import com.sun.jdi.ArrayReference;
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.Field;
 import com.sun.jdi.IncompatibleThreadStateException;
+import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
@@ -325,7 +326,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 String name = entry.getKey();
 
                 return getVariable(value, varTypeStr, name);
-            }).toArray(Variable[]::new);
+            }).filter(Objects::nonNull).toArray(Variable[]::new);
         } else {
             try {
                 dapVariables = stackFrame.getValues(stackFrame.visibleVariables())
@@ -338,9 +339,15 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                             } catch (ClassNotLoadedException e) {
                                 varType = localVariableValueEntry.getKey().toString();
                             }
+                            String name = localVariableValueEntry.getKey() == null ? "" :
+                                    localVariableValueEntry.getKey().name();
+                            if (name.startsWith("_$$_")) {
+                                return null;
+                            }
+
                             return getVariable(localVariableValueEntry.getValue(),
-                                    varType, localVariableValueEntry.getKey().name());
-                        }).toArray(Variable[]::new);
+                                    varType, name);
+                        }).filter(Objects::nonNull).toArray(Variable[]::new);
             } catch (AbsentInformationException ignored) {
             }
         }
@@ -354,44 +361,78 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         Variable dapVariable = new Variable();
         dapVariable.setName(varName);
 
+        if (value == null) {
+            return null;
+        }
+
         if ("org.ballerinalang.jvm.values.ArrayValue".equalsIgnoreCase(varType)) {
-            String stringValue = value.toString();
             long variableReference = (long) nextVarReference.getAndIncrement();
             Map<String, Value> values = VariableUtils.getChildVariables((ObjectReferenceImpl) value);
             this.childVariables.put(variableReference, values);
             dapVariable.setVariablesReference(variableReference);
 
             dapVariable.setType(varType);
-            dapVariable.setValue(stringValue);
+            dapVariable.setValue("Array");
             return dapVariable;
         } else if ("java.lang.Object".equalsIgnoreCase(varType)
                 || "org.ballerinalang.jvm.values.MapValue".equalsIgnoreCase(varType)
                 || "org.ballerinalang.jvm.values.MapValueImpl".equalsIgnoreCase(varType) // for nested json arrays
         ) {
             // JSONs
-            dapVariable.setType(varType);
-            if (value == null || value.type() == null || value.type().name() == null) {
+            dapVariable.setType("Object");
+            if (value.type() == null || value.type().name() == null) {
                 dapVariable.setValue("null");
                 return dapVariable;
             }
             if ("org.ballerinalang.jvm.values.ArrayValue".equalsIgnoreCase(value.type().name())) {
                 // JSON array
-                String stringValue = value.toString();
+                dapVariable.setValue("Array");
                 long variableReference = (long) nextVarReference.getAndIncrement();
                 Map<String, Value> values = VariableUtils.getChildVariables((ObjectReferenceImpl) value);
                 this.childVariables.put(variableReference, values);
                 dapVariable.setVariablesReference(variableReference);
-
+                return dapVariable;
+            } else if ("java.lang.Long".equalsIgnoreCase(value.type().name()) || "java.lang.Boolean".equalsIgnoreCase(value.type().name())
+                    || "java.lang.Double".equalsIgnoreCase(value.type().name())) {
+                // anydata
+                Field valueField = ((ObjectReferenceImpl) value).referenceType().allFields().stream().filter(
+                        field -> "value".equals(field.name())).collect(Collectors.toList()).get(0);
+                Value longValue = ((ObjectReferenceImpl) value).getValue(valueField);
+                dapVariable.setType(varType.split("\\.")[2]);
+                dapVariable.setValue(longValue.toString());
+                return dapVariable;
+            } else if ("java.lang.String".equalsIgnoreCase(value.type().name())) {
+                // union
+                dapVariable.setType("String");
+                String stringValue = value.toString();
                 dapVariable.setValue(stringValue);
                 return dapVariable;
+            } else if ("org.ballerinalang.jvm.values.ErrorValue".equalsIgnoreCase(value.type().name())) {
+
+                List<Field> fields = ((ObjectReferenceImpl) value).referenceType().allFields();
+
+                Field valueField = fields.stream().filter(field ->
+                        field.name().equals("reason"))
+                        .collect(Collectors.toList()).get(0);
+
+                Value error = ((ObjectReferenceImpl) value).getValue(valueField);
+                dapVariable.setType("BError");
+                dapVariable.setValue(error.toString());
+                return dapVariable;
+            } else if ("org.ballerinalang.jvm.values.XMLItem".equalsIgnoreCase(value.type().name())) {
+                // TODO: support xml values
+                dapVariable.setType("xml");
+                dapVariable.setValue(value.toString());
+                return dapVariable;
             } else {
+                dapVariable.setType("Object");
                 List<Field> fields = ((ObjectReferenceImpl) value).referenceType().allFields();
 
                 Field valueField = fields.stream().filter(field ->
                         field.typeName().equals("java.util.HashMap$Node[]")).collect(Collectors.toList()).get(0);
 
                 Value jsonValue = ((ObjectReferenceImpl) value).getValue(valueField);
-                String stringValue = jsonValue == null ? "null" : jsonValue.toString();
+                String stringValue = jsonValue == null ? "null" : "Object";
                 if (jsonValue == null) {
                     dapVariable.setValue(stringValue);
                     return dapVariable;
@@ -426,7 +467,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             long variableReference = (long) nextVarReference.getAndIncrement();
             childVariables.put(variableReference, values);
             dapVariable.setVariablesReference(variableReference);
-            dapVariable.setType(varType);
+            dapVariable.setType("Object");
             dapVariable.setValue("Object");
             return dapVariable;
         } else if ("java.lang.Long".equalsIgnoreCase(varType) || "java.lang.Boolean".equalsIgnoreCase(varType)
@@ -434,11 +475,52 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             Field valueField = ((ObjectReferenceImpl) value).referenceType().allFields().stream().filter(
                     field -> "value".equals(field.name())).collect(Collectors.toList()).get(0);
             Value longValue = ((ObjectReferenceImpl) value).getValue(valueField);
+            dapVariable.setType(varType.split("\\.")[2]);
             dapVariable.setValue(longValue.toString());
+            return dapVariable;
+        } else if ("java.lang.String".equalsIgnoreCase(varType)) {
+            dapVariable.setType("String");
+            String stringValue = value.toString();
+            dapVariable.setValue(stringValue);
+            return dapVariable;
+        } else if (varType.startsWith("$value$")) {
+            // Record type
+            String stringValue = value.type().name();
+
+            List<Field> fields = ((ObjectReferenceImpl) value).referenceType().allFields();
+
+            Field valueField = fields.stream().filter(field ->
+                    field.typeName().equals("java.util.HashMap$Node[]")).collect(Collectors.toList()).get(0);
+
+            Value jsonValue = ((ObjectReferenceImpl) value).getValue(valueField);
+            if (jsonValue == null) {
+                dapVariable.setValue(stringValue);
+                return dapVariable;
+            }
+            Map<String, Value> values = new HashMap<>();
+            ((ArrayReference) jsonValue).getValues().stream().filter(Objects::nonNull).forEach(jsonMap -> {
+                List<Field> jsonValueFields = ((ObjectReferenceImpl) jsonMap).referenceType().visibleFields();
+                Field jsonKeyField = jsonValueFields.stream().filter(field ->
+                        field.name().equals("key")).collect(Collectors.toList()).get(0);
+                Value jsonKey = ((ObjectReferenceImpl) jsonMap).getValue(jsonKeyField);
+
+                Field jsonValueField = jsonValueFields.stream().filter(field ->
+                        field.name().equals("value")).collect(Collectors.toList()).get(0);
+                Value jsonValue1 = ((ObjectReferenceImpl) jsonMap).getValue(jsonValueField);
+
+                values.put(jsonKey.toString(), jsonValue1);
+            });
+
+            long variableReference = (long) nextVarReference.getAndIncrement();
+            childVariables.put(variableReference, values);
+            dapVariable.setVariablesReference(variableReference);
+            stringValue = stringValue.replace("$value$", "");
+            dapVariable.setType(stringValue);
+            dapVariable.setValue(stringValue);
             return dapVariable;
         } else {
             dapVariable.setType(varType);
-            String stringValue = value == null ? "null" : value.toString();
+            String stringValue = value.toString();
             dapVariable.setValue(stringValue);
             return dapVariable;
         }
