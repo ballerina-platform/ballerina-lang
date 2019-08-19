@@ -225,7 +225,7 @@ public class TypeMatchingUtil {
 
             if (nextOp.getValue().getOperationId() != null) {
                 operation.setOperationName(nextOp.getValue().getOperationId()
-                        .replace(" ", "_").toLowerCase(Locale.ENGLISH));
+                        .replace(" ", "_"));
             } else {
                 String resName = "resource_" + "_" + nextOp.getKey().toString().toLowerCase(Locale.ENGLISH)
                         + path.replaceAll("/", "_")
