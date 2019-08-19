@@ -21,12 +21,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaServiceBodyMember extends PsiElement {
+public interface BallerinaErrorFieldBindingPatterns extends PsiElement {
+
+  @NotNull
+  List<BallerinaErrorDetailBindingPattern> getErrorDetailBindingPatternList();
 
   @Nullable
-  BallerinaObjectFieldDefinition getObjectFieldDefinition();
-
-  @Nullable
-  BallerinaObjectFunctionDefinition getObjectFunctionDefinition();
+  BallerinaErrorRestBindingPattern getErrorRestBindingPattern();
 
 }
