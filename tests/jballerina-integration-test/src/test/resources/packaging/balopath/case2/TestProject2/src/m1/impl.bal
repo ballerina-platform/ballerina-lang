@@ -1,6 +1,7 @@
 import ballerina/io;
-import bar/whisky;
+import baz/bee;
 
-public function main() {
-    whisky:say();
+public function say() {
+    bee:say();
+    io:println("This is org2/m1");
 }
