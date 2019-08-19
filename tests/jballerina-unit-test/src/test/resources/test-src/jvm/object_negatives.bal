@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/subtyping version v1;
+import testorg/subtyping;
 
 type ObjWithPvtField abstract object {
     string name = "";

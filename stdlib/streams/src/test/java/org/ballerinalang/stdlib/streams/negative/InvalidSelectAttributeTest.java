@@ -48,8 +48,9 @@ public class InvalidSelectAttributeTest {
         BAssertUtil.validateError(resultInvalidAttr, 1, "undefined stream attribute 'batches' " +
                 "found in select clause", 36, 53);
         BAssertUtil.validateError(resultInvalidAttr, 2, "fields defined in select clause, " +
-                "incompatible with output fields in type 'Teacher', expected '[name, age, status, batch, school]' " +
-                "but found '[batches, school, name, age, status]'", 37, 9);
+                "incompatible with output fields in type 'Teacher', expected '[name(string), age(int), " +
+                "status(string), batch(string), school(string)]' but found '[batches(other), school(string), " +
+                "name(string), age(int), status(string)]'", 37, 9);
     }
 
     @Test(description = "Test if the proper error is thrown if an attribute is undefined in projection ")

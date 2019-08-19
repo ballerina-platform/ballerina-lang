@@ -36,7 +36,6 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -57,9 +56,8 @@ public class KafkaProducerTest {
     @BeforeClass
     public void setup() throws IOException {
         result = BCompileUtil.compile(getFilePath(Paths.get(TEST_SRC, TEST_PRODUCER, "kafka_producer.bal")));
-        Properties prop = new Properties();
         kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true)
-                .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(1).startup();
+                .deleteDataUponShutdown(true).addBrokers(1).startup();
     }
 
     @Test(description = "Test Basic produce")
@@ -152,7 +150,7 @@ public class KafkaProducerTest {
             throw new IllegalStateException();
         }
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-producer-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(2189, 9102);
+        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(14009, 14109);
         return kafkaCluster;
     }
 

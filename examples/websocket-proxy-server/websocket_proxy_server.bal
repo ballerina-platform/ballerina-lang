@@ -8,7 +8,7 @@ final string REMOTE_BACKEND = "ws://echo.websocket.org";
 @http:WebSocketServiceConfig {
     path: "/proxy/ws"
 }
-service SimpleProxyService on new http:WebSocketListener(9090) {
+service SimpleProxyService on new http:Listener(9090) {
 
     // This resource gets invoked when a new client connects.
     // Since messages to the server are not read by the service until the execution of the `onOpen` resource finishes,

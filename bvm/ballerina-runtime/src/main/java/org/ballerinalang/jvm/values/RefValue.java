@@ -21,6 +21,7 @@ import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
+import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -52,7 +53,9 @@ public interface RefValue {
 
     BType getType();
 
-    void stamp(BType type, List<TypeValuePair> unresolvedValues);
+    default void stamp(BType type, List<TypeValuePair> unresolvedValues) {
+        throw new BLangRuntimeException("'constructFrom()' not allowed on '" + getType() + "'");
+    }
 
     /**
      * Method to perform a deep copy, recursively copying all structural values and their members.

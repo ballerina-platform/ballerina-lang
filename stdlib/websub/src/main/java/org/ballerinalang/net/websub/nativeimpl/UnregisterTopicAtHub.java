@@ -18,8 +18,6 @@
 
 package org.ballerinalang.net.websub.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -41,11 +39,7 @@ import org.ballerinalang.net.websub.hub.Hub;
         returnType = {@ReturnType(type = TypeKind.OBJECT)},
         isPublic = true
 )
-public class UnregisterTopicAtHub extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class UnregisterTopicAtHub {
 
     public static Object unregisterTopicAtHub(Strand strand, String topic) {
         try {

@@ -220,6 +220,12 @@ public class BStreamValueTest {
         assertEventEquality((BValueArray) returns[0], (BValueArray) returns[1]);
     }
 
+    @Test(description = "Test stream publish with a stream initialized via a function argument")
+    public void testStreamPublishingInitStreamViaFuncArgs() {
+        BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingInitStreamViaFuncArgs");
+        assertEventEquality((BValueArray) returns[0], (BValueArray) returns[1]);
+    }
+
     @Test(description = "Test receipt of stream constrained by union type with correct publishing and subscribing "
             + "with a function to whose parameter types the stream constraint is assignable")
     public void testStreamPublishingAndSubscriptionForAssignableUnionTypeStream() {

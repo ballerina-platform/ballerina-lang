@@ -27,7 +27,8 @@ public class ProjectDirConstants {
 
     private ProjectDirConstants() {
     }
-
+    
+   
     public static final String BLANG_SOURCE_EXT = ".bal";
     public static final String BLANG_COMPILED_PROG_EXT = ".balx";
     public static final String BLANG_COMPILED_PKG_BINARY_EXT = ".balo";
@@ -64,7 +65,7 @@ public class ProjectDirConstants {
     public static final String USER_DIR = "user.dir";
 
     public static final String BALLERINA_VERSION = "ballerina.version";
-    public static final String PROPERTIES_FILE = "/META-INF/launcher.properties";
+    public static final String PROPERTIES_FILE = "/META-INF/tool.properties";
 
     public static final String BALLERINA_SOURCE_ROOT = "ballerina.source.root";
 
@@ -92,4 +93,6 @@ public class ProjectDirConstants {
     public static final String JAR_CACHE_DIR_NAME = "jar_cache";
 
     public static final String EXEC_SUFFIX = "-executable";
+
+    public static final String BLANG_PKG_DEFAULT_VERSION = "0.0.0";
 }

@@ -96,3 +96,8 @@ function testIndirectErrorDestructuring() {
     RNError e2 = RNError(message="Msg", fatal=false, other="k");
     RNStrError e3 = RNStrError(message="Msg", fatal=false, other="k");
 }
+
+function panicOnNonErrorMemberUnion() {
+    error|int e = 5;
+    panic e;
+}

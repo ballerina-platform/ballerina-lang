@@ -18,16 +18,14 @@
 
 package org.wso2.ballerinalang.compiler.desugar;
 
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -51,7 +49,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -74,14 +71,12 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
     private final SymbolTable symTable;
     private final Desugar desugar;
     private final StreamingCodeDesugar streamingCodeDesugar;
-    private final BLangDiagnosticLog dlog;
     private final SymbolResolver symResolver;
 
     private BSymbol[] mapVarSymbols;
     private BLangNode result;
     private Map<String, String> aliasMap;
     private BLangVariableReference rhsStream;
-    private BRecordType outputType;
     private LongAdder aggregatorIndex;
     private BSymbol aggregatorArray;
     private BVarSymbol streamEventSymbol;
@@ -91,7 +86,6 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
         this.symTable = SymbolTable.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.streamingCodeDesugar = StreamingCodeDesugar.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
     }
 
@@ -105,12 +99,12 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
     }
 
     BLangNode rewrite(BLangNode node, BSymbol[] mapVarSymbol, Map<String, String> aliasMap,
-                      BLangVariableReference rhsStream, BType outputType) {
-        return rewrite(node, mapVarSymbol, aliasMap, rhsStream, outputType, null, null, null);
+                      BLangVariableReference rhsStream) {
+        return rewrite(node, mapVarSymbol, aliasMap, rhsStream, null, null, null);
     }
 
     BLangNode rewrite(BLangNode node, BSymbol[] mapVarSymbol, Map<String, String> aliasMap,
-                      BLangVariableReference rhsStream, BType outputType, BSymbol aggregatorArrSymbol,
+                      BLangVariableReference rhsStream, BSymbol aggregatorArrSymbol,
                       LongAdder aggregatorIndex, BVarSymbol streamEventSymbol) {
         if (node == null) {
             return null;
@@ -121,7 +115,6 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
         this.aggregatorArray = aggregatorArrSymbol;
         this.aliasMap = aliasMap;
         this.rhsStream = rhsStream;
-        this.outputType = (BRecordType) outputType;
         this.streamEventSymbol = streamEventSymbol;
         node.accept(this);
         BLangNode resultNode = this.result;
@@ -130,7 +123,6 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
         this.aliasMap = null;
         this.rhsStream = null;
         this.mapVarSymbols = null;
-        this.outputType = null;
         this.aggregatorIndex = null;
         this.aggregatorArray = null;
         this.streamEventSymbol = null;
@@ -167,13 +159,16 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
         indexAccessExpr.indexExpr =
                 desugar.addConversionExprIfRequired((BLangExpression) rewrite(indexAccessExpr.indexExpr),
                                                     indexAccessExpr.indexExpr.type);
-        result = indexAccessExpr;
+        indexAccessExpr.expr =
+                desugar.addConversionExprIfRequired((BLangExpression) rewrite(indexAccessExpr.expr),
+                                                    indexAccessExpr.expr.type);
+        result = desugar.addConversionExprIfRequired(indexAccessExpr, indexAccessExpr.type);
     }
 
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
         typeTestExpr.expr = desugar.addConversionExprIfRequired((BLangExpression) rewrite(typeTestExpr.expr),
-                                                                typeTestExpr.expr.type);
+                typeTestExpr.expr.type);
         result = typeTestExpr;
     }
 
@@ -214,9 +209,6 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
 
         if (invocationExpr.expr != null) {
             invocationExpr.expr = (BLangExpression) rewrite(invocationExpr.expr);
-            if (invocationExpr.expr.type.getKind() != TypeKind.OBJECT) {
-                invocationExpr.expr = desugar.addConversionExprIfRequired(invocationExpr.expr, invocationExpr.type);
-            }
         }
 
         BInvokableSymbol symbol = streamingCodeDesugar.getInvokableSymbol(invocationExpr, StreamingCodeDesugar
@@ -356,12 +348,10 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
+        if (!(varRefExpr.symbol.owner instanceof BPackageSymbol)) {
+            varRefExpr.symbol.closure = true;
+        }
         result = varRefExpr;
-        outputType.fields.forEach(bField -> {
-            if (bField.name.value.equals(varRefExpr.variableName.value)) {
-                dlog.error(varRefExpr.pos, DiagnosticCode.OUTPUT_FIELD_VISIBLE_IN_HAVING_ORDER_BY, varRefExpr);
-            }
-        });
     }
 
     @Override
@@ -391,6 +381,7 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
                 generateStreamEventGetInvocation(fieldAccessExpr.pos, indexExpr);
             }
         } else {
+            fieldAccessExpr.expr = (BLangExpression) rewrite(fieldAccessExpr.expr);
             result = fieldAccessExpr;
         }
     }

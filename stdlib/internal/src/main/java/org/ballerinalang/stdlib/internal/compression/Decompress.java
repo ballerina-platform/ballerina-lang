@@ -16,18 +16,14 @@
 
 package org.ballerinalang.stdlib.internal.compression;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.internal.Constants;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -53,7 +49,7 @@ import java.nio.file.Paths;
         returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
-public class Decompress extends BlockingNativeCallableUnit {
+public class Decompress {
 
     /**
      * File path defined in ballerina.compression.
@@ -70,44 +66,14 @@ public class Decompress extends BlockingNativeCallableUnit {
      *
      * @param dirPath      compressed file path
      * @param outputFolder destination folder
+     * @return ErrorValue when an error occurs with decompressing
      */
-    private static void decompress(Path dirPath, Path outputFolder, Context context) {
-        try {
-            InputStream inputStream = new FileInputStream(dirPath.toFile());
-            DecompressFromByteArray.decompress(inputStream, outputFolder, context);
-        } catch (IOException e) {
-            throw new BLangRuntimeException("Error occurred when decompressing");
-        }
-    }
-
     private static ErrorValue decompress(Path dirPath, Path outputFolder) {
         try {
             InputStream inputStream = new FileInputStream(dirPath.toFile());
             return DecompressFromByteArray.decompress(inputStream, outputFolder);
         } catch (IOException e) {
             throw new BLangRuntimeException("Error occurred when decompressing");
-        }
-    }
-
-    @Override
-    public void execute(Context context) {
-        BMap<String, BValue> srcPathStruct = (BMap) context.getRefArgument(SRC_PATH_FIELD_INDEX);
-        Path srcPath = (Path) srcPathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
-
-        BMap<String, BValue> destPathStruct = (BMap) context.getRefArgument(DEST_PATH_FIELD_INDEX);
-        Path destPath = (Path) destPathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
-
-        if (!srcPath.toFile().exists()) {
-            context.setReturnValues(CompressionUtils.createCompressionError(context, "Path of the folder to be " +
-                    "decompressed is not available: " + srcPath));
-        } else if (!destPath.toFile().exists()) {
-            context.setReturnValues(CompressionUtils.createCompressionError(context,
-                    "Path to place the decompressed file is not available: " + destPath));
-        } else {
-            decompress(srcPath, destPath, context);
-//            if (context.getReturnValues() == null) {
-//                context.setReturnValues();
-//            }
         }
     }
 

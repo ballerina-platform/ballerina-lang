@@ -108,10 +108,10 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                     ((BLangCompilationUnit) compilationUnit[1]).accept(visitor);
                 });
             } catch (UserErrorException e) {
-                notifyUser(e, languageServer);
+                notifyUser("Workspace Symbols", e, languageServer.getClient());
             } catch (Throwable e) {
                 String msg = "Operation 'workspace/symbol' failed!";
-                logError(msg, e, languageServer, null, (Position) null);
+                logError(msg, e, languageServer.getClient(), null, (Position) null);
             }
             // Here we should extract only the Symbol information only.
             // TODO: Need to find a decoupled way to manage both with the same Symbol finding visitor
@@ -154,14 +154,14 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                     return executor.get().execute(executeCommandContext);
                 }
             } catch (UserErrorException e) {
-                notifyUser(e, languageServer);
+                notifyUser("Execute Command", e, languageServer.getClient());
             } catch (Throwable e) {
                 String msg = "Operation 'workspace/executeCommand' failed!";
-                logError(msg, e, languageServer, null, (Position) null);
+                logError(msg, e, languageServer.getClient(), null, (Position) null);
             }
             logError("Operation 'workspace/executeCommand' failed!",
                      new LSCommandExecutorException("No command executor found for '" + params.getCommand() + "'"),
-                     languageServer, null, (Position) null);
+                     languageServer.getClient(), null, (Position) null);
             return false;
         });
     }

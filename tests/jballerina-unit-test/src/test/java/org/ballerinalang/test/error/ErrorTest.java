@@ -237,7 +237,7 @@ public class ErrorTest {
 
     @Test
     public void testErrorNegative() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 15);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 16);
         BAssertUtil.validateError(negativeCompileResult, 0,
                                   "incompatible types: expected 'reason one|reason two', found 'string'", 26, 31);
         BAssertUtil.validateError(negativeCompileResult, 1,
@@ -265,6 +265,8 @@ public class ErrorTest {
                 "cannot infer reason from error constructor: 'RNError'", 96, 18);
         BAssertUtil.validateError(negativeCompileResult, 14,
                 "cannot infer reason from error constructor: 'RNStrError'", 97, 21);
+        BAssertUtil.validateError(negativeCompileResult, 15,
+                "incompatible types: expected 'error', found '(error|int)'", 102, 11);
     }
     @DataProvider(name = "userDefTypeAsReasonTests")
     public Object[][] userDefTypeAsReasonTests() {
@@ -312,5 +314,47 @@ public class ErrorTest {
     public void testUnionLhsWithIndirectErrorRhs() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "testUnionLhsWithIndirectErrorRhs");
         Assert.assertEquals(((BError) returns[0]).getReason(), "Foo");
+    }
+
+    @Test()
+    public void testOptionalErrorReturn() {
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testOptionalErrorReturn");
+        Assert.assertEquals(((BError) returns[0]).stringValue(), "this is broken {message:\"too bad\"}");
+    }
+
+    @Test
+    public void testStackTraceInNative() {
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(errorTestResult, "testStackTraceInNative");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+
+        Assert.assertNotNull(expectedException);
+        String message = ((BLangRuntimeException) expectedException).getMessage();
+        Assert.assertEquals(message,
+                "error: array index out of range: index: 4, size: 2 \n\t" +
+                        "at ballerina.lang_array:slice(array.bal:124)\n\t" +
+                        "   error_test:testStackTraceInNative(error_test.bal:286)");
+    }
+
+    @Test
+    public void testPanicOnErrorUnion() {
+        BValue[] args = new BValue[] { new BInteger(0) };
+        BValue[] result = BRunUtil.invoke(errorTestResult, "testPanicOnErrorUnion", args);
+        Assert.assertEquals(result[0].stringValue(), "str");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp = "error: x.*")
+    public void testPanicOnErrorUnionCustomError() {
+        BValue[] args = new BValue[] { new BInteger(1) };
+        BRunUtil.invoke(errorTestResult, "testPanicOnErrorUnion", args);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp = "error: y code=4.*")
+    public void testPanicOnErrorUnionCustomError2() {
+        BValue[] args = new BValue[] { new BInteger(2) };
+        BRunUtil.invoke(errorTestResult, "testPanicOnErrorUnion", args);
     }
 }

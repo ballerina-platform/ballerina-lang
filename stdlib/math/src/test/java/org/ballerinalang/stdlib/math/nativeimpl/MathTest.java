@@ -240,10 +240,10 @@ public class MathTest {
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 60986.133234122164, DELTA);
     }
 
-    @Test(description = "Test 'IEEEremainder' function in ballerina.lang.math package")
+    @Test(description = "Test 'remainder' function in ballerina.lang.math package")
     public void testIEEEremainder() {
         BValue[] args = { new BFloat(60984.1), new BFloat(-497.99) };
-        BValue[] returns = BRunUtil.invoke(compileResult, "IEEEremainderTest", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "remainderTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 229.31999999999744, DELTA);

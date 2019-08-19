@@ -46,7 +46,6 @@ public class ConstructorTest {
     @Test(description = "Test invoking a java constructor that accepts nothing")
     public void testAcceptNothing() {
         BValue[] returns = BRunUtil.invoke(result, "testDefaultConstructor");
-        // TODO ....... WHY NULL return HERERRRRR......?????*^#&*^#*&$^#*&^
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BHandleValue) returns[0]).getValue().getClass(), ClassWithDefaultConstructor.class);

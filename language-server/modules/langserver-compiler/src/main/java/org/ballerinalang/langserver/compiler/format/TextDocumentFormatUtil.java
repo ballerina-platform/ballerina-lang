@@ -25,12 +25,12 @@ import com.google.gson.JsonPrimitive;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
@@ -92,10 +92,10 @@ public class TextDocumentFormatUtil {
      * @param context         Document formatting context
      * @return {@link JsonObject}   AST as a Json Object
      * @throws JSONGenerationException when AST build fails
-     * @throws LSCompilerException     when compilation fails
+     * @throws CompilationFailedException     when compilation fails
      */
     public static JsonObject getAST(Path file, WorkspaceDocumentManager documentManager, LSContext context)
-            throws JSONGenerationException, LSCompilerException {
+            throws JSONGenerationException, CompilationFailedException {
         String path = file.toAbsolutePath().toString();
         LSDocument lsDocument = new LSDocument(path);
         String packageName = lsDocument.getOwnerModule();

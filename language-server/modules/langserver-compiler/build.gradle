@@ -30,7 +30,6 @@ dependencies {
     implementation 'commons-io:commons-io'
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
-    implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-http')

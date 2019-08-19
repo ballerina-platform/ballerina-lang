@@ -20,11 +20,13 @@ type InstructionGenerator object {
     jvm:MethodVisitor mv;
     BalToJVMIndexMap indexMap;
     string currentPackageName;
+    bir:Package currentPackage;
 
-    public function __init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, string currentPackageName) {
+    public function __init(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap, bir:Package moduleId) {
         self.mv = mv;
         self.indexMap = indexMap;
-        self.currentPackageName = currentPackageName;
+        self.currentPackage = moduleId;
+        self.currentPackageName = getPackageName(moduleId.org.value, moduleId.name.value);
     }
 
     function generateConstantLoadIns(bir:ConstantLoad loadIns) {
@@ -577,9 +579,9 @@ type InstructionGenerator object {
         if (typeOfMapNewIns is bir:BRecordType) {
             var typeRef = mapNewIns.typeRef;
             if (typeRef is bir:TypeRef) {
-                className = typeRefToClassName(typeRef, cleanupTypeName(typeOfMapNewIns.name.value));
+                className = getTypeValueClassName(typeRef.externalPkg, typeOfMapNewIns.name.value);
             } else {
-                className = self.currentPackageName + cleanupTypeName(typeOfMapNewIns.name.value);
+                className = getTypeValueClassName(self.currentPackage, typeOfMapNewIns.name.value);
             }
 
             self.mv.visitTypeInsn(NEW, className);
@@ -613,7 +615,7 @@ type InstructionGenerator object {
     function generateStreamNewIns(bir:NewStream streamNewIns) {
         self.mv.visitTypeInsn(NEW, STREAM_VALUE);
         self.mv.visitInsn(DUP);
-        loadType(self.mv, streamNewIns.typeValue);
+        loadType(self.mv, streamNewIns.streamType);
         self.mv.visitMethodInsn(INVOKESPECIAL, STREAM_VALUE, "<init>", io:sprintf("(L%s;)V", BTYPE), false);
         self.storeToVar(streamNewIns.lhsOp.variableDcl);
     }
@@ -846,11 +848,10 @@ type InstructionGenerator object {
         bir:TypeDef typeDef = lookupTypeDef(typeDefRef);
         string className;
         if (typeDefRef is bir:TypeRef) {
-            className = typeRefToClassName(typeDefRef, typeDefRef.name.value);
+            className = getTypeValueClassName(typeDefRef.externalPkg, typeDefRef.name.value);
         } else {
-            className = self.currentPackageName + cleanupTypeName(typeDefRef.name.value);
+            className = getTypeValueClassName(self.currentPackage, typeDefRef.name.value);
         }
-
 
         self.mv.visitTypeInsn(NEW, className);
         self.mv.visitInsn(DUP);

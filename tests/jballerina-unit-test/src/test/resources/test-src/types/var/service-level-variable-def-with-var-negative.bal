@@ -1,7 +1,6 @@
 import ballerina/http;
 
 service DummyService on new http:MockListener(9090) {
-    int counter = 100;
     var dummy = "dummy-string";
 
     resource function dummyResource (http:Caller caller, http:Request req) {

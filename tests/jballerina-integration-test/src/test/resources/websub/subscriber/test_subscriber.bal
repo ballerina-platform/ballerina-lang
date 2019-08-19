@@ -35,12 +35,11 @@ service websubSubscriber on websubEP {
 }
 
 @websub:SubscriberServiceConfig {
-    path:"/websubTwo",
     target: [config:getAsString("test.hub.url"), "http://one.websub.topic.com"],
     leaseSeconds: 3650,
     secret: "Kslk30SNF2AChs2"
 }
-service websubSubscriberTwo on websubEP {
+service subscriberWithNoPathInAnnot on websubEP {
     resource function onIntentVerification (websub:Caller caller, websub:IntentVerificationRequest request) {
         http:Response response = request.buildSubscriptionVerificationResponse("http://one.websub.topic.com");
         if (response.statusCode == 202) {

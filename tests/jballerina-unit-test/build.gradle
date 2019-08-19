@@ -39,6 +39,7 @@ dependencies {
     implementation project(':ballerina-bir')
     implementation project(':ballerina-backend-jvm')
     implementation project(':ballerina-java')
+    implementation project(':ballerina-runtime')
 
     implementation 'com.h2database:h2'
     implementation 'org.testng:testng'

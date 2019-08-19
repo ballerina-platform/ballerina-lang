@@ -183,3 +183,13 @@ function testCopingComment() returns xml {
     xml x = bookComment.copy();
     return x;
 }
+
+function testForEach() returns xml {
+    xml r = xmllib:concat();
+    foreach var x in catalog.* {
+        if (x is xml) {
+            r += x;
+        }
+    }
+    return r;
+}

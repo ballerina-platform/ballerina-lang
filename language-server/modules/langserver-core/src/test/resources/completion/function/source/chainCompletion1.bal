@@ -2,5 +2,5 @@ import ballerina/http;
 
 function testFunction1() {
     string testString = "Hello Ballerina!";
-    testString.toUpper().
+    testString.toUpperAscii().
 }

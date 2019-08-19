@@ -9,11 +9,10 @@ type Person record {
 
 listener http:MockListener echoEP  = new(9090);
 
+string globalLevelStr = "";
+
 @http:ServiceConfig {basePath:"/echo"}
 service echo on echoEP {
-
-    string serviceLevelStr = "";
-    string serviceLevelStringVar = "sample value";
 
     @http:ResourceConfig {
         methods:["GET"],
@@ -52,7 +51,7 @@ service echo on echoEP {
         } else {
             payloadData = payload;
         }
-        self.serviceLevelStr = <@untainted string> payloadData;
+        globalLevelStr = <@untainted string> payloadData;
         checkpanic caller->respond(res);
     }
 
@@ -62,7 +61,7 @@ service echo on echoEP {
     }
     resource function getString(http:Caller caller, http:Request req) {
         http:Response res = new;
-        res.setTextPayload(<@untainted> self.serviceLevelStr);
+        res.setTextPayload(<@untainted> globalLevelStr);
         checkpanic caller->respond(res);
     }
 
@@ -75,16 +74,6 @@ service echo on echoEP {
         res.setHeader("header2", "ballerina");
         res.setHeader("header3", "hello");
         res.removeAllHeaders();
-        checkpanic caller->respond(res);
-    }
-
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/getServiceLevelString"
-    }
-    resource function getServiceLevelString(http:Caller caller, http:Request req) {
-        http:Response res = new;
-        res.setTextPayload(<@untainted> self.serviceLevelStringVar);
         checkpanic caller->respond(res);
     }
 

@@ -21,13 +21,17 @@ public type MockListener object {
     *lang:AbstractListener;
 
     private int port = 0;
-    private ServiceEndpointConfiguration config = {};
+    private ListenerConfiguration config = {};
 
     public function __start() returns error? {
         return self.start();
     }
 
-    public function __stop() returns error? {
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
+    public function __immediateStop() returns error? {
         return self.stop();
     }
 
@@ -35,13 +39,13 @@ public type MockListener object {
         return self.register(s, name);
     }
 
-    public function __init(int port, ServiceEndpointConfiguration? config = ()) {
+    public function __init(int port, ListenerConfiguration? config = ()) {
         self.config = config ?: {};
         self.port = port;
         self.init(self.config);
     }
 
-    public function init(ServiceEndpointConfiguration c) {
+    public function init(ListenerConfiguration c) {
         var err = self.initEndpoint();
         if (err is error) {
             panic err;

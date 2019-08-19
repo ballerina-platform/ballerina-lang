@@ -15,22 +15,23 @@
 // under the License.
 
 import ballerina/encoding;
+import ballerina/filepath;
 import ballerina/kafka;
 
 string topic = "test-topic-ssl";
 
 kafka:ProducerConfig producerConfigs = {
-    bootstrapServers: "localhost:9104",
+    bootstrapServers: "localhost:14111",
     clientId:"ssl-producer",
-    acks:"all",
-    noRetries:3,
+    acks: kafka:ACKS_ALL,
+    retryCount:3,
     secureSocket: {
         keyStore:{
-            location:"<FILE_PATH>/kafka.client.keystore.jks",
+            location:"<FILE_PATH>" + filepath:getPathSeparator() + "kafka.client.keystore.jks",
             password:"test1234"
         },
         trustStore: {
-            location:"<FILE_PATH>/kafka.client.truststore.jks",
+            location:"<FILE_PATH>" + filepath:getPathSeparator() + "kafka.client.truststore.jks",
             password:"test1234"
         },
         protocol: {
@@ -45,28 +46,28 @@ kafka:ProducerConfig producerConfigs = {
 kafka:Producer kafkaProducer = new(producerConfigs);
 
 kafka:ProducerConfig producerNegativeConfigs = {
-    bootstrapServers: "localhost:9104",
+    bootstrapServers: "localhost:14111",
     clientId:"ssl-producer-negative",
-    acks:"all",
+    acks: kafka:ACKS_ALL,
     maxBlock: 1000,
-    noRetries:3
+    retryCount:3
 };
 
 kafka:Producer negativeProducer = new (producerNegativeConfigs);
 
 kafka:ConsumerConfig consumerConfig = {
-    bootstrapServers:"localhost:9104",
+    bootstrapServers:"localhost:14111",
     groupId:"test-group",
     clientId: "ssl-consumer",
     offsetReset:"earliest",
     topics:["test-topic-ssl"],
     secureSocket: {
         keyStore:{
-            location:"<FILE_PATH>/kafka.client.keystore.jks",
+            location:"<FILE_PATH>" + filepath:getPathSeparator() + "kafka.client.keystore.jks",
             password:"test1234"
         },
         trustStore: {
-            location:"<FILE_PATH>/kafka.client.truststore.jks",
+            location:"<FILE_PATH>" + filepath:getPathSeparator() + "kafka.client.truststore.jks",
             password:"test1234"
         },
         protocol: {

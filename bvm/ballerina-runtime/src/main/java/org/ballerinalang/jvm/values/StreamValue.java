@@ -18,13 +18,11 @@
 
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.streams.StreamSubscriptionManager;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -34,8 +32,6 @@ import java.util.UUID;
  * @since 0.995.0
  */
 public class StreamValue implements RefValue {
-
-    private static final String STREAM_NAME = "STREAM_";
 
     private BType type;
     private BType constraintType;
@@ -51,13 +47,7 @@ public class StreamValue implements RefValue {
         this.streamSubscriptionManager = StreamSubscriptionManager.getInstance();
         this.constraintType = ((BStreamType) type).getConstrainedType();
         this.type = new BStreamType(constraintType);
-
-        if (constraintType != null) {
-            this.streamId = STREAM_NAME + constraintType;
-        } else {
-            this.streamId = STREAM_NAME; //TODO: check for improvement
-        }
-        streamId = streamId.concat("_").concat(UUID.randomUUID().toString());
+        this.streamId = UUID.randomUUID().toString();
     }
 
     public String getStreamId() {
@@ -71,11 +61,6 @@ public class StreamValue implements RefValue {
     @Override
     public BType getType() {
         return this.type;
-    }
-
-    @Override
-    public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
-
     }
 
     @Override

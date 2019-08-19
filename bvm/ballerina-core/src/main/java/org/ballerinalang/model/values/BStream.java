@@ -22,8 +22,6 @@ import org.ballerinalang.bre.bvm.BVM;
 import org.ballerinalang.model.types.BIndexedType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.streams.StreamSubscriptionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -132,13 +130,5 @@ public class BStream implements BRefType<Object> {
                                                  + " accepting:" + this.constraintType);
         }
         streamSubscriptionManager.registerMessageProcessor(this, functionPointer);
-    }
-
-    public void subscribe(InputHandler inputHandler) {
-        if (constraintType.getTag() != TypeTags.OBJECT_TYPE_TAG
-                && constraintType.getTag() != TypeTags.RECORD_TYPE_TAG) {
-            throw new BallerinaException("Streaming Support is only available with streams accepting objects");
-        }
-        streamSubscriptionManager.registerMessageProcessor(this, inputHandler);
     }
 }

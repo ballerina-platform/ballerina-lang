@@ -32,6 +32,10 @@ function testReadDir(string path) returns system:FileInfo[]|error {
     return system:readDir(path);
 }
 
+function testReadDirWithMaxDepth(string path, int maxDepth) returns system:FileInfo[]|error {
+    return system:readDir(path, maxDepth);
+}
+
 function testGetFileInfo(string path) returns system:FileInfo|error {
     return system:getFileInfo(path);
 }
@@ -41,6 +45,10 @@ function testFileExists(string path) returns boolean {
 }
 
 function testCreateFile(string path) returns string|error {
+    return system:createFile(path);
+}
+
+function testCreateNonExistingFile(string path) returns string|error {
     return system:createFile(path);
 }
 

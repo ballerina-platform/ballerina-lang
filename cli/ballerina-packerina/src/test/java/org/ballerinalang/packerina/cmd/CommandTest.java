@@ -18,6 +18,9 @@
 
 package org.ballerinalang.packerina.cmd;
 
+import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.tool.BLauncherCmd;
+import org.ballerinalang.tool.BLauncherException;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -27,7 +30,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
+
+import static org.ballerinalang.packerina.utils.FileUtils.deleteDirectory;
 
 
 /**
@@ -39,42 +43,58 @@ public abstract class CommandTest {
     protected Path tmpDir;
     private ByteArrayOutputStream console;
     protected PrintStream printStream;
+    
+    @BeforeClass
+    public void setup() throws IOException {
+        this.tmpDir = Files.createTempDirectory("b7a-cmd-test-" + System.nanoTime());
+        this.console = new ByteArrayOutputStream();
+        this.printStream = new PrintStream(this.console);
+    }
 
     protected String readOutput() throws IOException {
         return readOutput(false);
     }
 
-    protected String readOutput(boolean slient) throws IOException {
+    protected String readOutput(boolean silent) throws IOException {
         String output = "";
         output = console.toString();
         console.close();
         console = new ByteArrayOutputStream();
         printStream = new PrintStream(console);
-        if (!slient) {
+        if (!silent) {
             PrintStream out = System.out;
             out.println(output);
         }
         return output;
     }
-
-    @BeforeClass
-    public void setup() throws IOException {
-        tmpDir = Files.createTempDirectory("b7a-cmd-test");
-        console = new ByteArrayOutputStream();
-        printStream = new PrintStream(console);
+    
+    /**
+     * Execute a command and get the exception.
+     *
+     * @param cmd The command.
+     * @return The error message.
+     */
+    public String executeAndGetException(BLauncherCmd cmd) throws IOException {
+        try {
+            cmd.execute();
+            Assert.fail("Expected exception did not occur.");
+        } catch (BLauncherException e) {
+            if (e.getMessages().size() == 1) {
+                readOutput(true);
+                return e.getMessages().get(0);
+            }
+        } catch (BLangCompilerException e) {
+            readOutput(true);
+            return e.getMessage();
+        } catch (Exception e) {
+            Assert.fail("Invalid exception found: " + e.getClass().toString() + "-" + e.getMessage());
+        }
+        return null;
     }
 
     @AfterClass
     public void cleanup() throws IOException {
-        Files.walk(tmpDir)
-                .sorted(Comparator.reverseOrder())
-                .forEach(path -> {
-                    try {
-                        Files.delete(path);
-                    } catch (IOException e) {
-                        Assert.fail(e.getMessage(), e);
-                    }
-                });
+        deleteDirectory(this.tmpDir);
         console.close();
         printStream.close();
     }

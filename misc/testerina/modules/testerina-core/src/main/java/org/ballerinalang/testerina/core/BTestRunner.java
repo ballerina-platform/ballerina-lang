@@ -70,12 +70,31 @@ public class BTestRunner {
 
     public static final String MODULE_INIT_CLASS_NAME = "___init";
 
-    private static PrintStream errStream = System.err;
-    private static PrintStream outStream = System.out;
-    private TesterinaReport tReport = new TesterinaReport();
+    private PrintStream errStream;
+    private PrintStream outStream;
+    private TesterinaReport tReport;
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
     private List<String> sourcePackages = new ArrayList<>();
-
+    
+    /**
+     * Create Test Runner instance.
+     */
+    public BTestRunner() {
+        this(System.out, System.err);
+    }
+    
+    /**
+     * Create Test Runner with given loggers.
+     *
+     * @param outStream The info log stream.
+     * @param errStream The error log strem.
+     */
+    public BTestRunner(PrintStream outStream, PrintStream errStream) {
+        this.outStream = outStream;
+        this.errStream = errStream;
+        tReport = new TesterinaReport(this.outStream);
+    }
+    
     public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups) {
         runTest(sourceRoot, sourceFilePaths, groups, Boolean.TRUE);
     }
@@ -316,9 +335,11 @@ public class BTestRunner {
         Class<?> initClazz = classLoader.loadClass(initClassName);
 
         suite.setInitFunction(new TesterinaFunction(initClazz,
-                bLangPackage.initFunction, TesterinaFunction.Type.TEST_INIT));
+                bLangPackage.initFunction));
         suite.setStartFunction(new TesterinaFunction(initClazz,
-                bLangPackage.startFunction, TesterinaFunction.Type.TEST_INIT));
+                bLangPackage.startFunction));
+        suite.setStopFunction(new TesterinaFunction(initClazz,
+                bLangPackage.stopFunction));
         // add all functions of the package as utility functions
         bLangPackage.functions.stream().forEach(function -> {
             try {
@@ -327,7 +348,7 @@ public class BTestRunner {
                         getClassName(function));
                 Class<?> functionClass = classLoader.loadClass(functionClassName);
                 suite.addTestUtilityFunction(new TesterinaFunction(functionClass,
-                        function, TesterinaFunction.Type.UTIL));
+                        function));
             } catch (RuntimeException e) {
                 // we do nothing here
             }
@@ -585,10 +606,9 @@ public class BTestRunner {
             shouldSkip.set(false);
             TestAnnotationProcessor.injectMocks(suite);
             tReport.addPackageReport(packageName);
-            if (suite.getInitFunction() != null && TesterinaUtils.isPackageInitialized(packageName)) {
-                suite.getInitFunction().invoke();
-                //suite.getStartFunction().invoke();
-            }
+
+            // Initialize the test suite.
+            suite.start();
 
             suite.getBeforeSuiteFunctions().forEach(test -> {
                 String errorMsg;
@@ -721,11 +741,11 @@ public class BTestRunner {
                     errStream.println(errorMsg);
                 }
             });
+            // Call module stop and test stop function
+            suite.stop();
+
             // print module test results
             tReport.printTestSuiteSummary(packageName);
-
-            // Call module stop and test stop function
-            suite.getInitFunction().invokeStopFunctions();
         });
     }
 

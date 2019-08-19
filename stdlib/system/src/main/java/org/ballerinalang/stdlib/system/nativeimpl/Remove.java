@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
@@ -45,13 +43,9 @@ import java.nio.file.attribute.BasicFileAttributes;
         functionName = "remove",
         isPublic = true
 )
-public class Remove extends BlockingNativeCallableUnit {
+public class Remove {
 
     private static final String CURRENT_DIR_PROPERTY_KEY = "user.dir";
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static Object remove(Strand strand, String path, boolean recursive) {
         File removeFile = Paths.get(path).toAbsolutePath().toFile();
@@ -66,7 +60,7 @@ public class Remove extends BlockingNativeCallableUnit {
 
             if (!removeFile.exists()) {
                 return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR,
-                        "File doesn't exist in path " + removeFile.getCanonicalPath());
+                        "File not found: " + removeFile.getCanonicalPath());
             }
 
             if (recursive) {

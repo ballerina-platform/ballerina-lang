@@ -302,7 +302,7 @@ type InstructionEmitter object {
             print(tabs);
             self.opEmitter.emitOp(ins.lhsOp);
             print(" = ", ins.kind, " ");
-            self.typeEmitter.emitType(ins.typeValue);
+            self.typeEmitter.emitType(ins.streamType);
             println(";");
         } else if (ins is NewTable) {
             print(tabs);
@@ -748,4 +748,3 @@ public function getVisibility(int flags) returns string {
     }
     return "package private";
 }
-

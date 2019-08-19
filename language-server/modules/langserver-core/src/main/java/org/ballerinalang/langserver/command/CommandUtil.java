@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.command;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.langserver.command.executors.AddAllDocumentationExecutor;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.command.executors.ChangeAbstractTypeObjExecutor;
@@ -34,7 +35,6 @@ import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompilerException;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
@@ -43,6 +43,7 @@ import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
@@ -51,7 +52,6 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.util.BLangConstants;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -116,6 +116,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
+import static org.ballerinalang.langserver.common.utils.CommonUtil.logError;
 import static org.ballerinalang.langserver.common.utils.FunctionGenerator.generateTypeDefinition;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 import static org.ballerinalang.langserver.util.references.ReferencesUtil.getReferenceAtCursor;
@@ -155,12 +156,12 @@ public class CommandUtil {
      * @param params Code action parameters
      * @param documentManager Document manager
      * @return {@link Command} Test Generation command
-     * @throws LSCompilerException LS Compiler Exception
+     * @throws CompilationFailedException thrown when compilation failed
      */
     public static List<CodeAction> getTestGenerationCommand(String topLevelNodeType, String docUri,
-                                                            CodeActionParams params, 
+                                                            CodeActionParams params,
                                                             WorkspaceDocumentManager documentManager)
-            throws LSCompilerException {
+            throws CompilationFailedException {
         LSServiceOperationContext context = new LSServiceOperationContext();
         List<CodeAction> actions = new ArrayList<>();
         List<Object> args = new ArrayList<>();
@@ -191,7 +192,7 @@ public class CommandUtil {
 
     private static boolean isTopLevelNode(String uri, WorkspaceDocumentManager docManager,
                                           LSServiceOperationContext context, Position position)
-            throws LSCompilerException {
+            throws CompilationFailedException {
         Pair<BLangNode, Object> bLangNode = getBLangNode(position.getLine(), position.getCharacter(), uri, docManager,
                 context);
 
@@ -281,7 +282,7 @@ public class CommandUtil {
                         actions.add(action);
                     }
                 }
-            } catch (LSCompilerException e) {
+            } catch (CompilationFailedException e) {
                 // ignore
             }
         } else if (isVariableAssignmentRequired(diagnosticMessage)) {
@@ -324,7 +325,7 @@ public class CommandUtil {
                         actions.add(action);
                     }
                 }
-            } catch (LSCompilerException | WorkspaceDocumentException | IOException e) {
+            } catch (CompilationFailedException | WorkspaceDocumentException | IOException e) {
                 // ignore
             }
         } else if (isUnresolvedPackage(diagnosticMessage)) {
@@ -391,7 +392,7 @@ public class CommandUtil {
                             actions.add(action);
                         }
                     }
-                } catch (LSCompilerException e) {
+                } catch (CompilationFailedException e) {
                     // ignore
                 }
             }
@@ -580,8 +581,10 @@ public class CommandUtil {
         WorkspaceDocumentManager docManager = lsContext.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
         try {
             diagHelper.compileAndSendDiagnostics(client, lsContext, docManager);
-        } catch (LSCompilerException e) {
-            // Ignore
+        } catch (CompilationFailedException e) {
+            String msg = "Computing 'diagnostics' failed!";
+            TextDocumentIdentifier identifier = new TextDocumentIdentifier(documentUri);
+            logError(msg, e, client, identifier, (Position) null);
         }
     }
 
@@ -630,7 +633,7 @@ public class CommandUtil {
 
     public static BLangObjectTypeNode getObjectNode(int line, int column, String uri,
                                                     WorkspaceDocumentManager documentManager, LSContext context)
-            throws LSCompilerException {
+            throws CompilationFailedException {
         Pair<BLangNode, Object> bLangNode = getBLangNode(line, column, uri, documentManager, context);
         if (bLangNode.getLeft() instanceof BLangObjectTypeNode) {
             return (BLangObjectTypeNode) bLangNode.getLeft();
@@ -651,7 +654,7 @@ public class CommandUtil {
 
     public static BLangInvocation getFunctionInvocationNode(int line, int column, String uri,
                                                             WorkspaceDocumentManager documentManager, LSContext context)
-            throws LSCompilerException {
+            throws CompilationFailedException {
         Pair<BLangNode, Object> bLangNode = getBLangNode(line, column, uri, documentManager, context);
         if (bLangNode.getLeft() instanceof BLangInvocation) {
             return (BLangInvocation) bLangNode.getLeft();
@@ -671,7 +674,7 @@ public class CommandUtil {
 
     private static BLangFunction getFunctionNode(int line, int column, LSDocument document,
                                                  WorkspaceDocumentManager docManager,  LSContext context)
-            throws LSCompilerException {
+            throws CompilationFailedException {
         String uri = document.getURIString();
         Position position = new Position();
         position.setLine(line);
@@ -802,7 +805,7 @@ public class CommandUtil {
 
     public static Pair<BLangNode, Object> getBLangNode(int line, int column, String uri,
                                                        WorkspaceDocumentManager documentManager, LSContext context)
-            throws LSCompilerException {
+            throws CompilationFailedException {
         Position position = new Position();
         position.setLine(line);
         position.setCharacter(column + 1);

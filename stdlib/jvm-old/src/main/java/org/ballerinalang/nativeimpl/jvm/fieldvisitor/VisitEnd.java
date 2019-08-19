@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.nativeimpl.jvm.fieldvisitor;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -36,11 +36,10 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
         functionName = "visitEnd",
         receiver = @Receiver(type = OBJECT, structType = FIELD_VISITOR, structPackage = JVM_PKG_PATH)
 )
-public class VisitEnd extends BlockingNativeCallableUnit {
+public class VisitEnd {
 
-    @Override
-    public void execute(Context context) {
-        FieldVisitor mv = ASMUtil.getRefArgumentNativeData(context, 0);
-        mv.visitEnd();
+    public static void visitEnd(Strand strand, ObjectValue oFv) {
+        FieldVisitor fv = ASMUtil.getRefArgumentNativeData(oFv);
+        fv.visitEnd();
     }
 }

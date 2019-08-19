@@ -70,18 +70,20 @@ type ErrorHandlerGenerator object {
         self.mv.visitLabel(jumpLabel);
     }
 
-    function printStackTraceFromFutureValue(jvm:MethodVisitor mv) {
+    function printStackTraceFromFutureValue(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap) {
         mv.visitInsn(DUP);
         mv.visitInsn(DUP);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
         mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", io:sprintf("L%s;", SCHEDULER)); 
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, "()V", false);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, io:sprintf("L%s;", THROWABLE));
+
+        // handle any runtime errors
         jvm:Label labelIf = new;
         mv.visitJumpInsn(IFNULL, labelIf);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, io:sprintf("L%s;", THROWABLE));
-        mv.visitInsn(ATHROW);
-
+        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_THROWABLE_METHOD, io:sprintf("(L%s;)V", THROWABLE),
+                            false);
         mv.visitInsn(RETURN);
         mv.visitLabel(labelIf);
     }
@@ -90,3 +92,42 @@ type ErrorHandlerGenerator object {
         return self.indexMap.getIndex(varDcl);
     }
 };
+
+type DiagnosticLogger object {
+    DiagnosticLog[] errors = [];
+    int size = 0;
+
+    function logError(error err, bir:DiagnosticPos pos, bir:Package module) {
+        self.errors[self.size] = {err:err, pos:pos, module:module};
+        self.size += 1;
+    }
+
+    function getErrorCount() returns int {
+        return self.size;
+    }
+
+    function printErrors() {
+        foreach DiagnosticLog log in self.errors {
+            string fileName = log.pos.sourceFileName;
+            string orgName = log.module.org.value;
+            string moduleName = log.module.name.value;
+
+            string pkgIdStr;
+            if (moduleName == "." && orgName == "$anon") {
+                pkgIdStr = ".";
+            } else {
+                pkgIdStr = orgName + ":" + moduleName;
+            }
+
+            string positionStr = io:sprintf("%s:%s:%s:%s", pkgIdStr, fileName, log.pos.sLine, log.pos.sCol);
+            string errorStr = io:sprintf("error: %s: %s %s", positionStr, log.err.reason(), log.err.detail());
+            io:println(errorStr);
+        }
+    }
+};
+
+type DiagnosticLog record {|
+    error err;
+    bir:DiagnosticPos pos;
+    bir:Package module;
+|};

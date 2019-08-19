@@ -37,6 +37,7 @@ import java.util.Optional;
 
 import static org.ballerinalang.jvm.BallerinaErrors.ERROR_PRINT_PREFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 
 /**
  * Represent an error in ballerina.
@@ -82,7 +83,6 @@ public class ErrorValue extends RuntimeException implements RefValue {
 
     @Override
     public void stamp(BType type, List<TypeValuePair> unresolvedValues) {
-
     }
 
     @Override
@@ -138,10 +138,12 @@ public class ErrorValue extends RuntimeException implements RefValue {
     public StackTraceElement[] getStackTrace() {
         StackTraceElement[] stackTrace = super.getStackTrace();
         List<StackTraceElement> filteredStack = new LinkedList<>();
-        for (int i = 0; i < stackTrace.length; i++) {
-            StackTraceElement stackTraceElement = BallerinaErrors.filterStackTraceElement(stackTrace, i);
-            if (stackTraceElement != null) {
-                filteredStack.add(stackTraceElement);
+        int index = 0;
+        for (StackTraceElement stackFrame : stackTrace) {
+            Optional<StackTraceElement> stackTraceElement =
+                    BallerinaErrors.filterStackTraceElement(stackFrame, index++);
+            if (stackTraceElement.isPresent()) {
+                filteredStack.add(stackTraceElement.get());
             }
         }
         StackTraceElement[] filteredStackArray = new StackTraceElement[filteredStack.size()];
@@ -176,7 +178,11 @@ public class ErrorValue extends RuntimeException implements RefValue {
         pkgName = pkgName.replace("." + fileName, "");
         // todo we need to seperate orgname and module name with '/'
 
-        sb.append(tab).append(pkgName).append(":");
+        sb.append(tab);
+        if (!pkgName.equals(MODULE_INIT_CLASS_NAME)) {
+            sb.append(pkgName).append(":");
+        }
+
         // Append the method name
         sb.append(stackTraceElement.getMethodName());
         // Append the filename
@@ -197,8 +203,6 @@ public class ErrorValue extends RuntimeException implements RefValue {
         }
         return errorMsg;
     }
-
- 
 
     /**
      * {@inheritDoc}

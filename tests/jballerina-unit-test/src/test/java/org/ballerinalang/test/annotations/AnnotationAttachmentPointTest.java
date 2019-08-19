@@ -230,86 +230,86 @@ public class AnnotationAttachmentPointTest {
     @Test
     public void testInvalidAttachmentOnAnnotation() {
         int index = 116;
-        validateError(compileResult, index++, "annotation 'v1' is not allowed on annotation", 448, 1);
-        validateError(compileResult, index++, "annotation 'v2' is not allowed on annotation", 451, 1);
-        validateError(compileResult, index++, "annotation 'v3' is not allowed on annotation", 454, 1);
-        validateError(compileResult, index++, "annotation 'v4' is not allowed on annotation", 457, 1);
-        validateError(compileResult, index++, "annotation 'v5' is not allowed on annotation", 460, 1);
-        validateError(compileResult, index++, "annotation 'v6' is not allowed on annotation", 463, 1);
-        validateError(compileResult, index++, "annotation 'v7' is not allowed on annotation", 466, 1);
-        validateError(compileResult, index++, "annotation 'v8' is not allowed on annotation", 467, 1);
-        validateError(compileResult, index++, "annotation 'v9' is not allowed on annotation", 470, 1);
-        validateError(compileResult, index++, "annotation 'v11' is not allowed on annotation", 473, 1);
-        validateError(compileResult, index++, "annotation 'v12' is not allowed on annotation", 476, 1);
-        validateError(compileResult, index, "annotation 'v13' is not allowed on annotation", 479, 1);
+        validateError(compileResult, index++, "annotation 'v1' is not allowed on annotation", 453, 1);
+        validateError(compileResult, index++, "annotation 'v2' is not allowed on annotation", 456, 1);
+        validateError(compileResult, index++, "annotation 'v3' is not allowed on annotation", 459, 1);
+        validateError(compileResult, index++, "annotation 'v4' is not allowed on annotation", 462, 1);
+        validateError(compileResult, index++, "annotation 'v5' is not allowed on annotation", 465, 1);
+        validateError(compileResult, index++, "annotation 'v6' is not allowed on annotation", 468, 1);
+        validateError(compileResult, index++, "annotation 'v7' is not allowed on annotation", 471, 1);
+        validateError(compileResult, index++, "annotation 'v8' is not allowed on annotation", 472, 1);
+        validateError(compileResult, index++, "annotation 'v9' is not allowed on annotation", 475, 1);
+        validateError(compileResult, index++, "annotation 'v11' is not allowed on annotation", 478, 1);
+        validateError(compileResult, index++, "annotation 'v12' is not allowed on annotation", 481, 1);
+        validateError(compileResult, index, "annotation 'v13' is not allowed on annotation", 484, 1);
     }
 
     @Test
     public void testInvalidAttachmentOnVar() {
         int index = 128;
-        validateError(compileResult, index++, "annotation 'v1' is not allowed on var", 484, 1);
-        validateError(compileResult, index++, "annotation 'v2' is not allowed on var", 487, 1);
-        validateError(compileResult, index++, "annotation 'v3' is not allowed on var", 490, 1);
-        validateError(compileResult, index++, "annotation 'v4' is not allowed on var", 493, 1);
-        validateError(compileResult, index++, "annotation 'v5' is not allowed on var", 496, 1);
-        validateError(compileResult, index++, "annotation 'v6' is not allowed on var", 499, 1);
-        validateError(compileResult, index++, "annotation 'v7' is not allowed on var", 502, 1);
-        validateError(compileResult, index++, "annotation 'v8' is not allowed on var", 503, 1);
-        validateError(compileResult, index++, "annotation 'v9' is not allowed on var", 506, 1);
-        validateError(compileResult, index++, "annotation 'v10' is not allowed on var", 509, 1);
-        validateError(compileResult, index++, "annotation 'v12' is not allowed on var", 512, 1);
-        validateError(compileResult, index, "annotation 'v13' is not allowed on var", 515, 1);
+        validateError(compileResult, index++, "annotation 'v1' is not allowed on var", 489, 1);
+        validateError(compileResult, index++, "annotation 'v2' is not allowed on var", 492, 1);
+        validateError(compileResult, index++, "annotation 'v3' is not allowed on var", 495, 1);
+        validateError(compileResult, index++, "annotation 'v4' is not allowed on var", 498, 1);
+        validateError(compileResult, index++, "annotation 'v5' is not allowed on var", 501, 1);
+        validateError(compileResult, index++, "annotation 'v6' is not allowed on var", 504, 1);
+        validateError(compileResult, index++, "annotation 'v7' is not allowed on var", 507, 1);
+        validateError(compileResult, index++, "annotation 'v8' is not allowed on var", 508, 1);
+        validateError(compileResult, index++, "annotation 'v9' is not allowed on var", 511, 1);
+        validateError(compileResult, index++, "annotation 'v10' is not allowed on var", 514, 1);
+        validateError(compileResult, index++, "annotation 'v12' is not allowed on var", 517, 1);
+        validateError(compileResult, index, "annotation 'v13' is not allowed on var", 520, 1);
     }
 
     @Test
     public void testInvalidAttachmentOnConst() {
         int index = 140;
-        validateError(compileResult, index++, "annotation 'v1' is not allowed on const", 520, 1);
-        validateError(compileResult, index++, "annotation 'v2' is not allowed on const", 523, 1);
-        validateError(compileResult, index++, "annotation 'v3' is not allowed on const", 526, 1);
-        validateError(compileResult, index++, "annotation 'v4' is not allowed on const", 529, 1);
-        validateError(compileResult, index++, "annotation 'v5' is not allowed on const", 532, 1);
-        validateError(compileResult, index++, "annotation 'v6' is not allowed on const", 535, 1);
-        validateError(compileResult, index++, "annotation 'v7' is not allowed on const", 538, 1);
-        validateError(compileResult, index++, "annotation 'v8' is not allowed on const", 539, 1);
-        validateError(compileResult, index++, "annotation 'v9' is not allowed on const", 542, 1);
-        validateError(compileResult, index++, "annotation 'v10' is not allowed on const", 545, 1);
-        validateError(compileResult, index++, "annotation 'v11' is not allowed on const", 548, 1);
-        validateError(compileResult, index, "annotation 'v13' is not allowed on const", 551, 1);
+        validateError(compileResult, index++, "annotation 'v1' is not allowed on const", 525, 1);
+        validateError(compileResult, index++, "annotation 'v2' is not allowed on const", 528, 1);
+        validateError(compileResult, index++, "annotation 'v3' is not allowed on const", 531, 1);
+        validateError(compileResult, index++, "annotation 'v4' is not allowed on const", 534, 1);
+        validateError(compileResult, index++, "annotation 'v5' is not allowed on const", 537, 1);
+        validateError(compileResult, index++, "annotation 'v6' is not allowed on const", 540, 1);
+        validateError(compileResult, index++, "annotation 'v7' is not allowed on const", 543, 1);
+        validateError(compileResult, index++, "annotation 'v8' is not allowed on const", 544, 1);
+        validateError(compileResult, index++, "annotation 'v9' is not allowed on const", 547, 1);
+        validateError(compileResult, index++, "annotation 'v10' is not allowed on const", 550, 1);
+        validateError(compileResult, index++, "annotation 'v11' is not allowed on const", 553, 1);
+        validateError(compileResult, index, "annotation 'v13' is not allowed on const", 556, 1);
     }
 
     @Test
     public void testInvalidAttachmentOnExternal() {
         int index = 152;
-        validateError(compileResult, index++, "annotation 'v1' is not allowed on external", 556, 62);
-        validateError(compileResult, index++, "annotation 'v2' is not allowed on external", 559, 61);
-        validateError(compileResult, index++, "annotation 'v3' is not allowed on external", 562, 61);
-        validateError(compileResult, index++, "annotation 'v4' is not allowed on external", 565, 61);
-        validateError(compileResult, index++, "annotation 'v5' is not allowed on external", 568, 61);
-        validateError(compileResult, index++, "annotation 'v6' is not allowed on external", 571, 61);
-        validateError(compileResult, index++, "annotation 'v7' is not allowed on external", 574, 61);
-        validateError(compileResult, index++, "annotation 'v8' is not allowed on external", 575, 61);
-        validateError(compileResult, index++, "annotation 'v9' is not allowed on external", 578, 61);
-        validateError(compileResult, index++, "annotation 'v10' is not allowed on external", 581, 61);
-        validateError(compileResult, index++, "annotation 'v11' is not allowed on external", 584, 61);
-        validateError(compileResult, index, "annotation 'v12' is not allowed on external", 587, 61);
+        validateError(compileResult, index++, "annotation 'v1' is not allowed on external", 561, 62);
+        validateError(compileResult, index++, "annotation 'v2' is not allowed on external", 564, 61);
+        validateError(compileResult, index++, "annotation 'v3' is not allowed on external", 567, 61);
+        validateError(compileResult, index++, "annotation 'v4' is not allowed on external", 570, 61);
+        validateError(compileResult, index++, "annotation 'v5' is not allowed on external", 573, 61);
+        validateError(compileResult, index++, "annotation 'v6' is not allowed on external", 576, 61);
+        validateError(compileResult, index++, "annotation 'v7' is not allowed on external", 579, 61);
+        validateError(compileResult, index++, "annotation 'v8' is not allowed on external", 580, 61);
+        validateError(compileResult, index++, "annotation 'v9' is not allowed on external", 583, 61);
+        validateError(compileResult, index++, "annotation 'v10' is not allowed on external", 586, 61);
+        validateError(compileResult, index++, "annotation 'v11' is not allowed on external", 589, 61);
+        validateError(compileResult, index, "annotation 'v12' is not allowed on external", 592, 61);
     }
 
     @Test
     public void testInvalidAttachmentOnServiceVariable() {
         int index = 164;
-        validateError(compileResult, index++, "annotation 'v8' is not allowed on var", 591, 1);
-        validateError(compileResult, index++, "annotation 'v1' is not allowed on service", 595, 1);
-        validateError(compileResult, index++, "annotation 'v2' is not allowed on service", 598, 1);
-        validateError(compileResult, index++, "annotation 'v3' is not allowed on service", 601, 1);
-        validateError(compileResult, index++, "annotation 'v4' is not allowed on service", 604, 1);
-        validateError(compileResult, index++, "annotation 'v5' is not allowed on service", 607, 1);
-        validateError(compileResult, index++, "annotation 'v6' is not allowed on service", 610, 1);
-        validateError(compileResult, index++, "annotation 'v7' is not allowed on service", 613, 1);
-        validateError(compileResult, index++, "annotation 'v9' is not allowed on service", 614, 1);
-        validateError(compileResult, index++, "annotation 'v10' is not allowed on service", 617, 1);
-        validateError(compileResult, index++, "annotation 'v11' is not allowed on service", 620, 1);
-        validateError(compileResult, index++, "annotation 'v12' is not allowed on service", 623, 1);
-        validateError(compileResult, index, "annotation 'v13' is not allowed on service", 626, 1);
+        validateError(compileResult, index++, "annotation 'v8' is not allowed on var", 596, 1);
+        validateError(compileResult, index++, "annotation 'v1' is not allowed on service", 600, 1);
+        validateError(compileResult, index++, "annotation 'v2' is not allowed on service", 603, 1);
+        validateError(compileResult, index++, "annotation 'v3' is not allowed on service", 606, 1);
+        validateError(compileResult, index++, "annotation 'v4' is not allowed on service", 609, 1);
+        validateError(compileResult, index++, "annotation 'v5' is not allowed on service", 612, 1);
+        validateError(compileResult, index++, "annotation 'v6' is not allowed on service", 615, 1);
+        validateError(compileResult, index++, "annotation 'v7' is not allowed on service", 618, 1);
+        validateError(compileResult, index++, "annotation 'v9' is not allowed on service", 619, 1);
+        validateError(compileResult, index++, "annotation 'v10' is not allowed on service", 622, 1);
+        validateError(compileResult, index++, "annotation 'v11' is not allowed on service", 625, 1);
+        validateError(compileResult, index++, "annotation 'v12' is not allowed on service", 628, 1);
+        validateError(compileResult, index, "annotation 'v13' is not allowed on service", 631, 1);
     }
 }
