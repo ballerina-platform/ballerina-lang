@@ -19,6 +19,7 @@ package org.ballerinalang.testerina.core.entity;
 
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.model.values.BValue;
@@ -113,7 +114,8 @@ public class TesterinaFunction {
                     throw new BallerinaException("Error while invoking function '" + funcName + "'", e);
                 }
             };
-            final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null);
+            final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null,
+                    BTypes.typeAny);
             scheduler.immortal = true;
             Thread imortalThread = new Thread(() -> {
                 scheduler.start();

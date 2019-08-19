@@ -19,6 +19,7 @@ package org.ballerinalang.jvm.transactions;
 
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
@@ -94,7 +95,7 @@ public class TransactionUtils {
                 public void notifyFailure(ErrorValue error) {
                     completeFunction.countDown();
                 }
-            }, new HashMap<>());
+            }, new HashMap<>(), BTypes.typeAny);
             completeFunction.await();
             return futureValue.result;
         } catch (NoSuchMethodException | ClassNotFoundException | InterruptedException e) {

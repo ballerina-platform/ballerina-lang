@@ -718,8 +718,10 @@ type TerminatorGenerator object {
     function submitToScheduler(bir:VarRef? lhsOp, int localVarOffset) {
         bir:BType? futureType = lhsOp.typeValue;
         boolean isVoid = false;
+        bir:BType returnType = "any";
         if (futureType is bir:BFutureType) {
             isVoid = futureType.returnType is bir:BTypeNil;
+            returnType = futureType.returnType;
         }
         // load strand
         self.mv.visitVarInsn(ALOAD, localVarOffset);
@@ -727,8 +729,9 @@ type TerminatorGenerator object {
             self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleConsumer",
                 io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
         } else {
+            loadType(self.mv, returnType);
             self.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleFunction",
-                io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
+                io:sprintf("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
         }
 
         // store return

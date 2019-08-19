@@ -2194,18 +2194,14 @@ public class TypeChecker extends BLangNodeVisitor {
         BType expType = requireTypeInference(conversionExpr.expr) ? targetType : symTable.noType;
         BType sourceType = checkExpr(conversionExpr.expr, env, expType);
 
-        if (targetType.tag == TypeTags.FUTURE) {
-            dlog.error(conversionExpr.pos, DiagnosticCode.TYPE_CAST_NOT_YET_SUPPORTED, targetType);
-        } else {
-            BSymbol symbol = symResolver.resolveTypeCastOperator(conversionExpr.expr, sourceType, targetType);
+        BSymbol symbol = symResolver.resolveTypeCastOperator(conversionExpr.expr, sourceType, targetType);
 
-            if (symbol == symTable.notFoundSymbol) {
-                dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CAST, sourceType, targetType);
-            } else {
-                conversionExpr.conversionSymbol = (BOperatorSymbol) symbol;
-                // We reach this block only if the cast is valid, so we set the target type as the actual type.
-                actualType = targetType;
-            }
+        if (symbol == symTable.notFoundSymbol) {
+            dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CAST, sourceType, targetType);
+        } else {
+            conversionExpr.conversionSymbol = (BOperatorSymbol) symbol;
+            // We reach this block only if the cast is valid, so we set the target type as the actual type.
+            actualType = targetType;
         }
         resultType = types.checkType(conversionExpr, actualType, this.expType);
     }
