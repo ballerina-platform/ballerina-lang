@@ -41,7 +41,8 @@ public class RemoteRepo extends NonSysRepo<URI> {
         this(new URIConverter(base, dependencyManifests));
     }
 
-    public RemoteRepo(URI base,  Map<PackageID, Manifest> dependencyManifests, boolean isBuild) {
+    public RemoteRepo(URI base, Map<PackageID, Manifest> dependencyManifests,
+                      boolean isBuild) {
         this(new URIConverter(base, dependencyManifests, isBuild));
     }
 

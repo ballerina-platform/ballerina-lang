@@ -108,6 +108,9 @@ public class PackageLoader {
     private final boolean offline;
     private final boolean testEnabled;
     private final boolean lockEnabled;
+    /**
+     * Manifest of the current project.
+     */
     private final Manifest manifest;
     private final LockFile lockFile;
 
@@ -122,6 +125,9 @@ public class PackageLoader {
     private final BLangDiagnosticLog dlog;
     private static final boolean shouldReadBalo = true;
     private final CompilerPhase compilerPhase;
+    /**
+     * Holds the manifests of modules resolved by dependency paths
+     */
     private Map<PackageID, Manifest> dependencyManifests = new HashMap<>();
 
     public static PackageLoader getInstance(CompilerContext context) {
@@ -182,8 +188,7 @@ public class PackageLoader {
         Repo remoteRepo = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()), this.dependencyManifests);
         Repo remoteDryRepo = new RemoteRepo(new URIDryConverter(URI.create(RepoUtils.getRemoteRepoURL()),
                 this.dependencyManifests));
-        Repo pathBaloRepo = new PathBaloRepo(this.manifest, this.dependencyManifests);
-        Repo homeBaloCache = new HomeBaloRepo(balHomeDir, this.dependencyManifests);
+        Repo homeBaloCache = new HomeBaloRepo(this.dependencyManifests);
         Repo homeCacheRepo = new CacheRepo(balHomeDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, compilerPhase);
         Repo homeRepo = shouldReadBalo ? new BinaryRepo(balHomeDir, compilerPhase) : new ZipRepo(balHomeDir);
         Repo projectCacheRepo = new CacheRepo(projectHiddenDir,
@@ -195,21 +200,19 @@ public class PackageLoader {
         RepoNode homeCacheNode;
 
         if (offline) {
-            homeCacheNode = node(pathBaloRepo,
-                                node(homeBaloCache,
-                                    node(homeCacheRepo,
-                                        node(systemBirRepo,
-                                            node(systemZipRepo)))));
+            homeCacheNode = node(homeBaloCache,
+                                node(homeCacheRepo,
+                                    node(systemBirRepo,
+                                        node(systemZipRepo))));
         } else {
-            homeCacheNode = node(pathBaloRepo,
-                                node(homeBaloCache,
-                                    node(homeCacheRepo,
-                                        node (systemBirRepo,
-                                            node(systemZipRepo,
-                                                node(remoteRepo,
-                                                    node(homeBaloCache,
-                                                        node(systemBirRepo,
-                                                            node(secondarySystemRepo)))))))));
+            homeCacheNode = node(homeBaloCache,
+                                node(homeCacheRepo,
+                                    node (systemBirRepo,
+                                        node(systemZipRepo,
+                                            node(remoteRepo,
+                                                node(homeBaloCache,
+                                                    node(systemBirRepo,
+                                                        node(secondarySystemRepo))))))));
         }
         
         // If lock file is not there, fist check in central.
@@ -253,13 +256,15 @@ public class PackageLoader {
     private PackageEntity loadPackageEntity(PackageID pkgId, PackageID enclPackageId,
                                             RepoHierarchy encPkgRepoHierarchy) {
         updateModuleIDVersion(pkgId, enclPackageId);
-        Resolution resolution;
-        if (null != encPkgRepoHierarchy) {
-            resolution = encPkgRepoHierarchy.resolve(pkgId);
-        } else {
-            resolution = repos.resolve(pkgId);
+        Resolution resolution = resolveModuleByPath(pkgId);
+        if (resolution == Resolution.NOT_FOUND) {
+            if (null != encPkgRepoHierarchy) {
+                resolution = encPkgRepoHierarchy.resolve(pkgId);
+            } else {
+                resolution = repos.resolve(pkgId);
+            }
         }
-        
+    
         if (resolution == Resolution.NOT_FOUND) {
             return null;
         }
@@ -276,10 +281,22 @@ public class PackageLoader {
     }
     
     /**
+     * Resolve a module by path if given.
+     *
+     * @param moduleID The module's ID
+     * @return The resolution.
+     */
+    private Resolution resolveModuleByPath(PackageID moduleID) {
+        Repo pathBaloRepo = new PathBaloRepo(this.manifest, this.dependencyManifests);
+        RepoHierarchy pathRepoHierarchy = RepoHierarchyBuilder.build(node(pathBaloRepo));
+        return pathRepoHierarchy.resolve(moduleID);
+    }
+    
+    /**
      * Update the version of a moduleID if a version is available. Priority order:
-     * 1. When a dependency is given to resolve by path.
-     * 2. If a version is available in the Ballerina.lock file.
-     * 3. If a version is available on the Ballerina.toml
+     * 1. If a version is available in the Ballerina.lock file.
+     * 2. If a version is available on the Ballerina.toml
+     * 3. When a dependency is given to resolve by path.
      *
      * @param moduleID The ID of the module.
      * @param enclPackageId The ID of the parent module.
@@ -324,10 +341,11 @@ public class PackageLoader {
         // Set the version from Ballerina.toml found in a path dependency(balo).
         if (null != enclPackageId && moduleID.version.value.isEmpty() && this.dependencyManifests.size() > 0 &&
             this.dependencyManifests.containsKey(enclPackageId)) {
+            
             Optional<Dependency> manifestDependency = this.dependencyManifests.get(enclPackageId).getDependencies()
                     .stream()
-                    .filter(dep -> dep.getOrgName().equals(enclPackageId.orgName.value) &&
-                                   dep.getModuleName().equals(enclPackageId.name.value) &&
+                    .filter(dep -> dep.getOrgName().equals(moduleID.orgName.value) &&
+                                   dep.getModuleName().equals(moduleID.name.value) &&
                                    null != dep.getMetadata().getVersion() &&
                                    !"*".equals(dep.getMetadata().getVersion()))
                     .findFirst();
