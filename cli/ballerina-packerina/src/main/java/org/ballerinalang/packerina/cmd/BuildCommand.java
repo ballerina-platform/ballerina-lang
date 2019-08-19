@@ -335,7 +335,7 @@ public class BuildCommand implements BLauncherCmd {
         buildContext.setErr(errStream);
     
         boolean isSingleFileBuild = buildContext.getSourceType().equals(SINGLE_BAL_FILE);
-        Path outputPath = null == this.output ? this.sourceRootPath : Paths.get(this.output);
+        Path outputPath = null == this.output ? Paths.get(System.getProperty("user.dir")) : Paths.get(this.output);
         Path configFilePath = null == this.configFilePath ? null : Paths.get(this.configFilePath);
         
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
