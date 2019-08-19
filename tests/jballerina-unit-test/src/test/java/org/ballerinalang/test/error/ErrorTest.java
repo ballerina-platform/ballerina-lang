@@ -240,8 +240,6 @@ public class ErrorTest {
         Assert.assertEquals(negativeCompileResult.getErrorCount(), 17);
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++,
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 16);
-        BAssertUtil.validateError(negativeCompileResult, 0,
                                   "incompatible types: expected 'reason one|reason two', found 'string'", 26, 31);
         BAssertUtil.validateError(negativeCompileResult, i++,
                                   "incompatible types: expected 'reason one', found 'reason two'", 31, 31);
@@ -270,8 +268,8 @@ public class ErrorTest {
                 "cannot infer reason from error constructor: 'RNStrError'", 97, 21);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "error reason is mandatory for direct error constructor", 112, 28);
-        BAssertUtil.validateError(negativeCompileResult, 15,
-                "incompatible types: expected 'error', found '(error|int)'", 102, 11);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'error', found '(error|int)'", 118, 11);
     }
     @DataProvider(name = "userDefTypeAsReasonTests")
     public Object[][] userDefTypeAsReasonTests() {
