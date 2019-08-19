@@ -351,7 +351,6 @@ function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointCo
         forwarded:lbConfig.forwarded,
         followRedirects:lbConfig.followRedirects,
         retryConfig:lbConfig.retryConfig,
-        proxy:lbConfig.proxy,
         poolConfig:lbConfig.poolConfig,
         secureSocket:target.secureSocket,
         cache:lbConfig.cache,

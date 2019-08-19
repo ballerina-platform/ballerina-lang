@@ -247,7 +247,7 @@ public function defineEndpointWithProxy(string url, string hostname, int port, s
             shareSession: true
         },
         followRedirects: { enabled: true, maxCount: 5 },
-        proxy : getProxyConfigurations(hostname, port, username, password)
+        http1Settings: { proxy : getProxyConfigurations(hostname, port, username, password) }
     });
     return <@untainted> httpEndpointWithProxy;
 }
