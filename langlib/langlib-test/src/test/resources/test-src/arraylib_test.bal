@@ -107,14 +107,14 @@ function testIterableOpChain() returns float {
 
 function gradeToValue([Grade, int] grade) returns [float, int] {
     match grade[0] {
-        "A+" => return [4.2, grade[1]];
-        "A" => return [4.0, grade[1]];
-        "A-" => return [3.7, grade[1]];
-        "B+" => return [3.3, grade[1]];
-        "B" => return [3.0, grade[1]];
-        "B-" => return [2.7, grade[1]];
-        "C" => return [2.0, grade[1]];
-        "F" => return [0.0, grade[1]];
+        "A+" => {return [4.2, grade[1]];}
+        "A" => {return [4.0, grade[1]];}
+        "A-" => {return [3.7, grade[1]];}
+        "B+" => {return [3.3, grade[1]];}
+        "B" => {return [3.0, grade[1]];}
+        "B-" => {return [2.7, grade[1]];}
+        "C" => {return [2.0, grade[1]];}
+        "F" => {return [0.0, grade[1]];}
     }
     error e = error("Invalid grade: " + <string>grade[0]);
     panic e;
