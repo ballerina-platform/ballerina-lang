@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/io;
+
 function testIntWithoutArgs() returns int {
    int b = 7;
    return b;
@@ -722,4 +724,16 @@ function testDecimalWithoutArgs() returns decimal {
 function testDecimalWithArgs(decimal a) returns decimal {
    decimal b = 5 + a;
    return b;
+}
+
+function testTupleArrayTypeToString() {
+	string[] arr = ["true"];
+	any a = arr;
+	[float][] f = <[float][]> a;
+}
+
+function testTypeDescValuePrint() {
+	map<int|string> m1 = { one: 1, two: 2 };
+    typedesc<map<anydata>> t1 = typeof m1;
+    io:print(t1);
 }
