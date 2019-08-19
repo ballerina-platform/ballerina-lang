@@ -24,7 +24,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -38,21 +37,6 @@ import static org.awaitility.Awaitility.await;
 @Test
 public class TimerSchedulerTest {
 
-    @Test(description = "Tests for pause and resume functions of the timer", enabled = false)
-    public void testPauseResume() {
-        CompileResult compileResult = BCompileUtil.compile(true, "scheduler/timer/pause_resume.bal");
-        BRunUtil.invoke(compileResult, "testPauseResume");
-        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-            BValue[] count1 = BRunUtil.invoke(compileResult, "getCount1");
-            BValue[] count2 = BRunUtil.invoke(compileResult, "getCount2");
-            Assert.assertEquals(count1.length, 1);
-            Assert.assertTrue(count1[0] instanceof BInteger);
-            Assert.assertEquals(count2.length, 1);
-            Assert.assertTrue(count2[0] instanceof BInteger);
-            return ((((BInteger) count2[0]).intValue() - ((BInteger) count1[0]).intValue()) > 4);
-        });
-    }
-
     @Test(description = "Tests a timer scheduler cancel functionality", enabled = false)
     public void testListenerTimerStop() {
         CompileResult compileResult = BCompileUtil.compile(true, "scheduler/timer/timer_stop.bal");
@@ -62,47 +46,6 @@ public class TimerSchedulerTest {
             Assert.assertEquals(count.length, 1);
             Assert.assertTrue(count[0] instanceof BInteger);
             return (((BInteger) count[0]).intValue() == -2000);
-        });
-    }
-
-    @Test(description = "Tests a timer scheduler which runs for a limited number of times", enabled = false)
-    public void testLimitedNumberOfRuns() {
-        CompileResult compileResult = BCompileUtil.compile(true, "scheduler/timer/limited_number_of_runs.bal");
-
-        BRunUtil.invoke(compileResult, "triggerTimer");
-        BValue[] count = BRunUtil.invoke(compileResult, "getCount");
-        Assert.assertEquals(count.length, 1);
-        Assert.assertTrue(count[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) count[0]).intValue(), 3);
-    }
-
-    @Test(description = "Tests a timer scheduler with zero delay", enabled = false)
-    public void testZeroDelay() {
-        CompileResult compileResult = BCompileUtil.compile(true, "scheduler/timer/zero_delay.bal");
-        BRunUtil.invoke(compileResult, "triggerTimer");
-        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-            BValue[] count = BRunUtil.invoke(compileResult, "getCount");
-            Assert.assertEquals(count.length, 1);
-            Assert.assertTrue(count[0] instanceof BInteger);
-            return (((BInteger) count[0]).intValue() > 3);
-        });
-    }
-
-
-    @Test(
-            description = "Tests a timer scheduler with zero interval",
-            expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*Timer scheduling interval should be a positive integer.*",
-            enabled = false
-    )
-    public void testZeroInterval() {
-        CompileResult compileResult = BCompileUtil.compile(true, "scheduler/timer/zero_interval.bal");
-        BRunUtil.invoke(compileResult, "triggerTimer");
-        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-            BValue[] count = BRunUtil.invoke(compileResult, "getCount");
-            Assert.assertEquals(count.length, 1);
-            Assert.assertTrue(count[0] instanceof BInteger);
-            return (((BInteger) count[0]).intValue() > 3);
         });
     }
 

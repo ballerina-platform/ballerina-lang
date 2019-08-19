@@ -94,13 +94,15 @@ public class TimerServiceTest {
 
     @Test(description = "Tests a timer listener without delay field")
     public void testListenerTimerWithoutDelay() {
-        CompileResult compileResult = BCompileUtil.compile(true,
-                getFilePath(Paths.get("listener", "timer", "service_without_delay.bal")));
-        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-            BValue[] count = BRunUtil.invoke(compileResult, "getCount");
-            Assert.assertEquals(count.length, 1);
-            Assert.assertTrue(count[0] instanceof BInteger);
-            return (((BInteger) count[0]).intValue() > 3);
-        });
+        BCompileUtil.compile(getFilePath(Paths.get("listener", "timer", "service_without_delay.bal")));
+    }
+
+    @Test(
+            description = "Tests a timer scheduler with zero interval",
+            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*Timer scheduling interval should be a positive integer.*"
+    )
+    public void testZeroInterval() {
+        BCompileUtil.compile(getFilePath(Paths.get("listener", "timer", "zero_interval.bal")));
     }
 }
