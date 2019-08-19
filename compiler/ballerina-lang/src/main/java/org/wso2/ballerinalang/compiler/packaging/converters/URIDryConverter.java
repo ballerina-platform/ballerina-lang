@@ -113,9 +113,7 @@ public class URIDryConverter extends URIConverter {
                     conn.setRequestMethod("GET");
                     // set implementation version
                     conn.setRequestProperty("Ballerina-Platform", supportedPlatform);
-                    // TODO: conn.setRequestProperty("Ballerina-Language-Specification-Version",
-                    //  IMPLEMENTATION_VERSION);
-                    conn.setRequestProperty("Ballerina-Language-Specficiation-Version", IMPLEMENTATION_VERSION);
+                    conn.setRequestProperty("Ballerina-Language-Specification-Version", IMPLEMENTATION_VERSION);
                     
                     // status code and meaning
                     //// 302 - module found
