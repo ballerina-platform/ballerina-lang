@@ -36,7 +36,7 @@ under the License.
             <package name="org.ballerinalang.langserver.rename.*"/>
             <package name="org.ballerinalang.langserver.signature.*"/>
             <package name="org.ballerinalang.langserver.sourceprune.*"/>
-<!--            <package name="org.ballerinalang.langserver.workspace.*"/>-->
+            <package name="org.ballerinalang.langserver.workspace.*"/>
             <package name="org.ballerinalang.langserver.formatting.*"/>
             <package name="org.ballerinalang.langserver.extensions.document.*"/>
             <package name="org.ballerinalang.langserver.codeaction.*"/>

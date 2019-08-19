@@ -54,7 +54,7 @@ public class ReadDir {
         File inputFile = Paths.get(path).toAbsolutePath().toFile();
 
         if (!inputFile.exists()) {
-            return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR, "" +
+            return SystemUtils.getBallerinaError(SystemConstants.FILE_NOT_FOUND_ERROR,
                     "File not found: " + path);
         }
 

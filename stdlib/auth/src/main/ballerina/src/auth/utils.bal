@@ -19,9 +19,6 @@ import ballerina/internal;
 import ballerina/log;
 import ballerina/runtime;
 
-# Constant for empty string.
-const string EMPTY_STRING = "";
-
 # Default charset to be used with password hashing.
 public const string DEFAULT_CHARSET = "UTF-8";
 

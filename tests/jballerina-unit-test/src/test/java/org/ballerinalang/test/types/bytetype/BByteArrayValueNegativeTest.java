@@ -28,13 +28,13 @@ import org.testng.annotations.Test;
  */
 public class BByteArrayValueNegativeTest {
 
-    @Test(description = "Test blob value negative", enabled = false)
+    @Test(description = "Test blob value negative")
     public void testBlobValueNegative() {
         CompileResult result = BCompileUtil.compile("test-src/types/byte/byte-array-value-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 22);
 
         int index = 0;
-        String msg1 = "expecting {'is', ';', '.', '[', '?', '+', '-', '*', '/', '%', '!', " +
+        String msg1 = "expecting {'is', ';', '.', '[', '?', '?.', '+', '-', '*', '/', '%', '!', " +
                 "'==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', '@', '...', '|', '?:'," +
                 " '->>', '..<', '.@'}";
         
@@ -42,7 +42,7 @@ public class BByteArrayValueNegativeTest {
         BAssertUtil.validateError(result, index++, "mismatched input '16'. " + msg1, 3, 21);
         BAssertUtil.validateError(result, index++, "mismatched input '`'. " + msg1, 4, 23);
         BAssertUtil.validateError(result, index++, "extraneous input '`'", 5, 23);
-        BAssertUtil.validateError(result, index++, "extraneous input '`'", 5, 39);
+        BAssertUtil.validateError(result, index++, "mismatched input '`'. expecting '('", 5, 39);
         BAssertUtil.validateError(result, index++, "mismatched input '`'. " + msg1, 6, 23);
         BAssertUtil.validateError(result, ++index, "mismatched input '`'. " + msg1, 7, 23);
     }
