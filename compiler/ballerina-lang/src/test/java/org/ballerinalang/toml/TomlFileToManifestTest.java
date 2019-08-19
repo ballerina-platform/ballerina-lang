@@ -48,9 +48,15 @@ public class TomlFileToManifestTest {
         Assert.assertEquals(manifest.getProject().getKeywords().get(2), "crypto");
         Assert.assertEquals(manifest.getProject().getKeywords().size(), 3);
 
-        Assert.assertEquals(manifest.getDependencies().size(), 1);
+        Assert.assertEquals(manifest.getDependencies().size(), 2);
         
         Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "wso2/twitter");
         Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getVersion(), "2.3.4");
+    
+        Assert.assertEquals(manifest.getDependencies().get(1).getModuleID(), "wso2/github");
+        Assert.assertEquals(manifest.getDependencies().get(1).getMetadata().getVersion(), "1.2.3");
+        Assert.assertEquals(manifest.getDependencies().get(1).getMetadata().getPath().toString(),
+                "path/to/github.balo");
+        
     }
 }
