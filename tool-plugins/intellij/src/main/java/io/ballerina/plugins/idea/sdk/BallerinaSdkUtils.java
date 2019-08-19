@@ -496,7 +496,6 @@ public class BallerinaSdkUtils {
         return searchForBallerinaProjectRoot(currentDir.getParentFile().getAbsolutePath(), root);
     }
 
-
     @Messages.YesNoResult
     public static void showRestartDialog(Project project) {
         ApplicationManager.getApplication().invokeLater(() -> {
