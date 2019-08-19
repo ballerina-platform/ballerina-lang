@@ -142,12 +142,12 @@ public class PushUtils {
             String urlWithModulePath = URI.create(RepoUtils.getRemoteRepoURL()).resolve("/modules/").toString();
             String outputLogMessage = orgName + "/" + moduleName + ":" + version + " [project repo -> central]";
         
-            Optional<RuntimeException> execute = executor.executeMainFunction("module_push", urlWithModulePath,
+            Optional<RuntimeException> exception = executor.executeMainFunction("module_push", urlWithModulePath,
                     proxy.getHost(), proxyPortAsString, proxy.getUserName(), proxy.getPassword(), accessToken,
                     orgName, moduleBaloFile.get().toAbsolutePath().toString(),
                     outputLogMessage);
-            if (execute.isPresent()) {
-                String errorMessage = execute.get().getMessage();
+            if (exception.isPresent()) {
+                String errorMessage = exception.get().getMessage();
                 if (null != errorMessage && !"".equals(errorMessage.trim())) {
                     // removing the error stack
                     if (errorMessage.contains("\n\tat")) {
