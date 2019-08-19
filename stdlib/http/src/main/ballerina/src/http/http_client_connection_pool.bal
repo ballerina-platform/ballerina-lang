@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/config;
+
 # Configurations for managing HTTP client connection pool.
 #
 # + maxActiveConnections - Max active connections per route(host:port). Default value is -1 which indicates unlimited.

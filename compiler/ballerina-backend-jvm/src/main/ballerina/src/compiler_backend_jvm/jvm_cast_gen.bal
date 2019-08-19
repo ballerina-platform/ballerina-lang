@@ -18,6 +18,10 @@
 //                  Generate Check Cast Methods
 // ------------------------------------------------------------------
 
+import ballerina/bir;
+import ballerina/io;
+import ballerina/jvm;
+
 function generateCheckCast(jvm:MethodVisitor mv, bir:BType sourceType, bir:BType targetType) {
     if (targetType is bir:BTypeInt) {
         generateCheckCastToInt(mv, sourceType);

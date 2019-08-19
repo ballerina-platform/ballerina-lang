@@ -15,6 +15,8 @@
 // under the License.
 
 import ballerina/internal;
+import ballerina/io;
+import ballerina/jvm;
 
 function emitStopObservationInvocation(jvm:MethodVisitor mv, int strandIndex) {
     mv.visitVarInsn(ALOAD, strandIndex);

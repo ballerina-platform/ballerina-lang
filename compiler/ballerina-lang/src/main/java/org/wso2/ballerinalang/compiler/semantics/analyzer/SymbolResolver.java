@@ -628,12 +628,35 @@ public class SymbolResolver extends BLangNodeVisitor {
         return resolvePkgSymbol(pos, env, pkgAlias, SymTag.PACKAGE);
     }
 
-    public BSymbol resolveImportSymbol(DiagnosticPos pos, SymbolEnv env, Name pkgAlias) {
-        return resolvePkgSymbol(pos, env, pkgAlias, SymTag.IMPORT);
+    public BSymbol resolveImportSymbol(SymbolEnv env, Name pkgAlias, Name compUnit) {
+        if (pkgAlias == Names.EMPTY) {
+            // Return the current package symbol
+            return env.enclPkg.symbol;
+        }
+
+        // Lookup for an imported package
+        ScopeEntry entry = env.scope.lookup(pkgAlias);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & SymTag.XMLNS) == SymTag.XMLNS) {
+                return entry.symbol;
+            }
+
+            if ((entry.symbol.tag & SymTag.IMPORT) == SymTag.IMPORT &&
+                    ((BPackageSymbol) entry.symbol).compUnit.equals(compUnit)) {
+                return entry.symbol;
+            }
+
+            entry = entry.next;
+        }
+
+        if (env.enclEnv != null) {
+            return resolveImportSymbol(env.enclEnv, pkgAlias, compUnit);
+        }
+
+        return symTable.notFoundSymbol;
     }
 
     private BSymbol resolvePkgSymbol(DiagnosticPos pos, SymbolEnv env, Name pkgAlias, int symTag) {
-
         if (pkgAlias == Names.EMPTY) {
             // Return the current package symbol
             return env.enclPkg.symbol;
@@ -846,8 +869,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         // 2) Retrieve the package symbol first
-        BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
+        BSymbol pkgSymbol =
+                resolveImportSymbol(env, pkgAlias, names.fromString(pos.getSource().getCompilationUnitName()));
         if (pkgSymbol == symTable.notFoundSymbol) {
+            dlog.error(pos, DiagnosticCode.UNDEFINED_MODULE, pkgAlias.value);
             return pkgSymbol;
         }
 

@@ -19,6 +19,7 @@ import ballerina/log;
 import ballerina/runtime;
 import ballerina/system;
 import ballerina/'lang\.object as lang;
+import ballerina/cache;
 
 /////////////////////////////
 /// HTTP Listener Endpoint ///

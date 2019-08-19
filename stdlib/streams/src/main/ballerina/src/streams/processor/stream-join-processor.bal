@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/internal;
+
 # The `StreamJoinProcessor` object is responsible for  performing SQLish joins between two or more streams.
 # The `onConditionFunc` is the lambda function which represents the where clause in the join clause. The joining
 # happens only if the condition is statified. `nextProcessor` is the `process` function of the next processor, which

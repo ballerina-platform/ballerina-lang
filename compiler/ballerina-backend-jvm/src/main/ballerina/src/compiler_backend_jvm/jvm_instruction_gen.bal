@@ -15,6 +15,8 @@
 // under the License.
 
 import ballerina/io;
+import ballerina/bir;
+import ballerina/jvm;
 
 type InstructionGenerator object {
     jvm:MethodVisitor mv;

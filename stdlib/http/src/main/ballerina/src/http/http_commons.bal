@@ -15,6 +15,8 @@
 // under the License.
 
 import ballerina/internal;
+import ballerina/mime;
+import ballerina/io;
 
 # Represents HTTP/1.0 protocol
 const string HTTP_1_0 = "1.0";

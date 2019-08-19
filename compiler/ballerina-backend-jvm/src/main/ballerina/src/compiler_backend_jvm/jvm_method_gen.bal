@@ -14,6 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/bir;
+import ballerina/io;
+import ballerina/internal;
+import ballerina/jvm;
+
 string[] generatedInitFuncs = [];
 int nextId = -1;
 int nextVarId = -1;

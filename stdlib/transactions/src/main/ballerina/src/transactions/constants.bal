@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/config;
+import ballerina/http;
 
 const string basePath = "/balcoordinator";
 final string initiatorCoordinatorBasePath = basePath + "/initiator";

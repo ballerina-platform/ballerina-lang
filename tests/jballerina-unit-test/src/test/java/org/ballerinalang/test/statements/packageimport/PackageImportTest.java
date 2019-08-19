@@ -66,4 +66,15 @@ public class PackageImportTest {
         BAssertUtil.validateError(result, 0, "cannot resolve module 'foo.x'", 1, 1);
     }
 
+    @Test()
+    public void testImportsPerfile() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/package/sample-project", "invalid-imports");
+        Assert.assertEquals(result.getErrorCount(), 5);
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'io'", "src/file-negative1.bal", 3, 1);
+        BAssertUtil.validateError(result, i++, "undefined module 'http'", "src/file-negative2.bal", 3, 5);
+        BAssertUtil.validateError(result, i++, "unknown type 'Client'", "src/file-negative2.bal", 3, 5);
+        BAssertUtil.validateError(result, i++, "undefined module 'io'", "src/file-negative2.bal", 4, 5);
+        BAssertUtil.validateError(result, i++, "undefined module 'io'", "src/file-negative2.bal", 5, 18);
+    }
 }

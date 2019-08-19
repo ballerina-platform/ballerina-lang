@@ -16,6 +16,7 @@
 
 import ballerina/io;
 import ballerina/mime;
+import ballerina/internal;
 
 # Represents an HTTP request.
 #

@@ -394,30 +394,6 @@ public class PackageLoader {
 
     // Private methods
 
-    private void addImportPkg(BLangPackage bLangPackage, String orgName, String sourcePkgName, String version) {
-        List<Name> nameComps = getPackageNameComps(sourcePkgName);
-        List<BLangIdentifier> pkgNameComps = new ArrayList<>();
-        nameComps.forEach(comp -> {
-            IdentifierNode node = TreeBuilder.createIdentifierNode();
-            node.setValue(comp.value);
-            pkgNameComps.add((BLangIdentifier) node);
-        });
-
-        BLangIdentifier orgNameNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        orgNameNode.setValue(orgName);
-        BLangIdentifier versionNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        versionNode.setValue(version);
-        BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
-        importDcl.pos = bLangPackage.pos;
-        importDcl.pkgNameComps = pkgNameComps;
-        importDcl.orgName = orgNameNode;
-        importDcl.version = versionNode;
-        BLangIdentifier alias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        alias.setValue(names.merge(Names.ORG_NAME_SEPARATOR, nameComps.get(nameComps.size() - 1)).value);
-        importDcl.alias = alias;
-        bLangPackage.imports.add(importDcl);
-    }
-
     private PackageID getPackageID(String org, String sourcePkg, String version) {
         // split from '.', '\' and '/'
         List<Name> pkgNameComps = getPackageNameComps(sourcePkg);

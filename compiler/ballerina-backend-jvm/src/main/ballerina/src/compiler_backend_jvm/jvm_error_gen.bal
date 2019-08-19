@@ -14,6 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/io;
+import ballerina/jvm;
+import ballerina/bir;
+
 type ErrorHandlerGenerator object {
     jvm:MethodVisitor mv;
     BalToJVMIndexMap indexMap;

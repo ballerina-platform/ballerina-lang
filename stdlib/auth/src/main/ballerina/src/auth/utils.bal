@@ -17,6 +17,7 @@
 import ballerina/encoding;
 import ballerina/internal;
 import ballerina/log;
+import ballerina/runtime;
 
 # Constant for empty string.
 const string EMPTY_STRING = "";

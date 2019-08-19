@@ -14,6 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/io;
+import ballerina/internal;
+import ballerina/jvm;
+import ballerina/bir;
+
 # Name of the class to which the types will be added as static fields.
 string typeOwnerClass = "";
 

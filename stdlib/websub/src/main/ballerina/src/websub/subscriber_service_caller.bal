@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/http;
+
 # The caller remote functions to respond to client requests.
 public type Caller client object {
     private http:Caller httpCaller;

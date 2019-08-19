@@ -185,6 +185,7 @@ public class HttpFiltersDesugar {
         BLangIdentifier pkgAlias = ASTBuilderUtil.createIdentifier(resourceNode.pos, getPackageAlias(env));
         BLangUserDefinedType filterContextUserDefinedType = new BLangUserDefinedType(
                 pkgAlias, ASTBuilderUtil.createIdentifier(resourceNode.pos, "FilterContext"));
+        filterContextUserDefinedType.pos = resourceNode.pos;
         BType filterContextType = symResolver.resolveTypeNode(filterContextUserDefinedType, env);
         String filterContextVarName = GEN_VAR_PREFIX.value + HTTP_FILTERCONTEXT_VAR;
 
@@ -299,6 +300,7 @@ public class HttpFiltersDesugar {
         BLangIdentifier pkgAlias = ASTBuilderUtil.createIdentifier(resourceNode.pos, getPackageAlias(env));
         BLangUserDefinedType filterUserDefinedType = new BLangUserDefinedType(
                 pkgAlias, ASTBuilderUtil.createIdentifier(resourceNode.pos, "RequestFilter"));
+        filterUserDefinedType.pos = resourceNode.pos;
         BObjectType filterType = (BObjectType) symResolver.resolveTypeNode(filterUserDefinedType, env);
 
         BLangLiteral configName = new BLangLiteral();

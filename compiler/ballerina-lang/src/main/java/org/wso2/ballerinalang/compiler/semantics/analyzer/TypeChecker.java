@@ -64,6 +64,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
@@ -1139,8 +1140,14 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        varRefExpr.pkgSymbol = symResolver.resolveImportSymbol(varRefExpr.pos,
-                env, names.fromIdNode(varRefExpr.pkgAlias));
+        Name compUnitName = getCurrentCompUnit(varRefExpr);
+        varRefExpr.pkgSymbol =
+                symResolver.resolveImportSymbol(env, names.fromIdNode(varRefExpr.pkgAlias), compUnitName);
+        if (varRefExpr.pkgSymbol == symTable.notFoundSymbol) {
+            dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_MODULE, varRefExpr.pkgAlias);
+            return;
+        }
+
         if (varRefExpr.pkgSymbol.tag == SymTag.XMLNS) {
             actualType = symTable.stringType;
         } else if (varRefExpr.pkgSymbol != symTable.notFoundSymbol) {
@@ -2714,8 +2721,10 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        // This if check is to avoid duplicate error message about 'undefined module'
-        if (symResolver.resolvePkgSymbol(iExpr.pos, env, pkgAlias) != symTable.notFoundSymbol) {
+        BSymbol pkgSymbol = symResolver.resolveImportSymbol(env, pkgAlias, getCurrentCompUnit(iExpr));
+        if (pkgSymbol == symTable.notFoundSymbol) {
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_MODULE, pkgAlias);
+        } else {
             if (funcSymbol == symTable.notFoundSymbol) {
                 funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
             }
@@ -4691,5 +4700,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return (((BLangSimpleVarRef) expression).symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT;
+    }
+
+    private Name getCurrentCompUnit(BLangNode node) {
+        return names.fromString(node.pos.getSource().getCompilationUnitName());
     }
 }
