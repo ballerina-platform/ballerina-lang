@@ -43,7 +43,7 @@ export function getServerOptions(ballerinaHome: string, experimental: boolean, d
         log('Language Server is starting in debug mode.');
         args.push('--debug');
     }
-    if (debugLogsEnabled || debugLogsEnabled) {
+    if (debugLogsEnabled || traceLogsEnabled) {
         let str = [];
         if (debugLogsEnabled) {
             str.push('debug');
