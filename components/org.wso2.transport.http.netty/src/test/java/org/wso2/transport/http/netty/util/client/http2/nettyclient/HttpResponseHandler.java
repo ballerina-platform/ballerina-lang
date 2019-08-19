@@ -89,7 +89,7 @@ public class HttpResponseHandler extends SimpleChannelInboundHandler<FullHttpRes
             if (!promise.isSuccess()) {
                 throw new RuntimeException(promise.cause());
             }
-            LOG.info("---Stream id: " + entry.getKey() + " received---");
+            LOG.debug("---Stream id: " + entry.getKey() + " received---");
             itr.remove();
         }
     }
