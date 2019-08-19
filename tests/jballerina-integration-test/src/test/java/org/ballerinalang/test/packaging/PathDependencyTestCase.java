@@ -330,9 +330,9 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Case5: Push with path dependency.")
+    @Test(description = "Case5: Push with path dependency.", expectedExceptions = BallerinaTestException.class)
     public void testBaloPathCase5() throws BallerinaTestException {
-        Path caseResources = tempTestResources.resolve("case1");
+        Path caseResources = tempTestResources.resolve("case5");
         // Build bee module of TestProject1
         String beeModuleBaloFileName = "bee-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-1.2.0"
                                        + BLANG_COMPILED_PKG_BINARY_EXT;
@@ -353,9 +353,8 @@ public class PathDependencyTestCase extends BaseTest {
         bazModuleBuildLeecher.waitForText(5000);
     
         // Push baz module of TestProject2
-        String bazPushErrMsg = "dependencies cannot be given by path when pushing module(s) to " +
-                               "remote. check dependencies in Ballerina.toml: [foo/baz]";
-        LogLeecher bazPushLeecher = new LogLeecher(bazPushErrMsg);
+        String bazPushMsg = "[project repo -> central]";
+        LogLeecher bazPushLeecher = new LogLeecher(bazPushMsg);
         balClient.runMain("push", new String[]{}, envVariables, new String[]{},
                 new LogLeecher[]{bazPushLeecher}, caseResources.resolve("TestProject2").toString());
         bazPushLeecher.waitForText(5000);
