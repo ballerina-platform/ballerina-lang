@@ -307,6 +307,7 @@ public class TestSuite {
 
     public void stop() {
         if (stopFunction != null) {
+            stopFunction.bFunction.name.value = "$moduleStop";
             stopFunction.invoke();
         }
         // poison the scheduler to stop all jobs.
