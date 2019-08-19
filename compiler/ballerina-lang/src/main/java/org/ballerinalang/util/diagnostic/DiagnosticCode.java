@@ -458,6 +458,8 @@ public enum DiagnosticCode {
     // Type Param related error codes.
     TYPE_PARAM_OUTSIDE_LANG_MODULE("type.param.outside.lang.module"),
 
+    VERSIONED_IMPORT_NOT_SUPPORTED("versioned.import.not.supported")
+
     ;
     private String value;
 
