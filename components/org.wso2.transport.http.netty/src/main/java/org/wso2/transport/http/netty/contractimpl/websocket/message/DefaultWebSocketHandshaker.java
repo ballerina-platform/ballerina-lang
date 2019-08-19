@@ -217,6 +217,7 @@ public class DefaultWebSocketHandshaker implements WebSocketHandshaker {
         ChannelPipeline pipeline = ctx.pipeline();
         pipeline.remove(Constants.WEBSOCKET_SERVER_HANDSHAKE_HANDLER);
         pipeline.remove(Constants.HTTP_CHUNK_WRITER);
+        pipeline.remove(Constants.HTTP_EXCEPTION_HANDLER);
         if (pipeline.get(UriAndHeaderLengthValidator.class) != null) {
             pipeline.remove(UriAndHeaderLengthValidator.class);
         }

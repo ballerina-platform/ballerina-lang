@@ -244,6 +244,7 @@ public final class Constants {
     public static final String HTTP_ACCESS_LOG_HANDLER = "http-access-logger";
     public static final String WEBSOCKET_SERVER_HANDSHAKE_HANDLER = "websocket-server-handshake-handler";
     public static final String WEBSOCKET_CLIENT_HANDSHAKE_HANDLER = "websocket-client-handshake-handler";
+    public static final String HTTP_EXCEPTION_HANDLER = "HttpExceptionHandler";
 
     public static final AttributeKey<Integer> REDIRECT_COUNT = AttributeKey.valueOf("REDIRECT_COUNT");
     public static final AttributeKey<String> RESOLVED_REQUESTED_URI_ATTR = AttributeKey
