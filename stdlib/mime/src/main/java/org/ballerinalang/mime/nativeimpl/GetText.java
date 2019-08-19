@@ -29,7 +29,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
-import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_BODY_FAILED;
 
 /**
  * Get the entity body as a string.
@@ -62,7 +61,7 @@ public class GetText extends AbstractGetPayloadHandler {
                 constructNonBlockingDataSource(callback, entityObj, SourceType.TEXT);
             }
         } catch (Exception ex) {
-            return createErrorAndNotify(PARSING_ENTITY_BODY_FAILED, callback,
+            return createParsingEntityBodyFailedErrorAndNotify(callback,
                                         "Error occurred while extracting text data from entity : " + ex.getMessage());
         }
         return result;

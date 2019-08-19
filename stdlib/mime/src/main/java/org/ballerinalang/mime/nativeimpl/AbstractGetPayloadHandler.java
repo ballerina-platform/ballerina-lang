@@ -73,26 +73,26 @@ public abstract class AbstractGetPayloadHandler {
                     }
                     updateDataSourceAndNotify(callback, entity, dataSource);
                 } catch (Exception e) {
-                    createErrorAndNotify(PARSING_ENTITY_BODY_FAILED, callback, "Error occurred while extracting " +
+                    createParsingEntityBodyFailedErrorAndNotify(callback, "Error occurred while extracting " +
                             sourceType.toString().toLowerCase(Locale.ENGLISH) + " data from entity: " + e.getMessage());
                 }
             }
 
             @Override
             public void onError(Exception ex) {
-                createErrorAndNotify(PARSING_ENTITY_BODY_FAILED, callback,
+                createParsingEntityBodyFailedErrorAndNotify(callback,
                                      "Error occurred while extracting content from message : " + ex.getMessage());
             }
         });
     }
 
-    static void setReturnValuesAndNotify(NonBlockingCallback callback, Object result) {
+    private static void setReturnValuesAndNotify(NonBlockingCallback callback, Object result) {
         callback.setReturnValues(result);
         callback.notifySuccess();
     }
 
-    static Object createErrorAndNotify(String reason, NonBlockingCallback callback, String errMsg) {
-        ErrorValue error = MimeUtil.createError(reason, errMsg);
+    static Object createParsingEntityBodyFailedErrorAndNotify(NonBlockingCallback callback, String errMsg) {
+        ErrorValue error = MimeUtil.createError(PARSING_ENTITY_BODY_FAILED, errMsg);
         if (callback != null) {
             setReturnValuesAndNotify(callback, error);
             return null;
@@ -106,7 +106,7 @@ public abstract class AbstractGetPayloadHandler {
         entityObj.addNativeData(ENTITY_BYTE_CHANNEL, null);
     }
 
-    static void updateDataSourceAndNotify(NonBlockingCallback callback, ObjectValue entityObj,
+    private static void updateDataSourceAndNotify(NonBlockingCallback callback, ObjectValue entityObj,
                                           Object result) {
         updateDataSource(entityObj, result);
         setReturnValuesAndNotify(callback, result);
