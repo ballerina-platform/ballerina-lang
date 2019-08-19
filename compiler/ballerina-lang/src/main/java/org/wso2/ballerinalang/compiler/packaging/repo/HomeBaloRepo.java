@@ -74,7 +74,8 @@ public class HomeBaloRepo implements Repo<Path> {
                 Path baloFilePath;
                 // check if version is empty. If so get the latest balo file directly.
                 if (versionStr.isEmpty()) {
-                    Optional<Path> latestVersionPath = getLatestBaloFile(this.repoLocation.resolve(orgName).resolve(pkgName));
+                    Optional<Path> latestVersionPath = getLatestBaloFile(this.repoLocation.resolve(orgName)
+                            .resolve(pkgName));
         
                     if (latestVersionPath.isPresent()) {
                         Path latestVersionDirectoryName = latestVersionPath.get().getFileName();
