@@ -42,18 +42,6 @@ public class MapConstantPanicInBaloTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
-    public void updateNestedConstantBooleanMapValueWithExistingKey() {
-        BRunUtil.invoke(compileResult, "updateNestedConstantBooleanMapValueWithExistingKey");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
-    public void updateNestedConstantBooleanMapValueWithNewKey() {
-        BRunUtil.invoke(compileResult, "updateNestedConstantBooleanMapValueWithNewKey");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*modification not allowed on readonly value.*")
     public void updateReturnedConstantBooleanMapWithExistingKey() {
         BRunUtil.invoke(compileResult, "updateReturnedConstantBooleanMapWithExistingKey");
     }

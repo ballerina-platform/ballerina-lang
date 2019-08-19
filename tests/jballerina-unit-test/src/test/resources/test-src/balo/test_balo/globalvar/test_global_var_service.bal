@@ -1,5 +1,5 @@
 import ballerina/http;
-import testorg/foo version v1;
+import testorg/foo;
 
 listener http:MockListener echoEP  = new(9090);
 

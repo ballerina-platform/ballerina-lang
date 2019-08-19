@@ -1,5 +1,5 @@
-import testorg/foo version v1;
-import testorg/bar version v1;
+import testorg/foo;
+import testorg/bar;
 
 // boolean ---------------------------------------------------
 

@@ -12,7 +12,7 @@ public type Human object {
     public int year = 50;
     public string month = "february";
 
-    public function __init (int year, int count, string name = "sample value1", string val1 = "default value") {
+    public function __init (int year, int count, public string name = "sample value1", public string val1 = "default value") {
         self.year = year;
         self.name = name;
         self.age += count;
@@ -26,7 +26,7 @@ public type Planet object {
     public int year;
     public string month = "february";
 
-    public function __init (int count, int year = 50, string name = "sample value1", string val1 = "default value") {
+    public function __init (int count, int year = 50, public string name = "sample value1", public string val1 = "default value") {
         self.year = year;
         self.name = name;
         self.age += count;
@@ -40,7 +40,7 @@ public type Company object {
     public int year = 50;
     public string month = "february";
 
-    public function __init (int year, int count, string name = "sample value1", string val1 = "default value") {
+    public function __init (int year, int count, public string name = "sample value1", public string val1 = "default value") {
         self.year = year;
         self.name = name;
         self.age += count;
@@ -130,7 +130,7 @@ public type Car object {
     public int age = 10;
     public string name;
 
-    public function __init (int a = 10, string n = "sample result") {
+    public function __init (public int a = 10, public string n = "sample result") {
         self.age = a;
         self.name = n;
     }
@@ -148,7 +148,7 @@ public type Bus object {
     public int age;
     public string name;
 
-    public function __init (int age = 6, string key = "abc") {
+    public function __init (public int age = 6, public string key = "abc") {
         self.age = age;
         self.name = "sample value";
     }

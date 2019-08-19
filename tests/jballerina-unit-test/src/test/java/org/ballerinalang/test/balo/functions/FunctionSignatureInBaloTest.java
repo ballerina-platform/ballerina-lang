@@ -34,6 +34,8 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
+
 /**
  * Test function signatures and calling with optional and named params.
  * 
@@ -69,9 +71,6 @@ public class FunctionSignatureInBaloTest {
 
         Assert.assertTrue(returns[4] instanceof BString);
         Assert.assertEquals(returns[4].stringValue(), "Bob");
-
-        Assert.assertTrue(returns[5] instanceof BValueArray);
-        Assert.assertEquals(returns[5].stringValue(), "[40, 50, 60]");
     }
 
     @Test
@@ -91,9 +90,6 @@ public class FunctionSignatureInBaloTest {
 
         Assert.assertTrue(returns[4] instanceof BString);
         Assert.assertEquals(returns[4].stringValue(), "Bob");
-
-        Assert.assertTrue(returns[5] instanceof BValueArray);
-        Assert.assertEquals(returns[5].stringValue(), "[40, 50, 60]");
     }
 
     @Test
@@ -283,9 +279,6 @@ public class FunctionSignatureInBaloTest {
 
         Assert.assertTrue(returns[4] instanceof BString);
         Assert.assertEquals(returns[4].stringValue(), "Bob");
-
-        Assert.assertTrue(returns[5] instanceof BValueArray);
-        Assert.assertEquals(returns[5].stringValue(), "[1, 2, 3, 4]");
     }
 
     @Test
@@ -334,16 +327,24 @@ public class FunctionSignatureInBaloTest {
 
     @Test
     public void testNegativeFunctionInvocations() {
-        BAssertUtil.validateError(
-                resultNegative, 0, "positional argument not allowed after named arguments", 4, 56);
-        BAssertUtil.validateError(
-                resultNegative, 1, "positional argument not allowed after named arguments", 9, 56);
-        BAssertUtil.validateError(
-                resultNegative, 2, "rest argument not allowed after named arguments", 13, 78);
-        BAssertUtil.validateError(
-                resultNegative, 3, "incompatible types: expected 'string', found 'int'", 17, 53);
-        BAssertUtil.validateError(
-                resultNegative, 4, "incompatible types: expected 'string', found 'int'", 17, 61);
+        int i = 0;
+        validateError(resultNegative, i++, "positional argument not allowed after named arguments", 4, 56);
+        validateError(resultNegative, i++, "positional argument not allowed after named arguments", 4, 72);
+        validateError(resultNegative, i++, "positional argument not allowed after named arguments", 4, 76);
+        validateError(resultNegative, i++, "incompatible types: expected 'string', found 'float'", 4, 56);
+        validateError(resultNegative, i++, "redeclared argument 'c'", 4, 62);
+        validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 4, 72);
+        validateError(resultNegative, i++, "missing required parameter 'b' in call to 'functionWithAllTypesParams'()", 4, 12);
+        validateError(resultNegative, i++, "too many arguments in call to 'functionWithAllTypesParams()'", 4, 12);
+        validateError(resultNegative, i++, "positional argument not allowed after named arguments", 9, 56);
+        validateError(resultNegative, i++, "rest argument not allowed after named arguments", 9, 72);
+        validateError(resultNegative, i++, "incompatible types: expected 'string', found 'float'", 9, 56);
+        validateError(resultNegative, i++, "redeclared argument 'c'", 9, 62);
+        validateError(resultNegative, i++, "missing required parameter 'b' in call to 'functionWithAllTypesParams'()",
+                9, 12);
+        validateError(resultNegative, i++, "rest argument not allowed after named arguments", 13, 78);
+        validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 17, 53);
+        validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 17, 61);
     }
 
     @AfterClass

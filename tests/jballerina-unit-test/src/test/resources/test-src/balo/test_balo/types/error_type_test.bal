@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/errors version v1 as er;
+import testorg/errors;
 
 function getApplicationError() returns error {
     er:ApplicationError e = error(message = "Client has been stopped");

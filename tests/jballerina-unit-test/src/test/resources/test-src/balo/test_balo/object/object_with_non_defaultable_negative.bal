@@ -1,4 +1,4 @@
-import testorg/foo version v1;
+import testorg/foo;
 
 foo:Architect pp = new(1, "John");
 
