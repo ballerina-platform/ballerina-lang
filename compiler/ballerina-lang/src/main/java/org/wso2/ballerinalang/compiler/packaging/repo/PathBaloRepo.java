@@ -22,7 +22,6 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.Manifest;
-import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.converters.ZipConverter;
@@ -41,7 +40,7 @@ import java.util.regex.Pattern;
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 
 /**
- * Resolve a balo using the path given in the Ballerina.toml
+ * Resolve a balo using the path given in the Ballerina.toml.
  */
 public class PathBaloRepo implements Repo<Path> {
     private static final Pattern semVerPattern = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)");
@@ -67,7 +66,8 @@ public class PathBaloRepo implements Repo<Path> {
         Optional<Dependency> tomlDependency =
                 this.manifest.getDependencies().stream()
                         .filter(dep -> dep.getOrgName().equals(moduleID.orgName.value) &&
-                                       dep.getModuleName().equals(moduleID.name.value))
+                                       dep.getModuleName().equals(moduleID.name.value) &&
+                                       null != dep.getMetadata().getPath())
                         .findFirst();
         
         // if dependency is not found in toml
@@ -77,11 +77,6 @@ public class PathBaloRepo implements Repo<Path> {
         
         Dependency dep = tomlDependency.get();
         Path baloPath = dep.getMetadata().getPath();
-        
-        // if path is not given
-        if (null == baloPath) {
-            return Patten.NULL;
-        }
         
         // if balo file does not exists
         if (Files.notExists(baloPath)) {

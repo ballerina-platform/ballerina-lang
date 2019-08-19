@@ -34,6 +34,7 @@ import java.net.InetSocketAddress;
 import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -41,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -54,6 +56,10 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
  *  module is updated with that version.
  */
 public class URIDryConverter extends URIConverter {
+    
+    /**
+     * This is to keep track that an error has already been logged so that it doesn't repeatedly log the same error.
+     */
     private static boolean loggedError = false;
     private PrintStream errStream = System.err;
     private List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
@@ -125,14 +131,16 @@ public class URIDryConverter extends URIConverter {
                         moduleID.version = new Name(version);
                         return Stream.empty();
                     } else if (statusCode == 400 && !loggedError) {
-                        String errorContent = new BufferedReader(new InputStreamReader(conn.getInputStream()))
-                                .lines().collect(Collectors.joining("\n"));
-                        this.errStream.println("invalid request sent to remote registry: " + errorContent);
-                        loggedError = true;
+                        try (BufferedReader errorStream = new BufferedReader(
+                                new InputStreamReader(conn.getInputStream(), Charset.defaultCharset()))) {
+                            String errorContent = errorStream.lines().collect(Collectors.joining("\n"));
+                            this.errStream.println("invalid request sent to remote registry: " + errorContent);
+                            setErrorLoggedStatusAsTrue();
+                        }
                     } else if (statusCode == 500 && !loggedError) {
                         this.errStream.println("could not connect to remote registry or unexpected response " +
                                                "received. build offline to ignore this error.");
-                        loggedError = true;
+                        setErrorLoggedStatusAsTrue();
                     }
                     conn.disconnect();
                     Authenticator.setDefault(null);
@@ -143,6 +151,13 @@ public class URIDryConverter extends URIConverter {
         }
     
         return Stream.empty();
+    }
+    
+    /**
+     * Set the status that an error has been logged.
+     */
+    private static void setErrorLoggedStatusAsTrue() {
+        loggedError = true;
     }
     
     /**
