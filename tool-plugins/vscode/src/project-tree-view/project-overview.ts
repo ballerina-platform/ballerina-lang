@@ -31,6 +31,13 @@ export class ProjectTreeProvider implements vscode.TreeDataProvider<ProjectTreeE
         this.ballerinaExtInstance = balExt;
         this.langClient = balExt.langClient;
 
+        vscode.window.onDidChangeVisibleTextEditors(visibleEditors => {
+            // this is so that project tree view is cleared when no editors are there
+            if (visibleEditors.length === 0) {
+                this.refresh();
+            }
+        });
+
         vscode.window.onDidChangeActiveTextEditor((activatedTextEditor) => {
             if (!activatedTextEditor || activatedTextEditor.document.languageId !== "ballerina") {
                 this.refresh();

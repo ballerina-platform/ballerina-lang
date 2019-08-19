@@ -35,7 +35,7 @@ import { getServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
 import { info, getOutputChannel } from '../utils/index';
 import { AssertionError } from "assert";
-import { OVERRIDE_BALLERINA_HOME, BALLERINA_HOME, ALLOW_EXPERIMENTAL, ENABLE_DEBUG_LOG } from "./preferences";
+import { OVERRIDE_BALLERINA_HOME, BALLERINA_HOME, ALLOW_EXPERIMENTAL, ENABLE_DEBUG_LOG, ENABLE_TRACE_LOG } from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
 import { createTelemetryReporter, TM_EVENT_ERROR_INVALID_BAL_HOME_CONFIGURED, TM_EVENT_ERROR_INVALID_BAL_HOME_DETECTED, TM_EVENT_OLD_BAL_HOME, TM_EVENT_OLD_BAL_PLUGIN } from "../telemetry";
 
@@ -115,7 +115,7 @@ export class BallerinaExtension {
                 this.checkCompatibleVersion(pluginVersion, ballerinaVersion);
                 // if Home is found load Language Server.
                 this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client',
-                    getServerOptions(this.getBallerinaHome(), this.isExperimental(), this.isDebugLogsEnabled()),
+                    getServerOptions(this.getBallerinaHome(), this.isExperimental(), this.isDebugLogsEnabled(), this.isTraceLogsEnabled()),
                                                          this.clientOptions, false);
 
                 // 0.983.0 and 0.982.0 versions are incapable of handling client capabilities 
@@ -175,7 +175,8 @@ export class BallerinaExtension {
             if (params.affectsConfiguration(BALLERINA_HOME) ||
                 params.affectsConfiguration(OVERRIDE_BALLERINA_HOME) ||
                 params.affectsConfiguration(ALLOW_EXPERIMENTAL) ||
-                params.affectsConfiguration(ENABLE_DEBUG_LOG)) {
+                params.affectsConfiguration(ENABLE_DEBUG_LOG) ||
+                params.affectsConfiguration(ENABLE_TRACE_LOG)) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
             if (params.affectsConfiguration('ballerina')) {
@@ -375,6 +376,10 @@ export class BallerinaExtension {
         return <boolean>workspace.getConfiguration().get(ENABLE_DEBUG_LOG);
     }
 
+    isTraceLogsEnabled(): boolean {
+        return <boolean>workspace.getConfiguration().get(ENABLE_TRACE_LOG);
+    }
+
     autoDetectBallerinaHome(): string {
         // try to detect the environment.
         const platform: string = process.platform;
@@ -444,7 +449,11 @@ export class BallerinaExtension {
     }
 
     public addWebviewPanel(name: string, panel: WebviewPanel) {
-		this.webviewPanels[name] = panel;
+        this.webviewPanels[name] = panel;
+        
+        panel.onDidDispose(() => {
+            delete this.webviewPanels[name];
+        });
     }
 
     public getWebviewPanels() {

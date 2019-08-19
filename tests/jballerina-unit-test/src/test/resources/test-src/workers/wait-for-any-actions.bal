@@ -364,7 +364,7 @@ function fError() returns int|error {
 }
 
 function sError() returns error {
-    error err = error("A hazardous error occured!!! Abort immediately!!" );
+    error err = error("A hazardous error occurred!!! Abort immediately!!" );
     runtime:sleep(2000);
     return err;
 }
