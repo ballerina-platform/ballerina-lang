@@ -25,7 +25,6 @@ under the License.
         <classes>
             <class name="org.ballerinalang.stdlib.task.service.AppointmentServiceTest"/>
             <class name="org.ballerinalang.stdlib.task.service.TimerServiceTest"/>
-            <class name="org.ballerinalang.stdlib.task.scheduler.TimerSchedulerTest"/>
             <class name="org.ballerinalang.stdlib.task.service.ListenerServiceValidationTest"/>
         </classes>
     </test>

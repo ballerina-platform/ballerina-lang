@@ -18,6 +18,17 @@ import ballerina/http;
 import ballerina/runtime;
 import ballerina/task;
 
+const MULTI_SERVICE_SUCCESS_RESPONSE = "Multiple services invoked";
+const FAILURE_RESPONSE = "Services failed to trigger";
+
+boolean firstTriggered = false;
+boolean secondTriggered = false;
+
+string result = "";
+
+int count1 = 0;
+int count2 = 0;
+
 public type Person record {
     string name;
     int age;
@@ -40,9 +51,12 @@ public function main() {
     if (startResult is task:SchedulerError) {
         panic startResult;
     }
-}
 
-string result = "";
+    task:Scheduler timerWithMultipleServices = new({ intervalInMillis: 1000 });
+    checkpanic timerWithMultipleServices.attach(service1);
+    checkpanic timerWithMultipleServices.attach(service2);
+    checkpanic timerWithMultipleServices.start();
+}
 
 service timerService = service {
     resource function onTrigger(Person person) {
@@ -51,16 +65,45 @@ service timerService = service {
     }
 };
 
+service service1 = service {
+    resource function onTrigger() {
+        count1 = count1 + 1;
+        if (count1 > 3) {
+            firstTriggered = true;
+        }
+    }
+};
+
+service service2 = service {
+    resource function onTrigger() {
+        count2 = count2 + 1;
+        if (count2 > 3) {
+            secondTriggered = true;
+        }
+    }
+};
+
 @http:ServiceConfig {
 	basePath: "/"
 }
 service TimerAttachmentHttpService on taskAttachmentListener {
     @http:ResourceConfig {
-        methods:["GET"]
+        methods: ["GET"]
     }
     resource function getTaskAttachmentResult(http:Caller caller, http:Request request) {
         // Sleep for 8 seconds to check whether the task is running for more than 5 times.
         runtime:sleep(8000);
 		var sendResult = caller->respond(result);
+	}
+
+	@http:ResourceConfig {
+	    methods: ["GET"]
+	}
+	resource function getMultipleServicesResult(http:Caller caller, http:Request request) {
+	    if (firstTriggered && secondTriggered) {
+            var result = caller->respond(MULTI_SERVICE_SUCCESS_RESPONSE);
+        } else {
+            var result = caller->respond(FAILURE_RESPONSE);
+        }
 	}
 }

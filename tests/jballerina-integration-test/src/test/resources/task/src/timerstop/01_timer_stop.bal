@@ -1,3 +1,4 @@
+import ballerina/http;
 // Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
@@ -14,35 +15,51 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/task;
+import ballerina/http;
 import ballerina/runtime;
+import ballerina/task;
 
-function triggerTimer() {
+const SUCCESS_RESPONSE = "Task successfully stopped";
+const FAILURE_RESPONSE = "Stopping the task failed";
+
+listener http:Listener timerStopListener = new(15006);
+
+public function main() {
     task:TimerConfiguration configuration = {
         intervalInMillis: 500,
         initialDelayInMillis: 1000
     };
 
     task:Scheduler timer = new(configuration);
-    var result = timer.attach(timerService);
+    checkpanic timer.attach(timerService);
     checkpanic timer.start();
     runtime:sleep(4000);
-    result = timer.stop();
-    if (result is error) {
-        count = 1000;
-    } else {
-        count = -2000;
-    }
+    checkpanic  timer.stop();
 }
 
 int count = 0;
-
-function getCount() returns int {
-    return count;
-}
 
 service timerService = service {
     resource function onTrigger() {
         count = count + 1;
     }
 };
+
+@http:ServiceConfig {
+    basePath: "/"
+}
+service TimerStopResultService on timerStopListener {
+    @http:ResourceConfig {
+        methods: ["GET"]
+    }
+    resource function getTimerStopResult(http:Caller caller, http:Request request) {
+        // Wait for 5 seconds to check if the counter goes above 5. If it does not stopped, the count should be greater
+        // than 5 at least, as we stay 4 seconds after starting the scheduler.
+        runtime:sleep(5000);
+        if (count > 5) {
+            var result = caller->respond(SUCCESS_RESPONSE);
+        } else {
+            var result = caller->respond(FAILURE_RESPONSE);
+        }
+    }
+}

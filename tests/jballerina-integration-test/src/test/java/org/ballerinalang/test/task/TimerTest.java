@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
  * This is the test class to test ballerina task scheduler timer related functionalities.
  */
 @Test(groups = "task-test")
-public class SchedulerTimerTest extends TaskBaseTest {
+public class TimerTest extends TaskBaseTest {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         super.setup();
@@ -35,10 +35,16 @@ public class SchedulerTimerTest extends TaskBaseTest {
         serverInstance.startServer(balFile, "timerservices", requiredPorts);
     }
 
-    @Test(description = "Test task timer appointment with attachment")
+    @Test(description = "Test task timer with attachment")
     public void testTaskTimerWithAttachment() {
         String message = "Sam is 5 years old";
         assertTest(10000, "http://localhost:15004/getTaskAttachmentResult", message);
+    }
+
+    @Test(description = "Test task timer with multiple services attached")
+    public void testTaskTimerWithMultipleServices() {
+        String message = "Multiple services invoked";
+        assertTest(5000, "http://localhost:15004/getMultipleServicesResult", message);
     }
 
     @AfterClass

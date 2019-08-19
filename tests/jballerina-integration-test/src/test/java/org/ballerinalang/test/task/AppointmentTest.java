@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
  * This is to test the Ballerina task functionality with multiple services attached to the same scheduler.
  */
 @Test(groups = "task-tests")
-public class SchedulerAppointmentTest extends TaskBaseTest {
+public class AppointmentTest extends TaskBaseTest {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         super.setup();

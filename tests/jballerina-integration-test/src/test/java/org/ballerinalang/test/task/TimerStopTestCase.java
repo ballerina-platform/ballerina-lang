@@ -24,22 +24,21 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This is to test the Ballerina task functionality with a HTTP client.
+ * This is the test class to test ballerina task scheduler stop function.
  */
-@Test(groups = "task-tests")
-public class SchedulerWithHttpClientTestCase extends TaskBaseTest {
-
+@Test(groups = "task-test")
+public class TimerStopTestCase extends TaskBaseTest {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         super.setup();
-        int[] requiredPorts = new int[]{15001, 15002};
-        serverInstance.startServer(balFile, "httpservice", requiredPorts);
+        int[] requiredPorts = new int[]{15006};
+        serverInstance.startServer(balFile, "timerstop", requiredPorts);
     }
 
-    @Test(description = "Test task scheduler with an HTTP client inside the onTrigger() function")
-    public void testTaskWithHttpClient() throws BallerinaTestException {
-        String message = "Hello from http service";
-        assertTest(5000, "http://localhost:15002/", message);
+    @Test(description = "Test for task scheduler stop function")
+    public void testTaskSchedulerStop() {
+        String message = "Task successfully stopped";
+        assertTest(10000, "http://localhost:15006/getTimerStopResult", message);
     }
 
     @AfterClass

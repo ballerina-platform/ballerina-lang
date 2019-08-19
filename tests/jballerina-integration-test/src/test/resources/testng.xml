@@ -286,10 +286,11 @@
         <parameter name="enableJBallerinaTests" value="true"/>
         <classes>
             <class name="org.ballerinalang.test.task.TaskBaseTest"/>
-            <class name="org.ballerinalang.test.task.SchedulerWithHttpClientTestCase"/>
-            <class name="org.ballerinalang.test.task.SchedulerAppointmentTest"/>
-            <class name="org.ballerinalang.test.task.SchedulerTimerTest"/>
+            <class name="org.ballerinalang.test.task.TimerWithHttpClientTestCase"/>
+            <class name="org.ballerinalang.test.task.AppointmentTest"/>
+            <class name="org.ballerinalang.test.task.TimerTest"/>
             <class name="org.ballerinalang.test.task.TimerPauseResumeTestCase"/>
+            <class name="org.ballerinalang.test.task.TimerStopTestCase"/>
         </classes>
     </test>
 </suite>
