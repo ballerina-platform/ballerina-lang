@@ -44,35 +44,33 @@ public class CreateBirTask implements Task {
         List<BLangPackage> modules = buildContext.getModules();
         for (BLangPackage module : modules) {
             birFileWriter.write(module, buildContext.getBirPathFromTargetCache(module.packageID));
-            for (BPackageSymbol importz : module.symbol.imports) {
-                writeImportBir(buildContext, importz, sourceRootPath, birFileWriter);
-            }
+            writeImportBir(buildContext, module.symbol.imports, sourceRootPath, birFileWriter);
         }
     }
 
-    private void writeImportBir(BuildContext buildContext, BPackageSymbol importz, Path project,
+    private void writeImportBir(BuildContext buildContext, List<BPackageSymbol> importz, Path project,
                                 BirFileWriter birWriter) {
-        // Get the jar paths
-        PackageID id = importz.pkgID;
-        Path importBir;
-        // Skip ballerina and ballerinax
-        if (id.orgName.value.equals("ballerina") || id.orgName.value.equals("ballerinax")) {
-            return;
-        }
-        
-        // Look if it is a project module.
-        if (ProjectDirs.isModuleExist(project, id.name.value) || buildContext.getImportPathDependency(id).isPresent()) {
-            // If so fetch from project bir cache
-            importBir = buildContext.getBirPathFromTargetCache(id);
-        } else {
-            // If not fetch from home bir cache.
-            importBir = buildContext.getBirPathFromHomeCache(id);
-        }
-        birWriter.writeBIRToPath(importz.birPackageFile, id, importBir);
+        for (BPackageSymbol bPackageSymbol : importz) {
+            // Get the jar paths
+            PackageID id = bPackageSymbol.pkgID;
+            Path importBir;
+            // Skip ballerina and ballerinax
+            if (id.orgName.value.equals("ballerina") || id.orgName.value.equals("ballerinax")) {
+                continue;
+            }
     
-        // write child import bir(s)
-        for (BPackageSymbol importOfImportz : importz.imports) {
-            writeImportBir(buildContext, importOfImportz, project, birWriter);
+            // Look if it is a project module.
+            if (ProjectDirs.isModuleExist(project, id.name.value) || buildContext.getImportPathDependency(id).isPresent()) {
+                // If so fetch from project bir cache
+                importBir = buildContext.getBirPathFromTargetCache(id);
+            } else {
+                // If not fetch from home bir cache.
+                importBir = buildContext.getBirPathFromHomeCache(id);
+            }
+            birWriter.writeBIRToPath(bPackageSymbol.birPackageFile, id, importBir);
+    
+            // write child import bir(s)
+            writeImportBir(buildContext, bPackageSymbol.imports, project, birWriter);
         }
     }
 }
