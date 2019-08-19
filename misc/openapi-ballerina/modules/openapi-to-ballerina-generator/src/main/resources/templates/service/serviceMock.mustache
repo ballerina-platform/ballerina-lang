@@ -1,6 +1,4 @@
 import ballerina/http;
-import ballerina/log;
-import ballerina/mime;
 import ballerina/openapi;
 {{#servers}}
 listener http:Listener ep{{@index}} = new({{port}}{{#host}}, config = {host: "{{host}}"}{{/host}});
@@ -20,7 +18,7 @@ service {{cut serviceName " "}} on {{#servers}}ep{{@index}}{{#unless @last}}, {{
         path:"{{pathName}}"{{#requestBody}}{{#contentList}},{{#requestBody}} {{/requestBody}}
         body:"{{itemName}}"{{/contentList}}{{/requestBody}}
     }
-    resource function {{operationName}} (http:Caller outboundEp, http:Request {{operationId}}Req{{#parameters}}{{#isPathParam}}, {{#paramType}}{{schemaType}}{{/paramType}} {{paramName}}{{/isPathParam}}{{/parameters}}{{#if requestBody}},{{/if}}{{#requestBody}}{{#contentList}} {{reference}} {{itemName}}{{/contentList}}{{/requestBody}} ) returns error? {{=<% %>=}}{<%={{ }}=%>
+    resource function {{operationName}}(http:Caller caller, http:Request req{{#parameters}}{{#isPathParam}}, {{#paramType}}{{schemaType}}{{/paramType}} {{paramName}}{{/isPathParam}}{{/parameters}}{{#if requestBody}},{{/if}}{{#requestBody}}{{#contentList}} {{reference}} {{itemName}}{{/contentList}}{{/requestBody}}) returns error? {{=<% %>=}}{<%={{ }}=%>
 
     }
 {{/operations}}{{/paths}}

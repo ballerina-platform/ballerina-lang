@@ -313,6 +313,8 @@ public class CodeGenerator {
         //This will print the generated files to the console
         outStream.println("Service generated successfully. Following files were created. \n" +
                 "src/ \n- " + srcPackage);
+        outStream.println("The OpenApi contract is copied to " + srcPackage + "/resources this location will be" +
+                " referenced throughout the ballerina project.");
         Iterator<GenSrcFile> iterator = sources.iterator();
         while (iterator.hasNext()) {
             outStream.println("-- " + iterator.next().getFileName());
