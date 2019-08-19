@@ -34,7 +34,7 @@ import static org.ballerinalang.openapi.OpenApiMesseges.SOURCE_DIRECTORY_EXCEPTI
  */
 @CommandLine.Command(name = "gen-service")
 public class OpenApiGenServiceCmd implements BLauncherCmd {
-    private static final String CMD_NAME = "openapi";
+    private static final String CMD_NAME = "openapi-gen-service";
 
     private PrintStream outStream;
     private String executionPath;
