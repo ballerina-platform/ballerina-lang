@@ -48,7 +48,6 @@ public class PushText {
     public static Object externPushText(Strand strand, ObjectValue wsConnection, String text, boolean finalFrame) {
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         try {
-
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             ChannelFuture future = connectionInfo.getWebSocketConnection().pushText(text, finalFrame);

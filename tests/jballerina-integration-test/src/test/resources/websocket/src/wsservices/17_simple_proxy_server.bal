@@ -52,7 +52,7 @@ service on new http:Listener(21018) {
 
     resource function onClose(http:WebSocketCaller wsEp, int statusCode, string reason) {
         http:WebSocketClient clientEp = getAssociatedClientEndpoint(wsEp);
-        var returnVal = clientEp->close(statusCode, reason);
+        var returnVal = clientEp->close(statusCode = statusCode, reason = reason);
         if (returnVal is http:WebSocketError) {
             panic <error> returnVal;
         }
