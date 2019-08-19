@@ -283,7 +283,7 @@ function validateCertificate(JwtTrustStoreConfig trustStoreConfig) returns boole
         time:Time currTimeInGmt = check time:toTimeZone(time:currentTime(), "GMT");
         int currTimeInGmtMillis = currTimeInGmt.time;
 
-        var certificate = publicKey.certificate;
+        var certificate = publicKey?.certificate;
         if (certificate is crypto:Certificate) {
             int notBefore = certificate.notBefore.time;
             int notAfter = certificate.notAfter.time;
