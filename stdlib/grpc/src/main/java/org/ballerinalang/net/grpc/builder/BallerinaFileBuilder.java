@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -66,10 +67,10 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GOOGLE_ST
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GRPC_CLIENT;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GRPC_SERVICE;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.PACKAGE_SEPARATOR;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_CLIENT_TEMPLATE_NAME;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_FILE_PREFIX;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_SERVICE_FILE_PREFIX;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_SERVICE_TEMPLATE_NAME;
-import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_TEMPLATE_NAME;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SKELETON_TEMPLATE_NAME;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.STUB_FILE_PREFIX;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.TEMPLATES_DIR_PATH_KEY;
@@ -177,7 +178,7 @@ public class BallerinaFileBuilder {
                     String clientFilePath = generateOutputFile(this.balOutPath, serviceDescriptor.getName() +
                             SAMPLE_FILE_PREFIX);
                     writeOutputFile(new ClientFile(serviceDescriptor.getName(), isUnaryContains), DEFAULT_SAMPLE_DIR,
-                            SAMPLE_TEMPLATE_NAME, clientFilePath);
+                            SAMPLE_CLIENT_TEMPLATE_NAME, clientFilePath);
                 }
                 if (GRPC_SERVICE.equals(mode)) {
                     String servicePath = generateOutputFile(this.balOutPath, serviceDescriptor.getName() +
@@ -199,20 +200,26 @@ public class BallerinaFileBuilder {
 
             String stubFilePath = generateOutputFile(this.balOutPath, filename + STUB_FILE_PREFIX);
             writeOutputFile(stubFileObject, DEFAULT_SKELETON_DIR, SKELETON_TEMPLATE_NAME, stubFilePath);
-        } catch (IOException | GrpcServerException e) {
-            throw new CodeBuilderException("Error while generating source files.", e);
+        } catch (GrpcServerException e) {
+            throw new CodeBuilderException("Message descriptor error. " + e.getMessage());
+        } catch (IOException e) {
+            throw new CodeBuilderException("IO Error which reading proto file descriptor. " + e.getMessage(), e);
         }
     }
 
-    private String generateOutputFile(String outputDir, String fileName) throws IOException {
-        if (outputDir != null) {
-            Files.createDirectories(Paths.get(outputDir));
+    private String generateOutputFile(String outputDir, String fileName) throws CodeBuilderException {
+        try {
+            if (outputDir != null) {
+                Files.createDirectories(Paths.get(outputDir));
+            }
+            File file = new File(outputDir + FILE_SEPARATOR + fileName);
+            if (!file.isFile()) {
+                Files.createFile(Paths.get(file.getAbsolutePath()));
+            }
+            return file.getAbsolutePath();
+        } catch (IOException e) {
+            throw new CodeBuilderException("IO Error while creating output Ballerina files. " + e.getMessage(), e);
         }
-        File file = new File(outputDir + FILE_SEPARATOR + fileName);
-        if (!file.isFile()) {
-            Files.createFile(Paths.get(file.getAbsolutePath()));
-        }
-        return file.getAbsolutePath();
     }
 
     /**
@@ -222,10 +229,11 @@ public class BallerinaFileBuilder {
      * @param templateDir  Directory with all the templates required for generating the source file
      * @param templateName Name of the parent template to be used
      * @param outPath      Destination path for writing the resulting source file
-     * @throws IOException when file operations fail
+     * @throws CodeBuilderException when file operations fail
      */
     private static void writeOutputFile(Object object, String templateDir, String templateName, String outPath)
-            throws IOException {
+            throws CodeBuilderException {
+
         PrintWriter writer = null;
         try {
             Template template = compileTemplate(templateDir, templateName);
@@ -235,6 +243,8 @@ public class BallerinaFileBuilder {
                     FieldValueResolver.INSTANCE).build();
             writer = new PrintWriter(outPath, StandardCharsets.UTF_8.name());
             writer.println(template.apply(context));
+        } catch (IOException e) {
+            throw new CodeBuilderException("IO Error while writing output to Ballerina file. " + e.getMessage(), e);
         } finally {
             if (writer != null) {
                 writer.close();
@@ -242,7 +252,8 @@ public class BallerinaFileBuilder {
         }
     }
 
-    private static Template compileTemplate(String defaultTemplateDir, String templateName) throws IOException {
+    private static Template compileTemplate(String defaultTemplateDir, String templateName)
+            throws CodeBuilderException {
         String templatesDirPath = System.getProperty(TEMPLATES_DIR_PATH_KEY, defaultTemplateDir);
         ClassPathTemplateLoader cpTemplateLoader = new ClassPathTemplateLoader((templatesDirPath));
         FileTemplateLoader fileTemplateLoader = new FileTemplateLoader(templatesDirPath);
@@ -293,7 +304,15 @@ public class BallerinaFileBuilder {
 
             return result;
         });
-        return handlebars.compile(templateName);
+        // This is enable nested messages. There won't be any infinite scenarios in nested messages.
+        handlebars.infiniteLoops(true);
+        try {
+            return handlebars.compile(templateName);
+        } catch (FileNotFoundException e) {
+            throw new CodeBuilderException("Code generation template file does not exist. " + e.getMessage(), e);
+        } catch (IOException e) {
+            throw new CodeBuilderException("IO error while compiling the template file. " + e.getMessage(), e);
+        }
     }
     
     private void setRootDescriptor(byte[] rootDescriptor) {

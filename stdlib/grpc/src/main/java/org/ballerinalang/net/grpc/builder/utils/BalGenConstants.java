@@ -67,15 +67,15 @@ public class BalGenConstants {
     
     public static final String DEFAULT_SAMPLE_DIR = DEFAULT_TEMPLATE_DIR + RESOURCE_SEPARATOR + "skeleton";
     
-    public static final String SKELETON_TEMPLATE_NAME = "clientStub";
+    public static final String SKELETON_TEMPLATE_NAME = "stub_file";
 
     public static final String GRPC_CLIENT = "client";
 
     public static final String GRPC_SERVICE = "service";
     
-    public static final String SAMPLE_TEMPLATE_NAME = "sample";
+    public static final String SAMPLE_CLIENT_TEMPLATE_NAME = "client_sample";
 
-    public static final String SAMPLE_SERVICE_TEMPLATE_NAME = "sampleService";
+    public static final String SAMPLE_SERVICE_TEMPLATE_NAME = "service_sample";
 
     public static final String GOOGLE_STANDARD_LIB = "google.protobuf";
 }

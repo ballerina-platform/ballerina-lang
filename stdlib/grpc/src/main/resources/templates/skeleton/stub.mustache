@@ -1,6 +1,3 @@
-{{#if stubList}}import ballerina/grpc;
-import ballerina/io;
-{{/if}}{{#stubList}}
 public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Client client object {
 
     *grpc:AbstractClientEndpoint;
@@ -18,7 +15,6 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
             self.grpcClient = c;
         }
     }
-
 {{#blockingFunctions}}
     public remote function {{methodName}}({{#if inputType}}{{inputType}} req, {{/if}}grpc:Headers? headers = ()) returns ({{#if outputType}}[{{outputType}}, grpc:Headers]{{else}}grpc:Headers{{/if}}|grpc:Error) {
         {{#unless inputType}}Empty req = {};{{/unless}}
@@ -44,31 +40,3 @@ public type {{serviceName}}{{#equals stubType "blocking"}}Blocking{{/equals}}Cli
         return self.grpcClient->streamingExecute("{{methodId}}", msgListener, headers);
     }{{/streamingFunctions}}
 };
-{{/stubList}}{{#messageList}}
-type {{messageName}} record {|
-    {{#fieldList}}{{fieldType}}{{fieldLabel}} {{fieldName}}{{#if defaultValue}} = {{defaultValue}}{{/if}};
-    {{/fieldList}}{{#each oneofFieldMap as |value key|}}{{camelcase @key}} {{@key}};
-    {{/each}}
-|};
-{{#each oneofFieldMap}}
-public type {{camelcase @key}} {{#each this}}{{this.messageName}}{{#unless @last}}|{{/unless}}{{/each}};
-{{#each this}}
-type {{this.messageName}} record {|
-    {{#this.fieldList}}{{fieldType}}{{fieldLabel}} {{fieldName}}{{#if defaultValue}} = {{defaultValue}}{{/if}};
-    {{/this.fieldList}}
-|};
-{{/each}}{{/each}}
-{{#enumList}}public type {{messageName}} {{#fieldList}}"{{name}}"{{#unless @last}}|{{/unless}}{{/fieldList}};
-{{#fieldList}}const public {{../messageName}} {{uppercase ../messageName}}_{{name}} = "{{name}}";
-{{/fieldList}}
-{{/enumList}}{{/messageList}}
-{{#enumList}}public type {{messageName}} {{#fieldList}}"{{name}}"{{#unless @last}}|{{/unless}}{{/fieldList}};
-{{#fieldList}}public final {{../messageName}} {{uppercase ../messageName}}_{{name}} = "{{name}}";
-{{/fieldList}}{{/enumList}}{{#if rootDescriptor}}
-const string ROOT_DESCRIPTOR = "{{rootDescriptor}}";
-function getDescriptorMap() returns map<string> {
-    return {
-        {{#each descriptors}}"{{descriptorKey}}":"{{descriptorData}}"{{#unless @last}},{{/unless}}
-        {{/each}}
-    };
-}{{/if}}
