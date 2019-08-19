@@ -124,11 +124,6 @@ public class BArrayType extends BType {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(elementType.toString());
-        if (sb.indexOf("[") != -1) {
-            return size != -1 ?
-                    sb.insert(sb.indexOf("["), "[" + size + "]").toString() :
-                    sb.insert(sb.indexOf("["), "[]").toString();
-        }
         return size != -1 ? sb.append("[").append(size).append("]").toString() : sb.append("[]").toString();
     }
 

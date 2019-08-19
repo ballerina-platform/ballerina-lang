@@ -59,8 +59,8 @@ public class Copy {
         Path destPath = Paths.get(destinationPath);
 
         if (Files.notExists(srcPath)) {
-            return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR,
-                    "File doesn't exist in path " + sourcePath);
+            return SystemUtils.getBallerinaError(SystemConstants.FILE_NOT_FOUND_ERROR,
+                    "File not found: " + sourcePath);
         }
         try {
             Files.walkFileTree(srcPath, new RecursiveFileCopyVisitor(srcPath, destPath, replaceExisting));

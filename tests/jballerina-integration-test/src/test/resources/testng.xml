@@ -66,6 +66,7 @@
             <class name="org.ballerinalang.test.service.http.sample.MultipleHTTPClientsTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPHeaderServerTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.KeepAliveTestCase"/>
+            <class name="org.ballerinalang.test.service.http.sample.HTTPCachingTestCase"/>
         </classes>
     </test>
 
@@ -95,6 +96,7 @@
             <class name="org.ballerinalang.test.service.http2.ClientUpgradeWithLargePayload"/>
             <class name="org.ballerinalang.test.service.http2.HTTP2ClientActionsTestCase"/>
             <class name="org.ballerinalang.test.service.http2.Http2MutualSslTestCase"/>
+            <class name="org.ballerinalang.test.service.http2.Http2ForwardHeaderTest"/>
         </classes>
     </test>
 
@@ -266,7 +268,7 @@
         <parameter name="enableJBallerinaTests" value="true"/>
         <classes>
             <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
-            <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
+            <!--<class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>-->
         </classes>
     </test>
 

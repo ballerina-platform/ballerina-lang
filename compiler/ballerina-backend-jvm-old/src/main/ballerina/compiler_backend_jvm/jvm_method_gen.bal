@@ -1267,6 +1267,8 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
 
     jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", (), ());
 
+    // set system properties
+    setSystemProperties(mv);
     // start all listeners
     startListeners(mv, serviceEPAvailable);
 
@@ -1281,7 +1283,6 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
 
     mv.visitTypeInsn(NEW, SCHEDULER);
     mv.visitInsn(DUP);
-
     mv.visitInsn(ICONST_0);
     mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(Z)V", false);
 
@@ -1295,14 +1296,30 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
         string lambdaName = io:sprintf("$lambda$%s$", initFuncName);
 
         // create FP value
-        createFunctionPointer(mv, initClass, lambdaName, true, 0);
+        createFunctionPointer(mv, initClass, lambdaName, false, 0);
 
         // no parent strand
         mv.visitInsn(ACONST_NULL);
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_CONSUMER_METHOD,
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
             io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
+        mv.visitInsn(DUP);
+        mv.visitInsn(DUP);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
+        mv.visitIntInsn(BIPUSH, 100);
+        mv.visitTypeInsn(ANEWARRAY, OBJECT);
+        mv.visitFieldInsn(PUTFIELD, STRAND, "frames", io:sprintf("[L%s;", OBJECT));
         errorGen.printStackTraceFromFutureValue(mv, indexMap);
         mv.visitInsn(POP);
+
+        bir:VariableDcl futureVar = { typeValue: "any",
+                                    name: { value: "initdummy" },
+                                    kind: "ARG" };
+        int futureVarIndex = indexMap.getIndex(futureVar);
+        mv.visitVarInsn(ASTORE, futureVarIndex);
+        mv.visitVarInsn(ALOAD, futureVarIndex);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", io:sprintf("L%s;", OBJECT));
+
+        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_RETURNED_ERROR_METHOD, io:sprintf("(L%s;)V", OBJECT), false);
     }
 
     if (userMainFunc is bir:Function) {
@@ -1341,29 +1358,10 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
                                     kind: "ARG" };
             int futureVarIndex = indexMap.getIndex(futureVar);
             mv.visitVarInsn(ASTORE, futureVarIndex);
-            jvm:Label jumpAfterPrint = new;
             mv.visitVarInsn(ALOAD, futureVarIndex);
             mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", io:sprintf("L%s;", OBJECT));
 
-            mv.visitJumpInsn(IFNULL, jumpAfterPrint);
-
-            mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-            mv.visitVarInsn(ALOAD, futureVarIndex);
-            mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", io:sprintf("L%s;", OBJECT));
-            bir:BType returnType = userMainFunc.typeValue.retType;
-            addUnboxInsn(mv, returnType);
-            if (returnType is bir:BTypeInt) {
-                mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(J)V", false);
-            } else if (returnType is bir:BTypeByte) {
-                mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(I)V", false);
-            } else if (returnType is bir:BTypeFloat) {
-                mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(D)V", false);
-            } else if (returnType is bir:BTypeBoolean) {
-                mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Z)V", false);
-            } else {
-                mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", io:sprintf("(L%s;)V", OBJECT), false);
-            }
-            mv.visitLabel(jumpAfterPrint);
+            mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_RETURNED_ERROR_METHOD, io:sprintf("(L%s;)V", OBJECT), false);
         }
     }
 
@@ -1377,6 +1375,10 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
     mv.visitInsn(RETURN);
     mv.visitMaxs(0, 0);
     mv.visitEnd();
+}
+
+function setSystemProperties(jvm:MethodVisitor mv) {
+    mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "setSystemProperties", "()V", false);
 }
 
 function startListeners(jvm:MethodVisitor mv, boolean isServiceEPAvailable) {
@@ -1408,11 +1410,11 @@ function scheduleStartMethod(jvm:MethodVisitor mv, bir:Package pkg, string initC
     mv.visitTypeInsn(ANEWARRAY, OBJECT);
 
     // create FP value
-    createFunctionPointer(mv, initClass, startLambdaName, true, 0);
+    createFunctionPointer(mv, initClass, startLambdaName, false, 0);
 
     // no parent strand
     mv.visitInsn(ACONST_NULL);
-    mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_CONSUMER_METHOD,
+    mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
         io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
     
     // need to set immortal=true and start the scheduler again
@@ -1424,12 +1426,23 @@ function scheduleStartMethod(jvm:MethodVisitor mv, bir:Package pkg, string initC
         mv.visitFieldInsn(PUTFIELD, SCHEDULER, "immortal", "Z");
     }
     mv.visitInsn(DUP);
+    mv.visitInsn(DUP);
     mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
     mv.visitIntInsn(BIPUSH, 100);
     mv.visitTypeInsn(ANEWARRAY, OBJECT);
     mv.visitFieldInsn(PUTFIELD, STRAND, "frames", io:sprintf("[L%s;", OBJECT));
     errorGen.printStackTraceFromFutureValue(mv, indexMap);
     mv.visitInsn(POP);
+
+    bir:VariableDcl futureVar = { typeValue: "any",
+                                name: { value: "startdummy" },
+                                kind: "ARG" };
+    int futureVarIndex = indexMap.getIndex(futureVar);
+    mv.visitVarInsn(ASTORE, futureVarIndex);
+    mv.visitVarInsn(ALOAD, futureVarIndex);
+    mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "result", io:sprintf("L%s;", OBJECT));
+
+    mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_RETURNED_ERROR_METHOD, io:sprintf("(L%s;)V", OBJECT), false);
 }
 
 # Generate a lambda function to invoke ballerina main.
@@ -1557,16 +1570,23 @@ function generateLambdaForPackageInits(jvm:ClassWriter cw, bir:Package pkg,
         string startFuncName = MODULE_START;
         generateLambdaForModuleFunction(cw, startFuncName, initClass, voidReturn=false);
 
-        string stopFuncName = cleanupFunctionName(getModuleStopFuncName(pkg));
-        generateLambdaForModuleFunction(cw, stopFuncName, initClass);
+        string stopFuncName = MODULE_STOP;
+        generateLambdaForModuleFunction(cw, stopFuncName, initClass, voidReturn=false);
     }
 }
 
 function generateLambdaForModuleFunction(jvm:ClassWriter cw, string funcName, string initClass,
                                          boolean voidReturn = true) {
-    jvm:MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC,
+    jvm:MethodVisitor mv;
+    if (voidReturn) {
+        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC,
                         io:sprintf("$lambda$%s$", funcName),
                         io:sprintf("([L%s;)V", OBJECT), (), ());
+    } else {
+        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC,
+                        io:sprintf("$lambda$%s$", funcName),
+                        io:sprintf("([L%s;)L%s;", OBJECT, OBJECT), (), ());
+    }
     mv.visitCode();
 
     //load strand as first arg
@@ -1577,11 +1597,12 @@ function generateLambdaForModuleFunction(jvm:ClassWriter cw, string funcName, st
 
     if (voidReturn) {
         mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, io:sprintf("(L%s;)V", STRAND), false);
+        mv.visitInsn(RETURN);
     } else {
         mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, io:sprintf("(L%s;)L%s;", STRAND, OBJECT), false);
+        addBoxInsn(mv, errUnion);
+        mv.visitInsn(ARETURN);
     }
-
-    mv.visitInsn(RETURN);
     mv.visitMaxs(0,0);
     mv.visitEnd();
 }
@@ -1719,8 +1740,10 @@ function enrichPkgWithInitializers(map<JavaClass> jvmClassMap, string typeOwnerC
     bir:Function startFunc = generateDepModInit(imprtMods, pkg, MODULE_START, "<start>");
     javaClass.functions[javaClass.functions.length()] = startFunc;
     pkg.functions[pkg.functions.length()] = startFunc;
-//    javaClass.functions[javaClass.functions.length()] = generateDepModInit(imprtMods, pkg, MODULE_STOP, "<stop>");
 
+    bir:Function stopFunc = generateDepModInit(imprtMods, pkg, MODULE_STOP, "<stop>");
+    javaClass.functions[javaClass.functions.length()] = stopFunc;
+    pkg.functions[pkg.functions.length()] = stopFunc;
 }
 
 bir:BAttachedFunction errorRecInitFunc = {name:{value:"$$<init>"}, funcType:{retType:"()"}, flags:0};

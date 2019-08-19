@@ -16,7 +16,7 @@ DESCRIPTION
     option, you will be able to check which files will be formatted after the execution.
 
     If Ballerina sources contain syntax errors, they will be notified and
-    formatting will not be proceed until they are fixed.
+    formatting will not be proceeded until they are fixed.
 
 SUB COMMANDS
     ballerina format

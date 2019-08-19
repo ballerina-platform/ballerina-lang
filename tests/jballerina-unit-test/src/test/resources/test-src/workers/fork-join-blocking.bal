@@ -3,7 +3,7 @@ import ballerina/runtime;
 
 int i = 0;
 
-function testForkJoin() returns (int, int)|error {
+function testForkJoin() returns [int, int]|error {
     http:Client c = new ("http://example.com");
 
     fork {
@@ -21,7 +21,7 @@ function testForkJoin() returns (int, int)|error {
         }
     }
     map<any> results = wait {w1, w2};
-    int st = check int.convert(results["w1"]);
+    int st = <int> results["w1"];
     int x = i;
-    return (st, x);
+    return [st, x];
 }
