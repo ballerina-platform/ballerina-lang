@@ -111,7 +111,7 @@
     extends("StaticMatch(OrExpression|(Simple|Record|List|Identifier)Literal)") = StaticMatchLiteral
 
     // This is to identify top level elements in a file.
-    implements("(Function|Annotation|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition"
+    implements("(Type|Service|GlobalVariable|Function|Annotation|Constant)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition"
 
     generateTokenAccessors = true
 }
@@ -154,7 +154,7 @@ Definition ::= ( TypeDefinition
 
 private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|'@'|external|remote|client|abstract|public|type|typedesc|service|listener|function|enum|annotation|int|float|decimal|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|record|channel|const|final|var|future|identifier|'{')
 
-ServiceDefinition ::= service identifier? on ExpressionList ServiceBody {pin=3}
+ServiceDefinition ::= service identifier? on ExpressionList ServiceBody {pin=1}
 ServiceBody ::= LEFT_BRACE ObjectFunctionDefinition* RIGHT_BRACE
 
 // Pin to make sure callable unit is identified correctly
@@ -203,13 +203,9 @@ SealedLiteral ::= NOT <<restDescriptorPredicate>> ELLIPSIS
 
 ObjectFunctionDefinition ::= documentationString? AnnotationAttachment* (public|private)? (remote|resource)? function CallableUnitSignature (CallableUnitBody | ExternalFunctionBody? SEMICOLON) {pin=5}
 
-AnnotationDefinition ::= public? const? annotation TypeName? identifier (on AttachmentPoint (COMMA AttachmentPoint)*)? SEMICOLON {
-    pin=3
-}
+AnnotationDefinition ::= public? const? annotation (TypeName identifier | identifier) (on AttachmentPoint (COMMA AttachmentPoint)*)? SEMICOLON {pin=3}
 
-ConstantDefinition ::= constWithoutType | constWithType
-private constWithType ::= PUBLIC? CONST TypeName identifier ASSIGN ConstantExpression SEMICOLON
-private constWithoutType ::= PUBLIC? CONST identifier ASSIGN ConstantExpression SEMICOLON
+ConstantDefinition ::= public? const (TypeName identifier  | identifier) ASSIGN ConstantExpression SEMICOLON  {pin=2}
 ConstantExpression ::=  SimpleLiteral | RecordLiteral
 
 GlobalVariableDefinition ::= varDefinition
