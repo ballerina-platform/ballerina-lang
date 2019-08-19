@@ -63,6 +63,20 @@ public class CacheTest {
     }
 
     @Test
+    public void testCreateCacheWithNamedParams() {
+        int expiryTime = 20000;
+        int capacity = 10;
+        float evictionFactor = 0.1f;
+        BValue[] args = new BValue[3];
+        args[0] = new BInteger(expiryTime);
+        args[1] = new BInteger(capacity);
+        args[2] = new BFloat(evictionFactor);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testCreateCacheWithNamedParams", args);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+    }
+
+    @Test
     public void testPut() {
         String key = "Ballerina";
         String value = "Rocks";

@@ -89,7 +89,7 @@ public type HelloWorldClient client object {
 
     private grpc:Client grpcClient;
 
-    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+    public function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
         grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
@@ -101,7 +101,7 @@ public type HelloWorldClient client object {
         }
     }
 
-    remote function lotsOfGreetings(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|grpc:Error) {
+    public remote function lotsOfGreetings(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|grpc:Error) {
         return self.grpcClient->streamingExecute("grpcservices.HelloWorld7/lotsOfGreetings", msgListener, headers);
     }
 };

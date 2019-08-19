@@ -34,7 +34,6 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
@@ -54,9 +53,8 @@ public class KafkaServiceTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        Properties prop = new Properties();
-        kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true).deleteDataUponShutdown(true).
-                withKafkaConfiguration(prop).addBrokers(1).startup();
+        kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true).deleteDataUponShutdown(true)
+                .addBrokers(1).startup();
     }
 
     @Test(description = "Test endpoint bind to a service")

@@ -986,7 +986,8 @@ public class CommonUtil {
                 .filter(topLevelNode -> !(topLevelNode instanceof BLangFunction
                         && ((BLangFunction) topLevelNode).flagSet.contains(Flag.LAMBDA))
                         && !(topLevelNode instanceof BLangSimpleVariable
-                        && ((BLangSimpleVariable) topLevelNode).flagSet.contains(Flag.SERVICE)))
+                        && ((BLangSimpleVariable) topLevelNode).flagSet.contains(Flag.SERVICE))
+                        && !(topLevelNode instanceof BLangImportPackage && topLevelNode.getWS() == null))
                 .collect(Collectors.toList());
     }
 
