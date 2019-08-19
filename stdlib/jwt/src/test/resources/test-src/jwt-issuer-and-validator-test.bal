@@ -205,7 +205,7 @@ function testValidateJwtWithNoIssOrSub(string jwtToken, string trustStorePath) r
     }
 }
 
-function testIssueJwtWithScopes(string keyStorePath) returns string|jwt:Error {
+function testIssueJwtWithCustomClaims(string keyStorePath) returns string|jwt:Error {
     crypto:KeyStore keyStore = { path: keyStorePath, password: "ballerina" };
     jwt:JwtKeyStoreConfig config = {
         keyStore: keyStore,

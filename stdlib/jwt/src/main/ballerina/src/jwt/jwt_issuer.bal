@@ -20,17 +20,17 @@ import ballerina/encoding;
 # Represents authentication provider configurations that supports generating JWT for client interactions.
 #
 # + username - JWT token username
-# + scopes - JWT token scopes as claims
 # + issuer - JWT token issuer
 # + audience - JWT token audience
+# + customClaims - Map of custom claims
 # + expTimeInSeconds - Expiry time in seconds
 # + keyStoreConfig - JWT key store configurations
 # + signingAlg - Signing algorithm
 public type JwtIssuerConfig record {|
     string username?;
-    string[] scopes?;
     string issuer;
     string[] audience;
+    map<json> customClaims?;
     int expTimeInSeconds = 300;
     JwtKeyStoreConfig keyStoreConfig;
     JwtSigningAlgorithm signingAlg = RS256;
@@ -173,18 +173,16 @@ function buildPayloadString(JwtPayload payload) returns string|Error {
         payloadJson[NBF] = nbf;
     }
     var customClaims = payload?.customClaims;
-    if (customClaims is map<json>) {
-        payloadJson = addMapToJson(payloadJson, customClaims);
+    if (customClaims is map<json> && customClaims.length() > 0) {
+        payloadJson = appendToMap(customClaims, payloadJson);
     }
     string payloadInString = payloadJson.toString();
     return encoding:encodeBase64Url(payloadInString.toBytes());
 }
 
-function addMapToJson(map<json> inJson, map<json> mapToConvert) returns map<json> {
-    if (mapToConvert.length() != 0) {
-        foreach var key in mapToConvert.keys() {
-            inJson[key] = mapToConvert[key];
-        }
+function appendToMap(map<json> fromMap, map<json> toMap) returns map<json> {
+    foreach var key in fromMap.keys() {
+        toMap[key] = fromMap[key];
     }
-    return inJson;
+    return toMap;
 }

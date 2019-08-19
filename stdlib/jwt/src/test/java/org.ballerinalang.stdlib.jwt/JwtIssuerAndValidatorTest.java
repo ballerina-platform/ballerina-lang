@@ -131,10 +131,10 @@ public class JwtIssuerAndValidatorTest {
         Assert.assertTrue(payload.endsWith("\"}"));
     }
 
-    @Test(priority = 1, description = "Test case for issuing JWT token with scopes")
-    public void testIssueJwtWithScopes() {
+    @Test(priority = 1, description = "Test case for issuing JWT token with custom claims")
+    public void testIssueJwtWithCustomClaims() {
         BValue[] inputBValues = {new BString(keyStorePath)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIssueJwtWithScopes", inputBValues);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIssueJwtWithCustomClaims", inputBValues);
         Assert.assertTrue(returns[0] instanceof BString);
         String[] parts = returns[0].stringValue().split("\\.");
         String header = new String(Base64.getUrlDecoder().decode(parts[0]), StandardCharsets.UTF_8);
