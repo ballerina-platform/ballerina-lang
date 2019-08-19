@@ -43,6 +43,6 @@ public class HttpExceptionHandler extends ChannelInboundHandlerAdapter {
                     HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR))
                     .addListener(ChannelFutureListener.CLOSE);
         }
-        LOG.error("Exception occurred in HTTP inbound channel pipeline : {}", cause.getMessage());
+        LOG.error("Exception occurred in HTTP inbound channel pipeline : {}", cause);
     }
 }
