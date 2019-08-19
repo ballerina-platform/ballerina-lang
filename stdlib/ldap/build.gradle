@@ -29,7 +29,6 @@ dependencies {
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-runtime-api')
     implementation 'commons-logging:commons-logging'
-    implementation 'org.apache.commons:commons-lang3'
 
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-utils', configuration: 'baloImplementation')

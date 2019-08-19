@@ -50,14 +50,14 @@ public type Cache object {
 
     private int capacity;
     map<CacheEntry> entries = {};
-    int expiryTimeMillis;
+    int expiryTimeInMillis;
     private float evictionFactor;
     private string uuid;
 
-    public function __init(int expiryTimeMillis = 900000, int capacity = 100, float evictionFactor = 0.25) {
+    public function __init(public int expiryTimeInMillis = 900000, public int capacity = 100, public float evictionFactor = 0.25) {
 
         // Cache expiry time must be a positive value.
-        if (expiryTimeMillis <= 0) {
+        if (expiryTimeInMillis <= 0) {
             Error e = error(CACHE_ERROR, message = "Expiry time must be greater than 0.");
             panic e;
         }
@@ -76,7 +76,7 @@ public type Cache object {
         // track of the UUID.
         self.uuid = system:uuid();
         cacheMap[self.uuid] = self;
-        self.expiryTimeMillis = expiryTimeMillis;
+        self.expiryTimeInMillis = expiryTimeInMillis;
         self.capacity = capacity;
         self.evictionFactor = evictionFactor;
 
@@ -177,7 +177,7 @@ public type Cache object {
             // sometimes the cache entry might not have been removed at this point even though it is expired. So this check
             // gurentees that the expired cache entries will not be returened.
             int currentSystemTime = time:currentTime().time;
-            if (currentSystemTime >= cacheEntry.lastAccessedTime + self.expiryTimeMillis) {
+            if (currentSystemTime >= cacheEntry.lastAccessedTime + self.expiryTimeInMillis) {
                 // If it is expired, remove the cache and return nil.
                 self.remove(key);
                 return ();
@@ -251,7 +251,7 @@ function runCacheExpiry() {
             continue;
         } else {
             // Get the expiry time of the current cache
-            int currentCacheExpiryTime = currentCache.expiryTimeMillis;
+            int currentCacheExpiryTime = currentCache.expiryTimeInMillis;
 
             // Create a new array to store keys of cache entries which needs to be removed.
             string[] cachesToBeRemoved = [];

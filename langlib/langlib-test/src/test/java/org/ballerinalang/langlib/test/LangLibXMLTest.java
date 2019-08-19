@@ -238,4 +238,10 @@ public class LangLibXMLTest {
         Assert.assertEquals(((BXMLItem) returns[0]).getNodeType(),  XMLNodeType.COMMENT);
         Assert.assertEquals((returns[0]).stringValue(), "<!--some comment-->");
     }
+
+    @Test
+    public void testForEach() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testForEach");
+        Assert.assertEquals((returns[0]).size(), 3);
+    }
 }

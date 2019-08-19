@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>1.0.0-alpha</version>
+    <version>1.0.0-beta-SNAPSHOT</version>
     <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
@@ -20,7 +20,7 @@
     </change-notes>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-    <idea-version since-build="183"/>
+    <idea-version since-build="182"/>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
@@ -28,8 +28,9 @@
     <depends optional="true" config-file="java-deps.xml">com.intellij.modules.java</depends>
 
     <extensionPoints>
-        <extensionPoint qualifiedName="io.ballerina.html.panel.provider"
-                        interface="io.ballerina.plugins.idea.webview.diagram.preview.HtmlPanelProvider"/>
+        <extensionPoint
+                interface="io.ballerina.plugins.idea.webview.diagram.preview.HtmlPanelProvider"
+                name="html.panel.provider"/>
     </extensionPoints>
 
     <module-components>

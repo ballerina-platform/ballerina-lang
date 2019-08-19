@@ -26,8 +26,12 @@ import java.util.Map;
  * @since 0.95.5
  */
 public class LSServiceOperationContext implements LSContext {
+    private final LSOperation operation;
+    private final Map<Key<?>, Object> props = new HashMap<>();
 
-    private Map<Key<?>, Object> props = new HashMap<>();
+    public LSServiceOperationContext(LSOperation operation) {
+        this.operation = operation;
+    }
 
     @Override
     public <V> void put(Key<V> key, V value) {
@@ -38,5 +42,10 @@ public class LSServiceOperationContext implements LSContext {
     @SuppressWarnings("unchecked")
     public <V> V get(Key<V> key) {
         return (V) props.get(key);
+    }
+
+    @Override
+    public LSOperation getOperation() {
+        return operation;
     }
 }

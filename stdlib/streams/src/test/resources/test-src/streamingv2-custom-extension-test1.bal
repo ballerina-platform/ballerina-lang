@@ -100,7 +100,7 @@ public type TimeBatch object {
     public function (streams:StreamEvent?[])? nextProcessPointer;
 
     public function __init(function(streams:StreamEvent?[])? nextProcessPointer, any[] windowParameters) {
-        self.scheduler = new(function (streams:StreamEvent?[] e) {
+        self.scheduler = new(function (@tainted streams:StreamEvent?[] e) {
                 self.process(e);
             });
         self.expiredEventQueue = new;

@@ -151,7 +151,7 @@ public class StatementContextProvider extends LSCompletionProvider {
                         paramCounter++;
                     }
                     int finalParamCounter = paramCounter;
-                    String restSnippet = (!snippet.toString().isEmpty() && resultTypes.size() > 1) ? " else " : "";
+                    String restSnippet = (!snippet.toString().isEmpty() && resultTypes.size() > 2) ? " else " : "";
                     restSnippet += IntStream.range(0, resultTypes.size() - paramCounter).mapToObj(value -> {
                         BType bType = members.get(value);
                         String placeHolder = "\t${" + (value + finalParamCounter) + "}";
