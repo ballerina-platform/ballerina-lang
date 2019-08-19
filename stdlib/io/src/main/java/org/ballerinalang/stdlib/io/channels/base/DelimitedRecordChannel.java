@@ -24,8 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 /**
  * <p>
@@ -290,32 +290,25 @@ public class DelimitedRecordChannel implements IOChannel {
 
     /**
      * <p>
-     * Recursively split based on given regEx.
+     * Split based on given regEx.
      * </p>
      * <p>
-     * This operation will ignore blanks.
+     * This operation will produce null for blanks.
      * </p>
      *
      * @param record record which should be separated.
      * @param regex  condition which should be used to split.
      * @return the list of fields
      */
-    private String[] recursiveSplit(String record, String regex) {
-        final int recursiveIndex = 2;
-        final String empty = "";
-        ArrayList<String> records = new ArrayList<>();
-        String[] splitRecords;
-        do {
-            splitRecords = record.split(regex, recursiveIndex);
-            int numberOfFields = splitRecords.length;
-            String field = splitRecords[0];
-            record = numberOfFields == recursiveIndex ? splitRecords[1] : empty;
-            if (field.trim().isEmpty()) {
-                field = null;
+    private String[] splitIgnoreBlanks(String record, String regex) {
+        Pattern reg = Pattern.compile(regex);
+        String[] split = reg.split(record);
+        for (int i = 0; i < split.length; i++) {
+            if (split[i].isEmpty()) {
+                split[i] = null;
             }
-            records.add(field);
-        } while (splitRecords.length == recursiveIndex);
-        return records.toArray(new String[0]);
+        }
+        return split;
     }
 
     /**
@@ -327,7 +320,7 @@ public class DelimitedRecordChannel implements IOChannel {
     private String[] getFields(String record) {
         String fieldSeparatorForReading = getFieldSeparatorForReading();
         if (null != format && format.shouldIgnoreBlanks()) {
-            return recursiveSplit(record, fieldSeparatorForReading);
+            return splitIgnoreBlanks(record, fieldSeparatorForReading);
         } else {
             return record.split(fieldSeparatorForReading);
         }

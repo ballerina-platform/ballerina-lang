@@ -49,8 +49,8 @@ public class ForEach {
 
         IteratorValue iterator = ((XMLSequence) x).getIterator();
         while (iterator.hasNext()) {
-            XMLValue<?> xmlValue = (XMLValue<?>) iterator.next();
-            func.accept(new Object[]{strand, xmlValue, true});
+            Object xmlOrStringVal = iterator.next();
+            func.accept(new Object[]{strand, xmlOrStringVal, true});
         }
     }
 }
