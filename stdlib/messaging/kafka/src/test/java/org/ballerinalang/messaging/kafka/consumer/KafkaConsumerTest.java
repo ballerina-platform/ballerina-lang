@@ -37,7 +37,6 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
@@ -61,9 +60,8 @@ public class KafkaConsumerTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        Properties prop = new Properties();
         kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true)
-                .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(1).startup();
+                .deleteDataUponShutdown(true).addBrokers(1).startup();
         kafkaCluster.createTopic(TOPIC, 1, 1);
         result = BCompileUtil.compile(getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer.bal")));
     }

@@ -54,6 +54,7 @@ public class SystemConstants {
     public static final String PERMISSION_ERROR = "{ballerina/system}PermissionError";
     public static final String FILE_SYSTEM_ERROR = "{ballerina/system}FileSystemError";
     public static final String PROCESS_EXEC_ERROR = "{ballerina/system}ProcessExecError";
+    public static final String FILE_NOT_FOUND_ERROR = "{ballerina/system}FileNotFoundError";
     static final String ERROR_DETAILS = "Detail";
     static final String ERROR_MESSAGE = "message";
 
