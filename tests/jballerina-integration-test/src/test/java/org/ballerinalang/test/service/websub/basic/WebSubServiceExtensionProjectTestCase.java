@@ -150,7 +150,9 @@ public class WebSubServiceExtensionProjectTestCase extends WebSubBaseTest {
         Assert.assertEquals(response.getResponseCode(), HttpResponseStatus.ACCEPTED.code());
         byKeyCreatedLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
 
-        response = HttpClientRequest.doPost("http://localhost:23595/key", "{\"domain\":\"feature\"}", headers);
+        response = HttpClientRequest.doPost("http://localhost:23595/key",
+                                            "{\"domain\":\"feature\",\"extra\":{\"value\":\"feature\"}}",
+                                            headers);
         Assert.assertEquals(response.getResponseCode(), HttpResponseStatus.ACCEPTED.code());
         byKeyFeatureLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
@@ -186,7 +188,8 @@ public class WebSubServiceExtensionProjectTestCase extends WebSubBaseTest {
         headers = new HashMap<>(2);
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         headers.put(MOCK_HEADER, "pull");
-        response = HttpClientRequest.doPost("http://localhost:23597/headerAndPayload", "{\"domain\":\"feature\"}",
+        response = HttpClientRequest.doPost("http://localhost:23597/headerAndPayload",
+                                            "{\"domain\":\"feature\",\"extra\":{\"value\":\"feature\"}}",
                                             headers);
         Assert.assertEquals(response.getResponseCode(), HttpResponseStatus.ACCEPTED.code());
         byHeaderAndPayloadFeaturePullLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);

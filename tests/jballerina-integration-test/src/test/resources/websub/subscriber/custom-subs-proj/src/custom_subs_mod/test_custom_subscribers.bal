@@ -25,12 +25,17 @@ public type WebhookListenerConfiguration record {
     string host = "";
 };
 
-public type MockActionEvent record {|
+public type MockActionEvent record {
     string action;
-|};
+};
 
 public type MockDomainEvent record {|
     string domain;
+    Extra extra;
+|};
+
+public type Extra record {|
+    string value;
 |};
 
 @websub:SubscriberServiceConfig {
@@ -47,7 +52,7 @@ service keyWebhook on new WebhookServerForPayload(23595) {
     }
 
     resource function onFeature(websub:Notification notification, MockDomainEvent event) {
-        io:println("[Project]Feature Notification Received, domain: ", event.domain);
+        io:println("[Project]Feature Notification Received, domain: ", event.extra.value);
     }
 
     resource function onStatus(websub:Notification notification, MockActionEvent event) {
@@ -85,7 +90,7 @@ service headerAndPayloadWebhook on new WebhookServerForHeaderAndPayload(23597) {
 
     resource function onFeaturePull(websub:Notification notification, MockDomainEvent event) {
         io:println("[Project]Feature Pull Notification Received, header value: ", notification.getHeader(MOCK_HEADER),
-            " domain: ", event.domain);
+            " domain: ", event.extra.value);
     }
 
     resource function onHeaderOnly(websub:Notification notification, MockActionEvent event) {
