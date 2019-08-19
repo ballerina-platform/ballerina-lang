@@ -8,7 +8,8 @@ CREATE TABLE NumericTypes (
    decimal_type DECIMAL(10,2),
    numeric_type NUMERIC(10,2),
    float_type FLOAT,
-   real_type REAL
+   real_type REAL,
+   PRIMARY KEY (id)
 );
 /
 
@@ -24,14 +25,16 @@ CREATE TABLE StringTypes (
    character_type character,
    nvarcharmax_type nvarchar(255),
    longvarchar_type longvarchar,
-   clob_type clob
+   clob_type clob,
+   PRIMARY KEY (id)
 );
 /
 
 CREATE TABLE BooleanTypes (
     id INT,
     bool_type BOOLEAN,
-    bit_type BIT
+    bit_type BIT,
+    PRIMARY KEY (id)
 );
 /
 
@@ -42,7 +45,8 @@ CREATE TABLE BinaryTypes (
     blob_type BLOB(100),
     longvarbinary_type LONGVARBINARY,
     binaryvarying_type BINARY VARYING(9),
-    binarylargetobj_type BINARY LARGE OBJECT(1M)
+    binarylargetobj_type BINARY LARGE OBJECT(1M),
+    PRIMARY KEY (id)
 );
 /
 
@@ -53,6 +57,7 @@ CREATE TABLE TimeTypes (
     timestampnz_type TIMESTAMP(6) WITHOUT TIME ZONE,
     datetime_type DATETIME,
     timez_type TIME(6) WITH TIME ZONE,
-    timestampz_type TIMESTAMP(6) WITH TIME ZONE
+    timestampz_type TIMESTAMP(6) WITH TIME ZONE,
+    PRIMARY KEY (id)
 );
 /
