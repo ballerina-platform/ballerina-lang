@@ -88,7 +88,7 @@ public class RevocationVerificationTest {
      *
      * @throws Exception
      */
-    @Test (enabled = false)
+    @Test
     public void testOCSPPathValidation() throws Exception {
         //Add BouncyCastle as Security Provider.
         Security.addProvider(new BouncyCastleProvider());
