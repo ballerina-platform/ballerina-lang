@@ -168,7 +168,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         // if a symbol is found, then check whether it is unique
-        return isSameSymbol(pos, symbol, foundSym);
+        return !isSameSymbol(pos, symbol, foundSym);
     }
 
     public boolean checkForUniqueSymbol(SymbolEnv env, BSymbol symbol, int expSymTag) {
@@ -176,7 +176,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (foundSym == symTable.notFoundSymbol) {
             return true;
         }
-        return isSameSymbol(symbol, foundSym);
+        return !isSameSymbol(symbol, foundSym);
     }
 
     /**
@@ -200,7 +200,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         //if a symbol is found, then check whether it is unique
-        return isSameSymbol(pos, symbol, foundSym);
+        return !isSameSymbol(pos, symbol, foundSym);
     }
 
     /**
@@ -223,7 +223,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return false;
         }
 
-        if (!isSymbolOwnersSame(symbol, foundSym)) {
+        if (isSymbolOwnersSame(symbol, foundSym)) {
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
             return false;
         }
@@ -255,11 +255,17 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private boolean isSymbolOwnersSame(BSymbol symbol, BSymbol foundSym) {
         // check whether the given symbol owner is same as found symbol's owner
-        if ((foundSym.tag & SymTag.TYPE) == SymTag.TYPE || foundSym.owner == symbol.owner) {
+        if (foundSym.owner == symbol.owner) {
+            return true;
+        }
+
+        if ((foundSym.tag & SymTag.TYPE) == SymTag.TYPE) {
             return false;
         }
 
-        return !Symbols.isFlagOn(Flags.LAMBDA, symbol.flags) ||
+        // If the symbol being defined is inside a lambda and the existing symbol is defined inside a function, both
+        // symbols are in the same block scope.
+        return Symbols.isFlagOn(symbol.owner.flags, Flags.LAMBDA) &&
                 ((foundSym.owner.tag & SymTag.INVOKABLE) != SymTag.INVOKABLE);
     }
 
