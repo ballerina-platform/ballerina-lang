@@ -52,8 +52,8 @@ public class BallerinaCreateFileAction extends CreateFileFromTemplateAction impl
                                @NotNull CreateFileFromTemplateDialog.Builder builder) {
 
         if (directory.getName().equals(BALLERINA_SRC_DIR_NAME)) {
-            Messages.showWarningDialog("Ballerina project files can only exist inside ballerina modules under" +
-                    " src directory.", "Warning");
+            Messages.showWarningDialog("In a project, ballerina source files can only reside within ballerina " +
+                    "modules.", "Warning");
         }
         builder.setTitle(NEW_BALLERINA_FILE).addKind(BALLERINA_MAIN, BallerinaIcons.ICON, BALLERINA_MAIN)
                 .addKind(BALLERINA_SERVICE, BallerinaIcons.ICON, BALLERINA_SERVICE)
@@ -68,7 +68,7 @@ public class BallerinaCreateFileAction extends CreateFileFromTemplateAction impl
 
     @NotNull
     @Override
-    protected String getActionName(PsiDirectory directory, String newName, String templateName) {
+    protected String getActionName(PsiDirectory directory, @NotNull String newName, String templateName) {
         return NEW_BALLERINA_FILE;
     }
 
