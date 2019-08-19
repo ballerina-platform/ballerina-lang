@@ -20,7 +20,6 @@ package org.ballerinalang.toml.parser;
 import com.moandjiezana.toml.Toml;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.toml.exceptions.TomlException;
-import org.ballerinalang.toml.model.DependencyMetadata;
 import org.ballerinalang.toml.model.Manifest;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
@@ -183,19 +182,7 @@ public class ManifestProcessor {
      */
     private static void validateManifestDependencies(Manifest manifest) throws TomlException {
         for (Map.Entry<String, Object> dependency : manifest.getDependenciesAsObjectMap().entrySet()) {
-            DependencyMetadata metadata = new DependencyMetadata();
-            if (dependency.getValue() instanceof String) {
-                metadata.setVersion((String) dependency.getValue());
-            } else if (dependency.getValue() instanceof Map) {
-                Map metadataMap = (Map) dependency.getValue();
-                if (metadataMap.keySet().contains("version") && metadataMap.get("version") instanceof String) {
-                    metadata.setVersion((String) metadataMap.get("version"));
-                }
-    
-                if (metadataMap.keySet().contains("path") &&  metadataMap.get("path") instanceof String) {
-                    metadata.setPath((String) metadataMap.get("path"));
-                }
-            } else {
+            if (!(dependency.getValue() instanceof String) && !(dependency.getValue() instanceof Map)) {
                 throw new TomlException("invalid Ballerina.toml file: invalid metadata found for dependency" +
                                                  " [" + dependency.getKey() + "]");
             }

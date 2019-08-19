@@ -152,7 +152,7 @@ public class CopyNativeLibTask implements Task {
         if (ProjectDirs.isModuleExist(project, id.name.value)) {
             // If so fetch from project balo cache
             return buildContext.getBaloFromTarget(id);
-        } if (importPathDependency.isPresent()) {
+        } else if (importPathDependency.isPresent()) {
             return importPathDependency.get().getMetadata().getPath();
         } else {
             // If not fetch from home balo cache.

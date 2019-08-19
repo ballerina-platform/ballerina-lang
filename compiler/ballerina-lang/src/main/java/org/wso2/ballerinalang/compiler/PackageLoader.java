@@ -108,6 +108,7 @@ public class PackageLoader {
     private final boolean offline;
     private final boolean testEnabled;
     private final boolean lockEnabled;
+    
     /**
      * Manifest of the current project.
      */
@@ -125,8 +126,9 @@ public class PackageLoader {
     private final BLangDiagnosticLog dlog;
     private static final boolean shouldReadBalo = true;
     private final CompilerPhase compilerPhase;
+    
     /**
-     * Holds the manifests of modules resolved by dependency paths
+     * Holds the manifests of modules resolved by dependency paths.
      */
     private Map<PackageID, Manifest> dependencyManifests = new HashMap<>();
 

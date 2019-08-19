@@ -53,7 +53,7 @@ public class DependencyMetadata {
      * @return location of the dependency
      */
     public Path getPath() {
-        return Paths.get(this.path);
+        return null == this.path ? null : Paths.get(this.path);
     }
 
     /**

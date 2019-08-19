@@ -23,7 +23,6 @@ import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
-import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -40,7 +39,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.IMPLEMENTATION_VERSION;
@@ -101,22 +99,23 @@ public class PushUtils {
             
             // Validate the org-name
             if (!RepoUtils.validateOrg(manifest.getProject().getOrgName())) {
-                throw createLauncherException("invalid organization name provided \'" + manifest.getProject().getOrgName() +
-                                              "\'. Only lowercase alphanumerics and underscores are allowed in an " +
-                                              "organization name and the maximum length is 256 characters");
+                throw createLauncherException("invalid organization name provided \'" +
+                                              manifest.getProject().getOrgName() + "\'. Only lowercase alphanumerics " +
+                                              "and underscores are allowed in an organization name and the maximum " +
+                                              "length is 256 characters");
             }
         
             // Validate the module-name
             if (!RepoUtils.validatePkg(moduleName)) {
                 throw createLauncherException("invalid module name provided \'" + moduleName + "\'. Only " +
-                                              "alphanumerics, underscores and periods are allowed in a module name and " +
-                                              "the maximum length is 256 characters");
+                                              "alphanumerics, underscores and periods are allowed in a module name " +
+                                              "and the maximum length is 256 characters");
             }
         
             if (!RepoUtils.validatePkg(moduleName)) {
                 throw createLauncherException("invalid module name provided \'" + moduleName + "\'. Only " +
-                                              "alphanumerics, underscores and periods are allowed in a module name and " +
-                                              "the maximum length is 256 characters");
+                                              "alphanumerics, underscores and periods are allowed in a module name " +
+                                              "and the maximum length is 256 characters");
             }
         
             // check if there are any dependencies with balo path
@@ -127,8 +126,8 @@ public class PushUtils {
                             .collect(Collectors.toList());
         
             if (dependenciesWithBaloPath.size() > 0) {
-                throw createLauncherException("dependencies cannot be given by path when pushing module(s) to remote. " +
-                                              "check dependencies in Ballerina.toml: [" +
+                throw createLauncherException("dependencies cannot be given by path when pushing module(s) to " +
+                                              "remote. check dependencies in Ballerina.toml: [" +
                                               String.join(", ", dependenciesWithBaloPath) + "]");
             }
         
