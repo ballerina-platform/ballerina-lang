@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
+import java.util.Optional;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MAX_VALUE;
 import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
@@ -122,5 +123,14 @@ public class RuntimeUtils {
         }
 
         Runtime.getRuntime().exit(1);
+    }
+
+    public static void handleRuntimeReturnValues(Object returnValue) {
+        if (returnValue instanceof ErrorValue) {
+            ErrorValue errorValue = (ErrorValue) returnValue;
+            errStream.println("error: " + errorValue.getReason() +
+                    Optional.ofNullable(errorValue.getDetails()).map(details -> " " + details).orElse(""));
+            Runtime.getRuntime().exit(1);
+        }
     }
 }

@@ -225,6 +225,8 @@ public class SourcePruneTest {
                 {"src_prune_config76.json"},
                 // Iterable Operators
                 {"src_prune_config77.json"},
+                // Type Descriptor
+                {"src_prune_config82.json"},
         };
     }
 }

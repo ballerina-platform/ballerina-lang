@@ -40,28 +40,28 @@ public class UtilsTest {
         ErrorValue error1 = Utils.getPathError(reason, exp);
         Assert.assertEquals(error1.getReason(), Constants.FILEPATH_ERROR_CODE);
         Assert.assertEquals(error1.getDetails().toString(),
-                "message=Invalid path format: /User/ballerina/path\\test cause=null");
+                "message=Invalid path format: /User/ballerina/path\\test");
 
         // Get Path error without reason.
         ErrorValue error2 = Utils.getPathError(null, exp);
         Assert.assertEquals(error2.getReason(), Constants.FILEPATH_ERROR_CODE);
         Assert.assertEquals(error2.getDetails().toString(),
-                "message=Invalid path format: /User/ballerina/path\\test cause=null");
+                "message=Invalid path format: /User/ballerina/path\\test");
 
         // Get Path error without throwable.
         ErrorValue error3 = Utils.getPathError(reason, null);
         Assert.assertEquals(error3.getReason(), Constants.FILEPATH_ERROR_CODE);
-        Assert.assertEquals(error3.getDetails().toString(), "message=INVALID_PATH cause=null");
+        Assert.assertEquals(error3.getDetails().toString(), "message=INVALID_PATH");
 
         // Get Path error without both reason and throwable.
         ErrorValue error4 = Utils.getPathError(null, null);
         Assert.assertEquals(error4.getReason(), Constants.FILEPATH_ERROR_CODE);
-        Assert.assertEquals(error4.getDetails().toString(), "message=Unknown Error cause=null");
+        Assert.assertEquals(error4.getDetails().toString(), "message=Unknown Error");
 
         // Get Path error without throwable message.
         Exception exp2 = new Exception();
         ErrorValue error5 = Utils.getPathError(reason, exp2);
         Assert.assertEquals(error5.getReason(), Constants.FILEPATH_ERROR_CODE);
-        Assert.assertEquals(error5.getDetails().toString(), "message=INVALID_PATH cause=null");
+        Assert.assertEquals(error5.getDetails().toString(), "message=INVALID_PATH");
     }
 }
