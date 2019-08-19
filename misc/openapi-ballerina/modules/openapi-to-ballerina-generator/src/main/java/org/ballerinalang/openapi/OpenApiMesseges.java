@@ -37,10 +37,10 @@ public class OpenApiMesseges {
 
 
 
-    public static final String GEN_SERVICE_MODULE_REQUIRED = "A module name is required to successfully generate the" +
-                                                             " service from the provided OpenApi contract. " +
-                                                             "\nE.g ballerina openapi gen-service " +
-                                                             "<modulename>:<servicename>";
+    public static final String GEN_SERVICE_MODULE_REQUIRED = "A module name and a service name is required to " +
+                                                             "generate the service from the provided OpenAPI file. " +
+                                                             "\n E.g. ballerina openapi gen-service " +
+                                                             "<module_name>:<service_name> <OpenAPI_file>";
     public static final String GEN_SERVICE_PROJECT_ROOT = "Ballerina service generation should be done from the " +
                                                           "project root. \nIf you like to start with a new project " +
                                                           "use `ballerina new` command to create a new project.";
