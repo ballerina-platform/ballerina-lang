@@ -80,6 +80,11 @@
                     "default": false,
                     "description": "If set to true debug msgs will be printed to Ballerina output channel"
                 },
+                "ballerina.traceLog": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If set to true trace msgs will be printed to Ballerina output channel"
+                },
                 "ballerina.codeLens.all.enabled": {
                     "type": "boolean",
                     "default": true,
