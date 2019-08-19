@@ -141,7 +141,8 @@ public class JwtIssuerAndValidatorTest {
         String payload = new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
         Assert.assertEquals("{\"alg\":\"RS256\", \"typ\":\"JWT\"}", header);
         Assert.assertTrue(payload.startsWith("{\"sub\":\"John\", \"iss\":\"wso2\", \""));
-        Assert.assertTrue(payload.endsWith("\", \"scope\": \"test-scope\"}"));
+        Assert.assertTrue(payload.endsWith("\", \"aud\":[\"ballerina\", \"ballerinaSamples\"], " +
+                "\"scope\":\"test-scope\"}"));
     }
 
     @Test(priority = 2, description = "Test case for validating JWT token")
