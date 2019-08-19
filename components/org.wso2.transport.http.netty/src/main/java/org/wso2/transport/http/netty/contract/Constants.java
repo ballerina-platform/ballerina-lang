@@ -375,6 +375,8 @@ public final class Constants {
             = "Remote host closed the connection while reading inbound response headers";
     public static final String REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE_BODY
             = "Remote host closed the connection while reading inbound response body";
+    public static final String REMOTE_SERVER_CLOSED_BEFORE_READING_100_CONTINUE_RESPONSE
+            = "Remote host closed the connection before reading 100 continue response";
 
     public static final String REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED
             = "Connection between remote client and host is closed";
