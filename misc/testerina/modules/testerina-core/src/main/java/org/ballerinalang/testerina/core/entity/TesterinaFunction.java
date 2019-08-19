@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.testerina.core.entity;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -123,7 +124,9 @@ public class TesterinaFunction {
             }
             return out.result;
         } catch (NoSuchMethodException e) {
-            throw new BallerinaException("Error while invoking function '" + funcName + "'", e);
+            throw new BLangCompilerException("Error while invoking function '" + funcName + "'\n" +
+                    "If you are using data providers please check if types return from data provider " +
+                    "match test function parameter types.", e);
         }
     }
 

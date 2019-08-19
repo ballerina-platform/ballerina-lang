@@ -22,10 +22,10 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BStringType;
+import org.ballerinalang.jvm.types.*;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.testerina.core.entity.Test;
 import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.testerina.core.entity.TesterinaFunction;
@@ -822,6 +822,14 @@ public class BTestRunner {
         Class type;
         if (arrayValue.elementType instanceof BStringType) {
             type = String.class;
+        } else if (arrayValue.elementType instanceof BIntegerType) {
+            type = Long.TYPE;
+        } else if (arrayValue.elementType instanceof BBooleanType) {
+            type = Boolean.TYPE;
+        } else if (arrayValue.elementType instanceof BByteType) {
+            type = Byte.TYPE;
+        } else if (arrayValue.elementType instanceof BFloatType) {
+            type = Float.TYPE;
         } else {
             // default case
             type = Object.class;

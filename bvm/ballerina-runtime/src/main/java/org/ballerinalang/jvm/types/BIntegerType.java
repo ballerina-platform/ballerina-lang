@@ -23,7 +23,7 @@ package org.ballerinalang.jvm.types;
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
-class BIntegerType extends BType {
+public class BIntegerType extends BType {
 
     /**
      * Create a {@code BIntegerType} which represents the boolean type.
