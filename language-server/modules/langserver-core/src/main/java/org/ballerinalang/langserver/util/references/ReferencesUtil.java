@@ -128,7 +128,7 @@ public class ReferencesUtil {
         }
         for (BLangCompilationUnit compilationUnit : module.get().getCompilationUnits()) {
             SymbolReferenceFindingVisitor refVisitor = new SymbolReferenceFindingVisitor(context, symbolPkgName,
-                    position);
+                                                                                         position);
             refVisitor.visit(compilationUnit);
             if (!referencesModel.getDefinitions().isEmpty()) {
                 break;
@@ -227,7 +227,7 @@ public class ReferencesUtil {
                 // Possible Reference tokens found within the cUnit
                 String symbolPkgName = bLangPackage.symbol.getName().value;
                 SymbolReferenceFindingVisitor refVisitor = new SymbolReferenceFindingVisitor(context, symbolPkgName,
-                        position);
+                                                                                             position);
                 refVisitor.visit(compilationUnit);
             }
         });
@@ -252,7 +252,7 @@ public class ReferencesUtil {
                 .findAny();
 
         SymbolReferenceFindingVisitor refVisitor = new SymbolReferenceFindingVisitor(context, currentPkgName, position,
-                true);
+                                                                                     true);
 
         refVisitor.visit(currentCUnit.get());
 

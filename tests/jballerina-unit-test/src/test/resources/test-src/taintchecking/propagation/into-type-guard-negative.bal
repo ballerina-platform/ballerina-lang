@@ -14,21 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function testTupleForeachNegative1() {
-    [int, int, string, int, string] ldata = [10, 5, "string", 3, "string"];
-    int i = 0;
-    foreach string v in ldata {
-
-    }
-    foreach int v in ldata {
-
+public function main(string... args) {
+    [string, int]|error x = foo(args);
+    if (x is [string, int]) {
+        [string, int][s, _] = x;
+        sec(s);
     }
 }
 
-function testTupleForeachNegative2() {
-    [int, int, string, int, boolean] ldata = [10, 5, "string", 3, false];
-    int i = 0;
-    foreach string|int v in ldata {
+function foo(string[] str) returns [string, int]|error {
+    return [str[0], 1];
+}
 
-    }
+function sec(@untainted string arg) {
+
 }
