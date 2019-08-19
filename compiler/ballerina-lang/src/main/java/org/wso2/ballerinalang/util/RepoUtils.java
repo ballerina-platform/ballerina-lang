@@ -18,6 +18,9 @@
 package org.wso2.ballerinalang.util;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.toml.exceptions.TomlException;
+import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 
@@ -233,8 +236,8 @@ public class RepoUtils {
      * @param baloPath The path to balo file.
      * @return Ballerina.toml contents.
      */
-    public static String getManifestFromBalo(String baloPath) {
-        try (JarFile jar = new JarFile(baloPath)) {
+    public static Manifest getManifestFromBalo(Path baloPath) {
+        try (JarFile jar = new JarFile(baloPath.toString())) {
             java.util.Enumeration enumEntries = jar.entries();
             while (enumEntries.hasMoreElements()) {
                 JarEntry file = (JarEntry) enumEntries.nextElement();
@@ -243,21 +246,22 @@ public class RepoUtils {
                         continue;
                     }
                     // get the input stream
-                    StringBuilder manifestSB = new StringBuilder();
+                    Manifest manifest;
                     try (InputStream is = jar.getInputStream(file)) {
-                        while (is.available() > 0) {  // write contents of 'is' to 'fos'
-                            manifestSB.append(is.read());
-                        }
+                        manifest = ManifestProcessor.parseTomlContentAsStream(is);
                     }
                     
-                    return manifestSB.toString();
+                    return manifest;
                 }
             }
         } catch (IOException e) {
             throw new BLangCompilerException("unable to read balo file: " + baloPath +
                                              ". balo file seems to be corrupted.");
+        } catch (TomlException e) {
+            throw new BLangCompilerException("unable to read balo file: " + baloPath +
+                                             ". balo file seems to be corrupted: " + e.getMessage());
         }
-        
+    
         throw new BLangCompilerException("unable to find '/metadata/Ballerina.toml' file in balo file: " +
                                          baloPath + "");
     }

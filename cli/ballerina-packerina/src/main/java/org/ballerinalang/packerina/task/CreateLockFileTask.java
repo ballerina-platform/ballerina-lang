@@ -31,9 +31,9 @@ public class CreateLockFileTask implements Task {
     @Override
     public void execute(BuildContext buildContext) {
         CompilerContext compilerContext = buildContext.get(BuildContextField.COMPILER_CONTEXT);
-        LockFileWriter lockFileWriter = LockFileWriter.getInstance(compilerContext);
-        lockFileWriter.writeLockFile(ManifestProcessor.getInstance(compilerContext).getManifest(),
-                buildContext.getModules(), buildContext.getLockFilePath());
+        LockFileWriter lockFileWriter = LockFileWriter.getInstance(compilerContext,
+                ManifestProcessor.getInstance(compilerContext).getManifest());
+        lockFileWriter.writeLockFile(buildContext.getModules(), buildContext.getLockFilePath());
     
     }
 }

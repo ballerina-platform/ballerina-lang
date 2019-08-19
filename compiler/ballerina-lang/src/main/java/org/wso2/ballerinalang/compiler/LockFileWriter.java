@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler;
 
 import com.moandjiezana.toml.TomlWriter;
+import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.LockFile;
 import org.ballerinalang.toml.model.LockFileImport;
 import org.ballerinalang.toml.model.Manifest;
@@ -29,7 +30,9 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -39,27 +42,31 @@ import java.util.stream.Collectors;
  */
 public class LockFileWriter {
     private static final CompilerContext.Key<LockFileWriter> LOCK_FILE_WRITER_KEY = new CompilerContext.Key<>();
+    private final Manifest manifest;
     private LockFile lockFile = new LockFile();
 
     /**
      * Constructor of LockFileWriter.
      *
      * @param context compiler context
+     * @param manifest The manifest of the project(Ballerina.toml
      */
-    private LockFileWriter(CompilerContext context) {
+    private LockFileWriter(CompilerContext context, Manifest manifest) {
         context.put(LOCK_FILE_WRITER_KEY, this);
+        this.manifest = manifest;
     }
 
     /**
      * Get an instance of the LockFileWriter.
      *
      * @param context compiler context
+     * @param manifest The manifest of the project(Ballerina.toml)
      * @return instance of the LockFileWriter
      */
-    public static LockFileWriter getInstance(CompilerContext context) {
+    public static LockFileWriter getInstance(CompilerContext context, Manifest manifest) {
         LockFileWriter lockFileWriter = context.get(LOCK_FILE_WRITER_KEY);
         if (lockFileWriter == null) {
-            lockFileWriter = new LockFileWriter(context);
+            lockFileWriter = new LockFileWriter(context, manifest);
         }
         return lockFileWriter;
     }
@@ -70,15 +77,27 @@ public class LockFileWriter {
      * @param moduleSymbol Module symbol.
      */
     private void getPkgDependencies(BPackageSymbol moduleSymbol) {
-        LockFileImport module = new LockFileImport(moduleSymbol.pkgID.orgName.value,
-                                                              moduleSymbol.pkgID.name.value,
-                                                              moduleSymbol.pkgID.version.value);
-        List<BPackageSymbol> importPackages = moduleSymbol.imports;
-        module.setImports(getImports(importPackages));
-        this.lockFile.getImports().add(module);
-        if (importPackages.size() > 0) {
-            for (BPackageSymbol importPackage : importPackages) {
-                getPkgDependencies(importPackage);
+        if (moduleSymbol.pkgID.version.value.isEmpty() || "*".equals(moduleSymbol.pkgID.version.value)) {
+            return;
+        }
+        
+        Optional<Dependency> hasPathDependency = manifest.getDependencies().stream()
+                .filter(dep -> dep.getOrgName().equals(moduleSymbol.pkgID.orgName.value) &&
+                               dep.getModuleName().equals(moduleSymbol.pkgID.name.value) &&
+                               null != dep.getMetadata().getPath())
+                .findFirst();
+        
+        if (!hasPathDependency.isPresent()) {
+            LockFileImport module = new LockFileImport(moduleSymbol.pkgID.orgName.value,
+                    moduleSymbol.pkgID.name.value,
+                    moduleSymbol.pkgID.version.value);
+            List<BPackageSymbol> importPackages = moduleSymbol.imports;
+            module.setImports(getImports(importPackages));
+            this.lockFile.getImports().add(module);
+            if (importPackages.size() > 0) {
+                for (BPackageSymbol importPackage : importPackages) {
+                    getPkgDependencies(importPackage);
+                }
             }
         }
     }
@@ -98,12 +117,10 @@ public class LockFileWriter {
     
     /**
      * Update the project of the lock file.
-     *
-     * @param manifest Manifest object
      */
-    private void updateProject(Manifest manifest) {
-        this.lockFile.setOrgName(manifest.getProject().getOrgName());
-        this.lockFile.setVersion(manifest.getProject().getVersion());
+    private void updateProject() {
+        this.lockFile.setOrgName(this.manifest.getProject().getOrgName());
+        this.lockFile.setVersion(this.manifest.getProject().getVersion());
         this.lockFile.setLockfileVersion("1.0.0");
         this.lockFile.setBallerinaVersion(RepoUtils.getBallerinaVersion());
     }
@@ -121,19 +138,18 @@ public class LockFileWriter {
     }
     
     /**
-     * Write Ballerina.lock file.
+     * Write Ballerina.lock file overwriting existing Ballerina.lock file.
      *
-     * @param manifest     Manifest object.
      * @param modules      Modules to lock dependencies.
      * @param lockFilePath Path to the lock file.
      */
-    public void writeLockFile(Manifest manifest, List<BLangPackage> modules, Path lockFilePath) {
-        updateProject(manifest);
+    public void writeLockFile(List<BLangPackage> modules, Path lockFilePath) {
+        updateProject();
         updateDependencies(modules);
         try {
             TomlWriter tomlLockWriter = new TomlWriter();
             String tomlString = tomlLockWriter.write(this.lockFile);
-            Files.write(lockFilePath, tomlString.getBytes());
+            Files.write(lockFilePath, tomlString.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
         } catch (IOException ignore) {
             // ignore
         }

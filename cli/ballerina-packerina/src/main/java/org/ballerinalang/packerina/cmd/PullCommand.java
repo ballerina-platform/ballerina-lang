@@ -32,6 +32,7 @@ import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -106,7 +107,7 @@ public class PullCommand implements BLauncherCmd {
         }
 
         URI baseURI = URI.create(RepoUtils.getRemoteRepoURL());
-        Repo remoteRepo = new RemoteRepo(baseURI, false);
+        Repo remoteRepo = new RemoteRepo(baseURI, new HashMap<>(), false);
 
         PackageID moduleID = new PackageID(new Name(orgName), new Name(moduleName), new Name(version));
 

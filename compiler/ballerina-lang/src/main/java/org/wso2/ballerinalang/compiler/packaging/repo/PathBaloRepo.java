@@ -22,21 +22,23 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.converters.ZipConverter;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 
 /**
  * Resolve a balo using the path given in the Ballerina.toml
@@ -45,10 +47,12 @@ public class PathBaloRepo implements Repo<Path> {
     private static final Pattern semVerPattern = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)");
     
     private final Manifest manifest;
+    private Map<PackageID, Manifest> dependencyManifests;
     private ZipConverter zipConverter;
     
-    public PathBaloRepo(Manifest manifest) {
+    public PathBaloRepo(Manifest manifest, Map<PackageID, Manifest> dependencyManifests) {
         this.manifest = manifest;
+        this.dependencyManifests = dependencyManifests;
         // path value for zip converter does'nt matter
         this.zipConverter = new ZipConverter(Paths.get(""));
     }
@@ -96,6 +100,9 @@ public class PathBaloRepo implements Repo<Path> {
         if (semverMatcher.matches()) {
             moduleID.version = new Name(dep.getMetadata().getVersion());
         }
+        
+        // update dependency manifests map for imports of this moduleID.
+        this.dependencyManifests.put(moduleID, RepoUtils.getManifestFromBalo(baloPath.toAbsolutePath()));
     
         // resolve to balo path
         return new Patten(

@@ -19,12 +19,14 @@
 package org.wso2.ballerinalang.compiler.packaging.repo;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.toml.model.Manifest;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.converters.URIConverter;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.net.URI;
+import java.util.Map;
 
 /**
  * Calculate url pattens of package.
@@ -35,12 +37,12 @@ public class RemoteRepo extends NonSysRepo<URI> {
         super(converter);
     }
 
-    public RemoteRepo(URI base) {
-        this(new URIConverter(base));
+    public RemoteRepo(URI base, Map<PackageID, Manifest> dependencyManifests) {
+        this(new URIConverter(base, dependencyManifests));
     }
 
-    public RemoteRepo(URI base, boolean isBuild) {
-        this(new URIConverter(base, isBuild));
+    public RemoteRepo(URI base,  Map<PackageID, Manifest> dependencyManifests, boolean isBuild) {
+        this(new URIConverter(base, dependencyManifests, isBuild));
     }
 
     @Override

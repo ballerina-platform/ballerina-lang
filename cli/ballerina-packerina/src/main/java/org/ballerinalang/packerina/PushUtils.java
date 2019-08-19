@@ -18,12 +18,10 @@
 package org.ballerinalang.packerina;
 
 import org.ballerinalang.spi.EmbeddedExecutor;
-import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.toml.model.Settings;
-import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
@@ -43,6 +41,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+import static org.wso2.ballerinalang.programfile.ProgramFileConstants.IMPLEMENTATION_VERSION;
 import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_DEV_STAGE_CENTRAL;
 
 /**
@@ -84,7 +83,8 @@ public class PushUtils {
         
             Optional<Path> moduleBaloFile = Files.list(baloOutputDir)
                     .filter(baloFile -> null != baloFile.getFileName() &&
-                                        baloFile.getFileName().toString().startsWith(moduleName + "-"))
+                                        baloFile.getFileName().toString().startsWith(moduleName + "-" +
+                                                                                     IMPLEMENTATION_VERSION))
                     .findFirst();
         
             if (!moduleBaloFile.isPresent()) {
@@ -94,8 +94,7 @@ public class PushUtils {
         
             // get the manifest from balo file
             Path baloFilePath = moduleBaloFile.get();
-            String manifestFromBalo = RepoUtils.getManifestFromBalo(baloFilePath.toAbsolutePath().toString());
-            Manifest manifest = ManifestProcessor.parseTomlContentFromString(manifestFromBalo);
+            Manifest manifest = RepoUtils.getManifestFromBalo(baloFilePath.toAbsolutePath());
             String orgName = manifest.getProject().getOrgName();
             
             // Validate the org-name
@@ -158,8 +157,6 @@ public class PushUtils {
         } catch (IOException e) {
             throw createLauncherException("file error occurred in finding balo file for the module '" + moduleName +
                                           "'");
-        } catch (TomlException e) {
-            throw createLauncherException(e.getMessage());
         }
     
         return false;
