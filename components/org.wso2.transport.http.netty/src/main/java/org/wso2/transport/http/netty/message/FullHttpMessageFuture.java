@@ -32,10 +32,8 @@ public interface FullHttpMessageFuture {
 
     /**
      * Remove listener from the future.
-     *
-     * @return a different reference of FullHttpMessageListener object
      */
-    FullHttpMessageListener removeListener();
+    void removeListener();
 
     /**
      * Notify when the complete content is added to {@link HttpCarbonMessage}.
