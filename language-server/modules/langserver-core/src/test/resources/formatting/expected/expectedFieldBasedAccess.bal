@@ -31,5 +31,10 @@ function name() {
 
     json | error payload = json.constructFrom(cities);
     string nameTest1 = rec.name.indexOf("mar");
-    json | error payload1 =  json . constructFrom(  cities) . toJsonString();
+    json | error payload1 = json.constructFrom(cities).toJsonString();
+
+    string str = "";
+    foreach int i in 0 ..< 5 {
+        str = str.concat(" ");
+    }
 }
