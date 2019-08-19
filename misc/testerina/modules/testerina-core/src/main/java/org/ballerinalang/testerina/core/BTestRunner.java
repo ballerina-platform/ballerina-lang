@@ -22,10 +22,25 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.*;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BBooleanType;
+import org.ballerinalang.jvm.types.BByteType;
+import org.ballerinalang.jvm.types.BDecimalType;
+import org.ballerinalang.jvm.types.BFloatType;
+import org.ballerinalang.jvm.types.BIntegerType;
+import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BObjectType;
+import org.ballerinalang.jvm.types.BRecordType;
+import org.ballerinalang.jvm.types.BStringType;
+import org.ballerinalang.jvm.types.BTupleType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BXMLType;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.testerina.core.entity.Test;
 import org.ballerinalang.testerina.core.entity.TestSuite;
 import org.ballerinalang.testerina.core.entity.TesterinaFunction;
@@ -796,6 +811,11 @@ public class BTestRunner {
         return argsList;
     }
 
+    /**
+     * Extract the parameter types from a valueset.
+     * @param valueSets use provided value sets
+     * @return a list of calss types.
+     */
     private static Class[] extractArgumentTypes(Object valueSets) {
         List<Class> typeList = new ArrayList<>();
         typeList.add(Strand.class);
@@ -819,21 +839,7 @@ public class BTestRunner {
     }
 
     private static void setTestFunctionSignature(List<Class> typeList, ArrayValue arrayValue) {
-        Class type;
-        if (arrayValue.elementType instanceof BStringType) {
-            type = String.class;
-        } else if (arrayValue.elementType instanceof BIntegerType) {
-            type = Long.TYPE;
-        } else if (arrayValue.elementType instanceof BBooleanType) {
-            type = Boolean.TYPE;
-        } else if (arrayValue.elementType instanceof BByteType) {
-            type = Byte.TYPE;
-        } else if (arrayValue.elementType instanceof BFloatType) {
-            type = Float.TYPE;
-        } else {
-            // default case
-            type = Object.class;
-        }
+        Class type = getArgTypeToClassMapping(arrayValue.elementType);
         for (int i = 0; i < arrayValue.size(); i++) {
             // Add the param type.
             typeList.add(type);
@@ -853,6 +859,36 @@ public class BTestRunner {
             params.add(Boolean.TRUE);
         }
         valueList.add(params.toArray());
+    }
+
+    private static Class getArgTypeToClassMapping(BType elementType) {
+        Class type;
+        // Refer jvm_method_gen.bal getArgTypeSignature for proper type matching
+        if (elementType instanceof BStringType) {
+            type = String.class;
+        } else if (elementType instanceof BIntegerType) {
+            type = Long.TYPE;
+        } else if (elementType instanceof BBooleanType) {
+            type = Boolean.TYPE;
+        } else if (elementType instanceof BDecimalType) {
+            type = DecimalValue.class;
+        } else if (elementType instanceof BByteType) {
+            type = Integer.TYPE;
+        } else if (elementType instanceof BArrayType || elementType instanceof BTupleType) {
+            type = ArrayValue.class;
+        } else if (elementType instanceof BFloatType) {
+            type = Double.TYPE;
+        } else if (elementType instanceof BMapType || elementType instanceof BRecordType) {
+            type = MapValue.class;
+        } else if (elementType instanceof BXMLType) {
+            type = XMLValue.class;
+        } else if (elementType instanceof BObjectType) {
+            type = ObjectValue.class;
+        } else {
+            // default case
+            type = Object.class;
+        }
+        return type;
     }
 
     /**

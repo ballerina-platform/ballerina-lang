@@ -28,7 +28,7 @@ import java.math.BigDecimal;
  *
  * @since 0.995.0
  */
-class BDecimalType extends BType {
+public class BDecimalType extends BType {
 
     /**
      * Create a {@code BDecimalType} which represents the decimal type.
