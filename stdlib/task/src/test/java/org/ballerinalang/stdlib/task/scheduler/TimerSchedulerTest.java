@@ -18,10 +18,8 @@
 
 package org.ballerinalang.stdlib.task.scheduler;
 
-import org.awaitility.core.ConditionTimeoutException;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -39,38 +37,6 @@ import static org.awaitility.Awaitility.await;
  */
 @Test
 public class TimerSchedulerTest {
-
-    @Test(description = "Test service parameter passing", enabled = false)
-    public void testSimpleTimerScheduler() {
-        CompileResult compileResult = BCompileUtil.compile(false,  "scheduler/timer/simple_timer.bal");
-        BRunUtil.invoke(compileResult, "main");
-        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-            BValue[] count = BRunUtil.invoke(compileResult, "getCount");
-            Assert.assertEquals(count.length, 1);
-            Assert.assertTrue(count[0] instanceof BInteger);
-            return (((BInteger) count[0]).intValue() > 3);
-        });
-    }
-
-    @Test(description = "Test service parameter passing", enabled = false)
-    public void testTimerAttachment() {
-        CompileResult compileResult = BCompileUtil.compile(true, "scheduler/timer/timer_attachment.bal");
-        BRunUtil.invoke(compileResult, "attachTimer");
-        String expectedResult = "Sam is 5 years old";
-        try {
-            await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-                BValue[] result = BRunUtil.invoke(compileResult, "getResult");
-                Assert.assertEquals(result.length, 1);
-                Assert.assertTrue(result[0] instanceof BString);
-                return (expectedResult.equals(result[0].stringValue()));
-            });
-        } catch (ConditionTimeoutException e) {
-            BValue[] result = BRunUtil.invoke(compileResult, "getResult");
-            Assert.assertEquals(result.length, 1);
-            Assert.assertTrue(result[0] instanceof BString);
-            Assert.assertEquals(result[0].stringValue(), expectedResult, "Result did not match");
-        }
-    }
 
     @Test(description = "Tests for pause and resume functions of the timer", enabled = false)
     public void testPauseResume() {

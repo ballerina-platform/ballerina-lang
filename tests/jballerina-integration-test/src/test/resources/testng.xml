@@ -281,4 +281,15 @@
             <class name="org.ballerinalang.test.packaging.LockFileTestCase"/>
         </classes>
     </test>
+
+    <test name="ballerina-task-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <classes>
+            <class name="org.ballerinalang.test.task.TaskBaseTest"/>
+            <class name="org.ballerinalang.test.task.SchedulerWithHttpClientTestCase"/>
+            <class name="org.ballerinalang.test.task.SchedulerAppointmentTest"/>
+            <class name="org.ballerinalang.test.task.SchedulerTimerTest"/>
+            <class name="org.ballerinalang.test.task.TimerPauseResumeTestCase"/>
+        </classes>
+    </test>
 </suite>

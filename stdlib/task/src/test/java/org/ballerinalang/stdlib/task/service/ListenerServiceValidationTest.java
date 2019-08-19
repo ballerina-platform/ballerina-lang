@@ -54,7 +54,7 @@ public class ListenerServiceValidationTest {
 
     @Test(
             description = "Tests compiler error for a task with an invalid resource name.",
-            expectedExceptions = org.ballerinalang.util.exceptions.BLangRuntimeException.class,
+            expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
                     ".*Invalid resource function found: timerStart. Expected: 'onTrigger'.*"
     )

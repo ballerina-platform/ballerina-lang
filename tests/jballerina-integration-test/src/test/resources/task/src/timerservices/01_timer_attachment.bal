@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/http;
+import ballerina/runtime;
 import ballerina/task;
 
 public type Person record {
@@ -21,19 +23,21 @@ public type Person record {
     int age;
 };
 
-function attachTimer() {
+listener http:Listener taskAttachmentListener = new(15004);
+
+public function main() {
     Person person = {
         name: "Sam",
         age: 0
     };
 
-    task:Scheduler timer = new({ intervalInMillis: 2000, initialDelayInMillis: 1000 });
+    task:Scheduler timer = new({ intervalInMillis: 1000, initialDelayInMillis: 1000, noOfRecurrences: 5 });
     var attachResult = timer.attach(timerService, person);
-    if (attachResult is error) {
+    if (attachResult is task:SchedulerError) {
         panic attachResult;
     }
     var startResult = timer.start();
-    if (startResult is error) {
+    if (startResult is task:SchedulerError) {
         panic startResult;
     }
 }
@@ -47,6 +51,16 @@ service timerService = service {
     }
 };
 
-function getResult() returns string {
-    return result;
+@http:ServiceConfig {
+	basePath: "/"
+}
+service TimerAttachmentHttpService on taskAttachmentListener {
+    @http:ResourceConfig {
+        methods:["GET"]
+    }
+    resource function getTaskAttachmentResult(http:Caller caller, http:Request request) {
+        // Sleep for 8 seconds to check whether the task is running for more than 5 times.
+        runtime:sleep(8000);
+		var sendResult = caller->respond(result);
+	}
 }
