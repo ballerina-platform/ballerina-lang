@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>1.0.0-beta-SNAPSHOT</version>
+    <version>1.0.0-beta</version>
     <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
@@ -10,15 +10,14 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Added ballerina sequence diagram view and editing support. </li>
-        <li>Added ballerina home auto detection. </li>
-        <li>Added language server based in-place renaming support. </li>
-        <li>Added language server based signature-help. </li>
-        <li>Added Debugger Adaptor Protocol support. </li>
+        <li>Fixed plugin compatibility issues with IDEA 2019.2 (diagnostics, code actions and renaming support.) </li>
+        <li>Fixed syntax highlighting issue with XML related syntax. </li>
+        <li>Added ballerina module creation action. </li>
+        <li>Added plugin setting to enable ballerina experimental features. </li>
+        <li>Fixed minor code completion related issues. </li>
       </ul>
     ]]>
     </change-notes>
-
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
     <idea-version since-build="182"/>
 
