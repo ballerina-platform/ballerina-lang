@@ -158,8 +158,7 @@ public class WorkspacePackageRepositoryTest {
         LSDocument sourceDocument = new LSDocument(filePath, sourceRoot);
         WorkspaceDocumentManagerImpl documentManager = ExtendedWorkspaceDocumentManagerImpl.getInstance();
         PackageID packageID = new PackageID(Names.ANON_ORG, new Name(packageName), Names.DEFAULT_VERSION);
-        return LSCompilerUtil.prepareCompilerContext(packageID, packageRepository, sourceDocument,
-                                                     true, documentManager);
+        return LSCompilerUtil.prepareCompilerContext(packageID, packageRepository, sourceDocument, documentManager);
     }
 
     private BLangPackage compileFile(String packageName, CompilerContext context) {

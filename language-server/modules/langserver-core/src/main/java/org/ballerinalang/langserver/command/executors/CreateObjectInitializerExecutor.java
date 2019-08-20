@@ -75,8 +75,8 @@ public class CreateObjectInitializerExecutor implements LSCommandExecutor {
         BLangPackage bLangPackage;
         try {
             WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
-            bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager, false,
-                    LSCustomErrorStrategy.class, false);
+            bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager, LSCustomErrorStrategy.class,
+                                                            false);
         } catch (CompilationFailedException e) {
             throw new LSCommandExecutorException("Couldn't compile the source", e);
         }

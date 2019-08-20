@@ -105,13 +105,12 @@ public class LSCompilerUtil {
      * @param packageID          Package Name
      * @param packageRepository  Package Repository
      * @param sourceRoot         The source root of the project
-     * @param preserveWhitespace Preserve Whitespace
      * @param documentManager    {@link WorkspaceDocumentManager} Document Manager
      * @param compilerPhase      {@link CompilerPhase} Compiler Phase
      * @return {@link CompilerContext}     Compiler context
      */
     public static CompilerContext prepareCompilerContext(PackageID packageID, PackageRepository packageRepository,
-                                                         String sourceRoot, boolean preserveWhitespace,
+                                                         String sourceRoot,
                                                          WorkspaceDocumentManager documentManager,
                                                          CompilerPhase compilerPhase) {
         LSContextManager lsContextManager = LSContextManager.getInstance();
@@ -128,7 +127,6 @@ public class LSCompilerUtil {
                 : compilerPhase.toString();
 
         options.put(COMPILER_PHASE, phase);
-        // Temporarily make all the operations to keep the WS to avoid test failures after context clearing
         options.put(PRESERVE_WHITESPACE, Boolean.valueOf(true).toString());
         options.put(TEST_ENABLED, String.valueOf(true));
         options.put(SKIP_TESTS, String.valueOf(false));
@@ -152,14 +150,13 @@ public class LSCompilerUtil {
      *
      * @param packageRepository  Package Repository
      * @param sourceRoot         The source root of the project
-     * @param preserveWhitespace Preserve Whitespace
      * @param documentManager    {@link WorkspaceDocumentManager} Document Manager
      * @return {@link CompilerContext}     Compiler context
      */
     public static CompilerContext prepareCompilerContext(PackageRepository packageRepository,
-                                                         String sourceRoot, boolean preserveWhitespace,
+                                                         String sourceRoot,
                                                          WorkspaceDocumentManager documentManager) {
-        return prepareCompilerContext(null, packageRepository, sourceRoot, preserveWhitespace,
+        return prepareCompilerContext(null, packageRepository, sourceRoot,
                 documentManager, CompilerPhase.TAINT_ANALYZE);
     }
 
@@ -171,17 +168,16 @@ public class LSCompilerUtil {
      * @param pkgID         Package ID
      * @param pkgRepo Package Repository
      * @param lsDocument          LSDocument for Source Root
-     * @param preserveWhitespace Preserve Whitespace
      * @param docManager {@link WorkspaceDocumentManager} Document Manager
      * @param compilerPhase {@link CompilerPhase} Compiler Phase
      * @return {@link CompilerContext}     Compiler context
      */
     public static CompilerContext prepareCompilerContext(PackageID pkgID, PackageRepository pkgRepo,
-                                                         LSDocument lsDocument, boolean preserveWhitespace,
+                                                         LSDocument lsDocument,
                                                          WorkspaceDocumentManager docManager,
                                                          CompilerPhase compilerPhase) {
-        CompilerContext context = prepareCompilerContext(pkgID, pkgRepo, lsDocument.getProjectRoot(),
-                                                         preserveWhitespace, docManager, compilerPhase);
+        CompilerContext context = prepareCompilerContext(pkgID, pkgRepo, lsDocument.getProjectRoot(), docManager,
+                                                         compilerPhase);
         Path sourceRootPath = lsDocument.getProjectRootPath();
         if (lsDocument.isWithinProject()) {
             LangServerFSProjectDirectory projectDirectory =
@@ -202,15 +198,14 @@ public class LSCompilerUtil {
      * @param packageID         Package Name
      * @param packageRepository Package Repository
      * @param sourceRoot        LSDocument for Source Root
-     * @param preserveWhitespace Preserve Whitespace
      * @param documentManager {@link WorkspaceDocumentManager} Document Manager
      * @return {@link CompilerContext}     Compiler context
      */
     public static CompilerContext prepareCompilerContext(PackageID packageID, PackageRepository packageRepository,
-                                                         LSDocument sourceRoot, boolean preserveWhitespace,
+                                                         LSDocument sourceRoot,
                                                          WorkspaceDocumentManager documentManager) {
-        return prepareCompilerContext(packageID, packageRepository, sourceRoot, preserveWhitespace,
-                documentManager, CompilerPhase.COMPILER_PLUGIN);
+        return prepareCompilerContext(packageID, packageRepository, sourceRoot, documentManager,
+                                      CompilerPhase.COMPILER_PLUGIN);
     }
 
     private static boolean isSameFile(Path path1, Path path2) {

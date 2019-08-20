@@ -40,6 +40,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
 import javax.annotation.Nullable;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -136,13 +137,12 @@ public class LSContextManager {
         return getCompilerContext(null, BUILT_IN_PACKAGES_PROJ_DIR, WorkspaceDocumentManagerImpl.getInstance());
     }
 
-    public CompilerContext createNewCompilerContext(String projectDir,
-                                                            WorkspaceDocumentManager documentManager) {
+    public CompilerContext createNewCompilerContext(String projectDir, WorkspaceDocumentManager documentManager) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, projectDir);
         options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
-        options.put(PRESERVE_WHITESPACE, "false");
+        options.put(PRESERVE_WHITESPACE, Boolean.toString(true));
         options.put(OFFLINE, Boolean.toString(true));
         context.put(SourceDirectory.class, new NullSourceDirectory(Paths.get(projectDir), documentManager));
         List<Diagnostic> balDiagnostics = new ArrayList<>();

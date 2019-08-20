@@ -174,7 +174,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         && context.get(DocumentServiceKeys.TERMINATE_OPERATION_KEY)) {
                     return Either.forLeft(completions);
                 }
-                LSModuleCompiler.getBLangPackage(context, documentManager, false, null, false);
+                LSModuleCompiler.getBLangPackage(context, documentManager, null, false);
                 // Fill the current file imports
                 context.put(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY, CommonUtil.getCurrentFileImports(context));
                 CompletionUtil.resolveSymbols(context);
@@ -249,7 +249,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
                 // Prune the source and compile
                 SourcePruner.pruneSource(context);
-                BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager, false,
+                BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager,
                                                                              LSCustomErrorStrategy.class, false);
 
                 // Capture visible symbols of the cursor position
@@ -359,7 +359,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 LSServiceOperationContext context = new LSServiceOperationContext(LSContextOperation.TXT_DOC_SYMBOL);
                 context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
                 context.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
-                BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager, false,
+                BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager,
                                                                              LSCustomErrorStrategy.class, false);
                 Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
                         .filter(cUnit -> (fileUri.endsWith(cUnit.getName())))
@@ -589,7 +589,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
             try {
                 BLangPackage bLangPackage =
-                        LSModuleCompiler.getBLangPackage(context, documentManager, false,
+                        LSModuleCompiler.getBLangPackage(context, documentManager,
                                                          GotoImplementationCustomErrorStrategy.class, false);
                 List<Location> locations = GotoImplementationUtil.getImplementationLocation(bLangPackage, context,
                                                                                             position.getPosition(),

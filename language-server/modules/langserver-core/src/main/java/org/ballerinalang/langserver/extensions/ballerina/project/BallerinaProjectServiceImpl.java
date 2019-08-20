@@ -65,7 +65,7 @@ public class BallerinaProjectServiceImpl implements BallerinaProjectService {
         try {
             LSContext astContext = new LSServiceOperationContext(LSContextOperation.PROJ_MODULES);
             astContext.put(DocumentServiceKeys.SOURCE_ROOT_KEY, sourceRoot);
-            List<BLangPackage> modules = LSModuleCompiler.getBLangModules(astContext, this.documentManager, true,
+            List<BLangPackage> modules = LSModuleCompiler.getBLangModules(astContext, this.documentManager,
                     LSCustomErrorStrategy.class);
             JsonObject jsonModulesInfo = getJsonReply(astContext, modules);
             reply.setModules(jsonModulesInfo);
