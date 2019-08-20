@@ -93,7 +93,7 @@ function testCall() returns @tainted string {
 
     string name = "";
     while (dts[0].hasNext()) {
-        var rs =dts[0].getNext();
+        var rs = dts[0].getNext();
         if (rs is Customer) {
             name = rs.name;
         }
@@ -175,7 +175,7 @@ function testUpdateInMemory() returns @tainted [int, string] {
     var x = testDB->select("SELECT  * from Customers2", Customer);
     string s = "";
     if (x is table<Customer>) {
-        var res =typedesc<json>.constructFrom( x);
+        var res = typedesc<json>.constructFrom(x);
         if (res is json) {
             s = res.toString();
         }
