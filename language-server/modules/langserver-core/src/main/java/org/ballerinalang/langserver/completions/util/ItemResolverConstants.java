@@ -84,10 +84,12 @@ public class ItemResolverConstants {
     public static final String OBJECT_TYPE = "type <ObjectName> object";
     public static final String RECORD_TYPE = "type <RecordName> record";
     public static final String TYPE_TYPE = "type";
+    public static final String REMOTE_FUNCTION_TYPE = "remote function";
     public static final String NEW_OBJECT_INITIALIZER_TYPE = "init function";
     public static final String ATTACH_FUNCTION_TYPE = "attach function";
     public static final String START_FUNCTION_TYPE = "start function";
-    public static final String STOP_FUNCTION_TYPE = "stop function";
+    public static final String GRACEFUL_STOP_FUNCTION_TYPE = "graceful stop function";
+    public static final String IMMEDIATE_STOP_FUNCTION_TYPE = "immediate stop function";
     // End Symbol Types Constants
     
     // Keyword constants

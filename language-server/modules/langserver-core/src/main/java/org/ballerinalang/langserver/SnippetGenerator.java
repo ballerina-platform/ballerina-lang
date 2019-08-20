@@ -984,6 +984,18 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Remote function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getRemoteFunctionSnippet() {
+        String snippet = "public remote function ${1:name}(${2}) {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
+                + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.REMOTE_FUNCTION_TYPE, snippet,
+                ItemResolverConstants.SNIPPET_TYPE, SnippetType.SNIPPET);
+    }
+
+    /**
      * Get Object Initializer Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -1001,7 +1013,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getAttachFunctionSnippet() {
-        String snippet = "function __attach(service ${1:s}, string? ${2:name} = ()) returns error? {"
+        String snippet = "public function __attach(service ${1:s}, string? ${2:name} = ()) returns error? {"
                 + CommonUtil.LINE_SEPARATOR + "\t${3}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.ATTACH_FUNCTION_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
                 SnippetType.SNIPPET);
@@ -1013,21 +1025,33 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getStartFunctionSnippet() {
-        String snippet = "function __start() returns error? {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+        String snippet = "public function __start() returns error? {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.START_FUNCTION_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
                 SnippetType.SNIPPET);
     }
 
     /**
-     * Get Stop Function Snippet Block.
+     * Get Graceful Stop Function Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
-    public static SnippetBlock getStopFunctionSnippet() {
-        String snippet = "function __stop() returns error? {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+    public static SnippetBlock getGracefulStopFunctionSnippet() {
+        String snippet = "public function __gracefulStop() returns error? {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
                 + CommonUtil.LINE_SEPARATOR + "}";
-        return new SnippetBlock(ItemResolverConstants.STOP_FUNCTION_TYPE, snippet, ItemResolverConstants.SNIPPET_TYPE,
-                SnippetType.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.GRACEFUL_STOP_FUNCTION_TYPE, snippet,
+                ItemResolverConstants.SNIPPET_TYPE, SnippetType.SNIPPET);
+    }
+
+    /**
+     * Get Immediate Stop Function Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getImmediateStopFunctionSnippet() {
+        String snippet = "public function __immediateStop() returns error? {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+                + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.IMMEDIATE_STOP_FUNCTION_TYPE, snippet,
+                ItemResolverConstants.SNIPPET_TYPE, SnippetType.SNIPPET);
     }
 }

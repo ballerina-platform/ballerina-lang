@@ -1285,6 +1285,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "remote function",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "110",
+      "insertText": "public remote function ${1:name}(${2}) {\n\t${3}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "init function",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -1297,7 +1305,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "110",
-      "insertText": "function __attach(service ${1:s}, string? ${2:name} \u003d ()) returns error? {\n\t${3}\n}",
+      "insertText": "public function __attach(service ${1:s}, string? ${2:name} \u003d ()) returns error? {\n\t${3}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -1305,15 +1313,23 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "110",
-      "insertText": "function __start() returns error? {\n\t${1}\n}",
+      "insertText": "public function __start() returns error? {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "stop function",
+      "label": "graceful stop function",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "110",
-      "insertText": "function __stop() returns error? {\n\t${1}\n}",
+      "insertText": "public function __gracefulStop() returns error? {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "immediate stop function",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "110",
+      "insertText": "public function __immediateStop() returns error? {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
     {
