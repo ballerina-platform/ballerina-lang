@@ -33,14 +33,15 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Properties;
+import java.nio.file.Paths;
 
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_CONSUMER;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
 
 /**
  * Test cases for Kafka Consumer assign() function.
  */
-@Test(singleThreaded = true)
 public class KafkaConsumerAssignTest {
     private CompileResult result;
     private static File dataDir;
@@ -48,10 +49,10 @@ public class KafkaConsumerAssignTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        result = BCompileUtil.compile(getFilePath("test-src/consumer/kafka_consumer_assign.bal"));
-        Properties prop = new Properties();
+        result = BCompileUtil.compile(
+                getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_assign.bal")));
         kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true)
-                .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(1).startup();
+                .deleteDataUponShutdown(true).addBrokers(1).startup();
         kafkaCluster.createTopic("test-1", 1, 1);
     }
 
@@ -95,7 +96,7 @@ public class KafkaConsumerAssignTest {
             throw new IllegalStateException();
         }
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-assign-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(2181, 9094);
+        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(14001, 14101);
         return kafkaCluster;
     }
 }

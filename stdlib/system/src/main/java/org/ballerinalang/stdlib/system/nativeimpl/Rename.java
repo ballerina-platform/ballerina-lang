@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
@@ -42,19 +40,15 @@ import java.nio.file.Paths;
         functionName = "rename",
         isPublic = true
 )
-public class Rename extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class Rename {
 
     public static Object rename(Strand strand, String oldPath, String newPath) {
         Path oldFilePath = Paths.get(oldPath);
         Path newFilePath = Paths.get(newPath);
 
         if (Files.notExists(oldFilePath)) {
-            return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR,
-                    "File doesn't exist in path " + oldFilePath.toAbsolutePath());
+            return SystemUtils.getBallerinaError(SystemConstants.FILE_NOT_FOUND_ERROR,
+                    "File not found: " + oldFilePath.toAbsolutePath());
         }
 
         try {

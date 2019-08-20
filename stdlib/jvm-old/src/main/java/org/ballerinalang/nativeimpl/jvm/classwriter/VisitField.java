@@ -17,11 +17,9 @@
  */
 package org.ballerinalang.nativeimpl.jvm.classwriter;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -56,18 +54,14 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
                 @ReturnType(type = OBJECT, structType = FIELD_VISITOR, structPackage = JVM_PKG_PATH),
         }
 )
-public class VisitField extends BlockingNativeCallableUnit {
+public class VisitField {
 
-    @Override
-    public void execute(Context context) {
-
-        ClassWriter cw  = ASMUtil.getRefArgumentNativeData(context, 0);
-        int access = (int) context.getIntArgument(0);
-        String name = context.getStringArgument(0);
-        String descriptor = context.getStringArgument(1);
-        FieldVisitor fv = cw.visitField(access, name, descriptor, null, null);
-        BMap<String, BValue> rerunWrapperObject = ASMUtil.newObject(context, FIELD_VISITOR);
+    public static ObjectValue visitField(Strand strand, ObjectValue oCw, long access, String name, String descriptor,
+                                         Object signature, Object exceptions) {
+        ClassWriter cw = ASMUtil.getRefArgumentNativeData(oCw);
+        FieldVisitor fv = cw.visitField((int) access, name, descriptor, null, null);
+        ObjectValue rerunWrapperObject = ASMUtil.newObject(FIELD_VISITOR);
         ASMUtil.addNativeDataToObject(fv, rerunWrapperObject);
-        context.setReturnValues(rerunWrapperObject);
+        return rerunWrapperObject;
     }
 }

@@ -18,16 +18,12 @@
 
 package org.ballerinalang.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.persistence.Serializer;
 
 /**
  * ballerina.model.streams:serialize(map obj).
@@ -41,11 +37,7 @@ import org.ballerinalang.persistence.Serializer;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Serialize extends BlockingNativeCallableUnit {
-    public void execute(Context ctx) {
-        String serialized = Serializer.getJsonSerializer().serialize(ctx.getRefArgument(0));
-        ctx.setReturnValues(new BString(serialized));
-    }
+public class Serialize {
 
     public static String serialize(Strand strand, Object value, MapValue data) {
         //TODO: implement serializers for JBAL values

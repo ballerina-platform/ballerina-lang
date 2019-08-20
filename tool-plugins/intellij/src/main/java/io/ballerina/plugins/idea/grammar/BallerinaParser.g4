@@ -44,12 +44,7 @@ serviceDefinition
     ;
 
 serviceBody
-    :   LEFT_BRACE serviceBodyMember* RIGHT_BRACE
-    ;
-
-serviceBodyMember
-    :   objectFieldDefinition
-    |   objectFunctionDefinition
+    :   LEFT_BRACE objectFunctionDefinition* RIGHT_BRACE
     ;
 
 callableUnitBody
@@ -198,7 +193,7 @@ inclusiveRecordTypeDescriptor
     ;
 
 tupleTypeDescriptor
-    : LEFT_BRACKET typeName (COMMA typeName)* (COMMA tupleRestDescriptor)? RIGHT_BRACKET
+    : LEFT_BRACKET ((typeName (COMMA typeName)* (COMMA tupleRestDescriptor)?) | tupleRestDescriptor) RIGHT_BRACKET
     ;
 
 tupleRestDescriptor
@@ -280,8 +275,8 @@ annotationAttachment
 
 statement
     :   errorDestructuringStatement
-    |   variableDefinitionStatement
     |   assignmentStatement
+    |   variableDefinitionStatement
     |   listDestructuringStatement
     |   recordDestructuringStatement
     |   compoundAssignmentStatement
@@ -330,6 +325,7 @@ recordKeyValue
 
 recordKey
     :   Identifier
+    |   LEFT_BRACKET expression RIGHT_BRACKET
     |   expression
     ;
 
@@ -438,15 +434,27 @@ structuredBindingPattern
 
 errorBindingPattern
     :   TYPE_ERROR LEFT_PARENTHESIS Identifier (COMMA errorDetailBindingPattern)* (COMMA errorRestBindingPattern)? RIGHT_PARENTHESIS
+    |   typeName LEFT_PARENTHESIS errorFieldBindingPatterns RIGHT_PARENTHESIS
+    ;
+
+errorFieldBindingPatterns
+    :   errorDetailBindingPattern (COMMA errorDetailBindingPattern)* (COMMA errorRestBindingPattern)?
+    |   errorRestBindingPattern
     ;
 
 errorMatchPattern
     :   TYPE_ERROR LEFT_PARENTHESIS errorArgListMatchPattern RIGHT_PARENTHESIS
+    |   typeName LEFT_PARENTHESIS errorFieldMatchPatterns RIGHT_PARENTHESIS
     ;
 
 errorArgListMatchPattern
     :   simpleMatchPattern (COMMA errorDetailBindingPattern)* (COMMA restMatchPattern)?
     |   errorDetailBindingPattern (COMMA errorDetailBindingPattern)* (COMMA restMatchPattern)?
+    |   restMatchPattern
+    ;
+
+errorFieldMatchPatterns
+    :   errorDetailBindingPattern (COMMA errorDetailBindingPattern)* (COMMA restMatchPattern)?
     |   restMatchPattern
     ;
 
@@ -467,25 +475,16 @@ errorDetailBindingPattern
     ;
 
 listBindingPattern
-    :   LEFT_BRACKET bindingPattern (COMMA bindingPattern)+ RIGHT_BRACKET
+    :   LEFT_BRACKET ((bindingPattern (COMMA bindingPattern)* (COMMA restBindingPattern)?) | restBindingPattern?) RIGHT_BRACKET
     ;
 
 recordBindingPattern
-    :   openRecordBindingPattern
-    |   closedRecordBindingPattern
-    ;
-
-openRecordBindingPattern
     :   LEFT_BRACE entryBindingPattern RIGHT_BRACE
-    ;
-
-closedRecordBindingPattern
-    :   LEFT_CLOSED_RECORD_DELIMITER fieldBindingPattern (COMMA fieldBindingPattern)* RIGHT_CLOSED_RECORD_DELIMITER
     ;
 
 entryBindingPattern
     :   fieldBindingPattern (COMMA fieldBindingPattern)* (COMMA restBindingPattern)?
-    |   restBindingPattern
+    |   restBindingPattern?
     ;
 
 fieldBindingPattern
@@ -507,26 +506,21 @@ structuredRefBindingPattern
     |   recordRefBindingPattern
     ;
 
-// TODO : Add rest binding pattern to comply with 2019r1 spec.
 listRefBindingPattern
-    :   LEFT_BRACKET bindingRefPattern (COMMA bindingRefPattern)+ RIGHT_BRACKET
+    :   LEFT_BRACKET ((bindingRefPattern (COMMA bindingRefPattern)* (COMMA listRefRestPattern)?) | listRefRestPattern) RIGHT_BRACKET
+    ;
+
+listRefRestPattern
+    : ELLIPSIS variableReference
     ;
 
 recordRefBindingPattern
-    :   openRecordRefBindingPattern
-    |   closedRecordRefBindingPattern
-    ;
-
-openRecordRefBindingPattern
-    :   LEFT_BRACE entryRefBindingPattern RIGHT_BRACE
-    ;
-
-closedRecordRefBindingPattern
-    :   LEFT_CLOSED_RECORD_DELIMITER fieldRefBindingPattern (COMMA fieldRefBindingPattern)* RIGHT_CLOSED_RECORD_DELIMITER
+    :  LEFT_BRACE entryRefBindingPattern RIGHT_BRACE
     ;
 
 errorRefBindingPattern
     :   TYPE_ERROR LEFT_PARENTHESIS ((variableReference (COMMA errorNamedArgRefPattern)*) | errorNamedArgRefPattern+) (COMMA errorRefRestPattern)? RIGHT_PARENTHESIS
+    |   typeName LEFT_PARENTHESIS errorNamedArgRefPattern (COMMA errorNamedArgRefPattern)*  (COMMA errorRefRestPattern)? RIGHT_PARENTHESIS
     ;
 
 errorNamedArgRefPattern
@@ -539,7 +533,7 @@ errorRefRestPattern
 
 entryRefBindingPattern
     :   fieldRefBindingPattern (COMMA fieldRefBindingPattern)* (COMMA restRefBindingPattern)?
-    |   restRefBindingPattern
+    |   restRefBindingPattern?
     ;
 
 fieldRefBindingPattern
@@ -994,7 +988,7 @@ reservedWord
     ;
 
 
-//Siddhi Streams and Tables related
+//Streams and Tables related
 tableQuery
     :   FROM streamingInput joinStreamingInput?
         selectClause?

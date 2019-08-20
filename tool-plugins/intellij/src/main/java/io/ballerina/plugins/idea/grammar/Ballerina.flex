@@ -10,7 +10,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 %%
 
 %{
-    private boolean inXmlMode = false;
+    private boolean inXmlExpressionMode = false;
     private boolean inXmlTagMode = false;
     private boolean inDoubleQuotedXmlStringMode = false;
     private boolean inSingleQuotedXmlStringMode = false;
@@ -20,11 +20,11 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
     private boolean inStringTemplate = false;
     private boolean inStringTemplateExpression = false;
 
-    private boolean inSiddhi = false;
+    private boolean inStreams = false;
     private boolean inTableSqlQuery = false;
-    private boolean inSiddhiInsertQuery = false;
-    private boolean inSiddhiTimeScaleQuery = false;
-    private boolean inSiddhiOutputRateLimit = false;
+    private boolean inStreamsInsertQuery = false;
+    private boolean inStreamsTimeScaleQuery = false;
+    private boolean inStreamsOutputRateLimit = false;
 
     public BallerinaLexer() {
         this((java.io.Reader)null);
@@ -79,7 +79,7 @@ BOOLEAN_LITERAL = "true" | "false"
 ESCAPE_SEQUENCE = \\ [btnfr\"'\\] | {UnicodeEscape}
 STRING_CHARACTER =  [^\\\"] | {ESCAPE_SEQUENCE}
 STRING_CHARACTERS = {STRING_CHARACTER}+
-QUOTED_STRING_LITERAL = \" {STRING_CHARACTERS}? \"
+QUOTED_STRING_LITERAL = {DOUBLE_QUOTE} {STRING_CHARACTERS}? {DOUBLE_QUOTE}
 
 // Blob Literal
 BASE_16_BLOB_LITERAL = "base16" {WHITE_SPACE}* {BACKTICK} {HEX_GROUP}* {WHITE_SPACE}* {BACKTICK}
@@ -132,70 +132,11 @@ INTERPOLATION_START = "${"
 HEX_DIGITS = {HEX_DIGIT} ({HEX_DIGIT_OR_UNDERSCORE}* {HEX_DIGIT})?
 HEX_DIGIT_OR_UNDERSCORE = {HEX_DIGIT} | "_"
 
+//Todo - Remove after restoring xml grammar support
 // XML
-XML_COMMENT_START = "<!--"
-CDATA = "<![CDATA[" .*? "]]>"
-DTD = "<!" ([^-].|.[^-]).*? ">"
-ENTITY_REF = "&" {XML_QNAME} ";"
-CHAR_REF = "&#" {DIGIT}+ ';' | "&#x" {HEX_DIGITS}+ ";"
-XML_WS = " " | \t | \r? \n
-XML_TAG_OPEN_SLASH = "</"
-XML_TAG_SPECIAL_OPEN = "<?" ({XML_QNAME} {QNAME_SEPARATOR})? {XML_QNAME} {XML_WS} // Todo - Fix
-XML_TAG_OPEN = "<"
+XML_ALL_CHAR = [^`]
 XML_LITERAL_END = "`"
-XML_TEMPLATE_TEXT = {XML_TEXT}? {INTERPOLATION_START}
-XML_TEXT = {XML_TEXT_CHAR}+
-XML_TEXT_CHAR = [^<&$`{] | '\\' [`] | {XML_WS} | {XML_ESCAPED_SEQUENCE} | {XML_DOLLAR_SEQUENCE} | {XML_BRACES_SEQUENCE}
-XML_ESCAPED_SEQUENCE =  \\\\ | \\\$\{ | \\} | \\\{ | &(gt|lt|amp);
-// Todo - verify whether !\$\{ is a proper alternative for lookaheads
-XML_DOLLAR_SEQUENCE =  '\$'+ !\$\{
-XML_BRACES_SEQUENCE = (\{})+ (\{)* (})* | (}\{)+ (\{)* (})* | (\{\{)+ (\{)* (})* | (}})+ (\{)* (})* | (\{})* \{ | } (\{})*
-
-// XML_TAG
-XML_TAG_CLOSE = ">"
-XML_TAG_SPECIAL_CLOSE = \?>
-XML_TAG_SLASH_CLOSE = "/>"
-SLASH = "/"
-QNAME_SEPARATOR = :
-EQUALS = "="
 DOUBLE_QUOTE = "\""
-SINGLE_QUOTE = "'"
-XML_QNAME = {NAME_START_CHAR} {NAME_CHAR}*
-XML_TAG_WS = [ \t\r\n]
-HEX_DIGIT = [0-9a-fA-F]
-NAME_CHAR = {NAME_START_CHAR} | "-" | "." | {DIGIT} | \u00B7 | [\u0300-\u036F] | [\u203F-\u2040]
-NAME_START_CHAR = [a-zA-Z_] | [\u2070-\u218F] | [\u2C00-\u2FEF] | [\u3001-\uD7FF] | [\uF900-\uFDCF] | [\uFDF0-\uFFFD]
-
-// DOUBLE_QUOTED_XML_STRING
-DOUBLE_QUOTE_END = "\""
-XML_DOUBLE_QUOTED_TEMPLATE_STRING = {XML_DOUBLE_QUOTED_STRING_SEQUENCE}? {INTERPOLATION_START}
-XML_DOUBLE_QUOTED_STRING_SEQUENCE = {XML_BRACES_SEQUENCE}? ({XMLDoubleQuotedStringChar} {XML_BRACES_SEQUENCE}?)+ | {XML_BRACES_SEQUENCE} ({XMLDoubleQuotedStringChar} {XML_BRACES_SEQUENCE}?)*
-XMLDoubleQuotedStringChar = [^$<\"{}\\] | {XML_ESCAPED_SEQUENCE} | {XML_DOLLAR_SEQUENCE}
-
-// SINGLE_QUOTED_XML_STRING
-SINGLE_QUOTE_END = "'"
-XML_SINGLE_QUOTED_TEMPLATE_STRING = {XML_SINGLE_QUOTED_STRING_SEQUENCE}? {INTERPOLATION_START}
-XML_SINGLE_QUOTED_STRING_SEQUENCE = {XML_BRACES_SEQUENCE}? ({XMLSingleQuotedStringChar} {XML_BRACES_SEQUENCE}?)+ | {XML_BRACES_SEQUENCE} ({XMLSingleQuotedStringChar} {XML_BRACES_SEQUENCE}?)*
-XMLSingleQuotedStringChar = [^$<'{}\\] | {XML_ESCAPED_SEQUENCE}
-
-// XML_PI
-XML_PI_END = {XML_TAG_SPECIAL_CLOSE}
-XML_PI_TEXT = {XML_PI_TEXT_FRAGMENT} {XML_PI_END}
-XML_PI_TEMPLATE_TEXT = {XML_PI_TEXT_FRAGMENT} {INTERPOLATION_START}
-XML_PI_TEXT_FRAGMENT = {XML_PI_ALLOWED_SEQUENCE}? ({XML_PI_CHAR} {XML_PI_ALLOWED_SEQUENCE}?)*
-XML_PI_CHAR = [^${}?>] | {XML_ESCAPED_SEQUENCE}
-XML_PI_ALLOWED_SEQUENCE = {XML_BRACES_SEQUENCE} | {XML_PI_SPECIAL_SEQUENCE} | ({XML_BRACES_SEQUENCE} {XML_PI_SPECIAL_SEQUENCE})+ {XML_BRACES_SEQUENCE}? | ({XML_PI_SPECIAL_SEQUENCE} {XML_BRACES_SEQUENCE})+ {XML_PI_SPECIAL_SEQUENCE}?
-XML_PI_SPECIAL_SEQUENCE = ">"+ | ">"* "?"+
-
-// XML_COMMENT
-XML_COMMENT_END = "-->"
-XML_COMMENT_TEMPLATE_TEXT = {XML_COMMENT_TEXT_FRAGMENT} {INTERPOLATION_START}
-XML_COMMENT_TEXT_FRAGMENT = {XML_COMMENT_ALLOWED_SEQUENCE}? ({XML_COMMENT_CHAR} {XML_COMMENT_ALLOWED_SEQUENCE}?)*
-// Todo - verify whether !\$\{ is a proper alternative for lookaheads
-XML_COMMENT_CHAR = [^>\\-] | {XML_BRACES_SEQUENCE} | {XML_ESCAPED_SEQUENCE} | '\\'[`] | !\$\{
-XML_COMMENT_ALLOWED_SEQUENCE = {XML_BRACES_SEQUENCE} | {XML_COMMENT_SPECIAL_SEQUENCE} | ({XML_BRACES_SEQUENCE} {XML_COMMENT_SPECIAL_SEQUENCE})+ {XML_BRACES_SEQUENCE}? | ({XML_COMMENT_SPECIAL_SEQUENCE} {XML_BRACES_SEQUENCE})+ {XML_COMMENT_SPECIAL_SEQUENCE}?
-XML_COMMENT_SPECIAL_SEQUENCE = >+ | >? - [^-]
-XML_COMMENT_TEXT = {XML_COMMENT_ALLOWED_SEQUENCE}? ({XML_COMMENT_CHAR}+ {XML_COMMENT_ALLOWED_SEQUENCE}?)
 
 // MARKDOWN_DOCUMENTATION
 MARKDOWN_DOCUMENTATION_LINE_START =  {HASH} {DOCUMENTATION_SPACE}?
@@ -370,7 +311,9 @@ DOLLAR = \$
     "."                                         { return DOT; }
     ","                                         { return COMMA; }
     "{"                                         { return LEFT_BRACE; }
-    "}"                                         { if (inStringTemplateExpression) { inStringTemplateExpression = false; inStringTemplate = true; yybegin(STRING_TEMPLATE_MODE); } return RIGHT_BRACE; }
+    "}"                                         { if (inStringTemplateExpression) { inStringTemplateExpression = false; inStringTemplate = true; yybegin(STRING_TEMPLATE_MODE); }
+                                                  if (inXmlExpressionMode) { inXmlExpressionMode = false; yybegin(XML_MODE); }
+                                                  if (inXmlCommentMode) { inXmlCommentMode = false; yybegin(XML_COMMENT_MODE); } return RIGHT_BRACE; }
     "("                                         { return LEFT_PARENTHESIS; }
     ")"                                         { return RIGHT_PARENTHESIS; }
     "["                                         { return LEFT_BRACKET; }
@@ -432,7 +375,7 @@ DOLLAR = \$
     ".@"                                        { return ANNOTATION_ACCESS; }
     "?."                                        { return OPTIONAL_FIELD_ACCESS; }
 
-    "from"                                      { inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; return FROM; }
+    "from"                                      { inTableSqlQuery = true; inStreamsInsertQuery = true; inStreamsOutputRateLimit = true; return FROM; }
     "on"                                        { return ON; }
     "select"                                    { if(inTableSqlQuery) { inTableSqlQuery = false; return SELECT; } return IDENTIFIER; }
     "group"                                     { return GROUP; }
@@ -441,33 +384,33 @@ DOLLAR = \$
     "order"                                     { return ORDER; }
     "where"                                     { return WHERE; }
     "followed"                                  { return FOLLOWED; }
-    "for"                                       { inSiddhiTimeScaleQuery = true; return FOR; }
+    "for"                                       { inStreamsTimeScaleQuery = true; return FOR; }
     "window"                                    { return WINDOW; }
-    "events"                                    { if(inSiddhiInsertQuery) { inSiddhiInsertQuery = false; return EVENTS; } return IDENTIFIER; }
+    "events"                                    { if(inStreamsInsertQuery) { inStreamsInsertQuery = false; return EVENTS; } return IDENTIFIER; }
     "every"                                     { return EVERY; }
-    "within"                                    { inSiddhiTimeScaleQuery = true; return WITHIN; }
-    "last"                                      { if(inSiddhiOutputRateLimit) { inSiddhiOutputRateLimit = false; return LAST; } return IDENTIFIER; }
-    "first"                                     { if(inSiddhiOutputRateLimit) { inSiddhiOutputRateLimit = false; return FIRST; } return IDENTIFIER; }
+    "within"                                    { inStreamsTimeScaleQuery = true; return WITHIN; }
+    "last"                                      { if(inStreamsOutputRateLimit) { inStreamsOutputRateLimit = false; return LAST; } return IDENTIFIER; }
+    "first"                                     { if(inStreamsOutputRateLimit) { inStreamsOutputRateLimit = false; return FIRST; } return IDENTIFIER; }
     "snapshot"                                  { return SNAPSHOT; }
-    "output"                                    { if(inSiddhiOutputRateLimit) { inSiddhiTimeScaleQuery = true; return OUTPUT; } return IDENTIFIER; }
+    "output"                                    { if(inStreamsOutputRateLimit) { inStreamsTimeScaleQuery = true; return OUTPUT; } return IDENTIFIER; }
     "inner"                                     { return INNER; }
     "outer"                                     { return OUTER; }
     "right"                                     { return RIGHT; }
     "left"                                      { return LEFT; }
     "full"                                      { return FULL; }
     "unidirectional"                            { return UNIDIRECTIONAL; }
-    "second"                                    { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return SECOND; } return IDENTIFIER; }
-    "minute"                                    { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return MINUTE; } return IDENTIFIER; }
-    "hour"                                      { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return HOUR; } return IDENTIFIER; }
-    "day"                                       { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return DAY; } return IDENTIFIER; }
-    "month"                                     { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return MONTH; } return IDENTIFIER; }
-    "year"                                      { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return YEAR; } return IDENTIFIER; }
-    "seconds"                                   { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return SECONDS; } return IDENTIFIER; }
-    "minutes"                                   { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return MINUTES; } return IDENTIFIER; }
-    "hours"                                     { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return HOURS; } return IDENTIFIER; }
-    "days"                                      { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return DAYS; } return IDENTIFIER; }
-    "months"                                    { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return MONTHS; } return IDENTIFIER; }
-    "years"                                     { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return YEARS; } return IDENTIFIER; }
+    "second"                                    { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return SECOND; } return IDENTIFIER; }
+    "minute"                                    { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return MINUTE; } return IDENTIFIER; }
+    "hour"                                      { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return HOUR; } return IDENTIFIER; }
+    "day"                                       { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return DAY; } return IDENTIFIER; }
+    "month"                                     { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return MONTH; } return IDENTIFIER; }
+    "year"                                      { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return YEAR; } return IDENTIFIER; }
+    "seconds"                                   { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return SECONDS; } return IDENTIFIER; }
+    "minutes"                                   { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return MINUTES; } return IDENTIFIER; }
+    "hours"                                     { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return HOURS; } return IDENTIFIER; }
+    "days"                                      { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return DAYS; } return IDENTIFIER; }
+    "months"                                    { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return MONTHS; } return IDENTIFIER; }
+    "years"                                     { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return YEARS; } return IDENTIFIER; }
     "forever"                                   { return FOREVER; }
 
     {WHITE_SPACE}                               { return WHITE_SPACE; }
@@ -499,58 +442,8 @@ DOLLAR = \$
 }
 
 <XML_MODE>{
-    {XML_COMMENT_START}                         { yybegin(XML_COMMENT_MODE); return XML_COMMENT_START; }
-    {CDATA}                                     { return CDATA; }
-    {DTD}                                       { } // Todo - Need to return a value?
-    {ENTITY_REF}                                { /*return ENTITY_REF;*/ } // Do not need
-    {CHAR_REF}                                  { /*return CHAR_REF;*/ } // Do not need
-    {XML_TAG_SPECIAL_OPEN}                      { yybegin(XML_PI_MODE); return XML_TAG_SPECIAL_OPEN; }
-    {XML_TAG_OPEN_SLASH}                        { yybegin(XML_TAG_MODE); return XML_TAG_OPEN_SLASH; }
-    {XML_TAG_OPEN}                              { yybegin(XML_TAG_MODE); return XML_TAG_OPEN; }
     {XML_LITERAL_END}                           { yybegin(YYINITIAL); return XML_LITERAL_END; }
-    {XML_TEMPLATE_TEXT}                         { inXmlMode = true; yybegin(YYINITIAL); return XML_TEMPLATE_TEXT; }
-    {XML_TEXT}                         { return XML_TEXT_SEQUENCE; }
-    .                                           { return BAD_CHARACTER; }
-}
-
-<XML_TAG_MODE>{
-    {XML_TAG_CLOSE}                             { yybegin(XML_MODE); return XML_TAG_CLOSE; }
-    {XML_TAG_SPECIAL_CLOSE}                     { /*yybegin(XML_MODE); return XML_TAG_SPECIAL_CLOSE;*/ } // Do not need
-    {XML_TAG_SLASH_CLOSE}                       { yybegin(XML_MODE); return XML_TAG_SLASH_CLOSE; }
-    {SLASH}                                     { /*return SLASH;*/ } // Do not need
-    {QNAME_SEPARATOR}                           { return QNAME_SEPARATOR; }
-    {EQUALS}                                    { return EQUALS; }
-    {DOUBLE_QUOTE}                              { yybegin(DOUBLE_QUOTED_XML_STRING_MODE); return DOUBLE_QUOTE; }
-    {SINGLE_QUOTE}                              { yybegin(SINGLE_QUOTED_XML_STRING_MODE); return SINGLE_QUOTE; }
-    {XML_QNAME}                                 { return XML_QNAME; }
-    {XML_TAG_WS}                                { } // Todo - Need to return a value?
-    .                                           { return BAD_CHARACTER; }
-}
-
-<DOUBLE_QUOTED_XML_STRING_MODE>{
-    {DOUBLE_QUOTE_END}                          { yybegin(XML_TAG_MODE); return DOUBLE_QUOTE_END; }
-    {XML_DOUBLE_QUOTED_TEMPLATE_STRING}         { inDoubleQuotedXmlStringMode = true; yybegin(YYINITIAL); return XML_DOUBLE_QUOTED_TEMPLATE_STRING; }
-    {XML_DOUBLE_QUOTED_STRING_SEQUENCE}         { return XML_DOUBLE_QUOTED_STRING_SEQUENCE; }
-    .                                           { return BAD_CHARACTER; }
-}
-
-<SINGLE_QUOTED_XML_STRING_MODE>{
-    {SINGLE_QUOTE_END}                          { yybegin(XML_TAG_MODE); return SINGLE_QUOTE_END; }
-    {XML_SINGLE_QUOTED_TEMPLATE_STRING}         { inSingleQuotedXmlStringMode = true; yybegin(YYINITIAL); return XML_SINGLE_QUOTED_TEMPLATE_STRING; }
-    {XML_SINGLE_QUOTED_STRING_SEQUENCE}         { return XML_SINGLE_QUOTED_STRING_SEQUENCE; }
-    .                                           { return BAD_CHARACTER; }
-}
-
-<XML_PI_MODE>{
-    {XML_PI_TEMPLATE_TEXT}                      { inXmlPiMode = true; yybegin(YYINITIAL); return XML_PI_TEMPLATE_TEXT; }
-    {XML_PI_TEXT}                               { yybegin(XML_MODE); return XML_PI_TEXT; }
-    .                                           { return BAD_CHARACTER; }
-}
-
-<XML_COMMENT_MODE>{
-    {XML_COMMENT_END}                           { yybegin(XML_MODE); return XML_COMMENT_END; }
-    {XML_COMMENT_TEMPLATE_TEXT}                 { inXmlCommentMode = true; yybegin(YYINITIAL); return XML_COMMENT_TEMPLATE_TEXT; }
-    {XML_COMMENT_TEXT}                          { return XML_COMMENT_TEXT; }
+    {XML_ALL_CHAR}                              { return XML_ALL_CHAR; }
     .                                           { return BAD_CHARACTER; }
 }
 

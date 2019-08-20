@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.langserver.compiler.workspace;
 
+import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.eclipse.lsp4j.CodeLens;
-import org.eclipse.lsp4j.Range;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -77,26 +77,6 @@ public interface WorkspaceDocumentManager {
     void updateFile(Path filePath, String updatedContent) throws WorkspaceDocumentException;
 
     /**
-     * Updates given file in document manager with new content.
-     *
-     * Usage example:
-     * <pre>
-     * Optional&lt;Lock&gt; lock = documentManager.lockFile(filePath);
-     * try {
-     *     documentManager.updateFile(filePath, range, "");
-     * } finally {
-     *     lock.ifPresent(Lock:unlock);
-     * }
-     * </pre>
-     *
-     * @param filePath       Path of the file
-     * @param range         Range of change
-     * @param updatedContent New content of the file
-     * @throws WorkspaceDocumentException when file cannot be updated.
-     */
-    void updateFileRange(Path filePath, Range range, String updatedContent) throws WorkspaceDocumentException;
-
-    /**
      * Updates code lenses of a given file in document manager with new code lenses sent to client.
      *
      * Usage example:
@@ -141,6 +121,15 @@ public interface WorkspaceDocumentManager {
      * @return Code lenses of the file
      */
     List<CodeLens> getCodeLenses(Path filePath);
+
+    /**
+     * Returns the LSDocument associated with the file.
+     *
+     * @param filePath Path of the file
+     * @return LSDocument of the file
+     * @throws WorkspaceDocumentException when the LSDocument is not available
+     */
+    LSDocument getLSDocument(Path filePath) throws WorkspaceDocumentException;
 
     /**
      * Close the given file in document manager.

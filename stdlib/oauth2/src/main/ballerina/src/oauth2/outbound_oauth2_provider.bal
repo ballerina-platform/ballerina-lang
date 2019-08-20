@@ -53,11 +53,12 @@ public type OutboundOAuth2Provider object {
         if (oauth2ProviderConfig is ()) {
             runtime:AuthenticationContext? authContext = runtime:getInvocationContext()?.authenticationContext;
             if (authContext is runtime:AuthenticationContext) {
-                return authContext.authToken;
-            } else {
-                return auth:prepareError("Failed to generate OAuth2 token since OAuth2 provider config is not defined
-                and auth token is not defined in the authentication context at invocation context.");
+                string? authToken = authContext?.authToken;
+                if (authToken is string) {
+                    return authToken;
+                }
             }
+            return auth:prepareError("Failed to generate OAuth2 token since OAuth2 provider config is not defined and auth token is not defined in the authentication context at invocation context.");
         } else {
             var authToken = getAuthTokenForOAuth2(oauth2ProviderConfig, self.tokenCache, false);
             if (authToken is string) {
@@ -232,7 +233,7 @@ function getAuthTokenForOAuth2(ClientCredentialsGrantConfig|PasswordGrantConfig|
         }
     } else {
         if (updateRequest) {
-            authConfig.accessToken = EMPTY_STRING;
+            authConfig.accessToken = "";
         }
         if (authConfig.retryRequest) {
             return getAuthTokenForOAuth2DirectTokenMode(authConfig, tokenCache);
@@ -249,7 +250,7 @@ function getAuthTokenForOAuth2(ClientCredentialsGrantConfig|PasswordGrantConfig|
 function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
                                             @tainted CachedToken tokenCache) returns @tainted (string|Error) {
     string cachedAccessToken = tokenCache.accessToken;
-    if (cachedAccessToken == EMPTY_STRING) {
+    if (cachedAccessToken == "") {
         string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig, tokenCache);
         log:printDebug(function () returns string {
             return "OAuth2 password grant type; Access token received from authorization request. Cache is empty.";
@@ -290,7 +291,7 @@ function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfi
                                                      @tainted CachedToken tokenCache)
                                                      returns @tainted (string|Error) {
     string cachedAccessToken = tokenCache.accessToken;
-    if (cachedAccessToken == EMPTY_STRING) {
+    if (cachedAccessToken == "") {
         string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig, tokenCache);
         log:printDebug(function () returns string {
             return "OAuth2 client credentials grant type; Access token received from authorization request. Cache is empty.";
@@ -330,9 +331,9 @@ function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfi
 function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig,
                                               @tainted CachedToken tokenCache) returns @tainted (string|Error) {
     string cachedAccessToken = tokenCache.accessToken;
-    if (cachedAccessToken == EMPTY_STRING) {
+    if (cachedAccessToken == "") {
         var directAccessToken = grantTypeConfig?.accessToken;
-        if (directAccessToken is string && directAccessToken != EMPTY_STRING) {
+        if (directAccessToken is string && directAccessToken != "") {
             log:printDebug(function () returns string {
                 return "OAuth2 direct token mode; Access token received from user given request. Cache is empty.";
             });
@@ -409,7 +410,7 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
     http:ClientEndpointConfig clientConfig;
 
     if (config is ClientCredentialsGrantConfig) {
-        if (config.clientId == EMPTY_STRING || config.clientSecret == EMPTY_STRING) {
+        if (config.clientId == "" || config.clientSecret == "") {
             return prepareError("Client id or client secret cannot be empty.");
         }
         tokenUrl = config.tokenUrl;
@@ -427,7 +428,7 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
         string? clientId = config?.clientId;
         string? clientSecret = config?.clientSecret;
         if (clientId is string && clientSecret is string) {
-            if (clientId == EMPTY_STRING || clientSecret == EMPTY_STRING) {
+            if (clientId == "" || clientSecret == "") {
                 return prepareError("Client id or client secret cannot be empty.");
             }
             requestConfig = {
@@ -470,7 +471,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
             string? clientId = config?.clientId;
             string? clientSecret = config?.clientSecret;
             if (clientId is string && clientSecret is string) {
-                if (clientId == EMPTY_STRING || clientSecret == EMPTY_STRING) {
+                if (clientId == "" || clientSecret == "") {
                     return prepareError("Client id or client secret cannot be empty.");
                 }
                 refreshUrl = <@untainted> refreshConfig.refreshUrl;
@@ -492,7 +493,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
     } else {
         var refreshConfig = config?.refreshConfig;
         if (refreshConfig is DirectTokenRefreshConfig) {
-            if (refreshConfig.clientId == EMPTY_STRING || refreshConfig.clientSecret == EMPTY_STRING) {
+            if (refreshConfig.clientId == "" || refreshConfig.clientSecret == "") {
                 return prepareError("Client id or client secret cannot be empty.");
             }
             refreshUrl = refreshConfig.refreshUrl;
@@ -525,7 +526,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
 function doRequest(string url, http:Request request, http:ClientEndpointConfig clientConfig,
                    @tainted CachedToken tokenCache, int clockSkewInSeconds) returns @tainted (string|Error) {
     http:Client clientEP = new(url, clientConfig);
-    var response = clientEP->post(EMPTY_STRING, request);
+    var response = clientEP->post("", request);
     if (response is http:Response) {
         log:printDebug(function () returns string {
             return "Request sent successfully to URL: " + url;
@@ -543,17 +544,17 @@ function doRequest(string url, http:Request request, http:ClientEndpointConfig c
 function prepareRequest(RequestConfig config) returns http:Request|Error {
     http:Request req = new;
     string textPayload = config.payload;
-    string scopeString = EMPTY_STRING;
+    string scopeString = "";
     string[]? scopes = config.scopes;
     if (scopes is string[]) {
         foreach var requestScope in scopes {
             string trimmedRequestScope = requestScope.trim();
-            if (trimmedRequestScope != EMPTY_STRING) {
-                scopeString = scopeString + WHITE_SPACE + trimmedRequestScope;
+            if (trimmedRequestScope != "") {
+                scopeString = scopeString + " " + trimmedRequestScope;
             }
         }
     }
-    if (scopeString != EMPTY_STRING) {
+    if (scopeString != "") {
         textPayload = textPayload + "&scope=" + scopeString;
     }
 

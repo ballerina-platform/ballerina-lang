@@ -56,19 +56,16 @@ dependencies {
     dist 'org.jvnet.mimepull:mimepull:1.9.7'
     dist 'org.quartz-scheduler:quartz-jobs:2.3.0'
     dist 'org.quartz-scheduler:quartz:2.3.0'
-    dist 'org.slf4j:slf4j-jdk14:1.7.22'
     dist 'org.wso2.carbon:org.wso2.carbon.core:5.1.0'
-    dist 'org.wso2.orbit.com.lmax:disruptor:3.3.2.wso2v2'
     dist 'org.wso2.securevault:org.wso2.securevault:1.0.0-wso2v2'
     dist 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
-    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.1.1'
+    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.1.12'
     dist 'org.bouncycastle:bcprov-jdk15on:1.61'
     dist 'org.bouncycastle:bcpkix-jdk15on:1.61'
 
-    dist 'info.picocli:picocli:3.3.0'
+    dist 'info.picocli:picocli:4.0.1'
     dist 'org.apache.kafka:kafka-clients:2.0.0'
     dist 'org.apache.kafka:kafka_2.11:2.0.0'
-    dist 'org.apache.james:apache-mime4j-core:0.7.2'
     dist 'org.apache.ws.commons.axiom:axiom-api:1.2.20'
     dist 'io.ballerina.messaging:broker-auth:0.970.0'
     dist 'io.ballerina.messaging:broker-common:0.970.0'
@@ -238,12 +235,8 @@ dependencies {
     dist project(':ballerina-observability')
     dist project(':ballerina-reflect')
     dist project(':ballerina-runtime-api')
-    dist project(':ballerina-runtime')
+    dist project(':ballerina-rt')
     dist project(':ballerina-socket')
-    dist project(':ballerina-streaming:siddhi-annotations')
-    dist project(':ballerina-streaming:siddhi-core')
-    dist project(':ballerina-streaming:siddhi-query-api')
-    dist project(':ballerina-streaming:siddhi-query-compiler')
     dist project(':ballerina-streams')
     dist project(':ballerina-system')
     dist project(':ballerina-task')

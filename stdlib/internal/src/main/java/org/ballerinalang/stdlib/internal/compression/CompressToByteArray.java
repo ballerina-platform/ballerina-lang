@@ -15,18 +15,12 @@
  */
 package org.ballerinalang.stdlib.internal.compression;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.internal.Constants;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -48,7 +42,7 @@ import java.nio.file.Paths;
                         @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
-public class CompressToByteArray extends BlockingNativeCallableUnit {
+public class CompressToByteArray {
     /**
      * File path defined in ballerina.compression.
      */
@@ -63,27 +57,6 @@ public class CompressToByteArray extends BlockingNativeCallableUnit {
         OutputStream os = Compress.compressFiles(dirPath, new ByteArrayOutputStream());
         ByteArrayOutputStream bos = (ByteArrayOutputStream) os;
         return bos.toByteArray();
-    }
-
-    @Override
-    public void execute(Context context) {
-        BValueArray readBytes;
-        BMap<String, BValue> dirPathStruct = (BMap) context.getRefArgument(SRC_PATH_FIELD_INDEX);
-        Path dirPath = (Path) dirPathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
-        if (!dirPath.toFile().exists()) {
-            context.setReturnValues(CompressionUtils.createCompressionError(context, "Path of the folder to be " +
-                    "compressed is not available: " + dirPath));
-        } else {
-            try {
-                byte[] compressedBytes = compressToBlob(dirPath);
-                readBytes = new BValueArray(compressedBytes);
-                context.setReturnValues(readBytes);
-            } catch (IOException e) {
-                context.setReturnValues(CompressionUtils.createCompressionError(context,
-                        "Error occurred when compressing "
-                                + e.getMessage()));
-            }
-        }
     }
 
     public static Object compressToByteArray(Strand strand, String dirObj) {

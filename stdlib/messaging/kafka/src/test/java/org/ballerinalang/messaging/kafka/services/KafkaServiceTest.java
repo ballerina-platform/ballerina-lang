@@ -33,10 +33,12 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Properties;
+import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SERVICES;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.produceToKafkaCluster;
 
@@ -51,14 +53,14 @@ public class KafkaServiceTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        Properties prop = new Properties();
-        kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true).deleteDataUponShutdown(true).
-                withKafkaConfiguration(prop).addBrokers(1).startup();
+        kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true).deleteDataUponShutdown(true)
+                .addBrokers(1).startup();
     }
 
     @Test(description = "Test endpoint bind to a service")
     public void testKafkaServiceEndpoint() {
-        compileResult = BCompileUtil.compile(true, getFilePath("test-src/services/kafka_service.bal"));
+        compileResult = BCompileUtil.compile(true,
+                getFilePath(Paths.get(TEST_SRC, TEST_SERVICES, "kafka_service.bal")));
         String topic = "service-test";
         String message = "test_string";
         produceToKafkaCluster(kafkaCluster, topic, message);
@@ -77,7 +79,8 @@ public class KafkaServiceTest {
 
     @Test(description = "Test endpoint bind to a service")
     public void testKafkaAdvancedService() {
-        compileResult = BCompileUtil.compile(true, getFilePath("test-src/services/kafka_service_advanced.bal"));
+        compileResult = BCompileUtil.compile(true,
+                getFilePath(Paths.get(TEST_SRC, TEST_SERVICES, "kafka_service_advanced.bal")));
         BRunUtil.invoke(compileResult, "funcKafkaProduce");
 
         try {
@@ -94,7 +97,8 @@ public class KafkaServiceTest {
 
     @Test(description = "Test kafka service stop() function")
     public void testKafkaServiceStop() {
-        compileResult = BCompileUtil.compile(true, getFilePath("test-src/services/kafka_service_stop.bal"));
+        compileResult = BCompileUtil.compile(true,
+                getFilePath(Paths.get(TEST_SRC, TEST_SERVICES, "kafka_service_stop.bal")));
         BRunUtil.invoke(compileResult, "funcKafkaProduce");
         try {
             await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
@@ -126,7 +130,7 @@ public class KafkaServiceTest {
             throw new IllegalStateException();
         }
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-service-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(2190, 9094);
+        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(14010, 14110);
         return kafkaCluster;
     }
 }

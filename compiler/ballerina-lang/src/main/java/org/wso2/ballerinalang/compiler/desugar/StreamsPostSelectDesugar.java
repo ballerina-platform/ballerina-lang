@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -35,6 +36,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.List;
@@ -108,8 +110,24 @@ public class StreamsPostSelectDesugar extends BLangNodeVisitor {
                     ASTBuilderUtil.createLiteral(varRef.pos, symTable.stringType, getEquivalentOutputMapField(key)));
             result = desugar.addConversionExprIfRequired((BLangExpression) result, varRef.type);
         } else {
+            if (!(varRef.symbol.owner instanceof BPackageSymbol)) {
+                varRef.symbol.closure = true;
+            }
             result = varRef;
         }
+    }
+
+    @Override
+    public void visit(BLangTypeConversionExpr conversionExpr) {
+        result = desugar.addConversionExprIfRequired((BLangExpression) rewrite(conversionExpr.expr),
+                conversionExpr.type);
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess indexBasedAccess) {
+        indexBasedAccess.expr = (BLangExpression) rewrite(indexBasedAccess.expr);
+        indexBasedAccess.indexExpr = (BLangExpression) rewrite(indexBasedAccess.indexExpr);
+        result = desugar.addConversionExprIfRequired(indexBasedAccess, indexBasedAccess.type);
     }
 
     @Override
@@ -141,7 +159,7 @@ public class StreamsPostSelectDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldBasedAccess expr) {
-        result = desugar.addConversionExprIfRequired(createMapVariableIndexAccessExpr(expr), expr.type);
+        result = desugar.addConversionExprIfRequired((BLangExpression) rewrite(expr), expr.type);
     }
 
     private String getEquivalentOutputMapField(String key) {

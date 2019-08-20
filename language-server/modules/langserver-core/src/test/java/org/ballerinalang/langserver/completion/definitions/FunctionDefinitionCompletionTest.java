@@ -97,6 +97,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"typeGuardSuggestions2.json", "function"},
                 {"typeGuardSuggestions3.json", "function"},
                 {"typeGuardSuggestions4.json", "function"},
+                {"typeGuardSuggestions5.json", "function"},
                 {"typeguardDestruct1.json", "function"},
                 {"completionAfterIf1.json", "function"},
                 {"completionAfterIf2.json", "function"},
@@ -106,7 +107,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"workerDeclarationContext4.json", "function"},
                 {"completionWithinInvocationArgs1.json", "function"},
                 {"completionWithinInvocationArgs2.json", "function"},
-                {"completionWithinInvocationArgs3.json", "function"},
+//                {"completionWithinInvocationArgs3.json", "function"},
                 {"completionWithinInvocationArgs4.json", "function"},
                 {"completionWithinInvocationArgs5.json", "function"},
                 {"completionWithinInvocationArgs6.json", "function"},
@@ -139,7 +140,14 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"completionWithTupleVariableDef.json", "function"},
                 {"completionWithinComments.json", "function"},
                 {"completionWithinLiterals.json", "function"},
+                {"assignmentStmt1.json", "function"},
+                {"assignmentStmt2.json", "function"},
+                {"assignmentStmt3.json", "function"},
+                {"assignmentStmt4.json", "function"},
+                {"assignmentStmt5.json", "function"},
+                {"assignmentStmt6.json", "function"},
                 {"typeofKWSuggestion.json", "function"},
+                {"typeofKWSuggestion2.json", "function"}
         };
     }
 }

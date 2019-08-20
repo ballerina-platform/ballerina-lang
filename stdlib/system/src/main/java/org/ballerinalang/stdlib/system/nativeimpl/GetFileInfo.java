@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.system.utils.SystemConstants;
@@ -42,19 +40,15 @@ import java.nio.file.Paths;
         functionName = "getFileInfo",
         isPublic = true
 )
-public class GetFileInfo extends BlockingNativeCallableUnit {
+public class GetFileInfo {
 
     private static final Logger log = LoggerFactory.getLogger(GetFileInfo.class);
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static Object getFileInfo(Strand strand, String path) {
         File inputFile = Paths.get(path).toAbsolutePath().toFile();
         if (!inputFile.exists()) {
-            return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR,
-                    "File doesn't exist in path " + path);
+            return SystemUtils.getBallerinaError(SystemConstants.FILE_NOT_FOUND_ERROR,
+                    "File not found: " + path);
         }
         try {
             return SystemUtils.getFileInfo(inputFile);

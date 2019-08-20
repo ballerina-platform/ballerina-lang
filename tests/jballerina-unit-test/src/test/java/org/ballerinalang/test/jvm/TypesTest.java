@@ -42,6 +42,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.util.Map;
 
@@ -765,7 +767,6 @@ public class TypesTest {
         BValue[] result = BRunUtil.invoke(compileResult, "streamFunc");
         Assert.assertNotNull(result[0]);
         BStream stream = (BStream) result[0];
-        Assert.assertEquals(stream.getStreamId(), "gradesStream");
         BRecordType recordType = (BRecordType) stream.getConstraintType();
         Assert.assertEquals(recordType.getName(), "Grades");
         Map<String, BField> fields = recordType.getFields();
@@ -786,5 +787,28 @@ public class TypesTest {
         BValue[] result = BRunUtil.invoke(compileResult, "testDecimalWithArgs",
                                           new BValue[] {new BDecimal(BigDecimal.valueOf(5))});
         Assert.assertEquals(((BDecimal) result[0]).intValue(), 10);
+    }
+
+    @Test
+    public void testObjectWithSameNameAsFileName() {
+        BValue[] result = BRunUtil.invoke(objectsResult, "testObjectWithSameNameAsFileName");
+        Assert.assertEquals((result[0]).stringValue(), "works!");
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'string\\[\\]' cannot be cast to " +
+                    "'\\[float\\]\\[\\]'.*")
+    public void testTupleArrayTypeToString() {
+        BRunUtil.invoke(compileResult, "testTupleArrayTypeToString");
+    }
+
+    @Test
+    public void testTypeDescValuePrint() {
+        PrintStream tempOut = System.out;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        BRunUtil.invoke(compileResult, "testTypeDescValuePrint");
+        Assert.assertEquals(new String(baos.toByteArray()), "typedesc map<int|string>");
+        System.setOut(tempOut);
     }
 }

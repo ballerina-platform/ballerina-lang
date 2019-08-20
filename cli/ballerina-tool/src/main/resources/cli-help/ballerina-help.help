@@ -33,28 +33,28 @@ OPTIONS
 
 BALLERINA COMMANDS
     Available commands are:
-        compile    Compile Ballerina module/project in-to a sharable
-                   library(balo)
-        build      Compile Ballerina program in-to an executable
-        run        Run Ballerina program
-        clean      Clean artifacts generated during compile/build
-        test       Test Ballerina program
-        doc        Generate Ballerina API documentation
+        compile         Compile Ballerina module/project in-to a sharable
+                        library(balo)
+        build           Compile Ballerina program in-to an executable
+        run             Run Ballerina program
+        clean           Clean artifacts generated during compile/build
+        test            Test Ballerina program
+        doc             Generate Ballerina API documentation
 
-        pull       Download modules from Ballerina Central
-        push       Upload modules to Ballerina Central
-        search     Search for modules within Ballerina Central
+        pull            Download modules from Ballerina Central
+        push            Upload modules to Ballerina Central
+        search          Search for modules within Ballerina Central
 
-        version    Print Ballerina version
+        version         Print Ballerina version
 
-        new        Initialize Ballerina project
-        create     Initialize Ballerina module from a template
+        new             Initialize Ballerina project
+        create          Initialize Ballerina module from a template
 
-        sdks       List available ballerina SDKs
-        install    Install a given SDK version
-        use       Switch to a specific SDK version
-        update     Update to latest SDK version
-        remove     Delete locally installed SDK version
+        dist list       List available ballerina distributions
+        dist install    Install a given distribution version
+        dist use        Switch to a specific distribution version
+        dist update     Update to latest distribution version
+        dist remove     Delete locally installed distribution version
 
         encrypt    Encrypt sensitive data
         grpc       Generate connector/service using protobuf

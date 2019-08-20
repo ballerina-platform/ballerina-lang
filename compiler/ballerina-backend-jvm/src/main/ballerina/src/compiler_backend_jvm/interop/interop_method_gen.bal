@@ -34,7 +34,7 @@ function createJInteropFunctionWrapper(jvm:InteropValidationRequest jInteropVali
                                        string orgName,
                                        string moduleName,
                                        string versionValue,
-                                       string  birModuleClassName) returns JInteropFunctionWrapper  {
+                                       string  birModuleClassName) returns JInteropFunctionWrapper | error  {
 
     addDefaultableBooleanVarsToSignature(birFunc);
     // Update the function wrapper only for Java interop functions
@@ -49,11 +49,8 @@ function createJInteropFunctionWrapper(jvm:InteropValidationRequest jInteropVali
 }
 
 function createJMethodWrapper(jvm:MethodValidationRequest jMethodValidationReq,
-                              BIRFunctionWrapper birFuncWrapper) returns JMethodFunctionWrapper  {
-    var jMethodOrError = jvm:validateAndGetJMethod(jMethodValidationReq);
-    if (jMethodOrError is error) {
-        panic jMethodOrError;
-    }
+                              BIRFunctionWrapper birFuncWrapper) returns JMethodFunctionWrapper | error {
+    var jMethod = check jvm:validateAndGetJMethod(jMethodValidationReq);
 
     return  {
         orgName : birFuncWrapper.orgName,
@@ -62,16 +59,13 @@ function createJMethodWrapper(jvm:MethodValidationRequest jMethodValidationReq,
         func : birFuncWrapper.func,
         fullQualifiedClassName : birFuncWrapper.fullQualifiedClassName,
         jvmMethodDescription : birFuncWrapper.jvmMethodDescription,
-        jMethod: <jvm:Method>jMethodOrError
+        jMethod: <jvm:Method>jMethod
     };
 }
 
 function createJFieldWrapper(jvm:FieldValidationRequest jFieldValidationReq,
-                             BIRFunctionWrapper birFuncWrapper) returns JFieldFunctionWrapper  {
-    var jFieldOrError = jvm:validateAndGetJField(jFieldValidationReq);
-    if (jFieldOrError is error) {
-        panic jFieldOrError;
-    }
+                             BIRFunctionWrapper birFuncWrapper) returns JFieldFunctionWrapper | error  {
+    var jField = check jvm:validateAndGetJField(jFieldValidationReq);
 
     return  {
         orgName : birFuncWrapper.orgName,
@@ -80,7 +74,7 @@ function createJFieldWrapper(jvm:FieldValidationRequest jFieldValidationReq,
         func : birFuncWrapper.func,
         fullQualifiedClassName : birFuncWrapper.fullQualifiedClassName,
         jvmMethodDescription : birFuncWrapper.jvmMethodDescription,
-        jField: <jvm:Field>jFieldOrError
+        jField: <jvm:Field>jField
     };
 }
 
@@ -110,7 +104,7 @@ function genJFieldForInteropField(JFieldFunctionWrapper jFieldFuncWrapper,
     int access = ACC_PUBLIC + ACC_STATIC;
 
     jvm:MethodVisitor mv = cw.visitMethod(access, birFunc.name.value, desc, (), ());
-    InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
+    InstructionGenerator instGen = new(mv, indexMap, birModule);
     ErrorHandlerGenerator errorGen = new(mv, indexMap, currentPackageName);
     LabelGenerator labelGen = new();
     TerminatorGenerator termGen = new(mv, indexMap, labelGen, errorGen, birModule);
@@ -266,7 +260,7 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
     int access = ACC_PUBLIC + ACC_STATIC;
 
     jvm:MethodVisitor mv = cw.visitMethod(access, birFunc.name.value, desc, (), ());
-    InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
+    InstructionGenerator instGen = new(mv, indexMap, birModule);
     ErrorHandlerGenerator errorGen = new(mv, indexMap, currentPackageName);
     LabelGenerator labelGen = new();
     TerminatorGenerator termGen = new(mv, indexMap, labelGen, errorGen, birModule);
@@ -482,16 +476,14 @@ function genJMethodForInteropMethod(JMethodFunctionWrapper extFuncWrapper,
         jvm:Label catchLabel = labelGen.getLabel(exception + "$label$");
         mv.visitLabel(catchLabel);
         //mv.visitLdcInsn(exception);
-        mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createInteropError", io:sprintf("(L%s;)L%s;", EXCEPTION, ERROR_VALUE), false);
+        mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createInteropError", io:sprintf("(L%s;)L%s;", THROWABLE, ERROR_VALUE), false);
         mv.visitInsn(ARETURN);
     }
 
     // throw unhandled exception error
     mv.visitLabel(throwableLabel);
     // get the class name of the error
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false);
-    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Class", "getName", "()Ljava/lang/String;", false);
-    mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createError", io:sprintf("(L%s;)L%s;", STRING_VALUE, ERROR_VALUE), false);
+    mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createInteropError", io:sprintf("(L%s;)L%s;", THROWABLE, ERROR_VALUE), false);
     mv.visitInsn(ATHROW);
 
     mv.visitMaxs(200, 400);
@@ -544,12 +536,38 @@ function getActualType(bir:BUnionType unionType) returns bir:BType? {
 
 // We can improve following logic with a type lattice.
 function performNarrowingPrimitiveConversion(jvm:MethodVisitor mv, BValueType bType, jvm:PrimitiveType jType){
-    if bType is bir:BTypeInt && jType is jvm:Long {
+    if bType is bir:BTypeByte && jType is jvm:Byte {
+        return; // NOP
+    } else if bType is bir:BTypeInt && jType is jvm:Long {
         return; // NOP
     } else if bType is bir:BTypeFloat && jType is jvm:Double {
         return; // NOP
+    } else if bType is bir:BTypeByte {
+        if jType is jvm:Short {
+            mv.visitInsn(I2S);
+        } else if jType is jvm:Char {
+            mv.visitInsn(I2C);
+        } else if jType is jvm:Long {
+            mv.visitInsn(I2L);
+        } else if jType is jvm:Float {
+            mv.visitInsn(I2F);
+        } else if jType is jvm:Double {
+            mv.visitInsn(I2D);
+        }
+        // byte to int is a NOP
+        return;
     } else if bType is bir:BTypeInt {
         // Only possible jvm types are Byte, Short, Char and Int
+        if jType is jvm:Float {
+            mv.visitInsn(L2F);
+            return;
+        }
+
+        if jType is jvm:Double {
+            mv.visitInsn(L2D);
+            return;
+        }
+
         mv.visitInsn(L2I);
         if jType is jvm:Byte {
             mv.visitInsn(I2B);
@@ -630,6 +648,8 @@ function getSignatureForJType(jvm:RefType|jvm:ArrayType jType) returns string {
 
         if (eType is jvm:RefType) {
             return sig + "L" + getSignatureForJType(eType) + ";";
+        } else if (eType is jvm:Byte) {
+            return sig + "B";
         } else if (eType is jvm:Char) {
             return sig + "C";
         } else if (eType is jvm:Short) {
@@ -761,7 +781,7 @@ function genArrayStore(jvm:MethodVisitor mv, jvm:JType jType) {
 
 function getBTypeFromJType(jvm:JType jType) returns bir:BType {
     int code;
-    if jType is jvm:Int | jvm:Long | jvm:Short{
+    if jType is jvm:Int | jvm:Long | jvm:Short | jvm:Char {
         return bir:TYPE_INT;
     } else if jType is jvm:Double | jvm:Float {
         return bir:TYPE_FLOAT;
@@ -769,8 +789,6 @@ function getBTypeFromJType(jvm:JType jType) returns bir:BType {
         return bir:TYPE_BYTE;
     } else if jType is jvm:Boolean {
         return bir:TYPE_BOOLEAN;
-    } else if jType is jvm:Char {
-        return bir:TYPE_STRING;
     } else if jType is jvm:Void {
         return bir:TYPE_NIL;
     } else {
@@ -793,7 +811,7 @@ function genArrayNew(jvm:MethodVisitor mv, jvm:JType elementType) {
         mv.visitIntInsn(NEWARRAY, T_CHAR);
     } else if elementType is jvm:Float {
         mv.visitIntInsn(NEWARRAY, T_FLOAT);
-    } else if elementType is jvm:RefType|jvm:ArrayType {
+    } else if elementType is jvm:RefType | jvm:ArrayType {
         mv.visitTypeInsn(ANEWARRAY, getSignatureForJType(elementType));
     } else {
         error e = error(io:sprintf("invalid type for var-arg: %s", elementType));

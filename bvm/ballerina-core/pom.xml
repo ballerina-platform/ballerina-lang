@@ -107,24 +107,6 @@
             <artifactId>broker-core</artifactId>
         </dependency>
 
-        <!-- Siddhi Stream Dependencies -->
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>siddhi-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>siddhi-query-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>siddhi-query-compiler</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>siddhi-annotations</artifactId>
-        </dependency>
-
         <!-- Observability dependencies -->
         <dependency>
             <groupId>io.opentracing</groupId>

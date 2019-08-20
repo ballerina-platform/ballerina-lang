@@ -417,7 +417,6 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeByte(newStream.kind.getValue());
         writeType(newStream.type);
         newStream.lhsOp.accept(this);
-        newStream.nameOp.accept(this);
     }
 
     // Operands
@@ -458,6 +457,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         int pkgIndex = addPkgCPEntry(pkgId);
         buf.writeInt(pkgIndex);
         buf.writeInt(addStringCPEntry(fpLoad.funcName.getValue()));
+        writeType(fpLoad.retType);
 
         buf.writeInt(fpLoad.closureMaps.size());
         for (BIROperand op : fpLoad.closureMaps) {

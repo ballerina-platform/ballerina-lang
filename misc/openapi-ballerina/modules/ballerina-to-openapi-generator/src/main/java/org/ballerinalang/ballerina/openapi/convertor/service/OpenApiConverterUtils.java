@@ -40,9 +40,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.ballerina.openapi.convertor.Constants;
 import org.ballerinalang.ballerina.openapi.convertor.OpenApiConverterException;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.langserver.compiler.LSCompiler;
-import org.ballerinalang.langserver.compiler.LSCompilerException;
+import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -121,7 +121,7 @@ public class OpenApiConverterUtils {
     public static String generateOpenApiDefinitions(String ballerinaSource, String serviceName) throws IOException {
         try {
             //Create empty openapi object.
-            BallerinaFile ballerinaFile = LSCompiler.compileContent(ballerinaSource, CompilerPhase.DEFINE);
+            BallerinaFile ballerinaFile = ExtendedLSCompiler.compileContent(ballerinaSource, CompilerPhase.DEFINE);
             BLangCompilationUnit topCompilationUnit = ballerinaFile.getBLangPackage()
                     .map(bLangPackage -> bLangPackage.getCompilationUnits().get(0))
                     .orElse(null);
@@ -137,7 +137,7 @@ public class OpenApiConverterUtils {
             Swagger openapi = getOpenApiDefinition(new Swagger(), openApiServiceMapper, serviceName, topCompilationUnit,
                     endpoints);
             return openApiServiceMapper.generateOpenApiString(openapi);
-        } catch (LSCompilerException e) {
+        } catch (CompilationFailedException e) {
             return "Error";
         }
     }
@@ -155,7 +155,7 @@ public class OpenApiConverterUtils {
     public static String generateOAS3Definitions(String ballerinaSource, String serviceName)
             throws OpenApiConverterException {
         try {
-            BallerinaFile ballerinaFile = LSCompiler.compileContent(ballerinaSource, CompilerPhase.DEFINE);
+            BallerinaFile ballerinaFile = ExtendedLSCompiler.compileContent(ballerinaSource, CompilerPhase.DEFINE);
             BLangCompilationUnit topCompilationUnit = ballerinaFile.getBLangPackage()
                     .map(bLangPackage -> bLangPackage.getCompilationUnits().get(0))
                     .orElse(null);
@@ -230,7 +230,7 @@ public class OpenApiConverterUtils {
                 return Yaml.pretty(converter.convert(result).getOpenAPI());
             }
 
-        } catch (LSCompilerException e) {
+        } catch (CompilationFailedException e) {
             return "Error";
         }
     }

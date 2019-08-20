@@ -18,11 +18,11 @@
  *
  */
 import * as path from 'path';
-import { log } from '../utils/logger';
+import { debug } from '../utils/logger';
 import { ServerOptions, ExecutableOptions } from 'vscode-languageclient';
 
-export function getServerOptions(ballerinaHome: string, experimental: boolean, debugLogsEnabled: boolean) : ServerOptions {
-    log(`Using Ballerina installation at ${ballerinaHome} for Language server.`);
+export function getServerOptions(ballerinaHome: string, experimental: boolean, debugLogsEnabled: boolean, traceLogsEnabled: boolean) : ServerOptions {
+    debug(`Using Ballerina installation at ${ballerinaHome} for Language server.`);
 
     let cmd;
     const cwd = path.join(ballerinaHome, 'lib', 'tools', 'lang-server', 'launcher');
@@ -36,13 +36,24 @@ export function getServerOptions(ballerinaHome: string, experimental: boolean, d
 
     let opt: ExecutableOptions = {cwd: cwd};
     opt.env = Object.assign({}, process.env);
+    if (process.platform === "darwin") {
+        opt.env.BALLERINA_HOME = ballerinaHome;
+    }
     if (process.env.LSDEBUG === "true") {
-        log('Language Server is starting in debug mode.');
+        debug('Language Server is starting in debug mode.');
         args.push('--debug');
     }
-    if (debugLogsEnabled) {
-        log('Language Server debug logs enabled.');
-        opt.env.DEBUG_LOG = debugLogsEnabled;
+    if (debugLogsEnabled || traceLogsEnabled) {
+        let str = [];
+        if (debugLogsEnabled) {
+            str.push('debug');
+            opt.env.DEBUG_LOG = debugLogsEnabled;
+        }
+        if (traceLogsEnabled) {
+            str.push('trace');
+            opt.env.TRACE_LOG = traceLogsEnabled;
+        }
+        debug('Language Server ' + str.join(', ') +' logs enabled.');
     }
     if (process.env.LS_CUSTOM_CLASSPATH) {
         args.push('--classpath', process.env.LS_CUSTOM_CLASSPATH);

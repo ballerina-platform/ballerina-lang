@@ -41,9 +41,9 @@ suite("Ballerina Extension Core Tests", function () {
 
     test("Test autoDetectBallerinaHome", function () {
         // Following should not throw an error all times.
-        const path = ballerinaExtInstance.autoDetectBallerinaHome();
-        if (path) {
-            assert.equal(ballerinaExtInstance.isValidBallerinaHome(path), true);
+        const { home } = ballerinaExtInstance.autoDetectBallerinaHome();
+        if (home) {
+            assert.equal(ballerinaExtInstance.isValidBallerinaHome(home), true);
         }
     });
 

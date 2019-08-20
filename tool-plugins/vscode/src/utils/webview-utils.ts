@@ -25,7 +25,7 @@ export function getCommonWebViewOptions(): Partial<WebviewOptions & WebviewPanel
 }
 
 export function getVSCodeResourceURI(filePath: string): string {
-    return Uri.file(filePath).with({ scheme: 'vscode-resource' }).toString();
+    return 'vscode-resource:' + filePath;
 }
 
 export interface WebViewOptions {
@@ -77,7 +77,7 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
                 </style>
             </head>
             
-            <body style="overflow: hidden;" class="${bodyCss}">
+            <body class="${bodyCss}">
                 ${body}
                 <script>
                     ${scripts}
@@ -92,10 +92,10 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
 }
 
 export function getDistributionComposerURI(): string {
-    return getVSCodeResourceURI(getDistributionPath());
+    return getVSCodeResourceURI(getDistributionComposerPath());
 }
 
-function getDistributionPath(): string {
+function getDistributionComposerPath(): string {
     return join(ballerinaExtInstance.ballerinaHome, 'lib', 'tools', 'composer-library');
 }
 

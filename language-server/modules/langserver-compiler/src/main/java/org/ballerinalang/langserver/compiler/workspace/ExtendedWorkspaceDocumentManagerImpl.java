@@ -16,9 +16,6 @@
 package org.ballerinalang.langserver.compiler.workspace;
 
 import org.eclipse.lsp4j.CodeLens;
-import org.eclipse.lsp4j.Range;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,8 +32,6 @@ import java.util.concurrent.locks.Lock;
  * openFile() are aware of the browser refreshes that may cause file already opened exceptions.
  */
 public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManagerImpl {
-
-    private static final Logger logger = LoggerFactory.getLogger(ExtendedWorkspaceDocumentManagerImpl.class);
 
     private volatile WorkspaceDocument tempDocument;
 
@@ -69,7 +64,7 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
     @Override
     public void openFile(Path filePath, String content) throws WorkspaceDocumentException {
         // If file is already open; gracefully handle it
-        openOrUpdateFile(filePath, null, content);
+        openOrUpdateFile(filePath, content);
     }
 
     /**
@@ -78,16 +73,7 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
     @Override
     public void updateFile(Path filePath, String updatedContent) throws WorkspaceDocumentException {
         // if file is not already open; gracefully handle it
-        openOrUpdateFile(filePath, null, updatedContent);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void updateFileRange(Path filePath, Range range, String updatedContent) throws WorkspaceDocumentException {
-        // if file is not already open; gracefully handle it
-        openOrUpdateFile(filePath, range, updatedContent);
+        openOrUpdateFile(filePath, updatedContent);
     }
 
     /**
@@ -106,14 +92,14 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
         }
     }
 
-    private void openOrUpdateFile(Path filePath, Range range, String content) throws WorkspaceDocumentException {
+    private void openOrUpdateFile(Path filePath, String content) throws WorkspaceDocumentException {
         if (isExplicitMode && isTempFile(filePath)) {
             // If explicit mode is on and temp file, handle it locally
             tempDocument.setContent(content);
         } else {
             // Or else, call parent class
             if (super.isFileOpen(filePath)) {
-                super.updateFileRange(filePath, range, content);
+                super.updateFile(filePath, content);
             } else {
                 super.openFile(filePath, content);
             }
@@ -187,7 +173,7 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
         // Acquire a lock for the temp-file
         Optional<Lock> lock = super.lockFile(tempFile);
         if (tempDocument == null) {
-            tempDocument = new WorkspaceDocument(tempFile, "");
+            tempDocument = new WorkspaceDocument(tempFile, "", true);
         } else {
             tempDocument.setPath(tempFile);
         }

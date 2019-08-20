@@ -25,7 +25,6 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQConstants;
 import org.ballerinalang.messaging.rabbitmq.RabbitMQUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
@@ -62,8 +61,7 @@ public class SetQosSettings {
                             true);
                     channelObject.addNativeData(RabbitMQConstants.QOS_STATUS, true);
                 } else {
-                    channel.basicQos(Math.toIntExact(((BInteger) prefetchCount).intValue()),
-                            true);
+                    channel.basicQos(Math.toIntExact((Long) prefetchCount), true);
                     channelObject.addNativeData(RabbitMQConstants.QOS_STATUS, true);
                 }
             }

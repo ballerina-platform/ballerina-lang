@@ -41,11 +41,12 @@ public type OutboundBasicAuthProvider object {
         if (credential is ()) {
             runtime:AuthenticationContext? authContext = runtime:getInvocationContext()?.authenticationContext;
             if (authContext is runtime:AuthenticationContext) {
-                return authContext.authToken;
-            } else {
-                return prepareError("Failed to generate basic auth token since credential config is not defined
-                and auth token is not defined in the authentication context at invocation context.");
+                string? authToken = authContext?.authToken;
+                if (authToken is string) {
+                    return authToken;
+                }
             }
+            return prepareError("Failed to generate basic auth token since credential config is not defined and auth token is not defined in the authentication context at invocation context.");
         } else {
             return getAuthTokenForBasicAuth(credential);
         }
@@ -76,7 +77,7 @@ public type Credential record {|
 function getAuthTokenForBasicAuth(Credential credential) returns string|Error {
     string username = credential.username;
     string password = credential.password;
-    if (username == EMPTY_STRING || password == EMPTY_STRING) {
+    if (username == "" || password == "") {
         return prepareError("Username or password cannot be empty.");
     }
     string str = username + ":" + password;

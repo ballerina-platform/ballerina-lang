@@ -18,7 +18,7 @@
 syntax = "proto3";
 package service;
 
-service helloWorld {
+service helloWorldWithPackage {
 		rpc hello(HelloRequest) returns (HelloResponse);
 		rpc bye(ByeRequest) returns (ByeResponse);
 }

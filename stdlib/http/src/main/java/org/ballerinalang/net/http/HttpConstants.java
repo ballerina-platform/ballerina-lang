@@ -18,8 +18,8 @@
 
 package org.ballerinalang.net.http;
 
-import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
-import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG;
+import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
  * Constants for HTTP.
@@ -299,7 +299,7 @@ public class HttpConstants {
     public static final int SERVICE_ENDPOINT_NAME_INDEX = 0;
     public static final String SERVICE_ENDPOINT_CONFIG = "config";
     public static final String SERVER_NAME = "server";
-    public static final String SERVER_ENDPOINT_CONFIG = "ServiceEndpointConfiguration";
+    public static final String LISTENER_CONFIGURATION = "ListenerConfiguration";
 
     //Service Endpoint Config
     public static final String ENDPOINT_CONFIG_HOST = "host";

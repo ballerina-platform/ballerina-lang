@@ -21,7 +21,10 @@ import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.TableResourceManager;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BStructureType;
+import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -140,7 +143,9 @@ public class CallStatement extends AbstractSQLStatement {
     private ArrayValue constructTablesForResultSets(List<ResultSet> resultSets, TableResourceManager rm,
                                                      ArrayValue structTypes, String databaseProductName)
             throws SQLException, ApplicationException {
-        ArrayValue bTables = new ArrayValue(BTypes.typeTable);
+        BRecordType tableConstraint = new BRecordType("$table$anon$constraint$", null, 0, false);
+        tableConstraint.restFieldType = BTypes.typeAnydata;
+        ArrayValue bTables = new ArrayValue(new BArrayType(new BTableType(tableConstraint)));
         // TODO: "mysql" equality condition is part of the temporary fix to support returning the result set in the case
         // of stored procedures returning only one result set in MySQL. Refer ballerina-platform/ballerina-lang#8643
         if (databaseProductName.contains(Constants.DatabaseNames.MYSQL)
