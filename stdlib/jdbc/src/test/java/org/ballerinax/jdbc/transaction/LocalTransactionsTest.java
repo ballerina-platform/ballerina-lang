@@ -84,7 +84,7 @@ public class LocalTransactionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0, "Insertion count inside transaction is incorrect");
     }
 
-    //@Test(groups = TRANSACTION_TEST_GROUP)
+    @Test(groups = TRANSACTION_TEST_GROUP)
     public void testLocalTransactionStoredProcedure() {
         BValue[] returns = BRunUtil.invoke(result, "testLocalTransactionStoredProcedure");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0, "Transaction shouldn't have been retried");

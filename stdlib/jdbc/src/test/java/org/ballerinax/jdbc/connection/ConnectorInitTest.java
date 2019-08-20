@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 import java.io.File;
 
 /**
- * Test SQL Connector Initialization.
+ * Test JDBC Client Initialization.
  */
 public class ConnectorInitTest {
 
