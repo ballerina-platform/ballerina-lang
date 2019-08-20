@@ -44,7 +44,7 @@ BALLERINA COMMANDS
         version         Print Ballerina version
 
         new             Initialize Ballerina project
-        create          Initialize Ballerina module from a template
+        add             Initialize Ballerina module from a template
 
         dist list       List available ballerina distributions
         dist pull       Pull a given distribution version
