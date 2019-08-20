@@ -1742,7 +1742,15 @@ public class Types {
 
         @Override
         public Boolean visit(BObjectType t, BType s) {
-            return t == s;
+            if (t == s) {
+                return true;
+            }
+
+            if (s.tag != TypeTags.OBJECT) {
+                return false;
+            }
+
+            return t.tsymbol.pkgID.equals(s.tsymbol.pkgID) && t.tsymbol.name.equals(s.tsymbol.name);
         }
 
         @Override
@@ -1933,7 +1941,7 @@ public class Types {
 
     private boolean isInSameVisibilityRegion(BSymbol lhsSym, BSymbol rhsSym) {
         if (Symbols.isPrivate(lhsSym)) {
-            return Symbols.isPrivate(rhsSym) && lhsSym.pkgID.equals(rhsSym.pkgID) && lhsSym.name.equals(rhsSym.name);
+            return Symbols.isPrivate(rhsSym) && lhsSym.pkgID.equals(rhsSym.pkgID);
         } else if (Symbols.isPublic(lhsSym)) {
             return Symbols.isPublic(rhsSym);
         }
