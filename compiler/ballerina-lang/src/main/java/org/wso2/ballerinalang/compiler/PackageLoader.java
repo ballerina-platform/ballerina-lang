@@ -216,7 +216,7 @@ public class PackageLoader {
         RepoNode fullRepoGraph;
         if (converter != null) {
             Repo programingSource = new ProgramingSourceRepo(converter);
-            Repo projectSource = new ProjectSourceRepo(converter, testEnabled);
+            Repo projectSource = new ProjectSourceRepo(converter, this.manifest, testEnabled);
             fullRepoGraph = node(programingSource,
                                  node(projectSource,
                                       nonLocalRepos));
@@ -483,7 +483,7 @@ public class PackageLoader {
 
         // Get the list of source entries.
         Path projectPath = this.sourceDirectory.getPath();
-        ProjectSourceRepo projectSourceRepo = new ProjectSourceRepo(projectPath, testEnabled);
+        ProjectSourceRepo projectSourceRepo = new ProjectSourceRepo(projectPath, this.manifest, testEnabled);
         Patten packageIDPattern = projectSourceRepo.calculate(packageID);
         if (packageIDPattern != Patten.NULL) {
             Stream<Path> srcPathStream = packageIDPattern.convert(projectSourceRepo.getConverterInstance(), packageID);

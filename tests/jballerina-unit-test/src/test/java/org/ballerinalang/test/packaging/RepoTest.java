@@ -1,7 +1,27 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.ballerinalang.test.packaging;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.model.Project;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
@@ -32,8 +52,13 @@ public class RepoTest {
 
     @Test
     public void testProjectSourceRepo() {
+        Manifest manifest = new Manifest();
+        Project manifestProject = manifest.getProject();
+        manifestProject.setOrgName("best_org");
+        manifestProject.setVersion("1.8.3");
+        
         PackageID pkg = newPackageID("best_org", "this.pkg", "1.8.3");
-        ProjectSourceRepo subject = new ProjectSourceRepo((PathConverter) null, false);
+        ProjectSourceRepo subject = new ProjectSourceRepo((PathConverter) null, manifest, false);
 
         Patten prospect = subject.calculate(pkg);
 
@@ -42,8 +67,13 @@ public class RepoTest {
 
     @Test
     public void testProjectSourceRepoWithTests() {
+        Manifest manifest = new Manifest();
+        Project manifestProject = manifest.getProject();
+        manifestProject.setOrgName("best_org");
+        manifestProject.setVersion("1.8.3");
+        
         PackageID pkg = newPackageID("best_org", "this.pkg", "1.8.3");
-        ProjectSourceRepo subject = new ProjectSourceRepo((PathConverter) null, true);
+        ProjectSourceRepo subject = new ProjectSourceRepo((PathConverter) null, manifest, true);
 
         Patten prospect = subject.calculate(pkg);
 
