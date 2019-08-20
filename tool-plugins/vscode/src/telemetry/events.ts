@@ -17,3 +17,6 @@ export const TM_EVENT_START_DEBUG_SESSION = "start.debug.session";
 
 // event for running tests in current project
 export const TM_EVENT_RUN_PROJECT_TESTS = "run.project.tests";
+
+// event for running build for current project
+export const TM_EVENT_RUN_PROJECT_BUILD = "run.project.build";

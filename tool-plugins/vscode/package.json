@@ -217,6 +217,11 @@
                 "category": "Ballerina"
             },
             {
+                "command": "ballerina.project.build",
+                "title": "Build Project",
+                "category": "Ballerina"
+            },
+            {
                 "command": "ballerina.showDocs",
                 "title": "Show Documentation Preview",
                 "icon": {

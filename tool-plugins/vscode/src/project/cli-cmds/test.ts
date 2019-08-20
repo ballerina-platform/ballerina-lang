@@ -1,10 +1,10 @@
-import { BallerinaExtension } from "../../core";
+import { ballerinaExtInstance } from "../../core";
 import { commands, window } from "vscode";
 import { TM_EVENT_RUN_PROJECT_TESTS, CMP_PROJECT_TEST_RUNNER } from "../../telemetry";
 import { runCommand, BALLERINA_COMMANDS } from "./cmd-runner";
 import { getCurrentBallerinaProject } from "./utils";
 
-export function activateTestRunner(ballerinaExtInstance: BallerinaExtension) {
+export function activateTestRunner() {
     const reporter = ballerinaExtInstance.telemetryReporter;
 
     // register run project tests handler
