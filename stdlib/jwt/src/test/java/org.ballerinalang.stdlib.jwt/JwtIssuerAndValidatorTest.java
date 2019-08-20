@@ -51,10 +51,10 @@ public class JwtIssuerAndValidatorTest {
 
     @BeforeClass
     public void setup() {
-        keyStorePath = Paths.get("src", "test", "resources", "datafiles", 
+        keyStorePath = Paths.get("src", "test", "resources", "datafiles",
                 "keystore", "ballerinaKeystore.p12").toAbsolutePath().toString();
-        trustStorePath = Paths.get("src", "test", "resources", "datafiles", 
-            "keystore", "ballerinaTruststore.p12").toAbsolutePath().toString();
+        trustStorePath = Paths.get("src", "test", "resources", "datafiles",
+                "keystore", "ballerinaTruststore.p12").toAbsolutePath().toString();
         resourceRoot = Paths.get("src", "test", "resources").toAbsolutePath().toString();
         Path sourceRoot = Paths.get(resourceRoot, "test-src");
         compileResult = BCompileUtil.compile(sourceRoot.resolve("jwt-issuer-and-validator-test.bal").toString());
@@ -129,6 +129,20 @@ public class JwtIssuerAndValidatorTest {
         Assert.assertEquals("{\"alg\":\"RS256\", \"typ\":\"JWT\"}", header);
         Assert.assertTrue(payload.startsWith("{\"sub\":\"John\", \"iss\":\"wso2\", \"exp\":"));
         Assert.assertTrue(payload.endsWith("\"}"));
+    }
+
+    @Test(priority = 1, description = "Test case for issuing JWT token with custom claims")
+    public void testIssueJwtWithCustomClaims() {
+        BValue[] inputBValues = {new BString(keyStorePath)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIssueJwtWithCustomClaims", inputBValues);
+        Assert.assertTrue(returns[0] instanceof BString);
+        String[] parts = returns[0].stringValue().split("\\.");
+        String header = new String(Base64.getUrlDecoder().decode(parts[0]), StandardCharsets.UTF_8);
+        String payload = new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
+        Assert.assertEquals("{\"alg\":\"RS256\", \"typ\":\"JWT\"}", header);
+        Assert.assertTrue(payload.startsWith("{\"sub\":\"John\", \"iss\":\"wso2\", \""));
+        Assert.assertTrue(payload.endsWith("\", \"aud\":[\"ballerina\", \"ballerinaSamples\"], " +
+                "\"scope\":\"test-scope\"}"));
     }
 
     @Test(priority = 2, description = "Test case for validating JWT token")
