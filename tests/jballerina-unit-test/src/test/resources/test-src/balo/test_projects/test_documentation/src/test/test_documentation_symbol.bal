@@ -21,11 +21,7 @@ public type Person object {
 
     # Indicate whether this is a male or female.
     # + return - True if male
-    public function isMale() returns boolean;
+    public function isMale() returns boolean {
+        return true;
+    }
 };
-
-# male implementation
-# + return - true allways
-public function Person.isMale() returns boolean {
-    return true;
-}

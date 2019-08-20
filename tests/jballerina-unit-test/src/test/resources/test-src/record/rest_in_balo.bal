@@ -19,27 +19,27 @@ import testorg/records;
 function testORRestFieldInOR() returns records:OpenFoo {
     records:OpenBar ob = {x:1.0};
     records:OpenFoo of = {name:"Open Foo"};
-    of.ob = ob;
+    of["ob"] = ob;
     return of;
 }
 
 function testORRestFieldInCR() returns records:ClosedFoo {
     records:OpenBar ob = {x:2.0};
     records:ClosedFoo cf = {name:"Closed Foo"};
-    cf.ob = ob;
+    cf["ob"] = ob;
     return cf;
 }
 
 function testCRRestFieldInOR() returns records:OpenFoo {
     records:ClosedBar cb = {x:3.0};
     records:OpenFoo2 of = {name:"Open Foo"};
-    of.cb = cb;
+    of["cb"] = cb;
     return of;
 }
 
 function testCRRestFieldInCR() returns records:ClosedFoo {
     records:ClosedBar cb = {x:4.0};
     records:ClosedFoo2 cf = {name:"Closed Foo"};
-    cf.cb = cb;
+    cf["cb"] = cb;
     return cf;
 }

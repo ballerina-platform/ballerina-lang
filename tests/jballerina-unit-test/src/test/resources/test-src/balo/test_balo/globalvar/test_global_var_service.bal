@@ -6,8 +6,6 @@ listener http:MockListener echoEP  = new(9090);
 @http:ServiceConfig {basePath:"/globalvar"}
 service GlobalVar on echoEP {
 
-    string serviceVarFloat = string.convert(foo:getGlbVarFloat());
-
     @http:ResourceConfig {
         methods:["GET"],
         path:"/defined"
@@ -19,17 +17,6 @@ service GlobalVar on echoEP {
             "glbVarString": foo:getGlbVarString(),
             "glbVarFloat": foo:getGlbVarFloat()
         };
-        res.setJsonPayload(responseJson);
-        checkpanic caller->respond(res);
-    }
-
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/access-service-level"
-    }
-    resource function accessGlobalVarAtServiceLevel (http:Caller caller, http:Request req) {
-        http:Response res = new;
-        json responseJson = {"serviceVarFloat": self.serviceVarFloat};
         res.setJsonPayload(responseJson);
         checkpanic caller->respond(res);
     }
