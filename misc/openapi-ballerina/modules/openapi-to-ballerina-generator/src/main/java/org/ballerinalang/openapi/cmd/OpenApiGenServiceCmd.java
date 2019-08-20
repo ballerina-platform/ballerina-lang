@@ -19,8 +19,10 @@ import static org.ballerinalang.openapi.OpenApiMesseges.DEFINITION_EXISTS;
 import static org.ballerinalang.openapi.OpenApiMesseges.GEN_SERVICE_MODULE_REQUIRED;
 import static org.ballerinalang.openapi.OpenApiMesseges.GEN_SERVICE_PROJECT_ROOT;
 import static org.ballerinalang.openapi.OpenApiMesseges.MODULE_DIRECTORY_EXCEPTION;
+import static org.ballerinalang.openapi.OpenApiMesseges.MODULE_MD_EXCEPTION;
 import static org.ballerinalang.openapi.OpenApiMesseges.RESOURCE_DIRECTORY_EXCEPTION;
 import static org.ballerinalang.openapi.OpenApiMesseges.SOURCE_DIRECTORY_EXCEPTION;
+import static org.ballerinalang.openapi.OpenApiMesseges.TESTS_DIRECTORY_EXCEPTION;
 
 /**
  * Class to implement "openapi gen-service" command for ballerina.
@@ -100,6 +102,7 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
         final Path sourceDirectory = projectRoot.resolve("src");
         final Path moduleDirectory = sourceDirectory.resolve(moduleArgs.get(0));
         final Path resourcesDirectory = Paths.get(moduleDirectory + "/resources");
+        final Path testsDirectory = Paths.get(moduleDirectory + "/tests");
         final File openApiFile = new File(argList.get(0));
         final String openApiFilePath = openApiFile.getPath();
         Path resourcePath = Paths.get(resourcesDirectory + "/" + openApiFile.getName());
@@ -130,12 +133,37 @@ public class OpenApiGenServiceCmd implements BLauncherCmd {
                 }
             }
 
-            // Check for resources folder in ballerina project root
+            // Check for resources folder in ballerina module root
             if (Files.notExists(resourcesDirectory)) {
                 try {
                     Files.createDirectory(resourcesDirectory);
                 } catch (IOException e) {
                     throw LauncherUtils.createLauncherException(RESOURCE_DIRECTORY_EXCEPTION + "\n"
+                            + e.getLocalizedMessage());
+                }
+            }
+
+            File moduleMd = new File(moduleDirectory + "/Module.md");
+            if (!moduleMd.exists()) {
+                try {
+                    boolean createMd = true;
+                    createMd = moduleMd.createNewFile();
+
+                    if (!createMd) {
+                        throw LauncherUtils.createLauncherException(MODULE_MD_EXCEPTION);
+                    }
+                } catch (IOException e) {
+                    throw LauncherUtils.createLauncherException(MODULE_MD_EXCEPTION + "\n"
+                            + e.getLocalizedMessage());
+                }
+            }
+
+            // Check for tests folder in ballerina module root
+            if (Files.notExists(testsDirectory)) {
+                try {
+                    Files.createDirectory(testsDirectory);
+                } catch (IOException e) {
+                    throw LauncherUtils.createLauncherException(TESTS_DIRECTORY_EXCEPTION + "\n"
                             + e.getLocalizedMessage());
                 }
             }

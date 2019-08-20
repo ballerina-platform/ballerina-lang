@@ -47,9 +47,12 @@ public class OpenApiMesseges {
     public static final String MODULE_DIRECTORY_EXCEPTION = "Unable to create module directory. File system error " +
                                                             "occured.";
     public static final String RESOURCE_DIRECTORY_EXCEPTION = "Unable to create resource directory. File system error" +
-            " occured.";
+                                                            " occured.";
+    public static final String TESTS_DIRECTORY_EXCEPTION = "Unable to create tests directory. File system error " +
+                                                           "occured";
     public static final String SOURCE_DIRECTORY_EXCEPTION = "Unable to create source directory. File system error " +
-            "occured.";
+                                                            "occured.";
+    public static final String MODULE_MD_EXCEPTION = "Unable to create moudle.md file. File system error occured.";
     public static final String DEFINITION_EXISTS = "There is already an OpenApi contract in the location.";
 
     private OpenApiMesseges() {
