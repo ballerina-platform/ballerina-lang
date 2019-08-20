@@ -280,24 +280,24 @@ public class LangLibArrayTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina\\}InherentTypeViolation message=cannot change tuple size.*")
-    public void testTuppleResize() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testTuppleResize");
+    public void testTupleResize() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTupleResize");
         Assert.fail();
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina\\}InherentTypeViolation message=cannot change tuple size.*")
-    public void testTuppleRemoveAll() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testTuppleRemoveAll");
+    public void testTupleRemoveAll() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTupleRemoveAll");
         Assert.fail();
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina\\}InherentTypeViolation message=cannot change tuple size.*")
-    public void testTuppleRemoveAllForTuppleWithRestMemberType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testTuppleRemoveAllForTuppleWithRestMemberType");
+    public void testTupleRemoveAllForTupleWithRestMemberType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTupleRemoveAllForTupleWithRestMemberType");
         Assert.fail();
     }
 }

@@ -250,19 +250,19 @@ function testRemoveAllFixedLengthArray() returns int[] {
     return ar;
 }
 
-function testTuppleResize() returns [int, string] {
+function testTupleResize() returns [int, string] {
     [int, string] t = [1, "hello"];
     t.setLength(3);
     return t;
 }
 
-function testTuppleRemoveAll() returns [int, string] {
+function testTupleRemoveAll() returns [int, string] {
     [int, string] t = [1, "hello"];
     t.removeAll();
     return t;
 }
 
-function testTuppleRemoveAllForTuppleWithRestMemberType() returns [int, string] {
+function testTupleRemoveAllForTupleWithRestMemberType() returns [int, string] {
     [int, string, boolean...] t = [1, "hello", true];
     t.removeAll();
     return t;
