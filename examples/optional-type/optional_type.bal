@@ -16,7 +16,7 @@ function getValue(string key) returns string? {
 }
 
 public function main() {
-    // It is optional for `getValue()` to return a value of the type `string`. Thus, the value could be either
+    // It is optional for `getValue()` to return a value of type `string`. Thus, the value could be either
     // of type `string` or of type `()` and needs to be handled explicitly.
     // The statement `string s = getValue("string");` produces a compilation error.
     string? s = getValue("string");

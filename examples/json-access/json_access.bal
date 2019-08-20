@@ -17,20 +17,20 @@ public function main() {
     // either if the value on which the access is done is not a mapping or if
     // it is a mapping, but it does not contain the particular key.
     json|error r1 = j1.fname;
-    // `r1` is of the type `json` since `j1` is a mapping and contains the field `fname`.
+    // `r1` is of type `json` since `j1` is a mapping and contains the field `fname`.
     io:println(r1);
 
     // Similarly, chained field access is also allowed for `json`. If an `error`
     // is encountered at any point during the evaluation, evaluation stops at
     // that point and the result would be an error.
     json|error r2 = j1.address.city;
-    // `r2` is of the type `json` since `j1` is a mapping with the field `address`, which in
+    // `r2` is of type `json` since `j1` is a mapping with the field `address`, which in
     // turn is a mapping with the field `city`, which will be the resultant value.
     io:println(r2);
 
     // Attempting to access a non-existent field would result in an error.
     json|error r3 = j1.age.year;
-    // `r3` is of the type `error` since `j1` does not have a field with the key `age`.
+    // `r3` is of type `error` since `j1` does not have a field with the key `age`.
     io:println(r3);
 
     // Similarly, optional field access is also allowed on lax types.
