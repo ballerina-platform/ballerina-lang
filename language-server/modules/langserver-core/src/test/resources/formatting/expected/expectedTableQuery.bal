@@ -50,7 +50,7 @@ public function main() {
 
     // This is the in-memory `table` that is constrained by the `Person` type.
     table<Person> personTable = table {
-        { id, age, salary, name, married},
+        {id, age, salary, name, married},
         [
             p1,
             p2,
@@ -94,7 +94,7 @@ public function main() {
 
     // This is the in-memory `table` that is constrained by the `Order` type.
     table<Order> orderTable = table {
-        { personId, orderId, items, amount},
+        {personId, orderId, items, amount},
         [
             o1,
             o2,
