@@ -13,7 +13,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/runtime;
 import ballerinax/java.jdbc;
 import ballerina/transactions;

@@ -36,8 +36,7 @@ under the License.
             <class name="org.ballerinax.jdbc.transaction.LocalTransactionsTest"/>
             <class name="org.ballerinax.jdbc.transaction.XATransactionsTest"/>
 
-
-            <!--<class name="org.ballerinax.jdbc.table.TableIterationTest"/>-->
+            <!--<class name="org.ballerinax.jdbc.table.TableIterationTest"/> TODO:#16805-->
         </classes>
     </test>
 </suite>

@@ -57,7 +57,6 @@ public class BatchUpdateTest {
         Assert.assertTrue(((BInteger) returns[3]).intValue() > 0);
     }
 
-
     @Test(groups = BATCH_UPDATE_TEST)
     public void testBatchUpdateSingleValParamArray() {
         BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateSingleValParamArray");

@@ -264,7 +264,6 @@ string, int] {
     state, reason, errorCode];
 }
 
-
 function testBasicInsertDataWithApplicationError() returns [boolean, boolean, boolean, boolean, boolean, string,
 string] {
     jdbc:Client testDB = new ({
@@ -771,7 +770,6 @@ function testInsertBoolDataAsBoolAndReturnBool() returns [int, boolean, boolean]
     jdbc:Parameter paraBool = {sqlType: jdbc:TYPE_BOOLEAN, value: true};
     jdbc:Parameter paraBit = {sqlType: jdbc:TYPE_BIT, value: true};
 
-
     var result = testDB->update("INSERT INTO BooleanTypes (id, bool_type, bit_type) VALUES (?,?,?)",
     paraID, paraBool, paraBit);
     int insertCount = 0;
@@ -833,7 +831,6 @@ function testInsertBoolDataAsIntsInvalidParams() returns jdbc:UpdateResult | jdb
     jdbc:Parameter paraID = {sqlType: jdbc:TYPE_INTEGER, value: 14};
     jdbc:Parameter paraBool = {sqlType: jdbc:TYPE_BOOLEAN, value: 91};
     jdbc:Parameter paraBit = {sqlType: jdbc:TYPE_BIT, value: 1};
-
 
     var result = testDB->update("INSERT INTO BooleanTypes (id, bool_type, bit_type) VALUES (?,?,?)",
     paraID, paraBool, paraBit);
@@ -994,7 +991,6 @@ function testInsertTimeDataAsString() returns [int, string, string, string, stri
                                                     datetime_type, timez_type, timestampz_type)
                                                     values (?,?,?,?,?,?,?)",
     para1, para2, para3, para4, para5, para6, para7);
-
 
     int insertCount = 0;
     if (result is jdbc:UpdateResult) {
@@ -1186,8 +1182,6 @@ time:Time?, time:Time?] {
     }
     var dt = testDB->select("SELECT date_type, timenz_type, timestampnz_type, datetime_type, timez_type, timestampz_type
                              from TimeTypes where id = ?", TimeDataWithNil, 14);
-
-
 
     time:Time currentTime = time:currentTime();
 

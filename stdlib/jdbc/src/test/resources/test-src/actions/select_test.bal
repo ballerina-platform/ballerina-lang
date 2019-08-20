@@ -45,7 +45,6 @@ type ResultBlob record {
     byte[] BLOB_TYPE;
 };
 
-
 function testSelectNumericData() returns [int, int, int, int, int, decimal, decimal, float, float] {
     jdbc:Client testDB = new ({
         url: jdbcURL,

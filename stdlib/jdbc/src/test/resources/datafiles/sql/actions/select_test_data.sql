@@ -12,12 +12,10 @@ CREATE TABLE NumericTypes (
    PRIMARY KEY (id)
 );
 /
-
 INSERT INTO NumericTypes (id, int_type, bigint_type, smallint_type, tinyint_type, bit_type, decimal_type, numeric_type,
     float_type, real_type) values (1, 2147483647, 9223372036854774807, 32767, 127, 1, 1234.567, 1234.567, 1234.567,
     1234.567);
 /
-
 CREATE TABLE Customers(
   customerId INT,
   firstName  VARCHAR(300),
@@ -33,4 +31,3 @@ CREATE TABLE Customers(
 INSERT INTO Customers (customerId, firstName, lastName, registrationID, creditLimit, country, visaAccepted, info)
   VALUES (1, 'Peter', 'Stuart', 1, 5000.75, 'USA', true, X'77736F322062616C6C6572696E6120626C6F6220746573742E' );
 /
-

@@ -12,10 +12,8 @@ CREATE TABLE NumericTypes (
    PRIMARY KEY (id)
 );
 /
-
 insert into NumericTypes (int_type) values (10);
 /
-
 CREATE TABLE StringTypes (
    id INT,
    varchar_type varchar(255),
@@ -29,7 +27,6 @@ CREATE TABLE StringTypes (
    PRIMARY KEY (id)
 );
 /
-
 CREATE TABLE BooleanTypes (
     id INT,
     bool_type BOOLEAN,
@@ -37,7 +34,6 @@ CREATE TABLE BooleanTypes (
     PRIMARY KEY (id)
 );
 /
-
 CREATE TABLE BinaryTypes (
     id INT,
     binary_type BINARY(9),
@@ -49,7 +45,6 @@ CREATE TABLE BinaryTypes (
     PRIMARY KEY (id)
 );
 /
-
 CREATE TABLE TimeTypes (
     id INT,
     date_type DATE,

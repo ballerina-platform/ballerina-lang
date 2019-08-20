@@ -13,7 +13,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerinax/java.jdbc;
 
 string jdbcURL = "jdbc:hsqldb:file:./target/tempdb/JDBC_BATCH_UPDATE_TEST_HSQLDB";
@@ -50,7 +49,6 @@ function testBatchUpdate() returns [int[], jdbc:Error?, int, int] {
 
     jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,
                                      creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
-                                     io:println(ret);
     anydata[]? generatedKeys = ret.generatedKeys["CUSTOMERID"];
     int key1 = -1;
     int key2 = -1;
@@ -252,7 +250,6 @@ function testFailedBatchUpdate() returns [string, int, int] {
     checkpanic testDB.stop();
     return [returnVal, batch1Status, batch2Status];
 }
-
 
 function testErrorWithBatchUpdate() returns @tainted [string, string, boolean, boolean, boolean] {
     jdbc:Client testDB = new ({

@@ -127,7 +127,6 @@ public class UpdateTest {
         Assert.assertEquals(((BDecimal) returns[7]).decimalValue(), new BigDecimal("5000.76"));
         Assert.assertEquals(((BFloat) returns[8]).floatValue(), 5000.77, 0.01);
         Assert.assertEquals(((BFloat) returns[9]).floatValue(), 5000.78, 0.01);
-
     }
 
     @Test(groups = UPDATE_TEST)

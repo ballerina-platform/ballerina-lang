@@ -1585,7 +1585,6 @@ function getXMLConversionResult(table<record {}>|error tableOrError) returns xml
     xml retVal = xml `<Error/>`;
     if (tableOrError is table<record {}>) {
         var xmlConversionResult = typedesc<xml>.constructFrom(tableOrError);
-        io:println(xmlConversionResult);
         if (xmlConversionResult is xml) {
             // Converting to string to make sure the xml is built before returning.
             _ = io:sprintf("%s", xmlConversionResult);
