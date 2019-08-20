@@ -139,7 +139,7 @@ public class BallerinaStackFrame extends XStackFrame {
                     VariablesArguments variablesArgs = new VariablesArguments();
                     variablesArgs.setVariablesReference(scope.getVariablesReference());
                     VariablesResponse variableResp = dapConnector.getRequestManager().variables(variablesArgs);
-                    xValueChildrenList.addBottomGroup(new BallerinaXValueGroup(myProcess, myFrame, scope.getName(),
+                    xValueChildrenList.addBottomGroup(new BallerinaXValueGroup(myProcess, scope.getName(),
                             Arrays.asList(variableResp.getVariables())));
                     // Add the list to the node as children.
                     node.addChildren(xValueChildrenList, true);
