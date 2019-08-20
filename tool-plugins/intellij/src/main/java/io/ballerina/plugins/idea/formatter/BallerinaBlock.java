@@ -62,8 +62,8 @@ public class BallerinaBlock extends AbstractBlock {
     private Map<ASTNode, Alignment> myAlignmentMap;
 
     protected BallerinaBlock(@NotNull ASTNode node, @Nullable Alignment alignment, @Nullable Indent indent,
-            @Nullable Wrap wrap, @NotNull CodeStyleSettings settings, @NotNull SpacingBuilder spacingBuilder,
-            @NotNull Map<ASTNode, Alignment> alignmentMap) {
+                             @Nullable Wrap wrap, @NotNull CodeStyleSettings settings,
+                             @NotNull SpacingBuilder spacingBuilder, @NotNull Map<ASTNode, Alignment> alignmentMap) {
         super(node, wrap, alignment);
 
         this.myNode = node;
@@ -244,9 +244,6 @@ public class BallerinaBlock extends AbstractBlock {
             return Indent.getNormalIndent();
         } else if (childElementType == BallerinaTypes.FIELD_DEFINITION
                 || childElementType == BallerinaTypes.RECORD_REST_FIELD_DEFINITION) {
-            return Indent.getNormalIndent();
-        } else if (childElementType == BallerinaTypes.SERVICE_BODY_MEMBER
-                && parentElementType == BallerinaTypes.SERVICE_BODY) {
             return Indent.getNormalIndent();
         } else if (childElementType == BallerinaTypes.WORKER_DEFINITION
                 && parentElementType == BallerinaTypes.FORK_JOIN_STATEMENT) {
