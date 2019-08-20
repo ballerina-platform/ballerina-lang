@@ -14,26 +14,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/task;
+import ballerina/http;
 import ballerina/runtime;
+import ballerina/task;
 
 task:TimerConfiguration configuration = {
     intervalInMillis: 1000,
     initialDelayInMillis: 1000
 };
 
+const SUCCESS_RESPONSE = "Successfully paused and resumed";
+const FAILURE_RESPONSE = "Pause and resume failed";
+
+listener http:Listener timerPauseResumeListener = new(15005);
+
 int counter1 = 0;
 int counter2 = 0;
 
-function getCount1() returns int {
-    return counter1;
-}
-
-function getCount2() returns int {
-    return counter2;
-}
-
-function testPauseResume() {
+public function main() {
     task:Scheduler timer1 = new(configuration);
     task:Scheduler timer2 = new(configuration);
     checkpanic timer1.attach(timerService1);
@@ -44,7 +42,7 @@ function testPauseResume() {
     if (result is error) {
         return;
     }
-    runtime:sleep(10000);
+    runtime:sleep(6000);
     result = timer1.resume();
     if (result is error) {
         return;
@@ -62,3 +60,20 @@ service timerService2 = service {
         counter2 = counter2 + 1;
     }
 };
+
+@http:ServiceConfig {
+	basePath: "/"
+}
+service TimerAttachmentHttpService on timerPauseResumeListener {
+    @http:ResourceConfig {
+        methods:["GET"]
+    }
+    resource function getTaskPauseResumeResult(http:Caller caller, http:Request request) {
+        runtime:sleep(4000);
+		if (counter1 > 3 && (counter2 - counter1) > 4) {
+		    var result = caller->respond(SUCCESS_RESPONSE);
+		} else {
+		    var result = caller->respond(FAILURE_RESPONSE);
+		}
+	}
+}
