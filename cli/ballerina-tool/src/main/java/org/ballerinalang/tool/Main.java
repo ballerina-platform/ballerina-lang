@@ -754,17 +754,12 @@ public class Main {
 
         @Override
         public void execute() {
-            if (helpFlag) {
-                printUsageInfo(BallerinaCliCommands.HELP);
-                return;
-            }
-
             if (versionFlag) {
                 printVersionInfo();
                 return;
             }
 
-            printUsageInfo(BallerinaCliCommands.DEFAULT);
+            printUsageInfo(BallerinaCliCommands.HELP);
         }
 
         @Override
