@@ -111,6 +111,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangTableQuery;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWithinClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -1849,7 +1850,10 @@ public class BLangPackageBuilder {
                                      List<String> nameComps,
                                      String version,
                                      String alias) {
-
+        // Disabling versioned import until compiler support semvar versioned imports
+        if (!(version == null || version.isEmpty())) {
+            this.dlog.error(pos, DiagnosticCode.VERSIONED_IMPORT_NOT_SUPPORTED);
+        }
         BLangImportPackage importDcl = getImportPackage(pos, ws, orgName, nameComps, version, alias);
         this.compUnit.addTopLevelNode(importDcl);
         if (this.imports.contains(importDcl)) {
@@ -2427,11 +2431,22 @@ public class BLangPackageBuilder {
         ExpressionNode rExprNode = exprNodeStack.pop();
         ExpressionNode lExprNode = exprNodeStack.pop();
         BLangAssignment assignmentNode = (BLangAssignment) TreeBuilder.createAssignmentNode();
+        validateLvexpr(lExprNode, DiagnosticCode.INVALID_INVOCATION_LVALUE_ASSIGNMENT);
         assignmentNode.setExpression(rExprNode);
         assignmentNode.pos = pos;
         assignmentNode.addWS(ws);
         assignmentNode.varRef = ((BLangVariableReference) lExprNode);
         addStmtToCurrentBlock(assignmentNode);
+    }
+
+    private void validateLvexpr(ExpressionNode lExprNode, DiagnosticCode errorCode) {
+        if (lExprNode.getKind() == NodeKind.INVOCATION) {
+            dlog.error(((BLangInvocation) lExprNode).pos, errorCode);
+        }
+        if (lExprNode.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
+                || lExprNode.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+            validateLvexpr(((BLangAccessExpression) lExprNode).expr, errorCode);
+        }
     }
 
     void addTupleDestructuringStatement(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -2471,6 +2486,7 @@ public class BLangPackageBuilder {
         BLangCompoundAssignment assignmentNode =
                 (BLangCompoundAssignment) TreeBuilder.createCompoundAssignmentNode();
         assignmentNode.setExpression(exprNodeStack.pop());
+
         assignmentNode.setVariable((BLangVariableReference) exprNodeStack.pop());
         assignmentNode.pos = pos;
         assignmentNode.addWS(ws);

@@ -49,6 +49,9 @@ public type Listener object {
         return self.register(s, name);
     }
 
+    public function __detach(service s) returns error? {
+    }
+
     public function __init(int port, public ListenerConfiguration? config = ()) {
         self.instanceId = system:uuid();
         self.config = config ?: {};
@@ -304,8 +307,9 @@ type AttributeFilter object {
     *RequestFilter;
 
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
-        runtime:getInvocationContext().attributes[SERVICE_NAME] = context.getServiceName();
-        runtime:getInvocationContext().attributes[RESOURCE_NAME] = context.getResourceName();
+        var ctx = runtime:getInvocationContext();
+        ctx.attributes[SERVICE_NAME] = context.getServiceName();
+        ctx.attributes[RESOURCE_NAME] = context.getResourceName();
         return true;
     }
 };
@@ -342,6 +346,8 @@ public type WebSocketListener object {
         return self.httpEndpoint.register(s, name);
     }
 
+    public function __detach(service s) returns error? {
+    }
 
     # Gets invoked during module initialization to initialize the endpoint.
     #

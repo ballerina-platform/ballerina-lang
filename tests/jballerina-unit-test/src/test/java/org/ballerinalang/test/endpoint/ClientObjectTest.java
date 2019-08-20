@@ -80,7 +80,7 @@ public class ClientObjectTest {
 
     @Test
     public void testReferringEndpointInDifferentPkg() {
-        CompileResult compileResult = BCompileUtil.compile(this, "test-src/endpoint", "pkg.bc");
+        CompileResult compileResult = BCompileUtil.compile(this, "test-src/endpoint/pkg", "pkg.bc");
 
         BValue[] result = BRunUtil.invoke(compileResult, "testCheck");
         Assert.assertEquals(result.length, 1);

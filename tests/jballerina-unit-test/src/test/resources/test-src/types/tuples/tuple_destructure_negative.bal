@@ -14,15 +14,35 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/errors as er;
-
-function getApplicationError() returns error {
-    er:ApplicationError e = error(er:APPLICATION_ERROR_REASON, message = "Client has been stopped");
-    return e;
+function tupleDestructureTest1() returns [int, string, string] {
+	[int, string...] x = [1, "a", "b"];
+    int a;
+    string b;
+    string c;
+    [a, b, c] = x;
+    return [a, b, c];
 }
 
-function getApplicationErrorIndirectCtor() returns error {
-    er:ApplicationError e = er:ApplicationError(message = "Client has been stopped");
-    error e1 = er:ApplicationError(message = "Client has been stopped");
-    return e;
+function tupleDestructureTest2() returns [int, int[]] {
+    [int, string...] x = [1, "a", "b"];
+    int a;
+    int[] b;
+    [a, ...b] = x;
+    return [a, b];
+}
+
+function tupleDestructureTest3() returns [int, string[]] {
+    [int, string...] x = [1, "a", "b"];
+    int a;
+    string[] b;
+    [a, b] = x;
+    return [a, b];
+}
+
+function tupleDestructureTest4() returns [int, int] {
+    [int, int, int] x = [1, 2, 3];
+    int a;
+    int b;
+    [a, b] = x;
+    return [a, b];
 }

@@ -48,6 +48,9 @@ public type Listener object {
         return self.register(s, name);
     }
 
+    public function __detach(service s) returns error? {
+    }
+
     function initEndpoint() returns error? = external;
 
     function register(service serviceType, string? name) returns error? = external;
