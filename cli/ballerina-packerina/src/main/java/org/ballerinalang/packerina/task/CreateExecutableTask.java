@@ -71,9 +71,11 @@ public class CreateExecutableTask implements Task {
                 case SINGLE_MODULE:
                     SingleModuleContext singleModuleContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
                     throw createLauncherException("no entry points found in '" + singleModuleContext.getModuleName() +
-                                                  "'.");
+                                                  "'.\n" +
+                            "Use `ballerina build -c` to compile the module without building executables.");
                 case ALL_MODULES:
-                    throw createLauncherException("no entry points found in any of the modules.");
+                    throw createLauncherException("no entry points found in any of the modules.\n" +
+                            "Use `ballerina build -c` to compile the modules without building executables.");
                 default:
                     throw createLauncherException("unknown source type found when creating executable.");
             }
