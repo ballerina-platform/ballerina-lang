@@ -67,6 +67,15 @@ public class EventBus {
 
     public void setBreakpointsList(Breakpoint[] breakpointsList) {
         this.breakpointsList = breakpointsList.clone();
+
+        if (this.context.getDebuggee() != null) {
+            context.getDebuggee().eventRequestManager().deleteAllBreakpoints();
+            Arrays.stream(breakpointsList).forEach(breakpoint -> {
+                this.context.getDebuggee().allClasses().forEach(referenceType -> {
+                    this.addBreakpoint(referenceType, breakpoint);
+                });
+            });
+        }
         if (this.breakpointsList.length > 0) {
             Breakpoint breakpoint = this.breakpointsList[0];
             projectRoot = findProjectRoot(Paths.get(breakpoint.getSource().getPath()));
@@ -80,6 +89,9 @@ public class EventBus {
     }
 
     public Map<Long, ThreadReference> getThreadsMap() {
+        if (context.getDebuggee() == null) {
+            return null;
+        }
         List<ThreadReference> threadReferences = context.getDebuggee().allThreads();
         threadReferences.stream().forEach(threadReference -> {
             threadsMap.put(threadReference.uniqueID(), threadReference);
