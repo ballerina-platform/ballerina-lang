@@ -53,6 +53,7 @@ import javax.net.ssl.X509TrustManager;
  */
 public class ToolUtil {
     private static final String STAGING_URL = "https://api.staging-central.ballerina.io/update-tool";
+    private static final String BALLERINA_TYPE = "jballerina";
 
     private static TrustManager[] trustAllCerts = new TrustManager[]{
             new X509TrustManager() {
@@ -122,12 +123,12 @@ public class ToolUtil {
     private static String getVersion(String path) throws IOException {
         BufferedReader br = Files.newBufferedReader(Paths.get(path));
         List<String> list = br.lines().collect(Collectors.toList());
-        return list.get(0);
+        return list.get(0).replace(BALLERINA_TYPE + "-", "");
     }
 
     public static void setVersion(String path, String version) throws IOException {
         PrintWriter writer = new PrintWriter(path, "UTF-8");
-        writer.println(version);
+        writer.println(BALLERINA_TYPE  + "-" + version);
         writer.close();
     }
 
