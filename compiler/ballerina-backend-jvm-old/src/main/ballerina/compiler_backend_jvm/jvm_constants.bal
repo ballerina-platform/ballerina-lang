@@ -323,8 +323,7 @@ const string ERROR_REASON_CLASS_TOO_LARGE = "ClassTooLarge";
 // exception classes
 const string BLANG_RUNTIME_EXCEPTION = "org/ballerinalang/jvm/util/exceptions/BLangRuntimeException";
 const string THROWABLE = "java/lang/Throwable";
-const string HANDLE_THROWABLE_METHOD = "handleRuntimeErrors";
-const string HANDLE_RETURNED_ERROR_METHOD = "handleRuntimeReturnValues";
+const string HANDLE_THROWABLE_METHOD = "handleRuntimeThrowable";
 
 // code generation related constants.
 const string MODULE_INIT_CLASS_NAME = "___init";

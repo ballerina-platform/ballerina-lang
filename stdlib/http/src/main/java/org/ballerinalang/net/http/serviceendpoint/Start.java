@@ -80,6 +80,8 @@ public class Start extends AbstractHttpNativeFunction {
         try {
             serverConnectorFuture.sync();
         } catch (Exception ex) {
+            // TODO Below is a temp fix to show listener startup failure, find a better fix
+            strand.scheduler.immortal = false;
             throw HttpUtil.createHttpError("failed to start server connector '"
                     + serverConnector.getConnectorID()
                             + "': " + ex.getMessage(), HttpErrorType.LISTENER_STARTUP_FAILURE);
