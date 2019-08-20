@@ -48,6 +48,10 @@ public class OpenApiGenContractCmd implements BLauncherCmd {
     @Override
     public void execute() {
 
+        //User notification of using an experimental tool
+        outStream.println("Note: This is an Experimental tool ship under ballerina hence this will only support" +
+                " limited set of functionality.");
+
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(getName());
             outStream.println(commandUsageInfo);
