@@ -204,7 +204,7 @@ public class ErrorVariableReferenceTest {
     public void testNegativeErrorVariables() {
         CompileResult resultNegative = BCompileUtil.compile(
                 "test-src/expressions/varref/error_variable_reference_negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 13);
+        Assert.assertEquals(resultNegative.getErrorCount(), 14);
         int i = -1;
         String incompatibleTypes = "incompatible types: ";
         BAssertUtil.validateError(resultNegative, ++i,
@@ -234,5 +234,7 @@ public class ErrorVariableReferenceTest {
                                   "error binding pattern does not support index based assignment", 112, 79);
         BAssertUtil.validateError(resultNegative, ++i,
                                   "incompatible types: expected 'map', found 'map<(error|string|int)>'", 135, 32);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'string', found 'string?'", 145, 19);
     }
 }
