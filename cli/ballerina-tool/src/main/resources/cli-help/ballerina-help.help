@@ -1,6 +1,5 @@
 NAME
-    Ballerina - A Programming Language for Network Distributed
-                Applications
+    Ballerina - A Programming Language for Network Distributed Applications
 
 SYNOPSIS
     ballerina [-v|--version|version] [?|-h|--help]
@@ -13,9 +12,8 @@ DESCRIPTION
     and is suitable for application programmers.
 
     To learn how to run commands with Ballerina, use
-        ballerina <command> --help
-    You can find the list of commands in the below BALLERINA COMMANDS
-    section below.
+        ballerina help <command>
+    You can find the list of commands in the BALLERINA COMMANDS section below.
 
     To get started, visit https://ballerina.io/learn/quick-tour/
 
@@ -33,8 +31,6 @@ OPTIONS
 
 BALLERINA COMMANDS
     Available commands are:
-        compile         Compile Ballerina module/project in-to a sharable
-                        library(balo)
         build           Compile Ballerina program in-to an executable
         run             Run Ballerina program
         clean           Clean artifacts generated during compile/build
@@ -51,27 +47,28 @@ BALLERINA COMMANDS
         create          Initialize Ballerina module from a template
 
         dist list       List available ballerina distributions
-        dist install    Install a given distribution version
+        dist pull       Pull a given distribution version
         dist use        Switch to a specific distribution version
         dist update     Update to latest distribution version
         dist remove     Delete locally installed distribution version
 
-        encrypt    Encrypt sensitive data
-        grpc       Generate connector/service using protobuf
-                    Definition
-        openapi    Generate client/service using openapi definition
-                    or export openapi file for a Ballerina service
-        format     Formats Ballerina source code
+        format          Formats Ballerina source code
+
+        encrypt         Encrypt sensitive data
+        grpc            Generate connector/service using protobuf
+                        Definition
+        openapi         Generate client/service using openapi definition
+                        or export openapi file for a Ballerina service
 
 EXAMPLES
     Check the current version of Ballerina in use on your system
     $ ballerina -v
 
     Get help on how to use the ballerina command
-    $ ballerina run --help
+    $ ballerina help build
 
     Build your hello Ballerina program
     $ ballerina build hello.bal
 
-    Test your Ballerina program with tests defined with @test
-    $ ballerina test hello.bal
+    Run a ballerina program
+    $ ballerina run hello.bal
