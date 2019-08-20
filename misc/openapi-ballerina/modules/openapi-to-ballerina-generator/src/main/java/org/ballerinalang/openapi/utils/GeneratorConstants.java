@@ -63,6 +63,7 @@ public class GeneratorConstants {
     public static final String DEFAULT_CLIENT_PKG = "client";
     public static final String DEFAULT_MOCK_PKG = "mock";
     public static final String OAS_PATH_SEPARATOR = "/";
+    public static final String MODULE_MD = "Module.md";
 
     public static final String UNTITLED_SERVICE = "UntitledAPI";
     public static final List<String> RESERVED_KEYWORDS = Collections.unmodifiableList(

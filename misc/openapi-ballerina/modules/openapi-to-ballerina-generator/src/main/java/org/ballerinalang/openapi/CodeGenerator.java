@@ -55,6 +55,7 @@ import java.util.regex.Pattern;
 
 import static org.ballerinalang.openapi.model.GenSrcFile.GenFileType;
 import static org.ballerinalang.openapi.utils.GeneratorConstants.GenType.GEN_CLIENT;
+import static org.ballerinalang.openapi.utils.GeneratorConstants.MODULE_MD;
 
 /**
  * This class generates Ballerina Services/Clients for a provided OAS definition.
@@ -289,7 +290,18 @@ public class CodeGenerator {
         if (srcPackage != null && !srcPackage.isEmpty() && Files.exists(srcPath)) {
             final File[] listFiles = new File(String.valueOf(srcPath)).listFiles();
             if (listFiles != null) {
-                Arrays.stream(listFiles).forEach(File::delete);
+                Arrays.stream(listFiles).forEach(file -> {
+                    boolean deleteStatus = true;
+                    if (!file.isDirectory() && !file.getName().equals(MODULE_MD)) {
+                        deleteStatus = file.delete();
+                    }
+
+                    //Capture return value of file.delete() since if
+                    //unable to delete returns false from file.delete() without an exception.
+                    if (!deleteStatus) {
+                        outStream.println("Unable to clean module directory.");
+                    }
+                });
             }
 
         }
@@ -311,10 +323,10 @@ public class CodeGenerator {
         }
 
         //This will print the generated files to the console
-        outStream.println("Service generated successfully. Following files were created. \n" +
+        outStream.println("Service generated successfully and the OpenApi contract is copied to " + srcPackage
+                + "/resources. this location will be referenced throughout the ballerina project.");
+        outStream.println(" Following files were created. \n" +
                 "src/ \n- " + srcPackage);
-        outStream.println("The OpenApi contract is copied to " + srcPackage + "/resources this location will be" +
-                " referenced throughout the ballerina project.");
         Iterator<GenSrcFile> iterator = sources.iterator();
         while (iterator.hasNext()) {
             outStream.println("-- " + iterator.next().getFileName());
