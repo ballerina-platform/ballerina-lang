@@ -42,6 +42,8 @@ map<string> externalMapCache = {};
 
 map<bir:ModuleID> dependentModules = {};
 
+bir:ModuleID[] dependentModuleArray = [];
+
 string currentClass = "";
 
 function lookupFullQualifiedClassName(string key) returns string {
@@ -138,14 +140,17 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
     if(!isEntry && isFromCache) {
         return;
     }
+
     typeOwnerClass = getModuleLevelClassName(<@untainted> orgName, <@untainted> moduleName, MODULE_INIT_CLASS_NAME);
     map<JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass, <@untainted> lambdas);
     if (!isEntry || dlogger.getErrorCount() > 0) {
         return;
     }
 
+    // create dependant modules flat array
+    createDependantModuleFlatArray();
     // enrich current package with package initializers
-    enrichPkgWithInitializers(jvmClassMap, typeOwnerClass, module, dependentModules);
+    enrichPkgWithInitializers(jvmClassMap, typeOwnerClass, module, dependentModuleArray);
 
     // generate the shutdown listener class.
     generateShutdownSignalListener(module, typeOwnerClass, jarFile.pkgEntries);
@@ -187,12 +192,13 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
                 if (mainFunc is bir:Function) {
                     generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
                 }
-                generateLambdaForPackageInits(cw, module, mainClass, moduleClass);
+                generateLambdaForPackageInits(cw, module, mainClass, moduleClass, dependentModuleArray);
                 jarFile.manifestEntries["Main-Class"] = moduleClass;
             }
             generateStaticInitializer(module.globalVars, cw, moduleClass, serviceEPAvailable);
             generateCreateTypesMethod(cw, module.typeDefs);
             generateModuleInitializer(cw, module, pkgName);
+            generateExecutionStopMethod(cw, typeOwnerClass, module, dependentModuleArray);
         } else {
             cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, (), OBJECT, ());
             generateDefaultConstructor(cw, OBJECT);
@@ -211,6 +217,12 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
         cw.visitEnd();
         byte[] classContent = cw.toByteArray();
         jarFile.pkgEntries[moduleClass + ".class"] = classContent;
+    }
+}
+
+function createDependantModuleFlatArray() {
+    foreach var [k, id] in dependentModules {
+        dependentModuleArray[dependentModuleArray.length()] = id;
     }
 }
 
@@ -412,6 +424,7 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
         functionName = stopFunc.name.value;
         birFunctionMap[pkgName + functionName] = getFunctionWrapper(stopFunc, orgName, moduleName,
                                                                     versionValue, initClass);
+        io:println("++++++++++++++++++ adding stop func - " + pkgName + functionName);
         class.functions[2] = stopFunc;
         count += 1;
 
@@ -680,48 +693,12 @@ function generateShutdownSignalListener(bir:Package pkg, string initClass, map<b
     mv = cw.visitMethod(ACC_PUBLIC, "run", "()V", (), ());
     mv.visitCode();
 
-    BalToJVMIndexMap indexMap = new;
-    string pkgName = getPackageName(pkg.org.value, pkg.name.value);
-    ErrorHandlerGenerator errorGen = new(mv, indexMap, pkgName);
-    scheduleStopMethod(mv, pkg, initClass, errorGen, indexMap);
+    mv.visitMethodInsn(INVOKESTATIC, initClass, MODULE_STOP, "()V", false);
+
     mv.visitInsn(RETURN);
     mv.visitMaxs(0, 0);
     mv.visitEnd();
 
     cw.visitEnd();
     jarEntries[innerClassName + ".class"] = cw.toByteArray();
-}
-
-function scheduleStopMethod(jvm:MethodVisitor mv, bir:Package pkg, string initClass, ErrorHandlerGenerator errorGen,
-                            BalToJVMIndexMap indexMap) {
-    // schedule the start method
-    string stopFuncName = "$moduleStop";
-    string stopLambdaName = io:sprintf("$lambda$%s$", stopFuncName);
-
-    // Create a schedular. A new schedular is used here, to make the stop function to not to
-    // depend/wait on whatever is being running on the background. eg: a busy loop in the main.
-    mv.visitTypeInsn(NEW, SCHEDULER);
-    mv.visitInsn(DUP);
-    mv.visitInsn(ICONST_1);
-    mv.visitInsn(ICONST_0);
-    mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(IZ)V", false);
-
-    mv.visitIntInsn(BIPUSH, 1);
-    mv.visitTypeInsn(ANEWARRAY, OBJECT);
-
-    // create FP value
-    createFunctionPointer(mv, initClass, stopLambdaName, false, 0);
-
-    // no parent strand
-    mv.visitInsn(ACONST_NULL);
-    mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
-        io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
-
-    mv.visitInsn(DUP);
-    mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
-    mv.visitIntInsn(BIPUSH, 100);
-    mv.visitTypeInsn(ANEWARRAY, OBJECT);
-    mv.visitFieldInsn(PUTFIELD, STRAND, "frames", io:sprintf("[L%s;", OBJECT));
-    errorGen.printStackTraceFromFutureValue(mv, indexMap);
-    mv.visitInsn(POP);
 }
