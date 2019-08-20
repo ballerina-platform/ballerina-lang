@@ -1591,11 +1591,11 @@ public class BallerinaLexer implements FlexLexer {
     private boolean inStringTemplate = false;
     private boolean inStringTemplateExpression = false;
 
-    private boolean inSiddhi = false;
+    private boolean inStreams = false;
     private boolean inTableSqlQuery = false;
-    private boolean inSiddhiInsertQuery = false;
-    private boolean inSiddhiTimeScaleQuery = false;
-    private boolean inSiddhiOutputRateLimit = false;
+    private boolean inStreamsInsertQuery = false;
+    private boolean inStreamsTimeScaleQuery = false;
+    private boolean inStreamsOutputRateLimit = false;
 
     public BallerinaLexer() {
         this((java.io.Reader)null);
@@ -2279,7 +2279,7 @@ public class BallerinaLexer implements FlexLexer {
             // fall through
           case 300: break;
           case 87: 
-            { inSiddhiTimeScaleQuery = true; return FOR;
+            { inStreamsTimeScaleQuery = true; return FOR;
             } 
             // fall through
           case 301: break;
@@ -2319,7 +2319,7 @@ public class BallerinaLexer implements FlexLexer {
             // fall through
           case 308: break;
           case 95: 
-            { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return DAY; } return IDENTIFIER;
+            { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return DAY; } return IDENTIFIER;
             } 
             // fall through
           case 309: break;
@@ -2379,7 +2379,7 @@ public class BallerinaLexer implements FlexLexer {
             // fall through
           case 320: break;
           case 107: 
-            { inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; return FROM;
+            { inTableSqlQuery = true; inStreamsInsertQuery = true; inStreamsOutputRateLimit = true; return FROM;
             } 
             // fall through
           case 321: break;
@@ -2399,7 +2399,7 @@ public class BallerinaLexer implements FlexLexer {
             // fall through
           case 324: break;
           case 111: 
-            { if(inSiddhiOutputRateLimit) { inSiddhiOutputRateLimit = false; return LAST; } return IDENTIFIER;
+            { if(inStreamsOutputRateLimit) { inStreamsOutputRateLimit = false; return LAST; } return IDENTIFIER;
             } 
             // fall through
           case 325: break;
@@ -2424,17 +2424,17 @@ public class BallerinaLexer implements FlexLexer {
             // fall through
           case 329: break;
           case 116: 
-            { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return DAYS; } return IDENTIFIER;
+            { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return DAYS; } return IDENTIFIER;
             } 
             // fall through
           case 330: break;
           case 117: 
-            { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return YEAR; } return IDENTIFIER;
+            { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return YEAR; } return IDENTIFIER;
             } 
             // fall through
           case 331: break;
           case 118: 
-            { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return HOUR; } return IDENTIFIER;
+            { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return HOUR; } return IDENTIFIER;
             } 
             // fall through
           case 332: break;
@@ -2504,7 +2504,7 @@ public class BallerinaLexer implements FlexLexer {
             // fall through
           case 345: break;
           case 132: 
-            { if(inSiddhiOutputRateLimit) { inSiddhiOutputRateLimit = false; return FIRST; } return IDENTIFIER;
+            { if(inStreamsOutputRateLimit) { inStreamsOutputRateLimit = false; return FIRST; } return IDENTIFIER;
             } 
             // fall through
           case 346: break;
@@ -2544,7 +2544,7 @@ public class BallerinaLexer implements FlexLexer {
             // fall through
           case 353: break;
           case 140: 
-            { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return MONTH; } return IDENTIFIER;
+            { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return MONTH; } return IDENTIFIER;
             } 
             // fall through
           case 354: break;
@@ -2584,12 +2584,12 @@ public class BallerinaLexer implements FlexLexer {
             // fall through
           case 361: break;
           case 148: 
-            { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return YEARS; } return IDENTIFIER;
+            { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return YEARS; } return IDENTIFIER;
             } 
             // fall through
           case 362: break;
           case 149: 
-            { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return HOURS; } return IDENTIFIER;
+            { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return HOURS; } return IDENTIFIER;
             } 
             // fall through
           case 363: break;
@@ -2629,7 +2629,7 @@ public class BallerinaLexer implements FlexLexer {
             // fall through
           case 370: break;
           case 157: 
-            { if(inSiddhiInsertQuery) { inSiddhiInsertQuery = false; return EVENTS; } return IDENTIFIER;
+            { if(inStreamsInsertQuery) { inStreamsInsertQuery = false; return EVENTS; } return IDENTIFIER;
             } 
             // fall through
           case 371: break;
@@ -2654,7 +2654,7 @@ public class BallerinaLexer implements FlexLexer {
             // fall through
           case 375: break;
           case 162: 
-            { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return SECOND; } return IDENTIFIER;
+            { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return SECOND; } return IDENTIFIER;
             } 
             // fall through
           case 376: break;
@@ -2669,12 +2669,12 @@ public class BallerinaLexer implements FlexLexer {
             // fall through
           case 378: break;
           case 165: 
-            { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return MINUTE; } return IDENTIFIER;
+            { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return MINUTE; } return IDENTIFIER;
             } 
             // fall through
           case 379: break;
           case 166: 
-            { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return MONTHS; } return IDENTIFIER;
+            { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return MONTHS; } return IDENTIFIER;
             } 
             // fall through
           case 380: break;
@@ -2684,7 +2684,7 @@ public class BallerinaLexer implements FlexLexer {
             // fall through
           case 381: break;
           case 168: 
-            { if(inSiddhiOutputRateLimit) { inSiddhiTimeScaleQuery = true; return OUTPUT; } return IDENTIFIER;
+            { if(inStreamsOutputRateLimit) { inStreamsTimeScaleQuery = true; return OUTPUT; } return IDENTIFIER;
             } 
             // fall through
           case 382: break;
@@ -2714,7 +2714,7 @@ public class BallerinaLexer implements FlexLexer {
             // fall through
           case 387: break;
           case 174: 
-            { inSiddhiTimeScaleQuery = true; return WITHIN;
+            { inStreamsTimeScaleQuery = true; return WITHIN;
             } 
             // fall through
           case 388: break;
@@ -2774,7 +2774,7 @@ public class BallerinaLexer implements FlexLexer {
             // fall through
           case 399: break;
           case 186: 
-            { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return SECONDS; } return IDENTIFIER;
+            { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return SECONDS; } return IDENTIFIER;
             } 
             // fall through
           case 400: break;
@@ -2784,7 +2784,7 @@ public class BallerinaLexer implements FlexLexer {
             // fall through
           case 401: break;
           case 188: 
-            { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return MINUTES; } return IDENTIFIER;
+            { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return MINUTES; } return IDENTIFIER;
             } 
             // fall through
           case 402: break;
