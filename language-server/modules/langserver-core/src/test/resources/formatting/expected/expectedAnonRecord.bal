@@ -102,6 +102,16 @@ type RecordName11 record {
     |} sdd;
 };
 
+type Record12 record {
+    record {
+        string name;
+        record {
+            string sunrise;
+            string sunset;
+        } inner;
+    }[] outter;
+};
+
 function testRecordTypes3() returns [typedesc<RecordA>, typedesc<record {}>] {
     typedesc<RecordA> a = RecordA;
     typedesc<record {}> b = record {
