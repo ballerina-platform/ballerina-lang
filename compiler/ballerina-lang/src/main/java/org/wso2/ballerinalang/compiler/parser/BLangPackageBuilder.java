@@ -2480,8 +2480,7 @@ public class BLangPackageBuilder {
                 (BLangCompoundAssignment) TreeBuilder.createCompoundAssignmentNode();
         assignmentNode.setExpression(exprNodeStack.pop());
 
-        BLangVariableReference varref = (BLangVariableReference) exprNodeStack.pop();
-        assignmentNode.setVariable(varref);
+        assignmentNode.setVariable((BLangVariableReference) exprNodeStack.pop());
         assignmentNode.pos = pos;
         assignmentNode.addWS(ws);
         assignmentNode.addWS(this.operatorWs.pop());
