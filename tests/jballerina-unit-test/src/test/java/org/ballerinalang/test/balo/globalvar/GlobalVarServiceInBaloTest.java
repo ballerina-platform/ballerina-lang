@@ -66,16 +66,6 @@ public class GlobalVarServiceInBaloTest {
         Assert.assertEquals(jsonObject.get("glbVarFloat").stringValue(), "99.34323");
     }
 
-    @Test(description = "Test accessing global variables in service level")
-    public void testAccessingGlobalVarInServiceLevel() {
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar/access-service-level", "GET");
-        HttpCarbonMessage response = Services.invoke(MOCK_ENDPOINT_PORT, cMsg);
-        Assert.assertNotNull(response);
-        //Expected Json message : {"serviceVarFloat":99.34323}
-        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(((BMap<String, BValue>) bJson).get("serviceVarFloat").stringValue(), "99.34323");
-    }
-
     @Test(description = "Test accessing global arrays in resource level")
     public void testGlobalArraysInResourceLevel() {
         HTTPTestRequest cMsgChange = MessageUtils.generateHTTPMessage("/globalvar/arrays", "GET");

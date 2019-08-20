@@ -307,8 +307,9 @@ type AttributeFilter object {
     *RequestFilter;
 
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
-        runtime:getInvocationContext().attributes[SERVICE_NAME] = context.getServiceName();
-        runtime:getInvocationContext().attributes[RESOURCE_NAME] = context.getResourceName();
+        var ctx = runtime:getInvocationContext();
+        ctx.attributes[SERVICE_NAME] = context.getServiceName();
+        ctx.attributes[RESOURCE_NAME] = context.getResourceName();
         return true;
     }
 };

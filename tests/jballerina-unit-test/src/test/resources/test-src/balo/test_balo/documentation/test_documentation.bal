@@ -1,4 +1,4 @@
-import testDocOrg/test version v1;
+import testDocOrg/test;
 
 
 function testDocDummy() returns (boolean) {

@@ -1,8 +1,8 @@
 //------------ Testing a function with all types of parameters ---------
 
-public function functionWithAllTypesParams(int a, float b, string c = "John", int d = 5, string e = "Doe", int... z)
+public function functionWithAllTypesParams(int a, float b, public string c = "John", public int d = 5, public string e = "Doe")
         returns [int, float, string, int, string, int[]] {
-    return [a, b, c, d, e, z];
+    return [a, b, c, d, e, []];
 }
 
 public function getIntArray() returns int[] {
@@ -12,7 +12,7 @@ public function getIntArray() returns int[] {
 
 //------------- Testing a function having required and rest parameters --------
 
-public function functionWithoutRestParams(int a, float b, string c = "John", int d = 5, string e = "Doe") returns
+public function functionWithoutRestParams(public int a, public float b, public string c = "John", public int d = 5, public string e = "Doe") returns
             [int, float, string, int, string] {
     return [a, b, c, d, e];
 }
@@ -20,7 +20,7 @@ public function functionWithoutRestParams(int a, float b, string c = "John", int
 
 //------------- Testing a function having only named parameters --------
 
-public function functionWithOnlyNamedParams(int a=5, float b=6.0, string c = "John", int d = 7, string e = "Doe")
+public function functionWithOnlyNamedParams(public int a=5, public float b=6.0, public string c = "John", public int d = 7, public string e = "Doe")
                                                                                                     returns [int, float, string, int, string] {
     return [a, b, c, d, e];
 }
@@ -73,7 +73,7 @@ public type Employee object {
         self.salary = salary;
     }
 
-    public function getSalary (string n, int b = 0) returns int {
+    public function getSalary (string n, public int b = 0) returns int {
         return self.salary + b;
     }
 };
@@ -82,13 +82,13 @@ public type Employee object {
 public type Person object {
     public int age = 0;
 
-    public function test1(int a = 77, string n = "hello") returns [int, string] {
+    public function test1(public int a = 77, string n = "hello") returns [int, string] {
         string val = n + " world";
         int intVal = a + 10;
         return [intVal, val];
     }
 
-    public function test2(int a = 89, string n = "hello") returns [int, string] {
+    public function test2(public int a = 89, string n = "hello") returns [int, string] {
         string val = n + " world";
         int intVal = a + 10;
         return [intVal, val];

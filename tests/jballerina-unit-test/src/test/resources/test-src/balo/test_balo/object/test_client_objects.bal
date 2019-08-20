@@ -1,4 +1,4 @@
-import testorg/foo version v1;
+import testorg/foo;
 
 function testCheck () returns error? {
     var a = testCheckFunction();

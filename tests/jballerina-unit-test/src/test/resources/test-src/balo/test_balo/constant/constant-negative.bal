@@ -1,4 +1,4 @@
-import testorg/simple_literal version v1;
+import testorg/simple_literal;
 
 // -----------------------------------------------------------
 

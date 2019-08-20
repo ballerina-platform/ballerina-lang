@@ -81,3 +81,8 @@ byte[] glbByteArray3 = base16 `afcd34abcdef123abc234bcd1a4bdfaaabadabcd892312df`
 public function getGlbByteArray3() returns byte[] {
     return glbByteArray3;
 }
+
+stream<int> strm = new();
+public function getStreamOfInt() returns stream<int> {
+    return strm;
+}

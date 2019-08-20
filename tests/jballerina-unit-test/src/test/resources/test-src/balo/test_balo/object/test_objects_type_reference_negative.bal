@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/foo version v1;
+import testorg/foo;
 
 type Manager1 object {
     string dpt = "HR";
