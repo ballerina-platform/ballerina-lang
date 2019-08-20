@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/mime;
 
 http:Client clientEP19 = new("http://localhost:9119");
 
@@ -27,7 +28,7 @@ service testService16 on new http:Listener(9118) {
         path: "/"
     }
     resource function getPayload(http:Caller caller, http:Request request) {
-        var res = clientEP19->get("/payloadTest", ());
+        var res = clientEP19->get("/payloadTest");
         if (res is http:Response) {
             //First get the payload as a byte array, then take it as an xml
             var binaryPayload = res.getBinaryPayload();
@@ -47,6 +48,24 @@ service testService16 on new http:Listener(9118) {
         } else {
             error err = res;
             checkpanic caller->respond(<@untainted> err.reason());
+        }
+    }
+
+    resource function getPayloadForParseError(http:Caller caller, http:Request request) {
+        var res = clientEP19->get("/payloadTest/getString");
+        if (res is http:Response) {
+            var payload = res.getXmlPayload();
+            if (payload is xml) {
+                xml descendants = payload.selectDescendants("title");
+                checkpanic caller->respond(<@untainted> descendants.getTextValue());
+            } else {
+                if (payload is http:GenericClientError) {
+                    var cause = payload.detail()?.cause;
+                    if (cause is mime:ParserError) {
+                        checkpanic caller->respond(<@untainted> cause.detail().message);
+                    }
+                }
+            }
         }
     }
 }
@@ -73,5 +92,15 @@ service testPayload17 on new http:Listener(9119) {
                                 </channel>
                               </xml>`;
         checkpanic caller->respond(<@untainted> xmlPayload);
+    }
+
+    resource function getString(http:Caller caller, http:Request req) {
+        string stringPayload = "";
+        int i = 0;
+        while(i<1000) {
+            stringPayload = stringPayload + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+            i = i + 1;
+        }
+        checkpanic caller->respond(<@untainted> stringPayload);
     }
 }
