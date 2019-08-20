@@ -61,7 +61,7 @@ public type AuthzHandler object {
 
         runtime:Principal? principal = runtime:getInvocationContext()?.principal;
         if (principal is runtime:Principal) {
-            string username = principal?.username ?: "";
+            string username = principal?.username ?: "";    // this is already validated at `canProcess` function
             string[] userScopes = principal?.scopes ?: [];
             string authzCacheKey = generateAuthzCacheKey(username, userScopes, serviceName, resourceName, requestMethod);
 
@@ -77,7 +77,7 @@ public type AuthzHandler object {
                 });
             }
         }
-        // This block will never execute, since `canProcess` method has validated the
+        // This block will never execute, since `canProcess` function has validated the
         // `runtime:getInvocationContext()?.principal` is `runtime:Principal`
         return false;
     }
