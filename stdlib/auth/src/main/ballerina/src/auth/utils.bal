@@ -107,13 +107,43 @@ public function setPrincipal(public string? userId = (), public string? username
     }
 }
 
+# Check whether the scopes of the user and scopes of resource matches.
+#
+# + resourceScopes - Scopes of resource
+# + userScopes - Scopes of user
+# + authzCacheKey - Authorization cache key
+# + positiveAuthzCache - The cache for positive authorizations
+# + negativeAuthzCache - The cache for negative authorizations
+# + return - true if there is a match between resource and user scopes, else false
+public function checkForScopeMatch(string[]|string[][] resourceScopes, string[] userScopes, string authzCacheKey,
+                                   cache:Cache? positiveAuthzCache, cache:Cache? negativeAuthzCache) returns boolean {
+    var authorizedFromCache = authorizeFromCache(authzCacheKey, positiveAuthzCache, negativeAuthzCache);
+    if (authorizedFromCache is boolean) {
+        return authorizedFromCache;
+    } else {
+        if (userScopes.length() > 0) {
+            boolean authorized = true;
+            if (resourceScopes is string[]) {
+                authorized = matchScopes(resourceScopes, userScopes);
+            } else {
+                foreach string[] resourceScope in resourceScopes {
+                    authorized = authorized && matchScopes(resourceScope, userScopes);
+                }
+            }
+            cacheAuthzResult(authorized, authzCacheKey, positiveAuthzCache, negativeAuthzCache);
+            return authorized;
+        }
+    }
+    return false;
+}
+
 # Tries to retrieve authorization decision from the cached information, if any.
 #
 # + authzCacheKey - Cache key
 # + positiveAuthzCache - The cache for positive authorizations
 # + negativeAuthzCache - The cache for negative authorizations
 # + return - `true` or `false` in case of a cache hit, `()` in case of a cache miss
-public function authorizeFromCache(string authzCacheKey, cache:Cache? positiveAuthzCache, cache:Cache? negativeAuthzCache) returns boolean? {
+function authorizeFromCache(string authzCacheKey, cache:Cache? positiveAuthzCache, cache:Cache? negativeAuthzCache) returns boolean? {
     cache:Cache? pCache = positiveAuthzCache;
     if (pCache is cache:Cache) {
         var positiveCacheResponse = pCache.get(authzCacheKey);
@@ -138,7 +168,7 @@ public function authorizeFromCache(string authzCacheKey, cache:Cache? positiveAu
 # + authzCacheKey - Cache key
 # + positiveAuthzCache - The cache for positive authorizations
 # + negativeAuthzCache - The cache for negative authorizations
-public function cacheAuthzResult(boolean authorized, string authzCacheKey, cache:Cache? positiveAuthzCache, cache:Cache? negativeAuthzCache) {
+function cacheAuthzResult(boolean authorized, string authzCacheKey, cache:Cache? positiveAuthzCache, cache:Cache? negativeAuthzCache) {
     if (authorized) {
         cache:Cache? pCache = positiveAuthzCache;
         if (pCache is cache:Cache) {
@@ -150,23 +180,6 @@ public function cacheAuthzResult(boolean authorized, string authzCacheKey, cache
             nCache.put(authzCacheKey, authorized);
          }
     }
-}
-
-# Check whether the scopes of the user and scopes of resource matches.
-#
-# + resourceScopes - Scopes of resource
-# + userScopes - Scopes of user
-# + return - true if there is a match between resource and user scopes, else false
-public function checkForScopeMatch(string[]|string[][] resourceScopes, string[] userScopes) returns boolean {
-    boolean authorized = true;
-    if (resourceScopes is string[]) {
-        authorized = matchScopes(resourceScopes, userScopes);
-    } else {
-        foreach string[] resourceScope in resourceScopes {
-            authorized = authorized && matchScopes(resourceScope, userScopes);
-        }
-    }
-    return authorized;
 }
 
 # Tries to find a match between the two scope arrays.
