@@ -227,7 +227,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getUntaintKeywordSnippet() {
-        return new SnippetBlock(ItemResolverConstants.UNTAINT_KEYWORD, "untiant ",
+        return new SnippetBlock(ItemResolverConstants.UNTAINTED_KEYWORD, "untainted ",
                 ItemResolverConstants.KEYWORD_TYPE, SnippetType.KEYWORD);
     }
 

@@ -1124,11 +1124,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "untaint",
+      "label": "untainted",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "210",
-      "insertText": "untiant ",
+      "insertText": "untainted ",
       "insertTextFormat": "Snippet"
     },
     {
