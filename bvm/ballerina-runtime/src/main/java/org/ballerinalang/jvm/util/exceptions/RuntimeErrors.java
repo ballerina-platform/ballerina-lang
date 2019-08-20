@@ -68,7 +68,8 @@ public enum RuntimeErrors {
     XML_FUNC_TYPE_ERROR("unexpected.xml.type", "RUNTIME_0042"),
     JAVA_NULL_REFERENCE("java.null.reference", "RUNTIME_0043"),
     ILLEGAL_TUPLE_INSERTION("illegal.tuple.insertion", "RUNTIME_0044"),
-    ILLEGAL_ARRAY_SIZE("illegal.array.size", "RUNTIME_0045");
+    ILLEGAL_ARRAY_SIZE("illegal.array.size", "RUNTIME_0045"),
+    CANNOT_CHANGE_TUPLE_SIZE("cannot.change.tuple.size", "RUNTIME_0046");
 
     private String errorMsgKey;
     private String errorCode;

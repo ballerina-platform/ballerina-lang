@@ -249,3 +249,21 @@ function testRemoveAllFixedLengthArray() returns int[] {
     ar.removeAll();
     return ar;
 }
+
+function testTuppleResize() returns [int, string] {
+    [int, string] t = [1, "hello"];
+    t.setLength(3);
+    return t;
+}
+
+function testTuppleRemoveAll() returns [int, string] {
+    [int, string] t = [1, "hello"];
+    t.removeAll();
+    return t;
+}
+
+function testTuppleRemoveAllForTuppleWithRestMemberType() returns [int, string] {
+    [int, string, boolean...] t = [1, "hello", true];
+    t.removeAll();
+    return t;
+}

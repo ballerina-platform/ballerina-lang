@@ -1072,8 +1072,8 @@ public class ArrayValue implements RefValue, CollectionValue {
     public void setLength(long length) {
         handleFrozenArrayValue();
         int newLength = (int) length;
-        rangeCheck(length, size);
         checkFixedLength(length);
+        rangeCheck(length, size);
         fillerValueCheck(newLength, size);
         resizeInternalArray(newLength);
         fillValues(newLength);
@@ -1081,6 +1081,10 @@ public class ArrayValue implements RefValue, CollectionValue {
     }
 
     private void checkFixedLength(long length) {
+        if (arrayType != null && arrayType.getTag() == TypeTags.TUPLE_TAG) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+                    RuntimeErrors.CANNOT_CHANGE_TUPLE_SIZE);
+        }
         if (((BArrayType) this.arrayType).getState() == ArrayState.CLOSED_SEALED) {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
                     RuntimeErrors.ILLEGAL_ARRAY_SIZE, length);
