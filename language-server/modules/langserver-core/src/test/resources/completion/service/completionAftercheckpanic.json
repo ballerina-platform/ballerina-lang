@@ -1,22 +1,40 @@
 {
   "position": {
-    "line": 3,
-    "character": 29
+    "line": 4,
+    "character": 31
   },
-  "source": "function/source/newObjectCompletion3.bal",
+  "source": "service/source/completionAftercheckpanic.bal",
   "items": [
     {
-      "label": "testFunction()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "130",
-      "insertText": "testFunction();",
+      "label": "testService",
+      "kind": "Unit",
+      "detail": "testService",
+      "sortText": "120",
+      "insertText": "testService",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "request",
+      "kind": "Variable",
+      "detail": "http:Request",
+      "sortText": "120",
+      "insertText": "request",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "caller",
+      "kind": "Variable",
+      "detail": "http:Caller",
+      "sortText": "120",
+      "insertText": "caller",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "self",
+      "kind": "Variable",
+      "detail": "testService",
+      "sortText": "120",
+      "insertText": "self",
       "insertTextFormat": "Snippet"
     },
     {
@@ -1132,42 +1150,6 @@
       "sortText": "110",
       "insertText": "trap ",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "new(string url, http:ClientEndpointConfig config, http:FollowRedirects redirectConfig, http:HttpClient httpClient)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nCreate a redirect client with the given configurations.\n  \n**Params**  \n- `string` url: Target service url  \n- `http:ClientEndpointConfig` config: HTTP ClientEndpointConfig to be used for HTTP client invocation  \n- `http:FollowRedirects` redirectConfig: Configurations associated with redirect  \n- `http:HttpClient` httpClient: HTTP client for outbound HTTP requests"
-        }
-      },
-      "sortText": "130",
-      "insertText": "new(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "RedirectClient(string url, http:ClientEndpointConfig config, http:FollowRedirects redirectConfig, http:HttpClient httpClient)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nCreate a redirect client with the given configurations.\n  \n**Params**  \n- `string` url: Target service url  \n- `http:ClientEndpointConfig` config: HTTP ClientEndpointConfig to be used for HTTP client invocation  \n- `http:FollowRedirects` redirectConfig: Configurations associated with redirect  \n- `http:HttpClient` httpClient: HTTP client for outbound HTTP requests"
-        }
-      },
-      "sortText": "130",
-      "insertText": "RedirectClient(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
     }
   ]
 }

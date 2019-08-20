@@ -1,0 +1,17 @@
+{
+  "position": {
+    "line": 4,
+    "character": 8
+  },
+  "source": "function/source/forkJoinCompletion1.bal",
+  "items": [
+    {
+      "label": "worker",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "110",
+      "insertText": "worker ${1:name} {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

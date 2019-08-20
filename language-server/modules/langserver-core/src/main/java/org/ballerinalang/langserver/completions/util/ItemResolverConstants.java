@@ -84,19 +84,22 @@ public class ItemResolverConstants {
     public static final String OBJECT_TYPE = "type <ObjectName> object";
     public static final String RECORD_TYPE = "type <RecordName> record";
     public static final String TYPE_TYPE = "type";
+    public static final String REMOTE_FUNCTION_TYPE = "remote function";
     public static final String NEW_OBJECT_INITIALIZER_TYPE = "init function";
     public static final String ATTACH_FUNCTION_TYPE = "attach function";
     public static final String START_FUNCTION_TYPE = "start function";
-    public static final String STOP_FUNCTION_TYPE = "stop function";
+    public static final String GRACEFUL_STOP_FUNCTION_TYPE = "graceful stop function";
+    public static final String IMMEDIATE_STOP_FUNCTION_TYPE = "immediate stop function";
     // End Symbol Types Constants
     
     // Keyword constants
     public static final String VAR_KEYWORD = "var";
     public static final String CHECK_KEYWORD = "check";
+    public static final String CHECKPANIC_KEYWORD = "checkpanic";
     public static final String WAIT_KEYWORD = "wait";
     public static final String LISTENER_KEYWORD = "listener";
     public static final String RETURNS_KEYWORD = "returns";
-    public static final String UNTAINT_KEYWORD = "untaint";
+    public static final String UNTAINTED_KEYWORD = "untainted";
     public static final String TRUE_KEYWORD = "true";
     public static final String FALSE_KEYWORD = "false";
     public static final String PUBLIC_KEYWORD = "public";

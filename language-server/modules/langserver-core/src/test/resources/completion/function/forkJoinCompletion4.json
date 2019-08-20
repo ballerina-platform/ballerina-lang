@@ -1,12 +1,124 @@
 {
   "position": {
-    "line": 3,
-    "character": 29
+    "line": 10,
+    "character": 12
   },
-  "source": "function/source/newObjectCompletion3.bal",
+  "source": "function/source/forkJoinCompletion1.bal",
   "items": [
     {
-      "label": "testFunction()",
+      "label": "xmlns",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "110",
+      "insertText": "xmlns \"${1}\" as ${2:ns};",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "var",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "210",
+      "insertText": "var ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "error",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "110",
+      "insertText": "error ${1:name} \u003d error(\"${2:errorCode}\", message \u003d \"${3}\");",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "checkpanic",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "210",
+      "insertText": "checkpanic ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "foreach",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "foreach ${1:var} ${2:item} in ${3:itemList} {\n\t${4}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "fork",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "fork {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "if",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "if (${1:true}) {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lock",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "lock {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "match",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "match ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "panic",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "panic ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "return",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "return;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "transaction",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "transaction with retries \u003d ${1:0} {\n\t${2}\n} onretry {\n\t${3}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "while",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "while (${1:true}) {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "float",
+      "kind": "Keyword",
+      "detail": "Float",
+      "sortText": "120",
+      "insertText": "float",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testForkJoin()",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -16,15 +128,189 @@
         }
       },
       "sortText": "130",
-      "insertText": "testFunction();",
+      "insertText": "testForkJoin();",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "http",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "http",
+      "label": "xml",
+      "kind": "Keyword",
+      "detail": "Xml",
+      "sortText": "120",
+      "insertText": "xml",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "w1",
+      "kind": "Unit",
+      "detail": "future\u003c()\u003e",
+      "sortText": "120",
+      "insertText": "w1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "w2",
+      "kind": "Unit",
+      "detail": "future\u003c()\u003e",
+      "sortText": "120",
+      "insertText": "w2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "byte",
+      "kind": "Keyword",
+      "detail": "Byte",
+      "sortText": "120",
+      "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "handle",
+      "kind": "Keyword",
+      "detail": "Handle",
+      "sortText": "120",
+      "insertText": "handle",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ArgsData",
+      "kind": "Class",
+      "detail": "Record",
+      "documentation": {
+        "left": "Defaultable argument names. This is for internal use.\n"
+      },
+      "sortText": "120",
+      "insertText": "ArgsData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Nil",
+      "sortText": "120",
+      "insertText": "null",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "decimal",
+      "kind": "Keyword",
+      "detail": "Decimal",
+      "sortText": "120",
+      "insertText": "decimal",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "string",
+      "kind": "Keyword",
+      "detail": "String",
+      "sortText": "120",
+      "insertText": "string",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "error",
+      "kind": "Keyword",
+      "detail": "Error",
+      "documentation": {
+        "left": "Default error type.\nThe first type parameter discribe reason type which must be a subtype of string,\nand the second type parameter is for the error detail.\nThe error detail record type may contain an optional message, optional cause,\nand any other pure constrained mapping values."
+      },
+      "sortText": "120",
+      "insertText": "error",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "stream",
+      "kind": "Keyword",
+      "detail": "Stream",
+      "sortText": "120",
+      "insertText": "stream",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "json",
+      "kind": "Keyword",
+      "detail": "Json",
+      "sortText": "120",
+      "insertText": "json",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "map",
+      "kind": "Keyword",
+      "detail": "Map",
+      "sortText": "120",
+      "insertText": "map",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "table",
+      "kind": "Keyword",
+      "detail": "Table",
+      "sortText": "120",
+      "insertText": "table",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "anydata",
+      "kind": "Keyword",
+      "detail": "Anydata",
+      "sortText": "120",
+      "insertText": "anydata",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "a",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "120",
+      "insertText": "a",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "any",
+      "kind": "Keyword",
+      "detail": "Any",
+      "sortText": "120",
+      "insertText": "any",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "int",
+      "kind": "Keyword",
+      "detail": "Int",
+      "sortText": "120",
+      "insertText": "int",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "boolean",
+      "kind": "Keyword",
+      "detail": "Boolean",
+      "sortText": "120",
+      "insertText": "boolean",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "future",
+      "kind": "Keyword",
+      "detail": "Future",
+      "sortText": "120",
+      "insertText": "future",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service",
+      "kind": "Keyword",
+      "detail": "Service",
+      "sortText": "120",
+      "insertText": "service",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "typedesc",
+      "kind": "Keyword",
+      "detail": "Typedesc",
+      "sortText": "120",
+      "insertText": "typedesc",
       "insertTextFormat": "Snippet"
     },
     {
@@ -38,11 +324,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -61,11 +347,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -84,11 +370,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -107,11 +393,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -130,11 +416,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -153,11 +439,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -176,11 +462,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -199,11 +485,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -222,11 +508,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -245,11 +531,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -268,11 +554,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -291,11 +577,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -314,11 +600,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -337,11 +623,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -360,11 +646,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -383,11 +669,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -406,11 +692,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -429,11 +715,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -452,11 +738,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -475,11 +761,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -498,11 +784,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -521,11 +807,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -544,11 +830,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -567,11 +853,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -590,11 +876,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -613,11 +899,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -636,11 +922,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -659,11 +945,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -682,11 +968,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -705,11 +991,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -728,11 +1014,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -751,11 +1037,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -774,11 +1060,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -797,11 +1083,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -820,11 +1106,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -843,15 +1129,38 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
           "newText": "import ballerina/lang.\u0027decimal;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/http",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "http",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
         }
       ]
     },
@@ -866,11 +1175,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -889,11 +1198,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -912,11 +1221,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -935,11 +1244,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -958,11 +1267,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -981,11 +1290,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -1004,11 +1313,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -1027,11 +1336,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -1050,11 +1359,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -1073,101 +1382,17 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
           "newText": "import ballerina/socket;\n"
         }
       ]
-    },
-    {
-      "label": "check",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "210",
-      "insertText": "check ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "checkpanic",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "210",
-      "insertText": "checkpanic ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "wait",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "210",
-      "insertText": "wait ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "untainted",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "210",
-      "insertText": "untainted ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "but",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "200",
-      "insertText": "but {\n\t${1}\n};",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "trap",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "110",
-      "insertText": "trap ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "new(string url, http:ClientEndpointConfig config, http:FollowRedirects redirectConfig, http:HttpClient httpClient)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nCreate a redirect client with the given configurations.\n  \n**Params**  \n- `string` url: Target service url  \n- `http:ClientEndpointConfig` config: HTTP ClientEndpointConfig to be used for HTTP client invocation  \n- `http:FollowRedirects` redirectConfig: Configurations associated with redirect  \n- `http:HttpClient` httpClient: HTTP client for outbound HTTP requests"
-        }
-      },
-      "sortText": "130",
-      "insertText": "new(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "RedirectClient(string url, http:ClientEndpointConfig config, http:FollowRedirects redirectConfig, http:HttpClient httpClient)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nCreate a redirect client with the given configurations.\n  \n**Params**  \n- `string` url: Target service url  \n- `http:ClientEndpointConfig` config: HTTP ClientEndpointConfig to be used for HTTP client invocation  \n- `http:FollowRedirects` redirectConfig: Configurations associated with redirect  \n- `http:HttpClient` httpClient: HTTP client for outbound HTTP requests"
-        }
-      },
-      "sortText": "130",
-      "insertText": "RedirectClient(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
     }
   ]
 }
