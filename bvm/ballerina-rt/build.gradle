@@ -70,9 +70,27 @@ dependencies {
     dist project(':ballerina-config')
     dist project(':ballerina-utils')
     dist project(':ballerina-logging')
+    dist project(':toml-parser')
     
     // Third party jars
+    // config
     dist 'org.slf4j:slf4j-jdk14:1.7.22'
+    dist 'org.slf4j:slf4j-api:1.7.22'
+    dist 'com.moandjiezana.toml:toml4j:0.7.2'
+    dist 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
+    dist 'org.apache.commons:commons-lang3:3.8.1'
+
+    // runtime
+    dist 'org.apache.ws.commons.axiom:axiom-c14n:1.2.22'
+    dist 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
+    dist 'org.apache.ws.commons.axiom:axiom-impl:1.2.22'
+    dist 'io.opentracing:opentracing-api:0.31.0'
+    dist 'io.opentracing:opentracing-util:0.31.0'
+    dist 'org.awaitility:awaitility:3.1.6'
+    
+    // Temporary adding . Need to Remove once fix #17878
+    dist 'com.google.code.gson:gson:2.7'
+    dist 'com.h2database:h2:1.4.199'
 }
 
 jar {
