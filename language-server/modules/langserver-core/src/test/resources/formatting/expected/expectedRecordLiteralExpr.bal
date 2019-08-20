@@ -1,5 +1,11 @@
 import ballerina/http;
 
+map<string> defaultChars = {
+    "left-mid": "p"
+    ,
+    "sd": "="
+};
+
 public type Person record {
     string name;
     int age;

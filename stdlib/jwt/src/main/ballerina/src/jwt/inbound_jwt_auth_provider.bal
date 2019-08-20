@@ -19,10 +19,6 @@ import ballerina/internal;
 import ballerina/log;
 import ballerina/time;
 
-const string SCOPES = "scope";
-const string GROUPS = "groups";
-const string USERNAME = "name";
-
 # Represents inbound JWT auth provider.
 #
 # + jwtValidatorConfig - JWT validator configurations
@@ -114,8 +110,8 @@ function setPrincipal(JwtPayload jwtPayload) {
     map<json>? claims = jwtPayload?.customClaims;
     if (claims is map<json>) {
         auth:setPrincipal(claims = claims);
-        if (claims.hasKey(SCOPES)) {
-            var scopeString = claims[SCOPES];
+        if (claims.hasKey(SCOPE)) {
+            var scopeString = claims[SCOPE];
             if (scopeString is string) {
                 auth:setPrincipal(scopes = internal:split(scopeString, " "));
             }

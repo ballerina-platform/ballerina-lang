@@ -628,7 +628,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return resolvePkgSymbol(pos, env, pkgAlias, SymTag.PACKAGE);
     }
 
-    public BSymbol resolveImportSymbol(SymbolEnv env, Name pkgAlias, Name compUnit) {
+    public BSymbol resolvePrefixSymbol(SymbolEnv env, Name pkgAlias, Name compUnit) {
         if (pkgAlias == Names.EMPTY) {
             // Return the current package symbol
             return env.enclPkg.symbol;
@@ -651,7 +651,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         if (env.enclEnv != null) {
-            return resolveImportSymbol(env.enclEnv, pkgAlias, compUnit);
+            return resolvePrefixSymbol(env.enclEnv, pkgAlias, compUnit);
         }
 
         return symTable.notFoundSymbol;
@@ -871,7 +871,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         // 2) Retrieve the package symbol first
         BSymbol pkgSymbol =
-                resolveImportSymbol(env, pkgAlias, names.fromString(pos.getSource().getCompilationUnitName()));
+                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.getSource().getCompilationUnitName()));
         if (pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticCode.UNDEFINED_MODULE, pkgAlias.value);
             return pkgSymbol;

@@ -1142,7 +1142,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         Name compUnitName = getCurrentCompUnit(varRefExpr);
         varRefExpr.pkgSymbol =
-                symResolver.resolveImportSymbol(env, names.fromIdNode(varRefExpr.pkgAlias), compUnitName);
+                symResolver.resolvePrefixSymbol(env, names.fromIdNode(varRefExpr.pkgAlias), compUnitName);
         if (varRefExpr.pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_MODULE, varRefExpr.pkgAlias);
         }
@@ -2720,7 +2720,7 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        BSymbol pkgSymbol = symResolver.resolveImportSymbol(env, pkgAlias, getCurrentCompUnit(iExpr));
+        BSymbol pkgSymbol = symResolver.resolvePrefixSymbol(env, pkgAlias, getCurrentCompUnit(iExpr));
         if (pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_MODULE, pkgAlias);
         } else {

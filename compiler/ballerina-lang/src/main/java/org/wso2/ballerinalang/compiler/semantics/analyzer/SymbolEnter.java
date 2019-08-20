@@ -308,7 +308,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangImportPackage importPkgNode) {
         Name pkgAlias = names.fromIdNode(importPkgNode.alias);
-        BSymbol importSymbol = symResolver.resolveImportSymbol(env, pkgAlias,
+        BSymbol importSymbol = symResolver.resolvePrefixSymbol(env, pkgAlias,
                 names.fromIdNode(importPkgNode.compUnit));
         if (importSymbol != symTable.notFoundSymbol) {
             if (isSameImport(importPkgNode, (BPackageSymbol) importSymbol)) {
