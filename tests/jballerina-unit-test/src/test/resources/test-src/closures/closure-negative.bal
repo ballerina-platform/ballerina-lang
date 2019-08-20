@@ -1,4 +1,4 @@
-import ballerina/io;
+
 
 function getStringFunc1(string functionX) returns (function (string) returns (function (string) returns (string))) {
     return function (string functionY) returns (function (string) returns (string)) {
