@@ -20,11 +20,11 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
     private boolean inStringTemplate = false;
     private boolean inStringTemplateExpression = false;
 
-    private boolean inSiddhi = false;
+    private boolean inStreams = false;
     private boolean inTableSqlQuery = false;
-    private boolean inSiddhiInsertQuery = false;
-    private boolean inSiddhiTimeScaleQuery = false;
-    private boolean inSiddhiOutputRateLimit = false;
+    private boolean inStreamsInsertQuery = false;
+    private boolean inStreamsTimeScaleQuery = false;
+    private boolean inStreamsOutputRateLimit = false;
 
     public BallerinaLexer() {
         this((java.io.Reader)null);
@@ -375,7 +375,7 @@ DOLLAR = \$
     ".@"                                        { return ANNOTATION_ACCESS; }
     "?."                                        { return OPTIONAL_FIELD_ACCESS; }
 
-    "from"                                      { inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; return FROM; }
+    "from"                                      { inTableSqlQuery = true; inStreamsInsertQuery = true; inStreamsOutputRateLimit = true; return FROM; }
     "on"                                        { return ON; }
     "select"                                    { if(inTableSqlQuery) { inTableSqlQuery = false; return SELECT; } return IDENTIFIER; }
     "group"                                     { return GROUP; }
@@ -384,33 +384,33 @@ DOLLAR = \$
     "order"                                     { return ORDER; }
     "where"                                     { return WHERE; }
     "followed"                                  { return FOLLOWED; }
-    "for"                                       { inSiddhiTimeScaleQuery = true; return FOR; }
+    "for"                                       { inStreamsTimeScaleQuery = true; return FOR; }
     "window"                                    { return WINDOW; }
-    "events"                                    { if(inSiddhiInsertQuery) { inSiddhiInsertQuery = false; return EVENTS; } return IDENTIFIER; }
+    "events"                                    { if(inStreamsInsertQuery) { inStreamsInsertQuery = false; return EVENTS; } return IDENTIFIER; }
     "every"                                     { return EVERY; }
-    "within"                                    { inSiddhiTimeScaleQuery = true; return WITHIN; }
-    "last"                                      { if(inSiddhiOutputRateLimit) { inSiddhiOutputRateLimit = false; return LAST; } return IDENTIFIER; }
-    "first"                                     { if(inSiddhiOutputRateLimit) { inSiddhiOutputRateLimit = false; return FIRST; } return IDENTIFIER; }
+    "within"                                    { inStreamsTimeScaleQuery = true; return WITHIN; }
+    "last"                                      { if(inStreamsOutputRateLimit) { inStreamsOutputRateLimit = false; return LAST; } return IDENTIFIER; }
+    "first"                                     { if(inStreamsOutputRateLimit) { inStreamsOutputRateLimit = false; return FIRST; } return IDENTIFIER; }
     "snapshot"                                  { return SNAPSHOT; }
-    "output"                                    { if(inSiddhiOutputRateLimit) { inSiddhiTimeScaleQuery = true; return OUTPUT; } return IDENTIFIER; }
+    "output"                                    { if(inStreamsOutputRateLimit) { inStreamsTimeScaleQuery = true; return OUTPUT; } return IDENTIFIER; }
     "inner"                                     { return INNER; }
     "outer"                                     { return OUTER; }
     "right"                                     { return RIGHT; }
     "left"                                      { return LEFT; }
     "full"                                      { return FULL; }
     "unidirectional"                            { return UNIDIRECTIONAL; }
-    "second"                                    { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return SECOND; } return IDENTIFIER; }
-    "minute"                                    { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return MINUTE; } return IDENTIFIER; }
-    "hour"                                      { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return HOUR; } return IDENTIFIER; }
-    "day"                                       { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return DAY; } return IDENTIFIER; }
-    "month"                                     { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return MONTH; } return IDENTIFIER; }
-    "year"                                      { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return YEAR; } return IDENTIFIER; }
-    "seconds"                                   { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return SECONDS; } return IDENTIFIER; }
-    "minutes"                                   { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return MINUTES; } return IDENTIFIER; }
-    "hours"                                     { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return HOURS; } return IDENTIFIER; }
-    "days"                                      { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return DAYS; } return IDENTIFIER; }
-    "months"                                    { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return MONTHS; } return IDENTIFIER; }
-    "years"                                     { if(inSiddhiTimeScaleQuery) { inSiddhiTimeScaleQuery = false; return YEARS; } return IDENTIFIER; }
+    "second"                                    { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return SECOND; } return IDENTIFIER; }
+    "minute"                                    { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return MINUTE; } return IDENTIFIER; }
+    "hour"                                      { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return HOUR; } return IDENTIFIER; }
+    "day"                                       { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return DAY; } return IDENTIFIER; }
+    "month"                                     { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return MONTH; } return IDENTIFIER; }
+    "year"                                      { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return YEAR; } return IDENTIFIER; }
+    "seconds"                                   { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return SECONDS; } return IDENTIFIER; }
+    "minutes"                                   { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return MINUTES; } return IDENTIFIER; }
+    "hours"                                     { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return HOURS; } return IDENTIFIER; }
+    "days"                                      { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return DAYS; } return IDENTIFIER; }
+    "months"                                    { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return MONTHS; } return IDENTIFIER; }
+    "years"                                     { if(inStreamsTimeScaleQuery) { inStreamsTimeScaleQuery = false; return YEARS; } return IDENTIFIER; }
     "forever"                                   { return FOREVER; }
 
     {WHITE_SPACE}                               { return WHITE_SPACE; }
