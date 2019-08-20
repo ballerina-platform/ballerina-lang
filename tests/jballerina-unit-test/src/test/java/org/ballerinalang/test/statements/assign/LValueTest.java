@@ -90,8 +90,8 @@ public class LValueTest {
     public void testNegativeLvexpr() {
         CompileResult negative = BCompileUtil.compile("test-src/statements/assign/lvexpr_negative.bal");
         int i = 0;
-        validateError(negative, i++, "invocations are not supported in lhs of an assignment", 26, 5);
-        validateError(negative, i++, "invocations are not supported in lhs of an assignment", 27, 5);
+        validateError(negative, i++, "invocations are not supported on the left hand side of an assignment", 26, 5);
+        validateError(negative, i++, "invocations are not supported on the left hand side of an assignment", 27, 5);
         Assert.assertEquals(i, negative.getErrorCount());
     }
 

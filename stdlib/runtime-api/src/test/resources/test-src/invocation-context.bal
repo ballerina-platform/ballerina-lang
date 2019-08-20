@@ -13,7 +13,8 @@ function testInvocationContextPrincipal(string userId) returns string? {
         userId: userId,
         username: "ballerina"
     };
-    runtime:getInvocationContext().principal = principal;
+    var ctx = runtime:getInvocationContext();
+    ctx.principal = principal;
     runtime:Principal? testPrincipal = runtime:getInvocationContext()?.principal;
     if (testPrincipal is runtime:Principal) {
         return testPrincipal?.userId;
