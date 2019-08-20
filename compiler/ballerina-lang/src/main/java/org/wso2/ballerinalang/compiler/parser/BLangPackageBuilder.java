@@ -818,28 +818,25 @@ public class BLangPackageBuilder {
         if (reasonRefAvailable) {
             ExpressionNode reasonRef = this.exprNodeStack.pop();
             errorVarRef.reason = (BLangVariableReference) reasonRef;
+        } else if (indirectErrorRefPattern) {
+            // Indirect error ref pattern does not allow reason var ref, hence ignore it.
+            errorVarRef.reason = createIgnoreVarRef();
+            errorVarRef.typeNode = (BLangType) this.typeNodeStack.pop();
         } else {
-            int lastItemIndex = namedArgs.size() - 1;
-            BLangNamedArgsExpression reason = namedArgs.get(lastItemIndex);
-            if (reason.name.value.equals("reason")) {
-                namedArgs.remove(lastItemIndex);
-                errorVarRef.reason = (BLangVariableReference) reason.expr;
-            } else if (indirectErrorRefPattern) {
-                // Indirect error ref pattern does not allow reason var ref, hence ignore it.
-                BLangSimpleVarRef ignoreVarRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-                BLangIdentifier ignore = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-                ignore.value = Names.IGNORE.value;
-                ignoreVarRef.variableName = ignore;
-                errorVarRef.reason = ignoreVarRef;
-                errorVarRef.typeNode = (BLangType) this.typeNodeStack.pop();
-            } else {
-                dlog.error(pos, DiagnosticCode.INVALID_ERROR_DESTRUCTURING_NO_REASON_GIVEN);
-            }
+            errorVarRef.reason = createIgnoreVarRef();
         }
         Collections.reverse(namedArgs);
         errorVarRef.detail.addAll(namedArgs);
 
         this.exprNodeStack.push(errorVarRef);
+    }
+
+    private BLangSimpleVarRef createIgnoreVarRef() {
+        BLangSimpleVarRef ignoreVarRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        BLangIdentifier ignore = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        ignore.value = Names.IGNORE.value;
+        ignoreVarRef.variableName = ignore;
+        return ignoreVarRef;
     }
 
     void addErrorDetailBinding(DiagnosticPos pos, Set<Whitespace> ws, String name, String bindingVarName) {
@@ -1942,6 +1939,7 @@ public class BLangPackageBuilder {
 
     void addConstant(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
                      boolean isPublic, boolean isTypeAvailable) {
+        identifier = escapeQuotedIdentifier(identifier);
         BLangConstant constantNode = (BLangConstant) this.generateConstantNode(pos, ws, identifier, identifierPos,
                 isTypeAvailable);
         attachAnnotations(constantNode);
@@ -1985,6 +1983,15 @@ public class BLangPackageBuilder {
             // any of the type def visiting logic in symbol enter.
             constantNode.associatedTypeDefinition = typeDef;
         }
+    }
+
+    // If this is a quoted identifier then unescape it and remove the quote prefix.
+    // Else return original.
+    static String escapeQuotedIdentifier(String identifier) {
+        if (identifier.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
+            identifier = StringEscapeUtils.unescapeJava(identifier).substring(1);
+        }
+        return identifier;
     }
 
     void addGlobalVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,

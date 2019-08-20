@@ -38,11 +38,12 @@
         <packages>
             <package name="org.ballerinalang.test.vm.*"/>
             <package name="org.ballerinalang.test.annotations.*"/>
-            <!--<package name="org.ballerinalang.test.action.*"/>-->
+            <package name="org.ballerinalang.test.action.*"/>
             <package name="org.ballerinalang.test.imports.*"/>
             <package name="org.ballerinalang.test.parser.*"/>
             <package name="org.ballerinalang.test.closures.*"/>
-            <!--<package name="org.ballerinalang.test.dataflow.*"/>-->
+            <package name="org.ballerinalang.test.bir.*"/>
+            <package name="org.ballerinalang.test.dataflow.*"/>
             <package name="org.ballerinalang.test.variable.shadowing.*"/>
             <package name="org.ballerinalang.test.net.*"/>
             <package name="org.ballerinalang.test.typedefs.*"/>
@@ -78,7 +79,6 @@
             <package name="org.ballerinalang.test.statements.returnstmt.*"/>
             <package name="org.ballerinalang.test.statements.vardeclr.*"/>
             <package name="org.ballerinalang.test.statements.whilestatement.*"/>
-            <!--<package name="org.ballerinalang.test.statements.foreach.*"/>-->
             <package name="org.ballerinalang.test.statements.variabledef.*"/>
             <package name="org.ballerinalang.test.statements.matchstmt.*"/>
             <package name="org.ballerinalang.test.types.json.*"/>
@@ -103,19 +103,18 @@
             <package name="org.ballerinalang.test.object.*" />
             <package name="org.ballerinalang.test.dataflow.analysis.*" />
             <package name="org.ballerinalang.test.documentation.*" />
-            <!--<package name="org.ballerinalang.test.endpoint.*" />-->
+            <package name="org.ballerinalang.test.endpoint.*" />
             <!--&lt;!&ndash; <package name="org.ballerinalang.test.loc.*" /> &ndash;&gt;-->
             <package name="org.ballerinalang.test.packaging.*" />
             <package name="org.ballerinalang.test.types.xml.*" />
             <package name="org.ballerinalang.test.record.*"/>
             <package name="org.ballerinalang.test.types.constant.*" />
             <package name="org.ballerinalang.test.types.bytetype.*"/>
-            <!--<package name="org.ballerinalang.test.types.handle.*"/>-->
+            <package name="org.ballerinalang.test.types.handle.*"/>
             <package name="org.ballerinalang.test.balo.*"/>
             <package name="org.ballerinalang.test.expressions.typecast.*"/>
             <package name="org.ballerinalang.test.expressions.literals.*"/>
             <package name="org.ballerinalang.test.expressions.varref.*"/>
-            <!--<package name="org.ballerinalang.test.annotations"/>-->
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.taintchecking.*"/>
             <package name="org.ballerinalang.test.statements.transaction.*"/>

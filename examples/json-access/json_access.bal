@@ -12,7 +12,7 @@ public function main() {
         }
     };
 
-    // Field access is allowed on the `json` typed variable, but the return
+    // Field access is allowed on the `json`-typed variable. However, the return
     // type would be a union of `json` and `error`. An error will be returned
     // either if the value on which the access is done is not a mapping or if
     // it is a mapping, but it does not contain the particular key.
@@ -25,7 +25,7 @@ public function main() {
     // that point and the result would be an error.
     json|error r2 = j1.address.city;
     // `r2` is of type `json` since `j1` is a mapping with the field `address`, which in
-    // turn is a mapping with the field `city` which will be the resultant value.
+    // turn is a mapping with the field `city`, which will be the resultant value.
     io:println(r2);
 
     // Attempting to access a non-existent field would result in an error.
@@ -38,12 +38,12 @@ public function main() {
     // is that when a key is not found in a mapping, while the former returns
     // an `error`, the latter returns `null` (`()`) instead.
     // Similar to how errors are lifted with field access, `()` is lifted
-    // for optional field access, allowing chained access.
+    // for optional field access allowing chained access.
     json|error r4 = j1?.age?.year;
     // `r4` is `()` since `j1` does not have a field with the key `age`.
     io:println(r4);
 
-    // Moreover, when optional field access is done on `null` (`()`), the result would
+    // Moreover, when optional field access occurs on `null` (`()`), the result would
     // also be `()`, whereas for field access it would have been an `error`.
     json j2 = null;
     json|error r5 = j2?.name;

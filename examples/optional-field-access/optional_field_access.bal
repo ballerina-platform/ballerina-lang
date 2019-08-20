@@ -51,7 +51,7 @@ public function main() {
 
     // Create a `Person` value with the `age` field.
     p1 = { name: "Anne", age: 24, addr: () };
-    // Now `age` will be the `int` value set.
+    // Now, `age` will be the `int` value that is set.
     age = p1?.age;
     io:println("Age: ", age);
 
@@ -59,8 +59,8 @@ public function main() {
     io:println(p2);
 
     // The optional field access operator is a lifted operator in Ballerina.
-    // The types of both `p2` and `p2.addr` are optional record types.
-    // If the type of either `p2` or `p2.addr` is `()` during the run time, `()` would
+    // Both `p2` and `p2.addr` are optional record types.
+    // If the type of either `p2` or `p2.addr` is `()` at runtime, `()` would
     // be assigned to the `city1` variable. Else, the `string` value of the `city` field
     // of the `address` field of the `Person` record `p2` would be assigned.
     string? city1 = p2?.addr?.city;
@@ -73,9 +73,9 @@ public function main() {
     string? city2 = p3?.addr?.city;
     io:println(city2);
 
-    // Now assign a `Person` record to `p3` setting address to `()`.
+    // Now, assign a `Person` record to `p3` setting the `address` field to `()`.
     p3 = { name: "George", age: 20, addr: () };
-    // Again, the `city2` variable will contain `()` as the value since `address is `()`.
+    // Again, the `city2` variable will contain `()`, since the value of the `address` field is `()`.
     city2 = p3?.addr?.city;
     io:println(city2);
 

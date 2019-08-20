@@ -49,6 +49,9 @@ public type Listener object {
         return self.register(s, name);
     }
 
+    public function __detach(service s) returns error? {
+    }
+
     public function __init(int port, public ListenerConfiguration? config = ()) {
         self.instanceId = system:uuid();
         self.config = config ?: {};
@@ -343,6 +346,8 @@ public type WebSocketListener object {
         return self.httpEndpoint.register(s, name);
     }
 
+    public function __detach(service s) returns error? {
+    }
 
     # Gets invoked during module initialization to initialize the endpoint.
     #
