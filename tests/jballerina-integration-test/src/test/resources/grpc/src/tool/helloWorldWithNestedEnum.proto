@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -18,13 +18,26 @@
 
 syntax = "proto3";
 
-service helloWorldClientStreaming {
-		rpc LotsOfGreetings(stream HelloRequest) returns (HelloResponse);
+service helloWorldWithNestedEnum {
+    rpc hello(HelloRequest) returns (HelloResponse);
+    rpc bye(ByeRequest) returns (ByeResponse);
 }
 
 message HelloRequest {
-	string name = 1;
+    string name = 1;
 }
 message HelloResponse {
-	string message = 1;
+    string message = 1;
+    enum sentiment {
+        happy = 0;
+        sad = 1;
+        neutral = 2;
+    }
+    sentiment mode = 2;
+}
+message ByeRequest {
+    string greet = 1;
+}
+message ByeResponse {
+    string say = 1;
 }

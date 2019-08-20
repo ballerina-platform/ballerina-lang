@@ -2,12 +2,13 @@ import ballerina/grpc;
 import ballerina/io;
 
 public function main (string... args) {
-     {{serviceName}}Client ep = new("http://localhost:9090");
 {{#if blockingEP}}
     {{serviceName}}BlockingClient blockingEp = new("http://localhost:9090");
+{{else}}
+    {{serviceName}}Client ep = new("http://localhost:9090");
 {{/if}}
 }
-
+{{#unless blockingEP}}
 service {{serviceName}}MessageListener = service {
 
     resource function onMessage(string message) {
@@ -21,4 +22,4 @@ service {{serviceName}}MessageListener = service {
     resource function onComplete() {
         io:println("Server Complete Sending Responses.");
     }
-};
+};{{/unless}}
