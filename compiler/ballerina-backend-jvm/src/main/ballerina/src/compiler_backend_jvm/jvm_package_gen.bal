@@ -721,8 +721,10 @@ function scheduleStopMethod(jvm:MethodVisitor mv, bir:Package pkg, string initCl
 
     // no parent strand
     mv.visitInsn(ACONST_NULL);
+    bir:BType anyType = "any";
+    loadType(mv, anyType);
     mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
-        io:sprintf("([L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, FUTURE_VALUE), false);
+        io:sprintf("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE), false);
 
     mv.visitInsn(DUP);
     mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
