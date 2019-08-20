@@ -39,10 +39,11 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.ServerSocket;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -70,7 +71,7 @@ public class BallerinaDAPClientConnector {
     private Capabilities initializeResult;
     private ConnectionState myConnectionState;
 
-    private static final int DEBUG_ADAPTOR_PORT = 4711;
+    private int debugAdapterPort;
     private static final String CONFIG_SOURCEROOT = "sourceRoot";
     private static final String CONFIG_DEBUGEE_PORT = "debuggeePort";
 
@@ -78,6 +79,7 @@ public class BallerinaDAPClientConnector {
         this.project = project;
         this.host = host;
         this.port = port;
+        this.debugAdapterPort = findFreePort();
         myConnectionState = ConnectionState.NOT_CONNECTED;
     }
 
@@ -227,8 +229,22 @@ public class BallerinaDAPClientConnector {
             }
         }
 
-        return !debugLauncherPath.isEmpty() ? new BallerinaSocketStreamConnectionProvider(
-                new ArrayList<>(Collections.singleton(debugLauncherPath)), project.getBasePath(), host,
-                DEBUG_ADAPTOR_PORT) : null;
+        if (debugLauncherPath.isEmpty()) {
+            return null;
+        }
+
+        List<String> processArgs = new ArrayList<>();
+        processArgs.add(debugLauncherPath);
+        processArgs.add(String.valueOf(debugAdapterPort));
+        return new BallerinaSocketStreamConnectionProvider(processArgs, project.getBasePath(), host, debugAdapterPort);
+    }
+
+    private static int findFreePort() {
+        try (ServerSocket socket = new ServerSocket(0)) {
+            socket.setReuseAddress(true);
+            return socket.getLocalPort();
+        } catch (Exception ignore) {
+        }
+        throw new IllegalStateException("Could not find a free TCP/IP port to start debugging");
     }
 }
