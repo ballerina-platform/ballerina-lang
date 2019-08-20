@@ -1331,7 +1331,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private void checkUnusedImports(List<BLangImportPackage> imports) {
         for (BLangImportPackage importStmt : imports) {
-            if (!importStmt.symbol.isUsed) {
+            if (importStmt.symbol != null && !importStmt.symbol.isUsed) {
                 dlog.error(importStmt.pos, DiagnosticCode.UNUSED_IMPORT_MODULE, importStmt.getQualifiedPackageName());
             }
         }
