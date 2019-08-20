@@ -136,7 +136,7 @@ public class StubGeneratorTestCase {
                 "Expected type definitions not found in compile results.");
     }
 
-    @Test(description = "Test service stub generation for service definition with nested messages")
+    @Test(description = "Test service stub generation for service definition with reserved names")
     public void testUnaryHelloWorldWithReservedNames() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithReservedNames.proto",
