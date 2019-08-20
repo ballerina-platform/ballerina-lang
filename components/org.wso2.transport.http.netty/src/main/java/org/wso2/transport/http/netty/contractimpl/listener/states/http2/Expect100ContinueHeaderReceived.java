@@ -39,7 +39,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.REQUEST_TIMEOUT;
 import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.ILLEGAL_STATE_ERROR;
 
 /**
- * Listener goes into {@code Expect100ContinueHeaderReceived} when expect header is detected.
+ * Listener goes into {@code Expect100ContinueHeaderReceived} state when the expect header is detected.
  */
 public class Expect100ContinueHeaderReceived implements ListenerState {
     private static final Logger LOG = LoggerFactory.getLogger(Expect100ContinueHeaderReceived.class);
