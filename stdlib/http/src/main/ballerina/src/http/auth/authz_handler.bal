@@ -61,14 +61,9 @@ public type AuthzHandler object {
 
         runtime:Principal? principal = runtime:getInvocationContext()?.principal;
         if (principal is runtime:Principal) {
-            string authzCacheKey = (principal?.username ?: "") + "-" + serviceName + "-" + resourceName + "-" + requestMethod;
+            string username = principal?.username ?: "";
             string[] userScopes = principal?.scopes ?: [];
-            if (userScopes.length() > 0) {
-                authzCacheKey += "-";
-                foreach var userScope in userScopes {
-                    authzCacheKey += userScope + ",";
-                }
-            }
+            string authzCacheKey = generateAuthzCacheKey(username, userScopes, serviceName, resourceName, requestMethod);
 
             boolean authorized = auth:checkForScopeMatch(scopes, userScopes, authzCacheKey, self.positiveAuthzCache, self.negativeAuthzCache);
 
@@ -87,3 +82,15 @@ public type AuthzHandler object {
         return false;
     }
 };
+
+function generateAuthzCacheKey(string username, string[] userScopes, string serviceName, string resourceName,
+                               string requestMethod) returns string {
+    string authzCacheKey = username + "-" + serviceName + "-" + resourceName + "-" + requestMethod;
+    if (userScopes.length() > 0) {
+        authzCacheKey += "-";
+        foreach var userScope in userScopes {
+            authzCacheKey += userScope + ",";
+        }
+    }
+    return authzCacheKey;
+}
