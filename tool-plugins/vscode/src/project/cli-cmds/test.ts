@@ -1,11 +1,10 @@
-import { BallerinaExtension } from "../core";
+import { BallerinaExtension } from "../../core";
 import { commands, window } from "vscode";
-import { TestRunner } from "./runner";
-import { TM_EVENT_RUN_PROJECT_TESTS, CMP_TEST_RUNNER } from "../telemetry";
+import { TM_EVENT_RUN_PROJECT_TESTS, CMP_TEST_RUNNER } from "../../telemetry";
+import { runCommand, BALLERINA_COMMANDS } from "./cmd-runner";
 
 export function activateTestRunner(ballerinaExtInstance: BallerinaExtension) {
     const reporter = ballerinaExtInstance.telemetryReporter;
-    const channel = window.createOutputChannel('Ballerina Tests');
 
     // register run all tests handler
     commands.registerCommand('ballerina.runAllTests', () => {
@@ -22,8 +21,7 @@ export function activateTestRunner(ballerinaExtInstance: BallerinaExtension) {
                         uri,
                     }
                 }).then((project) => {
-                    const runner = new TestRunner(project, channel);
-                    runner.runAllTests();
+                    runCommand(project, BALLERINA_COMMANDS.TEST);
                 }, (reason) => {
                     reporter.sendTelemetryException(reason, { component: CMP_TEST_RUNNER });
                     // TODO: display error to user
