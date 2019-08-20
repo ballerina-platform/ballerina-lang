@@ -97,6 +97,12 @@ function getAuthTokenForJWTAuth(JwtIssuerConfig jwtIssuerConfig) returns string|
         jti: system:uuid(),
         aud: jwtIssuerConfig.audience
     };
+
+    map<json>? customClaims = jwtIssuerConfig?.customClaims;
+    if (customClaims is map<json>) {
+        payload.customClaims = customClaims;
+    }
+
      // TODO: cache the token per-user per-client and reuse it
     return issueJwt(header, payload, jwtIssuerConfig.keyStoreConfig);
 }
