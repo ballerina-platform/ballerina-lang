@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -259,5 +260,19 @@ public class LangLibArrayTest {
     public void testUnshiftTypeWithoutFillerValues() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testUnshiftTypeWithoutFillerValues");
         assertEquals(returns.length, 2);
+    }
+
+    @Test
+    public void testRemoveAll() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveAll");
+        assertEquals(returns[0].stringValue(), "[]");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InherentTypeViolation " +
+                    "message=cannot change length of fixed length array.*")
+    public void testRemoveAllFixedLengthArray() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveAllFixedLengthArray");
+        assertEquals(returns[0].stringValue(), "[]");
     }
 }

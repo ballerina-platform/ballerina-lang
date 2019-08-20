@@ -13,7 +13,7 @@ import { ExtendedLangClient } from '../core/extended-language-client';
 import { BALLERINA_HOME } from '../core/preferences';
 import { isUnix } from "./osUtils";
 import { TM_EVENT_START_DEBUG_SESSION } from '../telemetry';
-import { info, log as debugLog} from "../utils";
+import { log, debug as debugLog} from "../utils";
 
 const debugConfigProvider: DebugConfigurationProvider = {
     resolveDebugConfiguration(folder: WorkspaceFolder, config: DebugConfiguration)
@@ -104,14 +104,14 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
             port.toString()
         ]);
 
-        info("Starting debug adapter: " + startScriptPath);
+        log("Starting debug adapter: " + startScriptPath);
         
         return new Promise((resolve)=>{
             serverProcess.stdout.on('data', (data) => {
                 if (data.toString().includes('Debug server started')) {
                     resolve();
                 }
-                info(`${data}`);
+                log(`${data}`);
             });
     
             serverProcess.stderr.on('data', (data) => {

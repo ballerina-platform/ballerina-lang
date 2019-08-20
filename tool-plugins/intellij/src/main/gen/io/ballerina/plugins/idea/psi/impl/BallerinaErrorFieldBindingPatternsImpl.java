@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaServiceBodyMemberImpl extends ASTWrapperPsiElement implements BallerinaServiceBodyMember {
+public class BallerinaErrorFieldBindingPatternsImpl extends ASTWrapperPsiElement implements BallerinaErrorFieldBindingPatterns {
 
-  public BallerinaServiceBodyMemberImpl(@NotNull ASTNode node) {
+  public BallerinaErrorFieldBindingPatternsImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitServiceBodyMember(this);
+    visitor.visitErrorFieldBindingPatterns(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,15 +43,15 @@ public class BallerinaServiceBodyMemberImpl extends ASTWrapperPsiElement impleme
   }
 
   @Override
-  @Nullable
-  public BallerinaObjectFieldDefinition getObjectFieldDefinition() {
-    return findChildByClass(BallerinaObjectFieldDefinition.class);
+  @NotNull
+  public List<BallerinaErrorDetailBindingPattern> getErrorDetailBindingPatternList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaErrorDetailBindingPattern.class);
   }
 
   @Override
   @Nullable
-  public BallerinaObjectFunctionDefinition getObjectFunctionDefinition() {
-    return findChildByClass(BallerinaObjectFunctionDefinition.class);
+  public BallerinaErrorRestBindingPattern getErrorRestBindingPattern() {
+    return findChildByClass(BallerinaErrorRestBindingPattern.class);
   }
 
 }
