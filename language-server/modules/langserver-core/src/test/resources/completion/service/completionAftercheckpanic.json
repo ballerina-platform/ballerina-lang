@@ -1,360 +1,40 @@
 {
   "position": {
-    "line": 34,
-    "character": 12
+    "line": 4,
+    "character": 31
   },
-  "source": "function/source/matchStatementSuggestionCommon.bal",
+  "source": "service/source/completionAftercheckpanic.bal",
   "items": [
     {
-      "label": "xmlns",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "110",
-      "insertText": "xmlns \"${1}\" as ${2:ns};",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "var",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "210",
-      "insertText": "var ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "error",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "110",
-      "insertText": "error ${1:name} \u003d error(\"${2:errorCode}\", message \u003d \"${3}\");",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "checkpanic",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "210",
-      "insertText": "checkpanic ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "foreach",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "200",
-      "insertText": "foreach ${1:var} ${2:item} in ${3:itemList} {\n\t${4}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "fork",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "200",
-      "insertText": "fork {\n\t${1}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "if",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "200",
-      "insertText": "if (${1:true}) {\n\t${2}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lock",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "200",
-      "insertText": "lock {\n\t${1}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "match",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "200",
-      "insertText": "match ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "panic",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "200",
-      "insertText": "panic ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "return",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "200",
-      "insertText": "return;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "transaction",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "200",
-      "insertText": "transaction with retries \u003d ${1:0} {\n\t${2}\n} onretry {\n\t${3}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "while",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "200",
-      "insertText": "while (${1:true}) {\n\t${2}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "float",
-      "kind": "Keyword",
-      "detail": "Float",
+      "label": "testService",
+      "kind": "Unit",
+      "detail": "testService",
       "sortText": "120",
-      "insertText": "float",
+      "insertText": "testService",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "bar((string|int|boolean) i)((string|int|boolean))",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `(string|int|boolean)`   \n  \n"
-        }
-      },
-      "sortText": "130",
-      "insertText": "bar(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "xml",
-      "kind": "Keyword",
-      "detail": "Xml",
-      "sortText": "120",
-      "insertText": "xml",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "byte",
-      "kind": "Keyword",
-      "detail": "Byte",
-      "sortText": "120",
-      "insertText": "byte",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "handle",
-      "kind": "Keyword",
-      "detail": "Handle",
-      "sortText": "120",
-      "insertText": "handle",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ArgsData",
-      "kind": "Class",
-      "detail": "Record",
-      "documentation": {
-        "left": "Defaultable argument names. This is for internal use.\n"
-      },
-      "sortText": "120",
-      "insertText": "ArgsData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "null",
-      "kind": "Keyword",
-      "detail": "Nil",
-      "sortText": "120",
-      "insertText": "null",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "decimal",
-      "kind": "Keyword",
-      "detail": "Decimal",
-      "sortText": "120",
-      "insertText": "decimal",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Person",
-      "kind": "Class",
-      "detail": "Record",
-      "sortText": "120",
-      "insertText": "Person",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "string",
-      "kind": "Keyword",
-      "detail": "String",
-      "sortText": "120",
-      "insertText": "string",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "error",
-      "kind": "Keyword",
-      "detail": "Error",
-      "documentation": {
-        "left": "Default error type.\nThe first type parameter discribe reason type which must be a subtype of string,\nand the second type parameter is for the error detail.\nThe error detail record type may contain an optional message, optional cause,\nand any other pure constrained mapping values."
-      },
-      "sortText": "120",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "stream",
-      "kind": "Keyword",
-      "detail": "Stream",
-      "sortText": "120",
-      "insertText": "stream",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "var5",
+      "label": "request",
       "kind": "Variable",
-      "detail": "string",
+      "detail": "http:Request",
       "sortText": "120",
-      "insertText": "var5",
+      "insertText": "request",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "json",
-      "kind": "Keyword",
-      "detail": "Json",
-      "sortText": "120",
-      "insertText": "json",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "var4",
+      "label": "caller",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "http:Caller",
       "sortText": "120",
-      "insertText": "var4",
+      "insertText": "caller",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "var3",
+      "label": "self",
       "kind": "Variable",
-      "detail": "([string,int]|[float,[string,boolean]]|[float,[string,[boolean,int]]]|float)",
+      "detail": "testService",
       "sortText": "120",
-      "insertText": "var3",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "var2",
-      "kind": "Variable",
-      "detail": "[string,int,boolean]",
-      "sortText": "120",
-      "insertText": "var2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "var1",
-      "kind": "Variable",
-      "detail": "(string|int|boolean)",
-      "sortText": "120",
-      "insertText": "var1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "map",
-      "kind": "Keyword",
-      "detail": "Map",
-      "sortText": "120",
-      "insertText": "map",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "table",
-      "kind": "Keyword",
-      "detail": "Table",
-      "sortText": "120",
-      "insertText": "table",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "anydata",
-      "kind": "Keyword",
-      "detail": "Anydata",
-      "sortText": "120",
-      "insertText": "anydata",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "i",
-      "kind": "Variable",
-      "detail": "(string|int|boolean)",
-      "sortText": "120",
-      "insertText": "i",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "any",
-      "kind": "Keyword",
-      "detail": "Any",
-      "sortText": "120",
-      "insertText": "any",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "int",
-      "kind": "Keyword",
-      "detail": "Int",
-      "sortText": "120",
-      "insertText": "int",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "p",
-      "kind": "Variable",
-      "detail": "Person",
-      "sortText": "120",
-      "insertText": "p",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "boolean",
-      "kind": "Keyword",
-      "detail": "Boolean",
-      "sortText": "120",
-      "insertText": "boolean",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "future",
-      "kind": "Keyword",
-      "detail": "Future",
-      "sortText": "120",
-      "insertText": "future",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "service",
-      "kind": "Keyword",
-      "detail": "Service",
-      "sortText": "120",
-      "insertText": "service",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "typedesc",
-      "kind": "Keyword",
-      "detail": "Typedesc",
-      "sortText": "120",
-      "insertText": "typedesc",
+      "insertText": "self",
       "insertTextFormat": "Snippet"
     },
     {
@@ -363,14 +43,6 @@
       "detail": "Package",
       "sortText": "140",
       "insertText": "http",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "io",
-      "kind": "Module",
-      "detail": "Package",
-      "sortText": "140",
-      "insertText": "io",
       "insertTextFormat": "Snippet"
     },
     {
@@ -384,11 +56,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -407,11 +79,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -430,11 +102,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -453,11 +125,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -476,11 +148,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -499,11 +171,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -522,11 +194,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -545,11 +217,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -568,11 +240,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -591,11 +263,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -614,11 +286,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -637,11 +309,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -660,11 +332,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -683,11 +355,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -706,11 +378,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -729,11 +401,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -752,15 +424,38 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
           "newText": "import ballerina/lang.\u0027string;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/io",
+      "kind": "Module",
+      "detail": "Package",
+      "sortText": "140",
+      "insertText": "io",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/io;\n"
         }
       ]
     },
@@ -775,11 +470,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -798,11 +493,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -821,11 +516,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -844,11 +539,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -867,11 +562,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -890,11 +585,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -913,11 +608,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -936,11 +631,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -959,11 +654,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -982,11 +677,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -1005,11 +700,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -1028,11 +723,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -1051,11 +746,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -1074,11 +769,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -1097,11 +792,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -1120,11 +815,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -1143,11 +838,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -1166,11 +861,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -1189,11 +884,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -1212,11 +907,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -1235,11 +930,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -1258,11 +953,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -1281,11 +976,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -1304,11 +999,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -1327,11 +1022,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -1350,11 +1045,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -1373,11 +1068,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -1396,11 +1091,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 1,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
@@ -1409,27 +1104,51 @@
       ]
     },
     {
-      "label": "var3 - typeguard var3",
-      "kind": "Snippet",
-      "detail": "Destructure the variable var3 with typeguard",
-      "sortText": "120",
-      "insertText": "if (var3 is [string,int]) {\n\t${1}\n} else if (var3 is [float,[string,boolean]]) {\n\t${2}\n} else if (var3 is [float,[string,[boolean,int]]]) {\n\t${3}\n} else {\n\t${4}\n}",
+      "label": "check",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "210",
+      "insertText": "check ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "var1 - typeguard var1",
-      "kind": "Snippet",
-      "detail": "Destructure the variable var1 with typeguard",
-      "sortText": "120",
-      "insertText": "if (var1 is string) {\n\t${1}\n} else if (var1 is int) {\n\t${2}\n} else {\n\t${3}\n}",
+      "label": "checkpanic",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "210",
+      "insertText": "checkpanic ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "i - typeguard i",
+      "label": "wait",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "210",
+      "insertText": "wait ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "untaint",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "210",
+      "insertText": "untiant ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "but",
       "kind": "Snippet",
-      "detail": "Destructure the variable i with typeguard",
-      "sortText": "120",
-      "insertText": "if (i is string) {\n\t${1}\n} else if (i is int) {\n\t${2}\n} else {\n\t${3}\n}",
+      "detail": "Statement",
+      "sortText": "200",
+      "insertText": "but {\n\t${1}\n};",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "trap",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "110",
+      "insertText": "trap ",
       "insertTextFormat": "Snippet"
     }
   ]

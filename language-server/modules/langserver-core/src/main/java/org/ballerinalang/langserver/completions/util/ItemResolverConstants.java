@@ -95,6 +95,7 @@ public class ItemResolverConstants {
     // Keyword constants
     public static final String VAR_KEYWORD = "var";
     public static final String CHECK_KEYWORD = "check";
+    public static final String CHECKPANIC_KEYWORD = "checkpanic";
     public static final String WAIT_KEYWORD = "wait";
     public static final String LISTENER_KEYWORD = "listener";
     public static final String RETURNS_KEYWORD = "returns";

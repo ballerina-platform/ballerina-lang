@@ -57,6 +57,7 @@ public class ServiceDefinitionCompletionTest extends CompletionTest {
 //            {"websubServiceBodyResourceCompletion.json", "service"},
             {"grpcServiceBodyResourceCompletion.json", "service"},
             {"serviceDefinitionContextSuggestion1.json", "service"},
+            {"completionAftercheckpanic.json", "service"},
         };
     }
 }

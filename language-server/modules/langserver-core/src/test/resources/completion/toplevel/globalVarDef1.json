@@ -1101,6 +1101,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "checkpanic",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "210",
+      "insertText": "checkpanic ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "wait",
       "kind": "Keyword",
       "detail": "Keyword",

@@ -839,6 +839,9 @@ public abstract class LSCompletionProvider {
         // Add the check keyword
         CompletionItem checkKeyword = Snippet.KW_CHECK.get().build(context);
         completionItems.add(checkKeyword);
+        // Add the checkpanic keyword
+        CompletionItem checkPanicKeyword = Snippet.KW_CHECK_PANIC.get().build(context);
+        completionItems.add(checkPanicKeyword);
         // Add the wait keyword
         CompletionItem waitKeyword = Snippet.KW_WAIT.get().build(context);
         completionItems.add(waitKeyword);

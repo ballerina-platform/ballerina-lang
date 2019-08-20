@@ -152,6 +152,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get checkpanic Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getCheckPanicKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.CHECKPANIC_KEYWORD, "checkpanic ",
+                ItemResolverConstants.KEYWORD_TYPE, SnippetType.KEYWORD);
+    }
+
+    /**
      * Get Wait Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
