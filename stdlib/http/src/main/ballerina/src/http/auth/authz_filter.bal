@@ -64,20 +64,39 @@ public type AuthzFilter object {
 
 function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterContext context,
                             string[]|string[][] scopes) returns boolean|AuthorizationError {
-    boolean|AuthorizationError authorized = true;
     runtime:Principal? principal = runtime:getInvocationContext()?.principal;
     if (principal is runtime:Principal) {
         var canProcessResponse = authzHandler.canProcess(request);
         if (canProcessResponse is boolean && canProcessResponse) {
-            authorized = authzHandler.process(principal?.username ?: "", context.getServiceName(),
-                                              context.getResourceName(), request.method, scopes);
+            // since different resources can have different scopes,
+            // cache key is <username>-<service>-<resource>-<http-method>-<scopes-separated-by-comma>
+            string authzCacheKey = (principal?.username ?: "") + "-" + context.getServiceName() + "-" +
+                                   context.getResourceName() + "-" + request.method;
+            string[] authCtxtScopes = principal?.scopes ?: [];
+            if (authCtxtScopes.length() > 0) {
+                authzCacheKey += "-";
+                foreach var authCtxtScope in authCtxtScopes {
+                    authzCacheKey += authCtxtScope + ",";
+                }
+            }
+            boolean authorized = authzHandler.process(authzCacheKey, authCtxtScopes, scopes);
+            if (authorized) {
+                log:printDebug(function () returns string {
+                    return "Successfully authorized to access resource: " + context.getResourceName() +
+                            ", method: " + request.method;
+                });
+            } else {
+                log:printDebug(function () returns string {
+                    return "Authorization failure for resource: " + context.getResourceName() +
+                            ", method: " + request.method;
+                });
+            }
+            return authorized;
         } else {
-            authorized = canProcessResponse;
+            return canProcessResponse;
         }
-    } else {
-        authorized = false;
     }
-    return authorized;
+    return false;
 }
 
 # Verifies if the authorization is successful. If not responds to the user.

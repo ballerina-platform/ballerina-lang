@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/cache;
 import ballerina/encoding;
 import ballerina/internal;
 import ballerina/log;
@@ -104,4 +105,82 @@ public function setPrincipal(public string? userId = (), public string? username
     if (!(claims is ())) {
         invocationContext.principal.claims = claims;
     }
+}
+
+# Tries to retrieve authorization decision from the cached information, if any.
+#
+# + authzCacheKey - Cache key
+# + positiveAuthzCache - The cache for positive authorizations
+# + negativeAuthzCache - The cache for negative authorizations
+# + return - `true` or `false` in case of a cache hit, `()` in case of a cache miss
+public function authorizeFromCache(string authzCacheKey, cache:Cache? positiveAuthzCache, cache:Cache? negativeAuthzCache) returns boolean? {
+    cache:Cache? pCache = positiveAuthzCache;
+    if (pCache is cache:Cache) {
+        var positiveCacheResponse = pCache.get(authzCacheKey);
+        if (positiveCacheResponse is boolean) {
+            return true;
+        }
+    }
+
+    cache:Cache? nCache = negativeAuthzCache;
+    if (nCache is cache:Cache) {
+        var negativeCacheResponse = nCache.get(authzCacheKey);
+        if (negativeCacheResponse is boolean) {
+            return false;
+        }
+    }
+    return ();
+}
+
+# Cached the authorization result.
+#
+# + authorized - boolean flag to indicate the authorization decision
+# + authzCacheKey - Cache key
+# + positiveAuthzCache - The cache for positive authorizations
+# + negativeAuthzCache - The cache for negative authorizations
+public function cacheAuthzResult(boolean authorized, string authzCacheKey, cache:Cache? positiveAuthzCache, cache:Cache? negativeAuthzCache) {
+    if (authorized) {
+        cache:Cache? pCache = positiveAuthzCache;
+        if (pCache is cache:Cache) {
+            pCache.put(authzCacheKey, authorized);
+        }
+    } else {
+        cache:Cache? nCache = negativeAuthzCache;
+         if (nCache is cache:Cache) {
+            nCache.put(authzCacheKey, authorized);
+         }
+    }
+}
+
+# Check whether the scopes of the user and scopes of resource matches.
+#
+# + resourceScopes - Scopes of resource
+# + userScopes - Scopes of user
+# + return - true if there is a match between resource and user scopes, else false
+public function checkForScopeMatch(string[]|string[][] resourceScopes, string[] userScopes) returns boolean {
+    boolean authorized = true;
+    if (resourceScopes is string[]) {
+        authorized = matchScopes(resourceScopes, userScopes);
+    } else {
+        foreach string[] resourceScope in resourceScopes {
+            authorized = authorized && matchScopes(resourceScope, userScopes);
+        }
+    }
+    return authorized;
+}
+
+# Tries to find a match between the two scope arrays.
+#
+# + resourceScopes - Scopes of resource
+# + userScopes - Scopes of the user
+# + return - true if one of the resourceScopes can be found at userScopes, else false
+function matchScopes(string[] resourceScopes, string[] userScopes) returns boolean {
+    foreach var resourceScope in resourceScopes {
+        foreach var userScope in userScopes {
+            if (resourceScope == userScope) {
+                return true;
+            }
+        }
+    }
+    return false;
 }

@@ -182,8 +182,8 @@ public type ListenerHttp1Settings record {|
 public type ListenerAuth record {|
     InboundAuthHandler[]|InboundAuthHandler[][] authHandlers;
     string[]|string[][] scopes?;
-    AuthCacheConfig positiveAuthzCache = {};
-    AuthCacheConfig negativeAuthzCache = {};
+    AuthzCacheConfig positiveAuthzCache = {};
+    AuthzCacheConfig negativeAuthzCache = {};
     int position = 0;
 |};
 
@@ -232,7 +232,7 @@ public type ListenerSecureSocket record {|
 # + expiryTimeInMillis - The number of milliseconds to keep an entry in the cache
 # + evictionFactor - The fraction of entries to be removed when the cache is full. The value should be
 #                    between 0 (exclusive) and 1 (inclusive).
-public type AuthCacheConfig record {|
+public type AuthzCacheConfig record {|
     boolean enabled = true;
     int capacity = 100;
     int expiryTimeInMillis = 5 * 1000; // 5 seconds;
@@ -267,14 +267,20 @@ function addAuthFilters(ListenerConfiguration config) {
         InboundAuthHandler[]|InboundAuthHandler[][] authHandlers = auth.authHandlers;
         AuthnFilter authnFilter = new(authHandlers);
 
-        var scopes = auth["scopes"];
-        cache:Cache positiveAuthzCache = new(auth.positiveAuthzCache.expiryTimeInMillis,
-                                             auth.positiveAuthzCache.capacity,
-                                             auth.positiveAuthzCache.evictionFactor);
-        cache:Cache negativeAuthzCache = new(auth.negativeAuthzCache.expiryTimeInMillis,
-                                             auth.negativeAuthzCache.capacity,
-                                             auth.negativeAuthzCache.evictionFactor);
+        cache:Cache? positiveAuthzCache = ();
+        cache:Cache? negativeAuthzCache = ();
+        if (auth.positiveAuthzCache.enabled) {
+            positiveAuthzCache = new cache:Cache(auth.positiveAuthzCache.expiryTimeInMillis,
+                                     auth.positiveAuthzCache.capacity,
+                                     auth.positiveAuthzCache.evictionFactor);
+        }
+        if (auth.negativeAuthzCache.enabled) {
+            negativeAuthzCache = new cache:Cache(auth.negativeAuthzCache.expiryTimeInMillis,
+                                     auth.negativeAuthzCache.capacity,
+                                     auth.negativeAuthzCache.evictionFactor);
+        }
         AuthzHandler authzHandler = new(positiveAuthzCache, negativeAuthzCache);
+        var scopes = auth["scopes"];
         AuthzFilter authzFilter = new(authzHandler, scopes);
 
         if (auth.position == 0) {
