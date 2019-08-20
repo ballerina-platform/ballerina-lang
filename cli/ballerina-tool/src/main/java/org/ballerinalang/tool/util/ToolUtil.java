@@ -128,7 +128,12 @@ public class ToolUtil {
 
     public static void setVersion(String path, String version) throws IOException {
         PrintWriter writer = new PrintWriter(path, "UTF-8");
-        writer.println(BALLERINA_TYPE  + "-" + version);
+
+        if (!version.contains(BALLERINA_TYPE)) {
+            version = BALLERINA_TYPE  + "-" + version;
+        }
+
+        writer.println(version);
         writer.close();
     }
 
