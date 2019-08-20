@@ -212,8 +212,13 @@
                 "category": "Ballerina"
             },
             {
-                "command": "ballerina.runAllTests",
-                "title": "Run All Tests",
+                "command": "ballerina.project.test",
+                "title": "Run Project Tests",
+                "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.project.build",
+                "title": "Build Project",
                 "category": "Ballerina"
             },
             {
