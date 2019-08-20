@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/mime;
 import ballerina/log;
 
 final string ACCEPT_ENCODING = "accept-encoding";

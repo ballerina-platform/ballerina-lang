@@ -18,7 +18,6 @@ import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/http;
 import ballerina/internal;
-import ballerina/system;
 
 // Values that the grant_type parameter can hold.
 const GRANT_TYPE_CLIENT_CREDENTIALS = "client_credentials";

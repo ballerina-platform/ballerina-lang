@@ -13,7 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/time;
 
 # This is a sliding time window based on external time, that holds events for that arrived during last window time
 # period from the external timestamp, and gets updated on every monotonically increasing timestamp.

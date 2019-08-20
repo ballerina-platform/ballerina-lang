@@ -17,7 +17,6 @@
 import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
-import ballerina/io;
 
 service pipeliningTest on new http:Listener(9220) {
 

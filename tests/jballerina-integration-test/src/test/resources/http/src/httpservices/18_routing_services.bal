@@ -16,7 +16,6 @@
 
 import ballerina/http;
 import ballerina/io;
-import ballerina/mime;
 
 listener http:Listener serviceEP = new(9114);
 

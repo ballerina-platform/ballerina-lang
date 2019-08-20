@@ -18,7 +18,6 @@ import ballerina/config;
 import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/internal;
-import ballerina/runtime;
 
 # Represents an inbound basic Auth provider, which is a configuration-file-based Auth store provider.
 #

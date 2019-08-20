@@ -18,7 +18,6 @@ import ballerina/config;
 import ballerina/filepath;
 import ballerina/io;
 import ballerina/log;
-import ballerina/math;
 import ballerina/task;
 import ballerina/time;
 import ballerina/system;

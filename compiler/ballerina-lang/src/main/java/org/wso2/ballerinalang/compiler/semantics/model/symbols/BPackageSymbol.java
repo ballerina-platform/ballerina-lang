@@ -43,6 +43,7 @@ public class BPackageSymbol extends BTypeSymbol {
     public PackageFile packageFile;
     public CompiledPackage compiledPackage;
     public Name compUnit;
+    public boolean isUsed = false;
 
     // TODO Temporary mechanism to hold a reference to the generated bir model
     public BIRNode.BIRPackage bir;   // TODO try to remove this

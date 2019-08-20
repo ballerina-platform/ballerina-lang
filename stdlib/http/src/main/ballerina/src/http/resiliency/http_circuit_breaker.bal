@@ -16,7 +16,6 @@
 
 import ballerina/log;
 import ballerina/time;
-import ballerina/io;
 
 # A finite type for modeling the states of the Circuit Breaker. The Circuit Breaker starts in the `CLOSED` state.
 # If any failure thresholds are exceeded during execution, the circuit trips and goes to the `OPEN` state. After

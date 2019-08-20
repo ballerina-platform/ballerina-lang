@@ -15,10 +15,8 @@
 // under the License.
 
 import ballerina/auth;
-import ballerina/cache;
 import ballerina/internal;
 import ballerina/log;
-import ballerina/runtime;
 import ballerina/time;
 
 const string SCOPES = "scope";

@@ -16,7 +16,6 @@
 
 import ballerina/io;
 import ballerina/http;
-import ballerina/mime;
 
 listener http:Listener serviceEndpoint1 = new(9092, { httpVersion: "2.0" });
 

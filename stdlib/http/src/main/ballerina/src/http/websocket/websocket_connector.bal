@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/encoding;
-import ballerina/'lang\.int as langint;
 
 # Represents a WebSocket connection in Ballerina. This includes all connection-oriented operations.
 type WebSocketConnector object {

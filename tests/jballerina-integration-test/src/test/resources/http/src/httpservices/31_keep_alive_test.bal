@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/log;
 
 http:Client http_1_1_default = new("http://localhost:9233");
 

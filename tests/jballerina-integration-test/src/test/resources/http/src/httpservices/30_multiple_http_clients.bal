@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/log;
 
 listener http:Listener ep1 = new(9230, { httpVersion: "2.0" });
 listener http:Listener ep2 = new(9231, { httpVersion: "2.0" });

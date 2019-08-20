@@ -69,6 +69,7 @@ public class PackageImportTest {
     @Test()
     public void testImportsPerfile() {
         CompileResult result = BCompileUtil.compile("test-src/statements/package/sample-project", "invalid-imports");
+        System.err.println(result);
         Assert.assertEquals(result.getErrorCount(), 6);
         int i = 0;
         BAssertUtil.validateError(result, i++, "redeclared import module 'ballerina/io'", "src/file-negative1.bal", 3,

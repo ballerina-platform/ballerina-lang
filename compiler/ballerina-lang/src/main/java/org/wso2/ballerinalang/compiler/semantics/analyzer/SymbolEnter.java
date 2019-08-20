@@ -409,7 +409,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        ((BPackageSymbol) this.env.scope.owner).imports.add(pkgSymbol);
+        List<BPackageSymbol> imports = ((BPackageSymbol) this.env.scope.owner).imports;
+        if (!imports.contains(pkgSymbol)) {
+            imports.add(pkgSymbol);
+        }
 
         // get a copy of the package symbol, add compilation unit info to it,
         // and define it in the current package scope

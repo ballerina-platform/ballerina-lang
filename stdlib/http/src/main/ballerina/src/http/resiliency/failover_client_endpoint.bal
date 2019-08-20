@@ -16,7 +16,6 @@
 
 import ballerina/mime;
 import ballerina/runtime;
-import ballerina/io;
 
 # Provides a set of configurations for controlling the failover behaviour of the endpoint.
 #

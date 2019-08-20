@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http as network;
-import ballerina/io;
 import ballerina/log;
 
 listener network:Listener echoEP5 = new(9101);

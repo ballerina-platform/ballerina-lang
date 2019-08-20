@@ -16,7 +16,6 @@
 
 import ballerina/config;
 import ballerina/http;
-import ballerina/io;
 
 http:ListenerConfiguration mutualSslCertServiceConf = {
     secureSocket: {

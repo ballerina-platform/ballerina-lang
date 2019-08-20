@@ -16,10 +16,8 @@
 
 import ballerina/auth;
 import ballerina/crypto;
-import ballerina/encoding;
 import ballerina/http;
 import ballerina/internal;
-import ballerina/runtime;
 
 OutboundCustomAuthProvider outboundCustomAuthProvider = new;
 OutboundCustomAuthHandler outboundCustomAuthHandler = new(outboundCustomAuthProvider);

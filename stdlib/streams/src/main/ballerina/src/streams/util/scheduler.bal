@@ -14,10 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 import ballerina/time;
 import ballerina/task;
-import ballerina/io;
 
 # The `Scheduler` object is responsible for generating streams:TIMER events at the given timestamp. Once the event is
 # generated, the timer event is passed to the provided `processFunc` function pointer. The function pointer is the

@@ -17,7 +17,6 @@
 
 import ballerina/http;
 import ballerina/log;
-import ballerina/runtime;
 
 listener http:Listener circuitBreakerEP03 = new(9309);
 

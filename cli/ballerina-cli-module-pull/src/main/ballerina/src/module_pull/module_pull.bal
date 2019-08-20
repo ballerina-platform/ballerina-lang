@@ -19,7 +19,6 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/system;
 import ballerina/'lang\.int as lint;
-import ballerina/'lang\.string as lstring;
 import ballerina/internal;
 
 const int MAX_INT_VALUE = 2147483647;

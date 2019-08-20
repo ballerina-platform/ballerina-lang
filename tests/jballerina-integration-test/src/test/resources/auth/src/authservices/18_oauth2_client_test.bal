@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
 import ballerina/oauth2;
 
 // Test the client credentials grant type with valid credentials

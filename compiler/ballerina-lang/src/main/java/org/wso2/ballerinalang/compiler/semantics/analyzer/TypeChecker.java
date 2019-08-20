@@ -1145,7 +1145,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 symResolver.resolveImportSymbol(env, names.fromIdNode(varRefExpr.pkgAlias), compUnitName);
         if (varRefExpr.pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_MODULE, varRefExpr.pkgAlias);
-            return;
         }
 
         if (varRefExpr.pkgSymbol.tag == SymTag.XMLNS) {
@@ -2632,8 +2631,8 @@ public class TypeChecker extends BLangNodeVisitor {
         BType actualType = symTable.semanticError;
         BSymbol symbol =
                 this.symResolver.resolveAnnotation(annotAccessExpr.pos, env,
-                                                   names.fromString(annotAccessExpr.pkgAlias.getValue()),
-                                                   names.fromString (annotAccessExpr.annotationName.getValue()));
+                        names.fromString(annotAccessExpr.pkgAlias.getValue()),
+                        names.fromString(annotAccessExpr.annotationName.getValue()));
         if (symbol == this.symTable.notFoundSymbol) {
             this.dlog.error(annotAccessExpr.pos, DiagnosticCode.UNDEFINED_ANNOTATION,
                             annotAccessExpr.annotationName.getValue());
@@ -2726,7 +2725,8 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_MODULE, pkgAlias);
         } else {
             if (funcSymbol == symTable.notFoundSymbol) {
-                funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
+                funcSymbol =
+                        symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
             }
             if (funcSymbol == symTable.notFoundSymbol) {
                 funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.CONSTRUCTOR);

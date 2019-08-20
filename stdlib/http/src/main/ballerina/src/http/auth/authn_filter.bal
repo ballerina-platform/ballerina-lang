@@ -14,9 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/reflect;
-import ballerina/runtime;
-
 # Representation of the Authentication filter.
 #
 # + authHandlers - An array of authentication handlers.

@@ -17,7 +17,6 @@
 
 import ballerina/http;
 import ballerina/log;
-import ballerina/runtime;
 
 int forceOpenStateCount = 0;
 
