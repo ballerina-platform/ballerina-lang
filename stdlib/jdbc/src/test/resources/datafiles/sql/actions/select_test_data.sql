@@ -13,7 +13,7 @@ CREATE TABLE NumericTypes (
 );
 /
 INSERT INTO NumericTypes (id, int_type, bigint_type, smallint_type, tinyint_type, bit_type, decimal_type, numeric_type,
-    float_type, real_type) values (1, 2147483647, 9223372036854774807, 32767, 127, 1, 1234.567, 1234.567, 1234.567,
+    float_type, real_type) VALUES (1, 2147483647, 9223372036854774807, 32767, 127, 1, 1234.567, 1234.567, 1234.567,
     1234.567);
 /
 CREATE TABLE Customers(

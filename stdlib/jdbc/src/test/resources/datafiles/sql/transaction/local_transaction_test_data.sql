@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS Customers(
   PRIMARY KEY (customerId)
 );
 /
-insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-  values ('Peter', 'Stuart', 1, 5000.75, 'USA');
+INSERT INTO Customers (firstName,lastName,registrationID,creditLimit,country)
+  VALUES ('Peter', 'Stuart', 1, 5000.75, 'USA');
 /
 CREATE TABLE IF NOT EXISTS CustomersTrx(
   customerId INTEGER NOT NULL IDENTITY,
@@ -31,10 +31,10 @@ CREATE TABLE IF NOT EXISTS CustomersTrx2(
   PRIMARY KEY (customerId)
 );
 /
-insert into CustomersTrx (firstName,lastName,registrationID,creditLimit,country)
-  values ('Peter', 'Stuart', 1, 5000.75, 'USA');
+INSERT INTO CustomersTrx (firstName,lastName,registrationID,creditLimit,country)
+  VALUES ('Peter', 'Stuart', 1, 5000.75, 'USA');
 /
-insert into CustomersTrx2 (customerId,firstName,lastName,registrationID,creditLimit,country)
+INSERT INTO CustomersTrx2 (customerId,firstName,lastName,registrationID,creditLimit,country)
   values (1, 'Peter', 'Stuart', 1, 5000.75, 'USA');
 /
 CREATE ALIAS InsertPersonDataSuccessful FOR "org.ballerinax.jdbc.transaction.SQLTransactionsTest.insertPersonDataSuccessful";

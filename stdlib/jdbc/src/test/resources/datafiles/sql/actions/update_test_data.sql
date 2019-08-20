@@ -12,18 +12,18 @@ CREATE TABLE NumericTypes (
    PRIMARY KEY (id)
 );
 /
-insert into NumericTypes (int_type) values (10);
+INSERT INTO NumericTypes (int_type) VALUES (10);
 /
 CREATE TABLE StringTypes (
    id INT,
-   varchar_type varchar(255),
-   charmax_type char(10),
-   char_type char,
-   charactermax_type character(10),
-   character_type character,
-   nvarcharmax_type nvarchar(255),
-   longvarchar_type longvarchar,
-   clob_type clob,
+   varchar_type VARCHAR(255),
+   charmax_type CHAR(10),
+   char_type CHAR,
+   charactermax_type CHARACTER(10),
+   character_type CHARACTER,
+   nvarcharmax_type NVARCHAR(255),
+   longvarchar_type LONGVARCHAR,
+   clob_type CLOB,
    PRIMARY KEY (id)
 );
 /
