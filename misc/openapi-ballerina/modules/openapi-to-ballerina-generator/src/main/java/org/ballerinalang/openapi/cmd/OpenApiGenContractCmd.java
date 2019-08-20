@@ -120,7 +120,7 @@ public class OpenApiGenContractCmd implements BLauncherCmd {
 
     @Override
     public String getName() {
-        return null;
+        return CMD_NAME;
     }
 
     @Override
