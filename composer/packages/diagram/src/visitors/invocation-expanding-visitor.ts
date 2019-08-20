@@ -161,6 +161,7 @@ function getExpandedSubTree(invocation: Invocation): {node: BalFunction, uri: st
 export function setProjectAST(ast: ProjectAST) {
     projectAST = ast;
     invocationDepth = 0;
+    reachedInvocationDepth = 0;
 }
 
 export function setMaxInvocationDepth(depth: number) {

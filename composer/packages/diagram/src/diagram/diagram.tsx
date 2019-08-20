@@ -104,6 +104,8 @@ export class Diagram extends React.Component<DiagramProps, DiagramState> {
         // Calculate dimention of AST Nodes.
         ASTUtil.traversNode(ast, sizingVisitor);
         // Calculate positions of the AST Nodes.
+        (ast.viewState as ViewState).bBox.x = 0;
+        (ast.viewState as ViewState).bBox.y = 0;
         ASTUtil.traversNode(ast, positioningVisitor);
         // Get React components for AST Nodes.
         children.push(DiagramUtils.getComponents(ast));

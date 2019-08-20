@@ -115,10 +115,12 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
 
     public selectConstruct({moduleName, constructName, subConstructName}: ConstructIdentifier) {
         this.setState({
+            maxInvocationDepth: -1,
             selectedConstruct: {
                 constructName, moduleName, subConstructName
-            }
+            },
         });
+        this.handleReset();
     }
 
     public componentDidMount() {

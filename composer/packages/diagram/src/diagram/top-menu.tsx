@@ -50,7 +50,8 @@ export const TopMenu = (props: TopMenuProps) => {
                 </div>
                 <div onClick={handleOpened} className="status-wrapper">
                     Zoom : <Label> {`${Math.floor(zoomFactor * 100)}%`} </Label>
-                    Depth : <Label>{maxInvocationDepth === -1 ? "All" : maxInvocationDepth.toString()}</Label>
+                    Depth : <Label>{maxInvocationDepth === -1 ?
+                        reachedInvocationDepth : maxInvocationDepth.toString()}</Label>
                     Design : <Label>{selectedModeText}</Label>
                 </div>
             </div> :
