@@ -43,7 +43,7 @@
             <package name="org.ballerinalang.test.parser.*"/>
             <package name="org.ballerinalang.test.closures.*"/>
             <package name="org.ballerinalang.test.bir.*"/>
-            <!--<package name="org.ballerinalang.test.dataflow.*"/>-->
+            <package name="org.ballerinalang.test.dataflow.*"/>
             <package name="org.ballerinalang.test.variable.shadowing.*"/>
             <package name="org.ballerinalang.test.net.*"/>
             <package name="org.ballerinalang.test.typedefs.*"/>
