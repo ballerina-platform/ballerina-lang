@@ -62,6 +62,10 @@ public class StatementContextProvider extends LSCompletionProvider {
         ParserRuleContext parserRuleContext = context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
         Boolean inWorkerReturn = context.get(CompletionKeys.IN_WORKER_RETURN_CONTEXT_KEY);
         int invocationOrDelimiterTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
+        
+        if (this.isAnnotationAccessExpression(context)) {
+            return this.getProvider(AnnotationAccessExpressionContextProvider.class).getCompletions(context);
+        }
 
         if (parserRuleContext != null && this.getProvider(parserRuleContext.getClass()) != null) {
             return this.getProvider(parserRuleContext.getClass()).getCompletions(context);
@@ -151,7 +155,7 @@ public class StatementContextProvider extends LSCompletionProvider {
                         paramCounter++;
                     }
                     int finalParamCounter = paramCounter;
-                    String restSnippet = (!snippet.toString().isEmpty() && resultTypes.size() > 1) ? " else " : "";
+                    String restSnippet = (!snippet.toString().isEmpty() && resultTypes.size() > 2) ? " else " : "";
                     restSnippet += IntStream.range(0, resultTypes.size() - paramCounter).mapToObj(value -> {
                         BType bType = members.get(value);
                         String placeHolder = "\t${" + (value + finalParamCounter) + "}";
@@ -165,6 +169,13 @@ public class StatementContextProvider extends LSCompletionProvider {
                     return new SnippetBlock(label, snippet.toString(), detail,
                             SnippetBlock.SnippetType.SNIPPET).build(ctx);
                 }).collect(Collectors.toList());
+    }
+    
+    private boolean isAnnotationAccessExpression(LSContext context) {
+        List<Integer> defaultTokenTypes = context.get(CompletionKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
+        int annotationAccessIndex = defaultTokenTypes.indexOf(BallerinaParser.ANNOTATION_ACCESS);
+
+        return annotationAccessIndex > -1;
     }
 }
 

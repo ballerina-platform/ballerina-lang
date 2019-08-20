@@ -86,6 +86,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
@@ -168,13 +169,6 @@ public class TreeVisitor extends LSNodeVisitor {
         this.symbolEnv = pkgEnv;
 
         List<TopLevelNode> topLevelNodes = CommonUtil.getCurrentFileTopLevelNodes(evalPkg, lsContext);
-        List<BLangImportPackage> imports = CommonUtil.getCurrentModuleImports(lsContext);
-        
-        imports.forEach(bLangImportPackage -> {
-            cursorPositionResolver = TopLevelNodeScopeResolver.class;
-            this.blockOwnerStack.push(evalPkg);
-            acceptNode(bLangImportPackage, pkgEnv);
-        });
 
         List<TopLevelNode> filteredTopLevelNodes = topLevelNodes.stream()
                 .filter(CommonUtil.checkInvalidTypesDefs())
@@ -813,6 +807,12 @@ public class TreeVisitor extends LSNodeVisitor {
             this.terminateVisitor = true;
             this.lsContext.put(DocumentServiceKeys.TERMINATE_OPERATION_KEY, true);
         }
+    }
+
+    @Override
+    public void visit(BLangForever foreverStatement) {
+        CursorPositionResolvers.getResolverByClass(this.cursorPositionResolver)
+                .isCursorBeforeNode(foreverStatement.pos, this, this.lsContext, foreverStatement, null);
     }
 
     ///////////////////////////////////

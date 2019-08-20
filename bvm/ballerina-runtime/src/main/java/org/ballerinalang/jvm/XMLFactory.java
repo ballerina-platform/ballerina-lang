@@ -18,7 +18,6 @@
 package org.ballerinalang.jvm;
 
 import org.apache.axiom.c14n.Canonicalizer;
-import org.apache.axiom.c14n.exceptions.AlgorithmAlreadyRegisteredException;
 import org.apache.axiom.c14n.exceptions.CanonicalizationException;
 import org.apache.axiom.c14n.exceptions.InvalidCanonicalizerException;
 import org.apache.axiom.om.DeferredParsingException;
@@ -100,10 +99,10 @@ public class XMLFactory {
             Canonicalizer.register(CANONICALIZER_EXCL_WITH_COMMENTS,
                     "org.apache.axiom.c14n.impl.Canonicalizer20010315ExclWithComments");
             canonicalizer = Canonicalizer.getInstance(CANONICALIZER_WITH_COMMENTS);
-        } catch (AlgorithmAlreadyRegisteredException e) {
-            // ignore
         } catch (InvalidCanonicalizerException e) {
             throw BallerinaErrors.createError("Error initializing canonicalizer: " + e.getMessage());
+        } catch (Exception ignore) {
+            // Ignore
         }
     }
 

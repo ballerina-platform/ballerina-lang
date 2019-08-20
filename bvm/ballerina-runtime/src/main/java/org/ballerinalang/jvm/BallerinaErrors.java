@@ -30,11 +30,14 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_RUNTIME_PKG;
 import static org.ballerinalang.jvm.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.INIT_FUNCTION_SUFFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
+import static org.ballerinalang.jvm.util.BLangConstants.START_FUNCTION_SUFFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.STOP_FUNCTION_SUFFIX;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 
@@ -44,14 +47,17 @@ import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_C
  * @since 0.995.0
  */
 public class BallerinaErrors {
-    
+
     public static final String ERROR_MESSAGE_FIELD = "message";
     public static final String NULL_REF_EXCEPTION = "NullReferenceException";
     public static final String CALL_STACK_ELEMENT = "CallStackElement";
     public static final String ERROR_CAUSE_FIELD = "cause";
     public static final String ERROR_STACK_TRACE = "stackTrace";
-
     public static final String ERROR_PRINT_PREFIX = "error: ";
+    public static final String GENERATE_PKG_INIT = "___init_";
+    public static final String GENERATE_PKG_START = "___start_";
+    public static final String GENERATE_PKG_STOP = "___stop_";
+    public static final String GENERATE_OBJECT_CLASS_PREFIX = ".$value$";
 
     public static ErrorValue createError(String reason) {
         return new ErrorValue(reason, new MapValueImpl<>(BTypes.typeErrorDetail));
@@ -151,10 +157,12 @@ public class BallerinaErrors {
     public static ArrayValue generateCallStack() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         List<StackTraceElement> filteredStack = new LinkedList<>();
-        for (int i = 0; i < stackTrace.length; i++) {
-            StackTraceElement stackTraceElement = BallerinaErrors.filterStackTraceElement(stackTrace, i);
-            if (stackTraceElement != null) {
-                filteredStack.add(stackTraceElement);
+        int index = 0;
+        for (StackTraceElement stackFrame : stackTrace) {
+            Optional<StackTraceElement> stackTraceElement =
+                    BallerinaErrors.filterStackTraceElement(stackFrame, index++);
+            if (stackTraceElement.isPresent()) {
+                filteredStack.add(stackTraceElement.get());
             }
         }
         BType recordType = BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG, CALL_STACK_ELEMENT).getType();
@@ -165,32 +173,49 @@ public class BallerinaErrors {
         return callStack;
     }
 
-    public static StackTraceElement filterStackTraceElement(StackTraceElement[] stackTrace,
-                                                            int currentIndex) {
-        StackTraceElement stackFrame = stackTrace[currentIndex];
-        String pkgName = stackFrame.getClassName();
+    public static Optional<StackTraceElement> filterStackTraceElement(StackTraceElement stackFrame, int currentIndex) {
         String fileName = stackFrame.getFileName();
+
         int lineNo = stackFrame.getLineNumber();
         if (lineNo < 0) {
-            return null;
+            return Optional.empty();
         }
+
         // Handle init function
-        if (pkgName.equals(MODULE_INIT_CLASS_NAME)) {
-            if (currentIndex != 0) {
-                return new StackTraceElement(stackFrame.getClassName(), INIT_FUNCTION_SUFFIX,
-                                             fileName, stackFrame.getLineNumber());
+        String className = stackFrame.getClassName();
+        String methodName = stackFrame.getMethodName();
+        if (className.equals(MODULE_INIT_CLASS_NAME)) {
+            if (currentIndex == 0) {
+                return Optional.empty();
             }
 
-            return null;
+            switch (methodName) {
+                case GENERATE_PKG_INIT:
+                    methodName = INIT_FUNCTION_SUFFIX;
+                    break;
+                case GENERATE_PKG_START:
+                    methodName = START_FUNCTION_SUFFIX;
+                    break;
+                case GENERATE_PKG_STOP:
+                    methodName = STOP_FUNCTION_SUFFIX;
+                    break;
+                default:
+                    return Optional.empty();
+            }
+
+            return Optional.of(new StackTraceElement(cleanupClassName(className), methodName, fileName,
+                    stackFrame.getLineNumber()));
+
         }
 
         if (!fileName.endsWith(BLANG_SRC_FILE_SUFFIX)) {
             // Remove java sources for bal stacktrace if they are not extern functions.
-            return null;
+            return Optional.empty();
         }
-        return stackFrame;
-    }
 
+        return Optional.of(
+                new StackTraceElement(cleanupClassName(className), methodName, fileName, stackFrame.getLineNumber()));
+    }
 
     private static MapValue<String, Object> getStackFrame(StackTraceElement stackTraceElement) {
         Object[] values = new Object[4];
@@ -200,5 +225,9 @@ public class BallerinaErrors {
         values[3] = stackTraceElement.getLineNumber();
         return BallerinaValues.createRecord(
                 BallerinaValues.createRecordValue(BALLERINA_RUNTIME_PKG, CALL_STACK_ELEMENT), values);
+    }
+
+    private static String cleanupClassName(String className) {
+        return className.replace(GENERATE_OBJECT_CLASS_PREFIX, ".");
     }
 }

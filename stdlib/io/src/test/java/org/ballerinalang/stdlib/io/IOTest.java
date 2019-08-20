@@ -17,6 +17,8 @@
 
 package org.ballerinalang.stdlib.io;
 
+import org.apache.axiom.om.OMNode;
+import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
@@ -343,7 +345,7 @@ public class IOTest {
 
     @Test(description = "Test 'writeXml' function in ballerina/io package")
     public void testWriteXmlCharacters() {
-        String content = "\t<test>\n" +
+        String content = "<test>\n" +
                 "\t\t<name>Foo</name>\n" +
                 "\t</test>";
 
@@ -352,8 +354,8 @@ public class IOTest {
         //Will initialize the channel
         BValue[] args = {new BString(sourceToWrite), new BString("UTF-8")};
         BRunUtil.invoke(characterInputOutputProgramFile, "initWritableChannel", args);
-
-        args = new BValue[]{new BXMLItem(content)};
+        OMNode omNode = (OMNode) XMLFactory.parse(content).value();
+        args = new BValue[] { new BXMLItem(omNode) };
         BValue[] result = BRunUtil.invoke(characterInputOutputProgramFile, "writeXml", args);
 
         //Assert if there's no error return

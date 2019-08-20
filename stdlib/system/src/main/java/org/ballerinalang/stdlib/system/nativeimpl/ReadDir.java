@@ -50,20 +50,34 @@ public class ReadDir {
 
     private static BType fileInfoType;
 
-    public static Object readDir(Strand strand, String path) {
+    public static Object readDir(Strand strand, String path, long maxDepth) {
         File inputFile = Paths.get(path).toAbsolutePath().toFile();
 
         if (!inputFile.exists()) {
-            return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR, "" +
-                    "File doesn't exist in path " + path);
+            return SystemUtils.getBallerinaError(SystemConstants.FILE_NOT_FOUND_ERROR,
+                    "File not found: " + path);
         }
 
         if (!inputFile.isDirectory()) {
             return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR,
                     "File in path " + path + " is not a directory");
         }
+
+        if (maxDepth == SystemConstants.DEFAULT_MAX_DEPTH) {
+            // If the user has not given a value, read all levels
+            return readFileTree(inputFile, Integer.MAX_VALUE);
+        } else if (maxDepth > SystemConstants.DEFAULT_MAX_DEPTH && maxDepth < Integer.MAX_VALUE) {
+            // If the user has given a valid depth level, read up-to that level
+            return readFileTree(inputFile, Math.toIntExact(maxDepth));
+        } else {
+            return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR,
+                    "Invalid maxDepth value " + maxDepth);
+        }
+    }
+
+    private static Object readFileTree(File inputFile, int maxDepth) {
         ObjectValue[] results;
-        try (Stream<Path> walk = Files.walk(inputFile.toPath())) {
+        try (Stream<Path> walk = Files.walk(inputFile.toPath(), maxDepth)) {
             results = walk.map(x -> {
                 try {
                     ObjectValue objectValue = SystemUtils.getFileInfo(x.toFile());

@@ -37,7 +37,7 @@ public class WorkerCallingFunction {
         this.result = BCompileUtil.compile("test-src/workers/worker-calling-function.bal");
     }
 
-    @Test(description = "Test worker calling function", enabled = false)
+    @Test(description = "Test worker calling function")
     public void testWorkerCallingFunction() {
         BValue[] returns = BRunUtil.invoke(result, "testWorkerInVM");
         Assert.assertEquals(returns.length, 1);
