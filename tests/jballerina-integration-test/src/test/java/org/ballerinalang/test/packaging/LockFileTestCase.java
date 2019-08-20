@@ -74,7 +74,8 @@ public class LockFileTestCase extends BaseTest {
         this.tempProjectsDirectory = Files.createTempDirectory("bal-test-integration-packaging-project-");
         
         // copy TestProject1 to a temp
-        Path originalTestProj1 = Paths.get("src", "test", "resources", "packaging", "TestProject1").toAbsolutePath();
+        Path originalTestProj1 = Paths.get("src", "test", "resources", "packaging", "lockfile", "TestProject1")
+                .toAbsolutePath();
         this.testProj1Path = this.tempProjectsDirectory.resolve("TestProject1");
         copyFolder(originalTestProj1, this.testProj1Path);
     
@@ -90,7 +91,8 @@ public class LockFileTestCase extends BaseTest {
         deleteFiles(testProj1Path.resolve("src").resolve("module2"));
         
         // copy TestProject2 to a temp
-        Path originalTestProj2 = Paths.get("src", "test", "resources", "packaging", "TestProject2").toAbsolutePath();
+        Path originalTestProj2 = Paths.get("src", "test", "resources", "packaging", "lockfile", "TestProject2")
+                .toAbsolutePath();
         testProj2Path = tempProjectsDirectory.resolve("TestProject2");
         copyFolder(originalTestProj2, testProj2Path);
         

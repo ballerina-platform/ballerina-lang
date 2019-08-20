@@ -84,18 +84,18 @@ public function main(string... args) {
         // validate port
         int|error port = lint:fromString(strPort);
         if (port is error) {
-            panic createError("invalid port : " + strPort);
+            panic createError("invalid port specified for remote resigry: " + strPort);
         } else {
             http:Client|error result = trap defineEndpointWithProxy(url, host, port, proxyUsername, proxyPassword);
             if (result is error) {
-                panic createError("failed to resolve host : " + host + " with port " + port.toString());
+                panic createError("failed to resolve host of remote registry: " + host + " with port " + port.toString());
             } else {
                 httpEndpoint = result;
                 return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, platform, langSpecVersion, <@untainted> terminalWidth, nightlyBuild);
             }
         }
     } else if (host != "" || strPort != "") {
-        panic createError("both host and port should be provided to enable proxy");
+        panic createError("both host and port should be provided to enable proxy for accessing remote registry.");
     } else {
         httpEndpoint = defineEndpointWithoutProxy(url);
         return pullPackage(httpEndpoint, url, modulePath, modulePathInBaloCache, versionRange, platform, langSpecVersion, <@untainted> terminalWidth, nightlyBuild);
@@ -128,7 +128,7 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
     http:Response|error httpResponse = centralEndpoint->get(<@untainted> versionRange, req);
     if (httpResponse is error) {
         error e = httpResponse;
-        panic createError("connection to the remote host failed : " + e.reason());
+        panic createError("connection to the remote registry host failed : " + e.reason());
     } else {
         string statusCode = httpResponse.statusCode.toString();
         if (internal:hasPrefix(statusCode, "5")) {
@@ -143,7 +143,7 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
                     panic createError(resp.message.toString());
                 }
             } else {
-                panic createError("error occurred when pulling the module");
+                panic createError("error occurred when pulling the module from remote registry");
             }
         } else {
             string contentLengthHeader;
@@ -214,7 +214,7 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
                             if (!system:exists(<@untainted> nightlyBuildMetafile)) {
                                 string|error createdNightlyBuildFile = system:createFile(<@untainted> nightlyBuildMetafile);
                                 if (createdNightlyBuildFile is error) {
-                                    panic createError("Error occurred while creating nightly.build file.");
+                                    panic createError("error occurred while creating nightly.build file.");
                                 }
                             }
                         }

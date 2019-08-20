@@ -19,12 +19,14 @@
 package org.wso2.ballerinalang.compiler.packaging.repo;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.toml.model.Manifest;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.converters.SortablePath;
 import org.wso2.ballerinalang.compiler.packaging.converters.ZipConverter;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,6 +34,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -43,17 +46,20 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
  */
 public class HomeBaloRepo implements Repo<Path> {
     private Path repoLocation;
-    ZipConverter zipConverter;
-    List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
+    private ZipConverter zipConverter;
+    private List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
+    private Map<PackageID, Manifest> dependencyManifests;
     
-    public HomeBaloRepo(Path repo) {
-        this.repoLocation = repo.resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME);
-        this.zipConverter = new ZipConverter(repo.resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME));
+    public HomeBaloRepo(Map<PackageID, Manifest> dependencyManifests) {
+        this.repoLocation = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME);
+        this.dependencyManifests = dependencyManifests;
+        this.zipConverter = new ZipConverter(this.repoLocation);
         supportedPlatforms.add("any");
     }
     
     public Patten calculate(PackageID moduleID) {
         try {
+            // if path to balo is not given in the manifest file
             String orgName = moduleID.getOrgName().getValue();
             String pkgName = moduleID.getName().getValue();
             String versionStr = moduleID.getPackageVersion().getValue();
@@ -97,6 +103,10 @@ public class HomeBaloRepo implements Repo<Path> {
             Path baloFileName = baloFilePath.getFileName();
             if (Files.exists(baloFilePath) && null != baloFileName) {
                 moduleID.version = new Name(versionStr);
+    
+                // update dependency manifests map for imports of this moduleID.
+                this.dependencyManifests.put(moduleID, RepoUtils.getManifestFromBalo(baloFilePath.toAbsolutePath()));
+                
                 return new Patten(path(orgName, pkgName),
                         path(versionStr),
                         path(baloFileName.toString(), ProjectDirConstants.SOURCE_DIR_NAME, pkgName),
@@ -136,6 +146,6 @@ public class HomeBaloRepo implements Repo<Path> {
     
     @Override
     public String toString() {
-        return "{t:'BaloRepo', c:'" + this.zipConverter + "'}";
+        return "{t:'HomeBaloRepo', c:'" + this.zipConverter + "'}";
     }
 }

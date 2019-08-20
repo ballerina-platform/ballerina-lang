@@ -50,7 +50,7 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string or
         } else if (statusCode != "200") {
             json|error jsonResponse = response.getJsonPayload();
             if (jsonResponse is error) {
-                panic createError("invalid response json");
+                panic createError("unsupported response received from remote registry.");
             } else {
                 string message = jsonResponse.message.toString();
                 panic createError(message);

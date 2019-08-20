@@ -140,11 +140,13 @@ public class BaloFileWriter {
         Path moduleSourceDir = projectDirectory.resolve(ProjectDirConstants.SOURCE_DIR_NAME)
                 .resolve(module.packageID.name.value);
         String moduleName = module.packageID.name.value;
+        Path manifest = projectDirectory.resolve(ProjectDirConstants.MANIFEST_FILE_NAME);
         // Now lets put stuff in according to spec
         // /
         // └─ metadata/
         //    └─ BALO.toml
         //    └─ MODULE.toml
+        //    └─ Ballerina.toml
         // └─ src/
         // └─ resources/
         // └─ platform-libs/
@@ -152,13 +154,13 @@ public class BaloFileWriter {
         //    └─ MODULE-DESC.md
         //    └─ api-docs/
 
-        addMetaData(root, moduleName);
+        addMetaData(root, moduleName, manifest);
         addModuleSource(root, moduleSourceDir, moduleName);
         addResources(root, moduleSourceDir);
         addModuleDoc(root, moduleSourceDir);
         addPlatformLibs(root, projectDirectory, moduleName);
     }
-
+    
     private void addModuleDoc(Path root, Path moduleSourceDir) throws IOException {
         // create the docs directory in zip
         Path moduleMd = moduleSourceDir.resolve(ProjectDirConstants.MODULE_MD_FILE_NAME);
@@ -241,10 +243,11 @@ public class BaloFileWriter {
         Files.walkFileTree(moduleSourceDir, new Copy(moduleSourceDir, moduleDirInBalo, fileFilter, dirFilter));
     }
 
-    private void addMetaData(Path root, String moduleName) throws IOException {
+    private void addMetaData(Path root, String moduleName, Path manifestPath) throws IOException {
         Path metaDir = root.resolve(ProjectDirConstants.BALO_METADATA_DIR_NAME);
         Path baloMetaFile = metaDir.resolve(ProjectDirConstants.BALO_METADATA_FILE);
         Path moduleMetaFile = metaDir.resolve(ProjectDirConstants.BALO_MODULE_METADATA_FILE);
+        Path baloManifest = metaDir.resolve(ProjectDirConstants.MANIFEST_FILE_NAME);
 
         Files.createDirectories(metaDir);
 
@@ -256,16 +259,20 @@ public class BaloFileWriter {
         // Write to MODULE.toml
         Module moduleObj = new Module();
         moduleObj.setModule_name(moduleName);
-        moduleObj.setModule_organization(manifest.getProject().getOrgName());
-        moduleObj.setModule_version(manifest.getProject().getVersion());
-        moduleObj.setModule_authors(manifest.getProject().getAuthors());
-        moduleObj.setModule_keywords(manifest.getProject().getKeywords());
-        moduleObj.setModule_source_repository(manifest.getProject().getRepository());
-        moduleObj.setModule_licenses(manifest.getProject().getLicense());
-        moduleObj.setPlatform(manifest.getTargetPlatform());
+        moduleObj.setModule_organization(this.manifest.getProject().getOrgName());
+        moduleObj.setModule_version(this.manifest.getProject().getVersion());
+        moduleObj.setModule_authors(this.manifest.getProject().getAuthors());
+        moduleObj.setModule_keywords(this.manifest.getProject().getKeywords());
+        moduleObj.setModule_source_repository(this.manifest.getProject().getRepository());
+        moduleObj.setModule_licenses(this.manifest.getProject().getLicense());
+        moduleObj.setPlatform(this.manifest.getTargetPlatform());
         moduleObj.setBallerina_version(RepoUtils.getBallerinaVersion());
         String moduleToml = writer.write(moduleObj);
         Files.write(moduleMetaFile, moduleToml.getBytes(Charset.defaultCharset()));
+        
+        // Write Ballerina.toml
+        byte[] manifestBytes = Files.readAllBytes(manifestPath);
+        Files.write(baloManifest, manifestBytes);
     }
 
     static class Copy extends SimpleFileVisitor<Path> {
