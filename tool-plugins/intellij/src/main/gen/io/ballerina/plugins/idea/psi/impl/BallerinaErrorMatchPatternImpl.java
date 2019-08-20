@@ -74,8 +74,8 @@ public class BallerinaErrorMatchPatternImpl extends ASTWrapperPsiElement impleme
 
   @Override
   @Nullable
-  public PsiElement getTypeError() {
-    return findChildByType(TYPE_ERROR);
+  public PsiElement getError() {
+    return findChildByType(ERROR);
   }
 
 }

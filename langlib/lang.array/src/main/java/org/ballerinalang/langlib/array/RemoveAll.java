@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -37,7 +36,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 )
 public class RemoveAll {
 
-    public static Object removeAll(Strand strand, ArrayValue arr) {
-        throw BallerinaErrors.createError("Function 'removeAll()' is not implemented");
+    public static void removeAll(Strand strand, ArrayValue arr) {
+        SetLength.setLength(strand, arr, 0);
     }
 }
