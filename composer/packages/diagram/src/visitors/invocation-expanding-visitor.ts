@@ -12,6 +12,7 @@ let projectAST: ProjectAST;
 let envEndpoints: VisibleEndpoint[] = [];
 let invocationDepth = 0;
 let maxInvocationDepth = 0;
+let reachedInvocationDepth = 0;
 
 // This function processes endpoint parameters of expanded functions
 // so that actions to these parameters can be drawn to the original endpoint passed to them
@@ -83,6 +84,10 @@ function handleExpanding(expression: ASTNode, viewState: StmntViewState) {
     ASTUtil.traversNode(viewState.expandContext.expandedSubTree, initVisitor);
 
     invocationDepth += 1;
+    if (invocationDepth > reachedInvocationDepth) {
+        reachedInvocationDepth = invocationDepth;
+    }
+
     ASTUtil.traversNode(viewState.expandContext.expandedSubTree, visitor);
     invocationDepth -= 1;
 
@@ -160,6 +165,10 @@ export function setProjectAST(ast: ProjectAST) {
 
 export function setMaxInvocationDepth(depth: number) {
     maxInvocationDepth = depth;
+}
+
+export function getReachedInvocationDepth() {
+    return reachedInvocationDepth;
 }
 
 export const visitor: Visitor = {
