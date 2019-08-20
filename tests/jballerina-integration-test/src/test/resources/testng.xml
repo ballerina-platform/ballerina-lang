@@ -293,4 +293,11 @@
             <class name="org.ballerinalang.test.task.TimerStopTestCase"/>
         </classes>
     </test>
+
+    <test name="ballerina-cache-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <classes>
+            <class name="org.ballerinalang.test.cache.CacheBaseTest"/>
+        </classes>
+    </test>
 </suite>
