@@ -258,20 +258,7 @@ function testToString() returns string[] {
     Student varObj = new("Alaa", "MMV");
     Teacher varObj2 = new("Rola", "MMV");
     any[] varObjArr = [varObj, varObj2];
-    xml varXml = xml `<CATALOG>
-                       <CD>
-                           <TITLE>Empire Burlesque</TITLE>
-                           <ARTIST>Bob Dylan</ARTIST>
-                       </CD>
-                       <CD>
-                           <TITLE>Hide your heart</TITLE>
-                           <ARTIST>Bonnie Tyler</ARTIST>
-                       </CD>
-                       <CD>
-                           <TITLE>Greatest Hits</TITLE>
-                           <ARTIST>Dolly Parton</ARTIST>
-                       </CD>
-                   </CATALOG>`;
+    xml varXml = xml `<CATALOG><CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD><CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`;
 
     varMap["varInt"] = varInt;
     varMap["varFloat"] = varFloat;

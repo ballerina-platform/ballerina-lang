@@ -80,4 +80,34 @@ public class StringUtils {
         RefValue refValue = (RefValue) value;
         return refValue.stringValue();
     }
+
+    /**
+     * Returns the json string value of Ballerina values.
+     * @param value The value on which the function is invoked
+     * @return Json String value of the value
+     */
+    public static String getJsonString(Object value) {
+        if (value == null) {
+            return "null";
+        }
+
+        BType type = TypeChecker.getType(value);
+
+        if (type.getTag() < TypeTags.JSON_TAG) {
+            return String.valueOf(value);
+        }
+
+        if (type.getTag() == TypeTags.MAP_TAG) {
+            MapValueImpl mapValue = (MapValueImpl) value;
+            return mapValue.getJSONString();
+        }
+
+        if (type.getTag() == TypeTags.ARRAY_TAG) {
+            ArrayValue arrayValue = (ArrayValue) value;
+            return arrayValue.getJSONString();
+        }
+
+        RefValue refValue = (RefValue) value;
+        return refValue.stringValue();
+    }
 }

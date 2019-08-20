@@ -29,6 +29,7 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
@@ -149,7 +150,7 @@ public class TableUtils {
                 if (value == null) {
                     stmt.setNull(index, Types.VARCHAR);
                 } else {
-                    stmt.setString(index, data.get(fieldName).toString());
+                    stmt.setString(index, StringUtils.getJsonString(data.get(fieldName)));
                 }
                 break;
             case TypeTags.ARRAY_TAG:

@@ -118,21 +118,13 @@ public class LangLibValueTest {
         Assert.assertEquals(array.getString(3), "");
         Assert.assertEquals(array.getString(4), "true");
         Assert.assertEquals(array.getString(5), "345.2425341");
-        Assert.assertEquals(array.getString(6), "a=STRING b=12 c=12.4 d=true e=x=x y=");
-        Assert.assertEquals(array.getString(7), "<CATALOG>\n" +
-                                                "                       <CD>\n" +
-                                                "                           <TITLE>Empire Burlesque</TITLE>\n" +
-                                                "                           <ARTIST>Bob Dylan</ARTIST>\n" +
-                                                "                       </CD>\n" +
-                                                "                       <CD>\n" +
-                                                "                           <TITLE>Hide your heart</TITLE>\n" +
-                                                "                           <ARTIST>Bonnie Tyler</ARTIST>\n" +
-                                                "                       </CD>\n" +
-                                                "                       <CD>\n" +
-                                                "                           <TITLE>Greatest Hits</TITLE>\n" +
-                                                "                           <ARTIST>Dolly Parton</ARTIST>\n" +
-                                                "                       </CD>\n" +
-                                                "                   </CATALOG>");
+        Assert.assertEquals(array.getString(6), "a=STRING b=12 c=12.4 d=true e=(x=x y=)");
+        Assert.assertEquals(array.getString(7),
+                "<CATALOG>" +
+                "<CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD>" +
+                "<CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD>" +
+                "<CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD>" +
+                "</CATALOG>");
         Assert.assertEquals(array.getString(8), "str 23 23.4 true");
         Assert.assertEquals(array.getString(9), "error Reason1 message=Test passing error union to a function");
         Assert.assertEquals(array.getString(10), "object Student");
@@ -145,26 +137,17 @@ public class LangLibValueTest {
                             "varNil= " +
                             "varBool=true " +
                             "varDecimal=345.2425341 " +
-                            "varjson=a=STRING b=12 c=12.4 d=true e=x=x y= " +
-                            "varXml=<CATALOG>\n" +
-                                                 "                       <CD>\n" +
-                                                 "                           <TITLE>Empire Burlesque</TITLE>\n" +
-                                                 "                           <ARTIST>Bob Dylan</ARTIST>\n" +
-                                                 "                       </CD>\n" +
-                                                 "                       <CD>\n" +
-                                                 "                           <TITLE>Hide your heart</TITLE>\n" +
-                                                 "                           <ARTIST>Bonnie Tyler</ARTIST>\n" +
-                                                 "                       </CD>\n" +
-                                                 "                       <CD>\n" +
-                                                 "                           <TITLE>Greatest Hits</TITLE>\n" +
-                                                 "                           <ARTIST>Dolly Parton</ARTIST>\n" +
-                                                 "                       </CD>\n" +
-                                                 "                   </CATALOG> " +
-                            "varArr=str 23 23.4 true " +
+                            "varjson=(a=STRING b=12 c=12.4 d=true e=(x=x y=)) " +
+                            "varXml=<CATALOG>" +
+                            "<CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD>" +
+                            "<CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD>" +
+                            "<CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD>" +
+                            "</CATALOG> " +
+                            "varArr=(str 23 23.4 true) " +
                             "varErr=error Reason1 message=Test passing error union to a function " +
                             "varObj=object Student " +
                             "varObj2=Rola from MMV " +
-                            "varObjArr=object Student Rola from MMV");
+                            "varObjArr=(object Student Rola from MMV)");
     }
 
     @Test(dataProvider = "mergeJsonFunctions")

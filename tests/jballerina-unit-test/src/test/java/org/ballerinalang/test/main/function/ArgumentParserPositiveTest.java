@@ -296,9 +296,9 @@ public class ArgumentParserPositiveTest {
     @DataProvider(name = "arrayValues")
     public Object[][] arrayValues() {
         return new Object[][] {
-                { "[1, 2, 3]", "1 2 3" },
-                { "[1.1, 1.2, 1.3]", "1.1 1.2 1.3" },
-                { "[true, false, true]", "true false true" },
+                { "[1, 2, 3]", "[1, 2, 3]" },
+                { "[1.1, 1.2, 1.3]", "[1.1, 1.2, 1.3]" },
+                { "[true, false, true]", "[true, false, true]" },
                 { "[{\"name\":\"Maryam\"}, {\"address\":\"Colombo\"}]", 
                   "[{\"name\":\"Maryam\"}, {\"address\":\"Colombo\"}]"
                 }

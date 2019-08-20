@@ -41,12 +41,12 @@ function testNullStringRepresentation2() returns string {
 
 function testNullStringRepresentation3() returns string|error {
     json j = {name:"John Doe", age:25, location:null};
-    return j.toJsonString();
+    return j.toString();
 }
 
 function testNullStringRepresentation4() returns string {
     json j = {name:"John Doe", age:25, location:null};
-    return io:sprintf("%s", j.toJsonString());
+    return io:sprintf("%s", j.toString());
 }
 
 function testNullReturn() returns json {

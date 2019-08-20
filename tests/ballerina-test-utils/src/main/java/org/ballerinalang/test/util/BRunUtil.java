@@ -652,10 +652,11 @@ public class BRunUtil {
                 }
                 return jvmArray;
             case TypeTags.UNION_TAG:
-            case TypeTags.JSON_TAG:
             case TypeTags.ANY_TAG:
             case TypeTags.ANYDATA_TAG:
             case TypeTags.FINITE_TYPE_TAG:
+                return getJVMValue(value.getType(), value);
+            case TypeTags.JSON_TAG:
                 return getJVMValue(value.getType(), value);
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.MAP_TAG:
@@ -774,7 +775,7 @@ public class BRunUtil {
                 return getJVMValue(value.getType(), value);
             case TypeTags.JSON_TAG:
                 bMap = (BMap) value;
-                jvmMap = new MapValueImpl<>(getJVMType(type));
+                jvmMap = new MapValueImpl<>(new org.ballerinalang.jvm.types.BMapType(getJVMType(type)));
                 bMap.getMap().forEach((k, v) -> {
                     BValue bValue = bMap.get(k);
                     jvmMap.put(k, bValue != null ? getJVMValue(bValue.getType(), bValue) : null);

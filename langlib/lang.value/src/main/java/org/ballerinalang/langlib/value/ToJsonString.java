@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -45,28 +46,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class ToJsonString {
 
     public static String toJsonString(Strand strand, Object value) {
-
-        if (value == null) {
-            return "null";
-        }
-
-        BType type = TypeChecker.getType(value);
-
-        if (type.getTag() < TypeTags.JSON_TAG) {
-            return String.valueOf(value);
-        }
-
-        if (type.getTag() == TypeTags.MAP_TAG) {
-            MapValueImpl mapValue = (MapValueImpl) value;
-            return mapValue.getJSONString();
-        }
-
-        if (type.getTag() == TypeTags.ARRAY_TAG) {
-            ArrayValue arrayValue = (ArrayValue) value;
-            return arrayValue.getJSONString();
-        }
-
-        RefValue refValue = (RefValue) value;
-        return refValue.stringValue();
+        return StringUtils.getJsonString(value);
     }
 }

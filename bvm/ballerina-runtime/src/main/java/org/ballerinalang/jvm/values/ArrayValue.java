@@ -546,7 +546,7 @@ public class ArrayValue implements RefValue, CollectionValue {
         for (int i = 0; i < size; i++) {
             BType type = TypeChecker.getType(refValues[i]);
             if (type.getTag() == TypeTags.ARRAY_TAG || type.getTag() == TypeTags.MAP_TAG ||
-                type.getTag() == TypeTags.TABLE_TAG) {
+                type.getTag() == TypeTags.TABLE_TAG || type.getTag() == TypeTags.TUPLE_TAG) {
                 sj.add("(" + StringUtils.getStringValue(strand, refValues[i], type) + ")");
                 continue;
             }
