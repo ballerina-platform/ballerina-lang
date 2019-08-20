@@ -2386,8 +2386,7 @@ public class FormattingNodeTree {
             JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
             String indentation = this.getIndentation(formatConfig, false);
             String indentWithParentIndentation = this.getParentIndentation(formatConfig);
-            boolean isExpressionAvailable = node.has(FormattingConstants.EXPRESSION)
-                    && node.getAsJsonObject(FormattingConstants.EXPRESSION).has(FormattingConstants.WS);
+            boolean isExpressionAvailable = node.has(FormattingConstants.EXPRESSION);
             boolean isAsync = false;
             boolean isCheck = false;
             boolean isActionOrFieldInvocation = false;
@@ -2398,11 +2397,30 @@ public class FormattingNodeTree {
             this.preserveHeight(ws, indentWithParentIndentation);
 
             if (isExpressionAvailable) {
-                JsonObject expression = node.getAsJsonObject(FormattingConstants.EXPRESSION);
                 expressionName = node.getAsJsonObject(FormattingConstants.EXPRESSION).has("variableName") ?
                         node.getAsJsonObject(FormattingConstants.EXPRESSION).get("variableName")
                                 .getAsJsonObject().get("value").getAsString() : null;
-                expression.add(FormattingConstants.FORMATTING_CONFIG, formatConfig);
+                if (expressionName == null) {
+                    expressionName = node.getAsJsonObject(FormattingConstants.EXPRESSION).has(FormattingConstants.NAME)
+                            ? node.getAsJsonObject(FormattingConstants.EXPRESSION).get(FormattingConstants.NAME)
+                            .getAsJsonObject().get("value").getAsString() : null;
+
+                    if (expressionName == null) {
+                        expressionName = node.getAsJsonObject(FormattingConstants.EXPRESSION).has("fieldName")
+                                ? node.getAsJsonObject(FormattingConstants.EXPRESSION).get("fieldName")
+                                .getAsJsonObject().get("value").getAsString() : null;
+
+                        if (expressionName == null) {
+                            JsonObject expression = node.getAsJsonObject(FormattingConstants.EXPRESSION);
+                            if (!expression.has(FormattingConstants.WS) && expression.get(FormattingConstants.KIND)
+                                    .getAsString().equals("TypedescExpression") && expression.has("typeNode")) {
+                                JsonObject typeNode = expression.getAsJsonObject("typeNode");
+                                expressionName = typeNode.has("typeKind")
+                                        ? typeNode.get("typeKind").getAsString() : null;
+                            }
+                        }
+                    }
+                }
             }
 
             for (int i = 0; i < ws.size(); i++) {
@@ -2501,6 +2519,23 @@ public class FormattingNodeTree {
                                     break;
                                 }
                             }
+                        } else if (argument.getAsJsonObject().get(FormattingConstants.KIND)
+                                .getAsString().equals("TypedescExpression")
+                                && argument.getAsJsonObject().has("typeNode")) {
+                            JsonObject typeNode = argument.getAsJsonObject().getAsJsonObject("typeNode");
+                            if (typeNode.has(FormattingConstants.WS)) {
+                                for (JsonElement wsItem : typeNode.get(FormattingConstants.WS).getAsJsonArray()) {
+                                    JsonObject currentWS = wsItem.getAsJsonObject();
+                                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                                    if (text.equals(expressionName)) {
+                                        argument.getAsJsonObject()
+                                                .addProperty(FormattingConstants.SKIP_FORMATTING, true);
+                                        matchedArgument = argument.getAsJsonObject();
+                                        foundMatch = true;
+                                        break;
+                                    }
+                                }
+                            }
                         }
 
                         if (foundMatch) {
@@ -2536,6 +2571,23 @@ public class FormattingNodeTree {
                                     break;
                                 }
                             }
+                        } else if (argument.getAsJsonObject().get(FormattingConstants.KIND)
+                                .getAsString().equals("TypedescExpression")
+                                && argument.getAsJsonObject().has("typeNode")) {
+                            JsonObject typeNode = argument.getAsJsonObject().getAsJsonObject("typeNode");
+                            if (typeNode.has(FormattingConstants.WS)) {
+                                for (JsonElement wsItem : typeNode.get(FormattingConstants.WS).getAsJsonArray()) {
+                                    JsonObject currentWS = wsItem.getAsJsonObject();
+                                    String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                                    if (text.equals(expressionName)) {
+                                        argument.getAsJsonObject()
+                                                .addProperty(FormattingConstants.SKIP_FORMATTING, true);
+                                        matchedArgument = argument.getAsJsonObject();
+                                        foundMatch = true;
+                                        break;
+                                    }
+                                }
+                            }
                         }
 
                         if (foundMatch) {
@@ -2550,6 +2602,11 @@ public class FormattingNodeTree {
 
                 iterateAndFormatMembers(indentation.isEmpty() ? indentWithParentIndentation : indentation,
                         argumentExpressions);
+            }
+
+            if (node.has(FormattingConstants.EXPRESSION)) {
+                JsonObject expression = node.getAsJsonObject(FormattingConstants.EXPRESSION);
+                expression.add(FormattingConstants.FORMATTING_CONFIG, formatConfig);
             }
         }
     }
