@@ -50,21 +50,48 @@ public type AuthzHandler object {
 
     # Tries to authorize the request.
     #
-    # + authzCacheKey - Authorization cache key
-    # + authCtxtScopes - Scopes set at the `runtime:Principal` of `runtime:InvocationContext`
     # + scopes - Array of scopes or Array of arrays of scopes
     # + return - true if authorization check is a success, else false
-    function process(string authzCacheKey, string[] authCtxtScopes, string[]|string[][] scopes) returns boolean {
-        var authorizedFromCache = auth:authorizeFromCache(authzCacheKey, self.positiveAuthzCache, self.negativeAuthzCache);
-        if (authorizedFromCache is boolean) {
-            return authorizedFromCache;
-        } else {
+    function process(string[]|string[][] scopes) returns boolean {
+        // since different resources can have different scopes,
+        // cache key is <username>-<service>-<resource>-<http-method>-<scopes-separated-by-comma>
+        string serviceName = runtime:getInvocationContext().attributes[SERVICE_NAME].toString();
+        string resourceName = runtime:getInvocationContext().attributes[RESOURCE_NAME].toString();
+        string requestMethod = runtime:getInvocationContext().attributes[REQUEST_METHOD].toString();
+
+        boolean authorized = false;
+
+        runtime:Principal? principal = runtime:getInvocationContext()?.principal;
+        if (principal is runtime:Principal) {
+            string authzCacheKey = (principal?.username ?: "") + "-" + serviceName + "-" + resourceName + "-" + requestMethod;
+            string[] authCtxtScopes = principal?.scopes ?: [];
             if (authCtxtScopes.length() > 0) {
-                boolean authorized = auth:checkForScopeMatch(scopes, authCtxtScopes);
-                auth:cacheAuthzResult(authorized, authzCacheKey, self.positiveAuthzCache, self.negativeAuthzCache);
-                return authorized;
+                authzCacheKey += "-";
+                foreach var authCtxtScope in authCtxtScopes {
+                    authzCacheKey += authCtxtScope + ",";
+                }
             }
-            return false;
+
+            var authorizedFromCache = auth:authorizeFromCache(authzCacheKey, self.positiveAuthzCache, self.negativeAuthzCache);
+            if (authorizedFromCache is boolean) {
+                authorized = authorizedFromCache;
+            } else {
+                if (authCtxtScopes.length() > 0) {
+                    authorized = auth:checkForScopeMatch(scopes, authCtxtScopes);
+                    auth:cacheAuthzResult(authorized, authzCacheKey, self.positiveAuthzCache, self.negativeAuthzCache);
+                }
+            }
         }
+
+        if (authorized) {
+            log:printDebug(function () returns string {
+                return "Successfully authorized to access resource: " + serviceName + ", method: " + requestMethod;
+            });
+        } else {
+            log:printDebug(function () returns string {
+                return "Authorization failure for resource: " + serviceName + ", method: " + requestMethod;
+            });
+        }
+        return authorized;
     }
 };

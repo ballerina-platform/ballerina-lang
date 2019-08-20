@@ -41,12 +41,18 @@ public type AuthzFilter object {
         boolean|AuthorizationError authorized = true;
         var scopes = getScopes(context);
         if (scopes is string[]|string[][]) {
-            authorized = handleAuthzRequest(self.authzHandler, request, context, scopes);
+            authorized = self.authzHandler.canProcess(request);
+            if (authorized is boolean && authorized) {
+                authorized = self.authzHandler.process(scopes);
+            }
         } else {
             if (scopes) {
                 var selfScopes = self.scopes;
                 if (selfScopes is string[]|string[][]) {
-                    authorized = handleAuthzRequest(self.authzHandler, request, context, selfScopes);
+                    authorized = self.authzHandler.canProcess(request);
+                    if (authorized is boolean && authorized) {
+                        authorized = self.authzHandler.process(selfScopes);
+                    }
                 } else {
                     authorized = true;
                 }
@@ -61,43 +67,6 @@ public type AuthzFilter object {
         return true;
     }
 };
-
-function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterContext context,
-                            string[]|string[][] scopes) returns boolean|AuthorizationError {
-    runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-    if (principal is runtime:Principal) {
-        var canProcessResponse = authzHandler.canProcess(request);
-        if (canProcessResponse is boolean && canProcessResponse) {
-            // since different resources can have different scopes,
-            // cache key is <username>-<service>-<resource>-<http-method>-<scopes-separated-by-comma>
-            string authzCacheKey = (principal?.username ?: "") + "-" + context.getServiceName() + "-" +
-                                   context.getResourceName() + "-" + request.method;
-            string[] authCtxtScopes = principal?.scopes ?: [];
-            if (authCtxtScopes.length() > 0) {
-                authzCacheKey += "-";
-                foreach var authCtxtScope in authCtxtScopes {
-                    authzCacheKey += authCtxtScope + ",";
-                }
-            }
-            boolean authorized = authzHandler.process(authzCacheKey, authCtxtScopes, scopes);
-            if (authorized) {
-                log:printDebug(function () returns string {
-                    return "Successfully authorized to access resource: " + context.getResourceName() +
-                            ", method: " + request.method;
-                });
-            } else {
-                log:printDebug(function () returns string {
-                    return "Authorization failure for resource: " + context.getResourceName() +
-                            ", method: " + request.method;
-                });
-            }
-            return authorized;
-        } else {
-            return canProcessResponse;
-        }
-    }
-    return false;
-}
 
 # Verifies if the authorization is successful. If not responds to the user.
 #
