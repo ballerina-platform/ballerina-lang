@@ -63,9 +63,11 @@ public type AuthzHandler object {
         if (principal is runtime:Principal) {
             string username = principal?.username ?: "";    // this is already validated at `canProcess` function
             string[] userScopes = principal?.scopes ?: [];
-            string authzCacheKey = generateAuthzCacheKey(username, userScopes, serviceName, resourceName, requestMethod);
+            string authzCacheKey = generateAuthzCacheKey(username, userScopes, serviceName, resourceName,
+                                   requestMethod);
 
-            boolean authorized = auth:checkForScopeMatch(scopes, userScopes, authzCacheKey, self.positiveAuthzCache, self.negativeAuthzCache);
+            boolean authorized = auth:checkForScopeMatch(scopes, userScopes, authzCacheKey, self.positiveAuthzCache,
+                                                         self.negativeAuthzCache);
 
             if (authorized) {
                 log:printDebug(function () returns string {

@@ -91,7 +91,8 @@ public function setAuthenticationContext(string scheme, string authToken) {
 # + username - Username of the authenticated user.
 # + claims - Claims of the authenticated user.
 # + scopes - Authenticated user scopes.
-public function setPrincipal(public string? userId = (), public string? username = (), public string[]? scopes = (), public map<any>? claims = ()) {
+public function setPrincipal(public string? userId = (), public string? username = (), public string[]? scopes = (),
+                             public map<any>? claims = ()) {
     runtime:InvocationContext invocationContext = runtime:getInvocationContext();
     if (!(userId is ())) {
         invocationContext.principal.userId = userId;
@@ -143,7 +144,8 @@ public function checkForScopeMatch(string[]|string[][] resourceScopes, string[] 
 # + positiveAuthzCache - The cache for positive authorizations
 # + negativeAuthzCache - The cache for negative authorizations
 # + return - `true` or `false` in case of a cache hit, `()` in case of a cache miss
-function authorizeFromCache(string authzCacheKey, cache:Cache? positiveAuthzCache, cache:Cache? negativeAuthzCache) returns boolean? {
+function authorizeFromCache(string authzCacheKey, cache:Cache? positiveAuthzCache,
+                            cache:Cache? negativeAuthzCache) returns boolean? {
     cache:Cache? pCache = positiveAuthzCache;
     if (pCache is cache:Cache) {
         var positiveCacheResponse = pCache.get(authzCacheKey);
@@ -168,7 +170,8 @@ function authorizeFromCache(string authzCacheKey, cache:Cache? positiveAuthzCach
 # + authzCacheKey - Cache key
 # + positiveAuthzCache - The cache for positive authorizations
 # + negativeAuthzCache - The cache for negative authorizations
-function cacheAuthzResult(boolean authorized, string authzCacheKey, cache:Cache? positiveAuthzCache, cache:Cache? negativeAuthzCache) {
+function cacheAuthzResult(boolean authorized, string authzCacheKey, cache:Cache? positiveAuthzCache,
+                          cache:Cache? negativeAuthzCache) {
     if (authorized) {
         cache:Cache? pCache = positiveAuthzCache;
         if (pCache is cache:Cache) {
