@@ -10,12 +10,15 @@ export function runCommand(project: BallerinaProject, cmd: BALLERINA_COMMANDS, .
     const outputChannel = getCLIOutputChannel();
     outputChannel.clear();
     outputChannel.show();
-
+    outputChannel.appendLine("executing command: ballerina " + cmd + " at " + project.path + "\n");
     const process = spawn("ballerina", [cmd, ...args], { cwd: project.path });
     process.stdout.on('data', (data) => {
         outputChannel.append(data.toString());
     });
     process.stderr.on('data', (data) => {
         outputChannel.append(data.toString());
+    });
+    process.on("exit", () => {
+        outputChannel.appendLine("Finished ballerina " + cmd + " command execution.");
     });
 }
