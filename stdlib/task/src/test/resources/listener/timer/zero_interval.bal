@@ -17,32 +17,15 @@
 import ballerina/task;
 import ballerina/runtime;
 
-function triggerTimer() {
-    task:TimerConfiguration configuration = {
-        intervalInMillis: 500,
-        initialDelayInMillis: 1000
-    };
 
-    task:Scheduler timer = new(configuration);
-    var result = timer.attach(timerService);
-    checkpanic timer.start();
-    runtime:sleep(4000);
-    result = timer.stop();
-    if (result is error) {
-        count = 1000;
-    } else {
-        count = -2000;
-    }
-}
-
-int count = 0;
-
-function getCount() returns int {
-    return count;
-}
-
-service timerService = service {
-    resource function onTrigger() {
-        count = count + 1;
-    }
+task:TimerConfiguration configuration = {
+    intervalInMillis: 0
 };
+
+listener task:Listener timer = new(configuration);
+
+service TimerService on timer {
+    resource function onTrigger() {
+        // Do Nothing
+    }
+}
