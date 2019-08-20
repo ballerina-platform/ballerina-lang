@@ -47,9 +47,6 @@ import static org.ballerinalang.langserver.compiler.LSCompilerUtil.prepareCompil
  * Language server compiler implementation for Ballerina.
  */
 public class LSModuleCompiler {
-    private static final int MAX_COMPILATION_COUNT = 200;
-    private static volatile int compilationCounter = 0;
-
     protected LSModuleCompiler() {
     }
 
@@ -235,15 +232,6 @@ public class LSModuleCompiler {
 //            LSContextManager.getInstance().removeCompilerContext(projectRoot);
             LSCompilerCache.markOutDated(key);
             throw new CompilationFailedException("Compilation failed!", e);
-        } finally {
-            // TODO: Remove this fix once proper compiler fix is introduced
-            if (compilationCounter > MAX_COMPILATION_COUNT) {
-                LSContextManager.getInstance().removeCompilerContext(projectRoot);
-                compilationCounter = 0;
-                LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" +
-                                                projectRoot + "'}, Reinitialized CompilationContext");
-            }
-            compilationCounter++; // Not needed to be atomic since the if-check is a range
         }
     }
 
@@ -300,15 +288,6 @@ public class LSModuleCompiler {
 //            LSContextManager.getInstance().removeCompilerContext(projectRoot);
             LSCompilerCache.markOutDated(key);
             throw new CompilationFailedException("Compilation failed!", e);
-        } finally {
-            // TODO: Remove this fix once proper compiler fix is introduced
-            if (compilationCounter > MAX_COMPILATION_COUNT) {
-                LSContextManager.getInstance().removeCompilerContext(projectRoot);
-                compilationCounter = 0;
-                LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" +
-                                                projectRoot + "'}, Reinitialized CompilationContext");
-            }
-            compilationCounter++; // Not needed to be atomic since the if-check is a range
         }
     }
 
