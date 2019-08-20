@@ -4,6 +4,9 @@ import { PanZoom } from "panzoom";
 import React from "react";
 import { DropdownItemProps, List, ListItemProps, Loader } from "semantic-ui-react";
 import { visitor as expandingResettingVisitor } from "../visitors/expandings-undoing-visitor";
+import { visitor as initVisitor } from "../visitors/init-visitor";
+import { getReachedInvocationDepth, setMaxInvocationDepth, setProjectAST, visitor as invocationVisitor
+    } from "../visitors/invocation-expanding-visitor";
 import { CommonDiagramProps, Diagram } from "./diagram";
 import { DiagramMode } from "./diagram-context";
 import { DiagramUtils } from "./diagram-utils";
@@ -112,10 +115,12 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
 
     public selectConstruct({moduleName, constructName, subConstructName}: ConstructIdentifier) {
         this.setState({
+            maxInvocationDepth: -1,
             selectedConstruct: {
                 constructName, moduleName, subConstructName
-            }
+            },
         });
+        this.handleReset();
     }
 
     public componentDidMount() {
@@ -139,6 +144,14 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
             selectedUri,
         } = this.getSelected(this.state.selectedConstruct);
 
+        if (selectedAST) {
+            // Initialize AST node view state
+            ASTUtil.traversNode(selectedAST, initVisitor);
+            setProjectAST(modules);
+            setMaxInvocationDepth(this.state.maxInvocationDepth === undefined ? -1 : this.state.maxInvocationDepth);
+            ASTUtil.traversNode(selectedAST, invocationVisitor);
+        }
+
         return (
             <div style={{height: "100%"}}>
                 <TopMenu
@@ -156,6 +169,7 @@ export class Overview extends React.Component<OverviewProps, OverviewState> {
                     handleReset={this.handleReset}
                     handleDepthSelect={this.setMaxInvocationDepth}
                     maxInvocationDepth={this.state.maxInvocationDepth}
+                    reachedInvocationDepth={getReachedInvocationDepth()}
                 />
                 <Diagram ast={selectedAST}
                     langClient={this.props.langClient}
