@@ -59,6 +59,7 @@ public class FileSystemTest {
     private Path srcFilePath = Paths.get("src", "test", "resources", "data-files", "src-file.txt");
     private Path destFilePath = Paths.get("src", "test", "resources", "data-files", "dest-file.txt");
     private Path srcDirPath = Paths.get("src", "test", "resources", "data-files", "src-dir");
+    private Path srcModifiedFilePath = Paths.get("src", "test", "resources", "data-files", "src-file-modified.txt");
     private Path errorSrcDirPath = Paths.get("src", "test", "resources", "data-files", "src-dir", "error");
     private Path tempDirPath;
     private Path tempSourcePath;
@@ -333,16 +334,18 @@ public class FileSystemTest {
             assertEquals(tempDestPath.toFile().length(), srcFilePath.toFile().length());
 
             // Execute same with replaceExist false
+            BValue[] args1 = {new BString(srcModifiedFilePath.toString()), new BString(tempDestPath.toString()),
+                    new BBoolean(false)};
             long modifiedTime = tempDestPath.toFile().lastModified();
-            BRunUtil.invoke(compileResult, "testCopy", args);
+            BRunUtil.invoke(compileResult, "testCopy", args1);
             long modifiedTimeWithoutReplace = tempDestPath.toFile().lastModified();
             assertEquals(modifiedTimeWithoutReplace, modifiedTime);
 
             // Execute same with replaceExist true
-            BValue[] args1 = {new BString(srcFilePath.toString()), new BString(tempDestPath.toString()),
+            BValue[] args2 = {new BString(srcModifiedFilePath.toString()), new BString(tempDestPath.toString()),
                     new BBoolean(true)};
-            Thread.sleep(1000);
-            BRunUtil.invoke(compileResult, "testCopy", args1);
+            Thread.sleep(5000);
+            BRunUtil.invoke(compileResult, "testCopy", args2);
             long modifiedTimeWithReplace = tempDestPath.toFile().lastModified();
             assertNotEquals(modifiedTimeWithReplace, modifiedTime);
         } finally {
