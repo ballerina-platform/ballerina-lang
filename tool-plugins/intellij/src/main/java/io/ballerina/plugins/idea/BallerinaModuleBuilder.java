@@ -50,7 +50,7 @@ public class BallerinaModuleBuilder extends JavaModuleBuilder implements SourceP
     private ModifiableRootModel rootModel;
 
     @Override
-    public void setupRootModel(ModifiableRootModel modifiableRootModel) throws ConfigurationException {
+    public void setupRootModel(@NotNull ModifiableRootModel modifiableRootModel) throws ConfigurationException {
         this.rootModel = modifiableRootModel;
         addListener(this);
         super.setupRootModel(modifiableRootModel);
@@ -59,7 +59,7 @@ public class BallerinaModuleBuilder extends JavaModuleBuilder implements SourceP
     @Override
     public List<Pair<String, String>> getSourcePaths() {
         try {
-            // Todo - Revamp with "balerina init ." command, when its available.
+            // Todo - Revamp with "ballerina init ." command, when its available.
             initProject(Paths.get(Objects.requireNonNull(rootModel.getProject().getBasePath())));
         } catch (Exception e) {
             LOG.warn("Ballerina project artifacts creation is failed dues to: ", e);
