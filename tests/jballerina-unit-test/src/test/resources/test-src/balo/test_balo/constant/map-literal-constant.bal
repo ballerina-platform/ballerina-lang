@@ -1,4 +1,4 @@
-import testorg/foo version v1;
+import testorg/foo;
 
 import ballerina/reflect;
 
@@ -109,37 +109,37 @@ function testNullConstKeyReference() returns map<()> {
 // -----------------------------------------------------------
 
 function testBooleanConstKeyReferenceInLocalVar() returns boolean {
-    boolean b = foo:bm4.bm4k;
+    boolean b = <boolean>foo:bm4["bm4k"];
     return b;
 }
 
 function testIntConstKeyReferenceInLocalVar() returns int {
-    int i = foo:im4.im4k;
+    int i = <int>foo:im4["im4k"];
     return i;
 }
 
 function testByteConstKeyReferenceInLocalVar() returns byte {
-    byte b = foo:bytem4.bytem4k;
+    byte b = <byte>foo:bytem4["bytem4k"];
     return b;
 }
 
 function testFloatConstKeyReferenceInLocalVar() returns float {
-    float f = foo:fm4.fm4k;
+    float f = <float>foo:fm4["fm4k"];
     return f;
 }
 
 function testDecimalConstKeyReferenceInLocalVar() returns decimal {
-    decimal d = foo:dm4.dm4k;
+    decimal d = <decimal>foo:dm4["dm4k"];
     return d;
 }
 
 function testStringConstKeyReferenceInLocalVar() returns string {
-    string s = foo:sm4.sm4k;
+    string s = <string>foo:sm4["sm4k"];
     return s;
 }
 
 function testNullConstKeyReferenceInLocalVar() returns () {
-    () n = foo:nm4.nm4k;
+    () n = <()>foo:nm4["nm4k"];
     return n;
 }
 
@@ -156,6 +156,6 @@ type RecordOne record {
 
 function testConstInAnnotations() returns foo:TestConfig? {
     RecordOne r1 = {};
-    typedesc t = typeof r1;
+    typedesc<RecordOne> t = typeof r1;
     return t.@foo:testAnnotation;
 }
