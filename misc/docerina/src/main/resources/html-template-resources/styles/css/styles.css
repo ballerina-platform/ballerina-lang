@@ -20,6 +20,10 @@ body .type a {
 body .type a:hover {
   text-decoration: underline;
 }
+body .attach-icon {
+  width: 12px;
+  opacity: 0.3;
+}
 body .content-wrapper {
   margin: 0;
   height: 100vh;
