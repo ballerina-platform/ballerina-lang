@@ -42,12 +42,11 @@ public class StringUtils {
      * @param value The value on which the function is invoked
      * @return String value of the value
      */
-    public static String getStringValue(Strand strand, Object value) {
+    public static String getStringValue(Strand strand, Object value, BType type) {
         if (value == null) {
             return "";
         }
 
-        BType type = TypeChecker.getType(value);
         if (type.getTag() < TypeTags.JSON_TAG) {
             return String.valueOf(value);
         }
@@ -57,7 +56,7 @@ public class StringUtils {
             return mapValue.stringValue(strand);
         }
 
-        if (type.getTag() == TypeTags.ARRAY_TAG) {
+        if (type.getTag() == TypeTags.ARRAY_TAG || type.getTag() == TypeTags.TUPLE_TAG) {
             ArrayValue arrayValue = (ArrayValue) value;
             return arrayValue.stringValue(strand);
         }

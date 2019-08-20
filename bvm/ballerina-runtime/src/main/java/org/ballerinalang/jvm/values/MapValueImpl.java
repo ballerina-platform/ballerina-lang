@@ -456,30 +456,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     @Override
     public String stringValue() {
-        readLock.lock();
-        StringJoiner sj = new StringJoiner(" ");
-        try {
-            switch (type.getTag()) {
-                case TypeTags.JSON_TAG:
-                    return getJSONString();
-                case TypeTags.MAP_TAG:
-                    // Map<json> is json.
-                    if (((BMapType) type).getConstrainedType().getTag() == TypeTags.JSON_TAG) {
-                        return getJSONString();
-                    }
-                    // Fallthrough
-                default:
-                    for (Map.Entry<K, V> kvEntry : this.entrySet()) {
-                        K key = kvEntry.getKey();
-                        V value = kvEntry.getValue();
-                        sj.add(key + "=" + getStringValue(value));
-                    }
-                    break;
-            }
-            return sj.toString();
-        } finally {
-            readLock.unlock();
-        }
+        return stringValue(null);
     }
 
     @Override
@@ -490,7 +467,13 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             for (Map.Entry<K, V> kvEntry : this.entrySet()) {
                 K key = kvEntry.getKey();
                 V value = kvEntry.getValue();
-                sj.add(key + "=" + StringUtils.getStringValue(strand, value));
+                BType type = TypeChecker.getType(value);
+                if (type.getTag() == TypeTags.ARRAY_TAG || type.getTag() == TypeTags.MAP_TAG ||
+                    type.getTag() == TypeTags.TABLE_TAG) {
+                    sj.add("("+ StringUtils.getStringValue(strand, value, type) + ")");
+                    continue;
+                }
+                sj.add(key + "=" + StringUtils.getStringValue(strand, value, type));
             }
             return sj.toString();
         } finally {

@@ -39,7 +39,9 @@ import java.util.Map;
  */
 public interface RefValue {
 
-    String stringValue();
+    default String stringValue() {
+        return stringValue(null);
+    }
 
     /**
      * Returns the string presentation of the value on which the method is called. This is used only by ArrayValue

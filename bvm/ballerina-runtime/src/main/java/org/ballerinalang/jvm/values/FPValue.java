@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.BLangConstants;
 
@@ -66,7 +67,7 @@ public class FPValue<T, R> implements RefValue {
     }
 
     @Override
-    public String stringValue() {
+    public String stringValue(Strand strand) {
         return Optional.ofNullable(getType()).map(BType::toString).filter(str -> str.startsWith("function")).orElse(
                 "function " + type.toString());
     }

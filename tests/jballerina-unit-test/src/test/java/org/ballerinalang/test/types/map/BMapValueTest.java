@@ -202,9 +202,9 @@ public class BMapValueTest {
     @Test(description = "Testing convert map values to string")
     public void testBMapToString() {
         MapValue<String, Object> map = new MapValueImpl<>();
-        map.put(new String("key1"), new BInteger(1));
-        map.put(new String("key2"), new BString("foo"));
-        map.put(new String("key3"), XMLFactory.parse("<bar>hello</bar>"));
+        map.put("key1", 1);
+        map.put("key2", "foo");
+        map.put("key3", XMLFactory.parse("<bar>hello</bar>"));
         Assert.assertEquals(map.stringValue(), "key1=1 key2=foo key3=<bar>hello</bar>");
     }
 
@@ -234,9 +234,9 @@ public class BMapValueTest {
     @Test
     public  void testBMapOrder() {
         BMap<String, BRefType> map = new BMap<>();
-        map.put(new String("Entry1"), new BString("foo"));
-        map.put(new String("Entry2"), new BString("bar"));
-        map.put(new String("Entry3"), new BString("foobar"));
+        map.put("Entry1", new BString("foo"));
+        map.put("Entry2", new BString("bar"));
+        map.put("Entry3", new BString("foobar"));
 
         String[] keys = map.keys();
         Assert.assertEquals(map.get(keys[0]).stringValue(), "foo");

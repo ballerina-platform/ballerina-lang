@@ -16,5 +16,5 @@
 import ballerina/io;
 
 public function main(int[]|float[]|boolean[]|json[] arr) {
-    io:print(arr);
+    io:print(arr.toJsonString());
 }

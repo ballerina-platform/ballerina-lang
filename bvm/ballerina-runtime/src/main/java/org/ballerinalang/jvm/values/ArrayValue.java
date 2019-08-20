@@ -24,9 +24,7 @@ import org.ballerinalang.jvm.TypeConverter;
 import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -502,56 +500,7 @@ public class ArrayValue implements RefValue, CollectionValue {
 
     @Override
     public String stringValue() {
-        if (elementType != null) {
-            StringJoiner sj = new StringJoiner(" ");
-            if (elementType.getTag() == TypeTags.INT_TAG) {
-                for (int i = 0; i < size; i++) {
-                    sj.add(Long.toString(intValues[i]));
-                }
-                return sj.toString();
-            } else if (elementType.getTag() == TypeTags.BOOLEAN_TAG) {
-                for (int i = 0; i < size; i++) {
-                    sj.add(Boolean.toString(booleanValues[i]));
-                }
-                return sj.toString();
-            } else if (elementType.getTag() == TypeTags.BYTE_TAG) {
-                for (int i = 0; i < size; i++) {
-                    sj.add(Long.toString(Byte.toUnsignedLong(byteValues[i])));
-                }
-                return sj.toString();
-            } else if (elementType.getTag() == TypeTags.FLOAT_TAG) {
-                for (int i = 0; i < size; i++) {
-                    sj.add(Double.toString(floatValues[i]));
-                }
-                return sj.toString();
-            } else if (elementType.getTag() == TypeTags.STRING_TAG) {
-                for (int i = 0; i < size; i++) {
-                    sj.add(stringValues[i]);
-                }
-                return sj.toString();
-            }
-        }
-
-        if (getElementType(arrayType).getTag() == TypeTags.JSON_TAG) {
-            return getJSONString();
-        }
-
-        StringJoiner sj;
-        if (arrayType != null && (arrayType.getTag() == TypeTags.TUPLE_TAG)) {
-            sj = new StringJoiner(" ");
-        } else {
-            sj = new StringJoiner(" ");
-        }
-
-        for (int i = 0; i < size; i++) {
-            if (refValues[i] != null) {
-                sj.add((refValues[i] instanceof RefValue) ? ((RefValue) refValues[i]).stringValue() :
-                        (refValues[i] instanceof String) ? (String) refValues[i] :  refValues[i].toString());
-            } else {
-                sj.add("()");
-            }
-        }
-        return sj.toString();
+        return stringValue(null);
     }
 
     @Override
@@ -594,38 +543,13 @@ public class ArrayValue implements RefValue, CollectionValue {
         }
 
         for (int i = 0; i < size; i++) {
-            if (refValues[i] != null) {
-                if (refValues[i] instanceof MapValueImpl) {
-                    MapValueImpl mapValue = (MapValueImpl) refValues[i];
-                    sj.add(mapValue.stringValue(strand));
-                } else if (refValues[i] instanceof ArrayValue) {
-                    ArrayValue arrayValue = (ArrayValue) refValues[i];
-                    sj.add(arrayValue.stringValue(strand));
-                } else if (refValues[i] instanceof AbstractObjectValue) {
-                    AbstractObjectValue objectValue = (AbstractObjectValue) refValues[i];
-                    BObjectType objectType = objectValue.getType();
-                    boolean toStringDefinedByUser = false;
-                    for (AttachedFunction func : objectType.getAttachedFunctions()) {
-                        if (func.funcName.equals("toString") && func.paramTypes.length == 0 &&
-                            func.type.retType.getTag() == TypeTags.STRING_TAG) {
-                            toStringDefinedByUser = true;
-                            sj.add((String) objectValue.call(strand, "toString"));
-                            break;
-                        }
-                    }
-
-                    if (!toStringDefinedByUser) {
-                        sj.add(objectValue.stringValue());
-                    }
-                } else if (refValues[i] instanceof ErrorValue) {
-                    ErrorValue errorValue = (ErrorValue) refValues[i];
-                    sj.add(errorValue.stringValue(strand));
-                } else {
-                    sj.add(StringUtils.getStringValue(strand, refValues[i]));
-                }
-            } else {
-                sj.add("");
+            BType type = TypeChecker.getType(refValues[i]);
+            if (type.getTag() == TypeTags.ARRAY_TAG || type.getTag() == TypeTags.MAP_TAG ||
+                type.getTag() == TypeTags.TABLE_TAG) {
+                sj.add("(" + StringUtils.getStringValue(strand, refValues[i], type) + ")");
+                continue;
             }
+            sj.add(StringUtils.getStringValue(strand, refValues[i], type));
         }
         return sj.toString();
     }

@@ -54,7 +54,7 @@ public class StreamValue implements RefValue {
         return streamId;
     }
 
-    public String stringValue() {
+    public String stringValue(Strand strand) {
         return "stream " + streamId + " " + getType().toString();
     }
 

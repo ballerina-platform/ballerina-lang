@@ -46,7 +46,7 @@ function testNullStringRepresentation3() returns string|error {
 
 function testNullStringRepresentation4() returns string {
     json j = {name:"John Doe", age:25, location:null};
-    return io:sprintf("%s", j);
+    return io:sprintf("%s", j.toJsonString());
 }
 
 function testNullReturn() returns json {

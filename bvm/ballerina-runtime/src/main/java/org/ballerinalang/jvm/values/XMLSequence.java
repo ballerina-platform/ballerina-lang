@@ -21,6 +21,7 @@ import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.XMLNodeType;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
@@ -416,11 +417,11 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
      * {@inheritDoc}
      */
     @Override
-    public String stringValue() {
+    public String stringValue(Strand strand) {
         try {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < sequence.size(); i++) {
-                sb.append(((RefValue) sequence.getRefValue(i)).stringValue());
+                sb.append(((RefValue) sequence.getRefValue(i)).stringValue(strand));
             }
             return sb.toString();
         } catch (Throwable t) {
@@ -443,7 +444,7 @@ public final class XMLSequence extends XMLValue<ArrayValue> {
             return refs.get(this);
         }
 
-        Object[] copiedVals = new Object[(int) sequence.size()];
+        Object[] copiedVals = new Object[sequence.size()];
         refs.put(this, new XMLSequence(new ArrayValue(copiedVals, new BArrayType(BTypes.typeXML))));
         for (int i = 0; i < sequence.size(); i++) {
             copiedVals[i] = ((XMLValue<?>) sequence.getRefValue(i)).copy(refs);

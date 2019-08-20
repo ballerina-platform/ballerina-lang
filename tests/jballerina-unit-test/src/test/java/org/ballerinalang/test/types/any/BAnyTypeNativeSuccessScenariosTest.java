@@ -61,7 +61,7 @@ public class BAnyTypeNativeSuccessScenariosTest {
         try {
             System.setOut(new PrintStream(outContent));
             BRunUtil.invoke(result, "printlnAnyVal", new BValue[0]);
-            Assert.assertEquals(outContent.toString().replace("\r", ""), "{\"PropertyName\":\"Value\"}\n",
+            Assert.assertEquals(outContent.toString().replace("\r", ""), "PropertyName=Value\n",
                               "Invalid xml printed");
         } finally {
             outContent.close();
@@ -75,7 +75,7 @@ public class BAnyTypeNativeSuccessScenariosTest {
         try {
             System.setOut(new PrintStream(outContent));
             BRunUtil.invoke(result, "printAnyVal", new BValue[0]);
-            Assert.assertEquals(outContent.toString().replace("\r", ""), "{\"PropertyName\":\"Value\"}",
+            Assert.assertEquals(outContent.toString().replace("\r", ""), "PropertyName=Value",
                                 "Invalid xml printed");
         } finally {
             outContent.close();

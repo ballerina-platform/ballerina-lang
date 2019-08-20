@@ -111,7 +111,7 @@ public class ArrayTest {
     public void testArrayStringRepresentationWithANilElement() {
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testArrayWithNilElement");
         String str = returnVals[0].stringValue();
-        Assert.assertEquals(str, "abc d () s");
+        Assert.assertEquals(str, "abc d  s");
     }
 
     @Test
