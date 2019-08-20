@@ -66,6 +66,7 @@ import static org.ballerinalang.jvm.TypeConverter.getConvertibleTypes;
  */
 public class ArrayValue implements RefValue, CollectionValue {
 
+    static final int SYSTEM_ARRAY_MAX = Integer.MAX_VALUE - 8;
     protected BType arrayType;
     private volatile Status freezeStatus = new Status(State.UNFROZEN);
 
@@ -74,7 +75,7 @@ public class ArrayValue implements RefValue, CollectionValue {
      * <p>
      * This is same as Java
      */
-    protected int maxArraySize = Integer.MAX_VALUE - 8;
+    protected int maxArraySize = SYSTEM_ARRAY_MAX;
     private static final int DEFAULT_ARRAY_SIZE = 100;
     protected int size = 0;
 
@@ -1170,13 +1171,20 @@ public class ArrayValue implements RefValue, CollectionValue {
 
     public void setLength(long length) {
         handleFrozenArrayValue();
-
         int newLength = (int) length;
         rangeCheck(length, size);
+        checkFixedLength(length);
         fillerValueCheck(newLength, size);
         resizeInternalArray(newLength);
         fillValues(newLength);
         size = newLength;
+    }
+
+    private void checkFixedLength(long length) {
+        if (((BArrayType) this.arrayType).getState() == ArrayState.CLOSED_SEALED) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+                    RuntimeErrors.ILLEGAL_ARRAY_SIZE, length);
+        }
     }
 
     /**
