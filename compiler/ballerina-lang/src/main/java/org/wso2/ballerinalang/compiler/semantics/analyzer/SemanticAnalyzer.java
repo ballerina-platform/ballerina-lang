@@ -1463,6 +1463,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTupleDestructure tupleDeStmt) {
         setTypeOfVarReferenceInAssignment(tupleDeStmt.varRef);
         BType type = typeChecker.checkExpr(tupleDeStmt.expr, this.env, tupleDeStmt.varRef.type);
+
+        if (tupleDeStmt.expr.type.tag == TypeTags.ARRAY) {
+            // TODO: https://github.com/ballerina-platform/ballerina-lang/issues/17927
+            dlog.error(tupleDeStmt.expr.pos, DiagnosticCode.BINDING_PATTERN_NOT_YET_SUPPORTED, tupleDeStmt.expr.type);
+            return;
+        }
+
         if (type.tag != TypeTags.SEMANTIC_ERROR) {
             checkTupleVarRefEquivalency(tupleDeStmt.pos, tupleDeStmt.varRef,
                     tupleDeStmt.expr.type, tupleDeStmt.expr.pos);
