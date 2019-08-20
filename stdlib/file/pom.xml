@@ -184,7 +184,7 @@
                     </processors>
                     <options>
                         <nativeEntityProviderPackage>
-                            org.ballerinalang.stdlib.system.generated.providers
+                            org.ballerinalang.stdlib.file.generated.providers
                         </nativeEntityProviderPackage>
                         <nativeEntityProviderClass>StandardNativeElementProvider</nativeEntityProviderClass>
                     </options>
@@ -265,7 +265,7 @@
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>copy-crypto-balo</id>
+                        <id>copy-file-balo</id>
                         <phase>compile</phase>
                         <goals>
                             <goal>copy-resources</goal>
