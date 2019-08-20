@@ -280,7 +280,7 @@ function getSalary(Person p) returns (float) {
 }
 
 function isGeraterThan4(Person p) returns (boolean) {
-    returnp.name.length() > 4;
+    return p.name.length() > 4;
 }
 
 function isGeraterThan4String(string s) returns (boolean) {
