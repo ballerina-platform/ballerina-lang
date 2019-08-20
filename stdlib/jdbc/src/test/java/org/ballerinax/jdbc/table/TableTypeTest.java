@@ -51,7 +51,7 @@ import java.util.regex.Pattern;
 /**
  * Class to test functionality of tables.
  */
-public class TableTest {
+public class TableTypeTest {
 
     private CompileResult result;
     private CompileResult resultNegative;
@@ -71,15 +71,15 @@ public class TableTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enableJBallerinaTests", "true");
-        testDatabase = new FileBasedTestDatabase(DBType.H2, "datafiles/sql/TableTest_H2_Data.sql",
+        testDatabase = new FileBasedTestDatabase(DBType.H2, "datafiles/sql/table/table_type_test_data.sql",
                 SQLDBUtils.DB_DIRECTORY, DB_NAME_H2);
 
-        result = BCompileUtil.compile("test-src/sql/table/table_type.bal");
-        resultNegative = BCompileUtil.compile("test-src/sql/table/table_type_negative.bal");
+        result = BCompileUtil.compile("test-src/table/table_type_test.bal");
+        resultNegative = BCompileUtil.compile("test-src/table/table_type_test_negative.bal");
+
+        nillableMappingResult = BCompileUtil.compile("test-src/table/table_type_test_nillable_mapping.bal");
         nillableMappingNegativeResult = BCompileUtil
-                .compile("test-src/sql/table/table_nillable_mapping_negative.bal");
-        nillableMappingResult = BCompileUtil.compile("test-src/sql/table/table_nillable_mapping.bal");
+                .compile("test-src/table/table_type_test_nillable_mapping_negative.bal");
     }
 
     @Test(groups = TABLE_TEST, description = "Check retrieving primitive types.")

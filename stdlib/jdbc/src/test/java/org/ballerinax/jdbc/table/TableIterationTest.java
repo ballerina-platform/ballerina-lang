@@ -45,9 +45,9 @@ public class TableIterationTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/sql/table/table_iteration.bal");
+        result = BCompileUtil.compile("test-src/table/table_iteration_test.bal");
         testDatabase = new FileBasedTestDatabase(DBType.H2,
-                "datafiles/sql/TableIterationTestData.sql", SQLDBUtils.DB_DIRECTORY, DB_NAME);
+                "datafiles/sql/table/table_iteration_test_data.sql", SQLDBUtils.DB_DIRECTORY, DB_NAME);
     }
 
     @Test(groups = "TableIterationTest", description = "Check count operation function on table")

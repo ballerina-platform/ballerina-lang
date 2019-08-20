@@ -19,28 +19,25 @@ under the License.
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="ballerina-test-suite">
-    <!-- Ballerina language Test Cases. -->
-    <test name="ballerina-lang-test-suite" parallel="false">
-        <groups>
-            <run>
-                <exclude name="broken"/>
-                <exclude name="brokenOnBootstrappedJVMCodegen"/>
-            </run>
-        </groups>
-        <packages>
-<!--            <package name="org.ballerinax.jdbc.transaction.*"/>-->
-            <package name="org.ballerinax.jdbc.newtests.actions.*"/>
-        </packages>
-<!--        <classes>-->
-<!--            <class name="org.ballerinax.jdbc.H2ClientActionsTest"/>-->
-<!--            <class name="org.ballerinax.jdbc.SQLActionsTest"/>-->
-<!--            <class name="org.ballerinax.jdbc.SQLConnectionPoolTest"/>-->
-<!--            <class name="org.ballerinax.jdbc.SQLConnectorInitTest"/>-->
+<suite name="ballerina-jdbc-test-suite">
+    <test name="ballerina-jdbc-test" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <classes >
+            <class name="org.ballerinax.jdbc.actions.UpdateTest"/>
+            <class name="org.ballerinax.jdbc.actions.SelectTest"/>
+            <class name="org.ballerinax.jdbc.actions.BatchUpdateTest"/>
+            <class name="org.ballerinax.jdbc.actions.H2ActionsTest"/>
 
-<!--            <class name="org.ballerinax.jdbc.table.TableTest"/>-->
-<!--            &lt;!&ndash; #16805 &ndash;&gt;-->
-<!--            &lt;!&ndash;class name="org.ballerinax.jdbc.table.TableIterationTest"/&ndash;&gt;-->
-<!--        </classes>-->
+            <class name="org.ballerinax.jdbc.table.TableTypeTest"/>
+
+            <class name="org.ballerinax.jdbc.connection.ConnectionPoolTest"/>
+            <class name="org.ballerinax.jdbc.connection.ConnectorInitTest"/>
+
+            <class name="org.ballerinax.jdbc.transaction.LocalTransactionsTest"/>
+            <class name="org.ballerinax.jdbc.transaction.XATransactionsTest"/>
+
+
+            <!--<class name="org.ballerinax.jdbc.table.TableIterationTest"/>-->
+        </classes>
     </test>
 </suite>

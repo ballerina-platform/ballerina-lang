@@ -14,19 +14,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinax.jdbc.newtests.actions;
+package org.ballerinax.jdbc.actions;
 
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinax.jdbc.utils.SQLDBUtils;
 import org.ballerinax.jdbc.utils.SQLDBUtils.TestDatabase;
 import org.testng.Assert;
@@ -37,22 +35,21 @@ import org.testng.annotations.Test;
 import java.math.BigDecimal;
 
 /**
- * Test class for JDBC remote functions test.
+ * Test class for JDBC update remote function tests.
  *
  * @since 1.0.0
  */
 public class UpdateTest {
-    private static final String DB_NAME_HSQL = "JDBC_ACTIONS_TEST_HSQLDB";
+    private static final String DB_NAME_HSQL = "JDBC_UPDATE_TEST_HSQLDB";
     private TestDatabase testDatabase;
     private CompileResult result;
     private static final String UPDATE_TEST = "UpdateTest";
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enableJBallerinaTests", "true");
         testDatabase = new SQLDBUtils.FileBasedTestDatabase(SQLDBUtils.DBType.HSQLDB,
-                "new/datafiles/sql/update_test_data.sql", SQLDBUtils.DB_DIRECTORY, DB_NAME_HSQL);
-        result = BCompileUtil.compile("new/test-src/actions/update_test.bal");
+                "datafiles/sql/actions/update_test_data.sql", SQLDBUtils.DB_DIRECTORY, DB_NAME_HSQL);
+        result = BCompileUtil.compile("test-src/actions/update_test.bal");
     }
 
     @Test(groups = UPDATE_TEST)
@@ -91,6 +88,7 @@ public class UpdateTest {
         Assert.assertTrue(((BBoolean) returns[2]).booleanValue());
         Assert.assertTrue(((BBoolean) returns[3]).booleanValue());
         Assert.assertFalse(((BBoolean) returns[4]).booleanValue());
+        System.out.println(returns[5].stringValue());
         Assert.assertTrue(returns[5].stringValue().contains("Failed to execute update query:"));
         Assert.assertEquals(returns[6].stringValue(), "42501");
         Assert.assertEquals(returns[7].stringValue(),"{ballerinax/java.jdbc}DatabaseError");
@@ -337,6 +335,12 @@ public class UpdateTest {
         BValue[] returns = BRunUtil.invoke(result, "testInvalidUpdateOnUpdateResultRecord");
         Assert.assertTrue(returns[0].stringValue()
                 .contains("Invalid update of record field: modification not allowed on readonly value"));
+    }
+
+    @Test(groups = UPDATE_TEST)
+    public void testStopClient() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "testStopClient");
+        Assert.assertNull(returns[0]);
     }
 
     @Test(dependsOnGroups = UPDATE_TEST)

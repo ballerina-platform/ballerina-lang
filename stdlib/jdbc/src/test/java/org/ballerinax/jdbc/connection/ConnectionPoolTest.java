@@ -15,7 +15,7 @@
  * under the License.
  */
 
-package org.ballerinax.jdbc;
+package org.ballerinax.jdbc.connection;
 
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.values.BInteger;
@@ -37,7 +37,7 @@ import java.util.HashMap;
 /**
  * Tests scenarios of global pool, local shared pool, local unshared pool usage.
  */
-public class SQLConnectionPoolTest {
+public class ConnectionPoolTest {
     private CompileResult result;
     private static final String POOL_TEST_GROUP = "ConnectionPoolTest";
     private static final String connectionTimeoutError = ".*Connection is not available, request timed out after "
@@ -45,11 +45,10 @@ public class SQLConnectionPoolTest {
 
     @BeforeClass
     public void setup() throws Exception {
-        System.setProperty("enableJBallerinaTests", "true");
         Path ballerinaConfPath = Paths.get("src", "test", "resources", "ballerina.conf").toAbsolutePath();
         ConfigRegistry registry = ConfigRegistry.getInstance();
         registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
-        result = BCompileUtil.compile("test-src/sql/connection_pool_test.bal");
+        result = BCompileUtil.compile("test-src/connection/connection_pool_test.bal");
         setupDatabases();
     }
 
@@ -59,13 +58,16 @@ public class SQLConnectionPoolTest {
 
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), globalPoolDb1);
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), globalPoolDb2);
-        SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, globalPoolDb1, "datafiles/sql/SQLTestConnectionPool.sql");
-        SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, globalPoolDb2, "datafiles/sql/SQLTestConnectionPool.sql");
+        SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, globalPoolDb1,
+                "datafiles/sql/connection/connection_pool_test_data.sql");
+        SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, globalPoolDb2,
+                "datafiles/sql/connection/connection_pool_test_data.sql");
 
         for (int i = 1; i <= 9; i++) {
             String db = "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_" + i;
             SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), db);
-            SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, db, "datafiles/sql/SQLTestConnectionPool.sql");
+            SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, db,
+                    "datafiles/sql/connection/connection_pool_test_data.sql");
         }
     }
 

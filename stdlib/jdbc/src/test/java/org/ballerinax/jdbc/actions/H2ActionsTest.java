@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinax.jdbc;
+package org.ballerinax.jdbc.actions;
 
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
@@ -40,7 +40,7 @@ import java.sql.SQLException;
  *
  * @since 0.970.0
  */
-public class H2ClientActionsTest {
+public class H2ActionsTest {
 
     private CompileResult result;
     private static final String DB_NAME = "TestDBH2";
@@ -50,10 +50,9 @@ public class H2ClientActionsTest {
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enableJBallerinaTests", "true");
-        result = BCompileUtil.compile("test-src/h2/h2_actions_test.bal");
+        result = BCompileUtil.compile("test-src/actions/h2_actions_test.bal");
         testDatabase = new SQLDBUtils.FileBasedTestDatabase(SQLDBUtils.DBType.H2,
-                "datafiles/sql/H2ConnectorTableCreate.sql", DB_DIRECTORY_H2, DB_NAME);
+                "datafiles/sql/actions/h2_actions_test_data.sql", DB_DIRECTORY_H2, DB_NAME);
     }
 
     @Test(groups = H2_TEST_GROUP)

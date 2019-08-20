@@ -33,7 +33,7 @@ import org.testng.annotations.Test;
 /**
  * Class to test functionality of distributed transactions in SQL.
  */
-public class SQLXATransactionsTest {
+public class XATransactionsTest {
     private CompileResult result;
     private static final String DB_NAME1 = "TestDB1";
     private static final String DB_NAME2 = "TestDB2";
@@ -42,11 +42,11 @@ public class SQLXATransactionsTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/sql/transaction/sql_xa_transaction_test.bal");
+        result = BCompileUtil.compile("test-src/transaction/xa_transaction_test.bal");
         testDatabase1 = new SQLDBUtils.FileBasedTestDatabase(DBType.H2,
-                "datafiles/sql/SQLH2CustomerTableCreate.sql", SQLDBUtils.DB_DIRECTORY_H2_1, DB_NAME1);
+                "datafiles/sql/transaction/xa_transaction_test_data_1.sql", SQLDBUtils.DB_DIRECTORY_H2_1, DB_NAME1);
         testDatabase2 = new SQLDBUtils.FileBasedTestDatabase(DBType.H2,
-                "datafiles/sql/SQLH2SalaryTableCreate.sql", SQLDBUtils.DB_DIRECTORY_H2_2, DB_NAME2);
+                "datafiles/sql/transaction/xa_transaction_test_data_2.sql", SQLDBUtils.DB_DIRECTORY_H2_2, DB_NAME2);
     }
 
     @Test

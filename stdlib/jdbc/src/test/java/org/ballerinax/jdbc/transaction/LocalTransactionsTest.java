@@ -38,7 +38,7 @@ import static org.ballerinax.jdbc.utils.SQLDBUtils.FileBasedTestDatabase;
 /**
  * Class to test functionality of transactions in SQL.
  */
-public class SQLTransactionsTest {
+public class LocalTransactionsTest {
 
     private CompileResult result;
     private static final String DB_NAME = "TEST_SQL_CONNECTOR_TR";
@@ -47,9 +47,9 @@ public class SQLTransactionsTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/sql/transaction/sql_transaction_test.bal");
+        result = BCompileUtil.compile("test-src/transaction/local_transaction_test.bal");
         testDatabase = new FileBasedTestDatabase(DBType.H2,
-                "datafiles/sql/SQLTableCreate.sql", DB_DIRECTORY, DB_NAME);
+                "datafiles/sql/transaction/local_transaction_test_data.sql", DB_DIRECTORY, DB_NAME);
     }
 
     @Test(groups = TRANSACTION_TEST_GROUP)
@@ -84,7 +84,7 @@ public class SQLTransactionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0, "Insertion count inside transaction is incorrect");
     }
 
-    @Test(groups = TRANSACTION_TEST_GROUP)
+    //@Test(groups = TRANSACTION_TEST_GROUP)
     public void testLocalTransactionStoredProcedure() {
         BValue[] returns = BRunUtil.invoke(result, "testLocalTransactionStoredProcedure");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0, "Transaction shouldn't have been retried");

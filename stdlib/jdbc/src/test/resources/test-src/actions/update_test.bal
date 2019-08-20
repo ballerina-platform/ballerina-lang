@@ -13,11 +13,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/time;
 import ballerinax/java.jdbc;
 
-string jdbcURL = "jdbc:hsqldb:file:./target/tempdb/JDBC_ACTIONS_TEST_HSQLDB";
+string jdbcURL = "jdbc:hsqldb:file:./target/tempdb/JDBC_UPDATE_TEST_HSQLDB";
 string jdbcUserName = "SA";
 string jdbcPassword = "";
 
@@ -369,6 +368,7 @@ function testInsertNumericDataWithParameters() returns [int, int, int, int, int,
         generatedKey = <int>result.generatedKeys["ID"];
     }
 
+    jdbc:Parameter p1 = { sqlType: jdbc:TYPE_INTEGER, value: generatedKey };
     var dt = testDB->select("SELECT int_type, bigint_type, smallint_type, tinyint_type,
                                   bit_type, decimal_type, numeric_type, float_type, real_type from
                                   NumericTypes where id = ?", NumericData, generatedKey);
@@ -473,8 +473,6 @@ float?] {
                                                     bit_type, decimal_type, numeric_type, float_type, real_type)
                                                     values (?,?,?,?,?,?,?,?,?)", para1, para2, para3, para4, para5,
     para6, para7, para8, para9);
-
-    io:println(result);
     int insertCount = 0;
     int generatedKey = -1;
     if (result is jdbc:UpdateResult) {
@@ -1135,7 +1133,6 @@ function testInsertTimeDataAsInt() returns [int, int, int, int] {
                                                     datetime_type)
                                                     values (?,?,?,?)",
     para1, para2, para3, para4);
-    io:println(result);
 
     int insertCount = 0;
     if (result is jdbc:UpdateResult) {
@@ -1239,12 +1236,21 @@ function testInvalidUpdateOnUpdateResultRecord() returns error | () {
     checkpanic testDB.stop();
 }
 
+function testStopClient() returns error? {
+    jdbc:Client testDB = new ({
+        url: jdbcURL,
+        username: jdbcUserName,
+        password: jdbcPassword,
+        poolOptions: {maximumPoolSize: 1}
+    });
+    return testDB.stop();
+}
+
 function updateResultSet(jdbc:UpdateResult result) {
     result.updatedRowCount = 100;//Invalid update
 }
 
-function testCloseConnectionPool()
-returns @tainted (int) {
+function testCloseConnectionPool() returns @tainted (int) {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: jdbcUserName,

@@ -81,6 +81,7 @@ public class SQLDBUtils {
                 connection.commit();
             }
         } catch (SQLException e) {
+            System.out.println(e);
             log.error("Error while initializing database: ", e);
         }
     }

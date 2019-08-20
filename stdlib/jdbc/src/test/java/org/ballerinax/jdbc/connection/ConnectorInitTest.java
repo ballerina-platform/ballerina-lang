@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinax.jdbc;
+package org.ballerinax.jdbc.connection;
 
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -32,17 +32,17 @@ import java.io.File;
 /**
  * Test SQL Connector Initialization.
  */
-public class SQLConnectorInitTest {
+public class ConnectorInitTest {
 
     private CompileResult result;
     private static final String DB_NAME = "TEST_SQL_CONNECTOR_INIT";
 
     @BeforeClass
     public void setup() {
-        System.setProperty("enableJBallerinaTests", "true");
-        result = BCompileUtil.compile("test-src/sql/sql_connector_init_test.bal");
+        result = BCompileUtil.compile("test-src/connection/connector_init_test.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
-        SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/SQLTableCreate.sql");
+        SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, DB_NAME,
+                "datafiles/sql/connection/connector_init_test_data.sql");
     }
 
     @Test
