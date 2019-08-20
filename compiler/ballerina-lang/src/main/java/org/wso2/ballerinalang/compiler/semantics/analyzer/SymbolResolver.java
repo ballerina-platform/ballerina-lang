@@ -168,7 +168,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         // if a symbol is found, then check whether it is unique
-        return !isDuplicateSymbol(pos, symbol, foundSym);
+        return isDistinctSymbol(pos, symbol, foundSym);
     }
 
     public boolean checkForUniqueSymbol(SymbolEnv env, BSymbol symbol, int expSymTag) {
@@ -176,7 +176,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (foundSym == symTable.notFoundSymbol) {
             return true;
         }
-        return !isDuplicateSymbol(symbol, foundSym);
+        return isDistinctSymbol(symbol, foundSym);
     }
 
     /**
@@ -200,7 +200,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         //if a symbol is found, then check whether it is unique
-        return !isDuplicateSymbol(pos, symbol, foundSym);
+        return isDistinctSymbol(pos, symbol, foundSym);
     }
 
     /**
@@ -212,29 +212,29 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @param foundSym symbol that is found from the scope.
      * @return true if the symbol is unique, false otherwise.
      */
-    private boolean isDuplicateSymbol(DiagnosticPos pos, BSymbol symbol, BSymbol foundSym) {
+    private boolean isDistinctSymbol(DiagnosticPos pos, BSymbol symbol, BSymbol foundSym) {
         // It is allowed to have a error constructor symbol with the same name as a type def.
         if (symbol.tag == SymTag.CONSTRUCTOR && foundSym.tag == SymTag.ERROR) {
-            return true;
+            return false;
         }
 
         // Type names should be unique and cannot be shadowed
         if ((foundSym.tag & SymTag.TYPE) == SymTag.TYPE) {
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
-            return true;
+            return false;
         }
 
         if (isSymbolDefinedInRootPkgLvl(foundSym)) {
             dlog.error(pos, DiagnosticCode.REDECLARED_BUILTIN_SYMBOL, symbol.name);
-            return true;
+            return false;
         }
 
         if (hasSameOwner(symbol, foundSym)) {
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     /**
@@ -245,22 +245,22 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @param foundSym symbol that is found from the scope.
      * @return true if the symbol is unique, false otherwise.
      */
-    private boolean isDuplicateSymbol(BSymbol symbol, BSymbol foundSym) {
+    private boolean isDistinctSymbol(BSymbol symbol, BSymbol foundSym) {
         // It is allowed to have a error constructor symbol with the same name as a type def.
         if (symbol.tag == SymTag.CONSTRUCTOR && foundSym.tag == SymTag.ERROR) {
-            return true;
+            return false;
         }
 
         // Type names should be unique and cannot be shadowed
         if ((foundSym.tag & SymTag.TYPE) == SymTag.TYPE) {
-            return true;
+            return false;
         }
 
         if (isSymbolDefinedInRootPkgLvl(foundSym)) {
-            return true;
+            return false;
         }
 
-        return hasSameOwner(symbol, foundSym);
+        return !hasSameOwner(symbol, foundSym);
     }
 
 
