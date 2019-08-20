@@ -78,7 +78,7 @@ public class RunTestsTask implements Task {
                 // }
                 Path jarPath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID);
                 JBallerinaInMemoryClassLoader classLoader = new JBallerinaInMemoryClassLoader(jarPath,
-                        Paths.get(System.getProperty("ballerina.home"), "bre", "lib").toFile());
+                        Paths.get(sourceRootPath.toString(), "target", "tmp").toFile());
                 programFileMap.put(bLangPackage, classLoader);
             });
         // Create a class loader to

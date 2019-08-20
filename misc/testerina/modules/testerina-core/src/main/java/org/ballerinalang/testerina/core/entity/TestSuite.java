@@ -43,9 +43,10 @@ public class TestSuite {
     private List<String> beforeSuiteFunctionNames = new ArrayList<>();
     private List<String> afterSuiteFunctionNames = new ArrayList<>();
 
-    // We will use one scheduler for the entire test suite
-    // By default we will set it as false.
+    // We will use one scheduler to start the module and let it spin
+    // Then we will use a second scheduler to run the test function
     public final Scheduler scheduler = new Scheduler(4, false);
+    public final Scheduler initScheduler = new Scheduler(4, false);
 
     public List<String> getBeforeSuiteFunctionNames() {
         return beforeSuiteFunctionNames;
@@ -283,17 +284,34 @@ public class TestSuite {
 
     public void start() {
         if (initFunction != null && startFunction != null) {
+            // As the init function we need to use $moduleInit to initialize all the dependent modules
+            // properly.
+            initFunction.bFunction.name.value = "$moduleInit";
+            initFunction.scheduler = initScheduler;
             initFunction.invoke();
-            startFunction.immortal = true;
+            // As the start function we need to use $moduleStart to start all the dependent modules
+            // properly.
+            startFunction.bFunction.name.value = "$moduleStart";
+            startFunction.scheduler = initScheduler;
             startFunction.invoke();
+
+            // Once the start function finish we will re start the scheduler with immortal true
+            initScheduler.immortal = true;
+            Thread immortalThread = new Thread(() -> {
+                initScheduler.start();
+            }, "module-start");
+            immortalThread.setDaemon(true);
+            immortalThread.start();
         }
     }
 
     public void stop() {
         if (stopFunction != null) {
+            stopFunction.bFunction.name.value = "$moduleStop";
             stopFunction.invoke();
         }
         // poison the scheduler to stop all jobs.
-        this.scheduler.poison();
+        this.initScheduler.poison();
+
     }
 }
