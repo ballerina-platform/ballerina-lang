@@ -16,8 +16,6 @@
 
 // ========================== Basics ==========================
 
-import ballerina/'lang\.error as errors;
-import ballerina/'lang\.string as strings;
 
 function testValueTypeInUnion() returns string {
     int|string x = 5;

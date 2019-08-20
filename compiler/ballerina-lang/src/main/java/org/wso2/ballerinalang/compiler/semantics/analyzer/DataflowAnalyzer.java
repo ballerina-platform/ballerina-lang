@@ -335,10 +335,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVariable variable) {
         analyzeNode(variable.typeNode, env);
-        boolean validVariable = variable.symbol != null;
-        if (validVariable) {
-            this.currDependentSymbol.push(variable.symbol);
+        if (variable.symbol == null) {
+            if (variable.expr != null) {
+                analyzeNode(variable.expr, env);
+            }
+            return;
         }
+
+        this.currDependentSymbol.push(variable.symbol);
         try {
             if (variable.expr != null) {
                 analyzeNode(variable.expr, env);
@@ -354,9 +358,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
             addUninitializedVar(variable);
         } finally {
-            if (validVariable) {
-                this.currDependentSymbol.pop();
-            }
+            this.currDependentSymbol.pop();
         }
     }
 
@@ -472,6 +474,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         analyzeNode(transactionNode.onRetryBody, env);
         analyzeNode(transactionNode.committedBody, env);
         analyzeNode(transactionNode.abortedBody, env);
+
+        // marks the injected import as used
+        Name transactionPkgName = names.fromString(Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
+        Name compUnitName = names.fromString(transactionNode.pos.getSource().getCompilationUnitName());
+        this.symResolver.resolvePrefixSymbol(env, transactionPkgName, compUnitName);
     }
 
     @Override

@@ -15,7 +15,7 @@
  // under the License.
  
 import ballerina/http;
-import ballerina/io;
+
  
  function testDataflow_1() returns string {
     string msg;

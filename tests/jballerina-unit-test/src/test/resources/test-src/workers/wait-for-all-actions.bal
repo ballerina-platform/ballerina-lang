@@ -13,8 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/runtime;
-import ballerina/io;
 
 function waitTest1() returns map<anydata> { // {f1: 7, f2: 22, f4: "hello foo", f6: true}
     future<int> f1 = start add_1(5, 2);

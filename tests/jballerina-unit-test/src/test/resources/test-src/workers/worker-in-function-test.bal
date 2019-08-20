@@ -1,5 +1,3 @@
-import ballerina/io;
-import ballerina/runtime;
 
 function testSimpleWorker(string msg) returns string {
     return testSimpleWorkerVM(msg);

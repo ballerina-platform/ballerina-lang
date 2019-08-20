@@ -72,3 +72,7 @@ function defineEmptyNamespace() {
 function testMismatchingElementTags() {
     var x = xml `<book></book12>`;
 }
+
+function dummyFunctionToUseMath() {
+    float f = x:random();
+}
