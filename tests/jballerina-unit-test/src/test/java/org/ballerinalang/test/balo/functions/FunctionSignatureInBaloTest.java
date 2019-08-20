@@ -23,7 +23,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.balo.BaloCreator;
-import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -334,7 +333,8 @@ public class FunctionSignatureInBaloTest {
         validateError(resultNegative, i++, "incompatible types: expected 'string', found 'float'", 4, 56);
         validateError(resultNegative, i++, "redeclared argument 'c'", 4, 62);
         validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 4, 72);
-        validateError(resultNegative, i++, "missing required parameter 'b' in call to 'functionWithAllTypesParams'()", 4, 12);
+        validateError(resultNegative, i++, "missing required parameter 'b' in call to 'functionWithAllTypesParams'()",
+                4, 12);
         validateError(resultNegative, i++, "too many arguments in call to 'functionWithAllTypesParams()'", 4, 12);
         validateError(resultNegative, i++, "positional argument not allowed after named arguments", 9, 56);
         validateError(resultNegative, i++, "rest argument not allowed after named arguments", 9, 72);
