@@ -308,9 +308,15 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangImportPackage importPkgNode) {
         Name pkgAlias = names.fromIdNode(importPkgNode.alias);
-        if (symResolver.resolveImportSymbol(env, pkgAlias,
-                names.fromIdNode(importPkgNode.compUnit)) != symTable.notFoundSymbol) {
-            dlog.error(importPkgNode.pos, DiagnosticCode.REDECLARED_SYMBOL, pkgAlias);
+        BSymbol importSymbol = symResolver.resolveImportSymbol(env, pkgAlias,
+                names.fromIdNode(importPkgNode.compUnit));
+        if (importSymbol != symTable.notFoundSymbol) {
+            if (isSameImport(importPkgNode, (BPackageSymbol) importSymbol)) {
+                dlog.error(importPkgNode.pos, DiagnosticCode.REDECLARED_IMPORT_MODULE,
+                        importPkgNode.getQualifiedPackageName());
+            } else {
+                dlog.error(importPkgNode.pos, DiagnosticCode.REDECLARED_SYMBOL, pkgAlias);
+            }
             return;
         }
 
@@ -1972,6 +1978,15 @@ public class SymbolEnter extends BLangNodeVisitor {
         copy.scope = originalSymbol.scope;
         copy.owner = originalSymbol.owner;
         return copy;
+    }
+
+    private boolean isSameImport(BLangImportPackage importPkgNode, BPackageSymbol importSymbol) {
+        if (!importPkgNode.orgName.value.equals(importSymbol.pkgID.orgName.value)) {
+            return false;
+        }
+
+        BLangIdentifier pkgName = importPkgNode.pkgNameComps.get(importPkgNode.pkgNameComps.size() - 1);
+        return pkgName.value.equals(importSymbol.pkgID.name.value);
     }
 
     /**

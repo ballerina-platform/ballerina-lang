@@ -33,7 +33,7 @@ public class PackageImportTest {
         CompileResult result =
                 BCompileUtil.compile("test-src/statements/package/imports/duplicate-import-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length > 0);
-        BAssertUtil.validateWarning(result, 0, "redeclared import module 'ballerina/math'", 4, 1);
+        BAssertUtil.validateError(result, 0, "redeclared import module 'ballerina/math'", 4, 1);
     }
 
     @Test
@@ -69,12 +69,14 @@ public class PackageImportTest {
     @Test()
     public void testImportsPerfile() {
         CompileResult result = BCompileUtil.compile("test-src/statements/package/sample-project", "invalid-imports");
-        Assert.assertEquals(result.getErrorCount(), 5);
+        Assert.assertEquals(result.getErrorCount(), 6);
         int i = 0;
-        BAssertUtil.validateError(result, i++, "redeclared symbol 'io'", "src/file-negative1.bal", 3, 1);
+        BAssertUtil.validateError(result, i++, "redeclared import module 'ballerina/io'", "src/file-negative1.bal", 3,
+                1);
         BAssertUtil.validateError(result, i++, "undefined module 'http'", "src/file-negative2.bal", 3, 5);
         BAssertUtil.validateError(result, i++, "unknown type 'Client'", "src/file-negative2.bal", 3, 5);
         BAssertUtil.validateError(result, i++, "undefined module 'io'", "src/file-negative2.bal", 4, 5);
+        BAssertUtil.validateError(result, i++, "undefined function 'println'", "src/file-negative2.bal", 4, 5);
         BAssertUtil.validateError(result, i++, "undefined module 'io'", "src/file-negative2.bal", 5, 18);
     }
 }
