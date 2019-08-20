@@ -3543,14 +3543,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "HttpResponse",
-      "kind": "Enum",
-      "detail": "Union",
-      "sortText": "120",
-      "insertText": "HttpResponse",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "extractAuthorizationHeaderValue(http:Request req)(string)",
       "kind": "Function",
       "detail": "Function",
