@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/io;
 
 listener http:Listener echoEP  = new(9229);
 

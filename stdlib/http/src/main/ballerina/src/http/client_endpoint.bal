@@ -17,6 +17,7 @@
 import ballerina/crypto;
 import ballerina/io;
 import ballerina/internal;
+import ballerina/time;
 
 ////////////////////////////////
 ///// HTTP Client Endpoint /////

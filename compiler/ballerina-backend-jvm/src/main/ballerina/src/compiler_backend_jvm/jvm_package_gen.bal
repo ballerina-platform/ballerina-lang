@@ -15,6 +15,10 @@
 // under the License.
 
 import ballerina/jvm;
+import ballerina/io;
+import ballerina/internal;
+import ballerina/bir;
+import ballerina/system;
 
 type BIRFunctionWrapper record {
     string orgName;
@@ -23,7 +27,6 @@ type BIRFunctionWrapper record {
     bir:Function func;
     string fullQualifiedClassName;
     string jvmMethodDescription;
-
 };
 
 DiagnosticLogger dlogger = new ();
