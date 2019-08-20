@@ -279,7 +279,7 @@
 <!--            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>-->
             <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>
             <class name="org.ballerinalang.test.packaging.LockFileTestCase"/>
-            <class name="org.ballerinalang.test.packaging.NativePackagingTestCase"/>
+<!--            <class name="org.ballerinalang.test.packaging.NativePackagingTestCase"/>-->
             <class name="org.ballerinalang.test.packaging.PathDependencyTestCase"/>
         </classes>
     </test>
