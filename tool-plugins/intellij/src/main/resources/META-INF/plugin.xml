@@ -47,8 +47,8 @@
         <completion.contributor implementationClass="org.wso2.lsp4intellij.contributors.LSPCompletionContributor"
                                 id="LSPCompletionContributor" language="Ballerina"/>
 
-        <localInspection displayName="LSP" shortName="LSP" enabledByDefault="true"
-                         implementationClass="org.wso2.lsp4intellij.contributors.inspection.DummyLSPInspection"/>
+        <externalAnnotator implementationClass="org.wso2.lsp4intellij.contributors.annotator.LSPAnnotator"
+                           id="BallerinaLSPAnnotator" language="Ballerina"/>
 
         <renameHandler implementation="org.wso2.lsp4intellij.contributors.rename.LSPRenameHandler"
                        id="LSPRenameHandler" order="first"/>
