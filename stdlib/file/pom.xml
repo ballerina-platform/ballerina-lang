@@ -55,10 +55,6 @@
             <artifactId>lib-creator</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.transport.file</groupId>
-            <artifactId>org.wso2.transport.local-file-system</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-launcher</artifactId>
             <scope>test</scope>
