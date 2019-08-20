@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -29,19 +29,18 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 
 /**
  * Test module level variable access.
  * 
  * @since 1.0
  */
-public class ModuleLevelVariableTest {
+public class ModuleLevelVariableAccessTest {
 
     CompileResult result;
 
     @BeforeClass
-    public void setup() throws IOException {
+    public void setup() {
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
         result = BCompileUtil.compile("test-src/balo/test_balo/globalvar/test_module_level_variable.bal");
     }
