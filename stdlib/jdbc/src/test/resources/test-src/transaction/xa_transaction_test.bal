@@ -20,18 +20,18 @@ type ResultCount record {
 };
 
 function testXATransactionSuccess() returns @tainted [int, int] {
-    jdbc:Client testDB1 = new({
+    jdbc:Client testDB1 = new ({
         url: "jdbc:h2:file:./target/H2_1/TestDB1",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1, isXA: true }
+        poolOptions: {maximumPoolSize: 1, isXA: true}
     });
 
-    jdbc:Client testDB2 = new({
+    jdbc:Client testDB2 = new ({
         url: "jdbc:h2:file:./target/H2_2/TestDB2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1, isXA: true }
+        poolOptions: {maximumPoolSize: 1, isXA: true}
     });
 
     transaction {
@@ -55,18 +55,18 @@ function testXATransactionSuccess() returns @tainted [int, int] {
 }
 
 function testXATransactionSuccessWithDataSource() returns @tainted [int, int] {
-    jdbc:Client testDB1 = new({
+    jdbc:Client testDB1 = new ({
         url: "jdbc:h2:file:./target/H2_1/TestDB1",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1, isXA: true, dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" }
+        poolOptions: {maximumPoolSize: 1, isXA: true, dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"}
     });
 
-    jdbc:Client testDB2 = new({
+    jdbc:Client testDB2 = new ({
         url: "jdbc:h2:file:./target/H2_2/TestDB2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1, isXA: true, dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" }
+        poolOptions: {maximumPoolSize: 1, isXA: true, dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"}
     });
 
     transaction {
@@ -89,18 +89,18 @@ function testXATransactionSuccessWithDataSource() returns @tainted [int, int] {
 }
 
 function testXATransactionSuccessWithH2Client() returns @tainted [int, int] {
-    jdbc:Client testDB1 = new({
+    jdbc:Client testDB1 = new ({
         url: "jdbc:h2:file:./target/H2_1/TestDB1",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1, isXA: true, dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" }
+        poolOptions: {maximumPoolSize: 1, isXA: true, dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"}
     });
 
-    jdbc:Client testDB2 = new({
+    jdbc:Client testDB2 = new ({
         url: "jdbc:h2:file:./target/H2_2/TestDB2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1, isXA: true, dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" }
+        poolOptions: {maximumPoolSize: 1, isXA: true, dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"}
     });
 
     transaction {
@@ -124,18 +124,18 @@ function testXATransactionSuccessWithH2Client() returns @tainted [int, int] {
 
 function testXATransactionFailed1() returns @tainted [int, int] {
 
-    jdbc:Client testDB1 = new({
+    jdbc:Client testDB1 = new ({
         url: "jdbc:h2:file:./target/H2_1/TestDB1",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1, isXA: true }
+        poolOptions: {maximumPoolSize: 1, isXA: true}
     });
 
-    jdbc:Client testDB2 = new({
+    jdbc:Client testDB2 = new ({
         url: "jdbc:h2:file:./target/H2_2/TestDB2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1, isXA: true }
+        poolOptions: {maximumPoolSize: 1, isXA: true}
     });
 
     var e = trap testXATransactionFailed1Helper(testDB1, testDB2);
@@ -164,18 +164,18 @@ function testXATransactionFailed1Helper(jdbc:Client testDB1, jdbc:Client testDB2
 
 function testXATransactionFailed2() returns @tainted [int, int] {
 
-    jdbc:Client testDB1 = new({
+    jdbc:Client testDB1 = new ({
         url: "jdbc:h2:file:./target/H2_1/TestDB1",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1, isXA: true }
+        poolOptions: {maximumPoolSize: 1, isXA: true}
     });
 
-    jdbc:Client testDB2 = new({
+    jdbc:Client testDB2 = new ({
         url: "jdbc:h2:file:./target/H2_2/TestDB2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1, isXA: true }
+        poolOptions: {maximumPoolSize: 1, isXA: true}
     });
     var e = trap testXATransactionFailed2Helper(testDB1, testDB2);
     //check whether update action is performed
@@ -200,18 +200,18 @@ function testXATransactionFailed2Helper(jdbc:Client testDB1, jdbc:Client testDB2
 
 function testXATransactionRetry() returns @tainted [int, int] {
 
-    jdbc:Client testDB1 = new({
+    jdbc:Client testDB1 = new ({
         url: "jdbc:h2:file:./target/H2_1/TestDB1",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1, isXA: true }
+        poolOptions: {maximumPoolSize: 1, isXA: true}
     });
 
-    jdbc:Client testDB2 = new({
+    jdbc:Client testDB2 = new ({
         url: "jdbc:h2:file:./target/H2_2/TestDB2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1, isXA: true }
+        poolOptions: {maximumPoolSize: 1, isXA: true}
     });
 
     testXATransactionRetryHelper(testDB1, testDB2);
@@ -243,7 +243,7 @@ function testXATransactionRetryHelper(jdbc:Client testDB1, jdbc:Client testDB2) 
     }
 }
 
-function getTableCountValColumn(table<ResultCount>|error result) returns int {
+function getTableCountValColumn(table<ResultCount> | error result) returns int {
     int count = -1;
     if (result is table<ResultCount>) {
         while (result.hasNext()) {

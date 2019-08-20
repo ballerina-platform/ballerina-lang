@@ -14,9 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java.jdbc;
 import ballerina/io;
 import ballerina/time;
+import ballerinax/java.jdbc;
 
 type ResultPrimitive record {
     int INT_TYPE;
@@ -29,7 +29,7 @@ type ResultPrimitive record {
 };
 
 type ResultJson record {
-   json STRING_TYPE;
+    json STRING_TYPE;
 };
 
 type ResultSetTestAlias record {
@@ -122,9 +122,9 @@ type ResultSignedInt record {
 
 type ResultComplexTypes record {
     int ROW_ID;
-    byte[]|() BLOB_TYPE;
+    byte[] | () BLOB_TYPE;
     string? CLOB_TYPE;
-    byte[]|() BINARY_TYPE;
+    byte[] | () BINARY_TYPE;
 };
 
 type TestTypeData record {
@@ -154,11 +154,11 @@ type Person record {
 };
 
 function testToJson() returns @tainted json {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var result = testDB->select("SELECT int_type, long_type, float_type, double_type,
@@ -169,11 +169,11 @@ function testToJson() returns @tainted json {
 }
 
 function testToJsonComplexTypes() returns @tainted json {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize:1}
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var result = testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1", ());
@@ -183,11 +183,11 @@ function testToJsonComplexTypes() returns @tainted json {
 }
 
 function testToJsonComplexTypesNil() returns @tainted json {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize:1}
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var result = testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 2", ());
@@ -197,11 +197,11 @@ function testToJsonComplexTypesNil() returns @tainted json {
 }
 
 function testToXml() returns xml {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var result = testDB->select("SELECT int_type, long_type, float_type, double_type,
@@ -212,11 +212,11 @@ function testToXml() returns xml {
 }
 
 function testToXmlComplexTypes() returns xml {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var result = testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1", ());
@@ -227,11 +227,11 @@ function testToXmlComplexTypes() returns xml {
 }
 
 function testToXmlComplexTypesNil() returns xml {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var result = testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 2", ());
@@ -242,11 +242,11 @@ function testToXmlComplexTypesNil() returns xml {
 }
 
 function testToXmlMultipleConsume() returns xml {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var result = testDB->select("SELECT int_type, long_type, float_type, double_type,
@@ -258,11 +258,11 @@ function testToXmlMultipleConsume() returns xml {
 }
 
 function testToXmlWithAdd() returns xml {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var tableOrError1 = testDB->select("SELECT int_type from DataTable WHERE row_id = 1", ());
@@ -274,7 +274,7 @@ function testToXmlWithAdd() returns xml {
     xml result = result1 + result2;
 
     var dt3 = testDB->select("SELECT int_type from DataTable WHERE row_id = 1", ());
-    if (dt3 is table<record{}>) {
+    if (dt3 is table<record {}>) {
         dt3.close();
     }
     checkpanic testDB.stop();
@@ -282,11 +282,11 @@ function testToXmlWithAdd() returns xml {
 }
 
 function testToJsonMultipleConsume() returns @tainted json {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var tableOrError = testDB->select("SELECT int_type, long_type, float_type, double_type,
@@ -298,11 +298,11 @@ function testToJsonMultipleConsume() returns @tainted json {
 }
 
 function toXmlComplex() returns xml {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
     var tableOrError = testDB->select("SELECT int_type, int_array, long_type, long_array, float_type,
                     float_array, double_type, boolean_type, string_type, decimal_type, double_array, boolean_array,
@@ -314,11 +314,11 @@ function toXmlComplex() returns xml {
 }
 
 function testToXmlComplexWithStructDef() returns xml {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var tableOrError = testDB->select("SELECT int_type, int_array, long_type, long_array, float_type,
@@ -331,11 +331,11 @@ function testToXmlComplexWithStructDef() returns xml {
 }
 
 function testToJsonComplex() returns @tainted json {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
     var tableOrError = testDB->select("SELECT int_type, int_array, long_type, long_array, float_type,
         float_array, double_type, boolean_type, string_type, decimal_type, double_array, boolean_array, string_array
@@ -348,11 +348,11 @@ function testToJsonComplex() returns @tainted json {
 }
 
 function testToJsonComplexWithStructDef() returns @tainted json {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var tableOrError = testDB->select("SELECT int_type, int_array, long_type, long_array, float_type,
@@ -364,11 +364,11 @@ function testToJsonComplexWithStructDef() returns @tainted json {
 }
 
 function testJsonWithNull() returns @tainted json {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
     var tableOrError = testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable WHERE row_id = 2", ());
@@ -378,11 +378,11 @@ function testJsonWithNull() returns @tainted json {
 }
 
 function testXmlWithNull() returns xml {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
     var tableOrError = testDB->select("SELECT int_type, long_type, float_type, double_type,
                    boolean_type, string_type from DataTable WHERE row_id = 2", ());
@@ -392,11 +392,11 @@ function testXmlWithNull() returns xml {
 }
 
 function testToXmlWithinTransaction() returns [string, int] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     int returnValue = -1;
@@ -418,11 +418,11 @@ function testToXmlWithinTransaction() returns [string, int] {
 }
 // TODO: #16033
 function testToJsonWithinTransaction() returns [string, int] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     int returnValue = -1;
@@ -444,11 +444,11 @@ function testToJsonWithinTransaction() returns [string, int] {
 }
 
 function testGetPrimitiveTypes() returns @tainted [int, int, float, float, boolean, string, decimal] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     int i = -1;
@@ -479,11 +479,11 @@ function testGetPrimitiveTypes() returns @tainted [int, int, float, float, boole
 }
 
 function testGetComplexTypes() returns @tainted [byte[], string, byte[]] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
     byte[] blobData = [];
     string clob = "";
@@ -494,10 +494,10 @@ function testGetComplexTypes() returns @tainted [byte[], string, byte[]] {
         while (tableOrError.hasNext()) {
             var rs = tableOrError.getNext();
             if (rs is ResultObject) {
-            blobData = rs.BLOB_TYPE;
-            clob = rs.CLOB_TYPE;
-            binaryData = rs.BINARY_TYPE;
-        }
+                blobData = rs.BLOB_TYPE;
+                clob = rs.CLOB_TYPE;
+                binaryData = rs.BINARY_TYPE;
+            }
         }
     }
     checkpanic testDB.stop();
@@ -505,11 +505,11 @@ function testGetComplexTypes() returns @tainted [byte[], string, byte[]] {
 }
 
 function testArrayData() returns @tainted [int[], int[], decimal[], string[], boolean[]] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var tableOrError = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
@@ -536,11 +536,11 @@ function testArrayData() returns @tainted [int[], int[], decimal[], string[], bo
 }
 
 function testArrayDataInsertAndPrint() returns @tainted [int, int, int, int, int, int] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     int[] dataint = [1, 2, 3];
@@ -548,12 +548,12 @@ function testArrayDataInsertAndPrint() returns @tainted [int, int, int, int, int
     string[] datastring = ["hello", "world"];
     boolean[] databoolean = [true, false, false, true, true];
 
-    jdbc:Parameter paraID = { sqlType: jdbc:TYPE_INTEGER, value: 4 };
-    jdbc:Parameter paraInt = { sqlType: jdbc:TYPE_ARRAY, value: dataint };
-    jdbc:Parameter paraLong = { sqlType: jdbc:TYPE_ARRAY, value: dataint };
-    jdbc:Parameter paraFloat = { sqlType: jdbc:TYPE_ARRAY, value: datafloat };
-    jdbc:Parameter paraString = { sqlType: jdbc:TYPE_ARRAY, value: datastring };
-    jdbc:Parameter paraBool = { sqlType: jdbc:TYPE_ARRAY, value: databoolean };
+    jdbc:Parameter paraID = {sqlType: jdbc:TYPE_INTEGER, value: 4};
+    jdbc:Parameter paraInt = {sqlType: jdbc:TYPE_ARRAY, value: dataint};
+    jdbc:Parameter paraLong = {sqlType: jdbc:TYPE_ARRAY, value: dataint};
+    jdbc:Parameter paraFloat = {sqlType: jdbc:TYPE_ARRAY, value: datafloat};
+    jdbc:Parameter paraString = {sqlType: jdbc:TYPE_ARRAY, value: datastring};
+    jdbc:Parameter paraBool = {sqlType: jdbc:TYPE_ARRAY, value: databoolean};
 
     int intArrLen = -1;
     int longArrLen = -1;
@@ -563,13 +563,13 @@ function testArrayDataInsertAndPrint() returns @tainted [int, int, int, int, int
 
     var updateRet = testDB->update("insert into ArrayTypes(row_id, int_array, long_array, float_array,
                                 string_array, boolean_array) values (?,?,?,?,?,?)",
-        paraID, paraInt, paraLong, paraFloat, paraString, paraBool);
+    paraID, paraInt, paraLong, paraFloat, paraString, paraBool);
     int updatedCount = -1;
     if (updateRet is jdbc:UpdateResult) {
         updatedCount = updateRet.updatedRowCount;
     } else {
-       error e = updateRet;
-       io:println(<string> e.detail()["message"]);
+        error e = updateRet;
+        io:println(<string>e.detail()["message"]);
     }
     var dtRet = testDB->select("SELECT int_array, long_array, float_array, boolean_array, string_array
                                  from ArrayTypes where row_id = 4", ResultMap);
@@ -595,32 +595,32 @@ function testArrayDataInsertAndPrint() returns @tainted [int, int, int, int, int
 }
 
 function testDateTime(int datein, int timein, int timestampin) returns @tainted [string, string, string, string] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
     string date = "";
     string time = "";
     string timestamp = "";
     string datetime = "";
 
-    jdbc:Parameter para0 = { sqlType: jdbc:TYPE_INTEGER, value: 1 };
-    jdbc:Parameter para1 = { sqlType: jdbc:TYPE_DATE, value: datein };
-    jdbc:Parameter para2 = { sqlType: jdbc:TYPE_TIME, value: timein };
-    jdbc:Parameter para3 = { sqlType: jdbc:TYPE_TIMESTAMP, value: timestampin };
-    jdbc:Parameter para4 = { sqlType: jdbc:TYPE_DATETIME, value: timestampin };
+    jdbc:Parameter para0 = {sqlType: jdbc:TYPE_INTEGER, value: 1};
+    jdbc:Parameter para1 = {sqlType: jdbc:TYPE_DATE, value: datein};
+    jdbc:Parameter para2 = {sqlType: jdbc:TYPE_TIME, value: timein};
+    jdbc:Parameter para3 = {sqlType: jdbc:TYPE_TIMESTAMP, value: timestampin};
+    jdbc:Parameter para4 = {sqlType: jdbc:TYPE_DATETIME, value: timestampin};
 
     _ = checkpanic testDB->update("Insert into DateTimeTypes
         (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
-        para0, para1, para2, para3, para4);
+    para0, para1, para2, para3, para4);
 
     var selectRet = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
                 from DateTimeTypes where row_id = 1", ResultDates);
     if (selectRet is table<ResultDates>) {
         while (selectRet.hasNext()) {
-            var rs =selectRet.getNext();
+            var rs = selectRet.getNext();
             if (rs is ResultDates) {
                 time = rs.TIME_TYPE;
                 date = rs.DATE_TYPE;
@@ -633,12 +633,12 @@ function testDateTime(int datein, int timein, int timestampin) returns @tainted 
     return [date, time, timestamp, datetime];
 }
 
-function testDateTimeAsTimeStruct() returns @tainted [int, int, int, int, int, int, int, int]|error {
-    jdbc:Client testDB = new({
+function testDateTimeAsTimeStruct() returns @tainted [int, int, int, int, int, int, int, int] | error {
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     int dateInserted = -1;
@@ -652,8 +652,8 @@ function testDateTimeAsTimeStruct() returns @tainted [int, int, int, int, int, i
 
     time:Time dateStruct = check time:createTime(2017, 5, 23, 0, 0, 0, 0, "");
 
-    time:TimeZone zoneValue = { id: "UTC" };
-    time:Time timeStruct = { time: 51323000, zone: zoneValue };
+    time:TimeZone zoneValue = {id: "UTC"};
+    time:Time timeStruct = {time: 51323000, zone: zoneValue};
 
     time:Time timestampStruct = check time:createTime(2017, 1, 25, 16, 12, 23, 0, "UTC");
     time:Time datetimeStruct = check time:createTime(2017, 1, 31, 16, 12, 23, 332, "UTC");
@@ -662,21 +662,21 @@ function testDateTimeAsTimeStruct() returns @tainted [int, int, int, int, int, i
     timestampInserted = timestampStruct.time;
     datetimeInserted = datetimeStruct.time;
 
-    jdbc:Parameter para0 = { sqlType: jdbc:TYPE_INTEGER, value: 31 };
-    jdbc:Parameter para1 = { sqlType: jdbc:TYPE_DATE, value: dateStruct };
-    jdbc:Parameter para2 = { sqlType: jdbc:TYPE_TIME, value: timeStruct };
-    jdbc:Parameter para3 = { sqlType: jdbc:TYPE_TIMESTAMP, value: timestampStruct };
-    jdbc:Parameter para4 = { sqlType: jdbc:TYPE_DATETIME, value: datetimeStruct };
+    jdbc:Parameter para0 = {sqlType: jdbc:TYPE_INTEGER, value: 31};
+    jdbc:Parameter para1 = {sqlType: jdbc:TYPE_DATE, value: dateStruct};
+    jdbc:Parameter para2 = {sqlType: jdbc:TYPE_TIME, value: timeStruct};
+    jdbc:Parameter para3 = {sqlType: jdbc:TYPE_TIMESTAMP, value: timestampStruct};
+    jdbc:Parameter para4 = {sqlType: jdbc:TYPE_DATETIME, value: datetimeStruct};
 
     _ = checkpanic testDB->update("Insert into DateTimeTypes
         (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
-        para0, para1, para2, para3, para4);
+    para0, para1, para2, para3, para4);
 
     var selectRet = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
                 from DateTimeTypes where row_id = 31", ResultDatesStruct);
     if (selectRet is table<ResultDatesStruct>) {
         while (selectRet.hasNext()) {
-            var rs =selectRet.getNext();
+            var rs = selectRet.getNext();
             if (rs is ResultDatesStruct) {
                 dateRetrieved = rs.DATE_TYPE.time;
                 timeRetrieved = rs.TIME_TYPE.time;
@@ -691,18 +691,18 @@ function testDateTimeAsTimeStruct() returns @tainted [int, int, int, int, int, i
 }
 
 function testDateTimeInt(int datein, int timein, int timestampin) returns @tainted [int, int, int, int] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
-    jdbc:Parameter para0 = { sqlType: jdbc:TYPE_INTEGER, value: 32 };
-    jdbc:Parameter para1 = { sqlType: jdbc:TYPE_DATE, value: datein };
-    jdbc:Parameter para2 = { sqlType: jdbc:TYPE_TIME, value: timein };
-    jdbc:Parameter para3 = { sqlType: jdbc:TYPE_TIMESTAMP, value: timestampin };
-    jdbc:Parameter para4 = { sqlType: jdbc:TYPE_DATETIME, value: timestampin };
+    jdbc:Parameter para0 = {sqlType: jdbc:TYPE_INTEGER, value: 32};
+    jdbc:Parameter para1 = {sqlType: jdbc:TYPE_DATE, value: datein};
+    jdbc:Parameter para2 = {sqlType: jdbc:TYPE_TIME, value: timein};
+    jdbc:Parameter para3 = {sqlType: jdbc:TYPE_TIMESTAMP, value: timestampin};
+    jdbc:Parameter para4 = {sqlType: jdbc:TYPE_DATETIME, value: timestampin};
 
     int date = -1;
     int time = -1;
@@ -711,7 +711,7 @@ function testDateTimeInt(int datein, int timein, int timestampin) returns @taint
 
     _ = checkpanic testDB->update("Insert into DateTimeTypes
         (row_id, date_type, time_type, timestamp_type, datetime_type) values (?,?,?,?,?)",
-        para0, para1, para2, para3, para4);
+    para0, para1, para2, para3, para4);
 
     var selectRet = testDB->select("SELECT date_type, time_type, timestamp_type, datetime_type
                 from DateTimeTypes where row_id = 32", ResultDatesInt);
@@ -732,11 +732,11 @@ function testDateTimeInt(int datein, int timein, int timestampin) returns @taint
 }
 
 function testBlobData() returns @tainted byte[] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
     byte[] blobData = [];
     var selectRet = testDB->select("SELECT blob_type from ComplexTypes where row_id = 1", ResultBlob);
@@ -753,11 +753,11 @@ function testBlobData() returns @tainted byte[] {
 }
 
 function testColumnAlias() returns @tainted [int, int, float, float, boolean, string, int] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     int i = -1;
@@ -789,11 +789,11 @@ function testColumnAlias() returns @tainted [int, int, float, float, boolean, st
 }
 
 function testBlobInsert() returns int {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
     var selectRet = testDB->select("SELECT blob_type from ComplexTypes where row_id = 1", ResultBlob);
     byte[] blobData = [];
@@ -805,8 +805,8 @@ function testBlobInsert() returns int {
             }
         }
     }
-    jdbc:Parameter para0 = { sqlType: jdbc:TYPE_INTEGER, value: 10 };
-    jdbc:Parameter para1 = { sqlType: jdbc:TYPE_BLOB, value: blobData };
+    jdbc:Parameter para0 = {sqlType: jdbc:TYPE_INTEGER, value: 10};
+    jdbc:Parameter para1 = {sqlType: jdbc:TYPE_BLOB, value: blobData};
     var insertCountRet = testDB->update("Insert into ComplexTypes (row_id, blob_type) values (?,?)", para0, para1);
     int insertCount = insertCountRet is jdbc:UpdateResult ? insertCountRet.updatedRowCount : -1;
 
@@ -815,11 +815,11 @@ function testBlobInsert() returns int {
 }
 
 function testTableAutoClose() returns @tainted [int, json] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     int i = -1;
@@ -841,7 +841,7 @@ function testTableAutoClose() returns @tainted [int, json] {
 
     var selectRet3 = testDB->select("SELECT int_type, long_type, float_type, double_type,
               boolean_type, string_type from DataTable WHERE row_id = 1", ());
-    if (selectRet3 is table<record{}>) {
+    if (selectRet3 is table<record {}>) {
         selectRet3.close();
     }
 
@@ -850,11 +850,11 @@ function testTableAutoClose() returns @tainted [int, json] {
 }
 
 function testTableManualClose() returns @tainted int {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
     var selectRet = testDB->select("SELECT int_type from DataTable", ResultPrimitiveInt);
     int i = 0;
@@ -883,7 +883,7 @@ function testTableManualClose() returns @tainted int {
 
     if (selectRet2 is table<ResultPrimitiveInt>) {
         while (selectRet2.hasNext()) {
-            var rs2 =selectRet2.getNext();
+            var rs2 = selectRet2.getNext();
             if (rs2 is ResultPrimitiveInt) {
                 data = rs2.INT_TYPE;
             } else {
@@ -901,18 +901,18 @@ function testTableManualClose() returns @tainted int {
 }
 
 function testCloseConnectionPool(string connectionCountQuery) returns int {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
-    var selectRet = testDB->select (connectionCountQuery, ResultCount);
+    var selectRet = testDB->select(connectionCountQuery, ResultCount);
     int retVal;
     if (selectRet is table<ResultCount>) {
         while (selectRet.hasNext()) {
-            var rs =selectRet.getNext();
+            var rs = selectRet.getNext();
             if (rs is ResultCount) {
                 retVal = rs.COUNTVAL;
             } else {
@@ -920,18 +920,18 @@ function testCloseConnectionPool(string connectionCountQuery) returns int {
             }
         }
     } else {
-       retVal = -2;
+        retVal = -2;
     }
     checkpanic testDB.stop();
     return retVal;
 }
 
 function testTablePrintAndPrintln() {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
     var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
         boolean_type, string_type from DataTable WHERE row_id = 1", ());
@@ -947,17 +947,17 @@ function testTablePrintAndPrintln() {
 }
 
 function testMultipleRows() returns @tainted [int, int] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var selectRet = testDB->select("SELECT int_type from DataTableRep", ResultPrimitiveInt);
 
-    ResultPrimitiveInt rs1 = { INT_TYPE: -1 };
-    ResultPrimitiveInt rs2 = { INT_TYPE: -1 };
+    ResultPrimitiveInt rs1 = {INT_TYPE: -1};
+    ResultPrimitiveInt rs2 = {INT_TYPE: -1};
     int i = 0;
     if (selectRet is table<ResultPrimitiveInt>) {
         while (selectRet.hasNext()) {
@@ -974,11 +974,11 @@ function testMultipleRows() returns @tainted [int, int] {
 }
 
 function testMultipleRowsWithoutLoop() returns @tainted [int, int, int, int, string, string] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     //Iterate the whole result
@@ -1016,12 +1016,12 @@ function testMultipleRowsWithoutLoop() returns @tainted [int, int, int, int, str
     var selectRet3 = testDB->select("SELECT int_type from DataTableRep order by int_type desc", ResultPrimitiveInt);
 
     if (selectRet3 is table<ResultPrimitiveInt>) {
-        var rs1 =selectRet3.getNext();
+        var rs1 = selectRet3.getNext();
         if (rs1 is ResultPrimitiveInt) {
             i3 = rs1.INT_TYPE;
         }
 
-        var rs2 =selectRet3.getNext();
+        var rs2 = selectRet3.getNext();
         if (rs2 is ResultPrimitiveInt) {
             i4 = rs2.INT_TYPE;
         }
@@ -1038,7 +1038,7 @@ function testMultipleRowsWithoutLoop() returns @tainted [int, int, int, int, str
             if (rs is ResultPrimitiveInt) {
                 s1 = s1 + rs.INT_TYPE.toString();
             }
-            var rs2 =selectRet4.getNext();
+            var rs2 = selectRet4.getNext();
             if (rs2 is ResultPrimitiveInt) {
                 s1 = s1 + "_" + rs2.INT_TYPE.toString();
             }
@@ -1091,11 +1091,11 @@ function testMultipleRowsWithoutLoop() returns @tainted [int, int, int, int, str
 }
 
 function testHasNextWithoutConsume() returns [boolean, boolean, boolean] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var selectRet = testDB->select("SELECT int_type from DataTableRep order by int_type desc", ResultPrimitiveInt);
@@ -1121,11 +1121,11 @@ function testHasNextWithoutConsume() returns [boolean, boolean, boolean] {
 }
 
 function testGetFloatTypes() returns @tainted [float, float, decimal, decimal] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var selectRet = testDB->select("SELECT float_type, double_type,
@@ -1152,11 +1152,11 @@ function testGetFloatTypes() returns @tainted [float, float, decimal, decimal] {
 }
 
 function testSignedIntMaxMinValues() returns @tainted [int, int, int, string, string, string] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     string insertSQL = "INSERT INTO IntegerTypes(id,tinyIntData, smallIntData, intData, bigIntData) VALUES (?,?, ?,?,?)"
@@ -1171,29 +1171,29 @@ function testSignedIntMaxMinValues() returns @tainted [int, int, int, string, st
     string str = "";
 
     //Insert signed max
-    jdbc:Parameter para1 = { sqlType: jdbc:TYPE_INTEGER, value: 1 };
-    jdbc:Parameter para2 = { sqlType: jdbc:TYPE_TINYINT, value: 127 };
-    jdbc:Parameter para3 = { sqlType: jdbc:TYPE_SMALLINT, value: 32767 };
-    jdbc:Parameter para4 = { sqlType: jdbc:TYPE_INTEGER, value: 2147483647 };
-    jdbc:Parameter para5 = { sqlType: jdbc:TYPE_BIGINT, value: 9223372036854775807 };
+    jdbc:Parameter para1 = {sqlType: jdbc:TYPE_INTEGER, value: 1};
+    jdbc:Parameter para2 = {sqlType: jdbc:TYPE_TINYINT, value: 127};
+    jdbc:Parameter para3 = {sqlType: jdbc:TYPE_SMALLINT, value: 32767};
+    jdbc:Parameter para4 = {sqlType: jdbc:TYPE_INTEGER, value: 2147483647};
+    jdbc:Parameter para5 = {sqlType: jdbc:TYPE_BIGINT, value: 9223372036854775807};
     var updateRet1 = testDB->update(insertSQL, para1, para2, para3, para4, para5);
     maxInsert = updateRet1 is jdbc:UpdateResult ? updateRet1.updatedRowCount : maxInsert;
 
     //Insert signed min
-    para1 = { sqlType: jdbc:TYPE_INTEGER, value: 2 };
-    para2 = { sqlType: jdbc:TYPE_TINYINT, value: -128 };
-    para3 = { sqlType: jdbc:TYPE_SMALLINT, value: -32768 };
-    para4 = { sqlType: jdbc:TYPE_INTEGER, value: -2147483648 };
-    para5 = { sqlType: jdbc:TYPE_BIGINT, value: -9223372036854775808 };
+    para1 = {sqlType: jdbc:TYPE_INTEGER, value: 2};
+    para2 = {sqlType: jdbc:TYPE_TINYINT, value: -128};
+    para3 = {sqlType: jdbc:TYPE_SMALLINT, value: -32768};
+    para4 = {sqlType: jdbc:TYPE_INTEGER, value: -2147483648};
+    para5 = {sqlType: jdbc:TYPE_BIGINT, value: -9223372036854775808};
     var updateRet2 = testDB->update(insertSQL, para1, para2, para3, para4, para5);
     minInsert = updateRet2 is jdbc:UpdateResult ? updateRet2.updatedRowCount : minInsert;
 
     //Insert null
-    para1 = { sqlType: jdbc:TYPE_INTEGER, value: 3 };
-    para2 = { sqlType: jdbc:TYPE_TINYINT, value: () };
-    para3 = { sqlType: jdbc:TYPE_SMALLINT, value: () };
-    para4 = { sqlType: jdbc:TYPE_INTEGER, value: () };
-    para5 = { sqlType: jdbc:TYPE_BIGINT, value: () };
+    para1 = {sqlType: jdbc:TYPE_INTEGER, value: 3};
+    para2 = {sqlType: jdbc:TYPE_TINYINT, value: ()};
+    para3 = {sqlType: jdbc:TYPE_SMALLINT, value: ()};
+    para4 = {sqlType: jdbc:TYPE_INTEGER, value: ()};
+    para5 = {sqlType: jdbc:TYPE_BIGINT, value: ()};
     var updateRet3 = testDB->update(insertSQL, para1, para2, para3, para4, para5);
     nullInsert = updateRet3 is jdbc:UpdateResult ? updateRet3.updatedRowCount : nullInsert;
 
@@ -1222,9 +1222,9 @@ function testSignedIntMaxMinValues() returns @tainted [int, int, int, string, st
                 var intData = result.INTDATA;
                 var bigIntData = result.BIGINTDATA;
                 str = str + result.ID.toString() + "|" + (tinyIntData is int ? tinyIntData.toString() : "-1") + "|" +
-                        (smallIntData is int ? smallIntData.toString() : "-1") + "|" +
-                        (intData is int ? intData.toString() : "-1") + "|" +
-                        (bigIntData is int ? bigIntData.toString() : "-1") + "#";
+                (smallIntData is int ? smallIntData.toString() : "-1") + "|" +
+                (intData is int ? intData.toString() : "-1") + "|" +
+                (bigIntData is int ? bigIntData.toString() : "-1") + "#";
             }
         }
     }
@@ -1233,11 +1233,11 @@ function testSignedIntMaxMinValues() returns @tainted [int, int, int, string, st
 }
 
 function testComplexTypeInsertAndRetrieval() returns @tainted [int, int, string, string, string, byte[][]] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     string insertSQL = "INSERT INTO ComplexTypes(row_id, blob_type, clob_type, binary_type) VALUES (?,?,?,?)";
@@ -1253,17 +1253,17 @@ function testComplexTypeInsertAndRetrieval() returns @tainted [int, int, string,
     string str;
 
     //Insert data
-    jdbc:Parameter para1 = { sqlType: jdbc:TYPE_INTEGER, value: 100 };
-    jdbc:Parameter para2 = { sqlType: jdbc:TYPE_BLOB, value: content };
-    jdbc:Parameter para3 = { sqlType: jdbc:TYPE_CLOB, value: text };
-    jdbc:Parameter para4 = { sqlType: jdbc:TYPE_BINARY, value: content };
+    jdbc:Parameter para1 = {sqlType: jdbc:TYPE_INTEGER, value: 100};
+    jdbc:Parameter para2 = {sqlType: jdbc:TYPE_BLOB, value: content};
+    jdbc:Parameter para3 = {sqlType: jdbc:TYPE_CLOB, value: text};
+    jdbc:Parameter para4 = {sqlType: jdbc:TYPE_BINARY, value: content};
     var updateRet1 = testDB->update(insertSQL, para1, para2, para3, para4);
     retDataInsert = updateRet1 is jdbc:UpdateResult ? updateRet1.updatedRowCount : retDataInsert;
     //Insert null values
-    para1 = { sqlType: jdbc:TYPE_INTEGER, value: 200 };
-    para2 = { sqlType: jdbc:TYPE_BLOB, value: () };
-    para3 = { sqlType: jdbc:TYPE_CLOB, value: () };
-    para4 = { sqlType: jdbc:TYPE_BINARY, value: () };
+    para1 = {sqlType: jdbc:TYPE_INTEGER, value: 200};
+    para2 = {sqlType: jdbc:TYPE_BLOB, value: ()};
+    para3 = {sqlType: jdbc:TYPE_CLOB, value: ()};
+    para4 = {sqlType: jdbc:TYPE_BINARY, value: ()};
     var updateRet2 = testDB->update(insertSQL, para1, para2, para3, para4);
     retNullInsert = updateRet2 is jdbc:UpdateResult ? updateRet2.updatedRowCount : retNullInsert;
 
@@ -1292,7 +1292,7 @@ function testComplexTypeInsertAndRetrieval() returns @tainted [int, int, string,
                 blobType = result.BLOB_TYPE is () ? "nil" : "nonNil";
                 var clobType = result.CLOB_TYPE;
                 str = str + result.ROW_ID.toString() + "|" + blobType.toString() + "|" +
-                        (clobType is string ? clobType : "nil" ) + "|";
+                (clobType is string ? clobType : "nil") + "|";
                 i += 1;
             }
         }
@@ -1302,11 +1302,11 @@ function testComplexTypeInsertAndRetrieval() returns @tainted [int, int, string,
 }
 
 function testJsonXMLConversionwithDuplicateColumnNames() returns @tainted [json, xml] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
     var selectRet = testDB->select("SELECT dt1.row_id, dt1.int_type, dt2.row_id, dt2.int_type from DataTable dt1 left
             join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1", ());
@@ -1322,16 +1322,16 @@ function testJsonXMLConversionwithDuplicateColumnNames() returns @tainted [json,
 }
 
 function testStructFieldNotMatchingColumnName() returns @tainted [int, int, int, int, int] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var selectRet = testDB->select("SELECT count(*) from DataTable WHERE row_id = 1", ResultCount);
 
-    int countAll= -1;
+    int countAll = -1;
     int i1 = -1;
     int i2 = -1;
     int i3 = -1;
@@ -1364,11 +1364,11 @@ function testStructFieldNotMatchingColumnName() returns @tainted [int, int, int,
 }
 
 function testGetPrimitiveTypesWithForEach() returns @tainted [int, int, float, float, boolean, string, decimal] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
@@ -1397,26 +1397,26 @@ function testGetPrimitiveTypesWithForEach() returns @tainted [int, int, float, f
 }
 
 function testMultipleRowsWithForEach() returns @tainted [int, int] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var selectRet = testDB->select("SELECT int_type from DataTableRep", ResultPrimitiveInt);
 
-    ResultPrimitiveInt rs1 = { INT_TYPE: -1 };
-    ResultPrimitiveInt rs2 = { INT_TYPE: -1 };
+    ResultPrimitiveInt rs1 = {INT_TYPE: -1};
+    ResultPrimitiveInt rs2 = {INT_TYPE: -1};
     if (selectRet is table<ResultPrimitiveInt>) {
-        int i =0;
+        int i = 0;
         foreach var x in selectRet {
             if (i == 0) {
                 rs1 = x;
             } else {
                 rs2 = x;
             }
-            i = i +1;
+            i = i + 1;
         }
     }
     checkpanic testDB.stop();
@@ -1424,15 +1424,15 @@ function testMultipleRowsWithForEach() returns @tainted [int, int] {
 }
 
 function testTableAddInvalid() returns @tainted string {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
     var selectRet = testDB->select("SELECT int_type from DataTableRep", ResultPrimitiveInt);
     string s = "";
-    ResultPrimitiveInt row = { INT_TYPE: 443 };
+    ResultPrimitiveInt row = {INT_TYPE: 443};
     if (selectRet is table<ResultPrimitiveInt>) {
         var ret = trap selectRet.add(row);
         if (ret is error) {
@@ -1447,22 +1447,22 @@ function testTableAddInvalid() returns @tainted string {
 }
 
 function testTableRemoveInvalid() returns @tainted string {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
     var selectRet = testDB->select("SELECT int_type from DataTableRep", ResultPrimitiveInt);
     string s = "";
-    ResultPrimitiveInt row = { INT_TYPE: 443 };
+    ResultPrimitiveInt row = {INT_TYPE: 443};
     if (selectRet is table<ResultPrimitiveInt>) {
         var ret = trap selectRet.remove(isDelete);
         if (ret is int) {
             s = checkpanic string.constructFrom(ret);
         } else {
             error e = ret;
-            s = <string> e.detail()["message"];
+            s = <string>e.detail()["message"];
         }
         selectRet.close();
     }
@@ -1471,11 +1471,11 @@ function testTableRemoveInvalid() returns @tainted string {
 }
 
 function tableGetNextInvalid() returns @tainted string {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
     var selectRet = testDB->select("SELECT * from DataTable WHERE row_id = 1", ());
     string retVal = "";
@@ -1483,7 +1483,7 @@ function tableGetNextInvalid() returns @tainted string {
         selectRet.close();
         var ret = trap selectRet.getNext();
         if (ret is error) {
-            retVal = <string> ret.detail()["message"];
+            retVal = <string>ret.detail()["message"];
         }
     }
     checkpanic testDB.stop();
@@ -1495,11 +1495,11 @@ function isDelete(ResultPrimitiveInt p) returns boolean {
 }
 
 function testToJsonAndAccessFromMiddle() returns @tainted [json, int] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
     var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable", ());
@@ -1510,42 +1510,42 @@ function testToJsonAndAccessFromMiddle() returns @tainted [json, int] {
     return [result, jArray.length()];
 }
 
-function testToJsonAndIterate() returns @tainted [json, int]|error {
-    jdbc:Client testDB = new({
+function testToJsonAndIterate() returns @tainted [json, int] | error {
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
     var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable", ());
     json result = getJsonConversionResult(selectRet);
-    json[] j = <json[]> result;
+    json[] j = <json[]>result;
     checkpanic testDB.stop();
     return [j, j.length()];
 }
 
 function testToJsonAndSetAsChildElement() returns @tainted json {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
     var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable", ());
     json result = getJsonConversionResult(selectRet);
-    json j = { status: "SUCCESS", resp: { value: result } };
+    json j = {status: "SUCCESS", resp: {value: result}};
     checkpanic testDB.stop();
     return j;
 }
 
 function testToJsonAndLengthof() returns @tainted [int, int] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
     var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
                   boolean_type, string_type from DataTable", ());
@@ -1564,7 +1564,7 @@ function testToJsonAndLengthof() returns @tainted [int, int] {
     return [beforeLen, afterLen];
 }
 
-function getJsonConversionResult(table<record {}>|error tableOrError) returns json {
+function getJsonConversionResult(table<record {}> | error tableOrError) returns json {
     json retVal = {};
     if (tableOrError is table<record {}>) {
         var jsonConversionResult = typedesc<json>.constructFrom(tableOrError);
@@ -1573,15 +1573,15 @@ function getJsonConversionResult(table<record {}>|error tableOrError) returns js
             string data = io:sprintf("%s", jsonConversionResult);
             retVal = jsonConversionResult;
         } else {
-            retVal = {"Error" : <string>jsonConversionResult.detail()["message"]};
+            retVal = {"Error": <string>jsonConversionResult.detail()["message"]};
         }
     } else {
-        retVal = {"Error" : <string>tableOrError.detail()["message"]};
+        retVal = {"Error": <string>tableOrError.detail()["message"]};
     }
     return retVal;
 }
 
-function getXMLConversionResult(table<record {}>|error tableOrError) returns xml {
+function getXMLConversionResult(table<record {}> | error tableOrError) returns xml {
     xml retVal = xml `<Error/>`;
     if (tableOrError is table<record {}>) {
         var xmlConversionResult = typedesc<xml>.constructFrom(tableOrError);
@@ -1601,11 +1601,11 @@ function getXMLConversionResult(table<record {}>|error tableOrError) returns xml
 }
 
 function testSelectQueryWithCursorTable() returns error? {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     table<IntData> t1 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", IntData);
@@ -1616,15 +1616,16 @@ function testSelectQueryWithCursorTable() returns error? {
 }
 
 function testSelectQueryWithCursorTableHelper(table<IntData> t1) {
-    table<IntData> t1Copy = from t1 select *;
+    table<IntData> t1Copy = from t1
+    select *;
 }
 
 function testJoinQueryWithCursorTable() returns error? {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 2 }
+        poolOptions: {maximumPoolSize: 2}
     });
 
     table<IntData> t1 = check testDB->select("SELECT int_type from DataTable WHERE row_id = 1", IntData);
@@ -1638,50 +1639,52 @@ function testJoinQueryWithCursorTable() returns error? {
 }
 
 function testTypeCheckingConstrainedCursorTableWithClosedConstraint() returns @tainted [int, int, float, float, boolean,
-     string] {
-     jdbc:Client testDB = new({
-             url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
-             username: "SA",
-             password: "",
-             poolOptions: { maximumPoolSize: 1 }
-         });
-
-     int i = -1;
-     int l = -1;
-     float f = -1;
-     float d = -1;
-     boolean b = false;
-     string s = "";
-     var dtRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
-                   boolean_type, string_type from DataTable WHERE row_id = 1", ResultClosed);
-     if (dtRet is table<ResultClosed>) {
-         while (dtRet.hasNext()) {
-             var rs = dtRet.getNext();
-             if (rs is ResultClosed) {
-                 i = rs.INT_TYPE;
-                 l = rs.LONG_TYPE;
-                 f = rs.FLOAT_TYPE;
-                 d = rs.DOUBLE_TYPE;
-                 b = rs.BOOLEAN_TYPE;
-                 s = rs.STRING_TYPE;
-             }
-         }
-     }
-     checkpanic testDB.stop();
-     return [i, l, f, d, b, s];
-}
-
-function testJoinQueryWithCursorTableHelper(table<IntData> t1, table<IntData> t2) {
-    table<IntData> joinedTable = from t1 as table1 join t2 as table2 on
-    table1.int_type == table2.int_type select table1.int_type as int_type;
-}
-
-function testAssignStringValueToJsonField() returns @tainted json {
-    jdbc:Client testDB = new({
+string] {
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
+    });
+
+    int i = -1;
+    int l = -1;
+    float f = -1;
+    float d = -1;
+    boolean b = false;
+    string s = "";
+    var dtRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
+                   boolean_type, string_type from DataTable WHERE row_id = 1", ResultClosed);
+    if (dtRet is table<ResultClosed>) {
+        while (dtRet.hasNext()) {
+            var rs = dtRet.getNext();
+            if (rs is ResultClosed) {
+                i = rs.INT_TYPE;
+                l = rs.LONG_TYPE;
+                f = rs.FLOAT_TYPE;
+                d = rs.DOUBLE_TYPE;
+                b = rs.BOOLEAN_TYPE;
+                s = rs.STRING_TYPE;
+            }
+        }
+    }
+    checkpanic testDB.stop();
+    return [i, l, f, d, b, s];
+}
+
+function testJoinQueryWithCursorTableHelper(table<IntData> t1, table<IntData> t2) {
+    table<IntData> joinedTable = from t1 as table1
+    join t2 as table2 on
+    table1.int_type == table2.int_type
+    select table1.int_type as int_type;
+}
+
+function testAssignStringValueToJsonField() returns @tainted json {
+    jdbc:Client testDB = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
+        username: "SA",
+        password: "",
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var result = testDB->select("SELECT string_type from DataTable WHERE row_id = 1", ResultJson);
@@ -1701,11 +1704,11 @@ type Order record {
 };
 
 function testForEachInTableWithStmt() returns @tainted [int, int, float, string] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var dt = testDB->select("SELECT * from Person where id = 1", Person);
@@ -1728,11 +1731,11 @@ function testForEachInTableWithStmt() returns @tainted [int, int, float, string]
 }
 
 function testForEachInTableWithIndex() returns @tainted [string, string] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var dt = testDB->select("SELECT * from Person where id < 10 order by id", Person);
@@ -1752,11 +1755,11 @@ function testForEachInTableWithIndex() returns @tainted [string, string] {
 }
 
 function testForEachInTable() returns [int, int, float, string] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var dt = testDB->select("SELECT * from Person where id = 1", Person);

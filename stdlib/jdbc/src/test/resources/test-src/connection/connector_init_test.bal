@@ -15,28 +15,34 @@
 
 import ballerinax/java.jdbc;
 
-jdbc:PoolOptions properties = { maximumPoolSize: 1,
-    idleTimeoutInMillis: 600000, connectionTimeoutInMillis: 30000, autoCommit: true, maxLifetimeInMillis: 1800000,
-    minimumIdle: 1, validationTimeoutInMillis: 5000,
-    connectionInitSql: "SELECT 1" };
+jdbc:PoolOptions properties = {
+    maximumPoolSize: 1,
+    idleTimeoutInMillis: 600000,
+    connectionTimeoutInMillis: 30000,
+    autoCommit: true,
+    maxLifetimeInMillis: 1800000,
+    minimumIdle: 1,
+    validationTimeoutInMillis: 5000,
+    connectionInitSql: "SELECT 1"
+};
 
-map<any> propertiesMap = { "loginTimeout": "1000" };
-jdbc:PoolOptions properties3 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
+map<any> propertiesMap = {"loginTimeout": "1000"};
+jdbc:PoolOptions properties3 = {dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"};
 
-map<any> propertiesMap2 = { "loginTimeout": "1000" };
-jdbc:PoolOptions properties4 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
+map<any> propertiesMap2 = {"loginTimeout": "1000"};
+jdbc:PoolOptions properties4 = {dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"};
 
-jdbc:PoolOptions properties5 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
+jdbc:PoolOptions properties5 = {dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"};
 
-map<any> propertiesMap3 = { "loginTimeout": "1000" };
-jdbc:PoolOptions properties6 = { dataSourceClassName: "org.h2.jdbcx.JdbcDataSource" };
+map<any> propertiesMap3 = {"loginTimeout": "1000"};
+jdbc:PoolOptions properties6 = {dataSourceClassName: "org.h2.jdbcx.JdbcDataSource"};
 
 function testConnectionPoolProperties1() returns @tainted json {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
@@ -47,7 +53,7 @@ function testConnectionPoolProperties1() returns @tainted json {
 }
 
 function testConnectionPoolProperties2() returns @tainted json {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
@@ -62,7 +68,7 @@ function testConnectionPoolProperties2() returns @tainted json {
 }
 
 function testConnectionPoolProperties3() returns @tainted json {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: ""
@@ -77,11 +83,11 @@ function testConnectionPoolProperties3() returns @tainted json {
 
 
 function testConnectorWithDefaultPropertiesForListedDB() returns @tainted json {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
-        poolOptions: { }
+        poolOptions: {}
     });
 
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
@@ -92,11 +98,11 @@ function testConnectorWithDefaultPropertiesForListedDB() returns @tainted json {
 }
 
 function testConnectorWithWorkers() returns @tainted json {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
-        poolOptions: { }
+        poolOptions: {}
     });
 
     worker w1 returns json {
@@ -116,7 +122,7 @@ function testConnectorWithWorkers() returns @tainted json {
 }
 
 function testConnectorWithDataSourceClass() returns @tainted json {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
@@ -132,7 +138,7 @@ function testConnectorWithDataSourceClass() returns @tainted json {
 }
 
 function testConnectorWithDataSourceClassAndProps() returns @tainted json {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
@@ -148,7 +154,7 @@ function testConnectorWithDataSourceClassAndProps() returns @tainted json {
 }
 
 function testConnectorWithDataSourceClassWithoutURL() returns @tainted json {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
@@ -163,7 +169,7 @@ function testConnectorWithDataSourceClassWithoutURL() returns @tainted json {
 }
 
 function testConnectorWithDataSourceClassURLPriority() returns @tainted json {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
@@ -181,12 +187,12 @@ function testConnectorWithDataSourceClassURLPriority() returns @tainted json {
 
 
 function testPropertiesGetUsedOnlyIfDataSourceGiven() returns @tainted json {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTOR_INIT",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 },
-        dbOptions: { "invalidProperty": 109 }
+        poolOptions: {maximumPoolSize: 1},
+        dbOptions: {"invalidProperty": 109}
     });
 
     var dt = testDB->select("SELECT  FirstName from Customers where registrationID = 1", ());
@@ -197,27 +203,27 @@ function testPropertiesGetUsedOnlyIfDataSourceGiven() returns @tainted json {
 }
 
 function testConnectionFailure() {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/NON_EXISTING_DB",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 },
-        dbOptions: { "IFEXISTS": true }
+        poolOptions: {maximumPoolSize: 1},
+        dbOptions: {"IFEXISTS": true}
     });
 
 }
 
-function getJsonConversionResult(table<record {}>|error tableOrError) returns json {
+function getJsonConversionResult(table<record {}> | error tableOrError) returns json {
     json retVal;
     if (tableOrError is table<record {}>) {
-        var jsonConversionResult = typedesc<json>.constructFrom(tableOrError);
+        var jsonConversionResult =typedesc<json>.constructFrom( tableOrError);
         if (jsonConversionResult is json) {
             retVal = jsonConversionResult;
         } else {
-            retVal = { "Error": <string> jsonConversionResult.detail().message };
+            retVal = {"Error": <string>jsonConversionResult.detail().message};
         }
     } else {
-        retVal = { "Error": <string> tableOrError.detail()["message"] };
+        retVal = {"Error": <string>tableOrError.detail()["message"]};
     }
     return retVal;
 }

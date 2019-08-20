@@ -66,11 +66,11 @@ function testWrongOrderLong() returns @tainted error? {
 }
 
 function testWrongOrderBlobWrongOrder() returns @tainted error? {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var selectRet = testDB->select("SELECT blob_type, row_id from ComplexTypes WHERE row_id = 1", ResultBlobWrongOrder);
@@ -91,11 +91,11 @@ function testWrongOrderBlobWrongOrder() returns @tainted error? {
 }
 
 function testWrongOrderBlobCorrectOrderWrongType() returns @tainted error? {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var selectRet = testDB->select("SELECT blob_type, row_id from ComplexTypes WHERE row_id = 1",
@@ -117,11 +117,11 @@ function testWrongOrderBlobCorrectOrderWrongType() returns @tainted error? {
 }
 
 function testGreaterNoOfParams() returns @tainted error? {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var selectRet = testDB->select("SELECT boolean_type from DataTable WHERE row_id = 1", Result);
@@ -142,11 +142,11 @@ function testGreaterNoOfParams() returns @tainted error? {
 }
 
 function testLowerNoOfParams() returns @tainted error? {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var selectRet = testDB->select("SELECT boolean_type, boolean_type, string_type, float_type, long_type, int_type,
@@ -168,11 +168,11 @@ function testLowerNoOfParams() returns @tainted error? {
 }
 
 function testWrongOrder(string queryStr) returns @tainted error? {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var selectRet = testDB->select(queryStr, Result);

@@ -32,19 +32,19 @@ function testBatchUpdate() returns [int[], jdbc:Error?, int, int] {
     });
 
     //Batch 1
-    jdbc:Parameter para1 = { sqlType: jdbc:TYPE_VARCHAR, value: "Alex" };
-    jdbc:Parameter para2 = { sqlType: jdbc:TYPE_VARCHAR, value: "Smith" };
-    jdbc:Parameter para3 = { sqlType: jdbc:TYPE_INTEGER, value: 20 };
-    jdbc:Parameter para4 = { sqlType: jdbc:TYPE_DOUBLE, value: 3400.5 };
-    jdbc:Parameter para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
+    jdbc:Parameter para1 = {sqlType: jdbc:TYPE_VARCHAR, value: "Alex"};
+    jdbc:Parameter para2 = {sqlType: jdbc:TYPE_VARCHAR, value: "Smith"};
+    jdbc:Parameter para3 = {sqlType: jdbc:TYPE_INTEGER, value: 20};
+    jdbc:Parameter para4 = {sqlType: jdbc:TYPE_DOUBLE, value: 3400.5};
+    jdbc:Parameter para5 = {sqlType: jdbc:TYPE_VARCHAR, value: "Colombo"};
     jdbc:Parameter?[] parameters1 = [para1, para2, para3, para4, para5];
 
     //Batch 2
-    para1 = { sqlType: jdbc:TYPE_VARCHAR, value: "Alex" };
-    para2 = { sqlType: jdbc:TYPE_VARCHAR, value: "Smith" };
-    para3 = { sqlType: jdbc:TYPE_INTEGER, value: 20 };
-    para4 = { sqlType: jdbc:TYPE_DOUBLE, value: 3400.5 };
-    para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
+    para1 = {sqlType: jdbc:TYPE_VARCHAR, value: "Alex"};
+    para2 = {sqlType: jdbc:TYPE_VARCHAR, value: "Smith"};
+    para3 = {sqlType: jdbc:TYPE_INTEGER, value: 20};
+    para4 = {sqlType: jdbc:TYPE_DOUBLE, value: 3400.5};
+    para5 = {sqlType: jdbc:TYPE_VARCHAR, value: "Colombo"};
     jdbc:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
     jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into Customers (firstName,lastName,registrationID,
@@ -80,7 +80,7 @@ function testBatchUpdateSingleValParamArray() returns int[] {
     return ret.updatedRowCount;
 }
 
-type myBatchType string|int|float;
+type myBatchType string | int | float;
 
 function testBatchUpdateWithValues() returns int[] {
     jdbc:Client testDB = new ({
@@ -137,39 +137,39 @@ function testBatchUpdateWithFailure() returns @tainted [int[], int] {
     });
 
     //Batch 1
-    jdbc:Parameter para0 = { sqlType: jdbc:TYPE_INTEGER, value: 111 };
-    jdbc:Parameter para1 = { sqlType: jdbc:TYPE_VARCHAR, value: "Alex" };
-    jdbc:Parameter para2 = { sqlType: jdbc:TYPE_VARCHAR, value: "Smith" };
-    jdbc:Parameter para3 = { sqlType: jdbc:TYPE_INTEGER, value: 20 };
-    jdbc:Parameter para4 = { sqlType: jdbc:TYPE_DOUBLE, value: 3400.5 };
-    jdbc:Parameter para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
+    jdbc:Parameter para0 = {sqlType: jdbc:TYPE_INTEGER, value: 111};
+    jdbc:Parameter para1 = {sqlType: jdbc:TYPE_VARCHAR, value: "Alex"};
+    jdbc:Parameter para2 = {sqlType: jdbc:TYPE_VARCHAR, value: "Smith"};
+    jdbc:Parameter para3 = {sqlType: jdbc:TYPE_INTEGER, value: 20};
+    jdbc:Parameter para4 = {sqlType: jdbc:TYPE_DOUBLE, value: 3400.5};
+    jdbc:Parameter para5 = {sqlType: jdbc:TYPE_VARCHAR, value: "Colombo"};
     jdbc:Parameter?[] parameters1 = [para0, para1, para2, para3, para4, para5];
 
     //Batch 2
-    para0 = { sqlType: jdbc:TYPE_INTEGER, value: 222 };
-    para1 = { sqlType: jdbc:TYPE_VARCHAR, value: "Alex" };
-    para2 = { sqlType: jdbc:TYPE_VARCHAR, value: "Smith" };
-    para3 = { sqlType: jdbc:TYPE_INTEGER, value: 20 };
-    para4 = { sqlType: jdbc:TYPE_DOUBLE, value: 3400.5 };
-    para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
+    para0 = {sqlType: jdbc:TYPE_INTEGER, value: 222};
+    para1 = {sqlType: jdbc:TYPE_VARCHAR, value: "Alex"};
+    para2 = {sqlType: jdbc:TYPE_VARCHAR, value: "Smith"};
+    para3 = {sqlType: jdbc:TYPE_INTEGER, value: 20};
+    para4 = {sqlType: jdbc:TYPE_DOUBLE, value: 3400.5};
+    para5 = {sqlType: jdbc:TYPE_VARCHAR, value: "Colombo"};
     jdbc:Parameter?[] parameters2 = [para0, para1, para2, para3, para4, para5];
 
     //Batch 3
-    para0 = { sqlType: jdbc:TYPE_INTEGER, value: 222 };
-    para1 = { sqlType: jdbc:TYPE_VARCHAR, value: "Alex" };
-    para2 = { sqlType: jdbc:TYPE_VARCHAR, value: "Smith" };
-    para3 = { sqlType: jdbc:TYPE_INTEGER, value: 20 };
-    para4 = { sqlType: jdbc:TYPE_DOUBLE, value: 3400.5 };
-    para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
+    para0 = {sqlType: jdbc:TYPE_INTEGER, value: 222};
+    para1 = {sqlType: jdbc:TYPE_VARCHAR, value: "Alex"};
+    para2 = {sqlType: jdbc:TYPE_VARCHAR, value: "Smith"};
+    para3 = {sqlType: jdbc:TYPE_INTEGER, value: 20};
+    para4 = {sqlType: jdbc:TYPE_DOUBLE, value: 3400.5};
+    para5 = {sqlType: jdbc:TYPE_VARCHAR, value: "Colombo"};
     jdbc:Parameter?[] parameters3 = [para0, para1, para2, para3, para4, para5];
 
     //Batch 4
-    para0 = { sqlType: jdbc:TYPE_INTEGER, value: 333 };
-    para1 = { sqlType: jdbc:TYPE_VARCHAR, value: "Alex" };
-    para2 = { sqlType: jdbc:TYPE_VARCHAR, value: "Smith" };
-    para3 = { sqlType: jdbc:TYPE_INTEGER, value: 20 };
-    para4 = { sqlType: jdbc:TYPE_DOUBLE, value: 3400.5 };
-    para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
+    para0 = {sqlType: jdbc:TYPE_INTEGER, value: 333};
+    para1 = {sqlType: jdbc:TYPE_VARCHAR, value: "Alex"};
+    para2 = {sqlType: jdbc:TYPE_VARCHAR, value: "Smith"};
+    para3 = {sqlType: jdbc:TYPE_INTEGER, value: 20};
+    para4 = {sqlType: jdbc:TYPE_DOUBLE, value: 3400.5};
+    para5 = {sqlType: jdbc:TYPE_VARCHAR, value: "Colombo"};
     jdbc:Parameter?[] parameters4 = [para0, para1, para2, para3, para4, para5];
 
     jdbc:BatchUpdateResult ret = testDB->batchUpdate("Insert into Customers (customerId, firstName,lastName,registrationID,
@@ -213,23 +213,23 @@ function testFailedBatchUpdate() returns [string, int, int] {
     int[] updateCount = [];
     string returnVal = "";
     //Batch 1
-    jdbc:Parameter para1 = { sqlType: jdbc:TYPE_VARCHAR, value: "Alex" };
-    jdbc:Parameter para2 = { sqlType: jdbc:TYPE_VARCHAR, value: "Smith" };
-    jdbc:Parameter para3 = { sqlType: jdbc:TYPE_INTEGER, value: 20 };
-    jdbc:Parameter para4 = { sqlType: jdbc:TYPE_DOUBLE, value: 3400.5 };
-    jdbc:Parameter para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
+    jdbc:Parameter para1 = {sqlType: jdbc:TYPE_VARCHAR, value: "Alex"};
+    jdbc:Parameter para2 = {sqlType: jdbc:TYPE_VARCHAR, value: "Smith"};
+    jdbc:Parameter para3 = {sqlType: jdbc:TYPE_INTEGER, value: 20};
+    jdbc:Parameter para4 = {sqlType: jdbc:TYPE_DOUBLE, value: 3400.5};
+    jdbc:Parameter para5 = {sqlType: jdbc:TYPE_VARCHAR, value: "Colombo"};
     jdbc:Parameter?[] parameters1 = [para1, para2, para3, para4, para5];
 
     //Batch 2
-    para1 = { sqlType: jdbc:TYPE_VARCHAR, value: "Alex" };
-    para2 = { sqlType: jdbc:TYPE_VARCHAR, value: "Smith" };
-    para3 = { sqlType: jdbc:TYPE_INTEGER, value: 20 };
-    para4 = { sqlType: jdbc:TYPE_DOUBLE, value: 3400.5 };
-    para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
+    para1 = {sqlType: jdbc:TYPE_VARCHAR, value: "Alex"};
+    para2 = {sqlType: jdbc:TYPE_VARCHAR, value: "Smith"};
+    para3 = {sqlType: jdbc:TYPE_INTEGER, value: 20};
+    para4 = {sqlType: jdbc:TYPE_DOUBLE, value: 3400.5};
+    para5 = {sqlType: jdbc:TYPE_VARCHAR, value: "Colombo"};
     jdbc:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
-    jdbc:BatchUpdateResult x = testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)
-                                     values (?,?,?,?,?)",false, parameters1, parameters2);
+    jdbc:BatchUpdateResult x = testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,
+                                     creditLimit,country) values (?,?,?,?,?)", false, parameters1, parameters2);
 
     int batch1Status = 0;
     int batch2Status = 0;
@@ -237,7 +237,7 @@ function testFailedBatchUpdate() returns [string, int, int] {
     if (e is ()) {
         returnVal = returnVal + "success";
     } else {
-        returnVal = returnVal + <string> e.detail()["message"];
+        returnVal = returnVal + <string>e.detail()["message"];
     }
     updateCount = x.updatedRowCount;
     if (updateCount[0] == -3 && updateCount[1] == -3) {
@@ -260,19 +260,19 @@ function testErrorWithBatchUpdate() returns @tainted [string, string, boolean, b
     });
 
     //Batch 1
-    jdbc:Parameter para1 = { sqlType: jdbc:TYPE_VARCHAR, value: "Alex" };
-    jdbc:Parameter para2 = { sqlType: jdbc:TYPE_VARCHAR, value: "Smith" };
-    jdbc:Parameter para3 = { sqlType: jdbc:TYPE_INTEGER, value: 20 };
-    jdbc:Parameter para4 = { sqlType: jdbc:TYPE_DOUBLE, value: 3400.5 };
-    jdbc:Parameter para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
+    jdbc:Parameter para1 = {sqlType: jdbc:TYPE_VARCHAR, value: "Alex"};
+    jdbc:Parameter para2 = {sqlType: jdbc:TYPE_VARCHAR, value: "Smith"};
+    jdbc:Parameter para3 = {sqlType: jdbc:TYPE_INTEGER, value: 20};
+    jdbc:Parameter para4 = {sqlType: jdbc:TYPE_DOUBLE, value: 3400.5};
+    jdbc:Parameter para5 = {sqlType: jdbc:TYPE_VARCHAR, value: "Colombo"};
     jdbc:Parameter?[] parameters1 = [para1, para2, para3, para4, para5];
 
     //Batch 2
-    para1 = { sqlType: jdbc:TYPE_VARCHAR, value: "Alex" };
-    para2 = { sqlType: jdbc:TYPE_VARCHAR, value: "Smith" };
-    para3 = { sqlType: jdbc:TYPE_INTEGER, value: 20 };
-    para4 = { sqlType: jdbc:TYPE_DOUBLE, value: 3400.5 };
-    para5 = { sqlType: jdbc:TYPE_VARCHAR, value: "Colombo" };
+    para1 = {sqlType: jdbc:TYPE_VARCHAR, value: "Alex"};
+    para2 = {sqlType: jdbc:TYPE_VARCHAR, value: "Smith"};
+    para3 = {sqlType: jdbc:TYPE_INTEGER, value: 20};
+    para4 = {sqlType: jdbc:TYPE_DOUBLE, value: 3400.5};
+    para5 = {sqlType: jdbc:TYPE_VARCHAR, value: "Colombo"};
     jdbc:Parameter?[] parameters2 = [para1, para2, para3, para4, para5];
 
     jdbc:BatchUpdateResult x = testDB->batchUpdate("Insert into CustData (firstName,lastName,registrationID,creditLimit,country)

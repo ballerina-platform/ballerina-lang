@@ -13,50 +13,50 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java.jdbc;
 import ballerina/runtime;
+import ballerinax/java.jdbc;
 
 type Info record {
-   string firstName;
+    string firstName;
 };
 
 public type Result record {
     int val;
 };
 
-function testGlobalConnectionPoolSingleDestination() returns @tainted (int|string?)[] {
+function testGlobalConnectionPoolSingleDestination() returns @tainted (int | string?)[] {
     return drainGlobalPool("TEST_SQL_CONNECTION_POOL_GLOBAL_1");
 }
 
-function drainGlobalPool(string dbName) returns @tainted (int|string?)[] {
+function drainGlobalPool(string dbName) returns @tainted (int | string?)[] {
     string jdbcURL = "jdbc:h2:file:./target/tempdb/" + dbName;
-    jdbc:Client testDB1 = new({
-            url: jdbcURL,
-            username: "SA",
-            password: ""
-        });
-    jdbc:Client testDB2 = new({
-            url: jdbcURL,
-            username: "SA",
-            password: ""
-        });
-    jdbc:Client testDB3 = new({
-            url: jdbcURL,
-            username: "SA",
-            password: ""
-        });
-    jdbc:Client testDB4 = new({
-            url: jdbcURL,
-            username: "SA",
-            password: ""
-        });
-    jdbc:Client testDB5 = new({
-            url: jdbcURL,
-            username: "SA",
-            password: ""
-        });
+    jdbc:Client testDB1 = new ({
+        url: jdbcURL,
+        username: "SA",
+        password: ""
+    });
+    jdbc:Client testDB2 = new ({
+        url: jdbcURL,
+        username: "SA",
+        password: ""
+    });
+    jdbc:Client testDB3 = new ({
+        url: jdbcURL,
+        username: "SA",
+        password: ""
+    });
+    jdbc:Client testDB4 = new ({
+        url: jdbcURL,
+        username: "SA",
+        password: ""
+    });
+    jdbc:Client testDB5 = new ({
+        url: jdbcURL,
+        username: "SA",
+        password: ""
+    });
 
-    (table<record {}>|error?)[] resultArray = [];
+    (table<record {}> | error?)[] resultArray = [];
     resultArray[0] = testDB1->select("select count(*) from Customers where registrationID = 1", Result);
     resultArray[1] = testDB1->select("select count(*) from Customers where registrationID = 2", Result);
 
@@ -74,12 +74,12 @@ function drainGlobalPool(string dbName) returns @tainted (int|string?)[] {
 
     resultArray[10] = testDB5->select("select count(*) from Customers where registrationID = 1", Result);
 
-    (int|string?)[] returnArray = [];
+    (int | string?)[] returnArray = [];
     int i = 0;
     // Connections will be released here as we fully consume the data in the following conversion function calls
     foreach var x in resultArray {
         returnArray[i] = getTableCountValColumn(x);
-        i+=1;
+        i += 1;
     }
     // All 5 clients are supposed to use the same pool. Default maximum no of connections is 10.
     // Since each select operation hold up one connection each, the last select operation should
@@ -87,45 +87,45 @@ function drainGlobalPool(string dbName) returns @tainted (int|string?)[] {
     return returnArray;
 }
 
-function testGlobalConnectionPoolsMultipleDestinations() returns @tainted [(int|string?)[], (int|string?)[]] {
+function testGlobalConnectionPoolsMultipleDestinations() returns @tainted [(int | string?)[], (int | string?)[]] {
     var errorFromFristDestination = drainGlobalPool("TEST_SQL_CONNECTION_POOL_GLOBAL_1");
     var errorFromSecondDestination = drainGlobalPool("TEST_SQL_CONNECTION_POOL_GLOBAL_2");
     return [errorFromFristDestination, errorFromSecondDestination];
 }
 
-function closeTable(table<record{}>|error? t) {
-    if (t is table<record{}>) {
+function closeTable(table<record {}> | error? t) {
+    if (t is table<record {}>) {
         _ = t.close();
     }
 }
 
-function testGlobalConnectionPoolSingleDestinationConcurrent() returns @tainted (int|string?)[][] {
-    worker w1 returns [table<record{}>|error,table<record{}>|error] {
+function testGlobalConnectionPoolSingleDestinationConcurrent() returns @tainted (int | string?)[][] {
+    worker w1 returns [table<record {}> | error, table<record {}> | error] {
         return testGlobalConnectionPoolConcurrentHelper1();
     }
 
-    worker w2 returns [table<record{}>|error,table<record{}>|error] {
+    worker w2 returns [table<record {}> | error, table<record {}> | error] {
         return testGlobalConnectionPoolConcurrentHelper1();
     }
 
-    worker w3 returns [table<record{}>|error,table<record{}>|error] {
+    worker w3 returns [table<record {}> | error, table<record {}> | error] {
         return testGlobalConnectionPoolConcurrentHelper1();
     }
 
-    worker w4 returns [table<record{}>|error,table<record{}>|error] {
+    worker w4 returns [table<record {}> | error, table<record {}> | error] {
         return testGlobalConnectionPoolConcurrentHelper1();
     }
 
     record {
-        [table<record{}>|error, table<record{}>|error] w1;
-        [table<record{}>|error, table<record{}>|error] w2;
-        [table<record{}>|error, table<record{}>|error] w3;
-        [table<record{}>|error, table<record{}>|error] w4;
+        [table<record {}> | error, table<record {}> | error] w1;
+        [table<record {}> | error, table<record {}> | error] w2;
+        [table<record {}> | error, table<record {}> | error] w3;
+        [table<record {}> | error, table<record {}> | error] w4;
     } results = wait {w1, w2, w3, w4};
 
     var t = testGlobalConnectionPoolConcurrentHelper2();
 
-    (int|string?)[][] returnArray = [];
+    (int | string?)[][] returnArray = [];
     // Connections will be released here as we fully consume the data in the following conversion function calls
     returnArray[0] = getTableCountValColumnOfTuple(results.w1);
     returnArray[1] = getTableCountValColumnOfTuple(results.w2);
@@ -139,31 +139,33 @@ function testGlobalConnectionPoolSingleDestinationConcurrent() returns @tainted 
     return returnArray;
 }
 
-function closeTables([table<record{}>|error?, table<record{}>|error?] t) {
-    table<record{}>|error? x; table<record{}>|error? y;
+function closeTables([table<record {}> | error?, table<record {}> | error?] t) {
+    table<record {}> | error? x;
+    table<record {}> | error? y;
     [x, y] = t;
     closeTable(x);
     closeTable(y);
 }
 
-function testGlobalConnectionPoolConcurrentHelper1() returns @tainted [table<record{}>|error,table<record{}>|error] {
-    jdbc:Client testDB1 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_GLOBAL_1",
-            username: "SA",
-            password: ""
-        });
+function testGlobalConnectionPoolConcurrentHelper1() returns
+            @tainted [table<record {}> | error, table<record {}> | error] {
+    jdbc:Client testDB1 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_GLOBAL_1",
+        username: "SA",
+        password: ""
+    });
     var dt1 = testDB1->select("select count(*) from Customers where registrationID = 1", Result);
     var dt2 = testDB1->select("select count(*) from Customers where registrationID = 2", Result);
     return [dt1, dt2];
 }
 
-function testGlobalConnectionPoolConcurrentHelper2() returns @tainted (int|string?)[] {
-    jdbc:Client testDB1 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_GLOBAL_1",
-            username: "SA",
-            password: ""
-        });
-    (int|string?)[] returnArray = [];
+function testGlobalConnectionPoolConcurrentHelper2() returns @tainted (int | string?)[] {
+    jdbc:Client testDB1 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_GLOBAL_1",
+        username: "SA",
+        password: ""
+    });
+    (int | string?)[] returnArray = [];
     var dt1 = testDB1->select("select count(*) from Customers where registrationID = 1", Result);
     var dt2 = testDB1->select("select count(*) from Customers where registrationID = 2", Result);
     var dt3 = testDB1->select("select count(*) from Customers where registrationID = 1", Result);
@@ -175,45 +177,46 @@ function testGlobalConnectionPoolConcurrentHelper2() returns @tainted (int|strin
     return returnArray;
 }
 
-function testLocalSharedConnectionPoolConfigSingleDestination() returns @tainted (int|string?)[] {
+function testLocalSharedConnectionPoolConfigSingleDestination() returns @tainted (int | string?)[] {
     jdbc:Client testDB1;
     jdbc:Client testDB2;
     jdbc:Client testDB3;
     jdbc:Client testDB4;
     jdbc:Client testDB5;
-    jdbc:PoolOptions poolOptions1 = { maximumPoolSize: 5, connectionTimeoutInMillis: 1000, validationTimeoutInMillis: 1000 };
+    jdbc:PoolOptions poolOptions1 = {maximumPoolSize: 5, connectionTimeoutInMillis: 1000,
+                                     validationTimeoutInMillis: 1000};
 
-    testDB1 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions1
-        });
-    testDB2 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions1
-        });
-    testDB3 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions1
-        });
-    testDB4 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions1
-        });
-    testDB5 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions1
-        });
-    (table<record {}>|error?)[] resultArray = [];
+    testDB1 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions1
+    });
+    testDB2 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions1
+    });
+    testDB3 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions1
+    });
+    testDB4 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions1
+    });
+    testDB5 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions1
+    });
+    (table<record {}> | error?)[] resultArray = [];
     resultArray[0] = testDB1->select("select count(*) from Customers where registrationID = 1", Result);
     resultArray[1] = testDB2->select("select count(*) from Customers where registrationID = 1", Result);
     resultArray[2] = testDB3->select("select count(*) from Customers where registrationID = 2", Result);
@@ -221,12 +224,12 @@ function testLocalSharedConnectionPoolConfigSingleDestination() returns @tainted
     resultArray[4] = testDB5->select("select count(*) from Customers where registrationID = 1", Result);
     resultArray[5] = testDB5->select("select count(*) from Customers where registrationID = 2", Result);
 
-    (int|string)?[] returnArray = [];
+    (int | string)?[] returnArray = [];
     int i = 0;
     // Connections will be released here as we fully consume the data in the following conversion function calls
     foreach var x in resultArray {
         returnArray[i] = getTableCountValColumn(x);
-        i+=1;
+        i += 1;
     }
 
     checkpanic testDB1.stop();
@@ -241,50 +244,51 @@ function testLocalSharedConnectionPoolConfigSingleDestination() returns @tainted
     return returnArray;
 }
 
-function testLocalSharedConnectionPoolConfigSingleDestinationWithEqualDbOptions() returns @tainted (int|string?)[] {
+function testLocalSharedConnectionPoolConfigSingleDestinationWithEqualDbOptions() returns @tainted (int | string?)[] {
     jdbc:Client testDB1;
     jdbc:Client testDB2;
     jdbc:Client testDB3;
     jdbc:Client testDB4;
     jdbc:Client testDB5;
-    jdbc:PoolOptions poolOptions1 = { maximumPoolSize: 5, connectionTimeoutInMillis: 1000, validationTimeoutInMillis: 1000 };
+    jdbc:PoolOptions poolOptions1 = {maximumPoolSize: 5, connectionTimeoutInMillis: 1000,
+                                     validationTimeoutInMillis: 1000};
 
-    testDB1 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions1,
-            dbOptions: { "PAGE_SIZE": 512, "ACCESS_MODE_DATA": "rw", "AUTO_RECONNECT": true, "IFEXISTS": true }
-        });
-    testDB2 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions1,
-            dbOptions: { "PAGE_SIZE": 512, "ACCESS_MODE_DATA": "rw", "IFEXISTS": true, "AUTO_RECONNECT": true }
-        });
-    testDB3 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions1,
-            dbOptions: { "PAGE_SIZE": 512, "AUTO_RECONNECT": true, "IFEXISTS": true, "ACCESS_MODE_DATA": "rw" }
-        });
-    testDB4 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions1,
-            dbOptions: { "ACCESS_MODE_DATA": "rw", "IFEXISTS": true, "PAGE_SIZE": 512, "AUTO_RECONNECT": true }
-        });
-    testDB5 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions1,
-            dbOptions: { "IFEXISTS": true, "PAGE_SIZE": 512, "AUTO_RECONNECT": true, "ACCESS_MODE_DATA": "rw" }
-        });
-    (table<record {}>|error?)[] resultArray = [];
+    testDB1 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions1,
+        dbOptions: {"PAGE_SIZE": 512, "ACCESS_MODE_DATA": "rw", "AUTO_RECONNECT": true, "IFEXISTS": true}
+    });
+    testDB2 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions1,
+        dbOptions: {"PAGE_SIZE": 512, "ACCESS_MODE_DATA": "rw", "IFEXISTS": true, "AUTO_RECONNECT": true}
+    });
+    testDB3 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions1,
+        dbOptions: {"PAGE_SIZE": 512, "AUTO_RECONNECT": true, "IFEXISTS": true, "ACCESS_MODE_DATA": "rw"}
+    });
+    testDB4 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions1,
+        dbOptions: {"ACCESS_MODE_DATA": "rw", "IFEXISTS": true, "PAGE_SIZE": 512, "AUTO_RECONNECT": true}
+    });
+    testDB5 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions1,
+        dbOptions: {"IFEXISTS": true, "PAGE_SIZE": 512, "AUTO_RECONNECT": true, "ACCESS_MODE_DATA": "rw"}
+    });
+    (table<record {}> | error?)[] resultArray = [];
     resultArray[0] = testDB1->select("select count(*) from Customers where registrationID = 1", Result);
     resultArray[1] = testDB2->select("select count(*) from Customers where registrationID = 1", Result);
     resultArray[2] = testDB3->select("select count(*) from Customers where registrationID = 2", Result);
@@ -292,12 +296,12 @@ function testLocalSharedConnectionPoolConfigSingleDestinationWithEqualDbOptions(
     resultArray[4] = testDB5->select("select count(*) from Customers where registrationID = 1", Result);
     resultArray[5] = testDB5->select("select count(*) from Customers where registrationID = 2", Result);
 
-    (int|string)?[] returnArray = [];
+    (int | string)?[] returnArray = [];
     int i = 0;
     // Connections will be released here as we fully consume the data in the following conversion function calls
     foreach var x in resultArray {
         returnArray[i] = getTableCountValColumn(x);
-        i+=1;
+        i += 1;
     }
 
     checkpanic testDB1.stop();
@@ -312,55 +316,56 @@ function testLocalSharedConnectionPoolConfigSingleDestinationWithEqualDbOptions(
     return returnArray;
 }
 
-function testLocalSharedConnectionPoolConfigMultipleDestinations() returns @tainted (int|string?)[] {
+function testLocalSharedConnectionPoolConfigMultipleDestinations() returns @tainted (int | string?)[] {
     jdbc:Client testDB1;
     jdbc:Client testDB2;
     jdbc:Client testDB3;
     jdbc:Client testDB4;
     jdbc:Client testDB5;
     jdbc:Client testDB6;
-    jdbc:PoolOptions poolOptions2 = { maximumPoolSize: 3, connectionTimeoutInMillis: 1000, validationTimeoutInMillis: 1000 };
+    jdbc:PoolOptions poolOptions2 = {maximumPoolSize: 3, connectionTimeoutInMillis: 1000,
+                                     validationTimeoutInMillis: 1000};
 
     // One pool will be created to these clients.
-    testDB1 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions2
-        });
-    testDB2 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions2
-        });
-    testDB3 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions2
-        });
+    testDB1 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions2
+    });
+    testDB2 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions2
+    });
+    testDB3 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions2
+    });
     // Another pool will be created to these clients.
-    testDB4 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_3",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions2
-        });
-    testDB5 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_3",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions2
-        });
-    testDB6 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_3",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions2
-        });
+    testDB4 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_3",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions2
+    });
+    testDB5 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_3",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions2
+    });
+    testDB6 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_3",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions2
+    });
 
-    (table<record {}>|error?)[] resultArray = [];
+    (table<record {}> | error?)[] resultArray = [];
     resultArray[0] = testDB1->select("select count(*) from Customers where registrationID = 1", Result);
     resultArray[1] = testDB2->select("select count(*) from Customers where registrationID = 1", Result);
     resultArray[2] = testDB3->select("select count(*) from Customers where registrationID = 2", Result);
@@ -371,12 +376,12 @@ function testLocalSharedConnectionPoolConfigMultipleDestinations() returns @tain
     resultArray[6] = testDB6->select("select count(*) from Customers where registrationID = 2", Result);
     resultArray[7] = testDB6->select("select count(*) from Customers where registrationID = 1", Result);
 
-    (int|string)?[] returnArray = [];
+    (int | string)?[] returnArray = [];
     int i = 0;
     // Connections will be released here as we fully consume the data in the following conversion function calls
     foreach var x in resultArray {
         returnArray[i] = getTableCountValColumn(x);
-        i+=1;
+        i += 1;
     }
 
     checkpanic testDB1.stop();
@@ -390,61 +395,62 @@ function testLocalSharedConnectionPoolConfigMultipleDestinations() returns @tain
     return returnArray;
 }
 
-function testLocalSharedConnectionPoolConfigDifferentDbOptions() returns @tainted (int|string?)[] {
+function testLocalSharedConnectionPoolConfigDifferentDbOptions() returns @tainted (int | string?)[] {
     jdbc:Client testDB1;
     jdbc:Client testDB2;
     jdbc:Client testDB3;
     jdbc:Client testDB4;
     jdbc:Client testDB5;
     jdbc:Client testDB6;
-    jdbc:PoolOptions poolOptions2 = { maximumPoolSize: 3, connectionTimeoutInMillis: 1000, validationTimeoutInMillis: 1000 };
+    jdbc:PoolOptions poolOptions2 = {maximumPoolSize: 3, connectionTimeoutInMillis: 1000,
+                                     validationTimeoutInMillis: 1000};
 
     // One pool will be created to these clients.
-    testDB1 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions2,
-            dbOptions: { "PAGE_SIZE": 512, "ACCESS_MODE_DATA": "rw", "AUTO_RECONNECT": true, "IFEXISTS": true }
-        });
-    testDB2 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions2,
-            dbOptions: { "PAGE_SIZE": 512, "ACCESS_MODE_DATA": "rw", "IFEXISTS": true, "AUTO_RECONNECT": true }
-        });
-    testDB3 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions2,
-            dbOptions: { "ACCESS_MODE_DATA": "rw", "IFEXISTS": true, "PAGE_SIZE": 512, "AUTO_RECONNECT": true }
-        });
+    testDB1 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions2,
+        dbOptions: {"PAGE_SIZE": 512, "ACCESS_MODE_DATA": "rw", "AUTO_RECONNECT": true, "IFEXISTS": true}
+    });
+    testDB2 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions2,
+        dbOptions: {"PAGE_SIZE": 512, "ACCESS_MODE_DATA": "rw", "IFEXISTS": true, "AUTO_RECONNECT": true}
+    });
+    testDB3 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions2,
+        dbOptions: {"ACCESS_MODE_DATA": "rw", "IFEXISTS": true, "PAGE_SIZE": 512, "AUTO_RECONNECT": true}
+    });
     // Another pool will be created to these clients.
-    testDB4 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions2,
-            dbOptions: { "IFEXISTS": true, "PAGE_SIZE": 512, "AUTO_RECONNECT": true }
-        });
-    testDB5 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions2,
-            dbOptions: { "IFEXISTS": true, "AUTO_RECONNECT": true, "PAGE_SIZE": 512 }
-        });
-    testDB6 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions2,
-            dbOptions: { "AUTO_RECONNECT": true, "IFEXISTS": true, "PAGE_SIZE": 512 }
-        });
+    testDB4 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions2,
+        dbOptions: {"IFEXISTS": true, "PAGE_SIZE": 512, "AUTO_RECONNECT": true}
+    });
+    testDB5 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions2,
+        dbOptions: {"IFEXISTS": true, "AUTO_RECONNECT": true, "PAGE_SIZE": 512}
+    });
+    testDB6 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions2,
+        dbOptions: {"AUTO_RECONNECT": true, "IFEXISTS": true, "PAGE_SIZE": 512}
+    });
 
-    (table<record {}>|error?)[] resultArray = [];
+    (table<record {}> | error?)[] resultArray = [];
     resultArray[0] = testDB1->select("select count(*) from Customers where registrationID = 1", Result);
     resultArray[1] = testDB2->select("select count(*) from Customers where registrationID = 1", Result);
     resultArray[2] = testDB3->select("select count(*) from Customers where registrationID = 2", Result);
@@ -455,12 +461,12 @@ function testLocalSharedConnectionPoolConfigDifferentDbOptions() returns @tainte
     resultArray[6] = testDB6->select("select count(*) from Customers where registrationID = 2", Result);
     resultArray[7] = testDB6->select("select count(*) from Customers where registrationID = 1", Result);
 
-    (int|string)?[] returnArray = [];
+    (int | string)?[] returnArray = [];
     int i = 0;
     // Connections will be released here as we fully consume the data in the following conversion function calls
     foreach var x in resultArray {
         returnArray[i] = getTableCountValColumn(x);
-        i+=1;
+        i += 1;
     }
 
     checkpanic testDB1.stop();
@@ -474,30 +480,32 @@ function testLocalSharedConnectionPoolConfigDifferentDbOptions() returns @tainte
     return returnArray;
 }
 
-function testLocalSharedConnectionPoolCreateClientAfterShutdown() returns @tainted [int|string, int|string, int|string, int|string] {
+function testLocalSharedConnectionPoolCreateClientAfterShutdown() returns
+                        @tainted [int | string, int | string, int | string, int | string] {
     jdbc:Client testDB1;
     jdbc:Client testDB2;
     jdbc:Client testDB3;
     jdbc:Client testDB4;
-    jdbc:PoolOptions poolOptions5 = { maximumPoolSize: 2, connectionTimeoutInMillis: 1000, validationTimeoutInMillis: 1000 };
+    jdbc:PoolOptions poolOptions5 = {maximumPoolSize: 2, connectionTimeoutInMillis: 1000,
+                                     validationTimeoutInMillis: 1000};
 
-    testDB1 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_4",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions5
-        });
-    testDB2 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_4",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions5
-        });
+    testDB1 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_4",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions5
+    });
+    testDB2 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_4",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions5
+    });
 
     var dt1 = testDB1->select("SELECT count(*) from Customers where registrationID = 1", Result);
     var dt2 = testDB2->select("SELECT count(*) from Customers where registrationID = 1", Result);
-    int|string result1 = getTableCountValColumn(dt1);
-    int|string result2 = getTableCountValColumn(dt2);
+    int | string result1 = getTableCountValColumn(dt1);
+    int | string result2 = getTableCountValColumn(dt2);
 
     // Since both clients are stopped the pool is supposed to shutdown.
     checkpanic testDB1.stop();
@@ -505,228 +513,236 @@ function testLocalSharedConnectionPoolCreateClientAfterShutdown() returns @taint
 
     // This call should return an error as pool is shutdown
     var dt3 = testDB1->select("SELECT count(*) from Customers where registrationID = 1", Result);
-    int|string result3 = getTableCountValColumn(dt3);
+    int | string result3 = getTableCountValColumn(dt3);
 
     // Now a new pool should be created
-    testDB3 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_4",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions5
-        });
+    testDB3 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_4",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions5
+    });
 
     // This call should be successful
     var dt4 = testDB3->select("SELECT count(*) from Customers where registrationID = 1", Result);
-    int|string result4 = getTableCountValColumn(dt4);
+    int | string result4 = getTableCountValColumn(dt4);
 
     checkpanic testDB3.stop();
 
     return [result1, result2, result3, result4];
 }
 
-function testLocalSharedConnectionPoolStopInitInterleave() returns @tainted int|string {
-    jdbc:PoolOptions poolOptions = { maximumPoolSize: 2, connectionTimeoutInMillis: 1000, validationTimeoutInMillis: 1000 };
+function testLocalSharedConnectionPoolStopInitInterleave() returns @tainted int | string {
+    jdbc:PoolOptions poolOptions = {maximumPoolSize: 2, connectionTimeoutInMillis: 1000,
+                                    validationTimeoutInMillis: 1000};
 
     worker w1 {
         testLocalSharedConnectionPoolStopInitInterleaveHelper1(poolOptions);
     }
-    worker w2 returns int|string {
+    worker w2 returns int | string {
         return testLocalSharedConnectionPoolStopInitInterleaveHelper2(poolOptions);
     }
 
     wait w1;
-    int|string result = wait w2;
+    int | string result = wait w2;
     return result;
 }
 
 function testLocalSharedConnectionPoolStopInitInterleaveHelper1(jdbc:PoolOptions poolOptions) {
-    jdbc:Client testDB1 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_5",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions
-        });
+    jdbc:Client testDB1 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_5",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions
+    });
     runtime:sleep(10);
 
     checkpanic testDB1.stop();
 }
 
-function testLocalSharedConnectionPoolStopInitInterleaveHelper2(jdbc:PoolOptions poolOptions) returns @tainted (int|string) {
+function testLocalSharedConnectionPoolStopInitInterleaveHelper2(jdbc:PoolOptions poolOptions) returns
+                    @tainted (int | string) {
     jdbc:Client testDB2;
     runtime:sleep(10);
-    testDB2 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_5",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions
-        });
+    testDB2 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_5",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions
+    });
 
     var dt = testDB2->select("SELECT COUNT(*) from Customers where registrationID = 1", Result);
-    int|string count = getTableCountValColumn(dt);
+    int | string count = getTableCountValColumn(dt);
     checkpanic testDB2.stop();
 
     return count;
 }
 
-function testShutDownUnsharedLocalConnectionPool() returns @tainted [int|string, int|string] {
-    jdbc:Client testDB = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_6",
-            username: "SA",
-            password: "",
-            poolOptions: { maximumPoolSize: 2, connectionTimeoutInMillis: 1000, validationTimeoutInMillis: 1000 }
-        });
+function testShutDownUnsharedLocalConnectionPool() returns @tainted [int | string, int | string] {
+    jdbc:Client testDB = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_6",
+        username: "SA",
+        password: "",
+        poolOptions: {maximumPoolSize: 2, connectionTimeoutInMillis: 1000, validationTimeoutInMillis: 1000}
+    });
 
     var result = testDB->select("select count(*) from Customers where registrationID = 1", Result);
-    int|string retVal1 = getTableCountValColumn(result);
+    int | string retVal1 = getTableCountValColumn(result);
     // Pool should be shutdown as the only client using it is stopped.
     checkpanic testDB.stop();
     // This should result in an error return.
     var resultAfterPoolShutDown = testDB->select("select count(*) from Customers where registrationID = 1", Result);
-    int|string retVal2 = getTableCountValColumn(resultAfterPoolShutDown);
+    int | string retVal2 = getTableCountValColumn(resultAfterPoolShutDown);
     return [retVal1, retVal2];
 }
 
-function testShutDownSharedConnectionPool() returns @tainted [int|string, int|string, int|string, int|string, int|string] {
+function testShutDownSharedConnectionPool() returns
+        @tainted [int | string, int | string, int | string, int | string, int | string] {
     jdbc:Client testDB1;
     jdbc:Client testDB2;
     jdbc:Client testDB3;
-    jdbc:PoolOptions poolOptions3 = { maximumPoolSize: 1, connectionTimeoutInMillis: 1000, validationTimeoutInMillis: 1000 };
+    jdbc:PoolOptions poolOptions3 = {maximumPoolSize: 1, connectionTimeoutInMillis: 1000,
+                                     validationTimeoutInMillis: 1000};
 
-    testDB1 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_7",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions3
-        });
+    testDB1 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_7",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions3
+    });
 
-    testDB2 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_7",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions3
-        });
+    testDB2 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_7",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions3
+    });
 
     var result1 = testDB1->select("select count(*) from Customers where registrationID = 1", Result);
-    int|string retVal1 = getTableCountValColumn(result1);
+    int | string retVal1 = getTableCountValColumn(result1);
 
     var result2 = testDB2->select("select count(*) from Customers where registrationID = 2", Result);
-    int|string retVal2 = getTableCountValColumn(result2);
+    int | string retVal2 = getTableCountValColumn(result2);
 
     // Only one client is closed so pool should not shutdown.
     checkpanic testDB1.stop();
 
     // This should be successful as pool is still up.
     var result3 = testDB2->select("select count(*) from Customers where registrationID = 2", Result);
-    int|string retVal3 = getTableCountValColumn(result3);
+    int | string retVal3 = getTableCountValColumn(result3);
 
     // This should fail because, even though the pool is up, this client was stopped
     var result4 = testDB1->select("select count(*) from Customers where registrationID = 2", Result);
-    int|string retVal4 = getTableCountValColumn(result4);
+    int | string retVal4 = getTableCountValColumn(result4);
 
     // Now pool should be shutdown as the only remaining client is stopped.
     checkpanic testDB2.stop();
 
     // This should fail because this client is stopped.
     var result5 = testDB2->select("select count(*) from Customers where registrationID = 2", Result);
-    int|string retVal5 = getTableCountValColumn(result4);
+    int | string retVal5 = getTableCountValColumn(result4);
 
     return [retVal1, retVal2, retVal3, retVal4, retVal5];
 }
 
-function testShutDownPoolCorrespondingToASharedPoolConfig() returns @tainted [int|string, int|string, int|string, int|string] {
+function testShutDownPoolCorrespondingToASharedPoolConfig() returns
+            @tainted [int | string, int | string, int | string, int | string] {
     jdbc:Client testDB1;
     jdbc:Client testDB2;
-    jdbc:PoolOptions poolOptions4 = { maximumPoolSize: 1, connectionTimeoutInMillis: 1000, validationTimeoutInMillis: 1000 };
+    jdbc:PoolOptions poolOptions4 = {maximumPoolSize: 1, connectionTimeoutInMillis: 1000,
+                                     validationTimeoutInMillis: 1000};
 
     // One pool is created for this client.
-    testDB1 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_8",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions4
-        });
+    testDB1 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_8",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions4
+    });
 
     // Another pool is created for this client, because, even though both are using the same pool config,
     // they point to different databases.
-    testDB2 = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_9",
-            username: "SA",
-            password: "",
-            poolOptions: poolOptions4
-        });
+    testDB2 = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_9",
+        username: "SA",
+        password: "",
+        poolOptions: poolOptions4
+    });
     var result1 = testDB1->select("select count(*) from Customers where registrationID = 1", Result);
-    int|string retVal1 = getTableCountValColumn(result1);
+    int | string retVal1 = getTableCountValColumn(result1);
 
     var result2 = testDB2->select("select count(*) from Customers where registrationID = 2", Result);
-    int|string retVal2 = getTableCountValColumn(result2);
+    int | string retVal2 = getTableCountValColumn(result2);
 
     // This should result in stopping the pool used by this client as it was the only client using that pool.
     checkpanic testDB1.stop();
 
     // This should be successful as the pool belonging to this client is up.
     var result3 = testDB2->select("select count(*) from Customers where registrationID = 2", Result);
-    int|string retVal3 = getTableCountValColumn(result3);
+    int | string retVal3 = getTableCountValColumn(result3);
 
     // This should fail because this client was stopped.
     var result4 = testDB1->select("select count(*) from Customers where registrationID = 2", Result);
-    int|string retVal4 = getTableCountValColumn(result4);
+    int | string retVal4 = getTableCountValColumn(result4);
 
     checkpanic testDB2.stop();
 
     return [retVal1, retVal2, retVal3, retVal4];
 }
 
-function testStopClientUsingGlobalPool() returns @tainted [int|string, int|string] {
+function testStopClientUsingGlobalPool() returns @tainted [int | string, int | string] {
     // This client doesn't have pool config specified therefore, global pool will be used.
-    jdbc:Client testDB = new({
-            url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_GLOBAL_1",
-            username: "SA",
-            password: ""
-        });
+    jdbc:Client testDB = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_SQL_CONNECTION_POOL_GLOBAL_1",
+        username: "SA",
+        password: ""
+    });
 
     var result1 = testDB->select("select count(*) from Customers where registrationID = 1", Result);
-    int|string retVal1 = getTableCountValColumn(result1);
+    int | string retVal1 = getTableCountValColumn(result1);
 
     // This will merely stop this client and will not have any effect on the pool because it is the global pool.
     checkpanic testDB.stop();
 
     // This should fail because this client was stopped, even though the pool is up.
     var result2 = testDB->select("select count(*) from Customers where registrationID = 1", Result);
-    int|string retVal2 = getTableCountValColumn(result2);
+    int | string retVal2 = getTableCountValColumn(result2);
 
     return [retVal1, retVal2];
 }
 
-function testLocalConnectionPoolShutDown() returns @tainted [int|string, int|string] {
-    int|string count1 = getOpenConnectionCount("TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1");
-    int|string count2 = getOpenConnectionCount("TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2");
+function testLocalConnectionPoolShutDown() returns @tainted [int | string, int | string] {
+    int | string count1 = getOpenConnectionCount("TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_1");
+    int | string count2 = getOpenConnectionCount("TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_2");
     return [count1, count2];
 }
 
-function getOpenConnectionCount(string dbName) returns @tainted (int|string) {
+function getOpenConnectionCount(string dbName) returns @tainted (int | string) {
     string jdbcUrl = "jdbc:h2:file:./target/tempdb/" + dbName;
-    jdbc:Client testDB = new({
-            url: jdbcUrl,
-            username: "SA",
-            password: "",
-            poolOptions: { maximumPoolSize: 1, connectionTimeoutInMillis: 1000, validationTimeoutInMillis: 1000 }
-        });
+    jdbc:Client testDB = new ({
+        url: jdbcUrl,
+        username: "SA",
+        password: "",
+        poolOptions: {maximumPoolSize: 1, connectionTimeoutInMillis: 1000, validationTimeoutInMillis: 1000}
+    });
     var dt = testDB->select("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS", Result);
-    int|string count = getTableCountValColumn(dt);
+    int | string count = getTableCountValColumn(dt);
     checkpanic testDB.stop();
     return count;
 }
 
-function getTableCountValColumnOfTuple([table<record{}>|error, table<record{}>|error] t) returns (int|string?)[] {
-    table<record{}>|error x; table<record{}>|error y;
+function getTableCountValColumnOfTuple([table<record {}> | error, table<record {}> | error] t) returns
+                        (int | string?)[] {
+    table<record {}> | error x;
+    table<record {}> | error y;
     [x, y] = t;
-    (int|string?)[] returnArray = [];
+    (int | string?)[] returnArray = [];
     returnArray[0] = getTableCountValColumn(x);
     returnArray[1] = getTableCountValColumn(y);
     return returnArray;
 }
 
-function getTableCountValColumn(table<record {}>|error? result) returns int|string {
+function getTableCountValColumn(table<record {}> | error? result) returns int | string {
     int count = -1;
     if (result is table<record {}>) {
         while (result.hasNext()) {
@@ -737,7 +753,7 @@ function getTableCountValColumn(table<record {}>|error? result) returns int|stri
         }
         return count;
     } else if (result is error) {
-        return <string> result.detail()["message"];
+        return <string>result.detail()["message"];
     } else {
         return -1;
     }

@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java.jdbc;
 import ballerina/time;
+import ballerinax/java.jdbc;
 
 type NonNillableInt record {
     int val;
@@ -90,15 +90,15 @@ type NonNillableTimeStamp record {
 };
 
 type InvalidUnion record {
-    (int|string) val;
+    (int | string) val;
 };
 
 type InvalidUnionArrayElement record {
-    (int|string)?[] val;
+    (int | string)?[] val;
 };
 
 type InvalidUnionArray record {
-    int[]|string val;
+    int[] | string val;
 };
 
 type InvalidUnionArray2 record {
@@ -209,12 +209,12 @@ function testAssignNilToNonNillableTimeStamp() returns @tainted string {
     return testAssignNilToNonNillableField("timestamp_type", NonNillableTimeStamp);
 }
 
-function testAssignNilToNonNillableField(string field, typedesc<record{}> recordType) returns @tainted string {
-    jdbc:Client testDB = new({
+function testAssignNilToNonNillableField(string field, typedesc<record {}> recordType) returns @tainted string {
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
     string dbTable;
     int rowId;
@@ -231,7 +231,7 @@ function testAssignNilToNonNillableField(string field, typedesc<record{}> record
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {
-                errorMessage = <string> ret.detail()["message"];
+                errorMessage = <string>ret.detail()["message"];
             }
         }
     }
@@ -312,11 +312,11 @@ function testAssignToInvalidUnionTimeStamp() returns @tainted string {
 }
 
 function testAssignNullArrayToNonNillableWithNonNillableElements() returns @tainted string {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
@@ -326,7 +326,7 @@ function testAssignNullArrayToNonNillableWithNonNillableElements() returns @tain
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {
-                errorMessage = <string> ret.detail()["message"];
+                errorMessage = <string>ret.detail()["message"];
             }
         }
     }
@@ -335,11 +335,11 @@ function testAssignNullArrayToNonNillableWithNonNillableElements() returns @tain
 }
 
 function testAssignNullArrayToNonNillableTypeWithNillableElements() returns @tainted string {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
@@ -349,7 +349,7 @@ function testAssignNullArrayToNonNillableTypeWithNillableElements() returns @tai
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {
-                errorMessage = <string> ret.detail()["message"];
+                errorMessage = <string>ret.detail()["message"];
             }
         }
     }
@@ -358,11 +358,11 @@ function testAssignNullArrayToNonNillableTypeWithNillableElements() returns @tai
 }
 
 function testAssignNullElementArrayToNonNillableTypeWithNonNillableElements() returns @tainted string {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
@@ -372,7 +372,7 @@ function testAssignNullElementArrayToNonNillableTypeWithNonNillableElements() re
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {
-                errorMessage = <string> ret.detail()["message"];
+                errorMessage = <string>ret.detail()["message"];
             }
         }
     }
@@ -381,11 +381,11 @@ function testAssignNullElementArrayToNonNillableTypeWithNonNillableElements() re
 }
 
 function testAssignNullElementArrayToNillableTypeWithNonNillableElements() returns @tainted string {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var dt = testDB->select("SELECT int_array, long_array, float_array, boolean_array,
@@ -395,7 +395,7 @@ function testAssignNullElementArrayToNillableTypeWithNonNillableElements() retur
         while (dt.hasNext()) {
             var ret = trap dt.getNext();
             if (ret is error) {
-                errorMessage = <string> ret.detail()["message"];
+                errorMessage = <string>ret.detail()["message"];
             }
         }
     }
@@ -404,11 +404,11 @@ function testAssignNullElementArrayToNillableTypeWithNonNillableElements() retur
 }
 
 function testAssignInvalidUnionArray() returns @tainted string {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
     var dt = testDB->select("SELECT int_array from ArrayTypes where row_id = 1", InvalidUnionArray);
     string message = "";
@@ -425,11 +425,11 @@ function testAssignInvalidUnionArray() returns @tainted string {
 }
 
 function testAssignInvalidUnionArrayElement() returns @tainted string {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
     var dt = testDB->select("SELECT int_array from ArrayTypes where row_id = 1", InvalidUnionArrayElement);
     string message = "";
@@ -446,11 +446,11 @@ function testAssignInvalidUnionArrayElement() returns @tainted string {
 }
 
 function testAssignInvalidUnionArray2() returns @tainted string {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
     var dt = testDB->select("SELECT int_array from ArrayTypes where row_id = 1", InvalidUnionArray2);
     string message = "";
@@ -467,11 +467,11 @@ function testAssignInvalidUnionArray2() returns @tainted string {
 }
 
 function testAssignToInvalidUnionField(string field) returns @tainted string {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE_H2",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     string dbTable;
@@ -491,7 +491,7 @@ function testAssignToInvalidUnionField(string field) returns @tainted string {
         while (dt.hasNext()) {
             var ret = trap <InvalidUnion>dt.getNext();
             if (ret is error) {
-                errorMessage = <string> ret.detail()["message"];
+                errorMessage = <string>ret.detail()["message"];
             }
         }
     }

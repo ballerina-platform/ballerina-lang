@@ -367,7 +367,7 @@ function testInsertNumericDataWithParameters() returns [int, int, int, int, int,
         generatedKey = <int>result.generatedKeys["ID"];
     }
 
-    jdbc:Parameter p1 = { sqlType: jdbc:TYPE_INTEGER, value: generatedKey };
+    jdbc:Parameter p1 = {sqlType: jdbc:TYPE_INTEGER, value: generatedKey};
     var dt = testDB->select("SELECT int_type, bigint_type, smallint_type, tinyint_type,
                                   bit_type, decimal_type, numeric_type, float_type, real_type from
                                   NumericTypes where id = ?", NumericData, generatedKey);

@@ -28,11 +28,11 @@ type ResultCount record {
 };
 
 function testCountInTable() returns @tainted int {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var dt = testDB->select("SELECT * from Person where id < 10", Person);
@@ -45,11 +45,11 @@ function testCountInTable() returns @tainted int {
 }
 
 function testFilterTable() returns @tainted [int, int, int] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var dt = testDB->select("SELECT * from Person", Person);
@@ -68,11 +68,11 @@ function testFilterTable() returns @tainted [int, int, int] {
 }
 
 function testFilterWithAnonymousFuncOnTable() returns @tainted [int, int, int] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var dt = testDB->select("SELECT * from Person", Person);
@@ -82,8 +82,8 @@ function testFilterWithAnonymousFuncOnTable() returns @tainted [int, int, int] {
     int id2 = -1;
     if (dt is table<Person>) {
         personBelow35 = dt.filter(function (Person p) returns (boolean) {
-                return p.age < 35;
-            });
+            return p.age < 35;
+        });
         count = personBelow35.length();
         id1 = personBelow35[0].id;
         id2 = personBelow35[1].id;
@@ -93,11 +93,11 @@ function testFilterWithAnonymousFuncOnTable() returns @tainted [int, int, int] {
 }
 
 function testFilterTableWithCount() returns @tainted int {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var dt = testDB->select("SELECT * from Person", Person);
@@ -110,11 +110,11 @@ function testFilterTableWithCount() returns @tainted int {
 }
 
 function testMapTable() returns @tainted string[] {
-    jdbc:Client testDB = new({
-       url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
+    jdbc:Client testDB = new ({
+        url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var dt = testDB->select("SELECT * from Person order by id", Person);
@@ -127,11 +127,11 @@ function testMapTable() returns @tainted string[] {
 }
 
 function testMapWithFilterTable() returns @tainted string[] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
     var dt = testDB->select("SELECT * from Person order by id", Person);
     string[] names = [];
@@ -143,11 +143,11 @@ function testMapWithFilterTable() returns @tainted string[] {
 }
 
 function testFilterWithMapTable() returns @tainted string[] {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var dt = testDB->select("SELECT * from Person order by id", Person);
@@ -160,11 +160,11 @@ function testFilterWithMapTable() returns @tainted string[] {
 }
 
 function testFilterWithMapAndCountTable() returns @tainted int {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var dt = testDB->select("SELECT * from Person order by id", Person);
@@ -177,11 +177,11 @@ function testFilterWithMapAndCountTable() returns @tainted int {
 }
 
 function testAverageWithTable() returns @tainted float {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var dt = testDB->select("SELECT * from Person order by id", Person);
@@ -194,11 +194,11 @@ function testAverageWithTable() returns @tainted float {
 }
 
 function testMinWithTable() returns @tainted float {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var dt = testDB->select("SELECT * from Person order by id", Person);
@@ -211,11 +211,11 @@ function testMinWithTable() returns @tainted float {
 }
 
 function testMaxWithTable() returns @tainted float {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var dt = testDB->select("SELECT * from Person order by id", Person);
@@ -228,11 +228,11 @@ function testMaxWithTable() returns @tainted float {
 }
 
 function testSumWithTable() returns @tainted float {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var dt = testDB->select("SELECT * from Person order by id", Person);
@@ -245,15 +245,15 @@ function testSumWithTable() returns @tainted float {
 }
 
 function testCloseConnectionPool() returns @tainted int {
-    jdbc:Client testDB = new({
+    jdbc:Client testDB = new ({
         url: "jdbc:h2:file:./target/tempdb/TEST_DATA_TABLE__ITR_DB",
         username: "SA",
         password: "",
-        poolOptions: { maximumPoolSize: 1 }
+        poolOptions: {maximumPoolSize: 1}
     });
 
     var dt = testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SESSIONS",
-        ResultCount);
+    ResultCount);
     int count = -1;
     if (dt is table<ResultCount>) {
         while (dt.hasNext()) {
@@ -280,7 +280,7 @@ function getSalary(Person p) returns (float) {
 }
 
 function isGeraterThan4(Person p) returns (boolean) {
-    return p.name.length() > 4;
+    returnp.name.length() > 4;
 }
 
 function isGeraterThan4String(string s) returns (boolean) {
