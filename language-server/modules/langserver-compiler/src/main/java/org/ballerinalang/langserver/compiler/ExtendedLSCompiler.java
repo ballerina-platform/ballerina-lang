@@ -99,8 +99,7 @@ public class ExtendedLSCompiler extends LSModuleCompiler {
         }
         String packageName = path.toString();
         CompilerContext context = contextManager.createNewCompilerContext(parent.toString(), docManager);
-        LangServerFSProgramDirectory programDirectory =
-                LangServerFSProgramDirectory.getInstance(parent, docManager);
+        LangServerFSProgramDirectory programDirectory = LangServerFSProgramDirectory.getInstance(parent, docManager);
         context.put(SourceDirectory.class, programDirectory);
         
         CompilerOptions options = CompilerOptions.getInstance(context);
@@ -112,8 +111,8 @@ public class ExtendedLSCompiler extends LSModuleCompiler {
         options.put(SKIP_TESTS, String.valueOf(false));
         BLangDiagnosticLog.getInstance(context).errorCount = 0;
         Compiler compiler = Compiler.getInstance(context);
-        LSServiceOperationContext lsContext = new LSServiceOperationContext(() -> "extendedCompiler/compileFile");
 
+        LSServiceOperationContext lsContext = new LSServiceOperationContext(() -> "extendedCompiler/compileFile");
         lsContext.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, context);
         lsContext.put(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY, packageName);
 

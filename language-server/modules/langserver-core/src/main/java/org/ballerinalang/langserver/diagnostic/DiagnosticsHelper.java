@@ -67,7 +67,7 @@ public class DiagnosticsHelper {
         // Compile diagnostics
         List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics = new ArrayList<>();
         LSDocument lsDocument = new LSDocument(context.get(DocumentServiceKeys.FILE_URI_KEY));
-        LSModuleCompiler.getBLangPackages(context, docManager, true, null, true, true);
+        LSModuleCompiler.getBLangPackages(context, docManager, null, true, true);
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         if (compilerContext.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
             diagnostics = ((CollectDiagnosticListener) compilerContext.get(DiagnosticListener.class)).getDiagnostics();
