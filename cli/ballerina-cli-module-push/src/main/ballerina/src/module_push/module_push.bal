@@ -114,7 +114,7 @@ function defineEndpointWithProxy(string url, string hostname, int port, string u
             verifyHostname: false,
             shareSession: true
         },
-        proxy : getProxyConfigurations(hostname, port, username, password),
+        http1Settings:{ proxy : getProxyConfigurations(hostname, port, username, password) },
         cache: {
             enabled: false
         }
@@ -126,7 +126,7 @@ function defineEndpointWithProxy(string url, string hostname, int port, string u
 #
 # + url - URL to be invoked
 # + return - Endpoint defined
-function defineEndpointWithoutProxy (string url) returns http:Client{
+function defineEndpointWithoutProxy(string url) returns http:Client {
     http:Client httpEndpoint = new(url, {
         secureSocket:{
             trustStore:{

@@ -163,7 +163,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
 # + username - Username of the proxy
 # + password - Password of the proxy
 # + return - Endpoint defined
-function defineEndpointWithProxy (string url, string hostname, int port, string username, string password) returns http:Client{
+function defineEndpointWithProxy(string url, string hostname, int port, string username, string password) returns http:Client{
     http:Client httpEndpoint = new (url, {
         secureSocket:{
             trustStore:{
@@ -173,7 +173,7 @@ function defineEndpointWithProxy (string url, string hostname, int port, string 
             verifyHostname: false,
             shareSession: true
         },
-        proxy : getProxyConfigurations(hostname, port, username, password)
+        http1Settings:{ proxy : getProxyConfigurations(hostname, port, username, password) }
     });
     return httpEndpoint;
 }
@@ -182,7 +182,7 @@ function defineEndpointWithProxy (string url, string hostname, int port, string 
 #
 # + url - URL to be invoked
 # + return - Endpoint defined
-function defineEndpointWithoutProxy (string url) returns http:Client{
+function defineEndpointWithoutProxy(string url) returns http:Client{
     http:Client httpEndpoint = new (url, {
         secureSocket:{
             trustStore:{
