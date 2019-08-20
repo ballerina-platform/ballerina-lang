@@ -218,12 +218,18 @@ public class SymbolResolver extends BLangNodeVisitor {
             return true;
         }
 
+        // Type names should be unique and cannot be shadowed
+        if ((foundSym.tag & SymTag.TYPE) == SymTag.TYPE) {
+            dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
+            return false;
+        }
+
         if (isSymbolDefinedInRootPkgLvl(foundSym)) {
             dlog.error(pos, DiagnosticCode.REDECLARED_BUILTIN_SYMBOL, symbol.name);
             return false;
         }
 
-        if (isSymbolOwnersSame(symbol, foundSym)) {
+        if (hasSameOwner(symbol, foundSym)) {
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
             return false;
         }
@@ -245,28 +251,29 @@ public class SymbolResolver extends BLangNodeVisitor {
             return true;
         }
 
+        // Type names should be unique and cannot be shadowed
+        if ((foundSym.tag & SymTag.TYPE) == SymTag.TYPE) {
+            return false;
+        }
+
         if (isSymbolDefinedInRootPkgLvl(foundSym)) {
             return false;
         }
 
-        return isSymbolOwnersSame(symbol, foundSym);
+        return hasSameOwner(symbol, foundSym);
     }
 
 
-    private boolean isSymbolOwnersSame(BSymbol symbol, BSymbol foundSym) {
+    private boolean hasSameOwner(BSymbol symbol, BSymbol foundSym) {
         // check whether the given symbol owner is same as found symbol's owner
         if (foundSym.owner == symbol.owner) {
             return true;
         }
 
-        if ((foundSym.tag & SymTag.TYPE) == SymTag.TYPE) {
-            return false;
-        }
-
         // If the symbol being defined is inside a lambda and the existing symbol is defined inside a function, both
         // symbols are in the same block scope.
         return Symbols.isFlagOn(symbol.owner.flags, Flags.LAMBDA) &&
-                ((foundSym.owner.tag & SymTag.INVOKABLE) != SymTag.INVOKABLE);
+                ((foundSym.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE);
     }
 
     private boolean isSymbolDefinedInRootPkgLvl(BSymbol foundSym) {
