@@ -20,7 +20,6 @@ import com.intellij.icons.AllIcons;
 import com.intellij.xdebugger.frame.XCompositeNode;
 import com.intellij.xdebugger.frame.XValueChildrenList;
 import com.intellij.xdebugger.frame.XValueGroup;
-import org.eclipse.lsp4j.debug.StackFrame;
 import org.eclipse.lsp4j.debug.Variable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,15 +34,13 @@ import javax.swing.Icon;
 public class BallerinaXValueGroup extends XValueGroup {
 
     private final BallerinaDebugProcess process;
-    private final StackFrame stackFrame;
     private final List<Variable> variables;
 
-    protected BallerinaXValueGroup(@NotNull BallerinaDebugProcess myProcess, @NotNull StackFrame myFrame,
-                                   @NotNull String name, @NotNull List<Variable> myVariables) {
+    BallerinaXValueGroup(@NotNull BallerinaDebugProcess myProcess,
+                         @NotNull String name, @NotNull List<Variable> myVariables) {
         super(name);
         this.variables = myVariables;
         this.process = myProcess;
-        this.stackFrame = myFrame;
     }
 
     @Override
@@ -64,9 +61,7 @@ public class BallerinaXValueGroup extends XValueGroup {
         } else {
             XValueChildrenList list = new XValueChildrenList();
             for (Variable variable : variables) {
-                // Todo - Fix stack frame name
-                list.add(variable.getName(), new BallerinaXValue(process, stackFrame.getName(), variable,
-                        AllIcons.Nodes.Field));
+                list.add(variable.getName(), new BallerinaXValue(process, variable, AllIcons.Nodes.Field));
             }
             node.addChildren(list, true);
         }
