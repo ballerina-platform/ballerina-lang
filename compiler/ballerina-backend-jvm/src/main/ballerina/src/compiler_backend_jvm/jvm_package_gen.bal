@@ -430,7 +430,6 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
         functionName = stopFunc.name.value;
         birFunctionMap[pkgName + functionName] = getFunctionWrapper(stopFunc, orgName, moduleName,
                                                                     versionValue, initClass);
-        io:println("------------ adding stop func - " + pkgName + functionName);
         class.functions[2] = stopFunc;
         count += 1;
 
