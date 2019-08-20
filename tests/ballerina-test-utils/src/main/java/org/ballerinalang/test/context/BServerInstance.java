@@ -412,7 +412,7 @@ public class BServerInstance implements BServer {
     /**
      * Build the bal source.
      *
-     * @param args     - command line arguments to pass when building bal program
+     * @param args - command line arguments to pass when building bal program
      * @throws BallerinaTestException if starting services failed
      */
     private void buildBalSource(String[] args)
@@ -421,9 +421,9 @@ public class BServerInstance implements BServer {
     }
 
     /**
-     * Build and run the bal source with cli
+     * Build and run the bal source with ballerina run.
      *
-     * @param args     - command line arguments to pass when building bal program
+     * @param args          - command line arguments to pass when building bal program
      * @param envProperties - environmental properties to be appended to the environment
      * @throws BallerinaTestException if starting services failed
      */

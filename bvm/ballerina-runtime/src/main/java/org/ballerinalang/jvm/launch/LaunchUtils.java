@@ -49,7 +49,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.UTIL_LOGGING_MANAGER_CLA
  * @since 1.0
  */
 public class LaunchUtils {
-    
+
     static {
         System.setProperty(UTIL_LOGGING_CONFIG_CLASS_PROPERTY, UTIL_LOGGING_CONFIG_CLASS_VALUE);
         System.setProperty(UTIL_LOGGING_MANAGER_CLASS_PROPERTY, UTIL_LOGGING_MANAGER_CLASS_VALUE);
@@ -58,16 +58,16 @@ public class LaunchUtils {
     private static PrintStream errStream = System.err;
 
     public static String[] initConfigurations(String[] args) {
-        
+
         String configFilePath = null;
         boolean observeFlag = false;
         if (ConfigRegistry.getInstance().isInitialized()) {
             return args;
         }
-        Map<String,String> configArgs = new HashMap<>();
+        Map<String, String> configArgs = new HashMap<>();
         List<String> userProgramArgs = new ArrayList<>();
         for (int i = 0; i < args.length; i++) {
-            if(args[i].equals(BALLERINA_ARGS_INIT_PREFIX)){
+            if (args[i].equals(BALLERINA_ARGS_INIT_PREFIX)) {
                 userProgramArgs.addAll(Arrays.asList(Arrays.copyOfRange(args, i + 1, args.length)));
                 break;
             }
@@ -86,13 +86,13 @@ public class LaunchUtils {
                 continue;
             }
 
-            if(args[i].toLowerCase().startsWith(BALLERINA_ARGS_INIT_PREFIX)){
+            if (args[i].toLowerCase().startsWith(BALLERINA_ARGS_INIT_PREFIX)) {
                 String configString = args[i].substring(BALLERINA_ARGS_INIT_PREFIX_LENGTH);
-                String[] config_pair = configString.split(CONFIG_SEPARATOR);
-                if (config_pair.length < 2) {
+                String[] keyValuePair = configString.split(CONFIG_SEPARATOR);
+                if (keyValuePair.length < 2) {
                     RuntimeUtils.handleInvalidOption(args[i]);
                 }
-                configArgs.put(config_pair[0], configString.substring(config_pair[0].length()+1));
+                configArgs.put(keyValuePair[0], configString.substring(keyValuePair[0].length() + 1));
                 continue;
             }
             userProgramArgs.add(args[i]);

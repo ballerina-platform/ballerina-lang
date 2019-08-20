@@ -57,7 +57,8 @@ public class RemoteParticipantTransactionTest extends BaseTest {
 
         serverInstance = new BServerInstance(balServer);
         HashMap<String, String> envProperties = new HashMap<>();
-        serverInstance.startServer(basePath, "participantservice", buildArgs, runtimeArgs, envProperties, requiredPorts);
+        serverInstance.startServer(basePath, "participantservice", buildArgs, runtimeArgs,
+                                   envProperties, requiredPorts);
 
         sepBalserverInstance = new BalServer();
         separateInstance = new BServerInstance(sepBalserverInstance);
