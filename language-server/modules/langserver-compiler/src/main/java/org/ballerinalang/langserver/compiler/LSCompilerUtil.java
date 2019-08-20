@@ -128,7 +128,8 @@ public class LSCompilerUtil {
                 : compilerPhase.toString();
 
         options.put(COMPILER_PHASE, phase);
-        options.put(PRESERVE_WHITESPACE, Boolean.valueOf(preserveWhitespace).toString());
+        // Temporarily make all the operations to keep the WS to avoid test failures after context clearing
+        options.put(PRESERVE_WHITESPACE, Boolean.valueOf(true).toString());
         options.put(TEST_ENABLED, String.valueOf(true));
         options.put(SKIP_TESTS, String.valueOf(false));
 
@@ -233,7 +234,6 @@ public class LSCompilerUtil {
                                        Class customErrorStrategy) {
         context.put(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY, relativeFilePath);
         context.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, compilerContext);
-        context.put(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY, new LSServiceOperationContext());
         if (customErrorStrategy != null) {
             compilerContext.put(DefaultErrorStrategy.class,
                                 CustomErrorStrategyFactory.getCustomErrorStrategy(customErrorStrategy, context));
@@ -242,25 +242,6 @@ public class LSCompilerUtil {
         Compiler compiler = Compiler.getInstance(compilerContext);
         compiler.setOutStream(emptyPrintStream);
         return compiler;
-    }
-
-     /** Get compiler for the given context.
-     *
-             * @param context               Language server context
-     * @param compilerContext       Compiler context
-     * @param customErrorStrategy   custom error strategy class
-     * @return {@link Compiler}     ballerina compiler
-     */
-    public static Compiler getCompiler(LSContext context, CompilerContext compilerContext,
-                                       Class customErrorStrategy) {
-        context.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, compilerContext);
-        context.put(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY, new LSServiceOperationContext());
-        if (customErrorStrategy != null) {
-            compilerContext.put(DefaultErrorStrategy.class,
-                    CustomErrorStrategyFactory.getCustomErrorStrategy(customErrorStrategy, context));
-        }
-        BLangDiagnosticLog.getInstance(compilerContext).errorCount = 0;
-        return Compiler.getInstance(compilerContext);
     }
 
     /**

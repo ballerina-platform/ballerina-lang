@@ -20,6 +20,8 @@ package org.ballerinalang.stdlib.services.nativeimpl.response;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
+import org.apache.axiom.om.OMNode;
+import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLItem;
@@ -524,7 +526,8 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testSetXmlPayload() {
-        BXMLItem value = new BXMLItem("<name>Ballerina</name>");
+        OMNode omNode = (OMNode) XMLFactory.parse("<name>Ballerina</name>").value();
+        BXMLItem value = new BXMLItem(omNode);
         BValue[] inputArg = {value};
         BValue[] returnVals = BRunUtil.invoke(result, "testSetXmlPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,

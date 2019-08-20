@@ -39,6 +39,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.clauses.GroupByNode;
 import org.ballerinalang.model.tree.clauses.HavingNode;
@@ -366,7 +367,6 @@ public class BLangPackageBuilder {
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
     private SymbolTable symTable;
-    private boolean streamModuleImported = false;
     private BLangDiagnosticLog dlog;
 
     private static final String IDENTIFIER_LITERAL_PREFIX = "'";
@@ -817,28 +817,25 @@ public class BLangPackageBuilder {
         if (reasonRefAvailable) {
             ExpressionNode reasonRef = this.exprNodeStack.pop();
             errorVarRef.reason = (BLangVariableReference) reasonRef;
+        } else if (indirectErrorRefPattern) {
+            // Indirect error ref pattern does not allow reason var ref, hence ignore it.
+            errorVarRef.reason = createIgnoreVarRef();
+            errorVarRef.typeNode = (BLangType) this.typeNodeStack.pop();
         } else {
-            int lastItemIndex = namedArgs.size() - 1;
-            BLangNamedArgsExpression reason = namedArgs.get(lastItemIndex);
-            if (reason.name.value.equals("reason")) {
-                namedArgs.remove(lastItemIndex);
-                errorVarRef.reason = (BLangVariableReference) reason.expr;
-            } else if (indirectErrorRefPattern) {
-                // Indirect error ref pattern does not allow reason var ref, hence ignore it.
-                BLangSimpleVarRef ignoreVarRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-                BLangIdentifier ignore = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-                ignore.value = Names.IGNORE.value;
-                ignoreVarRef.variableName = ignore;
-                errorVarRef.reason = ignoreVarRef;
-                errorVarRef.typeNode = (BLangType) this.typeNodeStack.pop();
-            } else {
-                dlog.error(pos, DiagnosticCode.INVALID_ERROR_DESTRUCTURING_NO_REASON_GIVEN);
-            }
+            errorVarRef.reason = createIgnoreVarRef();
         }
         Collections.reverse(namedArgs);
         errorVarRef.detail.addAll(namedArgs);
 
         this.exprNodeStack.push(errorVarRef);
+    }
+
+    private BLangSimpleVarRef createIgnoreVarRef() {
+        BLangSimpleVarRef ignoreVarRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        BLangIdentifier ignore = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        ignore.value = Names.IGNORE.value;
+        ignoreVarRef.variableName = ignore;
+        return ignoreVarRef;
     }
 
     void addErrorDetailBinding(DiagnosticPos pos, Set<Whitespace> ws, String name, String bindingVarName) {
@@ -1853,6 +1850,17 @@ public class BLangPackageBuilder {
                                      String version,
                                      String alias) {
 
+        BLangImportPackage importDcl = getImportPackage(pos, ws, orgName, nameComps, version, alias);
+        this.compUnit.addTopLevelNode(importDcl);
+        if (this.imports.contains(importDcl)) {
+            this.dlog.warning(pos, DiagnosticCode.REDECLARED_IMPORT_MODULE, importDcl.getQualifiedPackageName());
+        } else {
+            this.imports.add(importDcl);
+        }
+    }
+
+    private BLangImportPackage getImportPackage(DiagnosticPos pos, Set<Whitespace> ws, String orgName,
+                                                List<String> nameComps, String version, String alias) {
         List<BLangIdentifier> pkgNameComps = new ArrayList<>();
         nameComps.forEach(e -> pkgNameComps.add((BLangIdentifier) this.createIdentifier(e)));
         BLangIdentifier versionNode = (BLangIdentifier) this.createIdentifier(version);
@@ -1867,12 +1875,7 @@ public class BLangPackageBuilder {
         importDcl.version = versionNode;
         importDcl.orgName = (BLangIdentifier) this.createIdentifier(orgName);
         importDcl.alias = aliasNode;
-        this.compUnit.addTopLevelNode(importDcl);
-        if (this.imports.contains(importDcl)) {
-            this.dlog.warning(pos, DiagnosticCode.REDECLARED_IMPORT_MODULE, importDcl.getQualifiedPackageName());
-        } else {
-            this.imports.add(importDcl);
-        }
+        return importDcl;
     }
 
     private VariableNode generateBasicVarNodeWithoutType(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
@@ -1932,6 +1935,7 @@ public class BLangPackageBuilder {
 
     void addConstant(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
                      boolean isPublic, boolean isTypeAvailable) {
+        identifier = escapeQuotedIdentifier(identifier);
         BLangConstant constantNode = (BLangConstant) this.generateConstantNode(pos, ws, identifier, identifierPos,
                 isTypeAvailable);
         attachAnnotations(constantNode);
@@ -1975,6 +1979,15 @@ public class BLangPackageBuilder {
             // any of the type def visiting logic in symbol enter.
             constantNode.associatedTypeDefinition = typeDef;
         }
+    }
+
+    // If this is a quoted identifier then unescape it and remove the quote prefix.
+    // Else return original.
+    static String escapeQuotedIdentifier(String identifier) {
+        if (identifier.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
+            identifier = StringEscapeUtils.unescapeJava(identifier).substring(1);
+        }
+        return identifier;
     }
 
     void addGlobalVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
@@ -3785,11 +3798,14 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(foreverNode);
 
         // implicit import of streams module, user doesn't want to import explicitly
-        if (!streamModuleImported) {
-            List<String> nameComps = getPackageNameComps(Names.STREAMS_MODULE.value);
-            addImportPackageDeclaration(pos, null, Names.STREAMS_ORG.value, nameComps, null,
-                    nameComps.get(nameComps.size() - 1));
-            streamModuleImported = true;
+
+        List<String> nameComps = getPackageNameComps(Names.STREAMS_MODULE.value);
+        BLangImportPackage importDcl = getImportPackage(pos, null, Names.STREAMS_ORG.value, nameComps, null,
+                nameComps.get(nameComps.size() - 1));
+        if (!this.imports.contains(importDcl)) {
+            List<TopLevelNode> topLevelNodes = this.compUnit.getTopLevelNodes();
+            topLevelNodes.add(0, importDcl);
+            this.imports.add(importDcl);
         }
     }
 

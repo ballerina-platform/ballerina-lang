@@ -56,6 +56,12 @@ public class BallerinaErrorRefBindingPatternImpl extends ASTWrapperPsiElement im
 
   @Override
   @Nullable
+  public BallerinaTypeName getTypeName() {
+    return findChildByClass(BallerinaTypeName.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaVariableReference getVariableReference() {
     return findChildByClass(BallerinaVariableReference.class);
   }
@@ -73,9 +79,9 @@ public class BallerinaErrorRefBindingPatternImpl extends ASTWrapperPsiElement im
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getError() {
-    return findNotNullChildByType(ERROR);
+    return findChildByType(ERROR);
   }
 
 }

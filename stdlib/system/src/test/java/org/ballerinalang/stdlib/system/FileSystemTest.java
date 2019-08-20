@@ -166,7 +166,7 @@ public class FileSystemTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testRemove", args1);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        assertEquals(error.getReason(), SystemConstants.INVALID_OPERATION_ERROR);
+        assertEquals(error.getReason(), SystemConstants.FILE_NOT_FOUND_ERROR);
         assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File not found: "));
     }
 
@@ -187,7 +187,7 @@ public class FileSystemTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetFileInfo", args1);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        assertEquals(error.getReason(), SystemConstants.INVALID_OPERATION_ERROR);
+        assertEquals(error.getReason(), SystemConstants.FILE_NOT_FOUND_ERROR);
         assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File not found: "));
     }
 
@@ -220,7 +220,7 @@ public class FileSystemTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadDir", args);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        assertEquals(error.getReason(), SystemConstants.INVALID_OPERATION_ERROR);
+        assertEquals(error.getReason(), SystemConstants.FILE_NOT_FOUND_ERROR);
         assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File not found: "));
     }
 
@@ -357,7 +357,7 @@ public class FileSystemTest {
                     new BBoolean(false)};
             BValue[] returns = BRunUtil.invoke(compileResult, "testCopy", args);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), SystemConstants.INVALID_OPERATION_ERROR);
+            assertEquals(error.getReason(), SystemConstants.FILE_NOT_FOUND_ERROR);
             assertTrue(((BMap) error.getDetails()).get("message").stringValue()
                     .contains("File not found: "));
         } finally {

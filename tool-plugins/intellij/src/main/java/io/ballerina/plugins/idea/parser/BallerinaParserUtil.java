@@ -316,26 +316,44 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
 
     // Need to differentiate between nullable types and ternary expressions.
     public static boolean nullableTypePredicate(PsiBuilder builder, int level) {
-        int steps = 1;
-        IElementType next1Element;
+        int steps = -1;
+        IElementType prev1Element;
+
         do {
-            next1Element = builder.rawLookup(steps++);
-            if (isWhiteSpaceOrComment(next1Element)) {
+            prev1Element = builder.rawLookup(steps--);
+            if (prev1Element == null || isWhiteSpaceOrComment(prev1Element)) {
                 continue;
             }
-            IElementType next2Element;
+            IElementType prev2Element;
             do {
-                next2Element = builder.rawLookup(steps++);
-                if (isWhiteSpaceOrComment(next2Element)) {
+                prev2Element = builder.rawLookup(steps--);
+                if (prev2Element == null || isWhiteSpaceOrComment(prev2Element)) {
                     continue;
                 }
-                if (next2Element != BallerinaTypes.COLON) {
-                    return true;
+                //Eg: x is string ? 1 : 2;
+                if (prev2Element == BallerinaTypes.IS) {
+                    return false;
                 }
-            } while ((next2Element != null && isWhiteSpaceOrComment(next2Element)));
-
-        } while ((next1Element != null && isWhiteSpaceOrComment(next1Element)));
-
-        return false;
+                IElementType prev3Element;
+                do {
+                    prev3Element = builder.rawLookup(steps--);
+                    if (prev3Element == null || isWhiteSpaceOrComment(prev3Element)) {
+                        continue;
+                    }
+                    IElementType prev4Element;
+                    do {
+                        prev4Element = builder.rawLookup(steps--);
+                        if (prev4Element == null || isWhiteSpaceOrComment(prev4Element)) {
+                            continue;
+                        }
+                        // Eg: x is http:Error ? 1 : 2;
+                        if (prev4Element == BallerinaTypes.IS) {
+                            return false;
+                        }
+                    } while ((prev4Element != null && isWhiteSpaceOrComment(prev4Element)));
+                } while ((prev3Element != null && isWhiteSpaceOrComment(prev3Element)));
+            } while ((prev2Element != null && isWhiteSpaceOrComment(prev2Element)));
+        } while ((prev1Element != null && isWhiteSpaceOrComment(prev1Element)));
+        return true;
     }
 }

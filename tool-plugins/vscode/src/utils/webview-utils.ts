@@ -77,7 +77,7 @@ export function getLibraryWebViewContent(options: WebViewOptions) {
                 </style>
             </head>
             
-            <body style="overflow: hidden;" class="${bodyCss}">
+            <body class="${bodyCss}">
                 ${body}
                 <script>
                     ${scripts}
@@ -107,7 +107,7 @@ export function getComposerPath(): string {
 
 export function getComposerJSFiles(isAPIEditor: boolean = false): string[] {
     return [
-        join(getComposerPath(), 'codepoints.js'),
+        join(getDistributionComposerURI(), 'codepoints.js'),
         join(getComposerPath(), isAPIEditor ? 'apiEditor.js' : 'composer.js'),
         process.env.COMPOSER_DEBUG === "true" ? 'http://localhost:8097' : '' // For React Dev Tools
     ];
@@ -116,7 +116,7 @@ export function getComposerJSFiles(isAPIEditor: boolean = false): string[] {
 export function getComposerCSSFiles(): string[] {
     return [
         join(getComposerPath(), 'themes', 'ballerina-default.min.css'),
-        join(getComposerPath(), 'font', 'font-ballerina.css')
+        join(getDistributionComposerURI(), 'font', 'font-ballerina.css')
     ];
 }
 

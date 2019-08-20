@@ -210,10 +210,11 @@ public class WorkerTest {
         Assert.assertEquals("error: err from panic", ((BError) returns[0]).getReason());
     }
 
-    @Test(enabled = false) // Issue with trap
+    @Test()
     public void receiveWithTrapForDefault() {
         BValue[] returns = BRunUtil.invoke(result, "receiveWithTrapForDefault");
         Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals("error: err from panic", ((BError) returns[0]).getReason());
     }
 
     @Test
