@@ -16,12 +16,12 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.system.nativeimpl;
+package org.ballerinalang.stdlib.file.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.stdlib.system.utils.SystemConstants;
-import org.ballerinalang.stdlib.system.utils.SystemUtils;
+import org.ballerinalang.stdlib.file.utils.FileConstants;
+import org.ballerinalang.stdlib.file.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,13 +39,13 @@ import static java.nio.file.FileVisitResult.CONTINUE;
 import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
 
 /**
- * Extern function ballerina.system:copy.
+ * Extern function ballerina.file:copy.
  *
  * @since 0.995.0
  */
 @BallerinaFunction(
-        orgName = SystemConstants.ORG_NAME,
-        packageName = SystemConstants.PACKAGE_NAME,
+        orgName = FileConstants.ORG_NAME,
+        packageName = FileConstants.PACKAGE_NAME,
         functionName = "copy",
         isPublic = true
 )
@@ -59,13 +59,13 @@ public class Copy {
         Path destPath = Paths.get(destinationPath);
 
         if (Files.notExists(srcPath)) {
-            return SystemUtils.getBallerinaError(SystemConstants.FILE_NOT_FOUND_ERROR,
+            return FileUtils.getBallerinaError(FileConstants.FILE_NOT_FOUND_ERROR,
                     "File not found: " + sourcePath);
         }
         try {
             Files.walkFileTree(srcPath, new RecursiveFileCopyVisitor(srcPath, destPath, replaceExisting));
         } catch (IOException ex) {
-            return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, ex);
+            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, ex);
         }
         return null;
     }

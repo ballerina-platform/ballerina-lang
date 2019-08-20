@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.stdlib.system;
+package org.ballerinalang.stdlib.file;
 
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.model.types.BObjectType;
@@ -25,7 +25,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.stdlib.system.utils.SystemConstants;
+import org.ballerinalang.stdlib.file.utils.FileConstants;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -48,23 +48,24 @@ import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertNull;
 
 /**
- * Test class for file system package.
+ * Test class for file package.
  *
  * @since 0.995.0
  */
-public class FileSystemTest {
+public class FileTest {
 
     private CompileResult compileResult;
     private static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
     private Path srcFilePath = Paths.get("src", "test", "resources", "data-files", "src-file.txt");
     private Path destFilePath = Paths.get("src", "test", "resources", "data-files", "dest-file.txt");
+    private Path srcModifiedFilePath = Paths.get("src", "test", "resources", "data-files", "src-file-modified.txt");
     private Path srcDirPath = Paths.get("src", "test", "resources", "data-files", "src-dir");
     private Path errorSrcDirPath = Paths.get("src", "test", "resources", "data-files", "src-dir", "error");
     private Path tempDirPath;
     private Path tempSourcePath;
     private Path tempDestPath;
     private Path errorPath;
-    private static final Logger log = LoggerFactory.getLogger(FileSystemTest.class);
+    private static final Logger log = LoggerFactory.getLogger(FileTest.class);
 
     @BeforeClass
     public void setup() throws IOException {
@@ -81,7 +82,7 @@ public class FileSystemTest {
     @Test(description = "Test for retrieving temporary directory")
     public void testTempDir() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetTempDir");
-        Assert.assertTrue(returns[0] instanceof BString);
+        assertTrue(returns[0] instanceof BString);
         String expectedValue = System.getProperty("java.io.tmpdir");
         Assert.assertEquals(returns[0].stringValue(), expectedValue);
     }
@@ -94,7 +95,7 @@ public class FileSystemTest {
 
             BValue[] args = {new BString(tempSourcePath.toString()), new BString(tempDestPath.toString())};
             BRunUtil.invoke(compileResult, "testRename", args);
-            Assert.assertTrue(Files.exists(tempDestPath));
+            assertTrue(Files.exists(tempDestPath));
             assertFalse(Files.exists(tempSourcePath));
         } finally {
             Files.deleteIfExists(tempSourcePath);
@@ -114,7 +115,7 @@ public class FileSystemTest {
             BValue[] returns = BRunUtil.invoke(compileResult, "testRename", args);
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), SystemConstants.INVALID_OPERATION_ERROR);
+            assertEquals(error.getReason(), FileConstants.INVALID_OPERATION_ERROR);
             assertTrue(((BMap) error.getDetails()).get("message").stringValue()
                     .contains("File already exists in the new path "));
         } finally {
@@ -142,7 +143,7 @@ public class FileSystemTest {
             BValue[] returns = BRunUtil.invoke(compileResult, "testRemove", args1);
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), SystemConstants.FILE_SYSTEM_ERROR);
+            assertEquals(error.getReason(), FileConstants.FILE_SYSTEM_ERROR);
             assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("Error while deleting "));
 
             // Remove directory with recursive true
@@ -166,7 +167,7 @@ public class FileSystemTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testRemove", args1);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        assertEquals(error.getReason(), SystemConstants.FILE_NOT_FOUND_ERROR);
+        assertEquals(error.getReason(), FileConstants.FILE_NOT_FOUND_ERROR);
         assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File not found: "));
     }
 
@@ -187,7 +188,7 @@ public class FileSystemTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetFileInfo", args1);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        assertEquals(error.getReason(), SystemConstants.FILE_NOT_FOUND_ERROR);
+        assertEquals(error.getReason(), FileConstants.FILE_NOT_FOUND_ERROR);
         assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File not found: "));
     }
 
@@ -220,7 +221,7 @@ public class FileSystemTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadDir", args);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        assertEquals(error.getReason(), SystemConstants.FILE_NOT_FOUND_ERROR);
+        assertEquals(error.getReason(), FileConstants.FILE_NOT_FOUND_ERROR);
         assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File not found: "));
     }
 
@@ -230,7 +231,7 @@ public class FileSystemTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadDir", args);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        assertEquals(error.getReason(), SystemConstants.INVALID_OPERATION_ERROR);
+        assertEquals(error.getReason(), FileConstants.INVALID_OPERATION_ERROR);
         assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File in path "));
     }
 
@@ -272,7 +273,7 @@ public class FileSystemTest {
             BValue[] returns = BRunUtil.invoke(compileResult, "testCreateNonExistingFile", args);
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), SystemConstants.FILE_SYSTEM_ERROR);
+            assertEquals(error.getReason(), FileConstants.FILE_SYSTEM_ERROR);
             assertTrue(((BMap) error.getDetails()).get("message").stringValue()
                     .contains("The file does not exist in path "));
         } finally {
@@ -286,7 +287,7 @@ public class FileSystemTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCreateFile", args);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        assertEquals(error.getReason(), SystemConstants.INVALID_OPERATION_ERROR);
+        assertEquals(error.getReason(), FileConstants.INVALID_OPERATION_ERROR);
         assertTrue(((BMap) error.getDetails()).get("message").stringValue()
                 .contains("File already exists. Failed to create the file: "));
     }
@@ -313,7 +314,7 @@ public class FileSystemTest {
             BValue[] returns = BRunUtil.invoke(compileResult, "testCreateDir", args);
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), SystemConstants.FILE_SYSTEM_ERROR);
+            assertEquals(error.getReason(), FileConstants.FILE_SYSTEM_ERROR);
             assertTrue(((BMap) error.getDetails()).get("message").stringValue()
                     .contains("IO error while creating the file "));
             assertFalse(Files.exists(filepath));
@@ -333,16 +334,18 @@ public class FileSystemTest {
             assertEquals(tempDestPath.toFile().length(), srcFilePath.toFile().length());
 
             // Execute same with replaceExist false
+            BValue[] args1 = {new BString(srcModifiedFilePath.toString()), new BString(tempDestPath.toString()),
+                    new BBoolean(false)};
             long modifiedTime = tempDestPath.toFile().lastModified();
-            BRunUtil.invoke(compileResult, "testCopy", args);
+            BRunUtil.invoke(compileResult, "testCopy", args1);
             long modifiedTimeWithoutReplace = tempDestPath.toFile().lastModified();
             assertEquals(modifiedTimeWithoutReplace, modifiedTime);
 
             // Execute same with replaceExist true
-            BValue[] args1 = {new BString(srcFilePath.toString()), new BString(tempDestPath.toString()),
+            BValue[] args2 = {new BString(srcModifiedFilePath.toString()), new BString(tempDestPath.toString()),
                     new BBoolean(true)};
-            Thread.sleep(1000);
-            BRunUtil.invoke(compileResult, "testCopy", args1);
+            Thread.sleep(5000);
+            BRunUtil.invoke(compileResult, "testCopy", args2);
             long modifiedTimeWithReplace = tempDestPath.toFile().lastModified();
             assertNotEquals(modifiedTimeWithReplace, modifiedTime);
         } finally {
@@ -357,7 +360,7 @@ public class FileSystemTest {
                     new BBoolean(false)};
             BValue[] returns = BRunUtil.invoke(compileResult, "testCopy", args);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), SystemConstants.FILE_NOT_FOUND_ERROR);
+            assertEquals(error.getReason(), FileConstants.FILE_NOT_FOUND_ERROR);
             assertTrue(((BMap) error.getDetails()).get("message").stringValue()
                     .contains("File not found: "));
         } finally {
@@ -378,5 +381,13 @@ public class FileSystemTest {
         } finally {
             FileUtils.deleteDirectory(tempDestPath.toFile());
         }
+    }
+
+    @Test
+    public void testGetCurrentDirectory() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetCurrentDirectory");
+        Assert.assertTrue(returns[0] instanceof BString);
+        String expectedValue = System.getProperty("user.dir");
+        Assert.assertEquals(returns[0].stringValue(), expectedValue);
     }
 }

@@ -17,7 +17,7 @@
 import ballerina/filepath;
 import ballerina/http;
 import ballerina/io;
-import ballerina/system;
+import ballerina/file;
 import ballerina/'lang\.int as lint;
 import ballerina/'lang\.string as lstring;
 import ballerina/internal;
@@ -182,11 +182,11 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
                 }
 
                 string baloPath = checkpanic filepath:build(baloCacheWithModulePath, baloFile);
-                if (system:exists(<@untainted> baloPath)) {
+                if (file:exists(<@untainted> baloPath)) {
                     panic createError("module already exists in the home repository: " + baloPath);
                 }
 
-                string|error createBaloFile = system:createDir(<@untainted> baloCacheWithModulePath, true);
+                string|error createBaloFile = file:createDir(<@untainted> baloCacheWithModulePath, true);
                 if (createBaloFile is error) {
                     panic createError("error creating directory for balo file");
                 }
@@ -211,8 +211,8 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
                         if (nightlyBuild) {
                             // If its a nightly build tag the file as a module from nightly
                             string nightlyBuildMetafile = checkpanic filepath:build(baloCacheWithModulePath, "nightly.build");
-                            if (!system:exists(<@untainted> nightlyBuildMetafile)) {
-                                string|error createdNightlyBuildFile = system:createFile(<@untainted> nightlyBuildMetafile);
+                            if (!file:exists(<@untainted> nightlyBuildMetafile)) {
+                                string|error createdNightlyBuildFile = file:createFile(<@untainted> nightlyBuildMetafile);
                                 if (createdNightlyBuildFile is error) {
                                     panic createError("Error occurred while creating nightly.build file.");
                                 }

@@ -14,48 +14,52 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/system;
+import ballerina/file;
 
 function testGetTempDir() returns string {
-    return system:tempDir();
+    return file:tempDir();
 }
 
 function testRename(string oldpath, string newpath) returns error? {
-    return system:rename(oldpath, newpath);
+    return file:rename(oldpath, newpath);
 }
 
 function testRemove(string path, boolean recursive) returns error? {
-    return system:remove(path, recursive);
+    return file:remove(path, recursive);
 }
 
-function testReadDir(string path) returns system:FileInfo[]|error {
-    return system:readDir(path);
+function testReadDir(string path) returns file:FileInfo[]|error {
+    return file:readDir(path);
 }
 
-function testReadDirWithMaxDepth(string path, int maxDepth) returns system:FileInfo[]|error {
-    return system:readDir(path, maxDepth);
+function testReadDirWithMaxDepth(string path, int maxDepth) returns file:FileInfo[]|error {
+    return file:readDir(path, maxDepth);
 }
 
-function testGetFileInfo(string path) returns system:FileInfo|error {
-    return system:getFileInfo(path);
+function testGetFileInfo(string path) returns file:FileInfo|error {
+    return file:getFileInfo(path);
 }
 
 function testFileExists(string path) returns boolean {
-    return system:exists(path);
+    return file:exists(path);
 }
 
 function testCreateFile(string path) returns string|error {
-    return system:createFile(path);
+    return file:createFile(path);
 }
 
 function testCreateNonExistingFile(string path) returns string|error {
-    return system:createFile(path);
+    return file:createFile(path);
 }
 
 function testCreateDir(string dir, boolean parentDirs) returns string|error {
-    return system:createDir(dir, parentDirs);
+    return file:createDir(dir, parentDirs);
 }
 
 function testCopy(string sourcePath, string destinationPath, boolean replaceExisting) returns error? {
-    return system:copy(sourcePath, destinationPath, replaceExisting);
+    return file:copy(sourcePath, destinationPath, replaceExisting);
+}
+
+function testGetCurrentDirectory() returns string {
+    return file:getCurrentDirectory();
 }

@@ -16,12 +16,12 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.system.nativeimpl;
+package org.ballerinalang.stdlib.file.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.stdlib.system.utils.SystemConstants;
-import org.ballerinalang.stdlib.system.utils.SystemUtils;
+import org.ballerinalang.stdlib.file.utils.FileConstants;
+import org.ballerinalang.stdlib.file.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,13 +30,13 @@ import java.io.IOException;
 import java.nio.file.Paths;
 
 /**
- * Extern function ballerina.system:getFileInfo.
+ * Extern function ballerina.file:getFileInfo.
  *
  * @since 0.995.0
  */
 @BallerinaFunction(
-        orgName = SystemConstants.ORG_NAME,
-        packageName = SystemConstants.PACKAGE_NAME,
+        orgName = FileConstants.ORG_NAME,
+        packageName = FileConstants.PACKAGE_NAME,
         functionName = "getFileInfo",
         isPublic = true
 )
@@ -47,14 +47,14 @@ public class GetFileInfo {
     public static Object getFileInfo(Strand strand, String path) {
         File inputFile = Paths.get(path).toAbsolutePath().toFile();
         if (!inputFile.exists()) {
-            return SystemUtils.getBallerinaError(SystemConstants.FILE_NOT_FOUND_ERROR,
+            return FileUtils.getBallerinaError(FileConstants.FILE_NOT_FOUND_ERROR,
                     "File not found: " + path);
         }
         try {
-            return SystemUtils.getFileInfo(inputFile);
+            return FileUtils.getFileInfo(inputFile);
         } catch (IOException e) {
             log.error("IO error while creating the file " + path, e);
-            return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, e);
+            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, e);
         }
     }
 }

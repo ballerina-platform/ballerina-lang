@@ -16,16 +16,16 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.system.utils;
+package org.ballerinalang.stdlib.file.utils;
 
 import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
- * Constants for system package functions.
+ * Constants for file package functions.
  *
  * @since 0.995.0
  */
-public class SystemConstants {
+public class FileConstants {
     /**
      * Organization name.
      */
@@ -34,29 +34,26 @@ public class SystemConstants {
     /**
      * Package name.
      */
-    public static final String PACKAGE_NAME = "system";
+    public static final String PACKAGE_NAME = "file";
 
     /**
      * Package path.
      */
-    static final String SYSTEM_PACKAGE_PATH = ORG_NAME + ORG_NAME_SEPARATOR + PACKAGE_NAME;
-
-    static final String ERROR_REASON_PREFIX = "{ballerina/system}";
+    static final String FILE_PACKAGE_PATH = ORG_NAME + ORG_NAME_SEPARATOR + PACKAGE_NAME;
 
     static final String FILE_INFO_TYPE = "FileInfo";
 
-    static final String PROCESS_TYPE = "Process";
-
-    static final String PROCESS_FIELD = "ProcessField";
-
-    // System error codes
-    public static final String PROCESS_EXEC_ERROR = "{ballerina/system}ProcessExecError";
+    // File error codes
+    public static final String INVALID_OPERATION_ERROR = "{ballerina/file}InvalidOperationError";
+    public static final String PERMISSION_ERROR = "{ballerina/file}PermissionError";
+    public static final String FILE_SYSTEM_ERROR = "{ballerina/file}FileSystemError";
+    public static final String FILE_NOT_FOUND_ERROR = "{ballerina/file}FileNotFoundError";
     static final String ERROR_DETAILS = "Detail";
     static final String ERROR_MESSAGE = "message";
 
     // System constant fields
     public static final int DEFAULT_MAX_DEPTH = -1;
 
-    private SystemConstants() {
+    private FileConstants() {
     }
 }

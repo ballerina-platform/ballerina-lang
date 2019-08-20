@@ -56,14 +56,6 @@ public class SystemTest {
     }
 
     @Test
-    public void testGetCurrentDirectory() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGetCurrentDirectory");
-        Assert.assertTrue(returns[0] instanceof BString);
-        String expectedValue = System.getProperty("user.dir");
-        Assert.assertEquals(returns[0].stringValue(), expectedValue);
-    }
-
-    @Test
     public void testGetUserHome() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetUserHome");
         Assert.assertTrue(returns[0] instanceof BString);

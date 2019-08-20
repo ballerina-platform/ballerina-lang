@@ -19,6 +19,7 @@ import ballerina/bir;
 import ballerina/jvm;
 import ballerina/reflect;
 import ballerina/system;
+import ballerina/file;
 import ballerina/internal;
 
 public type JarFile record {|

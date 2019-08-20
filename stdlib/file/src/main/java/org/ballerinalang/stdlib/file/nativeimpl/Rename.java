@@ -16,12 +16,12 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.system.nativeimpl;
+package org.ballerinalang.stdlib.file.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.stdlib.system.utils.SystemConstants;
-import org.ballerinalang.stdlib.system.utils.SystemUtils;
+import org.ballerinalang.stdlib.file.utils.FileConstants;
+import org.ballerinalang.stdlib.file.utils.FileUtils;
 
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
@@ -30,13 +30,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Extern function ballerina.system:rename.
+ * Extern function ballerina.file:rename.
  *
  * @since 0.995.0
  */
 @BallerinaFunction(
-        orgName = SystemConstants.ORG_NAME,
-        packageName = SystemConstants.PACKAGE_NAME,
+        orgName = FileConstants.ORG_NAME,
+        packageName = FileConstants.PACKAGE_NAME,
         functionName = "rename",
         isPublic = true
 )
@@ -47,7 +47,7 @@ public class Rename {
         Path newFilePath = Paths.get(newPath);
 
         if (Files.notExists(oldFilePath)) {
-            return SystemUtils.getBallerinaError(SystemConstants.FILE_NOT_FOUND_ERROR,
+            return FileUtils.getBallerinaError(FileConstants.FILE_NOT_FOUND_ERROR,
                     "File not found: " + oldFilePath.toAbsolutePath());
         }
 
@@ -55,12 +55,12 @@ public class Rename {
             Files.move(oldFilePath.toAbsolutePath(), newFilePath.toAbsolutePath());
             return null;
         } catch (FileAlreadyExistsException e) {
-            return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR,
+            return FileUtils.getBallerinaError(FileConstants.INVALID_OPERATION_ERROR,
                     "File already exists in the new path " + newFilePath);
         } catch (IOException e) {
-            return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, e);
+            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, e);
         } catch (SecurityException e) {
-            return SystemUtils.getBallerinaError(SystemConstants.PERMISSION_ERROR, e);
+            return FileUtils.getBallerinaError(FileConstants.PERMISSION_ERROR, e);
         }
     }
 }
