@@ -1,5 +1,6 @@
 import ballerina/http;
 import ballerina/log;
+import ballerina/runtime;
 
 listener http:Listener circuitBreakerEP07 = new(9315, { httpVersion: "2.0" });
 
