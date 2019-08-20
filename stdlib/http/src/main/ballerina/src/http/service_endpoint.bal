@@ -253,6 +253,8 @@ public const KEEPALIVE_NEVER = "NEVER";
 public const SERVICE_NAME = "SERVICE_NAME";
 # Constant for the resource name reference.
 public const RESOURCE_NAME = "RESOURCE_NAME";
+# Constant for the request method reference.
+public const REQUEST_METHOD = "REQUEST_METHOD";
 
 # Adds authentication and authorization filters.
 #
@@ -312,6 +314,7 @@ type AttributeFilter object {
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
         runtime:getInvocationContext().attributes[SERVICE_NAME] = context.getServiceName();
         runtime:getInvocationContext().attributes[RESOURCE_NAME] = context.getResourceName();
+        runtime:getInvocationContext().attributes[REQUEST_METHOD] = request.method;
         return true;
     }
 };
