@@ -70,6 +70,9 @@ public type Listener object {
        return self.registerListener(s);
     }
 
+    public function __detach(service s) returns error? {
+    }
+
     # Retrieve the Channel which initializes this listener.
     #
     # + return - RabbitMQ Channel object or error if an I/O problem is encountered.

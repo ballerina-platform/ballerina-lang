@@ -152,6 +152,9 @@ public type Consumer client object {
         return self.register(s, name);
     }
 
+    public function __detach(service s) returns error? {
+    }
+
     function init(ConsumerConfig config) returns ConsumerError? {
         if (config.bootstrapServers is string) {
             var result = self->connect();

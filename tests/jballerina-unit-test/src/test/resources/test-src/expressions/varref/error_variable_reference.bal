@@ -236,9 +236,8 @@ type FileOpenErrorDetail record {|
 type FileOpenError error<FILE_OPN, FileOpenErrorDetail>;
 
 function testIndirectErrorRefMandatoryFields() returns
-        [string, string, int, int?,
-            string, map<anydata|error>,
-            string, string, map<string|int|error>] {
+        [string, string, int, int?, map<anydata|error>,
+            string, map<string|int|error>] {
     FileOpenError e = FileOpenError(message="file open failed",
                                 targetFileName="/usr/bhah/a.log",
                                 errorCode=45221,
@@ -254,16 +253,23 @@ function testIndirectErrorRefMandatoryFields() returns
                     flags=flags) = e;
 
     error upcast = e;
-    string reason;
     map<anydata|error> rest;
-    error(reason=reason, ...rest) = upcast;
+    error(...rest) = upcast;
 
-    string reason2;
     string messageX;
     map<string|int|error> rest2;
-    error(reason=reason2, message=messageX, ...rest2) = e;
+    error(message=messageX, ...rest2) = e;
 
     return [message, fileName, errorCode, flags,
-                reason, rest,
-                reason2, messageX, rest2];
+                rest, messageX, rest2];
+}
+
+public function testNoErrorReasonGiven() returns string? {
+    error e = error("errorCode", message = "message");
+
+    string? message;
+    anydata|error other;
+
+    error(message = message) = e; // no simple-binding-pattern here
+    return message;
 }

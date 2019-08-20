@@ -53,13 +53,13 @@ function testCreateArrayOfHandleValues(handle h1, handle h2, handle h3, handle h
     return hArray[index];
 }
 
-function testCreateMapOfHandleValues(handle h1, handle h2, handle h3, handle h4) returns handle {
+function testCreateMapOfHandleValues(handle h1, handle h2, handle h3, handle h4) returns handle? {
     map<handle> hMap = {};
     hMap["key1"] = h1;
     hMap["key2"] = h2;
     hMap["key3"] = h3;
     hMap["key4"] = h4;
-    return hMap.key2;
+    return hMap["key2"];
 }
 
 type Material record {

@@ -43,6 +43,9 @@ public type Listener object {
         }
     }
 
+    public function __detach(service s) returns error? {
+    }
+
     public function __start() returns error? {
         var result = self.start();
         if (result is error) {

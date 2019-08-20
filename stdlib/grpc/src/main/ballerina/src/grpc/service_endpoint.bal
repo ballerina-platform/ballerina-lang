@@ -53,6 +53,9 @@ public type Listener object {
         return self.register(s, name);
     }
 
+    public function __detach(service s) returns error? {
+    }
+
     # Gets called when the endpoint is being initialize during module init time.
     #
     # + port - Listener port.

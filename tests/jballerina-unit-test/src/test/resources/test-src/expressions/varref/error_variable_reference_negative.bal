@@ -132,7 +132,7 @@ function testIndirectErrorRefMandatoryFields() {
     string reason2;
     string messageX;
     map<any> rest2;
-    error(reason=reason2, message=messageX, ...rest2) = e;
+    error(message=messageX, ...rest2) = e;
 }
 
 public function testOptionalDetailFields() {

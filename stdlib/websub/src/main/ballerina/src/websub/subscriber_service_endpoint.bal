@@ -43,6 +43,9 @@ public type Listener object {
         self.registerWebSubSubscriberService(s);
     }
 
+    public function __detach(service s) returns error? {
+    }
+
     public function __start() returns error? {
         // TODO: handle data and return error on error
         self.startWebSubSubscriberServiceEndpoint();

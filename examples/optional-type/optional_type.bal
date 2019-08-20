@@ -21,7 +21,7 @@ public function main() {
     // The statement `string s = getValue("string");` produces a compilation error.
     string? s = getValue("string");
 
-    // The type test can then be used to check if the value is in fact a `string` and operate on it.
+    // The type test can then be used to check if the value is in fact a `string` and then operate on it.
     if (s is string) {
         io:println("Length of the string: ", s.length());
     } else {
