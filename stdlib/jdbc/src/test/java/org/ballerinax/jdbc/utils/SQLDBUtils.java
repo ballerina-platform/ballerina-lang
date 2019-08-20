@@ -31,6 +31,7 @@ import java.net.URL;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -44,9 +45,10 @@ import java.util.Comparator;
  */
 public class SQLDBUtils {
 
-    public static final String DB_DIRECTORY = "./target/tempdb/";
-    public static final String DB_DIRECTORY_H2_1 = "./target/H2_1/";
-    public static final String DB_DIRECTORY_H2_2 = "./target/H2_2/";
+    public static final String DB_DIRECTORY = Paths.get(".", "target", "tempdb").toString() + File.separator;
+    public static final String DB_DIRECTORY_H2 = Paths.get(".", "target", "H2Client").toString() + File.separator;
+    public static final String DB_DIRECTORY_H2_1 = Paths.get(".", "target", "H2_1").toString() + File.separator;
+    public static final String DB_DIRECTORY_H2_2 = Paths.get(".", "target", "H2_2").toString() + File.separator;
     private static final Logger log = LoggerFactory.getLogger(SQLDBUtils.class);
 
     /**

@@ -30,6 +30,8 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.nio.file.Paths;
+
 import static org.ballerinax.jdbc.utils.SQLDBUtils.DBType;
 import static org.ballerinax.jdbc.utils.SQLDBUtils.FileBasedTestDatabase;
 
@@ -45,9 +47,10 @@ public class TableIterationTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/table/table_iteration_test.bal");
+        result = BCompileUtil.compile(Paths.get("test-src", "table", "table_iteration_test.bal").toString());
         testDatabase = new FileBasedTestDatabase(DBType.H2,
-                "datafiles/sql/table/table_iteration_test_data.sql", SQLDBUtils.DB_DIRECTORY, DB_NAME);
+                Paths.get("datafiles", "sql", "table", "table_iteration_test_data.sql").toString(),
+                SQLDBUtils.DB_DIRECTORY, DB_NAME);
     }
 
     @Test(groups = "TableIterationTest", description = "Check count operation function on table")

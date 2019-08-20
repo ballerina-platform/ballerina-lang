@@ -48,7 +48,7 @@ public class ConnectionPoolTest {
         Path ballerinaConfPath = Paths.get("src", "test", "resources", "ballerina.conf").toAbsolutePath();
         ConfigRegistry registry = ConfigRegistry.getInstance();
         registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
-        result = BCompileUtil.compile("test-src/connection/connection_pool_test.bal");
+        result = BCompileUtil.compile(Paths.get("test-src", "connection", "connection_pool_test.bal").toString());
         setupDatabases();
     }
 
@@ -59,15 +59,15 @@ public class ConnectionPoolTest {
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), globalPoolDb1);
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), globalPoolDb2);
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, globalPoolDb1,
-                "datafiles/sql/connection/connection_pool_test_data.sql");
+                Paths.get("datafiles", "sql", "connection", "connection_pool_test_data.sql").toString());
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, globalPoolDb2,
-                "datafiles/sql/connection/connection_pool_test_data.sql");
+                Paths.get("datafiles", "sql", "connection", "connection_pool_test_data.sql").toString());
 
         for (int i = 1; i <= 9; i++) {
             String db = "TEST_SQL_CONNECTION_POOL_LOCAL_SHARED_" + i;
             SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), db);
             SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, db,
-                    "datafiles/sql/connection/connection_pool_test_data.sql");
+                    Paths.get("datafiles", "sql", "connection", "connection_pool_test_data.sql").toString());
         }
     }
 

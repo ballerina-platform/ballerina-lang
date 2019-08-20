@@ -28,6 +28,7 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -47,9 +48,10 @@ public class LocalTransactionsTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/transaction/local_transaction_test.bal");
+        result = BCompileUtil.compile(Paths.get("test-src", "transaction", "local_transaction_test.bal").toString());
         testDatabase = new FileBasedTestDatabase(DBType.H2,
-                "datafiles/sql/transaction/local_transaction_test_data.sql", DB_DIRECTORY, DB_NAME);
+                Paths.get("datafiles", "sql", "transaction", "local_transaction_test_data.sql").toString(),
+                DB_DIRECTORY, DB_NAME);
     }
 
     @Test(groups = TRANSACTION_TEST_GROUP)

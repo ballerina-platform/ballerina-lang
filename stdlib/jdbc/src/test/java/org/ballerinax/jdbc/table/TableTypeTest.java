@@ -42,6 +42,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.math.BigDecimal;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -71,15 +72,18 @@ public class TableTypeTest {
 
     @BeforeClass
     public void setup() {
-        testDatabase = new FileBasedTestDatabase(DBType.H2, "datafiles/sql/table/table_type_test_data.sql",
-                SQLDBUtils.DB_DIRECTORY, DB_NAME_H2);
+        testDatabase = new FileBasedTestDatabase(DBType.H2,
+                Paths.get("datafiles", "sql", "table", "table_type_test_data.sql").toString(), SQLDBUtils.DB_DIRECTORY,
+                DB_NAME_H2);
 
-        result = BCompileUtil.compile("test-src/table/table_type_test.bal");
-        resultNegative = BCompileUtil.compile("test-src/table/table_type_test_negative.bal");
+        result = BCompileUtil.compile(Paths.get("test-src", "table", "table_type_test.bal").toString());
+        resultNegative = BCompileUtil
+                .compile(Paths.get("test-src", "table", "table_type_test_negative.bal").toString());
 
-        nillableMappingResult = BCompileUtil.compile("test-src/table/table_type_test_nillable_mapping.bal");
+        nillableMappingResult = BCompileUtil
+                .compile(Paths.get("test-src", "table", "table_type_test_nillable_mapping.bal").toString());
         nillableMappingNegativeResult = BCompileUtil
-                .compile("test-src/table/table_type_test_nillable_mapping_negative.bal");
+                .compile(Paths.get("test-src", "table", "table_type_test_nillable_mapping_negative.bal").toString());
     }
 
     @Test(groups = TABLE_TEST, description = "Check retrieving primitive types.")

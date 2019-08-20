@@ -28,6 +28,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 /**
  * Test JDBC Client Initialization.
@@ -39,10 +40,10 @@ public class ConnectorInitTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/connection/connector_init_test.bal");
+        result = BCompileUtil.compile(Paths.get("test-src", "connection", "connector_init_test.bal").toString());
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIRECTORY, DB_NAME,
-                "datafiles/sql/connection/connector_init_test_data.sql");
+                Paths.get("datafiles", "sql", "connection", "connector_init_test_data.sql").toString());
     }
 
     @Test

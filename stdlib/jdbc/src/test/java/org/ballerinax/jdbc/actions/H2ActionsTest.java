@@ -31,6 +31,7 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -44,15 +45,15 @@ public class H2ActionsTest {
 
     private CompileResult result;
     private static final String DB_NAME = "TestDBH2";
-    private static final String DB_DIRECTORY_H2 = "./target/H2Client/";
     private static final String H2_TEST_GROUP = "H2_TEST";
     private SQLDBUtils.TestDatabase testDatabase;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/actions/h2_actions_test.bal");
+        result = BCompileUtil.compile(Paths.get("test-src", "actions", "h2_actions_test.bal").toString());
         testDatabase = new SQLDBUtils.FileBasedTestDatabase(SQLDBUtils.DBType.H2,
-                "datafiles/sql/actions/h2_actions_test_data.sql", DB_DIRECTORY_H2, DB_NAME);
+                Paths.get("datafiles", "sql", "actions", "h2_actions_test_data.sql").toString(),
+                SQLDBUtils.DB_DIRECTORY_H2, DB_NAME);
     }
 
     @Test(groups = H2_TEST_GROUP)

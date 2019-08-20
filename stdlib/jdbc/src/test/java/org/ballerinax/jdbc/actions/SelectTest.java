@@ -20,7 +20,6 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDecimal;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -32,6 +31,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
+import java.nio.file.Paths;
 
 /**
  * Test class for JDBC select remote function tests.
@@ -47,8 +47,9 @@ public class SelectTest {
     @BeforeClass
     public void setup() {
         testDatabase = new SQLDBUtils.FileBasedTestDatabase(SQLDBUtils.DBType.HSQLDB,
-                "datafiles/sql/actions/select_test_data.sql", SQLDBUtils.DB_DIRECTORY, DB_NAME_HSQL);
-        result = BCompileUtil.compile("test-src/actions/select_test.bal");
+                Paths.get("datafiles", "sql", "actions", "select_test_data.sql").toString(), SQLDBUtils.DB_DIRECTORY,
+                DB_NAME_HSQL);
+        result = BCompileUtil.compile(Paths.get("test-src", "actions", "select_test.bal").toString());
     }
 
     @Test(groups = SELECT_TEST)

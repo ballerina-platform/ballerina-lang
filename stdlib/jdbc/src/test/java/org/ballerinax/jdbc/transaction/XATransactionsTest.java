@@ -30,6 +30,8 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.nio.file.Paths;
+
 /**
  * Class to test functionality of distributed transactions in SQL.
  */
@@ -42,11 +44,13 @@ public class XATransactionsTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/transaction/xa_transaction_test.bal");
+        result = BCompileUtil.compile(Paths.get("test-src", "transaction", "xa_transaction_test.bal").toString());
         testDatabase1 = new SQLDBUtils.FileBasedTestDatabase(DBType.H2,
-                "datafiles/sql/transaction/xa_transaction_test_data_1.sql", SQLDBUtils.DB_DIRECTORY_H2_1, DB_NAME1);
+                Paths.get("datafiles", "sql", "transaction", "xa_transaction_test_data_1.sql").toString(),
+                SQLDBUtils.DB_DIRECTORY_H2_1, DB_NAME1);
         testDatabase2 = new SQLDBUtils.FileBasedTestDatabase(DBType.H2,
-                "datafiles/sql/transaction/xa_transaction_test_data_2.sql", SQLDBUtils.DB_DIRECTORY_H2_2, DB_NAME2);
+                Paths.get("datafiles", "sql", "transaction", "xa_transaction_test_data_2.sql").toString(),
+                SQLDBUtils.DB_DIRECTORY_H2_2, DB_NAME2);
     }
 
     @Test

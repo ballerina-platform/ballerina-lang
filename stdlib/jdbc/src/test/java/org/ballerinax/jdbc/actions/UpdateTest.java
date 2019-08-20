@@ -33,6 +33,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
+import java.nio.file.Paths;
 
 /**
  * Test class for JDBC update remote function tests.
@@ -48,8 +49,9 @@ public class UpdateTest {
     @BeforeClass
     public void setup() {
         testDatabase = new SQLDBUtils.FileBasedTestDatabase(SQLDBUtils.DBType.HSQLDB,
-                "datafiles/sql/actions/update_test_data.sql", SQLDBUtils.DB_DIRECTORY, DB_NAME_HSQL);
-        result = BCompileUtil.compile("test-src/actions/update_test.bal");
+                Paths.get("datafiles", "sql", "actions", "update_test_data.sql").toString(), SQLDBUtils.DB_DIRECTORY,
+                DB_NAME_HSQL);
+        result = BCompileUtil.compile(Paths.get("test-src", "actions", "update_test.bal").toString());
     }
 
     @Test(groups = UPDATE_TEST)
