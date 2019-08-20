@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.system.nativeimpl;
+package org.ballerinalang.stdlib.file.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -25,8 +25,8 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.stdlib.system.utils.SystemConstants;
-import org.ballerinalang.stdlib.system.utils.SystemUtils;
+import org.ballerinalang.stdlib.file.utils.FileConstants;
+import org.ballerinalang.stdlib.file.utils.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,13 +36,13 @@ import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 /**
- * Extern function ballerina.system:readDir.
+ * Extern function ballerina.file:readDir.
  *
  * @since 0.995.0
  */
 @BallerinaFunction(
-        orgName = SystemConstants.ORG_NAME,
-        packageName = SystemConstants.PACKAGE_NAME,
+        orgName = FileConstants.ORG_NAME,
+        packageName = FileConstants.PACKAGE_NAME,
         functionName = "readDir",
         isPublic = true
 )
@@ -54,23 +54,23 @@ public class ReadDir {
         File inputFile = Paths.get(path).toAbsolutePath().toFile();
 
         if (!inputFile.exists()) {
-            return SystemUtils.getBallerinaError(SystemConstants.FILE_NOT_FOUND_ERROR,
+            return FileUtils.getBallerinaError(FileConstants.FILE_NOT_FOUND_ERROR,
                     "File not found: " + path);
         }
 
         if (!inputFile.isDirectory()) {
-            return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR,
+            return FileUtils.getBallerinaError(FileConstants.INVALID_OPERATION_ERROR,
                     "File in path " + path + " is not a directory");
         }
 
-        if (maxDepth == SystemConstants.DEFAULT_MAX_DEPTH) {
+        if (maxDepth == FileConstants.DEFAULT_MAX_DEPTH) {
             // If the user has not given a value, read all levels
             return readFileTree(inputFile, Integer.MAX_VALUE);
-        } else if (maxDepth > SystemConstants.DEFAULT_MAX_DEPTH && maxDepth < Integer.MAX_VALUE) {
+        } else if (maxDepth > FileConstants.DEFAULT_MAX_DEPTH && maxDepth < Integer.MAX_VALUE) {
             // If the user has given a valid depth level, read up-to that level
             return readFileTree(inputFile, Math.toIntExact(maxDepth));
         } else {
-            return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR,
+            return FileUtils.getBallerinaError(FileConstants.INVALID_OPERATION_ERROR,
                     "Invalid maxDepth value " + maxDepth);
         }
     }
@@ -80,7 +80,7 @@ public class ReadDir {
         try (Stream<Path> walk = Files.walk(inputFile.toPath(), maxDepth)) {
             results = walk.map(x -> {
                 try {
-                    ObjectValue objectValue = SystemUtils.getFileInfo(x.toFile());
+                    ObjectValue objectValue = FileUtils.getFileInfo(x.toFile());
                     fileInfoType = objectValue.getType();
                     return objectValue;
                 } catch (IOException e) {
@@ -89,9 +89,9 @@ public class ReadDir {
             }).toArray(ObjectValue[]::new);
             return new ArrayValue(results, new BArrayType(fileInfoType));
         } catch (IOException | BallerinaException ex) {
-            return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, ex);
+            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, ex);
         } catch (SecurityException ex) {
-            return SystemUtils.getBallerinaError(SystemConstants.PERMISSION_ERROR, ex);
+            return FileUtils.getBallerinaError(FileConstants.PERMISSION_ERROR, ex);
         }
     }
 }

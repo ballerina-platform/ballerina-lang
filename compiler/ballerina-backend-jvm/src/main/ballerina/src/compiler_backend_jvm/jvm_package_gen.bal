@@ -291,7 +291,7 @@ function lookupModule(bir:ModuleID modId) returns [bir:Package, boolean] {
         var cacheDir = findCacheDirFor(modId);
         var parsedPkg = bir:populateBIRModuleFromBinary(readFileFully(calculateBirCachePath(cacheDir, modId, ".bir")), true);
         var mappingFile = calculateBirCachePath(cacheDir, modId, ".map.json");
-        if (system:exists(mappingFile)) {
+        if (file:exists(mappingFile)) {
             var externalMap = readMap(mappingFile);
             foreach var [key,val] in externalMap.entries() {
                 externalMapCache[key] = val;
@@ -305,7 +305,7 @@ function lookupModule(bir:ModuleID modId) returns [bir:Package, boolean] {
 function findCacheDirFor(bir:ModuleID modId) returns string {
     foreach var birCacheDir in birCacheDirs {
         string birPath = calculateBirCachePath(birCacheDir, modId, ".bir");
-        if (system:exists(birPath)) {
+        if (file:exists(birPath)) {
             return birCacheDir;
         }
     }

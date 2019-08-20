@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,30 +15,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.stdlib.system.nativeimpl;
+
+package org.ballerinalang.stdlib.file.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.system.utils.SystemUtils;
+import org.ballerinalang.stdlib.file.utils.FileConstants;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
- * Extern function ballerina.system:getCurrentDirectory.
+ * Extern function ballerina.file:exists.
  *
- * @since 0.94.1
+ * @since 0.995.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "system",
-        functionName = "getCurrentDirectory",
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        orgName = FileConstants.ORG_NAME,
+        packageName = FileConstants.PACKAGE_NAME,
+        functionName = "exists",
         isPublic = true
 )
-public class GetCurrentDirectory {
+public class Exists {
 
-    private static final String PROPERTY_NAME = "user.dir";
-
-    public static String getCurrentDirectory(Strand strand) {
-        return SystemUtils.getSystemProperty(PROPERTY_NAME);
+    public static boolean exists(Strand strand, String path) {
+        return Files.exists(Paths.get(path));
     }
 }

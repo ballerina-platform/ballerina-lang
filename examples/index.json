@@ -804,15 +804,6 @@
             }
         ]
     },
- 	{
-        "title": "Listeners",
-        "column": 1,
-        "category": "Working over the network",
-        "samples": [{
-            "name": "Directory Listener",
-            "url": "directory-listener"
-        }]
-    },
     {
         "title": "Database",
         "column": 2,

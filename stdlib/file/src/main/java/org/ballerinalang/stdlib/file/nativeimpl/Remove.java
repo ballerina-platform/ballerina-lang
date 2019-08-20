@@ -16,12 +16,12 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.system.nativeimpl;
+package org.ballerinalang.stdlib.file.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.stdlib.system.utils.SystemConstants;
-import org.ballerinalang.stdlib.system.utils.SystemUtils;
+import org.ballerinalang.stdlib.file.utils.FileConstants;
+import org.ballerinalang.stdlib.file.utils.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,13 +33,13 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
 /**
- * Extern function ballerina.system:remove.
+ * Extern function ballerina.file:remove.
  *
  * @since 0.995.0
  */
 @BallerinaFunction(
-        orgName = SystemConstants.ORG_NAME,
-        packageName = SystemConstants.PACKAGE_NAME,
+        orgName = FileConstants.ORG_NAME,
+        packageName = FileConstants.PACKAGE_NAME,
         functionName = "remove",
         isPublic = true
 )
@@ -49,17 +49,17 @@ public class Remove {
 
     public static Object remove(Strand strand, String path, boolean recursive) {
         File removeFile = Paths.get(path).toAbsolutePath().toFile();
-        String wdBValue = SystemUtils.getSystemProperty(CURRENT_DIR_PROPERTY_KEY);
+        String wdBValue = FileUtils.getSystemProperty(CURRENT_DIR_PROPERTY_KEY);
         File wd = Paths.get(wdBValue).toAbsolutePath().toFile();
 
         try {
             if (wd.getCanonicalPath().equals(removeFile.getCanonicalPath())) {
-                return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR,
+                return FileUtils.getBallerinaError(FileConstants.INVALID_OPERATION_ERROR,
                         "Cannot delete the current working directory " + wd.getCanonicalPath());
             }
 
             if (!removeFile.exists()) {
-                return SystemUtils.getBallerinaError(SystemConstants.FILE_NOT_FOUND_ERROR,
+                return FileUtils.getBallerinaError(FileConstants.FILE_NOT_FOUND_ERROR,
                         "File not found: " + removeFile.getCanonicalPath());
             }
 
@@ -68,15 +68,15 @@ public class Remove {
                 Files.walkFileTree(directory, new RecursiveFileVisitor());
             } else {
                 if (!removeFile.delete()) {
-                    return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR,
+                    return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR,
                             "Error while deleting " + removeFile.getCanonicalPath());
                 }
             }
             return null;
         } catch (IOException ex) {
-            return SystemUtils.getBallerinaError(SystemConstants.FILE_SYSTEM_ERROR, ex);
+            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, ex);
         } catch (SecurityException ex) {
-            return SystemUtils.getBallerinaError(SystemConstants.PERMISSION_ERROR, ex);
+            return FileUtils.getBallerinaError(FileConstants.PERMISSION_ERROR, ex);
         }
     }
 
