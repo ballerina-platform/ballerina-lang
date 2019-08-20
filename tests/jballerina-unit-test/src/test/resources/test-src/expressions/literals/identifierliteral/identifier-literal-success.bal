@@ -73,39 +73,35 @@ function 'test\ function\ for\ identifier(string val) returns (string) {
     return val + s;
 }
 
-//connector |Test Connector|(string param1, string param2, int param3) {
-//    boolean action2Invoked;
-//
-//    action action1() (string) {
-//        string |sample string| = "this is a sample";
-//        return |sample string|;
-//    }
-//
-//    action |second action|() (string){
-//        string |string \| value| = "sample string";
-//       return |string \| value|;
-//    }
-//}
+public type '\|Test\ Connector\| client object {
+    boolean action2Invoked = false;
 
-//function testConnectorNameWithIL() (string) {
-//    endpoint<|Test Connector|> testConnector {
-//        create |Test Connector|("MyParam1", "MyParam2", 5);
-//    }
-//    string value;
-//
-//    value = testConnector.action1();
-//    return value;
-//}
+    public function __init(string param1, string param2, int param3) {
 
-//function testConnectorActionWithIL() (string) {
-//    endpoint<|Test Connector|> |test Connector| {
-//        create |Test Connector|("MyParam1", "MyParam2", 5);
-//    }
-//    string value;
-//
-//    value = |test Connector|.|second action|();
-//    return value;
-//}
+    }
+
+    public remote function action1() returns (string) {
+        string '\|sample\ string\| = "this is a sample";
+        return '\|sample\ string\|;
+    }
+
+    public remote function '\|second\ action\|() returns (string){
+       string '\|string\ \|\ value\| = "sample string";
+       return '\|string\ \|\ value\|;
+    }
+};
+
+function testConnectorNameWithIL() returns (string) {
+    '\|Test\ Connector\| testConnector = new("MyParam1", "MyParam2", 5);
+    string value = testConnector->action1();
+    return value;
+}
+
+function testConnectorActionWithIL() returns (string) {
+    '\|Test\ Connector\| '\|test\ Connector\| = new("MyParam1", "MyParam2", 5);
+    string value = '\|test\ Connector\|->'\|second\ action\|();
+    return value;
+}
 
 function useILInStructName() returns [string, string, int, string?] {
     'family\ person 'person\ one = {'first\ name: "Tom", 'last\ name:"hank", 'current\ age: 50};
