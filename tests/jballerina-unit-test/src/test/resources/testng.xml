@@ -102,7 +102,7 @@
             <package name="org.ballerinalang.test.object.*" />
             <package name="org.ballerinalang.test.dataflow.analysis.*" />
             <package name="org.ballerinalang.test.documentation.*" />
-            <!--<package name="org.ballerinalang.test.endpoint.*" />-->
+            <package name="org.ballerinalang.test.endpoint.*" />
             <!--&lt;!&ndash; <package name="org.ballerinalang.test.loc.*" /> &ndash;&gt;-->
             <package name="org.ballerinalang.test.packaging.*" />
             <package name="org.ballerinalang.test.types.xml.*" />
@@ -114,7 +114,6 @@
             <package name="org.ballerinalang.test.expressions.typecast.*"/>
             <package name="org.ballerinalang.test.expressions.literals.*"/>
             <package name="org.ballerinalang.test.expressions.varref.*"/>
-            <!--<package name="org.ballerinalang.test.annotations"/>-->
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.taintchecking.*"/>
             <package name="org.ballerinalang.test.statements.transaction.*"/>
