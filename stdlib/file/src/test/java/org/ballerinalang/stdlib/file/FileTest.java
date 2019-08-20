@@ -60,6 +60,7 @@ public class FileTest {
     private Path destFilePath = Paths.get("src", "test", "resources", "data-files", "dest-file.txt");
     private Path srcModifiedFilePath = Paths.get("src", "test", "resources", "data-files", "src-file-modified.txt");
     private Path srcDirPath = Paths.get("src", "test", "resources", "data-files", "src-dir");
+    private Path srcModifiedFilePath = Paths.get("src", "test", "resources", "data-files", "src-file-modified.txt");
     private Path errorSrcDirPath = Paths.get("src", "test", "resources", "data-files", "src-dir", "error");
     private Path tempDirPath;
     private Path tempSourcePath;
