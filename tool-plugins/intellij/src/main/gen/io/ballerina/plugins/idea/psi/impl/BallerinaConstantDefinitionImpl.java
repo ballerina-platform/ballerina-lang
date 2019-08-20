@@ -43,9 +43,9 @@ public class BallerinaConstantDefinitionImpl extends ASTWrapperPsiElement implem
   }
 
   @Override
-  @NotNull
+  @Nullable
   public BallerinaConstantExpression getConstantExpression() {
-    return findNotNullChildByClass(BallerinaConstantExpression.class);
+    return findChildByClass(BallerinaConstantExpression.class);
   }
 
   @Override
@@ -55,9 +55,15 @@ public class BallerinaConstantDefinitionImpl extends ASTWrapperPsiElement implem
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getAssign() {
-    return findNotNullChildByType(ASSIGN);
+    return findChildByType(ASSIGN);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getSemicolon() {
+    return findChildByType(SEMICOLON);
   }
 
   @Override
@@ -68,20 +74,14 @@ public class BallerinaConstantDefinitionImpl extends ASTWrapperPsiElement implem
 
   @Override
   @Nullable
+  public PsiElement getIdentifier() {
+    return findChildByType(IDENTIFIER);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getPublic() {
     return findChildByType(PUBLIC);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getSemicolon() {
-    return findNotNullChildByType(SEMICOLON);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getIdentifier() {
-    return findNotNullChildByType(IDENTIFIER);
   }
 
 }
