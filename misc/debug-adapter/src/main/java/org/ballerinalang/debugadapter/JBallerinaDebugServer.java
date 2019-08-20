@@ -21,7 +21,6 @@ import com.sun.jdi.ArrayReference;
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.Field;
 import com.sun.jdi.IncompatibleThreadStateException;
-import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
@@ -89,6 +88,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -392,7 +392,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 this.childVariables.put(variableReference, values);
                 dapVariable.setVariablesReference(variableReference);
                 return dapVariable;
-            } else if ("java.lang.Long".equalsIgnoreCase(value.type().name()) || "java.lang.Boolean".equalsIgnoreCase(value.type().name())
+            } else if ("java.lang.Long".equalsIgnoreCase(value.type().name())
+                    || "java.lang.Boolean".equalsIgnoreCase(value.type().name())
                     || "java.lang.Double".equalsIgnoreCase(value.type().name())) {
                 // anydata
                 Field valueField = ((ObjectReferenceImpl) value).referenceType().allFields().stream().filter(
@@ -428,10 +429,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 dapVariable.setType("Object");
                 List<Field> fields = ((ObjectReferenceImpl) value).referenceType().allFields();
 
-                Field valueField = fields.stream().filter(field ->
-                        field.typeName().equals("java.util.HashMap$Node[]")).collect(Collectors.toList()).get(0);
-
-                Value jsonValue = ((ObjectReferenceImpl) value).getValue(valueField);
+                Optional<Field> valueField = fields.stream().filter(field ->
+                        field.typeName().equals("java.util.HashMap$Node[]")).findFirst();
+                if (!valueField.isPresent()) {
+                    return dapVariable;
+                }
+                Value jsonValue = ((ObjectReferenceImpl) value).getValue(valueField.get());
                 String stringValue = jsonValue == null ? "null" : "Object";
                 if (jsonValue == null) {
                     dapVariable.setValue(stringValue);
@@ -440,15 +443,17 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 Map<String, Value> values = new HashMap<>();
                 ((ArrayReference) jsonValue).getValues().stream().filter(Objects::nonNull).forEach(jsonMap -> {
                     List<Field> jsonValueFields = ((ObjectReferenceImpl) jsonMap).referenceType().visibleFields();
-                    Field jsonKeyField = jsonValueFields.stream().filter(field ->
-                            field.name().equals("key")).collect(Collectors.toList()).get(0);
-                    Value jsonKey = ((ObjectReferenceImpl) jsonMap).getValue(jsonKeyField);
+                    Optional<Field> jsonKeyField = jsonValueFields.stream().filter(field ->
+                            field.name().equals("key")).findFirst();
 
-                    Field jsonValueField = jsonValueFields.stream().filter(field ->
-                            field.name().equals("value")).collect(Collectors.toList()).get(0);
-                    Value jsonValue1 = ((ObjectReferenceImpl) jsonMap).getValue(jsonValueField);
+                    Optional<Field> jsonValueField = jsonValueFields.stream().filter(field ->
+                            field.name().equals("value")).findFirst();
 
-                    values.put(jsonKey.toString(), jsonValue1);
+                    if (jsonKeyField.isPresent() && jsonValueField.isPresent()) {
+                        Value jsonKey = ((ObjectReferenceImpl) jsonMap).getValue(jsonKeyField.get());
+                        Value jsonValue1 = ((ObjectReferenceImpl) jsonMap).getValue(jsonValueField.get());
+                        values.put(jsonKey.toString(), jsonValue1);
+                    }
                 });
                 long variableReference = (long) nextVarReference.getAndIncrement();
                 childVariables.put(variableReference, values);
@@ -489,26 +494,32 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
             List<Field> fields = ((ObjectReferenceImpl) value).referenceType().allFields();
 
-            Field valueField = fields.stream().filter(field ->
-                    field.typeName().equals("java.util.HashMap$Node[]")).collect(Collectors.toList()).get(0);
+            Optional<Field> valueField = fields.stream().filter(field ->
+                    field.typeName().equals("java.util.HashMap$Node[]")).findFirst();
 
-            Value jsonValue = ((ObjectReferenceImpl) value).getValue(valueField);
-            if (jsonValue == null) {
+            if (!valueField.isPresent()) {
                 dapVariable.setValue(stringValue);
                 return dapVariable;
             }
+            Value jsonValue = ((ObjectReferenceImpl) value).getValue(valueField.get());
+
             Map<String, Value> values = new HashMap<>();
             ((ArrayReference) jsonValue).getValues().stream().filter(Objects::nonNull).forEach(jsonMap -> {
                 List<Field> jsonValueFields = ((ObjectReferenceImpl) jsonMap).referenceType().visibleFields();
-                Field jsonKeyField = jsonValueFields.stream().filter(field ->
-                        field.name().equals("key")).collect(Collectors.toList()).get(0);
-                Value jsonKey = ((ObjectReferenceImpl) jsonMap).getValue(jsonKeyField);
 
-                Field jsonValueField = jsonValueFields.stream().filter(field ->
-                        field.name().equals("value")).collect(Collectors.toList()).get(0);
-                Value jsonValue1 = ((ObjectReferenceImpl) jsonMap).getValue(jsonValueField);
 
-                values.put(jsonKey.toString(), jsonValue1);
+                Optional<Field> jsonKeyField = jsonValueFields.stream().filter(field ->
+                        field.name().equals("key")).findFirst();
+
+
+                Optional<Field> jsonValueField = jsonValueFields.stream().filter(field ->
+                        field.name().equals("value")).findFirst();
+
+                if (jsonKeyField.isPresent() && jsonValueField.isPresent()) {
+                    Value jsonKey = ((ObjectReferenceImpl) jsonMap).getValue(jsonKeyField.get());
+                    Value jsonValue1 = ((ObjectReferenceImpl) jsonMap).getValue(jsonValueField.get());
+                    values.put(jsonKey.toString(), jsonValue1);
+                }
             });
 
             long variableReference = (long) nextVarReference.getAndIncrement();
