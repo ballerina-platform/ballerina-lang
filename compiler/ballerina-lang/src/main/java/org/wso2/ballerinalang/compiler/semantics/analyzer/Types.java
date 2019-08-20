@@ -1941,7 +1941,8 @@ public class Types {
 
     private boolean isInSameVisibilityRegion(BSymbol lhsSym, BSymbol rhsSym) {
         if (Symbols.isPrivate(lhsSym)) {
-            return Symbols.isPrivate(rhsSym) && lhsSym.pkgID.equals(rhsSym.pkgID);
+            return Symbols.isPrivate(rhsSym) && lhsSym.pkgID.equals(rhsSym.pkgID)
+                    && lhsSym.owner.name.equals(rhsSym.owner.name);
         } else if (Symbols.isPublic(lhsSym)) {
             return Symbols.isPublic(rhsSym);
         }
