@@ -18,7 +18,6 @@
 package org.ballerinalang.test.context;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.slf4j.Logger;
@@ -27,12 +26,15 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static org.ballerinalang.test.context.Constant.BALLERINA_AGENT_PATH;
@@ -98,25 +100,42 @@ public class BServerInstance implements BServer {
     }
 
     @Override
+    public void startServer(String balFile, boolean useBallerinaRunCommand) throws BallerinaTestException {
+        assert requiredPorts.length < 20 : "test try to open too many ports : " + requiredPorts.length;
+        startServer(balFile, new String[] { "--experimental" }, null, null, requiredPorts, true);
+    }
+
+    @Override
     public void startServer(String balFile, int[] requiredPorts) throws BallerinaTestException {
         assert requiredPorts.length < 20 : "test try to open too many ports : " + requiredPorts.length;
-        startServer(balFile, new String[]{"--experimental"}, requiredPorts);
+        startServer(balFile, new String[] { "--experimental" }, null, requiredPorts);
     }
 
     @Override
-    public void startServer(String balFile, String[] args, int[] requiredPorts) throws BallerinaTestException {
-        startServer(balFile, args, null, requiredPorts);
+    public void startServer(String balFile,  String[] buildArgs, String[] runtimeArgs, int[] requiredPorts) 
+            throws BallerinaTestException {
+        startServer(balFile, buildArgs, runtimeArgs, null, requiredPorts);
     }
 
     @Override
-    public void startServer(String balFile, String[] args, Map<String, String> envProperties,
+    public void startServer(String balFile, String[] buildArgs, String[] runtimeArgs, Map<String, String> envProperties,
                             int[] requiredPorts) throws BallerinaTestException {
+        startServer(balFile, buildArgs, runtimeArgs, envProperties, requiredPorts, false);
+    }
+
+    @Override
+    public void startServer(String balFile, String[] buildArgs, String[] runtimeArgs, Map<String, String> envProperties,
+                            int[] requiredPorts, boolean useBallerinaRunCommand) throws BallerinaTestException {
         if (balFile == null || balFile.isEmpty()) {
             throw new IllegalArgumentException("Invalid ballerina program file name provided, name - " + balFile);
         }
 
-        if (args == null) {
-            args = new String[]{};
+        if (buildArgs == null) {
+            buildArgs = new String[]{};
+        }
+
+        if (runtimeArgs == null) {
+            runtimeArgs = new String[]{};
         }
 
         if (envProperties == null) {
@@ -124,11 +143,15 @@ public class BServerInstance implements BServer {
         }
 
         String[] newArgs = {balFile};
-        newArgs = ArrayUtils.addAll(args, newArgs);
+        newArgs = ArrayUtils.addAll(buildArgs, newArgs);
 
         addJavaAgents(envProperties);
-
-        startServer(newArgs, envProperties, requiredPorts);
+        if (useBallerinaRunCommand) {
+            runBalSource(newArgs, envProperties);
+        } else {
+            buildBalSource(newArgs);
+            runJar(balFile, runtimeArgs, envProperties);
+        }
     }
 
     @Override
@@ -138,38 +161,53 @@ public class BServerInstance implements BServer {
 
     @Override
     public void startServer(String sourceRoot, String packagePath, int[] requiredPorts) throws BallerinaTestException {
-        startServer(sourceRoot, packagePath, new String[]{}, requiredPorts);
+        startServer(sourceRoot, packagePath, new String[]{}, new String[]{}, requiredPorts);
     }
 
     @Override
-    public void startServer(String sourceRoot, String packagePath, String[] args,
+    public void startServer(String sourceRoot, String packagePath, String[] buildArgs, String[] runtimeArgs,
                             int[] requiredPorts) throws BallerinaTestException {
-        startServer(sourceRoot, packagePath, args, null, requiredPorts);
+        startServer(sourceRoot, packagePath, buildArgs, runtimeArgs, null, requiredPorts);
     }
 
     @Override
-    public void startServer(String sourceRoot, String packagePath, String[] args,
+    public void startServer(String sourceRoot, String packagePath, String[] buildArgs, String[] runtimeArgs,
                             Map<String, String> envProperties, int[] requiredPorts) throws BallerinaTestException {
+        startServer(sourceRoot, packagePath, buildArgs, runtimeArgs, envProperties, requiredPorts, false);
+    }
+
+    @Override
+    public void startServer(String sourceRoot, String packagePath, String[] buildArgs, String[] runtimeArgs,
+                            Map<String, String> envProperties, int[] requiredPorts, boolean useBallerinaRunCommand)
+            throws BallerinaTestException {
         if (sourceRoot == null || sourceRoot.isEmpty() || packagePath == null || packagePath.isEmpty()) {
             throw new IllegalArgumentException("Invalid ballerina program file provided, sourceRoot - "
                     + sourceRoot + " packagePath - " + packagePath);
         }
 
-        if (args == null) {
-            args = new String[]{};
+        if (buildArgs == null) {
+            buildArgs = new String[] {};
+        }
+
+        if (runtimeArgs == null) {
+            runtimeArgs = new String[] {};
         }
 
         if (envProperties == null) {
             envProperties = new HashMap<>();
         }
-
-        String[] newArgs = new String[]{"--sourceroot", sourceRoot, packagePath};
-        newArgs = ArrayUtils.addAll(args, newArgs);
-
         addJavaAgents(envProperties);
 
-        startServer(newArgs, envProperties, requiredPorts);
+        String[] newArgs = new String[] { "--sourceroot", sourceRoot, packagePath };
+        newArgs = ArrayUtils.addAll(buildArgs, newArgs);
+        if (useBallerinaRunCommand) {
+            runBalSource(newArgs, envProperties);
+        } else {
+            buildBalSource(newArgs);
+            runJar(sourceRoot, packagePath, runtimeArgs, envProperties);
+        }
     }
+
 
     /**
      * Stop the server instance which is started by start method.
@@ -247,7 +285,7 @@ public class BServerInstance implements BServer {
         if (envProperties.containsKey(JAVA_OPTS)) {
             javaOpts = envProperties.get(JAVA_OPTS);
         }
-        javaOpts = agentArgs + javaOpts;
+        javaOpts = javaOpts + " " + agentArgs;
         envProperties.put(JAVA_OPTS, javaOpts);
         this.agentsAdded = true;
     }
@@ -333,36 +371,21 @@ public class BServerInstance implements BServer {
     /**
      * Executing the sh or bat file to start the server.
      *
-     * @param args          - command line arguments to pass when executing the sh or bat file
+     * @param args     - command line arguments to pass when building bal program
      * @param envProperties - environmental properties to be appended to the environment
-     * @param requiredPorts - ports required for the server instance
      * @throws BallerinaTestException if starting services failed
      */
-    private void startServer(String[] args, Map<String, String> envProperties,
-                             int[] requiredPorts) throws BallerinaTestException {
-        if (requiredPorts == null) {
-            requiredPorts = new int[]{};
-        }
-        this.requiredPorts = ArrayUtils.addAll(requiredPorts, agentPort);
+    private void runBuildTool(String command, String[] args, Map<String, String> envProperties)
+            throws BallerinaTestException {
 
-        //Check whether agent port is available.
-        Utils.checkPortsAvailability(requiredPorts);
-
-        log.info("Starting Ballerina server..");
-
-        String scriptName;
-        if (BCompileUtil.jBallerinaTestsEnabled()) {
-            scriptName = Constant.JBALLERINA_SERVER_SCRIPT_NAME;
-        } else {
-            scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
-        }
         String[] cmdArray;
         File commandDir = new File(balServer.getServerHome());
         try {
             if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
-                cmdArray = new String[]{"cmd.exe", "/c", "bin\\" + scriptName + ".bat", "run"};
+                cmdArray = new String[]{"cmd.exe", "/c", "bin\\" + Constant.BALLERINA_SERVER_SCRIPT_NAME + ".bat",
+                                        command};
             } else {
-                cmdArray = new String[]{"bash", "bin/" + scriptName, "run"};
+                cmdArray = new String[]{"bash", "bin/" + Constant.BALLERINA_SERVER_SCRIPT_NAME, command};
             }
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(commandDir);
@@ -371,6 +394,113 @@ public class BServerInstance implements BServer {
                 for (Map.Entry<String, String> entry : envProperties.entrySet()) {
                     env.put(entry.getKey(), entry.getValue());
                 }
+            }
+            process = processBuilder.start();
+
+            serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
+            tmpInfoLeechers.forEach(leecher -> serverInfoLogReader.addLeecher(leecher));
+            serverInfoLogReader.start();
+            serverErrorLogReader = new ServerLogReader("errorStream", process.getErrorStream());
+            tmpErrorLeechers.forEach(leecher -> serverErrorLogReader.addLeecher(leecher));
+            serverErrorLogReader.start();
+            process.waitFor(10, TimeUnit.MINUTES);
+        } catch (InterruptedException | IOException e) {
+            throw new BallerinaTestException("Error starting services", e);
+        }
+    }
+
+    /**
+     * Build the bal source.
+     *
+     * @param args     - command line arguments to pass when building bal program
+     * @throws BallerinaTestException if starting services failed
+     */
+    private void buildBalSource(String[] args)
+            throws BallerinaTestException {
+        runBuildTool("build", args, null);
+    }
+
+    /**
+     * Build and run the bal source with cli
+     *
+     * @param args     - command line arguments to pass when building bal program
+     * @param envProperties - environmental properties to be appended to the environment
+     * @throws BallerinaTestException if starting services failed
+     */
+    private void runBalSource(String[] args, Map<String, String> envProperties)
+            throws BallerinaTestException {
+        runBuildTool("run", args, envProperties);
+    }
+
+    /**
+     * Executing jar file built for package.
+     *
+     * @param sourceRoot    path to the source root
+     * @param packageName   package name
+     * @param args          command line arguments to pass when executing the sh or bat file
+     * @param envProperties environmental properties to be appended to the environment
+     * @throws BallerinaTestException if starting services failed
+     */
+    private void runJar(String sourceRoot, String packageName, String[] args, Map<String, String> envProperties)
+            throws BallerinaTestException {
+        File commandDir = new File(balServer.getServerHome());
+        executeJarFile(Paths.get(sourceRoot, "target", "bin", packageName + "-executable.jar").toFile().getPath(),
+                       args, envProperties, commandDir);
+    }
+
+    /**
+     * Executing jar built for bal file.
+     *
+     * @param balFile       path to bal file
+     * @param args          command line arguments to pass when executing the sh or bat file
+     * @param envProperties environmental properties to be appended to the environment
+     * @throws BallerinaTestException if starting services failed
+     */
+    public void runJar(String balFile, String[] args, Map<String, String> envProperties) throws BallerinaTestException {
+        File commandDir = new File(balServer.getServerHome());
+        executeJarFile(balFile.substring(0, balFile.length() - 4) + "-executable.jar", args, envProperties, commandDir);
+    }
+
+    /**
+     * Executing jar file.
+     *
+     * @param jarPath       path to jar file location
+     * @param args          command line arguments to pass when executing the sh or bat file
+     * @param envProperties environmental properties to be appended to the environment
+     * @param commandDir    where to execute the command
+     * @throws BallerinaTestException if starting services failed
+     */
+    private void executeJarFile(String jarPath, String[] args, Map<String, String> envProperties, 
+                                File commandDir) throws BallerinaTestException {
+        try {
+            if (requiredPorts == null) {
+                requiredPorts = new int[]{};
+            }
+            this.requiredPorts = ArrayUtils.addAll(requiredPorts, agentPort);
+
+            //Check whether agent port is available.
+            Utils.checkPortsAvailability(requiredPorts);
+
+            log.info("Starting Ballerina server..");
+
+            List<String> runCmdSet = new ArrayList<>();
+            runCmdSet.add("java");
+            if (envProperties.containsKey(JAVA_OPTS)) {
+                String[] jvmOptions = envProperties.get(JAVA_OPTS).trim().split(" ");
+                for (String jvmOption : jvmOptions) {
+                    runCmdSet.add(jvmOption.trim());
+                }
+            }
+            String tempBalHome = new File("src" + File.separator + "test" + File.separator +
+                                                  "resources" + File.separator + "ballerina.home").getAbsolutePath();
+            runCmdSet.add("-Dballerina.home=" + tempBalHome);
+            runCmdSet.addAll(Arrays.asList("-jar", jarPath));
+            runCmdSet.addAll(Arrays.asList(args));
+
+            ProcessBuilder processBuilder = new ProcessBuilder(runCmdSet).directory(commandDir);
+            Map<String, String> env = processBuilder.environment();
+            for (Map.Entry<String, String> entry : envProperties.entrySet()) {
+                env.put(entry.getKey(), entry.getValue());
             }
             process = processBuilder.start();
 
