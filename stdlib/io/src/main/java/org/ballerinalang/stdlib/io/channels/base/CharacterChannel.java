@@ -88,12 +88,6 @@ public class CharacterChannel implements IOChannel {
      */
     private static final int MINIMUM_BYTE_BUFFER_SIZE = 0;
 
-    /**
-     * Maximum number of characters which should be read per single read.
-     */
-    private static final int MAX_CHAR_COUNT_PER_READ = 1024;
-
-
     public CharacterChannel(Channel channel, String encoding) {
         this.channel = channel;
         bytesDecoder = Charset.forName(encoding).newDecoder();
@@ -134,7 +128,7 @@ public class CharacterChannel implements IOChannel {
         charBuffer.get(remainingChars, indexCharacterOffset, characterCount);
         content.append(remainingChars);
         if (log.isTraceEnabled()) {
-            log.trace("Characters appended to the string," + content);
+            log.trace(String.format("Characters appended to the string,%s", content));
         }
     }
 
@@ -170,13 +164,14 @@ public class CharacterChannel implements IOChannel {
             }
             if (numberOfCharactersRemaining > minimumCharacterCount) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Appending " + numberOfCharactersRemaining + " to the string.");
+                    log.debug(String.format("Appending %d to the string.", numberOfCharactersRemaining));
                 }
                 appendCharsToString(content, numberOfCharactersRemaining);
             }
         } else {
             if (log.isDebugEnabled()) {
-                log.debug("Character buffer has not being initialized yet for channel " + channel.hashCode());
+                log.debug(String.format("Character buffer has not being initialized yet for channel %d",
+                        channel.hashCode()));
             }
         }
     }
@@ -306,7 +301,8 @@ public class CharacterChannel implements IOChannel {
                 return content.toString();
             }
             if (log.isDebugEnabled()) {
-                log.debug("Number of chars required to be get from the channel " + charsRequiredToBeReadFromChannel);
+                log.debug(String.format("Number of chars required to be get from the channel %d",
+                        charsRequiredToBeReadFromChannel));
             }
             asyncReadBytesFromChannel(numberOfBytesRequired, numberOfCharacters);
             //We need to ensure that the required amount of characters are available in the buffer
@@ -331,23 +327,6 @@ public class CharacterChannel implements IOChannel {
      */
     String readAllChars(int nBytes) throws IOException {
         return asyncReadBytesFromChannel(nBytes);
-    }
-
-    /**
-     * Reads all content from the I/O source.
-     *
-     * @return all content which is read.
-     * @throws IOException during I/O error.
-     */
-    @Deprecated
-    public String readAll() throws IOException {
-        StringBuilder response = new StringBuilder();
-        String value;
-        do {
-            value = read(MAX_CHAR_COUNT_PER_READ);
-            response.append(value);
-        } while (!value.isEmpty());
-        return response.toString();
     }
 
     /**

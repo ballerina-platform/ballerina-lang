@@ -19,8 +19,6 @@
 package org.ballerinalang.stdlib.io.utils;
 
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.channels.base.readers.ChannelReader;
-import org.ballerinalang.stdlib.io.channels.base.writers.ChannelWriter;
 
 import java.io.IOException;
 import java.nio.channels.WritableByteChannel;
@@ -32,7 +30,7 @@ import java.nio.channels.WritableByteChannel;
  */
 public class Base64Wrapper extends Channel {
     public Base64Wrapper(Base64ByteChannel channel) throws BallerinaIOException {
-        super(channel, new ChannelReader(), new ChannelWriter());
+        super(channel);
     }
 
     @Override

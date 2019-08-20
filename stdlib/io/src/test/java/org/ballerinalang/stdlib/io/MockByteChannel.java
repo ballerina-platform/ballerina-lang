@@ -20,8 +20,6 @@
 package org.ballerinalang.stdlib.io;
 
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.channels.base.readers.ChannelReader;
-import org.ballerinalang.stdlib.io.channels.base.writers.ChannelWriter;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 
 import java.nio.channels.ByteChannel;
@@ -33,7 +31,7 @@ import java.nio.channels.WritableByteChannel;
 public class MockByteChannel extends Channel {
 
     public MockByteChannel(ByteChannel channel) {
-        super(channel, new ChannelReader(), new ChannelWriter());
+        super(channel);
     }
 
     /**

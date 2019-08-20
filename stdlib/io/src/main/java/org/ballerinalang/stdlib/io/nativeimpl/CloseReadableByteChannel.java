@@ -19,19 +19,16 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventRegister;
-import org.ballerinalang.stdlib.io.events.EventResult;
-import org.ballerinalang.stdlib.io.events.Register;
-import org.ballerinalang.stdlib.io.events.bytes.CloseByteChannelEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
+
+import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 
 /**
  * Extern function ballerina/io#close.
@@ -50,24 +47,14 @@ public class CloseReadableByteChannel {
 
     public static Object close(Strand strand, ObjectValue channel) {
         Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
-        CloseByteChannelEvent closeEvent = new CloseByteChannelEvent(byteChannel, eventContext);
-        Register register = EventRegister.getFactory().register(closeEvent, CloseReadableByteChannel::closeChannel);
-        eventContext.setRegister(register);
-        register.submit();
+        try {
+            byteChannel.close();
+        } catch (ClosedChannelException e) {
+            return IOUtils.createError("Channel already closed.");
+        } catch (IOException e) {
+            return IOUtils.createError(e.getMessage());
+        }
         return null;
     }
 
-    private static EventResult closeChannel(EventResult<Boolean, EventContext> result) {
-        EventContext eventContext = result.getContext();
-        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
-        Throwable error = eventContext.getError();
-        if (null != error) {
-            callback.setReturnValues(IOUtils.createError(error.getMessage()));
-        } else {
-            callback.setReturnValues(null);
-        }
-        callback.notifySuccess();
-        return result;
-    }
 }

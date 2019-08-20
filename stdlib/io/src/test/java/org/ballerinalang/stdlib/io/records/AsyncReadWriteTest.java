@@ -18,21 +18,12 @@
 
 package org.ballerinalang.stdlib.io.records;
 
-import org.ballerinalang.jvm.scheduling.Scheduler;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.stdlib.io.MockByteChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
-import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventManager;
-import org.ballerinalang.stdlib.io.events.EventResult;
-import org.ballerinalang.stdlib.io.events.records.DelimitedRecordReadEvent;
-import org.ballerinalang.stdlib.io.events.records.DelimitedRecordWriteEvent;
 import org.ballerinalang.stdlib.io.util.TestUtil;
-import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
@@ -42,7 +33,6 @@ import java.net.URISyntaxException;
 import java.nio.channels.ByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  * Represents the framework for read/write delimited text records.
@@ -52,11 +42,6 @@ public class AsyncReadWriteTest {
      * Specifies the default directory path.
      */
     private String currentDirectoryPath = "/tmp/";
-
-    /**
-     * Will be the I/O event handler.
-     */
-    private EventManager eventManager = EventManager.getInstance();
 
     @BeforeSuite
     public void setup() {
@@ -71,31 +56,9 @@ public class AsyncReadWriteTest {
         Channel channel = new MockByteChannel(byteChannel);
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
         DelimitedRecordChannel recordChannel = new DelimitedRecordChannel(characterChannel, "\n", ",");
-
-        DelimitedRecordReadEvent event = new DelimitedRecordReadEvent(recordChannel);
-        Future<EventResult> future = eventManager.publish(event);
-        EventResult eventResult = future.get();
-        String[] readRecord = (String[]) eventResult.getResponse();
-        Assert.assertEquals(readRecord.length, expectedFieldCount);
-
-        event = new DelimitedRecordReadEvent(recordChannel, new EventContext());
-        future = eventManager.publish(event);
-        eventResult = future.get();
-        readRecord = (String[]) eventResult.getResponse();
-        Assert.assertEquals(readRecord.length, expectedFieldCount);
-
-        event = new DelimitedRecordReadEvent(recordChannel, new EventContext());
-        future = eventManager.publish(event);
-        eventResult = future.get();
-        readRecord = (String[]) eventResult.getResponse();
-        Assert.assertEquals(readRecord.length, expectedFieldCount);
-
-        event = new DelimitedRecordReadEvent(recordChannel, new EventContext());
-        future = eventManager.publish(event);
-        eventResult = future.get();
-        Throwable error = ((EventContext) eventResult.getContext()).getError();
-        Assert.assertEquals(error.getMessage(), IOConstants.IO_EOF);
-
+        Assert.assertEquals(recordChannel.read().length, expectedFieldCount);
+        Assert.assertEquals(recordChannel.read().length, expectedFieldCount);
+        Assert.assertEquals(recordChannel.read().length, expectedFieldCount);
         recordChannel.close();
     }
 
@@ -109,19 +72,11 @@ public class AsyncReadWriteTest {
 
         String[] recordOne = {"Foo", "Bar", "911"};
         ArrayValue recordOneArr = new ArrayValue(recordOne);
-        EventContext eventContext = new EventContext(new NonBlockingCallback(new Strand(new Scheduler(true))));
-        DelimitedRecordWriteEvent recordWriteEvent = new DelimitedRecordWriteEvent(recordChannel, recordOneArr,
-                eventContext);
-        Future<EventResult> future = eventManager.publish(recordWriteEvent);
-        future.get();
+        recordChannel.write(recordOneArr);
 
         String[] recordTwo = {"Jim", "Com", "119"};
         ArrayValue recordTwoArr = new ArrayValue(recordTwo);
-
-        recordWriteEvent = new DelimitedRecordWriteEvent(recordChannel, recordTwoArr, eventContext);
-        future = eventManager.publish(recordWriteEvent);
-        future.get();
-
+        recordChannel.write(recordTwoArr);
         recordChannel.close();
     }
 }

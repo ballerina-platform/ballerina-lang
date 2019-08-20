@@ -21,20 +21,18 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.io.channels.base.DataChannel;
 import org.ballerinalang.stdlib.io.channels.base.Representation;
-import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventRegister;
-import org.ballerinalang.stdlib.io.events.EventResult;
-import org.ballerinalang.stdlib.io.events.Register;
-import org.ballerinalang.stdlib.io.events.data.WriteIntegerEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * Extern function ballerina.io#writeVarInt.
@@ -51,32 +49,17 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 )
 public class WriteVarInt {
 
+    private static final Logger log = LoggerFactory.getLogger(WriteVarInt.class);
+
     public static Object writeVarInt(Strand strand, ObjectValue dataChannelObj, long value) {
         DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);
-        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
-        WriteIntegerEvent writeIntegerEvent = new WriteIntegerEvent(channel, value, Representation.VARIABLE,
-                                                                    eventContext);
-        Register register = EventRegister.getFactory().register(writeIntegerEvent, WriteVarInt::writeResponse);
-        eventContext.setRegister(register);
-        register.submit();
+        try {
+            channel.writeLong(value, Representation.VARIABLE);
+        } catch (IOException e) {
+            log.error("Error occurred while writing VarInt.", e);
+            return IOUtils.createError(e.getMessage());
+        }
         return null;
     }
 
-    /**
-     * Triggers upon receiving the response.
-     *
-     * @param result the response received after writing int.
-     */
-    private static EventResult writeResponse(EventResult<Long, EventContext> result) {
-        EventContext eventContext = result.getContext();
-        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
-        Throwable error = eventContext.getError();
-        if (null != error) {
-            callback.setReturnValues(IOUtils.createError(error.getMessage()));
-        } else {
-            callback.setReturnValues(null);
-        }
-        callback.notifySuccess();
-        return result;
-    }
 }

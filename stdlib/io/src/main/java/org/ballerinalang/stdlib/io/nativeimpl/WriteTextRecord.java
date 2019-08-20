@@ -20,20 +20,16 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
-import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventRegister;
-import org.ballerinalang.stdlib.io.events.EventResult;
-import org.ballerinalang.stdlib.io.events.Register;
-import org.ballerinalang.stdlib.io.events.records.DelimitedRecordWriteEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
+
+import java.io.IOException;
 
 /**
  * Extern function ballerina/io#writeTextRecord.
@@ -55,31 +51,12 @@ public class WriteTextRecord {
     public static Object write(Strand strand, ObjectValue channel, ArrayValue content) {
         DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel
                 .getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
-        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
-        DelimitedRecordWriteEvent recordWriteEvent = new DelimitedRecordWriteEvent(delimitedRecordChannel, content,
-                                                                                   eventContext);
-        Register register = EventRegister.getFactory().register(recordWriteEvent, WriteTextRecord::writeTextResponse);
-        eventContext.setRegister(register);
-        register.submit();
+        try {
+            delimitedRecordChannel.write(content);
+        } catch (IOException e) {
+            return IOUtils.createError(e.getMessage());
+        }
         return null;
     }
 
-    /**
-     * Callback response received after the bytes are written.
-     *
-     * @param result the response received.
-     * @return the result context.
-     */
-    private static EventResult writeTextResponse(EventResult<Integer, EventContext> result) {
-        EventContext eventContext = result.getContext();
-        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
-        Throwable error = eventContext.getError();
-        if (null != error) {
-            callback.setReturnValues(IOUtils.createError(error.getMessage()));
-        } else {
-            callback.setReturnValues(null);
-        }
-        callback.notifySuccess();
-        return result;
-    }
 }

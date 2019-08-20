@@ -18,8 +18,6 @@
 package org.ballerinalang.stdlib.io.channels;
 
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.channels.base.readers.ChannelReader;
-import org.ballerinalang.stdlib.io.channels.base.writers.ChannelWriter;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 
 import java.io.IOException;
@@ -40,7 +38,7 @@ public class FileIOChannel extends Channel {
 
 
     public FileIOChannel(FileChannel channel) throws BallerinaIOException {
-        super(channel, new ChannelReader(), new ChannelWriter());
+        super(channel);
         this.channel = channel;
     }
 

@@ -21,20 +21,18 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.io.channels.base.DataChannel;
 import org.ballerinalang.stdlib.io.channels.base.Representation;
-import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventRegister;
-import org.ballerinalang.stdlib.io.events.EventResult;
-import org.ballerinalang.stdlib.io.events.Register;
-import org.ballerinalang.stdlib.io.events.data.WriteFloatEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * Extern function ballerina/io#writeFloat64.
@@ -51,31 +49,17 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 )
 public class WriteFloat64 {
 
+    private static final Logger log = LoggerFactory.getLogger(WriteFloat64.class);
+
     public static Object writeFloat64(Strand strand, ObjectValue dataChannelObj, double value) {
         DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);
-        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
-        WriteFloatEvent writeFloatEvent = new WriteFloatEvent(channel, value, Representation.BIT_64, eventContext);
-        Register register = EventRegister.getFactory().register(writeFloatEvent, WriteFloat64::writeResponse);
-        eventContext.setRegister(register);
-        register.submit();
+        try {
+            channel.writeDouble(value, Representation.BIT_64);
+        } catch (IOException e) {
+            log.error("Error occurred while writing float64.", e);
+            return IOUtils.createError(e.getMessage());
+        }
         return null;
     }
 
-    /**
-     * Triggers upon receiving the response.
-     *
-     * @param result the response received after writing double.
-     */
-    private static EventResult writeResponse(EventResult<Integer, EventContext> result) {
-        EventContext eventContext = result.getContext();
-        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
-        Throwable error = eventContext.getError();
-        if (null != error) {
-            callback.setReturnValues(IOUtils.createError(error.getMessage()));
-        } else {
-            callback.setReturnValues(null);
-        }
-        callback.notifySuccess();
-        return result;
-    }
 }

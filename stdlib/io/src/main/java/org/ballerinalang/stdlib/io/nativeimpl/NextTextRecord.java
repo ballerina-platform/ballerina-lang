@@ -20,19 +20,17 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
-import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventRegister;
-import org.ballerinalang.stdlib.io.events.EventResult;
-import org.ballerinalang.stdlib.io.events.Register;
-import org.ballerinalang.stdlib.io.events.records.DelimitedRecordReadEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * Extern function ballerina/io#nextTextRecords.
@@ -51,36 +49,21 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 )
 public class NextTextRecord {
 
+    private static final Logger log = LoggerFactory.getLogger(NextTextRecord.class);
+
     public static Object getNext(Strand strand, ObjectValue channel) {
         DelimitedRecordChannel delimitedRecordChannel = (DelimitedRecordChannel) channel.getNativeData(
                 IOConstants.TXT_RECORD_CHANNEL_NAME);
-        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
-        DelimitedRecordReadEvent event = new DelimitedRecordReadEvent(delimitedRecordChannel, eventContext);
-        Register register = EventRegister.getFactory().register(event, NextTextRecord::getResponse);
-        eventContext.setRegister(register);
-        register.submit();
-        return null;
-    }
-
-
-    /**
-     * Response obtained after reading record.
-     *
-     * @param result the result obtained after processing the record.
-     * @return the response obtained after reading record.
-     */
-    private static EventResult getResponse(EventResult<String[], EventContext> result) {
-        EventContext eventContext = result.getContext();
-        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
-        Throwable error = eventContext.getError();
-        if (null != error) {
-            callback.setReturnValues(IOUtils.createError(error.getMessage()));
+        if (delimitedRecordChannel.hasReachedEnd()) {
+            return IOUtils.createError(IOConstants.IO_EOF);
         } else {
-            String[] fields = result.getResponse();
-            callback.setReturnValues(new ArrayValue(fields));
+            try {
+                return new ArrayValue(delimitedRecordChannel.read());
+            } catch (IOException e) {
+                log.error("Error occurred while reading next text record from ReadableTextRecordChannel", e);
+                return IOUtils.createError(e.getMessage());
+            }
         }
-        IOUtils.validateChannelState(eventContext);
-        callback.notifySuccess();
-        return result;
     }
+
 }

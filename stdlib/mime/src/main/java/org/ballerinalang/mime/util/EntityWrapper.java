@@ -19,8 +19,6 @@
 package org.ballerinalang.mime.util;
 
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.channels.base.readers.ChannelReader;
-import org.ballerinalang.stdlib.io.channels.base.writers.ChannelWriter;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 
 import java.io.IOException;
@@ -35,7 +33,7 @@ import java.nio.channels.WritableByteChannel;
 public class EntityWrapper extends Channel {
 
     public EntityWrapper(EntityBodyChannel channel) throws BallerinaIOException {
-        super(channel, new ChannelReader(), new ChannelWriter());
+        super(channel);
     }
 
     @Override

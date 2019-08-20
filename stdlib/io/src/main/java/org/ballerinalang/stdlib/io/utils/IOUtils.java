@@ -28,16 +28,9 @@ import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.stdlib.io.csv.Format;
-import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventExecutor;
-import org.ballerinalang.stdlib.io.events.EventManager;
-import org.ballerinalang.stdlib.io.events.EventResult;
-import org.ballerinalang.stdlib.io.events.Register;
-import org.ballerinalang.stdlib.io.events.bytes.ReadBytesEvent;
-import org.ballerinalang.stdlib.io.events.bytes.WriteBytesEvent;
-import org.ballerinalang.stdlib.io.events.characters.WriteCharactersEvent;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -48,7 +41,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static org.ballerinalang.stdlib.io.utils.IOConstants.ErrorCode.GenericError;
@@ -59,6 +51,9 @@ import static org.ballerinalang.stdlib.io.utils.IOConstants.ErrorCode.GenericErr
 public class IOUtils {
 
     private static final String PACKAGE_IO = "ballerina/io";
+
+    private IOUtils() {
+    }
 
     /**
      * Creates an error message.
@@ -102,16 +97,13 @@ public class IOUtils {
      *
      * @param channel the channel the bytes should be written.
      * @param content content which should be written.
-     * @param context context of the extern function call.
      * @param offset  the start index of the bytes which should be written.
      * @return the number of bytes written to the channel.
      * @throws ExecutionException   errors which occur during execution.
-     * @throws InterruptedException during interrupt error.
      */
-    public static int writeFull(Channel channel, byte[] content, int offset, EventContext context)
-            throws ExecutionException, InterruptedException {
+    public static int writeFull(Channel channel, byte[] content, int offset) throws ExecutionException {
         do {
-            offset = offset + write(channel, content, offset, context);
+            offset = offset + write(channel, content, offset);
         } while (offset < content.length);
         return offset;
     }
@@ -127,45 +119,20 @@ public class IOUtils {
      * @param channel channel which should be used to write bytes.
      * @param content content which should be written.
      * @param offset  offset which should be set when writing bytes.
-     * @param context context obtained from the extern function call.
      * @return the number of bytes written.
-     * @throws InterruptedException if the thread is interrupted
      * @throws ExecutionException   error while execution.
      */
-    private static int write(Channel channel, byte[] content, int offset, EventContext context)
-            throws InterruptedException, ExecutionException {
-        WriteBytesEvent writeBytesEvent = new WriteBytesEvent(channel, content, offset, context);
-        CompletableFuture<EventResult> future = EventManager.getInstance().publish(writeBytesEvent);
-        EventResult eventResponse = future.get();
-        offset = offset + (Integer) eventResponse.getResponse();
-        Throwable error = ((EventContext) eventResponse.getContext()).getError();
-        if (null != error) {
-            throw new ExecutionException(error);
+    private static int write(Channel channel, byte[] content, int offset) throws ExecutionException {
+        ByteBuffer writeBuffer = ByteBuffer.wrap(content);
+        writeBuffer.position(offset);
+        int write;
+        try {
+            write = channel.write(writeBuffer);
+        } catch (IOException e) {
+            throw new ExecutionException(e);
         }
+        offset = offset + write;
         return offset;
-    }
-
-    /**
-     * <p>
-     * Validates whether the channel has reached it's end or the channel is closed.
-     * </p>
-     * <p>
-     * At an event the channel has reached it's end, the corresponding discard will be called.
-     * Discard will clean the existing state.
-     * </p>
-     *
-     * @param event the event which was executed.
-     * @return true if the channel has reached it's end.
-     */
-    public static boolean validateChannelState(EventContext event) {
-        Register register = event.getRegister();
-        EventExecutor exec = register.getExec();
-        Channel channel = exec.getChannel();
-        if (!channel.getByteChannel().isOpen()) {
-            register.discard();
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -175,20 +142,16 @@ public class IOUtils {
      *
      * @param characterChannel the character channel the payload should be written.
      * @param payload          the content.
-     * @param eventContext     the context of the event.
      * @throws BallerinaException during i/o error.
      */
-    public static void writeFull(CharacterChannel characterChannel, String payload, EventContext eventContext)
+    public static void writeFull(CharacterChannel characterChannel, String payload)
             throws BallerinaException {
         try {
             int totalNumberOfCharsWritten = 0;
             int numberOfCharsWritten;
             final int lengthOfPayload = payload.getBytes().length;
             do {
-                WriteCharactersEvent event = new WriteCharactersEvent(characterChannel, payload, 0, eventContext);
-                CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
-                EventResult eventResult = future.get();
-                numberOfCharsWritten = (Integer) eventResult.getResponse();
+                numberOfCharsWritten = characterChannel.write(payload, 0);
                 totalNumberOfCharsWritten = totalNumberOfCharsWritten + numberOfCharsWritten;
             } while (totalNumberOfCharsWritten != lengthOfPayload && numberOfCharsWritten != 0);
             if (totalNumberOfCharsWritten != lengthOfPayload) {
@@ -196,7 +159,7 @@ public class IOUtils {
                         totalNumberOfCharsWritten;
                 throw new BallerinaException(message);
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (IOException e) {
             throw new BallerinaException(e);
         }
     }
@@ -205,18 +168,15 @@ public class IOUtils {
      * Asynchronously reads bytes from the channel.
      *
      * @param content the initialized array which should be filled with the content.
-     * @param context context of the extern function call.
      * @param channel the channel the content should be read into.
      * @return the number of bytes read.
-     * @throws InterruptedException during interrupt error.
-     * @throws ExecutionException   errors which occurs while execution.
+     * @throws IOException   errors which occurs while execution.
      */
-    public static int readFull(Channel channel, byte[] content, EventContext context)
-            throws InterruptedException, ExecutionException {
+    public static int readFull(Channel channel, byte[] content) throws IOException {
         int numberOfBytesToRead = content.length;
         int nBytesRead = 0;
         do {
-            nBytesRead = nBytesRead + read(channel, content, context);
+            nBytesRead = nBytesRead + read(channel, content);
         } while (nBytesRead < numberOfBytesToRead && !channel.hasReachedEnd());
         return nBytesRead;
     }
@@ -231,22 +191,15 @@ public class IOUtils {
      *
      * @param channel channel the bytes should be read from.
      * @param content byte [] which will hold the content which is read.
-     * @param context context obtained from the extern function.
      * @return the number of bytes read.
-     * @throws InterruptedException errors which occur if the thread is interrupted.
-     * @throws ExecutionException   errors which occur during execution.
+     * @throws IOException   errors which occur during execution.
      */
-    private static int read(Channel channel, byte[] content, EventContext context)
-            throws InterruptedException, ExecutionException {
-        ReadBytesEvent event = new ReadBytesEvent(channel, content, context);
-        CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
-        EventResult eventResponse = future.get();
-        int numberOfBytesRead = (Integer) eventResponse.getResponse();
-        Throwable error = ((EventContext) eventResponse.getContext()).getError();
-        if (null != error) {
-            throw new ExecutionException(error);
+    private static int read(Channel channel, byte[] content) throws IOException {
+        if (channel.hasReachedEnd()) {
+            throw new IOException(IOConstants.IO_EOF);
+        } else {
+            return channel.read(ByteBuffer.wrap(content));
         }
-        return numberOfBytesRead;
     }
 
     /**
@@ -256,7 +209,7 @@ public class IOUtils {
      */
     private static void createDirsExtended(Path path) {
         Path parent = path.getParent();
-        if (parent != null && !Files.exists(parent)) {
+        if (parent != null && !parent.toFile().exists()) {
             try {
                 Files.createDirectories(parent);
             } catch (IOException e) {
@@ -277,7 +230,7 @@ public class IOUtils {
         String accessLC = accessMode.toLowerCase(Locale.getDefault());
         Set<OpenOption> opts = new HashSet<>();
         if (accessLC.contains("r")) {
-            if (!Files.exists(path)) {
+            if (!path.toFile().exists()) {
                 throw new BallerinaException("file not found: " + path);
             }
             if (!Files.isReadable(path)) {
@@ -288,7 +241,7 @@ public class IOUtils {
         boolean write = accessLC.contains("w");
         boolean append = accessLC.contains("a");
         if (write || append) {
-            if (Files.exists(path) && !Files.isWritable(path)) {
+            if (path.toFile().exists() && !Files.isWritable(path)) {
                 throw new BallerinaException("file is not writable: " + path);
             }
             createDirsExtended(path);

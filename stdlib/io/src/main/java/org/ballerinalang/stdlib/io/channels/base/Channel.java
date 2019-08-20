@@ -17,8 +17,6 @@
 
 package org.ballerinalang.stdlib.io.channels.base;
 
-import org.ballerinalang.stdlib.io.channels.base.readers.Reader;
-import org.ballerinalang.stdlib.io.channels.base.writers.Writer;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +27,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
-import java.util.Arrays;
 
 /**
  * <p>
@@ -47,27 +44,12 @@ public abstract class Channel implements IOChannel {
     /**
      * Will be used to read/write bytes to/from channels.
      */
-    private ByteChannel channel;
-
-    /**
-     * Specifies how the content should be read from the channel.
-     */
-    private Reader reader;
-
-    /**
-     * Specifies how the content should be written to a channel.
-     */
-    private Writer writer;
+    private ByteChannel byteChannel;
 
     /**
      * Specifies whether the channel has reached EoF.
      */
     private boolean hasReachedToEnd = false;
-
-    /**
-     * Holds the content belonging to a particular channel.
-     */
-    private Buffer contentBuffer;
 
     /**
      * Specifies whether the channel is readable.
@@ -84,49 +66,14 @@ public abstract class Channel implements IOChannel {
      * This operation will asynchronously read data from the channel.
      * </p>
      *
-     * @param channel which will be used to read/write content.
-     * @param reader  will be used for reading content.
-     * @param writer  will be used for writing content.
+     * @param byteChannel which will be used to read/write content.
      * @throws BallerinaIOException initialization error.
      */
-    public Channel(ByteChannel channel, Reader reader, Writer writer) throws BallerinaIOException {
-        if (null != channel) {
-            this.channel = channel;
-            this.reader = reader;
-            this.writer = writer;
+    public Channel(ByteChannel byteChannel) throws BallerinaIOException {
+        if (null != byteChannel) {
+            this.byteChannel = byteChannel;
             if (log.isDebugEnabled()) {
-                log.debug("Initializing ByteChannel with ref id " + channel.hashCode());
-            }
-        } else {
-            String message = "Provided channel cannot be initialized";
-            throw new BallerinaIOException(message);
-        }
-    }
-
-    /**
-     * <p>
-     * Creates a channel which will contain a fixed sized buffer.
-     * </p>
-     * <p>
-     * This operation will in turn request for excess bytes than required. And buffer the content. Also this will
-     * mostly be used with blocking readers and writers.
-     * </p>
-     *
-     * @param channel which will be used to read/write content.
-     * @param reader  will be used for reading content.
-     * @param writer  will be used for writing content.
-     * @param size    the size of the fixed buffer.
-     * @throws BallerinaIOException initialization error.
-     */
-    @Deprecated
-    public Channel(ByteChannel channel, Reader reader, Writer writer, int size) throws BallerinaIOException {
-        if (null != channel) {
-            this.channel = channel;
-            this.reader = reader;
-            this.writer = writer;
-            contentBuffer = new Buffer(size);
-            if (log.isDebugEnabled()) {
-                log.debug("Initializing ByteChannel with ref id " + channel.hashCode());
+                log.debug(String.format("Initializing ByteChannel with ref id %d", byteChannel.hashCode()));
             }
         } else {
             String message = "Provided channel cannot be initialized";
@@ -145,20 +92,13 @@ public abstract class Channel implements IOChannel {
     public abstract void transfer(int position, int count, WritableByteChannel dstChannel) throws IOException;
 
     /**
-     * Specifies whether the channel is selectable.
-     *
-     * @return true if the channel is selectable.
-     */
-    public abstract boolean isSelectable();
-
-    /**
      * Returns the hashcode of the channel as the id.
      *
      * @return id of the channel.
      */
     @Override
     public int id() {
-        return channel.hashCode();
+        return byteChannel.hashCode();
     }
 
     /**
@@ -177,7 +117,7 @@ public abstract class Channel implements IOChannel {
      * @return {@link ByteChannel} instance.
      */
     public ByteChannel getByteChannel() {
-        return channel;
+        return byteChannel;
     }
 
     /**
@@ -190,7 +130,7 @@ public abstract class Channel implements IOChannel {
      * @throws IOException errors occur during reading from channel.
      */
     public int read(ByteBuffer buffer) throws IOException {
-        int readBytes = reader.read(buffer, channel);
+        int readBytes = byteChannel.read(buffer);
         if (readBytes < 0) {
             //Since we're counting the bytes if a value < 0 is returned, this will be re-set
             readBytes = 0;
@@ -209,7 +149,7 @@ public abstract class Channel implements IOChannel {
      * @throws IOException errors occur during writing data to channel.
      */
     public int write(ByteBuffer content) throws IOException {
-        return writer.write(content, channel);
+        return byteChannel.write(content);
     }
 
     /**
@@ -219,38 +159,11 @@ public abstract class Channel implements IOChannel {
      * @throws BallerinaIOException error occur during obtaining input-stream.
      */
     public InputStream getInputStream() throws BallerinaIOException {
-        if (!channel.isOpen()) {
+        if (!byteChannel.isOpen()) {
             String message = "Channel is already closed.";
             throw new BallerinaIOException(message);
         }
-        return Channels.newInputStream(channel);
-    }
-
-    /**
-     * <p>
-     * Reads specified amount of bytes from a given channel.
-     * <p>
-     * Each time this method is called the data will be retrieved from the channels last read position.
-     * </P>
-     * <p>
-     * <b>Note : </b> This operation cannot be called in parallel invocations since the underlying ByteBuffer and the
-     * channel are not synchronous.
-     * </P>
-     *
-     * @param numberOfBytes the number of bytes required.
-     * @return bytes which are retrieved from the channel.
-     * @throws IOException during I/O error.
-     */
-    public byte[] readFull(int numberOfBytes) throws IOException {
-        ByteBuffer readBuffer = contentBuffer.get(numberOfBytes, this);
-        byte[] content = readBuffer.array();
-        int contentLength = readBuffer.capacity();
-        if (content.length > numberOfBytes || contentLength < numberOfBytes) {
-            //We need to collect the bytes only belonging to the offset, since the number of bytes returned can be < the
-            //required amount of bytes
-            content = Arrays.copyOfRange(content, 0, contentLength);
-        }
-        return content;
+        return Channels.newInputStream(byteChannel);
     }
 
     public void setReadable(boolean readable) {
@@ -268,16 +181,10 @@ public abstract class Channel implements IOChannel {
      */
     @Override
     public void close() throws IOException {
-        try {
-            if (null != channel) {
-                channel.close();
-            } else {
-                log.error("The channel has already being closed");
-            }
-        } catch (IOException e) {
-            String message = "Error occurred while closing the connection";
-            log.error(message, e);
-            throw new IOException(message, e);
+        if (null != byteChannel) {
+            byteChannel.close();
+        } else {
+            log.error("The channel has already being closed");
         }
     }
 

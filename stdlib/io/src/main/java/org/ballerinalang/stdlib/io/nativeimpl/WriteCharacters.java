@@ -19,20 +19,16 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
-import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventRegister;
-import org.ballerinalang.stdlib.io.events.EventResult;
-import org.ballerinalang.stdlib.io.events.Register;
-import org.ballerinalang.stdlib.io.events.characters.WriteCharactersEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
+
+import java.io.IOException;
 
 /**
  * Extern function ballerina/io#writeCharacters.
@@ -55,31 +51,11 @@ public class WriteCharacters {
     public static Object write(Strand strand, ObjectValue channel, String content, long startOffset) {
         CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(
                 IOConstants.CHARACTER_CHANNEL_NAME);
-        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
-        WriteCharactersEvent event = new WriteCharactersEvent(characterChannel, content, (int) startOffset,
-                                                              eventContext);
-        Register register = EventRegister.getFactory().register(event, WriteCharacters::writeCharResponse);
-        eventContext.setRegister(register);
-        register.submit();
-        return null;
+        try {
+            return characterChannel.write(content, (int) startOffset);
+        } catch (IOException e) {
+            return IOUtils.createError(e.getMessage());
+        }
     }
 
-    /**
-     * Processors the response after reading characters.
-     *
-     * @param result the response returned after reading characters.
-     * @return the response returned from the event.
-     */
-    private static EventResult writeCharResponse(EventResult<Integer, EventContext> result) {
-        EventContext eventContext = result.getContext();
-        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
-        Throwable error = eventContext.getError();
-        if (null != error) {
-            callback.setReturnValues(IOUtils.createError(error.getMessage()));
-        } else {
-            callback.setReturnValues(result.getResponse());
-        }
-        callback.notifySuccess();
-        return result;
-    }
 }

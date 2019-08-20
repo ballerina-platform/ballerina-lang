@@ -24,21 +24,19 @@ import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventRegister;
-import org.ballerinalang.stdlib.io.events.EventResult;
-import org.ballerinalang.stdlib.io.events.Register;
-import org.ballerinalang.stdlib.io.events.bytes.ReadBytesEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /**
@@ -59,43 +57,42 @@ import java.util.Arrays;
 )
 public class ReadBytes {
 
+    private static final Logger log = LoggerFactory.getLogger(ReadBytes.class);
     private static final BTupleType readTupleType = new BTupleType(
             Arrays.asList(new BArrayType(BTypes.typeByte), BTypes.typeInt));
 
     public static Object read(Strand strand, ObjectValue channel, long nBytes) {
         int arraySize = nBytes <= 0 ? IOConstants.CHANNEL_BUFFER_SIZE : (int) nBytes;
         Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-        byte[] content = new byte[arraySize];
-        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
-        ReadBytesEvent event = new ReadBytesEvent(byteChannel, content, eventContext);
-        Register register = EventRegister.getFactory().register(event, ReadBytes::readChannelResponse);
-        eventContext.setRegister(register);
-        register.submit();
-        return null;
+        ByteBuffer content = ByteBuffer.wrap(new byte[arraySize]);
+        if (byteChannel.hasReachedEnd()) {
+            return IOUtils.createError(IOConstants.IO_EOF);
+        } else {
+            try {
+                int numberOfBytesRead = byteChannel.read(content);
+                ArrayValue contentTuple = new ArrayValue(readTupleType);
+                contentTuple.add(0, new ArrayValue(getContentData(content)));
+                contentTuple.add(1, Integer.valueOf(numberOfBytesRead));
+                return contentTuple;
+            } catch (IOException e) {
+                log.error("Error occurred while reading bytes from the channel.", e);
+                return IOUtils.createError(e.getMessage());
+            } catch (Exception e) {
+                log.error("Error occurred while reading bytes from the channel.", e);
+                return IOUtils.createError(e.getMessage());
+            }
+        }
     }
 
-    /**
-     * Function which will be notified on the response obtained after the async operation.
-     *
-     * @param result context of the callback.
-     * @return Once the callback is processed we further return back the result.
-     */
-    private static EventResult readChannelResponse(EventResult<Integer, EventContext> result) {
-        ArrayValue contentTuple = new ArrayValue(readTupleType);
-        EventContext eventContext = result.getContext();
-        Throwable error = eventContext.getError();
-        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
-        byte[] content = (byte[]) eventContext.getProperties().get(ReadBytesEvent.CONTENT_PROPERTY);
-        if (null != error) {
-            callback.setReturnValues(IOUtils.createError(error.getMessage()));
-        } else {
-            Integer numberOfBytes = result.getResponse();
-            contentTuple.add(0, new ArrayValue(content));
-            contentTuple.add(1, numberOfBytes);
-            callback.setReturnValues(contentTuple);
+    private static byte[] getContentData(final ByteBuffer contentBuffer) {
+        int bufferSize = contentBuffer.limit();
+        int readPosition = contentBuffer.position();
+        byte[] content = contentBuffer.array();
+        final int startPosition = 0;
+        if (readPosition == bufferSize) {
+            return content;
         }
-        IOUtils.validateChannelState(eventContext);
-        callback.notifySuccess();
-        return result;
+        return Arrays.copyOfRange(content, startPosition, readPosition);
     }
+
 }

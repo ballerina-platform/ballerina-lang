@@ -22,14 +22,12 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
-import org.ballerinalang.stdlib.io.events.EventContext;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 
@@ -50,17 +48,12 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 public class WriteXml {
 
     public static Object writeXml(Strand strand, ObjectValue characterChannelObj, XMLValue<?> content) {
-        NonBlockingCallback callback = new NonBlockingCallback(strand);
         try {
             CharacterChannel characterChannel = (CharacterChannel) characterChannelObj.getNativeData(
                     IOConstants.CHARACTER_CHANNEL_NAME);
-            EventContext eventContext = new EventContext(callback);
-            IOUtils.writeFull(characterChannel, content.toString(), eventContext);
-            callback.setReturnValues(null);
+            IOUtils.writeFull(characterChannel, content.toString());
         } catch (BallerinaException e) {
-            callback.setReturnValues(IOUtils.createError(e.getMessage()));
-        } finally {
-            callback.notifySuccess();
+            return IOUtils.createError(e.getMessage());
         }
         return null;
     }

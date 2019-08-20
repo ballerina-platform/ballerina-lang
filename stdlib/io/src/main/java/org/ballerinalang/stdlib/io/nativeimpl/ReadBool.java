@@ -21,18 +21,16 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.io.channels.base.DataChannel;
-import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventRegister;
-import org.ballerinalang.stdlib.io.events.EventResult;
-import org.ballerinalang.stdlib.io.events.Register;
-import org.ballerinalang.stdlib.io.events.data.ReadBoolEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * Extern function ballerina/io#readBool.
@@ -48,32 +46,16 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 )
 public class ReadBool {
 
+    private static final Logger log = LoggerFactory.getLogger(ReadBool.class);
+
     public static Object readBool(Strand strand, ObjectValue dataChannelObj) {
         DataChannel channel = (DataChannel) dataChannelObj.getNativeData(IOConstants.DATA_CHANNEL_NAME);
-        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
-        ReadBoolEvent event = new ReadBoolEvent(channel, eventContext);
-        Register register = EventRegister.getFactory().register(event, ReadBool::readChannelResponse);
-        eventContext.setRegister(register);
-        register.submit();
-        return null;
+        try {
+            return channel.readBoolean();
+        } catch (IOException e) {
+            log.error("Error while reading boolean", e);
+            return IOUtils.createError(e.getMessage());
+        }
     }
 
-    /**
-     * Triggers upon receiving the response.
-     *
-     * @param result the response received after reading bool.
-     * @return read bool value.
-     */
-    private static EventResult readChannelResponse(EventResult<Boolean, EventContext> result) {
-        EventContext eventContext = result.getContext();
-        Throwable error = eventContext.getError();
-        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
-        if (null != error) {
-            callback.setReturnValues(IOUtils.createError(error.getMessage()));
-        } else {
-            callback.setReturnValues(result.getResponse());
-        }
-        callback.notifySuccess();
-        return result;
-    }
 }

@@ -21,20 +21,19 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventRegister;
-import org.ballerinalang.stdlib.io.events.EventResult;
-import org.ballerinalang.stdlib.io.events.Register;
-import org.ballerinalang.stdlib.io.events.bytes.WriteBytesEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /**
  * Extern function ballerina.lo#writeBytes.
@@ -54,33 +53,18 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 )
 public class WriteBytes {
 
+    private static final Logger log = LoggerFactory.getLogger(WriteBytes.class);
+
     public static Object write(Strand strand, ObjectValue channel, ArrayValue content, long offset) {
         Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-        EventContext eventContext = new EventContext(new NonBlockingCallback(strand));
-        WriteBytesEvent writeBytesEvent = new WriteBytesEvent(byteChannel, content.getBytes(), (int) offset,
-                                                              eventContext);
-        Register register = EventRegister.getFactory().register(writeBytesEvent, WriteBytes::writeByteResponse);
-        eventContext.setRegister(register);
-        register.submit();
-        return null;
+        ByteBuffer writeBuffer = ByteBuffer.wrap(content.getBytes());
+        writeBuffer.position((int) offset);
+        try {
+            return byteChannel.write(writeBuffer);
+        } catch (IOException e) {
+            log.error("Error occurred while writing to the channel.", e);
+            return IOUtils.createError(e.getMessage());
+        }
     }
 
-    /**
-     * Function which will be notified on the response obtained after the async operation.
-     *
-     * @param result context of the callback.
-     * @return Once the callback is processed we further return back the result.
-     */
-    private static EventResult writeByteResponse(EventResult<Integer, EventContext> result) {
-        EventContext eventContext = result.getContext();
-        NonBlockingCallback callback = eventContext.getNonBlockingCallback();
-        Throwable error = eventContext.getError();
-        if (null != error) {
-            callback.setReturnValues(IOUtils.createError(error.getMessage()));
-        } else {
-            callback.setReturnValues(result.getResponse());
-        }
-        callback.notifySuccess();
-        return result;
-    }
 }

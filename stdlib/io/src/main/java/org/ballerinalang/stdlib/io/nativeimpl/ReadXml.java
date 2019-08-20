@@ -26,7 +26,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
-import org.ballerinalang.stdlib.io.events.EventContext;
 import org.ballerinalang.stdlib.io.readers.CharacterChannelReader;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
@@ -49,7 +48,7 @@ public class ReadXml {
     public static Object readXml(Strand strand, ObjectValue channel) {
 
         CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(IOConstants.CHARACTER_CHANNEL_NAME);
-        CharacterChannelReader reader = new CharacterChannelReader(charChannel, new EventContext());
+        CharacterChannelReader reader = new CharacterChannelReader(charChannel);
         try {
             return XMLFactory.parse(reader);
         } catch (BallerinaException e) {
