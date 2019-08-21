@@ -22,7 +22,7 @@ package org.ballerinalang.jvm.types;
  *
  * @since 0.995.0
  */
-class BBooleanType extends BType {
+public class BBooleanType extends BType {
 
     /**
      * Create a {@code BBooleanType} which represents the boolean type.

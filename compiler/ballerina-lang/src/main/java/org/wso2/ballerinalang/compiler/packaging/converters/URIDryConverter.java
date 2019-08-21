@@ -20,10 +20,13 @@ package org.wso2.ballerinalang.compiler.packaging.converters;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
+import org.ballerinalang.toml.model.Manifest;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
@@ -31,10 +34,12 @@ import java.net.InetSocketAddress;
 import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -51,6 +56,11 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
  *  module is updated with that version.
  */
 public class URIDryConverter extends URIConverter {
+    
+    /**
+     * This is to keep track that an error has already been logged so that it doesn't repeatedly log the same error.
+     */
+    private static boolean loggedError = false;
     private PrintStream errStream = System.err;
     private List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
     private Proxy proxy;
@@ -69,12 +79,12 @@ public class URIDryConverter extends URIConverter {
             }
     };
     
-    public URIDryConverter(URI base) {
-        this(base, false);
+    public URIDryConverter(URI base, Map<PackageID, Manifest> dependencyManifests) {
+        this(base, dependencyManifests, false);
     }
     
-    public URIDryConverter(URI base, boolean isBuild) {
-        super(base, isBuild);
+    public URIDryConverter(URI base, Map<PackageID, Manifest> dependencyManifests, boolean isBuild) {
+        super(base, dependencyManifests, isBuild);
         try {
             SSLContext sc = SSLContext.getInstance("SSL");
             sc.init(null, trustAllCerts, new java.security.SecureRandom());
@@ -103,18 +113,32 @@ public class URIDryConverter extends URIConverter {
                     conn.setRequestMethod("GET");
                     // set implementation version
                     conn.setRequestProperty("Ballerina-Platform", supportedPlatform);
-                    // TODO: conn.setRequestProperty("Ballerina-Language-Specification-Version",
-                    //  IMPLEMENTATION_VERSION);
-                    conn.setRequestProperty("Ballerina-Language-Specficiation-Version", IMPLEMENTATION_VERSION);
-                    if (conn.getResponseCode() == 302) {
+                    conn.setRequestProperty("Ballerina-Language-Specification-Version", IMPLEMENTATION_VERSION);
+                    
+                    // status code and meaning
+                    //// 302 - module found
+                    //// 404 - module not found
+                    //// 400 - bad request sent
+                    //// 500 - backend is broken
+                    int statusCode = conn.getResponseCode();
+                    if (statusCode == 302) {
                         // get the version from the 'Location' header.
                         String location = conn.getHeaderField("Location");
                         String version = location.split("/")[location.split("/").length - 3];
                         // update version
                         moduleID.version = new Name(version);
                         return Stream.empty();
-                    } else {
-                        errStream.println("could not connect to remote repository or unexpected response received.");
+                    } else if (statusCode == 400 && !loggedError) {
+                        try (BufferedReader errorStream = new BufferedReader(
+                                new InputStreamReader(conn.getInputStream(), Charset.defaultCharset()))) {
+                            String errorContent = errorStream.lines().collect(Collectors.joining("\n"));
+                            this.errStream.println("invalid request sent to remote registry: " + errorContent);
+                            setErrorLoggedStatusAsTrue();
+                        }
+                    } else if (statusCode == 500 && !loggedError) {
+                        this.errStream.println("could not connect to remote registry or unexpected response " +
+                                               "received. build offline to ignore this error.");
+                        setErrorLoggedStatusAsTrue();
                     }
                     conn.disconnect();
                     Authenticator.setDefault(null);
@@ -125,6 +149,13 @@ public class URIDryConverter extends URIConverter {
         }
     
         return Stream.empty();
+    }
+    
+    /**
+     * Set the status that an error has been logged.
+     */
+    private static void setErrorLoggedStatusAsTrue() {
+        loggedError = true;
     }
     
     /**

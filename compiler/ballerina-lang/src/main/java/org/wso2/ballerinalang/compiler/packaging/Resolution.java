@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class Resolution {
     public static final Resolution NOT_FOUND = new Resolution(null, null);
-    public final RepoHierarchy resolvedBy;
+    public RepoHierarchy resolvedBy;
     public final List<CompilerInput> inputs;
 
     Resolution(RepoHierarchy resolvedBy, List<CompilerInput> inputs) {
