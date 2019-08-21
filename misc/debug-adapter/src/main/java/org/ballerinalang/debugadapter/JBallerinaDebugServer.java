@@ -208,7 +208,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                         if (line.contains("Listening for transport dt_socket")) {
                             debuggee = launcher.attachToLaunchedProcess();
                             context.setDebuggee(debuggee);
-                            sendOutput("Connecting to debug process via debug adapter...", STDOUT);
+                            sendOutput("Compiling...", STDOUT);
                             this.eventBus.startListening();
                         }
                         sendOutput(line, STDOUT);
