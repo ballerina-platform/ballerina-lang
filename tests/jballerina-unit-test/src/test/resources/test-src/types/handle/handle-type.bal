@@ -1,5 +1,3 @@
-import ballerina/io;
-
 function getHandle() returns handle? {
     handle? h = ();
     return h;

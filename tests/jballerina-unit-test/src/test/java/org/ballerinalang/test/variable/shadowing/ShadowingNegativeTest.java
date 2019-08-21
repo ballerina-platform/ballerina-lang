@@ -35,7 +35,7 @@ public class ShadowingNegativeTest {
     @Test(description = "Test shadowed identifiers")
     public void testShadowedVariables() {
         CompileResult compileResult = BCompileUtil.compile(
-                "test-src/variable/shadowing/shadowing-negative.bal");
+                "test-src/variable/shadowing/shadowing_negative.bal");
 
         int index = 0;
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'name'", 24, 9);

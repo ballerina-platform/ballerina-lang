@@ -1,7 +1,5 @@
 import testorg/foo;
 
-import ballerina/reflect;
-
 function testSimpleBooleanConstMap() returns map<boolean> {
     return foo:bm1;
 }
