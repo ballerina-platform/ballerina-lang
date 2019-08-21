@@ -46,23 +46,15 @@ public class LSDocument {
 
     public LSDocument(String uri) {
         try {
-            this.uri = uri;
-            this.path = Paths.get(new URL(uri).toURI());
-            this.projectRoot = LSCompilerUtil.getProjectRoot(this.path);
-            if (this.projectRoot == null) {
-                return;
-            }
-            try {
-                this.withinProject = !Files.isSameFile(this.path.getParent(), Paths.get(projectRoot));
-            } catch (IOException e) {
-                withinProject = false;
-            }
-            if (withinProject) {
-                // TODO: Fix project module retrieve logic
-                this.projectModules = this.getCurrentProjectModules(Paths.get(projectRoot));
-                this.ownerModule = this.getModuleNameForDocument(this.projectRoot, path.toString());
-                this.ownerModulePath = Paths.get(projectRoot).resolve("src").resolve(ownerModule);
-            }
+            initLSDocument(uri, Paths.get(new URL(uri).toURI()));
+        } catch (Exception e) {
+            // Ignore
+        }
+    }
+
+    public LSDocument(Path path) {
+        try {
+            initLSDocument(path.toUri().toString(), path);
         } catch (Exception e) {
             // Ignore
         }
@@ -142,7 +134,7 @@ public class LSDocument {
 
     /**
      * Get the project modules list.
-     * 
+     *
      * @return {@link List} list of project modules
      */
     public List<String> getProjectModules() {
@@ -165,12 +157,12 @@ public class LSDocument {
     public String toString() {
         return "{" + "projectRoot:" + this.projectRoot + ", uri:" + this.uri + "}";
     }
-    
+
     /**
      * Get the package name for given file.
      *
      * @param projectRoot project root
-     * @param filePath full path of the file
+     * @param filePath    full path of the file
      * @return {@link String} package name
      */
     private String getModuleNameForDocument(String projectRoot, String filePath) {
@@ -199,5 +191,25 @@ public class LSDocument {
                 .filter(file -> !file.isDirectory())
                 .map(File::getName)
                 .collect(Collectors.toList());
+    }
+
+    private void initLSDocument(String uri, Path path) {
+        this.uri = uri;
+        this.path = path;
+        this.projectRoot = LSCompilerUtil.getProjectRoot(this.path);
+        if (this.projectRoot == null) {
+            return;
+        }
+        try {
+            this.withinProject = !Files.isSameFile(this.path.getParent(), Paths.get(projectRoot));
+        } catch (IOException e) {
+            withinProject = false;
+        }
+        if (withinProject) {
+            // TODO: Fix project module retrieve logic
+            this.projectModules = this.getCurrentProjectModules(Paths.get(projectRoot));
+            this.ownerModule = this.getModuleNameForDocument(this.projectRoot, path.toString());
+            this.ownerModulePath = Paths.get(projectRoot).resolve("src").resolve(ownerModule);
+        }
     }
 }
