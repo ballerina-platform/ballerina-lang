@@ -18,7 +18,6 @@ import ballerina/jvm;
 import ballerina/io;
 import ballerina/internal;
 import ballerina/bir;
-import ballerina/system;
 import ballerina/file;
 
 type BIRFunctionWrapper record {

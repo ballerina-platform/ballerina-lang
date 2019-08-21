@@ -19,9 +19,13 @@ package org.ballerinalang.test.statements.packageimport;
 
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 
 /**
  * Tests covering package imports.
@@ -66,11 +70,12 @@ public class PackageImportTest {
         BAssertUtil.validateError(result, 0, "cannot resolve module 'foo.x'", 1, 1);
     }
 
-    @Test()
+    @Test
     public void testImportsPerfile() {
-        CompileResult result = BCompileUtil.compile("test-src/statements/package/sample-project", "invalid-imports");
-        Assert.assertEquals(result.getErrorCount(), 6);
+        CompileResult result = BCompileUtil.compile("test-src/statements/package/sample-project-1", "invalid-imports");
+        Assert.assertEquals(result.getErrorCount(), 7);
         int i = 0;
+        BAssertUtil.validateError(result, i++, "unused import module 'ballerina/http'", "src/file-negative1.bal", 2, 1);
         BAssertUtil.validateError(result, i++, "redeclared import module 'ballerina/io'", "src/file-negative1.bal", 3,
                 1);
         BAssertUtil.validateError(result, i++, "undefined module 'http'", "src/file-negative2.bal", 3, 5);
@@ -78,5 +83,36 @@ public class PackageImportTest {
         BAssertUtil.validateError(result, i++, "undefined module 'io'", "src/file-negative2.bal", 4, 5);
         BAssertUtil.validateError(result, i++, "undefined function 'println'", "src/file-negative2.bal", 4, 5);
         BAssertUtil.validateError(result, i++, "undefined module 'io'", "src/file-negative2.bal", 5, 18);
+    }
+
+    @Test
+    public void testUnusedImports() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/package/imports/unused-imports-negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 2);
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "unused import module 'ballerina/io'", 1, 1);
+        BAssertUtil.validateError(result, i++, "unused import module 'ballerina/io'", 2, 1);
+    }
+
+    @Test
+    public void testIgnoreImport() {
+        PrintStream out = System.out;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+
+        CompileResult result = BCompileUtil.compile("test-src/statements/package/sample-project-2", "foo");
+        BRunUtil.invoke(result, "runFoo");
+
+        System.setOut(out);
+        String output = new String(baos.toByteArray());
+        Assert.assertTrue(output.contains("initializing bar\nRunning foo"), "found: " + output);
+    }
+
+    @Test
+    public void testUnderscoreAsPkgQualifier() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/statements/package/imports/invalid-package-qualifier-negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "invalid package name '_'", 4, 5);
     }
 }

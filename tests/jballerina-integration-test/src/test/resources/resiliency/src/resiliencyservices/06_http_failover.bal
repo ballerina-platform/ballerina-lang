@@ -16,9 +16,7 @@
 //
 
 import ballerina/http;
-import ballerina/io;
 import ballerina/log;
-import ballerina/mime;
 import ballerina/runtime;
 
 listener http:Listener failoverEP05 = new(9305);

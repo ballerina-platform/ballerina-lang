@@ -308,16 +308,18 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangImportPackage importPkgNode) {
         Name pkgAlias = names.fromIdNode(importPkgNode.alias);
-        BSymbol importSymbol = symResolver.resolvePrefixSymbol(env, pkgAlias,
-                names.fromIdNode(importPkgNode.compUnit));
-        if (importSymbol != symTable.notFoundSymbol) {
-            if (isSameImport(importPkgNode, (BPackageSymbol) importSymbol)) {
-                dlog.error(importPkgNode.pos, DiagnosticCode.REDECLARED_IMPORT_MODULE,
-                        importPkgNode.getQualifiedPackageName());
-            } else {
-                dlog.error(importPkgNode.pos, DiagnosticCode.REDECLARED_SYMBOL, pkgAlias);
+        if (!Names.IGNORE.equals(pkgAlias)) {
+            BSymbol importSymbol =
+                    symResolver.resolvePrefixSymbol(env, pkgAlias, names.fromIdNode(importPkgNode.compUnit));
+            if (importSymbol != symTable.notFoundSymbol) {
+                if (isSameImport(importPkgNode, (BPackageSymbol) importSymbol)) {
+                    dlog.error(importPkgNode.pos, DiagnosticCode.REDECLARED_IMPORT_MODULE,
+                            importPkgNode.getQualifiedPackageName());
+                } else {
+                    dlog.error(importPkgNode.pos, DiagnosticCode.REDECLARED_SYMBOL, pkgAlias);
+                }
+                return;
             }
-            return;
         }
 
         // TODO Clean this code up. Can we move the this to BLangPackageBuilder class
@@ -409,7 +411,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        ((BPackageSymbol) this.env.scope.owner).imports.add(pkgSymbol);
+        List<BPackageSymbol> imports = ((BPackageSymbol) this.env.scope.owner).imports;
+        if (!imports.contains(pkgSymbol)) {
+            imports.add(pkgSymbol);
+        }
 
         // get a copy of the package symbol, add compilation unit info to it,
         // and define it in the current package scope

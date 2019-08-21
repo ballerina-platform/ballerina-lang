@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/kafka;
-import ballerina/io;
+
 
 string topic = "service-test";
 

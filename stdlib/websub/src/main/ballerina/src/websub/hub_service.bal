@@ -19,7 +19,6 @@ import ballerina/crypto;
 import ballerina/encoding;
 import ballerina/http;
 import ballerina/log;
-import ballerina/mime;
 import ballerina/system;
 import ballerina/time;
 import ballerina/'lang\.int as langint;

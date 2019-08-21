@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/log;
 
 final string strData1 = "data";
 final byte[] APPLICATION_DATA = strData1.toBytes();
