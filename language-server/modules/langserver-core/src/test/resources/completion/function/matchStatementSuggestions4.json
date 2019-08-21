@@ -3391,17 +3391,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "WebSocketListener",
-      "kind": "Class",
-      "detail": "Object",
-      "documentation": {
-        "left": "Represents a WebSocket service endpoint."
-      },
-      "sortText": "120",
-      "insertText": "WebSocketListener",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "WsConnectionClosureError",
       "kind": "Keyword",
       "detail": "Error",
