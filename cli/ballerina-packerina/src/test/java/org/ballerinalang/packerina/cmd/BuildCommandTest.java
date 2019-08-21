@@ -341,11 +341,6 @@ public class BuildCommandTest extends CommandTest {
                                       "\nCreating balos\n" +
                                       "\ttarget" + File.separator + "balo" + File.separator +
                 "foo-2019r3-any-1.2.0.balo\n" +
-                                      "\n" +
-                                      "Running tests\n" +
-                                      "    bar/foo:1.2.0\n" +
-                                      "\tNo tests found\n" +
-                                      "\n" +
                                       "Generating executables\n" +
                                       "\ttarget" + File.separator + "bin" + File.separator + "foo-executable.jar\n");
 
