@@ -124,7 +124,7 @@ public class LockFileTestCase extends BaseTest {
         String module2BuildMsg = "target" + File.separator + "balo" + File.separator + module2BaloFileName;
         LogLeecher module1BuildLeecher = new LogLeecher(module1BuildMsg);
         LogLeecher module2BuildLeecher = new LogLeecher(module2BuildMsg);
-        balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{},
+        balClient.runMain("build", new String[]{"-c", "-a"}, envVariables, new String[]{},
                 new LogLeecher[]{module1BuildLeecher, module2BuildLeecher}, testProj1Path.toString());
         module1BuildLeecher.waitForText(5000);
         module2BuildLeecher.waitForText(5000);
