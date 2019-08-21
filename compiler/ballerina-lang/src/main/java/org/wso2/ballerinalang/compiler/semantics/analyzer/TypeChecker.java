@@ -1145,7 +1145,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 symResolver.resolvePrefixSymbol(env, names.fromIdNode(varRefExpr.pkgAlias), compUnitName);
         if (varRefExpr.pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_MODULE, varRefExpr.pkgAlias);
-            return;
         }
 
         if (varRefExpr.pkgSymbol.tag == SymTag.XMLNS) {
@@ -2201,18 +2200,14 @@ public class TypeChecker extends BLangNodeVisitor {
         BType expType = requireTypeInference(conversionExpr.expr) ? targetType : symTable.noType;
         BType sourceType = checkExpr(conversionExpr.expr, env, expType);
 
-        if (targetType.tag == TypeTags.FUTURE) {
-            dlog.error(conversionExpr.pos, DiagnosticCode.TYPE_CAST_NOT_YET_SUPPORTED, targetType);
-        } else {
-            BSymbol symbol = symResolver.resolveTypeCastOperator(conversionExpr.expr, sourceType, targetType);
+        BSymbol symbol = symResolver.resolveTypeCastOperator(conversionExpr.expr, sourceType, targetType);
 
-            if (symbol == symTable.notFoundSymbol) {
-                dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CAST, sourceType, targetType);
-            } else {
-                conversionExpr.conversionSymbol = (BOperatorSymbol) symbol;
-                // We reach this block only if the cast is valid, so we set the target type as the actual type.
-                actualType = targetType;
-            }
+        if (symbol == symTable.notFoundSymbol) {
+            dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CAST, sourceType, targetType);
+        } else {
+            conversionExpr.conversionSymbol = (BOperatorSymbol) symbol;
+            // We reach this block only if the cast is valid, so we set the target type as the actual type.
+            actualType = targetType;
         }
         resultType = types.checkType(conversionExpr, actualType, this.expType);
     }
@@ -2632,8 +2627,8 @@ public class TypeChecker extends BLangNodeVisitor {
         BType actualType = symTable.semanticError;
         BSymbol symbol =
                 this.symResolver.resolveAnnotation(annotAccessExpr.pos, env,
-                                                   names.fromString(annotAccessExpr.pkgAlias.getValue()),
-                                                   names.fromString (annotAccessExpr.annotationName.getValue()));
+                        names.fromString(annotAccessExpr.pkgAlias.getValue()),
+                        names.fromString(annotAccessExpr.annotationName.getValue()));
         if (symbol == this.symTable.notFoundSymbol) {
             this.dlog.error(annotAccessExpr.pos, DiagnosticCode.UNDEFINED_ANNOTATION,
                             annotAccessExpr.annotationName.getValue());
@@ -2726,7 +2721,8 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_MODULE, pkgAlias);
         } else {
             if (funcSymbol == symTable.notFoundSymbol) {
-                funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
+                funcSymbol =
+                        symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
             }
             if (funcSymbol == symTable.notFoundSymbol) {
                 funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.CONSTRUCTOR);

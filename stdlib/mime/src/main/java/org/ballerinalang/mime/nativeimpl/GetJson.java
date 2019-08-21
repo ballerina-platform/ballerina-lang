@@ -68,7 +68,7 @@ public class GetJson extends AbstractGetPayloadHandler {
 
             if (isStreamingRequired(entityObj)) {
                 result = (RefValue) EntityBodyHandler.constructJsonDataSource(entityObj);
-                updateDataSource(entityObj, result);
+                updateJsonDataSource(entityObj, result);
             } else {
                 callback = new NonBlockingCallback(strand);
                 constructNonBlockingDataSource(callback, entityObj, SourceType.JSON);

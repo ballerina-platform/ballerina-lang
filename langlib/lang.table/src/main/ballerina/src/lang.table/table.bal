@@ -58,7 +58,7 @@ public function hasNext(table<record {}> dt) returns boolean = external;
 # Retrives the current row and return a record with the data in the columns.
 #
 # + return - The resulting row as a record
-public function getNext(table<record {}> dt) returns any = external;
+public function getNext(table<record {}> dt) returns record {} = external;
 
 # Add record to the table.
 #

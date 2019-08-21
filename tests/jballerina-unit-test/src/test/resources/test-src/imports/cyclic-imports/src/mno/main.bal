@@ -1,6 +1,6 @@
 import ballerina/io;
-import pqr;
-import ballerina/runtime;
+import pqr as _;
+import ballerina/runtime as _;
 
 function test() {
     io:println("Hello world !!!");

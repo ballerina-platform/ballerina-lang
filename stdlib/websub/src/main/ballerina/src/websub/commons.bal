@@ -20,7 +20,6 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/reflect;
 import ballerina/internal;
 import ballerina/config;
 
