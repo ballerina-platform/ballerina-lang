@@ -99,7 +99,8 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                     throw new BallerinaException("Method has private access", e);
                 }
             };
-            final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null);
+            final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null,
+                    BTypes.typeNull);
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
@@ -152,7 +153,8 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                     throw new BallerinaException("Method has private access", e);
                 }
             };
-            final FutureValue out = scheduler.schedule(entryFuncArgs, func, null, null, null);
+            final FutureValue out = scheduler.schedule(entryFuncArgs, func, null, null, null,
+                    BTypes.typeNull);
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
@@ -195,7 +197,8 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                     throw new BallerinaException("Method has private access", e);
                 }
             };
-            final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null);
+            final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null,
+                    BTypes.typeNull);
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {

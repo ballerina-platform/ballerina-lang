@@ -45,6 +45,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -182,9 +184,11 @@ public class HttpFiltersDesugar {
      * @param env          the symbol environment.
      */
     private BLangSimpleVariable addFilterContextCreation(BLangFunction resourceNode, SymbolEnv env) {
-        BLangIdentifier pkgAlias = ASTBuilderUtil.createIdentifier(resourceNode.pos, getPackageAlias(env));
+        BLangIdentifier pkgAlias =
+                ASTBuilderUtil.createIdentifier(resourceNode.pos, getPackageAlias(env, resourceNode));
         BLangUserDefinedType filterContextUserDefinedType = new BLangUserDefinedType(
                 pkgAlias, ASTBuilderUtil.createIdentifier(resourceNode.pos, "FilterContext"));
+        filterContextUserDefinedType.pos = resourceNode.pos;
         BType filterContextType = symResolver.resolveTypeNode(filterContextUserDefinedType, env);
         String filterContextVarName = GEN_VAR_PREFIX.value + HTTP_FILTERCONTEXT_VAR;
 
@@ -243,10 +247,21 @@ public class HttpFiltersDesugar {
      * @param env the symbol environment.
      * @return the alias name.
      */
-    private String getPackageAlias(SymbolEnv env) {
-        return env.enclPkg.imports.stream()
-                .filter(imports -> imports.symbol.pkgID.toString().equals(ORG_NAME + ORG_SEPARATOR + PACKAGE_NAME))
-                .map(importPackage -> importPackage.alias.value).findFirst().orElse(PACKAGE_NAME);
+    private String getPackageAlias(SymbolEnv env, BLangNode node) {
+        String compUnitName = node.pos.getSource().getCompilationUnitName();
+        for (BLangImportPackage importStmt : env.enclPkg.imports) {
+            if (!ORG_NAME.equals(importStmt.symbol.pkgID.orgName.value) ||
+                    !PACKAGE_NAME.equals(importStmt.symbol.pkgID.name.value)) {
+                continue;
+            }
+
+            if (importStmt.compUnit.value.equals(compUnitName)) {
+                return importStmt.alias.value;
+            }
+
+        }
+
+        return PACKAGE_NAME;
     }
 
     /**
@@ -296,9 +311,11 @@ public class HttpFiltersDesugar {
         BField filtersVal = ((BRecordType) configVal.type).fields.get(FILTERS_CONFIG_INDEX);
         BType filtersType = filtersVal.type;
         BUnionType filterUnionType = (BUnionType) ((BArrayType) filtersType).eType;
-        BLangIdentifier pkgAlias = ASTBuilderUtil.createIdentifier(resourceNode.pos, getPackageAlias(env));
+        BLangIdentifier pkgAlias =
+                ASTBuilderUtil.createIdentifier(resourceNode.pos, getPackageAlias(env, resourceNode));
         BLangUserDefinedType filterUserDefinedType = new BLangUserDefinedType(
                 pkgAlias, ASTBuilderUtil.createIdentifier(resourceNode.pos, "RequestFilter"));
+        filterUserDefinedType.pos = resourceNode.pos;
         BObjectType filterType = (BObjectType) symResolver.resolveTypeNode(filterUserDefinedType, env);
 
         BLangLiteral configName = new BLangLiteral();

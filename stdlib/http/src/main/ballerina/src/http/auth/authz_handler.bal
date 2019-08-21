@@ -16,7 +16,6 @@
 
 import ballerina/auth;
 import ballerina/cache;
-import ballerina/io;
 import ballerina/log;
 import ballerina/runtime;
 
