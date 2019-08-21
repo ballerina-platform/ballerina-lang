@@ -1387,7 +1387,7 @@ function generateMainMethod(bir:Function? userMainFunc, jvm:ClassWriter cw, bir:
 
     if (!serviceEPAvailable) {
         mv.visitMethodInsn(INVOKESTATIC, JAVA_RUNTIME, "getRuntime", io:sprintf("()L%s;", JAVA_RUNTIME), false);
-        mv.visitInsn(ICONST_1);
+        mv.visitInsn(ICONST_0);
         mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_RUNTIME, "exit", "(I)V", false);
     }
 
