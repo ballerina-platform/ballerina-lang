@@ -40,15 +40,15 @@
             <class name="org.ballerinalang.test.service.http.sample.HttpHeaderTestCases"/>
             <class name="org.ballerinalang.test.service.http.sample.RedirectTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.RoutingServiceSampleTestCase"/>
-            <class name="org.ballerinalang.test.service.http.sample.MutualSSLTestCase"/>
-            <class name="org.ballerinalang.test.service.http.sample.MutualSSLWithCerts"/>
-            <class name="org.ballerinalang.test.service.http.sample.DisableSslTestCase"/>
+            <!--<class name="org.ballerinalang.test.service.http.sample.MutualSSLTestCase"/>-->
+            <!--<class name="org.ballerinalang.test.service.http.sample.MutualSSLWithCerts"/>-->
+            <!--<class name="org.ballerinalang.test.service.http.sample.DisableSslTestCase"/>-->
             <class name="org.ballerinalang.test.service.http.sample.HTTPVerbsPassthruTestCases"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPClientActionsTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.EchoServiceSampleTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.ExpectContinueTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HttpPayloadTestCase"/>
-            <class name="org.ballerinalang.test.service.http.sample.ProxyServerTest"/>
+            <!--<class name="org.ballerinalang.test.service.http.sample.ProxyServerTest"/>-->
             <class name="org.ballerinalang.test.service.http.sample.EcommerceSampleTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.PassthroughServiceSampleTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HttpOptionsTestCase"/>
@@ -60,7 +60,7 @@
             <class name="org.ballerinalang.test.service.http.sample.IdleTimeoutResponseTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HttpPipeliningTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HttpStatusCodeTestCase"/>
-            <class name="org.ballerinalang.test.service.http.sample.CipherStrengthSSLTestCase"/>
+            <!--<class name="org.ballerinalang.test.service.http.sample.CipherStrengthSSLTestCase"/>-->
             <class name="org.ballerinalang.test.service.http.sample.ResourceFunctionReturnTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPListenerActionsTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.MultipleHTTPClientsTestCase"/>
@@ -95,7 +95,7 @@
             <class name="org.ballerinalang.test.service.http2.MultipartTestCase"/>
             <class name="org.ballerinalang.test.service.http2.ClientUpgradeWithLargePayload"/>
             <class name="org.ballerinalang.test.service.http2.HTTP2ClientActionsTestCase"/>
-            <class name="org.ballerinalang.test.service.http2.Http2MutualSslTestCase"/>
+            <!--<class name="org.ballerinalang.test.service.http2.Http2MutualSslTestCase"/>-->
             <class name="org.ballerinalang.test.service.http2.Http2ForwardHeaderTest"/>
         </classes>
     </test>
