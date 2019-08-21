@@ -194,7 +194,7 @@ public class PackagingTestCase extends BaseTest {
         Assert.assertTrue(Files.isDirectory(projectPath.resolve("src").resolve(secondPackage)));
     
         // Build module
-        balClient.runMain("build", new String[]{"-c"}, envVariables, new String[]{},
+        balClient.runMain("build", new String[]{"-c", "-a"}, envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         
         LogLeecher clientLeecherOne = new LogLeecher(orgName + "/" + firstPackage + ":0.1.0 [project repo -> central]");
