@@ -151,17 +151,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             return true;
         }
 
-        BSymbol memSym = lookupMemberSymbol(pos, env.scope, env, symbol.name, expSymTag);
-        if (symbol.getKind() == SymbolKind.XMLNS) {
-            if (memSym.getKind() == SymbolKind.XMLNS) {
-                dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
-                return false;
-            }
-            if (memSym == symTable.notFoundSymbol) {
-                return true;
-            }
-        }
-
         if ((foundSym.tag & SymTag.SERVICE) == SymTag.SERVICE) {
             // In order to remove duplicate errors.
             return false;

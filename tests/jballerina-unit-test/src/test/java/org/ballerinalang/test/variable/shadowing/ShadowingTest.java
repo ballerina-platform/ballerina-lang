@@ -30,17 +30,17 @@ import org.testng.annotations.Test;
 import static org.testng.Assert.assertEquals;
 
 /**
- * Positive test cases for variable shadowing.
+ * Positive test cases for scoping rules for identifiers.
  *
  * @since 0.995.0
  */
-public class VariableShadowingTest {
+public class ShadowingTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        this.result = BCompileUtil.compile("test-src/variable/shadowing/variable_shadowing.bal");
+        this.result = BCompileUtil.compile("test-src/variable/shadowing/shadowing.bal");
     }
 
     @Test
@@ -95,7 +95,7 @@ public class VariableShadowingTest {
 
     @Test
     public void testNamespaces1() {
-        BValue[] returns = BRunUtil.invoke(result, "testNamespaces1", new BValue[]{new BBoolean(true)});
+        BValue[] returns = BRunUtil.invoke(result, "testNamespaces1");
         assertEquals(returns[0].stringValue(), "<ns:greeting xmlns:ns=\"http://sample.com/wso2/a2\">Hello " +
                 "World!</ns:greeting>");
     }
@@ -106,7 +106,7 @@ public class VariableShadowingTest {
         assertEquals(returns[0].stringValue(), "<ns:greeting xmlns:ns=\"http://sample.com/wso2/a2\">Hello " +
                 "World!</ns:greeting>");
 
-        returns = BRunUtil.invoke(result, "testNamespaces", new BValue[]{new BBoolean(false)});
+        returns = BRunUtil.invoke(result, "testNamespaces2", new BValue[]{new BBoolean(false)});
         assertEquals(returns[0].stringValue(), "<ns:greeting xmlns:ns=\"http://sample.com/wso2/a3\">Hello " +
                 "World!</ns:greeting>");
     }
