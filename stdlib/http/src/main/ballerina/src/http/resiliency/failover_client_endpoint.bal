@@ -483,7 +483,6 @@ function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfigur
         forwarded:foConfig.forwarded,
         followRedirects:foConfig.followRedirects,
         retryConfig:foConfig.retryConfig,
-        proxy:foConfig.proxy,
         poolConfig:foConfig.poolConfig,
         secureSocket:target.secureSocket,
         cache:foConfig.cache,
