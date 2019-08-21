@@ -97,7 +97,7 @@ public class TextDocumentFormatUtil {
     public static JsonObject getAST(Path file, WorkspaceDocumentManager documentManager, LSContext context)
             throws JSONGenerationException, CompilationFailedException {
         String path = file.toAbsolutePath().toString();
-        LSDocument lsDocument = new LSDocument(file);
+        LSDocument lsDocument = new LSDocument(file.toUri().toString());
         String packageName = lsDocument.getOwnerModule();
         String[] breakFromPackage = path.split(Pattern.quote(packageName + File.separator));
         String relativePath = breakFromPackage[breakFromPackage.length - 1];

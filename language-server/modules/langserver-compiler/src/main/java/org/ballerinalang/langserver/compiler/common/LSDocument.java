@@ -46,15 +46,23 @@ public class LSDocument {
 
     public LSDocument(String uri) {
         try {
-            initLSDocument(uri, Paths.get(new URL(uri).toURI()));
-        } catch (Exception e) {
-            // Ignore
-        }
-    }
-
-    public LSDocument(Path path) {
-        try {
-            initLSDocument(path.toUri().toString(), path);
+            this.uri = uri;
+            this.path = Paths.get(new URL(uri).toURI());
+            this.projectRoot = LSCompilerUtil.getProjectRoot(this.path);
+            if (this.projectRoot == null) {
+                return;
+            }
+            try {
+                this.withinProject = !Files.isSameFile(this.path.getParent(), Paths.get(projectRoot));
+            } catch (IOException e) {
+                withinProject = false;
+            }
+            if (withinProject) {
+                // TODO: Fix project module retrieve logic
+                this.projectModules = this.getCurrentProjectModules(Paths.get(projectRoot));
+                this.ownerModule = this.getModuleNameForDocument(this.projectRoot, path.toString());
+                this.ownerModulePath = Paths.get(projectRoot).resolve("src").resolve(ownerModule);
+            }
         } catch (Exception e) {
             // Ignore
         }
@@ -191,25 +199,5 @@ public class LSDocument {
                 .filter(file -> !file.isDirectory())
                 .map(File::getName)
                 .collect(Collectors.toList());
-    }
-
-    private void initLSDocument(String uri, Path path) {
-        this.uri = uri;
-        this.path = path;
-        this.projectRoot = LSCompilerUtil.getProjectRoot(this.path);
-        if (this.projectRoot == null) {
-            return;
-        }
-        try {
-            this.withinProject = !Files.isSameFile(this.path.getParent(), Paths.get(projectRoot));
-        } catch (IOException e) {
-            withinProject = false;
-        }
-        if (withinProject) {
-            // TODO: Fix project module retrieve logic
-            this.projectModules = this.getCurrentProjectModules(Paths.get(projectRoot));
-            this.ownerModule = this.getModuleNameForDocument(this.projectRoot, path.toString());
-            this.ownerModulePath = Paths.get(projectRoot).resolve("src").resolve(ownerModule);
-        }
     }
 }
