@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.variable.shadowing;
 
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -90,5 +91,23 @@ public class VariableShadowingTest {
     public void testNestedBlocks() {
         BValue[] returns = BRunUtil.invoke(result, "testNestedBlocks");
         assertEquals(returns[0].stringValue(), "var after nested if-else");
+    }
+
+    @Test
+    public void testNamespaces1() {
+        BValue[] returns = BRunUtil.invoke(result, "testNamespaces1", new BValue[]{new BBoolean(true)});
+        assertEquals(returns[0].stringValue(), "<ns:greeting xmlns:ns=\"http://sample.com/wso2/a2\">Hello " +
+                "World!</ns:greeting>");
+    }
+
+    @Test
+    public void testNamespaces2() {
+        BValue[] returns = BRunUtil.invoke(result, "testNamespaces2", new BValue[]{new BBoolean(true)});
+        assertEquals(returns[0].stringValue(), "<ns:greeting xmlns:ns=\"http://sample.com/wso2/a2\">Hello " +
+                "World!</ns:greeting>");
+
+        returns = BRunUtil.invoke(result, "testNamespaces", new BValue[]{new BBoolean(false)});
+        assertEquals(returns[0].stringValue(), "<ns:greeting xmlns:ns=\"http://sample.com/wso2/a3\">Hello " +
+                "World!</ns:greeting>");
     }
 }
