@@ -249,3 +249,21 @@ function testRemoveAllFixedLengthArray() returns int[] {
     ar.removeAll();
     return ar;
 }
+
+function testTupleResize() returns [int, string] {
+    [int, string] t = [1, "hello"];
+    t.setLength(3);
+    return t;
+}
+
+function testTupleRemoveAll() returns [int, string] {
+    [int, string] t = [1, "hello"];
+    t.removeAll();
+    return t;
+}
+
+function testTupleRemoveAllForTupleWithRestMemberType() returns [int, string] {
+    [int, string, boolean...] t = [1, "hello", true];
+    t.removeAll();
+    return t;
+}

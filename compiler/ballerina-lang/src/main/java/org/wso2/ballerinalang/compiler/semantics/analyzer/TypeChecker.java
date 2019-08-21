@@ -64,6 +64,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
@@ -642,7 +643,11 @@ public class TypeChecker extends BLangNodeVisitor {
                             actType = checkExpr(listConstructor.exprs.get(i), env, expType);
                             results.add(expType.tag != TypeTags.NONE ? expType : actType);
                         } else {
-                            restType = checkExpr(listConstructor.exprs.get(i), env, tupleType.restType);
+                            // TODO: 8/21/19 The fix below is a temporary one. The rest type should be NoType if
+                            //  absent. Should be able to simply pass tupleType.restType as the expType.
+                            //  https://github.com/ballerina-platform/ballerina-lang/issues/18074
+                            BType expRestType = tupleType.restType != null ? tupleType.restType : symTable.noType;
+                            restType = checkExpr(listConstructor.exprs.get(i), env, expRestType);
                         }
                     }
                     actualType = new BTupleType(results);
@@ -1139,8 +1144,14 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        varRefExpr.pkgSymbol = symResolver.resolveImportSymbol(varRefExpr.pos,
-                env, names.fromIdNode(varRefExpr.pkgAlias));
+        Name compUnitName = getCurrentCompUnit(varRefExpr);
+        varRefExpr.pkgSymbol =
+                symResolver.resolvePrefixSymbol(env, names.fromIdNode(varRefExpr.pkgAlias), compUnitName);
+        if (varRefExpr.pkgSymbol == symTable.notFoundSymbol) {
+            dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_MODULE, varRefExpr.pkgAlias);
+            return;
+        }
+
         if (varRefExpr.pkgSymbol.tag == SymTag.XMLNS) {
             actualType = symTable.stringType;
         } else if (varRefExpr.pkgSymbol != symTable.notFoundSymbol) {
@@ -2194,18 +2205,14 @@ public class TypeChecker extends BLangNodeVisitor {
         BType expType = requireTypeInference(conversionExpr.expr) ? targetType : symTable.noType;
         BType sourceType = checkExpr(conversionExpr.expr, env, expType);
 
-        if (targetType.tag == TypeTags.FUTURE) {
-            dlog.error(conversionExpr.pos, DiagnosticCode.TYPE_CAST_NOT_YET_SUPPORTED, targetType);
-        } else {
-            BSymbol symbol = symResolver.resolveTypeCastOperator(conversionExpr.expr, sourceType, targetType);
+        BSymbol symbol = symResolver.resolveTypeCastOperator(conversionExpr.expr, sourceType, targetType);
 
-            if (symbol == symTable.notFoundSymbol) {
-                dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CAST, sourceType, targetType);
-            } else {
-                conversionExpr.conversionSymbol = (BOperatorSymbol) symbol;
-                // We reach this block only if the cast is valid, so we set the target type as the actual type.
-                actualType = targetType;
-            }
+        if (symbol == symTable.notFoundSymbol) {
+            dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CAST, sourceType, targetType);
+        } else {
+            conversionExpr.conversionSymbol = (BOperatorSymbol) symbol;
+            // We reach this block only if the cast is valid, so we set the target type as the actual type.
+            actualType = targetType;
         }
         resultType = types.checkType(conversionExpr, actualType, this.expType);
     }
@@ -2714,8 +2721,10 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        // This if check is to avoid duplicate error message about 'undefined module'
-        if (symResolver.resolvePkgSymbol(iExpr.pos, env, pkgAlias) != symTable.notFoundSymbol) {
+        BSymbol pkgSymbol = symResolver.resolvePrefixSymbol(env, pkgAlias, getCurrentCompUnit(iExpr));
+        if (pkgSymbol == symTable.notFoundSymbol) {
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_MODULE, pkgAlias);
+        } else {
             if (funcSymbol == symTable.notFoundSymbol) {
                 funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
             }
@@ -4694,5 +4703,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return (((BLangSimpleVarRef) expression).symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT;
+    }
+
+    private Name getCurrentCompUnit(BLangNode node) {
+        return names.fromString(node.pos.getSource().getCompilationUnitName());
     }
 }

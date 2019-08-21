@@ -34,7 +34,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
-import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_BODY_FAILED;
 
 /**
  * Get the entity body in JSON form.
@@ -75,7 +74,7 @@ public class GetJson extends AbstractGetPayloadHandler {
                 constructNonBlockingDataSource(callback, entityObj, SourceType.JSON);
             }
         } catch (Exception ex) {
-            return createErrorAndNotify(PARSING_ENTITY_BODY_FAILED, callback,
+            return createParsingEntityBodyFailedErrorAndNotify(callback,
                                  "Error occurred while extracting json data from entity: " + ex.getMessage());
         }
         return result;

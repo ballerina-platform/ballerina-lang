@@ -433,7 +433,8 @@ public class BRunUtil {
             };
 
             Scheduler scheduler = new Scheduler(false);
-            FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>());
+            FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>(),
+                    org.ballerinalang.jvm.types.BTypes.typeAny);
             scheduler.start();
             if (futureValue.panic instanceof RuntimeException) {
                 throw new org.ballerinalang.util.exceptions.BLangRuntimeException(futureValue.panic.getMessage(),
@@ -569,7 +570,8 @@ public class BRunUtil {
             };
 
             Scheduler scheduler = new Scheduler(false);
-            FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>());
+            FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>(),
+                    org.ballerinalang.jvm.types.BTypes.typeAny);
             scheduler.start();
             if (futureValue.panic instanceof RuntimeException) {
                 throw new org.ballerinalang.util.exceptions.BLangRuntimeException(futureValue.panic.getMessage(),
