@@ -18,7 +18,7 @@ package org.ballerinalang.client.generator.util;
 
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 
 import java.util.HashMap;
@@ -69,9 +69,9 @@ public class GeneratorUtils {
         list.forEach(attr -> {
             // We don't accept struct type values for annotation attribute
             if (attr.getValue() instanceof BLangLiteral) {
-                attrMap.put(attr.getKey().toString(), new String[] {attr.getValue().toString()});
-            } else if (attr.getValue() instanceof BLangArrayLiteral) {
-                List<? extends ExpressionNode> exprs = ((BLangArrayLiteral) attr.getValue()).getExpressions();
+                attrMap.put(attr.getKey().toString(), new String[]{attr.getValue().toString()});
+            } else if (attr.getValue() instanceof BLangListConstructorExpr) {
+                List<? extends ExpressionNode> exprs = ((BLangListConstructorExpr) attr.getValue()).getExpressions();
                 String[] values = new String[exprs.size()];
 
                 for (int i = 0; i < exprs.size(); i++) {
