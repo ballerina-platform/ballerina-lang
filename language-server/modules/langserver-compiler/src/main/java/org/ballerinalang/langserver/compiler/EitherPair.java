@@ -17,11 +17,11 @@ package org.ballerinalang.langserver.compiler;
 
 /**
  * Represents either type maps union types.
- * <p>
+ *
  * Gracefully borrowed from eclipse/lsp4j project(https://github.com/eclipse/lsp4j).
  *
- * @param <L>
- * @param <R>
+ * @param <L> left side value
+ * @param <R> right side value
  */
 public class EitherPair<L, R> {
     private final L left;
