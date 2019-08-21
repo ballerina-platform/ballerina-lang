@@ -18,8 +18,8 @@
 
 package org.ballerinalang.net.http;
 
-import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
-import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG;
+import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
  * Constants for HTTP.

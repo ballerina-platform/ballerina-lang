@@ -45,7 +45,6 @@ public class Compiler {
     private final SourceDirectoryManager sourceDirectoryManager;
     private final CompilerDriver compilerDriver;
     private final BinaryFileWriter binaryFileWriter;
-    private final LockFileWriter lockFileWriter;
     private final DependencyTree dependencyTree;
     private final BLangDiagnosticLog dlog;
     private final PackageLoader pkgLoader;
@@ -57,7 +56,6 @@ public class Compiler {
         this.sourceDirectoryManager = SourceDirectoryManager.getInstance(context);
         this.compilerDriver = CompilerDriver.getInstance(context);
         this.binaryFileWriter = BinaryFileWriter.getInstance(context);
-        this.lockFileWriter = LockFileWriter.getInstance(context);
         this.dependencyTree = DependencyTree.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
@@ -110,14 +108,10 @@ public class Compiler {
             this.outStream.println("Generating executables");
         }
         packageList.forEach(this.binaryFileWriter::write);
-        packageList.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));
-        this.lockFileWriter.writeLockFile(this.manifest);
     }
 
     public void write(BLangPackage bLangPackage, String targetFileName) {
         this.binaryFileWriter.write(bLangPackage, targetFileName);
-        this.lockFileWriter.addEntryPkg(bLangPackage.symbol);
-        this.lockFileWriter.writeLockFile(this.manifest);
     }
 
     public void list() {

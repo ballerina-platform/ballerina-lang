@@ -64,7 +64,6 @@ public type AuthzHandler object {
             // since different resources can have different scopes
             string authzCacheKey = (principal?.userId ?: "") + "-" + serviceName + "-" + resourceName + "-" + method;
             string[] authCtxtScopes = principal?.scopes ?: [];
-            //TODO: Make sure principal.scopes array is sorted and set to invocation context in order to prevent cache-misses that could happen due to ordering
             if (authCtxtScopes.length() > 0) {
                 authzCacheKey += "-";
                 foreach var authCtxtScope in authCtxtScopes {

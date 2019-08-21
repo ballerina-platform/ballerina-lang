@@ -31,6 +31,8 @@ import java.util.List;
 public class CreateBaloTask implements Task {
     @Override
     public void execute(BuildContext buildContext) {
+        buildContext.out().println();
+        buildContext.out().println("Creating balos");
         List<BLangPackage> modules = buildContext.getModules();
         for (BLangPackage module : modules) {
             Path baloPath = buildContext.getBaloFromTarget(module.packageID);

@@ -49,6 +49,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.StringJoiner;
 
+import static org.wso2.ballerinalang.compiler.parser.BLangPackageBuilder.escapeQuotedIdentifier;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
@@ -68,7 +69,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     private String pkgVersion;
     private boolean isInErrorState = false;
     private boolean enableExperimentalFeatures;
-    private boolean isSiddhiRuntimeEnabled;
 
     BLangParserListener(CompilerContext context, CompilationUnitNode compUnit, BDiagnosticSource diagnosticSource) {
         this.pkgBuilder = new BLangPackageBuilder(context, compUnit);
@@ -76,8 +76,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.enableExperimentalFeatures = Boolean.parseBoolean(
                 CompilerOptions.getInstance(context).get(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED));
-        this.isSiddhiRuntimeEnabled = Boolean.parseBoolean(
-                CompilerOptions.getInstance(context).get(CompilerOptionName.SIDDHI_RUNTIME_ENABLED));
     }
 
     @Override
@@ -641,7 +639,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         String workerName = null;
         if (ctx.workerDefinition() != null) {
-            workerName = ctx.workerDefinition().Identifier().getText();
+            workerName = escapeQuotedIdentifier(ctx.workerDefinition().Identifier().getText());
         }
         boolean retParamsAvail = ctx.workerDefinition().returnParameter() != null;
         int numAnnotations = ctx.annotationAttachment().size();
@@ -1232,7 +1230,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (childCount == 2) {
             boolean keyColumn = KEYWORD_KEY.equals(ctx.getChild(0).getText());
             if (keyColumn) {
-                columnName = ctx.getChild(1).getText();
+                columnName = escapeQuotedIdentifier(ctx.getChild(1).getText());
                 this.pkgBuilder.addTableColumn(columnName, getCurrentPos(ctx), getWS(ctx));
                 this.pkgBuilder.markPrimaryKeyColumn(columnName);
             } else {
@@ -1240,7 +1238,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 dlog.error(pos, DiagnosticCode.TABLE_KEY_EXPECTED);
             }
         } else {
-            columnName = ctx.getChild(0).getText();
+            columnName = escapeQuotedIdentifier(ctx.getChild(0).getText());
             this.pkgBuilder.addTableColumn(columnName, getCurrentPos(ctx), getWS(ctx));
         }
     }
@@ -3267,7 +3265,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.startForeverNode(getCurrentPos(ctx), isSiddhiRuntimeEnabled);
+        this.pkgBuilder.startForeverNode(getCurrentPos(ctx));
     }
 
     @Override

@@ -156,15 +156,19 @@ public class StreamsPreSelectDesuagr extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
-        indexAccessExpr.indexExpr = (BLangExpression) rewrite(indexAccessExpr.indexExpr);
-        indexAccessExpr.expr = (BLangExpression) rewrite(indexAccessExpr.expr);
+        indexAccessExpr.indexExpr =
+                desugar.addConversionExprIfRequired((BLangExpression) rewrite(indexAccessExpr.indexExpr),
+                                                    indexAccessExpr.indexExpr.type);
+        indexAccessExpr.expr =
+                desugar.addConversionExprIfRequired((BLangExpression) rewrite(indexAccessExpr.expr),
+                                                    indexAccessExpr.expr.type);
         result = desugar.addConversionExprIfRequired(indexAccessExpr, indexAccessExpr.type);
     }
 
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
         typeTestExpr.expr = desugar.addConversionExprIfRequired((BLangExpression) rewrite(typeTestExpr.expr),
-                                                                typeTestExpr.expr.type);
+                typeTestExpr.expr.type);
         result = typeTestExpr;
     }
 

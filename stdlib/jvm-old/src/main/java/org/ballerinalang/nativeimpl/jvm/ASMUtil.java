@@ -17,14 +17,11 @@
  */
 package org.ballerinalang.nativeimpl.jvm;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 
-import static org.ballerinalang.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
 
 /**
  * A util class to handle native data get and set operations with ASM and JVM stdlib.
@@ -48,23 +45,6 @@ public class ASMUtil {
 
     public static ObjectValue newObject(String type) {
         return BallerinaValues.createObjectValue(JVM_PKG_PATH, type);
-    }
-
-    @Deprecated
-    public static <T> T getRefArgumentNativeData(Context context, int index) {
-
-        return getNativeData(context.getRefArgument(index));
-    }
-
-    @Deprecated
-    private static <T> T getNativeData(BValue ref) {
-
-        return (T) ((BMap<String, BValue>) ref).getNativeData(NATIVE_KEY);
-    }
-
-    @Deprecated
-    public static void addNativeDataToBVMObject(Object data, BMap<String, BValue> bStruct) {
-        bStruct.addNativeData(NATIVE_KEY, data);
     }
 
     public static <T> T getRefArgumentNativeData(ObjectValue objectValue) {

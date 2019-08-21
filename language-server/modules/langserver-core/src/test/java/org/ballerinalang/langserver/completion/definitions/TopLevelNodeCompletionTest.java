@@ -57,6 +57,7 @@ public class TopLevelNodeCompletionTest extends CompletionTest {
                 {"topLevelCompletionAfterFinalKeyword1.json", "toplevel"},
                 {"topLevelCompletionAfterFinalKeyword2.json", "toplevel"},
                 {"topLevelPackageContentAccess.json", "toplevel"},
+                {"constantDefinition1.json", "toplevel"},
         };
     }
 }

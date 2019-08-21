@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.nativeimpl.jvm.classwriter;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
@@ -41,13 +39,7 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.JVM_PKG_PATH;
                 @Argument(name = "flags", type = TypeKind.INT)
         }
 )
-public class Init extends BlockingNativeCallableUnit {
-
-    @Override
-    @Deprecated
-    public void execute(Context context) {
-        throw new UnsupportedOperationException("BVM Unsupported");
-    }
+public class Init {
 
     public static void init(Strand strand, ObjectValue classWriterStruct, long lFlags) {
         int flags = (int) lFlags;

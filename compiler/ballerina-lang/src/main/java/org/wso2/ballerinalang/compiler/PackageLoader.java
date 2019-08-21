@@ -32,6 +32,7 @@ import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.spi.SystemPackageRepositoryProvider;
 import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.LockFile;
+import org.ballerinalang.toml.model.LockFileImport;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.LockFileProcessor;
 import org.ballerinalang.toml.parser.ManifestProcessor;
@@ -42,10 +43,11 @@ import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder.RepoNode;
 import org.wso2.ballerinalang.compiler.packaging.Resolution;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
-import org.wso2.ballerinalang.compiler.packaging.repo.BaloRepo;
+import org.wso2.ballerinalang.compiler.packaging.converters.URIDryConverter;
 import org.wso2.ballerinalang.compiler.packaging.repo.BinaryRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.BirRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.HomeBaloRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProgramingSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.RemoteRepo;
@@ -175,7 +177,8 @@ public class PackageLoader {
         Repo systemBirRepo = new BirRepo(Paths.get(ballerinaHome));
         Repo systemZipRepo = new BinaryRepo(RepoUtils.getLibDir(), compilerPhase);
         Repo remoteRepo = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()));
-        Repo homeBaloCache = new BaloRepo(balHomeDir);
+        Repo remoteDryRepo = new RemoteRepo(new URIDryConverter(URI.create(RepoUtils.getRemoteRepoURL())));
+        Repo homeBaloCache = new HomeBaloRepo(balHomeDir);
         Repo homeCacheRepo = new CacheRepo(balHomeDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME, compilerPhase);
         Repo homeRepo = shouldReadBalo ? new BinaryRepo(balHomeDir, compilerPhase) : new ZipRepo(balHomeDir);
         Repo projectCacheRepo = new CacheRepo(projectHiddenDir,
@@ -201,6 +204,12 @@ public class PackageLoader {
                                                     node(systemBirRepo,
                                                         node(secondarySystemRepo))))))));
         }
+        
+        // If lock file is not there, fist check in central.
+        if (!this.offline && this.hasLockFile(Paths.get(this.options.get(PROJECT_DIR)))) {
+            homeCacheNode = node(remoteDryRepo, homeCacheNode);
+        }
+        
         RepoNode nonLocalRepos = node(projectRepo,
                                       node(projectCacheRepo, homeCacheNode),
                                       node(homeRepo, homeCacheNode));
@@ -263,7 +272,7 @@ public class PackageLoader {
         String orgName = pkgId.orgName.value;
         String pkgName = pkgId.name.value;
         String pkgAlias = orgName + "/" + pkgName;
-        if (!lockEnabled) {
+        if (!this.hasLockFile(Paths.get(this.options.get(PROJECT_DIR)))) {
             // TODO: make getDependencies return a map
              Optional<Dependency> dependency = manifest.getDependencies()
                                                       .stream()
@@ -279,30 +288,22 @@ public class PackageLoader {
             }
         } else {
             // Read from lock file
-            if (enclPackageId != null) { // Not a top level package or bal
-                String enclPkgAlias = enclPackageId.orgName.value + "/" + enclPackageId.name.value;
-
-                Optional<LockFilePackage> lockFilePackage = lockFile.getPackageList()
+            if (enclPackageId != null) {
+                // Not a top level package or bal
+                Optional<LockFileImport> foundBaseImport = lockFile.getImports()
                                                                     .stream()
-                                                                    .filter(pkg -> {
-                                                                        String org = pkg.getOrg();
-                                                                        if (org.isEmpty()) {
-                                                                            org = manifest.getProject().getOrgName();
-                                                                        }
-                                                                        String alias = org + "/" + pkg.getName();
-                                                                        return alias.equals(enclPkgAlias);
-                                                                    })
+                                                                    .filter(baseImport ->
+                                                    enclPackageId.orgName.value.equals(baseImport.getOrgName()) &&
+                                                    enclPackageId.name.value.equals(baseImport.getName()))
                                                                     .findFirst();
-                if (lockFilePackage.isPresent()) {
-                    Optional<LockFilePackage> dependency = lockFilePackage.get().getDependencies()
+                if (foundBaseImport.isPresent()) {
+                    Optional<LockFileImport> foundNestedImport = foundBaseImport.get().getImports()
                                                                           .stream()
-                                                                          .filter(pkg -> {
-                                                                              String alias = pkg.getOrg() + "/"
-                                                                                      + pkg.getName();
-                                                                              return alias.equals(pkgAlias);
-                                                                          })
+                                                                          .filter(nestedImport ->
+                                                              pkgId.orgName.value.equals(nestedImport.getOrgName()) &&
+                                                              pkgId.name.value.equals(nestedImport.getName()))
                                                                           .findFirst();
-                    dependency.ifPresent(dependencyPkg -> pkgId.version = new Name(dependencyPkg.getVersion()));
+                    foundNestedImport.ifPresent(dependencyPkg -> pkgId.version = new Name(dependencyPkg.getVersion()));
                 }
             }
         }
@@ -505,5 +506,16 @@ public class PackageLoader {
                     .ifPresent(pkgEntry -> compiledPackage.pkgMDEntry = pkgEntry);
         }
         return compiledPackage;
+    }
+    
+    /**
+     * Check if lock file is empty.
+     *
+     * @param sourceRoot The sourceroot of the project.
+     * @return True if lock file is valid, else false.
+     */
+    public boolean hasLockFile(Path sourceRoot) {
+        return RepoUtils.isBallerinaProject(sourceRoot) &&
+               (null == this.lockFile || this.lockFile.getImports().size() > 0);
     }
 }

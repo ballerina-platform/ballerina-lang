@@ -60,7 +60,8 @@ public type TableJoinProcessor object {
                 int i = 0;
                 function (StreamEvent s) returns map<anydata>[] tQuery = self.tableQuery;
                 foreach var m in tQuery(event) {
-                    StreamEvent resultEvent = new([self.tableName, m], "CURRENT", time:currentTime().time);
+                    string tableName = self.tableName;
+                    StreamEvent resultEvent = new([tableName, m], "CURRENT", time:currentTime().time);
                     candidateEvents[i] = [event, resultEvent];
                     i += 1;
                 }

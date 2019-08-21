@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.test.types.string;
 
+import org.apache.axiom.om.OMNode;
+import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
@@ -29,7 +31,6 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.utils.ByteArrayUtils;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -155,19 +156,12 @@ public class StringTest {
 
     @Test
     public void testXmlValueOf() {
-        BValue[] args = {new BXMLItem("<test>name</test>")};
+        OMNode omNode = (OMNode) XMLFactory.parse("<test>name</test>").value();
+        BValue[] args = { new BXMLItem(omNode) };
         BValue[] returns = BRunUtil.invoke(result, "xmlValueOf", args);
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "<test>name</test>";
         Assert.assertEquals(returns[0].stringValue(), expected);
-    }
-
-    // TODO test this
-    @Test(expectedExceptions = {BLangRuntimeException.class})
-    public void testXmlValueOfNegative() {
-        BValue[] args = {new BXMLItem("<test>name<test>")};
-        BValue[] returns = BRunUtil.invoke(result, "xmlValueOf", args);
-        Assert.assertEquals(returns[0].stringValue(), "<test>name<test>");
     }
 
     @Test

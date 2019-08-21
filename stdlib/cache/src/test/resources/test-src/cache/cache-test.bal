@@ -6,6 +6,11 @@ function testCreateCache(int timeOut, int capacity, float evictionFactor) return
     return cache.size();
 }
 
+function testCreateCacheWithNamedParams(int timeOut, int capacity, float evictionFactor) returns int {
+    cache:Cache cache =  new(expiryTimeInMillis = timeOut, capacity = capacity, evictionFactor = evictionFactor);
+    return cache.size();
+}
+
 function testPut(string key, string value) returns (int) {
     cache:Cache cache = new;
     cache.put(key, value);

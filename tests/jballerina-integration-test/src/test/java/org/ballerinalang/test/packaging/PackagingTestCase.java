@@ -228,7 +228,5 @@ public class PackagingTestCase extends BaseTest {
     private void cleanup() throws Exception {
         PackerinaTestUtils.deleteFiles(tempHomeDirectory);
         PackerinaTestUtils.deleteFiles(tempProjectDirectory);
-        balServer.cleanup();
-        
     }
 }

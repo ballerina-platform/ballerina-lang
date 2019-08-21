@@ -29,7 +29,7 @@ service failoverDemoService06 on failoverEP06 {
     }
     resource function failoverStartIndex(http:Caller caller, http:Request request) {
         string startIndex = foBackendEP06.succeededEndpointIndex.toString();
-        var backendRes = foBackendEP06->submit("GET", "/", request);
+        var backendRes = foBackendEP06->submit("GET", "/", <@untainted> request);
         if (backendRes is http:HttpFuture) {
             var response = foBackendEP06->getResponse(backendRes);
             if (response is http:Response) {

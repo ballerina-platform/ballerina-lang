@@ -20,7 +20,7 @@ function testValueTypeInUnion() returns string {
     int|string x = 5;
     if (!(x is int)) {
         int y = x;
-        return "int: " + string.convert(y);
+        return "int: " + y.toString();
     } else {
         string s = x;
         return s;
@@ -40,9 +40,9 @@ function testSimpleRecordTypes_1() returns string {
     A x = {a:"foo"};
     any y = x;
      if (y is A) {
-        return y.b + "-" + y.c;
+        return y["b"] + "-" + y["c"];
     } else if (y is B) {
-        return y.a;
+        return y["a"];
     }
 
     return "n/a";
@@ -58,7 +58,7 @@ function testTypeGuardsWithAnd() returns string {
     int|string x = 5;
     if (x is int && x > 4) {
         int y = x;
-        return "x is greater than 4: " + string.convert(y);
+        return "x is greater than 4: " + y.toString();
     } else {
         string s = x;
         return s;
@@ -77,14 +77,14 @@ function testTypeGuardInElse_1() returns string {
     int|string x = 5;
     if (x is int) {
         int y = x;
-        return "int: " + string.convert(y);
+        return "int: " + y.toString();
     } else {
         if (x is string) {
             return "string: " + x;
         }
 
         if (x is int) {
-            return "int: " + string.convert(x);
+            return "int: " + x.toString();
         }
     }
 
@@ -99,7 +99,7 @@ function testTypeGuardInElse_2() returns string {
             return "y is string: " + y;
         } else if (y is int) {
             int i = y;
-            return "y is int: " + string.convert(i);
+            return "y is int: " + i.toString();
         } else {
             return "x is int|string";
         }
@@ -107,19 +107,19 @@ function testTypeGuardInElse_2() returns string {
         return "string: " + x;
     } else if (x is float) {
         float f = x;
-        return "float: " + string.convert(f);
+        return "float: " + f.toString();
     } else {
         if (y is int) {
             int i = y;
-            return "x is boolean and y is int: " + string.convert(i);
+            return "x is boolean and y is int: " + i.toString();
         } else if (y is string) {
             return "x is boolean and y is string: " + y;
         } else if (y is float) {
             float f = y;
-            return "x is boolean and y is float: " + string.convert(f);
+            return "x is boolean and y is float: " + f.toString();
         } else {
             boolean b = y;
-            return "x is boolean and y is boolean: " + string.convert(b);
+            return "x is boolean and y is boolean: " + b.toString();
         }
     }
 }
@@ -128,7 +128,7 @@ function testMultipleTypeGuardsWithAndOperator_2() returns int {
     int|string|boolean x = 5;
     any y = 7;
     if (x is int|string && y is int && x is string) {
-        return x + y;
+        return y.sum(x);
     } else {
         x = 5.5;
         return -1;
@@ -152,7 +152,7 @@ function testTypeGuardsWithOr_1() returns string {
     int|string y = 8;
     if (x is int || y is int) {
         int z = x;
-        return "x is greater than 4: " + string.convert(z);
+        return "x is greater than 4: " + z.toString();
     } else {
         string s = x;
         return s;
@@ -165,13 +165,13 @@ function testTypeGuardsWithOr_2() returns string {
     if (x is int|string) {
         if (x is int || y > 4) {
             int z = x;
-            return "x is greater than 4: " + string.convert(z);
+            return "x is greater than 4: " + z.toString();
         } else {
             string s = x;
             return s;
         }
     } else {
-        return "x is boolean: " + x;
+        return "x is boolean: " + x.toString();
     }
 }
 

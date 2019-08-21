@@ -3391,17 +3391,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "WebSocketListener",
-      "kind": "Class",
-      "detail": "Object",
-      "documentation": {
-        "left": "Represents a WebSocket service endpoint."
-      },
-      "sortText": "120",
-      "insertText": "WebSocketListener",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "WsConnectionClosureError",
       "kind": "Keyword",
       "detail": "Error",
@@ -3540,14 +3529,6 @@
       },
       "sortText": "120",
       "insertText": "ResponseMessage",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "HttpResponse",
-      "kind": "Enum",
-      "detail": "Union",
-      "sortText": "120",
-      "insertText": "HttpResponse",
       "insertTextFormat": "Snippet"
     },
     {

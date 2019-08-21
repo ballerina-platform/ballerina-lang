@@ -117,6 +117,9 @@ export const visitor: Visitor = {
 
     beginVisitVariableDef(node: VariableDef) {
         if (ASTUtil.isWorker(node)) {
+            if (!node.viewState) {
+                node.viewState = new WorkerViewState();
+            }
             currentWorker = node;
         }
     },

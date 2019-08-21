@@ -19,8 +19,6 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
@@ -41,17 +39,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = @ReturnType(type = TypeKind.BOOLEAN),
         isPublic = true
 )
-public class FinishSpan extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-//        int spanId = (int) context.getIntArgument(0);
-//        boolean isFinished = OpenTracerBallerinaWrapper.getInstance().finishSpan(context, spanId);
-//
-//        if (!isFinished) {
-//            context.setReturnValues(Utils.createError(context,
-//                    "Can not finish span with id " + spanId + ". Span already finished"));
-//        }
-    }
+public class FinishSpan {
 
     public static Object finishSpan(Strand strand, long spanId) {
         boolean isFinished = OpenTracerBallerinaWrapper.getInstance().finishSpan(strand, spanId);

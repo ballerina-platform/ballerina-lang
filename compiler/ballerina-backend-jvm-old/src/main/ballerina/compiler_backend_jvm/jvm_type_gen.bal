@@ -1096,6 +1096,8 @@ function getTypeDesc(bir:BType bType) returns string {
         return io:sprintf("L%s;", ARRAY_VALUE );
     } else if (bType is bir:BErrorType) {
         return io:sprintf("L%s;", ERROR_VALUE);
+    } else if (bType is bir:BFutureType) {
+        return io:sprintf("L%s;", FUTURE_VALUE);
     } else if (bType is bir:BMapType || bType is bir:BRecordType) {
         return io:sprintf("L%s;", MAP_VALUE);
     } else if (bType is bir:BTypeDesc) {

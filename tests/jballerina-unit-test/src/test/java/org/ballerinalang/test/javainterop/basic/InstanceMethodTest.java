@@ -54,7 +54,6 @@ public class InstanceMethodTest {
         args[0] = new BHandleValue(testIns);
 
         BValue[] returns = BRunUtil.invoke(result, "testAcceptNothingAndReturnNothing", args);
-        // TODO ....... WHY NULL return HERERRRRR......?????*^#&*^#*&$^#*&^
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertNull(returns[0]);
@@ -162,7 +161,6 @@ public class InstanceMethodTest {
         BValue[] args = new BValue[1];
         args[0] = new BHandleValue(testIns);
         BValue[] returns = BRunUtil.invoke(result, "testInteropFunctionWithDifferentName", args);
-        // TODO ....... WHY NULL return HERERRRRR......?????*^#&*^#*&$^#*&^
         Assert.assertEquals(returns.length, 1);
         Assert.assertNull(returns[0]);
         Assert.assertEquals(testIns.getCounter(), new Integer(1));

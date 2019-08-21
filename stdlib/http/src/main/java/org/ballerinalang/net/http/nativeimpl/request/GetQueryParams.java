@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -31,7 +32,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.uri.URIUtil;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.ballerinalang.net.http.HttpConstants.QUERY_PARAM_MAP;

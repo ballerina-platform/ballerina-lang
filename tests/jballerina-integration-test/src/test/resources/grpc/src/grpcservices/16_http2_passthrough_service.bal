@@ -64,7 +64,7 @@ service passthrough on helloWorldEP {
                log:printError("[http2-passthrough] Error sending response", err = result);
                http:Response res = new;
                res.statusCode = 500;
-               res.setPayload(<string> result.detail()["message"]);
+               res.setPayload(<@untainted string> result.detail()["message"]);
                result = caller->respond(res);
             }
         } else {

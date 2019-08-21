@@ -80,6 +80,11 @@
                     "default": false,
                     "description": "If set to true debug msgs will be printed to Ballerina output channel"
                 },
+                "ballerina.traceLog": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If set to true trace msgs will be printed to Ballerina output channel"
+                },
                 "ballerina.codeLens.all.enabled": {
                     "type": "boolean",
                     "default": true,
@@ -296,7 +301,6 @@
         "ms-wmic": "^1.0.4",
         "portfinder": "^1.0.21",
         "ps-node": "^0.1.6",
-        "toml": "^3.0.0",
         "vscode-debugadapter": "^1.34.0",
         "vscode-debugprotocol": "^1.34.0",
         "vscode-extension-telemetry": "^0.1.2",
@@ -323,7 +327,7 @@
         "typescript": "^3.3.4000",
         "vsce": "^1.59.0",
         "vscode": "1.1.34",
-        "vscode-debugadapter-testsupport": "^1.34.0",
+        "vscode-debugadapter-testsupport": "^1.35.0",
         "webpack": "^4.33.0",
         "webpack-cli": "^3.3.3"
     }

@@ -1423,6 +1423,40 @@ function testMultipleRowsWithForEach(string jdbcURL) returns @tainted [int, int]
     return [rs1.INT_TYPE, rs2.INT_TYPE];
 }
 
+function testGetPrimitiveTypesWithWhileLoopAndConstructFrom(string jdbcURL) returns @tainted [int, int, float, float, boolean, string, decimal] {
+    jdbc:Client testDB = new({
+        url: jdbcURL,
+        username: "SA",
+        password: "",
+        poolOptions: { maximumPoolSize: 1 }
+    });
+
+    var selectRet = testDB->select("SELECT int_type, long_type, float_type, double_type,
+              boolean_type, string_type, decimal_type from DataTable WHERE row_id = 1", ResultPrimitive);
+
+    int i = -1;
+    int l = -1;
+    float f = -1;
+    float d = -1;
+    boolean b = false;
+    string s = "";
+    decimal dec = -1;
+    if (selectRet is table<ResultPrimitive>) {
+        while(selectRet.hasNext()) {
+            ResultPrimitive rs = checkpanic ResultPrimitive.constructFrom(selectRet.getNext());
+            i = rs.INT_TYPE;
+            l = rs.LONG_TYPE;
+            f = rs.FLOAT_TYPE;
+            d = rs.DOUBLE_TYPE;
+            b = rs.BOOLEAN_TYPE;
+            s = rs.STRING_TYPE;
+            dec = rs.DECIMAL_TYPE;
+        }
+    }
+    checkpanic testDB.stop();
+    return [i, l, f, d, b, s, dec];
+}
+
 function testTableAddInvalid(string jdbcURL) returns @tainted string {
     jdbc:Client testDB = new ({
         url: jdbcURL,

@@ -149,8 +149,13 @@ function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extF
     // if attached type, strand index is given by selfParamIndex
     int strandIndex = attachedType is () ? strandParamIndex : selfParamIndex;
     if (isRemote) {
+        string serviceOrConnectorName = birModule.versionValue.value;
+        if attachedType is bir:BObjectType {
+            serviceOrConnectorName = getFullQualifiedRemoteFunctionName(
+                attachedType.moduleId.org, attachedType.moduleId.name, birModule.versionValue.value);
+        }
         emitStartObservationInvocation(mv, strandIndex,
-                    birModule.versionValue.value, birFunc.name.value, "startCallableObservation");
+                    serviceOrConnectorName, birFunc.name.value, "startCallableObservation");
     }
 
     string jMethodName = birFunc.name.value;
@@ -219,8 +224,8 @@ function getExternalFunctionWrapper(bir:Package birModule, bir:Function birFunc,
     }
 }
 
-function createExternalFunctionWrapper(bir:Function birFunc, string orgName ,string moduleName,
-                                       string versionValue,  string  birModuleClassName) returns BIRFunctionWrapper {
+function createExternalFunctionWrapper(bir:Function birFunc, string orgName ,string moduleName, string versionValue,
+                                        string  birModuleClassName) returns BIRFunctionWrapper | error {
     BIRFunctionWrapper birFuncWrapper;
     jvm:InteropValidationRequest? jInteropValidationReq = getInteropAnnotValue(birFunc);
     if (jInteropValidationReq is ()) {
@@ -240,7 +245,7 @@ function createExternalFunctionWrapper(bir:Function birFunc, string orgName ,str
             panic err;
         }
     } else {
-        birFuncWrapper = createJInteropFunctionWrapper(jInteropValidationReq, birFunc, orgName, moduleName,
+        birFuncWrapper = check createJInteropFunctionWrapper(jInteropValidationReq, birFunc, orgName, moduleName,
                                 versionValue, birModuleClassName);
     }
 

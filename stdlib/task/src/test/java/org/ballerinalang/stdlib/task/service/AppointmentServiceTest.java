@@ -28,9 +28,11 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
+import static org.ballerinalang.stdlib.task.utils.TaskTestUtils.getFilePath;
 
 /**
  * Tests for Ballerina Task Appointment Library.
@@ -39,7 +41,8 @@ import static org.awaitility.Awaitility.await;
 public class AppointmentServiceTest {
     @Test(description = "Tests the functionality of initiating a Task Timer Listener.")
     public void testCreateAppointment() {
-        CompileResult compileResult = BCompileUtil.compile("listener/appointment/service_simple.bal");
+        CompileResult compileResult = BCompileUtil.compile(true,
+                getFilePath(Paths.get("listener", "appointment", "service_simple.bal")));
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] configs = BRunUtil.invoke(compileResult, "getCount");
             Assert.assertEquals(configs.length, 1);
@@ -49,8 +52,8 @@ public class AppointmentServiceTest {
 
     @Test(description = "Tests the functionality of initiating a Task Timer Listener with AppointmentData record.")
     public void testAppointmentDataConfigs() {
-        CompileResult compileResult = BCompileUtil.compile(
-                "listener/appointment/appointment_data_configs.bal");
+        CompileResult compileResult = BCompileUtil.compile(true,
+                getFilePath(Paths.get("listener", "appointment", "appointment_data_configs.bal")));
         await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] configs = BRunUtil.invoke(compileResult, "getCount");
             Assert.assertEquals(configs.length, 1);
@@ -64,7 +67,7 @@ public class AppointmentServiceTest {
             expectedExceptionsMessageRegExp = ".*Cron Expression \"invalid cron expression\" is invalid.*"
     )
     public void testInvalidCronExpression() {
-        BCompileUtil.compile("listener/appointment/invalid_cron_expression.bal");
+        BCompileUtil.compile(getFilePath(Paths.get("listener", "appointment", "invalid_cron_expression.bal")));
     }
 
     @Test(
@@ -73,12 +76,13 @@ public class AppointmentServiceTest {
             expectedExceptionsMessageRegExp = ".*AppointmentData .* is invalid.*"
     )
     public void testInvalidAppointmentData() {
-        BCompileUtil.compile("listener/appointment/invalid_appointment_data.bal");
+        BCompileUtil.compile(getFilePath(Paths.get("listener", "appointment", "invalid_appointment_data.bal")));
     }
 
     @Test(description = "Test invalid appointmentData crecord type")
     public void testInvalidAppointmentDataRecordType() {
-        CompileResult compileResult = BCompileUtil.compile("listener/appointment/invalid_appointment_data_record.bal");
+        CompileResult compileResult = BCompileUtil.compile(true,
+                getFilePath(Paths.get("listener", "appointment", "invalid_appointment_data_record.bal")));
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         BAssertUtil.validateError(compileResult, 0, "incompatible types: expected " +
                         "'(string|ballerina/task:AppointmentData)', found 'DuplicateAppointmentData'",

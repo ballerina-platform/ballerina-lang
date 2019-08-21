@@ -855,7 +855,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return lookupMemberSymbol(pos, pkgSymbol.scope, env, name, expSymTag);
     }
 
-    private BSymbol lookupLangLibMethodInModule(BPackageSymbol moduleSymbol, Name name) {
+    public BSymbol lookupLangLibMethodInModule(BPackageSymbol moduleSymbol, Name name) {
 
         // What we get here is T.Name, this should convert to
         ScopeEntry entry = moduleSymbol.scope.lookup(name);

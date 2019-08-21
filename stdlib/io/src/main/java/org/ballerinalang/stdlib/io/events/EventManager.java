@@ -18,7 +18,8 @@
 
 package org.ballerinalang.stdlib.io.events;
 
-import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
+
+import org.ballerinalang.jvm.runtime.BLangThreadFactory;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;

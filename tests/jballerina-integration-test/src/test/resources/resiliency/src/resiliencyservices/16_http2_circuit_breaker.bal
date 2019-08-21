@@ -36,7 +36,7 @@ service circuitbreaker07 on circuitBreakerEP07 {
         if (cbTrialRequestCount == 3) {
             runtime:sleep(3000);
         }
-        var backendFuture = backendClientEP07->submit("GET", "/hello07", request);
+        var backendFuture = backendClientEP07->submit("GET", "/hello07", <@untainted> request);
         if (backendFuture is http:HttpFuture) {
             var backendRes = backendClientEP07->getResponse(backendFuture);
             if (backendRes is http:Response) {

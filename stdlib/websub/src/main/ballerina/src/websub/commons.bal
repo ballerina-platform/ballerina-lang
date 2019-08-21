@@ -169,7 +169,7 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
     string reqTopic = decodedTopic is string ? decodedTopic : topic;
 
     string reqMode = intentVerificationRequest.mode;
-    string challenge = intentVerificationRequest.challenge;
+    string challenge = <@untainted>intentVerificationRequest.challenge;
 
     if (reqMode == mode && reqTopic == topic) {
         response.statusCode = http:STATUS_ACCEPTED;

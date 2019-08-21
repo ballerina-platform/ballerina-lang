@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -44,7 +45,8 @@ public class Launcher {
         try {
             int port = args.length == 0 ? DEFAULT_PORT : Integer.parseInt(args[0]);
             server = new ServerSocket(port);
-            LOGGER.info("Debug server started on " + port);
+            PrintStream out = System.out;
+            out.println("Debug server started on " + port);
             clientSocket = server.accept();
             os = new DataOutputStream(clientSocket.getOutputStream());
             is = new DataInputStream(clientSocket.getInputStream());

@@ -17,13 +17,15 @@
 */
 package org.ballerinalang.test.statements.arrays;
 
+import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -111,28 +113,28 @@ public class ArrayTest {
         String str = returnVals[0].stringValue();
         Assert.assertEquals(str, "abc d () s");
     }
-    
+
     @Test
     public void testArrayToString() {
         String[] strArray = { "aaa", "bbb", "ccc" };
-        BValueArray bStringArray = new BValueArray(strArray);
-        Assert.assertEquals(bStringArray.stringValue(), "[\"aaa\", \"bbb\", \"ccc\"]");
+        ArrayValue bStringArray = new ArrayValue(strArray);
+        Assert.assertEquals(bStringArray.stringValue(), "aaa bbb ccc");
 
         long[] longArray = { 6, 3, 8, 4 };
-        BValueArray bIntArray = new BValueArray(longArray);
-        Assert.assertEquals(bIntArray.stringValue(), "[6, 3, 8, 4]");
+        ArrayValue bIntArray = new ArrayValue(longArray);
+        Assert.assertEquals(bIntArray.stringValue(), "6 3 8 4");
 
         double[] doubleArray = { 6.4, 3.7, 8.8, 7.4 };
-        BValueArray bFloatArray = new BValueArray(doubleArray);
-        Assert.assertEquals(bFloatArray.stringValue(), "[6.4, 3.7, 8.8, 7.4]");
+        ArrayValue bFloatArray = new ArrayValue(doubleArray);
+        Assert.assertEquals(bFloatArray.stringValue(), "6.4 3.7 8.8 7.4");
 
-        int[] boolArray = { 1, 1, 0 };
-        BValueArray bBooleanArray = new BValueArray(boolArray);
-        Assert.assertEquals(bBooleanArray.stringValue(), "[true, true, false]");
+        boolean[] boolArray = { true, true, false };
+        ArrayValue bBooleanArray = new ArrayValue(boolArray);
+        Assert.assertEquals(bBooleanArray.stringValue(), "true true false");
 
-        BXMLItem[] xmlArray = { new BXMLItem("<foo> </foo>"), new BXMLItem("<bar>hello</bar>") };
-        BValueArray bXmlArray = new BValueArray(xmlArray, BTypes.typeXML);
-        Assert.assertEquals(bXmlArray.stringValue(), "[<foo> </foo>, <bar>hello</bar>]");
+        XMLValue<?>[] xmlArray = { XMLFactory.parse("<foo> </foo>"), XMLFactory.parse("<bar>hello</bar>") };
+        ArrayValue bXmlArray = new ArrayValue(xmlArray, org.ballerinalang.jvm.types.BTypes.typeXML);
+        Assert.assertEquals(bXmlArray.stringValue(), "<foo> </foo> <bar>hello</bar>");
     }
 
     @Test

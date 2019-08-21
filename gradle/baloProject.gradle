@@ -67,11 +67,13 @@ task createOldBirJar(type: Exec) {
     workingDir "$buildDir/duplicate-src"
     dependsOn compileJava
 
-    environment 'BALLERINA_NATIVE_MAP': "$buildDir/classes/java/main/META-INF/this.map.json"
 //    environment 'BALLERINA_REPO_LOOKUP_VERBOSE': 'true'
 //    environment 'BAL_JAVA_DEBUG': '5005'
 
     doFirst {
+        if (file("$buildDir/classes/java/main/META-INF/this.map.json").exists()) {
+            environment 'BALLERINA_NATIVE_MAP': "$buildDir/classes/java/main/META-INF/this.map.json"
+        }
         configurations.balo.each {
             if (OperatingSystem.current().isWindows()) {
                 commandLine 'cmd.exe', '/c', new File(it, '/bin/ballerina.bat'), 'build', '--skiptests', project.ext.moduleName

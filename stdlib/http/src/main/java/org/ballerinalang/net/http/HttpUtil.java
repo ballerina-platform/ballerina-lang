@@ -35,6 +35,8 @@ import org.ballerinalang.jvm.JSONGenerator;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.services.ErrorHandlerUtils;
+import org.ballerinalang.jvm.transactions.TransactionConstants;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -55,9 +57,7 @@ import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.mime.util.MultipartDecoder;
 import org.ballerinalang.net.http.caching.RequestCacheControlObj;
 import org.ballerinalang.net.http.caching.ResponseCacheControlObj;
-import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
-import org.ballerinalang.util.transactions.TransactionConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -91,6 +91,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -103,6 +104,7 @@ import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_PEER_ADDRESS;
+import static org.ballerinalang.jvm.runtime.RuntimeConstants.BALLERINA_VERSION;
 import static org.ballerinalang.mime.util.EntityBodyHandler.checkEntityBodyAvailability;
 import static org.ballerinalang.mime.util.MimeConstants.BOUNDARY;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
@@ -164,7 +166,6 @@ import static org.ballerinalang.net.http.HttpConstants.SSL_ENABLED_PROTOCOLS;
 import static org.ballerinalang.net.http.HttpConstants.SSL_PROTOCOL_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.sendPipelinedResponse;
-import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 import static org.ballerinalang.stdlib.io.utils.IOConstants.DETAIL_RECORD_TYPE_NAME;
 import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE;
 import static org.wso2.transport.http.netty.contract.Constants.ENCODING_GZIP;
@@ -513,8 +514,11 @@ public class HttpUtil {
     }
 
     public static ErrorValue createHttpError(String message, HttpErrorType errorType) {
-        MapValue<String, Object> detailRecord = createHttpErrorDetailRecord(message, null);
-        return BallerinaErrors.createError(errorType.getReason(), detailRecord);
+        Map<String, Object> values = new HashMap<>();
+        values.put(BallerinaErrors.ERROR_MESSAGE_FIELD, message);
+        MapValue<String, Object> detail =
+                BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP, HTTP_ERROR_DETAIL_RECORD, values);
+        return BallerinaErrors.createError(errorType.getReason(), detail);
     }
 
     public static ErrorValue createHttpError(String message, HttpErrorType errorType, ErrorValue cause) {
@@ -1166,26 +1170,30 @@ public class HttpUtil {
         } else {
             HttpUtil.setDefaultTrustStore(senderConfiguration);
         }
-        MapValue proxy = clientEndpointConfig.getMapValue(HttpConstants.PROXY_STRUCT_REFERENCE);
-        if (proxy != null) {
-            String proxyHost = proxy.getStringValue(HttpConstants.PROXY_HOST);
-            int proxyPort = proxy.getIntValue(HttpConstants.PROXY_PORT).intValue();
-            String proxyUserName = proxy.getStringValue(HttpConstants.PROXY_USERNAME);
-            String proxyPassword = proxy.getStringValue(HttpConstants.PROXY_PASSWORD);
-            try {
-                proxyServerConfiguration = new ProxyServerConfiguration(proxyHost, proxyPort);
-            } catch (UnknownHostException e) {
-                throw new BallerinaConnectorException("Failed to resolve host" + proxyHost, e);
+        String httpVersion = clientEndpointConfig.getStringValue(HttpConstants.CLIENT_EP_HTTP_VERSION);
+        if (HTTP_1_1_VERSION.equals(httpVersion)) {
+            MapValue<String, Object> http1Settings = (MapValue<String, Object>) clientEndpointConfig
+                    .get(HttpConstants.HTTP1_SETTINGS);
+            MapValue proxy = http1Settings.getMapValue(HttpConstants.PROXY_STRUCT_REFERENCE);
+            if (proxy != null) {
+                String proxyHost = proxy.getStringValue(HttpConstants.PROXY_HOST);
+                int proxyPort = proxy.getIntValue(HttpConstants.PROXY_PORT).intValue();
+                String proxyUserName = proxy.getStringValue(HttpConstants.PROXY_USERNAME);
+                String proxyPassword = proxy.getStringValue(HttpConstants.PROXY_PASSWORD);
+                try {
+                    proxyServerConfiguration = new ProxyServerConfiguration(proxyHost, proxyPort);
+                } catch (UnknownHostException e) {
+                    throw new BallerinaConnectorException("Failed to resolve host" + proxyHost, e);
+                }
+                if (!proxyUserName.isEmpty()) {
+                    proxyServerConfiguration.setProxyUsername(proxyUserName);
+                }
+                if (!proxyPassword.isEmpty()) {
+                    proxyServerConfiguration.setProxyPassword(proxyPassword);
+                }
+                senderConfiguration.setProxyServerConfiguration(proxyServerConfiguration);
             }
-            if (!proxyUserName.isEmpty()) {
-                proxyServerConfiguration.setProxyUsername(proxyUserName);
-            }
-            if (!proxyPassword.isEmpty()) {
-                proxyServerConfiguration.setProxyPassword(proxyPassword);
-            }
-            senderConfiguration.setProxyServerConfiguration(proxyServerConfiguration);
         }
-
         long timeoutMillis = clientEndpointConfig.getIntValue(HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT);
         if (timeoutMillis < 0) {
             senderConfiguration.setSocketIdleTimeout(0);
@@ -1193,8 +1201,6 @@ public class HttpUtil {
             senderConfiguration.setSocketIdleTimeout(
                     validateConfig(timeoutMillis, HttpConstants.CLIENT_EP_ENDPOINT_TIMEOUT));
         }
-
-        String httpVersion = clientEndpointConfig.getStringValue(HttpConstants.CLIENT_EP_HTTP_VERSION);
         if (httpVersion != null) {
             senderConfiguration.setHttpVersion(httpVersion);
         }

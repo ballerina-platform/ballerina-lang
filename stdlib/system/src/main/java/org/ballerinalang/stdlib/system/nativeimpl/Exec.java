@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -46,12 +44,9 @@ import java.util.List;
         functionName = "exec",
         isPublic = true
 )
-public class Exec extends BlockingNativeCallableUnit {
+public class Exec {
 
     private static final Logger log = LoggerFactory.getLogger(Exec.class);
-
-    @Override
-    public void execute(Context context) { }
 
     public static Object exec(Strand strand, String command, MapValue<String, String> env, Object dir, 
                               ArrayValue args) {

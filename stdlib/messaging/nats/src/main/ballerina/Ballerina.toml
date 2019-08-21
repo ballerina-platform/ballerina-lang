@@ -7,15 +7,15 @@ target = "java"
 
     [[platform.libraries]]
     artafactId = "java-nats-streaming"
-    version = "2.1.0"
-    path = "./lib/java-nats-streaming-2.1.0.jar"
+    version = "2.1.6"
+    path = "./lib/java-nats-streaming-2.1.6.jar"
     groupId = "io.nats"
     modules = ["nats"]
 
     [[platform.libraries]]
     artafactId = "jnats"
-    version = "2.1.0"
-    path = "./lib/jnats-2.1.0.jar"
+    version = "2.4.0"
+    path = "./lib/jnats-2.4.0.jar"
     groupId = "io.nats"
     modules = ["nats"]
 

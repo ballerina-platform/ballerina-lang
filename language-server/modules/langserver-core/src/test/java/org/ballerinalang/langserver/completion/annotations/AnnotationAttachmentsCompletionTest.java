@@ -41,6 +41,10 @@ public class AnnotationAttachmentsCompletionTest extends CompletionTest {
     public Object[][] dataProvider() {
         log.info("Test textDocument/completion for annotation attachments");
         return new Object[][] {
+                {"annotationAccessExpression1.json", "annotation"},
+                {"annotationAccessExpression2.json", "annotation"},
+                {"annotationAccessExpression3.json", "annotation"},
+                {"annotationAccessExpression4.json", "annotation"},
                 {"annotationBodyCompletion1.json", "annotation"},
                 {"annotationBodyCompletion2.json", "annotation"},
                 {"annotationBodyCompletion3.json", "annotation"},

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.messaging.rabbitmq;
 
-import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
+import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
  * RabbitMQ Connector Constants.

@@ -276,11 +276,11 @@ public class BallerinaLexer extends Lexer {
 
 
 	    boolean inStringTemplate = false;
-	    boolean inSiddhi = false;
+	    boolean inStreams = false;
 	    boolean inTableSqlQuery = false;
-	    boolean inSiddhiInsertQuery = false;
-	    boolean inSiddhiTimeScaleQuery = false;
-	    boolean inSiddhiOutputRateLimit = false;
+	    boolean inStreamsInsertQuery = false;
+	    boolean inStreamsTimeScaleQuery = false;
+	    boolean inStreamsOutputRateLimit = false;
 
 
 	public BallerinaLexer(CharStream input) {
@@ -386,7 +386,7 @@ public class BallerinaLexer extends Lexer {
 	private void FROM_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 0:
-			 inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; 
+			 inTableSqlQuery = true; inStreamsInsertQuery = true; inStreamsOutputRateLimit = true; 
 			break;
 		}
 	}
@@ -400,126 +400,126 @@ public class BallerinaLexer extends Lexer {
 	private void FOR_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 2:
-			 inSiddhiTimeScaleQuery = true; 
+			 inStreamsTimeScaleQuery = true; 
 			break;
 		}
 	}
 	private void EVENTS_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 3:
-			 inSiddhiInsertQuery = false; 
+			 inStreamsInsertQuery = false; 
 			break;
 		}
 	}
 	private void WITHIN_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 4:
-			 inSiddhiTimeScaleQuery = true; 
+			 inStreamsTimeScaleQuery = true; 
 			break;
 		}
 	}
 	private void LAST_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 5:
-			 inSiddhiOutputRateLimit = false; 
+			 inStreamsOutputRateLimit = false; 
 			break;
 		}
 	}
 	private void FIRST_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 6:
-			 inSiddhiOutputRateLimit = false; 
+			 inStreamsOutputRateLimit = false; 
 			break;
 		}
 	}
 	private void OUTPUT_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 7:
-			 inSiddhiTimeScaleQuery = true; 
+			 inStreamsTimeScaleQuery = true; 
 			break;
 		}
 	}
 	private void SECOND_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 8:
-			 inSiddhiTimeScaleQuery = false; 
+			 inStreamsTimeScaleQuery = false; 
 			break;
 		}
 	}
 	private void MINUTE_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 9:
-			 inSiddhiTimeScaleQuery = false; 
+			 inStreamsTimeScaleQuery = false; 
 			break;
 		}
 	}
 	private void HOUR_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 10:
-			 inSiddhiTimeScaleQuery = false; 
+			 inStreamsTimeScaleQuery = false; 
 			break;
 		}
 	}
 	private void DAY_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 11:
-			 inSiddhiTimeScaleQuery = false; 
+			 inStreamsTimeScaleQuery = false; 
 			break;
 		}
 	}
 	private void MONTH_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 12:
-			 inSiddhiTimeScaleQuery = false; 
+			 inStreamsTimeScaleQuery = false; 
 			break;
 		}
 	}
 	private void YEAR_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 13:
-			 inSiddhiTimeScaleQuery = false; 
+			 inStreamsTimeScaleQuery = false; 
 			break;
 		}
 	}
 	private void SECONDS_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 14:
-			 inSiddhiTimeScaleQuery = false; 
+			 inStreamsTimeScaleQuery = false; 
 			break;
 		}
 	}
 	private void MINUTES_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 15:
-			 inSiddhiTimeScaleQuery = false; 
+			 inStreamsTimeScaleQuery = false; 
 			break;
 		}
 	}
 	private void HOURS_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 16:
-			 inSiddhiTimeScaleQuery = false; 
+			 inStreamsTimeScaleQuery = false; 
 			break;
 		}
 	}
 	private void DAYS_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 17:
-			 inSiddhiTimeScaleQuery = false; 
+			 inStreamsTimeScaleQuery = false; 
 			break;
 		}
 	}
 	private void MONTHS_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 18:
-			 inSiddhiTimeScaleQuery = false; 
+			 inStreamsTimeScaleQuery = false; 
 			break;
 		}
 	}
 	private void YEARS_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 19:
-			 inSiddhiTimeScaleQuery = false; 
+			 inStreamsTimeScaleQuery = false; 
 			break;
 		}
 	}
@@ -617,112 +617,112 @@ public class BallerinaLexer extends Lexer {
 	private boolean EVENTS_sempred(RuleContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 1:
-			return inSiddhiInsertQuery;
+			return inStreamsInsertQuery;
 		}
 		return true;
 	}
 	private boolean LAST_sempred(RuleContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 2:
-			return inSiddhiOutputRateLimit;
+			return inStreamsOutputRateLimit;
 		}
 		return true;
 	}
 	private boolean FIRST_sempred(RuleContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 3:
-			return inSiddhiOutputRateLimit;
+			return inStreamsOutputRateLimit;
 		}
 		return true;
 	}
 	private boolean OUTPUT_sempred(RuleContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 4:
-			return inSiddhiOutputRateLimit;
+			return inStreamsOutputRateLimit;
 		}
 		return true;
 	}
 	private boolean SECOND_sempred(RuleContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 5:
-			return inSiddhiTimeScaleQuery;
+			return inStreamsTimeScaleQuery;
 		}
 		return true;
 	}
 	private boolean MINUTE_sempred(RuleContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 6:
-			return inSiddhiTimeScaleQuery;
+			return inStreamsTimeScaleQuery;
 		}
 		return true;
 	}
 	private boolean HOUR_sempred(RuleContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 7:
-			return inSiddhiTimeScaleQuery;
+			return inStreamsTimeScaleQuery;
 		}
 		return true;
 	}
 	private boolean DAY_sempred(RuleContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 8:
-			return inSiddhiTimeScaleQuery;
+			return inStreamsTimeScaleQuery;
 		}
 		return true;
 	}
 	private boolean MONTH_sempred(RuleContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 9:
-			return inSiddhiTimeScaleQuery;
+			return inStreamsTimeScaleQuery;
 		}
 		return true;
 	}
 	private boolean YEAR_sempred(RuleContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 10:
-			return inSiddhiTimeScaleQuery;
+			return inStreamsTimeScaleQuery;
 		}
 		return true;
 	}
 	private boolean SECONDS_sempred(RuleContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 11:
-			return inSiddhiTimeScaleQuery;
+			return inStreamsTimeScaleQuery;
 		}
 		return true;
 	}
 	private boolean MINUTES_sempred(RuleContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 12:
-			return inSiddhiTimeScaleQuery;
+			return inStreamsTimeScaleQuery;
 		}
 		return true;
 	}
 	private boolean HOURS_sempred(RuleContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 13:
-			return inSiddhiTimeScaleQuery;
+			return inStreamsTimeScaleQuery;
 		}
 		return true;
 	}
 	private boolean DAYS_sempred(RuleContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 14:
-			return inSiddhiTimeScaleQuery;
+			return inStreamsTimeScaleQuery;
 		}
 		return true;
 	}
 	private boolean MONTHS_sempred(RuleContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 15:
-			return inSiddhiTimeScaleQuery;
+			return inStreamsTimeScaleQuery;
 		}
 		return true;
 	}
 	private boolean YEARS_sempred(RuleContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 16:
-			return inSiddhiTimeScaleQuery;
+			return inStreamsTimeScaleQuery;
 		}
 		return true;
 	}

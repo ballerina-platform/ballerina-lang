@@ -1757,14 +1757,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
 
         if (varNode.getKind() == NodeKind.TUPLE_VARIABLE) {
-            ((BLangTupleVariable) varNode).memberVariables
-                    .forEach(variable -> setTaintedStatus(variable, taintedStatus));
+            for (BLangVariable variable : ((BLangTupleVariable) varNode).memberVariables) {
+                setTaintedStatus(variable, taintedStatus);
+            }
             return;
         }
 
         if (varNode.getKind() == NodeKind.VARIABLE) {
             BLangSimpleVariable simpleVarNode = (BLangSimpleVariable) varNode;
-            if (taintedStatus != TaintedStatus.IGNORED && (overridingAnalysis || !simpleVarNode.symbol.tainted)) {
+            boolean isTaintedVar = simpleVarNode.symbol != null && !simpleVarNode.symbol.tainted;
+            if (taintedStatus != TaintedStatus.IGNORED && (overridingAnalysis || isTaintedVar)) {
                 setTaintedStatus(simpleVarNode.symbol, taintedStatus);
             }
         }
@@ -1816,6 +1818,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
         // Entry point input parameters are all tainted, since they contain user controlled data.
         // If any value has been marked "untainted" generate an error.
+        // Except when the listener is statically verifiable to be untainted.
         if (isEntryPointParamsInvalid(invNode.requiredParams, markParamsTainted)) {
             return;
         }
@@ -1847,7 +1850,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             for (BLangSimpleVariable param : params) {
                 if (markParamsTainted) {
                     setTaintedStatus(param.symbol, TaintedStatus.TAINTED);
+                } else {
+                    setTaintedStatus(param.symbol, TaintedStatus.UNTAINTED);
                 }
+
                 if (hasAnnotation(param, ANNOTATION_UNTAINTED)) {
                     this.dlog.error(param.pos, DiagnosticCode.ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED,
                             param.name.value);
@@ -2624,11 +2630,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
         for (int argIndex = 0; argIndex < requiredArgsCount; argIndex++) {
             BLangExpression argExpr = requiredArgs.get(argIndex);
-            TaintedStatus argTaintedStatus = TaintedStatus.UNTAINTED;
+            TaintedStatus argTaintedStatus = TaintedStatus.IGNORED;
             if (!argTaintedStatusList.isEmpty()) {
                 argTaintedStatus = argTaintedStatusList.get(argIndex);
             }
-            updateArgTaintedStatus(argExpr, argTaintedStatus);
+            if (argTaintedStatus == TaintedStatus.TAINTED) {
+                updateArgTaintedStatus(argExpr, argTaintedStatus);
+            }
         }
 
         for (int argIndex = 0; argIndex < namedArgsCount; argIndex++) {

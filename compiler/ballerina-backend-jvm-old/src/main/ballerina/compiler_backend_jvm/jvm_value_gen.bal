@@ -61,7 +61,7 @@ public type ObjectGenerator object {
 
         bir:Function?[]? attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs is bir:Function?[]) {
-            self.createObjectMethods(cw, attachedFuncs, isService, className);
+            self.createObjectMethods(cw, attachedFuncs, isService, className, typeDef.name.value);
         }
 
         self.createObjectInit(cw, fields, className);
@@ -96,13 +96,13 @@ public type ObjectGenerator object {
     }
 
     private function createObjectMethods(jvm:ClassWriter cw, bir:Function?[] attachedFuncs, boolean isService,
-                                                                                                string className) {
+                                         string className, string typeName) {
         foreach var func in attachedFuncs {
             if (func is bir:Function) {
                 if !isExternFunc(func) {
                     addDefaultableBooleanVarsToSignature(func);
                 }
-                generateMethod(func, cw, self.module, attachedType = self.currentObjectType, isService = isService, className = className);
+                generateMethod(func, cw, self.module, attachedType = self.currentObjectType, isService = isService, serviceName = typeName);
             }
         }
     }

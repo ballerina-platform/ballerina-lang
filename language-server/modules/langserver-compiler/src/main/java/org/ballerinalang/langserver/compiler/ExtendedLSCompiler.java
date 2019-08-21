@@ -112,12 +112,17 @@ public class ExtendedLSCompiler extends LSModuleCompiler {
         options.put(SKIP_TESTS, String.valueOf(false));
         BLangDiagnosticLog.getInstance(context).errorCount = 0;
         Compiler compiler = Compiler.getInstance(context);
+        LSServiceOperationContext lsContext = new LSServiceOperationContext(() -> "extendedCompiler/compileFile");
+
+        lsContext.put(DocumentServiceKeys.COMPILER_CONTEXT_KEY, context);
+        lsContext.put(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY, packageName);
+
         try {
             compiler.setOutStream(new LSCompilerUtil.EmptyPrintStream());
         } catch (UnsupportedEncodingException e) {
             logger.error("Unable to create the empty stream.");
         }
-        BLangPackage bLangPackage = compileSafe(compiler, parent.toString(), packageName);
+        BLangPackage bLangPackage = compileSafe(compiler, parent.toString(), packageName, lsContext);
         BallerinaFile bfile;
         if (context.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
             List<Diagnostic> diagnostics = ((CollectDiagnosticListener) context.get(DiagnosticListener.class))

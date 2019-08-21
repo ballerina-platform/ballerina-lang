@@ -70,7 +70,7 @@ public class DiagnosticsHelper {
         LSModuleCompiler.getBLangPackages(context, docManager, true, null, true, true);
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         if (compilerContext.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
-             diagnostics = ((CollectDiagnosticListener) compilerContext.get(DiagnosticListener.class)).getDiagnostics();
+            diagnostics = ((CollectDiagnosticListener) compilerContext.get(DiagnosticListener.class)).getDiagnostics();
         }
 
         Map<String, List<Diagnostic>> diagnosticMap = getDiagnostics(diagnostics, lsDocument);

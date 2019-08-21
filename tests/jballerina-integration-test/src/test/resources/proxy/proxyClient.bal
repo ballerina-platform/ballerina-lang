@@ -18,9 +18,11 @@ import ballerina/http;
 import ballerina/io;
 
 http:ClientEndpointConfig clientEPConfig  = {
-    proxy: {
-        host:"localhost",
-        port:9219
+    http1Settings: {
+        proxy: {
+            host:"localhost",
+            port:9219
+        }
     }
 };
 

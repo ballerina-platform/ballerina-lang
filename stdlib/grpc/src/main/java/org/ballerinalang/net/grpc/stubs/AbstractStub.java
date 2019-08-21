@@ -19,13 +19,13 @@ package org.ballerinalang.net.grpc.stubs;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.net.grpc.ClientCall;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.OutboundMessage;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -36,9 +36,9 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static org.ballerinalang.jvm.runtime.RuntimeConstants.BALLERINA_VERSION;
 import static org.ballerinalang.net.grpc.GrpcConstants.AUTHORITY;
 import static org.ballerinalang.net.grpc.GrpcConstants.SCHEME_HEADER;
-import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
 /**
  * Abstract class for stub implementations.

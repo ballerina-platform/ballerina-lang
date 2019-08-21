@@ -53,7 +53,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-internal', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
 
-    implementation project(':ballerina-core')
     implementation project(':ballerina-system')
     implementation project(':ballerina-tool')
     implementation project(':ballerina-lang')

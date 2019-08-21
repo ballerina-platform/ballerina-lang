@@ -32,7 +32,7 @@ service http2EchoService on new http:Listener(9101, { httpVersion: "2.0" }) {
         http:Response response = new;
         var jsonPayload = request.getJsonPayload();
         if (jsonPayload is json) {
-            response.setPayload(jsonPayload);
+            response.setPayload(<@untainted> jsonPayload);
             var result = caller->respond(response);
         } else {
             log:printError("Error getting the json payload");
