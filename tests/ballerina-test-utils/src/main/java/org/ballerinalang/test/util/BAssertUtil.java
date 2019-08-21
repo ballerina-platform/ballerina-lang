@@ -49,6 +49,17 @@ public class BAssertUtil {
         Assert.assertEquals(diag.getPosition().getStartColumn(), expectedErrCol, "incorrect column position:");
     }
 
+    public static void validateError(CompileResult result, int errorIndex, String expectedErrMsg, String fileName,
+                                     int expectedErrLine, int expectedErrCol) {
+        Diagnostic diag = result.getDiagnostics()[errorIndex];
+        Assert.assertEquals(diag.getKind(), Diagnostic.Kind.ERROR, "incorrect diagnostic type");
+        Assert.assertEquals(diag.getMessage().replace(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
+                expectedErrMsg.replace(CARRIAGE_RETURN_CHAR, EMPTY_STRING), "incorrect error message:");
+        Assert.assertEquals(diag.getPosition().getStartLine(), expectedErrLine, "incorrect line number:");
+        Assert.assertEquals(diag.getPosition().getStartColumn(), expectedErrCol, "incorrect column position:");
+        Assert.assertEquals(diag.getSource().getCompilationUnitName(), fileName, "incorrect file name:");
+    }
+
     /**
      * Assert an error (without error message).
      *

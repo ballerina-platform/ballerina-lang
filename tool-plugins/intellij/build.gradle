@@ -16,7 +16,7 @@
  */
 
 plugins {
-    id "org.jetbrains.intellij" version "0.4.8"
+    id "org.jetbrains.intellij" version "0.4.9"
     id "de.undercouch.download" version "3.4.3"
     id "org.sonarqube" version "2.6"
 }
@@ -55,6 +55,7 @@ intellij {
     version ideaVersion
     pluginName ballerinaPluginName
     updateSinceUntilBuild false
+    plugins 'java'
     // plugins 'coverage' //Bundled plugin dependencies
     // Uncomment this line to test the plugin using small IDEs. Add -Dorg.gradle.project.localIdePath="IDE_HOME_PATH"
     // VM option in run config.

@@ -128,7 +128,8 @@ public class LSCompilerUtil {
                 : compilerPhase.toString();
 
         options.put(COMPILER_PHASE, phase);
-        options.put(PRESERVE_WHITESPACE, Boolean.valueOf(preserveWhitespace).toString());
+        // Temporarily make all the operations to keep the WS to avoid test failures after context clearing
+        options.put(PRESERVE_WHITESPACE, Boolean.valueOf(true).toString());
         options.put(TEST_ENABLED, String.valueOf(true));
         options.put(SKIP_TESTS, String.valueOf(false));
 

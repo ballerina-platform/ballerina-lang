@@ -415,7 +415,6 @@ function errorResultWithMultipleWorkers() returns error? {
         int x = 30;
         () n = x ->> w2;
         error? res = x ->> w2;
-        res = x + 44 ->> w2;
         return res;
     }
 
@@ -426,7 +425,6 @@ function errorResultWithMultipleWorkers() returns error? {
             error err = error("err returned from w2"); // Already errored
             return err;
         }
-        x = <- w1;
         error? res = <- w1;
         return res;
     }

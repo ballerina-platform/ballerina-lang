@@ -39,6 +39,6 @@ public interface BallerinaErrorMatchPattern extends PsiElement {
   PsiElement getRightParenthesis();
 
   @Nullable
-  PsiElement getTypeError();
+  PsiElement getError();
 
 }

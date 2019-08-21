@@ -147,4 +147,9 @@ public class RuntimeUtils {
     public static void handleInvalidConfig() {
         handleInitError("ballerina: value for option 'config' is missing");
     }
+    
+    public static void silentlyLogBadSad(Throwable throwable) {
+        // These errors are unhandled errors in JVM, hence logging them to bre log.
+        breLog.error(throwable.getMessage(), throwable);
+    }
 }

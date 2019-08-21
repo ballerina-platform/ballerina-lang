@@ -96,6 +96,7 @@ public interface BallerinaTypes {
   IElementType ERROR_BINDING_PATTERN = new BallerinaCompositeElementType("ERROR_BINDING_PATTERN");
   IElementType ERROR_DESTRUCTURING_STATEMENT = new BallerinaCompositeElementType("ERROR_DESTRUCTURING_STATEMENT");
   IElementType ERROR_DETAIL_BINDING_PATTERN = new BallerinaCompositeElementType("ERROR_DETAIL_BINDING_PATTERN");
+  IElementType ERROR_FIELD_BINDING_PATTERNS = new BallerinaCompositeElementType("ERROR_FIELD_BINDING_PATTERNS");
   IElementType ERROR_FIELD_MATCH_PATTERNS = new BallerinaCompositeElementType("ERROR_FIELD_MATCH_PATTERNS");
   IElementType ERROR_MATCH_PATTERN = new BallerinaCompositeElementType("ERROR_MATCH_PATTERN");
   IElementType ERROR_MATCH_PATTERN_CLAUSE = new BallerinaCompositeElementType("ERROR_MATCH_PATTERN_CLAUSE");
@@ -231,7 +232,6 @@ public interface BallerinaTypes {
   IElementType SELECT_EXPRESSION = new BallerinaCompositeElementType("SELECT_EXPRESSION");
   IElementType SELECT_EXPRESSION_LIST = new BallerinaCompositeElementType("SELECT_EXPRESSION_LIST");
   IElementType SERVICE_BODY = new BallerinaCompositeElementType("SERVICE_BODY");
-  IElementType SERVICE_BODY_MEMBER = new BallerinaCompositeElementType("SERVICE_BODY_MEMBER");
   IElementType SERVICE_CONSTRUCTOR_EXPRESSION = new BallerinaCompositeElementType("SERVICE_CONSTRUCTOR_EXPRESSION");
   IElementType SERVICE_DEFINITION = new BallerinaCompositeElementType("SERVICE_DEFINITION");
   IElementType SERVICE_TYPE_NAME = new BallerinaCompositeElementType("SERVICE_TYPE_NAME");
@@ -371,7 +371,7 @@ public interface BallerinaTypes {
   IElementType COMPOUND_MUL = new BallerinaTokenType("*=");
   IElementType COMPOUND_RIGHT_SHIFT = new BallerinaTokenType("COMPOUND_RIGHT_SHIFT");
   IElementType COMPOUND_SUB = new BallerinaTokenType("-=");
-  IElementType CONST = new BallerinaTokenType("CONST");
+  IElementType CONST = new BallerinaTokenType("const");
   IElementType CONTINUE = new BallerinaTokenType("continue");
   IElementType DAY = new BallerinaTokenType("day");
   IElementType DAYS = new BallerinaTokenType("days");
@@ -478,7 +478,7 @@ public interface BallerinaTypes {
   IElementType PIPE = new BallerinaTokenType("|");
   IElementType POW = new BallerinaTokenType("^");
   IElementType PRIVATE = new BallerinaTokenType("private");
-  IElementType PUBLIC = new BallerinaTokenType("PUBLIC");
+  IElementType PUBLIC = new BallerinaTokenType("public");
   IElementType QUESTION_MARK = new BallerinaTokenType("?");
   IElementType QUOTED_STRING_LITERAL = new BallerinaTokenType("QUOTED_STRING_LITERAL");
   IElementType RANGE = new BallerinaTokenType("..");
@@ -530,7 +530,6 @@ public interface BallerinaTypes {
   IElementType TYPE = new BallerinaTokenType("type");
   IElementType TYPEDESC = new BallerinaTokenType("typedesc");
   IElementType TYPEOF = new BallerinaTokenType("typeof");
-  IElementType TYPE_ERROR = new BallerinaTokenType("TYPE_ERROR");
   IElementType TYPE_PARAMETER = new BallerinaTokenType("TYPE_PARAMETER");
   IElementType UNIDIRECTIONAL = new BallerinaTokenType("unidirectional");
   IElementType VAR = new BallerinaTokenType("var");
@@ -768,6 +767,9 @@ public interface BallerinaTypes {
       }
       else if (type == ERROR_DETAIL_BINDING_PATTERN) {
         return new BallerinaErrorDetailBindingPatternImpl(node);
+      }
+      else if (type == ERROR_FIELD_BINDING_PATTERNS) {
+        return new BallerinaErrorFieldBindingPatternsImpl(node);
       }
       else if (type == ERROR_FIELD_MATCH_PATTERNS) {
         return new BallerinaErrorFieldMatchPatternsImpl(node);
@@ -1173,9 +1175,6 @@ public interface BallerinaTypes {
       }
       else if (type == SERVICE_BODY) {
         return new BallerinaServiceBodyImpl(node);
-      }
-      else if (type == SERVICE_BODY_MEMBER) {
-        return new BallerinaServiceBodyMemberImpl(node);
       }
       else if (type == SERVICE_CONSTRUCTOR_EXPRESSION) {
         return new BallerinaServiceConstructorExpressionImpl(node);
