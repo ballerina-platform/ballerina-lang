@@ -687,6 +687,19 @@ public class TableTest {
         Assert.assertEquals(((BDecimal) returns[6]).decimalValue(), new BigDecimal("23.45"));
     }
 
+    @Test(groups = TABLE_TEST, description = "Check retrieving data using while loop and constructFrom function")
+    public void testGetPrimitiveTypesWithWhileLoopAndConstructFrom() {
+        BValue[] returns = BRunUtil.invoke(result, "testGetPrimitiveTypesWithWhileLoopAndConstructFrom");
+        Assert.assertEquals(returns.length, 7);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D, DELTA);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039D);
+        Assert.assertTrue(((BBoolean) returns[4]).booleanValue());
+        Assert.assertEquals(returns[5].stringValue(), "Hello");
+        Assert.assertEquals(((BDecimal) returns[6]).decimalValue(), new BigDecimal("23.45"));
+    }
+
     @Test(groups = TABLE_TEST, description = "Check retrieving data using foreach with multiple rows")
     public void testMultipleRowsWithForEach() {
         BValue[] returns = BRunUtil.invoke(result, "testMultipleRowsWithForEach");
