@@ -35,7 +35,6 @@ import java.nio.charset.Charset;
 
 import static org.ballerinalang.mime.util.EntityBodyHandler.isStreamingRequired;
 import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
-import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_BODY_FAILED;
 import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 import static org.ballerinalang.mime.util.MimeUtil.isNotNullAndEmpty;
 
@@ -87,7 +86,7 @@ public class GetByteArray extends AbstractGetPayloadHandler {
                 constructNonBlockingDataSource(callback, entityObj, SourceType.BLOB);
             }
         } catch (Exception ex) {
-            createErrorAndNotify(PARSING_ENTITY_BODY_FAILED, callback,
+            createParsingEntityBodyFailedErrorAndNotify(callback,
                                  "Error occurred while extracting blob data from entity : " + ex.getMessage());
         }
         return result;

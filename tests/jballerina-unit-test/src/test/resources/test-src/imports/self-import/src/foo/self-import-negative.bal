@@ -1,3 +1,3 @@
-import ballerina/runtime;
+import ballerina/runtime as _;
 import foo;
-import ballerina/io;
+import ballerina/io as _;

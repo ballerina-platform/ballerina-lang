@@ -71,12 +71,10 @@ public class LaunchUtils {
                 userProgramArgs.addAll(Arrays.asList(Arrays.copyOfRange(args, i + 1, args.length)));
                 break;
             }
-
             if (args[i].equals("--observe")) {
                 observeFlag = true;
                 continue;
             }
-
             if (args[i].equals("--config") || args[i].equals("-c")) {
                 if (i + 1 >= args.length) {
                     RuntimeUtils.handleInvalidConfig();
@@ -85,7 +83,6 @@ public class LaunchUtils {
                 i++;
                 continue;
             }
-
             if (args[i].toLowerCase().startsWith(BALLERINA_ARGS_INIT_PREFIX)) {
                 String configString = args[i].substring(BALLERINA_ARGS_INIT_PREFIX_LENGTH);
                 String[] keyValuePair = configString.split(CONFIG_SEPARATOR);

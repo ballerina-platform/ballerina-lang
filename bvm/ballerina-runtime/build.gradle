@@ -21,6 +21,7 @@ dependencies {
     implementation 'org.apache.ws.commons.axiom:axiom-impl'
     implementation 'org.apache.ws.commons.axiom:axiom-dom'
     implementation 'org.apache.ws.commons.axiom:axiom-c14n'
+    implementation 'org.apache.commons:commons-lang3'
     implementation 'io.opentracing:opentracing-api'
     implementation 'io.opentracing:opentracing-util'
     implementation 'org.awaitility:awaitility'
