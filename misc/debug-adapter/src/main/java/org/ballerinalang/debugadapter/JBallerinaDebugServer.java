@@ -147,21 +147,20 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
         breakpointsResponse.setBreakpoints(breakpoints);
 
-        if (breakpoints.length > 0) {
-            Breakpoint breakpoint = breakpoints[0];
-            projectRoot = findProjectRoot(Paths.get(breakpoint.getSource().getPath()));
-            if (projectRoot == null) {
-                // calculate projectRoot for single file
-                File file = new File(breakpoint.getSource().getPath());
-                File parentDir = file.getParentFile();
-                projectRoot = parentDir.toPath();
-            } else {
-                Manifest manifest = TomlParserUtils.getManifest(projectRoot);
-                orgName = manifest.getProject().getOrgName();
-            }
+        String path = args.getSource().getPath();
+
+        projectRoot = findProjectRoot(Paths.get(path));
+        if (projectRoot == null) {
+            // calculate projectRoot for single file
+            File file = new File(path);
+            File parentDir = file.getParentFile();
+            projectRoot = parentDir.toPath();
+        } else {
+            Manifest manifest = TomlParserUtils.getManifest(projectRoot);
+            orgName = manifest.getProject().getOrgName();
         }
 
-        this.eventBus.setBreakpointsList(breakpoints);
+        this.eventBus.setBreakpointsList(path, breakpoints);
 
         return CompletableFuture.completedFuture(breakpointsResponse);
     }
@@ -646,6 +645,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         Breakpoint breakpoint = new Breakpoint();
         breakpoint.setLine(sourceBreakpoint.getLine());
         breakpoint.setSource(source);
+        breakpoint.setVerified(true);
         return breakpoint;
     }
 
