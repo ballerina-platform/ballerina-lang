@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.model.elements.PackageID;
@@ -186,7 +187,8 @@ public class BCompileUtil {
                     throw new BallerinaException("Method has private access", e);
                 }
             };
-            final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null);
+            final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null,
+                    BTypes.typeAny);
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
