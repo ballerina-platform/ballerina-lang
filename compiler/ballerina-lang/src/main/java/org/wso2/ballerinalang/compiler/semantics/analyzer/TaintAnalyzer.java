@@ -1757,14 +1757,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         }
 
         if (varNode.getKind() == NodeKind.TUPLE_VARIABLE) {
-            ((BLangTupleVariable) varNode).memberVariables
-                    .forEach(variable -> setTaintedStatus(variable, taintedStatus));
+            for (BLangVariable variable : ((BLangTupleVariable) varNode).memberVariables) {
+                setTaintedStatus(variable, taintedStatus);
+            }
             return;
         }
 
         if (varNode.getKind() == NodeKind.VARIABLE) {
             BLangSimpleVariable simpleVarNode = (BLangSimpleVariable) varNode;
-            if (taintedStatus != TaintedStatus.IGNORED && (overridingAnalysis || !simpleVarNode.symbol.tainted)) {
+            boolean isTaintedVar = simpleVarNode.symbol != null && !simpleVarNode.symbol.tainted;
+            if (taintedStatus != TaintedStatus.IGNORED && (overridingAnalysis || isTaintedVar)) {
                 setTaintedStatus(simpleVarNode.symbol, taintedStatus);
             }
         }

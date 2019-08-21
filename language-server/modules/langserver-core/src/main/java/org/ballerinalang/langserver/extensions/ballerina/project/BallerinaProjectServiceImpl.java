@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.extensions.ballerina.project;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -62,9 +63,9 @@ public class BallerinaProjectServiceImpl implements BallerinaProjectService {
         ModulesResponse reply = new ModulesResponse();
         String sourceRoot = request.getSourceRoot();
         try {
-            LSContext astContext = new LSServiceOperationContext();
+            LSContext astContext = new LSServiceOperationContext(LSContextOperation.PROJ_MODULES);
             astContext.put(DocumentServiceKeys.SOURCE_ROOT_KEY, sourceRoot);
-            List<BLangPackage> modules = LSModuleCompiler.getBLangModules(astContext, this.documentManager, true,
+            List<BLangPackage> modules = LSModuleCompiler.getBLangModules(astContext, this.documentManager,
                     LSCustomErrorStrategy.class);
             JsonObject jsonModulesInfo = getJsonReply(astContext, modules);
             reply.setModules(jsonModulesInfo);

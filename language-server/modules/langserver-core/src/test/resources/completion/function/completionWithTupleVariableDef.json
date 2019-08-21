@@ -6,6 +6,22 @@
   "source": "function/source/completionWithTupleVariableDef.bal",
   "items": [
     {
+      "label": "checkpanic",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "210",
+      "insertText": "checkpanic ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "check",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "210",
+      "insertText": "check ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error",
       "kind": "Keyword",
       "detail": "Error",
@@ -23,7 +39,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n---    \n**Parameters**  \n"
+          "value": "**Package:** _._  \n  \n  \n"
         }
       },
       "sortText": "130",

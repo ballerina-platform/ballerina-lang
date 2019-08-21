@@ -49,59 +49,58 @@ public class IterableOperationsTests {
         negative = BCompileUtil.compile("test-src/expressions/lambda/iterable/iterable-negative.bal");
     }
 
-    @Test(enabled = false)
+    @Test()
     public void testNegative() {
-        Assert.assertEquals(negative.getErrorCount(), 31);
-
+        Assert.assertEquals(negative.getErrorCount(), 35);
         int index = 0;
         BAssertUtil.validateError(negative, index++, "undefined function 'forEach'", 6, 5);
         BAssertUtil.validateError(negative, index++, "undefined function 'map'", 8, 5);
         BAssertUtil.validateError(negative, index++, "variable assignment is required", 14, 5);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) returns" +
                 " (boolean)', found 'function (int,string) returns (boolean)'", 16, 14);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'map<string>', " +
-                "found 'map<[string,string]>'", 31, 21);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int', found '()'", 46, 19);
-        BAssertUtil.validateError(negative, index++, "too many variables are defined for iterable type 'string[]'",
-                48, 24);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'map<string>', found " +
+                "'map<[string,string]>'", 31, 21);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found 'any'", 35, 18);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found 'any'", 38, 13);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int', found '()'", 46, 9);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected '[other,other]', found 'string[]'",
+                48, 18);
         BAssertUtil.validateError(negative, index++, "invalid tuple variable; expecting a tuple type but found " +
                 "'other' in type definition", 48, 18);
-        BAssertUtil.validateError(negative, index++, "no argument required for operation 'count'", 55, 17);
-        BAssertUtil.validateError(negative, index++, "single lambda function required here", 56, 5);
-        BAssertUtil.validateError(negative, index++, "single lambda function required here", 58, 15);
-        BAssertUtil.validateError(negative, index++, "too many variables are defined for iterable type 'string[]'", 63,
-                15);
-        BAssertUtil.validateError(negative, index++, "iterable lambda function required a single param or a tuple " +
-                "param", 64, 15);
-        BAssertUtil.validateError(negative, index++, "too many return arguments are defined for operation 'filter'", 65,
-                14);
-        BAssertUtil.validateError(negative, index++, "not enough return arguments are defined for operation 'filter'",
-                66, 14);
+        BAssertUtil.validateError(negative, index++, "invalid operation: type 'string' does not support field access",
+                49, 35);
+        BAssertUtil.validateError(negative, index++, "too many arguments in call to 'length()'", 55, 9);
+        BAssertUtil.validateError(negative, index++, "not enough arguments in call to 'filter()'", 56, 5);
+        BAssertUtil.validateError(negative, index++, "missing required parameter 'func' in call to 'filter'()", 56, 5);
+        BAssertUtil.validateError(negative, index++, "variable assignment is required", 56, 5);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) " +
+                "returns ()', found 'int'", 58, 15);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected '[string,string,string]', found " +
+                "'string'", 63, 5);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error))" +
+                " returns ()', found 'function () returns ()'", 64, 15);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) returns " +
+                        "(boolean)', found 'function (string) returns ([boolean,int])'", 65, 14);
+        BAssertUtil.validateError(negative, index++, "variable assignment is required", 65, 5);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) returns " +
+                        "(boolean)', found 'function (string) returns ()'", 66, 14);
+        BAssertUtil.validateError(negative, index++, "variable assignment is required", 66, 5);
         BAssertUtil.validateError(negative, index++, "unknown type 'person'", 67, 24);
-        BAssertUtil.validateError(negative, index++, "not enough return arguments are defined for operation 'filter'",
-                67, 14);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) returns " +
+                        "(boolean)', found 'function (other) returns ()'", 67, 14);
+        BAssertUtil.validateError(negative, index++, "variable assignment is required", 67, 5);
         BAssertUtil.validateError(negative, index++, "unknown type 'person'", 68, 47);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'any[]'",
-                73, 23);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'string[]'", 82, 27);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'string[]'", 93, 30);
-        BAssertUtil.validateError(negative, index++, "not enough variables are defined for iterable type 'map', " +
-                "require at least '2' variables", 99, 27);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) " +
+                "returns (boolean)', found 'function (string) returns (other)'", 68, 18);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'any[]'", 73, 15);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'string[]'", 80, 15);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'string[]'", 89, 15);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found 'any'", 99, 18);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found 'map'", 103, 16);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'boolean', found 'int'", 111, 20);
         BAssertUtil.validateError(negative, index++,
-                                  "not enough variables are defined for iterable type 'map', require" +
-                " at least '2' variables", 103, 22);
-        BAssertUtil.validateError(negative, index++,
-                                  "cannot assign return value of 'filter' operation here, use a reduce operation",
-                                  110, 5);
-        BAssertUtil.validateError(negative, index++, "undefined symbol 'filtered'", 113, 17);
-        BAssertUtil.validateError(negative, index++,
-                                  "cannot assign return value of 'map' operation here, use a reduce operation",
-                                  118, 5);
-        BAssertUtil.validateError(negative, index++,
-                                  "invalid operation: type '(int) collection' does not support indexing", 129, 13);
-        BAssertUtil.validateError(negative, index,
-                                  "cannot assign return value of 'map' operation here, use a reduce operation",
-                                  141, 19);
+                "incompatible types: expected 'float', found 'int'", 120, 39);
+        BAssertUtil.validateError(negative, index, "incompatible types: expected 'float', found 'int'", 137, 42);
     }
 
     @Test

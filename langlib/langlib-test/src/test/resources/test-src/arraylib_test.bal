@@ -237,3 +237,15 @@ function testUnshiftTypeWithoutFillerValues () returns Obj[] {
     arr.unshift(new Obj(1, 1), new Obj(1,2));
     return arr;
 }
+
+function testRemoveAll() returns int[] {
+    int[] ar = [1, 2, 3, 4, 5, 6, 7];
+    ar.removeAll();
+    return ar;
+}
+
+function testRemoveAllFixedLengthArray() returns int[] {
+    int[7] ar = [1, 2, 3, 4, 5, 6, 7];
+    ar.removeAll();
+    return ar;
+}

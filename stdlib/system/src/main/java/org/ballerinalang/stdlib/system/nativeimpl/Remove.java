@@ -59,8 +59,8 @@ public class Remove {
             }
 
             if (!removeFile.exists()) {
-                return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR,
-                        "File doesn't exist in path " + removeFile.getCanonicalPath());
+                return SystemUtils.getBallerinaError(SystemConstants.FILE_NOT_FOUND_ERROR,
+                        "File not found: " + removeFile.getCanonicalPath());
             }
 
             if (recursive) {

@@ -19,8 +19,7 @@ import ballerina/log;
 import ballerina/runtime;
 import ballerina/time;
 import ballerina/io;
-import ballerina/internal;
-import ballerina/'lang\.int as langint;
+import ballerina/lang.'int;
 
 final string WARNING_AGENT = getWarningAgent();
 
@@ -348,19 +347,14 @@ function getCachedResponse(HttpCache cache, HttpClient httpClient, @tainted Requ
         RequestCacheControl? reqCache = req.cacheControl;
         ResponseCacheControl? resCache = cachedResponse.cacheControl;
 
-
         if (isFreshResponse(cachedResponse, isShared)) {
             // If the no-cache directive is not set, responses can be served straight from the cache, without
             // validating with the origin server.
-            if (reqCache is RequestCacheControl && resCache is ResponseCacheControl) {
-                if (!(reqCache.noCache) && !(resCache.noCache) && !req.hasHeader(PRAGMA)) {
-                    log:printDebug("Serving a cached fresh response without validating with the origin server");
-                    return cachedResponse;
-                } else {
-                    log:printDebug("Serving a cached fresh response after validating with the origin server");
-                    return getValidationResponse(httpClient, req, cachedResponse, cache, currentT, path, httpMethod, true);
-                }
+            if (!isNoCacheSet(reqCache, resCache) && !req.hasHeader(PRAGMA)) {
+                log:printDebug("Serving a cached fresh response without validating with the origin server");
+                return cachedResponse;
             }
+
             log:printDebug("Serving a cached fresh response after validating with the origin server");
             return getValidationResponse(httpClient, req, cachedResponse, cache, currentT, path, httpMethod, true);
         }
@@ -371,12 +365,10 @@ function getCachedResponse(HttpCache cache, HttpClient httpClient, @tainted Requ
 
             // If the no-cache directive is not set, responses can be served straight from the cache, without
             // validating with the origin server.
-            if (reqCache is RequestCacheControl && resCache is ResponseCacheControl) {
-                if (!(reqCache.noCache) && ! (resCache.noCache) && !req.hasHeader(PRAGMA)) {
-                    log:printDebug("Serving cached stale response without validating with the origin server");
-                    cachedResponse.setHeader(WARNING, WARNING_110_RESPONSE_IS_STALE);
-                    return cachedResponse;
-                }
+            if (!isNoCacheSet(reqCache, resCache) && !req.hasHeader(PRAGMA)) {
+                log:printDebug("Serving cached stale response without validating with the origin server");
+                cachedResponse.setHeader(WARNING, WARNING_110_RESPONSE_IS_STALE);
+                return cachedResponse;
             }
         }
 
@@ -408,6 +400,18 @@ function getCachedResponse(HttpCache cache, HttpClient httpClient, @tainted Requ
         }
     }
     return response;
+}
+
+function isNoCacheSet(RequestCacheControl? reqCC, ResponseCacheControl? resCC) returns boolean {
+    if (reqCC is RequestCacheControl && reqCC.noCache) {
+        return true;
+    }
+
+    if (resCC is ResponseCacheControl && resCC.noCache) {
+        return true;
+    }
+
+    return false;
 }
 
 function getValidationResponse(HttpClient httpClient, Request req, Response cachedResponse, HttpCache cache,
@@ -576,17 +580,20 @@ function isAllowedToBeServedStale(RequestCacheControl? requestCacheControl, Resp
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.2.4
-function isServingStaleProhibited(RequestCacheControl? requestCacheControl,
-                                  ResponseCacheControl? responseCacheControl) returns boolean {
+function isServingStaleProhibited(RequestCacheControl? reqCC, ResponseCacheControl? resCC) returns boolean {
     // A cache MUST NOT generate a stale response if it is prohibited by an explicit in-protocol directive
-    if (requestCacheControl is RequestCacheControl && responseCacheControl is ResponseCacheControl) {
-        return (requestCacheControl.noStore) ||
-                (requestCacheControl.noCache) ||
-                (responseCacheControl.mustRevalidate) ||
-                (responseCacheControl.proxyRevalidate) ||
-                ((responseCacheControl.sMaxAge) >= 0);
+    if (reqCC is RequestCacheControl) {
+        if (reqCC.noCache || reqCC.noStore) {
+            return true;
+        }
     }
-    //TODO:Check whether returning false is valid here
+
+    if (resCC is ResponseCacheControl) {
+        if (resCC.mustRevalidate || resCC.proxyRevalidate || (resCC.sMaxAge >= 0)) {
+            return true;
+        }
+    }
+
     return false;
 }
 
@@ -594,9 +601,9 @@ function isServingStaleProhibited(RequestCacheControl? requestCacheControl,
 function isStaleResponseAccepted(RequestCacheControl? requestCacheControl, Response cachedResponse,
                                  boolean isSharedCache) returns boolean {
     if (requestCacheControl is RequestCacheControl) {
-        if ((requestCacheControl.maxStale) == MAX_STALE_ANY_AGE) {
+        if (requestCacheControl.maxStale == MAX_STALE_ANY_AGE) {
             return true;
-        } else if ((requestCacheControl.maxStale) >=
+        } else if (requestCacheControl.maxStale >=
                                 (getResponseAge(cachedResponse) - getFreshnessLifetime(cachedResponse, isSharedCache))) {
             return true;
         }
@@ -638,7 +645,7 @@ function sendNewRequest(HttpClient httpClient, Request request, string path, str
 }
 
 function setAgeHeader(Response cachedResponse) {
-    cachedResponse.setHeader(<@untainted> AGE, "" + <@untainted> calculateCurrentResponseAge(cachedResponse).toString());
+    cachedResponse.setHeader(<@untainted> AGE, <@untainted> calculateCurrentResponseAge(cachedResponse).toString());
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.2.3
@@ -678,7 +685,7 @@ function hasAWeakValidator(Response validationResponse, string etag) returns boo
 function isAStrongValidator(string etag) returns boolean {
     // TODO: Consider cases where Last-Modified can also be treated as a strong validator as per
     // https://tools.ietf.org/html/rfc7232#section-2.2.2
-    if (!internal:hasPrefix(etag, WEAK_VALIDATOR_TAG)) {
+    if (!etag.startsWith(WEAK_VALIDATOR_TAG)) {
         return true;
     }
 
@@ -706,7 +713,7 @@ function retain2xxWarnings(Response cachedResponse) {
         cachedResponse.removeHeader(WARNING);
         // TODO: Need to handle this in a better way using regex when the required regex APIs are there
         foreach var warningHeader in warningHeaders {
-            if (internal:contains(warningHeader, "214") || internal:contains(warningHeader, "299")) {
+            if (warningHeader.indexOf("214") is int || warningHeader.indexOf("299") is int) {
                 log:printDebug(function() returns string {
                     return "Adding warning header: " + warningHeader;
                 });
@@ -723,7 +730,7 @@ function getResponseAge(Response cachedResponse) returns @tainted int {
     }
 
     string ageHeaderString = cachedResponse.getHeader(AGE);
-    var ageValue = langint:fromString(ageHeaderString);
+    var ageValue = 'int:fromString(ageHeaderString);
     if (ageValue is int) {
         return ageValue;
     }

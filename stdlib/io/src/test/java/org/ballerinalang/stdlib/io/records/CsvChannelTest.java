@@ -355,6 +355,21 @@ public class CsvChannelTest {
         Assert.assertEquals(departments.toString(), "EngMrk-1");
     }
 
+    @Test(description = "Test successful data load will nill values")
+    public void getTableWithHeader() throws URISyntaxException {
+        String resourceToRead = "datafiles/io/records/sample7.csv";
+        BValue[] args = { new BString(getAbsoluteFilePath(resourceToRead)) };
+        final BValue[] result = BRunUtil.invoke(csvInputOutputProgramFile, "getTableWithHeader", args);
+        BValueArray values = (BValueArray) result[0];
+        Assert.assertEquals(values.size(), 7);
+        String[] expectedOutput = {
+                "Common App ID", "11111111", "22222222", "33333333", "44444444", "55555555", "55555556"
+        };
+        for (int i = 0; i < expectedOutput.length; i++) {
+            Assert.assertEquals(values.getStringArray()[i], expectedOutput[i]);
+        }
+    }
+
     private String getAbsoluteFilePath(String relativePath) throws URISyntaxException {
         URL fileResource = BCompileUtil.class.getClassLoader().getResource(relativePath);
         String pathValue = "";

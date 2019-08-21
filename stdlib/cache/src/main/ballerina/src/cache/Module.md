@@ -12,7 +12,7 @@ space for new entries.
 ```ballerina
 // The `evictionFactor` specifies the percentage of items
 // that will be evicted when the cache is full.
-cache:Cache cache = new(capacity = 10, expiryTimeMillis = 60000, evictionFactor = 0.2);
+cache:Cache cache = new(capacity = 10, expiryTimeInMillis = 60000, evictionFactor = 0.2);
 
 // Enter a value, and a key to reference that value.
 // This will be a new entry in the cache.

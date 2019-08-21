@@ -8,7 +8,7 @@ public type HelloWorldClient client object {
 
     private grpc:Client grpcClient;
 
-    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+    public function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // Initialize client endpoint.
         grpc:Client c = new(url, config);
         grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR,
@@ -22,7 +22,7 @@ public type HelloWorldClient client object {
     }
 
 
-    remote function lotsOfReplies(string req, service msgListener,
+    public remote function lotsOfReplies(string req, service msgListener,
                                   grpc:Headers? headers = ()) returns (grpc:Error?) {
         return self.grpcClient->nonBlockingExecute("HelloWorld/lotsOfReplies",
                                             req, msgListener, headers);

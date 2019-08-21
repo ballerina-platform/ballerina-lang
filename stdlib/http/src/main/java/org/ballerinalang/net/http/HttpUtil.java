@@ -91,6 +91,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -513,8 +514,11 @@ public class HttpUtil {
     }
 
     public static ErrorValue createHttpError(String message, HttpErrorType errorType) {
-        MapValue<String, Object> detailRecord = createHttpErrorDetailRecord(message, null);
-        return BallerinaErrors.createError(errorType.getReason(), detailRecord);
+        Map<String, Object> values = new HashMap<>();
+        values.put(BallerinaErrors.ERROR_MESSAGE_FIELD, message);
+        MapValue<String, Object> detail =
+                BallerinaValues.createRecordValue(PROTOCOL_PACKAGE_HTTP, HTTP_ERROR_DETAIL_RECORD, values);
+        return BallerinaErrors.createError(errorType.getReason(), detail);
     }
 
     public static ErrorValue createHttpError(String message, HttpErrorType errorType, ErrorValue cause) {

@@ -2800,6 +2800,17 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkErrorConstructorInvocation(BLangInvocation iExpr) {
         BType expectedType = this.expType;
+
+        if (expType.getKind() == TypeKind.UNION) {
+            BType[] errorMembers = ((BUnionType) expectedType).getMemberTypes()
+                    .stream()
+                    .filter(memberType -> types.isAssignable(memberType, symTable.errorType))
+                    .toArray(BType[]::new);
+            if (errorMembers.length > 0) {
+                expectedType = BUnionType.create(null, errorMembers);
+            }
+        }
+
         if (expType.getKind() == TypeKind.UNION && iExpr.symbol.type == symTable.errorType) {
             BUnionType unionType = (BUnionType) expType;
             long count = unionType.getMemberTypes().stream()
@@ -2811,13 +2822,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 return;
             }
         } else if (!types.isAssignable(expectedType, symTable.errorType)) {
-            if (expectedType != symTable.noType) {
+            if ((iExpr.symbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
+                expectedType = iExpr.type;
+            } else if (expectedType != symTable.noType) {
                 // Cannot infer error type from error constructor. 'T1|T2|T3 e = error("r", a="b", b="c");
                 dlog.error(iExpr.pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, this.expType);
                 resultType = symTable.semanticError;
                 return;
-            } else if ((iExpr.symbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
-                expectedType = iExpr.type;
             } else {
                 // var e = <error> error("r");
                 expectedType = symTable.errorType;
@@ -2926,6 +2937,8 @@ public class TypeChecker extends BLangNodeVisitor {
         if (firstErrorArg.getKind() != NodeKind.NAMED_ARGS_EXPR) {
             checkExpr(firstErrorArg, env, ctorType.reasonType, DiagnosticCode.INVALID_ERROR_REASON_TYPE);
             return true;
+        } else if (iExpr.type == symTable.errorType) {
+            dlog.error(iExpr.pos, DiagnosticCode.DIRECT_ERROR_CTOR_REASON_NOT_PROVIDED);
         }
         return false;
     }

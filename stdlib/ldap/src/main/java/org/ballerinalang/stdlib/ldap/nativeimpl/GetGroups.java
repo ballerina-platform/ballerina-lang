@@ -28,7 +28,6 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.ldap.CommonLdapConfiguration;
 import org.ballerinalang.stdlib.ldap.LdapConstants;
-import org.ballerinalang.stdlib.ldap.UserStoreException;
 import org.ballerinalang.stdlib.ldap.util.LdapUtils;
 
 import java.util.ArrayList;
@@ -65,7 +64,7 @@ public class GetGroups {
                     LdapConstants.LDAP_CONFIGURATION);
             String[] externalRoles = doGetGroupsListOfUser(userName, ldapConfiguration, ldapConnectionContext);
             return new ArrayValue(externalRoles);
-        } catch (UserStoreException | NamingException | ErrorValue e) {
+        } catch (NamingException | ErrorValue e) {
             return LdapUtils.createError(e.getMessage());
         } finally {
             LdapUtils.removeServiceName();
@@ -73,8 +72,7 @@ public class GetGroups {
     }
 
     private static String[] doGetGroupsListOfUser(String userName, CommonLdapConfiguration ldapAuthConfig,
-                                                  DirContext ldapConnectionContext)
-                                           throws UserStoreException, NamingException {
+                                                  DirContext ldapConnectionContext) throws NamingException {
         // Get the effective search base
         List<String> searchBase = ldapAuthConfig.getGroupSearchBase();
         return getLDAPGroupsListOfUser(userName, searchBase, ldapAuthConfig, ldapConnectionContext);
@@ -82,14 +80,13 @@ public class GetGroups {
 
     private static String[] getLDAPGroupsListOfUser(String userName, List<String> searchBase,
                                                     CommonLdapConfiguration ldapAuthConfig,
-                                                    DirContext ldapConnectionContext)
-                                             throws UserStoreException, NamingException {
+                                                    DirContext ldapConnectionContext) throws NamingException {
         if (userName == null) {
             throw BallerinaErrors.createError("UserName value is null.");
         }
 
-        SearchControls searchCtls = new SearchControls();
-        searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         // Load normal roles with the user
         String searchFilter = ldapAuthConfig.getGroupNameListFilter();
         String roleNameProperty = ldapAuthConfig.getGroupNameAttribute();
@@ -115,21 +112,21 @@ public class GetGroups {
         }
 
         searchFilter = "(&" + searchFilter + "(" + membershipProperty + "=" + membershipValue + "))";
-        String[] returnedAtts = {roleNameProperty};
-        searchCtls.setReturningAttributes(returnedAtts);
+        String[] returnedAttributes = {roleNameProperty};
+        searchControls.setReturningAttributes(returnedAttributes);
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Reading roles with the membershipProperty Property: " + membershipProperty);
         }
 
-        List<String> list = getListOfNames(searchBase, searchFilter, searchCtls, roleNameProperty,
-                                           ldapConnectionContext);
+        List<String> list = getListOfNames(searchBase, searchFilter, searchControls, roleNameProperty,
+                ldapConnectionContext);
         return list.toArray(new String[list.size()]);
     }
 
-    private static List<String> getListOfNames(List<String> searchBases, String searchFilter, SearchControls searchCtls,
-                                               String property, DirContext ldapConnectionContext)
-            throws NamingException {
+    private static List<String> getListOfNames(List<String> searchBases, String searchFilter,
+                                               SearchControls searchControls, String property,
+                                               DirContext ldapConnectionContext) throws NamingException {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Result for searchBase: " + searchBases + " searchFilter: " + searchFilter +
                     " property:" + property + " appendDN: false");
@@ -141,7 +138,7 @@ public class GetGroups {
             // handle multiple search bases
             for (String searchBase : searchBases) {
                 answer = ldapConnectionContext.search(LdapUtils.escapeDNForSearch(searchBase),
-                        searchFilter, searchCtls);
+                        searchFilter, searchControls);
                 while (answer.hasMoreElements()) {
                     SearchResult searchResult = answer.next();
                     if (searchResult.getAttributes() == null) {
@@ -175,15 +172,13 @@ public class GetGroups {
     /**
      * Takes the corresponding name for a given username from LDAP.
      *
-     * @param userName Given username
-     * @param ldapConfiguration LDAP user store configurations
+     * @param userName              Given username
+     * @param ldapConfiguration     LDAP user store configurations
      * @param ldapConnectionContext connection context
      * @return Associated name for the given username
-     * @throws UserStoreException if there is any exception occurs during the process
      */
     private static String getNameInSpaceForUserName(String userName, CommonLdapConfiguration ldapConfiguration,
-                                                    DirContext ldapConnectionContext)
-            throws UserStoreException, NamingException {
+                                                    DirContext ldapConnectionContext) throws NamingException {
         return LdapUtils.getNameInSpaceForUsernameFromLDAP(userName, ldapConfiguration, ldapConnectionContext);
     }
 

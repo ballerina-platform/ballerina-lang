@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/cache;
-import ballerina/internal;
 
 # Implements a cache for storing HTTP responses. This cache complies with the caching policy set when configuring
 # HTTP caching in the HTTP client endpoint.
@@ -40,7 +39,7 @@ public type HttpCache object {
             self.isShared = cacheConfig.isShared;
     }
 
-    function isAllowedToCache (Response response) returns boolean {
+    function isAllowedToCache(Response response) returns boolean {
         if (self.policy == CACHE_CONTROL_AND_VALIDATORS) {
             return response.hasHeader(CACHE_CONTROL) && (response.hasHeader(ETAG) || response.hasHeader(LAST_MODIFIED));
         }
@@ -48,45 +47,58 @@ public type HttpCache object {
         return true;
     }
 
-    function put (string key, RequestCacheControl? requestCacheControl, Response inboundResponse) {
-        ResponseCacheControl? respCacheControl = inboundResponse.cacheControl;
-        if (respCacheControl is ResponseCacheControl && requestCacheControl is RequestCacheControl) {
-            if ((respCacheControl.noStore) ||
-                (requestCacheControl.noStore) ||
-                ((respCacheControl.isPrivate)  && self.isShared)) {
-                // TODO: Need to consider https://tools.ietf.org/html/rfc7234#section-3.2 as well here
-                return;
-            }
+    function put(string key, RequestCacheControl? requestCacheControl, Response inboundResponse) {
+        if (self.isNonCacheableResponse(requestCacheControl, inboundResponse.cacheControl)) {
+            return;
+        }
 
-            // Based on https://tools.ietf.org/html/rfc7234#page-6
-            // TODO: Consider cache control extensions as well here
-            if (inboundResponse.hasHeader(EXPIRES) ||
-                (respCacheControl.maxAge) >= 0 ||
-                ((respCacheControl.sMaxAge) >= 0 && self.isShared) ||
-                isCacheableStatusCode(inboundResponse.statusCode) ||
-                !(respCacheControl.isPrivate)) {
-
-                // IMPT: The call to getBinaryPayload() builds the payload from the stream. If this is not done, the stream
-                // will be read by the client and the response will be after the first cache hit.
-                var binaryPayload = inboundResponse.getBinaryPayload();
-                log:printDebug(function() returns string {
-                    return "Adding new cache entry for: " + key;
-                });
-                addEntry(self.cache, key, inboundResponse);
-            }
+        if (self.isCacheableResponse(inboundResponse)) {
+            // IMPT: The call to getBinaryPayload() builds the payload from the stream. If this is not done, the stream
+            // will be read by the client and the response will be after the first cache hit.
+            var binaryPayload = inboundResponse.getBinaryPayload();
+            log:printDebug(function() returns string {
+                return "Adding new cache entry for: " + key;
+            });
+            addEntry(self.cache, key, inboundResponse);
         }
     }
 
-    function hasKey (string key) returns boolean {
+    // TODO: Need to consider https://tools.ietf.org/html/rfc7234#section-3.2 as well here
+    private function isNonCacheableResponse(RequestCacheControl? reqCC, ResponseCacheControl? resCC) returns boolean {
+        if (resCC is ResponseCacheControl) {
+            if (resCC.noStore || (self.isShared && resCC.isPrivate)) {
+                return true;
+            }
+        }
+
+        return (reqCC is RequestCacheControl) && reqCC.noStore;
+    }
+
+    // Based on https://tools.ietf.org/html/rfc7234#page-6
+    // TODO: Consider cache control extensions as well here
+    private function isCacheableResponse(Response inboundResp) returns boolean {
+        ResponseCacheControl? respCC = inboundResp.cacheControl;
+        boolean allowedByCacheControl = false;
+
+        if (respCC is ResponseCacheControl) {
+            if (respCC.maxAge >= 0 || (self.isShared && (respCC.sMaxAge >= 0)) || !respCC.isPrivate) {
+                allowedByCacheControl = true;
+            }
+        }
+
+        return allowedByCacheControl || inboundResp.hasHeader(EXPIRES) || isCacheableStatusCode(inboundResp.statusCode);
+    }
+
+    function hasKey(string key) returns boolean {
         return self.cache.hasKey(key);
     }
 
-    function get (string key) returns Response {
+    function get(string key) returns Response {
         Response[] cacheEntry = <Response[]> self.cache.get(key);
         return cacheEntry[cacheEntry.length() - 1];
     }
 
-    function getAll (string key) returns Response[]|() {
+    function getAll(string key) returns Response[]|() {
         var cacheEntry = trap <Response[]> self.cache.get(key);
         if (cacheEntry is Response[]) {
             return cacheEntry;
@@ -94,7 +106,7 @@ public type HttpCache object {
         return ();
     }
 
-    function getAllByETag (string key, string etag) returns Response[] {
+    function getAllByETag(string key, string etag) returns Response[] {
         Response[] cachedResponses = [];
         Response[] matchingResponses = [];
         int i = 0;
@@ -105,7 +117,7 @@ public type HttpCache object {
         }
 
         foreach var cachedResp in cachedResponses {
-            if (cachedResp.getHeader(ETAG) == etag && !internal:hasPrefix(etag, WEAK_VALIDATOR_TAG)) {
+            if (cachedResp.getHeader(ETAG) == etag && !etag.startsWith(WEAK_VALIDATOR_TAG)) {
                 matchingResponses[i] = cachedResp;
                 i = i + 1;
             }
@@ -114,7 +126,7 @@ public type HttpCache object {
         return matchingResponses;
     }
 
-    function getAllByWeakETag (string key, string etag) returns Response[] {
+    function getAllByWeakETag(string key, string etag) returns Response[] {
         Response[] cachedResponses = [];
         Response[] matchingResponses = [];
         int i = 0;
@@ -139,7 +151,7 @@ public type HttpCache object {
     }
 };
 
-function isCacheableStatusCode (int statusCode) returns boolean {
+function isCacheableStatusCode(int statusCode) returns boolean {
     return statusCode == STATUS_OK || statusCode == STATUS_NON_AUTHORITATIVE_INFORMATION ||
            statusCode == STATUS_NO_CONTENT || statusCode == STATUS_PARTIAL_CONTENT ||
            statusCode == STATUS_MULTIPLE_CHOICES || statusCode == STATUS_MOVED_PERMANENTLY ||
@@ -148,7 +160,7 @@ function isCacheableStatusCode (int statusCode) returns boolean {
            statusCode == STATUS_NOT_IMPLEMENTED;
 }
 
-function addEntry (cache:Cache cache, string key, Response inboundResponse) {
+function addEntry(cache:Cache cache, string key, Response inboundResponse) {
     var existingResponses = cache.get(key);
     if (existingResponses is Response[]) {
         existingResponses[existingResponses.length()] = inboundResponse;
@@ -158,13 +170,13 @@ function addEntry (cache:Cache cache, string key, Response inboundResponse) {
     }
 }
 
-function weakValidatorEquals (string etag1, string etag2) returns boolean {
-    string validatorPortion1 = internal:hasPrefix(etag1, WEAK_VALIDATOR_TAG) ? etag1.substring(2, etag1.length()) : etag1;
-    string validatorPortion2 = internal:hasPrefix(etag2, WEAK_VALIDATOR_TAG) ? etag2.substring(2, etag2.length()) : etag2;
+function weakValidatorEquals(string etag1, string etag2) returns boolean {
+    string validatorPortion1 = etag1.startsWith(WEAK_VALIDATOR_TAG) ? etag1.substring(2, etag1.length()) : etag1;
+    string validatorPortion2 = etag2.startsWith(WEAK_VALIDATOR_TAG) ? etag2.substring(2, etag2.length()) : etag2;
 
     return validatorPortion1 == validatorPortion2;
 }
 
-function getCacheKey (string httpMethod, string url) returns string {
+function getCacheKey(string httpMethod, string url) returns string {
     return httpMethod + " " + url;
 }

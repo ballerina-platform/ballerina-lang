@@ -47,8 +47,8 @@ public class GetFileInfo {
     public static Object getFileInfo(Strand strand, String path) {
         File inputFile = Paths.get(path).toAbsolutePath().toFile();
         if (!inputFile.exists()) {
-            return SystemUtils.getBallerinaError(SystemConstants.INVALID_OPERATION_ERROR,
-                    "File doesn't exist in path " + path);
+            return SystemUtils.getBallerinaError(SystemConstants.FILE_NOT_FOUND_ERROR,
+                    "File not found: " + path);
         }
         try {
             return SystemUtils.getFileInfo(inputFile);

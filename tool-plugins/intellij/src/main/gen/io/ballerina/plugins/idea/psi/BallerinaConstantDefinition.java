@@ -20,28 +20,29 @@ package io.ballerina.plugins.idea.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
+import io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition;
 
-public interface BallerinaConstantDefinition extends PsiElement {
+public interface BallerinaConstantDefinition extends BallerinaTopLevelDefinition {
 
-  @NotNull
+  @Nullable
   BallerinaConstantExpression getConstantExpression();
 
   @Nullable
   BallerinaTypeName getTypeName();
 
-  @NotNull
+  @Nullable
   PsiElement getAssign();
+
+  @Nullable
+  PsiElement getSemicolon();
 
   @NotNull
   PsiElement getConst();
 
   @Nullable
-  PsiElement getPublic();
-
-  @NotNull
-  PsiElement getSemicolon();
-
-  @NotNull
   PsiElement getIdentifier();
+
+  @Nullable
+  PsiElement getPublic();
 
 }

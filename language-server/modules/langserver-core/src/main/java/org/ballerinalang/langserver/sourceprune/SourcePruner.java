@@ -19,6 +19,7 @@ import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
+import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
@@ -66,7 +67,7 @@ public class SourcePruner {
                 BallerinaParser.CONST, BallerinaParser.RIGHT_BRACKET, BallerinaParser.RIGHT_CLOSED_RECORD_DELIMITER,
                 BallerinaParser.RESOURCE, BallerinaParser.LISTENER, BallerinaParser.MATCH, BallerinaParser.IF,
                 BallerinaParser.WHILE, BallerinaParser.FOREACH, BallerinaParser.BREAK, BallerinaParser.BREAK,
-                BallerinaParser.FORK, BallerinaParser.THROW, BallerinaParser.TRANSACTION
+                BallerinaParser.FORK, BallerinaParser.THROW, BallerinaParser.TRANSACTION, BallerinaParser.WORKER
         );
         BLOCK_REMOVE_KW_TERMINALS = Arrays.asList(
                 BallerinaParser.SERVICE, BallerinaParser.FUNCTION, BallerinaParser.TYPE, BallerinaParser.MATCH,
@@ -142,7 +143,7 @@ public class SourcePruner {
     }
     
     private static SourcePruneContext getContext() {
-        SourcePruneContext context = new SourcePruneContext();
+        SourcePruneContext context = new SourcePruneContext(LSContextOperation.SOURCE_PRUNER);
         context.put(SourcePruneKeys.GT_COUNT_KEY, 0);
         context.put(SourcePruneKeys.LT_COUNT_KEY, 0);
         context.put(SourcePruneKeys.LEFT_BRACE_COUNT_KEY, 0);

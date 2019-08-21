@@ -50,11 +50,6 @@ public class DelimitedRecordWriteEvent implements Event {
 
     private static final Logger log = LoggerFactory.getLogger(DelimitedRecordWriteEvent.class);
 
-    public DelimitedRecordWriteEvent(DelimitedRecordChannel channel, ArrayValue content) {
-        this.channel = channel;
-        this.arrayValueContent = content;
-    }
-
     public DelimitedRecordWriteEvent(DelimitedRecordChannel channel, ArrayValue content, EventContext context) {
         this.channel = channel;
         this.arrayValueContent = content;

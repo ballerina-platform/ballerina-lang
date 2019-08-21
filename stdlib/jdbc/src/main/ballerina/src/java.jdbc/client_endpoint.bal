@@ -102,13 +102,13 @@ public type Client client object {
     }
 
     function handleStoppedClientInvocation() returns Error {
-        ApplicationError e = error(message = "Client has been stopped");
+        ApplicationError e = ApplicationError(message = "Client has been stopped");
         return e;
     }
 
     function handleStoppedClientInvocationForBatchUpdate() returns BatchUpdateResult {
         int[] rowCount = [];
-        ApplicationError e = error(message = "Client has been stopped");
+        ApplicationError e = ApplicationError(message = "Client has been stopped");
         BatchUpdateResult res = { updatedRowCount: rowCount, generatedKeys : {}, returnedError : e};
         return res;
     }

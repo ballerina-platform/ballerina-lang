@@ -73,7 +73,7 @@ public class MainFunctionsTest {
         assertTrue(result.endsWith("nil returning main invoked"), "expected nil to be returned");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testErrorReturningMain() throws IOException {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                 + "test_main_with_error_return.bal");
@@ -85,7 +85,7 @@ public class MainFunctionsTest {
         assertTrue(result.contains("error return"), "invalid error reason");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testErrorOrNilReturningMainReturningError() throws IOException {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                 + "test_main_with_error_or_nil_return.bal");
@@ -109,7 +109,7 @@ public class MainFunctionsTest {
         assertTrue(result.endsWith("error? returning main invoked"), "expected nil to be returned");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testErrorOrNilReturningMainReturningCustomError() throws IOException {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                 + "test_main_with_error_or_nil_return.bal");
