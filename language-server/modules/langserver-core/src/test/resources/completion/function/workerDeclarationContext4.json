@@ -2064,6 +2064,34 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "SERVICE_NAME",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Constant for the service name reference."
+        }
+      },
+      "sortText": "120",
+      "insertText": "SERVICE_NAME",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RESOURCE_NAME",
+      "kind": "Variable",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "Constant for the resource name reference."
+        }
+      },
+      "sortText": "120",
+      "insertText": "RESOURCE_NAME",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "CONNECTION_CLOSURE_ERROR",
       "kind": "Variable",
       "detail": "string",
@@ -2404,25 +2432,25 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Http1Settings",
+      "label": "ClientHttp1Settings",
       "kind": "Class",
       "detail": "Record",
       "documentation": {
         "left": "Provides settings related to HTTP/1.x protocol.\n"
       },
       "sortText": "120",
-      "insertText": "Http1Settings",
+      "insertText": "ClientHttp1Settings",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Http2Settings",
+      "label": "ClientHttp2Settings",
       "kind": "Class",
       "detail": "Record",
       "documentation": {
         "left": "Provides settings related to HTTP/2 protocol.\n"
       },
       "sortText": "120",
-      "insertText": "Http2Settings",
+      "insertText": "ClientHttp2Settings",
       "insertTextFormat": "Snippet"
     },
     {
@@ -2437,14 +2465,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "SecureSocket",
+      "label": "ClientSecureSocket",
       "kind": "Class",
       "detail": "Record",
       "documentation": {
         "left": "Provides configurations for facilitating secure communication with a remote HTTP endpoint.\n"
       },
       "sortText": "120",
-      "insertText": "SecureSocket",
+      "insertText": "ClientSecureSocket",
       "insertTextFormat": "Snippet"
     },
     {
@@ -2602,14 +2630,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ServiceOcspStapling",
+      "label": "ListenerOcspStapling",
       "kind": "Class",
       "detail": "Record",
       "documentation": {
         "left": "A record for providing configurations for certificate revocation status checks.\n"
       },
       "sortText": "120",
-      "insertText": "ServiceOcspStapling",
+      "insertText": "ListenerOcspStapling",
       "insertTextFormat": "Snippet"
     },
     {
@@ -3297,36 +3325,25 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "RequestLimits",
-      "kind": "Class",
-      "detail": "Record",
-      "documentation": {
-        "left": "Configures limits for requests. If these limits are violated, the request is rejected.\n"
-      },
-      "sortText": "120",
-      "insertText": "RequestLimits",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ServiceEndpointConfiguration",
+      "label": "ListenerConfiguration",
       "kind": "Class",
       "detail": "Record",
       "documentation": {
         "left": "Provides a set of configurations for HTTP service endpoints.\n"
       },
       "sortText": "120",
-      "insertText": "ServiceEndpointConfiguration",
+      "insertText": "ListenerConfiguration",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ServiceHttp1Settings",
+      "label": "ListenerHttp1Settings",
       "kind": "Class",
       "detail": "Record",
       "documentation": {
         "left": "Provides settings related to HTTP/1.x protocol.\n"
       },
       "sortText": "120",
-      "insertText": "ServiceHttp1Settings",
+      "insertText": "ListenerHttp1Settings",
       "insertTextFormat": "Snippet"
     },
     {
@@ -3341,14 +3358,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ServiceSecureSocket",
+      "label": "ListenerSecureSocket",
       "kind": "Class",
       "detail": "Record",
       "documentation": {
         "left": "Configures the SSL/TLS options to be used for HTTP service.\n"
       },
       "sortText": "120",
-      "insertText": "ServiceSecureSocket",
+      "insertText": "ListenerSecureSocket",
       "insertTextFormat": "Snippet"
     },
     {
@@ -3471,14 +3488,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "WebSocketClientEndpointConfig",
+      "label": "WebSocketClientConfiguration",
       "kind": "Class",
       "detail": "Record",
       "documentation": {
         "left": "Configuration for the WebSocket client endpoint.\n"
       },
       "sortText": "120",
-      "insertText": "WebSocketClientEndpointConfig",
+      "insertText": "WebSocketClientConfiguration",
       "insertTextFormat": "Snippet"
     },
     {
@@ -3526,21 +3543,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "HttpResponse",
-      "kind": "Enum",
-      "detail": "Union",
-      "sortText": "120",
-      "insertText": "HttpResponse",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "extractAuthorizationHeaderValue(http:Request req)(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nExtracts the Authorization header value from the request.\n  \n  \n---    \n**Parameters**  \n- _req_  \n    Request instance  \n  \n  \n**Return**  \nstring"
+          "value": "**Package:** _ballerina/http_  \n  \nExtracts the Authorization header value from the request.\n  \n**Params**  \n- `http:Request` req: Request instance  \n  \n**Returns** `string`   \n- Value of the Authorization header  \n  \n"
         }
       },
       "sortText": "130",
@@ -3558,7 +3567,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of caching HTTP responses.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    The URL of the HTTP endpoint to connect to  \n  \n- _config_  \n    The configurations for the client endpoint associated with the caching client  \n  \n- _cacheConfig_  \n    The configurations for the HTTP cache to be used with the caching client  \n  \n  \n**Return**  \n(ballerina/http:HttpClient|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
+          "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of caching HTTP responses.\n  \n**Params**  \n- `string` url: The URL of the HTTP endpoint to connect to  \n- `http:ClientEndpointConfig` config: The configurations for the client endpoint associated with the caching client  \n- `http:CacheConfig` cacheConfig: The configurations for the HTTP cache to be used with the caching client  \n  \n**Returns** `(http:HttpClient|error)`   \n- An `HttpCachingClient` instance which wraps the base `Client` with a caching layer  \n  \n"
         }
       },
       "sortText": "130",
@@ -3576,7 +3585,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n  \n---    \n**Parameters**  \n- _headerValue_  \n    The header value  \n  \n  \n**Return**  \n([string,map]|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
+          "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n**Params**  \n- `string` headerValue: The header value  \n  \n**Returns** `([string,map\u003cany\u003e]|error)`   \n- Returns a tuple containing the value and its parameter map  \n  \n"
         }
       },
       "sortText": "130",
@@ -3594,7 +3603,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP remote function provider.  \n  \n---    \n**Parameters**  \n- _path_  \n    Resource path  \n  \n- _outRequest_  \n    A Request struct  \n  \n- _requestAction_  \n    `HttpOperation` related to the request  \n  \n- _httpClient_  \n    HTTP client which uses to call the relevant functions  \n  \n- _verb_  \n    HTTP verb used for submit method  \n(Default Parameter)  \n  \n**Return**  \n(ballerina/http:Response|ballerina/http:HttpFuture|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
+          "value": "**Package:** _ballerina/http_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head()` function of the underlying\nHTTP remote function provider.  \n**Params**  \n- `string` path: Resource path  \n- `http:Request` outRequest: A Request struct  \n- `(FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|SUBMIT|NONE)` requestAction: `HttpOperation` related to the request  \n- `http:HttpClient` httpClient: HTTP client which uses to call the relevant functions  \n- `string` verb: HTTP verb used for submit method(Defaultable)  \n- `string` verb: HTTP verb used for submit method  \n  \n**Returns** `(http:Response|http:HttpFuture|error)`   \n- The response for the request or an `http:ClientError` if failed to establish communication with the upstream server  \n  \n"
         }
       },
       "sortText": "130",
@@ -3612,7 +3621,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of securing HTTP requests with authentication.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    Base URL  \n  \n- _config_  \n    Client endpoint configurations  \n  \n  \n**Return**  \n(ballerina/http:HttpClient|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
+          "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of securing HTTP requests with authentication.\n  \n**Params**  \n- `string` url: Base URL  \n- `http:ClientEndpointConfig` config: Client endpoint configurations  \n  \n**Returns** `(http:HttpClient|error)`   \n- Created secure HTTP client  \n  \n"
         }
       },
       "sortText": "130",
@@ -3630,7 +3639,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nEncodes the given URL.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    URL to be encoded  \n  \n- _charset_  \n    Charactor set that URL to be encoded in  \n  \n  \n**Return**  \n(string|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
+          "value": "**Package:** _ballerina/http_  \n  \nEncodes the given URL.\n  \n**Params**  \n- `string` url: URL to be encoded  \n- `string` charset: Charactor set that URL to be encoded in  \n  \n**Returns** `(string|error)`   \n- The `string` Value of the encoded url or an `ClientError` that occurred during encoding  \n  \n"
         }
       },
       "sortText": "130",
@@ -3648,7 +3657,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nDecodes the given URL.\n  \n  \n---    \n**Parameters**  \n- _url_  \n    URL to be decoded  \n  \n- _charset_  \n    Character set from which the URL is decoded  \n  \n  \n**Return**  \n(string|ballerina/http:FailoverAllEndpointsFailedError|ballerina/http:FailoverActionFailedError|ballerina/http:UpstreamServiceUnavailableError|ballerina/http:AllLoadBalanceEndpointsFailedError|ballerina/http:AllRetryAttemptsFailed|ballerina/http:IdleTimeoutError|ballerina/http:AuthenticationError|ballerina/http:AuthorizationError|ballerina/http:InitializingOutboundRequestError|ballerina/http:WritingOutboundRequestHeadersError|ballerina/http:WritingOutboundRequestBodyError|ballerina/http:InitializingInboundResponseError|ballerina/http:ReadingInboundResponseHeadersError|ballerina/http:ReadingInboundResponseBodyError|ballerina/http:UnsupportedActionError|ballerina/http:Http2ClientError|ballerina/http:MaximumWaitTimeExceededError|ballerina/http:SslError|ballerina/http:GenericClientError)"
+          "value": "**Package:** _ballerina/http_  \n  \nDecodes the given URL.\n  \n**Params**  \n- `string` url: URL to be decoded  \n- `string` charset: Character set from which the URL is decoded  \n  \n**Returns** `(string|error)`   \n- The `string` Value of the decoded url or an `ClientError` that occurred during decoding  \n  \n"
         }
       },
       "sortText": "130",

@@ -47,7 +47,7 @@ function testTupleUnreachablePattern() returns string {
         var [a, b, c, [s, i]] => return "A"; // unreachable
 
         var [a, {b}] => return "A";
-        var [a, {b, c}] => return "A";
+        var [a, {b, c}] => return "A"; // unreachable
     }
 
     return "Default";
@@ -57,7 +57,7 @@ function testSimpleRules() returns string {
     any k = 1;
     match k {
         var {a} => return "A";
-        var {a, b} => return "A";
+        var {a, b} => return "A"; // unreachable
         var {a} => return "A"; // unreachable
     }
 

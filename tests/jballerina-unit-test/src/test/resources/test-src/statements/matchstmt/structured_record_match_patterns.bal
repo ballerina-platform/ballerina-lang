@@ -307,3 +307,33 @@ function matchClosedRecordPattern(any matchExpr) returns string {
 
     return "Default";
 }
+
+function testStructuredMatchPatternWithEmptyRecord() returns string[] {
+    record {} rec = {};
+    string[] result = [];
+    result[result.length()] = foo8(rec);
+
+    rec["a"] = 1;
+    result[result.length()] = foo8(rec);
+
+    rec["b"] = 2;
+    result[result.length()] = foo8(rec);
+
+    rec["c"] = 3;
+    result[result.length()] = foo8(rec);
+
+    rec["d"] = 4;
+    result[result.length()] = foo8(rec);
+
+    return result;
+}
+
+function foo8(any x) returns string {
+    match x {
+        var {a, b, c} => {return io:sprintf("Matched with a: %s, b: %s, c: %s", a, b, c);}
+        var {a, b} => {return io:sprintf("Matched with a: %s, b: %s", a, b);}
+        var {a} => {return io:sprintf("Matched with a: %s", a);}
+        var {} => {return "Matched with empty record";}
+        var s => {return "Matched with default";}
+    }
+}

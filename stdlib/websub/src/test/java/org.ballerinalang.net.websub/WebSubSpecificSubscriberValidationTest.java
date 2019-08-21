@@ -46,7 +46,7 @@ public class WebSubSpecificSubscriberValidationTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp = "error: Invalid " +
-            "parameter type .:MockDomainEvent in resource onStatus. Requires .:MockActionEvent.*")
+            "parameter type '.:MockDomainEvent' in resource 'onStatus'. Requires '.:MockActionEvent'.*")
     public void testInvalidParam() {
         BRunUtil.invoke(result, "testInvalidParam");
     }

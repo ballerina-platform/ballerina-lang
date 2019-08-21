@@ -33,6 +33,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.990.3
  */
+@Test(groups = { "TakesTooMuchTime" })
 public class BallerinaStreamsV2TimeAccumulatingWindowTest {
     private CompileResult result;
 

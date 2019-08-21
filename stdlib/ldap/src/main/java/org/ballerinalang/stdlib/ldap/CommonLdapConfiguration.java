@@ -25,7 +25,7 @@ import java.util.List;
  *
  * @since 0.983.0
  */
-public class CommonLdapConfiguration extends SslTrustConfiguration {
+public class CommonLdapConfiguration extends SslTrustConfig {
 
     private String domainName;
     private String connectionURL;

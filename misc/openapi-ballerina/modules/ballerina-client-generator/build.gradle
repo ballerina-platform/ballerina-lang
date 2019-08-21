@@ -23,7 +23,6 @@ dependencies {
     implementation project(':ballerina-tool')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:annotations')
-    implementation project(':ballerina-core')
     testCompile 'org.testng:testng'
 }
 

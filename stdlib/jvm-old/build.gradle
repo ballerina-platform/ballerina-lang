@@ -24,13 +24,7 @@ configurations {
 
 dependencies {
     balo  project(path: ':ballerina-bootstrapper', configuration: 'pack1')
-
-    implementation 'org.ow2.asm:asm'
-    implementation project(':ballerina-core')
-    implementation project(':ballerina-lang')
-
 }
-
 
 artifacts {
     balSource file("src/main/ballerina/")

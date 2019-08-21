@@ -18,6 +18,7 @@
  */
 package org.ballerinalang.stdlib.ldap;
 
+import org.ballerinalang.stdlib.ldap.util.LdapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,27 +39,23 @@ class SslTrustConfig {
     private String tlsStoreType = LdapConstants.PKCS_STORE_TYPE;
     private File clientTrustCertificates;
 
-    public SslTrustConfig() {}
-
     public File getTrustStore() {
         return trustStore;
     }
 
-    public SslTrustConfig setTrustStore(File trustStore) {
+    public void setTrustStoreFile(File trustStore) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Using trust store {}", trustStore);
         }
         this.trustStore = trustStore;
-        return this;
     }
 
     public String getTrustStorePass() {
         return trustStorePass;
     }
 
-    public SslTrustConfig setTrustStorePass(String trustStorePass) {
+    public void setTrustStorePass(String trustStorePass) {
         this.trustStorePass = trustStorePass;
-        return this;
     }
 
     public void setSSLProtocol(String sslProtocol) {
@@ -86,5 +83,9 @@ class SslTrustConfig {
 
     public void setClientTrustCertificates(File clientTrustCertificates) {
         this.clientTrustCertificates = clientTrustCertificates;
+    }
+
+    public void setClientTrustCertificates(String clientTrustCertificates) {
+        setClientTrustCertificates(new File(LdapUtils.substituteVariables(clientTrustCertificates)));
     }
 }

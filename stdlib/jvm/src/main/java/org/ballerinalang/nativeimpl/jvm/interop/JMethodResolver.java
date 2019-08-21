@@ -143,9 +143,8 @@ class JMethodResolver {
         boolean returnsErrorValue = method instanceof Method &&
                 ErrorValue.class.isAssignableFrom(((Method) method).getReturnType());
 
-        if (((throwsCheckedException && !jMethodRequest.returnsBErrorType) ||
-                (jMethodRequest.returnsBErrorType && !throwsCheckedException)) &&
-                (jMethodRequest.returnsBErrorType && !returnsErrorValue)) {
+        if ((throwsCheckedException && !jMethodRequest.returnsBErrorType) ||
+                (jMethodRequest.returnsBErrorType && !throwsCheckedException && !returnsErrorValue)) {
             throw new JInteropException(JInteropException.METHOD_SIGNATURE_NOT_MATCH_REASON,
                     "No such Java method '" + jMethodRequest.methodName + "' which throws checked exception " +
                             "found in class '" + jMethodRequest.declaringClass + "'");
@@ -237,6 +236,7 @@ class JMethodResolver {
             case TypeTags.JSON_TAG:
                 return MapValue.class.isAssignableFrom(jParamType);
             case TypeTags.OBJECT_TYPE_TAG:
+            case TypeTags.SERVICE_TAG:
                 return ObjectValue.class.isAssignableFrom(jParamType);
             case TypeTags.ERROR_TAG:
                 return ErrorValue.class.isAssignableFrom(jParamType);

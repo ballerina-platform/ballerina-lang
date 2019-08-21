@@ -14,8 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/cache;
-import ballerina/reflect;
+import ballerina/runtime;
 
 # Representation of the Authorization filter
 #
@@ -66,37 +65,16 @@ function handleAuthzRequest(AuthzHandler authzHandler, Request request, FilterCo
                             string[]|string[][] scopes) returns boolean|AuthorizationError {
     boolean|AuthorizationError authorized = true;
     runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-    if (scopes is string[]) {
-        if (scopes.length() > 0) {
-            var canProcessResponse = authzHandler.canProcess(request);
-            if (canProcessResponse is boolean && canProcessResponse) {
-                if(principal is runtime:Principal) {
-                    authorized = authzHandler.process(principal.username, context.getServiceName(),
-                                            context.getResourceName(), request.method, scopes);
-                } else {
-                    authorized = false;
-                }
-            } else {
-                authorized = canProcessResponse;
-            }
+    if (principal is runtime:Principal) {
+        var canProcessResponse = authzHandler.canProcess(request);
+        if (canProcessResponse is boolean && canProcessResponse) {
+            authorized = authzHandler.process(principal?.username ?: "", context.getServiceName(),
+                                              context.getResourceName(), request.method, scopes);
         } else {
-            // scopes are not defined, no need to authorize
-            authorized = true;
+            authorized = canProcessResponse;
         }
     } else {
-        if (scopes[0].length() > 0) {
-            var canProcessResponse = authzHandler.canProcess(request);
-            if (canProcessResponse is boolean && canProcessResponse) {
-                if(principal is runtime:Principal) {
-                    authorized = authzHandler.process(principal.username, context.getServiceName(),
-                                                context.getResourceName(), request.method, scopes);
-                } else {
-                    authorized = false;
-                }
-            } else {
-                authorized = canProcessResponse;
-            }
-        }
+        authorized = false;
     }
     return authorized;
 }
@@ -111,7 +89,7 @@ function isAuthzSuccessful(Caller caller, boolean|AuthorizationError authorized)
     response.statusCode = 403;
     if (authorized is boolean) {
         if (!authorized) {
-            response.setTextPayload("Authorization failure");
+            response.setTextPayload("Authorization failure.");
             var err = caller->respond(response);
             if (err is error) {
                 panic <error> err;

@@ -1,6 +1,5 @@
 import ballerina/encoding;
 import ballerina/http;
-import ballerina/mime;
 
 listener http:MockListener testEP = new(9090);
 
@@ -43,7 +42,7 @@ service echo on testEP {
         json|error val2 = person.team;
         json name = val1 is json ? val1 : ();
         json team = val2 is json ? val2 : ();
-        checkpanic caller->respond({ Key: name, Team: team });
+        checkpanic caller->respond(<@untainted> { Key: name, Team: team });
     }
 
     @http:ResourceConfig {

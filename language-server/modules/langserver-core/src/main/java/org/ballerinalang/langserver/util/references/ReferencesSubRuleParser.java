@@ -40,7 +40,7 @@ class ReferencesSubRuleParser {
     private ReferencesSubRuleParser() {
     }
 
-    static void parserCompilationUnit(String content, LSContext context, Position pos) {
+    static void parseCompilationUnit(String content, LSContext context, Position pos) {
         // TODO: 1/23/19 Check what happens when the content is not a valid compilation unit and when there are errors
         BallerinaParser parser = CommonUtil.prepareParser(content);
         parser.setErrorHandler(new DefaultErrorStrategy());
@@ -48,6 +48,14 @@ class ReferencesSubRuleParser {
         TokenStream tokenStream = parser.getTokenStream();
         List<Token> tokenList = new ArrayList<>(((CommonTokenStream) tokenStream).getTokens());
         Optional<Token> tokenAtCursor = searchTokenAtCursor(tokenList, pos.getLine(), pos.getCharacter(), true);
-        tokenAtCursor.ifPresent(token -> context.put(NodeContextKeys.NODE_NAME_KEY, token.getText()));
+        tokenAtCursor.ifPresent(token -> {
+            context.put(NodeContextKeys.NODE_NAME_KEY, token.getText());
+            int tokenIndex = token.getTokenIndex() - 1;
+            int tokenType = -1;
+            if (tokenIndex > 0) {
+                tokenType = tokenList.get(tokenIndex).getType();
+            }
+            context.put(NodeContextKeys.INVOCATION_TOKEN_TYPE_KEY, tokenType);
+        });
     }
 }

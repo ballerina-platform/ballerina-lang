@@ -17,7 +17,7 @@
 import ballerina/io;
 import ballerina/http;
 
-http:ServiceEndpointConfiguration strongCipherConfig = {
+http:ListenerConfiguration strongCipherConfig = {
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -50,7 +50,7 @@ service strongService on strongCipher {
     }
 }
 
-http:ServiceEndpointConfiguration weakCipherConfig = {
+http:ListenerConfiguration weakCipherConfig = {
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",

@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/grpc;
-import ballerina/io;
+
 
 service HelloWorld on new grpc:Listener(9090) {
 

@@ -1,0 +1,83 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+apply from: "$rootDir/gradle/javaProject.gradle"
+
+configurations {
+    dist {
+        transitive false
+    }
+}
+
+dependencies {
+    
+    // Lang lib Bir
+    dist project(path: ':ballerina-lang:internal', configuration: 'birJar')
+    dist project(path: ':ballerina-lang:annotations', configuration: 'birJar')
+    dist project(path: ':ballerina-lang:array', configuration: 'birJar')
+    dist project(path: ':ballerina-lang:decimal', configuration: 'birJar')
+    dist project(path: ':ballerina-lang:error', configuration: 'birJar')
+    dist project(path: ':ballerina-lang:floatingpoint', configuration: 'birJar')
+    dist project(path: ':ballerina-lang:future', configuration: 'birJar')
+    dist project(path: ':ballerina-lang:integer', configuration: 'birJar')
+    dist project(path: ':ballerina-lang:map', configuration: 'birJar')
+    dist project(path: ':ballerina-lang:object', configuration: 'birJar')
+    dist project(path: ':ballerina-lang:stream', configuration: 'birJar')
+    dist project(path: ':ballerina-lang:string', configuration: 'birJar')
+    dist project(path: ':ballerina-lang:table', configuration: 'birJar')
+    dist project(path: ':ballerina-lang:typedesc', configuration: 'birJar')
+    dist project(path: ':ballerina-lang:value', configuration: 'birJar')
+    dist project(path: ':ballerina-lang:xml', configuration: 'birJar')
+
+    // Utils Bir
+    dist project(path: ':ballerina-utils', configuration: 'birJar')
+
+    // Lang libs
+    dist project(':ballerina-lang:internal')
+    dist project(':ballerina-lang:annotations')
+    dist project(':ballerina-lang:array')
+    dist project(':ballerina-lang:decimal')
+    dist project(':ballerina-lang:error')
+    dist project(':ballerina-lang:floatingpoint')
+    dist project(':ballerina-lang:future')
+    dist project(':ballerina-lang:integer')
+    dist project(':ballerina-lang:map')
+    dist project(':ballerina-lang:object')
+    dist project(':ballerina-lang:stream')
+    dist project(':ballerina-lang:string')
+    dist project(':ballerina-lang:table')
+    dist project(':ballerina-lang:typedesc')
+    dist project(':ballerina-lang:value')
+    dist project(':ballerina-lang:xml')
+    
+    // Other Runtime Libs
+    dist project(':ballerina-runtime')
+    dist project(':ballerina-core')
+    dist project(':ballerina-config')
+    dist project(':ballerina-utils')
+    dist project(':ballerina-logging')
+    
+    // Third party jars
+    dist 'org.slf4j:slf4j-jdk14:1.7.22'
+}
+
+jar {
+    dependsOn configurations.dist
+    from { configurations.dist.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
+description = 'Ballerina - Runtime'

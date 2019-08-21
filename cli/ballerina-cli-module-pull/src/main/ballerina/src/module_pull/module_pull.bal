@@ -17,9 +17,8 @@
 import ballerina/filepath;
 import ballerina/http;
 import ballerina/io;
-import ballerina/system;
+import ballerina/file;
 import ballerina/'lang\.int as lint;
-import ballerina/'lang\.string as lstring;
 import ballerina/internal;
 
 const int MAX_INT_VALUE = 2147483647;
@@ -169,18 +168,24 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
 
             if (valid) {
                 string moduleName = modulePath.substring(internal:lastIndexOf(modulePath, "/") + 1, modulePath.length());
-                string baloFile = moduleName + ".balo";
+                string baloFile = uriParts[uriParts.length() - 1];
 
                 // adding version to the module path
                 string modulePathWithVersion = modulePath + ":" + moduleVersion;
                 string baloCacheWithModulePath = checkpanic filepath:build(baloCache, moduleVersion); // <user.home>.ballerina/balo_cache/<org-name>/<module-name>/<module-version>
 
-                string baloPath = checkpanic filepath:build(baloCacheWithModulePath, baloFile);
-                if (system:exists(<@untainted> baloPath)) {
-                    panic createError("module already exists in the home repository");
+                // get file name from content-disposition header
+                if (httpResponse.hasHeader("Content-Disposition")) {
+                    string contentDispositionHeader = httpResponse.getHeader("Content-Disposition");
+                    baloFile = contentDispositionHeader.substring("attachment; filename=".length(), contentDispositionHeader.length());
                 }
 
-                string|error createBaloFile = system:createDir(<@untainted> baloCacheWithModulePath, true);
+                string baloPath = checkpanic filepath:build(baloCacheWithModulePath, baloFile);
+                if (file:exists(<@untainted> baloPath)) {
+                    panic createError("module already exists in the home repository: " + baloPath);
+                }
+
+                string|error createBaloFile = file:createDir(<@untainted> baloCacheWithModulePath, true);
                 if (createBaloFile is error) {
                     panic createError("error creating directory for balo file");
                 }
@@ -204,10 +209,12 @@ function pullPackage(http:Client httpEndpoint, string url, string modulePath, st
                     } else {
                         if (nightlyBuild) {
                             // If its a nightly build tag the file as a module from nightly
-                            string nightlyBuildMetafile = checkpanic filepath:build(baloCache, "nightly.build");
-                            string|error createdNightlyBuildFile = system:createFile(<@untainted> nightlyBuildMetafile);
-                            if (createdNightlyBuildFile is error) {
-                                panic createError("Error occurred while creating nightly.build file.");
+                            string nightlyBuildMetafile = checkpanic filepath:build(baloCacheWithModulePath, "nightly.build");
+                            if (!file:exists(<@untainted> nightlyBuildMetafile)) {
+                                string|error createdNightlyBuildFile = file:createFile(<@untainted> nightlyBuildMetafile);
+                                if (createdNightlyBuildFile is error) {
+                                    panic createError("Error occurred while creating nightly.build file.");
+                                }
                             }
                         }
                         return ();
@@ -239,7 +246,7 @@ public function defineEndpointWithProxy(string url, string hostname, int port, s
             shareSession: true
         },
         followRedirects: { enabled: true, maxCount: 5 },
-        proxy : getProxyConfigurations(hostname, port, username, password)
+        http1Settings: { proxy : getProxyConfigurations(hostname, port, username, password) }
     });
     return <@untainted> httpEndpointWithProxy;
 }
@@ -325,7 +332,7 @@ function copy(int baloSize, io:ReadableByteChannel src, io:WritableByteChannel d
         int intTotalCount = <int>totalCount;
         string size = "[" + bar + ">" + spaces + "] " + intTotalCount.toString() + "/" + baloSize.toString();
         string msg = truncateString(modulePath + toAndFrom, terminalWidth - size.length());
-        io:print("\r" + logFormatter.formatLog(rightPad(msg, rightpadLength) + size));
+        io:print("\r" + logFormatter.formatLog(<@untainted> (rightPad(msg, rightpadLength) + size)));
     }
     io:println("\r" + logFormatter.formatLog(rightPad(modulePath + toAndFrom, terminalWidth)));
     return;

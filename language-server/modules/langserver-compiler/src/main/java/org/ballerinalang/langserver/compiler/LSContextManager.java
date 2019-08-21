@@ -133,9 +133,8 @@ public class LSContextManager {
      * Remove a compiler context by project directory.
      *
      * @param projectDir        project directory
-     * @param compilerContext   compiler context
      */
-    public void removeCompilerContext(String projectDir, CompilerContext compilerContext) {
+    public void removeCompilerContext(String projectDir) {
         contextMap.remove(projectDir);
     }
 

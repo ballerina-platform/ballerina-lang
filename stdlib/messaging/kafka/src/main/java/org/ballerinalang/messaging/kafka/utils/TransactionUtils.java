@@ -39,10 +39,13 @@ public class TransactionUtils {
     }
 
     public static void handleTransactions(Strand strand, ObjectValue producer) {
-        KafkaTransactionContext transactionContext = (KafkaTransactionContext) producer
-                .getNativeData(TRANSACTION_CONTEXT);
-        transactionContext.beginTransaction();
-        registerKafkaTransactionContext(strand, producer, transactionContext);
+        if (Objects.nonNull(producer.getNativeData(TRANSACTION_CONTEXT))) {
+            KafkaTransactionContext transactionContext = (KafkaTransactionContext) producer
+                    .getNativeData(TRANSACTION_CONTEXT);
+            transactionContext.beginTransaction();
+            registerKafkaTransactionContext(strand, producer, transactionContext);
+        }
+        // Do nothing if this is non-transactional producer.
     }
 
     public static KafkaTransactionContext createKafkaTransactionContext(ObjectValue producer) {

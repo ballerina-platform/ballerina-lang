@@ -573,15 +573,17 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public PackageID pkgId;
         public List<BIRVariableDcl> params;
         public List<BIROperand> closureMaps;
+        public BType retType;
 
         public FPLoad(DiagnosticPos pos, PackageID pkgId, Name funcName, BIROperand lhsOp,
-                      List<BIRVariableDcl> params, List<BIROperand> closureMaps) {
+                      List<BIRVariableDcl> params, List<BIROperand> closureMaps, BType retType) {
             super(pos, InstructionKind.FP_LOAD);
             this.lhsOp = lhsOp;
             this.funcName = funcName;
             this.pkgId = pkgId;
             this.params = params;
             this.closureMaps = closureMaps;
+            this.retType = retType;
         }
 
         @Override
@@ -658,14 +660,12 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
      * @since 0.995.0
      */
     public static class NewStream extends BIRNonTerminator {
-        public BIROperand nameOp;
         public BType type;
 
-        public NewStream(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand nameOp) {
+        public NewStream(DiagnosticPos pos, BType type, BIROperand lhsOp) {
             super(pos, InstructionKind.NEW_STREAM);
             this.type = type;
             this.lhsOp = lhsOp;
-            this.nameOp = nameOp;
         }
 
         @Override

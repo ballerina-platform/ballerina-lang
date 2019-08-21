@@ -1,7 +1,6 @@
 import ballerina/encoding;
 import ballerina/io;
 import ballerina/http;
-import ballerina/mime;
 
 function testContentType(http:Request req, string contentTypeValue) returns @tainted string {
     checkpanic req.setContentType(contentTypeValue);
@@ -148,17 +147,6 @@ service hello on mockEP {
         res.setJsonPayload({ value: header });
         checkpanic caller->respond(res);
     }
-
-    //Enable this once the getContentLength is added back
-    //@http:resourceConfig {
-    //    path:"/getContentLength"
-    //}
-    //GetContentLength (http:ServerConnector conn, http:Request req) {
-    //    http:Response res = {};
-    //    int length = req.getContentLength();
-    //    res.setJsonPayload({value:length});
-    //    checkpanic conn->respond(res);
-    //}
 
     @http:ResourceConfig {
         path: "/getJsonPayload"

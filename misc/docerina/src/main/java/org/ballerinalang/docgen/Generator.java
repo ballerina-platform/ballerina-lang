@@ -146,6 +146,9 @@ public class Generator {
             module.unionTypes.add(new UnionType(typeName, description(typeDefinition),
                     Arrays.asList(Type.fromTypeNode(userDefinedType))));
             added = true;
+        } else if (kind == NodeKind.VALUE_TYPE) {
+            // TODO: handle value type nodes
+            added = true;
         } else if (kind == NodeKind.TUPLE_TYPE_NODE) {
             // TODO: handle tuple type nodes
             added = true;

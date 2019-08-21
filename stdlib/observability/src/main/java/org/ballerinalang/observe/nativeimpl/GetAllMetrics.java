@@ -18,8 +18,6 @@
 
 package org.ballerinalang.observe.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.observability.metrics.Counter;
 import org.ballerinalang.jvm.observability.metrics.DefaultMetricRegistry;
@@ -56,48 +54,11 @@ import java.util.Set;
         returnType = @ReturnType(type = TypeKind.ARRAY),
         isPublic = true
 )
-public class GetAllMetrics extends BlockingNativeCallableUnit {
+public class GetAllMetrics {
 
     private static final BType METRIC_TYPE = BallerinaValues
             .createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH, ObserveNativeImplConstants.METRIC)
             .getType();
-    
-    @Override
-    public void execute(Context context) {
-//        Metric[] metrics = DefaultMetricRegistry.getInstance().getAllMetrics();
-//        PackageInfo observePackage = context.getProgramFile().getPackageInfo(OBSERVE_PACKAGE_PATH);
-//        StructureTypeInfo metricStructInfo = observePackage.getStructInfo(METRIC);
-//
-//        BValueArray bMetrics = new BValueArray(observePackage.getTypeInfo(METRIC).getType());
-//        int metricIndex = 0;
-//        for (Metric metric : metrics) {
-//            MetricId metricId = metric.getId();
-//            BValue metricValue = null;
-//            String metricType = null;
-//            BValueArray summary = null;
-//            if (metric instanceof Counter) {
-//                metricValue = new BInteger(((Counter) metric).getValue());
-//                metricType = MetricConstants.COUNTER;
-//            } else if (metric instanceof Gauge) {
-//                Gauge gauge = (Gauge) metric;
-//                metricValue = new BFloat(gauge.getValue());
-//                metricType = MetricConstants.GAUGE;
-//                summary = Utils.createBSnapshots(gauge.getSnapshots(), context);
-//            } else if (metric instanceof PolledGauge) {
-//                PolledGauge gauge = (PolledGauge) metric;
-//                metricValue = new BFloat(gauge.getValue());
-//                metricType = MetricConstants.GAUGE;
-//            }
-//            if (metricValue != null) {
-//                BMap metricStruct = BLangVMStructs.createBStruct(metricStructInfo,
-//                        metricId.getName(), metricId.getDescription(), getTags(metricId), metricType,
-//                        metricValue, summary);
-//                bMetrics.add(metricIndex, metricStruct);
-//                metricIndex++;
-//            }
-//        }
-//        context.setReturnValues(bMetrics);
-    }
 
     public static ArrayValue getAllMetrics(Strand strand) {
         Metric[] metrics = DefaultMetricRegistry.getInstance().getAllMetrics();

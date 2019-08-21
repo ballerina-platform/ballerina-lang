@@ -16,7 +16,6 @@
 
 import ballerina/http;
 import ballerina/log;
-import ballerina/runtime;
 
 http:Client internalErrorEP = new("http://localhost:8080", {
     retryConfig: {

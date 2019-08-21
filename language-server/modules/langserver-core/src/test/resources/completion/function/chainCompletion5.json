@@ -12,15 +12,12 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(any|error)"
+          "value": "**Package:** _ballerina/lang.array_  \n  \nRemove and return first element of the array `arr`.\n  \n  \n  \n**Returns** `(any|error)`   \n- removed member  \n  \n"
         }
       },
-      "insertText": "shift(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "sortText": "130",
+      "insertText": "shift()",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "remove(int i)((any|error))",
@@ -29,9 +26,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(any|error)"
+          "value": "**Package:** _ballerina/lang.array_  \n  \nRemoves the member of `arr` and index `i` and returns it.\nPanics if `i` is out of range.\n  \n**Params**  \n- `int` i: index of member to be removed  \n  \n**Returns** `(any|error)`   \n- removed member  \n  \n"
         }
       },
+      "sortText": "130",
       "insertText": "remove(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -46,32 +44,12 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(any|error)"
+          "value": "**Package:** _ballerina/lang.array_  \n  \nRemove and return the last member of the `arr`.\n  \n  \n  \n**Returns** `(any|error)`   \n- removed member  \n  \n"
         }
       },
-      "insertText": "pop(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "removeAll()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \n  \n  \n---    \n**Parameters**  \n"
-        }
-      },
-      "insertText": "removeAll(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "sortText": "130",
+      "insertText": "pop()",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "iterator()()",
@@ -80,15 +58,26 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \nReturns an iterator over the elements of `arr`.  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nobject { public function next () returns (record {| $|0 value; |}?); }"
+          "value": "**Package:** _ballerina/lang.array_  \n  \nReturns an iterator over the members of `arr`\n  \n  \n  \n**Returns** ``   \n- iterator object  \n  \n"
         }
       },
-      "insertText": "iterator(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "sortText": "130",
+      "insertText": "iterator()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "removeAll()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array_  \n  \nRemoves all members of `arr`.\nPanics if any member cannot be removed.\n  \n"
+        }
+      },
+      "sortText": "130",
+      "insertText": "removeAll();",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "slice(int startIndex, int endIndex)((any|error)[])",
@@ -97,9 +86,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(any|error)[]"
+          "value": "**Package:** _ballerina/lang.array_  \n  \nReturns a sub array starting from `startIndex` (inclusive) to `endIndex` (exclusive).\n  \n**Params**  \n- `int` startIndex: index of first member to include in the slice  \n- `int` endIndex: index of first member not to include in the slice  \n  \n**Returns** `(any|error)[]`   \n- array slice within specified range  \n  \n"
         }
       },
+      "sortText": "130",
       "insertText": "slice(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -114,15 +104,12 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+          "value": "**Package:** _ballerina/lang.array_  \n  \nReturns the string representing `arr` using Base16.\nThe representation is the same as used by a Ballerina Base16Literal.\nThe result will contain only characters  `0..9`, `a..f`.\nThere will be no whitespace in the returned string.\n  \n  \n  \n**Returns** `string`   \n- Base16 string representation  \n  \n"
         }
       },
-      "insertText": "toBase16(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "sortText": "130",
+      "insertText": "toBase16()",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "enumerate()([int,(any|error)][])",
@@ -131,10 +118,25 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n[int,(any|error)][]"
+          "value": "**Package:** _ballerina/lang.array_  \n  \nReturns a new array comprising of position and member pairs.\n  \n  \n  \n**Returns** `[int,(any|error)][]`   \n- array of position, member pair  \n  \n"
         }
       },
-      "insertText": "enumerate(${1})",
+      "sortText": "130",
+      "insertText": "enumerate()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "map(function ((any|error)) returns ((any|error)) func)((any|error)[])",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array_  \n  \nReturns a new array applying function `func` to each member of array `arr`.\n  \n**Params**  \n- `function ((any|error)) returns ((any|error))` func: a function to apply to each member  \n  \n**Returns** `(any|error)[]`   \n- new array containing result of applying function `func` to each member  \n  \n"
+        }
+      },
+      "sortText": "130",
+      "insertText": "map(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -148,27 +150,11 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint?"
+          "value": "**Package:** _ballerina/lang.array_  \n  \nReturns the index of first member of `arr` that is equal to `val` if there is one.\nReturns `()` if not found\nEquality is tested using `==`\n  \n**Params**  \n- `(anydata|error)` val: member to search for  \n- `int` startIndex: index to start the search from(Defaultable)  \n- `int` startIndex: index to start the search from  \n  \n**Returns** `(int|())`   \n- index of the member if found, else `()`  \n  \n"
         }
       },
+      "sortText": "130",
       "insertText": "indexOf(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "map(function ((any|error)) returns ((any|error)) func)((any|error)[])",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(any|error)[]"
-        }
-      },
-      "insertText": "map(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -182,9 +168,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(any|error)"
+          "value": "**Package:** _ballerina/lang.array_  \n  \nReduce operate on each member of `arr` using combining function `func` to produce\na new value combining all members of `arr`.\n  \n**Params**  \n- `function ((any|error),(any|error)) returns ((any|error))` func: combining function  \n- `(any|error)` initial: initial value to first evaluation of combining function `func`  \n  \n**Returns** `(any|error)`   \n- result of applying combining function to each member of the array  \n  \nExample: Emulating sum function.  \n```  \n# var ar = [1, 2, 3];  \n# var a = ar.reduce(function (int i, int j) returns int { return i + j; }, 0);  \n# ```  \n  \nExample: Emulating map behavior.  \n```  \n# var ar = [1, 2, 3];  \n# int[] newArr = [];  \n# int[] a = ar.reduce(function (int[] a, int j) returns int[] { a.push(j*2); return a; }, newArr);  \n# ```  \n  \n"
         }
       },
+      "sortText": "130",
       "insertText": "reduce(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -199,15 +186,12 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nstring"
+          "value": "**Package:** _ballerina/lang.array_  \n  \nReturns the string representing `arr` using Base64 encoding.\nThe representation is the same as used by a Ballerina Base64Literal.\nThe result will contain only characters  `A..Z`, `a..z`, `0..9`, `+`, `/` and `=`.\nThere will be no whitespace in the returned string.\n  \n  \n  \n**Returns** `string`   \n- Base64 string representation  \n  \n"
         }
       },
-      "insertText": "toBase64(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "sortText": "130",
+      "insertText": "toBase64()",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "forEach(function ((any|error)) returns () func)",
@@ -216,9 +200,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \n  \n  \n---    \n**Parameters**  \n"
+          "value": "**Package:** _ballerina/lang.array_  \n  \nApply function `func` to each member of array `arr`.\n  \n**Params**  \n- `function ((any|error)) returns ()` func: a function to apply to each member"
         }
       },
+      "sortText": "130",
       "insertText": "forEach(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -233,15 +218,12 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \nint"
+          "value": "**Package:** _ballerina/lang.array_  \n  \nReturns the number of members contained in `arr`.\n  \n  \n  \n**Returns** `int`   \n- number of members in the array  \n  \n"
         }
       },
-      "insertText": "length(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "sortText": "130",
+      "insertText": "length()",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "sort(function ((any|error),(any|error)) returns (int) func)((any|error)[])",
@@ -250,9 +232,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(any|error)[]"
+          "value": "**Package:** _ballerina/lang.array_  \n  \nSort `arr` using `func` to order members.\nReturns `arr`.\n  \n**Params**  \n- `function ((any|error),(any|error)) returns (int)` func: comparator function  \n  \n**Returns** `(any|error)[]`   \n- sorted `arr`  \n  \n"
         }
       },
+      "sortText": "130",
       "insertText": "sort(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -267,15 +250,12 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(any|error)[]"
+          "value": "**Package:** _ballerina/lang.array_  \n  \nReverse the order of the members of `arr`.\nReturns `arr`.\n  \n  \n  \n**Returns** `(any|error)[]`   \n- reversed `arr`  \n  \n"
         }
       },
-      "insertText": "reverse(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "sortText": "130",
+      "insertText": "reverse()",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "push(...(any|error))",
@@ -284,9 +264,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \n  \n  \n---    \n**Parameters**  \n"
+          "value": "**Package:** _ballerina/lang.array_  \n  \nAdd `vals` to end of the `arr` array.\n  \n**Params**  \n- vals: values to add to the end of the array"
         }
       },
+      "sortText": "130",
       "insertText": "push(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -301,9 +282,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \n  \n  \n---    \n**Parameters**  \n  \n  \n**Return**  \n(any|error)[]"
+          "value": "**Package:** _ballerina/lang.array_  \n  \nReturns a new array constructed from those elements of 'arr' for which `func` returns true.\n  \n**Params**  \n- `function ((any|error)) returns (boolean)` func: a predicate to apply to each element to determine if it should be included  \n  \n**Returns** `(any|error)[]`   \n- new array only containig members which evaluate function 'func' to true  \n  \n"
         }
       },
+      "sortText": "130",
       "insertText": "filter(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -318,9 +300,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \n  \n  \n---    \n**Parameters**  \n"
+          "value": "**Package:** _ballerina/lang.array_  \n  \nIncrease or decrease the length.\n`setLength(arr, 0)` is equivalent to `removeAll(arr)`.\n  \n**Params**  \n- `int` i: new length"
         }
       },
+      "sortText": "130",
       "insertText": "setLength(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -329,15 +312,30 @@
       }
     },
     {
+      "label": "toString()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value_  \n  \nReturns a simple, human-readable representation of `value` as a string.\n  \n  \n  \n**Returns** `string`   \n- simple, human-readable string representation of `value`  \n  \n- if `value` is a string, then returns `value`  \n- if `value` is `()`, then returns an empty string  \n- if `value` is boolean, then the string `true` or `false`  \n- if `value` is an int, then return `value` represented as a decimal string  \n- if `value` is a float or decimal, then return `value` represented as a decimal string,  \nwith a decimal point only if necessary, but without any suffix indicating the type of `value`  \nreturn `NaN`, `Infinity` for positive infinity, and `-Infinity` for negative infinity  \n- if `value` is a list, then returns the results toString on each member of the list  \nseparated by a space character  \n- if `value` is a map, then returns key=value for each member separated by a space character  \n- if `value` is xml, then returns `value` in XML format (as if it occurred within an XML element)  \n- if `value` is table, TBD  \n- if `value` is an error, then a string consisting of the following in order  \n1. the string `error`  \n2. a space character  \n3. the reason string  \n4. if the detail record is non-empty  \n1. a space character  \n2. the result of calling toString on the detail record  \n- if `value` is an object, then  \n- if `value` provides a `toString` method with a string return type and no required methods,  \nthen the result of calling that method on `value`  \n- otherwise, `object` followed by some implementation-dependent string  \n- if `value` is any other behavioral type, then the identifier for the behavioral type  \n(`function`, `future`, `service`, `typedesc` or `handle`)  \nfollowed by some implementation-dependent string  \n  \nNote that `toString` may produce the same string for two Ballerina values  \nthat are not equal (in the sense of the `==` operator).  \n  \n"
+        }
+      },
+      "sortText": "130",
+      "insertText": "toString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "unshift(...(any|error))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array_  \n  \n  \n  \n---    \n**Parameters**  \n"
+          "value": "**Package:** _ballerina/lang.array_  \n  \nAdd `vals` to beginig of the array `arr`.\n  \n**Params**  \n- vals: values to add to the start of the array"
         }
       },
+      "sortText": "130",
       "insertText": "unshift(${1});",
       "insertTextFormat": "Snippet",
       "command": {
@@ -349,6 +347,10 @@
       "label": "ArrayIterator",
       "kind": "Class",
       "detail": "Object",
+      "documentation": {
+        "left": "Represent the iterator type returned when `iterator` method is invoked."
+      },
+      "sortText": "120",
       "insertText": "ArrayIterator",
       "insertTextFormat": "Snippet"
     }

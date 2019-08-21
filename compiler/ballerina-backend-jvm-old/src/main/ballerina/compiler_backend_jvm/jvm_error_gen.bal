@@ -38,7 +38,7 @@ type ErrorHandlerGenerator object {
         self.mv.visitLabel(startLabel);
     }
 
-    function generateTryInsForTrap(bir:ErrorEntry currentEE, string[] errorVarNames, jvm:Label endLabel, 
+    function generateTryInsForTrap(bir:ErrorEntry currentEE, string[] errorVarNames, jvm:Label endLabel,
                                    jvm:Label handlerLabel, jvm:Label jumpLabel) {
         var varDcl = <bir:VariableDcl>currentEE.errorOp.variableDcl;
         int lhsIndex = self.getJVMIndexOfVarRef(varDcl);
@@ -70,7 +70,7 @@ type ErrorHandlerGenerator object {
         self.mv.visitLabel(jumpLabel);
     }
 
-    function printStackTraceFromFutureValue(jvm:MethodVisitor mv) {
+    function printStackTraceFromFutureValue(jvm:MethodVisitor mv, BalToJVMIndexMap indexMap) {
         mv.visitInsn(DUP);
         mv.visitInsn(DUP);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", io:sprintf("L%s;", STRAND));
@@ -80,7 +80,25 @@ type ErrorHandlerGenerator object {
         jvm:Label labelIf = new;
         mv.visitJumpInsn(IFNULL, labelIf);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, io:sprintf("L%s;", THROWABLE));
+        bir:VariableDcl runtimePanicVar = {
+                                            typeValue: "any",
+                                            name: { value: "runtimePanicVar" },
+                                            kind: "ARG"
+                                          };
+        int runtimePanicVarIndex = indexMap.getIndex(runtimePanicVar);
+        mv.visitVarInsn(ASTORE, runtimePanicVarIndex);
+        mv.visitVarInsn(ALOAD, runtimePanicVarIndex);
+        mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
+        jvm:Label runtimePanicErrorLabel = new;
+        mv.visitJumpInsn(IFNE, runtimePanicErrorLabel);
+        mv.visitVarInsn(ALOAD, runtimePanicVarIndex);
+        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_THROWABLE_METHOD, io:sprintf("(L%s;)V", THROWABLE),
+                            false);
+        mv.visitInsn(RETURN);
+        mv.visitLabel(runtimePanicErrorLabel);
+        mv.visitVarInsn(ALOAD, runtimePanicVarIndex);
         mv.visitInsn(ATHROW);
+
         mv.visitInsn(RETURN);
         mv.visitLabel(labelIf);
     }
@@ -89,3 +107,42 @@ type ErrorHandlerGenerator object {
         return self.indexMap.getIndex(varDcl);
     }
 };
+
+type DiagnosticLogger object {
+    DiagnosticLog[] errors = [];
+    int size = 0;
+
+    function logError(error err, bir:DiagnosticPos pos, bir:Package module) {
+        self.errors[self.size] = {err:err, pos:pos, module:module};
+        self.size += 1;
+    }
+
+    function getErrorCount() returns int {
+        return self.size;
+    }
+
+    function printErrors() {
+        foreach DiagnosticLog log in self.errors {
+            string fileName = log.pos.sourceFileName;
+            string orgName = log.module.org.value;
+            string moduleName = log.module.name.value;
+
+            string pkgIdStr;
+            if (moduleName == "." && orgName == "$anon") {
+                pkgIdStr = ".";
+            } else {
+                pkgIdStr = orgName + ":" + moduleName;
+            }
+
+            string positionStr = io:sprintf("%s:%s:%s:%s", pkgIdStr, fileName, log.pos.sLine, log.pos.sCol);
+            string errorStr = io:sprintf("error: %s: %s %s", positionStr, log.err.reason(), log.err.detail());
+            io:println(errorStr);
+        }
+    }
+};
+
+type DiagnosticLog record {|
+    error err;
+    bir:DiagnosticPos pos;
+    bir:Package module;
+|};

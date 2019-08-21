@@ -33,6 +33,7 @@ import io.ballerina.plugins.idea.runconfig.BallerinaRunningState;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings;
+import io.ballerina.plugins.idea.settings.experimental.BallerinaExperimentalFeatureSettings;
 import io.ballerina.plugins.idea.util.BallerinaExecutor;
 import io.ballerina.plugins.idea.util.BallerinaHistoryProcessListener;
 import org.jetbrains.annotations.NotNull;
@@ -136,6 +137,10 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
             ballerinaExecutor.withParameters("--sourceroot").withParameters(projectRoot)
                     .withParameterString(myConfiguration.getBallerinaToolParams());
 
+            if (BallerinaExperimentalFeatureSettings.getInstance().getAllowExperimental()) {
+                ballerinaExecutor.withParameters("--experimental");
+            }
+
             // Tries to get the ballerina executable path using the SDK.
             String balSdkPath = BallerinaSdkService.getInstance(getConfiguration().getProject()).getSdkHomePath(module);
             // If any sdk is not found and user has chosen to auto detect ballerina home.
@@ -151,6 +156,11 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
             if (isDebug()) {
                 ballerinaExecutor.withParameters("--debug", String.valueOf(myDebugPort));
             }
+
+            if (BallerinaExperimentalFeatureSettings.getInstance().getAllowExperimental()) {
+                ballerinaExecutor.withParameters("--experimental");
+            }
+
             ballerinaExecutor.withParameterString(myConfiguration.getBallerinaToolParams());
 
             // Tries to get the ballerina executable path using the SDK.

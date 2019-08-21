@@ -103,7 +103,7 @@ public class BaloFileWriter {
         try (FileSystem balo = createBaloArchive(baloFilePath)) {
             // Now lets put stuff in
             populateBaloArchive(balo, module);
-            buildContext.out().println("Created " + projectDirectory.relativize(baloFilePath));
+            buildContext.out().println("\t" + projectDirectory.relativize(baloFilePath));
         } catch (IOException e) {
             // todo Check for permission
             throw new BLangCompilerException("Failed to create balo :" + e.getMessage(), e);

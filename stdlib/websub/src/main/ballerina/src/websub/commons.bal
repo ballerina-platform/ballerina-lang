@@ -20,8 +20,8 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/reflect;
 import ballerina/internal;
+import ballerina/config;
 
 # Intent verification request parameter `hub.challenge` representing the challenge that needs to be echoed by
 # susbscribers to verify intent.
@@ -169,7 +169,7 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
     string reqTopic = decodedTopic is string ? decodedTopic : topic;
 
     string reqMode = intentVerificationRequest.mode;
-    string challenge = intentVerificationRequest.challenge;
+    string challenge = <@untainted>intentVerificationRequest.challenge;
 
     if (reqMode == mode && reqTopic == topic) {
         response.statusCode = http:STATUS_ACCEPTED;
@@ -513,7 +513,7 @@ public type WebSubHub object {
     # + return - `boolean` indicating whether the internal Ballerina Hub was stopped
     public function stop() returns boolean {
         // TODO: return error
-        var stopResult = self.hubHttpListener.__stop();
+        var stopResult = self.hubHttpListener.__immediateStop();
         return stopHubService(self.hubUrl) && !(stopResult is error);
     }
 

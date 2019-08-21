@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -46,13 +46,11 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
                 @Argument(name = "label", type = OBJECT, structType = LABEL)
         }
 )
-public class VisitLineNumber extends BlockingNativeCallableUnit {
+public class VisitLineNumber {
 
-    @Override
-    public void execute(Context context) {
-        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(context, 0);
-        Label label = ASMUtil.getRefArgumentNativeData(context, 1);
-        long line = context.getIntArgument(0);
+    public static void visitLineNumber(Strand strand, ObjectValue oMv, long line, ObjectValue oLabel) {
+        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(oMv);
+        Label label = ASMUtil.getRefArgumentNativeData(oLabel);
         mv.visitLineNumber((int) line, label);
     }
 }

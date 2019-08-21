@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langserver.completions;
 
-import org.ballerinalang.model.symbols.BLangSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
 /**
@@ -26,15 +25,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
  */
 public class SymbolInfo {
     private String symbolName;
-    private BLangSymbol symbol;
     private Scope.ScopeEntry scopeEntry;
     private boolean isCustomOperation;
     private CustomOperationSignature customOperationSignature;
-
-    public SymbolInfo(String symbolName, BLangSymbol symbol) {
-        this.symbolName = symbolName;
-        this.symbol = symbol;
-    }
 
     public SymbolInfo(String symbolName, Scope.ScopeEntry scopeEntry) {
         this.symbolName = symbolName;
@@ -50,14 +43,6 @@ public class SymbolInfo {
 
     public void setSymbolName(String symbolName) {
         this.symbolName = symbolName;
-    }
-
-    public BLangSymbol getSymbol() {
-        return symbol;
-    }
-
-    public void setSymbol(BLangSymbol symbol) {
-        this.symbol = symbol;
     }
 
     public Scope.ScopeEntry getScopeEntry() {

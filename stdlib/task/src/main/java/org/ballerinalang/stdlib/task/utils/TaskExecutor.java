@@ -18,12 +18,14 @@
 package org.ballerinalang.stdlib.task.utils;
 
 import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.jvm.values.connector.Executor;
 import org.ballerinalang.stdlib.task.objects.ServiceInformation;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
+
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_TRIGGER;
 
 /**
  * This class invokes the Ballerina onTrigger function, and if an error occurs while invoking that function, it invokes
@@ -33,18 +35,34 @@ public class TaskExecutor {
 
     public static void executeFunction(ServiceInformation serviceInformation) {
         AttachedFunction onTriggerFunction = serviceInformation.getOnTriggerFunction();
-        List<Object> onTriggerFunctionArgs = getParameterList(onTriggerFunction, serviceInformation);
+        Object[] onTriggerFunctionArgs = getParameterList(onTriggerFunction, serviceInformation);
 
-        Executor.executeFunction(serviceInformation.getStrand(), serviceInformation.getService(), onTriggerFunction,
-                onTriggerFunctionArgs.toArray());
+        TaskNonBlockingCallback nonBlockingCallback = new TaskNonBlockingCallback();
+        Executor.submit(serviceInformation.getScheduler(),
+                serviceInformation.getService(),
+                RESOURCE_ON_TRIGGER,
+                nonBlockingCallback,
+                null,
+                onTriggerFunctionArgs);
     }
 
-    private static List<Object> getParameterList(AttachedFunction function, ServiceInformation serviceInformation) {
-        List<Object> functionParameters = new ArrayList<>();
+    private static Object[] getParameterList(AttachedFunction function, ServiceInformation serviceInformation) {
         if (function.type.paramTypes.length > 0 && Objects.nonNull(serviceInformation.getAttachment())) {
-            functionParameters.add(serviceInformation.getAttachment());
-            functionParameters.add(Boolean.TRUE);
+            return new Object[]{serviceInformation.getAttachment(), Boolean.TRUE};
         }
-        return functionParameters;
+        return new Object[]{};
+    }
+
+    private static class TaskNonBlockingCallback implements CallableUnitCallback {
+
+        @Override
+        public void notifySuccess() {
+            // Do nothing
+        }
+
+        @Override
+        public void notifyFailure(ErrorValue error) {
+            // Do nothing
+        }
     }
 }

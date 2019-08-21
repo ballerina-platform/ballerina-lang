@@ -14,9 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/reflect;
-import ballerina/runtime;
-
 # Representation of the Authentication filter.
 #
 # + authHandlers - An array of authentication handlers.
@@ -35,10 +32,6 @@ public type AuthnFilter object {
     # + context - A filter context
     # + return - Returns `true` if the filter succeeds. Else, returns `false`.
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
-        // TODO: Fix this properly with a separate filter which is set as the top-most filter of the filters array.
-        runtime:getInvocationContext().attributes["ServiceName"] = context.getServiceName();
-        runtime:getInvocationContext().attributes["ResourceName"] = context.getResourceName();
-
         boolean|AuthenticationError authenticated;
         var authHandlers = getAuthHandlers(context);
         if (authHandlers is InboundAuthHandler[]|InboundAuthHandler[][]) {
@@ -111,7 +104,7 @@ function isAuthnSuccessful(Caller caller, boolean|AuthenticationError authentica
     response.statusCode = 401;
     if (authenticated is boolean) {
         if (!authenticated) {
-            response.setTextPayload("Authentication failure");
+            response.setTextPayload("Authentication failure.");
             var err = caller->respond(response);
             if (err is error) {
                 panic <error> err;

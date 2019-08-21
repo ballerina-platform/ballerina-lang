@@ -18,11 +18,10 @@ keywords = ["ballerina", "security", "crypto"]
 # string-utils will validate the license provided against a whitelist of known
 # license identifiers from http://spdx.org/licenses/. Multiple licenses can be
 # separated with a `/`.
-license = "MIT OR Apache-2.0"
+license = ["MIT", "Apache-2.0"]
 
 # Dependencies are searched in local repository and then Ballerina Central.
 # <module-name> is fully qualified module name with org name.
 # The <module-name> in the table specifier must be fully qualified.
 [dependencies]
 "wso2/twitter" = "2.3.4"
-"wso2/github" = { path = "path/to/github.balo", version = "1.2.3"}

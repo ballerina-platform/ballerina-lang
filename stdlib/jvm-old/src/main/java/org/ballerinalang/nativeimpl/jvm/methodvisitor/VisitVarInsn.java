@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.nativeimpl.jvm.methodvisitor;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -42,14 +42,10 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.METHOD_VISITOR;
                 @Argument(name = "variable", type = INT)
         }
 )
-public class VisitVarInsn extends BlockingNativeCallableUnit {
+public class VisitVarInsn {
 
-    @Override
-    public void execute(Context context) {
-
-        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(context, 0);
-        int opCode = (int) context.getIntArgument(0);
-        int variable = (int) context.getIntArgument(1);
-        mv.visitVarInsn(opCode, variable);
+    public static void visitVarInsn(Strand strand, ObjectValue oMv, long opCode, long variable) {
+        MethodVisitor mv = ASMUtil.getRefArgumentNativeData(oMv);
+        mv.visitVarInsn((int) opCode, (int) variable);
     }
 }

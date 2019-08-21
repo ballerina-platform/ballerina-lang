@@ -75,7 +75,7 @@ public class H2ClientActionsTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = { H2_TEST_GROUP, "broken" })
+    @Test(groups = { H2_TEST_GROUP })
     public void testCall() {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invokeFunction(result, "testCall", args);

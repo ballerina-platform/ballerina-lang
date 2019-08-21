@@ -40,6 +40,7 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
     private int rightBraceCount;
     private int rightBracketCount;
     private int ltSymbolCount;
+    private int gtSymbolCount;
     private boolean capturedAssignToken;
     private SourcePruneContext sourcePruneContext;
     private boolean forcedProcessedToken;
@@ -57,6 +58,7 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
         this.rightBraceCount = 0;
         this.rightBracketCount = 0;
         this.ltSymbolCount = 0;
+        this.gtSymbolCount = 0;
         this.processedTokens = new ArrayList<>();
     }
 
@@ -76,6 +78,8 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
                 this.capturedAssignToken = true;
             } else if (BallerinaParser.RIGHT_BRACKET == type) {
                 rightBracketCount++;
+            } else if (BallerinaParser.GT == type) {
+                this.gtSymbolCount++;
             }
             if (!this.forcedProcessedToken) {
                 processToken(token.get());
@@ -89,6 +93,7 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
         sourcePruneContext.put(SourcePruneKeys.RIGHT_PARAN_COUNT_KEY, this.rightParenthesisCount);
         sourcePruneContext.put(SourcePruneKeys.RIGHT_BRACE_COUNT_KEY, this.rightBraceCount);
         sourcePruneContext.put(SourcePruneKeys.LT_COUNT_KEY, this.ltSymbolCount);
+        sourcePruneContext.put(SourcePruneKeys.GT_COUNT_KEY, this.gtSymbolCount);
         Collections.reverse(this.processedTokens);
         return this.processedTokens;
     }
@@ -122,10 +127,13 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
             xyz {f1:1, f2:{f3:4}} = 
         right brace cannot consider as a terminal token, therefore we track the previous token and consider that to
         identify blocks. Until the right brace count is zero all the following right braces are altered (refer example)
+        also gtSymbolCount check added to cover the following
+            typedesc<record {}> x = t
          */
         if (type == BallerinaParser.RIGHT_BRACE
                 && (this.lastProcessedToken == BallerinaParser.ASSIGN
-                || this.lastProcessedToken == BallerinaParser.EQUAL_GT || this.rightBraceCount > 0)) {
+                || this.lastProcessedToken == BallerinaParser.EQUAL_GT || this.rightBraceCount > 0
+                || this.gtSymbolCount > 0)) {
             this.processToken(token);
             this.forcedProcessedToken = true;
             this.rightBraceCount++;
@@ -151,6 +159,10 @@ class LHSTokenTraverser extends AbstractTokenTraverser {
         if (type == BallerinaParser.LT) {
             this.processToken(token);
             this.forcedProcessedToken = true;
+            if (this.gtSymbolCount > 0) {
+                this.gtSymbolCount--;
+                return false;
+            }
             this.ltSymbolCount++;
             return false;
         }

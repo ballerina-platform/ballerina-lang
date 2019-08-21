@@ -15,13 +15,12 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/log;
 
 final string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
 
 @http:WebSocketServiceConfig {
 }
-service on new http:WebSocketListener(21018) {
+service on new http:Listener(21018) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new("ws://localhost:15300/websocket", { callbackService:

@@ -17,19 +17,13 @@
  */
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -43,20 +37,7 @@ import java.nio.charset.StandardCharsets;
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
         isPublic = true
 )
-public class ToBytes extends BlockingNativeCallableUnit {
-
-    public void execute(Context ctx) {
-        try {
-            String string = ctx.getStringArgument(0);
-            String encoding = ctx.getStringArgument(1);
-            byte[] bytes = string.getBytes(encoding);
-            BValueArray byteArray = new BValueArray(bytes);
-            ctx.setReturnValues(byteArray);
-        } catch (UnsupportedEncodingException e) {
-            throw new BallerinaException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
-                                         "Unsupported Encoding " + e.getMessage());
-        }
-    }
+public class ToBytes {
 
     public static ArrayValue toBytes(Strand strand, String value) {
 

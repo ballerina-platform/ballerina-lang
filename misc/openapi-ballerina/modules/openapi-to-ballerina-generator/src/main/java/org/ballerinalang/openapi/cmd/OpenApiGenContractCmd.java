@@ -75,7 +75,6 @@ public class OpenApiGenContractCmd implements BLauncherCmd {
 
             genOASfromFile(service, servicePath);
         }
-
     }
 
     /**

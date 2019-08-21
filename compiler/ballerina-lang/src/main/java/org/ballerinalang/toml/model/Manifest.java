@@ -22,7 +22,6 @@ import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -103,66 +102,6 @@ public class Manifest {
             } else {
                 throw new BLangCompilerException("Platform target is not supported by installed Ballerina SDK");
             }
-        }
-    }
-
-    /**
-     * Project definition.
-     */
-    public static class Project {
-        private String orgName = "";
-        private String version = "";
-        private List<String> license = new LinkedList<>();
-        private List<String> authors = new LinkedList<>();
-        private String repository = "";
-        private List<String> keywords = new LinkedList<>();
-
-        public String getOrgName() {
-            return orgName;
-        }
-
-        public void setOrgName(String orgName) {
-            this.orgName = orgName;
-        }
-
-        public String getVersion() {
-            return version;
-        }
-
-        public void setVersion(String version) {
-            this.version = version;
-        }
-
-        public List<String> getLicense() {
-            return license;
-        }
-
-        public void setLicense(List<String> license) {
-            this.license = license;
-        }
-
-        public List<String> getAuthors() {
-            return authors;
-        }
-
-        public void setAuthors(List<String> authors) {
-            this.authors = authors;
-        }
-
-        public String getRepository() {
-            return repository;
-        }
-
-        public void setRepository(String repository) {
-            this.repository = repository;
-        }
-
-        public List<String> getKeywords() {
-            return keywords;
-        }
-
-        public void setKeywords(List<String> keywords) {
-            this.keywords = keywords;
         }
     }
 }

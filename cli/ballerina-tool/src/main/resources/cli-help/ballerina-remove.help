@@ -1,8 +1,8 @@
 NAME
-    Ballerina remove - Remove a given SDK version
+    Ballerina remove - Remove a given distribution version
 
 SYNOPSIS
-    ballerina remove <sdk-version>
+    ballerina remove <distribution-version>
 
 DESCRIPTION
      removes the given Ballerina version from project repository.

@@ -17,20 +17,13 @@
 */
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BTable;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.util.exceptions.BLangFreezeException;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * {@code Add} is the function to add data to a table.
@@ -46,17 +39,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
                                      type = TypeKind.ANY)
                    },
                    isPublic = true)
-public class Add extends BlockingNativeCallableUnit {
-    @Override
-    public void execute(Context context) {
-        BTable table = (BTable) context.getRefArgument(0);
-        BMap<String, BValue> data = (BMap) context.getRefArgument(1);
-        try {
-            table.performAddOperation(data, context);
-        } catch (BLangFreezeException e) {
-            throw new BallerinaException(e.getMessage(), "Failed to add data to the table: " + e.getDetail());
-        }
-    }
+public class Add {
 
     public static Object add(Strand strand, TableValue table, Object data) {
         try {

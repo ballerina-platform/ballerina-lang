@@ -20,6 +20,8 @@ package org.ballerinalang.stdlib.services.nativeimpl.response;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
+import org.apache.axiom.om.OMNode;
+import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLItem;
@@ -59,7 +61,6 @@ import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichEntityWithDef
 import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichTestEntity;
 import static org.ballerinalang.stdlib.utils.TestEntityUtils.enrichTestEntityHeaders;
 import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createEntityObject;
-import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createMediaTypeObject;
 import static org.ballerinalang.stdlib.utils.ValueCreatorUtils.createResponseObject;
 
 /**
@@ -157,9 +158,7 @@ public class ResponseNativeFunctionSuccessTest {
         HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
 
         ObjectValue entity = createEntityObject();
-        ObjectValue mediaType = createMediaTypeObject();
-
-        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, inResponseMsg);
+        HttpUtil.populateInboundResponse(inResponse, entity, inResponseMsg);
 
         BValue[] returnVals = BRunUtil.invoke(result, "testGetContentLength", new Object[]{ inResponse });
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
@@ -175,8 +174,7 @@ public class ResponseNativeFunctionSuccessTest {
         HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
 
         ObjectValue entity = createEntityObject();
-        ObjectValue mediaType = createMediaTypeObject();
-        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, inResponseMsg);
+        HttpUtil.populateInboundResponse(inResponse, entity, inResponseMsg);
 
         BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader",
                                               new Object[]{ inResponse, HttpHeaderNames.CONTENT_TYPE.toString() });
@@ -207,8 +205,7 @@ public class ResponseNativeFunctionSuccessTest {
 
         inResponseMsg.setHttpStatusCode(200);
         ObjectValue entity = createEntityObject();
-        ObjectValue mediaType = createMediaTypeObject();
-        HttpUtil.populateInboundResponse(inResponse, entity, mediaType, inResponseMsg);
+        HttpUtil.populateInboundResponse(inResponse, entity, inResponseMsg);
 
         BValue[] returnVals = BRunUtil.invoke(result, "testGetHeaders", new Object[]{ inResponse, "test-header" });
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
@@ -529,7 +526,8 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testSetXmlPayload() {
-        BXMLItem value = new BXMLItem("<name>Ballerina</name>");
+        OMNode omNode = (OMNode) XMLFactory.parse("<name>Ballerina</name>").value();
+        BXMLItem value = new BXMLItem(omNode);
         BValue[] inputArg = {value};
         BValue[] returnVals = BRunUtil.invoke(result, "testSetXmlPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,

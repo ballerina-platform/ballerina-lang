@@ -143,25 +143,20 @@ public class ClosedRecordIterationTest {
         Assert.assertEquals(addressRecord.get("city").stringValue(), "Colombo 3");
     }
 
-    // disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/10149
-    @Test(description = "Tests foreach iterable operation on closed records", enabled = false)
+    @Test(description = "Tests foreach iterable operation on closed records")
     public void testForeachOpWithClosedRecords() {
-        String[] expectedFields = new String[]{"name", "age", "address"};
         BValue[] returns = BRunUtil.invoke(result, "testForeachOpWithClosedRecords");
 
-        BMap rec2map = (BMap) returns[0];
-        Assert.assertEquals(rec2map.get(expectedFields[0]).stringValue(), "John Doe");
-        Assert.assertEquals(((BInteger) rec2map.get(expectedFields[1])).intValue(), 25);
-        Assert.assertTrue(rec2map.get(expectedFields[2]) instanceof BMap);
-        Assert.assertEquals(((BFloat) rec2map.get(expectedFields[3])).floatValue(), 5.9);
+        Assert.assertEquals(returns[0].stringValue(), "John Doe");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
+        Assert.assertTrue(returns[2] instanceof BMap);
 
-        BMap addressRecord = (BMap) rec2map.get(expectedFields[2]);
+        BMap addressRecord = (BMap) returns[2];
         Assert.assertEquals(addressRecord.get("street").stringValue(), "Palm Grove");
         Assert.assertEquals(addressRecord.get("city").stringValue(), "Colombo 3");
     }
 
-    // TODO: 7/16/19 Enable once https://github.com/ballerina-platform/ballerina-lang/issues/16759 is fixed
-    @Test(description = "Tests map iterable operation on closed records", enabled = false)
+    @Test(description = "Tests map iterable operation on closed records")
     public void testMapOpWithClosedRecords() {
         String[] expectedFields = new String[]{"name", "age", "address"};
         BValue[] returns = BRunUtil.invoke(result, "testMapOpWithClosedRecords");

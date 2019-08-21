@@ -338,10 +338,26 @@ public class ConfigTest {
         Assert.assertEquals(returnVals[0].stringValue(), "Hello\nWorld!!!\n");
     }
 
+    @Test(description = "Test config keys with equals")
+    public void testGetAsStringWithEquals() throws IOException {
+        BString key = new BString("\\\"a=b\\\"");
+        BValue[] inputArg = { key };
+
+        registry.initRegistry(getRuntimeProperties(), customConfigFilePath, ballerinaConfPath);
+
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
+
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BString);
+        Assert.assertEquals(returnVals[0].stringValue(), "abcd");
+    }
+
     private Map<String, String> getRuntimeProperties() {
         Map<String, String> runtimeConfigs = new HashMap<>();
         runtimeConfigs.put("ballerina.http.host", "10.100.1.201");
         runtimeConfigs.put("http1.port", "8082");
+        runtimeConfigs.put("\\\"a=b\\\"", "abcd");
         return runtimeConfigs;
     }
 }

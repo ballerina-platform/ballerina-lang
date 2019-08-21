@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/io;
-import ballerina/mime;
 import ballerina/http;
 import ballerina/time;
 import ballerina/math;
@@ -54,7 +53,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
     } else {
         var jsonResponse = httpResponse.getJsonPayload();
         if (jsonResponse is json) {
-            var artifacts = trap <json[]> jsonResponse.artifacts;
+            var artifacts = trap <json[]> jsonResponse.modules;
             if (artifacts is json[]) {
                 if (artifacts.length() > 0) {
                     int artifactsLength = artifacts.length();
@@ -113,7 +112,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
                     while (i < artifactsLength) {
                         json jsonElement = artifacts[i];
                         string orgName = jsonElement.orgName.toString();
-                        string packageName = jsonElement.packageName.toString();
+                        string packageName = jsonElement.name.toString();
                         printInCLI("|"+ orgName + "/" + packageName, nameColWidth);
 
                         string summary = jsonElement.summary.toString();
@@ -137,7 +136,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
                         json createTimeJson = <json> jsonElement.createdDate;
                         printInCLI(getDateCreated(createTimeJson), dateColWidth);
 
-                        string packageVersion = jsonElement.packageVersion.toString();
+                        string packageVersion = jsonElement.'version.toString();
                         printInCLI(packageVersion, versionColWidth);
                         i = i + 1;
                         io:println("");
@@ -163,7 +162,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
 # + username - Username of the proxy
 # + password - Password of the proxy
 # + return - Endpoint defined
-function defineEndpointWithProxy (string url, string hostname, int port, string username, string password) returns http:Client{
+function defineEndpointWithProxy(string url, string hostname, int port, string username, string password) returns http:Client{
     http:Client httpEndpoint = new (url, {
         secureSocket:{
             trustStore:{
@@ -173,7 +172,7 @@ function defineEndpointWithProxy (string url, string hostname, int port, string 
             verifyHostname: false,
             shareSession: true
         },
-        proxy : getProxyConfigurations(hostname, port, username, password)
+        http1Settings:{ proxy : getProxyConfigurations(hostname, port, username, password) }
     });
     return httpEndpoint;
 }
@@ -182,7 +181,7 @@ function defineEndpointWithProxy (string url, string hostname, int port, string 
 #
 # + url - URL to be invoked
 # + return - Endpoint defined
-function defineEndpointWithoutProxy (string url) returns http:Client{
+function defineEndpointWithoutProxy(string url) returns http:Client{
     http:Client httpEndpoint = new (url, {
         secureSocket:{
             trustStore:{
@@ -242,21 +241,16 @@ function printTitle(string title) {
 # + jsonObj - Time object as a json
 # + return - Date and time the module was created
 function getDateCreated(json jsonObj) returns string {
-    string jsonTime = jsonObj.time.toString();
-    var timeInMillis = lint:fromString(jsonTime);
-    if (timeInMillis is int) {
-        time:Time timeRecord = { time: timeInMillis, zone: { id: "UTC", offset: 0 } };
-        return checkpanic time:format(timeRecord, "yyyy-MM-dd-E");
-    } else {
-        error e = timeInMillis;
-        panic e;
-    }
+    int timeInMillis = <int>jsonObj;
+    time:Time timeRecord = { time: timeInMillis, zone: { id: "UTC", offset: 0 } };
+    return checkpanic time:format(timeRecord, "yyyy-MM-dd-E");
 }
 
 # This function invokes the method to search for modules.
 # + args - Arguments passed
 public function main(string... args) {
     http:Client httpEndpoint;
+    string query = "?q=" + args[1];
     string host = args[2];
     string strPort = args[3];
     if (host != "" && strPort != "") {
@@ -265,7 +259,7 @@ public function main(string... args) {
             http:Client|error result = trap defineEndpointWithProxy(args[0], host, port, args[4], args[5]);
             if (result is http:Client) {
                 httpEndpoint = result;
-                search(httpEndpoint, args[0], args[1], args[6]);
+                search(httpEndpoint, args[0], <@untainted>query, args[6]);
             } else {
                 io:println("failed to resolve host : " + host + " with port " + port.toString());
                 return;
@@ -278,7 +272,7 @@ public function main(string... args) {
         return;   
     } else {
         httpEndpoint = defineEndpointWithoutProxy(args[0]);
-        search(httpEndpoint, args[0], args[1], args[6]);
+        search(httpEndpoint, args[0], <@untainted>query, args[6]);
     }
 }
 

@@ -140,7 +140,11 @@ public type Consumer client object {
         return self.start();
     }
 
-    public function __stop() returns error? {
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
+    public function __immediateStop() returns error? {
         return self.stop();
     }
 
@@ -310,6 +314,8 @@ public type Consumer client object {
     public remote function subscribeToPattern(string regex) returns ConsumerError? = external;
 
     # Subscribes to consumer to the provided set of topics with rebalance listening is enabled.
+    # This function can be used inside a service, to subscribe to a set of topics, while rebalancing the patition
+    # assignment of the consumers.
     #
     # + topics - Array of topics to be subscribed.
     # + onPartitionsRevoked - Function which will be executed if partitions are revoked from this consumer.

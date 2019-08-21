@@ -1,5 +1,5 @@
 import ballerina/http;
-import ballerina/io;
+
 
 listener http:MockListener passthruEP  = new(9091);
 

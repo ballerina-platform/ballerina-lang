@@ -24,6 +24,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
@@ -86,9 +87,8 @@ import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
-import static org.ballerinalang.compiler.CompilerOptionName.SIDDHI_RUNTIME_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
-import static org.ballerinalang.compiler.CompilerOptionName.STANDALONE_FILE;
+import static org.ballerinalang.compiler.CompilerOptionName.SOURCE_TYPE;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_TARGET;
 import static org.ballerinalang.util.BLangConstants.BLANG_EXEC_FILE_SUFFIX;
@@ -169,6 +169,18 @@ public class LauncherUtils {
     public static BLauncherException createLauncherException(String errorMsg) {
         BLauncherException launcherException = new BLauncherException();
         launcherException.addMessage("error: " + errorMsg);
+        return launcherException;
+    }
+
+    public static BLauncherException createLauncherException(String errorPrefix, Throwable cause) {
+        String message;
+        if (cause instanceof ErrorValue) {
+            message = ((ErrorValue) cause).getPrintableStackTrace();
+        } else {
+            message = cause.toString();
+        }
+        BLauncherException launcherException = new BLauncherException();
+        launcherException.addMessage("error: " + errorPrefix + message);
         return launcherException;
     }
 
@@ -279,7 +291,6 @@ public class LauncherUtils {
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(OFFLINE, Boolean.toString(offline));
-        options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(siddhiRuntimeFlag));
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
 
         // compile
@@ -416,13 +427,12 @@ public class LauncherUtils {
         options.put(SKIP_TESTS, Boolean.toString(skiptests));
         options.put(TEST_ENABLED, "true");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExperimentalFeatures));
-        options.put(SIDDHI_RUNTIME_ENABLED, Boolean.toString(siddhiRuntimeEnabled));
 
         String source = validateAndGetSrcPath(sourceRootPath, sourcePath, fullPath, srcPathStr);
 
         if (RepoUtils.isBallerinaStandaloneFile(fullPath)) {
             options.put(PROJECT_DIR, fullPath.getParent().toString());
-            options.put(STANDALONE_FILE, fullPath.getFileName().toString());
+            options.put(SOURCE_TYPE, "SINGLE_BAL_FILE");
         } else {
             options.put(PROJECT_DIR, sourceRootPath.toString());
         }

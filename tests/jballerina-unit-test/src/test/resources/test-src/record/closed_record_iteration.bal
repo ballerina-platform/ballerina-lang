@@ -78,31 +78,29 @@ function testForeachWithOpenRecords2() returns any[] {
     return values;
 }
 
-//function testForeachOpWithClosedRecords() returns map<any> {
-//    ClosedPerson p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }};
-//    map<any> rec = {};
-//    int fName = 0;
-//
-//    p.forEach(function (any value) {
-//        rec[fName.toString()] = value;
-//        fName += 1;
-//    });
-//
-//    return rec;
-//}
+function testForeachOpWithClosedRecords() returns any[] {
+    ClosedPerson p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }};
+    any[] values = [];
 
-//function testMapOpWithClosedRecords() returns map<any> {
-//    ClosedPerson p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }};
-//
-//    map<any> newp =  p.'map(function (any value) returns any {
-//           if value is string {
-//               return value.toLowerAscii();
-//           }
-//           return value;
-//        });
-//
-//    return newp;
-//}
+    p.forEach(function (any value) {
+        values.push(value);
+    });
+
+    return values;
+}
+
+function testMapOpWithClosedRecords() returns map<any> {
+    ClosedPerson p = { name: "John Doe", age: 25, address: { street: "Palm Grove", city: "Colombo 3" }};
+
+    map<any> newp =  p.'map(function (any value) returns any {
+           if value is string {
+               return value.toLowerAscii();
+           }
+           return value;
+        });
+
+    return newp;
+}
 
 function testFilterOpWithClosedRecords() returns map<string> {
     ClosedFoo f = {a: "A", b: "B", c: "C", d: "D", e: "E"};

@@ -21,7 +21,7 @@
 # + protocol - The protocol associated with the service endpoint
 public type Caller client object {
 
-    private ServiceEndpointConfiguration config = {};
+    private ListenerConfiguration config = {};
     private FilterContext? filterContext = ();
 
     //TODO:Make these readonly

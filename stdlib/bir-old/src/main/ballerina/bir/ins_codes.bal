@@ -47,6 +47,7 @@ public const int INS_OBJECT_STORE = 33;
 public const int INS_OBJECT_LOAD = 34;
 public const int INS_PANIC = 35;
 public const int INS_FP_LOAD = 36;
+public const int INS_STRING_LOAD = 37;
 
 public const int INS_NEW_XML_ELEMENT = 38;
 public const int INS_NEW_XML_TEXT = 39;

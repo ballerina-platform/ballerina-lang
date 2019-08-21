@@ -1,0 +1,9 @@
+export const CMP_API_DESIGNER = "component.api.designer";
+export const CMP_EXAMPLES_VIEW = "component.examples.view";
+export const CMP_DIAGRAM_VIEW = "component.diagram.view";
+export const CMP_DOCS_PREVIEW = "component.docs.preview";
+export const CMP_PROJECT_OVERVIEW = "component.project.overview";
+export const CMP_PROJECT_SUPPORT = "component.project.support";
+export const CMP_TEST_RUNNER = "component.test.runner";
+export const CMP_TRACE_LOGS = "component.trace.logs";
+export const CMP_DEBUGGER = "component.debugger";

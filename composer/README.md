@@ -4,7 +4,7 @@
 
 ### Building
 
-Execute `npm run build` in the composer folder. You can find the final distribution at target/composer-$version.zip
+Execute `npm run build` in the composer folder. You can find the built distributions at packages/distribution/build folder.
 
 ### Setting up watch mode
 

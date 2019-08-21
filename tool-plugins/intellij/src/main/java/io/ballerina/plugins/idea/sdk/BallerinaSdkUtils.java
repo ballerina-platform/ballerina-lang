@@ -496,12 +496,11 @@ public class BallerinaSdkUtils {
         return searchForBallerinaProjectRoot(currentDir.getParentFile().getAbsolutePath(), root);
     }
 
-
     @Messages.YesNoResult
     public static void showRestartDialog(Project project) {
         ApplicationManager.getApplication().invokeLater(() -> {
-            ProjectManagerEx.getInstanceEx().canClose(project);
-            String action = ProjectManagerEx.getInstanceEx().canClose(project) ? "Reload Project" : "Restart IDE";
+            String action = project != null && ProjectManagerEx.getInstanceEx().canClose(project) ?
+                    "Reload Project" : "Restart IDE";
             String message = "Project/IDE reloading action is required to apply changes. Do you wish to continue?";
             if (Messages.showYesNoDialog(message, "Apply Changes", action, "Postpone",
                     Messages.getQuestionIcon()) == Messages.YES) {

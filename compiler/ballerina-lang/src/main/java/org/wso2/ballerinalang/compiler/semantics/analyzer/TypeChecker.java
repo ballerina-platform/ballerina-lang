@@ -64,6 +64,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
@@ -529,6 +530,11 @@ public class TypeChecker extends BLangNodeVisitor {
         if (expType.tag == symTable.semanticError.tag) {
             return;
         }
+        if (expType.getKind() != TypeKind.TABLE) {
+            dlog.error(tableLiteral.pos, DiagnosticCode.CANNOT_INFER_TABLE_TYPE);
+            resultType = symTable.semanticError;
+            return;
+        }
         BType tableConstraint = ((BTableType) expType).getConstraint();
         if (tableConstraint.tag == TypeTags.NONE) {
             dlog.error(tableLiteral.pos, DiagnosticCode.TABLE_CANNOT_BE_CREATED_WITHOUT_CONSTRAINT);
@@ -847,7 +853,18 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             return true;
         } else {
-            return types.isAssignable(checkExpr(expression, env), type);
+            BType sourceType = checkExpr(expression, env);
+            if (expression.getKind() == NodeKind.LITERAL && type.getKind() == TypeKind.FINITE) {
+                if (types.isAssignableToFiniteType(type, (BLangLiteral) expression)) {
+                    return true;
+                }
+            } else if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangSimpleVarRef simpleVariable = (BLangSimpleVarRef) expression;
+                if (simpleVariable.symbol.getKind() == SymbolKind.CONSTANT) {
+                    sourceType = simpleVariable.symbol.type;
+                }
+            }
+            return types.isAssignable(sourceType, type);
         }
     }
 
@@ -1123,8 +1140,13 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        varRefExpr.pkgSymbol = symResolver.resolveImportSymbol(varRefExpr.pos,
-                env, names.fromIdNode(varRefExpr.pkgAlias));
+        Name compUnitName = getCurrentCompUnit(varRefExpr);
+        varRefExpr.pkgSymbol =
+                symResolver.resolvePrefixSymbol(env, names.fromIdNode(varRefExpr.pkgAlias), compUnitName);
+        if (varRefExpr.pkgSymbol == symTable.notFoundSymbol) {
+            dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_MODULE, varRefExpr.pkgAlias);
+        }
+
         if (varRefExpr.pkgSymbol.tag == SymTag.XMLNS) {
             actualType = symTable.stringType;
         } else if (varRefExpr.pkgSymbol != symTable.notFoundSymbol) {
@@ -1142,31 +1164,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 checkSefReferences(varRefExpr.pos, env, varSym);
                 varRefExpr.symbol = varSym;
                 actualType = varSym.type;
-                BLangInvokableNode encInvokable = env.enclInvokable;
-                if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA) &&
-                        !(symbol.owner instanceof BPackageSymbol) &&
-                        !isFunctionArgument(varSym, encInvokable.requiredParams)) {
-                    SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
-                    BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv,
-                            symbol.name, SymTag.VARIABLE);
-                    if (resolvedSymbol != symTable.notFoundSymbol && !encInvokable.flagSet.contains(Flag.ATTACHED)) {
-                        resolvedSymbol.closure = true;
-                        ((BLangFunction) encInvokable).closureVarSymbols.add(
-                                new ClosureVarSymbol(resolvedSymbol, varRefExpr.pos));
-                    }
-                }
-                if (env.node.getKind() == NodeKind.ARROW_EXPR && !(symbol.owner instanceof BPackageSymbol)) {
-                    if (!isFunctionArgument(varSym, ((BLangArrowFunction) env.node).params)) {
-                        SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
-                        BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
-                                SymTag.VARIABLE);
-                        if (resolvedSymbol != symTable.notFoundSymbol) {
-                            resolvedSymbol.closure = true;
-                            ((BLangArrowFunction) env.node).closureVarSymbols.add(
-                                    new ClosureVarSymbol(resolvedSymbol, varRefExpr.pos));
-                        }
-                    }
-                }
+                markAndRegisterClosureVariable(symbol, varRefExpr.pos);
             } else if ((symbol.tag & SymTag.TYPE) == SymTag.TYPE) {
                 actualType = new BTypedescType(symbol.type, null);
                 varRefExpr.symbol = symbol;
@@ -1249,6 +1247,14 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
+        if (varRefExpr.typeNode != null) {
+            BType bType = symResolver.resolveTypeNode(varRefExpr.typeNode, env);
+            varRefExpr.type = bType;
+            checkIndirectErrorVarRef(varRefExpr);
+            resultType = bType;
+            return;
+        }
+
         if (varRefExpr.reason != null) {
             varRefExpr.reason.lhsVar = true;
             checkExpr(varRefExpr.reason, env);
@@ -1323,6 +1329,17 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType errorDetailType = getCompatibleDetailType(errorRefRestFieldType);
         resultType = new BErrorType(errorTSymbol, varRefExpr.reason.type, errorDetailType);
+    }
+
+    private void checkIndirectErrorVarRef(BLangErrorVarRef varRefExpr) {
+        for (BLangNamedArgsExpression detailItem : varRefExpr.detail) {
+            checkExpr(detailItem.expr, env);
+            checkExpr(detailItem, env, detailItem.expr.type);
+        }
+
+        if (varRefExpr.restVar != null) {
+            checkExpr(varRefExpr.restVar, env);
+        }
     }
 
     private BRecordType getCompatibleDetailType(BType errorRefRestFieldType) {
@@ -2183,18 +2200,14 @@ public class TypeChecker extends BLangNodeVisitor {
         BType expType = requireTypeInference(conversionExpr.expr) ? targetType : symTable.noType;
         BType sourceType = checkExpr(conversionExpr.expr, env, expType);
 
-        if (targetType.tag == TypeTags.FUTURE) {
-            dlog.error(conversionExpr.pos, DiagnosticCode.TYPE_CAST_NOT_YET_SUPPORTED, targetType);
-        } else {
-            BSymbol symbol = symResolver.resolveTypeCastOperator(conversionExpr.expr, sourceType, targetType);
+        BSymbol symbol = symResolver.resolveTypeCastOperator(conversionExpr.expr, sourceType, targetType);
 
-            if (symbol == symTable.notFoundSymbol) {
-                dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CAST, sourceType, targetType);
-            } else {
-                conversionExpr.conversionSymbol = (BOperatorSymbol) symbol;
-                // We reach this block only if the cast is valid, so we set the target type as the actual type.
-                actualType = targetType;
-            }
+        if (symbol == symTable.notFoundSymbol) {
+            dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CAST, sourceType, targetType);
+        } else {
+            conversionExpr.conversionSymbol = (BOperatorSymbol) symbol;
+            // We reach this block only if the cast is valid, so we set the target type as the actual type.
+            actualType = targetType;
         }
         resultType = types.checkType(conversionExpr, actualType, this.expType);
     }
@@ -2614,8 +2627,8 @@ public class TypeChecker extends BLangNodeVisitor {
         BType actualType = symTable.semanticError;
         BSymbol symbol =
                 this.symResolver.resolveAnnotation(annotAccessExpr.pos, env,
-                                                   names.fromString(annotAccessExpr.pkgAlias.getValue()),
-                                                   names.fromString (annotAccessExpr.annotationName.getValue()));
+                        names.fromString(annotAccessExpr.pkgAlias.getValue()),
+                        names.fromString(annotAccessExpr.annotationName.getValue()));
         if (symbol == this.symTable.notFoundSymbol) {
             this.dlog.error(annotAccessExpr.pos, DiagnosticCode.UNDEFINED_ANNOTATION,
                             annotAccessExpr.annotationName.getValue());
@@ -2703,10 +2716,13 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        // This if check is to avoid duplicate error message about 'undefined module'
-        if (symResolver.resolvePkgSymbol(iExpr.pos, env, pkgAlias) != symTable.notFoundSymbol) {
+        BSymbol pkgSymbol = symResolver.resolvePrefixSymbol(env, pkgAlias, getCurrentCompUnit(iExpr));
+        if (pkgSymbol == symTable.notFoundSymbol) {
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_MODULE, pkgAlias);
+        } else {
             if (funcSymbol == symTable.notFoundSymbol) {
-                funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
+                funcSymbol =
+                        symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.VARIABLE);
             }
             if (funcSymbol == symTable.notFoundSymbol) {
                 funcSymbol = symResolver.lookupSymbolInPackage(iExpr.pos, env, pkgAlias, funcName, SymTag.CONSTRUCTOR);
@@ -2727,6 +2743,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         if (isFunctionPointer(funcSymbol)) {
             iExpr.functionPointerInvocation = true;
+            markAndRegisterClosureVariable(funcSymbol, iExpr.pos);
         }
         if (Symbols.isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX);
@@ -2738,6 +2755,31 @@ public class TypeChecker extends BLangNodeVisitor {
         // This is used in the code generation phase.
         iExpr.symbol = funcSymbol;
         checkInvocationParamAndReturnType(iExpr);
+    }
+
+    private void markAndRegisterClosureVariable(BSymbol symbol, DiagnosticPos pos) {
+        BLangInvokableNode encInvokable = env.enclInvokable;
+        if (symbol.owner instanceof BPackageSymbol) {
+            return;
+        }
+        if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA)
+                && !isFunctionArgument(symbol, encInvokable.requiredParams)) {
+            SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+            BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name, SymTag.VARIABLE);
+            if (resolvedSymbol != symTable.notFoundSymbol && !encInvokable.flagSet.contains(Flag.ATTACHED)) {
+                resolvedSymbol.closure = true;
+                ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
+            }
+        }
+        if (env.node.getKind() == NodeKind.ARROW_EXPR
+                && !isFunctionArgument(symbol, ((BLangArrowFunction) env.node).params)) {
+            SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+            BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name, SymTag.VARIABLE);
+            if (resolvedSymbol != symTable.notFoundSymbol) {
+                resolvedSymbol.closure = true;
+                ((BLangArrowFunction) env.node).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
+            }
+        }
     }
 
     private boolean isNotFunction(BSymbol funcSymbol) {
@@ -2762,27 +2804,48 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void checkErrorConstructorInvocation(BLangInvocation iExpr) {
-        if (!types.isAssignable(expType, symTable.errorType)) {
-            if (expType != symTable.noType) {
-                // Cannot infer error type from error constructor. 'T1|T2|T3 e = error("r", a="b", b="c");
-                dlog.error(iExpr.pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, expType);
-                resultType = symTable.semanticError;
-                return;
-            } else if ((iExpr.symbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
-                expType = iExpr.type;
-            } else {
-                // var e = <error> error("r");
-                expType = symTable.errorType;
+        BType expectedType = this.expType;
+
+        if (expType.getKind() == TypeKind.UNION) {
+            BType[] errorMembers = ((BUnionType) expectedType).getMemberTypes()
+                    .stream()
+                    .filter(memberType -> types.isAssignable(memberType, symTable.errorType))
+                    .toArray(BType[]::new);
+            if (errorMembers.length > 0) {
+                expectedType = BUnionType.create(null, errorMembers);
             }
         }
 
-        BErrorType expectedError = getExpectedErrorType(iExpr.pos, expType, iExpr.symbol);
+        if (expType.getKind() == TypeKind.UNION && iExpr.symbol.type == symTable.errorType) {
+            BUnionType unionType = (BUnionType) expType;
+            long count = unionType.getMemberTypes().stream()
+                    .filter(member -> types.isAssignable(iExpr.symbol.type, member))
+                    .count();
+            // More than one compatible members found, this is ambiguous.
+            if (count > 1) {
+                dlog.error(iExpr.pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, this.expType);
+                return;
+            }
+        } else if (!types.isAssignable(expectedType, symTable.errorType)) {
+            if ((iExpr.symbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
+                expectedType = iExpr.type;
+            } else if (expectedType != symTable.noType) {
+                // Cannot infer error type from error constructor. 'T1|T2|T3 e = error("r", a="b", b="c");
+                dlog.error(iExpr.pos, DiagnosticCode.CANNOT_INFER_ERROR_TYPE, this.expType);
+                resultType = symTable.semanticError;
+                return;
+            } else {
+                // var e = <error> error("r");
+                expectedType = symTable.errorType;
+            }
+        }
+
+        BErrorType expectedError = getExpectedErrorType(iExpr.pos, expectedType, iExpr.symbol);
         if (expectedError == null) {
             return;
         }
-        BErrorType ctorType = (BErrorType) expectedError.ctorSymbol.type;
 
-        if (iExpr.argExprs.isEmpty() && checkNoArgErrorCtorInvocation(ctorType, iExpr.pos)) {
+        if (iExpr.argExprs.isEmpty() && checkNoArgErrorCtorInvocation(expectedError, iExpr.pos)) {
             return;
         }
 
@@ -2792,10 +2855,10 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        boolean reasonArgGiven = checkErrorReasonArg(iExpr, ctorType);
+        boolean reasonArgGiven = checkErrorReasonArg(iExpr, expectedError);
 
-        if (ctorType.detailType.tag == TypeTags.RECORD) {
-            BRecordType targetErrorDetailRec = (BRecordType) ctorType.detailType;
+        if (expectedError.detailType.tag == TypeTags.RECORD) {
+            BRecordType targetErrorDetailRec = (BRecordType) expectedError.detailType;
             BRecordType recordType = createErrorDetailRecordType(iExpr, reasonArgGiven, targetErrorDetailRec);
             if (resultType == symTable.semanticError) {
                 return;
@@ -2807,7 +2870,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 return;
             }
         } else {
-            BMapType targetErrorDetailMap = (BMapType) ctorType.detailType;
+            BMapType targetErrorDetailMap = (BMapType) expectedError.detailType;
             List<BLangNamedArgsExpression> providedErrorDetails = getProvidedErrorDetails(iExpr, reasonArgGiven);
             if (providedErrorDetails == null) {
                 // error in provided error details
@@ -2817,11 +2880,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 checkExpr(errorDetailArg, env, targetErrorDetailMap.constraint);
             }
         }
-        setErrorReasonParam(iExpr, reasonArgGiven, ctorType);
+        setErrorReasonParam(iExpr, reasonArgGiven, expectedError);
         setErrorDetailArgsToNamedArgsList(iExpr);
 
         resultType = expectedError;
-        iExpr.symbol = expectedError.ctorSymbol;
+        if (iExpr.symbol == symTable.errorType.tsymbol) {
+            iExpr.symbol = expectedError.ctorSymbol;
+        }
     }
 
     private BErrorType getExpectedErrorType(DiagnosticPos pos, BType expType, BSymbol iExprSymbol) {
@@ -2877,6 +2942,8 @@ public class TypeChecker extends BLangNodeVisitor {
         if (firstErrorArg.getKind() != NodeKind.NAMED_ARGS_EXPR) {
             checkExpr(firstErrorArg, env, ctorType.reasonType, DiagnosticCode.INVALID_ERROR_REASON_TYPE);
             return true;
+        } else if (iExpr.type == symTable.errorType) {
+            dlog.error(iExpr.pos, DiagnosticCode.DIRECT_ERROR_CTOR_REASON_NOT_PROVIDED);
         }
         return false;
     }
@@ -3098,7 +3165,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 case NAMED_ARGS_EXPR:
                     BVarSymbol varSymbol = params.get(((BLangNamedArgsExpression) expr).name.value);
                     if (!env.enclPkg.packageID.equals(iExpr.symbol.pkgID)
-                            && !Symbols.isFlagOn(varSymbol.flags, Flags.PUBLIC)) {
+                            && (varSymbol != null && !Symbols.isFlagOn(varSymbol.flags, Flags.PUBLIC))) {
                         // can not provide a named arg, if the arg is not public and the caller is not from same package
                         dlog.error(expr.pos, DiagnosticCode.NON_PUBLIC_ARG_ACCESSED_WITH_NAMED_ARG,
                                 ((BLangNamedArgsExpression) expr).name.value, iExpr.toString());
@@ -4036,7 +4103,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             if (actualType == symTable.semanticError) {
                 if (indexExpr.type.tag == TypeTags.INT && isConst(indexExpr)) {
-                    dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.LIST_INDEX_OUT_OF_RANGE,
+                    dlog.error(indexBasedAccessExpr.indexExpr.pos, DiagnosticCode.LIST_INDEX_OUT_OF_RANGE,
                                getConstIndex(indexExpr));
                     return actualType;
                 }
@@ -4631,5 +4698,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return (((BLangSimpleVarRef) expression).symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT;
+    }
+
+    private Name getCurrentCompUnit(BLangNode node) {
+        return names.fromString(node.pos.getSource().getCompilationUnitName());
     }
 }

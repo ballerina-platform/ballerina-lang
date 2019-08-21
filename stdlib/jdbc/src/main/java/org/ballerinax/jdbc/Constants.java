@@ -19,7 +19,7 @@ package org.ballerinax.jdbc;
 
 import java.util.UUID;
 
-import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
+import static org.ballerinalang.jvm.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
  * Constants for JDBC client.

@@ -24,22 +24,25 @@ type OldStyleExternalFunctionWrapper record {|
     string jMethodVMSig;
 |};
 
-type ExternalFunctionWrapper OldStyleExternalFunctionWrapper;
+type ExternalFunctionWrapper JInteropFunctionWrapper | OldStyleExternalFunctionWrapper;
 
 function genJMethodForBExternalFunc(bir:Function birFunc,
                                       jvm:ClassWriter cw,
                                       bir:Package birModule,
-                                      bir:BType? attachedType = (),
-                                      boolean isRemote = false) {
+                                      bir:BType? attachedType = ()) {
     var extFuncWrapper = getExternalFunctionWrapper(birModule, birFunc, attachedType = attachedType);
-    genJMethodForBExternalFuncOldStyle(extFuncWrapper, cw, birModule, attachedType = attachedType, isRemote = isRemote);
+
+    if extFuncWrapper is OldStyleExternalFunctionWrapper {
+        genJMethodForBExternalFuncOldStyle(extFuncWrapper, cw, birModule, attachedType = attachedType);
+    } else {
+        genJMethodForBExternalFuncInterop(extFuncWrapper, cw, birModule);
+    }
 }
 
 function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extFuncWrapper,
                                             jvm:ClassWriter cw,
                                             bir:Package birModule,
-                                            bir:BType? attachedType = (),
-                                            boolean isRemote = false) {
+                                            bir:BType? attachedType = ()) {
 
     var currentPackageName = getPackageName(birModule.org.value, birModule.name.value);
 
@@ -50,7 +53,7 @@ function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extF
 
     // generate method desc
     bir:Function birFunc = extFuncWrapper.func;
-    string desc = getMethodDesc(birFunc.typeValue.paramTypes, birFunc.typeValue.retType);
+    string desc = getMethodDesc(birFunc.typeValue.paramTypes, birFunc.typeValue["retType"]);
     int access = ACC_PUBLIC;
     string selfParamName = "$_self_$";
     int selfParamIndex = -1;
@@ -62,7 +65,7 @@ function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extF
     }
 
     jvm:MethodVisitor mv = cw.visitMethod(access, birFunc.name.value, desc, (), ());
-    InstructionGenerator instGen = new(mv, indexMap, currentPackageName);
+    InstructionGenerator instGen = new(mv, indexMap, birModule);
     ErrorHandlerGenerator errorGen = new(mv, indexMap, currentPackageName);
     LabelGenerator labelGen = new();
     TerminatorGenerator termGen = new(mv, indexMap, labelGen, errorGen, birModule);
@@ -71,6 +74,7 @@ function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extF
     jvm:Label? tryStart = ();
     jvm:Label? tryEnd = ();
     jvm:Label? tryHandler = ();
+    boolean isRemote = (birFunc.flags & bir:REMOTE) == bir:REMOTE;
     if (isRemote) {
         tryStart = labelGen.getLabel("try-start");
         tryEnd = labelGen.getLabel("try-end");
@@ -118,7 +122,7 @@ function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extF
 
         bir:BasicBlock?[] basicBlocks = birFunc.paramDefaultBBs[paramDefaultsBBIndex];
         generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, birFunc, -1,
-                            -1, strandParamIndex, true, birModule, currentPackageName, attachedType);
+                            -1, strandParamIndex, true, birModule, currentPackageName, attachedType, isObserved = false);
         mv.visitLabel(paramNextLabel);
 
         birFuncParamIndex += 1;
@@ -145,8 +149,13 @@ function genJMethodForBExternalFuncOldStyle(OldStyleExternalFunctionWrapper extF
     // if attached type, strand index is given by selfParamIndex
     int strandIndex = attachedType is () ? strandParamIndex : selfParamIndex;
     if (isRemote) {
+        string serviceOrConnectorName = birModule.versionValue.value;
+        if attachedType is bir:BObjectType {
+            serviceOrConnectorName = getFullQualifiedRemoteFunctionName(
+                attachedType.moduleId.org, attachedType.moduleId.name, birModule.versionValue.value);
+        }
         emitStartObservationInvocation(mv, strandIndex,
-                    birModule.versionValue.value, birFunc.name.value, "startCallableObservation");
+                    serviceOrConnectorName, birFunc.name.value, "startCallableObservation");
     }
 
     string jMethodName = birFunc.name.value;
@@ -215,23 +224,31 @@ function getExternalFunctionWrapper(bir:Package birModule, bir:Function birFunc,
     }
 }
 
-function createExternalFunctionWrapper(bir:Function birFunc, string orgName ,string moduleName,
-                                       string versionValue,  string  birModuleClassName) returns BIRFunctionWrapper {
+function createExternalFunctionWrapper(bir:Function birFunc, string orgName ,string moduleName, string versionValue,
+                                        string  birModuleClassName) returns BIRFunctionWrapper | error {
     BIRFunctionWrapper birFuncWrapper;
-    string pkgName = getPackageName(orgName, moduleName);
-    var jClassName = lookupExternClassName(cleanupPackageName(pkgName), birFunc.name.value);
-    if (jClassName is string) {
-        if isBallerinaBuiltinModule(orgName, moduleName) {
-            birFuncWrapper = getFunctionWrapper(birFunc, orgName, moduleName, versionValue, jClassName);
+    jvm:InteropValidationRequest? jInteropValidationReq = getInteropAnnotValue(birFunc);
+    if (jInteropValidationReq is ()) {
+        // This is a old-style external Java interop function
+        string pkgName = getPackageName(orgName, moduleName);
+        var jClassName = lookupExternClassName(cleanupPackageName(pkgName), birFunc.name.value);
+        if (jClassName is string) {
+            if isBallerinaBuiltinModule(orgName, moduleName) {
+                birFuncWrapper = getFunctionWrapper(birFunc, orgName, moduleName, versionValue, jClassName);
+            } else {
+                birFuncWrapper = createOldStyleExternalFunctionWrapper(birFunc, orgName, moduleName, versionValue,
+                                            birModuleClassName, jClassName);
+            }
         } else {
-            birFuncWrapper = createOldStyleExternalFunctionWrapper(birFunc, orgName, moduleName, versionValue,
-                                        birModuleClassName, jClassName);
+            error err = error("cannot find full qualified class name for extern function : " + pkgName +
+                                                birFunc.name.value);
+            panic err;
         }
     } else {
-        error err = error("cannot find full qualified class name for extern function : " + pkgName +
-                                            birFunc.name.value);
-        panic err;
+        birFuncWrapper = check createJInteropFunctionWrapper(jInteropValidationReq, birFunc, orgName, moduleName,
+                                versionValue, birModuleClassName);
     }
+
     return birFuncWrapper;
 }
 
@@ -242,10 +259,13 @@ function createOldStyleExternalFunctionWrapper(bir:Function birFunc, string orgN
     bir:BType?[] jMethodPramTypes = birFunc.typeValue.paramTypes.clone();
     addDefaultableBooleanVarsToSignature(birFunc);
     bir:BInvokableType functionTypeDesc = birFunc.typeValue;
-    bir:BType? attachedType = birFunc.receiver.typeValue;
-    string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
+
+    bir:VariableDcl? receiver = birFunc.receiver;
+    bir:BType? attachedType = receiver is bir:VariableDcl ? receiver.typeValue : ();
+    string jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, <bir:BType?> functionTypeDesc.retType,
                                                 attachedType = attachedType);
-    string jMethodVMSig = getMethodDesc(jMethodPramTypes, functionTypeDesc.retType, attachedType = attachedType);
+    string jMethodVMSig = getMethodDesc(jMethodPramTypes, <bir:BType?> functionTypeDesc.retType,
+                                        attachedType = attachedType);
 
     return {
         orgName : orgName,

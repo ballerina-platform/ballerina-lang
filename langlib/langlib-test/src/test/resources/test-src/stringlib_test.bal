@@ -30,25 +30,25 @@ function testSubString() returns string {
     return str.substring(6, 9);
 }
 
-//function testIterator() returns string[] {
-//    string str = "Foo Bar";
-//
-//    abstract object {
-//         public function next() returns record {| string value; |}?;
-//    } itr = str.iterator();
-//
-//    string[] chars = [];
-//    int i = 0;
-//    record {| string value; |}|() elem = itr.next();
-//
-//    while (elem is record {| string value; |}) {
-//        chars[i] = elem.value;
-//        elem = itr.next();
-//        i += 1;
-//    }
-//
-//    return chars;
-//}
+function testIterator() returns string[] {
+    string str = "Foo Bar";
+
+    abstract object {
+         public function next() returns record {| string value; |}?;
+    } itr = str.iterator();
+
+    string[] chars = [];
+    int i = 0;
+    record {| string value; |}|() elem = itr.next();
+
+    while (elem is record {| string value; |}) {
+        chars[i] = elem.value;
+        elem = itr.next();
+        i += 1;
+    }
+
+    return chars;
+}
 
 function testStartsWith() returns boolean {
     return strings:startsWith(str, "Hello");

@@ -32,6 +32,7 @@ dependencies {
     implementation 'commons-logging:commons-logging'
     implementation 'org.slf4j:slf4j-jdk14'
 
+    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-system', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')

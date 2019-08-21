@@ -33,6 +33,7 @@ import java.util.Arrays;
  *
  * @since 0.995.0
  */
+@Test(groups = "brokenOnJBallerina")
 public class VarMutabilityWithWorkersTest {
 
     private CompileResult compileResult;
@@ -89,7 +90,7 @@ public class VarMutabilityWithWorkersTest {
         Assert.assertEquals(resMap.getMap().get("m").toString(), "MMM");
     }
 
-    @Test(description = "Test variable mutability with records")
+    @Test(description = "Test variable mutability with records", enabled = false)
     public void testWithRecords() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testWithRecords");
         Assert.assertEquals(((BMap) returns[0]).size(), 3);

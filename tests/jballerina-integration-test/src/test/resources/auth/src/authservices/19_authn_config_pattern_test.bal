@@ -24,10 +24,12 @@ http:BasicAuthHandler basicAuthHandler19 = new(basicAuthProvider19);
 jwt:InboundJwtAuthProvider jwtAuthProvider19_1 = new({
     issuer: "example1",
     audience: "ballerina",
-    certificateAlias: "ballerina",
-    trustStore: {
-        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-        password: "ballerina"
+    trustStoreConfig: {
+        certificateAlias: "ballerina",
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
     }
 });
 http:BearerAuthHandler jwtAuthHandler19_1 = new(jwtAuthProvider19_1);
@@ -35,10 +37,12 @@ http:BearerAuthHandler jwtAuthHandler19_1 = new(jwtAuthProvider19_1);
 jwt:InboundJwtAuthProvider jwtAuthProvider19_2 = new({
     issuer: "example2",
     audience: "ballerina",
-    certificateAlias: "ballerina",
-    trustStore: {
-        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-        password: "ballerina"
+    trustStoreConfig: {
+        certificateAlias: "ballerina",
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
     }
 });
 http:BearerAuthHandler jwtAuthHandler19_2 = new(jwtAuthProvider19_2);
@@ -46,10 +50,12 @@ http:BearerAuthHandler jwtAuthHandler19_2 = new(jwtAuthProvider19_2);
 jwt:InboundJwtAuthProvider jwtAuthProvider19_3 = new({
     issuer: "example3",
     audience: "ballerina",
-    certificateAlias: "ballerina",
-    trustStore: {
-        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-        password: "ballerina"
+    trustStoreConfig: {
+        certificateAlias: "ballerina",
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
     }
 });
 http:BearerAuthHandler jwtAuthHandler19_3 = new(jwtAuthProvider19_3);
@@ -57,10 +63,12 @@ http:BearerAuthHandler jwtAuthHandler19_3 = new(jwtAuthProvider19_3);
 jwt:InboundJwtAuthProvider jwtAuthProvider19_4 = new({
     issuer: "example4",
     audience: "ballerina",
-    certificateAlias: "ballerina",
-    trustStore: {
-        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-        password: "ballerina"
+    trustStoreConfig: {
+        certificateAlias: "ballerina",
+        trustStore: {
+            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            password: "ballerina"
+        }
     }
 });
 http:BearerAuthHandler jwtAuthHandler19_4 = new(jwtAuthProvider19_4);

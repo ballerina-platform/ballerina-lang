@@ -39,7 +39,7 @@ public type ValidateCert record {|
 # + enable - The status of OcspStapling
 # + cacheSize - Maximum size of the cache
 # + cacheValidityPeriod - Time duration of cache validity period
-public type ServiceOcspStapling record {|
+public type ListenerOcspStapling record {|
     boolean enable = false;
     int cacheSize = 0;
     int cacheValidityPeriod = 0;

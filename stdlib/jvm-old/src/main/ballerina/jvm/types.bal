@@ -75,6 +75,8 @@ public type MethodVisitor object {
     public function visitLineNumber(int line, Label label) = external;
 
     public function visitLocalVariable(string varName, string descriptor, Label startLabel, Label endLabel, int index) = external;
+
+    public function visitIincInsn(int variable, int amount) = external;
 };
 
 

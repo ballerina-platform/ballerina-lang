@@ -111,8 +111,8 @@ public class PushUtils {
                                             ProjectDirConstants.TARGET_BALO_DIRECTORY);
 
         if (Files.notExists(baloOutputDir)) {
-            throw createLauncherException("Couldn't locate the module artifact(balo) to be pushed. Run 'jballerina " +
-                                          "compile' to compile and generate a module artifact(balo).");
+            throw createLauncherException("cannot find balo file for the module: " + moduleName + ". Run " +
+                                          "'ballerina build -c <module_name>' to compile and generate the balo.");
         } else {
             try {
                 Optional<Path> moduleBaloFile = Files.list(baloOutputDir)
@@ -124,14 +124,16 @@ public class PushUtils {
                     // Get access token
                     String accessToken = checkAccessToken();
                     Proxy proxy = settings.getProxy();
+                    String proxyPortAsString = proxy.getPort() == 0 ? "" : Integer.toString(proxy.getPort());
                     
                     // Push module to central
                     String urlWithModulePath = URI.create(RepoUtils.getRemoteRepoURL()).resolve("/modules/").toString();
                     String outputLogMessage = orgName + "/" + moduleName + ":" + version + " [project repo -> central]";
         
                     Optional<RuntimeException> execute = executor.executeMainFunction("module_push", urlWithModulePath,
-                            proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword(), accessToken,
-                            orgName, moduleBaloFile.get().toAbsolutePath().toString(), outputLogMessage);
+                            proxy.getHost(), proxyPortAsString, proxy.getUserName(), proxy.getPassword(), accessToken,
+                            orgName, moduleBaloFile.get().toAbsolutePath().toString(),
+                            outputLogMessage);
                     if (execute.isPresent()) {
                         String errorMessage = execute.get().getMessage();
                         if (!errorMessage.trim().equals("")) {
@@ -140,9 +142,9 @@ public class PushUtils {
                         }
                     }
                 } else {
-                    throw createLauncherException("Couldn't locate the module artifact(balo) to be pushed. " +
-                                                  "Run 'jballerina compile' to compile and generate a module " +
-                                                  "artifact(balo).");
+                    throw createLauncherException("cannot find balo file for the module: " + moduleName + ". Run " +
+                                                  "'ballerina build -c <module_name>' to compile and generate the " +
+                                                  "balo.");
                 }
             } catch (IOException e) {
                 throw createLauncherException("File error occurred in finding balo file for the module '" + moduleName +

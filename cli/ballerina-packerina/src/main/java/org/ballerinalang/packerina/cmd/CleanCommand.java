@@ -22,7 +22,7 @@ import org.ballerinalang.packerina.TaskExecutor;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.tool.BLauncherCmd;
-import org.wso2.ballerinalang.util.RepoUtils;
+import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -36,34 +36,39 @@ import static org.ballerinalang.packerina.cmd.Constants.CLEAN_COMMAND;
  *
  * @since 1.0.0
  */
-@CommandLine.Command(name = CLEAN_COMMAND, description = "clean build artifact target path")
+@CommandLine.Command(name = CLEAN_COMMAND, description = "Ballerina clean - Cleans out the target directory of a " +
+                                                         "project.")
 public class CleanCommand implements BLauncherCmd {
-    private static PrintStream outStream = System.err;
+    private final PrintStream outStream;
+    private final Path sourceRootPath;
     
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
+    
+    public CleanCommand() {
+        this.sourceRootPath = Paths.get(System.getProperty("user.dir"));
+        this.outStream = System.out;
+    }
     
     @Override
     public void execute() {
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(CLEAN_COMMAND);
-            outStream.println(commandUsageInfo);
+            this.outStream.println(commandUsageInfo);
             return;
         }
     
-        // TODO: Set correct source root path.
-        Path sourceRoot = Paths.get("");
-        if (RepoUtils.isBallerinaProject(sourceRoot)) {
+        if (ProjectDirs.isProject(this.sourceRootPath)) {
             TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                     .addTask(new CleanTargetDirTask())
                     .build();
     
-            BuildContext buildContext = new BuildContext(sourceRoot);
+            BuildContext buildContext = new BuildContext(this.sourceRootPath);
             taskExecutor.executeTasks(buildContext);
-            
+    
             Runtime.getRuntime().exit(0);
         } else {
-            outStream.println("'clean' command can only be executed from a ballerina project");
+            this.outStream.println("'clean' command can only be executed from a ballerina project");
             Runtime.getRuntime().exit(1);
         }
     }
@@ -75,7 +80,7 @@ public class CleanCommand implements BLauncherCmd {
     
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("clean out all build artifacts \n");
+        out.append("Cleans the \"target\" directory of a ballerina project. \n");
     }
     
     @Override

@@ -39,58 +39,47 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.KAFKA_BROKER_PORT;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.ZOOKEEPER_PORT_1;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.UNCHECKED;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SSL;
 
 /**
  * Test cases for ballerina.kafka consumer and producer with SSL.
  */
-@Test(singleThreaded = true)
 public class KafkaConsumerAndProducerWithSSLTest {
 
     private CompileResult result;
     private static File dataDir;
     private static KafkaCluster kafkaCluster;
-    private Path resourceDir = Paths.get("src/test/resources").toAbsolutePath();
-    private String configFile = "test-src/ssl/kafka_ssl.bal";
+    private static String resourceDir = Paths.get("src", "test", "resources").toString();
+    private static String configFile = Paths.get(TEST_SRC, TEST_SSL, "kafka_ssl.bal").toString();
     private String message = "Hello World SSL Test";
-    private Properties prop;
 
     //Constants
     private String filePath = "<FILE_PATH>";
-    private String keystoresAndTruststores = "data-files/keystores-truststores";
+    private static String keystoresAndTruststores = Paths.get("data-files", "keystores-truststores").toString();
 
     @BeforeClass
     public void setup() throws IOException {
-        prop = new Properties();
-        prop.put("listeners", "SSL://localhost:9094");
-        prop.put("security.inter.broker.protocol", "SSL");
-        prop.put("ssl.client.auth", "required");
-        prop.put("ssl.keystore.location", resourceDir + "/" + keystoresAndTruststores + "/kafka.server.keystore.jks");
-        prop.put("ssl.keystore.password", "test1234");
-        prop.put("ssl.key.password", "test1234");
-        prop.put("ssl.truststore.location", resourceDir + "/" + keystoresAndTruststores
-                + "/kafka.server.truststore.jks");
-        prop.put("ssl.truststore.password", "test1234");
-        kafkaCluster = kafkaCluster().deleteDataPriorToStartup(true)
-                .deleteDataUponShutdown(true).withKafkaConfiguration(prop).addBrokers(1).startup();
+        Properties prop = getKafkaBrokerProperties();
+        kafkaCluster = kafkaCluster(prop).deleteDataPriorToStartup(true)
+                .deleteDataUponShutdown(true).addBrokers(1).startup();
         kafkaCluster.createTopic("test-topic-ssl", 2, 1);
         //Setting the keystore and trust-store file paths
-        setFilePath(resourceDir.toString() + "/" + configFile, filePath, resourceDir.toString()
-                + "/" + keystoresAndTruststores);
-        result = BCompileUtil.compile(configFile);
+        String filePathString = Paths.get(resourceDir, configFile).toAbsolutePath().toString();
+        setFilePath(filePathString, filePath, Paths.get(resourceDir,
+                keystoresAndTruststores).toAbsolutePath().toString());
+        result = BCompileUtil.compile(Paths.get(resourceDir, configFile).toAbsolutePath().toString());
     }
 
-    @Test(description = "Test SSL produce")
+    @Test(description = "Test SSL producer and consumer")
     public void testKafkaProducerWithSSL() {
         BValue[] args = new BValue[1];
         args[0] = new BString(message);
@@ -100,23 +89,8 @@ public class KafkaConsumerAndProducerWithSSLTest {
             Assert.assertTrue(returnBValues[0] instanceof BBoolean);
             return ((BBoolean) returnBValues[0]).booleanValue();
         });
-    }
 
-    @Test(
-            description = "Test consumer polling with SSL",
-            dependsOnMethods = "testKafkaProducerWithSSL",
-            enabled = false
-    )
-    @SuppressWarnings("unchecked")
-    public void testKafkaConsumerWithSSL() {
-        CountDownLatch completion = new CountDownLatch(1);
-        kafkaCluster.useTo().produceStrings("test-topic-ssl", 1, completion::countDown, () -> message);
-        try {
-            completion.await();
-        } catch (Exception ex) {
-            //Ignore
-        }
-        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
+        await().atMost(100000, TimeUnit.MILLISECONDS).until(() -> {
             BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaPollWithSSL");
             Assert.assertEquals(returnBValues.length, 1);
             Assert.assertTrue(returnBValues[0] instanceof BString);
@@ -124,6 +98,7 @@ public class KafkaConsumerAndProducerWithSSLTest {
         });
     }
 
+    @SuppressWarnings(UNCHECKED)
     @Test(description = "Test kafka consumer connect with no SSL config values")
     public void testKafkaConsumerSSLConnectNegative() {
         BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaSSLConnectNegative");
@@ -137,8 +112,8 @@ public class KafkaConsumerAndProducerWithSSLTest {
     @AfterClass
     public void tearDown() {
         //Reverting the keystore and trust-store file paths
-        setFilePath(resourceDir.toString() + "/" + configFile, resourceDir.toString()
-                + "/" + keystoresAndTruststores, filePath);
+        setFilePath(Paths.get(resourceDir, configFile).toAbsolutePath().toString(),
+                Paths.get(resourceDir, keystoresAndTruststores).toAbsolutePath().toString(), filePath);
         if (kafkaCluster != null) {
             kafkaCluster.shutdown();
             kafkaCluster = null;
@@ -150,17 +125,19 @@ public class KafkaConsumerAndProducerWithSSLTest {
         }
     }
 
-    private static KafkaCluster kafkaCluster() {
+    private static KafkaCluster kafkaCluster(Properties prop) {
         if (kafkaCluster != null) {
             throw new IllegalStateException();
         }
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-ssl-test");
-        kafkaCluster = new KafkaCluster().usingDirectory(dataDir).withPorts(ZOOKEEPER_PORT_1, KAFKA_BROKER_PORT);
+        kafkaCluster = new KafkaCluster().usingDirectory(dataDir)
+                .withPorts(14011, 14111)
+                .withKafkaConfiguration(prop);
         return kafkaCluster;
     }
 
     private static void setFilePath(String path, String searchValue, String newValue) {
-        List<String> lines = new ArrayList<String>();
+        List<String> lines = new ArrayList<>();
         String line;
         try {
             File file = new File(path);
@@ -169,6 +146,9 @@ public class KafkaConsumerAndProducerWithSSLTest {
             while ((line = br.readLine()) != null) {
                 if (line.contains(searchValue)) {
                     line = line.replace(searchValue, newValue);
+                    // This is to fix windows tests, which are failing because '\' is identifies as escape character.
+                    // As RegEx and String both considers '\' as an escape character, we have to escape them both.
+                    line = line.replaceAll("\\\\", "\\\\\\\\");
                 }
                 lines.add(line);
             }
@@ -188,4 +168,19 @@ public class KafkaConsumerAndProducerWithSSLTest {
         }
     }
 
+    private static Properties getKafkaBrokerProperties() {
+        Properties prop = new Properties();
+        prop.put("listeners", "SSL://localhost:14111");
+        prop.put("security.inter.broker.protocol", "SSL");
+        prop.put("ssl.client.auth", "required");
+        prop.put("ssl.keystore.location", resourceDir + File.separator + keystoresAndTruststores + File.separator +
+                "kafka.server.keystore.jks");
+        prop.put("ssl.keystore.password", "test1234");
+        prop.put("ssl.key.password", "test1234");
+        prop.put("ssl.truststore.location", resourceDir + File.separator + keystoresAndTruststores + File.separator
+                + "kafka.server.truststore.jks");
+        prop.put("ssl.truststore.password", "test1234");
+
+        return prop;
+    }
 }

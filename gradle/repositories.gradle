@@ -15,4 +15,8 @@ repositories {
     maven {
         url = 'http://repo.maven.apache.org/maven2'
     }
+
+    maven {
+        url = 'https://maven.wso2.org/nexus/content/repositories/orgballerinalang-1364'
+    }
 }

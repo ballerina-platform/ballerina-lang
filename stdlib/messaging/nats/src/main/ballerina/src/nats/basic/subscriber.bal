@@ -51,10 +51,14 @@ public type Listener object {
 
     function start() = external;
 
+    public function __gracefulStop() returns error? {
+        return ();
+    }
+
     # Stops the listener in the lifecyle.
     #
     # + return - error or ().
-    public function __stop() returns error? {
+    public function __immediateStop() returns error? {
         return self.stop();
     }
 

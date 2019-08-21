@@ -49,6 +49,8 @@ public interface MapValue<K, V> extends RefValue, CollectionValue, Map<K, V> {
 
     V fillAndGet(Object key);
 
+    Object merge(MapValue v2, boolean checkMergeability);
+
     K[] getKeys();
 
     default int size() {

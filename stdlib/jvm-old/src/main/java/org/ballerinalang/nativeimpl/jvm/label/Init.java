@@ -17,11 +17,9 @@
  */
 package org.ballerinalang.nativeimpl.jvm.label;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.jvm.Strand;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.jvm.ASMUtil;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -38,12 +36,9 @@ import static org.ballerinalang.nativeimpl.jvm.ASMUtil.LABEL;
         functionName = "init",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = LABEL, structPackage = JVM_PKG_PATH)
 )
-public class Init extends BlockingNativeCallableUnit {
+public class Init {
 
-    @Override
-    public void execute(Context context) {
-
-        BMap<String, BValue> labelObject = (BMap<String, BValue>) context.getRefArgument(0);
+    public static void init(Strand strand, ObjectValue labelObject) {
         Label label = new Label();
         ASMUtil.addNativeDataToObject(label, labelObject);
     }
