@@ -21,9 +21,10 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
 
         String output = readOutput(true);
         Assert.assertTrue(output.contains("NAME\n" +
-                "    Ballerina openapi - Generates Ballerina code for a provided\n" +
-                "    OpenApi definition or exports the OpenApi definition of a\n" +
-                "    Ballerina service."));
+                "    Ballerina OpenApi - Gen Service is a tool which will convert an" +
+                " OpenApi contract to a Ballerina mock service.\n" +
+                "\n    Note: This is an Experimental tool ship under " +
+                "ballerina hence this will only support limited set of functionality."));
     }
 
     @Test(description = "Test openapi gen service command without help flag")
@@ -39,7 +40,10 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
             exception = e.getDetailedMessages().get(0);
         }
 
-        Assert.assertTrue(exception.contains("error: A module name is required to successfully generate the service"));
+        Assert.assertTrue(exception.contains("error: " + "A module name and a service name is required to " +
+                "generate the service from the provided OpenAPI file. " +
+                "\n E.g. ballerina openapi gen-service " +
+                "<module_name>:<service_name> <OpenAPI_file>"));
     }
 
     @Test(description = "Test openapi gen service command without providing the openapi definition")
@@ -55,11 +59,12 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
             exception = e.getDetailedMessages().get(0);
         }
 
-        Assert.assertTrue(exception.contains("An OpenApi definition file is required to generate the service."));
+        Assert.assertTrue(exception.contains("An OpenApi definition file is required to generate the " +
+                "service. \nE.g: ballerina openapi gen-service testModule:testServiceName <OpenApiContract>"));
     }
 
-    @Test(description = "Test openapi gen service command with invalid open api definition")
-    public void testOpenApiContractExist() throws IOException {
+    @Test(description = "Test openapi gen service command with invalid ballerina project")
+    public void testBallerinaProjectExist() throws IOException {
         String[] args = {"testModule:testServiceName", "../petstore.yml"};
         OpenApiGenServiceCmd openApiGenServiceCommand = new OpenApiGenServiceCmd(printStream, this.tmpDir.toString());
         new CommandLine(openApiGenServiceCommand).parseArgs(args);
@@ -72,7 +77,9 @@ public class OpenApiGenServiceCmdTest extends OpenAPICommandTest {
             exception = e.getDetailedMessages().get(0);
         }
 
-        Assert.assertTrue(exception.contains("An OpenApi definition file is required to generate the service."));
+        Assert.assertTrue(exception.contains("Ballerina service generation should be done from the " +
+                "project root. \nIf you like to start with a new project " +
+                "use `ballerina new` command to create a new project."));
     }
 
 

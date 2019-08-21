@@ -36,8 +36,9 @@ public class OpenAPIGenClientCmdTest extends OpenAPICommandTest {
 
         String output = readOutput(true);
         Assert.assertTrue(output.contains("NAME\n" +
-                "    Ballerina openapi - Generates Ballerina code for a provided\n" +
-                "    OpenApi definition or exports the OpenApi definition of a\n" +
-                "    Ballerina service."));
+                "    Ballerina OpenApi - Gen Client is a tool which" +
+                " will generate a mock Ballerina client for a given OpenAPI contract.\n" +
+                "\n    Note: This is an Experimental tool ship under ballerina hence this" +
+                " will only support limited set of functionality."));
     }
 }
