@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.compiler.workspace.repository.WorkspacePacka
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.toml.model.Manifest;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -211,7 +210,7 @@ public class LSModuleCompiler {
                     return cacheEntry.get().getLeft();
                 }
                 bLangPackage = compiler.compile(pkgName);
-                LSCompilerCache.put(key, Either.forLeft(bLangPackage), context);
+                LSCompilerCache.put(key, EitherPair.forLeft(bLangPackage), context);
             } else {
                 bLangPackage = compiler.compile(pkgName);
             }
@@ -269,7 +268,7 @@ public class LSModuleCompiler {
                     return cacheEntry.get().getRight();
                 }
                 bLangPackages = compiler.compilePackages(isBuild);
-                LSCompilerCache.put(key, Either.forRight(bLangPackages), context);
+                LSCompilerCache.put(key, EitherPair.forRight(bLangPackages), context);
             } else {
                 bLangPackages = compiler.compilePackages(isBuild);
             }

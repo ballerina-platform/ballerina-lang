@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSCompilerCache;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
@@ -628,7 +629,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 LanguageClient client = this.languageServer.getClient();
                 LSServiceOperationContext context = new LSServiceOperationContext(LSContextOperation.TXT_DID_OPEN);
                 context.put(DocumentServiceKeys.FILE_URI_KEY, docUri);
-                diagnosticsHelper.compileAndSendDiagnostics(client, context, documentManager);
+                LSDocument lsDocument = new LSDocument(context.get(DocumentServiceKeys.FILE_URI_KEY));
+                diagnosticsHelper.compileAndSendDiagnostics(client, context, lsDocument, documentManager);
             } catch (CompilationFailedException e) {
                 String msg = "Computing 'diagnostics' failed!";
                 TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
@@ -668,7 +670,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     LSServiceOperationContext ctx = new LSServiceOperationContext(LSContextOperation.TXT_DID_CHANGE);
                     String fileURI = params.getTextDocument().getUri();
                     ctx.put(DocumentServiceKeys.FILE_URI_KEY, fileURI);
-                    diagnosticsHelper.compileAndSendDiagnostics(client, ctx, documentManager);
+                    LSDocument lsDocument = new LSDocument(fileURI);
+                    diagnosticsHelper.compileAndSendDiagnostics(client, ctx, lsDocument, documentManager);
+                    // Clear current cache upon successfull compilation
+                    // If the compiler fails, still we'll have the cached entry(marked as outdated)
+                    LSCompilerCache.clear(ctx, lsDocument.getProjectRoot());
                 } catch (CompilationFailedException e) {
                     String msg = "Computing 'diagnostics' failed!";
                     logError(msg, e, params.getTextDocument(), (Position) null);

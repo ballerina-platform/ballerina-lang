@@ -19,7 +19,6 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -29,6 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
@@ -80,21 +80,29 @@ public class LSCompilerCache {
      * @param bLangPackages {@link org.wso2.ballerinalang.compiler.tree.BLangPackage}
      * @param context       {@link LSContext}
      */
-    public static void put(Key key, Either<BLangPackage, List<BLangPackage>> bLangPackages, LSContext context) {
+    public static void put(Key key, EitherPair<BLangPackage, List<BLangPackage>> bLangPackages, LSContext context) {
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+        String sourceRoot = key.sourceRoot;
         packageMap.put(key, new CacheEntry(bLangPackages, compilerContext));
+        LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" + sourceRoot +
+                                        "'} added cache entry with {key: " + key + "}");
     }
 
     /**
      * Clears all cache entries with this source root.
      *
+     * @param context   {@link LSContext}
      * @param sourceRoot source root
      */
-    public static void clearAll(String sourceRoot) {
+    public static synchronized void clear(LSServiceOperationContext context, String sourceRoot) {
         // Remove matching entries in parallel #threadSafe
-        packageMap.keySet().parallelStream()
-                .filter(p -> p.sourceRoot.equals(sourceRoot))
-                .forEach(k -> packageMap.remove(k));
+        AtomicInteger count = new AtomicInteger(0);
+        packageMap.keySet().stream().filter(p -> p.sourceRoot.equals(sourceRoot)).forEach(k -> {
+            packageMap.remove(k);
+            count.getAndIncrement();
+        });
+        LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" + sourceRoot +
+                                        "'} cleared " + count + " cached entries for the project");
     }
 
     /**
@@ -163,9 +171,16 @@ public class LSCompilerCache {
 
         @Override
         public String toString() {
-            return String.format("%s, %s", sourceRoot,
-                                 errorStrategy != null ? errorStrategy.substring(errorStrategy.lastIndexOf(".") + 1) :
-                                         "");
+            return String.format(
+                    "sourceRoot %s, errorStrategy: %s, compilerPhase: %s, preserveWS: %s, testEnabled: %s, " +
+                            "skipTests: %s, sourceDirectory: %s",
+                    sourceRoot,
+                    errorStrategy != null ? errorStrategy.substring(errorStrategy.lastIndexOf(".") + 1) : "",
+                    compilerPhase != null ? compilerPhase : "",
+                    preserveWhitespace != null ? preserveWhitespace : "",
+                    testEnabled != null ? testEnabled : "",
+                    skipTests != null ? skipTests : "",
+                    sourceDirectory != null ? sourceDirectory.substring(sourceDirectory.lastIndexOf(".") + 1) : "");
         }
     }
 
@@ -173,11 +188,11 @@ public class LSCompilerCache {
      * Represents a cache entry.
      */
     public static class CacheEntry {
-        private Either<BLangPackage, List<BLangPackage>> bLangPackages;
+        private EitherPair<BLangPackage, List<BLangPackage>> bLangPackages;
         private CompilerContext compilerContext;
         private boolean isOutdated = false;
 
-        CacheEntry(Either<BLangPackage, List<BLangPackage>> bLangPackages,
+        CacheEntry(EitherPair<BLangPackage, List<BLangPackage>> bLangPackages,
                    CompilerContext compilerContext) {
             this.bLangPackages = bLangPackages;
             this.compilerContext = compilerContext;
@@ -188,7 +203,7 @@ public class LSCompilerCache {
          *
          * @return {@link BLangPackage}
          */
-        public Either<BLangPackage, List<BLangPackage>> get() {
+        public EitherPair<BLangPackage, List<BLangPackage>> get() {
             return bLangPackages;
         }
 
