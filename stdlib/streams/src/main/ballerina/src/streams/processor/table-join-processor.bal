@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/time;
+
 # The `TableJoinProcessor` object handles joining streams with in-memory tables in ballerina.
 # `nextProcessor` is the `process` function of the next processor, which can be a `Select` processor, `Aggregator`
 # processor, `Having` processor.. etc. The `streamName` is the stream of the join and its attached

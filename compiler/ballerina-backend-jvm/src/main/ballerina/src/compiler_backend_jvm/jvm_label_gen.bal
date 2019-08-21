@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/jvm;
+
 type LabelGenerator object {
     map<jvm:Label> bbLabels = {};
 

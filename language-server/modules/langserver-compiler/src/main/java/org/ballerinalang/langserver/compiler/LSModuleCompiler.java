@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.compiler.workspace.repository.WorkspacePacka
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.toml.model.Manifest;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -196,6 +195,7 @@ public class LSModuleCompiler {
                     context.get(DocumentServiceKeys.IS_CACHE_SUPPORTED);
             boolean isOutdatedSupported = context.get(DocumentServiceKeys.IS_CACHE_OUTDATED_SUPPORTED) != null &&
                     context.get(DocumentServiceKeys.IS_CACHE_OUTDATED_SUPPORTED);
+            BLangPackage bLangPackage;
             if (isCacheSupported) {
                 LSCompilerCache.CacheEntry cacheEntry = LSCompilerCache.get(key, context);
                 if (cacheEntry != null && (isOutdatedSupported || !cacheEntry.isOutdated())) {
@@ -209,19 +209,18 @@ public class LSModuleCompiler {
                     // Cache hit
                     return cacheEntry.get().getLeft();
                 }
-                BLangPackage bLangPackage = compiler.compile(pkgName);
-                LSCompilerCache.put(key, Either.forLeft(bLangPackage), context);
-                return bLangPackage;
+                bLangPackage = compiler.compile(pkgName);
+                LSCompilerCache.put(key, EitherPair.forLeft(bLangPackage), context);
+            } else {
+                bLangPackage = compiler.compile(pkgName);
             }
-            BLangPackage bLangPackage = compiler.compile(pkgName);
-            LSCompilerCache.put(key, Either.forLeft(bLangPackage), context);
             if (LSClientLogger.isTraceEnabled()) {
                 long endTime = System.nanoTime();
                 long eTime = TimeUnit.MILLISECONDS.convert(endTime - startTime, TimeUnit.NANOSECONDS);
                 LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" +
                                                 projectRoot + "'}, compilation took " + eTime + "ms");
             }
-            return compiler.compile(pkgName);
+            return bLangPackage;
         } catch (RuntimeException e) {
             // NOTE: Remove current CompilerContext to try out a fresh CompilerContext next time
             // to avoid issues of reusing it.
@@ -254,6 +253,7 @@ public class LSModuleCompiler {
                     context.get(DocumentServiceKeys.IS_CACHE_SUPPORTED);
             boolean isOutdatedSupported = context.get(DocumentServiceKeys.IS_CACHE_OUTDATED_SUPPORTED) != null &&
                     context.get(DocumentServiceKeys.IS_CACHE_OUTDATED_SUPPORTED);
+            List<BLangPackage> bLangPackages;
             if (isCacheSupported) {
                 LSCompilerCache.CacheEntry cacheEntry = LSCompilerCache.get(key, context);
                 if (cacheEntry != null && (isOutdatedSupported || !cacheEntry.isOutdated())) {
@@ -267,9 +267,10 @@ public class LSModuleCompiler {
                     // Cache hit
                     return cacheEntry.get().getRight();
                 }
-                List<BLangPackage> bLangPackages = compiler.compilePackages(isBuild);
-                LSCompilerCache.put(key, Either.forRight(bLangPackages), context);
-                return bLangPackages;
+                bLangPackages = compiler.compilePackages(isBuild);
+                LSCompilerCache.put(key, EitherPair.forRight(bLangPackages), context);
+            } else {
+                bLangPackages = compiler.compilePackages(isBuild);
             }
             if (LSClientLogger.isTraceEnabled()) {
                 long endTime = System.nanoTime();
@@ -277,7 +278,7 @@ public class LSModuleCompiler {
                 LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" +
                                                 projectRoot + "'}, compilation took " + eTime + "ms");
             }
-            return compiler.compilePackages(isBuild);
+            return bLangPackages;
         } catch (RuntimeException e) {
             // NOTE: Remove current CompilerContext to try out a fresh CompilerContext next time
             // to avoid issues of reusing it.
