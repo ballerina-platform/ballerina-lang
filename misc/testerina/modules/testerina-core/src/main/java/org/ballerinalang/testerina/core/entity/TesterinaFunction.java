@@ -73,6 +73,16 @@ public class TesterinaFunction {
         return runOnSchedule(programFile, bFunction.name, scheduler, types, args);
     }
 
+    /**
+     * Invoke a function without running through a strand.
+     *
+     * @param types of the function parameters
+     * @return output
+     */
+    public Object directInvoke(Class[] types) {
+        return run(programFile, bFunction.name, scheduler, types);
+    }
+
     public String getName() {
         return name;
     }
@@ -95,6 +105,18 @@ public class TesterinaFunction {
 
     public void setRunTest() {
         this.runTest = false;
+    }
+
+    private static Object run(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler,
+                              Class[] paramTypes) {
+        String funcName = cleanupFunctionName(name);
+        try {
+
+            final Method method = initClazz.getDeclaredMethod(funcName, paramTypes);
+            return method.invoke(null, new Object[]{});
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new BLangCompilerException("Error while invoking function '" + funcName + "" + e.getMessage());
+        }
     }
 
     private static Object runOnSchedule(Class<?> initClazz, BLangIdentifier name, Scheduler scheduler,
