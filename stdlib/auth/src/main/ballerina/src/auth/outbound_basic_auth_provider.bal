@@ -16,6 +16,7 @@
 
 import ballerina/encoding;
 import ballerina/log;
+import ballerina/runtime;
 
 # Represents the outbound Basic Auth authenticator.
 #

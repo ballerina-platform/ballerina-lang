@@ -1,5 +1,5 @@
 import ballerina/runtime;
-import ballerina/io;
+
 
 string append = "";
 function simpleSyncSend() returns string {

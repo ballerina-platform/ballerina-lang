@@ -36,6 +36,7 @@ public class Message {
     private String messageName;
     private Map<String, List<Message>> oneofFieldMap;
     private List<EnumMessage> enumList;
+    private List<Message> nestedMessageList;
 
     private Message(String messageName, List<Field> fieldList) {
         this.messageName = messageName;
@@ -60,6 +61,14 @@ public class Message {
 
     public static Message.Builder newBuilder(DescriptorProtos.DescriptorProto messageDescriptor) {
         return new Message.Builder(messageDescriptor);
+    }
+
+    public List<Message> getNestedMessageList() {
+        return nestedMessageList;
+    }
+
+    private void setNestedMessageList(List<Message> nestedMessageList) {
+        this.nestedMessageList = nestedMessageList;
     }
 
     public List<Field> getFieldList() {
@@ -98,6 +107,12 @@ public class Message {
                 EnumMessage enumMessage = EnumMessage.newBuilder(enumDescriptorProto).build();
                 enumList.add(enumMessage);
             }
+
+            List<Message> nestedMessageList = new ArrayList<>();
+            for (DescriptorProtos.DescriptorProto nestedDescriptorProto : messageDescriptor.getNestedTypeList()) {
+                Message nestedMessage = Message.newBuilder(nestedDescriptorProto).build();
+                nestedMessageList.add(nestedMessage);
+            }
             Message message = new Message(messageDescriptor.getName(), fieldList);
 
             if (!oneofFieldMap.isEmpty()) {
@@ -105,6 +120,9 @@ public class Message {
             }
             if (!enumList.isEmpty()) {
                 message.setEnumList(enumList);
+            }
+            if (!nestedMessageList.isEmpty()) {
+                message.setNestedMessageList(nestedMessageList);
             }
             return message;
         }

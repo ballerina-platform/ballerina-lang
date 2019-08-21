@@ -36,6 +36,7 @@ public class BLangImportPackage extends BLangNode implements ImportPackageNode {
     public BLangIdentifier alias;
     public BPackageSymbol symbol;
     public BLangIdentifier orgName;
+    public BLangIdentifier compUnit;
 
     @Override
     public List<BLangIdentifier> getPackageName() {

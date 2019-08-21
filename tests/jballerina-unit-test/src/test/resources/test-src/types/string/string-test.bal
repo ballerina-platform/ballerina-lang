@@ -1,5 +1,3 @@
-import ballerina/io;
-
 function hasPrefix(string s, string prefix) returns (boolean) {
     return s.startsWith(prefix);
 }

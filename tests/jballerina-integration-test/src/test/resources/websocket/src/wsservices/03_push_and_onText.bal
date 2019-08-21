@@ -15,8 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
-import ballerina/log;
 
 service onTextString on new http:Listener(21003) {
 

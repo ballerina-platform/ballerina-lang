@@ -1852,11 +1852,7 @@ public class BLangPackageBuilder {
 
         BLangImportPackage importDcl = getImportPackage(pos, ws, orgName, nameComps, version, alias);
         this.compUnit.addTopLevelNode(importDcl);
-        if (this.imports.contains(importDcl)) {
-            this.dlog.warning(pos, DiagnosticCode.REDECLARED_IMPORT_MODULE, importDcl.getQualifiedPackageName());
-        } else {
-            this.imports.add(importDcl);
-        }
+        this.imports.add(importDcl);
     }
 
     private BLangImportPackage getImportPackage(DiagnosticPos pos, Set<Whitespace> ws, String orgName,
@@ -1875,6 +1871,7 @@ public class BLangPackageBuilder {
         importDcl.version = versionNode;
         importDcl.orgName = (BLangIdentifier) this.createIdentifier(orgName);
         importDcl.alias = aliasNode;
+        importDcl.compUnit = (BLangIdentifier) this.createIdentifier(this.compUnit.getName());
         return importDcl;
     }
 
@@ -2655,7 +2652,7 @@ public class BLangPackageBuilder {
         compilerOptions.put(CompilerOptionName.TRANSACTION_EXISTS, "true");
         List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
         addImportPackageDeclaration(pos, null, Names.TRANSACTION_ORG.value, nameComps, Names.EMPTY.value,
-                Names.DOT.value + nameComps.get(nameComps.size() - 1));
+                Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
     }
 
     void addAbortStatement(DiagnosticPos pos, Set<Whitespace> ws) {
