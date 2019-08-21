@@ -1,3 +1,15 @@
+type Address record {
+    string country;
+    string city;
+    string street;
+};
+
+type Person record {
+    string name;
+    Address address;
+    int age;
+
+};
 
 function testToJsonString() returns map<string> {
     json aNil = ();
@@ -249,6 +261,8 @@ function testToString() returns string[] {
     float varFloat = 6.0;
     string varStr = "toString";
     () varNil = ();
+    Address addr = {country : "Sri Lanka", city: "Colombo", street: "Palm Grove"};
+    Person p = {name : "Gima", address: addr, age: 12};
     boolean varBool = true;
     decimal varDecimal = 345.2425341;
     map<any|error> varMap = {};
@@ -273,8 +287,9 @@ function testToString() returns string[] {
     varMap["varObj"] = varObj;
     varMap["varObj2"] = varObj2;
     varMap["varObjArr"] = varObjArr;
+    varMap["varRecord"] = p;
 
     return [varInt.toString(), varFloat.toString(), varStr.toString(), varNil.toString(), varBool.toString(),
             varDecimal.toString(), varJson.toString(), varXml.toString(), varArr.toString(), varErr.toString(),
-            varObj.toString(), varObj2.toString(), varObjArr.toString(), varMap.toString()];
+            varObj.toString(), varObj2.toString(), varObjArr.toString(), p.toString(), varMap.toString()];
 }

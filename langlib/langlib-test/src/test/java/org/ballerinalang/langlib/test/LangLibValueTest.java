@@ -131,6 +131,8 @@ public class LangLibValueTest {
         Assert.assertEquals(array.getString(11), "Rola from MMV");
         Assert.assertEquals(array.getString(12), "object Student Rola from MMV");
         Assert.assertEquals(array.getString(13),
+                            "name=Gima address=(country=Sri Lanka city=Colombo street=Palm Grove) age=12");
+        Assert.assertEquals(array.getString(14),
                             "varInt=6 " +
                             "varFloat=6.0 " +
                             "varStr=toString " +
@@ -147,7 +149,8 @@ public class LangLibValueTest {
                             "varErr=error Reason1 message=Test passing error union to a function " +
                             "varObj=object Student " +
                             "varObj2=Rola from MMV " +
-                            "varObjArr=(object Student Rola from MMV)");
+                            "varObjArr=(object Student Rola from MMV) " +
+                            "varRecord=(name=Gima address=(country=Sri Lanka city=Colombo street=Palm Grove) age=12)");
     }
 
     @Test(dataProvider = "mergeJsonFunctions")

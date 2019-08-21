@@ -148,14 +148,14 @@ public class ForeachMapTypedBindingPatternsTests {
     public void testUnconstrainedMapWithRecordInTupleWithoutType() {
         BValue[] returns = BRunUtil.invoke(program, "testUnconstrainedMapWithRecordInTupleWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:2 i=1 v=A 1:3 i=2 v=B 2:4 i=3 v=C ");
+        Assert.assertEquals(returns[0].stringValue(), "0:2 (i=1 v=A) 1:3 (i=2 v=B) 2:4 (i=3 v=C) ");
     }
 
     @Test
     public void testUnconstrainedMapWithRecordInTupleWithType() {
         BValue[] returns = BRunUtil.invoke(program, "testUnconstrainedMapWithRecordInTupleWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:2 i=1 v=A 1:3 i=2 v=B 2:4 i=3 v=C ");
+        Assert.assertEquals(returns[0].stringValue(), "0:2 (i=1 v=A) 1:3 (i=2 v=B) 2:4 (i=3 v=C) ");
     }
 
     @Test
@@ -176,7 +176,7 @@ public class ForeachMapTypedBindingPatternsTests {
     public void testConstrainedMapWithRecordInTupleWithAnyType() {
         BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithRecordInTupleWithAnyType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:2 i=1 v=A 1:3 i=2 v=B 2:4 i=3 v=C ");
+        Assert.assertEquals(returns[0].stringValue(), "0:2 (i=1 v=A) 1:3 (i=2 v=B) 2:4 (i=3 v=C) ");
     }
 
     @Test
@@ -218,14 +218,14 @@ public class ForeachMapTypedBindingPatternsTests {
     public void testUnconstrainedMapWithRecordInRecordWithoutType() {
         BValue[] returns = BRunUtil.invoke(program, "testUnconstrainedMapWithRecordInRecordWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:i=2 v=i=1 v=A 1:i=3 v=i=2 v=B 2:i=4 v=i=3 v=C ");
+        Assert.assertEquals(returns[0].stringValue(), "0:i=2 v=(i=1 v=A) 1:i=3 v=(i=2 v=B) 2:i=4 v=(i=3 v=C) ");
     }
 
     @Test
     public void testUnconstrainedMapWithRecordInRecordWithType() {
         BValue[] returns = BRunUtil.invoke(program, "testUnconstrainedMapWithRecordInRecordWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:i=2 v=i=1 v=A 1:i=3 v=i=2 v=B 2:i=4 v=i=3 v=C ");
+        Assert.assertEquals(returns[0].stringValue(), "0:i=2 v=(i=1 v=A) 1:i=3 v=(i=2 v=B) 2:i=4 v=(i=3 v=C) ");
     }
 
     @Test
@@ -246,7 +246,7 @@ public class ForeachMapTypedBindingPatternsTests {
     public void testConstrainedMapWithRecordInRecordWithAnyType() {
         BValue[] returns = BRunUtil.invoke(program, "testConstrainedMapWithRecordInRecordWithAnyType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:i=2 v=i=1 v=A 1:i=3 v=i=2 v=B 2:i=4 v=i=3 v=C ");
+        Assert.assertEquals(returns[0].stringValue(), "0:i=2 v=(i=1 v=A) 1:i=3 v=(i=2 v=B) 2:i=4 v=(i=3 v=C) ");
     }
 
     @Test
