@@ -1,9 +1,25 @@
+/*
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.ballerinalang.openapi.cmd;
 
 import org.ballerinalang.openapi.CodeGenerator;
 import org.ballerinalang.openapi.OpenApiMesseges;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
-import org.ballerinalang.openapi.utils.GeneratorConstants;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
 import picocli.CommandLine;
@@ -19,9 +35,10 @@ import java.util.List;
  */
 @CommandLine.Command(name = "gen-client")
 public class OpenApiGenClientCmd implements BLauncherCmd {
-    private static final String CMD_NAME = "openapi";
+    private static final String CMD_NAME = "openapi-gen-client";
 
-    private static final PrintStream outStream = System.err;
+    private PrintStream outStream = System.err;
+    private String executionPath = System.getProperty("user.dir");
 
     @CommandLine.Parameters(index = "0", split = ":")
     private List<String> moduleArgs;
@@ -29,15 +46,29 @@ public class OpenApiGenClientCmd implements BLauncherCmd {
     @CommandLine.Parameters(index = "1..*")
     private List<String> argList;
 
-    @CommandLine.Option(names = { "-o", "--output" }, description = "where to write the generated " +
+    @CommandLine.Option(names = {"-o", "--output"}, description = "where to write the generated " +
             "files (current dir by default)")
     private String output = "";
 
-    @CommandLine.Option(names = { "-h", "--help" }, hidden = true)
+    @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
     private boolean helpFlag;
+
+    public OpenApiGenClientCmd() {
+        this.outStream = System.err;
+    }
+
+    public OpenApiGenClientCmd(PrintStream outStream, String executionPath) {
+        this.outStream = outStream;
+        this.executionPath = executionPath;
+    }
 
     @Override
     public void execute() {
+
+        //User notification of using an experimental tool
+        outStream.println("Note: This is an Experimental tool ship under ballerina hence this will only support" +
+                " limited set of functionality.");
+
         CodeGenerator generator = new CodeGenerator();
 
         //Help flag check
@@ -61,7 +92,7 @@ public class OpenApiGenClientCmd implements BLauncherCmd {
         }
 
         try {
-            generator.generate(GeneratorConstants.GenType.valueOf("GEN_CLIENT"), argList.get(0), output);
+            generator.generateClient(executionPath, argList.get(0), output);
         } catch (IOException | BallerinaOpenApiException e) {
             throw LauncherUtils.createLauncherException(OpenApiMesseges.OPENAPI_CLIENT_EXCEPTION);
         }
@@ -69,7 +100,7 @@ public class OpenApiGenClientCmd implements BLauncherCmd {
 
     @Override
     public String getName() {
-        return null;
+        return CMD_NAME;
     }
 
     @Override

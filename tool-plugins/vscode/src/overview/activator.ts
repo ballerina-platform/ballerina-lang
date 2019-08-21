@@ -106,7 +106,7 @@ function openWebView(context: ExtensionContext, langClient: ExtendedLangClient, 
 		}
 
 		const newCurrentFilePath = activeEditor.document.fileName;
-		const newSourceRoot = getSourceRoot(currentFilePath, path.parse(currentFilePath).root);
+		const newSourceRoot = getSourceRoot(newCurrentFilePath, path.parse(newCurrentFilePath).root);
 	
 		const newOptions : {
 			currentUri: string,
@@ -119,6 +119,7 @@ function openWebView(context: ExtensionContext, langClient: ExtendedLangClient, 
 		let shouldRerender = false;
 		if (newSourceRoot) {
 			shouldRerender = sourceRoot !== newSourceRoot;
+			newOptions.sourceRootUri = Uri.file(newSourceRoot).toString();
 		} else {
 			shouldRerender = currentFilePath !== newCurrentFilePath;
 		}

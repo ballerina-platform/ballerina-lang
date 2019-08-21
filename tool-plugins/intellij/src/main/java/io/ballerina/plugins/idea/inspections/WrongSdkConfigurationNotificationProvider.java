@@ -35,6 +35,7 @@ import com.intellij.psi.PsiManager;
 import com.intellij.ui.EditorNotificationPanel;
 import com.intellij.ui.EditorNotifications;
 import com.intellij.util.messages.MessageBusConnection;
+import icons.BallerinaIcons;
 import io.ballerina.plugins.idea.BallerinaFileType;
 import io.ballerina.plugins.idea.BallerinaLanguage;
 import io.ballerina.plugins.idea.project.BallerinaLibrariesService;
@@ -115,6 +116,7 @@ public class WrongSdkConfigurationNotificationProvider extends EditorNotificatio
 
         EditorNotificationPanel panel = new EditorNotificationPanel();
         panel.setText("Ballerina plugin could not detect a Ballerina SDK. Some of the plugin features are disabled.\n");
+        panel.icon(BallerinaIcons.ICON);
 
         if (module != null) {
             panel.createActionLabel(ProjectBundle.message("project.sdk.setup"),
