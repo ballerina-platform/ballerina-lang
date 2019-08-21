@@ -88,7 +88,7 @@ public class BallerinaStackFrame extends XStackFrame {
 
     private File searchFile(File file, String search) {
         if (!file.isDirectory()) {
-            return file.getName().equals(search) ? file : null;
+            return file.getPath().endsWith(search) ? file : null;
         }
         File[] files = file.listFiles();
         if (files == null) {
