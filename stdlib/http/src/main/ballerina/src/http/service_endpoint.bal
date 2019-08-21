@@ -51,6 +51,7 @@ public type Listener object {
     }
 
     public function __detach(service s) returns error? {
+        return self.detach(s);
     }
 
     public function __init(int port, public ListenerConfiguration? config = ()) {
@@ -102,7 +103,7 @@ public type Listener object {
     #
     # + s - The service that needs to be detached
     # + return - An `error` if there is any error occurred during the service detachment process or else nil
-    public function detach(service s) returns error? = external;
+    function detach(service s) returns error? = external;
 };
 
 # Presents a read-only view of the remote address.
