@@ -1082,10 +1082,13 @@ public class ArrayValue implements RefValue, CollectionValue {
 
     private void checkFixedLength(long length) {
         if (arrayType != null && arrayType.getTag() == TypeTags.TUPLE_TAG) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
-                    RuntimeErrors.CANNOT_CHANGE_TUPLE_SIZE);
-        }
-        if (((BArrayType) this.arrayType).getState() == ArrayState.CLOSED_SEALED) {
+            BTupleType tupleType = (BTupleType) this.arrayType;
+            if (tupleType.getRestType() == null
+                    || (tupleType.getRestType() != null && tupleType.getTupleTypes().size() > length)) {
+                throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
+                        RuntimeErrors.ILLEGAL_TUPLE_SIZE, length);
+            }
+        } else if (((BArrayType) this.arrayType).getState() == ArrayState.CLOSED_SEALED) {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR,
                     RuntimeErrors.ILLEGAL_ARRAY_SIZE, length);
         }

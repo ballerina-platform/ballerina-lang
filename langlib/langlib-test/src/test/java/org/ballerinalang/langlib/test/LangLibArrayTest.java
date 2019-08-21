@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.test;
 
 
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
@@ -271,33 +272,53 @@ public class LangLibArrayTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}InherentTypeViolation " +
-                    "message=cannot change length of fixed length array.*")
+                    "message=cannot change the length of fixed length array.*")
     public void testRemoveAllFixedLengthArray() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveAllFixedLengthArray");
-        assertEquals(returns[0].stringValue(), "[]");
+        Assert.fail();
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina\\}InherentTypeViolation message=cannot change tuple size.*")
+                    "error: \\{ballerina\\}InherentTypeViolation message=cannot change the length of tuple to '3'.*")
     public void testTupleResize() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testTupleResize");
+        BRunUtil.invoke(compileResult, "testTupleResize");
         Assert.fail();
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina\\}InherentTypeViolation message=cannot change tuple size.*")
+                    "error: \\{ballerina\\}InherentTypeViolation message=cannot change the length of tuple to '0'.*")
     public void testTupleRemoveAll() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testTupleRemoveAll");
+        BRunUtil.invoke(compileResult, "testTupleRemoveAll");
         Assert.fail();
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina\\}InherentTypeViolation message=cannot change tuple size.*")
+                    "error: \\{ballerina\\}InherentTypeViolation message=cannot change the length of tuple to '0'.*")
     public void testTupleRemoveAllForTupleWithRestMemberType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testTupleRemoveAllForTupleWithRestMemberType");
+        BRunUtil.invoke(compileResult, "testTupleRemoveAllForTupleWithRestMemberType");
+        Assert.fail();
+    }
+
+    @Test
+    public void testTupleRemoveAllForTupleWithJustRestMemberType() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTupleRemoveAllForTupleWithJustRestMemberType");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
+    public void testTupleSetLengthLeagal() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTupleSetLengthLeagal");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp =
+                    "error: \\{ballerina\\}InherentTypeViolation message=cannot change the length of tuple to '1'.*")
+    public void testTupleSetLengthIlleagal() {
+        BRunUtil.invoke(compileResult, "testTupleSetLengthIlleagal");
         Assert.fail();
     }
 }

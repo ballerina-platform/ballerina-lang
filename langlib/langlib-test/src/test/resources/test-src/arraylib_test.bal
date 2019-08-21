@@ -267,3 +267,21 @@ function testTupleRemoveAllForTupleWithRestMemberType() returns [int, string] {
     t.removeAll();
     return t;
 }
+
+function testTupleRemoveAllForTupleWithJustRestMemberType() returns boolean {
+    [int...] t = [1, 2, 3];
+    t.removeAll();
+    return t.length() == 0;
+}
+
+function testTupleSetLengthLeagal() returns boolean {
+    [int, int, int...] t = [1, 2, 3, 4];
+    t.setLength(2);
+    return t.length() == 2;
+}
+
+function testTupleSetLengthIlleagal() returns boolean {
+    [int, int, int...] t = [1, 2, 3, 4];
+    t.setLength(1);
+    return t.length() == 1;
+}
