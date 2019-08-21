@@ -460,3 +460,13 @@ function testFiniteTypesWithDiscriminatedMembers() returns [any, any, any, any, 
     t|t2 e = 3.33d;
     return [a, b, c, d, e];
 }
+
+public const '\- = "-";
+public const d = "d";
+public const s = "s";
+public type FT '\-|s|d;
+
+function testEscapedTypeName() returns FT {
+    FT f = '\-;
+    return f;
+}

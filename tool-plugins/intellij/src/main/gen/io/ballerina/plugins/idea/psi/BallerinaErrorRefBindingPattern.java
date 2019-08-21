@@ -30,6 +30,9 @@ public interface BallerinaErrorRefBindingPattern extends PsiElement {
   BallerinaErrorRefRestPattern getErrorRefRestPattern();
 
   @Nullable
+  BallerinaTypeName getTypeName();
+
+  @Nullable
   BallerinaVariableReference getVariableReference();
 
   @NotNull
@@ -38,7 +41,7 @@ public interface BallerinaErrorRefBindingPattern extends PsiElement {
   @NotNull
   PsiElement getRightParenthesis();
 
-  @NotNull
+  @Nullable
   PsiElement getError();
 
 }

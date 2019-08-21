@@ -27,15 +27,21 @@ public interface BallerinaErrorBindingPattern extends PsiElement {
   List<BallerinaErrorDetailBindingPattern> getErrorDetailBindingPatternList();
 
   @Nullable
+  BallerinaErrorFieldBindingPatterns getErrorFieldBindingPatterns();
+
+  @Nullable
   BallerinaErrorRestBindingPattern getErrorRestBindingPattern();
 
   @Nullable
-  PsiElement getLeftParenthesis();
-
-  @Nullable
-  PsiElement getRightParenthesis();
+  BallerinaTypeName getTypeName();
 
   @NotNull
+  PsiElement getLeftParenthesis();
+
+  @NotNull
+  PsiElement getRightParenthesis();
+
+  @Nullable
   PsiElement getError();
 
   @Nullable

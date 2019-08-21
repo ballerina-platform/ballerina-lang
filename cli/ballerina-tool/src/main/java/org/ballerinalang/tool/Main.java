@@ -100,6 +100,11 @@ public class Main {
             cmdParser.addSubcommand(BallerinaCliCommands.VERSION, versionCmd);
             versionCmd.setParentCmdParser(cmdParser);
 
+            // Ballerina Home Command
+            HomeCmd homeCmd = new HomeCmd();
+            cmdParser.addSubcommand(BallerinaCliCommands.HOME, homeCmd);
+            homeCmd.setParentCmdParser(cmdParser);
+
             EncryptCmd encryptCmd = new EncryptCmd();
             cmdParser.addSubcommand(BallerinaCliCommands.ENCRYPT, encryptCmd);
             encryptCmd.setParentCmdParser(cmdParser);
@@ -187,7 +192,14 @@ public class Main {
         }
     }
 
-
+    private static void printBallerinaDistPath() {
+        String balHome = System.getProperty("ballerina.home");
+        if (balHome != null) {
+            outStream.print(balHome + "\n");
+        } else {
+            throw LauncherUtils.createUsageExceptionWithHelp("home info not available");
+        }
+    }
 
     private static String getMessageForInternalErrors() {
         String errorMsg;
@@ -307,6 +319,62 @@ public class Main {
         @Override
         public void printUsage(StringBuilder out) {
             out.append("  ballerina version\n");
+        }
+
+        @Override
+        public void setParentCmdParser(CommandLine parentCmdParser) {
+            this.parentCmdParser = parentCmdParser;
+        }
+    }
+
+    /**
+     * This class represents the "home" command and it holds arguments and flags specified by the user.
+     *
+     * @since 1.0.0
+     */
+    @CommandLine.Command(name = "home", description = "Prints the path of current Ballerina dist")
+    private static class HomeCmd implements BLauncherCmd {
+
+        @CommandLine.Parameters(description = "Command name")
+        private List<String> homeCommands;
+
+        @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
+        private boolean helpFlag;
+
+        private CommandLine parentCmdParser;
+
+        public void execute() {
+            if (helpFlag) {
+                printUsageInfo(BallerinaCliCommands.HOME);
+                return;
+            }
+
+            if (homeCommands == null) {
+                printBallerinaDistPath();
+                return;
+            } else if (homeCommands.size() > 1) {
+                throw LauncherUtils.createUsageExceptionWithHelp("too many arguments given");
+            }
+
+            String userCommand = homeCommands.get(0);
+            if (parentCmdParser.getSubcommands().get(userCommand) == null) {
+                throw LauncherUtils.createUsageExceptionWithHelp("unknown command `" + userCommand + "`");
+            }
+        }
+
+        @Override
+        public String getName() {
+            return BallerinaCliCommands.HOME;
+        }
+
+        @Override
+        public void printLongDesc(StringBuilder out) {
+
+        }
+
+        @Override
+        public void printUsage(StringBuilder out) {
+            out.append("  ballerina home\n");
         }
 
         @Override

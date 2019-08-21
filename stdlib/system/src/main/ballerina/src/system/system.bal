@@ -92,8 +92,9 @@ public function getFileInfo(@untainted string path) returns FileInfo|Error = ext
 # Reads the directory and returns a list of files and directories # inside the specified directory
 #
 # + path - String value of directory path.
+# + maxDepth - The maximum number of directory levels to visit. -1 to indicate that all levels should be visited.
 # + return - Returns FileInfo array or an `Error` if there is an error while changing the mode.
-public function readDir(@untainted string path) returns FileInfo[]|Error = external;
+public function readDir(@untainted string path, int maxDepth = -1) returns FileInfo[]|Error = external;
 
 # Copy file/directory in old path to new path.
 # If new path already exists, this replaces the file.

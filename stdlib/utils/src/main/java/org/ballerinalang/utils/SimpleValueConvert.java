@@ -53,7 +53,7 @@ public class SimpleValueConvert {
                     .createError(org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONVERSION_ERROR,
                                  org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper
                                          .getErrorMessage(org.ballerinalang.jvm.util.exceptions.RuntimeErrors
-                                                                  .CANNOT_CONVERT_NULL, targetType));
+                                                                  .CANNOT_CONVERT_NIL, targetType));
         }
         try {
             if (org.ballerinalang.jvm.types.BTypes.isValueType(TypeChecker.getType(inputValue))) {

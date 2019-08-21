@@ -1,4 +1,3 @@
-import ballerina/io;
 // Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
@@ -14,6 +13,10 @@ import ballerina/io;
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
+import ballerina/internal;
+import ballerina/io;
+
 public type PackageParser object {
     BirChannelReader reader;
     map<GlobalVariableDcl> globalVarMap;

@@ -17,11 +17,16 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BMapType;
+import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
@@ -29,7 +34,13 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import static org.ballerinalang.jvm.TypeChecker.checkIsLikeType;
@@ -37,6 +48,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MAX_VALUE;
 import static org.ballerinalang.jvm.util.BLangConstants.BBYTE_MIN_VALUE;
 import static org.ballerinalang.jvm.util.BLangConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
 import static org.ballerinalang.jvm.util.BLangConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
+import static org.ballerinalang.jvm.values.DecimalValue.isDecimalWithinIntRange;
 
 /**
  * Provides utils methods for casting, stamping and conversion of values.
@@ -100,6 +112,131 @@ public class TypeConverter {
             default:
                 throw BallerinaErrors.createTypeCastError(inputValue, targetType);
         }
+    }
+
+    static boolean isConvertibleToByte(Object value) {
+        BType inputType = TypeChecker.getType(value);
+        switch (inputType.getTag()) {
+            case TypeTags.BYTE_TAG:
+                return true;
+            case TypeTags.INT_TAG:
+                return isByteLiteral((long) value);
+            case TypeTags.FLOAT_TAG:
+                Double doubleValue = (Double) value;
+                return isFloatWithinIntRange(doubleValue) && isByteLiteral(doubleValue.longValue());
+            case TypeTags.DECIMAL_TAG:
+                return isDecimalWithinIntRange((BigDecimal) value) && isByteLiteral(((BigDecimal) value).longValue());
+            default:
+                return false;
+        }
+    }
+
+    static boolean isConvertibleToInt(Object value) {
+        BType inputType = TypeChecker.getType(value);
+        switch (inputType.getTag()) {
+            case TypeTags.BYTE_TAG:
+            case TypeTags.INT_TAG:
+                return true;
+            case TypeTags.FLOAT_TAG:
+                return isFloatWithinIntRange((double) value);
+            case TypeTags.DECIMAL_TAG:
+                return isDecimalWithinIntRange((BigDecimal) value);
+            default:
+                return false;
+        }
+    }
+
+    static boolean isConvertibleToFloatingPointTypes(Object value) {
+        BType inputType = TypeChecker.getType(value);
+        switch (inputType.getTag()) {
+            case TypeTags.BYTE_TAG:
+            case TypeTags.INT_TAG:
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.DECIMAL_TAG:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public static List<BType> getConvertibleTypes(Object inputValue, BType targetType) {
+        return getConvertibleTypes(inputValue, targetType, new ArrayList<>());
+    }
+
+    public static List<BType> getConvertibleTypes(Object inputValue, BType targetType,
+                                                  List<TypeValuePair> unresolvedValues) {
+        List<BType> convertibleTypes = new ArrayList<>();
+
+        int targetTypeTag = targetType.getTag();
+
+        switch (targetTypeTag) {
+            case TypeTags.UNION_TAG:
+                for (BType memType : ((BUnionType) targetType).getMemberTypes()) {
+                    convertibleTypes.addAll(getConvertibleTypes(inputValue, memType, unresolvedValues));
+                }
+                break;
+            case TypeTags.RECORD_TYPE_TAG:
+                if (isConvertibleToRecordType(inputValue, (BRecordType) targetType, unresolvedValues)) {
+                    convertibleTypes.add(targetType);
+                }
+                break;
+            default:
+                if (TypeChecker.checkIsLikeType(inputValue, targetType, true)) {
+                    convertibleTypes.add(targetType);
+                }
+        }
+        return convertibleTypes;
+    }
+
+    private static boolean isConvertibleToRecordType(Object sourceValue, BRecordType targetType,
+                                                     List<TypeValuePair> unresolvedValues) {
+        if (!(sourceValue instanceof MapValueImpl)) {
+            return false;
+        }
+
+        TypeValuePair typeValuePair = new TypeValuePair(sourceValue, targetType);
+        if (unresolvedValues.contains(typeValuePair)) {
+            return true;
+        }
+        unresolvedValues.add(typeValuePair);
+
+        Map<String, BType> targetFieldTypes = new HashMap<>();
+        BType restFieldType = targetType.restFieldType;
+
+        for (BField field : targetType.getFields().values()) {
+            targetFieldTypes.put(field.getFieldName(), field.type);
+        }
+
+        MapValueImpl sourceMapValueImpl = (MapValueImpl) sourceValue;
+        for (Map.Entry targetTypeEntry : targetFieldTypes.entrySet()) {
+            String fieldName = targetTypeEntry.getKey().toString();
+
+            if (!sourceMapValueImpl.containsKey(fieldName)) {
+                BField targetField = targetType.getFields().get(fieldName);
+                if (Flags.isFlagOn(targetField.flags, Flags.REQUIRED)) {
+                    return false;
+                }
+            }
+        }
+
+        for (Object object : sourceMapValueImpl.entrySet()) {
+            Map.Entry valueEntry = (Map.Entry) object;
+            String fieldName = valueEntry.getKey().toString();
+
+            if (targetFieldTypes.containsKey(fieldName)) {
+                if (getConvertibleTypes(valueEntry.getValue(), targetFieldTypes.get(fieldName),
+                                        unresolvedValues).size() != 1) {
+                    return false;
+                }
+            } else if (!targetType.sealed) {
+                if (getConvertibleTypes(valueEntry.getValue(), restFieldType, unresolvedValues).size() != 1) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+        return true;
     }
 
     static long anyToInt(Object sourceVal, Supplier<ErrorValue> errorFunc) {

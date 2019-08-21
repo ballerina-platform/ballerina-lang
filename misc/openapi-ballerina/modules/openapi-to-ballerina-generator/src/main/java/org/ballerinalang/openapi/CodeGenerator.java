@@ -119,7 +119,7 @@ public class CodeGenerator {
         }
 
         List<GenSrcFile> genFiles = generateBalSource(type, definitionPath, serviceName);
-        writeGeneratedSources(genFiles, srcPath, implPath);
+        writeGeneratedSources(genFiles, srcPath, implPath, type);
     }
 
 
@@ -284,7 +284,8 @@ public class CodeGenerator {
         return handlebars.compile(templateName);
     }
 
-    private void writeGeneratedSources(List<GenSrcFile> sources, Path srcPath, Path implPath) throws IOException {
+    private void writeGeneratedSources(List<GenSrcFile> sources, Path srcPath, Path implPath, GenType type)
+            throws IOException {
         // Remove old generated files - if any - before regenerate
         // if srcPackage was not provided and source was written to main package nothing will be deleted.
         if (srcPackage != null && !srcPackage.isEmpty() && Files.exists(srcPath)) {
@@ -323,8 +324,12 @@ public class CodeGenerator {
         }
 
         //This will print the generated files to the console
-        outStream.println("Service generated successfully and the OpenApi contract is copied to " + srcPackage
-                + "/resources. this location will be referenced throughout the ballerina project.");
+        if (type.equals(GenType.GEN_SERVICE)) {
+            outStream.println("Service generated successfully and the OpenApi contract is copied to " + srcPackage
+                    + "/resources. this location will be referenced throughout the ballerina project.");
+        } else if (type.equals(GEN_CLIENT)) {
+            outStream.println("Client generated successfully.");
+        }
         outStream.println(" Following files were created. \n" +
                 "src/ \n- " + srcPackage);
         Iterator<GenSrcFile> iterator = sources.iterator();

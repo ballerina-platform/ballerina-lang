@@ -237,34 +237,39 @@ public class ErrorTest {
 
     @Test
     public void testErrorNegative() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 15);
-        BAssertUtil.validateError(negativeCompileResult, 0,
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 17);
+        int i = 0;
+        BAssertUtil.validateError(negativeCompileResult, i++,
                                   "incompatible types: expected 'reason one|reason two', found 'string'", 26, 31);
-        BAssertUtil.validateError(negativeCompileResult, 1,
+        BAssertUtil.validateError(negativeCompileResult, i++,
                                   "incompatible types: expected 'reason one', found 'reason two'", 31, 31);
-        BAssertUtil.validateError(negativeCompileResult, 2,
+        BAssertUtil.validateError(negativeCompileResult, i++,
                                   "invalid error reason type 'int', expected a subtype of 'string'", 41, 28);
-        BAssertUtil.validateError(negativeCompileResult, 3, "invalid error detail type 'map', expected a subtype of " 
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'map', expected a subtype of "
                 + "'record {| string message?; $error0 cause?; (anydata|error)...; |}'", 41, 33);
-        BAssertUtil.validateError(negativeCompileResult, 4, "invalid error detail type 'boolean', expected a subtype "
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'boolean', expected a subtype "
                 + "of 'record {| string message?; $error0 cause?; (anydata|error)...; |}'", 42, 36);
-        BAssertUtil.validateError(negativeCompileResult, 5,
+        BAssertUtil.validateError(negativeCompileResult, i++,
                                   "invalid error reason type '1.0f', expected a subtype of 'string'", 45, 7);
-        BAssertUtil.validateError(negativeCompileResult, 6,
+        BAssertUtil.validateError(negativeCompileResult, i++,
                                   "invalid error reason type 'boolean', expected a subtype of 'string'", 48, 11);
-        BAssertUtil.validateError(negativeCompileResult, 7, "self referenced variable 'e3'", 54, 22);
-        BAssertUtil.validateError(negativeCompileResult, 8, "self referenced variable 'e3'", 54, 43);
-        BAssertUtil.validateError(negativeCompileResult, 9, "self referenced variable 'e4'", 55, 42);
-        BAssertUtil.validateError(negativeCompileResult, 10,
+        BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e3'", 54, 22);
+        BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e3'", 54, 43);
+        BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e4'", 55, 42);
+        BAssertUtil.validateError(negativeCompileResult, i++,
                 "cannot infer reason from error constructor: 'UserDefErrorOne'", 56, 27);
-        BAssertUtil.validateError(negativeCompileResult, 11,
+        BAssertUtil.validateError(negativeCompileResult, i++,
                 "cannot infer reason from error constructor: 'MyError'", 57, 19);
-        BAssertUtil.validateError(negativeCompileResult, 12,
+        BAssertUtil.validateError(negativeCompileResult, i++,
                 "cannot infer type of the error from '(UserDefErrorOne|UserDefErrorTwo)'", 75, 12);
-        BAssertUtil.validateError(negativeCompileResult, 13,
+        BAssertUtil.validateError(negativeCompileResult, i++,
                 "cannot infer reason from error constructor: 'RNError'", 96, 18);
-        BAssertUtil.validateError(negativeCompileResult, 14,
+        BAssertUtil.validateError(negativeCompileResult, i++,
                 "cannot infer reason from error constructor: 'RNStrError'", 97, 21);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "error reason is mandatory for direct error constructor", 112, 28);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'error', found '(error|int)'", 118, 11);
     }
     @DataProvider(name = "userDefTypeAsReasonTests")
     public Object[][] userDefTypeAsReasonTests() {
@@ -280,15 +285,6 @@ public class ErrorTest {
                 { "testErrorConstrWithConstForConstReason" },
                 { "testErrorConstrWithConstLiteralForConstReason" }
         };
-    }
-
-    @Test()
-    public void errorReasonInferenceTest() {
-        BValue[] returns = BRunUtil.invoke(errorTestResult, "errorReasonInference");
-        Assert.assertTrue(returns[0] instanceof BError);
-        Assert.assertEquals(((BError) returns[0]).getReason(), "ErrNo-1");
-        Assert.assertEquals(((BMap) ((BError) returns[1]).getDetails()).get("data").stringValue(),
-                "{\"arg1\":\"arg1-1\", \"arg2\":\"arg2-2\"}");
     }
 
     @Test()
@@ -320,6 +316,12 @@ public class ErrorTest {
         Assert.assertEquals(((BError) returns[0]).stringValue(), "this is broken {message:\"too bad\"}");
     }
 
+    @Test()
+    public void testIndirectErrorReturn() {
+        BValue[] returns = BRunUtil.invoke(errorTestResult, "testIndirectErrorReturn");
+        Assert.assertEquals(((BError) returns[0]).stringValue(), "Foo {message:\"error msg\"}");
+    }
+
     @Test
     public void testStackTraceInNative() {
         Exception expectedException = null;
@@ -334,6 +336,25 @@ public class ErrorTest {
         Assert.assertEquals(message,
                 "error: array index out of range: index: 4, size: 2 \n\t" +
                         "at ballerina.lang_array:slice(array.bal:124)\n\t" +
-                        "   error_test:testStackTraceInNative(error_test.bal:286)");
+                        "   error_test:testStackTraceInNative(error_test.bal:279)");
+    }
+
+    @Test
+    public void testPanicOnErrorUnion() {
+        BValue[] args = new BValue[] { new BInteger(0) };
+        BValue[] result = BRunUtil.invoke(errorTestResult, "testPanicOnErrorUnion", args);
+        Assert.assertEquals(result[0].stringValue(), "str");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp = "error: x.*")
+    public void testPanicOnErrorUnionCustomError() {
+        BValue[] args = new BValue[] { new BInteger(1) };
+        BRunUtil.invoke(errorTestResult, "testPanicOnErrorUnion", args);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp = "error: y code=4.*")
+    public void testPanicOnErrorUnionCustomError2() {
+        BValue[] args = new BValue[] { new BInteger(2) };
+        BRunUtil.invoke(errorTestResult, "testPanicOnErrorUnion", args);
     }
 }

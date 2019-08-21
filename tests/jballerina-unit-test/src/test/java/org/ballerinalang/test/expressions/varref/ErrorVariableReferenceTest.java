@@ -179,6 +179,12 @@ public class ErrorVariableReferenceTest {
         Assert.assertNull(returns[1]);
     }
 
+    @Test(description = "Test error ref binding pattern when no error reason ref is given")
+    public void testNoErrorReasonGiven() {
+        BValue[] returns = BRunUtil.invoke(result, "testNoErrorReasonGiven");
+        Assert.assertEquals(returns[0].stringValue(), "message");
+    }
+
     @Test(description = "Test simple indirect error ref pattern with mandatory detail fields")
     public void testIndirectErrorRefMandatoryFields() {
         BValue[] returns = BRunUtil.invoke(result, "testIndirectErrorRefMandatoryFields");
@@ -187,10 +193,8 @@ public class ErrorVariableReferenceTest {
         Assert.assertEquals(returns[i++].stringValue(), "/usr/bhah/a.log");
         Assert.assertEquals(returns[i++].stringValue(), "45221");
         Assert.assertEquals(returns[i++].stringValue(), "128");
-        Assert.assertEquals(returns[i++].stringValue(), "FILE-OPEN");
         Assert.assertEquals(returns[i++].stringValue(), "{\"message\":\"file open failed\", " +
                 "\"targetFileName\":\"/usr/bhah/a.log\", \"errorCode\":45221, \"flags\":128, \"cause\":c {}}");
-        Assert.assertEquals(returns[i++].stringValue(), "FILE-OPEN");
         Assert.assertEquals(returns[i++].stringValue(), "file open failed");
         Assert.assertEquals(returns[i++].stringValue(), "{\"targetFileName\":\"/usr/bhah/a.log\", " +
                 "\"errorCode\":45221, \"flags\":128, \"cause\":c {}}");
@@ -229,6 +233,6 @@ public class ErrorVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i,
                                   "error binding pattern does not support index based assignment", 112, 79);
         BAssertUtil.validateError(resultNegative, ++i,
-                                  "incompatible types: expected 'map', found 'map<(error|string|int)>'", 135, 48);
+                                  "incompatible types: expected 'map', found 'map<(error|string|int)>'", 135, 32);
     }
 }

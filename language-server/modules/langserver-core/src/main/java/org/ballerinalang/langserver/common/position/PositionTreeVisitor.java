@@ -76,7 +76,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
@@ -168,9 +167,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
         if (userDefinedType.getPosition() != null) {
-            userDefinedType.getPosition().sCol += (previousNode instanceof BLangEndpointTypeNode
-                    ? "endpoint<".length()
-                    : 0);
             CommonUtil.calculateEndColumnOfGivenName(userDefinedType.getPosition(), userDefinedType.typeName.value,
                                                      userDefinedType.pkgAlias.value);
             if (userDefinedType.type instanceof BUnionType &&

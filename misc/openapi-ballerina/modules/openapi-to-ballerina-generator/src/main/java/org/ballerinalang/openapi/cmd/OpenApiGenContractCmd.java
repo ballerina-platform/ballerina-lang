@@ -146,7 +146,7 @@ public class OpenApiGenContractCmd implements BLauncherCmd {
      */
     private boolean checkModuleExist(String moduleName) {
         Path userLocation = Paths.get(System.getProperty("user.dir"));
-        Path moduleLocation = userLocation.resolve(moduleName);
+        Path moduleLocation = userLocation.resolve("src").resolve(moduleName);
 
         return Files.exists(moduleLocation);
     }

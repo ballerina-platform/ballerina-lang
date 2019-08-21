@@ -19,8 +19,11 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -80,8 +83,7 @@ public class Sprintf {
 
                 if (k >= args.size()) {
                     // there's not enough arguments
-                    throw org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper.getRuntimeException(
-                            org.ballerinalang.jvm.util.exceptions.RuntimeErrors.NOT_ENOUGH_FORMAT_ARGUMENTS);
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.NOT_ENOUGH_FORMAT_ARGUMENTS);
                 }
                 StringBuilder padding = new StringBuilder();
                 while (Character.isDigit(format.charAt(j)) || format.charAt(j) == '.') {
@@ -98,8 +100,7 @@ public class Sprintf {
                         case 'd':
                         case 'f':
                             if (ref == null) {
-                                throw org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper.getRuntimeException(
-                                        org.ballerinalang.jvm.util.exceptions.RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
+                                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
                                         format.charAt(j) + " != ()");
                             }
                             result.append(String.format("%" + padding + formatSpecifier, ref));
@@ -107,8 +108,7 @@ public class Sprintf {
                         case 'x':
                         case 'X':
                             if (ref == null) {
-                                throw org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper.getRuntimeException(
-                                        org.ballerinalang.jvm.util.exceptions.RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
+                                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
                                         format.charAt(j) + " != ()");
                             }
                             formatHexString(args, result, k, padding, formatSpecifier);
@@ -123,13 +123,11 @@ public class Sprintf {
                             break;
                         default:
                             // format string not supported
-                            throw org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper.getRuntimeException(
-                                    org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INVALID_FORMAT_SPECIFIER,
+                            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_FORMAT_SPECIFIER,
                                     format.charAt(j));
                     }
                 } catch (IllegalFormatConversionException e) {
-                    throw org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper.getRuntimeException(
-                            org.ballerinalang.jvm.util.exceptions.RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.ILLEGAL_FORMAT_CONVERSION,
                             format.charAt(j) + " != " + TypeChecker.getType(args.getRefValue(k)));
                 }
                 if (format.charAt(j) == '%') {
@@ -150,8 +148,7 @@ public class Sprintf {
     private static void formatHexString(ArrayValue args, StringBuilder result, int k, StringBuilder padding, char x) {
         final Object argsValues = args.get(k);
         final BType type = TypeChecker.getType(argsValues);
-        if (TypeTags.ARRAY_TAG == type.getTag() && TypeTags.BYTE_TAG == ((org.ballerinalang.jvm.types.BArrayType) type)
-                .getElementType().getTag()) {
+        if (TypeTags.ARRAY_TAG == type.getTag() && TypeTags.BYTE_TAG == ((BArrayType) type).getElementType().getTag()) {
             ArrayValue byteArray = ((ArrayValue) argsValues);
             for (int i = 0; i < byteArray.size(); i++) {
                 result.append(String.format("%" + padding + x, byteArray.getByte(i)));

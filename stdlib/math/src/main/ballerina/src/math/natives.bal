@@ -166,11 +166,7 @@ public function hypot(float a, float b) returns float = external;
 # + a - The dividend
 # + b - The divisor
 # + return - The remainder when a is divided by b
-public function IEEEremainder(float a, float b) returns float {
-    return iEEEremainder(a, b);
-}
-
-function iEEEremainder(float a, float b) returns float = external;
+public function remainder(float a, float b) returns float = external;
 
 # Returns the natural logarithm (base e) of a float value.
 #

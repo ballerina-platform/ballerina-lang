@@ -204,3 +204,26 @@ function testValidateJwtWithNoIssOrSub(string jwtToken, string trustStorePath) r
         return result;
     }
 }
+
+function testIssueJwtWithCustomClaims(string keyStorePath) returns string|jwt:Error {
+    crypto:KeyStore keyStore = { path: keyStorePath, password: "ballerina" };
+    jwt:JwtKeyStoreConfig config = {
+        keyStore: keyStore,
+        keyAlias: "ballerina",
+        keyPassword: "ballerina"
+    };
+
+    jwt:JwtHeader header = {};
+    header.alg = jwt:RS256;
+    header.typ = "JWT";
+
+    jwt:JwtPayload payload = {};
+    payload.sub = "John";
+    payload.iss = "wso2";
+    payload.jti = "100078234ba23";
+    payload.aud = ["ballerina", "ballerinaSamples"];
+    payload.exp = time:currentTime().time/1000 + 600;
+    payload.customClaims = { "scope": "test-scope" };
+
+    return jwt:issueJwt(header, payload, config);
+}

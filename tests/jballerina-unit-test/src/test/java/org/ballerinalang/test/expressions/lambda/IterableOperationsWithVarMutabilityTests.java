@@ -87,7 +87,7 @@ public class IterableOperationsWithVarMutabilityTests {
         Assert.assertEquals(returns[0].stringValue(), sb.toString().trim());
     }
 
-    @Test(enabled = false) // bal function commented out due to lack of map to list langlib func
+    @Test()
     public void testBasicMap1() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testBasicMap1");
         Assert.assertNotNull(returns);
@@ -96,22 +96,22 @@ public class IterableOperationsWithVarMutabilityTests {
         Assert.assertEquals(returns[1].stringValue(), "[\"a\", \"e\"]");
     }
 
-    @Test(enabled = false) // bal function commented out due to lack of map to list langlib func
+    @Test()
     public void testBasicMap2() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testBasicMap2");
         Assert.assertEquals(returns.length, 3);
         Assert.assertEquals(returns[0].stringValue(), "91");
         Assert.assertEquals(returns[1].stringValue(), "start-a : A-b : B-c : C-d : D-e : E-end");
-        Assert.assertEquals(returns[2].stringValue(), "[\"aA\", \"eE\"]");
+        Assert.assertEquals(returns[2].stringValue(), "{\"a\":\"aA\", \"e\":\"eE\"}");
     }
 
-    @Test(enabled = false) // bal function commented out due to missing forEach support in langlib.xml
+    @Test()
     public void testXML() {
         BValue[] returns = BRunUtil.invoke(compileResult, "xmlTest");
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(returns[0].stringValue(), "start-1-2-end");
-        Assert.assertEquals(returns[1].stringValue(), "{\"1\":<p:city xmlns:p=\"foo\" xmlns:q=\"bar\">NY</p:city>, " +
-                "\"2\":<q:country xmlns:q=\"bar\" xmlns:p=\"foo\">US</q:country>}");
+        Assert.assertEquals(returns[1].stringValue(), "<p:city xmlns:p=\"foo\" xmlns:q=\"bar\">NY</p:city>" +
+                "<q:country xmlns:q=\"bar\" xmlns:p=\"foo\">US</q:country>");
     }
 
     @Test
@@ -158,7 +158,7 @@ public class IterableOperationsWithVarMutabilityTests {
                 "\"types\":[\"street_number\"]}");
     }
 
-    @Test(enabled = false) // bal function commented out due to missing forEach support in langlib.xml
+    @Test()
     public void testWithComplexXML() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testWithComplexXML");
         Assert.assertNotNull(returns);
