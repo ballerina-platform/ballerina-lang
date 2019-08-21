@@ -24,7 +24,7 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaServiceBody extends PsiElement {
 
   @NotNull
-  List<BallerinaServiceBodyMember> getServiceBodyMemberList();
+  List<BallerinaObjectFunctionDefinition> getObjectFunctionDefinitionList();
 
   @NotNull
   PsiElement getLeftBrace();

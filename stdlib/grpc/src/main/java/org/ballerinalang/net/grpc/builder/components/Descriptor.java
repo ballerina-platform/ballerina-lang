@@ -18,7 +18,6 @@
 package org.ballerinalang.net.grpc.builder.components;
 
 import com.google.protobuf.DescriptorProtos;
-import org.ballerinalang.model.values.BString;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -66,8 +65,7 @@ public class Descriptor {
             try (InputStream targetStream = new ByteArrayInputStream(descriptorData)) {
                 DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
                         .parseFrom(targetStream);
-                return new Descriptor(fileDescriptorSet.getName(), new BString(bytesToHex(descriptorData))
-                        .stringValue());
+                return new Descriptor(fileDescriptorSet.getName(), bytesToHex(descriptorData));
             }
         }
     }

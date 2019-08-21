@@ -18,9 +18,9 @@
 
 package org.ballerinalang.messaging.rabbitmq;
 
+import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
-import org.ballerinalang.services.ErrorHandlerUtils;
 
 import java.util.concurrent.CountDownLatch;
 

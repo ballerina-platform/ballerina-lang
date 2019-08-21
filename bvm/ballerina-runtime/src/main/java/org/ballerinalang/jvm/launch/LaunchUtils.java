@@ -20,12 +20,24 @@ package org.ballerinalang.jvm.launch;
 
 import java.util.ServiceLoader;
 
+import static org.ballerinalang.jvm.util.BLangConstants.UTIL_LOGGING_CONFIG_CLASS_PROPERTY;
+import static org.ballerinalang.jvm.util.BLangConstants.UTIL_LOGGING_CONFIG_CLASS_VALUE;
+import static org.ballerinalang.jvm.util.BLangConstants.UTIL_LOGGING_MANAGER_CLASS_PROPERTY;
+import static org.ballerinalang.jvm.util.BLangConstants.UTIL_LOGGING_MANAGER_CLASS_VALUE;
+
 /**
  * Util methods to be used during starting and ending a ballerina program.
  * 
  * @since 1.0
  */
 public class LaunchUtils {
+
+    public static void setSystemProperties() {
+        // This will add the initial java args required for uber jar. These were added through ballerina startup 
+        // script bur for uber jar we need to add them through main method.
+        System.setProperty(UTIL_LOGGING_CONFIG_CLASS_PROPERTY, UTIL_LOGGING_CONFIG_CLASS_VALUE);
+        System.setProperty(UTIL_LOGGING_MANAGER_CLASS_PROPERTY, UTIL_LOGGING_MANAGER_CLASS_VALUE);
+    }
 
     public static void startListeners(boolean isService) {
         ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);

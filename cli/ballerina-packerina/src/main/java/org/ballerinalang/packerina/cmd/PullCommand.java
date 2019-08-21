@@ -35,8 +35,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.packerina.cmd.Constants.PULL_COMMAND;
-import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
  * This class represents the "ballerina pull" command.

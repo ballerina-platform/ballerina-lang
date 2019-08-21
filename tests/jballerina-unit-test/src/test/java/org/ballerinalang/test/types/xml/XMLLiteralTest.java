@@ -17,7 +17,9 @@
  */
 package org.ballerinalang.test.types.xml;
 
+import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.values.XMLItem;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BIterator;
 import org.ballerinalang.model.values.BString;
@@ -385,17 +387,6 @@ public class XMLLiteralTest {
                 "<ns1:student xmlns:ns1=\"http://ballerina.com/b\">hello</ns1:student>");
     }
 
-    @Test
-    public void testServiceLevelXML() {
-        BCompileUtil.compile("test-src/types/xml/xml_literals_in_service.bal");
-        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/test/getXML", "GET");
-        HttpCarbonMessage response = Services.invoke(9090, cMsg);
-        Assert.assertNotNull(response);
-        BXML<?> xml = new BXMLItem(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(xml.stringValue(), "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\" " +
-                "xmlns:ns0=\"http://ballerina.com/a\" xmlns:ns1=\"http://ballerina.com/b\">hello</p:person>");
-    }
-
     @Test(groups = "brokenOnJBallerina")
     // todo: enable this once we fix the method too large issue on jBallerina
     public void testLargeXMLLiteral() {
@@ -450,5 +441,12 @@ public class XMLLiteralTest {
         xmlItem.serialize(baos);
         Assert.assertEquals(new String(baos.toByteArray()),
                 "<foo xmlns=\"http://wso2.com/\" xmlns:ns1=\"http://ballerina.com/b\">hello</foo>");
+    }
+
+    @Test
+    public void testXMLToString() {
+        XMLValue<?> xml = XMLFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY data \"Example\" >]><foo>&data;</foo>");
+        Assert.assertEquals(xml.toString(), "<foo>Example</foo>");
     }
 }

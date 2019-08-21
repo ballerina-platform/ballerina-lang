@@ -18,18 +18,11 @@
 
 package org.ballerinalang.langlib.table;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.TableValue;
-import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BTable;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -53,22 +46,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
                         type = TypeKind.ANY)
         },
         returnType = {@ReturnType(type = TypeKind.TABLE)})
-public class QueryTableWithJoinClause extends BlockingNativeCallableUnit {
-    /**
-     * Where extern function logic is implemented.
-     *
-     * @param context Current Context instance
-     */
-    @Override
-    public void execute(Context context) {
-        String query = context.getStringArgument(0);
-        BTable fromTable = (BTable) context.getRefArgument(0);
-        BTable joinTable = (BTable) context.getRefArgument(1);
-        BValueArray array = (BValueArray) context.getRefArgument(2);
-        BMap<String, BValue> tableTypeStruct = (BMap<String, BValue>) context.getRefArgument(3);
-        context.setReturnValues(
-                new BTable(query, fromTable, joinTable, (BStructureType) tableTypeStruct.getType(), array));
-    }
+public class QueryTableWithJoinClause {
 
     public static TableValue queryTableWithJoinClause(Strand strand, String query, TableValue fromTable,
                                                       TableValue joinTable, Object array,

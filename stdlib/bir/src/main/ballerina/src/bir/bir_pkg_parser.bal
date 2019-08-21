@@ -1,4 +1,3 @@
-import ballerina/io;
 // Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
@@ -14,6 +13,9 @@ import ballerina/io;
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
+import ballerina/internal;
+
 public type PackageParser object {
     BirChannelReader reader;
     map<GlobalVariableDcl> globalVarMap;
@@ -133,6 +135,7 @@ public type PackageParser object {
         map<VariableDcl> localVarMap = {};
         DiagnosticPos pos = parseDiagnosticPos(self.reader);
         var name = self.reader.readStringCpRef();
+        var workerName = self.reader.readStringCpRef();
         int flags = self.reader.readInt32();
         var sig = self.parseInvokableType();
 
@@ -165,6 +168,7 @@ public type PackageParser object {
             return <@untainted Function> {
                 pos: pos,
                 name: { value: name },
+                workerName: { value: workerName },
                 flags: flags,
                 localVars: [],
                 basicBlocks: [],
@@ -239,6 +243,7 @@ public type PackageParser object {
         return <@untainted Function> {
             pos: pos,
             name: { value: name },
+            workerName: { value: workerName },
             flags: flags,
             localVars: dcls,
             basicBlocks: basicBlocks,

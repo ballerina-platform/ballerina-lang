@@ -44,9 +44,11 @@ public class SearchUtils {
         EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
         Proxy proxy = TomlParserUtils.readSettings().getProxy();
         String urlWithModulePath = URI.create(RepoUtils.getRemoteRepoURL()).resolve("/modules/").toString();
+        String proxyPortAsString = proxy.getPort() == 0 ? "" : Integer.toString(proxy.getPort());
+        
         Optional<RuntimeException> executionResult = executor.executeMainFunction("module_search",
-                urlWithModulePath, query, proxy.getHost(), proxy.getPort(), proxy.getUserName(),
-                proxy.getPassword(), RepoUtils.getTerminalWidth());
+                urlWithModulePath, query, proxy.getHost(), proxyPortAsString, proxy.getUserName(), proxy.getPassword(),
+                RepoUtils.getTerminalWidth());
         executionResult.ifPresent(e -> ERROR_STREAM.println(e.getMessage()));
     }
 }

@@ -25,7 +25,6 @@ dependencies {
     implementation 'com.google.protobuf:protobuf-java'
     implementation 'info.picocli:picocli'
     implementation project(':ballerina-grpc')
-    implementation project(':ballerina-core')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-lang')
     testCompile 'org.testng:testng'

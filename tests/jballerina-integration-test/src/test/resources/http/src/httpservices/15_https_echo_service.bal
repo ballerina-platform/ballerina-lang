@@ -20,7 +20,7 @@ listener http:Listener echoDummyEP = new(9109);
 
 listener http:Listener echoHttpEP = new(9110);
 
-http:ServiceEndpointConfiguration echoEP2Config = {
+http:ListenerConfiguration echoEP2Config = {
     secureSocket: {
         keyStore: {
             path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",

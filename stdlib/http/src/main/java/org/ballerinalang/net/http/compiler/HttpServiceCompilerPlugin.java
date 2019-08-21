@@ -63,8 +63,11 @@ public class HttpServiceCompilerPlugin extends AbstractTransportCompilerPlugin {
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
         List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
         // If first resource's first parameter is WebSocketCaller, do not process in this plugin.
-        if (WebSocketConstants.FULL_WEBSOCKET_CALLER_NAME.equals(
-                resources.get(0).getParameters().get(0).type.toString())) {
+        // This is done on the assumption of resources does not mix each other (HTTP and WebSocket)
+        if (resources.size() > 0 &&
+                resources.get(0).getParameters().size() > 0 &&
+                WebSocketConstants.FULL_WEBSOCKET_CALLER_NAME.equals(
+                        resources.get(0).getParameters().get(0).type.toString())) {
             return;
         }
         int serviceConfigCount = 0;

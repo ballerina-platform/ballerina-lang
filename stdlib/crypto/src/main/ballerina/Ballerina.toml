@@ -6,8 +6,8 @@ version = "0.0.0"
 target = "java"
 
     [[platform.libraries]]
-    artafactId = "commons-codec"
-    version = "1.9"
-    path = "./lib/commons-codec-1.9.jar"
-    groupId = "commons-codec"
+    artafactId = "crypto"
+    version = "@project.version@"
+    path = "./lib/ballerina-crypto-@project.version@.jar"
+    groupId = "ballerina"
     modules = ["crypto"]

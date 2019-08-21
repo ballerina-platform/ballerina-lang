@@ -336,6 +336,7 @@ public class BIRPackageSymbolEnter {
         skipPosition(dataInStream); // Position details are skipped
         // Consider attached functions.. remove the first variable
         String funcName = getStringCPEntryValue(dataInStream);
+        String workerName = getStringCPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
 
         BInvokableType funcType = (BInvokableType) readBType(dataInStream);
@@ -362,7 +363,7 @@ public class BIRPackageSymbolEnter {
                         new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType);
                 BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) attachedType.tsymbol;
                 structureTypeSymbol.attachedFuncs.add(attachedFunc);
-                if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName)
+                if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(funcName)
                         || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
                     structureTypeSymbol.initializerFunc = attachedFunc;
                 }

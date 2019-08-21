@@ -16,19 +16,6 @@
 
 import ballerina/io;
 
-# TODO Docs
-public type BIRContext object {
-
-    public function lookupBIRModule(ModuleID modId) returns Package {
-        var modBinary = getBIRModuleBinary(self, modId);
-        return <@untainted Package> populateBIRModuleFromBinary(modBinary, false);
-    }
-};
-
-function getBIRModuleBinary(BIRContext birContext, ModuleID modId) returns byte[] = external;
-
-public function decompressSingleFileToBlob(string baloPath, string pathInJar) returns byte[] = external;
-
 // TODO Refactor following methods
 public function populateBIRModuleFromBinary(byte[] modBinary, boolean symbolsOnly) returns Package {
     io:ReadableByteChannel byteChannel = checkpanic io:createReadableChannel(modBinary);

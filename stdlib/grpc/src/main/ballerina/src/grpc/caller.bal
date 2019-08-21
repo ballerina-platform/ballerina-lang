@@ -45,7 +45,7 @@ public type Caller client object {
     # Checks whether the connection is closed by the caller.
     #
     # + return - Returns true, if caller already closed the connection. false otherwise.
-    public remote function isCancelled() returns boolean = external;
+    public function isCancelled() returns boolean = external;
 
     # Sends server error to the caller.
     #

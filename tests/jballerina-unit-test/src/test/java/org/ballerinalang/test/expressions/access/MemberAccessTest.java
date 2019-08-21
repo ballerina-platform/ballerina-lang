@@ -63,8 +63,8 @@ public class MemberAccessTest {
         validateError(negativeResult, i++, "invalid operation: type 'Employee[3]?' does not support indexing", 54, 9);
         validateError(negativeResult, i++, "invalid operation: type '(int[]|Employee[3])?' does not support indexing"
                 , 55, 9);
-        validateError(negativeResult, i++, "list index out of range: index: '4'", 60, 9);
-        validateError(negativeResult, i++, "list index out of range: index: '5'", 65, 9);
+        validateError(negativeResult, i++, "list index out of range: index: '4'", 60, 12);
+        validateError(negativeResult, i++, "list index out of range: index: '5'", 65, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'boolean?'", 74, 19);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int?'", 75, 14);
         validateError(negativeResult, i++, "undefined field 'names' in 'Employee'", 76, 17);
@@ -113,8 +113,8 @@ public class MemberAccessTest {
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'foo|1'", 170, 20);
         validateError(negativeResult, i++, "invalid operation: type 'string' does not support member access for " +
                 "assignment", 175, 5);
-        validateError(negativeResult, i++, "list index out of range: index: '5'", 182, 9);
-        validateError(negativeResult, i++, "list index out of range: index: '5'", 187, 9);
+        validateError(negativeResult, i++, "list index out of range: index: '5'", 182, 12);
+        validateError(negativeResult, i++, "list index out of range: index: '5'", 187, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 195, 14);
         validateError(negativeResult, i, "undefined field 'age' in 'Employee'", 196, 14);
     }

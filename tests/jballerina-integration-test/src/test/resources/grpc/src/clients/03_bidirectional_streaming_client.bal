@@ -19,7 +19,6 @@ import ballerina/grpc;
 import ballerina/io;
 import ballerina/runtime;
 
-int total = 0;
 string responseMsg = "";
 const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
 const string RESP_MSG_FORMAT = "Failed: Invalid Response, expected %s, but received %s";
@@ -32,8 +31,14 @@ const string RESP_MSG_FORMAT = "Failed: Invalid Response, expected %s, but recei
 
 public function testBidiStreaming() returns string {
     grpc:StreamingClient ep = new;
-    ChatClient chatEp = new ("http://localhost:9093");
-    string response = "";
+    ChatClient chatEp = new ("https://localhost:9093", {
+        secureSocket: {
+            trustStore:{
+                path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password:"ballerina"
+            }
+        }
+    });
     // Executing unary non-blocking call registering server message listener.
     var res = chatEp->chat(ChatMessageListener);
     if (res is grpc:Error) {
@@ -105,7 +110,7 @@ public type ChatClient client object {
 
     private grpc:Client grpcClient;
 
-    function __init(string url, grpc:ClientEndpointConfig? config = ()) {
+    public function __init(string url, grpc:ClientEndpointConfig? config = ()) {
         // initialize client endpoint.
         grpc:Client c = new(url, config);
         grpc:Error? result = c.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());
@@ -117,7 +122,8 @@ public type ChatClient client object {
         }
     }
 
-    remote function chat(service msgListener, grpc:Headers? headers = ()) returns (grpc:StreamingClient|grpc:Error) {
+    public remote function chat(service msgListener, grpc:Headers? headers = ()) returns
+    (grpc:StreamingClient|grpc:Error) {
         return self.grpcClient->streamingExecute("Chat/chat", msgListener, headers);
     }
 };

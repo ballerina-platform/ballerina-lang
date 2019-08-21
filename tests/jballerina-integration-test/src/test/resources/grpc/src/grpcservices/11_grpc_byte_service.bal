@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/grpc;
-import ballerina/io;
 
 listener grpc:Listener ep11 = new (9101, {
     host:"localhost"

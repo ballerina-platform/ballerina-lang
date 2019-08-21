@@ -18,8 +18,6 @@
 
 package org.ballerinalang.net.http.websocketclientendpoint;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.MapValue;
@@ -61,11 +59,7 @@ import java.util.concurrent.TimeUnit;
                 structPackage = WebSocketConstants.FULL_PACKAGE_HTTP
         )
 )
-public class InitEndpoint extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class InitEndpoint {
 
     public static void initEndpoint(Strand strand, ObjectValue webSocketClient) {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)

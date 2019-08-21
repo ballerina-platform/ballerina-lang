@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.filepath.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.filepath.Constants;
@@ -42,13 +40,9 @@ import java.util.regex.PatternSyntaxException;
         functionName = "matches",
         isPublic = true
 )
-public class Matches extends BlockingNativeCallableUnit {
+public class Matches {
 
     private static final String GLOB_SYNTAX_FLAVOR = "glob:";
-
-    @Override
-    public void execute(Context context) {
-    }
 
     public static Object matches(Strand strand, String inputPath, String pattern) {
         FileSystem fs = FileSystems.getDefault();

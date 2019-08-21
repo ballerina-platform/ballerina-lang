@@ -18,15 +18,12 @@
 
 package org.ballerinalang.langlib.string;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.langlib.string.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -44,16 +41,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.UNION)},
         isPublic = true
 )
-public class IndexOf extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-        String param1 = context.getStringArgument(0);
-        String subString = context.getStringArgument(1);
-
-        BInteger intValue = new BInteger(param1.indexOf(subString));
-        context.setReturnValues(intValue);
-    }
+public class IndexOf {
 
     public static Object indexOf(Strand strand, String value, String subString, long startIndx) {
         StringUtils.checkForNull(value, subString);

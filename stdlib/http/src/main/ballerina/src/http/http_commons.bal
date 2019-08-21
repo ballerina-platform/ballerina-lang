@@ -15,6 +15,8 @@
 // under the License.
 
 import ballerina/internal;
+import ballerina/mime;
+import ballerina/io;
 
 # Represents HTTP/1.0 protocol
 const string HTTP_1_0 = "1.0";
@@ -168,7 +170,7 @@ public type ValidateCert record {|
 # + enable - The status of OCSP stapling
 # + cacheSize - Maximum size of the cache
 # + cacheValidityPeriod - The time period for which a cache entry is valid
-public type ServiceOcspStapling record {|
+public type ListenerOcspStapling record {|
     boolean enable = false;
     int cacheSize = 0;
     int cacheValidityPeriod = 0;

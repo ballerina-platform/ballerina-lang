@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.client.ExtendedLanguageClientAware;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderFactory;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvider;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.completions.LSCompletionProviderFactory;
@@ -41,7 +42,6 @@ import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceSe
 import org.ballerinalang.langserver.extensions.ballerina.traces.Listener;
 import org.ballerinalang.langserver.extensions.ballerina.traces.ProviderOptions;
 import org.ballerinalang.langserver.index.LSIndexImpl;
-import org.eclipse.lsp4j.CodeLensOptions;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.ExecuteCommandOptions;
 import org.eclipse.lsp4j.InitializeParams;
@@ -86,7 +86,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     public BallerinaLanguageServer(WorkspaceDocumentManager documentManager) {
         this.lsIndex = initLSIndex();
 
-        LSGlobalContext lsGlobalContext = new LSGlobalContext();
+        LSGlobalContext lsGlobalContext = new LSGlobalContext(LSContextOperation.LS_INIT);
         lsGlobalContext.put(LSGlobalContextKeys.LANGUAGE_SERVER_KEY, this);
         lsGlobalContext.put(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY, documentManager);
         lsGlobalContext.put(LSGlobalContextKeys.DIAGNOSTIC_HELPER_KEY, new DiagnosticsHelper());
@@ -120,19 +120,19 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         completionOptions.setTriggerCharacters(Arrays.asList(":", ".", ">", "@"));
 
         res.getCapabilities().setCompletionProvider(completionOptions);
-        res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Incremental);
+        res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
         res.getCapabilities().setSignatureHelpProvider(signatureHelpOptions);
         res.getCapabilities().setHoverProvider(true);
-        res.getCapabilities().setDocumentSymbolProvider(true);
-        res.getCapabilities().setDefinitionProvider(true);
-        res.getCapabilities().setReferencesProvider(true);
-        res.getCapabilities().setCodeActionProvider(true);
+//        res.getCapabilities().setDocumentSymbolProvider(true);
+//        res.getCapabilities().setDefinitionProvider(true);
+//        res.getCapabilities().setReferencesProvider(true);
+//        res.getCapabilities().setCodeActionProvider(true);
         res.getCapabilities().setExecuteCommandProvider(executeCommandOptions);
         res.getCapabilities().setDocumentFormattingProvider(true);
-        res.getCapabilities().setRenameProvider(true);
-        res.getCapabilities().setWorkspaceSymbolProvider(true);
-        res.getCapabilities().setImplementationProvider(true);
-        res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
+//        res.getCapabilities().setRenameProvider(true);
+//        res.getCapabilities().setWorkspaceSymbolProvider(true);
+//        res.getCapabilities().setImplementationProvider(true);
+//        res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
 
         TextDocumentClientCapabilities textDocCapabilities = params.getCapabilities().getTextDocument();
         ((BallerinaTextDocumentService) this.textService).setClientCapabilities(textDocCapabilities);
@@ -200,6 +200,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     @Override
     public void connect(ExtendedLanguageClient languageClient) {
         this.client = languageClient;
+        LSClientLogger.init(this.client, CommonUtil.LS_DEBUG_ENABLED, CommonUtil.LS_TRACE_ENABLED);
     }
 
     public BallerinaSymbolService getBallerinaSymbolService() {

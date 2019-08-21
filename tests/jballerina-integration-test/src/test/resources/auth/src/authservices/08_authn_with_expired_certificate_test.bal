@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/auth;
-import ballerina/crypto;
 import ballerina/http;
 import ballerina/jwt;
 
@@ -51,6 +49,6 @@ listener http:Listener listener08 = new(20009, {
 service echo08 on listener08 {
 
     resource function test(http:Caller caller, http:Request req) {
-        checkpanic caller -> respond(());
+        checkpanic caller->respond();
     }
 }

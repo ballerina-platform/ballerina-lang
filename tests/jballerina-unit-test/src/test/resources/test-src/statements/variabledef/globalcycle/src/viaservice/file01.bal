@@ -22,19 +22,19 @@ string b7a = "b7a";
 int port = o.p;
 
 Obj o = new();
+string str = "";
+int p = port;
 
 service hello on lis {
-    string str;
-    int p = port;
 
     function __init() {
-        self.str = b7a;
+        str = b7a;
     }
 
     resource function sayHello(http:Caller caller, http:Request request) {
 
         http:Response response = new;
-        response.setTextPayload(self.str);
+        response.setTextPayload(str);
         checkpanic caller->respond(response);
     }
 }

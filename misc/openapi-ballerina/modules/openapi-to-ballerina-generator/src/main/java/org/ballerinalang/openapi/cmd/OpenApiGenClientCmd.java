@@ -65,8 +65,6 @@ public class OpenApiGenClientCmd implements BLauncherCmd {
         } catch (IOException | BallerinaOpenApiException e) {
             throw LauncherUtils.createLauncherException(OpenApiMesseges.OPENAPI_CLIENT_EXCEPTION);
         }
-
-
     }
 
     @Override

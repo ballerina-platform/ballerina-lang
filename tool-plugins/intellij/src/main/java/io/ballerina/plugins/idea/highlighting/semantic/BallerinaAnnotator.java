@@ -46,7 +46,6 @@ import io.ballerina.plugins.idea.psi.BallerinaTableColumn;
 import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaTypes;
 import io.ballerina.plugins.idea.psi.BallerinaWorkerDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaXmlItem;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -98,16 +97,18 @@ public class BallerinaAnnotator implements Annotator {
                 annotateKeyword(element, holder, true);
                 annotateTemplateStart(element, holder);
             } else if (elementType == BallerinaTypes.STRING_TEMPLATE_LITERAL_END
-                    || elementType == BallerinaTypes.XML_LITERAL_END) {
+                    || elementType == BallerinaTypes.XML_LITERAL_END
+                    || elementType == BallerinaTypes.XML_ALL_CHAR) {
                 annotateText(element, holder);
             } else if (elementType == BallerinaTypes.STRING_TEMPLATE_TEXT) {
                 annotateText(element, holder);
-            } else if (elementType == BallerinaTypes.XML_TEMPLATE_TEXT
-                    || elementType == BallerinaTypes.XML_SINGLE_QUOTED_TEMPLATE_STRING
-                    || elementType == BallerinaTypes.XML_DOUBLE_QUOTED_TEMPLATE_STRING
-                    || elementType == BallerinaTypes.XML_PI_TEMPLATE_TEXT
-                    || elementType == BallerinaTypes.XML_COMMENT_TEMPLATE_TEXT) {
-                annotateExpressionTemplateStart(element, holder);
+                // Todo - restore after adding xml rules
+//            } else if (elementType == BallerinaTypes.XML_TEMPLATE_TEXT
+//                    || elementType == BallerinaTypes.XML_SINGLE_QUOTED_TEMPLATE_STRING
+//                    || elementType == BallerinaTypes.XML_DOUBLE_QUOTED_TEMPLATE_STRING
+//                    || elementType == BallerinaTypes.XML_PI_TEMPLATE_TEXT
+//                    || elementType == BallerinaTypes.XML_COMMENT_TEMPLATE_TEXT) {
+//                annotateExpressionTemplateStart(element, holder);
             } else if (elementType == BallerinaTypes.STRING_TEMPLATE_EXPRESSION_START) {
                 TextRange textRange = element.getTextRange();
                 int startOffset = textRange.getStartOffset() + element.getText().indexOf('$');
@@ -218,9 +219,10 @@ public class BallerinaAnnotator implements Annotator {
         } else if (element instanceof BallerinaCompletePackageName) {
             Annotation annotation = holder.createInfoAnnotation(element, null);
             annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.PACKAGE);
-        } else if (element instanceof BallerinaXmlItem) {
-            Annotation annotation = holder.createInfoAnnotation(element, null);
-            annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.STRING);
+            // Todo - restore after adding xml grammar
+//        } else if (element instanceof BallerinaXmlItem) {
+//            Annotation annotation = holder.createInfoAnnotation(element, null);
+//            annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.STRING);
         } else if (element instanceof BallerinaRecordKey) {
             // Todo - Do we need to highlight key?
         }

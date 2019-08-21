@@ -109,6 +109,10 @@ public class FunctionSignatureNegativeTest {
         BAssertUtil.validateError(result, i++, "too many arguments in call to 'getFloat()'", 115, 36);
         BAssertUtil.validateError(result, i++, "missing required parameter 'y' in call to " +
                 "'functionWithNoRestParam'()", 115, 5);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'z'", 122, 55);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'z'", 123, 50);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'z'", 126, 59);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'z'", 127, 54);
 
         Assert.assertEquals(i, result.getErrorCount());
     }

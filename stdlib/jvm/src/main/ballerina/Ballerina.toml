@@ -6,6 +6,13 @@ version = "0.0.0"
 target = "java"
 
     [[platform.libraries]]
+    artafactId = "jvm"
+    version = "@project.version@"
+    path = "./lib/ballerina-jvm-@project.version@.jar"
+    groupId = "ballerina"
+    modules = ["jvm"]
+
+    [[platform.libraries]]
     artafactId = "asm"
     version = "6.2.1"
     path = "./lib/asm-6.2.1.jar"

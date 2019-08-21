@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/reflect;
 import ballerina/io;
 
 const string assertFailureErrorCategory = "assert-failure";

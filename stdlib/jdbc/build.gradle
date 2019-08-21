@@ -48,7 +48,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
 
     baloCreat project(':lib-creator')
-    implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:annotations')
     testCompile project(':ballerina-io')
@@ -64,6 +63,7 @@ dependencies {
     testCompile project(':ballerina-system')
     testCompile project(':ballerina-runtime-api')
     testCompile project(':ballerina-utils')
+    testCompile project(':ballerina-core')
     implementation project(':ballerina-time')
     testCompile project(':ballerina-mime')
     testCompile project(':ballerina-transactions')

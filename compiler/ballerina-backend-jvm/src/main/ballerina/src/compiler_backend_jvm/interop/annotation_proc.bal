@@ -16,6 +16,7 @@
 
 import ballerina/bir;
 import ballerina/jvm;
+import ballerina/io;
 
 const NAME_FIELD_NAME = "name";
 const CLASS_FIELD_NAME = "class";

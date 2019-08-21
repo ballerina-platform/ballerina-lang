@@ -56,6 +56,7 @@ public type Function record {|
     ErrorEntry?[] errorEntries = [];
     VariableDcl?[] localVars = [];
     Name name = {};
+    Name workerName = {};
     BInvokableType typeValue = {};
     int flags = PRIVATE;
     ChannelDetail[] workerChannels;
@@ -218,6 +219,7 @@ public const int PRIVATE = 1024;
 public const int OPTIONAL = 8192;
 public const int REMOTE = 65536;
 public const SERVICE = 524288;
+public const WORKER = 16777216;
 
 
 //TODO try to make below details meta
@@ -523,8 +525,7 @@ public type NewStream record {|
     DiagnosticPos pos;
     InstructionKind kind;
     VarRef lhsOp;
-    VarRef nameOp;
-    BType typeValue;
+    BType streamType;
 |};
 
 public type NewInstance record {|

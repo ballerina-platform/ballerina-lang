@@ -24,11 +24,14 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.JSONUtils;
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -267,16 +270,16 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
      */
     private MapValue createCustomNotification(HttpCarbonMessage inboundRequest, AttachedFunction resource,
                                               ObjectValue httpRequest) {
-        String[] paramDetails = webSubServicesRegistry.getResourceDetails().get(resource.getName());
-        MapValue<String, Object> customNotification = BallerinaValues.createRecordValue(paramDetails[0],
-                                                                                        paramDetails[1]);
+        BRecordType recordType = webSubServicesRegistry.getResourceDetails().get(resource.getName());
+        MapValue<String, Object> customNotification =
+                BallerinaValues.createRecordValue(recordType.getPackage().getName(), recordType.getName());
         MapValue<String, ?> jsonBody = getJsonBody(httpRequest);
         inboundRequest.setProperty(ENTITY_ACCESSED_REQUEST, httpRequest);
         if (jsonBody != null) {
             return JSONUtils.convertJSONToRecord(jsonBody, (BStructureType) customNotification.getType());
         } else {
             throw new BallerinaException("JSON payload: null. Cannot create custom notification record: "
-                                                 + paramDetails[0] + ":" + paramDetails[1]);
+                                                 + recordType.getQualifiedName());
         }
     }
 
@@ -287,52 +290,77 @@ public class BallerinaWebSubConnectorListener extends BallerinaHTTPConnectorList
      * @param httpCarbonMessage the message/request received
      */
     private void autoRespondToIntentVerification(HttpCarbonMessage httpCarbonMessage) {
+        HttpCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
+        response.waitAndReleaseAllEntities();
+
+        if (httpCarbonMessage.getProperty(ANNOTATED_TOPIC) == null) {
+            console.println("ballerina: Intent Verification denied - expected topic details not found");
+            sendIntentVerificiationDenialResponse(httpCarbonMessage, response);
+            return;
+        }
+
+        if (httpCarbonMessage.getProperty(HttpConstants.QUERY_STR) == null) {
+            console.println("ballerina: Intent Verification denied - invalid intent verification request");
+            sendIntentVerificiationDenialResponse(httpCarbonMessage, response);
+            return;
+        }
+
         String annotatedTopic = httpCarbonMessage.getProperty(ANNOTATED_TOPIC).toString();
-        if (httpCarbonMessage.getProperty(HttpConstants.QUERY_STR) != null) {
-            String queryString = (String) httpCarbonMessage.getProperty(HttpConstants.QUERY_STR);
-            MapValue<String, Object> params = new MapValueImpl<>();
-            try {
-                HttpCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
-                response.waitAndReleaseAllEntities();
-                URIUtil.populateQueryParamMap(queryString, params);
-                if (!params.containsKey(PARAM_HUB_MODE) || !params.containsKey(PARAM_HUB_TOPIC) ||
-                        !params.containsKey(PARAM_HUB_CHALLENGE)) {
-                    response.setHttpStatusCode(HttpResponseStatus.NOT_FOUND.code());
-                    response.addHttpContent(new DefaultLastHttpContent());
-                    HttpUtil.sendOutboundResponse(httpCarbonMessage, response);
-                    console.println("error: Error auto-responding to intent verification request: Mode, Topic "
-                                            + "and/or challenge not specified");
-                }
-                String mode = getParamStringValue(params, PARAM_HUB_MODE);
-                if ((SUBSCRIBE.equals(mode) || UNSUBSCRIBE.equals(mode))
-                        && annotatedTopic.equals(getParamStringValue(params, PARAM_HUB_TOPIC))) {
-                    String challenge = getParamStringValue(params, PARAM_HUB_CHALLENGE);
-                    response.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(
-                            challenge.getBytes(StandardCharsets.UTF_8))));
-                    response.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN);
-                    response.setHttpStatusCode(HttpResponseStatus.ACCEPTED.code());
-                    String intentVerificationMessage = "ballerina: Intent Verification agreed - Mode [" + mode
-                            + "], Topic [" + annotatedTopic + "]";
-                    if (params.containsKey(PARAM_HUB_LEASE_SECONDS)) {
-                        intentVerificationMessage = intentVerificationMessage.concat(
-                                ", Lease Seconds [" + getParamStringValue(params, PARAM_HUB_LEASE_SECONDS) + "]");
-                    }
-                    console.println(intentVerificationMessage);
-                } else {
-                    console.println("ballerina: Intent Verification denied - Mode [" + mode + "], Topic ["
-                                            + getParamStringValue(params, PARAM_HUB_TOPIC) + "]");
-                    response.setHttpStatusCode(HttpResponseStatus.NOT_FOUND.code());
-                    response.addHttpContent(new DefaultLastHttpContent());
-                }
-                HttpUtil.sendOutboundResponse(httpCarbonMessage, response);
-            } catch (UnsupportedEncodingException e) {
-                throw new BallerinaConnectorException("Error responding to intent verification request: "
-                                                              + e.getMessage());
+        String queryString = (String) httpCarbonMessage.getProperty(HttpConstants.QUERY_STR);
+        MapValue<String, Object> params = new MapValueImpl<>();
+        try {
+            URIUtil.populateQueryParamMap(queryString, params);
+            if (!params.containsKey(PARAM_HUB_MODE) || !params.containsKey(PARAM_HUB_TOPIC) ||
+                    !params.containsKey(PARAM_HUB_CHALLENGE)) {
+                sendIntentVerificiationDenialResponse(httpCarbonMessage, response);
+                console.println("error: Error auto-responding to intent verification request: Mode, Topic "
+                                        + "and/or challenge not specified");
+                return;
             }
+
+            String mode = getParamStringValue(params, PARAM_HUB_MODE);
+            if ((SUBSCRIBE.equals(mode) || UNSUBSCRIBE.equals(mode))
+                    && annotatedTopic.equals(getParamStringValue(params, PARAM_HUB_TOPIC))) {
+                String challenge = getParamStringValue(params, PARAM_HUB_CHALLENGE);
+                response.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(
+                        challenge.getBytes(StandardCharsets.UTF_8))));
+                response.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN);
+                response.setHttpStatusCode(HttpResponseStatus.ACCEPTED.code());
+                String intentVerificationMessage = "ballerina: Intent Verification agreed - Mode [" + mode
+                        + "], Topic [" + annotatedTopic + "]";
+                if (params.containsKey(PARAM_HUB_LEASE_SECONDS)) {
+                    intentVerificationMessage = intentVerificationMessage.concat(
+                            ", Lease Seconds [" + getParamStringValue(params, PARAM_HUB_LEASE_SECONDS) + "]");
+                }
+                console.println(intentVerificationMessage);
+                HttpUtil.sendOutboundResponse(httpCarbonMessage, response);
+            } else {
+                console.println("ballerina: Intent Verification denied - Mode [" + mode + "], Topic ["
+                                        + getParamStringValue(params, PARAM_HUB_TOPIC) + "]");
+                sendIntentVerificiationDenialResponse(httpCarbonMessage, response);
+            }
+        } catch (UnsupportedEncodingException e) {
+            console.println("ballerina: Intent Verification denied - error extracting query parameters: " +
+                                    e.getMessage());
+            sendIntentVerificiationDenialResponse(httpCarbonMessage, response);
         }
     }
 
+    private static void sendIntentVerificiationDenialResponse(HttpCarbonMessage httpCarbonMessage,
+                                                              HttpCarbonMessage response) {
+        response.setHttpStatusCode(HttpResponseStatus.NOT_FOUND.code());
+        response.addHttpContent(new DefaultLastHttpContent());
+        HttpUtil.sendOutboundResponse(httpCarbonMessage, response);
+    }
+
     private String getParamStringValue(MapValue<String, Object> params, String key) {
-        return ((ArrayValue) params.get(key)).get(0).toString();
+        if (!params.containsKey(key)) {
+            return "";
+        }
+        Object param = params.get(key);
+        if (TypeChecker.getType(param).getTag() != TypeTags.ARRAY_TAG || ((ArrayValue) param).size() < 1) {
+            return "";
+        }
+        return ((ArrayValue) param).get(0).toString();
     }
 }

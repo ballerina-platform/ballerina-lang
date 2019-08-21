@@ -1,3 +1,0 @@
-sensorStream=[tempID1,99.8]
-delay(100)
-sensorStream=[tempID2,80.6]

@@ -23,7 +23,6 @@ under the License.
     <test name="ballerina-toml-parser-test-suite" preserve-order="true" parallel="false">
         <packages>
             <package name="org.ballerinalang.toml.*"/>
-            <!--<package name="org.ballerinalang.packerina.init"/>-->
         </packages>
     </test>
     <test name="ballerina-compiler-util-test-suite" preserve-order="true" parallel="false">

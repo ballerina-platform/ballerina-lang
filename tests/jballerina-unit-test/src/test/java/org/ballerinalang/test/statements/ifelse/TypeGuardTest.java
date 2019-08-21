@@ -42,16 +42,16 @@ public class TypeGuardTest {
         result = BCompileUtil.compile("test-src/statements/ifelse/type-guard.bal");
     }
 
-    @Test(enabled = false)
+    @Test()
     public void testTypeGuardNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/statements/ifelse/type-guard-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 54);
+        Assert.assertEquals(negativeResult.getErrorCount(), 53);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 22, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 25, 20);
-        BAssertUtil.validateError(negativeResult, i++, "undefined field 'b' in record 'A'", 43, 16);
-        BAssertUtil.validateError(negativeResult, i++, "undefined field 'c' in record 'A'", 43, 28);
-        BAssertUtil.validateError(negativeResult, i++, "undefined field 'a' in record 'B'", 45, 16);
+        BAssertUtil.validateError(negativeResult, i++, "undefined field 'b' in 'A'", 43, 16);
+        BAssertUtil.validateError(negativeResult, i++, "undefined field 'c' in 'A'", 43, 31);
+        BAssertUtil.validateError(negativeResult, i++, "undefined field 'a' in 'B'", 45, 16);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'string' will not be matched to 'int'", 54,
                 27);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found '(string|int)'",
@@ -62,11 +62,9 @@ public class TypeGuardTest {
                 "unnecessary condition: expression will always evaluate to 'true'", 82, 13);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'string' will not be matched to 'int'", 86,
                 13);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'other' cannot be converted to 'string'",
-                                  87, 30);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: '(float|boolean)' will not be matched to 'string'", 106, 16);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 131, 16);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 131, 22);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: expected '(int|string|boolean)', found 'float'", 133, 13);
         BAssertUtil.validateError(negativeResult, i++, "invalid literal for type '(int|string|boolean)'", 137, 9);

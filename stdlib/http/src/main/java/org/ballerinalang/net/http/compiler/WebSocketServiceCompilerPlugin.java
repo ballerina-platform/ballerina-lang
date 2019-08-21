@@ -63,8 +63,9 @@ public class WebSocketServiceCompilerPlugin extends AbstractTransportCompilerPlu
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
         List<BLangFunction> resources = (List<BLangFunction>) serviceNode.getResources();
         // If first resource's first parameter is HttpCaller, do not process in this plugin.
-        if (HttpConstants.HTTP_CALLER_NAME.equals(
-                resources.get(0).getParameters().get(0).type.toString())) {
+        // This is done on the assumption of resources does not mix each other (HTTP and WebSocket)
+        if (resources.size() > 0 && resources.get(0).getParameters().size() > 0
+                && HttpConstants.HTTP_CALLER_NAME.equals(resources.get(0).getParameters().get(0).type.toString())) {
             return;
         }
         if (annotations.size() > 1) {

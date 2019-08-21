@@ -24,6 +24,7 @@ import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,6 +38,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
 
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
@@ -45,6 +47,8 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
  * Task for creating the executable jar file.
  */
 public class CreateExecutableTask implements Task {
+    
+    private static HashSet<String> excludeExtensions =  new HashSet<>(Lists.of("DSA", "SF"));
     
     @Override
     public void execute(BuildContext buildContext) {
@@ -146,7 +150,9 @@ public class CreateExecutableTask implements Task {
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             Path toFile = toPath.resolve(fromPath.relativize(file).toString());
-            if (!Files.exists(toFile)) {
+            String fileName = toFile.getFileName().toString();
+            if (!Files.exists(toFile) && !excludeExtensions
+                    .contains(fileName.substring(fileName.lastIndexOf(".") + 1))) {
                 Files.copy(file, toFile, copyOption);
             }
             return FileVisitResult.CONTINUE;

@@ -18,8 +18,6 @@
 
 package org.ballerinalang.stdlib.system.nativeimpl;
 
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -38,11 +36,7 @@ import java.util.UUID;
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class Uuid extends BlockingNativeCallableUnit {
-
-    @Override
-    public void execute(Context context) {
-    }
+public class Uuid {
 
     public static String uuid(Strand strand) {
         return UUID.randomUUID().toString();

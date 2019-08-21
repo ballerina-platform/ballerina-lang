@@ -1,5 +1,4 @@
 import ballerina/http;
-import ballerina/mime;
 import ballerina/io;
 
 function testContentType(http:Response res, string contentTypeValue) returns @tainted string? {
@@ -133,7 +132,7 @@ service hello on mockEP {
         res.setHeader(<@untainted string> header, value);
         string result = <@untainted string> res.getHeader(<@untainted string> header);
         res.setJsonPayload({value:result});
-        checkpanic caller->respond(res);
+        checkpanic caller->respond(<@untainted> res);
     }
 
     @http:ResourceConfig {
@@ -195,11 +194,11 @@ service hello on mockEP {
         res.setHeader(<@untainted string> key, value);
         res.removeHeader(<@untainted string> key);
         string header = "";
-        if (!res.hasHeader(key)) {
+        if (!res.hasHeader(<@untainted> key)) {
             header = "value is null";
         }
         res.setJsonPayload({value:header});
-        checkpanic caller->respond(res);
+        checkpanic caller->respond(<@untainted> res);
     }
 
     @http:ResourceConfig {

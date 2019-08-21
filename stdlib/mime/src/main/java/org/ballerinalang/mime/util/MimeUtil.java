@@ -20,29 +20,18 @@ package org.ballerinalang.mime.util;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.util.internal.PlatformDependent;
-import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
-import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BStreamingJSON;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueArray;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.ByteArrayOutputStream;
@@ -102,23 +91,6 @@ public class MimeUtil {
      * @param entity Represent an 'Entity'
      * @return content-type in 'primarytype/subtype' format
      */
-    public static String getBaseType(BMap<String, BValue> entity) {
-        if (entity.get(MEDIA_TYPE_FIELD) != null) {
-            BMap<String, BValue> mediaType = (BMap<String, BValue>) entity.get(MEDIA_TYPE_FIELD);
-            if (mediaType != null) {
-                return mediaType.get(PRIMARY_TYPE_FIELD).stringValue() + "/" +
-                        mediaType.get(SUBTYPE_FIELD).stringValue();
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Given a ballerina entity, get the content-type as a base type.
-     *
-     * @param entity Represent an 'Entity'
-     * @return content-type in 'primarytype/subtype' format
-     */
     public static String getBaseType(ObjectValue entity) {
         if (entity.get(MEDIA_TYPE_FIELD) != null) {
             ObjectValue mediaType = (ObjectValue) entity.get(MEDIA_TYPE_FIELD);
@@ -128,34 +100,6 @@ public class MimeUtil {
             }
         }
         return null;
-    }
-
-    /**
-     * Given a ballerina entity, get the content-type with parameters included.
-     *
-     * @param entity Represent an 'Entity'
-     * @return content-type in 'primarytype/subtype; key=value;' format
-     */
-    public static String getContentTypeWithParameters(BMap<String, BValue> entity) {
-        if (entity.get(MEDIA_TYPE_FIELD) == null) {
-            return HeaderUtil.getHeaderValue(entity, HttpHeaderNames.CONTENT_TYPE.toString());
-        }
-        BMap<String, BValue> mediaType = (BMap<String, BValue>) entity.get(MEDIA_TYPE_FIELD);
-        String primaryType = mediaType.get(PRIMARY_TYPE_FIELD).stringValue();
-        String subType = mediaType.get(SUBTYPE_FIELD).stringValue();
-        String contentType = null;
-        if ((primaryType != null && !primaryType.isEmpty()) && (subType != null && !subType.isEmpty())) {
-            contentType = primaryType + "/" + subType;
-            if (mediaType.get(PARAMETER_MAP_FIELD) != null) {
-                BMap map = mediaType.get(PARAMETER_MAP_FIELD) != null ?
-                        (BMap) mediaType.get(PARAMETER_MAP_FIELD) : null;
-                if (map != null && !map.isEmpty()) {
-                    contentType = contentType + SEMICOLON;
-                    return HeaderUtil.appendHeaderParams(new StringBuilder(contentType), map);
-                }
-            }
-        }
-        return contentType;
     }
 
     /**
@@ -228,23 +172,6 @@ public class MimeUtil {
      * @param entityStruct Represent 'Entity' struct
      * @param contentType  Content-Type value in string
      */
-    public static void setContentType(BMap<String, BValue> mediaType, BMap<String, BValue> entityStruct,
-                                      String contentType) {
-        BMap<String, BValue> mimeType = parseMediaType(mediaType, contentType);
-        if (contentType == null) {
-            mimeType.put(PRIMARY_TYPE_FIELD, new BString(DEFAULT_PRIMARY_TYPE));
-            mimeType.put(SUBTYPE_FIELD, new BString(DEFAULT_SUB_TYPE));
-        }
-        entityStruct.put(MEDIA_TYPE_FIELD, mimeType);
-    }
-
-    /**
-     * Construct 'MediaType' struct with the given Content-Type and set it into the given 'Entity'.
-     *
-     * @param mediaType    Represent 'MediaType' struct
-     * @param entityStruct Represent 'Entity' struct
-     * @param contentType  Content-Type value in string
-     */
     public static void setContentType(ObjectValue mediaType, ObjectValue entityStruct,
                                       String contentType) {
         ObjectValue mimeType = parseMediaType(mediaType, contentType);
@@ -253,53 +180,6 @@ public class MimeUtil {
             mimeType.set(SUBTYPE_FIELD, DEFAULT_SUB_TYPE);
         }
         entityStruct.set(MEDIA_TYPE_FIELD, mimeType);
-    }
-
-    /**
-     * Parse 'MediaType' struct with the given Content-Type.
-     *
-     * @param mediaType   Represent 'MediaType' struct
-     * @param contentType Content-Type value in string
-     * @return 'MediaType' struct populated with values
-     */
-    public static BMap<String, BValue> parseMediaType(BMap<String, BValue> mediaType, String contentType) {
-        try {
-            BMap<String, BValue> parameterMap = new BMap<>();
-            BString suffix, primaryType, subType;
-
-            if (contentType != null) {
-                MimeType mimeType = new MimeType(contentType);
-                primaryType = new BString(mimeType.getPrimaryType());
-
-                String subTypeStr = mimeType.getSubType();
-                subType = new BString(subTypeStr);
-                if (subTypeStr != null && subTypeStr.contains(SUFFIX_ATTACHMENT)) {
-                    suffix = new BString(
-                            subTypeStr.substring(subTypeStr.lastIndexOf(SUFFIX_ATTACHMENT) + 1));
-                } else {
-                    suffix = org.ballerinalang.model.types.BTypes.typeString.getZeroValue();
-                }
-
-                MimeTypeParameterList parameterList = mimeType.getParameters();
-                Enumeration keys = parameterList.getNames();
-
-                while (keys.hasMoreElements()) {
-                    String key = (String) keys.nextElement();
-                    String value = parameterList.get(key);
-                    parameterMap.put(key, new BString(value));
-                }
-            } else {
-                primaryType = suffix = subType = org.ballerinalang.model.types.BTypes.typeString.getZeroValue();
-            }
-
-            mediaType.put(PRIMARY_TYPE_FIELD, primaryType);
-            mediaType.put(SUBTYPE_FIELD, subType);
-            mediaType.put(SUFFIX_FIELD, suffix);
-            mediaType.put(PARAMETER_MAP_FIELD, parameterMap);
-        } catch (MimeTypeParseException e) {
-            throw new BallerinaException("Error while parsing Content-Type value: " + e.getMessage());
-        }
-        return mediaType;
     }
 
     /**
@@ -349,12 +229,6 @@ public class MimeUtil {
         return mediaType;
     }
 
-    public static void setMediaTypeToEntity(Context context, BMap<String, BValue> entityStruct, String contentType) {
-        BMap<String, BValue> mediaType = BLangConnectorSPIUtil.createObject(context, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
-        MimeUtil.setContentType(mediaType, entityStruct, contentType);
-        HeaderUtil.setHeaderToEntity(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
-    }
-
     public static void setMediaTypeToEntity(ObjectValue entityStruct, String contentType) {
         ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
         MimeUtil.setContentType(mediaType, entityStruct, contentType);
@@ -368,56 +242,10 @@ public class MimeUtil {
      * @param bodyPart                           Represent a body part
      * @param contentDispositionHeaderWithParams Represent Content-Disposition header value with parameters
      */
-    public static void setContentDisposition(BMap<String, BValue> contentDisposition, BMap<String, BValue> bodyPart,
-                                             String contentDispositionHeaderWithParams) {
-        populateContentDispositionObject(contentDisposition, contentDispositionHeaderWithParams);
-        bodyPart.put(CONTENT_DISPOSITION_FIELD, contentDisposition);
-    }
-
-    /**
-     * Populate ContentDisposition struct and set it to body part.
-     *
-     * @param contentDisposition                 Represent the ContentDisposition struct that needs to be filled
-     * @param bodyPart                           Represent a body part
-     * @param contentDispositionHeaderWithParams Represent Content-Disposition header value with parameters
-     */
     public static void setContentDisposition(ObjectValue contentDisposition, ObjectValue bodyPart,
                                              String contentDispositionHeaderWithParams) {
         populateContentDispositionObject(contentDisposition, contentDispositionHeaderWithParams);
         bodyPart.set(CONTENT_DISPOSITION_FIELD, contentDisposition);
-    }
-
-    public static void populateContentDispositionObject(BMap<String, BValue> contentDisposition,
-                                                        String contentDispositionHeaderWithParams) {
-        String dispositionValue;
-        if (isNotNullAndEmpty(contentDispositionHeaderWithParams)) {
-            if (contentDispositionHeaderWithParams.contains(SEMICOLON)) {
-                dispositionValue = HeaderUtil.getHeaderValue(contentDispositionHeaderWithParams);
-            } else {
-                dispositionValue = contentDispositionHeaderWithParams;
-            }
-            contentDisposition.put(DISPOSITION_FIELD, new BString(dispositionValue));
-            BMap<String, BValue> paramMap = HeaderUtil.getParamBMap(contentDispositionHeaderWithParams);
-            if (paramMap != null) {
-                for (String key : paramMap.keys()) {
-                    BString paramValue = (BString) paramMap.get(key);
-                    switch (key) {
-                        case CONTENT_DISPOSITION_FILE_NAME:
-                            contentDisposition.put(CONTENT_DISPOSITION_FILENAME_FIELD,
-                                                   new BString(stripQuotes(paramValue.toString())));
-                            break;
-                        case CONTENT_DISPOSITION_NAME:
-                            contentDisposition.put(CONTENT_DISPOSITION_NAME_FIELD,
-                                                   new BString(stripQuotes(paramValue.toString())));
-                            break;
-                        default:
-                    }
-                }
-                paramMap.remove(CONTENT_DISPOSITION_FILE_NAME);
-                paramMap.remove(CONTENT_DISPOSITION_NAME);
-            }
-            contentDisposition.put(CONTENT_DISPOSITION_PARA_MAP_FIELD, paramMap);
-        }
     }
 
     public static void populateContentDispositionObject(ObjectValue contentDisposition,
@@ -455,35 +283,6 @@ public class MimeUtil {
      * @param entity Represent an 'Entity'
      * @return content-type in 'primarytype/subtype; key=value;' format
      */
-    public static String getContentDisposition(BMap<String, BValue> entity) {
-        StringBuilder dispositionBuilder = new StringBuilder();
-        if (entity.get(CONTENT_DISPOSITION_FIELD) != null) {
-            BMap<String, BValue> contentDispositionStruct =
-                    (BMap<String, BValue>) entity.get(CONTENT_DISPOSITION_FIELD);
-            if (contentDispositionStruct != null) {
-                BValue disposition = contentDispositionStruct.get(DISPOSITION_FIELD);
-                if (disposition == null || disposition.stringValue().isEmpty()) {
-                    String contentType = getBaseType(entity);
-                    if (contentType != null && contentType.equals(MULTIPART_FORM_DATA)) {
-                        dispositionBuilder.append(FORM_DATA_PARAM);
-                    }
-                } else {
-                    dispositionBuilder.append(disposition);
-                }
-                if (!dispositionBuilder.toString().isEmpty()) {
-                    dispositionBuilder = convertDispositionObjectToString(dispositionBuilder, contentDispositionStruct);
-                }
-            }
-        }
-        return dispositionBuilder.toString();
-    }
-
-    /**
-     * Given a ballerina entity, build the content-disposition header value from 'ContentDisposition' object.
-     *
-     * @param entity Represent an 'Entity'
-     * @return content-type in 'primarytype/subtype; key=value;' format
-     */
     public static String getContentDisposition(ObjectValue entity) {
         StringBuilder dispositionBuilder = new StringBuilder();
         if (entity.get(CONTENT_DISPOSITION_FIELD) != null) {
@@ -505,33 +304,6 @@ public class MimeUtil {
             }
         }
         return dispositionBuilder.toString();
-    }
-
-    public static StringBuilder convertDispositionObjectToString(StringBuilder dispositionBuilder,
-                                                                 BMap<String, BValue> contentDispositionStruct) {
-        BValue nameBVal = contentDispositionStruct.get(CONTENT_DISPOSITION_NAME_FIELD);
-        String name = nameBVal != null ? nameBVal.stringValue() : null;
-
-        BValue fileNameBVal = contentDispositionStruct.get(CONTENT_DISPOSITION_FILENAME_FIELD);
-        String fileName = fileNameBVal != null ? fileNameBVal.stringValue() : null;
-
-        if (isNotNullAndEmpty(name)) {
-            appendSemiColon(dispositionBuilder).append(CONTENT_DISPOSITION_NAME).append(ASSIGNMENT).append(
-                    includeQuotes(name)).append(SEMICOLON);
-        }
-        if (isNotNullAndEmpty(fileName)) {
-            appendSemiColon(dispositionBuilder).append(CONTENT_DISPOSITION_FILE_NAME).append(ASSIGNMENT)
-                    .append(includeQuotes(fileName)).append(SEMICOLON);
-        }
-        if (contentDispositionStruct.get(CONTENT_DISPOSITION_PARA_MAP_FIELD) != null) {
-            BMap map = (BMap) contentDispositionStruct.get(CONTENT_DISPOSITION_PARA_MAP_FIELD);
-            HeaderUtil.appendHeaderParams(appendSemiColon(dispositionBuilder), map);
-        }
-
-        if (dispositionBuilder.toString().endsWith(SEMICOLON)) {
-            dispositionBuilder.setLength(dispositionBuilder.length() - 1);
-        }
-        return dispositionBuilder;
     }
 
     public static StringBuilder convertDispositionObjectToString(StringBuilder dispositionBuilder,
@@ -566,16 +338,6 @@ public class MimeUtil {
             disposition.append(SEMICOLON);
         }
         return disposition;
-    }
-
-    /**
-     * Populate given 'Entity' with it's body size.
-     *
-     * @param entityStruct Represent 'Entity'
-     * @param length       Size of the entity body
-     */
-    public static void setContentLength(BMap<String, BValue> entityStruct, long length) {
-        entityStruct.put(SIZE_FIELD, new BInteger(length));
     }
 
     /**
@@ -678,18 +440,6 @@ public class MimeUtil {
      * @param bodyPart Represent a ballerina body part
      * @return A boolean indicating nested parts availability
      */
-    static boolean isNestedPartsAvailable(BMap<String, BValue> bodyPart) {
-        String contentTypeOfChildPart = MimeUtil.getBaseType(bodyPart);
-        return contentTypeOfChildPart != null && contentTypeOfChildPart.startsWith(MULTIPART_AS_PRIMARY_TYPE) &&
-                bodyPart.getNativeData(BODY_PARTS) != null;
-    }
-
-    /**
-     * Given a body part, check whether any nested parts are available.
-     *
-     * @param bodyPart Represent a ballerina body part
-     * @return A boolean indicating nested parts availability
-     */
     static boolean isNestedPartsAvailable(ObjectValue bodyPart) {
         String contentTypeOfChildPart = MimeUtil.getBaseType(bodyPart);
         return contentTypeOfChildPart != null && contentTypeOfChildPart.startsWith(MULTIPART_AS_PRIMARY_TYPE) &&
@@ -708,20 +458,6 @@ public class MimeUtil {
         return BallerinaErrors.createError(reason, populateMimeErrorRecord(errMsg));
     }
 
-    public static boolean isJSONContentType(BMap<String, BValue> entityStruct) {
-        String baseType;
-        try {
-            baseType = HeaderUtil.getBaseType(entityStruct);
-            if (baseType == null) {
-                return false;
-            }
-            return baseType.toLowerCase(Locale.getDefault()).endsWith(JSON_TYPE_IDENTIFIER) ||
-                    baseType.toLowerCase(Locale.getDefault()).endsWith(JSON_SUFFIX);
-        } catch (MimeTypeParseException e) {
-            throw new BallerinaException("Error while parsing Content-Type value: " + e.getMessage());
-        }
-    }
-
     public static boolean isJSONContentType(ObjectValue entityStruct) {
         String baseType;
         try {
@@ -733,23 +469,6 @@ public class MimeUtil {
                     baseType.toLowerCase(Locale.getDefault()).endsWith(JSON_SUFFIX);
         } catch (MimeTypeParseException e) {
             throw new BallerinaException("Error while parsing Content-Type value: " + e.getMessage());
-        }
-    }
-
-    public static boolean isJSONCompatible(BType type) {
-        switch (type.getTag()) {
-            case org.ballerinalang.model.types.TypeTags.INT_TAG:
-            case org.ballerinalang.model.types.TypeTags.FLOAT_TAG:
-            case org.ballerinalang.model.types.TypeTags.STRING_TAG:
-            case org.ballerinalang.model.types.TypeTags.BOOLEAN_TAG:
-            case org.ballerinalang.model.types.TypeTags.JSON_TAG:
-                return true;
-            case org.ballerinalang.model.types.TypeTags.ARRAY_TAG:
-                return isJSONCompatible(((BArrayType) type).getElementType());
-            case org.ballerinalang.model.types.TypeTags.MAP_TAG:
-                return isJSONCompatible(((BMapType) type).getConstrainedType());
-            default:
-                return false;
         }
     }
 
@@ -770,19 +489,6 @@ public class MimeUtil {
         }
     }
 
-    public static BString getMessageAsString(BValue dataSource) {
-        org.ballerinalang.model.types.BType type = dataSource.getType();
-        if (type.getTag() == org.ballerinalang.model.types.TypeTags.STRING_TAG) {
-            return (BString) dataSource;
-        } else if (type.getTag() == org.ballerinalang.model.types.TypeTags.ARRAY_TAG &&
-                ((org.ballerinalang.model.types.BArrayType) type).getElementType().getTag() == org.ballerinalang
-                        .model.types.TypeTags.BYTE_TAG) {
-            return new BString(new String(((BValueArray) dataSource).getBytes(), StandardCharsets.UTF_8));
-        }
-
-        return new BString(dataSource.stringValue());
-    }
-
     public static String getMessageAsString(Object dataSource) {
         org.ballerinalang.jvm.types.BType type = TypeChecker.getType(dataSource);
 //        if (TypeChecker.checkIsType(dataSource, BTypes.typeString)) {
@@ -794,23 +500,6 @@ public class MimeUtil {
         }
 
         return dataSource.toString();
-    }
-
-    /**
-     * Check whether a given value should be serialized specifically as a JSON.
-     *
-     * @param value        Value to serialize
-     * @param entityRecord Entity record
-     * @return flag indicating whether the given value should be serialized specifically as a JSON
-     */
-    public static boolean generateAsJSON(BValue value, BMap<String, BValue> entityRecord) {
-        if (value instanceof BStreamingJSON) {
-            // Streaming JSON should be serialized using the serialize() method.
-            // Hence returning false.
-            return false;
-        }
-
-        return isJSONContentType(entityRecord) && isJSONCompatible(value.getType());
     }
 
     /**

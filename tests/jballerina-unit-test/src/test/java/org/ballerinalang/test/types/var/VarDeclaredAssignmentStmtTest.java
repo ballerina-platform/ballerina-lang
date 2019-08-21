@@ -157,7 +157,11 @@ public class VarDeclaredAssignmentStmtTest {
     public void testVarTypeInServiceLevelVariableDefStatement() {
         //var type is not not allowed in service level variable def statements
         CompileResult res = BCompileUtil.compile("test-src/types/var/service-level-variable-def-with-var-negative.bal");
-        BAssertUtil.validateError(res, 0, "extraneous input 'var'", 5, 5);
+        BAssertUtil.validateError(res, 0,
+                                  "mismatched input 'var'. expecting {'public', 'private', 'resource', 'function', " +
+                                          "'remote', '}', '@', DocumentationLineStart}", 4, 5);
+        BAssertUtil.validateError(res, 1, "extraneous input 'resource'", 6, 5);
+        BAssertUtil.validateError(res, 2, "extraneous input '}'", 12, 1);
     }
 
     @Test

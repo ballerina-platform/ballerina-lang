@@ -1,21 +1,17 @@
 NAME
-    Ballerina pull - Download modules from Ballerina Central
+    Ballerina dist pull - Pull and use a given distribution version
 
 SYNOPSIS
-    ballerina pull <org-name>/<module-name>[:version]
+    ballerina dist pull <distribution-version>
 
 DESCRIPTION
-     Download the given module from the Ballerina Central
-     (https://central.ballerina.io/) repository and install to the home
-     repository. By default, the module will be placed within the
-     Ballerina home repository of the user. 
+     Pull and use a given Ballerina version from project repository.
 
 OPTIONS
-     The `ballerina pull` command does not take any options.
+     Ballerina dist pull command takes no options.
 
 EXAMPLES
-     Download the Gmail connector by WSO2 from Ballerina Central: 
-     $ ballerina pull wso2/gmail
+     Install Ballerina 1.0.0 version
+     $ ballerina dist pull jballerina-1.0.0
 
-     Download the Bar module by Foo organization from Ballerina Central:
-     $ ballerina pull foo/bar
+     This will download and keep jballerina-1.0.0 distribution and set ballerina command

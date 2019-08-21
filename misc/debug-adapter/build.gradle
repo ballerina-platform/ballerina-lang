@@ -9,6 +9,7 @@ dependencies {
     implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.debug:0.7.1'
     implementation project(':ballerina-lang')
     implementation 'org.apache.commons:commons-compress:1.18'
+    implementation 'org.slf4j:slf4j-jdk14'
     implementation files(org.gradle.internal.jvm.Jvm.current().toolsJar)
 }
 

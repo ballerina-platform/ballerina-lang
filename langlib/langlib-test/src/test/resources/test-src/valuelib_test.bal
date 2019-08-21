@@ -5,7 +5,13 @@ function testToJsonString() returns map<string> {
     json aNumber = 10;
     json aFloatNumber = 10.5;
     json anArray = ["hello", "world"];
+    map<string> aStringMap = { name : "anObject", value : "10", sub : "Science"};
+    map<()|int|float|boolean|string| map<json>> anotherMap = { name : "anObject", value : "10", sub : "Science",
+        intVal: 2324, boolVal: true, floatVal: 45.4, nestedMap: {xx: "XXStr", n: 343, nilVal: ()}};
     json anObject = { name : "anObject", value : 10, sub : { subName : "subObject", subValue : 10 }};
+    map<()|int|float|boolean|string| map<json>>[] aArr =
+        [{ name : "anObject", value : "10", sub : "Science", intVal: 2324, boolVal: true, floatVal: 45.4, nestedMap:
+        {xx: "XXStr", n: 343, nilVal: ()}}, { name : "anObject", value : "10", sub : "Science"}];
     map<string> result = {};
 
     result["aNil"] = aNil.toJsonString();
@@ -14,6 +20,9 @@ function testToJsonString() returns map<string> {
     result["aFloatNumber"] = aFloatNumber.toJsonString();
     result["anArray"] = anArray.toJsonString();
     result["anObject"] = anObject.toJsonString();
+    result["aStringMap"] = aStringMap.toJsonString();
+    result["anotherMap"] = anotherMap.toJsonString();
+    result["aArr"] = aArr.toJsonString();
     return result;
 }
 

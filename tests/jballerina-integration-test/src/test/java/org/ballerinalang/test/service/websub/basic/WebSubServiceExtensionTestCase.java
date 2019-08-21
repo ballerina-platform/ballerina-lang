@@ -51,6 +51,8 @@ public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
     private static final String MOCK_HEADER = "MockHeader";
     private static final int LOG_LEECHER_TIMEOUT = 10000;
 
+    private static final String INTENT_VER_REQ_RECEIVED_LOG = "Intent verification request received";
+
     private static final String BY_KEY_CREATED_LOG = "Created Notification Received, action: created";
     private static final String BY_KEY_FEATURE_LOG = "Feature Notification Received, domain: feature";
 
@@ -67,6 +69,8 @@ public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
             "HeaderOnly Notification Received, header value: headeronly action: header_only";
     private static final String BY_HEADER_AND_PAYLOAD_KEY_ONLY_LOG =
             "KeyOnly Notification Received, header value: key_only action: keyonly";
+
+    private LogLeecher intentVerReqReceivedLogLeecher = new LogLeecher(INTENT_VER_REQ_RECEIVED_LOG);
 
     private LogLeecher byKeyCreatedLogLeecher = new LogLeecher(BY_KEY_CREATED_LOG);
     private LogLeecher byKeyFeatureLogLeecher = new LogLeecher(BY_KEY_FEATURE_LOG);
@@ -91,6 +95,7 @@ public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
         String sourceRoot = new File("src" + File.separator + "test" + File.separator + "resources" +
                                         File.separator + "websub" + File.separator + "subscriber").getAbsolutePath();
 
+        webSubSubscriber.addLogLeecher(intentVerReqReceivedLogLeecher);
         webSubSubscriber.addLogLeecher(byKeyCreatedLogLeecher);
         webSubSubscriber.addLogLeecher(byKeyFeatureLogLeecher);
         webSubSubscriber.addLogLeecher(byHeaderIssueLogLeecher);
@@ -132,6 +137,12 @@ public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
     }
 
     @Test
+    public void testOnIntentVerificationInvocation() throws IOException, BallerinaTestException {
+        HttpClientRequest.doGet("http://localhost:23585/key");
+        intentVerReqReceivedLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
+    }
+
+    @Test
     public void testDispatchingByKey() throws BallerinaTestException, IOException {
         Map<String, String> headers = new HashMap<>(1);
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
@@ -142,7 +153,7 @@ public class WebSubServiceExtensionTestCase extends WebSubBaseTest {
 
         response = HttpClientRequest.doPost("http://localhost:23585/key", "{\"domain\":\"feature\"}", headers);
         Assert.assertEquals(response.getResponseCode(), HttpResponseStatus.ACCEPTED.code());
-        byKeyCreatedLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
+        byKeyFeatureLogLeecher.waitForText(LOG_LEECHER_TIMEOUT);
     }
 
     @Test

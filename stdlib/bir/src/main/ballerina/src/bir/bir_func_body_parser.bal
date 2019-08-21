@@ -14,9 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/internal;
-import ballerina/io;
-
 public type FuncBodyParser object {
     BirChannelReader reader;
     map<VariableDcl> localVarMap;
@@ -101,8 +98,7 @@ public type FuncBodyParser object {
             var bType = self.reader.readTypeCpRef();
             kind = INS_KIND_NEW_STREAM;
             var lhsOp = self.parseVarRef();
-            var nameOp = self.parseVarRef();
-            NewStream newStream = { pos: pos, kind: kind, lhsOp: lhsOp, nameOp: nameOp, typeValue: bType };
+            NewStream newStream = { pos: pos, kind: kind, lhsOp: lhsOp, streamType: bType };
             return newStream;
         } else if (kindTag == INS_NEW_TABLE) {
             return self.parseNewTableInstruction(pos);

@@ -179,14 +179,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "serviceVar1",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "120",
-      "insertText": "serviceVar1",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "divideNumbers(int a, int b)((int|error))",
       "kind": "Function",
       "detail": "Function",
@@ -245,14 +237,6 @@
       },
       "sortText": "120",
       "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "serviceVar2",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "120",
-      "insertText": "serviceVar2",
       "insertTextFormat": "Snippet"
     },
     {

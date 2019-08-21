@@ -143,9 +143,8 @@ class JMethodResolver {
         boolean returnsErrorValue = method instanceof Method &&
                 ErrorValue.class.isAssignableFrom(((Method) method).getReturnType());
 
-        if (((throwsCheckedException && !jMethodRequest.returnsBErrorType) ||
-                (jMethodRequest.returnsBErrorType && !throwsCheckedException)) &&
-                (jMethodRequest.returnsBErrorType && !returnsErrorValue)) {
+        if ((throwsCheckedException && !jMethodRequest.returnsBErrorType) ||
+                (jMethodRequest.returnsBErrorType && !throwsCheckedException && !returnsErrorValue)) {
             throw new JInteropException(JInteropException.METHOD_SIGNATURE_NOT_MATCH_REASON,
                     "No such Java method '" + jMethodRequest.methodName + "' which throws checked exception " +
                             "found in class '" + jMethodRequest.declaringClass + "'");

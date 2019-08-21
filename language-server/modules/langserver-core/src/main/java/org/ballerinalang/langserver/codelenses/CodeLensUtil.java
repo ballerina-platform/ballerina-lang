@@ -15,23 +15,16 @@
  */
 package org.ballerinalang.langserver.codelenses;
 
-import org.ballerinalang.langserver.command.CommandUtil.CommandArgument;
-import org.ballerinalang.langserver.command.executors.MessageExecutor;
-import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.CodeLens;
-import org.eclipse.lsp4j.Command;
-import org.eclipse.lsp4j.MessageType;
-import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -39,11 +32,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR_SPLIT;
 
 /**
  * Provides code lenses related common functionalities.
@@ -64,7 +55,7 @@ public class CodeLensUtil {
     public static List<CodeLens> compileAndGetCodeLenses(String fileUri, WorkspaceDocumentManager documentManager)
             throws CompilationFailedException {
         List<CodeLens> lenses = new ArrayList<>();
-        LSServiceOperationContext codeLensContext = new LSServiceOperationContext();
+        LSServiceOperationContext codeLensContext = new LSServiceOperationContext(LSContextOperation.TXT_CODE_LENS);
         codeLensContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
         BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(codeLensContext, documentManager, true,
                                                                LSCustomErrorStrategy.class, false);
@@ -99,51 +90,5 @@ public class CodeLensUtil {
             }
         });
         return lenses;
-    }
-
-    /**
-     * Updates cached code lenses.
-     *
-     * @param lenses           list of cached code lenses
-     * @param contentChangeEvents a list of content change events
-     * @throws WorkspaceDocumentException when updating code lenses fails
-     */
-    public static void updateCachedCodeLenses(List<CodeLens> lenses,
-                                              List<TextDocumentContentChangeEvent> contentChangeEvents)
-            throws WorkspaceDocumentException {
-        int cLine = contentChangeEvents.get(contentChangeEvents.size() - 1).getRange().getEnd().getLine();
-        for (TextDocumentContentChangeEvent changeEvent : contentChangeEvents) {
-            Range changesRange = changeEvent.getRange();
-            int newTextLines = (" " + changeEvent.getText() + " ").split(LINE_SEPARATOR_SPLIT).length;
-            int affectedLines = (changesRange.getEnd().getLine() - changesRange.getStart().getLine());
-            int textGap = (newTextLines - 1) - affectedLines;
-
-            // Remove affected code lenses
-            for (int i = 0; i < lenses.size(); i++) {
-                CodeLens codeLens = lenses.get(i);
-                Range lensRange = codeLens.getRange();
-                boolean isWithingModRange = changesRange.getStart().getLine() <= lensRange.getStart().getLine() &&
-                        changesRange.getEnd().getLine() >= lensRange.getEnd().getLine();
-                if (isWithingModRange) {
-                    lenses.remove(codeLens);
-                    i--;
-                } else {
-                    // Padding position-below lenses
-                    int sLine = codeLens.getRange().getStart().getLine();
-                    if (textGap != 0 && sLine > cLine) {
-                        codeLens.getRange().getStart().setLine(sLine + textGap);
-                        codeLens.getRange().getEnd().setLine(sLine + textGap);
-                    }
-                }
-
-                // Override the command of the code lens
-                CommandArgument typeArg = new CommandArgument(CommandConstants.ARG_KEY_MESSAGE_TYPE,
-                                                              String.valueOf(MessageType.Error.getValue()));
-                CommandArgument msgArg = new CommandArgument(CommandConstants.ARG_KEY_MESSAGE,
-                                                             "Please fix compilation errors first!");
-                codeLens.setCommand(new Command(codeLens.getCommand().getTitle(), MessageExecutor.COMMAND,
-                                                new ArrayList<>(Arrays.asList(typeArg, msgArg))));
-            }
-        }
     }
 }

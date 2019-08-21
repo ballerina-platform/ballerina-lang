@@ -24,7 +24,7 @@
     {
       "label": "config",
       "kind": "Variable",
-      "detail": "http:ServiceEndpointConfiguration",
+      "detail": "http:ListenerConfiguration",
       "sortText": "120",
       "insertText": "config",
       "insertTextFormat": "Snippet"

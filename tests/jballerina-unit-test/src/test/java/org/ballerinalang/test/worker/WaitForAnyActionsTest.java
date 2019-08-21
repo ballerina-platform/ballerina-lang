@@ -114,7 +114,7 @@ public class WaitForAnyActionsTest {
         Assert.assertTrue(Arrays.asList("77", "hello foo", "hello bar", "hello xyz").contains(vals[0].stringValue()));
     }
 
-    @Test(enabled = false)
+    @Test()
     public void waitTest11() {
         // in this case it returns result of wait f1|f2|f3; where f1 and f2 panics. So the panic also one of
         // possible results here
@@ -123,7 +123,7 @@ public class WaitForAnyActionsTest {
             Assert.assertEquals(vals.length, 1);
             Assert.assertEquals(vals[0].stringValue(), "hello foo");
         } catch (RuntimeException e) {
-            Assert.assertTrue(e.getMessage().startsWith("error: err from panic {}"));
+            Assert.assertTrue(e.getMessage().contains("err from panic"));
         }
     }
 
@@ -215,6 +215,6 @@ public class WaitForAnyActionsTest {
         BValue[] vals = BRunUtil.invoke(result, "waitTest24", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         Assert.assertTrue(vals[0] instanceof BError);
-        Assert.assertEquals(((BError) vals[0]).getReason(), "A hazardous error occured!!! Abort immediately!!");
+        Assert.assertEquals(((BError) vals[0]).getReason(), "A hazardous error occurred!!! Abort immediately!!");
     }
 }
